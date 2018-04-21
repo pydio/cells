@@ -88,6 +88,11 @@ var (
 		root  "{{.Root}}"
 		index index.php
 	}
+	status 403 {
+		/data
+		/core
+		/conf
+	}
 	rewrite {
 		if {path} not_starts_with "/a/"
 		if {path} not_starts_with "/auth/"
