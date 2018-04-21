@@ -87,7 +87,7 @@ func TestThumbnailExtractor_Run(t *testing.T) {
 
 		tmpDir := os.TempDir()
 		uuidNode := uuid.NewUUID().String()
-		testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "services", "scheduler", "actions", "images", "testdata")
+		testDir := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "scheduler", "actions", "images", "testdata")
 
 		data, err := ioutil.ReadFile(filepath.Join(testDir, "photo-hires.jpg"))
 		So(err, ShouldBeNil)
