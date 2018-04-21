@@ -26,7 +26,7 @@ import (
 	"github.com/coreos/dex/connector/oidc"
 	"github.com/coreos/dex/connector/saml"
 	"github.com/coreos/dex/storage"
-	"github.com/pydio/services/common/auth/dex"
+	"github.com/pydio/cells/common/auth/dex"
 )
 
 // LocalConnector is the local passwordDB connector which is an internal
