@@ -1,0 +1,807 @@
+syntax = "proto3";
+
+package rest;
+
+import "common.proto";
+import "data.proto";
+import "idm.proto";
+import "broker.proto";
+import "config.proto";
+import "scheduler.proto";
+import "graph.proto";
+import "share.proto";
+import "frontend.proto";
+import "github.com/pydio/cells/common/proto/tree/tree.proto";
+import "github.com/pydio/cells/common/proto/idm/idm.proto";
+import "github.com/pydio/cells/common/proto/mailer/mailer.proto";
+import "github.com/pydio/cells/common/proto/activity/activitystream.proto";
+import "github.com/pydio/cells/common/proto/docstore/docstore.proto";
+import "github.com/pydio/cells/common/proto/jobs/jobs.proto";
+import "github.com/pydio/cells/common/proto/encryption/encryption.proto";
+import "github.com/pydio/cells/common/proto/log/log.proto";
+import "github.com/pydio/cells/common/proto/object/object.proto";
+import "github.com/pydio/cells/common/proto/install/install.proto";
+import "github.com/pydio/cells/common/proto/ctl/ctl.proto";
+import "github.com/pydio/cells/common/proto/cert/proto.proto";
+import "github.com/pydio/cells/common/proto/update/update.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "Pydio Cell Rest API";
+    version: "1.0";
+    contact: {
+        name: "Pydio";
+        url: "https://pydio.com";
+    };
+  };
+  external_docs: {
+    url: "https://pydio.com";
+    description: "More about Pydio Cell Apis";
+  }
+  schemes: HTTP;
+  schemes: HTTPS;
+  schemes: WSS;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+// Configuration service, for setting and getting configurations.
+// Full path is composed of Namespace + / + config path
+service ConfigService {
+    // Generic config Put, using a full path in the config tree
+    rpc PutConfig(Configuration) returns (Configuration){
+        option (google.api.http) = {
+          put: "/config/{FullPath}"
+          body: "*"
+        };
+    };
+    // Generic config Get using a full path in the config tree
+    rpc GetConfig(Configuration) returns (Configuration){
+        option (google.api.http) = {
+          get: "/config/{FullPath}"
+        };
+    };
+    // Create or update a datasource
+    rpc PutDataSource(object.DataSource) returns (object.DataSource){
+        option (google.api.http) = {
+          post: "/config/datasource/{Name}"
+          body:"*"
+        };
+    }
+    // Load datasource information
+    rpc GetDataSource(object.DataSource) returns (object.DataSource){
+        option (google.api.http) = {
+          get: "/config/datasource/{Name}"
+        };
+    }
+    // Delete a datasource
+    rpc DeleteDataSource(object.DataSource) returns (DeleteDataSourceResponse){
+        option (google.api.http) = {
+          delete: "/config/datasource/{Name}"
+        };
+    }
+    // List all defined datasources
+    rpc ListDataSources(ListDataSourceRequest) returns (DataSourceCollection){
+        option (google.api.http) = {
+            get: "/config/datasource"
+        };
+    }
+    // List all defined versioning policies
+    rpc ListVersioningPolicies(ListVersioningPolicyRequest) returns (VersioningPolicyCollection){
+        option (google.api.http) = {
+            get: "/config/versioning"
+        };
+    }
+    // Load a given versioning policy
+    rpc GetVersioningPolicy(tree.VersioningPolicy) returns (tree.VersioningPolicy){
+        option (google.api.http) = {
+          get: "/config/versioning/{Uuid}"
+        };
+    }
+    // [Enterprise Only] Create or update a versioning policy
+    rpc PutVersioningPolicy(tree.VersioningPolicy) returns (tree.VersioningPolicy){
+        option (google.api.http) = {
+          post: "/config/versioning/{Uuid}"
+          body:"*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterpriseConfigService"
+        };
+    }
+    // [Enterprise Only] Delete a versioning policy
+    rpc DeleteVersioningPolicy(tree.VersioningPolicy) returns (DeleteVersioningPolicyResponse){
+        option (google.api.http) = {
+          delete: "/config/versioning/{Uuid}"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterpriseConfigService"
+        };
+    }
+    // List all services and their status
+    rpc ListServices(ListServiceRequest) returns (ServiceCollection){
+        option (google.api.http) = {
+            get: "/config/ctl"
+        };
+    }
+    // [Not Implemented]  Start/Stop a service
+    rpc ControlService(ControlServiceRequest) returns (ctl.Service){
+        option (google.api.http) = {
+            post: "/config/ctl"
+            body: "*"
+        };
+    }
+    // List all detected peers (servers on which the app is running)
+    rpc ListPeersAddresses(ListPeersAddressesRequest) returns (ListPeersAddressesResponse) {
+        option (google.api.http) = {
+            get: "/config/peers"
+        };
+    }
+    // List folders on a peer, starting from root
+    rpc ListPeerFolders(ListPeerFoldersRequest) returns (NodesCollection) {
+        option (google.api.http) = {
+            post: "/config/peers/{PeerAddress}"
+            body: "*"
+        };
+    }
+    // List registered master keys
+    rpc ListEncryptionKeys(encryption.AdminListKeysRequest) returns (encryption.AdminListKeysResponse) {
+        option (google.api.http) = {
+            post: "/config/encryption/list"
+            body: "*"
+        };
+    }
+    // Create a new master key
+    rpc CreateEncryptionKey(encryption.AdminCreateKeyRequest) returns (encryption.AdminCreateKeyResponse) {
+        option (google.api.http) = {
+            post: "/config/encryption/create"
+            body: "*"
+        };
+    }
+    // Delete an existing master key
+    rpc DeleteEncryptionKey(encryption.AdminDeleteKeyRequest) returns (encryption.AdminDeleteKeyResponse) {
+        option (google.api.http) = {
+            post: "/config/encryption/delete"
+            body : "*"
+        };
+    }
+    // Export a master key for backup purpose, protected with a password
+    rpc ExportEncryptionKey(encryption.AdminExportKeyRequest) returns (encryption.AdminExportKeyResponse) {
+        option (google.api.http) = {
+            post: "/config/encryption/export"
+            body: "*"
+        };
+    }
+    // Import a previously exported master key, requires the password created at export time
+    rpc ImportEncryptionKey(encryption.AdminImportKeyRequest) returns (encryption.AdminImportKeyResponse) {
+        option (google.api.http) = {
+            put: "/config/encryption/import"
+            body: "*"
+        };
+    }
+    // Publish available endpoints
+    rpc EndpointsDiscovery(DiscoveryRequest) returns (DiscoveryResponse){
+        option (google.api.http) = {
+            get: "/config/discovery"
+        };
+    }
+    // Publish available REST APIs
+    rpc OpenApiDiscovery(DiscoveryRequest) returns (OpenApiResponse){
+        option (google.api.http) = {
+            get: "/config/discovery/openapi"
+        };
+    }
+    // Publish Forms definition for building screens in frontend
+    rpc ConfigFormsDiscovery(ConfigFormRequest) returns (DiscoveryResponse){
+        option (google.api.http) = {
+            get: "/config/discovery/forms/{ServiceName}"
+        };
+    }
+    // [Enterprise Only] List additional user directories
+    rpc ListExternalDirectories(ListExternalDirectoryRequest) returns (ExternalDirectoryCollection) {
+        option (google.api.http) = {
+            get: "/config/directories"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterpriseConfigService"
+        };
+    }
+    // [Enterprise Only] Add/Create an external directory
+    rpc PutExternalDirectory(ExternalDirectoryConfig) returns (ExternalDirectoryResponse) {
+        option (google.api.http) = {
+            put: "/config/directories/{ConfigId}"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterpriseConfigService"
+        };
+    }
+    // [Enterprise Only] Delete external directory
+    rpc DeleteExternalDirectory(ExternalDirectoryConfig) returns (ExternalDirectoryResponse) {
+        option (google.api.http) = {
+            delete: "/config/directories/{ConfigId}"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterpriseConfigService"
+        };
+    }
+}
+
+// Roles Management
+service RoleService {
+    // Create or update a Role
+    rpc SetRole (idm.Role) returns (idm.Role) {
+        option (google.api.http) = {
+          put: "/role/{Uuid}"
+          body: "*"
+        };
+    };
+    // Delete a Role by ID
+    rpc DeleteRole (idm.Role) returns (idm.Role) {
+        option (google.api.http) = {
+          delete: "/role/{Uuid}"
+        };
+    };
+    // Get a Role by ID
+    rpc GetRole (idm.Role) returns (idm.Role) {
+        option (google.api.http) = {
+          get: "/role/{Uuid}"
+        };
+    };
+    // Search Roles
+    rpc SearchRoles (SearchRoleRequest) returns (RolesCollection) {
+        option (google.api.http) = {
+          post: "/role"
+          body: "*"
+        };
+    };
+}
+
+
+// Users Management
+service UserService {
+    // Create or update a user
+    rpc PutUser(idm.User) returns (idm.User) {
+        option (google.api.http) =  {
+            put: "/user/{Login}"
+            body: "*"
+        };
+    };
+    // Delete a user
+    rpc DeleteUser(idm.User) returns (DeleteResponse){
+        option (google.api.http) =  {
+            delete: "/user/{Login}"
+        };
+    };
+    // Get a user by login
+    rpc GetUser(idm.User) returns(idm.User) {
+        option (google.api.http) =  {
+            get: "/user/{Login}"
+        };
+    };
+    // List/Search users
+    rpc SearchUsers(SearchUserRequest) returns (UsersCollection) {
+        option (google.api.http) = {
+          post: "/user"
+          body: "*"
+        };
+    };
+    // Bind a user with her login and password
+    rpc BindUsers(idm.User) returns (BindResponse) {
+        option (google.api.http) =  {
+            post: "/user/{Login}/bind"
+            body: "*"
+        };
+    }
+    // Just save a user roles, without other datas
+    rpc PutRoles(idm.User) returns (idm.User) {
+        option (google.api.http) =  {
+            put: "/user/roles/{Login}"
+            body: "*"
+        };
+    }
+}
+
+// ACL Service
+service ACLService {
+    // Store an ACL
+    rpc PutAcl(idm.ACL) returns (idm.ACL) {
+        option (google.api.http) =  {
+            put: "/acl"
+            body: "*"
+        };
+    }
+    // Delete one or more ACLs
+    rpc DeleteAcl(idm.ACL) returns (DeleteResponse) {
+        option (google.api.http) =  {
+            post: "/acl/bulk/delete"
+            body: "*"
+        };
+    }
+    // Search Acls
+    rpc SearchAcls(SearchACLRequest) returns (ACLCollection) {
+        option (google.api.http) =  {
+            post: "/acl"
+            body: "*"
+        };
+    }
+}
+
+service PolicyService {
+    // List all defined security policies
+    rpc ListPolicies(idm.ListPolicyGroupsRequest) returns (idm.ListPolicyGroupsResponse) {
+        option (google.api.http) = {
+            post: "/policy"
+            body: "*"
+        };
+    }
+    // Update or create a security policy
+    rpc PutPolicy(idm.PolicyGroup) returns (idm.PolicyGroup) {
+        option (google.api.http) = {
+            put: "/policy"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterprisePolicyService"
+        };
+    }
+    // Delete a security policy
+    rpc DeletePolicy(idm.PolicyGroup) returns (DeleteResponse) {
+        option (google.api.http) = {
+            delete: "/policy/{Uuid}"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterprisePolicyService"
+        };
+    }
+}
+
+// Workspace Service
+service WorkspaceService {
+    // Create or update a workspace
+    rpc PutWorkspace(idm.Workspace) returns (idm.Workspace) {
+        option (google.api.http) =  {
+            put: "/workspace/{Slug}"
+            body: "*"
+        };
+    }
+    // Delete an existing workspace
+    rpc DeleteWorkspace(idm.Workspace) returns (DeleteResponse) {
+        option (google.api.http) =  {
+            delete: "/workspace/{Slug}"
+        };
+    }
+    // Search workspaces on certain keys
+    rpc SearchWorkspaces(SearchWorkspaceRequest) returns (WorkspaceCollection) {
+        option (google.api.http) =  {
+            post: "/workspace"
+            body: "*"
+        };
+    }
+}
+
+// Rest Service For Activity Streams
+service ActivityService {
+
+    rpc Stream(activity.StreamActivitiesRequest) returns (activity.Object) {
+        option (google.api.http) =  {
+            post: "/activity/stream"
+            body: "*"
+        };
+    }
+
+    rpc Subscribe(activity.Subscription) returns (activity.Subscription) {
+        option (google.api.http) =  {
+            post: "/activity/subscribe"
+            body: "*"
+        };
+    }
+
+    rpc SearchSubscriptions(activity.SearchSubscriptionsRequest) returns (SubscriptionsCollection) {
+        option (google.api.http) =  {
+            post: "/activity/subscriptions"
+            body: "*"
+        };
+    }
+
+}
+
+// Exposes log repositories to clients
+service LogService {
+    // Technical Logs, in Json or CSV format
+    rpc Syslog(log.ListLogRequest) returns (LogMessageCollection) {
+        option (google.api.http) =  {
+            post: "/log/sys"
+            body: "*"
+        };
+    }
+
+    // Technical Logs, in Json or CSV format
+    rpc SyslogExport(log.ListLogRequest) returns (LogMessageCollection) {
+        option (google.api.http) =  {
+            post: "/log/sys/export"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterpriseLogService"
+        };
+    }
+    // Auditable Logs, in Json or CSV format
+    rpc Audit(log.ListLogRequest) returns (LogMessageCollection) {
+        option (google.api.http) =  {
+            post: "/log/audit"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterpriseLogService"
+        };
+    }
+    // Auditable Logs, in Json or CSV format
+    rpc AuditExport(log.ListLogRequest) returns (LogMessageCollection) {
+        option (google.api.http) =  {
+            post: "/log/audit/export"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterpriseLogService"
+        };
+    }
+
+    // Retrieves aggregated audit logs to generate charts
+    rpc AuditChartData(log.TimeRangeRequest) returns (TimeRangeResultCollection) {
+        option (google.api.http) =  {
+            post: "/log/audit/chartdata"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterpriseLogService"
+        };
+    }
+}
+
+// Token Revocation Service
+service TokenService{
+    rpc Revoke(RevokeRequest) returns (RevokeResponse){
+        option (google.api.http) =  {
+            post: "/auth/token/revoke"
+            body: "*"
+        };
+    };
+    rpc ResetPasswordToken(ResetPasswordTokenRequest) returns (ResetPasswordTokenResponse) {
+        option (google.api.http) = {
+            put: "/auth/reset-password-token/{UserLogin}"
+        };
+    };
+    rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse) {
+        option (google.api.http) = {
+            post: "/auth/reset-password"
+            body: "*"
+        };
+    };
+}
+
+service MailerService{
+    rpc Send(mailer.Mail) returns (mailer.SendMailResponse){
+        option (google.api.http) =  {
+            post: "/mailer/send"
+            body: "*"
+        };
+    }
+}
+
+service SearchService {
+    rpc Nodes(tree.SearchRequest) returns (SearchResults){
+        option (google.api.http) = {
+          post: "/search/nodes"
+          body: "*"
+        };
+    }
+}
+
+// Direct access to nodes metadata
+service MetaService {
+    // Load metadata for a given node
+    rpc GetMeta(MetaNamespaceRequest) returns (tree.Node) {
+        option (google.api.http) = {
+            post: "/meta/get/{NodePath}"
+            body: "*"
+        };
+    }
+    // Update metadata for a given node
+    rpc SetMeta(MetaCollection) returns (tree.Node) {
+        option (google.api.http) = {
+            post: "/meta/set/{NodePath}"
+            body: "*"
+        };
+    }
+    // Delete metadata of a given node
+    rpc DeleteMeta(MetaNamespaceRequest) returns (tree.Node) {
+        option (google.api.http) = {
+            post: "/meta/delete/{NodePath}"
+            body: "*"
+        };
+    }
+    // List meta for a list of nodes, or a full directory using /path/* syntax
+    rpc GetBulkMeta(GetBulkMetaRequest) returns (BulkMetaResponse) {
+        option (google.api.http) = {
+            post: "/meta/bulk/get"
+            body: "*"
+        };
+    }
+}
+
+// UserMetaService is a dedicated Metadata Service that implements the ResourcePolicy model,
+// thus providing Read/Write authorizations at a fine-grained level.
+service UserMetaService {
+
+    // Update/delete user meta
+    rpc UpdateUserMeta(idm.UpdateUserMetaRequest) returns (idm.UpdateUserMetaResponse) {
+        option (google.api.http) = {
+            put: "/user-meta/update"
+            body: "*"
+        };
+    }
+    // Search a list of meta by node Id or by User id and by namespace
+    rpc SearchUserMeta(idm.SearchUserMetaRequest) returns (UserMetaCollection) {
+        option (google.api.http) = {
+            post: "/user-meta/search"
+            body: "*"
+        };
+    }
+    // Special API for Bookmarks, will load userMeta and the associated nodes, and return
+    // as a node list
+    rpc UserBookmarks(UserBookmarksRequest) returns (BulkMetaResponse) {
+        option (google.api.http) = {
+            post: "/user-meta/bookmarks"
+            body: "*"
+        };
+    }
+    // Admin: update namespaces
+    rpc UpdateUserMetaNamespace(idm.UpdateUserMetaNamespaceRequest) returns (idm.UpdateUserMetaNamespaceResponse){
+        option (google.api.http) = {
+            put: "/user-meta/namespace"
+            body: "*"
+        };
+    }
+    // List defined meta namespaces
+    rpc ListUserMetaNamespace(idm.ListUserMetaNamespaceRequest) returns (UserMetaNamespaceCollection){
+        option (google.api.http) = {
+            get: "/user-meta/namespace"
+        };
+    }
+}
+
+
+// User-accessible Jobs service
+service JobsService {
+    // Create a predefined job to be run directly
+    rpc UserCreateJob(UserJobRequest) returns (UserJobResponse) {
+        option (google.api.http) = {
+            put: "/jobs/user/{JobName}"
+            body: "*"
+        };
+    }
+    // List jobs associated with current user
+    rpc UserListJobs(jobs.ListJobsRequest) returns (UserJobsCollection) {
+        option (google.api.http) = {
+            post: "/jobs/user"
+            body: "*"
+        };
+    }
+    // Send Control Commands to one or many jobs / tasks
+    rpc UserControlJob(jobs.CtrlCommand) returns (jobs.CtrlCommandResponse) {
+        option (google.api.http) = {
+            put: "/jobs/user"
+            body: "*"
+        };
+    }
+    // Send a control command to clean tasks on a given job
+    rpc UserDeleteTasks(jobs.DeleteTasksRequest) returns (jobs.DeleteTasksResponse) {
+        option (google.api.http) = {
+            post: "/jobs/tasks/delete"
+            body: "*"
+        };
+    }
+}
+
+service AdminTreeService {
+
+    rpc ListAdminTree(tree.ListNodesRequest) returns (NodesCollection) {
+        option (google.api.http) = {
+            post: "/tree/admin/list"
+            body: "*"
+        };
+    }
+
+    rpc StatAdminTree(tree.ReadNodeRequest) returns (tree.ReadNodeResponse) {
+        option (google.api.http) = {
+            post: "/tree/admin/stat"
+            body: "*"
+        };
+    }
+
+}
+
+service DocStoreService {
+    rpc ListDocs(ListDocstoreRequest) returns (DocstoreCollection) {
+        option (google.api.http) = {
+            post: "/docstore/{StoreID}"
+            body: "*"
+        };
+    };
+    rpc DeleteDoc(docstore.DeleteDocumentsRequest) returns (docstore.DeleteDocumentsResponse) {
+        option (google.api.http) = {
+            post: "/docstore/bulk_delete/{StoreID}"
+            body: "*"
+        };
+    };
+    rpc PutDoc(docstore.PutDocumentRequest) returns (docstore.PutDocumentResponse) {
+        option (google.api.http) = {
+            put: "/docstore/{StoreID}/{DocumentID}"
+            body: "*"
+        };
+    };
+    rpc GetDoc(docstore.GetDocumentRequest) returns (docstore.GetDocumentResponse) {
+        option (google.api.http) = {
+            get: "/docstore/{StoreID}/{DocumentID}"
+        };
+    };
+
+}
+
+service GraphService {
+    // Compute accessible workspaces for a given user
+    rpc UserState (UserStateRequest) returns (UserStateResponse) {
+        option (google.api.http) = {
+            get: "/graph/state/{Segment}"
+        };
+    };
+    // Compute relation of context user with another user
+    rpc Relation (RelationRequest) returns (RelationResponse) {
+        option (google.api.http) =  {
+            get: "/graph/relation/{UserId}"
+        };
+    }
+}
+
+service ChangeService {
+    // Get Changes
+    rpc GetChanges(ChangeRequest) returns (ChangeCollection) {
+        option(google.api.http) = {
+            post: "/changes/{SeqID}"
+            body: "*"
+        };
+    }
+}
+
+// High level service
+service ShareService {
+    // Put or Create a share room
+    rpc PutCell(PutCellRequest) returns (Cell) {
+        option(google.api.http) = {
+            put: "/share/cell"
+            body: "*"
+        };
+    }
+    // Load a share room
+    rpc GetCell(GetCellRequest) returns (Cell) {
+        option(google.api.http) = {
+            get: "/share/cell/{Uuid}"
+        };
+    }
+    // Delete a share room
+    rpc DeleteCell(DeleteCellRequest) returns (DeleteCellResponse) {
+        option(google.api.http) = {
+            delete: "/share/cell/{Uuid}"
+        };
+    }
+    // Put or Create a share room
+    rpc PutShareLink(PutShareLinkRequest) returns (ShareLink) {
+        option(google.api.http) = {
+            put: "/share/link"
+            body: "*"
+        };
+    }
+    // Load a share link with all infos
+    rpc GetShareLink(GetShareLinkRequest) returns (ShareLink) {
+        option(google.api.http) = {
+            get: "/share/link/{Uuid}"
+        };
+    }
+    // Delete Share Link
+    rpc DeleteShareLink(DeleteShareLinkRequest) returns (DeleteShareLinkResponse) {
+        option(google.api.http) = {
+            delete: "/share/link/{Uuid}"
+        };
+    }
+    // List Shared Resources for current user or all users
+    rpc ListSharedResources(ListSharedResourcesRequest) returns (ListSharedResourcesResponse) {
+        option(google.api.http) = {
+            post: "/share/resources"
+            body: "*"
+        };
+    }
+}
+
+// InstallService
+service InstallService {
+    // Loads default values for install form
+    rpc GetInstall(install.GetDefaultsRequest) returns (install.GetDefaultsResponse) {
+        option(google.api.http) = {
+            get: "/install"
+        };
+    }
+    // Post values to be saved for install
+    rpc PostInstall(install.InstallRequest) returns (install.InstallResponse) {
+        option(google.api.http) = {
+            post: "/install"
+            body: "*"
+        };
+    }
+    // Perform a check during install (like DB connection, php-fpm detection, etc)
+    rpc PerformInstallCheck(install.PerformCheckRequest) returns (install.PerformCheckResponse) {
+        option(google.api.http) = {
+            post: "/install/check"
+            body: "*"
+        };
+    }
+    // Perform a check during install (like DB connection, php-fpm detection, etc)
+    rpc GetAgreement(install.GetAgreementRequest) returns (install.GetAgreementResponse) {
+        option(google.api.http) = {
+            get: "/install/agreement"
+        };
+    }
+}
+
+// Update Service
+service UpdateService {
+    // Check the remote server to see if there are available binaries
+    rpc UpdateRequired(update.UpdateRequest) returns (update.UpdateResponse) {
+        option(google.api.http) = {
+            get: "/update"
+        };
+    }
+    // Apply an update to a given version
+    rpc ApplyUpdate(update.ApplyUpdateRequest) returns (update.ApplyUpdateResponse) {
+        option(google.api.http) = {
+            get: "/update/{TargetVersion}"
+        };
+    }
+}
+
+// Frontend service for frontend-related requests that
+// are not linked to the actual data
+service FrontendService {
+    // Sends a tree of nodes to be used a menu in the Settings panel
+    rpc SettingsMenu(SettingsMenuRequest) returns (SettingsMenuResponse) {
+        option (google.api.http) =  {
+            get: "/frontend/settings-menu"
+        };
+    }
+    // Sends a log from front (php) to back
+    rpc FrontLog(FrontLogMessage) returns (FrontLogResponse) {
+        option (google.api.http) =  {
+            put: "/frontend/frontlogs"
+            body: "*"
+        };
+    }
+    // Add some data to the initial set of parameters loaded by the frontend
+    rpc FrontBootConf(FrontBootConfRequest) returns (FrontBootConfResponse){
+        option (google.api.http) = {
+            get: "/frontend/bootconf"
+        };
+    }
+}
+
+// Used only in the Enterprise Distribution
+service LicenseService {
+
+    // [Enterprise Only] Display statistics about licenses usage
+    rpc LicenseStats(cert.LicenseStatsRequest) returns (cert.LicenseStatsResponse) {
+        option(google.api.http) = {
+            get: "/license/stats"
+        };
+    }
+
+}

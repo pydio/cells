@@ -1,0 +1,107 @@
+syntax="proto3";
+
+package object;
+
+service ObjectsEndpoint {
+    rpc GetMinioConfig(GetMinioConfigRequest) returns (GetMinioConfigResponse){};
+}
+
+service DataSourceEndpoint {
+    rpc GetDataSourceConfig(GetDataSourceConfigRequest) returns (GetDataSourceConfigResponse){};
+}
+
+service ResourceCleanerEndpoint {
+    rpc CleanResourcesBeforeDelete(CleanResourcesRequest) returns (CleanResourcesResponse) {};
+}
+
+message CleanResourcesRequest {}
+message CleanResourcesResponse {
+    bool Success = 1;
+    string Message = 2;
+}
+
+// Type of Gateway
+enum StorageType {
+    LOCAL = 0;
+    S3 = 1;
+    SMB = 2;
+}
+
+// Type of Encryption
+enum EncryptionMode {
+    CLEAR = 0;
+    MASTER = 1;
+    USER = 2;
+    USER_PWD = 3;
+}
+
+// DataSource Object description
+message DataSource {
+    string Name = 1;
+    bool Disabled = 2;
+
+    StorageType StorageType = 3;
+    map<string,string> StorageConfiguration = 4;
+
+    string ObjectsServiceName = 18;
+    string ObjectsHost = 12;
+    int32  ObjectsPort = 5;
+    bool   ObjectsSecure = 13;
+    string ObjectsBucket = 14;
+    string ObjectsBaseFolder = 15;
+
+    string ApiKey = 16;
+    string ApiSecret = 17;
+    string PeerAddress = 19;
+
+    bool Watch = 6;
+
+    EncryptionMode EncryptionMode = 7;
+    string EncryptionKey = 8;
+    string VersioningPolicyName = 9;
+
+    int32 CreationDate = 10;
+    int32 LastSynchronizationDate = 11;
+}
+
+// Used a config storage for minio services
+message MinioConfig {
+    string Name = 1;
+    StorageType StorageType = 2;
+    string RunningHost = 3;
+    bool RunningSecure = 4;
+    int32 RunningPort = 5;
+    string ApiKey = 6;
+    string ApiSecret = 7;
+    string EndpointUrl = 10;
+    // Specific to Local storage type
+    string LocalFolder = 8;
+    string PeerAddress = 9;
+}
+
+// Used to dispatch some specific events
+// accross services
+message DataSourceEvent {
+    enum DSEventType {
+        CREATE = 0;
+        UPDATE = 1;
+        DELETE = 2;
+        ENABLED = 3;
+        DISABLED = 4;
+    }
+    DSEventType Type = 1;
+    string Name = 2;
+    DataSource Config = 3;
+}
+
+message GetMinioConfigRequest {}
+
+message GetMinioConfigResponse {
+    MinioConfig MinioConfig = 1;
+}
+
+message GetDataSourceConfigRequest {}
+
+message GetDataSourceConfigResponse {
+    DataSource DataSource = 1;
+}

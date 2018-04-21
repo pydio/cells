@@ -1,0 +1,150 @@
+syntax = "proto3";
+
+package rest;
+
+import "github.com/pydio/cells/common/proto/idm/idm.proto";
+import "github.com/pydio/cells/common/service/proto/common.proto";
+
+// Generic Query for limiting results based on resource permissions
+message ResourcePolicyQuery {
+    enum QueryType {
+        CONTEXT = 0;
+        ANY = 1;
+        NONE = 2;
+        USER = 3;
+    }
+    QueryType Type = 1;
+    string UserId = 2;
+}
+
+// Roles Search
+message SearchRoleRequest {
+
+    repeated idm.RoleSingleQuery Queries = 1;
+    ResourcePolicyQuery ResourcePolicyQuery = 7;
+
+    int64 Offset = 2;
+    int64 Limit = 3;
+    int32 GroupBy = 4;
+    bool CountOnly = 5;
+    service.OperationType Operation = 6;
+
+}
+
+// Roles Collection
+message RolesCollection {
+    repeated idm.Role Roles = 1;
+}
+
+// Users Search
+message SearchUserRequest {
+
+    repeated idm.UserSingleQuery Queries = 1;
+    ResourcePolicyQuery ResourcePolicyQuery = 7;
+
+    int64 Offset = 2;
+    int64 Limit = 3;
+    int32 GroupBy = 4;
+    bool CountOnly = 5;
+    service.OperationType Operation = 6;
+
+}
+// Users Collection
+message UsersCollection {
+    repeated idm.User Groups = 1;
+    repeated idm.User Users = 2;
+    int32 Total = 3;
+}
+
+// Binding Response
+message BindResponse {
+    bool Success = 1;
+}
+
+// Rest request for ACL's
+message SearchACLRequest {
+
+    repeated idm.ACLSingleQuery Queries = 1;
+
+    int64 Offset = 2;
+    int64 Limit = 3;
+    int32 GroupBy = 4;
+    bool CountOnly = 5;
+    service.OperationType Operation = 6;
+
+
+}
+
+// Response for search request
+message ACLCollection {
+
+    repeated idm.ACL ACLs = 1;
+    int32 Total = 2;
+
+}
+
+// Rest request for searching workspaces
+message SearchWorkspaceRequest {
+
+    repeated idm.WorkspaceSingleQuery Queries = 1;
+    ResourcePolicyQuery ResourcePolicyQuery = 7;
+
+    int64 Offset = 2;
+    int64 Limit = 3;
+    int32 GroupBy = 4;
+    bool CountOnly = 5;
+    service.OperationType Operation = 6;
+
+}
+
+// Rest response for workspace search
+message WorkspaceCollection {
+
+    repeated idm.Workspace Workspaces = 1;
+    int32 Total = 2;
+
+}
+
+// Collection of UserMeta
+message UserMetaCollection {
+    repeated idm.UserMeta Metadatas = 1;
+}
+
+// Collection of Meta Namespaces
+message UserMetaNamespaceCollection {
+    repeated idm.UserMetaNamespace Namespaces = 1;
+}
+
+message UserBookmarksRequest {}
+
+// Rest request for revocation. Token is not mandatory, if not set
+// request will use current JWT token
+message RevokeRequest{
+    string TokenId = 1;
+}
+
+// Rest response
+message RevokeResponse{
+    bool Success = 1;
+    string Message = 2;
+}
+
+message ResetPasswordTokenRequest {
+    string UserLogin = 1;
+}
+
+message ResetPasswordTokenResponse {
+    bool Success = 1;
+    string Message = 2;
+}
+
+message ResetPasswordRequest {
+    string ResetPasswordToken = 1;
+    string UserLogin = 2;
+    string NewPassword = 3;
+}
+
+message ResetPasswordResponse {
+    bool Success = 1;
+    string Message = 2;
+}

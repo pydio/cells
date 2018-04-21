@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package rest;
+
+import "github.com/pydio/cells/common/service/proto/common.proto";
+import "github.com/pydio/cells/common/proto/idm/idm.proto";
+import "github.com/pydio/cells/common/proto/tree/tree.proto";
+
+// Group collected acls by subjects
+message CellAcl {
+    string RoleId = 1;
+    repeated idm.ACLAction Actions = 2;
+    bool IsUserRole = 3;
+    idm.User User = 4;
+    idm.User Group = 5;
+    idm.Role Role = 6;
+}
+
+// Model for representing a shared room
+message Cell {
+    string Uuid = 1;
+    string Label = 2;
+    string Description = 3;
+
+    repeated tree.Node RootNodes = 4;
+    map <string,CellAcl> ACLs = 5;
+    repeated service.ResourcePolicy Policies = 6;
+    bool PoliciesContextEditable = 7;
+}
+
+// Known values for link permissions
+enum ShareLinkAccessType {
+    NoAccess = 0;
+    Preview = 1;
+    Download = 2;
+    Upload = 3;
+}
+
+message ShareLinkTargetUser {
+    string Display = 1;
+    int32 DownloadCount = 2;
+}
+
+// Model for representing a public link
+message ShareLink {
+    string Uuid = 1;
+    string LinkHash = 2;
+    string LinkUrl = 3;
+
+    string Label = 4;
+    string Description = 5;
+
+    string UserUuid = 6;
+    string UserLogin = 7;
+    bool PasswordRequired = 8;
+
+    int64 AccessStart = 9;
+    int64 AccessEnd = 10;
+    int64 MaxDownloads = 11;
+    int64 CurrentDownloads = 12;
+
+    string ViewTemplateName = 13;
+
+    map<string,ShareLinkTargetUser> TargetUsers = 14;
+    bool RestrictToTargetUsers = 15;
+
+    repeated tree.Node RootNodes = 16;
+    repeated ShareLinkAccessType Permissions = 17;
+    repeated service.ResourcePolicy Policies = 18;
+
+    bool PoliciesContextEditable = 19;
+}
+
+message PutCellRequest {
+    Cell Room = 1;
+    bool CreateEmptyRoot = 2;
+}
+
+message GetCellRequest {
+    string Uuid = 1;
+}
+
+message DeleteCellRequest {
+    string Uuid = 1;
+}
+
+message DeleteCellResponse {
+    bool Success = 1;
+}
+
+message GetShareLinkRequest {
+    string Uuid = 1;
+}
+
+message PutShareLinkRequest {
+    ShareLink ShareLink = 1;
+
+    bool PasswordEnabled = 2;
+    string CreatePassword = 3;
+    string UpdatePassword = 4;
+
+    string UpdateCustomHash = 5;
+}
+
+
+message DeleteShareLinkRequest {
+    string Uuid = 1;
+}
+message DeleteShareLinkResponse {
+    bool Success = 1;
+}
+
+message ListSharedResourcesRequest{
+    enum ListShareType {
+        ANY   = 0;
+        LINKS = 1;
+        CELLS = 2;
+    }
+    // Filter output to a given type
+    ListShareType ShareType = 1;
+
+    // Will restrict the list to the shares readable by a specific subject.
+    // In user-context, current user is used by default. In admin-context, this can
+    // be any resource policy subject
+    string Subject = 3;
+    // If true, will also check filter the output to shares actually owned by subject
+    bool OwnedBySubject = 4;
+
+    int32 Offset = 5;
+    int32 Limit = 6;
+}
+
+message ListSharedResourcesResponse{
+    // Container for ShareLink or Cell
+    message SharedResource {
+        tree.Node Node = 1;
+        ShareLink Link = 2;
+        repeated Cell Cells = 3;
+    }
+    // Actual results
+    repeated SharedResource Resources = 1;
+
+    // Cursor informations
+    int32 Offset = 2;
+    int32 Limit = 3;
+    int32 Total = 4;
+}

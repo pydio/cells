@@ -1,0 +1,60 @@
+/*
+ * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+package index
+
+import (
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/common/sql/index"
+)
+
+var (
+	queries = map[string]interface{}{}
+)
+
+type sqlimpl struct {
+	*sql.Handler
+
+	*index.IndexSQL
+}
+
+// Init handler for the SQL DAO
+func (s *sqlimpl) Init(options config.Map) error {
+
+	// super
+	s.DAO.Init(options)
+
+	// Preparing the index
+	s.IndexSQL = index.NewDAO(s.Handler, "ROOT").(*index.IndexSQL)
+	if err := s.IndexSQL.Init(options); err != nil {
+		return err
+	}
+
+	// Preparing the db statements
+	if options.Bool("prepare", true) {
+		for key, query := range queries {
+			if err := s.Prepare(key, query); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}

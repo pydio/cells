@@ -1,0 +1,14 @@
+.DS_Store
+*-packr.go
+/main
+/cells
+/cells-ctl
+/config/file/*
+!/config/file/loader.go
+!/config/file/sample.*
+/search/pydio.bleve/
+/.project
+/.idea/
+/.vscode/
+/debug
+/assets/src/pydio/*

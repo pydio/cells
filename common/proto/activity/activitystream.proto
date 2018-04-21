@@ -1,0 +1,268 @@
+syntax = "proto3";
+
+// We need to compile this with -I pointing to [github.com/google/]protobuf/src
+import "google/protobuf/timestamp.proto";
+
+package activity;
+
+enum ObjectType{
+
+    BaseObject = 0;
+    Activity = 1;
+    Link = 47;
+    Mention = 48;
+
+    // CollectionTypes
+    Collection = 49;
+    OrderedCollection = 50;
+    CollectionPage = 51;
+    OrderedCollectionPage = 52;
+
+    // Actor Types
+    Application = 2;
+    Group = 3;
+    Organization = 4;
+    Person = 5;
+    Service = 6;
+
+    // Objects Types
+    Article = 7;
+    Audio = 8;
+    Document = 9;
+    Event = 10;
+    Image = 11;
+    Note = 12;
+    Page = 13;
+    Place = 14;
+    Profile = 15;
+    Relationship = 16;
+    Tombstone = 17;
+    Video = 18;
+
+    // Activity Types
+    Accept = 19;
+    Add = 20;
+    Announce = 21;
+    Arrive = 22;
+    Block = 23;
+    Create = 24;
+    Delete = 25;
+    Dislike = 26;
+    Flag = 27;
+    Follow = 28;
+    Ignore = 29;
+    Invite = 30;
+    Join = 31;
+    Leave = 32;
+    Like = 33;
+    Listen = 34;
+    Move = 35;
+    Offer = 36;
+    Question = 37;
+    Reject = 38;
+    Read = 39;
+    Remove = 40;
+    TentativeReject = 41;
+    TentativeAccept = 42;
+    Travel = 43;
+    Undo = 44;
+    Update = 45;
+    View = 46;
+
+    // Pydio Types
+    Workspace = 53;
+    Digest = 54;
+    Folder = 55;
+
+}
+
+message Object{
+
+    string jsonLdContext = 53 [json_name="@context"];
+
+    ObjectType type = 1;
+    string id   = 2;
+    string name = 3;
+    string summary = 4;
+    Object context = 5;
+
+    Object attachment = 6;
+    Object attributedTo = 7;
+    Object audience = 8;
+    Object content = 9;
+
+    google.protobuf.Timestamp startTime = 10;
+    google.protobuf.Timestamp endTime = 11;
+    google.protobuf.Timestamp published = 12;
+    google.protobuf.Timestamp updated = 13;
+    google.protobuf.Timestamp duration = 14;
+
+    Object url = 15;
+    string mediaType = 16;
+    Object icon = 17;
+    Object image = 18;
+    Object preview = 19;
+
+    Object location = 20;
+    Object inReplyTo = 21;
+    Object replies = 22;
+
+    Object tag = 23;
+
+    Object generator = 24;
+    Object to = 25;
+    Object bto = 26;
+    Object cc = 27;
+    Object bcc = 28;
+
+    // Activity Properties
+    Object actor = 29;
+    Object object = 30;
+    Object target = 31;
+    Object result = 32;
+    Object origin = 33;
+    Object instrument = 34;
+
+    // Link Properties
+    string href = 35;
+    string rel = 36;
+    string hreflang = 37;
+    int32 height = 38;
+    int32 width = 39;
+
+    // Question Properties
+    Object oneOf = 40;
+    Object anyOf = 41;
+    google.protobuf.Timestamp closed = 42;
+
+    // Relationship Properties
+    Object subject = 43;
+    Object relationship = 44;
+
+    // Tombstone Properties
+    ObjectType formerType = 45;
+    google.protobuf.Timestamp deleted = 46;
+
+    // Place Properties
+    float accuracy = 47;
+    float altitude = 48;
+    float latitude = 49;
+    float longitude = 50;
+    float radius = 51;
+    string units = 52;
+
+    // Collection Properties
+    repeated Object items = 54;
+    int32 totalItems = 55;
+    Object current = 56;
+    Object first = 57;
+    Object last = 58;
+    Object partOf = 59;
+    Object next = 60;
+    Object prev = 61;
+
+}
+
+message PostActivityRequest{
+    Object Object = 1;
+}
+
+message PostActivityResponse{ }
+
+message PostActivityEvent {
+    string jsonType = 1 [json_name="@type"];
+    OwnerType OwnerType = 2;
+    string OwnerId = 3;
+    string BoxName = 4;
+    Object Activity = 5;
+}
+
+enum StreamContext{
+    MYFEED = 0;
+    USER_ID = 1;
+    NODE_ID = 2;
+}
+enum SummaryPointOfView {
+    GENERIC = 0;
+    ACTOR = 1;
+    SUBJECT = 2;
+}
+
+message StreamActivitiesRequest{
+    StreamContext Context = 1; // Define the context of the stream
+    string ContextData = 2; // Value for the context (e.g. User Id, Node Id)
+
+    string StreamFilter = 3; // Json-encoded filter
+    string BoxName = 4;
+
+    bool UnreadCountOnly = 5;
+
+    int64 Offset = 6;
+    int64 Limit = 7;
+
+    bool AsDigest = 8;
+    SummaryPointOfView PointOfView = 9;
+
+    string Language = 10;
+}
+
+message StreamActivitiesResponse{
+    Object activity = 1;
+}
+
+enum OwnerType {
+    NODE = 0;
+    USER = 1;
+}
+
+message Subscription {
+    string UserId = 1;
+    OwnerType ObjectType = 2;
+    string ObjectId = 3;
+    repeated string Events = 4;
+}
+
+message SubscribeRequest {
+    Subscription Subscription = 1;
+}
+
+message SubscribeResponse {
+    Subscription Subscription = 1;
+}
+
+message SearchSubscriptionsRequest{
+    repeated string UserIds = 1;
+    repeated OwnerType ObjectTypes = 2;
+    repeated string ObjectIds = 3;
+}
+
+message SearchSubscriptionsResponse{
+    Subscription Subscription = 1;
+}
+
+message UnreadActivitiesRequest{
+    string UserId = 1;
+}
+
+message UnreadActivitiesResponse {
+    int32 number = 1;
+}
+
+message UserLastActivityRequest {
+    string UserId = 1;
+    string BoxName = 2;
+    string ActivityId = 3;
+}
+
+message UserLastActivityResponse {
+    bool Success = 1;
+}
+
+service ActivityService {
+    rpc PostActivity (stream PostActivityRequest) returns (PostActivityResponse){}
+    rpc StreamActivities (StreamActivitiesRequest) returns (stream StreamActivitiesResponse){}
+    rpc UnreadActivitiesNumber(UnreadActivitiesRequest) returns (UnreadActivitiesResponse) {}
+    rpc SetUserLastActivity(UserLastActivityRequest) returns (UserLastActivityResponse) {}
+    rpc Subscribe (SubscribeRequest) returns (SubscribeResponse) {}
+    rpc SearchSubscriptions(SearchSubscriptionsRequest) returns (stream SearchSubscriptionsResponse) {}
+}

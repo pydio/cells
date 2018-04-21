@@ -1,0 +1,89 @@
+syntax = "proto3";
+import "google/protobuf/any.proto";
+
+package cert;
+
+service CertCAService {
+    rpc GetCertificate(GetCertificateRequest) returns (GetCertificateResponse);
+}
+
+
+enum AuthenticationType {
+    No = 0;
+    Secret = 1;
+    License = 2;
+}
+
+message GetCertificateRequest {
+    string serviceName = 1;
+    bytes publicKeyPEM = 2;
+    repeated string IPs = 3;
+    repeated string domains = 4;
+    google.protobuf.Any auth = 5;
+}
+
+message GetCertificateResponse {    
+    bytes certBytes = 1;
+}
+
+message Authentication {
+    AuthenticationType type = 1;
+    bytes authData = 2;
+}
+
+message ShareSecretAuthentication {}
+
+message LicenseInfo {
+
+    string Id = 1;
+    string AccountName = 2;
+    string ServerDomain = 3;
+    int32 IssueTime = 4;
+
+    int32 ExpireTime = 5;
+    int64 MaxUsers = 6;
+    int64 MaxPeers = 7;
+
+    map<string,string> Features = 8;
+}
+
+message StoredLicense {
+    LicenseInfo License = 1;
+    string KeyId = 2;
+    string SignedOutput = 3;
+}
+
+message AccountLicenses {
+    string AccountName = 1;
+    map<string,StoredLicense> Licenses = 2;
+}
+
+message PutLicenseInfoRequest {
+    LicenseInfo License = 1;
+}
+
+message PutLicenseInfoResponse {
+    bool Success = 1;
+}
+
+message LicenseStatsRequest {
+    bool ForceRefresh = 1;
+}
+
+message LicenseStatsResponse {
+    LicenseInfo License = 1;
+    int64 ActiveUsers = 2;
+    int64 ActivePeers = 3;
+}
+
+message MaintainStatsRequest {
+    int64 ActiveUsers = 2;
+}
+
+message MaintainStatsResponse {}
+
+service LicensingService {
+    rpc PutLicenseInfo(PutLicenseInfoRequest) returns (PutLicenseInfoResponse);
+    rpc LicenseStats(LicenseStatsRequest) returns (LicenseStatsResponse);
+    rpc MaintainStats(MaintainStatsRequest) returns (MaintainStatsResponse);
+}

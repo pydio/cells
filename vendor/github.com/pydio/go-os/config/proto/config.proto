@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package go.micro.os.config;
+
+message ChangeSet {
+	int64 timestamp = 1;
+	string data = 2;
+	string checksum = 3;
+	string source = 4;
+}

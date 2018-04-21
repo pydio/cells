@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package rest;
+
+import "github.com/pydio/cells/common/proto/tree/tree.proto";
+import "github.com/pydio/cells/common/proto/docstore/docstore.proto";
+
+message SearchResults{
+    repeated tree.Node Results = 1;
+    int32 Total = 2;
+}
+
+message Metadata {
+    string Namespace = 1;
+    string JsonMeta = 2;
+}
+
+message MetaCollection {
+    string NodePath = 1;
+    repeated Metadata Metadatas = 2;
+}
+
+message MetaNamespaceRequest{
+    string NodePath = 1;
+    repeated string Namespace = 2;
+}
+
+message GetBulkMetaRequest{
+    repeated string NodePaths = 1;
+    repeated string NodeUuids = 2;
+    bool AllMetaProviders = 3;
+    bool Versions = 4;
+}
+
+message BulkMetaResponse{
+    repeated tree.Node Nodes = 1;
+}
+
+message SetBulkMetaRequest{
+    repeated MetaCollection Metas = 1;
+}
+
+message DeleteBulkMetaRequest{
+    repeated MetaNamespaceRequest MetaNamespaceRequests = 1;
+}
+
+message NodesCollection {
+    tree.Node Parent = 1;
+    repeated tree.Node Children = 2;
+}
+
+message ListDocstoreRequest {
+    string StoreID = 1;
+    docstore.DocumentQuery Query = 2;
+    bool CountOnly = 3;
+}
+
+message DocstoreCollection {
+    repeated docstore.Document Docs = 1;
+    int64 Total = 2;
+}
+
+message ChangeRequest {
+    int64 SeqID = 1;
+    string filter = 2;
+    bool flatten = 3;
+    bool stream = 4;
+}
+
+message ChangeCollection {
+    repeated tree.SyncChange Changes = 1 [json_name="changes"];
+    int64 LastSeqId = 2 [json_name="last_seq"];
+}

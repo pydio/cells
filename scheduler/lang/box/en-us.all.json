@@ -1,0 +1,40 @@
+{
+  "Jobs.Default.Thumbs":{
+    "other": "Extract image thumbnails and Exif data"
+  },
+  "Jobs.Default.ThumbsCache":{
+    "other": "Clear thumbnails cache for deleted files"
+  },
+  "Jobs.Default.Directories":{
+    "other": "Synchronize external directories"
+  },
+  "Jobs.Default.PruneJobs":{
+    "other": "Clean jobs and tasks in scheduler"
+  },
+  "Jobs.Default.FakeLongJob":{
+    "other": "Fake a long running job (for testing purpose)"
+  },
+  "Jobs.Default.FakeUsersJob":{
+    "other": "Creation of random users (for testing purpose)"
+  },
+  "Jobs.Default.FakeGrpcJob":{
+    "other": "Sample RPC job (for testing purpose)"
+  },
+
+  "Jobs.User.Compress": {
+    "other" : "Compressing Selection..."
+  },
+  "Jobs.User.Extract": {
+    "other" : "Extracting archive..."
+  },
+  "Jobs.User.DirCopy": {
+    "other" : "Copying folder in background..."
+  },
+  "Jobs.User.DirMove": {
+    "other" : "Moving folder in background..."
+  },
+  "Jobs.User.ResyncDS": {
+    "other" : "Re-indexing datasource {{.DsName}}..."
+  }
+
+}

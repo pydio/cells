@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package rest;
+
+import "github.com/pydio/cells/common/proto/tree/tree.proto";
+import "github.com/pydio/cells/common/proto/auth/ldap.proto";
+import "github.com/pydio/cells/common/proto/object/object.proto";
+import "github.com/pydio/cells/common/proto/ctl/ctl.proto";
+
+// Configuration message. Data is an Json representation of any value
+message Configuration{
+    string FullPath = 1;
+    string Data = 2;
+}
+
+message ListDataSourceRequest{
+
+}
+
+// Collection of datasources
+message DataSourceCollection{
+    repeated object.DataSource DataSources = 1;
+    int32 Total = 2;
+}
+
+message DeleteDataSourceResponse{
+    bool Success = 1;
+}
+
+message ListPeersAddressesRequest {
+
+}
+
+message ListPeersAddressesResponse {
+    repeated string PeerAddresses = 1;
+}
+
+message ListPeerFoldersRequest{
+    string PeerAddress = 1;
+    string Path = 2;
+}
+
+message ListVersioningPolicyRequest{
+
+}
+
+message VersioningPolicyCollection{
+    repeated tree.VersioningPolicy Policies = 1;
+}
+
+message DeleteVersioningPolicyResponse{
+    bool Success = 1;
+}
+
+message ListServiceRequest{
+    ctl.ServiceStatus StatusFilter = 1;
+}
+
+message ServiceCollection{
+    repeated ctl.Service Services = 1;
+    int32 Total = 2;
+}
+
+message ControlServiceRequest{
+    string ServiceName = 1;
+    string NodeName = 2;
+    ctl.ServiceCommand Command = 3;
+}
+
+message DiscoveryRequest{
+    string EndpointType = 1;
+}
+
+message DiscoveryResponse{
+    string PackageType = 1;
+    string PackageLabel = 2;
+    string Version = 3;
+    int32 BuildStamp = 4;
+    string BuildRevision = 5;
+    map<string, string> Endpoints = 6;
+}
+
+message ConfigFormRequest{
+    string ServiceName = 1;
+}
+
+message OpenApiResponse{
+
+}
+
+message ListExternalDirectoryRequest {}
+
+message ExternalDirectoryResponse {
+    bool Success = 2;
+}
+
+message ExternalDirectoryConfig {
+    string ConfigId = 1;
+    auth.LdapServerConfig Config = 2;
+}
+
+message ExternalDirectoryCollection {
+    repeated auth.LdapServerConfig Directories = 1;
+}

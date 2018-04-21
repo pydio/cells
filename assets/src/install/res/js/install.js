@@ -1,0 +1,661 @@
+import React from 'react';
+import {Paper, TextField, FontIcon, RadioButtonGroup, Checkbox, SelectField, MenuItem,
+    RaisedButton, FlatButton, Step, Stepper, StepLabel, StepContent, LinearProgress, CircularProgress} from 'material-ui'
+import {connect} from 'react-redux';
+import {Field, reduxForm, formValueSelector} from 'redux-form';
+import Client from './client';
+import InstallInstallConfig from './gen/model/InstallInstallConfig';
+import InstallServiceApi from './gen/api/InstallServiceApi';
+import InstallCheckResult from './gen/model/InstallCheckResult';
+import InstallPerformCheckRequest from './gen/model/InstallPerformCheckRequest';
+import { load as loadConfig } from './config'
+
+const client = new Client();
+const api = new InstallServiceApi(client);
+
+const validate = values => {
+    const errors = {}
+    const requiredFields = [
+    'firstName',
+    'lastName',
+    'email',
+    'favoriteColor',
+    'notes'
+  ];
+  requiredFields.forEach(field => {
+    if (!values[field]) {
+      errors[field] = 'Required'
+    }
+  });
+  if (
+    values.email &&
+    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
+  ) {
+    errors.email = 'Invalid email address'
+  }
+  return errors
+};
+
+const renderTextField = ({input, label, floatingLabel, meta: {touched, error}, ...custom}) => (
+  <TextField
+    hintText={label}
+    floatingLabelText={floatingLabel}
+    floatingLabelFixed={true}
+    errorText={touched && error}
+    fullWidth={true}
+    {...input}
+    {...custom}
+  />
+);
+
+const renderPassField = ({input, label, floatingLabel, meta: {touched, error}, ...custom}) => (
+  <TextField
+    hintText={label}
+    floatingLabelText={floatingLabel}
+    floatingLabelFixed={true}
+    errorText={touched && error}
+    fullWidth={true}
+    type={"password"}
+    {...input}
+    {...custom}
+  />
+);
+
+const renderCheckbox = ({input, label}) => (
+  <Checkbox
+    label={label}
+
+    checked={input.value ? true : false}
+    onCheck={input.onChange}
+  />
+);
+
+const renderRadioGroup = ({input, ...rest}) => (
+  <RadioButtonGroup
+    {...input}
+    {...rest}
+    valueSelected={input.value}
+    onChange={(event, value) => input.onChange(value)}
+  />
+);
+
+const renderSelectField = ({
+  input,
+  label,
+  floatingLabel,
+  meta: {touched, error},
+  children,
+  ...custom
+}) => (
+    <SelectField
+        fullWidth={true}
+        floatingLabelText={label}
+        floatingLabelFixed={true}
+        errorText={touched && error}
+        {...input}
+        onChange={(event, index, value) => input.onChange(value)}
+        children={children}
+        {...custom}
+    />
+)
+
+
+/**
+ * Vertical steppers are designed for narrow screen sizes. They are ideal for mobile.
+ *
+ * To use the vertical stepper with the contained content as seen in spec examples,
+ * you must use the `<StepContent>` component inside the `<Step>`.
+ *
+ * <small>(The vertical stepper can also be used without `<StepContent>` to display a basic stepper.)</small>
+ */
+class InstallForm extends React.Component {
+
+    state = {
+        finished: false,
+        stepIndex: 0,
+        dbConnectionType: "tcp",
+        licenseAgreed: false,
+        showAdvanced: false,
+        installEvents: [],
+        installProgress: 0,
+        serverRestarted:false,
+    };
+
+    constructor(props) {
+        super(props);
+        // Initial load
+        api.getInstall().then((values) => {
+            props.load(values.config)
+        });
+        api.getAgreement().then((resp) => {
+            this.setState({agreementText: resp.Text});
+        });
+    }
+
+    componentDidMount(){
+        client.pollEvents((events) => {
+            const newEvents = [...this.state.installEvents, ...events];
+            const last = events.pop();// update last progress
+            let p = this.state.installProgress;
+            if(last.data.Progress){
+                p = last.data.Progress;
+            }
+            this.setState({installEvents:newEvents, installProgress: p});
+        }, () => {
+            // This is call when it is finished
+            const newEvents = [...this.state.installEvents, {data:{Progress:100, Message: "Server Restarted"}}];
+            this.setState({
+                installEvents:newEvents,
+                serverRestarted: true,
+                willReloadIn: 5
+            });
+            setTimeout(()=>{this.setState({willReloadIn: 4})}, 1000);
+            setTimeout(()=>{this.setState({willReloadIn: 3})}, 2000);
+            setTimeout(()=>{this.setState({willReloadIn: 2})}, 3000);
+            setTimeout(()=>{this.setState({willReloadIn: 1})}, 4000);
+            setTimeout(() => {
+                window.location.reload()
+            }, 5000);
+        });
+    }
+
+    checkDbConfig(callback) {
+        const {dbConfig} = this.props;
+        const request = new InstallPerformCheckRequest();
+        request.Name = "DB";
+        request.Config = InstallInstallConfig.constructFromObject(dbConfig);
+        this.setState({performingCheck: 'DB'});
+        api.performInstallCheck(request).then(res => {
+            const checkResult = res.Result;
+            callback(checkResult);
+        }).catch(reason => {
+            const checkResult = InstallCheckResult.constructFromObject({Success:false, JsonResult: JSON.stringify({error: reason.message})});
+            callback(checkResult)
+        }).finally(() => {
+            this.setState({performingCheck: 'DB'});
+        })
+    }
+
+    checkPhpConfig() {
+        const request = new InstallPerformCheckRequest();
+        request.Name = "PHP";
+        request.Config = InstallInstallConfig.constructFromObject({fpmAddress:this.props.fpmAddress});
+        this.setState({performingCheck: 'PHP'});
+        api.performInstallCheck(request).then(res => {
+            const checkResult = res.Result;
+            this.setState({phpCheck: checkResult});
+        }).catch(reason => {
+            const checkResult = InstallCheckResult.constructFromObject({Name: "PHP", Success:false, JsonResult: JSON.stringify({error: reason.message})});
+            this.setState({phpCheck: checkResult});
+        }).finally(() => {
+            this.setState({performingCheck: null});
+        })
+    }
+
+    checkLicenseConfig(callback) {
+        const request = new InstallPerformCheckRequest();
+        request.Name = "LICENSE";
+        request.Config = InstallInstallConfig.constructFromObject({licenseString:this.props.licenseString});
+        this.setState({performingCheck: 'LICENSE'});
+        api.performInstallCheck(request).then(res => {
+            const checkResult = res.Result;
+            callback(checkResult);
+        }).catch(reason => {
+            const checkResult = InstallCheckResult.constructFromObject({Name: "LICENSE", Success:false, JsonResult: JSON.stringify({error: reason.message})});
+            callback(checkResult);
+        }).finally(() => {
+            this.setState({performingCheck: null});
+        })
+    }
+
+    reset = () => {
+        this.setState({
+            stepIndex: 0,
+            finished: false
+        });
+    };
+
+    handleNext = () => {
+        const {stepIndex} = this.state;
+        this.setState({
+            stepIndex: stepIndex + 1,
+            finished: stepIndex >= 4,
+        });
+    };
+
+    handlePrev = () => {
+        const {stepIndex} = this.state;
+        if (stepIndex > 0) {
+            this.setState({stepIndex: stepIndex - 1});
+        }
+    };
+
+    renderStepActions(step, nextDisabled = false, leftAction = null) {
+        const {stepIndex} = this.state;
+        const {handleSubmit, licenseRequired} = this.props;
+        const stepOffset = licenseRequired ? 1 : 0;
+
+        let nextAction;
+        switch (stepIndex) {
+            case 1 + stepOffset :
+                nextAction = () => {
+                    this.checkDbConfig((checkResult) => {
+                        if (checkResult.Success){
+                            this.handleNext();
+                            this.setState({dbCheckError: null});
+                        } else {
+                            this.setState({dbCheckError: JSON.parse(checkResult.JsonResult).error});
+                        }
+                    })
+                };
+                break;
+            case 4 + stepOffset :
+                nextAction = () => {this.handleNext(); handleSubmit()};
+                break;
+            default:
+                nextAction = this.handleNext;
+                break;
+        }
+
+        return (
+            <div style={{margin: '12px 0', display:'flex', alignItems: 'center'}}>
+                {leftAction}
+                <span style={{flex: 1}}/>
+                <div>
+                    {step > 0 && (
+                        <FlatButton
+                        label="Back"
+                        disabled={stepIndex === 0}
+                        onClick={this.handlePrev}
+                        style={{marginRight: 5}}
+                        />
+                    )}
+                    <RaisedButton
+                        label={stepIndex === 4 + stepOffset? 'Install Now' : 'Next'}
+                        primary={true}
+                        onClick={nextAction}
+                        disabled={nextDisabled}
+                    />
+                </div>
+            </div>
+        );
+    }
+
+    render() {
+
+        const {dbConnectionType, handleSubmit, installPerformed, installError, initialChecks, licenseRequired, licenseString, fpmAddress} = this.props;
+        const {stepIndex, licenseAgreed, showAdvanced, installEvents, installProgress, serverRestarted, willReloadIn, agreementText, dbCheckError, performingCheck, licCheckFailed} = this.state;
+        let {phpCheck} = this.state;
+        let phpOk, phpResult;
+        if (!phpCheck && initialChecks && initialChecks[0]) {
+            phpCheck = initialChecks[0];
+        }
+        if(phpCheck){
+            phpOk = phpCheck.Success;
+            phpResult = JSON.parse(phpCheck.JsonResult);
+        }
+
+        const flexContainer = {
+            display: 'flex',
+            flexDirection: 'column',
+        };
+        const panelHeight = 580;
+
+        const stepperStyles = {
+            step: {
+                marginBottom: -14,
+                width: 256
+            },
+            label:{
+                color:'white'
+            },
+            content: {
+                position: 'absolute',
+                top: 14,
+                left: 256,
+                right: 0,
+                borderLeft: 0,
+                padding: 24,
+                maxHeight: panelHeight - 20,
+                marginLeft: 0,
+                lineHeight: '1.4em'
+            },
+            contentScroller : {
+                height: panelHeight - 88,
+                overflowY : 'auto'
+            }
+        };
+        let leftAction, additionalStep;
+        let stepOffset = 0;
+        if(stepIndex === 0){
+            leftAction = (
+                <div>
+                    <Checkbox checked={licenseAgreed} label={"I agree with these terms"} style={{width: 300}} onCheck={() => {this.setState({licenseAgreed:!licenseAgreed})}}/>
+                </div>
+            );
+        }
+        if (licenseRequired) {
+            stepOffset = 1;
+            let licCheckPassed, nextAction;
+            if(initialChecks && initialChecks.length){
+                initialChecks.map(c => {
+                    if (c.Name === "LICENSE" && c.Success) {
+                        licCheckPassed = JSON.parse(c.JsonResult);
+                        nextAction = this.handleNext.bind(this)
+                    }
+                })
+            }
+            if(!nextAction) {
+                nextAction = () => {
+                    this.checkLicenseConfig((result) => {
+                        if (result.Success) {
+                            this.setState({licCheckFailed: false});
+                            this.handleNext();
+                        } else {
+                            this.setState({licCheckFailed: true});
+                        }
+                    });
+                };
+            }
+            additionalStep = (
+                <Step key={"license"} style={stepperStyles.step}>
+                    <StepLabel style={stepIndex >= 1 ? stepperStyles.label : {}}>Enterprise License</StepLabel>
+                    <StepContent style={stepperStyles.content}>
+                        <div style={stepperStyles.contentScroller}>
+                            <h3>Pydio Cells Enterprise License</h3>
+                            {licCheckPassed &&
+                                <div style={{padding:'20px 0', color:'#388E3C', fontSize:14}}>License file was successfully detected.
+                                    <br/>This installation is valid for {licCheckPassed.users} users until {new Date(licCheckPassed.expireTime*1000).toISOString()}.
+                                    </div>
+                            }
+                            {licCheckFailed &&
+                                <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>Error while trying to verify this license string. Please contact the support.</div>
+                            }
+                            {!licCheckPassed &&
+                                <div>
+                                    A valid license is required to run this installation.
+                                    <Field name="licenseString" component={renderTextField} floatingLabel="License String" label="Please copy/paste the license string provided to you." />
+                                </div>
+                            }
+                        </div>
+                        <div style={{margin: '12px 0', display:'flex', alignItems: 'center'}}>
+                            <span style={{flex: 1}}/>
+                            <div>
+                                <FlatButton label="Back" onClick={this.handlePrev.bind(this)} style={{marginRight: 5}} />
+                                <RaisedButton label={'Next'} primary={true} onClick={nextAction} disabled={(!licCheckPassed && !licenseString)}/>
+                            </div>
+                        </div>
+                    </StepContent>
+                </Step>
+            );
+        }
+
+        const steps = [];
+        steps.push(
+            <Step key={steps.length-1} style={stepperStyles.step}>
+                <StepLabel style={stepperStyles.label}>Terms of Use </StepLabel>
+                <StepContent style={stepperStyles.content}>
+                    <div style={stepperStyles.contentScroller}>
+                        <h3>Welcome to Pydio Cells Installation Wizard</h3>
+                        <p>This will install all services on the current server. Please agree with the terms of the license below before starting</p>
+                        <pre style={{height: 350, border: '1px solid #CFD8DC', borderRadius: 2, backgroundColor: '#ECEFF1', padding: 10, overflowY:'scroll', lineHeight:'1.4em'}}>
+                                            {agreementText}
+                                        </pre>
+                    </div>
+                    {this.renderStepActions(0, !licenseAgreed, leftAction)}
+                </StepContent>
+            </Step>);
+
+        if(additionalStep){
+            steps.push(additionalStep);
+        }
+
+        steps.push(
+            <Step key={steps.length-1} style={stepperStyles.step}>
+                <StepLabel style={stepIndex >= 1 + stepOffset ? stepperStyles.label : {}}>Database connection</StepLabel>
+                <StepContent style={stepperStyles.content}>
+                    <div style={stepperStyles.contentScroller}>
+                        <h3>Database Configuration</h3>
+                        Pydio requires at least one SQL storage for configuration and data indexation.
+                        Configure here the connection to your MySQL/MariaDB server. Please make sure that your database is running <b>MySQL version 5.6 or higher</b>.
+                        {dbCheckError &&
+                        <div style={{color: '#E53935', paddingTop: 10, fontWeight: 500}}>{dbCheckError}</div>
+                        }
+                        <div style={flexContainer}>
+                            <Field name="dbConnectionType" component={renderSelectField}>
+                                <MenuItem value="tcp" primaryText="TCP" />
+                                <MenuItem value="socket" primaryText="Socket" />
+                                <MenuItem value="manual" primaryText="Manual" />
+                            </Field>
+
+                            {dbConnectionType === "tcp" && (
+                                <div style={flexContainer}>
+                                    <div style={{display:'flex'}}>
+                                        <div style={{flex: 1, marginRight: 2}}><Field name="dbTCPHostname" component={renderTextField} floatingLabel="Host Name" label="Server where mysql is running" /></div>
+                                        <div style={{flex: 1, marginLeft: 2}}><Field name="dbTCPPort" component={renderTextField} floatingLabel="Port" label="Port to connect to mysql" /></div>
+                                    </div>
+                                    <Field name="dbTCPName" component={renderTextField} floatingLabel="Database Name" label="Database to use (created it if does not exist)" />
+                                    <div style={{display:'flex'}}>
+                                        <div style={{flex: 1, marginRight: 2}}><Field name="dbTCPUser" component={renderTextField} floatingLabel="Database User" label="Leave blank if not required" /></div>
+                                        <div style={{flex: 1, marginLeft: 2}}><Field name="dbTCPPassword" component={renderTextField} floatingLabel="Database Password" label="Leave blank if not required" /></div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {dbConnectionType === "socket" && (
+                                <div style={flexContainer}>
+                                    <Field name="dbSocketFile" component={renderTextField} floatingLabel="Socket" label="Enter the location of the socket file to use to connect" defaultValue="/tmp/mysql.sock" />
+                                    <Field name="dbSocketName" component={renderTextField} floatingLabel="Database Name" label="Enter the name of a database to use - it will be created if it doesn't already exist" defaultValue="pydio" />
+                                    <div style={{display:'flex'}}>
+                                        <div style={{flex: 1, marginRight: 2}}><Field name="dbSocketUser" component={renderTextField} floatingLabel="Database User" label="Leave blank if not required" /></div>
+                                        <div style={{flex: 1, marginLeft: 2}}><Field name="dbSocketPassword" component={renderTextField} floatingLabel="Database Password" label="Leave blank if not required" /></div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {dbConnectionType === "manual" && (
+                                <div style={flexContainer}>
+                                    <Field name="dbManualDSN" component={renderTextField} floatingLabel="DSN" label="Use golang style DSN to describe the DB connection" />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    {this.renderStepActions(1 + stepOffset)}
+                </StepContent>
+            </Step>
+        );
+
+        steps.push(
+            <Step key={steps.length-1} style={stepperStyles.step}>
+                <StepLabel style={stepIndex >= 2 + stepOffset ? stepperStyles.label : {}}>PHP-FPM Detection</StepLabel>
+                <StepContent style={stepperStyles.content}>
+                    <div style={stepperStyles.contentScroller}>
+                        <h3>PHP Fpm Detection</h3>
+                        PHP-FPM is required to serve the web interface of Pydio Cells. It was not automatically detected on your system. On most systems you can easily
+                        install php-fpm using <code>apt install php-fpm</code> or <code>yum install php-fpm</code> on Linux, or <code>brew install php72</code> on Mac OSX.
+                        <br/><br/>
+                        You can run detection again after having installed php and started the associated daemon. Skip this if you do not want to use the web interface on this machine.
+                        {!phpOk && phpResult && phpResult.error &&
+                        <div style={{color: '#E53935', paddingTop: 10, paddingBottom: 10, fontWeight: 500}}>{phpResult.error}</div>
+                        }
+                        {(!(phpResult && phpResult.fpm && phpResult.fpm.ListenAddress) || fpmAddress) &&
+                        <div>
+                            <div>If you have installed php-fpm on a specific port or a specific unix socket, please enter its address below. It can be an url like "localhost:9000" or pointer to a local socket like "/run/php/php-fpm.sock".</div>
+                            <Field name="fpmAddress" component={renderTextField} floatingLabel="Php-FPM Listen address" label="Use Listen address as defined in php-fpm configuration" />
+                        </div>
+                        }
+                        {phpResult && phpResult.fpm &&
+                        <div style={{...flexContainer, paddingRight: 20, paddingTop: 10, fontSize: 14}}>
+                            <div style={{display:'flex', alignItems:'center', height: 40}}><div style={{flex: 1}}>Php-fpm service</div><div>{phpResult.fpm.ListenAddress ? phpResult.fpm.ListenAddress : "Not Detected"}</div></div>
+                            <div style={{display:'flex', alignItems:'center', height: 40}}><div style={{flex: 1}}>PHP version</div><div>{phpResult.fpm.PhpVersion ? phpResult.fpm.PhpVersion : "Not Detected"}</div></div>
+                            <div style={{display:'flex', alignItems:'center', height: 40}}><div style={{flex: 1}}>PHP extensions detected</div>{phpResult.fpm.PhpExtensions ? phpResult.fpm.PhpExtensions.join(", "): "Not Detected"}</div>
+                        </div>
+                        }
+                        <div style={{textAlign:'center', paddingTop: 20}}>
+                            <RaisedButton default={true} label={performingCheck ==='PHP' ? "Checking..." : "Run Detection"} onClick={this.checkPhpConfig.bind(this)}/>
+                        </div>
+                    </div>
+                    {this.renderStepActions(2 + stepOffset)}
+                </StepContent>
+            </Step>
+        );
+
+        steps.push(
+            <Step key={steps.length-1} style={stepperStyles.step}>
+                <StepLabel style={stepIndex >= 3 + stepOffset ? stepperStyles.label : {}}>Admin User</StepLabel>
+                <StepContent style={stepperStyles.content}>
+                    <div style={stepperStyles.contentScroller}>
+                        <h3>Admin user credentials</h3>
+                        Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation.
+
+                        <div style={flexContainer}>
+                            <Field name="frontendLogin" component={renderTextField} floatingLabel="Login of the admin user" label="Skip this if an admin is already created in the database." />
+                            <Field name="frontendPassword" component={renderPassField} floatingLabel="Password of the admin user" label="Skip this if an admin is already created in the database." />
+                            <Field name="frontendRepeatPassword" component={renderPassField} floatingLabel="Please confirm password" label="Skip this if an admin is already created in the database." />
+                        </div>
+                    </div>
+                    {this.renderStepActions(3 + stepOffset)}
+                </StepContent>
+            </Step>
+        );
+
+        steps.push(
+            <Step key={steps.length-1} style={stepperStyles.step}>
+                <StepLabel style={stepIndex >= 4 + stepOffset ? stepperStyles.label : {}}>Advanced Settings</StepLabel>
+                <StepContent style={stepperStyles.content}>
+                    <div style={stepperStyles.contentScroller}>
+                        <h3>Advanced Settings</h3>
+                        Pydio Cells services will be deployed on this machine. You may review some advanced settings below for fine-tuning your configuration.
+
+                        <div style={{display:'flex', alignItems:'center', height: 40, cursor:'pointer'}} onClick={() => {this.setState({showAdvanced:!showAdvanced})}}>
+                            <div style={{flex: 1, fontSize: 14}}>Show Advanced Settings</div>
+                            <FontIcon className={showAdvanced?"mdi mdi-chevron-down":"mdi mdi-chevron-right"}/>
+                        </div>
+                        {showAdvanced &&
+                        <div style={flexContainer}>
+                            <div style={{marginTop: 10}}>
+                                A default data source to store users personal data and cells data is created at startup. You can create other datasources later on.
+                            </div>
+                            <div>
+                                <Field name="dsFolder" component={renderTextField} floatingLabel="Path of the default datasource" label="Use an absolute path on the server" />
+                            </div>
+                            <div style={{marginTop: 20}}>
+                                Services are authenticating using OpenIDConnect protocol. This keypair will be added to the frontend, it is not used outside of the application.
+                                You should leave the default value unless you are reinstalling on a top of a running frontend.
+                            </div>
+                            <div style={{display:'flex'}}>
+                                <div style={{flex: 1, marginRight: 2}}><Field name="externalDexID" component={renderTextField} floatingLabel="OIDC Client ID" label="Use default if not sure" /></div>
+                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalDexSecret" component={renderTextField} floatingLabel="OIDC Client Secret" label="Leave blank if not required" /></div>
+                            </div>
+                            <div style={{marginTop: 20}}>
+                                Services will detect available ports automatically and this is hidden by the unique http access. You may choose ports that suits your security
+                                policies or just leave default values.
+                            </div>
+                            <div style={{display:'flex'}}>
+                                <div style={{flex: 1, marginRight: 2}}><Field name="externalDex" component={renderTextField} floatingLabel="OIDC Service" label="Authentication" /></div>
+                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalMicro" component={renderTextField} floatingLabel="API Gateway" label="Rest Access" /></div>
+                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalGateway" component={renderTextField} floatingLabel="Data Gateway" label="Data Access" /></div>
+                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalWebsocket" component={renderTextField} floatingLabel="WebSocket" label="Websocket Server" /></div>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    {this.renderStepActions(3 + stepOffset)}
+                </StepContent>
+            </Step>
+        );
+
+        const eventsLength = installEvents.length - 1;
+        steps.push(
+            <Step key={steps.length-1} style={stepperStyles.step}>
+                <StepLabel style={stepIndex >= 5 + stepOffset ? stepperStyles.label : {}}>Apply Installation</StepLabel>
+                <StepContent style={stepperStyles.content}>
+                    <div style={stepperStyles.contentScroller}>
+                        <h3>Please wait while installing Pydio ...</h3>
+                        <div style={{padding: '20px 0'}}>
+                            <LinearProgress min={0} max={100} value={installProgress} style={{width: '100%'}} mode={"determinate"}/>
+                        </div>
+                        <div style={{...flexContainer, paddingRight: 20, paddingTop: 10, fontSize: 14, paddingBottom: 20}}>
+                            {installEvents.map((e,i) => {
+                                let icon = <FontIcon className={"mdi mdi-check"}/>;
+                                if(e.data.Message.indexOf('...') > -1 ) {
+                                    if(i < eventsLength) return null;// if it's not the last, the next message will replace it
+                                    icon = <CircularProgress size={20} thickness={2} color={"rgba(0, 0, 0, 0.87)"}/>;
+                                }
+                                return <div key={i} style={{display:'flex', alignItems:'center', height: 40}}><div style={{flex: 1}}>{e.data.Message}</div>{icon}</div>
+                            })}
+                        </div>
+                        {installPerformed && serverRestarted &&
+                        <div>
+                            Install was succesful and services are now started, please reload the page now (it will be automatically reloaded in {willReloadIn}s)
+                        </div>
+                        }
+                        {installError &&
+                        <div>
+                            There was an error while performing installation ! Please check your configuration <br/>
+                            Error was : {installError}
+                        </div>
+                        }
+                    </div>
+                    {installPerformed && serverRestarted &&
+                    <div style={{margin: '12px 0', display:'flex', alignItems: 'center'}}>
+                        <span style={{flex: 1}}/>
+                        <div>
+                            <RaisedButton
+                                label={'Reload'}
+                                secondary={true}
+                                onClick={() => {window.location.reload()}}
+                            />
+                        </div>
+                    </div>
+                    }
+                </StepContent>
+            </Step>
+        );
+
+        return (
+            <Paper zDepth={2} style={{width: 800, minHeight: panelHeight, margin: 'auto', position:'relative', backgroundColor:'rgba(255,255,255,0.96)'}}>
+                <div style={{width: 256, height: panelHeight, backgroundColor: '#607D8B', fontSize: 13}}>
+                    <div style={{backgroundImage:'url(res/css/PydioLogo250.png)', backgroundSize:'90%',
+                        backgroundRepeat: 'no-repeat', backgroundPosition:'center center', width: 256, height: 100}}></div>
+                    <form onSubmit={handleSubmit}>
+                        <Stepper activeStep={stepIndex} orientation="vertical">
+                            {steps}
+                        </Stepper>
+                    </form>
+                </div>
+            </Paper>
+    );
+  }
+}
+
+// The order of the decoration does not matter.
+
+// Decorate with redux-form
+InstallForm = reduxForm({
+  form: 'install'
+})(InstallForm);
+
+// Decorate with connect to read form values
+const selector = formValueSelector('install'); // <-- same as form name
+InstallForm = connect(state => {
+    const dbConnectionType = selector(state, 'dbConnectionType');
+    const dbConfig = selector(state, 'dbConnectionType', 'dbManualDSN', 'dbSocketFile', 'dbSocketName', 'dbSocketUser', 'dbTCPHostname', 'dbTCPName', 'dbTCPPort', 'dbTCPUser', 'dbTCPPassword', 'dbSocketPassword');
+    const initialChecks = selector(state, 'CheckResults');
+    const licenseRequired = selector(state, 'licenseRequired');
+    const licenseString = selector(state, 'licenseString');
+    const fpmAddress = selector(state, 'fpmAddress');
+
+    // Make a request to retrieve those values
+    return {
+        initialValues: state.config.data,
+        dbConnectionType: dbConnectionType,
+        dbConfig: dbConfig,
+        initialChecks: initialChecks,
+        licenseRequired,
+        licenseString, fpmAddress
+    }
+}, { load: loadConfig } )(InstallForm);
+
+
+export default InstallForm

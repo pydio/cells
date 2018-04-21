@@ -1,0 +1,62 @@
+{
+  "AccessedBy": {
+    "other": "Accédé par {{.Actor}}"
+  },
+  "AccessedObject": {
+    "other": "Accès au {{.Object}}"
+  },
+  "AccessedObjectBy": {
+    "other": "{{.Object}} a été accédé par {{.Actor}}"
+  },
+  "Cell": {
+    "other": "cellule"
+  },
+  "CreatedBy": {
+    "other": "Créé par {{.Actor}}"
+  },
+  "CreatedObject": {
+    "other": "Création du {{.Object}}"
+  },
+  "CreatedObjectBy": {
+    "other": "{{.Object}} a été créé par {{.Actor}}"
+  },
+  "DeletedBy": {
+    "other": "Supprimé par {{.Actor}}"
+  },
+  "DeletedObject": {
+    "other": "Suppression du {{.Object}}"
+  },
+  "DeletedObjectBy": {
+    "other": "{{.Object}} a été effacé par {{.Actor}}"
+  },
+  "DigestTitle": {
+    "other": "Vos activités quotidiennes sur Pydio"
+  },
+  "Document": {
+    "other": "Document"
+  },
+  "Folder": {
+    "other": "Répertoire"
+  },
+  "ModifiedBy": {
+    "other": "Modifié par {{.Actor}}"
+  },
+  "ModifiedObject": {
+    "other": "Modification du {{.Object}}"
+  },
+  "ModifiedObjectBy": {
+    "other": "{{.Object}} a été modifié par {{.Actor}}"
+  },
+  "MovedBy": {
+    "other": "Déplacé par {{.Actor}}"
+  },
+  "MovedObject": {
+    "other": "Déplacement du {{.Object}}"
+  },
+  "MovedObjectBy": {
+    "other": "{{.Object}} a été déplacé par {{.Actor}}"
+  },
+  "Workspace": {
+    "other": "Workspace"
+  }
+}

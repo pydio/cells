@@ -1,0 +1,20 @@
+version: '3'
+services:
+    mysql:
+         image: mysql:latest
+         environment:
+             MYSQL_ROOT_PASSWORD: P@ssw0rd
+             MYSQL_DATABASE: pydio
+             MYSQL_USER: pydio
+             MYSQL_PASSWORD: P@ssw0rd
+         command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+         ports: ["3306:3306"]
+
+    php:
+        image: php:7.1-fpm-jessie
+        ports: ["9000:9000"]
+
+    pydio:
+        image: debian:jessie
+        volumes: ["/Users/gregory:/data"]
+        ports: ["8080:8080"]

@@ -1,0 +1,54 @@
+/*
+ * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+package conditions
+
+import (
+	"context"
+	"regexp"
+
+	"github.com/ory/ladon"
+
+	"github.com/pydio/cells/common/log"
+)
+
+// StringNotMatchCondition is a condition which is fulfilled if the given
+// string value matches the regex pattern specified in StringNotMatchCondition
+type StringNotMatchCondition struct {
+	Matches string `json:"matches"`
+}
+
+// Fulfills returns true if the given value is a string and matches the regex
+// pattern in StringMatchCondition.Matches
+func (c *StringNotMatchCondition) Fulfills(value interface{}, _ *ladon.Request) bool {
+	s, ok := value.(string)
+
+	log.Logger(context.Background()).Error("in string not match condition for string " + s)
+	// 	debug.PrintStack()
+
+	matches, _ := regexp.MatchString(c.Matches, s)
+
+	return !(ok && matches)
+}
+
+// GetName returns the condition's name.
+func (c *StringNotMatchCondition) GetName() string {
+	return "StringNotMatchCondition"
+}

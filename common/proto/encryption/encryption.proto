@@ -1,0 +1,188 @@
+syntax = "proto3";
+
+package encryption;
+
+message Export {
+    string By = 1;
+    int32 Date = 2;
+}
+
+message Import {    
+    string By = 1;
+    int32 Date = 3;
+}
+
+message KeyInfo {
+    repeated Export Exports = 1;
+    repeated Import Imports = 2;
+}
+
+message Key {
+    string Owner = 1;
+    string ID = 2;
+    string Label = 3;
+    string Content = 4;
+    int32 CreationDate = 5;
+    KeyInfo Info = 6;
+}
+
+// ==========================================================
+// * User Key store
+// ==========================================================
+
+service UserKeyStore {
+    rpc AddKey (AddKeyRequest) returns (AddKeyResponse) {};
+    rpc GetKey (GetKeyRequest) returns (GetKeyResponse) {};
+
+    rpc AdminListKeys (AdminListKeysRequest) returns (AdminListKeysResponse) {};
+    rpc AdminCreateKey (AdminCreateKeyRequest) returns (AdminCreateKeyResponse) {};
+    rpc AdminDeleteKey (AdminDeleteKeyRequest) returns (AdminDeleteKeyResponse) {};
+    rpc AdminExportKey (AdminExportKeyRequest) returns (AdminExportKeyResponse) {};
+    rpc AdminImportKey (AdminImportKeyRequest) returns (AdminImportKeyResponse) {};
+}
+
+message AddKeyRequest {
+    Key Key = 1;
+    string StrPassword = 2;
+}
+
+message AddKeyResponse {
+    bool Success = 1;
+}
+
+message GetKeyRequest {
+    string Owner = 1;
+    string KeyID = 2;
+    string StrPassword = 3;
+}
+
+message GetKeyResponse {
+    Key Key = 1;
+}
+
+
+
+message AdminListKeysRequest {
+}
+
+message AdminListKeysResponse {
+    repeated Key Keys = 1;      
+}
+
+message AdminDeleteKeyRequest {
+    string KeyID = 1;
+}
+
+message AdminDeleteKeyResponse {
+    bool Success = 1;
+}
+
+message AdminExportKeyRequest {    
+    string KeyID = 1;
+    string StrPassword = 2;
+}
+
+message AdminExportKeyResponse {
+    Key Key = 1;
+}
+
+message AdminImportKeyRequest {    
+    Key Key = 1;
+    string StrPassword = 2;
+    bool Override = 3;
+}
+
+message AdminImportKeyResponse {
+    bool Success = 1;    
+}
+
+message AdminCreateKeyRequest {
+    string KeyID = 1;
+    string Label = 2;
+}
+
+message AdminCreateKeyResponse {
+    bool Success = 1;
+}
+
+
+
+// ==========================================================
+// * File Key Manager
+// ==========================================================
+
+service NodeKeyManager {
+    rpc DeleteNode (DeleteNodeRequest) returns (DeleteNodeResponse){};
+    rpc SetNodeParams (SetNodeParamsRequest) returns (SetNodeParamsResponse){};
+    rpc GetNodeKey (GetNodeKeyRequest) returns (GetNodeKeyResponse) {};
+    rpc SetNodeKey (SetNodeKeyRequest) returns (SetNodeKeyResponse) {};
+    rpc DeleteNodeKey (DeleteNodeKeyRequest) returns (DeleteNodeKeyResponse) {};
+    rpc DeleteNodeSharedKey (DeleteNodeSharedKeyRequest) returns (DeleteNodeSharedKeyResponse) {};
+}
+
+message Params {
+    bytes Nonce = 1;
+    int32 BlockSize = 2;
+}
+
+message NodeKey {
+    string NodeId = 1;
+    string UserId = 2;
+    string OwnerId = 3;
+    bytes Nonce = 4;
+    int32 BlockSize = 5;
+    bytes Data = 6;
+}
+
+message DeleteNodeRequest {
+    repeated string NodeIds = 1;
+}
+
+message DeleteNodeResponse {
+    bool AllDeleted = 1;
+    repeated string Deleted = 2;
+}
+
+message SetNodeParamsRequest {
+    string NodeId = 1;
+    Params Params = 2;
+}
+
+message SetNodeParamsResponse {
+
+}
+
+message GetNodeKeyRequest {
+    string NodeId = 1;
+    string UserId = 2;
+}
+
+message GetNodeKeyResponse {
+    string OwnerId = 1;
+    bytes EncryptedKey = 2;
+    bytes Nonce = 3;
+    int32 BlockSize = 4;
+}
+
+message SetNodeKeyRequest {
+    NodeKey Key = 1;
+}
+
+message SetNodeKeyResponse {
+}
+
+message DeleteNodeKeyRequest {
+    string NodeId = 1;
+    repeated string Users = 3;
+}
+
+message DeleteNodeKeyResponse {
+}
+
+message DeleteNodeSharedKeyRequest {
+    string NodeId = 1;
+    string OwnerId = 2;
+    repeated string Users = 3;
+}
+
+message DeleteNodeSharedKeyResponse {}

@@ -1,0 +1,18 @@
+syntax="proto3";
+
+import "github.com/pydio/cells/common/proto/jobs/jobs.proto";
+
+package rest;
+
+message UserJobRequest {
+    string JobName = 1;
+    string JsonParameters = 2;
+}
+
+message UserJobResponse {
+    string JobUuid = 1;
+}
+
+message UserJobsCollection{
+    repeated jobs.Job Jobs = 1;
+}

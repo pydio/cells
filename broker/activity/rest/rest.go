@@ -1,0 +1,267 @@
+/*
+ * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+package rest
+
+import (
+	"context"
+	"net/url"
+
+	"github.com/emicklei/go-restful"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
+
+	activity2 "github.com/pydio/cells/broker/activity"
+	"github.com/pydio/cells/broker/activity/render"
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/activity"
+	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/views"
+)
+
+type ActivityHandler struct {
+	router *views.RouterEventFilter
+}
+
+func NewActivityHandler() *ActivityHandler {
+	return &ActivityHandler{
+		router: views.NewRouterEventFilter(views.RouterOptions{WatchRegistry: true}),
+	}
+}
+
+// SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
+func (a *ActivityHandler) SwaggerTags() []string {
+	return []string{"ActivityService"}
+}
+
+// Filter returns a function to filter the swagger path
+func (a *ActivityHandler) Filter() func(string) string {
+	return nil
+}
+
+func (a *ActivityHandler) getClient() activity.ActivityServiceClient {
+	return activity.NewActivityServiceClient(registry.GetClient(common.SERVICE_ACTIVITY))
+}
+
+func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
+
+	ctx := req.Request.Context()
+
+	var inputReq activity.StreamActivitiesRequest
+	err := req.ReadEntity(&inputReq)
+	if err != nil {
+		log.Logger(ctx).Error("cannot fetch activity.StreamActivitiesRequest", zap.Error(err))
+		rsp.WriteError(500, err)
+		return
+	}
+	if inputReq.BoxName == "" {
+		inputReq.BoxName = "outbox"
+	}
+	if inputReq.Language == "" {
+		inputReq.Language = utils.UserLanguagesFromRestRequest(req)[0]
+	}
+	client := a.getClient()
+
+	if inputReq.UnreadCountOnly {
+		if inputReq.Context != activity.StreamContext_USER_ID || len(inputReq.ContextData) == 0 {
+			rsp.WriteError(500, errors.New("wrong arguments, please use only User context to get unread activities"))
+			return
+		}
+		resp, err := client.UnreadActivitiesNumber(ctx, &activity.UnreadActivitiesRequest{
+			UserId: inputReq.ContextData,
+		})
+		if err != nil {
+			log.Logger(ctx).Error("cannot get unread activity number from client", zap.Error(err))
+			rsp.WriteError(500, err)
+			return
+		}
+		rsp.WriteEntity(activity2.CountCollection(resp.Number))
+		return
+	}
+
+	var collection []*activity.Object
+	accessList, err := utils.AccessListFromContextClaims(ctx)
+	if len(accessList.Workspaces) == 0 || err != nil {
+		// Return Empty collection
+		rsp.WriteEntity(activity2.Collection(collection))
+		return
+	}
+
+	streamer, err := client.StreamActivities(ctx, &inputReq)
+	if err != nil {
+		log.Logger(ctx).Error("cannot get activity stream", zap.Error(err))
+		rsp.WriteError(500, err)
+		return
+	}
+	serverLinks := render.NewServerLinks()
+	serverLinks.URLS[render.ServerUrlTypeDocs], _ = url.Parse("doc://")
+	serverLinks.URLS[render.ServerUrlTypeUsers], _ = url.Parse("user://")
+	serverLinks.URLS[render.ServerUrlTypeWorkspaces], _ = url.Parse("workspaces://")
+
+	defer streamer.Close()
+
+	if inputReq.AsDigest {
+		// Get all collection, will be filtered by Digest() function
+		for {
+			resp, e := streamer.Recv()
+			if e != nil {
+				break
+			}
+			if resp == nil {
+				continue
+			}
+			resp.Activity.Summary = render.Markdown(resp.Activity, activity.SummaryPointOfView_GENERIC, inputReq.Language, serverLinks)
+			collection = append(collection, resp.Activity)
+		}
+		digest, err := activity2.Digest(ctx, collection)
+		if err != nil {
+			log.Logger(ctx).Error("cannot build Digest", zap.Error(err))
+			rsp.WriteError(500, err)
+			return
+		}
+		rsp.WriteEntity(digest)
+
+	} else {
+
+		// Filter activities as they come
+		for {
+			resp, e := streamer.Recv()
+			if e != nil {
+				break
+			}
+			if resp == nil {
+				continue
+			}
+			if a.FilterActivity(ctx, accessList.Workspaces, resp.Activity) {
+				resp.Activity.Summary = render.Markdown(resp.Activity, inputReq.PointOfView, inputReq.Language, serverLinks)
+				collection = append(collection, resp.Activity)
+			}
+
+		}
+
+		collectionObject := activity2.Collection(collection)
+		rsp.WriteEntity(collectionObject)
+	}
+}
+
+func (a *ActivityHandler) Subscribe(req *restful.Request, rsp *restful.Response) {
+
+	ctx := req.Request.Context()
+
+	var subscription activity.Subscription
+	err := req.ReadEntity(&subscription)
+	if err != nil {
+		log.Logger(ctx).Error("cannot fetch activity.Subscription", zap.Error(err))
+		rsp.WriteError(500, err)
+		return
+	}
+
+	resp, e := a.getClient().Subscribe(ctx, &activity.SubscribeRequest{
+		Subscription: &subscription,
+	})
+	if e != nil {
+		log.Logger(ctx).Error("cannot subscribe to activity stream", subscription.Zap(), zap.Error(e))
+		rsp.WriteError(500, err)
+		return
+	}
+
+	rsp.WriteEntity(resp.Subscription)
+}
+
+func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful.Response) {
+
+	ctx := req.Request.Context()
+	var inputSearch activity.SearchSubscriptionsRequest
+	err := req.ReadEntity(&inputSearch)
+	if err != nil {
+		log.Logger(ctx).Error("cannot fetch activity.SearchSubscriptionsRequest from REST request", zap.Error(err))
+		rsp.WriteError(500, err)
+		return
+	}
+
+	streamer, e := a.getClient().SearchSubscriptions(ctx, &inputSearch)
+	if e != nil {
+		log.Logger(ctx).Error("cannot get subscription stream", zap.Error(e))
+		rsp.WriteError(500, err)
+		return
+	}
+	collection := &rest.SubscriptionsCollection{
+		Subscriptions: []*activity.Subscription{},
+	}
+	defer streamer.Close()
+	for {
+		resp, rE := streamer.Recv()
+		if rE != nil {
+			break
+		}
+		if resp == nil {
+			continue
+		}
+		collection.Subscriptions = append(collection.Subscriptions, resp.Subscription)
+	}
+
+	rsp.WriteEntity(collection)
+}
+
+func (a *ActivityHandler) FilterActivity(ctx context.Context, workspaces map[string]*idm.Workspace, ac *activity.Object) bool {
+
+	if ac.Object == nil {
+		return true
+	}
+
+	obj := ac.Object
+	if (obj.Type == activity.ObjectType_Folder || obj.Type == activity.ObjectType_Document) && obj.Name != "" {
+		node := &tree.Node{Path: obj.Name, Uuid: obj.Id}
+		count := 0
+		for _, workspace := range workspaces {
+			if filtered, ok := a.router.WorkspaceCanSeeNode(ctx, workspace, node, false); ok {
+				if obj.PartOf == nil {
+					obj.PartOf = &activity.Object{
+						Type:  activity.ObjectType_Collection,
+						Items: []*activity.Object{},
+					}
+				}
+				obj.PartOf.Items = append(obj.PartOf.Items, &activity.Object{
+					Type: activity.ObjectType_Workspace,
+					Id:   workspace.UUID,
+					Name: workspace.Label,
+					Rel:  filtered.Path,
+				})
+				count++
+			}
+		}
+
+		if count == 0 {
+			return false
+		}
+
+		// Set path as first path
+		obj.Name = obj.PartOf.Items[0].Rel
+		ac.Object = obj
+		return true
+	}
+
+	return true
+}

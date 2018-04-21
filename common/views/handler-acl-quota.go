@@ -1,0 +1,291 @@
+/*
+ * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+package views
+
+import (
+	"context"
+	"io"
+	"strconv"
+	"strings"
+
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
+	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
+
+	"github.com/pydio/minio-go"
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils"
+)
+
+type AclQuotaFilter struct {
+	AbstractHandler
+}
+
+// Check quota on PutObject operation
+func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok {
+		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
+			return 0, err
+		} else if maxQuota > 0 && currentUsage+requestData.Size > maxQuota {
+			return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Quota is reached")
+		}
+	}
+
+	return a.next.PutObject(ctx, node, reader, requestData)
+}
+
+// Check quota on MultipartPutObjectPart
+func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
+
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok {
+		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
+			return minio.ObjectPart{}, err
+		} else if maxQuota > 0 && currentUsage+requestData.Size > maxQuota {
+			return minio.ObjectPart{}, errors.Forbidden(VIEWS_LIBRARY_NAME, "Quota is reached")
+		}
+	}
+
+	return a.next.MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, reader, requestData)
+}
+
+// Check quota on CopyObject operation
+func (a *AclQuotaFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
+
+	if branchInfo, ok := GetBranchInfo(ctx, "to"); ok {
+		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
+			return 0, err
+		} else if maxQuota > 0 && currentUsage+from.Size > maxQuota {
+			return 0, errors.Forbidden(VIEWS_LIBRARY_NAME, "Quota is reached")
+		}
+	}
+
+	return a.next.CopyObject(ctx, from, to, requestData)
+}
+
+func (a *AclQuotaFilter) ComputeQuota(ctx context.Context, workspace *idm.Workspace) (quota int64, usage int64, err error) {
+
+	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
+	if !ok {
+		return
+	}
+	orderedRoles := strings.Split(claims.Roles, ",")
+
+	q, u, e := a.QuotaForWorkspace(ctx, workspace, orderedRoles)
+	if e != nil {
+		err = e
+		return
+	}
+	if q > 0 {
+		log.Logger(ctx).Debug("got quota from current workspace", zap.Int64("q", q), zap.Int64("u", u))
+		return q, u, nil
+	}
+	var ownerUuid string
+	for _, p := range workspace.Policies {
+		if p.Action == service.ResourcePolicyAction_OWNER {
+			ownerUuid = p.Subject
+		}
+	}
+	if ownerUuid == "" {
+		return
+	}
+
+	// Recurse to parents
+	parents, parentContext, e := a.FindParentWorkspaces(ctx, workspace)
+	if e != nil {
+		err = e
+		return
+	}
+	for _, parent := range parents {
+		if pQ, pU, pE := a.ComputeQuota(parentContext, parent); pE != nil {
+			return 0, 0, pE
+		} else if pQ > 0 {
+			log.Logger(ctx).Debug("got quota from parent workspace", zap.Int64("q", pQ), zap.Int64("u", pU))
+			return pQ, pU, nil
+		}
+	}
+
+	return
+}
+
+// Find possible parents for the current workspace based on the RESOURCE_OWNER uuid
+// TODO: add virtual nodes manager
+func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *idm.Workspace) (parentWorkspaces []*idm.Workspace, parentContext context.Context, err error) {
+
+	var ownerUuid string
+	for _, p := range workspace.Policies {
+		if p.Action == service.ResourcePolicyAction_OWNER {
+			ownerUuid = p.Subject
+		}
+	}
+	if ownerUuid == "" {
+		return
+	}
+
+	ownerAcls, userObject, e := utils.AccessListFromUser(ctx, ownerUuid, true)
+	if e != nil {
+		err = e
+		return
+	}
+	log.Logger(ctx).Debug("AccessList From User", zap.Any("ownerUuid", ownerUuid), zap.Any("accessList", ownerAcls))
+
+	var roleIds []string
+	for _, r := range ownerAcls.OrderedRoles {
+		roleIds = append(roleIds, r.Uuid)
+	}
+	claims := claim.Claims{
+		Name:      userObject.Login,
+		Roles:     strings.Join(roleIds, ","),
+		GroupPath: userObject.GroupPath,
+	}
+	parentContext = context.WithValue(ctx, claim.ContextKey, claims)
+
+	vManager := GetVirtualNodesManager()
+	ownerWsRoots := make(map[string]*idm.Workspace)
+	for _, ws := range ownerAcls.Workspaces {
+		for _, originalRoot := range ws.RootNodes {
+			realId := originalRoot
+			if virtual, exists := vManager.ByUuid(originalRoot); exists {
+				resolvedRoot, e := vManager.ResolveInContext(parentContext, virtual, a.clientsPool, false)
+				if e != nil {
+					err = e
+					return
+				}
+				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("resolved", resolvedRoot))
+				realId = resolvedRoot.Uuid
+			}
+			if aclNodeMask, has := ownerAcls.GetNodesBitmasks()[originalRoot]; has && aclNodeMask.HasFlag(ctx, utils.FLAG_READ) && !aclNodeMask.HasFlag(ctx, utils.FLAG_DENY) {
+				ownerWsRoots[realId] = ws
+			}
+		}
+	}
+
+	treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	for _, root := range workspace.RootNodes {
+
+		if virtual, exists := vManager.ByUuid(root); exists {
+			resolvedRoot, e := vManager.ResolveInContext(ctx, virtual, a.clientsPool, false)
+			if e != nil {
+				err = e
+				return
+			}
+			log.Logger(ctx).Debug("Updating Workspace Root To", zap.Any("resolved", resolvedRoot))
+			root = resolvedRoot.Uuid
+		}
+
+		ancestors, er := utils.BuildAncestorsList(ctx, treeClient, &tree.Node{Uuid: root})
+		if er != nil {
+			log.Logger(ctx).Error("AncestorsList for rootNode", zap.Any("r", root), zap.Any("ancestors", ancestors), zap.Any("ownerWsRoots", ownerWsRoots))
+			err = er
+			return
+		}
+		for _, ancestor := range ancestors {
+			if ws, has := ownerWsRoots[ancestor.Uuid]; has && ws.UUID != workspace.UUID {
+				parentWorkspaces = append(parentWorkspaces, ws)
+			}
+		}
+		log.Logger(ctx).Debug("Workspace Parents?", zap.Any("parents", parentWorkspaces))
+		if len(parentWorkspaces) > 0 {
+			return parentWorkspaces, parentContext, nil
+		}
+	}
+
+	return
+}
+
+// Find quota and compute current usage from ACLs and Tree for a given workspace, in a specific context
+// given by the orderedRoles list
+func (a *AclQuotaFilter) QuotaForWorkspace(ctx context.Context, workspace *idm.Workspace, orderedRoles []string) (maxQuota int64, currentUsage int64, err error) {
+
+	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	q2, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{WorkspaceIDs: []string{workspace.UUID}})
+	stream, er := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q2}}})
+	if er != nil {
+		err = er
+		return
+	}
+	log.Logger(ctx).Debug("Searching Quota ACLs for", zap.Any("q", q2))
+	roleValues := make(map[string]string)
+	detectedRoots := make(map[string]bool)
+
+	defer stream.Close()
+	for {
+		resp, e := stream.Recv()
+		if e != nil {
+			break
+		}
+		if resp.ACL.Action.Name == utils.ACL_QUOTA.Name {
+			if resp.ACL.Action.Value != "" {
+				roleValues[resp.ACL.RoleID] = resp.ACL.Action.Value
+			}
+		} else if resp.ACL.NodeID != "" {
+			detectedRoots[resp.ACL.NodeID] = true
+		}
+	}
+
+	if len(roleValues) == 0 {
+		return
+	}
+
+	for _, r := range orderedRoles {
+		if val, ok := roleValues[r]; ok {
+			if intVal, e := strconv.ParseInt(val, 10, 64); e != nil {
+				err = e
+				return
+			} else {
+				maxQuota = intVal
+			}
+		}
+	}
+
+	vManager := GetVirtualNodesManager()
+	if maxQuota > 0 {
+		log.Logger(ctx).Debug("Found Quota", zap.Any("q", maxQuota), zap.Any("roots", detectedRoots))
+		treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+		for nodeId, _ := range detectedRoots {
+			var rootNode *tree.Node
+			if root, exists := vManager.ByUuid(nodeId); exists {
+				if rootNode, err = vManager.ResolveInContext(ctx, root, a.clientsPool, false); err != nil {
+					return
+				}
+			} else {
+				if resp, e := treeClient.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeId}}); e != nil {
+					err = e
+					return
+				} else {
+					rootNode = resp.Node
+				}
+			}
+			if rootNode != nil {
+				currentUsage += rootNode.GetSize()
+			}
+		}
+	}
+
+	return
+}

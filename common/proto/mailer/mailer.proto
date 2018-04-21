@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package mailer;
+
+message User {
+    string Uuid = 1;
+    string Address = 2;
+    string Name = 3;
+    string Language = 4;
+}
+
+message Mail {
+
+    User From = 1;
+    repeated User To = 3;
+    repeated User Cc = 4;
+    int64 DateSent = 5;
+
+    string Subject = 6;
+    string ContentPlain = 7;
+    string ContentHtml = 8;
+    string ContentMarkdown = 9;
+    repeated string Attachments = 10;
+
+    // Could be used for Re: ... conversations
+    string ThreadUuid = 11;
+    string ThreadIndex = 12;
+
+    string TemplateId = 13;
+    map<string,string> TemplateData = 14;
+
+    int32 Retries = 15;
+    repeated string sendErrors = 16;
+
+}
+
+service MailerService {
+    rpc SendMail(SendMailRequest) returns (SendMailResponse) {};
+    rpc ConsumeQueue (ConsumeQueueRequest) returns (ConsumeQueueResponse) {};
+}
+
+message SendMailRequest {
+    Mail Mail = 1;
+    bool InQueue = 2;
+}
+
+message SendMailResponse {
+    bool Success = 1;
+}
+
+message ConsumeQueueRequest {
+    int64 MaxEmails = 1;
+}
+
+message ConsumeQueueResponse {
+    string Message = 1;
+    int64 EmailsSent = 2;
+}

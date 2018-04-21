@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package rest;
+
+// Generic Message
+message DeleteResponse {
+    bool Success = 1;
+    int64 NumRows = 2;
+}
