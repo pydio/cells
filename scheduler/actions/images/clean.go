@@ -43,12 +43,12 @@ type CleanThumbsTask struct {
 	Client client.Client
 }
 
-// GetName returns this action unique identifier
+// GetName returns this action unique identifier.
 func (c *CleanThumbsTask) GetName() string {
 	return cleanThumbTaskName
 }
 
-// Init passes parameters to the action
+// Init passes parameters to the action.
 func (c *CleanThumbsTask) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	c.Client = cl
 	return nil
@@ -90,7 +90,7 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 			log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(err))
 			return input.WithError(err), err
 		}
-		logs = append(logs, fmt.Sprintf("Succesfully removed object %s", oi.Key))
+		logs = append(logs, fmt.Sprintf("Successfully removed object %s", oi.Key))
 	}
 	output := jobs.ActionMessage{}
 	output.AppendOutput(&jobs.ActionOutput{

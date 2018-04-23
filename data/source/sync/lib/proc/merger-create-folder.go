@@ -36,7 +36,7 @@ func (b *Merger) processCreateFolder(event *filters.BatchedEvent, operationId st
 	localPath := event.EventInfo.Path
 	ctx := event.EventInfo.CreateContext(b.GlobalContext)
 	dbNode, _ := event.Target.LoadNode(ctx, localPath)
-	log.Logger(ctx).Debug("Should processs CreateFolder", zap.Any("dbNode", dbNode), zap.Any("event", event.Node))
+	log.Logger(ctx).Debug("Should process CreateFolder", zap.Any("dbNode", dbNode), zap.Any("event", event.Node))
 	if dbNode == nil {
 		b.lockFileTo(event, localPath, operationId)
 		defer b.unlockFile(event, localPath)

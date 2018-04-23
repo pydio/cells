@@ -132,7 +132,7 @@ func (h *UuidNodeHandler) relativePathToWsRoot(ctx context.Context, nodeFullPath
 		if strings.HasPrefix(nodeFullPath, rootPath) {
 			return strings.TrimPrefix(nodeFullPath, rootPath), nil
 		} else {
-			return "", errors.NotFound("RouterUuid", "Cannot substract paths "+nodeFullPath+" - "+rootPath)
+			return "", errors.NotFound("RouterUuid", "Cannot subtract paths "+nodeFullPath+" - "+rootPath)
 		}
 	} else {
 		return "", e

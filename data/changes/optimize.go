@@ -151,7 +151,7 @@ func (b *ChangeBuffer) truncateBefore(e list.Element) {
 	}
 }
 
-// emptyBuffer cleanly remove all elements from the list one by one to avoid memory leaks.
+// emptyBuffer cleanly removes all elements from the list one by one to avoid memory leaks.
 func (b *ChangeBuffer) emptyBuffer() {
 	last := b.Back()
 	for last != nil {
@@ -165,7 +165,7 @@ func (b *ChangeBuffer) emptyBuffer() {
 	}
 }
 
-// Empty simply checks if the buffer is empty or not
+// Empty simply checks if the buffer is empty or not.
 func (b *ChangeBuffer) isEmpty() bool { return b.Len() == 0 }
 
 // ChangeStreamer is used to avoid sending bidirectional channels to the optimizer.
@@ -175,7 +175,7 @@ type ChangeStreamer interface {
 	Changes() <-chan *tree.SyncChange
 }
 
-// ChangeChan is a naive implementaiton of ChangeStreamer that performs no
+// ChangeChan is a naive implementation of ChangeStreamer that performs no
 // pre-processing.
 type ChangeChan <-chan *tree.SyncChange
 
@@ -185,12 +185,12 @@ func (ch ChangeChan) Changes() <-chan *tree.SyncChange {
 	return ch
 }
 
-// StreamConsumer can receive a *tree.SyncChange
+// StreamConsumer can receive a *tree.SyncChange.
 type StreamConsumer interface {
 	Send(*tree.SyncChange) error
 }
 
-// bufPool is a fixed-length pool of long-lived ChangeBuffer instances.  It
+// bufPool is a fixed-length pool of long-lived ChangeBuffer instances. It
 // scales under load but enforces a minimum pool size.
 type bufPool chan *ChangeBuffer
 
@@ -214,19 +214,19 @@ func (p bufPool) Put(buf *ChangeBuffer) {
 	}
 }
 
-// StreamOptimizer applies optimizations to the stream of changes
+// StreamOptimizer applies optimizations to the stream of changes.
 type StreamOptimizer struct {
 	changeQ <-chan *tree.SyncChange
 }
 
-// NewOptimizer produces a new StreamOptimizer
+// NewOptimizer produces a new StreamOptimizer.
 func NewOptimizer(ctx context.Context, c ChangeStreamer) (o *StreamOptimizer) {
 	o = new(StreamOptimizer)
 	o.changeQ = o.optimize(ctx, c.Changes())
 	return
 }
 
-// Output the optimized stream to a consumer
+// Output the optimized stream to a consumer.
 func (o StreamOptimizer) Output(ctx context.Context, c StreamConsumer) (err error) {
 	for change := range o.changeQ {
 
@@ -265,7 +265,7 @@ func (o StreamOptimizer) optimize(ctx context.Context, chq <-chan *tree.SyncChan
 
 // Knowing that we receive the sync changes grouped by node id (e.g. all changes for a given node will
 // be adjacent in the chq channel), we first split data in linked list buffers, each containing the events
-// for a single node, that will be then treated separatly
+// for a single node, that will be then treated separatly.
 func (o StreamOptimizer) batch(ctx context.Context, chq <-chan *tree.SyncChange) <-chan *ChangeBuffer {
 	cbQ := make(chan *ChangeBuffer, 1)
 
@@ -327,9 +327,9 @@ func (o StreamOptimizer) flatten(ctx context.Context, buf *ChangeBuffer) <-chan 
 	return cQ
 }
 
-// doFlatten effectively performs the flattening by impacting the passed buffer
+// doFlatten effectively performs the flattening by impacting the passed buffer.
 func doFlatten(ctx context.Context, buf *ChangeBuffer) {
-	// we browse the buffer multiple times to optimises transmited events by type.
+	// we browse the buffer multiple times to optimise transmitted events by type.
 
 	// first := true
 
@@ -418,7 +418,7 @@ func doFlatten(ctx context.Context, buf *ChangeBuffer) {
 		} else if getOp(curr).OpType().Create() {
 			// First double check if we have previous events, this should never happen
 			if curr.Prev() != nil {
-				log.Logger(ctx).Error("got a create event preceeded by other events, this should not happen", zap.String(common.KEY_NODE_UUID, getOp(curr).GetNodeId()))
+				log.Logger(ctx).Error("got a create event preceded by other events, this should not happen", zap.String(common.KEY_NODE_UUID, getOp(curr).GetNodeId()))
 			}
 
 			if lastMove == nil && lastUpdate == nil {
@@ -497,7 +497,7 @@ func getOp(e *list.Element) *operation {
 // 	// [ update and another update ]
 // 	// - get an update event, look up events,
 // 	// - if we found one we drop it: we will perform only last.
-// 	//   We then return: preceeding updates have been already dropped
+// 	//   We then return: preceding updates have been already dropped
 // 	// - if we reach beginning of the buffer we return
 
 // 	/// AJOUTER l'optime des creates

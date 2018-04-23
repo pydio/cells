@@ -43,7 +43,7 @@ type AclLockFilter struct {
 	AbstractHandler
 }
 
-// Find if there is a global lock registed in ACL's
+// checkLock finds if there is a global lock registered in ACLs.
 func (a *AclLockFilter) checkLock(ctx context.Context, node *tree.Node) error {
 	if node.Uuid == "" {
 		return nil
@@ -81,7 +81,7 @@ func (a *AclLockFilter) checkLock(ctx context.Context, node *tree.Node) error {
 	return nil
 }
 
-// Check lock before allowing Put operation
+// PutObject check locks before allowing Put operation.
 func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
 	if err := a.checkLock(ctx, node); err != nil {
 		return 0, err
@@ -96,7 +96,7 @@ func (a *AclLockFilter) MultipartCreate(ctx context.Context, target *tree.Node, 
 	return a.next.MultipartCreate(ctx, target, requestData)
 }
 
-// Check quota on CopyObject operation ? Can we copy an object on top of an existing node?
+// CopyObject should check: quota on CopyObject operation? Can we copy an object on top of an existing node?
 func (a *AclLockFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
 
 	return a.next.CopyObject(ctx, from, to, requestData)

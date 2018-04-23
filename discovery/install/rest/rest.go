@@ -95,7 +95,7 @@ func (h *Handler) PostInstall(req *restful.Request, rsp *restful.Response) {
 	if er := lib.Install(ctx, input.GetConfig(), func(event *lib.InstallProgressEvent) {
 		eventManager.Publish("install", event)
 	}); er != nil {
-		eventManager.Publish("install", &lib.InstallProgressEvent{Message: "Some error occured: " + er.Error()})
+		eventManager.Publish("install", &lib.InstallProgressEvent{Message: "Some error occurred: " + er.Error()})
 		service.RestError500(req, rsp, er)
 	} else {
 		eventManager.Publish("install", &lib.InstallProgressEvent{

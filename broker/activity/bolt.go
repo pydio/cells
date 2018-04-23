@@ -225,7 +225,7 @@ func (dao *boltdbimpl) ActivitiesFor(ownerType activity.OwnerType, ownerId strin
 			acObject := &activity.Object{}
 			err := json.Unmarshal(v, acObject)
 			if prevObj != nil && dao.activitiesAreSimilar(prevObj, acObject) {
-				prevObj = acObject // Ignore similar events - TODO : add occurence number?
+				prevObj = acObject // Ignore similar events - TODO : add occurrence number?
 				continue
 			}
 			if err == nil {
