@@ -97,7 +97,7 @@ func (a *PathWorkspaceHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 	_, wsFound := a.updateBranchInfo(ctx, "in", &tree.Node{Path: in.Node.Path})
 	if wsFound != nil && errors.Parse(wsFound.Error()).Status == "Not Found" {
 		// Return a fake root node
-		return &tree.ReadNodeResponse{true, &tree.Node{Path: ""}}, nil
+		return &tree.ReadNodeResponse{Success: true, Node: &tree.Node{Path: ""}}, nil
 	}
 	return a.AbstractBranchFilter.ReadNode(ctx, in, opts...)
 

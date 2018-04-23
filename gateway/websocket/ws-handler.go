@@ -245,6 +245,5 @@ func (w *WebsocketHandler) BroadcastActivityEvent(ctx context.Context, event *ac
 		}
 		return false
 	})
-	return nil
 
 }

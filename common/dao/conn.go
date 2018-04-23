@@ -44,6 +44,8 @@ func NewConn(d string, dsn string) (Conn, error) {
 		drv = new(sqlite)
 	case "boltdb":
 		drv = new(boltdb)
+	default:
+		return nil, fmt.Errorf("wrong driver")
 	}
 
 	if db, err := drv.Open(dsn); err != nil {
@@ -52,7 +54,6 @@ func NewConn(d string, dsn string) (Conn, error) {
 		return db, nil
 	}
 
-	return nil, fmt.Errorf("Wrong driver")
 }
 
 func getSqlConnection(driver string, dsn string) (*sql.DB, error) {

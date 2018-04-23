@@ -90,8 +90,6 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, identifier stri
 		return ctx, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot load access list")
 	}
 
-	return ctx, nil
-
 }
 
 func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
@@ -137,7 +135,5 @@ func (h *UuidNodeHandler) relativePathToWsRoot(ctx context.Context, nodeFullPath
 	} else {
 		return "", e
 	}
-
-	return nodeFullPath, nil
 
 }

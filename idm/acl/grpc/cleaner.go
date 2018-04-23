@@ -81,5 +81,4 @@ func (c *NodesCleaner) Handle(ctx context.Context, msg *tree.NodeChangeEvent) er
 			SubQueries: []*any.Any{q},
 		},
 	}, &idm.DeleteACLResponse{})
-	return nil
 }
