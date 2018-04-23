@@ -1,5 +1,12 @@
 # Pydio Cells
 
+[![GoDoc](https://godoc.org/github.com/pydio/cells?status.svg)](https://godoc.org/github.com/pydio/cells)
+[![Build Status](https://travis-ci.org/pydio/cells.svg?branch=master)](https://travis-ci.org/pydio/cells)
+[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells)](https://goreportcard.com/report/github.com/pydio/cells)
+
+
+![Pydio Cells Logo](TODO: add an URL here)
+
 Pydio Cells is the nextgen file sharing platform for organizations. It is a full rewrite of the Pydio project using the Go language following a micro-service architecture. 
 
 ## Getting Started
@@ -10,8 +17,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 The following elements are required to compile and run pydio on your machine
 
- - Go language v1.10 or higher
- - MySQL database 5.6 or higher (or MariaDB equivalent)
+ - Go language v1.10 or higher (with a [correctly configured](https://golang.org/doc/install#testing) Go toolchain),
+ - MySQL database 5.6 or higher (or MariaDB equivalent),
  - [Frontend] For running the PHP frontend, PHP-FPM is required as well (see pydio/cells-front repository).
 
 
@@ -65,17 +72,17 @@ Add additional notes about how to deploy this on a live system
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/pydio/cells/tags). 
 
 ## Authors
 
-* **Charles du Jeu** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Charles du Jeu** - *Initial work* - [cdujeu](https://github.com/cdujeu)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/pydio/cells/graphs/contributors) who participated in this project.
 
 ## License
 
