@@ -60,20 +60,20 @@ var installCmd = &cobra.Command{
 	Short: "Pydio Cells Installer",
 	Long: `This command launch the installation process of Pydio Cells.
 
-It will ask for the Bind URL to hook the webserver on a network interface IP, and you can set a different URL for accessing
+It will ask for the Bind Host to hook the webserver on a network interface IP, and you can set different hosts for accessing
 the machine from outside world (if it is behind a proxy or inside a container with ports mapping for example).
 For example
-- Bind URL : http://0.0.0.0:8080/
-- External URL : http://share.mydomain.tld/
+- Bind Host : 0.0.0.0:8080
+- External Host : share.mydomain.tld
 Or
-- Bind URL : http://share.mydomain.tld/
-- External URL : http://share.mydomain.tld/
+- Bind Host : share.mydomain.tld
+- External Host : share.mydomain.tld
 Or
-- Bind URL : http://IP:1515/       # internal port
-- External URL : http://IP:8080/   # external port mapped by docker
+- Bind Host : IP:1515       # internal port
+- External Host : IP:8080   # external port mapped by docker
 Or
-- Bind URL : http://IP:8080/
-- External URL : http://IP:8080/
+- Bind Host : IP:8080
+- External Host : IP:8080
 
 It will open a browser to gather necessary information and configuration for Pydio Cells. if you don't have a browser access,
 you can launch the command line installation using the install-cli command:

@@ -32,6 +32,7 @@ import (
 
 	"github.com/mholt/caddy"
 	"github.com/pydio/cells/common"
+	"go.uber.org/zap/zapcore"
 )
 
 // CaddyTemplateConf feeds Caddy template file with data
@@ -228,7 +229,9 @@ func InitCaddyFile(tpl string, tplData interface{}) error {
 		}, nil
 	}
 	caddy.SetDefaultCaddyfileLoader("default", caddy.LoaderFunc(loader))
-	fmt.Println("Loading Caddy File", string(buf.Bytes()))
+	if common.LogLevel == zapcore.DebugLevel {
+		fmt.Println("Loading Caddy File", string(buf.Bytes()))
+	}
 	return nil
 
 }

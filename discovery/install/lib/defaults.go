@@ -36,14 +36,14 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.DbConnectionType = "tcp"
 	c.DbTCPHostname = "localhost"
 	c.DbTCPPort = "3306"
-	c.DbTCPName = "pydio"
+	c.DbTCPName = "cells"
 	c.DbTCPUser = "root"
 	c.DbTCPPassword = ""
 	c.DbSocketFile = "/tmp/mysql.sock"
-	c.DbSocketName = "pydio"
+	c.DbSocketName = "cells"
 	c.DbSocketUser = "root"
 	c.DbSocketPassword = ""
-	c.DbManualDSN = "root@tcp(localhost=3306)/pydio"
+	c.DbManualDSN = "root@tcp(localhost=3306)/cells"
 	c.DsName = "pydiods1"
 	c.DsPort = fmt.Sprintf("%d", utils.GetAvailablePort())
 	c.DsFolder = filepath.Join(config.ApplicationDataDir(), "data")
@@ -52,7 +52,7 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.ExternalWebsocket = fmt.Sprintf("%d", utils.GetAvailablePort())
 	c.ExternalFrontPlugins = fmt.Sprintf("%d", utils.GetAvailablePort())
 	c.ExternalDex = fmt.Sprintf("%d", utils.GetAvailablePort())
-	c.ExternalDexID = "pydio-frontend"
+	c.ExternalDexID = "cells-front"
 	c.ExternalDexSecret = utils.Randkey(24)
 	c.FrontendHosts = "localhost,127.0.0.1,::1"
 	c.FrontendLogin = "admin"

@@ -55,20 +55,6 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
 var client = new _client2.default();
 var api = new _InstallServiceApi2.default(client);
 
-var validate = function validate(values) {
-    var errors = {};
-    var requiredFields = ['firstName', 'lastName', 'email', 'favoriteColor', 'notes'];
-    requiredFields.forEach(function (field) {
-        if (!values[field]) {
-            errors[field] = 'Required';
-        }
-    });
-    if (values.email && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-        errors.email = 'Invalid email address';
-    }
-    return errors;
-};
-
 var renderTextField = function renderTextField(_ref) {
     var input = _ref.input,
         label = _ref.label,
@@ -100,7 +86,7 @@ var renderPassField = function renderPassField(_ref2) {
         hintText: label,
         floatingLabelText: floatingLabel,
         floatingLabelFixed: true,
-        errorText: touched && error,
+        errorText: error,
         fullWidth: true,
         type: "password"
     }, input, custom));
@@ -321,7 +307,8 @@ var InstallForm = function (_React$Component) {
             var stepIndex = this.state.stepIndex;
             var _props = this.props,
                 handleSubmit = _props.handleSubmit,
-                licenseRequired = _props.licenseRequired;
+                licenseRequired = _props.licenseRequired,
+                invalid = _props.invalid;
 
             var stepOffset = licenseRequired ? 1 : 0;
 
@@ -367,7 +354,7 @@ var InstallForm = function (_React$Component) {
                         label: stepIndex === 4 + stepOffset ? 'Install Now' : 'Next',
                         primary: true,
                         onClick: nextAction,
-                        disabled: nextDisabled
+                        disabled: nextDisabled || invalid
                     })
                 )
             );
@@ -1007,7 +994,7 @@ var InstallForm = function (_React$Component) {
                             backgroundRepeat: 'no-repeat', backgroundPosition: 'center center', width: 256, height: 100 } }),
                     _react2.default.createElement(
                         'form',
-                        { onSubmit: handleSubmit },
+                        { onSubmit: handleSubmit, autoComplete: "off" },
                         _react2.default.createElement(
                             _materialUi.Stepper,
                             { activeStep: stepIndex, orientation: 'vertical' },
@@ -1028,7 +1015,15 @@ var InstallForm = function (_React$Component) {
 
 
 InstallForm = (0, _reduxForm.reduxForm)({
-    form: 'install'
+    form: 'install',
+    validate: function validate(values) {
+        var errors = {};
+        if (values['frontendPassword'] && values['frontendRepeatPassword'] !== values['frontendPassword']) {
+            errors['frontendRepeatPassword'] = 'Passwords differ!';
+        }
+        console.log(errors);
+        return errors;
+    }
 })(InstallForm);
 
 // Decorate with connect to read form values

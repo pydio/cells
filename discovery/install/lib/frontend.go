@@ -251,7 +251,7 @@ func checkPhpFpm(installConfig *install.InstallConfig) *install.CheckResult {
 		data, _ := json.Marshal(jsonData)
 		checkResult = &install.CheckResult{
 			Name:       "PHP",
-			Success:    false,
+			Success:    true,
 			JsonResult: string(data),
 		}
 	}

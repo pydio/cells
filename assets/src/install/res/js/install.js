@@ -13,29 +13,6 @@ import { load as loadConfig } from './config'
 const client = new Client();
 const api = new InstallServiceApi(client);
 
-const validate = values => {
-    const errors = {}
-    const requiredFields = [
-    'firstName',
-    'lastName',
-    'email',
-    'favoriteColor',
-    'notes'
-  ];
-  requiredFields.forEach(field => {
-    if (!values[field]) {
-      errors[field] = 'Required'
-    }
-  });
-  if (
-    values.email &&
-    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
-  ) {
-    errors.email = 'Invalid email address'
-  }
-  return errors
-};
-
 const renderTextField = ({input, label, floatingLabel, meta: {touched, error}, ...custom}) => (
   <TextField
     hintText={label}
@@ -53,7 +30,7 @@ const renderPassField = ({input, label, floatingLabel, meta: {touched, error}, .
     hintText={label}
     floatingLabelText={floatingLabel}
     floatingLabelFixed={true}
-    errorText={touched && error}
+    errorText={error}
     fullWidth={true}
     type={"password"}
     {...input}
@@ -232,7 +209,7 @@ class InstallForm extends React.Component {
 
     renderStepActions(step, nextDisabled = false, leftAction = null) {
         const {stepIndex} = this.state;
-        const {handleSubmit, licenseRequired} = this.props;
+        const {handleSubmit, licenseRequired, invalid} = this.props;
         const stepOffset = licenseRequired ? 1 : 0;
 
         let nextAction;
@@ -274,7 +251,7 @@ class InstallForm extends React.Component {
                         label={stepIndex === 4 + stepOffset? 'Install Now' : 'Next'}
                         primary={true}
                         onClick={nextAction}
-                        disabled={nextDisabled}
+                        disabled={nextDisabled || invalid}
                     />
                 </div>
             </div>
@@ -618,7 +595,7 @@ class InstallForm extends React.Component {
                 <div style={{width: 256, height: panelHeight, backgroundColor: '#607D8B', fontSize: 13}}>
                     <div style={{backgroundImage:'url(res/css/PydioLogo250.png)', backgroundSize:'90%',
                         backgroundRepeat: 'no-repeat', backgroundPosition:'center center', width: 256, height: 100}}></div>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} autoComplete={"off"}>
                         <Stepper activeStep={stepIndex} orientation="vertical">
                             {steps}
                         </Stepper>
@@ -633,7 +610,15 @@ class InstallForm extends React.Component {
 
 // Decorate with redux-form
 InstallForm = reduxForm({
-  form: 'install'
+    form: 'install',
+    validate:values => {
+        const errors = {};
+        if(values['frontendPassword'] && values['frontendRepeatPassword'] !== values['frontendPassword']) {
+            errors['frontendRepeatPassword'] = 'Passwords differ!'
+        }
+        console.log(errors);
+        return errors;
+    }
 })(InstallForm);
 
 // Decorate with connect to read form values

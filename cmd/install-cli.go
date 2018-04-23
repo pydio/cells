@@ -102,6 +102,8 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 		return
 	}
 	internalHost = strings.TrimSuffix(internalHost, "/")
+	internalHost = strings.TrimPrefix(internalHost, "http://")
+	internalHost = strings.TrimPrefix(internalHost, "https://")
 
 	extPrompt := p.Prompt{
 		Label:    "External Host (used to access this machine from outside world, if different from Bind Host)",
@@ -113,6 +115,8 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 		return
 	}
 	externalHost = strings.TrimSuffix(externalHost, "/")
+	externalHost = strings.TrimPrefix(externalHost, "http://")
+	externalHost = strings.TrimPrefix(externalHost, "https://")
 
 	_, e = promptSslMode()
 	if e != nil {
@@ -192,7 +196,7 @@ var installCliCmd = &cobra.Command{
 		}
 
 		fmt.Println("")
-		fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with './pydio start' command\033[0m")
+		fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with './cells start' command\033[0m")
 		fmt.Println("")
 	},
 }
@@ -206,7 +210,7 @@ func promptDB(c *install.InstallConfig) error {
 	dbTcpHost := p.Prompt{Label: "Database Hostname", Validate: notEmpty, Default: "localhost"}
 	dbTcpPort := p.Prompt{Label: "Database Port", Validate: validPortNumber, Default: "3306"}
 
-	dbName := p.Prompt{Label: "Database Name", Validate: notEmpty, Default: "pydio"}
+	dbName := p.Prompt{Label: "Database Name", Validate: notEmpty, Default: "cells"}
 	dbUser := p.Prompt{Label: "Database User", Validate: notEmpty}
 	dbPass := p.Prompt{Label: "Database Password (leave empty if not needed)", Mask: '*'}
 
@@ -279,7 +283,7 @@ func promptFPM(c *install.InstallConfig) error {
 			if !c.CheckResults[0].Success {
 				fmt.Println(p.IconBad + " Could not detect PHP version: " + res.Error)
 			} else {
-				fmt.Println(p.IconGood + " Php version detected" + res.Fpm.PhpVersion)
+				fmt.Println(p.IconGood + " Php version detected: " + res.Fpm.PhpVersion)
 			}
 			fpmPrompt := p.Prompt{Label: "PHP-FPM Listen Address was detected at " + res.Fpm.ListenAddress + ". Is it correct", IsConfirm: true}
 			if _, err := fpmPrompt.Run(); err == nil {

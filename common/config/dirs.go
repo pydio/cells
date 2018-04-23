@@ -26,12 +26,18 @@ import (
 	"path/filepath"
 
 	"github.com/shibukawa/configdir"
+	"runtime"
 )
 
 // ApplicationDataDir creates a local file to store pydio system data
 func ApplicationDataDir() string {
 
-	configDirs := configdir.New("Pydio", "Server")
+	vendor := "Pydio"
+	if runtime.GOOS == "linux" {
+		vendor = "pydio"
+	}
+	appName := "cells"
+	configDirs := configdir.New(vendor, appName)
 	folders := configDirs.QueryFolders(configdir.Global)
 	if len(folders) == 0 {
 		folders = configDirs.QueryFolders(configdir.Local)

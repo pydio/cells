@@ -69,6 +69,7 @@ html {
   padding: 0;
   background-color: #fcfcff;
   overflow-x: hidden;
+    height: 100%;
 }
 * {
   -moz-user-select: -moz-none;
