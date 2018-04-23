@@ -491,7 +491,7 @@ service TokenService{
 
 // Mailer Service provides simple access to mail functions
 service MailerService{
-    // Send an email to a user or any email adress
+    // Send an email to a user or any email address
     rpc Send(mailer.Mail) returns (mailer.SendMailResponse){
         option (google.api.http) =  {
             post: "/mailer/send"

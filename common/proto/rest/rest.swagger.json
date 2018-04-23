@@ -1710,7 +1710,7 @@
     },
     "/mailer/send": {
       "post": {
-        "summary": "Send an email to a user or any email adress",
+        "summary": "Send an email to a user or any email address",
         "operationId": "Send",
         "responses": {
           "200": {
