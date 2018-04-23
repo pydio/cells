@@ -22,27 +22,41 @@ The following elements are required to compile and run pydio on your machine
  - [Frontend] For running the PHP frontend, PHP-FPM is required as well (see pydio/cells-front repository).
 
 
+_Note: We have developped and tested Pydio Cells on MacOS, Ubuntu, Debian and CentOS. Windows version might still have unknown glitches and is not yet supported._
+
 ### Installing
 
-A step by step series of examples that tell you have to get a development env running
-
-Say what the step will be
-
-```
-Give the example
+In all commands below, we assume you are in Pydio Cells' code roots directory:
+```bash
+cd $GOPATH/src/github.com/pydio/cells
 ```
 
-And repeat
+Assuming that your system meets the above prerequisites, building the **Pydio Cells** backend from the source code is quite straight forward:
 
-```
-until finished
+```bash
+# Ensure all dependencies are present for the go package
+./deps.sh
+# Build your binary
+make dev
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+To have the environment running, you must also:
+
+- create a database in your chosen DB server,
+- run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [wiki]() for additional information.
+
+```bash
+./cells install
+```
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
+To run the tests, simply do:
+
+```bash
+cd $GOPATH/src/github.com/pydio/cells
+go test -v ./...
+```
 
 ### Break down into end to end tests
 
