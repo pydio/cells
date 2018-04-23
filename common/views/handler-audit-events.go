@@ -36,12 +36,12 @@ import (
 )
 
 // HandlerAuditEvent is responsible for auditing all events on Nodes
-// as soon as the router's option flag "AuditEvent" is set to true
+// as soon as the router's option flag "AuditEvent" is set to true.
 type HandlerAuditEvent struct {
 	AbstractHandler
 }
 
-// GetObject logs an audit message on each GetObject Events after calling following handlers
+// GetObject logs an audit message on each GetObject Events after calling following handlers.
 func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
 	reader, e := h.next.GetObject(ctx, node, requestData)
 
@@ -62,7 +62,7 @@ func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requ
 	return reader, e
 }
 
-// PutObject logs an audit message after calling following handlers
+// PutObject logs an audit message after calling following handlers.
 func (h *HandlerAuditEvent) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
 	written, e := h.next.PutObject(ctx, node, reader, requestData)
 
@@ -106,7 +106,7 @@ func (h *HandlerAuditEvent) ReadNode(ctx context.Context, in *tree.ReadNodeReque
 	// )
 }
 
-// ListNodes logs an audit message on each call after having transfered the call to following handlers
+// ListNodes logs an audit message on each call after having transferred the call to following handlers.
 func (h *HandlerAuditEvent) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (tree.NodeProvider_ListNodesClient, error) {
 	c, e := h.next.ListNodes(ctx, in, opts...)
 
@@ -124,7 +124,7 @@ func (h *HandlerAuditEvent) ListNodes(ctx context.Context, in *tree.ListNodesReq
 	return c, e
 }
 
-// CreateNode logs an audit message on each call after having transfered the call to following handlers
+// CreateNode logs an audit message on each call after having transferred the call to following handlers.
 func (h *HandlerAuditEvent) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...client.CallOption) (*tree.CreateNodeResponse, error) {
 	response, e := h.next.CreateNode(ctx, in, opts...)
 	_, wsInfo, wsScope := checkBranchInfoForAudit(ctx, "in")
@@ -140,7 +140,7 @@ func (h *HandlerAuditEvent) CreateNode(ctx context.Context, in *tree.CreateNodeR
 	return response, e
 }
 
-// UpdateNode logs an audit message on each call after having transfered the call to following handlers
+// UpdateNode logs an audit message on each call after having transferred the call to following handlers.
 func (h *HandlerAuditEvent) UpdateNode(ctx context.Context, in *tree.UpdateNodeRequest, opts ...client.CallOption) (*tree.UpdateNodeResponse, error) {
 	response, e := h.next.UpdateNode(ctx, in, opts...)
 
@@ -160,7 +160,7 @@ func (h *HandlerAuditEvent) UpdateNode(ctx context.Context, in *tree.UpdateNodeR
 	return response, e
 }
 
-// DeleteNode logs an audit message on each call after having transfered the call to following handlers
+// DeleteNode logs an audit message on each call after having transferred the call to following handlers.
 func (h *HandlerAuditEvent) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...client.CallOption) (*tree.DeleteNodeResponse, error) {
 	response, e := h.next.DeleteNode(ctx, in, opts...)
 
@@ -216,7 +216,7 @@ func (h *HandlerAuditEvent) MultipartListObjectParts(ctx context.Context, target
 }
 
 /* HELPER METHODS */
-// checkBranchInfoForAudit simply gather relevant information from the branch info before calling the Audit log
+// checkBranchInfoForAudit simply gather relevant information from the branch info before calling the Audit log.
 func checkBranchInfoForAudit(ctx context.Context, identifier string) (isBinary bool, wsInfo zapcore.Field, wsScope zapcore.Field) {
 	// Retrieve Datasource and Workspace info
 	branchInfo, ok := GetBranchInfo(ctx, identifier)

@@ -70,7 +70,7 @@ Run './pydio start' to load all services.
 
 LOGS LEVEL
 ==========
-By default, logs are outputed in console format at the Info level. You can set the PYDIO_LOGS_LEVEL environment variable
+By default, logs are outputted in console format at the Info level. You can set the PYDIO_LOGS_LEVEL environment variable
 to one of the following values:
  - debug, info, error : logs are written in console format with the according level
  - production : logs are written in json format, for usage with a log aggregator tool.

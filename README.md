@@ -1,12 +1,12 @@
-![Pydio Cells](https://github.com/pydio/cells/wiki/images/PydioCellsColor.png)
+<img src="https://github.com/pydio/cells/wiki/images/PydioCellsColor.png" width="400" />
 
-[Homepage](https://pydio.com/) | [Wiki](https://github.com/pydio/cells/wiki) | [GitHub-Repository](https://github.com/pydio/pydio-core) |
-[Issue-Tracker](https://github.com/pydio/pydio-core/issues) 
+[Homepage](https://pydio.com/) | [Wiki](https://github.com/pydio/cells/wiki) | [GitHub-Repository](https://github.com/pydio/cells) |
+[Issue-Tracker](https://github.com/pydio/cells/issues) 
 
-![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)
+[![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)](LICENSE)
 [![GoDoc](https://godoc.org/github.com/pydio/cells?status.svg)](https://godoc.org/github.com/pydio/cells)
 [![Build Status](https://travis-ci.org/pydio/cells.svg?branch=master)](https://travis-ci.org/pydio/cells)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells)](https://goreportcard.com/report/github.com/pydio/cells)
+[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells?rand=1)](https://goreportcard.com/report/github.com/pydio/cells)
 
 
 Pydio Cells is the nextgen file sharing platform for organizations. It is a full rewrite of the Pydio project using the Go language following a micro-service architecture. 
@@ -35,10 +35,14 @@ Assuming that your system meets the above prerequisites, building the **Pydio Ce
 go get -u github.com/pydio/cells
 # From this line on, we assume you are in Pydio Cells' code roots directory
 cd $GOPATH/src/github.com/pydio/cells 
-# Ensure all dependencies are present for the go package
-./deps.sh
 # Build your binary
 make dev
+```
+
+_Note: we had to fork a few libraries before integrating them as dependencies. If you need to modify this part of the code, you should first retrieve a local version by executing_  
+
+```sh
+./deps.sh
 ```
 
 To have the environment running, you must also:
@@ -56,28 +60,15 @@ To run the tests, simply do
 ```sh
 go test -v ./...
 ```
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
+Please read the [CONTRIBUTING.md](CONTRIBUTING.md) document if you wish to add more tests or contribute to the code.
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+Binaries are currently provided for Linux and MacOSX distributions. To deploy them on a live system, please see the Wiki instructions. 
 
 ## Built With
+
+Pydio Cells uses many open source golang libraries. Most important ones are listed below, please see [DEPENDENCIES](DEPENDENCIES) for an exhaustive list of other libs and their licenses.
 
 * [Micro](https://github.com/micro/micro) - Micro-service framework
 * [Minio](https://github.com/minio/minio) - Objects server implementing s3 protocol
@@ -93,16 +84,8 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **Charles du Jeu** - *Initial work* - [cdujeu](https://github.com/cdujeu)
-
-See also the list of [contributors](https://github.com/pydio/cells/graphs/contributors) who participated in this project.
+See the list of [contributors](https://github.com/pydio/cells/graphs/contributors) who participated in this project. Pydio Cells is also a continuation of the Pydio project and many contributions were ported from [pydio-core](https://github.com/pydio/pydio-core) to the [cells-front](https://github.com/pydio/cells-front) code.
 
 ## License
 
 This project is licensed under the AGPLv3 License - see the [LICENSE](LICENSE) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc

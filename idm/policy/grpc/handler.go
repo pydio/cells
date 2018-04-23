@@ -63,9 +63,9 @@ func (h *Handler) IsAllowed(ctx context.Context, request *idm.PolicyEngineReques
 			// This is a deny because no match: it does nothing but waits for
 			// the loop to finish and see if there is an explicit allow or deny
 		} else if strings.Contains(err.Error(), "Request was forcefully denied") {
-			// Explicity Deny : break and return false, ignoring following policies
+			// Explicitly Deny : break and return false, ignoring following policies
 			response.ExplicitDeny = true
-			// log.Logger(context.Background()).Error("IsAllowed: explicitely denied", zap.Any("ladonRequest", ladonRequest))
+			// log.Logger(context.Background()).Error("IsAllowed: explicitly denied", zap.Any("ladonRequest", ladonRequest))
 			return nil
 		} else {
 			// Unexpected Error

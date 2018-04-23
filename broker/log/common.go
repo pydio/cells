@@ -42,8 +42,8 @@ type MessageRepository interface {
 
 /* HELPER METHODS */
 
-// FromLogMsgToMap uses reflection to tranform a log.LogMessage in a map[string]interface{}
-// It also converts MsgId to corresponding label and timestamp as second in time
+// FromLogMsgToMap uses reflection to transform a log.LogMessage in a map[string]interface{}.
+// It also converts MsgId to corresponding label and timestamp as second in time.
 func FromLogMsgToMap(doc *log.LogMessage, m map[string]interface{}) {
 	msg := reflect.Indirect(reflect.ValueOf(*doc))
 
@@ -70,7 +70,7 @@ func FromLogMsgToMap(doc *log.LogMessage, m map[string]interface{}) {
 	}
 }
 
-// FromLogMsgToStringMap uses reflection to tranform a log.LogMessage in a map[string]string
+// FromLogMsgToStringMap uses reflection to transform a log.LogMessage in a map[string]string.
 func FromLogMsgToStringMap(doc *log.LogMessage, m map[string]string) {
 
 	msg := reflect.Indirect(reflect.ValueOf(*doc))

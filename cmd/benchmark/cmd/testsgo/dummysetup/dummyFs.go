@@ -94,7 +94,7 @@ func Generate() error {
 		var err error
 		currFileNb, currRemaining, err = populateFolder(rootPath, 1, currFileNb, currRemaining)
 		if err != nil {
-			log.Fatalf("cannot populate dummy file sytem at %s, error: %s", rootPath, err.Error())
+			log.Fatalf("cannot populate dummy file system at %s, error: %s", rootPath, err.Error())
 			return err
 		}
 		pass++

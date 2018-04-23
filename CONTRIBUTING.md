@@ -2,34 +2,88 @@
 
 *Pydio Cells is a free and open source project and we are very glad to welcome your contribution. To make the process as seamless as possible, we recommend you read this contribution guide.* 
 
-## Main Guidelines
+FYI, we use Github only for "qualified bugs" : bugs that are easily reproduced, validated by a Pydio Team member. Our preferred communication channel is our Forum. Please do not ask question in github issues, nor in Twitter or other social feed.
 
-FYI, we use Github only for "qualified bugs" : bugs that are easily reproduced, validated by a Pydio Team member. 
+So, what should I do in case of: 
 
-Our preferred communication channel is our Forum. Please do not ask question in github issues, nor in Twitter or other social feed.
-
-**Install or upgrade issue?**
-
-> Search the [F.A.Q](https://pydio.com/en/docs/faq)  or [READ THE DOCS](https://pydio.com/en/docs)  
-
-**No answer yet?**
-
-> Search the [FORUM](https://forum.pydio.com)
-
-**Still stuck? --> Ask the community**
-
-> Time to [POST IN THE FORUM](https://forum.pydio.com)
+- **Install or upgrade issue?**  Search the [F.A.Q](https://pydio.com/en/docs/faq)  or [READ THE DOCS](https://pydio.com/en/docs)  
+- **No answer yet?** Search the [FORUM](https://forum.pydio.com)
+- **Still stuck?** It's time to ask the community via the [FORUM](https://forum.pydio.com)
 
 *And only if you're invited to*
 
-**Post a github issue or submit a pull request**
+- **Post a github issue**: make sure to put as much detail as possible (see below).
+- or **submit a pull request**.
 
-> Make sure to put as many details as possible. If you are referring to a discussion on the Forum, add the link. The more info you give, the more easily we can reproduce the bug, the quicker we can fix it.  
-> If you are submitting a Pull Request, please sign the [Contributor License Agreement](https://pydio.com/en/community/contribute/contributor-license-agreement-cla).
+## Report an issue
+
+If you report an issue (either on the forum or upon request by submitting a github issue), make sure to put as much detail as possible:
+
+- Hardware and OS info and versions
+- Pydio Cells version
+- Switch to debug mode by starting Pydio Cells with `$ ./cells --log debug start` and attach relevant log to your request
+- Describe steps and provide files to help us reproduce the bug
+- Attach any screenshot that might be relevant 
+- If you are referring to a discussion on the Forum, add the link. 
+
+_Remember: the more info you give, the more easily we can reproduce the bug, the quicker we can fix it._
+
+## Code conventions
+
+If you end up coding to contribute a fix or new feature, please read carefully the below rules before jumping to the 
+next paragraph that describes the PR process step by step. We will reject any PR that does not respect these rules.
+
+Generally speaking, we respect the standard code conventions defined in [effective Go](https://golang.org/doc/effective_go.html).
+
+**In addition**:
+- Use "goimports" to format the Go code.
+- Always format code before committing / submitting a pull request.
+- Organise your import in 3 blocks, separated by an empty line:
+   1. Standard libray imports
+   2. Other third party lib imports
+   3. Pydio internal dependencies
+
+### Logging
+
+We use [zap](https://github.com/uber-go/zap) for logging purpose.
+Logs are redirected to standard out in development mode and serialized as json and collected by a dedicated service when in production.
+
+- Provide contextual information using zap objects, for instance :
+
+```
+log.Logger(ctx).Debug("A summary message for action on node "+node.Path, zap.Any("<a predefined id>", node))...
+```
+
+- When adding a zap "object", always use one of the predefined ID that can be found in `cells/common/zapfields.go`, so that logs are then more easily searchable
+- Always use the context when available to retrieve the correct logger, rather than creating a new context:
+
+```
+log.Logger(ctx).Debug ...
+// rather than
+log.Logger(context.Background()).Debug...
+```
+- Error should always use the Error level: `log.Logger(ctx).Error(...)`
+- In Go, it is idiomatic to start error message with a lower case.  
+  For instance rather use `log.Logger(ctx).Error("unable to save file")`  
+  than `log.Logger(ctx).Error("Unable to save file")`
+
+### Comments
+
+- Public methods and structures are commented following golang basic comment style.
+- Add at least a comment/documentation for each package. If a package contains more than one file, put the package comment in: 
+   - `plugins.go`: in case of a `grpc` or `rest` package
+   - `dao.go`: where we define this package interfaces 
+   - a specific `doc.go` file if the correct file is not obvious
+
+### Tests
+- Every file must provide tests in separated file with suffix "_test.go" in the same folder.
+- We use the **GoConvey** library.
+
+_Note that PRs that do not provide relevant passing tests will be rejected._
 
 ## Pull Request Workflow
 
-Start by forking the Pydio Cells GitHub repository, make changes in a branch and then send a pull request. Below are the steps in details:
+Before submitting a Pull Request, please sign the [Contributor License Agreement](https://pydio.com/en/community/contribute/contributor-license-agreement-cla), then start by forking the Pydio Cells GitHub repository, make changes in a branch and then send a pull request. Below are the steps in details:
 
 ### Setup your Pydio Cells Github Repository
 Fork [Pydio Cells](https://github.com/pydio/cells/fork) source repository to your own personal repository. Copy the URL of your fork.
@@ -132,19 +186,6 @@ representing a project or community include using an official project e-mail
 address, posting via an official social media account, or acting as an appointed
 representative at an online or offline event. Representation of a project may be
 further defined and clarified by project maintainers.
-
-### Enforcement
-
-Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the project team at [INSERT EMAIL ADDRESS]. All
-complaints will be reviewed and investigated and will result in a response that
-is deemed necessary and appropriate to the circumstances. The project team is
-obligated to maintain confidentiality with regard to the reporter of an incident.
-Further details of specific enforcement policies may be posted separately.
-
-Project maintainers who do not follow or enforce the Code of Conduct in good
-faith may face temporary or permanent repercussions as determined by other
-members of the project's leadership.
 
 ## Attribution
 
