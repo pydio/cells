@@ -93,7 +93,6 @@ func (h *Handler) ListVersions(ctx context.Context, request *tree.ListVersionsRe
 		}
 	}
 
-	return nil
 }
 
 func (h *Handler) HeadVersion(ctx context.Context, request *tree.HeadVersionRequest, resp *tree.HeadVersionResponse) error {
@@ -188,7 +187,6 @@ func (h *Handler) PruneVersions(ctx context.Context, request *tree.PruneVersions
 					return nil
 				}
 			}
-			return nil
 		}
 		err := runner()
 		wg.Wait()

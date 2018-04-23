@@ -232,8 +232,6 @@ func (h *boltdbimpl) ListMessages(request *chat.ListMessagesRequest) (messages [
 			return nil
 		})
 
-		return nil
-
 	})
 
 	return messages, e

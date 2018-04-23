@@ -135,7 +135,7 @@ func (a *ArchiveHandler) ListNodes(ctx context.Context, in *tree.ListNodesReques
 			go func() {
 				defer streamer.Close()
 				log.Logger(ctx).Debug("[ARCHIVE:LISTNODE/READ]", zap.String("path", archiveNode.Path))
-				streamer.Send(&tree.ListNodesResponse{archiveNode})
+				streamer.Send(&tree.ListNodesResponse{Node: archiveNode})
 			}()
 			return streamer, nil
 		}
@@ -160,7 +160,7 @@ func (a *ArchiveHandler) ListNodes(ctx context.Context, in *tree.ListNodesReques
 			defer streamer.Close()
 			for _, child := range children {
 				log.Logger(ctx).Debug("[ARCHIVE:LISTNODE]", zap.String("path", child.Path))
-				streamer.Send(&tree.ListNodesResponse{child})
+				streamer.Send(&tree.ListNodesResponse{Node: child})
 			}
 		}()
 		return streamer, nil

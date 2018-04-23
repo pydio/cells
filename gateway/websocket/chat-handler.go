@@ -356,5 +356,4 @@ func (c *ChatHandler) BroadcastChatMessage(ctx context.Context, msg *chat.ChatEv
 		return c.roomsHaveValue(session, compareRoomId)
 	})
 
-	return nil
 }
