@@ -35,10 +35,14 @@ Assuming that your system meets the above prerequisites, building the **Pydio Ce
 go get -u github.com/pydio/cells
 # From this line on, we assume you are in Pydio Cells' code roots directory
 cd $GOPATH/src/github.com/pydio/cells 
-# Ensure all dependencies are present for the go package
-./deps.sh
 # Build your binary
 make dev
+```
+
+_Note: we had to fork a few libraries before integrating them as dependencies. If you need to modify this part of the code, you should first retrieve a local version by executing_  
+
+```sh
+./deps.sh
 ```
 
 To have the environment running, you must also:
