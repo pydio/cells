@@ -3046,6 +3046,12 @@
 			"revisionTime": "2018-04-08T15:42:42Z"
 		},
 		{
+			"checksumSHA1": "0GJ4+1KsFhZN/xCDQYVZ88Xsw8E=",
+			"path": "github.com/micro/go-plugins/registry/memory",
+			"revision": "9b10555db387d20915d32fcb13023e29a7df05e4",
+			"revisionTime": "2018-04-19T14:48:43Z"
+		},
+		{
 			"checksumSHA1": "vaHAbAUe6svQjRL5b5+Rcm95Mwk=",
 			"path": "github.com/micro/go-plugins/registry/nats",
 			"revision": "61d3a25ee9d198e97b6774731bc2fb765c37e701",

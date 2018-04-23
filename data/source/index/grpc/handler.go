@@ -113,6 +113,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 			return errors.New(name, fmt.Sprintf("A node with same UUID already exists. Pass updateIfExists parameter if you are sure to override. %v", err), 409)
 		}
 	}
+
 	// Checking if we have a node with the same path
 	reqPath := safePath(req.GetNode().GetPath())
 	path, created, err := dao.Path(reqPath, true, req.GetNode())
@@ -177,6 +178,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	if err := s.UpdateParentsAndNotify(ctx, dao, req.GetNode().GetSize(), eventType, nil, node, req.IndexationSession); err != nil {
 		return errors.InternalServerError(common.SERVICE_DATA_INDEX_, "Error while updating parents", err)
 	}
+
 	resp.Success = true
 	resp.Node = node.Node
 
@@ -406,8 +408,6 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	reqFromPath := safePath(req.GetFrom().GetPath())
 	reqToPath := safePath(req.GetTo().GetPath())
 
-	fmt.Println(reqFromPath, reqToPath)
-
 	var pathFrom, pathTo utils.MPath
 	var nodeFrom, nodeTo *utils.TreeNode
 
@@ -422,7 +422,6 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	if pathFrom == nil {
 		return errors.NotFound(name, "Could not retrieve node "+req.From.Path, 404)
 	}
-
 	if nodeFrom, err = dao.GetNode(pathFrom); err != nil {
 		return errors.NotFound(name, "Could not retrieve node "+req.From.Path, 404)
 	}
@@ -447,6 +446,8 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	if err = dao.MoveNodeTree(nodeFrom, nodeTo); err != nil {
 		return err
 	}
+
+	fmt.Println("HERE 1")
 
 	newNode, err := dao.GetNode(pathTo)
 	if err == nil && newNode != nil {
@@ -606,6 +607,7 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 			client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_CHANGES, event))
 		}
 	}
+
 	for mp, delta := range mpathes {
 		if batcher != nil {
 			s.batcherUpdateParents(batcher, delta, *mp)

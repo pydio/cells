@@ -35,8 +35,11 @@ import (
 	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/micro/go-plugins/broker/nats"
+	"github.com/micro/go-plugins/registry/memory"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/data/source/index"
 )
 
@@ -90,6 +93,13 @@ func (l *List) Close() error {
 }
 
 func TestMain(m *testing.M) {
+
+	// Registry mock
+	defaults.Init(
+		defaults.WithRegistry(memory.NewRegistry()),
+		defaults.WithBroker(nats.NewBroker()),
+	)
+
 	var options config.Map
 
 	sqlDAO := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "test")
@@ -114,7 +124,9 @@ func send(s *TreeServer, req string, args interface{}) (interface{}, error) {
 	switch req {
 	case "CreateNode":
 		resp := &tree.CreateNodeResponse{}
+		fmt.Println("CreateNode")
 		err := s.CreateNode(ctx, args.(*tree.CreateNodeRequest), resp)
+		fmt.Println(resp, err)
 
 		return resp, err
 	case "GetNode":
@@ -127,7 +139,10 @@ func send(s *TreeServer, req string, args interface{}) (interface{}, error) {
 		return resp, err
 	case "UpdateNode":
 		resp := &tree.UpdateNodeResponse{}
+
+		fmt.Println("UpdateNode")
 		err := s.UpdateNode(ctx, args.(*tree.UpdateNodeRequest), resp)
+		fmt.Println(resp, err)
 
 		return resp, err
 	case "ListNodes":

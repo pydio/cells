@@ -21,10 +21,13 @@
 package cmd
 
 import (
+	"os"
 	"testing"
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 
+	"github.com/pydio/cells/common/registry"
 	_ "github.com/pydio/cells/discovery/config/grpc"
 	_ "github.com/pydio/cells/discovery/nats"
 )
@@ -35,25 +38,25 @@ import (
 // or 0 otherwise but not the expected 1.
 
 func TestCreationOfServices(t *testing.T) {
-	// Convey("Test Starting a service", t, func() {
-	// 	go func() {
-	// 		args := []string{"start", "nats"}
-	// 		RootCmd.SetOutput(os.Stdout)
-	// 		RootCmd.SetArgs(args)
+	Convey("Test Starting a service", t, func() {
+		go func() {
+			args := []string{"start", "nats"}
+			RootCmd.SetOutput(os.Stdout)
+			RootCmd.SetArgs(args)
 
-	// 		_, err := RootCmd.ExecuteC()
-	// 		So(err, ShouldBeNil)
-	// 	}()
+			_, err := RootCmd.ExecuteC()
+			So(err, ShouldBeNil)
+		}()
 
-	// 	for {
-	// 		running, err := registry.ListRunningServices()
-	// 		if err != nil {
-	// 			<-time.After(100 * time.Millisecond)
-	// 			continue
-	// 		}
+		for {
+			running, err := registry.ListRunningServices()
+			if err != nil {
+				<-time.After(100 * time.Millisecond)
+				continue
+			}
 
-	// 		So(len(running), ShouldEqual, 1)
-	// 		break
-	// 	}
-	// })
+			So(len(running), ShouldEqual, 1)
+			break
+		}
+	})
 }

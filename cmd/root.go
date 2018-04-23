@@ -159,6 +159,9 @@ func initLogLevel() {
 	// Init log level
 	logLevel := viper.GetString("logs_level")
 
+	// Making sure the log level is passed everywhere (fork processes for example)
+	os.Setenv("PYDIO_LOGS_LEVEL", logLevel)
+
 	if logLevel == "production" {
 		common.LogConfig = common.LogConfigProduction
 	} else {
