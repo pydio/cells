@@ -1,4 +1,4 @@
-![Pydio Cells](https://github.com/pydio/cells/wiki/images/PydioCellsColor.png)
+<img src="https://github.com/pydio/cells/wiki/images/PydioCellsColor.png" width="400" />
 
 [Homepage](https://pydio.com/) | [Wiki](https://github.com/pydio/cells/wiki) | [GitHub-Repository](https://github.com/pydio/cells) |
 [Issue-Tracker](https://github.com/pydio/cells/issues) 
