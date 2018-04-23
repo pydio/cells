@@ -112,6 +112,7 @@ func TestFormField_Serialize(t *testing.T) {
 </form>`)
 
 		jsonMarsh, e := json.MarshalIndent(form.Serialize(), "", "  ")
+		So(e, ShouldBeNil)
 		log.Print(string(jsonMarsh))
 
 	})

@@ -42,7 +42,7 @@ func fillExternal(externalPath string) {
 		log.Print(e)
 	}
 	f.Close()
-	f, e = os.Create(filepath.Join(externalPath, "extfolder", "extsubfolder", "extsubfile"))
+	f, _ = os.Create(filepath.Join(externalPath, "extfolder", "extsubfolder", "extsubfile"))
 	f.Close()
 }
 

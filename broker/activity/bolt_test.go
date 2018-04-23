@@ -167,7 +167,9 @@ func TestInsertActivity(t *testing.T) {
 		wg.Wait()
 
 		time.Sleep(time.Second * 1)
+		So(err, ShouldBeNil)
 		unread = dao.CountUnreadForUser("john")
+		So(unread, ShouldEqual, 0)
 	})
 }
 
@@ -395,6 +397,7 @@ func TestSubscriptions(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		subs, err := dao.ListSubscriptions(activity.OwnerType_NODE, []string{"ROOT"})
+		So(err, ShouldBeNil)
 		So(subs, ShouldHaveLength, 1)
 
 		So(subs[0].Events, ShouldHaveLength, 2)
@@ -415,6 +418,7 @@ func TestSubscriptions(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		subs, err := dao.ListSubscriptions(activity.OwnerType_NODE, []string{"ROOT"})
+		So(err, ShouldBeNil)
 		So(subs, ShouldHaveLength, 0)
 
 	})

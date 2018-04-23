@@ -118,6 +118,9 @@ func (c *ShellAction) Run(ctx context.Context, channels *actions.RunnableChannel
 			defer file.Close()
 			defer os.Remove(file.Name())
 			written, e := io.Copy(file, reader)
+			if e != nil {
+				return input.WithError(e), e
+			}
 			if written != input.Nodes[0].Size {
 				err := errors.InternalServerError(common.SERVICE_JOBS, "Written number of bytes differ from original node Size, this is weird")
 				return input.WithError(err), err
