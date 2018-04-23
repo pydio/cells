@@ -46,7 +46,7 @@ message SourceFilter {
 message Schedule {
     // ISO 8601 Description of the scheduling for instance "R2/2015-06-04T19:25:16.828696-07:00/PT4S"
     // where first part is the number of repetitions (if 0, infinite repetition), 
-    // second part the starting date and last part, the duration between 2 occurences
+    // second part the starting date and last part, the duration between 2 occurrences.
     string Iso8601Schedule = 1;
     // Minimum time between two runs
     string Iso8601MinDelta = 3;
