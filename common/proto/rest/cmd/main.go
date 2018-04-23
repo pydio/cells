@@ -30,7 +30,7 @@ import (
 )
 
 var (
-	base     = filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "services", "common", "proto", "rest")
+	base     = filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "common", "proto", "rest")
 	template = `package rest
 var SwaggerJson = ` + "`%s`"
 )

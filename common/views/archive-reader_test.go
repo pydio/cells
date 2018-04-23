@@ -55,7 +55,7 @@ func getTempArchive(formatOrName string) (*tree.Node, string, error) {
 		break
 	}
 
-	refFile := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "services", "common", "views", "testdata", fName)
+	refFile := filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "common", "views", "testdata", fName)
 	nodeUuid := uuid.NewUUID().String()
 	tmpDir := os.TempDir()
 	refData, e := ioutil.ReadFile(refFile)
