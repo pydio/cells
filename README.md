@@ -80,9 +80,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **Charles du Jeu** - *Initial work* - [cdujeu](https://github.com/cdujeu)
-
-See also the list of [contributors](https://github.com/pydio/cells/graphs/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/pydio/cells/graphs/contributors) who participated in this project. Pydio Cells is also a continuation of the Pydio project and many contributions were ported from [pydio-core](https://github.com/pydio/pydio-core) to the [cells-front](https://github.com/pydio/cells-front) code.
 
 ## License
 
