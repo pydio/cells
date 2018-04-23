@@ -1,5 +1,9 @@
 # Pydio Cells
 
+[Homepage](https://pydio.com/) | [GitHub-Repository](https://github.com/pydio/pydio-core) |
+[Issue-Tracker](https://github.com/pydio/pydio-core/issues) 
+
+![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)
 [![GoDoc](https://godoc.org/github.com/pydio/cells?status.svg)](https://godoc.org/github.com/pydio/cells)
 [![Build Status](https://travis-ci.org/pydio/cells.svg?branch=master)](https://travis-ci.org/pydio/cells)
 [![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells)](https://goreportcard.com/report/github.com/pydio/cells)
@@ -26,14 +30,13 @@ _Note: We have developped and tested Pydio Cells on MacOS, Ubuntu, Debian and Ce
 
 ### Installing
 
-In all commands below, we assume you are in Pydio Cells' code roots directory:
-```bash
-cd $GOPATH/src/github.com/pydio/cells
-```
-
 Assuming that your system meets the above prerequisites, building the **Pydio Cells** backend from the source code is quite straight forward:
 
-```bash
+```sh
+# Retrieve the code
+go get -u github.com/pydio/cells
+# From this line on, we assume you are in Pydio Cells' code roots directory
+cd $GOPATH/src/github.com/pydio/cells 
 # Ensure all dependencies are present for the go package
 ./deps.sh
 # Build your binary
@@ -42,8 +45,8 @@ make dev
 
 To have the environment running, you must also:
 
-- create a database in your chosen DB server,
-- run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [wiki]() for additional information.
+- Create a database in your chosen DB server,
+- Run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [wiki](https://github.com/pydio/cells/wiki) for additional information.
 
 ```bash
 ./cells install
@@ -51,10 +54,8 @@ To have the environment running, you must also:
 
 ## Running the tests
 
-To run the tests, simply do:
-
-```bash
-cd $GOPATH/src/github.com/pydio/cells
+To run the tests, simply do
+```sh
 go test -v ./...
 ```
 
