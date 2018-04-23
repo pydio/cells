@@ -21,9 +21,9 @@
 package grpc
 
 import (
-	"io"
-	"fmt"
 	"context"
+	"fmt"
+	"io"
 
 	"github.com/go-openapi/errors"
 
@@ -31,7 +31,7 @@ import (
 	proto "github.com/pydio/cells/common/proto/log"
 )
 
-// Handler is the gRPC interface for the log service
+// Handler is the gRPC interface for the log service.
 type Handler struct {
 	Repo log.MessageRepository
 }

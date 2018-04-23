@@ -44,12 +44,12 @@ var (
 )
 
 // VirtualNodesManager keeps an internal list of virtual nodes.
-// They are cached for one minute avoid too many requests on docstore service
+// They are cached for one minute to avoid too many requests on docstore service.
 type VirtualNodesManager struct {
 	VirtualNodes []*tree.Node
 }
 
-// Creates a new VirtualNodesManager
+// GetVirtualNodesManager creates a new VirtualNodesManager.
 func GetVirtualNodesManager() *VirtualNodesManager {
 	if vManagerCache == nil {
 		vManagerCache = cache.New(time.Second*60, time.Second*120)
@@ -63,7 +63,7 @@ func GetVirtualNodesManager() *VirtualNodesManager {
 	return vManager
 }
 
-// Load requests the virtual nodes from the DocStore service
+// Load requests the virtual nodes from the DocStore service.
 func (m *VirtualNodesManager) Load() {
 	if vNodes, found := vManagerCache.Get("virtual-nodes"); found {
 		m.VirtualNodes = vNodes.([]*tree.Node)
@@ -101,7 +101,7 @@ func (m *VirtualNodesManager) Load() {
 	vManagerCache.Set("virtual-nodes", m.VirtualNodes, cache.DefaultExpiration)
 }
 
-// ByUuid finds a VirtualNode by its Uuid
+// ByUuid finds a VirtualNode by its Uuid.
 func (m *VirtualNodesManager) ByUuid(uuid string) (*tree.Node, bool) {
 
 	for _, n := range m.VirtualNodes {
@@ -113,7 +113,7 @@ func (m *VirtualNodesManager) ByUuid(uuid string) (*tree.Node, bool) {
 
 }
 
-// ByPath finds a VirtualNode by its Path
+// ByPath finds a VirtualNode by its Path.
 func (m *VirtualNodesManager) ByPath(path string) (*tree.Node, bool) {
 
 	for _, n := range m.VirtualNodes {
@@ -125,7 +125,7 @@ func (m *VirtualNodesManager) ByPath(path string) (*tree.Node, bool) {
 
 }
 
-// ListNodes simply returns the internally cached list
+// ListNodes simply returns the internally cached list.
 func (m *VirtualNodesManager) ListNodes() []*tree.Node {
 	return m.VirtualNodes
 }

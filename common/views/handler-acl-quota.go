@@ -29,9 +29,9 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
-	"github.com/pydio/minio-go"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
@@ -133,7 +133,7 @@ func (a *AclQuotaFilter) ComputeQuota(ctx context.Context, workspace *idm.Worksp
 	return
 }
 
-// Find possible parents for the current workspace based on the RESOURCE_OWNER uuid
+// FindParentWorkspaces finds possible parents for the current workspace based on the RESOURCE_OWNER uuid.
 // TODO: add virtual nodes manager
 func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *idm.Workspace) (parentWorkspaces []*idm.Workspace, parentContext context.Context, err error) {
 
@@ -218,8 +218,8 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 	return
 }
 
-// Find quota and compute current usage from ACLs and Tree for a given workspace, in a specific context
-// given by the orderedRoles list
+// QuotaForWorkspace finds quota and computes current usage from ACLs and Tree for a given workspace, in a specific context
+// given by the orderedRoles list.
 func (a *AclQuotaFilter) QuotaForWorkspace(ctx context.Context, workspace *idm.Workspace, orderedRoles []string) (maxQuota int64, currentUsage int64, err error) {
 
 	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())

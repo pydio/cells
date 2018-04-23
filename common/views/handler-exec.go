@@ -28,10 +28,10 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/minio-go"
 	uuid2 "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 
-	"github.com/pydio/minio-go"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"

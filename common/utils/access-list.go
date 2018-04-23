@@ -116,12 +116,12 @@ func (f Bitmask) HasFlag(ctx context.Context, flag BitmaskFlag, ctxNode ...*tree
 	return f.BitmaskFlag&flag != 0
 }
 
-// Add a simple flag
+// AddFlag adds a simple flag.
 func (f *Bitmask) AddFlag(flag BitmaskFlag) {
 	f.BitmaskFlag |= flag
 }
 
-// Add a policy flag : stack policies
+// AddPolicyFlag adds a policy flag and stacks policies.
 func (f *Bitmask) AddPolicyFlag(policyId string) {
 	f.AddFlag(FLAG_POLICY)
 	if f.PolicyIds == nil {
@@ -130,7 +130,7 @@ func (f *Bitmask) AddPolicyFlag(policyId string) {
 	f.PolicyIds[policyId] = policyId
 }
 
-// Add a value flag : store value
+// AddValueFlag stores the value of a BitmaskFlag.
 func (f *Bitmask) AddValueFlag(flag BitmaskFlag, value string) {
 	f.AddFlag(flag)
 	if f.ValueFlags == nil {
@@ -199,7 +199,7 @@ func (a *AccessList) HasPolicyBasedAcls() bool {
 	return false
 }
 
-// Flatten performs actual flatten
+// Flatten performs actual flatten.
 func (a *AccessList) Flatten(ctx context.Context) {
 	nodes, workspaces := a.flattenNodes(ctx, a.Acls)
 	a.NodesAcls = nodes
@@ -315,7 +315,7 @@ func (a *AccessList) flattenNodes(ctx context.Context, aclList []*idm.ACL) (map[
 	return flattenedNodes, flattenedWorkspaces
 }
 
-// Just climb up the tree and get the first non empty mask found
+// FirstMaskForParents just climbs up the tree and gets the first non empty mask found.
 func (a *AccessList) FirstMaskForParents(ctx context.Context, nodes ...*tree.Node) (Bitmask, *tree.Node) {
 	for _, node := range nodes {
 		if bitmask, ok := a.NodesAcls[node.Uuid]; ok {
@@ -350,7 +350,7 @@ func (a *AccessList) CanRead(ctx context.Context, nodes ...*tree.Node) bool {
 	return !deny && mask.HasFlag(ctx, FLAG_READ, nodes[0])
 }
 
-//CanWrite checks if a node has WRITE access.
+// CanWrite checks if a node has WRITE access.
 func (a *AccessList) CanWrite(ctx context.Context, nodes ...*tree.Node) bool {
 	deny, mask := a.ParentMaskOrDeny(ctx, nodes...)
 	return !deny && mask.HasFlag(ctx, FLAG_WRITE, nodes[0])

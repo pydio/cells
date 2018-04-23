@@ -49,47 +49,45 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, identifier stri
 		return ctx, nil
 	}
 
-	if accessList, ok := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList); ok {
+	accessList, ok := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+	if !ok {
+		return ctx, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot load access list")
+	}
 
-		// Update Access List with resolved virtual nodes
-		virtualManager := GetVirtualNodesManager()
-		cPool := h.clientsPool
-		for _, vNode := range virtualManager.ListNodes() {
-			if aclNodeMask, has := accessList.GetNodesBitmasks()[vNode.Uuid]; has {
-				if resolvedRoot, err := virtualManager.ResolveInContext(ctx, vNode, cPool, false); err == nil {
-					log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("virtual", vNode), zap.Any("resolved", resolvedRoot))
-					accessList.GetNodesBitmasks()[resolvedRoot.Uuid] = aclNodeMask
-					for _, roots := range accessList.GetWorkspacesNodes() {
-						for rootId, _ := range roots {
-							if rootId == vNode.Uuid {
-								delete(roots, vNode.Uuid)
-								roots[resolvedRoot.Uuid] = aclNodeMask
-							}
+	// Update Access List with resolved virtual nodes
+	virtualManager := GetVirtualNodesManager()
+	cPool := h.clientsPool
+	for _, vNode := range virtualManager.ListNodes() {
+		if aclNodeMask, has := accessList.GetNodesBitmasks()[vNode.Uuid]; has {
+			if resolvedRoot, err := virtualManager.ResolveInContext(ctx, vNode, cPool, false); err == nil {
+				log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("virtual", vNode), zap.Any("resolved", resolvedRoot))
+				accessList.GetNodesBitmasks()[resolvedRoot.Uuid] = aclNodeMask
+				for _, roots := range accessList.GetWorkspacesNodes() {
+					for rootId, _ := range roots {
+						if rootId == vNode.Uuid {
+							delete(roots, vNode.Uuid)
+							roots[resolvedRoot.Uuid] = aclNodeMask
 						}
 					}
 				}
 			}
 		}
-
-		parents, err := utils.BuildAncestorsList(ctx, h.clientsPool.GetTreeClient(), node)
-		if err != nil {
-			return ctx, err
-		}
-		workspaces, _ := accessList.BelongsToWorkspaces(ctx, parents...)
-		if len(workspaces) == 0 {
-			log.Logger(ctx).Debug("Node des not belong to any accessible workspace!", accessList.Zap(), zap.Any("parents", parents))
-			return ctx, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node does not belong to any accessible workspace!")
-		}
-		// Use first workspace by default
-		branchInfo := BranchInfo{}
-		branchInfo.Workspace = *workspaces[0]
-		branchInfo.AncestorsList = parents
-		return WithBranchInfo(ctx, identifier, branchInfo), nil
-
-	} else {
-		return ctx, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot load access list")
 	}
 
+	parents, err := utils.BuildAncestorsList(ctx, h.clientsPool.GetTreeClient(), node)
+	if err != nil {
+		return ctx, err
+	}
+	workspaces, _ := accessList.BelongsToWorkspaces(ctx, parents...)
+	if len(workspaces) == 0 {
+		log.Logger(ctx).Debug("Node des not belong to any accessible workspace!", accessList.Zap(), zap.Any("parents", parents))
+		return ctx, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node does not belong to any accessible workspace!")
+	}
+	// Use first workspace by default
+	branchInfo := BranchInfo{}
+	branchInfo.Workspace = *workspaces[0]
+	branchInfo.AncestorsList = parents
+	return WithBranchInfo(ctx, identifier, branchInfo), nil
 }
 
 func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {

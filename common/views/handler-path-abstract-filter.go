@@ -29,9 +29,9 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/patrickmn/go-cache"
+	minio "github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
-	minio "github.com/pydio/minio-go"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 )
