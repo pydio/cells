@@ -8,6 +8,12 @@
   "Update.Config.Url.Description":{
     "other":"Http URL of the update server"
   },
+  "Update.Config.PublicKey.Label":{
+    "other":"Public Key"
+  },
+  "Update.Config.PublicKey.Description":{
+    "other":"Official key used to verify binaries signature."
+  },
   "Update.Config.Channel.Label":{
     "other":"Update Channel"
   },

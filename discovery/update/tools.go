@@ -91,7 +91,7 @@ func LoadUpdates(ctx context.Context, config config.Map) ([]*update.Package, err
 // ApplyUpdate uses the info of an update.Package to download the binary and replace
 // the current running binary. A restart is necessary afterward.
 // The dryRun option will download the binary and just put it in the /tmp folder
-func ApplyUpdate(ctx context.Context, p *update.Package, dryRun bool) error {
+func ApplyUpdate(ctx context.Context, p *update.Package, conf config.Map, dryRun bool) error {
 
 	url := p.BinaryURL
 	if resp, err := http.Get(url); err != nil {
@@ -113,7 +113,8 @@ func ApplyUpdate(ctx context.Context, p *update.Package, dryRun bool) error {
 			return e
 		}
 
-		block, _ := pem.Decode(common.UpdatesPublicKey)
+		pKey := conf.Get("publicKey").(string)
+		block, _ := pem.Decode([]byte(pKey))
 		var pubKey rsa.PublicKey
 		if _, err := asn1.Unmarshal(block.Bytes, &pubKey); err != nil {
 			return err

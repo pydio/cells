@@ -67,7 +67,7 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 	}
 
 	log.Logger(ctx).Info("Update binary now", zap.Any("package", apply))
-	if err := update2.ApplyUpdate(ctx, apply, false); err != nil {
+	if err := update2.ApplyUpdate(ctx, apply, configs, false); err != nil {
 		log.Logger(ctx).Error("Failed updating binary", zap.Error(err))
 		return err
 	} else {
