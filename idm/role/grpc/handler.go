@@ -56,14 +56,12 @@ func (h *Handler) CreateRole(ctx context.Context, req *idm.CreateRoleRequest, re
 	}
 	resp.Role = r
 	if len(r.Policies) == 0 {
-		fmt.Printf("In create Role [%s], no policies has been found, using default\n", r.Label)
 		r.Policies = defaultPolicies
-	} else {
-		fmt.Printf("In create Role [%s], known policies:\n", r.Label)
+	} /* else {
 		for i, pol := range r.Policies {
 			fmt.Printf("%d. %s - action: %s\n", i, pol.Subject, pol.Action)
 		}
-	}
+	} */
 	err = dao.AddPolicies(update, r.Uuid, r.Policies)
 	if err != nil {
 		return err

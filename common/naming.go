@@ -169,17 +169,6 @@ var (
 		PYDIO_PROFILE_STANDARD,
 		PYDIO_PROFILE_ADMIN,
 	}
-
-	UpdatesPublicKey = []byte(`
------BEGIN PUBLIC KEY-----
-MIIBCgKCAQEApbY7nXupQ2Rp2TjlH1jdoqzdPvfieb5/wo/mVO4WGFYQx4oTAI9O
-VWeDnCgzxES6PL2+QI8uqGF/YdrBauwH8ic22HQbjMRejuHz9yBra8zznzsUAcc+
-f+wnuFjuB24+ODA/CQbEMADOBzTp5NiKLNokUo8d2tPn+P34GMeXjlmAMJf3ERS5
-YTGE/91NNH7un2Z37z5Jx+3DB91Nl3pg+uY16+OIk56lGg4NYBSmxD4WD2cDVDFh
-zluvWzYkXtdZ6RtAdj/Db5kn0i5E6G6hcWHFlTedf26JfLY1hfQjS8GrTAMcdKw2
-zW58i/Ww0SUWoChJlbS593cCEGI6y6UCYQIDAQAB
------END PUBLIC KEY-----
-`)
 )
 
 func Version() *hashiversion.Version {
