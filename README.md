@@ -1,7 +1,7 @@
 ![Pydio Cells](https://github.com/pydio/cells/wiki/images/PydioCellsColor.png)
 
-[Homepage](https://pydio.com/) | [Wiki](https://github.com/pydio/cells/wiki) | [GitHub-Repository](https://github.com/pydio/pydio-core) |
-[Issue-Tracker](https://github.com/pydio/pydio-core/issues) 
+[Homepage](https://pydio.com/) | [Wiki](https://github.com/pydio/cells/wiki) | [GitHub-Repository](https://github.com/pydio/cells) |
+[Issue-Tracker](https://github.com/pydio/cells/issues) 
 
 ![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)
 [![GoDoc](https://godoc.org/github.com/pydio/cells?status.svg)](https://godoc.org/github.com/pydio/cells)
@@ -60,28 +60,15 @@ To run the tests, simply do
 ```sh
 go test -v ./...
 ```
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
+Please read the [CONTRIBUTING.md](CONTRIBUTING.md) document if you wish to add more tests or contribute to the code.
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+Binaries are currently provided for Linux and MacOSX distributions. To deploy them on a live system, please see the Wiki instructions. 
 
 ## Built With
+
+Pydio Cells uses many open source golang libraries. Most important ones are listed below, please see [DEPENDENCIES](DEPENDENCIES) for an exhaustive list of other libs and their licenses.
 
 * [Micro](https://github.com/micro/micro) - Micro-service framework
 * [Minio](https://github.com/minio/minio) - Objects server implementing s3 protocol
@@ -97,16 +84,8 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **Charles du Jeu** - *Initial work* - [cdujeu](https://github.com/cdujeu)
-
-See also the list of [contributors](https://github.com/pydio/cells/graphs/contributors) who participated in this project.
+See the list of [contributors](https://github.com/pydio/cells/graphs/contributors) who participated in this project. Pydio Cells is also a continuation of the Pydio project and many contributions were ported from [pydio-core](https://github.com/pydio/pydio-core) to the [cells-front](https://github.com/pydio/cells-front) code.
 
 ## License
 
 This project is licensed under the AGPLv3 License - see the [LICENSE](LICENSE) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
