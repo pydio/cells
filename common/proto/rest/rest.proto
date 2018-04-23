@@ -29,7 +29,7 @@ import "protoc-gen-swagger/options/annotations.proto";
 
 option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
   info: {
-    title: "Pydio Cell Rest API";
+    title: "Pydio Cells Rest API";
     version: "1.0";
     contact: {
         name: "Pydio";
@@ -38,7 +38,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
   };
   external_docs: {
     url: "https://pydio.com";
-    description: "More about Pydio Cell Apis";
+    description: "More about Pydio Cells Apis";
   }
   schemes: HTTP;
   schemes: HTTPS;
@@ -328,6 +328,8 @@ service ACLService {
     }
 }
 
+// Security Policies provide resource-based authorization checks
+// for ACLs, Rest access points and OpenID Connect resources
 service PolicyService {
     // List all defined security policies
     rpc ListPolicies(idm.ListPolicyGroupsRequest) returns (idm.ListPolicyGroupsResponse) {
@@ -384,6 +386,7 @@ service WorkspaceService {
 // Rest Service For Activity Streams
 service ActivityService {
 
+    // Load the the feeds of the currently logged user
     rpc Stream(activity.StreamActivitiesRequest) returns (activity.Object) {
         option (google.api.http) =  {
             post: "/activity/stream"
@@ -391,6 +394,7 @@ service ActivityService {
         };
     }
 
+    // Manage subscriptions to other users/nodes feeds
     rpc Subscribe(activity.Subscription) returns (activity.Subscription) {
         option (google.api.http) =  {
             post: "/activity/subscribe"
@@ -398,6 +402,7 @@ service ActivityService {
         };
     }
 
+    // Load subscriptions to other users/nodes feeds
     rpc SearchSubscriptions(activity.SearchSubscriptionsRequest) returns (SubscriptionsCollection) {
         option (google.api.http) =  {
             post: "/activity/subscriptions"
@@ -462,17 +467,20 @@ service LogService {
 
 // Token Revocation Service
 service TokenService{
+    // Revoke a JWT token
     rpc Revoke(RevokeRequest) returns (RevokeResponse){
         option (google.api.http) =  {
             post: "/auth/token/revoke"
             body: "*"
         };
     };
+    // Generate a unique token for the reset password process
     rpc ResetPasswordToken(ResetPasswordTokenRequest) returns (ResetPasswordTokenResponse) {
         option (google.api.http) = {
             put: "/auth/reset-password-token/{UserLogin}"
         };
     };
+    // Finish up the reset password process by providing the unique token
     rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse) {
         option (google.api.http) = {
             post: "/auth/reset-password"
@@ -481,7 +489,9 @@ service TokenService{
     };
 }
 
+// Mailer Service provides simple access to mail functions
 service MailerService{
+    // Send an email to a user or any email adress
     rpc Send(mailer.Mail) returns (mailer.SendMailResponse){
         option (google.api.http) =  {
             post: "/mailer/send"
@@ -490,7 +500,9 @@ service MailerService{
     }
 }
 
+// Search Service provides rest access to the search engine
 service SearchService {
+    // Search indexed nodes (files/folders) on various aspects
     rpc Nodes(tree.SearchRequest) returns (SearchResults){
         option (google.api.http) = {
           post: "/search/nodes"
@@ -605,15 +617,16 @@ service JobsService {
     }
 }
 
+// Admin Tree service is a specific endpoint to list all data from the root
 service AdminTreeService {
-
+    // List files and folders starting at the root (first level lists the datasources)
     rpc ListAdminTree(tree.ListNodesRequest) returns (NodesCollection) {
         option (google.api.http) = {
             post: "/tree/admin/list"
             body: "*"
         };
     }
-
+    // Read a node information inside the admin tree
     rpc StatAdminTree(tree.ReadNodeRequest) returns (tree.ReadNodeResponse) {
         option (google.api.http) = {
             post: "/tree/admin/stat"
@@ -623,25 +636,30 @@ service AdminTreeService {
 
 }
 
+// DocStore Service is a simple JSON indexed datastore
 service DocStoreService {
+    // List all docs of a given store
     rpc ListDocs(ListDocstoreRequest) returns (DocstoreCollection) {
         option (google.api.http) = {
             post: "/docstore/{StoreID}"
             body: "*"
         };
     };
+    // Delete one or more docs inside a given store
     rpc DeleteDoc(docstore.DeleteDocumentsRequest) returns (docstore.DeleteDocumentsResponse) {
         option (google.api.http) = {
             post: "/docstore/bulk_delete/{StoreID}"
             body: "*"
         };
     };
+    // Put a document inside a given store
     rpc PutDoc(docstore.PutDocumentRequest) returns (docstore.PutDocumentResponse) {
         option (google.api.http) = {
             put: "/docstore/{StoreID}/{DocumentID}"
             body: "*"
         };
     };
+    // Load one document by ID from a given store
     rpc GetDoc(docstore.GetDocumentRequest) returns (docstore.GetDocumentResponse) {
         option (google.api.http) = {
             get: "/docstore/{StoreID}/{DocumentID}"
@@ -650,6 +668,7 @@ service DocStoreService {
 
 }
 
+// Graph Service provides utilitaries describing relations between users
 service GraphService {
     // Compute accessible workspaces for a given user
     rpc UserState (UserStateRequest) returns (UserStateResponse) {
@@ -665,6 +684,7 @@ service GraphService {
     }
 }
 
+// Change Service provides backward compatibility to the changes API.
 service ChangeService {
     // Get Changes
     rpc GetChanges(ChangeRequest) returns (ChangeCollection) {
@@ -675,7 +695,7 @@ service ChangeService {
     }
 }
 
-// High level service
+// High level service for managing Cells and Public Links
 service ShareService {
     // Put or Create a share room
     rpc PutCell(PutCellRequest) returns (Cell) {
