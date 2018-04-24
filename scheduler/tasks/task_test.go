@@ -176,7 +176,7 @@ func TestTaskEvents(t *testing.T) {
 			Type:   tree.NodeChangeEvent_CREATE,
 			Target: &tree.Node{Path: "create"},
 		}
-		ev, _ = ptypes.MarshalAny(event2)
+		_, _ = ptypes.MarshalAny(event2)
 		task = NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event2)
 		So(task.initialMessage.Nodes, ShouldHaveLength, 1)
 		So(task.initialMessage.Nodes[0], ShouldResemble, &tree.Node{Path: "create"})
@@ -185,7 +185,7 @@ func TestTaskEvents(t *testing.T) {
 			Type:   tree.NodeChangeEvent_DELETE,
 			Source: &tree.Node{Path: "delete"},
 		}
-		ev, _ = ptypes.MarshalAny(event3)
+		_, _ = ptypes.MarshalAny(event3)
 		task = NewTaskFromEvent(context.Background(), &jobs.Job{ID: "ajob"}, event3)
 		So(task.initialMessage.Nodes, ShouldHaveLength, 1)
 		So(task.initialMessage.Nodes[0], ShouldResemble, &tree.Node{Path: "delete"})

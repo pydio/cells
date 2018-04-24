@@ -422,7 +422,7 @@ func (fs *FileSystem) Rename(ctx context.Context, oldName, newName string) error
 	}
 
 	if of.IsDir() && !strings.HasSuffix(oldName, "/") {
-		oldName += "/"
+		//oldName += "/"
 		newName += "/"
 	}
 

@@ -52,6 +52,9 @@ func init() {
 			}
 
 			indexer, err := docstore.NewBleveEngine(path.Join(serviceDir, "docstore.bleve"))
+			if err != nil {
+				return err
+			}
 
 			handler := &Handler{
 				Db:      store,

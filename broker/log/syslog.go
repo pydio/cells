@@ -66,6 +66,9 @@ func NewSyslogServer(bleveIndexPath string, deleteOnClose ...bool) (*SyslogServe
 	} else {
 		index, err = bleve.New(bleveIndexPath, indexMapping)
 	}
+	if err != nil {
+		return &SyslogServer{}, err
+	}
 	return &SyslogServer{Index: index}, nil
 }
 
