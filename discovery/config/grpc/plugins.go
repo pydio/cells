@@ -25,15 +25,15 @@ import (
 	"strings"
 
 	micro "github.com/micro/go-micro"
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/service/context"
+	config "github.com/pydio/cells/discovery/config"
 	microconfig "github.com/pydio/config-srv/config"
 	"github.com/pydio/config-srv/db"
 	"github.com/pydio/config-srv/db/mysql"
 	"github.com/pydio/config-srv/handler"
 	proto "github.com/pydio/config-srv/proto/config"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
-	config "github.com/pydio/cells/discovery/config"
 )
 
 func init() {

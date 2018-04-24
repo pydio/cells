@@ -46,7 +46,7 @@ type AclQuotaFilter struct {
 	AbstractHandler
 }
 
-// Check quota on PutObject operation
+// PutObject checks quota on PutObject operation.
 func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
 
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok {
@@ -60,7 +60,7 @@ func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader 
 	return a.next.PutObject(ctx, node, reader, requestData)
 }
 
-// Check quota on MultipartPutObjectPart
+// MultipartPutObjectPart checks quota on MultipartPutObjectPart.
 func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
 
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok {
@@ -74,7 +74,7 @@ func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tre
 	return a.next.MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, reader, requestData)
 }
 
-// Check quota on CopyObject operation
+// CopyObject checks quota on CopyObject operation.
 func (a *AclQuotaFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
 
 	if branchInfo, ok := GetBranchInfo(ctx, "to"); ok {
@@ -134,7 +134,7 @@ func (a *AclQuotaFilter) ComputeQuota(ctx context.Context, workspace *idm.Worksp
 }
 
 // FindParentWorkspaces finds possible parents for the current workspace based on the RESOURCE_OWNER uuid.
-// TODO: add virtual nodes manager
+// TODO: add virtual nodes manager.
 func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *idm.Workspace) (parentWorkspaces []*idm.Workspace, parentContext context.Context, err error) {
 
 	var ownerUuid string

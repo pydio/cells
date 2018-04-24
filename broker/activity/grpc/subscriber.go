@@ -21,14 +21,14 @@
 package grpc
 
 import (
+	"context"
 	"path/filepath"
 	"strings"
-	"context"
-
-	"go.uber.org/zap"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/broker/activity"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"

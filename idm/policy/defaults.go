@@ -134,7 +134,7 @@ var (
 					ID:          "user-default-policy",
 					Description: "PolicyGroup.LoggedUsers.Rule2",
 					Subjects:    []string{"profile:standard", "profile:shared"},
-					Resources:   []string{
+					Resources: []string{
 						"rest:/acl",
 						"rest:/acl/<.+>",
 						"rest:/user",
@@ -152,10 +152,9 @@ var (
 						"rest:/search/nodes",
 						"rest:/share<.+>",
 						"rest:/activity<.+>",
-
 					},
-					Actions:     []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
-					Effect:      ladon.AllowAccess,
+					Actions: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
+					Effect:  ladon.AllowAccess,
 				}),
 			},
 		},

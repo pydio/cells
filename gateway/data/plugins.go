@@ -25,12 +25,12 @@ import (
 	"context"
 	"fmt"
 
-	minio "github.com/pydio/minio-srv/cmd"
 	"github.com/pydio/cells/common"
 	config2 "github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/data/source/objects"
+	minio "github.com/pydio/minio-srv/cmd"
 )
 
 func init() {
