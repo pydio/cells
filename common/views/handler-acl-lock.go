@@ -27,6 +27,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
@@ -36,7 +37,6 @@ import (
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
-	"go.uber.org/zap"
 )
 
 type AclLockFilter struct {
@@ -83,6 +83,9 @@ func (a *AclLockFilter) checkLock(ctx context.Context, node *tree.Node) error {
 
 // PutObject check locks before allowing Put operation.
 func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
+		return a.next.PutObject(ctx, node, reader, requestData)
+	}
 	if err := a.checkLock(ctx, node); err != nil {
 		return 0, err
 	}
@@ -90,6 +93,9 @@ func (a *AclLockFilter) PutObject(ctx context.Context, node *tree.Node, reader i
 }
 
 func (a *AclLockFilter) MultipartCreate(ctx context.Context, target *tree.Node, requestData *MultipartRequestData) (string, error) {
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
+		return a.next.MultipartCreate(ctx, target, requestData)
+	}
 	if err := a.checkLock(ctx, target); err != nil {
 		return "", err
 	}

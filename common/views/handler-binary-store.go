@@ -29,9 +29,11 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/minio-go"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/log"
 )
 
 type BinaryStoreHandler struct {
@@ -154,6 +156,10 @@ func (a *BinaryStoreHandler) PutObject(ctx context.Context, node *tree.Node, rea
 			ctx = WithBranchInfo(ctx, "in", BranchInfo{LoadedSource: source, Binary: true})
 			node.Uuid = path.Base(node.Path)
 			node.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Base(node.Path))
+			log.Logger(ctx).Debug("Putting Node Inside Binary Store Updated Meta?", node.Zap(), zap.Any("source", source))
+		} else {
+			log.Logger(ctx).Debug("Putting Node Inside Binary Store Cannot find DS Info?", zap.Error(er))
+			return 0, er
 		}
 	}
 	return a.next.PutObject(ctx, node, reader, requestData)

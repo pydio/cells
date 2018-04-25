@@ -49,7 +49,7 @@ type AclQuotaFilter struct {
 // PutObject checks quota on PutObject operation.
 func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
 
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok {
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && !branchInfo.Binary {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
 			return 0, err
 		} else if maxQuota > 0 && currentUsage+requestData.Size > maxQuota {
@@ -63,7 +63,7 @@ func (a *AclQuotaFilter) PutObject(ctx context.Context, node *tree.Node, reader 
 // MultipartPutObjectPart checks quota on MultipartPutObjectPart.
 func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
 
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok {
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && !branchInfo.Binary {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
 			return minio.ObjectPart{}, err
 		} else if maxQuota > 0 && currentUsage+requestData.Size > maxQuota {
@@ -77,7 +77,7 @@ func (a *AclQuotaFilter) MultipartPutObjectPart(ctx context.Context, target *tre
 // CopyObject checks quota on CopyObject operation.
 func (a *AclQuotaFilter) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
 
-	if branchInfo, ok := GetBranchInfo(ctx, "to"); ok {
+	if branchInfo, ok := GetBranchInfo(ctx, "to"); ok && !branchInfo.Binary {
 		if maxQuota, currentUsage, err := a.ComputeQuota(ctx, &branchInfo.Workspace); err != nil {
 			return 0, err
 		} else if maxQuota > 0 && currentUsage+from.Size > maxQuota {

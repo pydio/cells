@@ -87,7 +87,7 @@ func (m *PutHandler) GetOrCreatePutNode(ctx context.Context, nodePath string, si
 func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 	parentNode := proto.Clone(node).(*tree.Node)
 	parentNode.Path = filepath.Dir(node.Path)
-	if parentNode.Path == "/" || parentNode.Path == "" {
+	if parentNode.Path == "/" || parentNode.Path == "" || parentNode.Path == "." {
 		return nil
 	}
 	parentNode.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, filepath.Dir(parentNode.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)))
@@ -122,6 +122,15 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 
 func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
 	log.Logger(ctx).Debug("[HANDLER PUT] > Putting object", zap.String("UUID", node.Uuid), zap.String("Path", node.Path))
+
+	var encrypted bool
+	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok {
+		if branchInfo.Binary {
+			return m.next.PutObject(ctx, node, reader, requestData)
+		}
+		encrypted = branchInfo.EncryptionMode != object.EncryptionMode_CLEAR
+	}
+
 	if strings.HasSuffix(node.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) {
 		if test, e := m.GetObject(ctx, node, &GetRequestData{Length: -1}); e == nil {
 			data, _ := ioutil.ReadAll(test)
@@ -138,11 +147,6 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 
 	if requestData.Metadata == nil {
 		requestData.Metadata = make(map[string]string)
-	}
-
-	var encrypted bool
-	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok {
-		encrypted = branchInfo.EncryptionMode != object.EncryptionMode_CLEAR
 	}
 
 	if node.Uuid != "" {
