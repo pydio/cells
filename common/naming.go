@@ -134,7 +134,7 @@ const (
 	PYDIO_PROFILE_ANON     = "anon"
 
 	KEYRING_MASTER_KEY       = "keyring.master"
-	META_FLAG_READONLY       = "ajxp_readonly"
+	META_FLAG_READONLY       = "node_readonly"
 	NODE_FLAG_ETAG_TEMPORARY = "temporary"
 
 	DB_MAX_OPEN_CONNS    = 30

@@ -103,8 +103,15 @@ func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, identifie
 		return ctx, errors.InternalServerError(VIEWS_LIBRARY_NAME, "No Root defined, this is not normal")
 	}
 	// Prepend root node Uuid
+	// First Level
+	firstLevel := false
+	if strings.Trim(node.Path, "/") == "" {
+		firstLevel = true
+	}
 	node.Path = m.makeRootKey(branch.Root) + "/" + strings.TrimLeft(node.Path, "/")
-
+	if firstLevel {
+		node.SetMeta("ws_root", "true")
+	}
 	return ctx, nil
 }
 
@@ -125,6 +132,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 			for rKey, rNode := range nodes {
 				node := proto.Clone(rNode).(*tree.Node)
 				node.Path = rKey
+				node.SetMeta("ws_root", "true")
 				streamer.Send(&tree.ListNodesResponse{Node: node})
 			}
 		}()
@@ -160,6 +168,8 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 			}
 		}
 		fakeNode.SetMeta("name", branch.Workspace.Label)
+		fakeNode.SetMeta("virtual_root", "true")
+		fakeNode.SetMeta("level_readonly", "true")
 		return &tree.ReadNodeResponse{Success: true, Node: fakeNode}, nil
 	}
 	return m.AbstractBranchFilter.ReadNode(ctx, in, opts...)
