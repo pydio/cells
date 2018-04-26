@@ -25,20 +25,19 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/pydio/cells/common/auth"
+	commonauth "github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 )
 
-func Auth(inner http.Handler) http.Handler {
+func auth(inner http.Handler) http.Handler {
 
-	jwtVerifier := auth.DefaultJWTVerifier()
+	jwtVerifier := commonauth.DefaultJWTVerifier()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		ctx := r.Context()
 		if bearer := r.URL.Query().Get("access_token"); len(bearer) > 0 {
-
 			var err error
 			var claims claim.Claims
 			ctx, claims, err = jwtVerifier.Verify(ctx, bearer)
@@ -49,12 +48,12 @@ func Auth(inner http.Handler) http.Handler {
 			}
 
 		}
-		log.Logger(ctx).Error("cannot login")
+		log.Logger(ctx).Error("JWT token validation failed, cannot process request")
 		w.WriteHeader(http.StatusUnauthorized)
 	})
 }
 
-func Logger(inner http.Handler, name string) http.Handler {
+func logger(inner http.Handler, name string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		start := time.Now()
