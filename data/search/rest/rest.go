@@ -151,8 +151,8 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			respNode := resp.Node
 			for r, p := range nodesPrefixes {
 				if strings.HasPrefix(respNode.Path, r) {
-					_, filtered, err := outputFilter(ctx, respNode, "search-"+p)
 					log.Logger(ctx).Debug("Response", zap.String("node", respNode.Path))
+					_, filtered, err := outputFilter(ctx, respNode, "search-"+p)
 					if err != nil {
 						return err
 					}
@@ -164,7 +164,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 							}
 						}
 					}
-					nodes = append(nodes, respNode.WithoutReservedMetas())
+					nodes = append(nodes, filtered.WithoutReservedMetas())
 				}
 			}
 		}
