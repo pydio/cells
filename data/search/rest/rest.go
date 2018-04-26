@@ -105,7 +105,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		} else {
 			// Fill a context with current user info
 			// (Let inputFilter apply the various necessary middlewares).
-			loaderCtx, _ := inputFilter(ctx, &tree.Node{Path: ""}, "tmp")
+			loaderCtx, _, _ := inputFilter(ctx, &tree.Node{Path: ""}, "tmp")
 			userWorkspaces = views.UserWorkspacesFromContext(loaderCtx)
 			for _, w := range userWorkspaces {
 				if len(passedWorkspaceSlug) > 0 && w.Slug != passedWorkspaceSlug {
@@ -125,7 +125,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		var e error
 		for _, p := range prefixes {
 			rootNode := &tree.Node{Path: p}
-			ctx, e = inputFilter(ctx, rootNode, "search-"+p)
+			ctx, rootNode, e = inputFilter(ctx, rootNode, "search-"+p)
 			if e != nil {
 				return e
 			}
@@ -151,16 +151,16 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			respNode := resp.Node
 			for r, p := range nodesPrefixes {
 				if strings.HasPrefix(respNode.Path, r) {
-					_, err := outputFilter(ctx, respNode, "search-"+p)
+					_, filtered, err := outputFilter(ctx, respNode, "search-"+p)
 					log.Logger(ctx).Debug("Response", zap.String("node", respNode.Path))
 					if err != nil {
 						return err
 					}
 					if userWorkspaces != nil {
 						for _, w := range userWorkspaces {
-							if strings.HasPrefix(respNode.Path, w.Slug+"/") {
-								respNode.SetMeta("repository_id", w.UUID)
-								respNode.SetMeta("repository_display", w.Label)
+							if strings.HasPrefix(filtered.Path, w.Slug+"/") {
+								filtered.SetMeta("repository_id", w.UUID)
+								filtered.SetMeta("repository_display", w.Label)
 							}
 						}
 					}

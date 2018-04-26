@@ -43,16 +43,17 @@ type PathDataSourceHandler struct {
 	AbstractBranchFilter
 }
 
-func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	branchInfo, ok := GetBranchInfo(ctx, identifier)
 	if !ok {
-		return ctx, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find branch info for node")
+		return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find branch info for node")
 	}
 	if branchInfo.Client != nil {
 		// DS Is already set by a previous middleware, ignore.
-		return ctx, nil
+		return ctx, node, nil
 	}
+	out := node.Clone()
 	if branchInfo.Workspace.UUID == "ROOT" {
 
 		if len(strings.Trim(node.Path, "/")) > 0 {
@@ -61,12 +62,12 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, identifie
 			dsName := parts[0]
 			source, e := v.clientsPool.GetDataSourceInfo(dsName)
 			if e != nil {
-				return ctx, e
+				return ctx, node, e
 			}
 			log.Logger(ctx).Debug("updateInput", zap.Any("source", source))
 			if len(parts) > 1 {
 				dsPath := strings.Join(parts[1:], "/")
-				node.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, dsPath)
+				out.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, dsPath)
 			}
 			branchInfo.LoadedSource = source
 			ctx = WithBranchInfo(ctx, identifier, branchInfo)
@@ -78,23 +79,23 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, identifie
 		dsName := wsRoot.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 		source, err := v.clientsPool.GetDataSourceInfo(dsName)
 		if err != nil {
-			return nil, err
+			return nil, out, err
 		}
 		branchInfo.LoadedSource = source
 		ctx = WithBranchInfo(ctx, identifier, branchInfo)
 
 	} else {
 
-		return ctx, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Missing Root in context")
+		return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Missing Root in context")
 
 	}
 
-	return ctx, nil
+	return ctx, out, nil
 
 }
 
-func (v *PathDataSourceHandler) updateOutputNode(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (v *PathDataSourceHandler) updateOutputNode(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
-	return ctx, nil
+	return ctx, node, nil
 
 }

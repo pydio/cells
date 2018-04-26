@@ -38,13 +38,13 @@ import (
 	"github.com/micro/go-micro/metadata"
 	"github.com/pkg/errors"
 
-	"github.com/pydio/minio-go"
-	"github.com/pydio/minio-go/pkg/encrypt"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/minio-go"
+	"github.com/pydio/minio-go/pkg/encrypt"
 )
 
 const (
@@ -111,7 +111,7 @@ type (
 	}
 )
 
-type NodeFilter func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, error)
+type NodeFilter func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error)
 type NodesCallback func(inputFilter NodeFilter, outputFilter NodeFilter) error
 
 type Handler interface {

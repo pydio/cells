@@ -24,7 +24,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -44,81 +43,83 @@ func NewPathMultipleRootsHandler() *MultipleRootsHandler {
 	return m
 }
 
-func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	branch, set := GetBranchInfo(ctx, identifier)
 	//log.Logger(ctx).Debug("updateInput", zap.Any("branch", branch), zap.Bool("set", set))
 	if !set || branch.UUID == "ROOT" || branch.Client != nil {
-		return ctx, nil
+		return ctx, node, nil
 	}
 	if len(branch.RootNodes) == 1 {
 		rootNode, err := m.getRoot(branch.RootNodes[0])
 		if err != nil {
-			return ctx, err
+			return ctx, node, err
 		}
 		if !rootNode.IsLeaf() {
 			branch.Root = rootNode
 			ctx = WithBranchInfo(ctx, identifier, branch)
-			return ctx, nil
+			return ctx, node, nil
 		}
 	}
 
 	// There are multiple root nodes: detect /node-uuid/ segment in the path
+	out := node.Clone()
 	parts := strings.Split(strings.Trim(node.Path, "/"), "/")
 	if len(parts) > 0 {
 		rootId := parts[0]
 		log.Logger(ctx).Debug("Searching", zap.String("root", rootId), zap.Any("rootNodes", branch.RootNodes))
 		rootKeys, e := m.rootKeysMap(branch.RootNodes)
 		if e != nil {
-			return ctx, e
+			return ctx, out, e
 		}
 		for key, rNode := range rootKeys {
 			if key == rootId || rootId == rNode.GetUuid() {
 				branch.Root = rNode
-				node.Path = strings.Join(parts[1:], "/") // Replace path parts
+				out.Path = strings.Join(parts[1:], "/") // Replace path parts
 				ctx = WithBranchInfo(ctx, identifier, branch)
 				break
 			}
 		}
 	}
 	if branch.Root == nil {
-		return ctx, errors.NotFound(VIEWS_LIBRARY_NAME, "Could not find root node")
+		return ctx, node, errors.NotFound(VIEWS_LIBRARY_NAME, "Could not find root node")
 	}
-	return ctx, nil
+	return ctx, out, nil
 }
 
-func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	branch, set := GetBranchInfo(ctx, identifier)
 	if !set || branch.UUID == "ROOT" || len(branch.RootNodes) < 2 {
-		return ctx, nil
+		return ctx, node, nil
 	}
 	if len(branch.RootNodes) == 1 {
 		root, _ := m.getRoot(branch.RootNodes[0])
 		if !root.IsLeaf() {
-			return ctx, nil
+			return ctx, node, nil
 		}
 	}
 	if branch.Root == nil {
-		return ctx, errors.InternalServerError(VIEWS_LIBRARY_NAME, "No Root defined, this is not normal")
+		return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "No Root defined, this is not normal")
 	}
 	// Prepend root node Uuid
 	// First Level
+	out := node.Clone()
 	firstLevel := false
 	if strings.Trim(node.Path, "/") == "" {
 		firstLevel = true
 	}
-	node.Path = m.makeRootKey(branch.Root) + "/" + strings.TrimLeft(node.Path, "/")
+	out.Path = m.makeRootKey(branch.Root) + "/" + strings.TrimLeft(node.Path, "/")
 	if firstLevel {
-		node.SetMeta("ws_root", "true")
+		out.SetMeta("ws_root", "true")
 	}
-	return ctx, nil
+	return ctx, out, nil
 }
 
 func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (tree.NodeProvider_ListNodesClient, error) {
 
 	// First try, without modifying ctx & node
-	_, err := m.updateInputBranch(ctx, "in", &tree.Node{Path: in.Node.Path})
+	_, _, err := m.updateInputBranch(ctx, &tree.Node{Path: in.Node.Path}, "in")
 	if err != nil && errors.Parse(err.Error()).Status == "Not Found" {
 
 		branch, _ := GetBranchInfo(ctx, "in")
@@ -130,7 +131,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 		go func() {
 			defer streamer.Close()
 			for rKey, rNode := range nodes {
-				node := proto.Clone(rNode).(*tree.Node)
+				node := rNode.Clone()
 				node.Path = rKey
 				node.SetMeta("ws_root", "true")
 				streamer.Send(&tree.ListNodesResponse{Node: node})
@@ -145,7 +146,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
 
 	// First try, without modifying ctx & node
-	_, err := m.updateInputBranch(ctx, "in", &tree.Node{Path: in.Node.Path})
+	_, _, err := m.updateInputBranch(ctx, &tree.Node{Path: in.Node.Path}, "in")
 	if err != nil && errors.Parse(err.Error()).Status == "Not Found" {
 
 		// Load root nodes and

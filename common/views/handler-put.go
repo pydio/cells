@@ -30,7 +30,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 
@@ -85,7 +84,7 @@ func (m *PutHandler) GetOrCreatePutNode(ctx context.Context, nodePath string, si
 
 // Recursively create parents
 func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
-	parentNode := proto.Clone(node).(*tree.Node)
+	parentNode := node.Clone()
 	parentNode.Path = filepath.Dir(node.Path)
 	if parentNode.Path == "/" || parentNode.Path == "" || parentNode.Path == "." {
 		return nil
@@ -98,7 +97,7 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 		}
 		if r, er2 := m.next.CreateNode(ctx, &tree.CreateNodeRequest{Node: parentNode}); er2 != nil {
 			return er2
-		} else {
+		} else if r != nil {
 			log.Logger(ctx).Debug("[PUT HANDLER] > Created parent node in S3", r.Node.Zap())
 			// As we are not going through the real FS, make sure to normalize now the file path
 			tmpNode := &tree.Node{

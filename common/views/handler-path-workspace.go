@@ -70,31 +70,31 @@ func (a *PathWorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (
 	return nil, false
 }
 
-func (a *PathWorkspaceHandler) updateBranchInfo(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (a *PathWorkspaceHandler) updateBranchInfo(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 	if info, alreadySet := GetBranchInfo(ctx, identifier); alreadySet && info.Client != nil {
-		return ctx, nil
+		return ctx, node, nil
 	}
 	branchInfo := BranchInfo{}
-	if ws, ok := a.extractWs(ctx, node); ok {
+	out := node.Clone()
+	if ws, ok := a.extractWs(ctx, out); ok {
 		branchInfo.Workspace = *ws
-		return WithBranchInfo(ctx, identifier, branchInfo), nil
+		return WithBranchInfo(ctx, identifier, branchInfo), out, nil
 	}
-	return ctx, errors.NotFound(VIEWS_LIBRARY_NAME, "Workspace not found in Path")
+	return ctx, node, errors.NotFound(VIEWS_LIBRARY_NAME, "Workspace not found in Path")
 }
 
-func (a *PathWorkspaceHandler) updateOutputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (a *PathWorkspaceHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 	// Prepend Slug to path
 	if info, set := GetBranchInfo(ctx, identifier); set && info.UUID != "ROOT" {
-
-		node.Path = info.Slug + "/" + node.Path
-
+		out := node.Clone()
+		out.Path = info.Slug + "/" + node.Path
+		return ctx, out, nil
 	}
-
-	return ctx, nil
+	return ctx, node, nil
 }
 
 func (a *PathWorkspaceHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
-	_, wsFound := a.updateBranchInfo(ctx, "in", &tree.Node{Path: in.Node.Path})
+	_, _, wsFound := a.updateBranchInfo(ctx, &tree.Node{Path: in.Node.Path}, "in")
 	if wsFound != nil && errors.Parse(wsFound.Error()).Status == "Not Found" {
 		// Return a fake root node
 		return &tree.ReadNodeResponse{Success: true, Node: &tree.Node{Path: ""}}, nil
@@ -104,7 +104,7 @@ func (a *PathWorkspaceHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 }
 
 func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (tree.NodeProvider_ListNodesClient, error) {
-	_, wsFound := a.updateBranchInfo(ctx, "in", &tree.Node{Path: in.Node.Path})
+	_, _, wsFound := a.updateBranchInfo(ctx, &tree.Node{Path: in.Node.Path}, "in")
 	if wsFound != nil && errors.Parse(wsFound.Error()).Status == "Not Found" {
 		// List user workspaces here
 		accessList, ok := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)

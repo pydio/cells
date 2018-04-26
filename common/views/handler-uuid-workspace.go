@@ -43,15 +43,15 @@ func NewUuidNodeHandler() *UuidNodeHandler {
 	return u
 }
 
-func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	if info, alreadySet := GetBranchInfo(ctx, identifier); alreadySet && info.Client != nil {
-		return ctx, nil
+		return ctx, node, nil
 	}
 
 	accessList, ok := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
 	if !ok {
-		return ctx, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot load access list")
+		return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot load access list")
 	}
 
 	// Update Access List with resolved virtual nodes
@@ -76,37 +76,38 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, identifier stri
 
 	parents, err := utils.BuildAncestorsList(ctx, h.clientsPool.GetTreeClient(), node)
 	if err != nil {
-		return ctx, err
+		return ctx, node, err
 	}
 	workspaces, _ := accessList.BelongsToWorkspaces(ctx, parents...)
 	if len(workspaces) == 0 {
 		log.Logger(ctx).Debug("Node des not belong to any accessible workspace!", accessList.Zap(), zap.Any("parents", parents))
-		return ctx, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node does not belong to any accessible workspace!")
+		return ctx, node, errors.Forbidden(VIEWS_LIBRARY_NAME, "Node does not belong to any accessible workspace!")
 	}
 	// Use first workspace by default
 	branchInfo := BranchInfo{}
 	branchInfo.Workspace = *workspaces[0]
 	branchInfo.AncestorsList = parents
-	return WithBranchInfo(ctx, identifier, branchInfo), nil
+	return WithBranchInfo(ctx, identifier, branchInfo), node, nil
 }
 
-func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	var branchInfo BranchInfo
 	var accessList *utils.AccessList
 	var ok bool
 	if branchInfo, ok = GetBranchInfo(ctx, identifier); !ok {
-		return ctx, nil
+		return ctx, node, nil
 	}
 	if accessList, ok = ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList); !ok {
-		return ctx, nil
+		return ctx, node, nil
 	}
 	if branchInfo.AncestorsList != nil {
+		out := node.Clone()
 		workspaces, wsRoots := accessList.BelongsToWorkspaces(ctx, branchInfo.AncestorsList...)
 		log.Logger(ctx).Debug("Belongs to workspaces", zap.Any("ws", workspaces), zap.Any("wsRoots", wsRoots))
 		for _, ws := range workspaces {
 			if relativePath, e := h.relativePathToWsRoot(ctx, node.Path, wsRoots[ws.UUID]); e == nil {
-				node.AppearsIn = append(node.AppearsIn, &tree.WorkspaceRelativePath{
+				out.AppearsIn = append(node.AppearsIn, &tree.WorkspaceRelativePath{
 					WsUuid:  ws.UUID,
 					WsLabel: ws.Label,
 					Path:    relativePath,
@@ -115,9 +116,10 @@ func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, identifier str
 				log.Logger(ctx).Error("Error while computing relative path to root", zap.Error(e))
 			}
 		}
+		return ctx, out, nil
 	}
 
-	return ctx, nil
+	return ctx, node, nil
 
 }
 

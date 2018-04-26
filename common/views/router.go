@@ -150,11 +150,11 @@ func (v *Router) WrapCallback(provider NodesCallback) error {
 }
 
 func (v *Router) ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter, provider NodesCallback) error {
-	outputFilter = func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, error) {
-		return ctx, nil
+	outputFilter = func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error) {
+		return ctx, inputNode, nil
 	}
-	inputFilter = func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, error) {
-		return ctx, nil
+	inputFilter = func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error) {
+		return ctx, inputNode, nil
 	}
 	return v.handlers[0].ExecuteWrapped(inputFilter, outputFilter, provider)
 }

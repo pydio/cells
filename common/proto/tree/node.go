@@ -38,6 +38,11 @@ import (
 
 /* VARIOUS HELPERS TO MANAGE NODES */
 
+// Clone node to avoid modifying it directly
+func (node *Node) Clone() *Node{
+	return proto.Clone(node).(*Node)
+}
+
 // IsLeaf checks if node is of type NodeType_LEAF or NodeType_COLLECTION
 func (node *Node) IsLeaf() bool {
 	return node.Type == NodeType_LEAF

@@ -40,36 +40,36 @@ type UuidDataSourceHandler struct {
 	AbstractBranchFilter
 }
 
-func (v *UuidDataSourceHandler) updateInputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (v *UuidDataSourceHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	branchInfo, ok := GetBranchInfo(ctx, identifier)
 	if !ok {
-		return ctx, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find branch info for node")
+		return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find branch info for node")
 	}
 	if branchInfo.Client != nil {
 		// DS is already set by a previous middleware, ignore.
-		return ctx, nil
+		return ctx, node, nil
 	}
 
 	dsName := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 	dsPath := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)
 	if len(dsPath) == 0 || len(dsName) == 0 {
 		// Ignore this step
-		return ctx, nil
+		return ctx, node, nil
 	}
 	source, e := v.clientsPool.GetDataSourceInfo(dsName)
 	if e != nil {
-		return ctx, e
+		return ctx, node, e
 	}
 	branchInfo.LoadedSource = source
 	ctx = WithBranchInfo(ctx, identifier, branchInfo)
 
-	return ctx, nil
+	return ctx, node, nil
 
 }
 
-func (v *UuidDataSourceHandler) updateOutputNode(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (v *UuidDataSourceHandler) updateOutputNode(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
-	return ctx, nil
+	return ctx, node, nil
 
 }
