@@ -125,19 +125,15 @@ func OverrideAssets(ctx context.Context) error {
 		}
 	}
 
-	// clear cache
-	if err := os.RemoveAll(filepath.Join(dir, "data", "cache")); err != nil {
-		return err
-	}
-
 	// Now remove update folder
 	if err := os.RemoveAll(updateDir); err != nil {
 		return err
 	}
-	// TODO
-	// Also clear php FMP caches & Apc Cache, we could eventually use a direct call
-	// to the fast cgi service for that?
-	// See https://github.com/tomasen/fcgi_client
+
+	// clear cache (ignore errors)
+	os.RemoveAll(filepath.Join(dir, "data", "cache"))
+
+	// TODO : clear php FMP caches & Apc Cache ?
 
 	return nil
 }
