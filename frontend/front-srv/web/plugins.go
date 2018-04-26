@@ -101,7 +101,7 @@ func OverrideAssets(ctx context.Context) error {
 
 	contents, _ := ioutil.ReadDir(updateDir)
 	for _, info := range contents {
-		base := filepath.Base(info.Name())
+		base := info.Name()
 		orig := filepath.Join(dir, base)
 		if info.IsDir() {
 			// Folders : create a .bak version
@@ -120,7 +120,7 @@ func OverrideAssets(ctx context.Context) error {
 			}
 		}
 		log.Logger(ctx).Info("Now moving " + info.Name() + " to " + orig)
-		if err := os.Rename(info.Name(), orig); err != nil {
+		if err := os.Rename(filepath.Join(updateDir, info.Name()), orig); err != nil {
 			return err
 		}
 	}
