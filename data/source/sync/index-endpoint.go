@@ -98,6 +98,22 @@ func (i *IndexEndpoint) LoadNode(ctx context.Context, path string, leaf ...bool)
 
 }
 
+// LoadNodeByUuid makes this endpoint an UuidProvider
+func (i *IndexEndpoint) LoadNodeByUuid(ctx context.Context, uuid string) (node *tree.Node, err error) {
+
+	if resp, e := i.readerClient.ReadNode(ctx, &tree.ReadNodeRequest{
+		Node: &tree.Node{
+			Uuid: uuid,
+		},
+	}); e != nil {
+		return nil, e
+	} else {
+		log.Logger(ctx).Debug("Loading Node By Uuid has response:", resp.Node.Zap())
+		return resp.Node, nil
+	}
+
+}
+
 func (i *IndexEndpoint) CreateNode(ctx context.Context, node *tree.Node, updateIfExists bool) (err error) {
 
 	session := i.indexationSession()
