@@ -57,8 +57,6 @@ further defined and clarified by project maintainers.
 This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 1.4,
 available at [https://www.contributor-covenant.org/version/1/4][currVersion]
 
-The Pull Request HowTo is adapted from minio's great [Contributing Page][minioContributing].
 
 [homepage]: https://www.contributor-covenant.org
 [currVersion]: https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
-[minioContributing]: https://github.com/minio/minio/blob/master/CONTRIBUTING.md
