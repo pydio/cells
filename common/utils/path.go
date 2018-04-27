@@ -53,6 +53,9 @@ func NewMPathFromMPath(b MPath) MPath {
 
 // String representation of a mpath
 func (m MPath) String() string {
+	if len(m) == 0 {
+		return ""
+	}
 
 	s := strconv.FormatUint(m[0], 10)
 	for i := 1; i < len(m); i++ {

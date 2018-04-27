@@ -50,6 +50,8 @@ type CaddyTemplateConf struct {
 	WebSocket *url.URL
 	// Plugins loader for frontend
 	FrontPlugins *url.URL
+	// Collabora definition from plugins
+	Collabora *url.URL
 
 	// FPM connection, either an URL or a socket file path
 	Fpm string
@@ -85,6 +87,23 @@ var (
 		transparent
 		without /plug/
 	}
+
+	proxy /loleaflet/ {{.Collabora.Host}}/loleaflet {
+		transparent
+		without /loleaflet/
+	}
+
+	proxy /hosting/discovery {{.Collabora.Host}}/hosting/discovery {
+		transparent
+		without /hosting/discovery
+	}
+
+	proxy /lool/ {{.Collabora.Host}}/lool/ {
+		transparent
+		websocket
+		without /lool/
+	}
+
 	fastcgi / {{.Fpm}} php {
 		root  "{{.Root}}"
 		index index.php
@@ -100,6 +119,9 @@ var (
 		if {path} not_starts_with "/io"
 		if {path} not_starts_with "/ws/"
 		if {path} not_starts_with "/plug/"
+		if {path} not_starts_with "/loleaflet/"
+		if {path} not_starts_with "/hosting/discovery"
+		if {path} not_starts_with "/lool/"
 		to {path} {path}/ /index.php
 	}
 
@@ -175,6 +197,12 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 		return c, e
 	}
 
+	if p, e := internalUrlFromConfig("collabora", []string{"frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_WEBSOCKET_PORT"}, servicesHost, tls); e == nil {
+		c.Collabora = p
+	} else {
+		return c, e
+	}
+
 	if fpm := Get("defaults", "fpm").String(""); fpm == "" {
 		return c, fmt.Errorf("missing fpm configuration")
 	} else {
@@ -222,6 +250,8 @@ func InitCaddyFile(tpl string, tplData interface{}) error {
 			return err
 		}
 	}
+
+	fmt.Printf("%s", buf)
 	loader := func(serverType string) (caddy.Input, error) {
 		return caddy.CaddyfileInput{
 			Contents:       buf.Bytes(),
