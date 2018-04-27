@@ -197,7 +197,7 @@ func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 	}
 	ctx := req.Request.Context()
 	er := h.getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
-		ctx, _ = inputFilter(ctx, node, "in")
+		ctx, node, _ = inputFilter(ctx, node, "in")
 
 		cli := tree.NewNodeReceiverClient(registry.GetClient(common.SERVICE_META))
 		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {
@@ -235,7 +235,7 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 
 	ctx := req.Request.Context()
 	er := h.getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
-		ctx, _ = inputFilter(ctx, node, "in")
+		ctx, node, _ = inputFilter(ctx, node, "in")
 
 		cli := tree.NewNodeReceiverClient(registry.GetClient(common.SERVICE_META))
 		if _, er := cli.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node}); er != nil {

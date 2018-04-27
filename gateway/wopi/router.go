@@ -27,43 +27,44 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
-	HandlerFunc http.HandlerFunc
+type route struct {
+	name        string
+	method      string
+	pattern     string
+	handlerFunc http.HandlerFunc
 }
 
-type Routes []Route
+type routes []route
 
+// NewRouter creates and configures a new mux router to serve wopi REST requests and enable integration with WOPI clients.
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
-	for _, route := range routes {
+	for _, route := range myRoutes {
 		var handler http.Handler
-		handler = route.HandlerFunc
-		handler = Logger(handler, route.Name)
-		handler = Auth(handler)
+		handler = route.handlerFunc
+		handler = logger(handler, route.name)
+		handler = auth(handler)
 
 		router.
-			Methods(route.Method).
-			Path(route.Pattern).
-			Name(route.Name).
+			Methods(route.method).
+			Path(route.pattern).
+			Name(route.name).
 			Handler(handler)
 	}
 
 	return router
 }
 
-func Index(w http.ResponseWriter, r *http.Request) {
+func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Not accessible")
 }
 
-var routes = Routes{
-	Route{
+var myRoutes = routes{
+	route{
 		"Index",
 		"GET",
 		"/wopi/",
-		Index,
+		index,
 	},
 
 	// The CheckFileInfo operation is one of the most important WOPI operations.
@@ -72,24 +73,24 @@ var routes = Routes{
 	// about the capabilities that the WOPI host has on the file.
 	// In addition, some CheckFileInfo properties can influence the appearance and behavior of WOPI clients.
 	// See https://wopirest.readthedocs.io/en/latest/files/CheckFileInfo.html#checkfileinfo
-	Route{
+	route{
 		"GetNodeInfos",
 		"GET",
 		"/wopi/files/{uuid}",
-		GetNodeInfos,
+		getNodeInfos,
 	},
 
-	Route{
+	route{
 		"Download",
 		"GET",
 		"/wopi/files/{uuid}/contents",
-		Download,
+		download,
 	},
 
-	Route{
+	route{
 		"UploadStream",
 		"POST",
 		"/wopi/files/{uuid}/contents",
-		UploadStream,
+		uploadStream,
 	},
 }

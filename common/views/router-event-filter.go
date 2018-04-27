@@ -94,7 +94,7 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, workspace *
 				branchInfo.Workspace = *workspace
 				branchInfo.Root = parent
 				ctx = WithBranchInfo(ctx, "in", branchInfo)
-				outputFilter(ctx, newNode, "in")
+				_, newNode, _ = outputFilter(ctx, newNode, "in")
 				return nil
 			})
 			log.Logger(ctx).Debug("Router Filtered node", zap.String("rootPath", parent.Path), zap.String("workspace", workspace.Label), zap.String("from", node.Path), zap.String("to", newNode.Path))

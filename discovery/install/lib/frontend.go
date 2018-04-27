@@ -32,12 +32,13 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-version"
-	"github.com/pydio/go-phpfpm-detect/fpm"
+
 	"github.com/pydio/cells/assets"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/go-phpfpm-detect/fpm"
 )
 
 // Frontends

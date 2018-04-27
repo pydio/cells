@@ -47,10 +47,12 @@ To apply the actual update, re-run the command with a --version parameter.
 	Run: func(cmd *cobra.Command, args []string) {
 
 		url := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, "updateUrl").String("")
+		pKey := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, "publicKey").String("")
 		channel := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, "channel").String("stable")
 		configs := config.Map{}
 		configs.Set("url", url)
 		configs.Set("channel", channel)
+		configs.Set("publicKey", pKey)
 
 		binaries, e := update2.LoadUpdates(context.Background(), configs)
 		if e != nil {
@@ -80,7 +82,7 @@ To apply the actual update, re-run the command with a --version parameter.
 			}
 
 			fmt.Println("Updating binary now")
-			if err := update2.ApplyUpdate(context.Background(), apply, updateDryRun); err != nil {
+			if err := update2.ApplyUpdate(context.Background(), apply, configs, updateDryRun); err != nil {
 				log.Fatal("could not update the binary: " + err.Error())
 			} else {
 				fmt.Println("Successfully upgraded binary, you can restart pydio now!")

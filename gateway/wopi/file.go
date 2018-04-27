@@ -51,7 +51,7 @@ type File struct {
 	PydioPath        string
 }
 
-func GetNodeInfos(w http.ResponseWriter, r *http.Request) {
+func getNodeInfos(w http.ResponseWriter, r *http.Request) {
 	log.Logger(r.Context()).Debug("WOPI BACKEND - GetNode INFO", zap.Any("vars", mux.Vars(r)))
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -64,13 +64,12 @@ func GetNodeInfos(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := buildFileFromNode(r.Context(), n)
-	// log.Logger(r.Context()).Error("File set", zap.Any("file", *f))
 
 	data, _ := json.Marshal(f)
 	w.Write(data)
 }
 
-func Download(w http.ResponseWriter, r *http.Request) {
+func download(w http.ResponseWriter, r *http.Request) {
 	log.Logger(r.Context()).Debug("WOPI BACKEND - Download")
 
 	n, err := findNodeFromRequest(r)
@@ -94,12 +93,12 @@ func Download(w http.ResponseWriter, r *http.Request) {
 		log.Logger(r.Context()).Error("cannot write response", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	} else {
-		log.Logger(r.Context()).Debug("data sent to output", zap.Int64("Data Length", written))
 	}
+
+	log.Logger(r.Context()).Debug("data sent to output", zap.Int64("Data Length", written))
 }
 
-func UploadStream(w http.ResponseWriter, r *http.Request) {
+func uploadStream(w http.ResponseWriter, r *http.Request) {
 	log.Logger(r.Context()).Debug("WOPI BACKEND - Upload")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -119,7 +118,11 @@ func UploadStream(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Logger(r.Context()).Error("cannot put object", zap.Int64("already written data Length", written), zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
+		if written == 0 {
+			w.WriteHeader(http.StatusForbidden)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 

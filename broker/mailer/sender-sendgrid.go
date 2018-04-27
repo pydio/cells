@@ -21,8 +21,8 @@
 package mailer
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
@@ -32,7 +32,7 @@ import (
 	"github.com/pydio/cells/common/proto/mailer"
 )
 
-// SendGrid is a passerelle to Sendgrid API. It holds the application API Key
+// SendGrid is a passerelle to Sendgrid API. It holds the application API Key.
 type SendGrid struct {
 	ApiKey string
 }
@@ -51,7 +51,7 @@ func (s *SendGrid) Configure(config config.Map) error {
 	return nil
 }
 
-// Send performs the real code to the sendgrid API
+// Send performs the real code to the sendgrid API.
 func (s *SendGrid) Send(email *mailer.Mail) error {
 
 	from := mail.NewEmail(email.From.Name, email.From.Address)

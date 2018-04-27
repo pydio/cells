@@ -326,7 +326,7 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 		log.Logger(f.ctx).Debug(fmt.Sprintf("Uploaded %d parts", len(partsInfo)), zap.Any("CompleteParts", completeParts))
 	}
 
-	// Will be usefull when we use goroutines and channels
+	// Will be useful when we use goroutines and channels
 	// // Sort all completed parts.
 	// sort.Sort(completedParts(complMultipartUpload.Parts))
 	// if _, err = c.completeMultipartUpload(ctx, bucketName, objectName, uploadID, complMultipartUpload); err != nil {
@@ -422,7 +422,7 @@ func (fs *FileSystem) Rename(ctx context.Context, oldName, newName string) error
 	}
 
 	if of.IsDir() && !strings.HasSuffix(oldName, "/") {
-		oldName += "/"
+		//oldName += "/"
 		newName += "/"
 	}
 

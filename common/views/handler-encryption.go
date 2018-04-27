@@ -53,6 +53,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 
 	info, ok := GetBranchInfo(ctx, "in")
 	if ok && info.EncryptionMode == object.EncryptionMode_MASTER {
+		clone := node.Clone()
 		log.Logger(ctx).Debug("[HANDLER ENCRYPT] > Get Object", zap.String("UUID", node.Uuid), zap.String("Path", node.Path))
 
 		if len(node.Uuid) == 0 || node.Size == 0 {
@@ -62,33 +63,33 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 			if readErr != nil {
 				return nil, errors.NotFound("views.Handler.encryption", "failed to get node UUID", readErr)
 			}
-			node.Uuid = rsp.Node.Uuid
-			node.Size = rsp.Node.Size
+			clone.Uuid = rsp.Node.Uuid
+			clone.Size = rsp.Node.Size
 		}
 
-		if len(node.Uuid) == 0 || node.Size == 0 {
+		if len(clone.Uuid) == 0 || clone.Size == 0 {
 			return nil, errors.NotFound("views.Handler.encryption", "node Uuid and size are bith required")
 		}
 
-		dsName := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+		dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 		if dsName == "" {
 			dsName = info.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 		}
 
 		if requestData.Length == -1 {
-			requestData.Length = node.Size
+			requestData.Length = clone.Size
 		}
 
-		node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
+		clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
 		var err error
-		requestData.EncryptionMaterial, err = e.retrieveEncryptionMaterials(ctx, node, info.EncryptionKey)
+		requestData.EncryptionMaterial, err = e.retrieveEncryptionMaterials(ctx, clone, info.EncryptionKey)
 		if err != nil {
 			return nil, err
 		}
+		return e.next.GetObject(ctx, clone, requestData)
 	}
 
-	r, err := e.next.GetObject(ctx, node, requestData)
-	return r, err
+	return e.next.GetObject(ctx, node, requestData)
 }
 
 // PutObject Enriches request metadata for PutObject with Encryption Materials, if required by datasource
@@ -100,34 +101,37 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 
 	info, ok := GetBranchInfo(ctx, "in")
 	var err error
-	if ok && info.EncryptionMode == object.EncryptionMode_MASTER {
-		log.Logger(ctx).Debug("[HANDLER ENCRYPT] > Put Object", zap.String("UUID", node.Uuid), zap.String("Path", node.Path))
-		if len(node.Uuid) == 0 {
-			rsp, readErr := e.next.ReadNode(ctx, &tree.ReadNodeRequest{
-				Node: node,
-			})
+	if !ok || info.EncryptionMode != object.EncryptionMode_MASTER {
+		return e.next.PutObject(ctx, node, reader, requestData)
+	}
 
-			if readErr != nil {
-				return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID", readErr)
-			}
+	clone := node.Clone()
+	log.Logger(ctx).Debug("[HANDLER ENCRYPT] > Put Object", zap.String("UUID", node.Uuid), zap.String("Path", node.Path))
+	if len(clone.Uuid) == 0 {
+		rsp, readErr := e.next.ReadNode(ctx, &tree.ReadNodeRequest{
+			Node: node,
+		})
 
-			if len(rsp.Node.Uuid) == 0 {
-				return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID")
-			}
-			node.Uuid = rsp.Node.Uuid
+		if readErr != nil {
+			return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID", readErr)
 		}
 
-		dsName := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
-		if dsName == "" {
-			dsName = info.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+		if len(rsp.Node.Uuid) == 0 {
+			return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID")
 		}
+		clone.Uuid = rsp.Node.Uuid
+	}
 
-		node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
+	dsName := clone.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	if dsName == "" {
+		dsName = info.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	}
 
-		requestData.EncryptionMaterial, err = e.retrieveEncryptionMaterials(ctx, node, info.EncryptionKey)
-		if err != nil {
-			return 0, err
-		}
+	clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
+
+	requestData.EncryptionMaterial, err = e.retrieveEncryptionMaterials(ctx, node, info.EncryptionKey)
+	if err != nil {
+		return 0, err
 	}
 
 	n, err := e.next.PutObject(ctx, node, reader, requestData)
@@ -143,37 +147,42 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 // CopyObject Enriches request metadata for CopyObject with Encryption Materials, if required by datasource
 func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tree.Node, requestData *CopyRequestData) (int64, error) {
 	info, ok := GetBranchInfo(ctx, "in")
-	if ok && info.EncryptionMode == object.EncryptionMode_MASTER {
-		log.Logger(ctx).Debug("[HANDLER ENCRYPT] > Copy Object", zap.String("UUID", from.Uuid), zap.String("Path", from.Path))
-		if len(from.Uuid) == 0 {
-
-			rsp, readErr := e.next.ReadNode(ctx, &tree.ReadNodeRequest{
-				Node: from,
-			})
-
-			if readErr != nil {
-				return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID", readErr)
-			}
-
-			if len(rsp.Node.Uuid) == 0 {
-				return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID")
-			}
-
-			from.Uuid = rsp.Node.Uuid
-		}
-
-		dsName := from.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
-		if dsName == "" {
-			dsName = info.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
-		}
-
-		from.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
-		to.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
-		err := e.copyEncryptionMaterials(ctx, from, to)
-		if err != nil {
-			return 0, err
-		}
+	if !ok || info.EncryptionMode != object.EncryptionMode_MASTER {
+		return e.next.CopyObject(ctx, from, to, requestData)
 	}
+
+	cloneFrom := from.Clone()
+	cloneTo := to.Clone()
+	log.Logger(ctx).Debug("[HANDLER ENCRYPT] > Copy Object", zap.String("UUID", from.Uuid), zap.String("Path", from.Path))
+	if len(cloneFrom.Uuid) == 0 {
+
+		rsp, readErr := e.next.ReadNode(ctx, &tree.ReadNodeRequest{
+			Node: from,
+		})
+
+		if readErr != nil {
+			return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID", readErr)
+		}
+
+		if len(rsp.Node.Uuid) == 0 {
+			return -1, errors.NotFound("views.Handler.encryption", "failed to get node UUID")
+		}
+
+		cloneFrom.Uuid = rsp.Node.Uuid
+	}
+
+	dsName := cloneFrom.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	if dsName == "" {
+		dsName = info.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
+	}
+
+	cloneFrom.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
+	cloneTo.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
+	err := e.copyEncryptionMaterials(ctx, from, to)
+	if err != nil {
+		return 0, err
+	}
+
 	return e.next.CopyObject(ctx, from, to, requestData)
 }
 

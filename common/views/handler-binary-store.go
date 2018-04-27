@@ -29,8 +29,10 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/minio-go"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -107,7 +109,9 @@ func (a *BinaryStoreHandler) GetObject(ctx context.Context, node *tree.Node, req
 		}
 		if er == nil {
 			ctx = WithBranchInfo(ctx, "in", BranchInfo{LoadedSource: source, Binary: true})
-			node.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Base(node.Path))
+			filter := node.Clone()
+			filter.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Base(node.Path))
+			return a.next.GetObject(ctx, filter, requestData)
 		}
 	}
 	return a.next.GetObject(ctx, node, requestData)
@@ -138,7 +142,9 @@ func (a *BinaryStoreHandler) DeleteNode(ctx context.Context, in *tree.DeleteNode
 		source, er := a.clientsPool.GetDataSourceInfo(a.StoreName)
 		if er == nil {
 			ctx = WithBranchInfo(ctx, "in", BranchInfo{LoadedSource: source, Binary: true})
-			in.Node.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Base(in.Node.Path))
+			clone := in.Node.Clone()
+			clone.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Base(in.Node.Path))
+			in.Node = clone
 		}
 	}
 	return a.next.DeleteNode(ctx, in, opts...)
@@ -152,8 +158,13 @@ func (a *BinaryStoreHandler) PutObject(ctx context.Context, node *tree.Node, rea
 		source, er := a.clientsPool.GetDataSourceInfo(a.StoreName)
 		if er == nil {
 			ctx = WithBranchInfo(ctx, "in", BranchInfo{LoadedSource: source, Binary: true})
-			node.Uuid = path.Base(node.Path)
-			node.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Base(node.Path))
+			clone := node.Clone()
+			clone.Uuid = path.Base(node.Path)
+			clone.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Base(node.Path))
+			return a.next.PutObject(ctx, clone, reader, requestData)
+		} else {
+			log.Logger(ctx).Debug("Putting Node Inside Binary Store Cannot find DS Info?", zap.Error(er))
+			return 0, er
 		}
 	}
 	return a.next.PutObject(ctx, node, reader, requestData)

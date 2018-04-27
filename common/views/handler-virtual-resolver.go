@@ -36,14 +36,14 @@ type VirtualNodesResolver struct {
 func NewVirtualNodesHandler() *VirtualNodesResolver {
 	v := &VirtualNodesResolver{}
 	v.inputMethod = v.updateInput
-	v.outputMethod = func(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
-		return ctx, nil
+	v.outputMethod = func(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
+		return ctx, node, nil
 	}
 	return v
 }
 
 // updateInput Updates BranchInfo and AccessList in context with resolved values for virtual nodes
-func (v *VirtualNodesResolver) updateInput(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (v *VirtualNodesResolver) updateInput(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	virtualManager := GetVirtualNodesManager()
 	if branchInfo, ok := GetBranchInfo(ctx, identifier); ok && !branchInfo.Binary {
@@ -51,7 +51,7 @@ func (v *VirtualNodesResolver) updateInput(ctx context.Context, identifier strin
 		if virtual, exists := virtualManager.ByUuid(branchInfo.Root.Uuid); exists {
 			resolvedRoot, e := virtualManager.ResolveInContext(ctx, virtual, v.clientsPool, true)
 			if e != nil {
-				return ctx, e
+				return ctx, node, e
 			}
 
 			branchInfo.Root = resolvedRoot
@@ -66,5 +66,5 @@ func (v *VirtualNodesResolver) updateInput(ctx context.Context, identifier strin
 		}
 	}
 
-	return ctx, nil
+	return ctx, node, nil
 }

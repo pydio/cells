@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package wopi serve files using the WOPI protocol
+// Package wopi serves files using the WOPI protocol.
 package wopi
 
 import (
@@ -41,9 +41,9 @@ var (
 
 func init() {
 	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_GATEWAY_WOPI),
+		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_GATEWAY_WOPI),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
-		service.Description("WOPI Gateway to tree service"),
+		service.Description("WOPI REST Gateway to tree service"),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 			viewsRouter = views.NewUuidRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})
 

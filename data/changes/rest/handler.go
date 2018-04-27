@@ -97,7 +97,7 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 	inputFilterNode := &tree.Node{Path: restReq.Filter}
 	var wrapError error
 	r.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
-		ctx, wrapError = inputFilter(ctx, inputFilterNode, "in")
+		ctx, inputFilterNode, wrapError = inputFilter(ctx, inputFilterNode, "in")
 		return nil
 	})
 	if wrapError != nil {

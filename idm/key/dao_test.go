@@ -27,14 +27,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/smartystreets/goconvey/convey"
+	// Perform test against SQLite
+	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
-
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/smartystreets/goconvey/convey"
 )
 
 var mockDAO DAO

@@ -1250,7 +1250,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 		}
 	}()
 
-	// Updating the orginal node
+	// Updating the original node
 	c <- nodeFrom
 
 	for node := range dao.GetNodeTree(pathFrom) {

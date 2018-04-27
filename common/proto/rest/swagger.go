@@ -1,8 +1,28 @@
+/*
+ * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
+ * This file is part of Pydio Cells.
+ *
+ * Pydio Cells is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio Cells is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio Cells.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 package rest
 var SwaggerJson = `{
   "swagger": "2.0",
   "info": {
-    "title": "Pydio Cell Rest API",
+    "title": "Pydio Cells Rest API",
     "version": "1.0",
     "contact": {
       "name": "Pydio",
@@ -102,6 +122,7 @@ var SwaggerJson = `{
     },
     "/activity/stream": {
       "post": {
+        "summary": "Load the the feeds of the currently logged user",
         "operationId": "Stream",
         "responses": {
           "200": {
@@ -128,6 +149,7 @@ var SwaggerJson = `{
     },
     "/activity/subscribe": {
       "post": {
+        "summary": "Manage subscriptions to other users/nodes feeds",
         "operationId": "Subscribe",
         "responses": {
           "200": {
@@ -154,6 +176,7 @@ var SwaggerJson = `{
     },
     "/activity/subscriptions": {
       "post": {
+        "summary": "Load subscriptions to other users/nodes feeds",
         "operationId": "SearchSubscriptions",
         "responses": {
           "200": {
@@ -180,6 +203,7 @@ var SwaggerJson = `{
     },
     "/auth/reset-password": {
       "post": {
+        "summary": "Finish up the reset password process by providing the unique token",
         "operationId": "ResetPassword",
         "responses": {
           "200": {
@@ -206,6 +230,7 @@ var SwaggerJson = `{
     },
     "/auth/reset-password-token/{UserLogin}": {
       "put": {
+        "summary": "Generate a unique token for the reset password process",
         "operationId": "ResetPasswordToken",
         "responses": {
           "200": {
@@ -230,6 +255,7 @@ var SwaggerJson = `{
     },
     "/auth/token/revoke": {
       "post": {
+        "summary": "Revoke a JWT token",
         "operationId": "Revoke",
         "responses": {
           "200": {
@@ -1101,6 +1127,7 @@ var SwaggerJson = `{
     },
     "/docstore/bulk_delete/{StoreID}": {
       "post": {
+        "summary": "Delete one or more docs inside a given store",
         "operationId": "DeleteDoc",
         "responses": {
           "200": {
@@ -1133,6 +1160,7 @@ var SwaggerJson = `{
     },
     "/docstore/{StoreID}": {
       "post": {
+        "summary": "List all docs of a given store",
         "operationId": "ListDocs",
         "responses": {
           "200": {
@@ -1165,6 +1193,7 @@ var SwaggerJson = `{
     },
     "/docstore/{StoreID}/{DocumentID}": {
       "get": {
+        "summary": "Load one document by ID from a given store",
         "operationId": "GetDoc",
         "responses": {
           "200": {
@@ -1193,6 +1222,7 @@ var SwaggerJson = `{
         ]
       },
       "put": {
+        "summary": "Put a document inside a given store",
         "operationId": "PutDoc",
         "responses": {
           "200": {
@@ -1701,6 +1731,7 @@ var SwaggerJson = `{
     },
     "/mailer/send": {
       "post": {
+        "summary": "Send an email to a user or any email address",
         "operationId": "Send",
         "responses": {
           "200": {
@@ -2086,6 +2117,7 @@ var SwaggerJson = `{
     },
     "/search/nodes": {
       "post": {
+        "summary": "Search indexed nodes (files/folders) on various aspects",
         "operationId": "Nodes",
         "responses": {
           "200": {
@@ -2289,6 +2321,7 @@ var SwaggerJson = `{
     },
     "/tree/admin/list": {
       "post": {
+        "summary": "List files and folders starting at the root (first level lists the datasources)",
         "operationId": "ListAdminTree",
         "responses": {
           "200": {
@@ -2315,6 +2348,7 @@ var SwaggerJson = `{
     },
     "/tree/admin/stat": {
       "post": {
+        "summary": "Read a node information inside the admin tree",
         "operationId": "StatAdminTree",
         "responses": {
           "200": {
@@ -4890,7 +4924,7 @@ var SwaggerJson = `{
       "properties": {
         "Iso8601Schedule": {
           "type": "string",
-          "title": "ISO 8601 Description of the scheduling for instance \"R2/2015-06-04T19:25:16.828696-07:00/PT4S\"\nwhere first part is the number of repetitions (if 0, infinite repetition), \nsecond part the starting date and last part, the duration between 2 occurences"
+          "description": "ISO 8601 Description of the scheduling for instance \"R2/2015-06-04T19:25:16.828696-07:00/PT4S\"\nwhere first part is the number of repetitions (if 0, infinite repetition), \nsecond part the starting date and last part, the duration between 2 occurrences."
         },
         "Iso8601MinDelta": {
           "type": "string",
@@ -5025,7 +5059,7 @@ var SwaggerJson = `{
           "$ref": "#/definitions/ListLogRequestLogFormat"
         }
       },
-      "title": "ListLogRequest launch a parameterised query in the log repository and streams the results"
+      "description": "ListLogRequest launches a parameterised query in the log repository and streams the results."
     },
     "logLogMessage": {
       "type": "object",
@@ -5101,7 +5135,7 @@ var SwaggerJson = `{
           "type": "string"
         }
       },
-      "title": "LogMessage is the format used to transmit log messages to clients via the REST API"
+      "description": "LogMessage is the format used to transmit log messages to clients via the REST API."
     },
     "logRelType": {
       "type": "string",
@@ -5113,7 +5147,7 @@ var SwaggerJson = `{
         "LAST"
       ],
       "default": "NONE",
-      "title": "Relative links types\nNote that First is time.Now() and last time.Unix(0)\nWe added an unused NONE enum with value 0 to workaround 0 issues between JSON and proto3"
+      "description": "Relative links types.\nNote that First is time.Now() and last time.Unix(0).\nWe added an unused NONE enum with value 0 to workaround 0 issues between JSON and proto3."
     },
     "logTimeRangeCursor": {
       "type": "object",
@@ -5130,7 +5164,7 @@ var SwaggerJson = `{
           "format": "int32"
         }
       },
-      "title": "Ease implementation of data navigation for a chart"
+      "description": "Ease implementation of data navigation for a chart."
     },
     "logTimeRangeRequest": {
       "type": "object",
@@ -5149,7 +5183,7 @@ var SwaggerJson = `{
           "title": "Upper bound for our request"
         }
       },
-      "title": "TimeRangeRequest contains the parameter to configure the query to \nretrieve the number of audit events of this type for a given time range\ndefined by last timestamp and a range type"
+      "description": "TimeRangeRequest contains the parameter to configure the query to \nretrieve the number of audit events of this type for a given time range\ndefined by last timestamp and a range type."
     },
     "logTimeRangeResult": {
       "type": "object",
@@ -5171,7 +5205,7 @@ var SwaggerJson = `{
         "Count": {
           "type": "integer",
           "format": "int32",
-          "title": "nb of occurences found within this range"
+          "title": "nb of occurrences found within this range"
         },
         "Relevance": {
           "type": "integer",
@@ -5179,7 +5213,7 @@ var SwaggerJson = `{
           "title": "a score between 1 and 100 that gives the relevance of this result:\nif End \u003e now, we ponderate the returned count with the duration of the last time range\nfor instance for a hour range if now is 6PM, last count will be \nmultiplied by 4/3 and have a relevance of 75. \nRelevance will be almost always equals to 100"
         }
       },
-      "title": "TimeRangeResult represents one point of a graph"
+      "description": "TimeRangeResult represents one point of a graph."
     },
     "mailerMail": {
       "type": "object",
@@ -7180,7 +7214,7 @@ var SwaggerJson = `{
     }
   },
   "externalDocs": {
-    "description": "More about Pydio Cell Apis",
+    "description": "More about Pydio Cells Apis",
     "url": "https://pydio.com"
   }
 }

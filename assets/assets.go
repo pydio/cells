@@ -20,7 +20,8 @@
 
 // Package assets is based on Packr to embed static data inside the binary.
 //
-// It embeds the small pure-js frontend loaded at install time and the php+js frontend served to the end-users (packages separately, not commited and added a build time)
+// It embeds the small pure-js frontend loaded at install time and the php+js frontend
+// served to the end-users (packages separately, not committed and added a build time).
 package assets
 
 import (

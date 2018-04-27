@@ -41,21 +41,21 @@ func NewUuidRootsHandler() *UuidRootsHandler {
 	return u
 }
 
-func (h *UuidRootsHandler) updateInputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (h *UuidRootsHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
-	return ctx, nil
+	return ctx, node, nil
 
 }
 
-func (h *UuidRootsHandler) updateOutputBranch(ctx context.Context, identifier string, node *tree.Node) (context.Context, error) {
+func (h *UuidRootsHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	// Rebuild the path now
 	branch, set := GetBranchInfo(ctx, identifier)
 	if !set || branch.UUID == "ROOT" {
-		return ctx, nil
+		return ctx, node, nil
 	}
 	if len(branch.RootNodes) == 0 {
-		return ctx, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find roots for workspace")
+		return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find roots for workspace")
 	}
 
 	multiRootKey := ""
@@ -64,7 +64,7 @@ func (h *UuidRootsHandler) updateOutputBranch(ctx context.Context, identifier st
 		// Root is not set, find it now
 		wsRoots, err := h.rootKeysMap(branch.RootNodes)
 		if err != nil {
-			return ctx, err
+			return ctx, node, err
 		}
 		for _, rNode := range wsRoots {
 			if strings.HasPrefix(node.Path, rNode.Path) {
@@ -73,20 +73,20 @@ func (h *UuidRootsHandler) updateOutputBranch(ctx context.Context, identifier st
 			}
 		}
 		if detectedRoot == nil {
-			return ctx, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find root node in workspace, this should not happen")
+			return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find root node in workspace, this should not happen")
 		}
 		multiRootKey = h.makeRootKey(detectedRoot) + "/"
 	} else {
 		var err error
 		detectedRoot, err = h.getRoot(branch.RootNodes[0])
 		if err != nil {
-			return ctx, err
+			return ctx, node, err
 		}
 	}
 
 	log.Logger(ctx).Debug(multiRootKey)
 	//node.Path = branch.Slug + "/" + multiRootKey + strings.TrimLeft(strings.TrimPrefix(node.Path, detectedRoot.Path), "/")
 
-	return ctx, nil
+	return ctx, node, nil
 
 }

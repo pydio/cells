@@ -557,7 +557,7 @@ func TestMassiveOperations(t *testing.T) {
 
 	Convey("Test Massive Indexation", t, func() {
 
-		loadedContent, e := ioutil.ReadFile(filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "services", "data", "source", "index", "utils", "snapshot.json"))
+		loadedContent, e := ioutil.ReadFile(filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "pydio", "cells", "data", "source", "index", "utils", "snapshot.json"))
 		So(e, ShouldBeNil)
 		So(string(loadedContent), ShouldHaveLength, 396068)
 		nodesList := []*tree.Node{}

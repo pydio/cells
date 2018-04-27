@@ -36,10 +36,10 @@ import (
 	"github.com/pydio/cells/idm/meta"
 )
 
-// Handler definition
+// Handler definition.
 type Handler struct{}
 
-// UpdateUserMeta adds, updates or deletes user meta
+// UpdateUserMeta adds, updates or deletes user meta.
 func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMetaRequest, response *idm.UpdateUserMetaResponse) error {
 
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
@@ -95,7 +95,7 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 
 }
 
-// SearchUserMeta retrieves meta based on various criterias
+// SearchUserMeta retrieves meta based on various criteria.
 func (h *Handler) SearchUserMeta(ctx context.Context, request *idm.SearchUserMetaRequest, stream idm.UserMetaService_SearchUserMetaStream) error {
 
 	defer stream.Close()
@@ -111,7 +111,7 @@ func (h *Handler) SearchUserMeta(ctx context.Context, request *idm.SearchUserMet
 
 }
 
-// Implements ReadNodeStream to be a meta provider
+// Implements ReadNodeStream to be a meta provider.
 func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderStreamer_ReadNodeStreamStream) error {
 
 	defer stream.Close()
@@ -146,7 +146,7 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 	return nil
 }
 
-// Update/Delete a namespace
+// Update/Delete a namespace.
 func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.UpdateUserMetaNamespaceRequest, response *idm.UpdateUserMetaNamespaceResponse) error {
 
 	dao := servicecontext.GetDAO(ctx).(meta.DAO).GetNamespaceDao()
@@ -167,7 +167,7 @@ func (h *Handler) UpdateUserMetaNamespace(ctx context.Context, request *idm.Upda
 
 }
 
-// List all namespaces from underlying DAO
+// List all namespaces from underlying DAO.
 func (h *Handler) ListUserMetaNamespace(ctx context.Context, request *idm.ListUserMetaNamespaceRequest, stream idm.UserMetaService_ListUserMetaNamespaceStream) error {
 
 	defer stream.Close()

@@ -34,13 +34,13 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
+	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 	"golang.org/x/image/colornames"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/pydio/minio-go"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -81,12 +81,12 @@ type ThumbnailExtractor struct {
 	Client     client.Client
 }
 
-// GetName returns this action unique identifier
+// GetName returns this action unique identifier.
 func (t *ThumbnailExtractor) GetName() string {
 	return thumbnailsActionName
 }
 
-// Init passes parameters to the action
+// Init passes parameters to the action.
 func (t *ThumbnailExtractor) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 	// Todo : get sizes from parameters
 	t.Router = views.NewStandardRouter(views.RouterOptions{
@@ -110,7 +110,7 @@ func (t *ThumbnailExtractor) Init(job *jobs.Job, cl client.Client, action *jobs.
 	return nil
 }
 
-// Run the actual action code
+// Run the actual action code.
 func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
 	if len(input.Nodes) == 0 || input.Nodes[0].Size == -1 || input.Nodes[0].Etag == common.NODE_FLAG_ETAG_TEMPORARY {

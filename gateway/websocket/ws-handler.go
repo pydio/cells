@@ -86,7 +86,7 @@ func (w *WebsocketHandler) InitHandlers(serviceCtx context.Context) {
 			}
 			ctx := context.Background()
 			verifier := auth.DefaultJWTVerifier()
-			ctx, claims, e := verifier.Verify(ctx, msg.JWT)
+			_, claims, e := verifier.Verify(ctx, msg.JWT)
 			if e != nil {
 				log.Logger(serviceCtx).Error("invalid jwt")
 				session.CloseWithMsg(NewErrorMessage(e))
@@ -245,6 +245,5 @@ func (w *WebsocketHandler) BroadcastActivityEvent(ctx context.Context, event *ac
 		}
 		return false
 	})
-	return nil
 
 }

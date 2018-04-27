@@ -35,7 +35,13 @@ var ExposedConfigs = &forms.Form{
 				Type:        forms.ParamString,
 				Label:       "Update.Config.Url.Label",
 				Description: "Update.Config.Url.Description",
-				Default:     "http://localhost:8080/a/update-server",
+				Default:     "https://update.pydio.com/cells/",
+			},
+			&forms.FormField{
+				Name:        "publicKey",
+				Type:        forms.ParamTextarea,
+				Label:       "Update.Config.PublicKey.Label",
+				Description: "Update.Config.PublicKey.Description",
 			},
 			&forms.FormField{
 				Name:        "channel",

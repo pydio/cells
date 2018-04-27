@@ -20,7 +20,7 @@
 
 // Package rest implements all the share logic for Cells and Links.
 //
-// It is a high-level service using many other services for crud-ing shares throught the REST API
+// It is a high-level service using many other services for crud-ing shares through the REST API.
 package rest
 
 import (

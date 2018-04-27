@@ -385,6 +385,25 @@ func (c *S3Client) LoadNode(ctx context.Context, path string, leaf ...bool) (nod
 	return node, nil
 }
 
+// UpdateNodeUuid makes this endpoint an UuidReceiver
+func (c *S3Client) UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Node, error) {
+
+	if node.IsLeaf() {
+		return nil, errors.New("UpdateNodeUuid is only supported by folders")
+	}
+	hiddenPath := fmt.Sprintf("%v/%s", node.Path, servicescommon.PYDIO_SYNC_HIDDEN_FILE_META)
+	var uid string
+	if node.Uuid != "" {
+		uid = node.Uuid
+	} else {
+		uid = fmt.Sprintf("%s", uuid.NewV4())
+		node.Uuid = uid
+	}
+	_, err := c.Mc.PutObject(c.Bucket, hiddenPath, strings.NewReader(uid), int64(len(uid)), minio.PutObjectOptions{ContentType: "text/plain"})
+	return node, err
+
+}
+
 func (c *S3Client) getNodeIdentifier(path string, leaf bool) (uid string, eTag string, metaSize int64, e error) {
 	if leaf {
 		return c.getFileHash(c.getFullPath(path))

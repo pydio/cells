@@ -32,6 +32,7 @@ import (
 	"github.com/pydio/cells/assets"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
@@ -74,11 +75,13 @@ func init() {
 	)
 }
 
+// DeployAssets is called at the very first run
 func DeployAssets(ctx context.Context) error {
 	// Assets are deployed at install time, but they could be deployed here?
 	return nil
 }
 
+// OverrideAssets is called whenever there is a version change to update the PHP resources
 func OverrideAssets(ctx context.Context) error {
 
 	dir := filepath.Join(config.ApplicationDataDir(), "static", "pydio")
@@ -86,42 +89,51 @@ func OverrideAssets(ctx context.Context) error {
 		// Frontend is probably not deployed here, just ignore
 		return nil
 	}
-	// Installing the php data
-	for _, replace := range []string{"conf", "plugins", "core"} {
-		if _, e := os.Stat(filepath.Join(dir, replace)); e != nil {
-			// Frontend is probably not deployed here, just ignore
-			return nil
+
+	// Restore assets inside a new directory
+	updateDir := filepath.Join(dir, "update")
+	os.Mkdir(updateDir, 0755)
+	log.Logger(ctx).Info("Deploying new PHP assets in " + updateDir + "...")
+	if err, _, _ := assets.RestoreAssets(updateDir, assets.PydioFrontBox, nil, "data"); err != nil {
+		return err
+	}
+	log.Logger(ctx).Info("Deploying new PHP assets in " + updateDir + ": done")
+
+	contents, _ := ioutil.ReadDir(updateDir)
+	for _, info := range contents {
+		base := info.Name()
+		orig := filepath.Join(dir, base)
+		if info.IsDir() {
+			// Folders : create a .bak version
+			bakPath := filepath.Join(dir, fmt.Sprintf("%s.bak", base))
+			if _, e := os.Stat(bakPath); e == nil {
+				os.RemoveAll(bakPath)
+			}
+			log.Logger(ctx).Info("Creating bak version of " + orig)
+			if err := os.Rename(orig, bakPath); err != nil {
+				return err
+			}
+		} else {
+			// root files : remove original version
+			if _, e := os.Stat(orig); e == nil {
+				os.Remove(orig)
+			}
 		}
-		bakPath := filepath.Join(dir, fmt.Sprintf("%s.bak", replace))
-		if _, e := os.Stat(bakPath); e == nil {
-			os.RemoveAll(bakPath)
-		}
-		if err := os.Rename(filepath.Join(dir, replace), filepath.Join(dir, fmt.Sprintf("%s.bak", replace))); err != nil {
+		log.Logger(ctx).Info("Now moving " + info.Name() + " to " + orig)
+		if err := os.Rename(filepath.Join(updateDir, info.Name()), orig); err != nil {
 			return err
 		}
 	}
 
-	// Remove files at the root
-	infos, _ := ioutil.ReadDir(dir)
-	for _, fInfo := range infos {
-		if !fInfo.IsDir() {
-			os.Remove(fInfo.Name())
-		}
-	}
-
-	if err, _, _ := assets.RestoreAssets(dir, assets.PydioFrontBox, nil, "data"); err != nil {
+	// Now remove update folder
+	if err := os.RemoveAll(updateDir); err != nil {
 		return err
 	}
 
-	// clear cache
-	if err := os.RemoveAll(filepath.Join(dir, "data", "cache")); err != nil {
-		return err
-	}
+	// clear cache (ignore errors)
+	os.RemoveAll(filepath.Join(dir, "data", "cache"))
 
-	// TODO
-	// Also clear php FMP caches & Apc Cache, we could eventually use a direct call
-	// to the fast cgi service for that?
-	// See https://github.com/tomasen/fcgi_client
+	// TODO : clear php FMP caches & Apc Cache ?
 
 	return nil
 }

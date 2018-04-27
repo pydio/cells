@@ -201,7 +201,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 		b, _ := newTestHandlerBranchTranslator(pool)
 		ctx := makeFakeTestContext("in", &tree.Node{Path: "datasource/root"})
 		node := &tree.Node{Path: "datasource/root/sub/path"}
-		b.updateOutputNode(ctx, "in", node)
+		b.updateOutputNode(ctx, node, "in")
 		So(node.Path, ShouldEqual, "datasource/root/sub/path")
 
 	})
@@ -213,7 +213,7 @@ func TestBranchTranslator_ReadNode(t *testing.T) {
 			Workspace: idm.Workspace{UUID: "ROOT"},
 		})
 		node := &tree.Node{Path: "datasource/root/sub/path"}
-		b.updateOutputNode(adminCtx, "in", node)
+		b.updateOutputNode(adminCtx, node, "in")
 		So(node.Path, ShouldEqual, "datasource/root/sub/path")
 
 	})

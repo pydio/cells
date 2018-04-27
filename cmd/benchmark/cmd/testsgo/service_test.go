@@ -59,7 +59,7 @@ var (
 	process            *os.Process
 	protofile          string
 	logFailedCalls     bool
-	ovs                bool // double check to insure the method found by walking the proto file sould be executed
+	ovs                bool // double check to insure the method found by walking the proto file should be executed
 	maxParallelThreads int
 	rpc                string
 
@@ -323,7 +323,7 @@ func BenchmarkService(b *testing.B) {
 				if t, ok := m[r.Name]; ok {
 
 					b.Run(fmt.Sprintf("%s", r.Name), func(b *testing.B) {
-						// if ovs { // skip unvalid service: usefull when various services are defined in a single proto file
+						// if ovs { // skip unvalid service: useful when various services are defined in a single proto file
 						// 	tokens := strings.Split(service, ".")
 						// 	suffix := tokens[len(tokens)-1]
 						// 	tcr := strings.ToLower(currentService)
@@ -428,7 +428,7 @@ func BenchmarkRunParallel(b *testing.B) {
 			if m, ok := currentTemplateMap[action]; ok {
 				if t, ok := m[r.Name]; ok {
 
-					// if ovs { // skip unvalid service: usefull when various services are defined in a single proto file
+					// if ovs { // skip unvalid service: useful when various services are defined in a single proto file
 					// 	tokens := strings.Split(service, ".")
 					// 	suffix := tokens[len(tokens)-1]
 					// 	tcr := strings.ToLower(currentService)

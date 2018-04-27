@@ -65,7 +65,9 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 	}
 	response, err := a.next.ReadNode(ctx, in, opts...)
 	if accessList.CanRead(ctx, parents...) && !accessList.CanWrite(ctx, parents...) {
-		response.Node.SetMeta(common.META_FLAG_READONLY, "true")
+		n := response.Node.Clone()
+		n.SetMeta(common.META_FLAG_READONLY, "true")
+		response.Node = n
 	}
 	return response, err
 }
@@ -109,7 +111,9 @@ func (a *AclFilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 				continue
 			}
 			if accessList.CanRead(ctx, newBranch...) && !accessList.CanWrite(ctx, newBranch...) {
-				resp.Node.SetMeta(common.META_FLAG_READONLY, "true")
+				n := resp.Node.Clone()
+				n.SetMeta(common.META_FLAG_READONLY, "true")
+				resp.Node = n
 			}
 			s.Send(resp)
 		}

@@ -26,9 +26,10 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
-	"github.com/pydio/minio-go"
-	"github.com/pydio/cells/common/proto/tree"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/minio-go"
 )
 
 type FakeWrapperHandler struct {

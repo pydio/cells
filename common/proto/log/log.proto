@@ -14,13 +14,13 @@ service LogRecorder {
 message RecorderPutResponse{}
 
 // Log is a generic message format used by the sync service 
-// to publish log messages to the various log repositories (typically, bleve)
+// to publish log messages to the various log repositories (typically, bleve).
 message Log {
     map<string, string> message = 1;
 }
 
 
-// LogMessage is the format used to transmit log messages to clients via the REST API
+// LogMessage is the format used to transmit log messages to clients via the REST API.
 message LogMessage {
     // Generic zap fields 
     int32 Ts = 1;
@@ -55,7 +55,7 @@ message LogMessage {
     // 	AuditContext map[string]interface{}
 }
 
-// ListLogRequest launch a parameterised query in the log repository and streams the results
+// ListLogRequest launches a parameterised query in the log repository and streams the results.
 message ListLogRequest {
     // Bleve-type Query stsring
     string Query = 1;
@@ -80,13 +80,13 @@ message ListLogResponse {
 /* TIME RANGE REQUESTS */ 
 
 // TimeRangeResponse contains either one aggregated result of a facetted request 
-// OR a time range cursor
+// OR a time range cursor.
  message TimeRangeResponse {
     TimeRangeResult TimeRangeResult = 1;
     TimeRangeCursor TimeRangeCursor = 2;
 }
 
-// TimeRangeResult represents one point of a graph
+// TimeRangeResult represents one point of a graph.
 message TimeRangeResult{
     // a label for this time range
     string Name = 1;
@@ -94,7 +94,7 @@ message TimeRangeResult{
     int32 Start = 2;
     // end timestamp      
     int32 End = 3;
-    // nb of occurences found within this range
+    // nb of occurrences found within this range
     int32 Count = 4;
     // a score between 1 and 100 that gives the relevance of this result:
     // if End > now, we ponderate the returned count with the duration of the last time range
@@ -106,7 +106,7 @@ message TimeRangeResult{
 
 // TimeRangeRequest contains the parameter to configure the query to 
 // retrieve the number of audit events of this type for a given time range
-// defined by last timestamp and a range type
+// defined by last timestamp and a range type.
 message TimeRangeRequest {
     // Type of event we are auditing
     string MsgId = 1;
@@ -116,9 +116,9 @@ message TimeRangeRequest {
     int32 RefTime = 3;
 }
 
-// Relative links types
-// Note that First is time.Now() and last time.Unix(0)
-// We added an unused NONE enum with value 0 to workaround 0 issues between JSON and proto3
+// Relative links types.
+// Note that First is time.Now() and last time.Unix(0).
+// We added an unused NONE enum with value 0 to workaround 0 issues between JSON and proto3.
 enum RelType {
     NONE = 0;
     FIRST = 1;
@@ -127,7 +127,7 @@ enum RelType {
     LAST = 4;
 }
 
-// Ease implementation of data navigation for a chart
+// Ease implementation of data navigation for a chart.
 message TimeRangeCursor {
     RelType Rel = 1;
     int32 RefTime = 2; 

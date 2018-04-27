@@ -40,7 +40,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// TreeServer definition
+// TreeServer definition.
 type TreeServer struct {
 	DataSourceName string
 	client         client.Client
@@ -74,7 +74,7 @@ func NewTreeServer(dsn string) *TreeServer {
 	}
 }
 
-// CreateNode implementation for the TreeServer
+// CreateNode implementation for the TreeServer.
 func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest, resp *tree.CreateNodeResponse) (err error) {
 
 	defer func() {
@@ -185,7 +185,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	return nil
 }
 
-// ReadNode implementation for the TreeServer
+// ReadNode implementation for the TreeServer.
 func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp *tree.ReadNodeResponse) error {
 
 	defer track("ReadNode", ctx, time.Now(), req, resp)
@@ -259,7 +259,7 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 	return nil
 }
 
-// ListNodes implementation for the TreeServer
+// ListNodes implementation for the TreeServer.
 func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, resp tree.NodeProvider_ListNodesStream) error {
 
 	defer track("ListNodes", ctx, time.Now(), req, resp)
@@ -388,7 +388,7 @@ func (s *TreeServer) ListNodes(ctx context.Context, req *tree.ListNodesRequest, 
 	return nil
 }
 
-// UpdateNode implementation for the TreeServer
+// UpdateNode implementation for the TreeServer.
 func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest, resp *tree.UpdateNodeResponse) (err error) {
 
 	defer track("UpdateNode", ctx, time.Now(), req, resp)
@@ -464,7 +464,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	return nil
 }
 
-// DeleteNode implementation for the TreeServer
+// DeleteNode implementation for the TreeServer.
 func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest, resp *tree.DeleteNodeResponse) (err error) {
 
 	defer track("DeleteNode", ctx, time.Now(), req, resp)
@@ -507,7 +507,7 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 	return nil
 }
 
-// OpenSession opens an indexer session
+// OpenSession opens an indexer session.
 func (s *TreeServer) OpenSession(ctx context.Context, req *tree.OpenSessionRequest, resp *tree.OpenSessionResponse) error {
 
 	log.Logger(ctx).Info("Starting Indexation Session " + req.GetSession().GetUuid())
@@ -517,7 +517,7 @@ func (s *TreeServer) OpenSession(ctx context.Context, req *tree.OpenSessionReque
 
 }
 
-// CloseSession closes an indexer session
+// CloseSession closes an indexer session.
 func (s *TreeServer) CloseSession(ctx context.Context, req *tree.CloseSessionRequest, resp *tree.CloseSessionResponse) error {
 
 	session, batcher, _ := s.sessionStore.ReadSession(req.GetSession().GetUuid())
@@ -536,7 +536,7 @@ func (s *TreeServer) CloseSession(ctx context.Context, req *tree.CloseSessionReq
 
 }
 
-// CleanResourcesBeforeDelete ensure all resources are cleant before deleting
+// CleanResourcesBeforeDelete ensure all resources are cleant before deleting.
 func (s *TreeServer) CleanResourcesBeforeDelete(ctx context.Context, request *object.CleanResourcesRequest, response *object.CleanResourcesResponse) error {
 	dao := servicecontext.GetDAO(ctx).(index.DAO)
 	err, msg := dao.CleanResourcesOnDeletion()
@@ -549,7 +549,7 @@ func (s *TreeServer) CleanResourcesBeforeDelete(ctx context.Context, request *ob
 	return err
 }
 
-// UpdateParentsAndNotify update the parents nodes and notify the tree of the event that occured
+// UpdateParentsAndNotify update the parents nodes and notify the tree of the event that occurred.
 func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, deltaSize int64, eventType tree.NodeChangeEvent_EventType, sourceNode *utils.TreeNode, targetNode *utils.TreeNode, sessionUuid string) error {
 
 	var batcher sessions.SessionBatcher
@@ -629,7 +629,7 @@ func (s *TreeServer) batcherUpdateParents(batcher sessions.SessionBatcher, delta
 
 }
 
-// Batch update nodes on parents
+// Batch update nodes on parents.
 func (s *TreeServer) daoUpdateParents(dao index.DAO, delta int64, mPath utils.MPath) error {
 
 	b := dao.SetNodes("-1", delta)
@@ -644,7 +644,7 @@ func (s *TreeServer) daoUpdateParents(dao index.DAO, delta int64, mPath utils.MP
 
 }
 
-// CreateNodeStream implementation for the TreeServer
+// CreateNodeStream implementation for the TreeServer.
 func (s *TreeServer) CreateNodeStream(ctx context.Context, stream tree.NodeReceiverStream_CreateNodeStreamStream) error {
 	var (
 		err error

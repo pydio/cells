@@ -101,7 +101,7 @@ func InitRoles(ctx context.Context) error {
 		}, 8*time.Second, 50*time.Second)
 	}
 
-	if _, update, e = dao.Add(&idm.Role{
+	if _, _, e = dao.Add(&idm.Role{
 		Uuid:        "EXTERNAL_USERS",
 		Label:       "External Users",
 		AutoApplies: []string{"shared"},

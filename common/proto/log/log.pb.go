@@ -35,9 +35,9 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// Relative links types
-// Note that First is time.Now() and last time.Unix(0)
-// We added an unused NONE enum with value 0 to workaround 0 issues between JSON and proto3
+// Relative links types.
+// Note that First is time.Now() and last time.Unix(0).
+// We added an unused NONE enum with value 0 to workaround 0 issues between JSON and proto3.
 type RelType int32
 
 const (
@@ -102,7 +102,7 @@ func (*RecorderPutResponse) ProtoMessage()               {}
 func (*RecorderPutResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
 // Log is a generic message format used by the sync service
-// to publish log messages to the various log repositories (typically, bleve)
+// to publish log messages to the various log repositories (typically, bleve).
 type Log struct {
 	Message map[string]string `protobuf:"bytes,1,rep,name=message" json:"message,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 }
@@ -119,7 +119,7 @@ func (m *Log) GetMessage() map[string]string {
 	return nil
 }
 
-// LogMessage is the format used to transmit log messages to clients via the REST API
+// LogMessage is the format used to transmit log messages to clients via the REST API.
 type LogMessage struct {
 	// Generic zap fields
 	Ts     int32  `protobuf:"varint,1,opt,name=Ts" json:"Ts,omitempty"`
@@ -294,7 +294,7 @@ func (m *LogMessage) GetSpanRootUuid() string {
 	return ""
 }
 
-// ListLogRequest launch a parameterised query in the log repository and streams the results
+// ListLogRequest launches a parameterised query in the log repository and streams the results.
 type ListLogRequest struct {
 	// Bleve-type Query stsring
 	Query string `protobuf:"bytes,1,opt,name=Query" json:"Query,omitempty"`
@@ -355,7 +355,7 @@ func (m *ListLogResponse) GetLogMessage() *LogMessage {
 }
 
 // TimeRangeResponse contains either one aggregated result of a facetted request
-// OR a time range cursor
+// OR a time range cursor.
 type TimeRangeResponse struct {
 	TimeRangeResult *TimeRangeResult `protobuf:"bytes,1,opt,name=TimeRangeResult" json:"TimeRangeResult,omitempty"`
 	TimeRangeCursor *TimeRangeCursor `protobuf:"bytes,2,opt,name=TimeRangeCursor" json:"TimeRangeCursor,omitempty"`
@@ -380,7 +380,7 @@ func (m *TimeRangeResponse) GetTimeRangeCursor() *TimeRangeCursor {
 	return nil
 }
 
-// TimeRangeResult represents one point of a graph
+// TimeRangeResult represents one point of a graph.
 type TimeRangeResult struct {
 	// a label for this time range
 	Name string `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
@@ -388,7 +388,7 @@ type TimeRangeResult struct {
 	Start int32 `protobuf:"varint,2,opt,name=Start" json:"Start,omitempty"`
 	// end timestamp
 	End int32 `protobuf:"varint,3,opt,name=End" json:"End,omitempty"`
-	// nb of occurences found within this range
+	// nb of occurrences found within this range
 	Count int32 `protobuf:"varint,4,opt,name=Count" json:"Count,omitempty"`
 	// a score between 1 and 100 that gives the relevance of this result:
 	// if End > now, we ponderate the returned count with the duration of the last time range
@@ -440,7 +440,7 @@ func (m *TimeRangeResult) GetRelevance() int32 {
 
 // TimeRangeRequest contains the parameter to configure the query to
 // retrieve the number of audit events of this type for a given time range
-// defined by last timestamp and a range type
+// defined by last timestamp and a range type.
 type TimeRangeRequest struct {
 	// Type of event we are auditing
 	MsgId string `protobuf:"bytes,1,opt,name=MsgId" json:"MsgId,omitempty"`
@@ -476,7 +476,7 @@ func (m *TimeRangeRequest) GetRefTime() int32 {
 	return 0
 }
 
-// Ease implementation of data navigation for a chart
+// Ease implementation of data navigation for a chart.
 type TimeRangeCursor struct {
 	Rel     RelType `protobuf:"varint,1,opt,name=Rel,enum=log.RelType" json:"Rel,omitempty"`
 	RefTime int32   `protobuf:"varint,2,opt,name=RefTime" json:"RefTime,omitempty"`

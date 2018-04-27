@@ -28,9 +28,9 @@ import (
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
-	"github.com/pydio/minio-go"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/minio-go"
 )
 
 type ContextWrapper func(ctx context.Context) (context.Context, error)
@@ -60,16 +60,16 @@ func (a *AbstractHandler) SetClientsPool(p *ClientsPool) {
 }
 
 func (a *AbstractHandler) ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter, provider NodesCallback) error {
-	wrappedIn := func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, error) {
-		ctx, err := inputFilter(ctx, inputNode, identifier)
+	wrappedIn := func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error) {
+		ctx, outputNode, err := inputFilter(ctx, inputNode, identifier)
 		if err != nil {
-			return ctx, err
+			return ctx, inputNode, err
 		}
 		ctx, err = a.wrapContext(ctx)
 		if err != nil {
-			return ctx, err
+			return ctx, inputNode, err
 		}
-		return ctx, nil
+		return ctx, outputNode, nil
 	}
 	return a.next.ExecuteWrapped(wrappedIn, outputFilter, provider)
 }

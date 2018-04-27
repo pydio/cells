@@ -125,6 +125,14 @@ type DataSyncSource interface {
 	GetReaderOn(path string) (out io.ReadCloser, err error)
 }
 
+type UuidProvider interface {
+	LoadNodeByUuid(ctx context.Context, uuid string) (node *tree.Node, err error)
+}
+
+type UuidReceiver interface {
+	UpdateNodeUuid(ctx context.Context, node *tree.Node) (*tree.Node, error)
+}
+
 type Versioner interface {
 	Commit(node *tree.Node)
 	ListVersions(node *tree.Node) (versions map[int]string, lastVersion int)

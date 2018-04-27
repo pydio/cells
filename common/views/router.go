@@ -25,13 +25,13 @@ import (
 	"io"
 
 	"github.com/micro/go-micro/client"
-
 	"github.com/pydio/minio-go"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
-// RouterOptions holds configuration flags to pass to a routeur constructor easily
+// RouterOptions holds configuration flags to pass to a routeur constructor easily.
 type RouterOptions struct {
 	AdminView          bool
 	WatchRegistry      bool
@@ -41,7 +41,7 @@ type RouterOptions struct {
 	AuditEvent bool
 }
 
-// NewStandardRouter returns a new configured instance of the default standard router
+// NewStandardRouter returns a new configured instance of the default standard router.
 func NewStandardRouter(options RouterOptions) *Router {
 
 	handlers := []Handler{
@@ -91,7 +91,7 @@ func NewStandardRouter(options RouterOptions) *Router {
 }
 
 // NewUuidRouter returns a new configured instance of a router
-// that relies on nodes UUID rather than the usual Node path
+// that relies on nodes UUID rather than the usual Node path.
 func NewUuidRouter(options RouterOptions) *Router {
 	handlers := []Handler{
 		NewAccessListHandler(options.AdminView),
@@ -150,11 +150,11 @@ func (v *Router) WrapCallback(provider NodesCallback) error {
 }
 
 func (v *Router) ExecuteWrapped(inputFilter NodeFilter, outputFilter NodeFilter, provider NodesCallback) error {
-	outputFilter = func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, error) {
-		return ctx, nil
+	outputFilter = func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error) {
+		return ctx, inputNode, nil
 	}
-	inputFilter = func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, error) {
-		return ctx, nil
+	inputFilter = func(ctx context.Context, inputNode *tree.Node, identifier string) (context.Context, *tree.Node, error) {
+		return ctx, inputNode, nil
 	}
 	return v.handlers[0].ExecuteWrapped(inputFilter, outputFilter, provider)
 }
@@ -227,7 +227,7 @@ func (v *Router) MultipartListObjectParts(ctx context.Context, target *tree.Node
 func (v *Router) SetNextHandler(h Handler)      {}
 func (v *Router) SetClientsPool(p *ClientsPool) {}
 
-// Use the very last handler (Executor) to send request with a previously filled context
+// GetExecutor uses the very last handler (Executor) to send a request with a previously filled context.
 func (v *Router) GetExecutor() Handler {
 	return v.handlers[len(v.handlers)-1]
 }

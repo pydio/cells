@@ -28,10 +28,10 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/minio-go"
 	uuid2 "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 
-	"github.com/pydio/minio-go"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
@@ -201,7 +201,7 @@ func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 		//return writer.PutEncryptedObject(info.ObjectsBucket, s3Path, reader, requestData.EncryptionMaterial)
 
 	} else {
-		log.Logger(ctx).Debug("HANDLER EXEC: PUT OBJECT", zap.Any("requestData", requestData))
+		log.Logger(ctx).Debug("handler exec: put object", zap.Any("info", info), zap.String("s3Path", s3Path), zap.Any("requestData", requestData))
 		if requestData.Size <= 0 {
 			written, err := writer.PutObjectWithContext(ctx, info.ObjectsBucket, s3Path, reader, -1, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
 			if err != nil {

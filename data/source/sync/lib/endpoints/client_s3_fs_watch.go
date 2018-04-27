@@ -27,8 +27,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pydio/minio-go"
 	"github.com/pydio/cells/data/source/sync/lib/common"
+	"github.com/pydio/minio-go"
 	"github.com/rjeczalik/notify"
 )
 
@@ -113,7 +113,7 @@ func (c *S3ClientFSWatch) Watch(recursivePath string) (*common.WatchObject, erro
 
 }
 
-// Transform an OS notify event to a standard pydio EventInfo
+// Transforms an OS notify event to a standard pydio EventInfo.
 func (c *S3ClientFSWatch) fsEventToEventInfo(event notify.EventInfo) (common.EventInfo, error) {
 
 	var i os.FileInfo

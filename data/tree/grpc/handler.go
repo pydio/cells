@@ -420,14 +420,13 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits bool) (*tree.Node, error) {
 
-	c, cancel := context.WithCancel(ctx)
 	var foundNode *tree.Node
 
 	if strings.HasPrefix(uuid, "DATASOURCE:") {
 		dsName := strings.TrimPrefix(uuid, "DATASOURCE:")
 
 		if ds, ok := s.DataSources[dsName]; ok {
-			resp, err := ds.reader.ReadNode(c, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: "ROOT"}, WithCommits: withCommits})
+			resp, err := ds.reader.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: "ROOT"}, WithCommits: withCommits})
 			if err == nil && resp.Node != nil {
 				s.updateDataSourceNode(resp.Node, dsName)
 				log.Logger(ctx).Debug("[Look Up] Found node", zap.String("uuid", resp.Node.Uuid), zap.String("datasource", dsName))
@@ -437,6 +436,7 @@ func (s *TreeServer) lookUpByUuid(ctx context.Context, uuid string, withCommits 
 		return nil, errors.NotFound(uuid, "Not found")
 	}
 
+	c, cancel := context.WithCancel(ctx)
 	wg := &sync.WaitGroup{}
 	for dsName, ds := range s.DataSources {
 		wg.Add(1)

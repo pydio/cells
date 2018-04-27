@@ -49,7 +49,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 
 		for i, path := range selectedPathes {
 			node := &tree.Node{Path: path}
-			_, nodeErr := inputFilter(ctx, node, "sel")
+			_, node, nodeErr := inputFilter(ctx, node, "sel")
 			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			if nodeErr != nil {
 				return nodeErr
@@ -59,7 +59,7 @@ func compress(ctx context.Context, selectedPathes []string, targetNodePath strin
 
 		if targetNodePath != "" {
 			node := &tree.Node{Path: targetNodePath}
-			_, nodeErr := inputFilter(ctx, node, "sel")
+			_, node, nodeErr := inputFilter(ctx, node, "sel")
 			if nodeErr != nil {
 				log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 				return nodeErr
@@ -113,7 +113,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
 		node := &tree.Node{Path: selectedNode}
-		_, nodeErr := inputFilter(ctx, node, "sel")
+		_, node, nodeErr := inputFilter(ctx, node, "sel")
 		if nodeErr != nil {
 			log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			return nodeErr
@@ -122,7 +122,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 
 		if targetPath != "" {
 			node := &tree.Node{Path: targetPath}
-			_, nodeErr := inputFilter(ctx, node, "sel")
+			_, node, nodeErr := inputFilter(ctx, node, "sel")
 			if nodeErr != nil {
 				log.Logger(ctx).Error("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 				return nodeErr
@@ -182,7 +182,7 @@ func dircopy(ctx context.Context, selectedPathes []string, targetNodePath string
 
 		for i, path := range selectedPathes {
 			node := &tree.Node{Path: path}
-			_, nodeErr := inputFilter(ctx, node, "sel")
+			_, node, nodeErr := inputFilter(ctx, node, "sel")
 			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
 			if nodeErr != nil {
 				return nodeErr
@@ -193,7 +193,7 @@ func dircopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		if targetNodePath != "" {
 			dir, base := filepath.Split(targetNodePath)
 			node := &tree.Node{Path: dir}
-			_, nodeErr := inputFilter(ctx, node, "sel")
+			_, node, nodeErr := inputFilter(ctx, node, "sel")
 			if nodeErr != nil {
 				log.Logger(ctx).Error("Filtering Input Node Parent", zap.Any("node", node), zap.Error(nodeErr))
 				return nodeErr

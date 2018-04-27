@@ -1,4 +1,13 @@
-# Pydio Cells
+<img src="https://github.com/pydio/cells/wiki/images/PydioCellsColor.png" width="400" />
+
+[Homepage](https://pydio.com/) | [Wiki](https://github.com/pydio/cells/wiki) | [GitHub-Repository](https://github.com/pydio/cells) |
+[Issue-Tracker](https://github.com/pydio/cells/issues) 
+
+[![License Badge](https://img.shields.io/badge/License-AGPL%203%2B-blue.svg)](LICENSE)
+[![GoDoc](https://godoc.org/github.com/pydio/cells?status.svg)](https://godoc.org/github.com/pydio/cells)
+[![Build Status](https://travis-ci.org/pydio/cells.svg?branch=master)](https://travis-ci.org/pydio/cells)
+[![Go Report Card](https://goreportcard.com/badge/github.com/pydio/cells?rand=2)](https://goreportcard.com/report/github.com/pydio/cells)
+
 
 Pydio Cells is the nextgen file sharing platform for organizations. It is a full rewrite of the Pydio project using the Go language following a micro-service architecture. 
 
@@ -10,54 +19,56 @@ These instructions will get you a copy of the project up and running on your loc
 
 The following elements are required to compile and run pydio on your machine
 
- - Go language v1.10 or higher
- - MySQL database 5.6 or higher (or MariaDB equivalent)
+ - Go language v1.10 or higher (with a [correctly configured](https://golang.org/doc/install#testing) Go toolchain),
+ - MySQL database 5.6 or higher (or MariaDB equivalent),
  - [Frontend] For running the PHP frontend, PHP-FPM is required as well (see pydio/cells-front repository).
 
 
+_Note: We have developped and tested Pydio Cells on MacOS, Ubuntu, Debian and CentOS. Windows version might still have unknown glitches and is not yet supported._
+
 ### Installing
 
-A step by step series of examples that tell you have to get a development env running
+Assuming that your system meets the above prerequisites, building the **Pydio Cells** backend from the source code is quite straight forward:
 
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
+```sh
+# Retrieve the code
+go get -u github.com/pydio/cells
+# From this line on, we assume you are in Pydio Cells' code roots directory
+cd $GOPATH/src/github.com/pydio/cells 
+# Build your binary
+make dev
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+_Note: we had to fork a few libraries before integrating them as dependencies. If you need to modify this part of the code, you should first retrieve a local version by executing_  
+
+```sh
+./deps.sh
+```
+
+To have the environment running, you must also:
+
+- Create a database in your chosen DB server,
+- Run the Pydio Cells installer that will guide you through the necessary steps: you might refer to the [wiki](https://github.com/pydio/cells/wiki) for additional information.
+
+```bash
+./cells install
+```
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
+To run the tests, simply do
+```sh
+go test -v ./...
 ```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
+Please read the [CONTRIBUTING.md](CONTRIBUTING.md) document if you wish to add more tests or contribute to the code.
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+Binaries are currently provided for Linux and MacOSX distributions. To deploy them on a live system, please see the Wiki instructions. 
 
 ## Built With
+
+Pydio Cells uses many open source golang libraries. Most important ones are listed below, please see [DEPENDENCIES](DEPENDENCIES) for an exhaustive list of other libs and their licenses.
 
 * [Micro](https://github.com/micro/micro) - Micro-service framework
 * [Minio](https://github.com/minio/minio) - Objects server implementing s3 protocol
@@ -65,24 +76,16 @@ Add additional notes about how to deploy this on a live system
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/pydio/cells/tags). 
 
 ## Authors
 
-* **Charles du Jeu** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See the list of [contributors](https://github.com/pydio/cells/graphs/contributors) who participated in this project. Pydio Cells is also a continuation of the Pydio project and many contributions were ported from [pydio-core](https://github.com/pydio/pydio-core) to the [cells-front](https://github.com/pydio/cells-front) code.
 
 ## License
 
 This project is licensed under the AGPLv3 License - see the [LICENSE](LICENSE) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc

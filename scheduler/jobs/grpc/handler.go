@@ -329,6 +329,4 @@ func (j *JobsHandler) CleanStuckTasks(ctx context.Context, duration ...time.Dura
 		}
 	}
 
-	return fixedTasks, nil
-
 }

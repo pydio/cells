@@ -36,10 +36,25 @@ func (b *Merger) processCreateFolder(event *filters.BatchedEvent, operationId st
 	localPath := event.EventInfo.Path
 	ctx := event.EventInfo.CreateContext(b.GlobalContext)
 	dbNode, _ := event.Target.LoadNode(ctx, localPath)
-	log.Logger(ctx).Debug("Should processs CreateFolder", zap.Any("dbNode", dbNode), zap.Any("event", event.Node))
+	log.Logger(ctx).Debug("Should process CreateFolder", zap.Any("dbNode", dbNode), zap.Any("event", event.Node))
 	if dbNode == nil {
 		b.lockFileTo(event, localPath, operationId)
 		defer b.unlockFile(event, localPath)
+		provider, ok1 := event.Target.(common.UuidProvider)
+		receiver, ok2 := event.Source.(common.UuidReceiver)
+		if ok1 && ok2 {
+			if sameIdNode, e := provider.LoadNodeByUuid(ctx, event.Node.Uuid); e == nil && sameIdNode != nil {
+				// This is a duplicate! We have to refresh .pydio content now
+				newNode, er := receiver.UpdateNodeUuid(ctx, &tree.Node{Path: localPath})
+				if er == nil {
+					b.Logger().Info("Refreshed folder on source as Uuid was a duplicate.")
+					event.Node.Uuid = newNode.Uuid
+				} else {
+					b.Logger().Info("Error while trying to refresh folder Uuid on source", zap.Error(er))
+					return er
+				}
+			}
+		}
 		err := event.Target.CreateNode(ctx, &tree.Node{
 			Path: localPath,
 			Type: tree.NodeType_COLLECTION,
