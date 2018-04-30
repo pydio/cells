@@ -11,7 +11,7 @@ services:
          ports: ["3306:3306"]
 
     php:
-        image: php:7.1-fpm-jessie
+        image: php:fpm-alpine
         ports: ["9000:9000"]
 
     pydio:
