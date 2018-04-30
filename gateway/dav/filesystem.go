@@ -344,36 +344,6 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 // Write is unused but left to respect Writer interface. This method is bypassed by io.Copy to use ReadFrom (see above)
 func (f *File) Write(p []byte) (int, error) {
 	return 0, errors.BadRequest("unauthorized method", "this method must not be called, rather use ReadFrom")
-	// f.fs.mu.Lock()
-	// defer f.fs.mu.Unlock()
-	// if f.fs.Debug {
-	// 	log.Logger(context.Background()).Debug("File.Write", zap.Any("file", f))
-	// }
-
-	// var wrappedCtx context.Context
-	// var inputNode = &tree.Node{Path: f.name}
-
-	// if f.wrappedCtx == nil {
-	// 	er := f.fs.Router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
-	// 		var er1 error
-	// 		wrappedCtx, er1 = inputFilter(f.ctx, inputNode, "in")
-	// 		return er1
-	// 	})
-	// 	if er != nil {
-	// 		log.Logger(context.Background()).Error("WrapCallback Error", zap.Error(er))
-	// 		return 0, er
-	// 	}
-	// 	f.node = inputNode
-	// 	f.wrappedCtx = wrappedCtx
-	// }
-
-	// read, err := f.fs.Router.GetExecutor().PutObject(f.wrappedCtx, f.node, bytes.NewBuffer(p), &views.PutRequestData{
-	// 	Size: int64(len(p)),
-	// })
-	// if err != nil {
-	// 	return 0, err
-	// }
-	// return int(read), err
 }
 
 func (fs *FileSystem) RemoveAll(ctx context.Context, name string) error {
@@ -544,7 +514,7 @@ func (f *File) Stat() (os.FileInfo, error) {
 	return f.fs.stat(f.ctx, f.name)
 }
 
-// Local functions
+/* LOCAL HELPERS */
 
 // sum256 calculates sha256 sum for an input byte array.
 func sum256(data []byte) []byte {
