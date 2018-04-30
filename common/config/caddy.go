@@ -91,16 +91,19 @@ var (
 	{{if .Collabora}}
 	proxy /loleaflet/ https://{{.Collabora.Host}}/loleaflet {
 		transparent
+		insecure_skip_verify
 		without /loleaflet/
 	}
 
 	proxy /hosting/discovery https://{{.Collabora.Host}}/hosting/discovery {
 		transparent
+		insecure_skip_verify
 		without /hosting/discovery
 	}
 
 	proxy /lool/ https://{{.Collabora.Host}}/lool/ {
 		transparent
+		insecure_skip_verify
 		websocket
 		without /lool/
 	}
