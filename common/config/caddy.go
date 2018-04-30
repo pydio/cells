@@ -88,21 +88,23 @@ var (
 		without /plug/
 	}
 
-	proxy /loleaflet/ {{.Collabora.Host}}/loleaflet {
+	{{if .Collabora}}
+	proxy /loleaflet/ https://{{.Collabora.Host}}/loleaflet {
 		transparent
 		without /loleaflet/
 	}
 
-	proxy /hosting/discovery {{.Collabora.Host}}/hosting/discovery {
+	proxy /hosting/discovery https://{{.Collabora.Host}}/hosting/discovery {
 		transparent
 		without /hosting/discovery
 	}
 
-	proxy /lool/ {{.Collabora.Host}}/lool/ {
+	proxy /lool/ https://{{.Collabora.Host}}/lool/ {
 		transparent
 		websocket
 		without /lool/
 	}
+	{{end}}
 
 	fastcgi / {{.Fpm}} php {
 		root  "{{.Root}}"
@@ -200,7 +202,7 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 	if p, e := internalUrlFromConfig("collabora", []string{"frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_WEBSOCKET_PORT"}, servicesHost, tls); e == nil {
 		c.Collabora = p
 	} else {
-		return c, e
+		c.Collabora = nil
 	}
 
 	if fpm := Get("defaults", "fpm").String(""); fpm == "" {
