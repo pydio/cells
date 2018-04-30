@@ -50,6 +50,10 @@ type CaddyTemplateConf struct {
 	WebSocket *url.URL
 	// Plugins loader for frontend
 	FrontPlugins *url.URL
+	// WebDAV server
+	DAV *url.URL
+	// WOPI server
+	WOPI *url.URL
 	// Collabora definition from plugins
 	Collabora *url.URL
 
@@ -87,21 +91,29 @@ var (
 		transparent
 		without /plug/
 	}
+	proxy /dav/ {{.DAV.Host}} {
+		transparent
+		without /dav/
+	}
 
 	{{if .Collabora}}
-	proxy /loleaflet/ https://{{.Collabora.Host}}/loleaflet {
+	proxy /wopi/ {{.WOPI.Host}} {
+		transparent
+	}
+
+	proxy /loleaflet/ {{if .TLS}}https://{{else}}http://{{end}}{{.Collabora.Host}}/loleaflet {
 		transparent
 		insecure_skip_verify
 		without /loleaflet/
 	}
 
-	proxy /hosting/discovery https://{{.Collabora.Host}}/hosting/discovery {
+	proxy /hosting/discovery {{if .TLS}}https://{{else}}http://{{end}}{{.Collabora.Host}}/hosting/discovery {
 		transparent
 		insecure_skip_verify
 		without /hosting/discovery
 	}
 
-	proxy /lool/ https://{{.Collabora.Host}}/lool/ {
+	proxy /lool/ {{if .TLS}}https://{{else}}http://{{end}}{{.Collabora.Host}}/lool/ {
 		transparent
 		insecure_skip_verify
 		websocket
@@ -198,6 +210,18 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 
 	if p, e := internalUrlFromConfig("front plugins", []string{"services", "pydio.api.front-plugins", "port"}, servicesHost, tls); e == nil {
 		c.FrontPlugins = p
+	} else {
+		return c, e
+	}
+
+	if p, e := internalUrlFromConfig("dav", []string{"services", "pydio.rest.gateway.dav", "port"}, servicesHost, tls); e == nil {
+		c.DAV = p
+	} else {
+		return c, e
+	}
+
+	if p, e := internalUrlFromConfig("wopi", []string{"services", "pydio.rest.gateway.wopi", "port"}, servicesHost, tls); e == nil {
+		c.WOPI = p
 	} else {
 		return c, e
 	}
