@@ -46,7 +46,7 @@ import (
 	"github.com/pydio/cells/common/views"
 )
 
-// File System is the pydio specific implementation of the generic webdav.FileSystem interface
+// FileSystem is the pydio specific implementation of the generic webdav.FileSystem interface
 // It adds among others a reference to the Router and a mutex
 type FileSystem struct {
 	mu     sync.Mutex
@@ -73,9 +73,8 @@ type File struct {
 func (fi *FileInfo) Name() string {
 	if fi.node.Path != "" {
 		return path.Base(fi.node.Path)
-	} else {
-		return fi.node.GetStringMeta("name")
 	}
+	return fi.node.GetStringMeta("name")
 }
 
 func (fi *FileInfo) Size() int64 { return fi.node.Size }
@@ -214,22 +213,22 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 	f.fs.mu.Lock()
 	defer f.fs.mu.Unlock()
 
-	inPath := f.node.Path
-
-	// log.Logger(f.ctx).Error("READ FROM ##### CheckeNode B4 mp create", zap.Any("f.node", f.node), zap.Any("f.ctx", f.ctx))
-
 	// Initialize the multipart upload
-	multipartId, err := f.fs.Router.MultipartCreate(f.ctx, f.node, &views.MultipartRequestData{})
+	// TO BE REMOVED: was used to reset the path to initial value (end user / external world point of view )
+	// inPath := f.node.Path
+	// multipartID, err := f.fs.Router.MultipartCreate(f.ctx, f.node, &views.MultipartRequestData{})
+	// if err != nil {
+	// 	return 0, err
+	// }
+	// f.node.Path = inPath
+
+	multipartID, err := f.fs.Router.MultipartCreate(f.ctx, f.node, &views.MultipartRequestData{})
 	if err != nil {
 		return 0, err
 	}
-	// FIXME reset the path to initial value (end user / external world point of view )
-	f.node.Path = inPath
-
-	// log.Logger(f.ctx).Error("READ FROM ##### CheckeNode AFTER mp create", zap.Any("f.node", f.node), zap.Any("f.ctx", f.ctx))
 
 	if f.fs.Debug {
-		log.Logger(f.ctx).Debug("READ FROM - starting effective dav parts upload for " + f.name + " with id " + multipartId)
+		log.Logger(f.ctx).Debug("READ FROM - starting effective dav parts upload for " + f.name + " with id " + multipartID)
 	}
 
 	partsInfo := make(map[int]minio.ObjectPart)
@@ -264,20 +263,14 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 		if nr > 0 {
 			reqData := views.PutRequestData{
 				Size:              int64(nr), // int64(len(buf)),
-				MultipartUploadID: multipartId,
+				MultipartUploadID: multipartID,
 				MultipartPartID:   i, // must be >= 1
 				Md5Sum:            sumMD5(longBuf),
 				Sha256Sum:         sum256(longBuf),
 				// TODO:     Metadata map[string]string, EncryptionMaterial encrypt.Materials
 			}
 
-			// log.Logger(f.ctx).Error("READ FROM ##### CheckeNode B4 mp put part", zap.Any("f.node", f.node), zap.Any("f.ctx", f.ctx))
-
-			objPart, ew := f.fs.Router.MultipartPutObjectPart(f.ctx, f.node, multipartId, i, bytes.NewBuffer(longBuf), &reqData)
-			// FIXME reset the path to initial value
-			f.node.Path = inPath
-
-			// log.Logger(f.ctx).Error("READ FROM ##### CheckeNode AFTER mp put part", zap.Any("f.node", f.node), zap.Any("f.ctx", f.ctx))
+			objPart, ew := f.fs.Router.MultipartPutObjectPart(f.ctx, f.node, multipartID, i, bytes.NewBuffer(longBuf), &reqData)
 
 			written += objPart.Size
 
@@ -333,13 +326,7 @@ func (f *File) ReadFrom(r io.Reader) (n int64, err error) {
 	// 	return totalUploadedSize, err
 	// }
 
-	// log.Logger(f.ctx).Error("READ FROM ##### CheckeNode B4 mp complete", zap.Any("f.node", f.node))
-	objInfo, err := f.fs.Router.MultipartComplete(f.ctx, f.node, multipartId, completeParts)
-
-	// FIXME reset the path to initial value
-	f.node.Path = inPath
-
-	// log.Logger(f.ctx).Error("READ FROM ##### CheckeNode B4 after complete", zap.Any("f.node", f.node))
+	objInfo, err := f.fs.Router.MultipartComplete(f.ctx, f.node, multipartID, completeParts)
 
 	if err != nil {
 		return written, err

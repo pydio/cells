@@ -22,11 +22,8 @@ package dav
 
 import (
 	"os"
-	"sync"
 	"testing"
 
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/views"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -48,30 +45,30 @@ func TestBasics(t *testing.T) {
 
 }
 
-func TestRename(t *testing.T) {
+// func TestRename(t *testing.T) {
 
-	Convey("Test rename via webdav", t, func() {
+// 	Convey("Test rename via webdav", t, func() {
 
-		originalNode := &tree.Node{
-			Path:      "/path/to/original.txt",
-			Type:      tree.NodeType_LEAF,
-			MetaStore: map[string]string{"name": `"original.txt"`},
-		}
+// 		originalNode := &tree.Node{
+// 			Path:      "/path/to/original.txt",
+// 			Type:      tree.NodeType_LEAF,
+// 			MetaStore: map[string]string{"name": `"original.txt"`},
+// 		}
 
-		mock := &views.HandlerMock{
-			Nodes: map[string]*tree.Node{"/path/to/original": originalNode},
-		}
+// 		mock := &views.HandlerMock{
+// 			Nodes: map[string]*tree.Node{"/path/to/original": originalNode},
+// 		}
 
-		handlers := []views.Handler{mock}
-		router := views.NewRouter(nil, handlers)
+// 		handlers := []views.Handler{mock}
+// 		router := views.NewRouter(nil, handlers)
 
-		fs := &FileSystem{
-			Router: router,
-			Debug:  true,
-			mu:     sync.Mutex{},
-		}
+// 		fs := &FileSystem{
+// 			Router: router,
+// 			Debug:  true,
+// 			mu:     sync.Mutex{},
+// 		}
 
-		_ = fs
+// 		_ = fs
 
-	})
-}
+// 	})
+// }
