@@ -221,7 +221,7 @@ func TestChangesSqlDao(t *testing.T) {
 		for range res {
 			count++
 		}
-		// FIXME this will usually fail because we add more and more events while testing the handler
+		// TODO this will usually fail because we add more and more events while testing the handler
 		// So(count, ShouldEqual, 1)
 	})
 

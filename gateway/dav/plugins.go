@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package dav provides a gateway to communicate with pydio backend via the webdav protocol.
+// Package dav provides a REST gateway to communicate with pydio backend via the webdav protocol.
 package dav
 
 import (
@@ -31,7 +31,7 @@ import (
 
 func init() {
 	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_GATEWAY_DAV),
+		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_GATEWAY_DAV),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
 		service.Description("DAV Gateway to tree service"),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {

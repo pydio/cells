@@ -46,7 +46,7 @@ func TestNewAccessListHandler(t *testing.T) {
 
 func TestUserAccessListHandler(t *testing.T) {
 
-	// FIXME: this fails because we don't have a real working environment
+	// TODO: this fails because we don't have a real working environment
 	// -> h.CtxWrapper times out after 10 minutes
 
 	// Convey("Test Simple User Auth", t, func() {
@@ -72,7 +72,7 @@ func TestUserAccessListHandler(t *testing.T) {
 	// })
 }
 
-// FIXME same problem as above: ReadNode times out when calling underlying wrapContext method
+// TODO same problem as above: ReadNode times out when calling underlying wrapContext method
 // func TestWrapperIsCalled(t *testing.T) {
 
 // 	Convey("Test Wrapper is wrapping", t, func() {

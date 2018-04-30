@@ -38,9 +38,6 @@ import (
 	"github.com/pydio/cells/scheduler/actions"
 )
 
-// FIXME: FAILING TEST
-// The thumbnail generation returns an image that is not the one expected (see at the bottom of this file)
-
 func TestThumbnailExtractor_GetName(t *testing.T) {
 	Convey("Test GetName", t, func() {
 		metaAction := &ThumbnailExtractor{}

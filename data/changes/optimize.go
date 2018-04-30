@@ -281,7 +281,7 @@ func (o StreamOptimizer) batch(ctx context.Context, chq <-chan *tree.SyncChange)
 			case <-ctx.Done():
 				return
 			case change = <-chq:
-				// FIXME why do we sometimes receive nil?
+				// TODO why do we sometimes receive nil?
 				if change == nil {
 					if !buf.isEmpty() {
 						// transmit the last buffer before returning
