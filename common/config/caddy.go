@@ -136,6 +136,8 @@ var (
 		if {path} not_starts_with "/io"
 		if {path} not_starts_with "/ws/"
 		if {path} not_starts_with "/plug/"
+		if {path} not_starts_with "/dav/"
+		if {path} not_starts_with "/wopi/"
 		if {path} not_starts_with "/loleaflet/"
 		if {path} not_starts_with "/hosting/discovery"
 		if {path} not_starts_with "/lool/"
@@ -162,6 +164,7 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 	c := &CaddyTemplateConf{
 		Logs: filepath.Join(ApplicationDataDir(), "logs"),
 	}
+
 	if bindUrl := Get("defaults", "urlInternal").String(""); bindUrl == "" {
 		return c, fmt.Errorf("cannot find urlInternal configuration")
 	} else {

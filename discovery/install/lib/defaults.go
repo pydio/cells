@@ -51,6 +51,8 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.ExternalGateway = fmt.Sprintf("%d", utils.GetAvailablePort())
 	c.ExternalWebsocket = fmt.Sprintf("%d", utils.GetAvailablePort())
 	c.ExternalFrontPlugins = fmt.Sprintf("%d", utils.GetAvailablePort())
+	c.ExternalWOPI = fmt.Sprintf("%d", utils.GetAvailablePort())
+	c.ExternalDAV = fmt.Sprintf("%d", utils.GetAvailablePort())
 	c.ExternalDex = fmt.Sprintf("%d", utils.GetAvailablePort())
 	c.ExternalDexID = "cells-front"
 	c.ExternalDexSecret = utils.Randkey(24)

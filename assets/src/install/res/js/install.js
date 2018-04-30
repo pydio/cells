@@ -533,6 +533,8 @@ class InstallForm extends React.Component {
                                 <div style={{flex: 1, marginLeft: 2}}><Field name="externalMicro" component={renderTextField} floatingLabel="API Gateway" label="Rest Access" /></div>
                                 <div style={{flex: 1, marginLeft: 2}}><Field name="externalGateway" component={renderTextField} floatingLabel="Data Gateway" label="Data Access" /></div>
                                 <div style={{flex: 1, marginLeft: 2}}><Field name="externalWebsocket" component={renderTextField} floatingLabel="WebSocket" label="Websocket Server" /></div>
+                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalDAV" component={renderTextField} floatingLabel="DAV" label="DAV Server" /></div>
+                                <div style={{flex: 1, marginLeft: 2}}><Field name="externalWOPI" component={renderTextField} floatingLabel="WOPI" label="WOPI Server" /></div>
                             </div>
                         </div>
                         }
@@ -630,6 +632,7 @@ InstallForm = connect(state => {
     const licenseRequired = selector(state, 'licenseRequired');
     const licenseString = selector(state, 'licenseString');
     const fpmAddress = selector(state, 'fpmAddress');
+
 
     // Make a request to retrieve those values
     return {

@@ -895,6 +895,16 @@ var InstallForm = function (_React$Component) {
                                     'div',
                                     { style: { flex: 1, marginLeft: 2 } },
                                     _react2.default.createElement(_reduxForm.Field, { name: 'externalWebsocket', component: renderTextField, floatingLabel: 'WebSocket', label: 'Websocket Server' })
+                                ),
+                                _react2.default.createElement(
+                                    'div',
+                                    { style: { flex: 1, marginLeft: 2 } },
+                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDAV', component: renderTextField, floatingLabel: 'DAV', label: 'DAV Server' })
+                                ),
+                                _react2.default.createElement(
+                                    'div',
+                                    { style: { flex: 1, marginLeft: 2 } },
+                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalWOPI', component: renderTextField, floatingLabel: 'WOPI', label: 'WOPI Server' })
                                 )
                             )
                         )
