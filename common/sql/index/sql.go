@@ -260,30 +260,30 @@ func init() {
 
 }
 
-// Impl of the Mysql interface
+// IndexSQL implementation
 type IndexSQL struct {
 	*sql.Handler
 
 	rootNodeId string
 }
 
-// Add to the mysql DB
-func (s *IndexSQL) Init(options config.Map) error {
+// Init handles the db version migration and prepare the statements
+func (dao *IndexSQL) Init(options config.Map) error {
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../common/sql/index/migrations"),
-		Dir:         "./" + s.Driver(),
-		TablePrefix: s.Prefix() + "_idx",
+		Dir:         "./" + dao.Driver(),
+		TablePrefix: dao.Prefix() + "_idx",
 	}
 
-	_, err := migrate.Exec(s.DB(), s.Driver(), migrations, migrate.Up)
+	_, err := migrate.Exec(dao.DB(), dao.Driver(), migrations, migrate.Up)
 	if err != nil {
 		return err
 	}
 
 	if prepare, ok := options.Get("prepare").(bool); !ok || prepare {
 		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
+			if err := dao.Prepare(key, query); err != nil {
 				return err
 			}
 		}
@@ -292,15 +292,16 @@ func (s *IndexSQL) Init(options config.Map) error {
 	return nil
 }
 
-func (s *IndexSQL) CleanResourcesOnDeletion() (error, string) {
+// CleanResourcesOnDeletion revert the creation of the table for a datasource
+func (dao *IndexSQL) CleanResourcesOnDeletion() (error, string) {
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../common/sql/index/migrations"),
-		Dir:         "./" + s.Driver(),
-		TablePrefix: s.Prefix() + "_idx",
+		Dir:         "./" + dao.Driver(),
+		TablePrefix: dao.Prefix() + "_idx",
 	}
 
-	_, err := migrate.Exec(s.DB(), s.Driver(), migrations, migrate.Down)
+	_, err := migrate.Exec(dao.DB(), dao.Driver(), migrations, migrate.Down)
 	if err != nil {
 		return err, ""
 	}
@@ -338,7 +339,10 @@ func (dao *IndexSQL) AddNode(node *utils.TreeNode) error {
 		mTime = time.Now().Unix()
 	}
 
-	if stmt := dao.GetStmt("insertNode"); stmt != nil {
+	insertNode := dao.GetStmt("insertNode")
+	insertTree := dao.GetStmt("insertTree")
+
+	if stmt := tx.Stmt(insertNode); stmt != nil {
 		defer stmt.Close()
 
 		if _, err = stmt.Exec(
@@ -363,7 +367,7 @@ func (dao *IndexSQL) AddNode(node *utils.TreeNode) error {
 	mpath3 := string(bytes.Trim(mpath[(indexLen*2):(indexLen*3-1)], "\x00"))
 	mpath4 := string(bytes.Trim(mpath[(indexLen*3):(indexLen*4-1)], "\x00"))
 
-	if stmt := dao.GetStmt("insertTree"); stmt != nil {
+	if stmt := tx.Stmt(insertTree); stmt != nil {
 		defer stmt.Close()
 
 		if _, err = stmt.Exec(
@@ -419,7 +423,10 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
 				}
 			}()
 
-			if stmt := dao.GetStmt("insertNode", num); stmt != nil {
+			insertNode := dao.GetStmt("insertNode", num)
+			insertTree := dao.GetStmt("insertTree", num)
+
+			if stmt := tx.Stmt(insertNode); stmt != nil {
 				defer stmt.Close()
 
 				if _, err = stmt.Exec(valsInsertNodes...); err != nil {
@@ -429,7 +436,7 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
 				return fmt.Errorf("Empty statement")
 			}
 
-			if stmt := dao.GetStmt("insertTree", num); stmt != nil {
+			if stmt := tx.Stmt(insertTree); stmt != nil {
 				defer stmt.Close()
 
 				if _, err = stmt.Exec(valsInsertTree...); err != nil {
@@ -489,6 +496,7 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
 	return c, e
 }
 
+// Flush the database in case of cached inserts
 func (dao *IndexSQL) Flush() error {
 	return nil
 }
@@ -567,6 +575,7 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 	return nil
 }
 
+// PushCommit adds a commit version to the node
 func (dao *IndexSQL) PushCommit(node *utils.TreeNode) error {
 
 	dao.Lock()
@@ -612,6 +621,7 @@ func (dao *IndexSQL) PushCommit(node *utils.TreeNode) error {
 	return nil
 }
 
+// DeleteCommits removes the commit versions of the node
 func (dao *IndexSQL) DeleteCommits(node *utils.TreeNode) error {
 
 	dao.Lock()
@@ -630,6 +640,7 @@ func (dao *IndexSQL) DeleteCommits(node *utils.TreeNode) error {
 	return nil
 }
 
+// ListCommits returns a list of all commit versions for a node
 func (dao *IndexSQL) ListCommits(node *utils.TreeNode) (commits []*tree.ChangeLog, err error) {
 
 	dao.Lock()
@@ -722,6 +733,7 @@ func (dao *IndexSQL) etagFromChildren(node *utils.TreeNode) (string, error) {
 	return hex.EncodeToString(hasher.Sum(nil)), nil
 }
 
+// ResyncDirtyEtags ensures that etags are rightly calculated
 func (dao *IndexSQL) ResyncDirtyEtags(rootNode *utils.TreeNode) error {
 
 	dao.Lock()

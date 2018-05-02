@@ -1,983 +1,5 @@
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.WorkspaceServiceApi = exports.UserServiceApi = exports.UserMetaServiceApi = exports.UpdateServiceApi = exports.TokenServiceApi = exports.ShareServiceApi = exports.SearchServiceApi = exports.RoleServiceApi = exports.PolicyServiceApi = exports.MetaServiceApi = exports.MailerServiceApi = exports.LogServiceApi = exports.LicenseServiceApi = exports.JobsServiceApi = exports.InstallServiceApi = exports.GraphServiceApi = exports.FrontendServiceApi = exports.EnterprisePolicyServiceApi = exports.EnterpriseLogServiceApi = exports.EnterpriseConfigServiceApi = exports.DocStoreServiceApi = exports.ConfigServiceApi = exports.ChangeServiceApi = exports.AdminTreeServiceApi = exports.ActivityServiceApi = exports.ACLServiceApi = exports.UpdateUserMetaRequestUserMetaOp = exports.UpdateUserMetaNamespaceRequestUserMetaNsOp = exports.UpdateUpdateResponse = exports.UpdatePackage = exports.UpdateApplyUpdateResponse = exports.TreeWorkspaceRelativePath = exports.TreeVersioningPolicy = exports.TreeVersioningKeepPeriod = undefined;
-exports.TreeSyncChangeType = exports.TreeSyncChangeNode = exports.TreeSyncChange = exports.TreeSearchRequest = exports.TreeReadNodeResponse = exports.TreeReadNodeRequest = exports.TreeQuery = exports.TreeNodeType = exports.TreeNodeChangeEvent = exports.TreeNode = exports.TreeListNodesRequest = exports.TreeGeoQuery = exports.TreeGeoPoint = exports.TreeChangeLog = exports.ServiceResourcePolicyQuery = exports.ServiceResourcePolicyPolicyEffect = exports.ServiceResourcePolicyAction = exports.ServiceResourcePolicy = exports.ServiceQuery = exports.ServiceOperationType = exports.RestWorkspaceCollection = exports.RestVersioningPolicyCollection = exports.RestUsersCollection = exports.RestUserStateResponse = exports.RestUserMetaNamespaceCollection = exports.RestUserMetaCollection = exports.RestUserJobsCollection = exports.RestUserJobResponse = exports.RestUserJobRequest = exports.RestUserBookmarksRequest = exports.RestTimeRangeResultCollection = exports.RestSubscriptionsCollection = exports.RestShareLinkTargetUser = exports.RestShareLinkAccessType = exports.RestShareLink = exports.RestSettingsSection = exports.RestSettingsMenuResponse = exports.RestSettingsEntryMeta = exports.RestSettingsEntry = exports.RestServiceCollection = exports.RestSearchWorkspaceRequest = exports.RestSearchUserRequest = exports.RestSearchRoleRequest = exports.RestSearchResults = exports.RestSearchACLRequest = exports.RestRolesCollection = exports.RestRevokeResponse = exports.RestRevokeRequest = exports.RestResourcePolicyQuery = exports.RestResetPasswordTokenResponse = exports.RestResetPasswordResponse = exports.RestResetPasswordRequest = exports.RestRelationResponse = exports.RestPutShareLinkRequest = exports.RestPutCellRequest = exports.RestOpenApiResponse = exports.RestNodesCollection = exports.RestMetadata = exports.RestMetaNamespaceRequest = exports.RestMetaCollection = exports.RestLogMessageCollection = exports.RestLogLevel = exports.RestListSharedResourcesResponse = exports.RestListSharedResourcesRequest = exports.RestListPeersAddressesResponse = exports.RestListPeerFoldersRequest = exports.RestListDocstoreRequest = exports.RestGetBulkMetaRequest = exports.RestFrontLogResponse = exports.RestFrontLogMessage = exports.RestFrontBootConfResponse = exports.RestExternalDirectoryResponse = exports.RestExternalDirectoryConfig = exports.RestExternalDirectoryCollection = exports.RestDocstoreCollection = exports.RestDiscoveryResponse = exports.RestDeleteVersioningPolicyResponse = exports.RestDeleteShareLinkResponse = exports.RestDeleteResponse = exports.RestDeleteDataSourceResponse = exports.RestDeleteCellResponse = exports.RestDataSourceCollection = exports.RestControlServiceRequest = exports.RestConfiguration = exports.RestChangeRequest = exports.RestChangeCollection = exports.RestCellAcl = exports.RestCell = exports.RestBulkMetaResponse = exports.RestBindResponse = exports.RestACLCollection = exports.ResourcePolicyQueryQueryType = exports.ProtobufAny = exports.PackagePackageStatus = exports.ObjectStorageType = exports.ObjectEncryptionMode = exports.ObjectDataSource = exports.NodeChangeEventEventType = exports.MailerUser = exports.MailerSendMailResponse = undefined;
-exports.MailerMail = exports.LogTimeRangeResult = exports.LogTimeRangeRequest = exports.LogTimeRangeCursor = exports.LogRelType = exports.LogLogMessage = exports.LogListLogRequest = exports.ListSharedResourcesResponseSharedResource = exports.ListSharedResourcesRequestListShareType = exports.ListLogRequestLogFormat = exports.JobsUsersSelector = exports.JobsTaskStatus = exports.JobsTask = exports.JobsSourceFilter = exports.JobsSchedule = exports.JobsNodesSelector = exports.JobsListJobsRequest = exports.JobsJob = exports.JobsDeleteTasksResponse = exports.JobsDeleteTasksRequest = exports.JobsCtrlCommandResponse = exports.JobsCtrlCommand = exports.JobsCommand = exports.JobsActionOutput = exports.JobsActionMessage = exports.JobsActionLog = exports.JobsAction = exports.InstallPerformCheckResponse = exports.InstallPerformCheckRequest = exports.InstallInstallResponse = exports.InstallInstallRequest = exports.InstallInstallConfig = exports.InstallGetDefaultsResponse = exports.InstallCheckResult = exports.IdmWorkspaceSingleQuery = exports.IdmWorkspaceScope = exports.IdmWorkspace = exports.IdmUserSingleQuery = exports.IdmUserMetaNamespace = exports.IdmUserMeta = exports.IdmUser = exports.IdmUpdateUserMetaResponse = exports.IdmUpdateUserMetaRequest = exports.IdmUpdateUserMetaNamespaceResponse = exports.IdmUpdateUserMetaNamespaceRequest = exports.IdmSearchUserMetaRequest = exports.IdmRoleSingleQuery = exports.IdmRole = exports.IdmPolicyResourceGroup = exports.IdmPolicyGroup = exports.IdmPolicyEffect = exports.IdmPolicyCondition = exports.IdmPolicy = exports.IdmNodeType = exports.IdmListPolicyGroupsResponse = exports.IdmListPolicyGroupsRequest = exports.IdmACLSingleQuery = exports.IdmACLAction = exports.IdmACL = exports.EncryptionKeyInfo = exports.EncryptionKey = exports.EncryptionImport = exports.EncryptionExport = exports.EncryptionAdminListKeysResponse = exports.EncryptionAdminListKeysRequest = exports.EncryptionAdminImportKeyResponse = exports.EncryptionAdminImportKeyRequest = exports.EncryptionAdminExportKeyResponse = exports.EncryptionAdminExportKeyRequest = exports.EncryptionAdminDeleteKeyResponse = exports.EncryptionAdminDeleteKeyRequest = exports.EncryptionAdminCreateKeyResponse = exports.EncryptionAdminCreateKeyRequest = exports.DocstorePutDocumentResponse = exports.DocstorePutDocumentRequest = exports.DocstoreGetDocumentResponse = exports.DocstoreDocumentType = exports.DocstoreDocumentQuery = exports.DocstoreDocument = exports.DocstoreDeleteDocumentsResponse = exports.DocstoreDeleteDocumentsRequest = exports.CtlServiceStatus = exports.CtlServiceCommand = exports.CtlService = exports.CtlPeer = exports.CertLicenseStatsResponse = exports.CertLicenseInfo = exports.AuthLdapServerConfig = exports.AuthLdapSearchFilter = exports.AuthLdapMemberOfMapping = exports.AuthLdapMapping = exports.ActivitySummaryPointOfView = exports.ActivitySubscription = exports.ActivityStreamContext = exports.ActivityStreamActivitiesRequest = exports.ActivitySearchSubscriptionsRequest = exports.ActivityOwnerType = exports.ActivityObjectType = exports.ActivityObject = exports.ApiClient = undefined;
-
-var _ApiClient = require('./ApiClient');
-
-var _ApiClient2 = _interopRequireDefault(_ApiClient);
-
-var _ActivityObject = require('./model/ActivityObject');
-
-var _ActivityObject2 = _interopRequireDefault(_ActivityObject);
-
-var _ActivityObjectType = require('./model/ActivityObjectType');
-
-var _ActivityObjectType2 = _interopRequireDefault(_ActivityObjectType);
-
-var _ActivityOwnerType = require('./model/ActivityOwnerType');
-
-var _ActivityOwnerType2 = _interopRequireDefault(_ActivityOwnerType);
-
-var _ActivitySearchSubscriptionsRequest = require('./model/ActivitySearchSubscriptionsRequest');
-
-var _ActivitySearchSubscriptionsRequest2 = _interopRequireDefault(_ActivitySearchSubscriptionsRequest);
-
-var _ActivityStreamActivitiesRequest = require('./model/ActivityStreamActivitiesRequest');
-
-var _ActivityStreamActivitiesRequest2 = _interopRequireDefault(_ActivityStreamActivitiesRequest);
-
-var _ActivityStreamContext = require('./model/ActivityStreamContext');
-
-var _ActivityStreamContext2 = _interopRequireDefault(_ActivityStreamContext);
-
-var _ActivitySubscription = require('./model/ActivitySubscription');
-
-var _ActivitySubscription2 = _interopRequireDefault(_ActivitySubscription);
-
-var _ActivitySummaryPointOfView = require('./model/ActivitySummaryPointOfView');
-
-var _ActivitySummaryPointOfView2 = _interopRequireDefault(_ActivitySummaryPointOfView);
-
-var _AuthLdapMapping = require('./model/AuthLdapMapping');
-
-var _AuthLdapMapping2 = _interopRequireDefault(_AuthLdapMapping);
-
-var _AuthLdapMemberOfMapping = require('./model/AuthLdapMemberOfMapping');
-
-var _AuthLdapMemberOfMapping2 = _interopRequireDefault(_AuthLdapMemberOfMapping);
-
-var _AuthLdapSearchFilter = require('./model/AuthLdapSearchFilter');
-
-var _AuthLdapSearchFilter2 = _interopRequireDefault(_AuthLdapSearchFilter);
-
-var _AuthLdapServerConfig = require('./model/AuthLdapServerConfig');
-
-var _AuthLdapServerConfig2 = _interopRequireDefault(_AuthLdapServerConfig);
-
-var _CertLicenseInfo = require('./model/CertLicenseInfo');
-
-var _CertLicenseInfo2 = _interopRequireDefault(_CertLicenseInfo);
-
-var _CertLicenseStatsResponse = require('./model/CertLicenseStatsResponse');
-
-var _CertLicenseStatsResponse2 = _interopRequireDefault(_CertLicenseStatsResponse);
-
-var _CtlPeer = require('./model/CtlPeer');
-
-var _CtlPeer2 = _interopRequireDefault(_CtlPeer);
-
-var _CtlService = require('./model/CtlService');
-
-var _CtlService2 = _interopRequireDefault(_CtlService);
-
-var _CtlServiceCommand = require('./model/CtlServiceCommand');
-
-var _CtlServiceCommand2 = _interopRequireDefault(_CtlServiceCommand);
-
-var _CtlServiceStatus = require('./model/CtlServiceStatus');
-
-var _CtlServiceStatus2 = _interopRequireDefault(_CtlServiceStatus);
-
-var _DocstoreDeleteDocumentsRequest = require('./model/DocstoreDeleteDocumentsRequest');
-
-var _DocstoreDeleteDocumentsRequest2 = _interopRequireDefault(_DocstoreDeleteDocumentsRequest);
-
-var _DocstoreDeleteDocumentsResponse = require('./model/DocstoreDeleteDocumentsResponse');
-
-var _DocstoreDeleteDocumentsResponse2 = _interopRequireDefault(_DocstoreDeleteDocumentsResponse);
-
-var _DocstoreDocument = require('./model/DocstoreDocument');
-
-var _DocstoreDocument2 = _interopRequireDefault(_DocstoreDocument);
-
-var _DocstoreDocumentQuery = require('./model/DocstoreDocumentQuery');
-
-var _DocstoreDocumentQuery2 = _interopRequireDefault(_DocstoreDocumentQuery);
-
-var _DocstoreDocumentType = require('./model/DocstoreDocumentType');
-
-var _DocstoreDocumentType2 = _interopRequireDefault(_DocstoreDocumentType);
-
-var _DocstoreGetDocumentResponse = require('./model/DocstoreGetDocumentResponse');
-
-var _DocstoreGetDocumentResponse2 = _interopRequireDefault(_DocstoreGetDocumentResponse);
-
-var _DocstorePutDocumentRequest = require('./model/DocstorePutDocumentRequest');
-
-var _DocstorePutDocumentRequest2 = _interopRequireDefault(_DocstorePutDocumentRequest);
-
-var _DocstorePutDocumentResponse = require('./model/DocstorePutDocumentResponse');
-
-var _DocstorePutDocumentResponse2 = _interopRequireDefault(_DocstorePutDocumentResponse);
-
-var _EncryptionAdminCreateKeyRequest = require('./model/EncryptionAdminCreateKeyRequest');
-
-var _EncryptionAdminCreateKeyRequest2 = _interopRequireDefault(_EncryptionAdminCreateKeyRequest);
-
-var _EncryptionAdminCreateKeyResponse = require('./model/EncryptionAdminCreateKeyResponse');
-
-var _EncryptionAdminCreateKeyResponse2 = _interopRequireDefault(_EncryptionAdminCreateKeyResponse);
-
-var _EncryptionAdminDeleteKeyRequest = require('./model/EncryptionAdminDeleteKeyRequest');
-
-var _EncryptionAdminDeleteKeyRequest2 = _interopRequireDefault(_EncryptionAdminDeleteKeyRequest);
-
-var _EncryptionAdminDeleteKeyResponse = require('./model/EncryptionAdminDeleteKeyResponse');
-
-var _EncryptionAdminDeleteKeyResponse2 = _interopRequireDefault(_EncryptionAdminDeleteKeyResponse);
-
-var _EncryptionAdminExportKeyRequest = require('./model/EncryptionAdminExportKeyRequest');
-
-var _EncryptionAdminExportKeyRequest2 = _interopRequireDefault(_EncryptionAdminExportKeyRequest);
-
-var _EncryptionAdminExportKeyResponse = require('./model/EncryptionAdminExportKeyResponse');
-
-var _EncryptionAdminExportKeyResponse2 = _interopRequireDefault(_EncryptionAdminExportKeyResponse);
-
-var _EncryptionAdminImportKeyRequest = require('./model/EncryptionAdminImportKeyRequest');
-
-var _EncryptionAdminImportKeyRequest2 = _interopRequireDefault(_EncryptionAdminImportKeyRequest);
-
-var _EncryptionAdminImportKeyResponse = require('./model/EncryptionAdminImportKeyResponse');
-
-var _EncryptionAdminImportKeyResponse2 = _interopRequireDefault(_EncryptionAdminImportKeyResponse);
-
-var _EncryptionAdminListKeysRequest = require('./model/EncryptionAdminListKeysRequest');
-
-var _EncryptionAdminListKeysRequest2 = _interopRequireDefault(_EncryptionAdminListKeysRequest);
-
-var _EncryptionAdminListKeysResponse = require('./model/EncryptionAdminListKeysResponse');
-
-var _EncryptionAdminListKeysResponse2 = _interopRequireDefault(_EncryptionAdminListKeysResponse);
-
-var _EncryptionExport = require('./model/EncryptionExport');
-
-var _EncryptionExport2 = _interopRequireDefault(_EncryptionExport);
-
-var _EncryptionImport = require('./model/EncryptionImport');
-
-var _EncryptionImport2 = _interopRequireDefault(_EncryptionImport);
-
-var _EncryptionKey = require('./model/EncryptionKey');
-
-var _EncryptionKey2 = _interopRequireDefault(_EncryptionKey);
-
-var _EncryptionKeyInfo = require('./model/EncryptionKeyInfo');
-
-var _EncryptionKeyInfo2 = _interopRequireDefault(_EncryptionKeyInfo);
-
-var _IdmACL = require('./model/IdmACL');
-
-var _IdmACL2 = _interopRequireDefault(_IdmACL);
-
-var _IdmACLAction = require('./model/IdmACLAction');
-
-var _IdmACLAction2 = _interopRequireDefault(_IdmACLAction);
-
-var _IdmACLSingleQuery = require('./model/IdmACLSingleQuery');
-
-var _IdmACLSingleQuery2 = _interopRequireDefault(_IdmACLSingleQuery);
-
-var _IdmListPolicyGroupsRequest = require('./model/IdmListPolicyGroupsRequest');
-
-var _IdmListPolicyGroupsRequest2 = _interopRequireDefault(_IdmListPolicyGroupsRequest);
-
-var _IdmListPolicyGroupsResponse = require('./model/IdmListPolicyGroupsResponse');
-
-var _IdmListPolicyGroupsResponse2 = _interopRequireDefault(_IdmListPolicyGroupsResponse);
-
-var _IdmNodeType = require('./model/IdmNodeType');
-
-var _IdmNodeType2 = _interopRequireDefault(_IdmNodeType);
-
-var _IdmPolicy = require('./model/IdmPolicy');
-
-var _IdmPolicy2 = _interopRequireDefault(_IdmPolicy);
-
-var _IdmPolicyCondition = require('./model/IdmPolicyCondition');
-
-var _IdmPolicyCondition2 = _interopRequireDefault(_IdmPolicyCondition);
-
-var _IdmPolicyEffect = require('./model/IdmPolicyEffect');
-
-var _IdmPolicyEffect2 = _interopRequireDefault(_IdmPolicyEffect);
-
-var _IdmPolicyGroup = require('./model/IdmPolicyGroup');
-
-var _IdmPolicyGroup2 = _interopRequireDefault(_IdmPolicyGroup);
-
-var _IdmPolicyResourceGroup = require('./model/IdmPolicyResourceGroup');
-
-var _IdmPolicyResourceGroup2 = _interopRequireDefault(_IdmPolicyResourceGroup);
-
-var _IdmRole = require('./model/IdmRole');
-
-var _IdmRole2 = _interopRequireDefault(_IdmRole);
-
-var _IdmRoleSingleQuery = require('./model/IdmRoleSingleQuery');
-
-var _IdmRoleSingleQuery2 = _interopRequireDefault(_IdmRoleSingleQuery);
-
-var _IdmSearchUserMetaRequest = require('./model/IdmSearchUserMetaRequest');
-
-var _IdmSearchUserMetaRequest2 = _interopRequireDefault(_IdmSearchUserMetaRequest);
-
-var _IdmUpdateUserMetaNamespaceRequest = require('./model/IdmUpdateUserMetaNamespaceRequest');
-
-var _IdmUpdateUserMetaNamespaceRequest2 = _interopRequireDefault(_IdmUpdateUserMetaNamespaceRequest);
-
-var _IdmUpdateUserMetaNamespaceResponse = require('./model/IdmUpdateUserMetaNamespaceResponse');
-
-var _IdmUpdateUserMetaNamespaceResponse2 = _interopRequireDefault(_IdmUpdateUserMetaNamespaceResponse);
-
-var _IdmUpdateUserMetaRequest = require('./model/IdmUpdateUserMetaRequest');
-
-var _IdmUpdateUserMetaRequest2 = _interopRequireDefault(_IdmUpdateUserMetaRequest);
-
-var _IdmUpdateUserMetaResponse = require('./model/IdmUpdateUserMetaResponse');
-
-var _IdmUpdateUserMetaResponse2 = _interopRequireDefault(_IdmUpdateUserMetaResponse);
-
-var _IdmUser = require('./model/IdmUser');
-
-var _IdmUser2 = _interopRequireDefault(_IdmUser);
-
-var _IdmUserMeta = require('./model/IdmUserMeta');
-
-var _IdmUserMeta2 = _interopRequireDefault(_IdmUserMeta);
-
-var _IdmUserMetaNamespace = require('./model/IdmUserMetaNamespace');
-
-var _IdmUserMetaNamespace2 = _interopRequireDefault(_IdmUserMetaNamespace);
-
-var _IdmUserSingleQuery = require('./model/IdmUserSingleQuery');
-
-var _IdmUserSingleQuery2 = _interopRequireDefault(_IdmUserSingleQuery);
-
-var _IdmWorkspace = require('./model/IdmWorkspace');
-
-var _IdmWorkspace2 = _interopRequireDefault(_IdmWorkspace);
-
-var _IdmWorkspaceScope = require('./model/IdmWorkspaceScope');
-
-var _IdmWorkspaceScope2 = _interopRequireDefault(_IdmWorkspaceScope);
-
-var _IdmWorkspaceSingleQuery = require('./model/IdmWorkspaceSingleQuery');
-
-var _IdmWorkspaceSingleQuery2 = _interopRequireDefault(_IdmWorkspaceSingleQuery);
-
-var _InstallCheckResult = require('./model/InstallCheckResult');
-
-var _InstallCheckResult2 = _interopRequireDefault(_InstallCheckResult);
-
-var _InstallGetDefaultsResponse = require('./model/InstallGetDefaultsResponse');
-
-var _InstallGetDefaultsResponse2 = _interopRequireDefault(_InstallGetDefaultsResponse);
-
-var _InstallInstallConfig = require('./model/InstallInstallConfig');
-
-var _InstallInstallConfig2 = _interopRequireDefault(_InstallInstallConfig);
-
-var _InstallInstallRequest = require('./model/InstallInstallRequest');
-
-var _InstallInstallRequest2 = _interopRequireDefault(_InstallInstallRequest);
-
-var _InstallInstallResponse = require('./model/InstallInstallResponse');
-
-var _InstallInstallResponse2 = _interopRequireDefault(_InstallInstallResponse);
-
-var _InstallPerformCheckRequest = require('./model/InstallPerformCheckRequest');
-
-var _InstallPerformCheckRequest2 = _interopRequireDefault(_InstallPerformCheckRequest);
-
-var _InstallPerformCheckResponse = require('./model/InstallPerformCheckResponse');
-
-var _InstallPerformCheckResponse2 = _interopRequireDefault(_InstallPerformCheckResponse);
-
-var _JobsAction = require('./model/JobsAction');
-
-var _JobsAction2 = _interopRequireDefault(_JobsAction);
-
-var _JobsActionLog = require('./model/JobsActionLog');
-
-var _JobsActionLog2 = _interopRequireDefault(_JobsActionLog);
-
-var _JobsActionMessage = require('./model/JobsActionMessage');
-
-var _JobsActionMessage2 = _interopRequireDefault(_JobsActionMessage);
-
-var _JobsActionOutput = require('./model/JobsActionOutput');
-
-var _JobsActionOutput2 = _interopRequireDefault(_JobsActionOutput);
-
-var _JobsCommand = require('./model/JobsCommand');
-
-var _JobsCommand2 = _interopRequireDefault(_JobsCommand);
-
-var _JobsCtrlCommand = require('./model/JobsCtrlCommand');
-
-var _JobsCtrlCommand2 = _interopRequireDefault(_JobsCtrlCommand);
-
-var _JobsCtrlCommandResponse = require('./model/JobsCtrlCommandResponse');
-
-var _JobsCtrlCommandResponse2 = _interopRequireDefault(_JobsCtrlCommandResponse);
-
-var _JobsDeleteTasksRequest = require('./model/JobsDeleteTasksRequest');
-
-var _JobsDeleteTasksRequest2 = _interopRequireDefault(_JobsDeleteTasksRequest);
-
-var _JobsDeleteTasksResponse = require('./model/JobsDeleteTasksResponse');
-
-var _JobsDeleteTasksResponse2 = _interopRequireDefault(_JobsDeleteTasksResponse);
-
-var _JobsJob = require('./model/JobsJob');
-
-var _JobsJob2 = _interopRequireDefault(_JobsJob);
-
-var _JobsListJobsRequest = require('./model/JobsListJobsRequest');
-
-var _JobsListJobsRequest2 = _interopRequireDefault(_JobsListJobsRequest);
-
-var _JobsNodesSelector = require('./model/JobsNodesSelector');
-
-var _JobsNodesSelector2 = _interopRequireDefault(_JobsNodesSelector);
-
-var _JobsSchedule = require('./model/JobsSchedule');
-
-var _JobsSchedule2 = _interopRequireDefault(_JobsSchedule);
-
-var _JobsSourceFilter = require('./model/JobsSourceFilter');
-
-var _JobsSourceFilter2 = _interopRequireDefault(_JobsSourceFilter);
-
-var _JobsTask = require('./model/JobsTask');
-
-var _JobsTask2 = _interopRequireDefault(_JobsTask);
-
-var _JobsTaskStatus = require('./model/JobsTaskStatus');
-
-var _JobsTaskStatus2 = _interopRequireDefault(_JobsTaskStatus);
-
-var _JobsUsersSelector = require('./model/JobsUsersSelector');
-
-var _JobsUsersSelector2 = _interopRequireDefault(_JobsUsersSelector);
-
-var _ListLogRequestLogFormat = require('./model/ListLogRequestLogFormat');
-
-var _ListLogRequestLogFormat2 = _interopRequireDefault(_ListLogRequestLogFormat);
-
-var _ListSharedResourcesRequestListShareType = require('./model/ListSharedResourcesRequestListShareType');
-
-var _ListSharedResourcesRequestListShareType2 = _interopRequireDefault(_ListSharedResourcesRequestListShareType);
-
-var _ListSharedResourcesResponseSharedResource = require('./model/ListSharedResourcesResponseSharedResource');
-
-var _ListSharedResourcesResponseSharedResource2 = _interopRequireDefault(_ListSharedResourcesResponseSharedResource);
-
-var _LogListLogRequest = require('./model/LogListLogRequest');
-
-var _LogListLogRequest2 = _interopRequireDefault(_LogListLogRequest);
-
-var _LogLogMessage = require('./model/LogLogMessage');
-
-var _LogLogMessage2 = _interopRequireDefault(_LogLogMessage);
-
-var _LogRelType = require('./model/LogRelType');
-
-var _LogRelType2 = _interopRequireDefault(_LogRelType);
-
-var _LogTimeRangeCursor = require('./model/LogTimeRangeCursor');
-
-var _LogTimeRangeCursor2 = _interopRequireDefault(_LogTimeRangeCursor);
-
-var _LogTimeRangeRequest = require('./model/LogTimeRangeRequest');
-
-var _LogTimeRangeRequest2 = _interopRequireDefault(_LogTimeRangeRequest);
-
-var _LogTimeRangeResult = require('./model/LogTimeRangeResult');
-
-var _LogTimeRangeResult2 = _interopRequireDefault(_LogTimeRangeResult);
-
-var _MailerMail = require('./model/MailerMail');
-
-var _MailerMail2 = _interopRequireDefault(_MailerMail);
-
-var _MailerSendMailResponse = require('./model/MailerSendMailResponse');
-
-var _MailerSendMailResponse2 = _interopRequireDefault(_MailerSendMailResponse);
-
-var _MailerUser = require('./model/MailerUser');
-
-var _MailerUser2 = _interopRequireDefault(_MailerUser);
-
-var _NodeChangeEventEventType = require('./model/NodeChangeEventEventType');
-
-var _NodeChangeEventEventType2 = _interopRequireDefault(_NodeChangeEventEventType);
-
-var _ObjectDataSource = require('./model/ObjectDataSource');
-
-var _ObjectDataSource2 = _interopRequireDefault(_ObjectDataSource);
-
-var _ObjectEncryptionMode = require('./model/ObjectEncryptionMode');
-
-var _ObjectEncryptionMode2 = _interopRequireDefault(_ObjectEncryptionMode);
-
-var _ObjectStorageType = require('./model/ObjectStorageType');
-
-var _ObjectStorageType2 = _interopRequireDefault(_ObjectStorageType);
-
-var _PackagePackageStatus = require('./model/PackagePackageStatus');
-
-var _PackagePackageStatus2 = _interopRequireDefault(_PackagePackageStatus);
-
-var _ProtobufAny = require('./model/ProtobufAny');
-
-var _ProtobufAny2 = _interopRequireDefault(_ProtobufAny);
-
-var _ResourcePolicyQueryQueryType = require('./model/ResourcePolicyQueryQueryType');
-
-var _ResourcePolicyQueryQueryType2 = _interopRequireDefault(_ResourcePolicyQueryQueryType);
-
-var _RestACLCollection = require('./model/RestACLCollection');
-
-var _RestACLCollection2 = _interopRequireDefault(_RestACLCollection);
-
-var _RestBindResponse = require('./model/RestBindResponse');
-
-var _RestBindResponse2 = _interopRequireDefault(_RestBindResponse);
-
-var _RestBulkMetaResponse = require('./model/RestBulkMetaResponse');
-
-var _RestBulkMetaResponse2 = _interopRequireDefault(_RestBulkMetaResponse);
-
-var _RestCell = require('./model/RestCell');
-
-var _RestCell2 = _interopRequireDefault(_RestCell);
-
-var _RestCellAcl = require('./model/RestCellAcl');
-
-var _RestCellAcl2 = _interopRequireDefault(_RestCellAcl);
-
-var _RestChangeCollection = require('./model/RestChangeCollection');
-
-var _RestChangeCollection2 = _interopRequireDefault(_RestChangeCollection);
-
-var _RestChangeRequest = require('./model/RestChangeRequest');
-
-var _RestChangeRequest2 = _interopRequireDefault(_RestChangeRequest);
-
-var _RestConfiguration = require('./model/RestConfiguration');
-
-var _RestConfiguration2 = _interopRequireDefault(_RestConfiguration);
-
-var _RestControlServiceRequest = require('./model/RestControlServiceRequest');
-
-var _RestControlServiceRequest2 = _interopRequireDefault(_RestControlServiceRequest);
-
-var _RestDataSourceCollection = require('./model/RestDataSourceCollection');
-
-var _RestDataSourceCollection2 = _interopRequireDefault(_RestDataSourceCollection);
-
-var _RestDeleteCellResponse = require('./model/RestDeleteCellResponse');
-
-var _RestDeleteCellResponse2 = _interopRequireDefault(_RestDeleteCellResponse);
-
-var _RestDeleteDataSourceResponse = require('./model/RestDeleteDataSourceResponse');
-
-var _RestDeleteDataSourceResponse2 = _interopRequireDefault(_RestDeleteDataSourceResponse);
-
-var _RestDeleteResponse = require('./model/RestDeleteResponse');
-
-var _RestDeleteResponse2 = _interopRequireDefault(_RestDeleteResponse);
-
-var _RestDeleteShareLinkResponse = require('./model/RestDeleteShareLinkResponse');
-
-var _RestDeleteShareLinkResponse2 = _interopRequireDefault(_RestDeleteShareLinkResponse);
-
-var _RestDeleteVersioningPolicyResponse = require('./model/RestDeleteVersioningPolicyResponse');
-
-var _RestDeleteVersioningPolicyResponse2 = _interopRequireDefault(_RestDeleteVersioningPolicyResponse);
-
-var _RestDiscoveryResponse = require('./model/RestDiscoveryResponse');
-
-var _RestDiscoveryResponse2 = _interopRequireDefault(_RestDiscoveryResponse);
-
-var _RestDocstoreCollection = require('./model/RestDocstoreCollection');
-
-var _RestDocstoreCollection2 = _interopRequireDefault(_RestDocstoreCollection);
-
-var _RestExternalDirectoryCollection = require('./model/RestExternalDirectoryCollection');
-
-var _RestExternalDirectoryCollection2 = _interopRequireDefault(_RestExternalDirectoryCollection);
-
-var _RestExternalDirectoryConfig = require('./model/RestExternalDirectoryConfig');
-
-var _RestExternalDirectoryConfig2 = _interopRequireDefault(_RestExternalDirectoryConfig);
-
-var _RestExternalDirectoryResponse = require('./model/RestExternalDirectoryResponse');
-
-var _RestExternalDirectoryResponse2 = _interopRequireDefault(_RestExternalDirectoryResponse);
-
-var _RestFrontBootConfResponse = require('./model/RestFrontBootConfResponse');
-
-var _RestFrontBootConfResponse2 = _interopRequireDefault(_RestFrontBootConfResponse);
-
-var _RestFrontLogMessage = require('./model/RestFrontLogMessage');
-
-var _RestFrontLogMessage2 = _interopRequireDefault(_RestFrontLogMessage);
-
-var _RestFrontLogResponse = require('./model/RestFrontLogResponse');
-
-var _RestFrontLogResponse2 = _interopRequireDefault(_RestFrontLogResponse);
-
-var _RestGetBulkMetaRequest = require('./model/RestGetBulkMetaRequest');
-
-var _RestGetBulkMetaRequest2 = _interopRequireDefault(_RestGetBulkMetaRequest);
-
-var _RestListDocstoreRequest = require('./model/RestListDocstoreRequest');
-
-var _RestListDocstoreRequest2 = _interopRequireDefault(_RestListDocstoreRequest);
-
-var _RestListPeerFoldersRequest = require('./model/RestListPeerFoldersRequest');
-
-var _RestListPeerFoldersRequest2 = _interopRequireDefault(_RestListPeerFoldersRequest);
-
-var _RestListPeersAddressesResponse = require('./model/RestListPeersAddressesResponse');
-
-var _RestListPeersAddressesResponse2 = _interopRequireDefault(_RestListPeersAddressesResponse);
-
-var _RestListSharedResourcesRequest = require('./model/RestListSharedResourcesRequest');
-
-var _RestListSharedResourcesRequest2 = _interopRequireDefault(_RestListSharedResourcesRequest);
-
-var _RestListSharedResourcesResponse = require('./model/RestListSharedResourcesResponse');
-
-var _RestListSharedResourcesResponse2 = _interopRequireDefault(_RestListSharedResourcesResponse);
-
-var _RestLogLevel = require('./model/RestLogLevel');
-
-var _RestLogLevel2 = _interopRequireDefault(_RestLogLevel);
-
-var _RestLogMessageCollection = require('./model/RestLogMessageCollection');
-
-var _RestLogMessageCollection2 = _interopRequireDefault(_RestLogMessageCollection);
-
-var _RestMetaCollection = require('./model/RestMetaCollection');
-
-var _RestMetaCollection2 = _interopRequireDefault(_RestMetaCollection);
-
-var _RestMetaNamespaceRequest = require('./model/RestMetaNamespaceRequest');
-
-var _RestMetaNamespaceRequest2 = _interopRequireDefault(_RestMetaNamespaceRequest);
-
-var _RestMetadata = require('./model/RestMetadata');
-
-var _RestMetadata2 = _interopRequireDefault(_RestMetadata);
-
-var _RestNodesCollection = require('./model/RestNodesCollection');
-
-var _RestNodesCollection2 = _interopRequireDefault(_RestNodesCollection);
-
-var _RestOpenApiResponse = require('./model/RestOpenApiResponse');
-
-var _RestOpenApiResponse2 = _interopRequireDefault(_RestOpenApiResponse);
-
-var _RestPutCellRequest = require('./model/RestPutCellRequest');
-
-var _RestPutCellRequest2 = _interopRequireDefault(_RestPutCellRequest);
-
-var _RestPutShareLinkRequest = require('./model/RestPutShareLinkRequest');
-
-var _RestPutShareLinkRequest2 = _interopRequireDefault(_RestPutShareLinkRequest);
-
-var _RestRelationResponse = require('./model/RestRelationResponse');
-
-var _RestRelationResponse2 = _interopRequireDefault(_RestRelationResponse);
-
-var _RestResetPasswordRequest = require('./model/RestResetPasswordRequest');
-
-var _RestResetPasswordRequest2 = _interopRequireDefault(_RestResetPasswordRequest);
-
-var _RestResetPasswordResponse = require('./model/RestResetPasswordResponse');
-
-var _RestResetPasswordResponse2 = _interopRequireDefault(_RestResetPasswordResponse);
-
-var _RestResetPasswordTokenResponse = require('./model/RestResetPasswordTokenResponse');
-
-var _RestResetPasswordTokenResponse2 = _interopRequireDefault(_RestResetPasswordTokenResponse);
-
-var _RestResourcePolicyQuery = require('./model/RestResourcePolicyQuery');
-
-var _RestResourcePolicyQuery2 = _interopRequireDefault(_RestResourcePolicyQuery);
-
-var _RestRevokeRequest = require('./model/RestRevokeRequest');
-
-var _RestRevokeRequest2 = _interopRequireDefault(_RestRevokeRequest);
-
-var _RestRevokeResponse = require('./model/RestRevokeResponse');
-
-var _RestRevokeResponse2 = _interopRequireDefault(_RestRevokeResponse);
-
-var _RestRolesCollection = require('./model/RestRolesCollection');
-
-var _RestRolesCollection2 = _interopRequireDefault(_RestRolesCollection);
-
-var _RestSearchACLRequest = require('./model/RestSearchACLRequest');
-
-var _RestSearchACLRequest2 = _interopRequireDefault(_RestSearchACLRequest);
-
-var _RestSearchResults = require('./model/RestSearchResults');
-
-var _RestSearchResults2 = _interopRequireDefault(_RestSearchResults);
-
-var _RestSearchRoleRequest = require('./model/RestSearchRoleRequest');
-
-var _RestSearchRoleRequest2 = _interopRequireDefault(_RestSearchRoleRequest);
-
-var _RestSearchUserRequest = require('./model/RestSearchUserRequest');
-
-var _RestSearchUserRequest2 = _interopRequireDefault(_RestSearchUserRequest);
-
-var _RestSearchWorkspaceRequest = require('./model/RestSearchWorkspaceRequest');
-
-var _RestSearchWorkspaceRequest2 = _interopRequireDefault(_RestSearchWorkspaceRequest);
-
-var _RestServiceCollection = require('./model/RestServiceCollection');
-
-var _RestServiceCollection2 = _interopRequireDefault(_RestServiceCollection);
-
-var _RestSettingsEntry = require('./model/RestSettingsEntry');
-
-var _RestSettingsEntry2 = _interopRequireDefault(_RestSettingsEntry);
-
-var _RestSettingsEntryMeta = require('./model/RestSettingsEntryMeta');
-
-var _RestSettingsEntryMeta2 = _interopRequireDefault(_RestSettingsEntryMeta);
-
-var _RestSettingsMenuResponse = require('./model/RestSettingsMenuResponse');
-
-var _RestSettingsMenuResponse2 = _interopRequireDefault(_RestSettingsMenuResponse);
-
-var _RestSettingsSection = require('./model/RestSettingsSection');
-
-var _RestSettingsSection2 = _interopRequireDefault(_RestSettingsSection);
-
-var _RestShareLink = require('./model/RestShareLink');
-
-var _RestShareLink2 = _interopRequireDefault(_RestShareLink);
-
-var _RestShareLinkAccessType = require('./model/RestShareLinkAccessType');
-
-var _RestShareLinkAccessType2 = _interopRequireDefault(_RestShareLinkAccessType);
-
-var _RestShareLinkTargetUser = require('./model/RestShareLinkTargetUser');
-
-var _RestShareLinkTargetUser2 = _interopRequireDefault(_RestShareLinkTargetUser);
-
-var _RestSubscriptionsCollection = require('./model/RestSubscriptionsCollection');
-
-var _RestSubscriptionsCollection2 = _interopRequireDefault(_RestSubscriptionsCollection);
-
-var _RestTimeRangeResultCollection = require('./model/RestTimeRangeResultCollection');
-
-var _RestTimeRangeResultCollection2 = _interopRequireDefault(_RestTimeRangeResultCollection);
-
-var _RestUserBookmarksRequest = require('./model/RestUserBookmarksRequest');
-
-var _RestUserBookmarksRequest2 = _interopRequireDefault(_RestUserBookmarksRequest);
-
-var _RestUserJobRequest = require('./model/RestUserJobRequest');
-
-var _RestUserJobRequest2 = _interopRequireDefault(_RestUserJobRequest);
-
-var _RestUserJobResponse = require('./model/RestUserJobResponse');
-
-var _RestUserJobResponse2 = _interopRequireDefault(_RestUserJobResponse);
-
-var _RestUserJobsCollection = require('./model/RestUserJobsCollection');
-
-var _RestUserJobsCollection2 = _interopRequireDefault(_RestUserJobsCollection);
-
-var _RestUserMetaCollection = require('./model/RestUserMetaCollection');
-
-var _RestUserMetaCollection2 = _interopRequireDefault(_RestUserMetaCollection);
-
-var _RestUserMetaNamespaceCollection = require('./model/RestUserMetaNamespaceCollection');
-
-var _RestUserMetaNamespaceCollection2 = _interopRequireDefault(_RestUserMetaNamespaceCollection);
-
-var _RestUserStateResponse = require('./model/RestUserStateResponse');
-
-var _RestUserStateResponse2 = _interopRequireDefault(_RestUserStateResponse);
-
-var _RestUsersCollection = require('./model/RestUsersCollection');
-
-var _RestUsersCollection2 = _interopRequireDefault(_RestUsersCollection);
-
-var _RestVersioningPolicyCollection = require('./model/RestVersioningPolicyCollection');
-
-var _RestVersioningPolicyCollection2 = _interopRequireDefault(_RestVersioningPolicyCollection);
-
-var _RestWorkspaceCollection = require('./model/RestWorkspaceCollection');
-
-var _RestWorkspaceCollection2 = _interopRequireDefault(_RestWorkspaceCollection);
-
-var _ServiceOperationType = require('./model/ServiceOperationType');
-
-var _ServiceOperationType2 = _interopRequireDefault(_ServiceOperationType);
-
-var _ServiceQuery = require('./model/ServiceQuery');
-
-var _ServiceQuery2 = _interopRequireDefault(_ServiceQuery);
-
-var _ServiceResourcePolicy = require('./model/ServiceResourcePolicy');
-
-var _ServiceResourcePolicy2 = _interopRequireDefault(_ServiceResourcePolicy);
-
-var _ServiceResourcePolicyAction = require('./model/ServiceResourcePolicyAction');
-
-var _ServiceResourcePolicyAction2 = _interopRequireDefault(_ServiceResourcePolicyAction);
-
-var _ServiceResourcePolicyPolicyEffect = require('./model/ServiceResourcePolicyPolicyEffect');
-
-var _ServiceResourcePolicyPolicyEffect2 = _interopRequireDefault(_ServiceResourcePolicyPolicyEffect);
-
-var _ServiceResourcePolicyQuery = require('./model/ServiceResourcePolicyQuery');
-
-var _ServiceResourcePolicyQuery2 = _interopRequireDefault(_ServiceResourcePolicyQuery);
-
-var _TreeChangeLog = require('./model/TreeChangeLog');
-
-var _TreeChangeLog2 = _interopRequireDefault(_TreeChangeLog);
-
-var _TreeGeoPoint = require('./model/TreeGeoPoint');
-
-var _TreeGeoPoint2 = _interopRequireDefault(_TreeGeoPoint);
-
-var _TreeGeoQuery = require('./model/TreeGeoQuery');
-
-var _TreeGeoQuery2 = _interopRequireDefault(_TreeGeoQuery);
-
-var _TreeListNodesRequest = require('./model/TreeListNodesRequest');
-
-var _TreeListNodesRequest2 = _interopRequireDefault(_TreeListNodesRequest);
-
-var _TreeNode = require('./model/TreeNode');
-
-var _TreeNode2 = _interopRequireDefault(_TreeNode);
-
-var _TreeNodeChangeEvent = require('./model/TreeNodeChangeEvent');
-
-var _TreeNodeChangeEvent2 = _interopRequireDefault(_TreeNodeChangeEvent);
-
-var _TreeNodeType = require('./model/TreeNodeType');
-
-var _TreeNodeType2 = _interopRequireDefault(_TreeNodeType);
-
-var _TreeQuery = require('./model/TreeQuery');
-
-var _TreeQuery2 = _interopRequireDefault(_TreeQuery);
-
-var _TreeReadNodeRequest = require('./model/TreeReadNodeRequest');
-
-var _TreeReadNodeRequest2 = _interopRequireDefault(_TreeReadNodeRequest);
-
-var _TreeReadNodeResponse = require('./model/TreeReadNodeResponse');
-
-var _TreeReadNodeResponse2 = _interopRequireDefault(_TreeReadNodeResponse);
-
-var _TreeSearchRequest = require('./model/TreeSearchRequest');
-
-var _TreeSearchRequest2 = _interopRequireDefault(_TreeSearchRequest);
-
-var _TreeSyncChange = require('./model/TreeSyncChange');
-
-var _TreeSyncChange2 = _interopRequireDefault(_TreeSyncChange);
-
-var _TreeSyncChangeNode = require('./model/TreeSyncChangeNode');
-
-var _TreeSyncChangeNode2 = _interopRequireDefault(_TreeSyncChangeNode);
-
-var _TreeSyncChangeType = require('./model/TreeSyncChangeType');
-
-var _TreeSyncChangeType2 = _interopRequireDefault(_TreeSyncChangeType);
-
-var _TreeVersioningKeepPeriod = require('./model/TreeVersioningKeepPeriod');
-
-var _TreeVersioningKeepPeriod2 = _interopRequireDefault(_TreeVersioningKeepPeriod);
-
-var _TreeVersioningPolicy = require('./model/TreeVersioningPolicy');
-
-var _TreeVersioningPolicy2 = _interopRequireDefault(_TreeVersioningPolicy);
-
-var _TreeWorkspaceRelativePath = require('./model/TreeWorkspaceRelativePath');
-
-var _TreeWorkspaceRelativePath2 = _interopRequireDefault(_TreeWorkspaceRelativePath);
-
-var _UpdateApplyUpdateResponse = require('./model/UpdateApplyUpdateResponse');
-
-var _UpdateApplyUpdateResponse2 = _interopRequireDefault(_UpdateApplyUpdateResponse);
-
-var _UpdatePackage = require('./model/UpdatePackage');
-
-var _UpdatePackage2 = _interopRequireDefault(_UpdatePackage);
-
-var _UpdateUpdateResponse = require('./model/UpdateUpdateResponse');
-
-var _UpdateUpdateResponse2 = _interopRequireDefault(_UpdateUpdateResponse);
-
-var _UpdateUserMetaNamespaceRequestUserMetaNsOp = require('./model/UpdateUserMetaNamespaceRequestUserMetaNsOp');
-
-var _UpdateUserMetaNamespaceRequestUserMetaNsOp2 = _interopRequireDefault(_UpdateUserMetaNamespaceRequestUserMetaNsOp);
-
-var _UpdateUserMetaRequestUserMetaOp = require('./model/UpdateUserMetaRequestUserMetaOp');
-
-var _UpdateUserMetaRequestUserMetaOp2 = _interopRequireDefault(_UpdateUserMetaRequestUserMetaOp);
-
-var _ACLServiceApi = require('./api/ACLServiceApi');
-
-var _ACLServiceApi2 = _interopRequireDefault(_ACLServiceApi);
-
-var _ActivityServiceApi = require('./api/ActivityServiceApi');
-
-var _ActivityServiceApi2 = _interopRequireDefault(_ActivityServiceApi);
-
-var _AdminTreeServiceApi = require('./api/AdminTreeServiceApi');
-
-var _AdminTreeServiceApi2 = _interopRequireDefault(_AdminTreeServiceApi);
-
-var _ChangeServiceApi = require('./api/ChangeServiceApi');
-
-var _ChangeServiceApi2 = _interopRequireDefault(_ChangeServiceApi);
-
-var _ConfigServiceApi = require('./api/ConfigServiceApi');
-
-var _ConfigServiceApi2 = _interopRequireDefault(_ConfigServiceApi);
-
-var _DocStoreServiceApi = require('./api/DocStoreServiceApi');
-
-var _DocStoreServiceApi2 = _interopRequireDefault(_DocStoreServiceApi);
-
-var _EnterpriseConfigServiceApi = require('./api/EnterpriseConfigServiceApi');
-
-var _EnterpriseConfigServiceApi2 = _interopRequireDefault(_EnterpriseConfigServiceApi);
-
-var _EnterpriseLogServiceApi = require('./api/EnterpriseLogServiceApi');
-
-var _EnterpriseLogServiceApi2 = _interopRequireDefault(_EnterpriseLogServiceApi);
-
-var _EnterprisePolicyServiceApi = require('./api/EnterprisePolicyServiceApi');
-
-var _EnterprisePolicyServiceApi2 = _interopRequireDefault(_EnterprisePolicyServiceApi);
-
-var _FrontendServiceApi = require('./api/FrontendServiceApi');
-
-var _FrontendServiceApi2 = _interopRequireDefault(_FrontendServiceApi);
-
-var _GraphServiceApi = require('./api/GraphServiceApi');
-
-var _GraphServiceApi2 = _interopRequireDefault(_GraphServiceApi);
-
-var _InstallServiceApi = require('./api/InstallServiceApi');
-
-var _InstallServiceApi2 = _interopRequireDefault(_InstallServiceApi);
-
-var _JobsServiceApi = require('./api/JobsServiceApi');
-
-var _JobsServiceApi2 = _interopRequireDefault(_JobsServiceApi);
-
-var _LicenseServiceApi = require('./api/LicenseServiceApi');
-
-var _LicenseServiceApi2 = _interopRequireDefault(_LicenseServiceApi);
-
-var _LogServiceApi = require('./api/LogServiceApi');
-
-var _LogServiceApi2 = _interopRequireDefault(_LogServiceApi);
-
-var _MailerServiceApi = require('./api/MailerServiceApi');
-
-var _MailerServiceApi2 = _interopRequireDefault(_MailerServiceApi);
-
-var _MetaServiceApi = require('./api/MetaServiceApi');
-
-var _MetaServiceApi2 = _interopRequireDefault(_MetaServiceApi);
-
-var _PolicyServiceApi = require('./api/PolicyServiceApi');
-
-var _PolicyServiceApi2 = _interopRequireDefault(_PolicyServiceApi);
-
-var _RoleServiceApi = require('./api/RoleServiceApi');
-
-var _RoleServiceApi2 = _interopRequireDefault(_RoleServiceApi);
-
-var _SearchServiceApi = require('./api/SearchServiceApi');
-
-var _SearchServiceApi2 = _interopRequireDefault(_SearchServiceApi);
-
-var _ShareServiceApi = require('./api/ShareServiceApi');
-
-var _ShareServiceApi2 = _interopRequireDefault(_ShareServiceApi);
-
-var _TokenServiceApi = require('./api/TokenServiceApi');
-
-var _TokenServiceApi2 = _interopRequireDefault(_TokenServiceApi);
-
-var _UpdateServiceApi = require('./api/UpdateServiceApi');
-
-var _UpdateServiceApi2 = _interopRequireDefault(_UpdateServiceApi);
-
-var _UserMetaServiceApi = require('./api/UserMetaServiceApi');
-
-var _UserMetaServiceApi2 = _interopRequireDefault(_UserMetaServiceApi);
-
-var _UserServiceApi = require('./api/UserServiceApi');
-
-var _UserServiceApi2 = _interopRequireDefault(_UserServiceApi);
-
-var _WorkspaceServiceApi = require('./api/WorkspaceServiceApi');
-
-var _WorkspaceServiceApi2 = _interopRequireDefault(_WorkspaceServiceApi);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 /**
-* ERROR_UNKNOWN.<br>
-* The <code>index</code> module provides access to constructors for all the classes which comprise the public API.
-* <p>
-* An AMD (recommended!) or CommonJS application will generally do something equivalent to the following:
-* <pre>
-* var PydioCellRestApi = require('index'); // See note below*.
-* var xxxSvc = new PydioCellRestApi.XxxApi(); // Allocate the API class we're going to use.
-* var yyyModel = new PydioCellRestApi.Yyy(); // Construct a model instance.
-* yyyModel.someProperty = 'someValue';
-* ...
-* var zzz = xxxSvc.doSomething(yyyModel); // Invoke the service.
-* ...
-* </pre>
-* <em>*NOTE: For a top-level AMD script, use require(['index'], function(){...})
-* and put the application logic within the callback function.</em>
-* </p>
-* <p>
-* A non-AMD browser application (discouraged) might do something like this:
-* <pre>
-* var xxxSvc = new PydioCellRestApi.XxxApi(); // Allocate the API class we're going to use.
-* var yyy = new PydioCellRestApi.Yyy(); // Construct a model instance.
-* yyyModel.someProperty = 'someValue';
-* ...
-* var zzz = xxxSvc.doSomething(yyyModel); // Invoke the service.
-* ...
-* </pre>
-* </p>
-* @module index
-* @version 1.0
-*/
-/**
- * Pydio Cell Rest API
+ * Pydio Cells Rest API
  * No description provided (generated by Swagger Codegen https://github.com/swagger-api/swagger-codegen)
  *
  * OpenAPI spec version: 1.0
@@ -989,237 +11,2626 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  */
 
-exports.ApiClient = _ApiClient2.default;
-exports.ActivityObject = _ActivityObject2.default;
-exports.ActivityObjectType = _ActivityObjectType2.default;
-exports.ActivityOwnerType = _ActivityOwnerType2.default;
-exports.ActivitySearchSubscriptionsRequest = _ActivitySearchSubscriptionsRequest2.default;
-exports.ActivityStreamActivitiesRequest = _ActivityStreamActivitiesRequest2.default;
-exports.ActivityStreamContext = _ActivityStreamContext2.default;
-exports.ActivitySubscription = _ActivitySubscription2.default;
-exports.ActivitySummaryPointOfView = _ActivitySummaryPointOfView2.default;
-exports.AuthLdapMapping = _AuthLdapMapping2.default;
-exports.AuthLdapMemberOfMapping = _AuthLdapMemberOfMapping2.default;
-exports.AuthLdapSearchFilter = _AuthLdapSearchFilter2.default;
-exports.AuthLdapServerConfig = _AuthLdapServerConfig2.default;
-exports.CertLicenseInfo = _CertLicenseInfo2.default;
-exports.CertLicenseStatsResponse = _CertLicenseStatsResponse2.default;
-exports.CtlPeer = _CtlPeer2.default;
-exports.CtlService = _CtlService2.default;
-exports.CtlServiceCommand = _CtlServiceCommand2.default;
-exports.CtlServiceStatus = _CtlServiceStatus2.default;
-exports.DocstoreDeleteDocumentsRequest = _DocstoreDeleteDocumentsRequest2.default;
-exports.DocstoreDeleteDocumentsResponse = _DocstoreDeleteDocumentsResponse2.default;
-exports.DocstoreDocument = _DocstoreDocument2.default;
-exports.DocstoreDocumentQuery = _DocstoreDocumentQuery2.default;
-exports.DocstoreDocumentType = _DocstoreDocumentType2.default;
-exports.DocstoreGetDocumentResponse = _DocstoreGetDocumentResponse2.default;
-exports.DocstorePutDocumentRequest = _DocstorePutDocumentRequest2.default;
-exports.DocstorePutDocumentResponse = _DocstorePutDocumentResponse2.default;
-exports.EncryptionAdminCreateKeyRequest = _EncryptionAdminCreateKeyRequest2.default;
-exports.EncryptionAdminCreateKeyResponse = _EncryptionAdminCreateKeyResponse2.default;
-exports.EncryptionAdminDeleteKeyRequest = _EncryptionAdminDeleteKeyRequest2.default;
-exports.EncryptionAdminDeleteKeyResponse = _EncryptionAdminDeleteKeyResponse2.default;
-exports.EncryptionAdminExportKeyRequest = _EncryptionAdminExportKeyRequest2.default;
-exports.EncryptionAdminExportKeyResponse = _EncryptionAdminExportKeyResponse2.default;
-exports.EncryptionAdminImportKeyRequest = _EncryptionAdminImportKeyRequest2.default;
-exports.EncryptionAdminImportKeyResponse = _EncryptionAdminImportKeyResponse2.default;
-exports.EncryptionAdminListKeysRequest = _EncryptionAdminListKeysRequest2.default;
-exports.EncryptionAdminListKeysResponse = _EncryptionAdminListKeysResponse2.default;
-exports.EncryptionExport = _EncryptionExport2.default;
-exports.EncryptionImport = _EncryptionImport2.default;
-exports.EncryptionKey = _EncryptionKey2.default;
-exports.EncryptionKeyInfo = _EncryptionKeyInfo2.default;
-exports.IdmACL = _IdmACL2.default;
-exports.IdmACLAction = _IdmACLAction2.default;
-exports.IdmACLSingleQuery = _IdmACLSingleQuery2.default;
-exports.IdmListPolicyGroupsRequest = _IdmListPolicyGroupsRequest2.default;
-exports.IdmListPolicyGroupsResponse = _IdmListPolicyGroupsResponse2.default;
-exports.IdmNodeType = _IdmNodeType2.default;
-exports.IdmPolicy = _IdmPolicy2.default;
-exports.IdmPolicyCondition = _IdmPolicyCondition2.default;
-exports.IdmPolicyEffect = _IdmPolicyEffect2.default;
-exports.IdmPolicyGroup = _IdmPolicyGroup2.default;
-exports.IdmPolicyResourceGroup = _IdmPolicyResourceGroup2.default;
-exports.IdmRole = _IdmRole2.default;
-exports.IdmRoleSingleQuery = _IdmRoleSingleQuery2.default;
-exports.IdmSearchUserMetaRequest = _IdmSearchUserMetaRequest2.default;
-exports.IdmUpdateUserMetaNamespaceRequest = _IdmUpdateUserMetaNamespaceRequest2.default;
-exports.IdmUpdateUserMetaNamespaceResponse = _IdmUpdateUserMetaNamespaceResponse2.default;
-exports.IdmUpdateUserMetaRequest = _IdmUpdateUserMetaRequest2.default;
-exports.IdmUpdateUserMetaResponse = _IdmUpdateUserMetaResponse2.default;
-exports.IdmUser = _IdmUser2.default;
-exports.IdmUserMeta = _IdmUserMeta2.default;
-exports.IdmUserMetaNamespace = _IdmUserMetaNamespace2.default;
-exports.IdmUserSingleQuery = _IdmUserSingleQuery2.default;
-exports.IdmWorkspace = _IdmWorkspace2.default;
-exports.IdmWorkspaceScope = _IdmWorkspaceScope2.default;
-exports.IdmWorkspaceSingleQuery = _IdmWorkspaceSingleQuery2.default;
-exports.InstallCheckResult = _InstallCheckResult2.default;
-exports.InstallGetDefaultsResponse = _InstallGetDefaultsResponse2.default;
-exports.InstallInstallConfig = _InstallInstallConfig2.default;
-exports.InstallInstallRequest = _InstallInstallRequest2.default;
-exports.InstallInstallResponse = _InstallInstallResponse2.default;
-exports.InstallPerformCheckRequest = _InstallPerformCheckRequest2.default;
-exports.InstallPerformCheckResponse = _InstallPerformCheckResponse2.default;
-exports.JobsAction = _JobsAction2.default;
-exports.JobsActionLog = _JobsActionLog2.default;
-exports.JobsActionMessage = _JobsActionMessage2.default;
-exports.JobsActionOutput = _JobsActionOutput2.default;
-exports.JobsCommand = _JobsCommand2.default;
-exports.JobsCtrlCommand = _JobsCtrlCommand2.default;
-exports.JobsCtrlCommandResponse = _JobsCtrlCommandResponse2.default;
-exports.JobsDeleteTasksRequest = _JobsDeleteTasksRequest2.default;
-exports.JobsDeleteTasksResponse = _JobsDeleteTasksResponse2.default;
-exports.JobsJob = _JobsJob2.default;
-exports.JobsListJobsRequest = _JobsListJobsRequest2.default;
-exports.JobsNodesSelector = _JobsNodesSelector2.default;
-exports.JobsSchedule = _JobsSchedule2.default;
-exports.JobsSourceFilter = _JobsSourceFilter2.default;
-exports.JobsTask = _JobsTask2.default;
-exports.JobsTaskStatus = _JobsTaskStatus2.default;
-exports.JobsUsersSelector = _JobsUsersSelector2.default;
-exports.ListLogRequestLogFormat = _ListLogRequestLogFormat2.default;
-exports.ListSharedResourcesRequestListShareType = _ListSharedResourcesRequestListShareType2.default;
-exports.ListSharedResourcesResponseSharedResource = _ListSharedResourcesResponseSharedResource2.default;
-exports.LogListLogRequest = _LogListLogRequest2.default;
-exports.LogLogMessage = _LogLogMessage2.default;
-exports.LogRelType = _LogRelType2.default;
-exports.LogTimeRangeCursor = _LogTimeRangeCursor2.default;
-exports.LogTimeRangeRequest = _LogTimeRangeRequest2.default;
-exports.LogTimeRangeResult = _LogTimeRangeResult2.default;
-exports.MailerMail = _MailerMail2.default;
-exports.MailerSendMailResponse = _MailerSendMailResponse2.default;
-exports.MailerUser = _MailerUser2.default;
-exports.NodeChangeEventEventType = _NodeChangeEventEventType2.default;
-exports.ObjectDataSource = _ObjectDataSource2.default;
-exports.ObjectEncryptionMode = _ObjectEncryptionMode2.default;
-exports.ObjectStorageType = _ObjectStorageType2.default;
-exports.PackagePackageStatus = _PackagePackageStatus2.default;
-exports.ProtobufAny = _ProtobufAny2.default;
-exports.ResourcePolicyQueryQueryType = _ResourcePolicyQueryQueryType2.default;
-exports.RestACLCollection = _RestACLCollection2.default;
-exports.RestBindResponse = _RestBindResponse2.default;
-exports.RestBulkMetaResponse = _RestBulkMetaResponse2.default;
-exports.RestCell = _RestCell2.default;
-exports.RestCellAcl = _RestCellAcl2.default;
-exports.RestChangeCollection = _RestChangeCollection2.default;
-exports.RestChangeRequest = _RestChangeRequest2.default;
-exports.RestConfiguration = _RestConfiguration2.default;
-exports.RestControlServiceRequest = _RestControlServiceRequest2.default;
-exports.RestDataSourceCollection = _RestDataSourceCollection2.default;
-exports.RestDeleteCellResponse = _RestDeleteCellResponse2.default;
-exports.RestDeleteDataSourceResponse = _RestDeleteDataSourceResponse2.default;
-exports.RestDeleteResponse = _RestDeleteResponse2.default;
-exports.RestDeleteShareLinkResponse = _RestDeleteShareLinkResponse2.default;
-exports.RestDeleteVersioningPolicyResponse = _RestDeleteVersioningPolicyResponse2.default;
-exports.RestDiscoveryResponse = _RestDiscoveryResponse2.default;
-exports.RestDocstoreCollection = _RestDocstoreCollection2.default;
-exports.RestExternalDirectoryCollection = _RestExternalDirectoryCollection2.default;
-exports.RestExternalDirectoryConfig = _RestExternalDirectoryConfig2.default;
-exports.RestExternalDirectoryResponse = _RestExternalDirectoryResponse2.default;
-exports.RestFrontBootConfResponse = _RestFrontBootConfResponse2.default;
-exports.RestFrontLogMessage = _RestFrontLogMessage2.default;
-exports.RestFrontLogResponse = _RestFrontLogResponse2.default;
-exports.RestGetBulkMetaRequest = _RestGetBulkMetaRequest2.default;
-exports.RestListDocstoreRequest = _RestListDocstoreRequest2.default;
-exports.RestListPeerFoldersRequest = _RestListPeerFoldersRequest2.default;
-exports.RestListPeersAddressesResponse = _RestListPeersAddressesResponse2.default;
-exports.RestListSharedResourcesRequest = _RestListSharedResourcesRequest2.default;
-exports.RestListSharedResourcesResponse = _RestListSharedResourcesResponse2.default;
-exports.RestLogLevel = _RestLogLevel2.default;
-exports.RestLogMessageCollection = _RestLogMessageCollection2.default;
-exports.RestMetaCollection = _RestMetaCollection2.default;
-exports.RestMetaNamespaceRequest = _RestMetaNamespaceRequest2.default;
-exports.RestMetadata = _RestMetadata2.default;
-exports.RestNodesCollection = _RestNodesCollection2.default;
-exports.RestOpenApiResponse = _RestOpenApiResponse2.default;
-exports.RestPutCellRequest = _RestPutCellRequest2.default;
-exports.RestPutShareLinkRequest = _RestPutShareLinkRequest2.default;
-exports.RestRelationResponse = _RestRelationResponse2.default;
-exports.RestResetPasswordRequest = _RestResetPasswordRequest2.default;
-exports.RestResetPasswordResponse = _RestResetPasswordResponse2.default;
-exports.RestResetPasswordTokenResponse = _RestResetPasswordTokenResponse2.default;
-exports.RestResourcePolicyQuery = _RestResourcePolicyQuery2.default;
-exports.RestRevokeRequest = _RestRevokeRequest2.default;
-exports.RestRevokeResponse = _RestRevokeResponse2.default;
-exports.RestRolesCollection = _RestRolesCollection2.default;
-exports.RestSearchACLRequest = _RestSearchACLRequest2.default;
-exports.RestSearchResults = _RestSearchResults2.default;
-exports.RestSearchRoleRequest = _RestSearchRoleRequest2.default;
-exports.RestSearchUserRequest = _RestSearchUserRequest2.default;
-exports.RestSearchWorkspaceRequest = _RestSearchWorkspaceRequest2.default;
-exports.RestServiceCollection = _RestServiceCollection2.default;
-exports.RestSettingsEntry = _RestSettingsEntry2.default;
-exports.RestSettingsEntryMeta = _RestSettingsEntryMeta2.default;
-exports.RestSettingsMenuResponse = _RestSettingsMenuResponse2.default;
-exports.RestSettingsSection = _RestSettingsSection2.default;
-exports.RestShareLink = _RestShareLink2.default;
-exports.RestShareLinkAccessType = _RestShareLinkAccessType2.default;
-exports.RestShareLinkTargetUser = _RestShareLinkTargetUser2.default;
-exports.RestSubscriptionsCollection = _RestSubscriptionsCollection2.default;
-exports.RestTimeRangeResultCollection = _RestTimeRangeResultCollection2.default;
-exports.RestUserBookmarksRequest = _RestUserBookmarksRequest2.default;
-exports.RestUserJobRequest = _RestUserJobRequest2.default;
-exports.RestUserJobResponse = _RestUserJobResponse2.default;
-exports.RestUserJobsCollection = _RestUserJobsCollection2.default;
-exports.RestUserMetaCollection = _RestUserMetaCollection2.default;
-exports.RestUserMetaNamespaceCollection = _RestUserMetaNamespaceCollection2.default;
-exports.RestUserStateResponse = _RestUserStateResponse2.default;
-exports.RestUsersCollection = _RestUsersCollection2.default;
-exports.RestVersioningPolicyCollection = _RestVersioningPolicyCollection2.default;
-exports.RestWorkspaceCollection = _RestWorkspaceCollection2.default;
-exports.ServiceOperationType = _ServiceOperationType2.default;
-exports.ServiceQuery = _ServiceQuery2.default;
-exports.ServiceResourcePolicy = _ServiceResourcePolicy2.default;
-exports.ServiceResourcePolicyAction = _ServiceResourcePolicyAction2.default;
-exports.ServiceResourcePolicyPolicyEffect = _ServiceResourcePolicyPolicyEffect2.default;
-exports.ServiceResourcePolicyQuery = _ServiceResourcePolicyQuery2.default;
-exports.TreeChangeLog = _TreeChangeLog2.default;
-exports.TreeGeoPoint = _TreeGeoPoint2.default;
-exports.TreeGeoQuery = _TreeGeoQuery2.default;
-exports.TreeListNodesRequest = _TreeListNodesRequest2.default;
-exports.TreeNode = _TreeNode2.default;
-exports.TreeNodeChangeEvent = _TreeNodeChangeEvent2.default;
-exports.TreeNodeType = _TreeNodeType2.default;
-exports.TreeQuery = _TreeQuery2.default;
-exports.TreeReadNodeRequest = _TreeReadNodeRequest2.default;
-exports.TreeReadNodeResponse = _TreeReadNodeResponse2.default;
-exports.TreeSearchRequest = _TreeSearchRequest2.default;
-exports.TreeSyncChange = _TreeSyncChange2.default;
-exports.TreeSyncChangeNode = _TreeSyncChangeNode2.default;
-exports.TreeSyncChangeType = _TreeSyncChangeType2.default;
-exports.TreeVersioningKeepPeriod = _TreeVersioningKeepPeriod2.default;
-exports.TreeVersioningPolicy = _TreeVersioningPolicy2.default;
-exports.TreeWorkspaceRelativePath = _TreeWorkspaceRelativePath2.default;
-exports.UpdateApplyUpdateResponse = _UpdateApplyUpdateResponse2.default;
-exports.UpdatePackage = _UpdatePackage2.default;
-exports.UpdateUpdateResponse = _UpdateUpdateResponse2.default;
-exports.UpdateUserMetaNamespaceRequestUserMetaNsOp = _UpdateUserMetaNamespaceRequestUserMetaNsOp2.default;
-exports.UpdateUserMetaRequestUserMetaOp = _UpdateUserMetaRequestUserMetaOp2.default;
-exports.ACLServiceApi = _ACLServiceApi2.default;
-exports.ActivityServiceApi = _ActivityServiceApi2.default;
-exports.AdminTreeServiceApi = _AdminTreeServiceApi2.default;
-exports.ChangeServiceApi = _ChangeServiceApi2.default;
-exports.ConfigServiceApi = _ConfigServiceApi2.default;
-exports.DocStoreServiceApi = _DocStoreServiceApi2.default;
-exports.EnterpriseConfigServiceApi = _EnterpriseConfigServiceApi2.default;
-exports.EnterpriseLogServiceApi = _EnterpriseLogServiceApi2.default;
-exports.EnterprisePolicyServiceApi = _EnterprisePolicyServiceApi2.default;
-exports.FrontendServiceApi = _FrontendServiceApi2.default;
-exports.GraphServiceApi = _GraphServiceApi2.default;
-exports.InstallServiceApi = _InstallServiceApi2.default;
-exports.JobsServiceApi = _JobsServiceApi2.default;
-exports.LicenseServiceApi = _LicenseServiceApi2.default;
-exports.LogServiceApi = _LogServiceApi2.default;
-exports.MailerServiceApi = _MailerServiceApi2.default;
-exports.MetaServiceApi = _MetaServiceApi2.default;
-exports.PolicyServiceApi = _PolicyServiceApi2.default;
-exports.RoleServiceApi = _RoleServiceApi2.default;
-exports.SearchServiceApi = _SearchServiceApi2.default;
-exports.ShareServiceApi = _ShareServiceApi2.default;
-exports.TokenServiceApi = _TokenServiceApi2.default;
-exports.UpdateServiceApi = _UpdateServiceApi2.default;
-exports.UserMetaServiceApi = _UserMetaServiceApi2.default;
-exports.UserServiceApi = _UserServiceApi2.default;
-exports.WorkspaceServiceApi = _WorkspaceServiceApi2.default;
+'use strict';
+
+exports.__esModule = true;
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { 'default': obj };
+}
+
+var _ApiClient = require('./ApiClient');
+
+var _ApiClient2 = _interopRequireDefault(_ApiClient);
+
+var _modelActivityObject = require('./model/ActivityObject');
+
+var _modelActivityObject2 = _interopRequireDefault(_modelActivityObject);
+
+var _modelActivityObjectType = require('./model/ActivityObjectType');
+
+var _modelActivityObjectType2 = _interopRequireDefault(_modelActivityObjectType);
+
+var _modelActivityOwnerType = require('./model/ActivityOwnerType');
+
+var _modelActivityOwnerType2 = _interopRequireDefault(_modelActivityOwnerType);
+
+var _modelActivitySearchSubscriptionsRequest = require('./model/ActivitySearchSubscriptionsRequest');
+
+var _modelActivitySearchSubscriptionsRequest2 = _interopRequireDefault(_modelActivitySearchSubscriptionsRequest);
+
+var _modelActivityStreamActivitiesRequest = require('./model/ActivityStreamActivitiesRequest');
+
+var _modelActivityStreamActivitiesRequest2 = _interopRequireDefault(_modelActivityStreamActivitiesRequest);
+
+var _modelActivityStreamContext = require('./model/ActivityStreamContext');
+
+var _modelActivityStreamContext2 = _interopRequireDefault(_modelActivityStreamContext);
+
+var _modelActivitySubscription = require('./model/ActivitySubscription');
+
+var _modelActivitySubscription2 = _interopRequireDefault(_modelActivitySubscription);
+
+var _modelActivitySummaryPointOfView = require('./model/ActivitySummaryPointOfView');
+
+var _modelActivitySummaryPointOfView2 = _interopRequireDefault(_modelActivitySummaryPointOfView);
+
+var _modelAuthLdapMapping = require('./model/AuthLdapMapping');
+
+var _modelAuthLdapMapping2 = _interopRequireDefault(_modelAuthLdapMapping);
+
+var _modelAuthLdapMemberOfMapping = require('./model/AuthLdapMemberOfMapping');
+
+var _modelAuthLdapMemberOfMapping2 = _interopRequireDefault(_modelAuthLdapMemberOfMapping);
+
+var _modelAuthLdapSearchFilter = require('./model/AuthLdapSearchFilter');
+
+var _modelAuthLdapSearchFilter2 = _interopRequireDefault(_modelAuthLdapSearchFilter);
+
+var _modelAuthLdapServerConfig = require('./model/AuthLdapServerConfig');
+
+var _modelAuthLdapServerConfig2 = _interopRequireDefault(_modelAuthLdapServerConfig);
+
+var _modelCertLicenseInfo = require('./model/CertLicenseInfo');
+
+var _modelCertLicenseInfo2 = _interopRequireDefault(_modelCertLicenseInfo);
+
+var _modelCertLicenseStatsResponse = require('./model/CertLicenseStatsResponse');
+
+var _modelCertLicenseStatsResponse2 = _interopRequireDefault(_modelCertLicenseStatsResponse);
+
+var _modelCtlPeer = require('./model/CtlPeer');
+
+var _modelCtlPeer2 = _interopRequireDefault(_modelCtlPeer);
+
+var _modelCtlService = require('./model/CtlService');
+
+var _modelCtlService2 = _interopRequireDefault(_modelCtlService);
+
+var _modelCtlServiceCommand = require('./model/CtlServiceCommand');
+
+var _modelCtlServiceCommand2 = _interopRequireDefault(_modelCtlServiceCommand);
+
+var _modelCtlServiceStatus = require('./model/CtlServiceStatus');
+
+var _modelCtlServiceStatus2 = _interopRequireDefault(_modelCtlServiceStatus);
+
+var _modelDocstoreDeleteDocumentsRequest = require('./model/DocstoreDeleteDocumentsRequest');
+
+var _modelDocstoreDeleteDocumentsRequest2 = _interopRequireDefault(_modelDocstoreDeleteDocumentsRequest);
+
+var _modelDocstoreDeleteDocumentsResponse = require('./model/DocstoreDeleteDocumentsResponse');
+
+var _modelDocstoreDeleteDocumentsResponse2 = _interopRequireDefault(_modelDocstoreDeleteDocumentsResponse);
+
+var _modelDocstoreDocument = require('./model/DocstoreDocument');
+
+var _modelDocstoreDocument2 = _interopRequireDefault(_modelDocstoreDocument);
+
+var _modelDocstoreDocumentQuery = require('./model/DocstoreDocumentQuery');
+
+var _modelDocstoreDocumentQuery2 = _interopRequireDefault(_modelDocstoreDocumentQuery);
+
+var _modelDocstoreDocumentType = require('./model/DocstoreDocumentType');
+
+var _modelDocstoreDocumentType2 = _interopRequireDefault(_modelDocstoreDocumentType);
+
+var _modelDocstoreGetDocumentResponse = require('./model/DocstoreGetDocumentResponse');
+
+var _modelDocstoreGetDocumentResponse2 = _interopRequireDefault(_modelDocstoreGetDocumentResponse);
+
+var _modelDocstorePutDocumentRequest = require('./model/DocstorePutDocumentRequest');
+
+var _modelDocstorePutDocumentRequest2 = _interopRequireDefault(_modelDocstorePutDocumentRequest);
+
+var _modelDocstorePutDocumentResponse = require('./model/DocstorePutDocumentResponse');
+
+var _modelDocstorePutDocumentResponse2 = _interopRequireDefault(_modelDocstorePutDocumentResponse);
+
+var _modelEncryptionAdminCreateKeyRequest = require('./model/EncryptionAdminCreateKeyRequest');
+
+var _modelEncryptionAdminCreateKeyRequest2 = _interopRequireDefault(_modelEncryptionAdminCreateKeyRequest);
+
+var _modelEncryptionAdminCreateKeyResponse = require('./model/EncryptionAdminCreateKeyResponse');
+
+var _modelEncryptionAdminCreateKeyResponse2 = _interopRequireDefault(_modelEncryptionAdminCreateKeyResponse);
+
+var _modelEncryptionAdminDeleteKeyRequest = require('./model/EncryptionAdminDeleteKeyRequest');
+
+var _modelEncryptionAdminDeleteKeyRequest2 = _interopRequireDefault(_modelEncryptionAdminDeleteKeyRequest);
+
+var _modelEncryptionAdminDeleteKeyResponse = require('./model/EncryptionAdminDeleteKeyResponse');
+
+var _modelEncryptionAdminDeleteKeyResponse2 = _interopRequireDefault(_modelEncryptionAdminDeleteKeyResponse);
+
+var _modelEncryptionAdminExportKeyRequest = require('./model/EncryptionAdminExportKeyRequest');
+
+var _modelEncryptionAdminExportKeyRequest2 = _interopRequireDefault(_modelEncryptionAdminExportKeyRequest);
+
+var _modelEncryptionAdminExportKeyResponse = require('./model/EncryptionAdminExportKeyResponse');
+
+var _modelEncryptionAdminExportKeyResponse2 = _interopRequireDefault(_modelEncryptionAdminExportKeyResponse);
+
+var _modelEncryptionAdminImportKeyRequest = require('./model/EncryptionAdminImportKeyRequest');
+
+var _modelEncryptionAdminImportKeyRequest2 = _interopRequireDefault(_modelEncryptionAdminImportKeyRequest);
+
+var _modelEncryptionAdminImportKeyResponse = require('./model/EncryptionAdminImportKeyResponse');
+
+var _modelEncryptionAdminImportKeyResponse2 = _interopRequireDefault(_modelEncryptionAdminImportKeyResponse);
+
+var _modelEncryptionAdminListKeysRequest = require('./model/EncryptionAdminListKeysRequest');
+
+var _modelEncryptionAdminListKeysRequest2 = _interopRequireDefault(_modelEncryptionAdminListKeysRequest);
+
+var _modelEncryptionAdminListKeysResponse = require('./model/EncryptionAdminListKeysResponse');
+
+var _modelEncryptionAdminListKeysResponse2 = _interopRequireDefault(_modelEncryptionAdminListKeysResponse);
+
+var _modelEncryptionExport = require('./model/EncryptionExport');
+
+var _modelEncryptionExport2 = _interopRequireDefault(_modelEncryptionExport);
+
+var _modelEncryptionImport = require('./model/EncryptionImport');
+
+var _modelEncryptionImport2 = _interopRequireDefault(_modelEncryptionImport);
+
+var _modelEncryptionKey = require('./model/EncryptionKey');
+
+var _modelEncryptionKey2 = _interopRequireDefault(_modelEncryptionKey);
+
+var _modelEncryptionKeyInfo = require('./model/EncryptionKeyInfo');
+
+var _modelEncryptionKeyInfo2 = _interopRequireDefault(_modelEncryptionKeyInfo);
+
+var _modelIdmACL = require('./model/IdmACL');
+
+var _modelIdmACL2 = _interopRequireDefault(_modelIdmACL);
+
+var _modelIdmACLAction = require('./model/IdmACLAction');
+
+var _modelIdmACLAction2 = _interopRequireDefault(_modelIdmACLAction);
+
+var _modelIdmACLSingleQuery = require('./model/IdmACLSingleQuery');
+
+var _modelIdmACLSingleQuery2 = _interopRequireDefault(_modelIdmACLSingleQuery);
+
+var _modelIdmListPolicyGroupsRequest = require('./model/IdmListPolicyGroupsRequest');
+
+var _modelIdmListPolicyGroupsRequest2 = _interopRequireDefault(_modelIdmListPolicyGroupsRequest);
+
+var _modelIdmListPolicyGroupsResponse = require('./model/IdmListPolicyGroupsResponse');
+
+var _modelIdmListPolicyGroupsResponse2 = _interopRequireDefault(_modelIdmListPolicyGroupsResponse);
+
+var _modelIdmNodeType = require('./model/IdmNodeType');
+
+var _modelIdmNodeType2 = _interopRequireDefault(_modelIdmNodeType);
+
+var _modelIdmPolicy = require('./model/IdmPolicy');
+
+var _modelIdmPolicy2 = _interopRequireDefault(_modelIdmPolicy);
+
+var _modelIdmPolicyCondition = require('./model/IdmPolicyCondition');
+
+var _modelIdmPolicyCondition2 = _interopRequireDefault(_modelIdmPolicyCondition);
+
+var _modelIdmPolicyEffect = require('./model/IdmPolicyEffect');
+
+var _modelIdmPolicyEffect2 = _interopRequireDefault(_modelIdmPolicyEffect);
+
+var _modelIdmPolicyGroup = require('./model/IdmPolicyGroup');
+
+var _modelIdmPolicyGroup2 = _interopRequireDefault(_modelIdmPolicyGroup);
+
+var _modelIdmPolicyResourceGroup = require('./model/IdmPolicyResourceGroup');
+
+var _modelIdmPolicyResourceGroup2 = _interopRequireDefault(_modelIdmPolicyResourceGroup);
+
+var _modelIdmRole = require('./model/IdmRole');
+
+var _modelIdmRole2 = _interopRequireDefault(_modelIdmRole);
+
+var _modelIdmRoleSingleQuery = require('./model/IdmRoleSingleQuery');
+
+var _modelIdmRoleSingleQuery2 = _interopRequireDefault(_modelIdmRoleSingleQuery);
+
+var _modelIdmSearchUserMetaRequest = require('./model/IdmSearchUserMetaRequest');
+
+var _modelIdmSearchUserMetaRequest2 = _interopRequireDefault(_modelIdmSearchUserMetaRequest);
+
+var _modelIdmUpdateUserMetaNamespaceRequest = require('./model/IdmUpdateUserMetaNamespaceRequest');
+
+var _modelIdmUpdateUserMetaNamespaceRequest2 = _interopRequireDefault(_modelIdmUpdateUserMetaNamespaceRequest);
+
+var _modelIdmUpdateUserMetaNamespaceResponse = require('./model/IdmUpdateUserMetaNamespaceResponse');
+
+var _modelIdmUpdateUserMetaNamespaceResponse2 = _interopRequireDefault(_modelIdmUpdateUserMetaNamespaceResponse);
+
+var _modelIdmUpdateUserMetaRequest = require('./model/IdmUpdateUserMetaRequest');
+
+var _modelIdmUpdateUserMetaRequest2 = _interopRequireDefault(_modelIdmUpdateUserMetaRequest);
+
+var _modelIdmUpdateUserMetaResponse = require('./model/IdmUpdateUserMetaResponse');
+
+var _modelIdmUpdateUserMetaResponse2 = _interopRequireDefault(_modelIdmUpdateUserMetaResponse);
+
+var _modelIdmUser = require('./model/IdmUser');
+
+var _modelIdmUser2 = _interopRequireDefault(_modelIdmUser);
+
+var _modelIdmUserMeta = require('./model/IdmUserMeta');
+
+var _modelIdmUserMeta2 = _interopRequireDefault(_modelIdmUserMeta);
+
+var _modelIdmUserMetaNamespace = require('./model/IdmUserMetaNamespace');
+
+var _modelIdmUserMetaNamespace2 = _interopRequireDefault(_modelIdmUserMetaNamespace);
+
+var _modelIdmUserSingleQuery = require('./model/IdmUserSingleQuery');
+
+var _modelIdmUserSingleQuery2 = _interopRequireDefault(_modelIdmUserSingleQuery);
+
+var _modelIdmWorkspace = require('./model/IdmWorkspace');
+
+var _modelIdmWorkspace2 = _interopRequireDefault(_modelIdmWorkspace);
+
+var _modelIdmWorkspaceScope = require('./model/IdmWorkspaceScope');
+
+var _modelIdmWorkspaceScope2 = _interopRequireDefault(_modelIdmWorkspaceScope);
+
+var _modelIdmWorkspaceSingleQuery = require('./model/IdmWorkspaceSingleQuery');
+
+var _modelIdmWorkspaceSingleQuery2 = _interopRequireDefault(_modelIdmWorkspaceSingleQuery);
+
+var _modelInstallCheckResult = require('./model/InstallCheckResult');
+
+var _modelInstallCheckResult2 = _interopRequireDefault(_modelInstallCheckResult);
+
+var _modelInstallGetAgreementResponse = require('./model/InstallGetAgreementResponse');
+
+var _modelInstallGetAgreementResponse2 = _interopRequireDefault(_modelInstallGetAgreementResponse);
+
+var _modelInstallGetDefaultsResponse = require('./model/InstallGetDefaultsResponse');
+
+var _modelInstallGetDefaultsResponse2 = _interopRequireDefault(_modelInstallGetDefaultsResponse);
+
+var _modelInstallInstallConfig = require('./model/InstallInstallConfig');
+
+var _modelInstallInstallConfig2 = _interopRequireDefault(_modelInstallInstallConfig);
+
+var _modelInstallInstallRequest = require('./model/InstallInstallRequest');
+
+var _modelInstallInstallRequest2 = _interopRequireDefault(_modelInstallInstallRequest);
+
+var _modelInstallInstallResponse = require('./model/InstallInstallResponse');
+
+var _modelInstallInstallResponse2 = _interopRequireDefault(_modelInstallInstallResponse);
+
+var _modelInstallPerformCheckRequest = require('./model/InstallPerformCheckRequest');
+
+var _modelInstallPerformCheckRequest2 = _interopRequireDefault(_modelInstallPerformCheckRequest);
+
+var _modelInstallPerformCheckResponse = require('./model/InstallPerformCheckResponse');
+
+var _modelInstallPerformCheckResponse2 = _interopRequireDefault(_modelInstallPerformCheckResponse);
+
+var _modelJobsAction = require('./model/JobsAction');
+
+var _modelJobsAction2 = _interopRequireDefault(_modelJobsAction);
+
+var _modelJobsActionLog = require('./model/JobsActionLog');
+
+var _modelJobsActionLog2 = _interopRequireDefault(_modelJobsActionLog);
+
+var _modelJobsActionMessage = require('./model/JobsActionMessage');
+
+var _modelJobsActionMessage2 = _interopRequireDefault(_modelJobsActionMessage);
+
+var _modelJobsActionOutput = require('./model/JobsActionOutput');
+
+var _modelJobsActionOutput2 = _interopRequireDefault(_modelJobsActionOutput);
+
+var _modelJobsCommand = require('./model/JobsCommand');
+
+var _modelJobsCommand2 = _interopRequireDefault(_modelJobsCommand);
+
+var _modelJobsCtrlCommand = require('./model/JobsCtrlCommand');
+
+var _modelJobsCtrlCommand2 = _interopRequireDefault(_modelJobsCtrlCommand);
+
+var _modelJobsCtrlCommandResponse = require('./model/JobsCtrlCommandResponse');
+
+var _modelJobsCtrlCommandResponse2 = _interopRequireDefault(_modelJobsCtrlCommandResponse);
+
+var _modelJobsDeleteTasksRequest = require('./model/JobsDeleteTasksRequest');
+
+var _modelJobsDeleteTasksRequest2 = _interopRequireDefault(_modelJobsDeleteTasksRequest);
+
+var _modelJobsDeleteTasksResponse = require('./model/JobsDeleteTasksResponse');
+
+var _modelJobsDeleteTasksResponse2 = _interopRequireDefault(_modelJobsDeleteTasksResponse);
+
+var _modelJobsJob = require('./model/JobsJob');
+
+var _modelJobsJob2 = _interopRequireDefault(_modelJobsJob);
+
+var _modelJobsListJobsRequest = require('./model/JobsListJobsRequest');
+
+var _modelJobsListJobsRequest2 = _interopRequireDefault(_modelJobsListJobsRequest);
+
+var _modelJobsNodesSelector = require('./model/JobsNodesSelector');
+
+var _modelJobsNodesSelector2 = _interopRequireDefault(_modelJobsNodesSelector);
+
+var _modelJobsSchedule = require('./model/JobsSchedule');
+
+var _modelJobsSchedule2 = _interopRequireDefault(_modelJobsSchedule);
+
+var _modelJobsSourceFilter = require('./model/JobsSourceFilter');
+
+var _modelJobsSourceFilter2 = _interopRequireDefault(_modelJobsSourceFilter);
+
+var _modelJobsTask = require('./model/JobsTask');
+
+var _modelJobsTask2 = _interopRequireDefault(_modelJobsTask);
+
+var _modelJobsTaskStatus = require('./model/JobsTaskStatus');
+
+var _modelJobsTaskStatus2 = _interopRequireDefault(_modelJobsTaskStatus);
+
+var _modelJobsUsersSelector = require('./model/JobsUsersSelector');
+
+var _modelJobsUsersSelector2 = _interopRequireDefault(_modelJobsUsersSelector);
+
+var _modelListLogRequestLogFormat = require('./model/ListLogRequestLogFormat');
+
+var _modelListLogRequestLogFormat2 = _interopRequireDefault(_modelListLogRequestLogFormat);
+
+var _modelListSharedResourcesRequestListShareType = require('./model/ListSharedResourcesRequestListShareType');
+
+var _modelListSharedResourcesRequestListShareType2 = _interopRequireDefault(_modelListSharedResourcesRequestListShareType);
+
+var _modelListSharedResourcesResponseSharedResource = require('./model/ListSharedResourcesResponseSharedResource');
+
+var _modelListSharedResourcesResponseSharedResource2 = _interopRequireDefault(_modelListSharedResourcesResponseSharedResource);
+
+var _modelLogListLogRequest = require('./model/LogListLogRequest');
+
+var _modelLogListLogRequest2 = _interopRequireDefault(_modelLogListLogRequest);
+
+var _modelLogLogMessage = require('./model/LogLogMessage');
+
+var _modelLogLogMessage2 = _interopRequireDefault(_modelLogLogMessage);
+
+var _modelLogRelType = require('./model/LogRelType');
+
+var _modelLogRelType2 = _interopRequireDefault(_modelLogRelType);
+
+var _modelLogTimeRangeCursor = require('./model/LogTimeRangeCursor');
+
+var _modelLogTimeRangeCursor2 = _interopRequireDefault(_modelLogTimeRangeCursor);
+
+var _modelLogTimeRangeRequest = require('./model/LogTimeRangeRequest');
+
+var _modelLogTimeRangeRequest2 = _interopRequireDefault(_modelLogTimeRangeRequest);
+
+var _modelLogTimeRangeResult = require('./model/LogTimeRangeResult');
+
+var _modelLogTimeRangeResult2 = _interopRequireDefault(_modelLogTimeRangeResult);
+
+var _modelMailerMail = require('./model/MailerMail');
+
+var _modelMailerMail2 = _interopRequireDefault(_modelMailerMail);
+
+var _modelMailerSendMailResponse = require('./model/MailerSendMailResponse');
+
+var _modelMailerSendMailResponse2 = _interopRequireDefault(_modelMailerSendMailResponse);
+
+var _modelMailerUser = require('./model/MailerUser');
+
+var _modelMailerUser2 = _interopRequireDefault(_modelMailerUser);
+
+var _modelNodeChangeEventEventType = require('./model/NodeChangeEventEventType');
+
+var _modelNodeChangeEventEventType2 = _interopRequireDefault(_modelNodeChangeEventEventType);
+
+var _modelObjectDataSource = require('./model/ObjectDataSource');
+
+var _modelObjectDataSource2 = _interopRequireDefault(_modelObjectDataSource);
+
+var _modelObjectEncryptionMode = require('./model/ObjectEncryptionMode');
+
+var _modelObjectEncryptionMode2 = _interopRequireDefault(_modelObjectEncryptionMode);
+
+var _modelObjectStorageType = require('./model/ObjectStorageType');
+
+var _modelObjectStorageType2 = _interopRequireDefault(_modelObjectStorageType);
+
+var _modelPackagePackageStatus = require('./model/PackagePackageStatus');
+
+var _modelPackagePackageStatus2 = _interopRequireDefault(_modelPackagePackageStatus);
+
+var _modelProtobufAny = require('./model/ProtobufAny');
+
+var _modelProtobufAny2 = _interopRequireDefault(_modelProtobufAny);
+
+var _modelResourcePolicyQueryQueryType = require('./model/ResourcePolicyQueryQueryType');
+
+var _modelResourcePolicyQueryQueryType2 = _interopRequireDefault(_modelResourcePolicyQueryQueryType);
+
+var _modelRestACLCollection = require('./model/RestACLCollection');
+
+var _modelRestACLCollection2 = _interopRequireDefault(_modelRestACLCollection);
+
+var _modelRestBindResponse = require('./model/RestBindResponse');
+
+var _modelRestBindResponse2 = _interopRequireDefault(_modelRestBindResponse);
+
+var _modelRestBulkMetaResponse = require('./model/RestBulkMetaResponse');
+
+var _modelRestBulkMetaResponse2 = _interopRequireDefault(_modelRestBulkMetaResponse);
+
+var _modelRestCell = require('./model/RestCell');
+
+var _modelRestCell2 = _interopRequireDefault(_modelRestCell);
+
+var _modelRestCellAcl = require('./model/RestCellAcl');
+
+var _modelRestCellAcl2 = _interopRequireDefault(_modelRestCellAcl);
+
+var _modelRestChangeCollection = require('./model/RestChangeCollection');
+
+var _modelRestChangeCollection2 = _interopRequireDefault(_modelRestChangeCollection);
+
+var _modelRestChangeRequest = require('./model/RestChangeRequest');
+
+var _modelRestChangeRequest2 = _interopRequireDefault(_modelRestChangeRequest);
+
+var _modelRestConfiguration = require('./model/RestConfiguration');
+
+var _modelRestConfiguration2 = _interopRequireDefault(_modelRestConfiguration);
+
+var _modelRestControlServiceRequest = require('./model/RestControlServiceRequest');
+
+var _modelRestControlServiceRequest2 = _interopRequireDefault(_modelRestControlServiceRequest);
+
+var _modelRestDataSourceCollection = require('./model/RestDataSourceCollection');
+
+var _modelRestDataSourceCollection2 = _interopRequireDefault(_modelRestDataSourceCollection);
+
+var _modelRestDeleteCellResponse = require('./model/RestDeleteCellResponse');
+
+var _modelRestDeleteCellResponse2 = _interopRequireDefault(_modelRestDeleteCellResponse);
+
+var _modelRestDeleteDataSourceResponse = require('./model/RestDeleteDataSourceResponse');
+
+var _modelRestDeleteDataSourceResponse2 = _interopRequireDefault(_modelRestDeleteDataSourceResponse);
+
+var _modelRestDeleteResponse = require('./model/RestDeleteResponse');
+
+var _modelRestDeleteResponse2 = _interopRequireDefault(_modelRestDeleteResponse);
+
+var _modelRestDeleteShareLinkResponse = require('./model/RestDeleteShareLinkResponse');
+
+var _modelRestDeleteShareLinkResponse2 = _interopRequireDefault(_modelRestDeleteShareLinkResponse);
+
+var _modelRestDeleteVersioningPolicyResponse = require('./model/RestDeleteVersioningPolicyResponse');
+
+var _modelRestDeleteVersioningPolicyResponse2 = _interopRequireDefault(_modelRestDeleteVersioningPolicyResponse);
+
+var _modelRestDiscoveryResponse = require('./model/RestDiscoveryResponse');
+
+var _modelRestDiscoveryResponse2 = _interopRequireDefault(_modelRestDiscoveryResponse);
+
+var _modelRestDocstoreCollection = require('./model/RestDocstoreCollection');
+
+var _modelRestDocstoreCollection2 = _interopRequireDefault(_modelRestDocstoreCollection);
+
+var _modelRestExternalDirectoryCollection = require('./model/RestExternalDirectoryCollection');
+
+var _modelRestExternalDirectoryCollection2 = _interopRequireDefault(_modelRestExternalDirectoryCollection);
+
+var _modelRestExternalDirectoryConfig = require('./model/RestExternalDirectoryConfig');
+
+var _modelRestExternalDirectoryConfig2 = _interopRequireDefault(_modelRestExternalDirectoryConfig);
+
+var _modelRestExternalDirectoryResponse = require('./model/RestExternalDirectoryResponse');
+
+var _modelRestExternalDirectoryResponse2 = _interopRequireDefault(_modelRestExternalDirectoryResponse);
+
+var _modelRestFrontBootConfResponse = require('./model/RestFrontBootConfResponse');
+
+var _modelRestFrontBootConfResponse2 = _interopRequireDefault(_modelRestFrontBootConfResponse);
+
+var _modelRestFrontLogMessage = require('./model/RestFrontLogMessage');
+
+var _modelRestFrontLogMessage2 = _interopRequireDefault(_modelRestFrontLogMessage);
+
+var _modelRestFrontLogResponse = require('./model/RestFrontLogResponse');
+
+var _modelRestFrontLogResponse2 = _interopRequireDefault(_modelRestFrontLogResponse);
+
+var _modelRestGetBulkMetaRequest = require('./model/RestGetBulkMetaRequest');
+
+var _modelRestGetBulkMetaRequest2 = _interopRequireDefault(_modelRestGetBulkMetaRequest);
+
+var _modelRestListDocstoreRequest = require('./model/RestListDocstoreRequest');
+
+var _modelRestListDocstoreRequest2 = _interopRequireDefault(_modelRestListDocstoreRequest);
+
+var _modelRestListPeerFoldersRequest = require('./model/RestListPeerFoldersRequest');
+
+var _modelRestListPeerFoldersRequest2 = _interopRequireDefault(_modelRestListPeerFoldersRequest);
+
+var _modelRestListPeersAddressesResponse = require('./model/RestListPeersAddressesResponse');
+
+var _modelRestListPeersAddressesResponse2 = _interopRequireDefault(_modelRestListPeersAddressesResponse);
+
+var _modelRestListSharedResourcesRequest = require('./model/RestListSharedResourcesRequest');
+
+var _modelRestListSharedResourcesRequest2 = _interopRequireDefault(_modelRestListSharedResourcesRequest);
+
+var _modelRestListSharedResourcesResponse = require('./model/RestListSharedResourcesResponse');
+
+var _modelRestListSharedResourcesResponse2 = _interopRequireDefault(_modelRestListSharedResourcesResponse);
+
+var _modelRestLogLevel = require('./model/RestLogLevel');
+
+var _modelRestLogLevel2 = _interopRequireDefault(_modelRestLogLevel);
+
+var _modelRestLogMessageCollection = require('./model/RestLogMessageCollection');
+
+var _modelRestLogMessageCollection2 = _interopRequireDefault(_modelRestLogMessageCollection);
+
+var _modelRestMetaCollection = require('./model/RestMetaCollection');
+
+var _modelRestMetaCollection2 = _interopRequireDefault(_modelRestMetaCollection);
+
+var _modelRestMetaNamespaceRequest = require('./model/RestMetaNamespaceRequest');
+
+var _modelRestMetaNamespaceRequest2 = _interopRequireDefault(_modelRestMetaNamespaceRequest);
+
+var _modelRestMetadata = require('./model/RestMetadata');
+
+var _modelRestMetadata2 = _interopRequireDefault(_modelRestMetadata);
+
+var _modelRestNodesCollection = require('./model/RestNodesCollection');
+
+var _modelRestNodesCollection2 = _interopRequireDefault(_modelRestNodesCollection);
+
+var _modelRestOpenApiResponse = require('./model/RestOpenApiResponse');
+
+var _modelRestOpenApiResponse2 = _interopRequireDefault(_modelRestOpenApiResponse);
+
+var _modelRestPutCellRequest = require('./model/RestPutCellRequest');
+
+var _modelRestPutCellRequest2 = _interopRequireDefault(_modelRestPutCellRequest);
+
+var _modelRestPutShareLinkRequest = require('./model/RestPutShareLinkRequest');
+
+var _modelRestPutShareLinkRequest2 = _interopRequireDefault(_modelRestPutShareLinkRequest);
+
+var _modelRestRelationResponse = require('./model/RestRelationResponse');
+
+var _modelRestRelationResponse2 = _interopRequireDefault(_modelRestRelationResponse);
+
+var _modelRestResetPasswordRequest = require('./model/RestResetPasswordRequest');
+
+var _modelRestResetPasswordRequest2 = _interopRequireDefault(_modelRestResetPasswordRequest);
+
+var _modelRestResetPasswordResponse = require('./model/RestResetPasswordResponse');
+
+var _modelRestResetPasswordResponse2 = _interopRequireDefault(_modelRestResetPasswordResponse);
+
+var _modelRestResetPasswordTokenResponse = require('./model/RestResetPasswordTokenResponse');
+
+var _modelRestResetPasswordTokenResponse2 = _interopRequireDefault(_modelRestResetPasswordTokenResponse);
+
+var _modelRestResourcePolicyQuery = require('./model/RestResourcePolicyQuery');
+
+var _modelRestResourcePolicyQuery2 = _interopRequireDefault(_modelRestResourcePolicyQuery);
+
+var _modelRestRevokeRequest = require('./model/RestRevokeRequest');
+
+var _modelRestRevokeRequest2 = _interopRequireDefault(_modelRestRevokeRequest);
+
+var _modelRestRevokeResponse = require('./model/RestRevokeResponse');
+
+var _modelRestRevokeResponse2 = _interopRequireDefault(_modelRestRevokeResponse);
+
+var _modelRestRolesCollection = require('./model/RestRolesCollection');
+
+var _modelRestRolesCollection2 = _interopRequireDefault(_modelRestRolesCollection);
+
+var _modelRestSearchACLRequest = require('./model/RestSearchACLRequest');
+
+var _modelRestSearchACLRequest2 = _interopRequireDefault(_modelRestSearchACLRequest);
+
+var _modelRestSearchResults = require('./model/RestSearchResults');
+
+var _modelRestSearchResults2 = _interopRequireDefault(_modelRestSearchResults);
+
+var _modelRestSearchRoleRequest = require('./model/RestSearchRoleRequest');
+
+var _modelRestSearchRoleRequest2 = _interopRequireDefault(_modelRestSearchRoleRequest);
+
+var _modelRestSearchUserRequest = require('./model/RestSearchUserRequest');
+
+var _modelRestSearchUserRequest2 = _interopRequireDefault(_modelRestSearchUserRequest);
+
+var _modelRestSearchWorkspaceRequest = require('./model/RestSearchWorkspaceRequest');
+
+var _modelRestSearchWorkspaceRequest2 = _interopRequireDefault(_modelRestSearchWorkspaceRequest);
+
+var _modelRestServiceCollection = require('./model/RestServiceCollection');
+
+var _modelRestServiceCollection2 = _interopRequireDefault(_modelRestServiceCollection);
+
+var _modelRestSettingsEntry = require('./model/RestSettingsEntry');
+
+var _modelRestSettingsEntry2 = _interopRequireDefault(_modelRestSettingsEntry);
+
+var _modelRestSettingsEntryMeta = require('./model/RestSettingsEntryMeta');
+
+var _modelRestSettingsEntryMeta2 = _interopRequireDefault(_modelRestSettingsEntryMeta);
+
+var _modelRestSettingsMenuResponse = require('./model/RestSettingsMenuResponse');
+
+var _modelRestSettingsMenuResponse2 = _interopRequireDefault(_modelRestSettingsMenuResponse);
+
+var _modelRestSettingsSection = require('./model/RestSettingsSection');
+
+var _modelRestSettingsSection2 = _interopRequireDefault(_modelRestSettingsSection);
+
+var _modelRestShareLink = require('./model/RestShareLink');
+
+var _modelRestShareLink2 = _interopRequireDefault(_modelRestShareLink);
+
+var _modelRestShareLinkAccessType = require('./model/RestShareLinkAccessType');
+
+var _modelRestShareLinkAccessType2 = _interopRequireDefault(_modelRestShareLinkAccessType);
+
+var _modelRestShareLinkTargetUser = require('./model/RestShareLinkTargetUser');
+
+var _modelRestShareLinkTargetUser2 = _interopRequireDefault(_modelRestShareLinkTargetUser);
+
+var _modelRestSubscriptionsCollection = require('./model/RestSubscriptionsCollection');
+
+var _modelRestSubscriptionsCollection2 = _interopRequireDefault(_modelRestSubscriptionsCollection);
+
+var _modelRestTimeRangeResultCollection = require('./model/RestTimeRangeResultCollection');
+
+var _modelRestTimeRangeResultCollection2 = _interopRequireDefault(_modelRestTimeRangeResultCollection);
+
+var _modelRestUserBookmarksRequest = require('./model/RestUserBookmarksRequest');
+
+var _modelRestUserBookmarksRequest2 = _interopRequireDefault(_modelRestUserBookmarksRequest);
+
+var _modelRestUserJobRequest = require('./model/RestUserJobRequest');
+
+var _modelRestUserJobRequest2 = _interopRequireDefault(_modelRestUserJobRequest);
+
+var _modelRestUserJobResponse = require('./model/RestUserJobResponse');
+
+var _modelRestUserJobResponse2 = _interopRequireDefault(_modelRestUserJobResponse);
+
+var _modelRestUserJobsCollection = require('./model/RestUserJobsCollection');
+
+var _modelRestUserJobsCollection2 = _interopRequireDefault(_modelRestUserJobsCollection);
+
+var _modelRestUserMetaCollection = require('./model/RestUserMetaCollection');
+
+var _modelRestUserMetaCollection2 = _interopRequireDefault(_modelRestUserMetaCollection);
+
+var _modelRestUserMetaNamespaceCollection = require('./model/RestUserMetaNamespaceCollection');
+
+var _modelRestUserMetaNamespaceCollection2 = _interopRequireDefault(_modelRestUserMetaNamespaceCollection);
+
+var _modelRestUserStateResponse = require('./model/RestUserStateResponse');
+
+var _modelRestUserStateResponse2 = _interopRequireDefault(_modelRestUserStateResponse);
+
+var _modelRestUsersCollection = require('./model/RestUsersCollection');
+
+var _modelRestUsersCollection2 = _interopRequireDefault(_modelRestUsersCollection);
+
+var _modelRestVersioningPolicyCollection = require('./model/RestVersioningPolicyCollection');
+
+var _modelRestVersioningPolicyCollection2 = _interopRequireDefault(_modelRestVersioningPolicyCollection);
+
+var _modelRestWorkspaceCollection = require('./model/RestWorkspaceCollection');
+
+var _modelRestWorkspaceCollection2 = _interopRequireDefault(_modelRestWorkspaceCollection);
+
+var _modelServiceOperationType = require('./model/ServiceOperationType');
+
+var _modelServiceOperationType2 = _interopRequireDefault(_modelServiceOperationType);
+
+var _modelServiceQuery = require('./model/ServiceQuery');
+
+var _modelServiceQuery2 = _interopRequireDefault(_modelServiceQuery);
+
+var _modelServiceResourcePolicy = require('./model/ServiceResourcePolicy');
+
+var _modelServiceResourcePolicy2 = _interopRequireDefault(_modelServiceResourcePolicy);
+
+var _modelServiceResourcePolicyAction = require('./model/ServiceResourcePolicyAction');
+
+var _modelServiceResourcePolicyAction2 = _interopRequireDefault(_modelServiceResourcePolicyAction);
+
+var _modelServiceResourcePolicyPolicyEffect = require('./model/ServiceResourcePolicyPolicyEffect');
+
+var _modelServiceResourcePolicyPolicyEffect2 = _interopRequireDefault(_modelServiceResourcePolicyPolicyEffect);
+
+var _modelServiceResourcePolicyQuery = require('./model/ServiceResourcePolicyQuery');
+
+var _modelServiceResourcePolicyQuery2 = _interopRequireDefault(_modelServiceResourcePolicyQuery);
+
+var _modelTreeChangeLog = require('./model/TreeChangeLog');
+
+var _modelTreeChangeLog2 = _interopRequireDefault(_modelTreeChangeLog);
+
+var _modelTreeGeoPoint = require('./model/TreeGeoPoint');
+
+var _modelTreeGeoPoint2 = _interopRequireDefault(_modelTreeGeoPoint);
+
+var _modelTreeGeoQuery = require('./model/TreeGeoQuery');
+
+var _modelTreeGeoQuery2 = _interopRequireDefault(_modelTreeGeoQuery);
+
+var _modelTreeListNodesRequest = require('./model/TreeListNodesRequest');
+
+var _modelTreeListNodesRequest2 = _interopRequireDefault(_modelTreeListNodesRequest);
+
+var _modelTreeNode = require('./model/TreeNode');
+
+var _modelTreeNode2 = _interopRequireDefault(_modelTreeNode);
+
+var _modelTreeNodeChangeEvent = require('./model/TreeNodeChangeEvent');
+
+var _modelTreeNodeChangeEvent2 = _interopRequireDefault(_modelTreeNodeChangeEvent);
+
+var _modelTreeNodeType = require('./model/TreeNodeType');
+
+var _modelTreeNodeType2 = _interopRequireDefault(_modelTreeNodeType);
+
+var _modelTreeQuery = require('./model/TreeQuery');
+
+var _modelTreeQuery2 = _interopRequireDefault(_modelTreeQuery);
+
+var _modelTreeReadNodeRequest = require('./model/TreeReadNodeRequest');
+
+var _modelTreeReadNodeRequest2 = _interopRequireDefault(_modelTreeReadNodeRequest);
+
+var _modelTreeReadNodeResponse = require('./model/TreeReadNodeResponse');
+
+var _modelTreeReadNodeResponse2 = _interopRequireDefault(_modelTreeReadNodeResponse);
+
+var _modelTreeSearchRequest = require('./model/TreeSearchRequest');
+
+var _modelTreeSearchRequest2 = _interopRequireDefault(_modelTreeSearchRequest);
+
+var _modelTreeSyncChange = require('./model/TreeSyncChange');
+
+var _modelTreeSyncChange2 = _interopRequireDefault(_modelTreeSyncChange);
+
+var _modelTreeSyncChangeNode = require('./model/TreeSyncChangeNode');
+
+var _modelTreeSyncChangeNode2 = _interopRequireDefault(_modelTreeSyncChangeNode);
+
+var _modelTreeSyncChangeType = require('./model/TreeSyncChangeType');
+
+var _modelTreeSyncChangeType2 = _interopRequireDefault(_modelTreeSyncChangeType);
+
+var _modelTreeVersioningKeepPeriod = require('./model/TreeVersioningKeepPeriod');
+
+var _modelTreeVersioningKeepPeriod2 = _interopRequireDefault(_modelTreeVersioningKeepPeriod);
+
+var _modelTreeVersioningPolicy = require('./model/TreeVersioningPolicy');
+
+var _modelTreeVersioningPolicy2 = _interopRequireDefault(_modelTreeVersioningPolicy);
+
+var _modelTreeWorkspaceRelativePath = require('./model/TreeWorkspaceRelativePath');
+
+var _modelTreeWorkspaceRelativePath2 = _interopRequireDefault(_modelTreeWorkspaceRelativePath);
+
+var _modelUpdateApplyUpdateResponse = require('./model/UpdateApplyUpdateResponse');
+
+var _modelUpdateApplyUpdateResponse2 = _interopRequireDefault(_modelUpdateApplyUpdateResponse);
+
+var _modelUpdatePackage = require('./model/UpdatePackage');
+
+var _modelUpdatePackage2 = _interopRequireDefault(_modelUpdatePackage);
+
+var _modelUpdateUpdateResponse = require('./model/UpdateUpdateResponse');
+
+var _modelUpdateUpdateResponse2 = _interopRequireDefault(_modelUpdateUpdateResponse);
+
+var _modelUpdateUserMetaNamespaceRequestUserMetaNsOp = require('./model/UpdateUserMetaNamespaceRequestUserMetaNsOp');
+
+var _modelUpdateUserMetaNamespaceRequestUserMetaNsOp2 = _interopRequireDefault(_modelUpdateUserMetaNamespaceRequestUserMetaNsOp);
+
+var _modelUpdateUserMetaRequestUserMetaOp = require('./model/UpdateUserMetaRequestUserMetaOp');
+
+var _modelUpdateUserMetaRequestUserMetaOp2 = _interopRequireDefault(_modelUpdateUserMetaRequestUserMetaOp);
+
+var _apiACLServiceApi = require('./api/ACLServiceApi');
+
+var _apiACLServiceApi2 = _interopRequireDefault(_apiACLServiceApi);
+
+var _apiActivityServiceApi = require('./api/ActivityServiceApi');
+
+var _apiActivityServiceApi2 = _interopRequireDefault(_apiActivityServiceApi);
+
+var _apiAdminTreeServiceApi = require('./api/AdminTreeServiceApi');
+
+var _apiAdminTreeServiceApi2 = _interopRequireDefault(_apiAdminTreeServiceApi);
+
+var _apiChangeServiceApi = require('./api/ChangeServiceApi');
+
+var _apiChangeServiceApi2 = _interopRequireDefault(_apiChangeServiceApi);
+
+var _apiConfigServiceApi = require('./api/ConfigServiceApi');
+
+var _apiConfigServiceApi2 = _interopRequireDefault(_apiConfigServiceApi);
+
+var _apiDocStoreServiceApi = require('./api/DocStoreServiceApi');
+
+var _apiDocStoreServiceApi2 = _interopRequireDefault(_apiDocStoreServiceApi);
+
+var _apiEnterpriseConfigServiceApi = require('./api/EnterpriseConfigServiceApi');
+
+var _apiEnterpriseConfigServiceApi2 = _interopRequireDefault(_apiEnterpriseConfigServiceApi);
+
+var _apiEnterpriseLogServiceApi = require('./api/EnterpriseLogServiceApi');
+
+var _apiEnterpriseLogServiceApi2 = _interopRequireDefault(_apiEnterpriseLogServiceApi);
+
+var _apiEnterprisePolicyServiceApi = require('./api/EnterprisePolicyServiceApi');
+
+var _apiEnterprisePolicyServiceApi2 = _interopRequireDefault(_apiEnterprisePolicyServiceApi);
+
+var _apiFrontendServiceApi = require('./api/FrontendServiceApi');
+
+var _apiFrontendServiceApi2 = _interopRequireDefault(_apiFrontendServiceApi);
+
+var _apiGraphServiceApi = require('./api/GraphServiceApi');
+
+var _apiGraphServiceApi2 = _interopRequireDefault(_apiGraphServiceApi);
+
+var _apiInstallServiceApi = require('./api/InstallServiceApi');
+
+var _apiInstallServiceApi2 = _interopRequireDefault(_apiInstallServiceApi);
+
+var _apiJobsServiceApi = require('./api/JobsServiceApi');
+
+var _apiJobsServiceApi2 = _interopRequireDefault(_apiJobsServiceApi);
+
+var _apiLicenseServiceApi = require('./api/LicenseServiceApi');
+
+var _apiLicenseServiceApi2 = _interopRequireDefault(_apiLicenseServiceApi);
+
+var _apiLogServiceApi = require('./api/LogServiceApi');
+
+var _apiLogServiceApi2 = _interopRequireDefault(_apiLogServiceApi);
+
+var _apiMailerServiceApi = require('./api/MailerServiceApi');
+
+var _apiMailerServiceApi2 = _interopRequireDefault(_apiMailerServiceApi);
+
+var _apiMetaServiceApi = require('./api/MetaServiceApi');
+
+var _apiMetaServiceApi2 = _interopRequireDefault(_apiMetaServiceApi);
+
+var _apiPolicyServiceApi = require('./api/PolicyServiceApi');
+
+var _apiPolicyServiceApi2 = _interopRequireDefault(_apiPolicyServiceApi);
+
+var _apiRoleServiceApi = require('./api/RoleServiceApi');
+
+var _apiRoleServiceApi2 = _interopRequireDefault(_apiRoleServiceApi);
+
+var _apiSearchServiceApi = require('./api/SearchServiceApi');
+
+var _apiSearchServiceApi2 = _interopRequireDefault(_apiSearchServiceApi);
+
+var _apiShareServiceApi = require('./api/ShareServiceApi');
+
+var _apiShareServiceApi2 = _interopRequireDefault(_apiShareServiceApi);
+
+var _apiTokenServiceApi = require('./api/TokenServiceApi');
+
+var _apiTokenServiceApi2 = _interopRequireDefault(_apiTokenServiceApi);
+
+var _apiUpdateServiceApi = require('./api/UpdateServiceApi');
+
+var _apiUpdateServiceApi2 = _interopRequireDefault(_apiUpdateServiceApi);
+
+var _apiUserMetaServiceApi = require('./api/UserMetaServiceApi');
+
+var _apiUserMetaServiceApi2 = _interopRequireDefault(_apiUserMetaServiceApi);
+
+var _apiUserServiceApi = require('./api/UserServiceApi');
+
+var _apiUserServiceApi2 = _interopRequireDefault(_apiUserServiceApi);
+
+var _apiWorkspaceServiceApi = require('./api/WorkspaceServiceApi');
+
+var _apiWorkspaceServiceApi2 = _interopRequireDefault(_apiWorkspaceServiceApi);
+
+/**
+* ERROR_UNKNOWN.<br>
+* The <code>index</code> module provides access to constructors for all the classes which comprise the public API.
+* <p>
+* An AMD (recommended!) or CommonJS application will generally do something equivalent to the following:
+* <pre>
+* var PydioCellsRestApi = require('index'); // See note below*.
+* var xxxSvc = new PydioCellsRestApi.XxxApi(); // Allocate the API class we're going to use.
+* var yyyModel = new PydioCellsRestApi.Yyy(); // Construct a model instance.
+* yyyModel.someProperty = 'someValue';
+* ...
+* var zzz = xxxSvc.doSomething(yyyModel); // Invoke the service.
+* ...
+* </pre>
+* <em>*NOTE: For a top-level AMD script, use require(['index'], function(){...})
+* and put the application logic within the callback function.</em>
+* </p>
+* <p>
+* A non-AMD browser application (discouraged) might do something like this:
+* <pre>
+* var xxxSvc = new PydioCellsRestApi.XxxApi(); // Allocate the API class we're going to use.
+* var yyy = new PydioCellsRestApi.Yyy(); // Construct a model instance.
+* yyyModel.someProperty = 'someValue';
+* ...
+* var zzz = xxxSvc.doSomething(yyyModel); // Invoke the service.
+* ...
+* </pre>
+* </p>
+* @module index
+* @version 1.0
+*/
+exports.
+/**
+ * The ApiClient constructor.
+ * @property {module:ApiClient}
+ */
+ApiClient = _ApiClient2['default'];
+exports.
+
+/**
+ * The ActivityObject model constructor.
+ * @property {module:model/ActivityObject}
+ */
+ActivityObject = _modelActivityObject2['default'];
+exports.
+
+/**
+ * The ActivityObjectType model constructor.
+ * @property {module:model/ActivityObjectType}
+ */
+ActivityObjectType = _modelActivityObjectType2['default'];
+exports.
+
+/**
+ * The ActivityOwnerType model constructor.
+ * @property {module:model/ActivityOwnerType}
+ */
+ActivityOwnerType = _modelActivityOwnerType2['default'];
+exports.
+
+/**
+ * The ActivitySearchSubscriptionsRequest model constructor.
+ * @property {module:model/ActivitySearchSubscriptionsRequest}
+ */
+ActivitySearchSubscriptionsRequest = _modelActivitySearchSubscriptionsRequest2['default'];
+exports.
+
+/**
+ * The ActivityStreamActivitiesRequest model constructor.
+ * @property {module:model/ActivityStreamActivitiesRequest}
+ */
+ActivityStreamActivitiesRequest = _modelActivityStreamActivitiesRequest2['default'];
+exports.
+
+/**
+ * The ActivityStreamContext model constructor.
+ * @property {module:model/ActivityStreamContext}
+ */
+ActivityStreamContext = _modelActivityStreamContext2['default'];
+exports.
+
+/**
+ * The ActivitySubscription model constructor.
+ * @property {module:model/ActivitySubscription}
+ */
+ActivitySubscription = _modelActivitySubscription2['default'];
+exports.
+
+/**
+ * The ActivitySummaryPointOfView model constructor.
+ * @property {module:model/ActivitySummaryPointOfView}
+ */
+ActivitySummaryPointOfView = _modelActivitySummaryPointOfView2['default'];
+exports.
+
+/**
+ * The AuthLdapMapping model constructor.
+ * @property {module:model/AuthLdapMapping}
+ */
+AuthLdapMapping = _modelAuthLdapMapping2['default'];
+exports.
+
+/**
+ * The AuthLdapMemberOfMapping model constructor.
+ * @property {module:model/AuthLdapMemberOfMapping}
+ */
+AuthLdapMemberOfMapping = _modelAuthLdapMemberOfMapping2['default'];
+exports.
+
+/**
+ * The AuthLdapSearchFilter model constructor.
+ * @property {module:model/AuthLdapSearchFilter}
+ */
+AuthLdapSearchFilter = _modelAuthLdapSearchFilter2['default'];
+exports.
+
+/**
+ * The AuthLdapServerConfig model constructor.
+ * @property {module:model/AuthLdapServerConfig}
+ */
+AuthLdapServerConfig = _modelAuthLdapServerConfig2['default'];
+exports.
+
+/**
+ * The CertLicenseInfo model constructor.
+ * @property {module:model/CertLicenseInfo}
+ */
+CertLicenseInfo = _modelCertLicenseInfo2['default'];
+exports.
+
+/**
+ * The CertLicenseStatsResponse model constructor.
+ * @property {module:model/CertLicenseStatsResponse}
+ */
+CertLicenseStatsResponse = _modelCertLicenseStatsResponse2['default'];
+exports.
+
+/**
+ * The CtlPeer model constructor.
+ * @property {module:model/CtlPeer}
+ */
+CtlPeer = _modelCtlPeer2['default'];
+exports.
+
+/**
+ * The CtlService model constructor.
+ * @property {module:model/CtlService}
+ */
+CtlService = _modelCtlService2['default'];
+exports.
+
+/**
+ * The CtlServiceCommand model constructor.
+ * @property {module:model/CtlServiceCommand}
+ */
+CtlServiceCommand = _modelCtlServiceCommand2['default'];
+exports.
+
+/**
+ * The CtlServiceStatus model constructor.
+ * @property {module:model/CtlServiceStatus}
+ */
+CtlServiceStatus = _modelCtlServiceStatus2['default'];
+exports.
+
+/**
+ * The DocstoreDeleteDocumentsRequest model constructor.
+ * @property {module:model/DocstoreDeleteDocumentsRequest}
+ */
+DocstoreDeleteDocumentsRequest = _modelDocstoreDeleteDocumentsRequest2['default'];
+exports.
+
+/**
+ * The DocstoreDeleteDocumentsResponse model constructor.
+ * @property {module:model/DocstoreDeleteDocumentsResponse}
+ */
+DocstoreDeleteDocumentsResponse = _modelDocstoreDeleteDocumentsResponse2['default'];
+exports.
+
+/**
+ * The DocstoreDocument model constructor.
+ * @property {module:model/DocstoreDocument}
+ */
+DocstoreDocument = _modelDocstoreDocument2['default'];
+exports.
+
+/**
+ * The DocstoreDocumentQuery model constructor.
+ * @property {module:model/DocstoreDocumentQuery}
+ */
+DocstoreDocumentQuery = _modelDocstoreDocumentQuery2['default'];
+exports.
+
+/**
+ * The DocstoreDocumentType model constructor.
+ * @property {module:model/DocstoreDocumentType}
+ */
+DocstoreDocumentType = _modelDocstoreDocumentType2['default'];
+exports.
+
+/**
+ * The DocstoreGetDocumentResponse model constructor.
+ * @property {module:model/DocstoreGetDocumentResponse}
+ */
+DocstoreGetDocumentResponse = _modelDocstoreGetDocumentResponse2['default'];
+exports.
+
+/**
+ * The DocstorePutDocumentRequest model constructor.
+ * @property {module:model/DocstorePutDocumentRequest}
+ */
+DocstorePutDocumentRequest = _modelDocstorePutDocumentRequest2['default'];
+exports.
+
+/**
+ * The DocstorePutDocumentResponse model constructor.
+ * @property {module:model/DocstorePutDocumentResponse}
+ */
+DocstorePutDocumentResponse = _modelDocstorePutDocumentResponse2['default'];
+exports.
+
+/**
+ * The EncryptionAdminCreateKeyRequest model constructor.
+ * @property {module:model/EncryptionAdminCreateKeyRequest}
+ */
+EncryptionAdminCreateKeyRequest = _modelEncryptionAdminCreateKeyRequest2['default'];
+exports.
+
+/**
+ * The EncryptionAdminCreateKeyResponse model constructor.
+ * @property {module:model/EncryptionAdminCreateKeyResponse}
+ */
+EncryptionAdminCreateKeyResponse = _modelEncryptionAdminCreateKeyResponse2['default'];
+exports.
+
+/**
+ * The EncryptionAdminDeleteKeyRequest model constructor.
+ * @property {module:model/EncryptionAdminDeleteKeyRequest}
+ */
+EncryptionAdminDeleteKeyRequest = _modelEncryptionAdminDeleteKeyRequest2['default'];
+exports.
+
+/**
+ * The EncryptionAdminDeleteKeyResponse model constructor.
+ * @property {module:model/EncryptionAdminDeleteKeyResponse}
+ */
+EncryptionAdminDeleteKeyResponse = _modelEncryptionAdminDeleteKeyResponse2['default'];
+exports.
+
+/**
+ * The EncryptionAdminExportKeyRequest model constructor.
+ * @property {module:model/EncryptionAdminExportKeyRequest}
+ */
+EncryptionAdminExportKeyRequest = _modelEncryptionAdminExportKeyRequest2['default'];
+exports.
+
+/**
+ * The EncryptionAdminExportKeyResponse model constructor.
+ * @property {module:model/EncryptionAdminExportKeyResponse}
+ */
+EncryptionAdminExportKeyResponse = _modelEncryptionAdminExportKeyResponse2['default'];
+exports.
+
+/**
+ * The EncryptionAdminImportKeyRequest model constructor.
+ * @property {module:model/EncryptionAdminImportKeyRequest}
+ */
+EncryptionAdminImportKeyRequest = _modelEncryptionAdminImportKeyRequest2['default'];
+exports.
+
+/**
+ * The EncryptionAdminImportKeyResponse model constructor.
+ * @property {module:model/EncryptionAdminImportKeyResponse}
+ */
+EncryptionAdminImportKeyResponse = _modelEncryptionAdminImportKeyResponse2['default'];
+exports.
+
+/**
+ * The EncryptionAdminListKeysRequest model constructor.
+ * @property {module:model/EncryptionAdminListKeysRequest}
+ */
+EncryptionAdminListKeysRequest = _modelEncryptionAdminListKeysRequest2['default'];
+exports.
+
+/**
+ * The EncryptionAdminListKeysResponse model constructor.
+ * @property {module:model/EncryptionAdminListKeysResponse}
+ */
+EncryptionAdminListKeysResponse = _modelEncryptionAdminListKeysResponse2['default'];
+exports.
+
+/**
+ * The EncryptionExport model constructor.
+ * @property {module:model/EncryptionExport}
+ */
+EncryptionExport = _modelEncryptionExport2['default'];
+exports.
+
+/**
+ * The EncryptionImport model constructor.
+ * @property {module:model/EncryptionImport}
+ */
+EncryptionImport = _modelEncryptionImport2['default'];
+exports.
+
+/**
+ * The EncryptionKey model constructor.
+ * @property {module:model/EncryptionKey}
+ */
+EncryptionKey = _modelEncryptionKey2['default'];
+exports.
+
+/**
+ * The EncryptionKeyInfo model constructor.
+ * @property {module:model/EncryptionKeyInfo}
+ */
+EncryptionKeyInfo = _modelEncryptionKeyInfo2['default'];
+exports.
+
+/**
+ * The IdmACL model constructor.
+ * @property {module:model/IdmACL}
+ */
+IdmACL = _modelIdmACL2['default'];
+exports.
+
+/**
+ * The IdmACLAction model constructor.
+ * @property {module:model/IdmACLAction}
+ */
+IdmACLAction = _modelIdmACLAction2['default'];
+exports.
+
+/**
+ * The IdmACLSingleQuery model constructor.
+ * @property {module:model/IdmACLSingleQuery}
+ */
+IdmACLSingleQuery = _modelIdmACLSingleQuery2['default'];
+exports.
+
+/**
+ * The IdmListPolicyGroupsRequest model constructor.
+ * @property {module:model/IdmListPolicyGroupsRequest}
+ */
+IdmListPolicyGroupsRequest = _modelIdmListPolicyGroupsRequest2['default'];
+exports.
+
+/**
+ * The IdmListPolicyGroupsResponse model constructor.
+ * @property {module:model/IdmListPolicyGroupsResponse}
+ */
+IdmListPolicyGroupsResponse = _modelIdmListPolicyGroupsResponse2['default'];
+exports.
+
+/**
+ * The IdmNodeType model constructor.
+ * @property {module:model/IdmNodeType}
+ */
+IdmNodeType = _modelIdmNodeType2['default'];
+exports.
+
+/**
+ * The IdmPolicy model constructor.
+ * @property {module:model/IdmPolicy}
+ */
+IdmPolicy = _modelIdmPolicy2['default'];
+exports.
+
+/**
+ * The IdmPolicyCondition model constructor.
+ * @property {module:model/IdmPolicyCondition}
+ */
+IdmPolicyCondition = _modelIdmPolicyCondition2['default'];
+exports.
+
+/**
+ * The IdmPolicyEffect model constructor.
+ * @property {module:model/IdmPolicyEffect}
+ */
+IdmPolicyEffect = _modelIdmPolicyEffect2['default'];
+exports.
+
+/**
+ * The IdmPolicyGroup model constructor.
+ * @property {module:model/IdmPolicyGroup}
+ */
+IdmPolicyGroup = _modelIdmPolicyGroup2['default'];
+exports.
+
+/**
+ * The IdmPolicyResourceGroup model constructor.
+ * @property {module:model/IdmPolicyResourceGroup}
+ */
+IdmPolicyResourceGroup = _modelIdmPolicyResourceGroup2['default'];
+exports.
+
+/**
+ * The IdmRole model constructor.
+ * @property {module:model/IdmRole}
+ */
+IdmRole = _modelIdmRole2['default'];
+exports.
+
+/**
+ * The IdmRoleSingleQuery model constructor.
+ * @property {module:model/IdmRoleSingleQuery}
+ */
+IdmRoleSingleQuery = _modelIdmRoleSingleQuery2['default'];
+exports.
+
+/**
+ * The IdmSearchUserMetaRequest model constructor.
+ * @property {module:model/IdmSearchUserMetaRequest}
+ */
+IdmSearchUserMetaRequest = _modelIdmSearchUserMetaRequest2['default'];
+exports.
+
+/**
+ * The IdmUpdateUserMetaNamespaceRequest model constructor.
+ * @property {module:model/IdmUpdateUserMetaNamespaceRequest}
+ */
+IdmUpdateUserMetaNamespaceRequest = _modelIdmUpdateUserMetaNamespaceRequest2['default'];
+exports.
+
+/**
+ * The IdmUpdateUserMetaNamespaceResponse model constructor.
+ * @property {module:model/IdmUpdateUserMetaNamespaceResponse}
+ */
+IdmUpdateUserMetaNamespaceResponse = _modelIdmUpdateUserMetaNamespaceResponse2['default'];
+exports.
+
+/**
+ * The IdmUpdateUserMetaRequest model constructor.
+ * @property {module:model/IdmUpdateUserMetaRequest}
+ */
+IdmUpdateUserMetaRequest = _modelIdmUpdateUserMetaRequest2['default'];
+exports.
+
+/**
+ * The IdmUpdateUserMetaResponse model constructor.
+ * @property {module:model/IdmUpdateUserMetaResponse}
+ */
+IdmUpdateUserMetaResponse = _modelIdmUpdateUserMetaResponse2['default'];
+exports.
+
+/**
+ * The IdmUser model constructor.
+ * @property {module:model/IdmUser}
+ */
+IdmUser = _modelIdmUser2['default'];
+exports.
+
+/**
+ * The IdmUserMeta model constructor.
+ * @property {module:model/IdmUserMeta}
+ */
+IdmUserMeta = _modelIdmUserMeta2['default'];
+exports.
+
+/**
+ * The IdmUserMetaNamespace model constructor.
+ * @property {module:model/IdmUserMetaNamespace}
+ */
+IdmUserMetaNamespace = _modelIdmUserMetaNamespace2['default'];
+exports.
+
+/**
+ * The IdmUserSingleQuery model constructor.
+ * @property {module:model/IdmUserSingleQuery}
+ */
+IdmUserSingleQuery = _modelIdmUserSingleQuery2['default'];
+exports.
+
+/**
+ * The IdmWorkspace model constructor.
+ * @property {module:model/IdmWorkspace}
+ */
+IdmWorkspace = _modelIdmWorkspace2['default'];
+exports.
+
+/**
+ * The IdmWorkspaceScope model constructor.
+ * @property {module:model/IdmWorkspaceScope}
+ */
+IdmWorkspaceScope = _modelIdmWorkspaceScope2['default'];
+exports.
+
+/**
+ * The IdmWorkspaceSingleQuery model constructor.
+ * @property {module:model/IdmWorkspaceSingleQuery}
+ */
+IdmWorkspaceSingleQuery = _modelIdmWorkspaceSingleQuery2['default'];
+exports.
+
+/**
+ * The InstallCheckResult model constructor.
+ * @property {module:model/InstallCheckResult}
+ */
+InstallCheckResult = _modelInstallCheckResult2['default'];
+exports.
+
+/**
+ * The InstallGetAgreementResponse model constructor.
+ * @property {module:model/InstallGetAgreementResponse}
+ */
+InstallGetAgreementResponse = _modelInstallGetAgreementResponse2['default'];
+exports.
+
+/**
+ * The InstallGetDefaultsResponse model constructor.
+ * @property {module:model/InstallGetDefaultsResponse}
+ */
+InstallGetDefaultsResponse = _modelInstallGetDefaultsResponse2['default'];
+exports.
+
+/**
+ * The InstallInstallConfig model constructor.
+ * @property {module:model/InstallInstallConfig}
+ */
+InstallInstallConfig = _modelInstallInstallConfig2['default'];
+exports.
+
+/**
+ * The InstallInstallRequest model constructor.
+ * @property {module:model/InstallInstallRequest}
+ */
+InstallInstallRequest = _modelInstallInstallRequest2['default'];
+exports.
+
+/**
+ * The InstallInstallResponse model constructor.
+ * @property {module:model/InstallInstallResponse}
+ */
+InstallInstallResponse = _modelInstallInstallResponse2['default'];
+exports.
+
+/**
+ * The InstallPerformCheckRequest model constructor.
+ * @property {module:model/InstallPerformCheckRequest}
+ */
+InstallPerformCheckRequest = _modelInstallPerformCheckRequest2['default'];
+exports.
+
+/**
+ * The InstallPerformCheckResponse model constructor.
+ * @property {module:model/InstallPerformCheckResponse}
+ */
+InstallPerformCheckResponse = _modelInstallPerformCheckResponse2['default'];
+exports.
+
+/**
+ * The JobsAction model constructor.
+ * @property {module:model/JobsAction}
+ */
+JobsAction = _modelJobsAction2['default'];
+exports.
+
+/**
+ * The JobsActionLog model constructor.
+ * @property {module:model/JobsActionLog}
+ */
+JobsActionLog = _modelJobsActionLog2['default'];
+exports.
+
+/**
+ * The JobsActionMessage model constructor.
+ * @property {module:model/JobsActionMessage}
+ */
+JobsActionMessage = _modelJobsActionMessage2['default'];
+exports.
+
+/**
+ * The JobsActionOutput model constructor.
+ * @property {module:model/JobsActionOutput}
+ */
+JobsActionOutput = _modelJobsActionOutput2['default'];
+exports.
+
+/**
+ * The JobsCommand model constructor.
+ * @property {module:model/JobsCommand}
+ */
+JobsCommand = _modelJobsCommand2['default'];
+exports.
+
+/**
+ * The JobsCtrlCommand model constructor.
+ * @property {module:model/JobsCtrlCommand}
+ */
+JobsCtrlCommand = _modelJobsCtrlCommand2['default'];
+exports.
+
+/**
+ * The JobsCtrlCommandResponse model constructor.
+ * @property {module:model/JobsCtrlCommandResponse}
+ */
+JobsCtrlCommandResponse = _modelJobsCtrlCommandResponse2['default'];
+exports.
+
+/**
+ * The JobsDeleteTasksRequest model constructor.
+ * @property {module:model/JobsDeleteTasksRequest}
+ */
+JobsDeleteTasksRequest = _modelJobsDeleteTasksRequest2['default'];
+exports.
+
+/**
+ * The JobsDeleteTasksResponse model constructor.
+ * @property {module:model/JobsDeleteTasksResponse}
+ */
+JobsDeleteTasksResponse = _modelJobsDeleteTasksResponse2['default'];
+exports.
+
+/**
+ * The JobsJob model constructor.
+ * @property {module:model/JobsJob}
+ */
+JobsJob = _modelJobsJob2['default'];
+exports.
+
+/**
+ * The JobsListJobsRequest model constructor.
+ * @property {module:model/JobsListJobsRequest}
+ */
+JobsListJobsRequest = _modelJobsListJobsRequest2['default'];
+exports.
+
+/**
+ * The JobsNodesSelector model constructor.
+ * @property {module:model/JobsNodesSelector}
+ */
+JobsNodesSelector = _modelJobsNodesSelector2['default'];
+exports.
+
+/**
+ * The JobsSchedule model constructor.
+ * @property {module:model/JobsSchedule}
+ */
+JobsSchedule = _modelJobsSchedule2['default'];
+exports.
+
+/**
+ * The JobsSourceFilter model constructor.
+ * @property {module:model/JobsSourceFilter}
+ */
+JobsSourceFilter = _modelJobsSourceFilter2['default'];
+exports.
+
+/**
+ * The JobsTask model constructor.
+ * @property {module:model/JobsTask}
+ */
+JobsTask = _modelJobsTask2['default'];
+exports.
+
+/**
+ * The JobsTaskStatus model constructor.
+ * @property {module:model/JobsTaskStatus}
+ */
+JobsTaskStatus = _modelJobsTaskStatus2['default'];
+exports.
+
+/**
+ * The JobsUsersSelector model constructor.
+ * @property {module:model/JobsUsersSelector}
+ */
+JobsUsersSelector = _modelJobsUsersSelector2['default'];
+exports.
+
+/**
+ * The ListLogRequestLogFormat model constructor.
+ * @property {module:model/ListLogRequestLogFormat}
+ */
+ListLogRequestLogFormat = _modelListLogRequestLogFormat2['default'];
+exports.
+
+/**
+ * The ListSharedResourcesRequestListShareType model constructor.
+ * @property {module:model/ListSharedResourcesRequestListShareType}
+ */
+ListSharedResourcesRequestListShareType = _modelListSharedResourcesRequestListShareType2['default'];
+exports.
+
+/**
+ * The ListSharedResourcesResponseSharedResource model constructor.
+ * @property {module:model/ListSharedResourcesResponseSharedResource}
+ */
+ListSharedResourcesResponseSharedResource = _modelListSharedResourcesResponseSharedResource2['default'];
+exports.
+
+/**
+ * The LogListLogRequest model constructor.
+ * @property {module:model/LogListLogRequest}
+ */
+LogListLogRequest = _modelLogListLogRequest2['default'];
+exports.
+
+/**
+ * The LogLogMessage model constructor.
+ * @property {module:model/LogLogMessage}
+ */
+LogLogMessage = _modelLogLogMessage2['default'];
+exports.
+
+/**
+ * The LogRelType model constructor.
+ * @property {module:model/LogRelType}
+ */
+LogRelType = _modelLogRelType2['default'];
+exports.
+
+/**
+ * The LogTimeRangeCursor model constructor.
+ * @property {module:model/LogTimeRangeCursor}
+ */
+LogTimeRangeCursor = _modelLogTimeRangeCursor2['default'];
+exports.
+
+/**
+ * The LogTimeRangeRequest model constructor.
+ * @property {module:model/LogTimeRangeRequest}
+ */
+LogTimeRangeRequest = _modelLogTimeRangeRequest2['default'];
+exports.
+
+/**
+ * The LogTimeRangeResult model constructor.
+ * @property {module:model/LogTimeRangeResult}
+ */
+LogTimeRangeResult = _modelLogTimeRangeResult2['default'];
+exports.
+
+/**
+ * The MailerMail model constructor.
+ * @property {module:model/MailerMail}
+ */
+MailerMail = _modelMailerMail2['default'];
+exports.
+
+/**
+ * The MailerSendMailResponse model constructor.
+ * @property {module:model/MailerSendMailResponse}
+ */
+MailerSendMailResponse = _modelMailerSendMailResponse2['default'];
+exports.
+
+/**
+ * The MailerUser model constructor.
+ * @property {module:model/MailerUser}
+ */
+MailerUser = _modelMailerUser2['default'];
+exports.
+
+/**
+ * The NodeChangeEventEventType model constructor.
+ * @property {module:model/NodeChangeEventEventType}
+ */
+NodeChangeEventEventType = _modelNodeChangeEventEventType2['default'];
+exports.
+
+/**
+ * The ObjectDataSource model constructor.
+ * @property {module:model/ObjectDataSource}
+ */
+ObjectDataSource = _modelObjectDataSource2['default'];
+exports.
+
+/**
+ * The ObjectEncryptionMode model constructor.
+ * @property {module:model/ObjectEncryptionMode}
+ */
+ObjectEncryptionMode = _modelObjectEncryptionMode2['default'];
+exports.
+
+/**
+ * The ObjectStorageType model constructor.
+ * @property {module:model/ObjectStorageType}
+ */
+ObjectStorageType = _modelObjectStorageType2['default'];
+exports.
+
+/**
+ * The PackagePackageStatus model constructor.
+ * @property {module:model/PackagePackageStatus}
+ */
+PackagePackageStatus = _modelPackagePackageStatus2['default'];
+exports.
+
+/**
+ * The ProtobufAny model constructor.
+ * @property {module:model/ProtobufAny}
+ */
+ProtobufAny = _modelProtobufAny2['default'];
+exports.
+
+/**
+ * The ResourcePolicyQueryQueryType model constructor.
+ * @property {module:model/ResourcePolicyQueryQueryType}
+ */
+ResourcePolicyQueryQueryType = _modelResourcePolicyQueryQueryType2['default'];
+exports.
+
+/**
+ * The RestACLCollection model constructor.
+ * @property {module:model/RestACLCollection}
+ */
+RestACLCollection = _modelRestACLCollection2['default'];
+exports.
+
+/**
+ * The RestBindResponse model constructor.
+ * @property {module:model/RestBindResponse}
+ */
+RestBindResponse = _modelRestBindResponse2['default'];
+exports.
+
+/**
+ * The RestBulkMetaResponse model constructor.
+ * @property {module:model/RestBulkMetaResponse}
+ */
+RestBulkMetaResponse = _modelRestBulkMetaResponse2['default'];
+exports.
+
+/**
+ * The RestCell model constructor.
+ * @property {module:model/RestCell}
+ */
+RestCell = _modelRestCell2['default'];
+exports.
+
+/**
+ * The RestCellAcl model constructor.
+ * @property {module:model/RestCellAcl}
+ */
+RestCellAcl = _modelRestCellAcl2['default'];
+exports.
+
+/**
+ * The RestChangeCollection model constructor.
+ * @property {module:model/RestChangeCollection}
+ */
+RestChangeCollection = _modelRestChangeCollection2['default'];
+exports.
+
+/**
+ * The RestChangeRequest model constructor.
+ * @property {module:model/RestChangeRequest}
+ */
+RestChangeRequest = _modelRestChangeRequest2['default'];
+exports.
+
+/**
+ * The RestConfiguration model constructor.
+ * @property {module:model/RestConfiguration}
+ */
+RestConfiguration = _modelRestConfiguration2['default'];
+exports.
+
+/**
+ * The RestControlServiceRequest model constructor.
+ * @property {module:model/RestControlServiceRequest}
+ */
+RestControlServiceRequest = _modelRestControlServiceRequest2['default'];
+exports.
+
+/**
+ * The RestDataSourceCollection model constructor.
+ * @property {module:model/RestDataSourceCollection}
+ */
+RestDataSourceCollection = _modelRestDataSourceCollection2['default'];
+exports.
+
+/**
+ * The RestDeleteCellResponse model constructor.
+ * @property {module:model/RestDeleteCellResponse}
+ */
+RestDeleteCellResponse = _modelRestDeleteCellResponse2['default'];
+exports.
+
+/**
+ * The RestDeleteDataSourceResponse model constructor.
+ * @property {module:model/RestDeleteDataSourceResponse}
+ */
+RestDeleteDataSourceResponse = _modelRestDeleteDataSourceResponse2['default'];
+exports.
+
+/**
+ * The RestDeleteResponse model constructor.
+ * @property {module:model/RestDeleteResponse}
+ */
+RestDeleteResponse = _modelRestDeleteResponse2['default'];
+exports.
+
+/**
+ * The RestDeleteShareLinkResponse model constructor.
+ * @property {module:model/RestDeleteShareLinkResponse}
+ */
+RestDeleteShareLinkResponse = _modelRestDeleteShareLinkResponse2['default'];
+exports.
+
+/**
+ * The RestDeleteVersioningPolicyResponse model constructor.
+ * @property {module:model/RestDeleteVersioningPolicyResponse}
+ */
+RestDeleteVersioningPolicyResponse = _modelRestDeleteVersioningPolicyResponse2['default'];
+exports.
+
+/**
+ * The RestDiscoveryResponse model constructor.
+ * @property {module:model/RestDiscoveryResponse}
+ */
+RestDiscoveryResponse = _modelRestDiscoveryResponse2['default'];
+exports.
+
+/**
+ * The RestDocstoreCollection model constructor.
+ * @property {module:model/RestDocstoreCollection}
+ */
+RestDocstoreCollection = _modelRestDocstoreCollection2['default'];
+exports.
+
+/**
+ * The RestExternalDirectoryCollection model constructor.
+ * @property {module:model/RestExternalDirectoryCollection}
+ */
+RestExternalDirectoryCollection = _modelRestExternalDirectoryCollection2['default'];
+exports.
+
+/**
+ * The RestExternalDirectoryConfig model constructor.
+ * @property {module:model/RestExternalDirectoryConfig}
+ */
+RestExternalDirectoryConfig = _modelRestExternalDirectoryConfig2['default'];
+exports.
+
+/**
+ * The RestExternalDirectoryResponse model constructor.
+ * @property {module:model/RestExternalDirectoryResponse}
+ */
+RestExternalDirectoryResponse = _modelRestExternalDirectoryResponse2['default'];
+exports.
+
+/**
+ * The RestFrontBootConfResponse model constructor.
+ * @property {module:model/RestFrontBootConfResponse}
+ */
+RestFrontBootConfResponse = _modelRestFrontBootConfResponse2['default'];
+exports.
+
+/**
+ * The RestFrontLogMessage model constructor.
+ * @property {module:model/RestFrontLogMessage}
+ */
+RestFrontLogMessage = _modelRestFrontLogMessage2['default'];
+exports.
+
+/**
+ * The RestFrontLogResponse model constructor.
+ * @property {module:model/RestFrontLogResponse}
+ */
+RestFrontLogResponse = _modelRestFrontLogResponse2['default'];
+exports.
+
+/**
+ * The RestGetBulkMetaRequest model constructor.
+ * @property {module:model/RestGetBulkMetaRequest}
+ */
+RestGetBulkMetaRequest = _modelRestGetBulkMetaRequest2['default'];
+exports.
+
+/**
+ * The RestListDocstoreRequest model constructor.
+ * @property {module:model/RestListDocstoreRequest}
+ */
+RestListDocstoreRequest = _modelRestListDocstoreRequest2['default'];
+exports.
+
+/**
+ * The RestListPeerFoldersRequest model constructor.
+ * @property {module:model/RestListPeerFoldersRequest}
+ */
+RestListPeerFoldersRequest = _modelRestListPeerFoldersRequest2['default'];
+exports.
+
+/**
+ * The RestListPeersAddressesResponse model constructor.
+ * @property {module:model/RestListPeersAddressesResponse}
+ */
+RestListPeersAddressesResponse = _modelRestListPeersAddressesResponse2['default'];
+exports.
+
+/**
+ * The RestListSharedResourcesRequest model constructor.
+ * @property {module:model/RestListSharedResourcesRequest}
+ */
+RestListSharedResourcesRequest = _modelRestListSharedResourcesRequest2['default'];
+exports.
+
+/**
+ * The RestListSharedResourcesResponse model constructor.
+ * @property {module:model/RestListSharedResourcesResponse}
+ */
+RestListSharedResourcesResponse = _modelRestListSharedResourcesResponse2['default'];
+exports.
+
+/**
+ * The RestLogLevel model constructor.
+ * @property {module:model/RestLogLevel}
+ */
+RestLogLevel = _modelRestLogLevel2['default'];
+exports.
+
+/**
+ * The RestLogMessageCollection model constructor.
+ * @property {module:model/RestLogMessageCollection}
+ */
+RestLogMessageCollection = _modelRestLogMessageCollection2['default'];
+exports.
+
+/**
+ * The RestMetaCollection model constructor.
+ * @property {module:model/RestMetaCollection}
+ */
+RestMetaCollection = _modelRestMetaCollection2['default'];
+exports.
+
+/**
+ * The RestMetaNamespaceRequest model constructor.
+ * @property {module:model/RestMetaNamespaceRequest}
+ */
+RestMetaNamespaceRequest = _modelRestMetaNamespaceRequest2['default'];
+exports.
+
+/**
+ * The RestMetadata model constructor.
+ * @property {module:model/RestMetadata}
+ */
+RestMetadata = _modelRestMetadata2['default'];
+exports.
+
+/**
+ * The RestNodesCollection model constructor.
+ * @property {module:model/RestNodesCollection}
+ */
+RestNodesCollection = _modelRestNodesCollection2['default'];
+exports.
+
+/**
+ * The RestOpenApiResponse model constructor.
+ * @property {module:model/RestOpenApiResponse}
+ */
+RestOpenApiResponse = _modelRestOpenApiResponse2['default'];
+exports.
+
+/**
+ * The RestPutCellRequest model constructor.
+ * @property {module:model/RestPutCellRequest}
+ */
+RestPutCellRequest = _modelRestPutCellRequest2['default'];
+exports.
+
+/**
+ * The RestPutShareLinkRequest model constructor.
+ * @property {module:model/RestPutShareLinkRequest}
+ */
+RestPutShareLinkRequest = _modelRestPutShareLinkRequest2['default'];
+exports.
+
+/**
+ * The RestRelationResponse model constructor.
+ * @property {module:model/RestRelationResponse}
+ */
+RestRelationResponse = _modelRestRelationResponse2['default'];
+exports.
+
+/**
+ * The RestResetPasswordRequest model constructor.
+ * @property {module:model/RestResetPasswordRequest}
+ */
+RestResetPasswordRequest = _modelRestResetPasswordRequest2['default'];
+exports.
+
+/**
+ * The RestResetPasswordResponse model constructor.
+ * @property {module:model/RestResetPasswordResponse}
+ */
+RestResetPasswordResponse = _modelRestResetPasswordResponse2['default'];
+exports.
+
+/**
+ * The RestResetPasswordTokenResponse model constructor.
+ * @property {module:model/RestResetPasswordTokenResponse}
+ */
+RestResetPasswordTokenResponse = _modelRestResetPasswordTokenResponse2['default'];
+exports.
+
+/**
+ * The RestResourcePolicyQuery model constructor.
+ * @property {module:model/RestResourcePolicyQuery}
+ */
+RestResourcePolicyQuery = _modelRestResourcePolicyQuery2['default'];
+exports.
+
+/**
+ * The RestRevokeRequest model constructor.
+ * @property {module:model/RestRevokeRequest}
+ */
+RestRevokeRequest = _modelRestRevokeRequest2['default'];
+exports.
+
+/**
+ * The RestRevokeResponse model constructor.
+ * @property {module:model/RestRevokeResponse}
+ */
+RestRevokeResponse = _modelRestRevokeResponse2['default'];
+exports.
+
+/**
+ * The RestRolesCollection model constructor.
+ * @property {module:model/RestRolesCollection}
+ */
+RestRolesCollection = _modelRestRolesCollection2['default'];
+exports.
+
+/**
+ * The RestSearchACLRequest model constructor.
+ * @property {module:model/RestSearchACLRequest}
+ */
+RestSearchACLRequest = _modelRestSearchACLRequest2['default'];
+exports.
+
+/**
+ * The RestSearchResults model constructor.
+ * @property {module:model/RestSearchResults}
+ */
+RestSearchResults = _modelRestSearchResults2['default'];
+exports.
+
+/**
+ * The RestSearchRoleRequest model constructor.
+ * @property {module:model/RestSearchRoleRequest}
+ */
+RestSearchRoleRequest = _modelRestSearchRoleRequest2['default'];
+exports.
+
+/**
+ * The RestSearchUserRequest model constructor.
+ * @property {module:model/RestSearchUserRequest}
+ */
+RestSearchUserRequest = _modelRestSearchUserRequest2['default'];
+exports.
+
+/**
+ * The RestSearchWorkspaceRequest model constructor.
+ * @property {module:model/RestSearchWorkspaceRequest}
+ */
+RestSearchWorkspaceRequest = _modelRestSearchWorkspaceRequest2['default'];
+exports.
+
+/**
+ * The RestServiceCollection model constructor.
+ * @property {module:model/RestServiceCollection}
+ */
+RestServiceCollection = _modelRestServiceCollection2['default'];
+exports.
+
+/**
+ * The RestSettingsEntry model constructor.
+ * @property {module:model/RestSettingsEntry}
+ */
+RestSettingsEntry = _modelRestSettingsEntry2['default'];
+exports.
+
+/**
+ * The RestSettingsEntryMeta model constructor.
+ * @property {module:model/RestSettingsEntryMeta}
+ */
+RestSettingsEntryMeta = _modelRestSettingsEntryMeta2['default'];
+exports.
+
+/**
+ * The RestSettingsMenuResponse model constructor.
+ * @property {module:model/RestSettingsMenuResponse}
+ */
+RestSettingsMenuResponse = _modelRestSettingsMenuResponse2['default'];
+exports.
+
+/**
+ * The RestSettingsSection model constructor.
+ * @property {module:model/RestSettingsSection}
+ */
+RestSettingsSection = _modelRestSettingsSection2['default'];
+exports.
+
+/**
+ * The RestShareLink model constructor.
+ * @property {module:model/RestShareLink}
+ */
+RestShareLink = _modelRestShareLink2['default'];
+exports.
+
+/**
+ * The RestShareLinkAccessType model constructor.
+ * @property {module:model/RestShareLinkAccessType}
+ */
+RestShareLinkAccessType = _modelRestShareLinkAccessType2['default'];
+exports.
+
+/**
+ * The RestShareLinkTargetUser model constructor.
+ * @property {module:model/RestShareLinkTargetUser}
+ */
+RestShareLinkTargetUser = _modelRestShareLinkTargetUser2['default'];
+exports.
+
+/**
+ * The RestSubscriptionsCollection model constructor.
+ * @property {module:model/RestSubscriptionsCollection}
+ */
+RestSubscriptionsCollection = _modelRestSubscriptionsCollection2['default'];
+exports.
+
+/**
+ * The RestTimeRangeResultCollection model constructor.
+ * @property {module:model/RestTimeRangeResultCollection}
+ */
+RestTimeRangeResultCollection = _modelRestTimeRangeResultCollection2['default'];
+exports.
+
+/**
+ * The RestUserBookmarksRequest model constructor.
+ * @property {module:model/RestUserBookmarksRequest}
+ */
+RestUserBookmarksRequest = _modelRestUserBookmarksRequest2['default'];
+exports.
+
+/**
+ * The RestUserJobRequest model constructor.
+ * @property {module:model/RestUserJobRequest}
+ */
+RestUserJobRequest = _modelRestUserJobRequest2['default'];
+exports.
+
+/**
+ * The RestUserJobResponse model constructor.
+ * @property {module:model/RestUserJobResponse}
+ */
+RestUserJobResponse = _modelRestUserJobResponse2['default'];
+exports.
+
+/**
+ * The RestUserJobsCollection model constructor.
+ * @property {module:model/RestUserJobsCollection}
+ */
+RestUserJobsCollection = _modelRestUserJobsCollection2['default'];
+exports.
+
+/**
+ * The RestUserMetaCollection model constructor.
+ * @property {module:model/RestUserMetaCollection}
+ */
+RestUserMetaCollection = _modelRestUserMetaCollection2['default'];
+exports.
+
+/**
+ * The RestUserMetaNamespaceCollection model constructor.
+ * @property {module:model/RestUserMetaNamespaceCollection}
+ */
+RestUserMetaNamespaceCollection = _modelRestUserMetaNamespaceCollection2['default'];
+exports.
+
+/**
+ * The RestUserStateResponse model constructor.
+ * @property {module:model/RestUserStateResponse}
+ */
+RestUserStateResponse = _modelRestUserStateResponse2['default'];
+exports.
+
+/**
+ * The RestUsersCollection model constructor.
+ * @property {module:model/RestUsersCollection}
+ */
+RestUsersCollection = _modelRestUsersCollection2['default'];
+exports.
+
+/**
+ * The RestVersioningPolicyCollection model constructor.
+ * @property {module:model/RestVersioningPolicyCollection}
+ */
+RestVersioningPolicyCollection = _modelRestVersioningPolicyCollection2['default'];
+exports.
+
+/**
+ * The RestWorkspaceCollection model constructor.
+ * @property {module:model/RestWorkspaceCollection}
+ */
+RestWorkspaceCollection = _modelRestWorkspaceCollection2['default'];
+exports.
+
+/**
+ * The ServiceOperationType model constructor.
+ * @property {module:model/ServiceOperationType}
+ */
+ServiceOperationType = _modelServiceOperationType2['default'];
+exports.
+
+/**
+ * The ServiceQuery model constructor.
+ * @property {module:model/ServiceQuery}
+ */
+ServiceQuery = _modelServiceQuery2['default'];
+exports.
+
+/**
+ * The ServiceResourcePolicy model constructor.
+ * @property {module:model/ServiceResourcePolicy}
+ */
+ServiceResourcePolicy = _modelServiceResourcePolicy2['default'];
+exports.
+
+/**
+ * The ServiceResourcePolicyAction model constructor.
+ * @property {module:model/ServiceResourcePolicyAction}
+ */
+ServiceResourcePolicyAction = _modelServiceResourcePolicyAction2['default'];
+exports.
+
+/**
+ * The ServiceResourcePolicyPolicyEffect model constructor.
+ * @property {module:model/ServiceResourcePolicyPolicyEffect}
+ */
+ServiceResourcePolicyPolicyEffect = _modelServiceResourcePolicyPolicyEffect2['default'];
+exports.
+
+/**
+ * The ServiceResourcePolicyQuery model constructor.
+ * @property {module:model/ServiceResourcePolicyQuery}
+ */
+ServiceResourcePolicyQuery = _modelServiceResourcePolicyQuery2['default'];
+exports.
+
+/**
+ * The TreeChangeLog model constructor.
+ * @property {module:model/TreeChangeLog}
+ */
+TreeChangeLog = _modelTreeChangeLog2['default'];
+exports.
+
+/**
+ * The TreeGeoPoint model constructor.
+ * @property {module:model/TreeGeoPoint}
+ */
+TreeGeoPoint = _modelTreeGeoPoint2['default'];
+exports.
+
+/**
+ * The TreeGeoQuery model constructor.
+ * @property {module:model/TreeGeoQuery}
+ */
+TreeGeoQuery = _modelTreeGeoQuery2['default'];
+exports.
+
+/**
+ * The TreeListNodesRequest model constructor.
+ * @property {module:model/TreeListNodesRequest}
+ */
+TreeListNodesRequest = _modelTreeListNodesRequest2['default'];
+exports.
+
+/**
+ * The TreeNode model constructor.
+ * @property {module:model/TreeNode}
+ */
+TreeNode = _modelTreeNode2['default'];
+exports.
+
+/**
+ * The TreeNodeChangeEvent model constructor.
+ * @property {module:model/TreeNodeChangeEvent}
+ */
+TreeNodeChangeEvent = _modelTreeNodeChangeEvent2['default'];
+exports.
+
+/**
+ * The TreeNodeType model constructor.
+ * @property {module:model/TreeNodeType}
+ */
+TreeNodeType = _modelTreeNodeType2['default'];
+exports.
+
+/**
+ * The TreeQuery model constructor.
+ * @property {module:model/TreeQuery}
+ */
+TreeQuery = _modelTreeQuery2['default'];
+exports.
+
+/**
+ * The TreeReadNodeRequest model constructor.
+ * @property {module:model/TreeReadNodeRequest}
+ */
+TreeReadNodeRequest = _modelTreeReadNodeRequest2['default'];
+exports.
+
+/**
+ * The TreeReadNodeResponse model constructor.
+ * @property {module:model/TreeReadNodeResponse}
+ */
+TreeReadNodeResponse = _modelTreeReadNodeResponse2['default'];
+exports.
+
+/**
+ * The TreeSearchRequest model constructor.
+ * @property {module:model/TreeSearchRequest}
+ */
+TreeSearchRequest = _modelTreeSearchRequest2['default'];
+exports.
+
+/**
+ * The TreeSyncChange model constructor.
+ * @property {module:model/TreeSyncChange}
+ */
+TreeSyncChange = _modelTreeSyncChange2['default'];
+exports.
+
+/**
+ * The TreeSyncChangeNode model constructor.
+ * @property {module:model/TreeSyncChangeNode}
+ */
+TreeSyncChangeNode = _modelTreeSyncChangeNode2['default'];
+exports.
+
+/**
+ * The TreeSyncChangeType model constructor.
+ * @property {module:model/TreeSyncChangeType}
+ */
+TreeSyncChangeType = _modelTreeSyncChangeType2['default'];
+exports.
+
+/**
+ * The TreeVersioningKeepPeriod model constructor.
+ * @property {module:model/TreeVersioningKeepPeriod}
+ */
+TreeVersioningKeepPeriod = _modelTreeVersioningKeepPeriod2['default'];
+exports.
+
+/**
+ * The TreeVersioningPolicy model constructor.
+ * @property {module:model/TreeVersioningPolicy}
+ */
+TreeVersioningPolicy = _modelTreeVersioningPolicy2['default'];
+exports.
+
+/**
+ * The TreeWorkspaceRelativePath model constructor.
+ * @property {module:model/TreeWorkspaceRelativePath}
+ */
+TreeWorkspaceRelativePath = _modelTreeWorkspaceRelativePath2['default'];
+exports.
+
+/**
+ * The UpdateApplyUpdateResponse model constructor.
+ * @property {module:model/UpdateApplyUpdateResponse}
+ */
+UpdateApplyUpdateResponse = _modelUpdateApplyUpdateResponse2['default'];
+exports.
+
+/**
+ * The UpdatePackage model constructor.
+ * @property {module:model/UpdatePackage}
+ */
+UpdatePackage = _modelUpdatePackage2['default'];
+exports.
+
+/**
+ * The UpdateUpdateResponse model constructor.
+ * @property {module:model/UpdateUpdateResponse}
+ */
+UpdateUpdateResponse = _modelUpdateUpdateResponse2['default'];
+exports.
+
+/**
+ * The UpdateUserMetaNamespaceRequestUserMetaNsOp model constructor.
+ * @property {module:model/UpdateUserMetaNamespaceRequestUserMetaNsOp}
+ */
+UpdateUserMetaNamespaceRequestUserMetaNsOp = _modelUpdateUserMetaNamespaceRequestUserMetaNsOp2['default'];
+exports.
+
+/**
+ * The UpdateUserMetaRequestUserMetaOp model constructor.
+ * @property {module:model/UpdateUserMetaRequestUserMetaOp}
+ */
+UpdateUserMetaRequestUserMetaOp = _modelUpdateUserMetaRequestUserMetaOp2['default'];
+exports.
+
+/**
+* The ACLServiceApi service constructor.
+* @property {module:api/ACLServiceApi}
+*/
+ACLServiceApi = _apiACLServiceApi2['default'];
+exports.
+
+/**
+* The ActivityServiceApi service constructor.
+* @property {module:api/ActivityServiceApi}
+*/
+ActivityServiceApi = _apiActivityServiceApi2['default'];
+exports.
+
+/**
+* The AdminTreeServiceApi service constructor.
+* @property {module:api/AdminTreeServiceApi}
+*/
+AdminTreeServiceApi = _apiAdminTreeServiceApi2['default'];
+exports.
+
+/**
+* The ChangeServiceApi service constructor.
+* @property {module:api/ChangeServiceApi}
+*/
+ChangeServiceApi = _apiChangeServiceApi2['default'];
+exports.
+
+/**
+* The ConfigServiceApi service constructor.
+* @property {module:api/ConfigServiceApi}
+*/
+ConfigServiceApi = _apiConfigServiceApi2['default'];
+exports.
+
+/**
+* The DocStoreServiceApi service constructor.
+* @property {module:api/DocStoreServiceApi}
+*/
+DocStoreServiceApi = _apiDocStoreServiceApi2['default'];
+exports.
+
+/**
+* The EnterpriseConfigServiceApi service constructor.
+* @property {module:api/EnterpriseConfigServiceApi}
+*/
+EnterpriseConfigServiceApi = _apiEnterpriseConfigServiceApi2['default'];
+exports.
+
+/**
+* The EnterpriseLogServiceApi service constructor.
+* @property {module:api/EnterpriseLogServiceApi}
+*/
+EnterpriseLogServiceApi = _apiEnterpriseLogServiceApi2['default'];
+exports.
+
+/**
+* The EnterprisePolicyServiceApi service constructor.
+* @property {module:api/EnterprisePolicyServiceApi}
+*/
+EnterprisePolicyServiceApi = _apiEnterprisePolicyServiceApi2['default'];
+exports.
+
+/**
+* The FrontendServiceApi service constructor.
+* @property {module:api/FrontendServiceApi}
+*/
+FrontendServiceApi = _apiFrontendServiceApi2['default'];
+exports.
+
+/**
+* The GraphServiceApi service constructor.
+* @property {module:api/GraphServiceApi}
+*/
+GraphServiceApi = _apiGraphServiceApi2['default'];
+exports.
+
+/**
+* The InstallServiceApi service constructor.
+* @property {module:api/InstallServiceApi}
+*/
+InstallServiceApi = _apiInstallServiceApi2['default'];
+exports.
+
+/**
+* The JobsServiceApi service constructor.
+* @property {module:api/JobsServiceApi}
+*/
+JobsServiceApi = _apiJobsServiceApi2['default'];
+exports.
+
+/**
+* The LicenseServiceApi service constructor.
+* @property {module:api/LicenseServiceApi}
+*/
+LicenseServiceApi = _apiLicenseServiceApi2['default'];
+exports.
+
+/**
+* The LogServiceApi service constructor.
+* @property {module:api/LogServiceApi}
+*/
+LogServiceApi = _apiLogServiceApi2['default'];
+exports.
+
+/**
+* The MailerServiceApi service constructor.
+* @property {module:api/MailerServiceApi}
+*/
+MailerServiceApi = _apiMailerServiceApi2['default'];
+exports.
+
+/**
+* The MetaServiceApi service constructor.
+* @property {module:api/MetaServiceApi}
+*/
+MetaServiceApi = _apiMetaServiceApi2['default'];
+exports.
+
+/**
+* The PolicyServiceApi service constructor.
+* @property {module:api/PolicyServiceApi}
+*/
+PolicyServiceApi = _apiPolicyServiceApi2['default'];
+exports.
+
+/**
+* The RoleServiceApi service constructor.
+* @property {module:api/RoleServiceApi}
+*/
+RoleServiceApi = _apiRoleServiceApi2['default'];
+exports.
+
+/**
+* The SearchServiceApi service constructor.
+* @property {module:api/SearchServiceApi}
+*/
+SearchServiceApi = _apiSearchServiceApi2['default'];
+exports.
+
+/**
+* The ShareServiceApi service constructor.
+* @property {module:api/ShareServiceApi}
+*/
+ShareServiceApi = _apiShareServiceApi2['default'];
+exports.
+
+/**
+* The TokenServiceApi service constructor.
+* @property {module:api/TokenServiceApi}
+*/
+TokenServiceApi = _apiTokenServiceApi2['default'];
+exports.
+
+/**
+* The UpdateServiceApi service constructor.
+* @property {module:api/UpdateServiceApi}
+*/
+UpdateServiceApi = _apiUpdateServiceApi2['default'];
+exports.
+
+/**
+* The UserMetaServiceApi service constructor.
+* @property {module:api/UserMetaServiceApi}
+*/
+UserMetaServiceApi = _apiUserMetaServiceApi2['default'];
+exports.
+
+/**
+* The UserServiceApi service constructor.
+* @property {module:api/UserServiceApi}
+*/
+UserServiceApi = _apiUserServiceApi2['default'];
+exports.
+
+/**
+* The WorkspaceServiceApi service constructor.
+* @property {module:api/WorkspaceServiceApi}
+*/
+WorkspaceServiceApi = _apiWorkspaceServiceApi2['default'];

@@ -3,7 +3,7 @@ syntax = "proto3";
 package install;
 
 message InstallConfig {
-    string internalUrl = 30;
+    string internalUrl = 32;
 
     string dbConnectionType = 1;
     string dbTCPHostname = 2;
@@ -23,17 +23,19 @@ message InstallConfig {
     string externalGateway = 16;
     string externalWebsocket = 17;
     string externalFrontPlugins = 18;
-    string externalDex = 19;
-    string externalDexID = 20;
-    string externalDexSecret = 21;
-    string frontendHosts = 22;
-    string frontendLogin = 23;
-    string frontendPassword = 24;
-    string frontendRepeatPassword = 25;
-    string fpmAddress = 26;
-    bool   licenseRequired = 27;
-    string licenseString = 28;
-    repeated CheckResult CheckResults = 29;
+    string externalDAV = 19;
+    string externalWOPI = 20;
+    string externalDex = 21;
+    string externalDexID = 22;
+    string externalDexSecret = 23;
+    string frontendHosts = 24;
+    string frontendLogin = 25;
+    string frontendPassword = 26;
+    string frontendRepeatPassword = 27;
+    string fpmAddress = 28;
+    bool   licenseRequired = 29;
+    string licenseString = 30;
+    repeated CheckResult CheckResults = 31;
 }
 
 message CheckResult{
