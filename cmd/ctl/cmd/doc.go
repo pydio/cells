@@ -21,9 +21,11 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/cobra/doc"
 )
 
 var docPath string
@@ -41,23 +43,21 @@ Provide a target folder where to put the generated files.
 			log.Fatal("Cannot get path flag")
 		} else {
 
-			log.Fatal("Broken command, should be fixed in a next future")
+			// log.Fatal("Broken command, should be fixed in a next future")
 
-			// // Sphinx cross-referencing format
-			// linkHandler := func(name, ref string) string {
-			// 	return fmt.Sprintf(":ref:`%s <%s>`", name, ref)
-			// }
+			// Sphinx cross-referencing format
+			linkHandler := func(name, ref string) string {
+				return fmt.Sprintf(":ref:`%s <%s>`", name, ref)
+			}
 
-			// filePrepender := func(filename string) string {
-			// 	return ""
-			// }
+			filePrepender := func(filename string) string {
+				return ""
+			}
 
-			// FIXME: The line below raises following error
-			// cannot use RootCmd (type *"github.com/pydio/cells/vendor/github.com/spf13/cobra".Command) as type *"github.com/spf13/cobra".Command in argument to doc.GenReSTTreeCustom
-			// err := doc.GenReSTTreeCustom(RootCmd, docPath, filePrepender, linkHandler)
-			// if err != nil {
-			// 	log.Fatal(err)
-			// }
+			err := doc.GenReSTTreeCustom(RootCmd, docPath, filePrepender, linkHandler)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 
 	},
