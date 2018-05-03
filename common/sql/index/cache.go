@@ -23,6 +23,7 @@ package index
 import (
 	"crypto/md5"
 	"database/sql"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -54,15 +55,20 @@ type daocache struct {
 	mutex *sync.RWMutex
 
 	insertChan chan *utils.TreeNode
+	insertDone chan bool
+
+	errors []error
 
 	current string
 }
 
 type DAOWrapper func(d DAO) DAO
 
+// NewDAOCache wraps a cache around the dao
 func NewDAOCache(session string, d DAO) DAO {
 
 	ic, err := d.AddNodeStream(100)
+	id := make(chan bool, 1)
 
 	c := &daocache{
 		DAO:        d,
@@ -71,6 +77,7 @@ func NewDAOCache(session string, d DAO) DAO {
 		nameCache:  make(map[string][]*utils.TreeNode),
 		mutex:      &sync.RWMutex{},
 		insertChan: ic,
+		insertDone: id,
 	}
 
 	cacheMutex.Lock()
@@ -93,14 +100,16 @@ func NewDAOCache(session string, d DAO) DAO {
 	}
 
 	go func() {
+		defer close(c.insertDone)
 		for e := range err {
-			fmt.Println(e)
+			c.errors = append(c.errors, e)
 		}
 	}()
 
 	return c
 }
 
+// GetDAOCache returns the cache based on the session name
 func GetDAOCache(session string) DAO {
 	cacheMutex.Lock()
 	defer cacheMutex.Unlock()
@@ -112,43 +121,62 @@ func GetDAOCache(session string) DAO {
 	return nil
 }
 
-// standard DAO
+// Init the dao cache
 func (d *daocache) Init(m config.Map) error {
 	return d.DAO.(dao.DAO).Init(m)
 }
+
+// GetConn returns the connection of the underlying dao
 func (d *daocache) GetConn() dao.Conn {
 	return d.DAO.(dao.DAO).GetConn()
 }
+
+// GetConn sets the connection of the underlying dao
 func (d *daocache) SetConn(conn dao.Conn) {
 	d.DAO.(dao.DAO).SetConn(conn)
 }
+
+// GetConn sets a prefix for tables and statements in the dao
 func (d *daocache) Prefix() string {
 	return d.DAO.(dao.DAO).Prefix()
 }
+
+// Driver defines the type of driver used by the dao
 func (d *daocache) Driver() string {
 	return d.DAO.(dao.DAO).Driver()
 }
 
-// SQL DAO
+// DB object
 func (d *daocache) DB() *sql.DB {
 	return d.DAO.(commonsql.DAO).DB()
 }
+
+// Prepare a SQL statement
 func (d *daocache) Prepare(name string, args interface{}) error {
 	return d.DAO.(commonsql.DAO).Prepare(name, args)
 }
+
+// GetStmt returns a statement that had been already prepared
 func (d *daocache) GetStmt(name string, args ...interface{}) *sql.Stmt {
 	return d.DAO.(commonsql.DAO).GetStmt(name, args...)
 }
+
+// UseExclusion defines if the DAO uses mutexes or not
 func (d *daocache) UseExclusion() {
 	d.DAO.(commonsql.DAO).UseExclusion()
 }
+
+// Lock the mutex of DAO requests
 func (d *daocache) Lock() {
 	d.DAO.(commonsql.DAO).Lock()
 }
+
+// Unlock the mutex of DAO requests
 func (d *daocache) Unlock() {
 	d.DAO.(commonsql.DAO).Unlock()
 }
 
+// Path resolution for a node
 func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (utils.MPath, []*utils.TreeNode, error) {
 
 	if len(strpath) == 0 || strpath == "/" {
@@ -208,13 +236,34 @@ func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (uti
 	}
 }
 
+// Flush
 func (d *daocache) Flush() error {
 	close(d.insertChan)
+
+	// Waiting for the insertion to be fully done
+	<-d.insertDone
+
+	err := d.errors
+
+	l := len(err)
+
+	if l == 1 {
+		return err[0]
+	}
+
+	if l > 0 {
+		f := make([]string, l)
+		for i, e := range err {
+			f[i] = e.Error()
+		}
+
+		return errors.New("Combined errors : " + strings.Join(f, " "))
+	}
 
 	return nil
 }
 
-// Simple Add / Set / Delete
+// AddNode to the cache and prepares it to be added to the database
 func (d *daocache) AddNode(node *utils.TreeNode) error {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
