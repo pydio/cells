@@ -397,11 +397,12 @@ func (dao *IndexSQL) AddNode(node *utils.TreeNode) error {
 func (dao *IndexSQL) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
 
 	c := make(chan *utils.TreeNode)
-	e := make(chan error, 1)
+	e := make(chan error)
 
 	go func() {
 
 		defer close(e)
+		// defer close(b)
 
 		insert := func(num int, valsInsertNodes []interface{}, valsInsertTree []interface{}) error {
 			dao.Lock()
@@ -490,7 +491,6 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
 				e <- err
 			}
 		}
-
 	}()
 
 	return c, e
