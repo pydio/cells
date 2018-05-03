@@ -1,11 +1,11 @@
 # Pydio LOG
 
-Pydio relies on [zap](https://github.com/uber-go/zap) as a logging framework.
+Pydio relies on [zap](https://github.com/uber-go/zap) logging framework.
 
 We mainly use 2 loggers that are defined in this package and used throughout the backend:
 
 - A syslog logger: it should be used to log technical information.
-- An audit logger: it only logs some very precise information at strategic places and is used to monitor the Application from a business point of view. Audit logs are among others used  for GRDP compliance.
+- An audit logger: it only logs some very precise information at strategic places and is used to monitor the Application from a business point of view. Audit logs are among others used for GRDP compliance.
 
 WARNING: you should not modify nor remove any of the audit log.
 
@@ -17,4 +17,4 @@ WARNING: you should not modify nor remove any of the audit log.
 
 ## Conventions
 
-- it is idiomatic in Go to write error message that start with a lower case letter and ends with no points.
+- it is idiomatic in Go to write error message that start with a lower case letter and do not end with a punctuation mark.
