@@ -85,19 +85,7 @@ func NewDAOCache(session string, d DAO) DAO {
 
 	cache[session] = c
 
-	for node := range d.GetNodeTree(utils.NewMPath(1)) {
-		c.mutex.Lock()
-		mpath := node.MPath.String()
-		pmpath := node.MPath.Parent().String()
-
-		c.cache[mpath] = node
-		c.childCache[pmpath] = append(c.childCache[pmpath], node)
-
-		name := node.Name()
-		c.nameCache[name] = append(c.nameCache[name], node)
-
-		c.mutex.Unlock()
-	}
+	c.resync()
 
 	go func() {
 		defer close(c.insertDone)
@@ -119,6 +107,22 @@ func GetDAOCache(session string) DAO {
 	}
 
 	return nil
+}
+
+func (d *daocache) resync() {
+	for node := range d.DAO.GetNodeTree(utils.NewMPath(1)) {
+		d.mutex.Lock()
+		mpath := node.MPath.String()
+		pmpath := node.MPath.Parent().String()
+
+		d.cache[mpath] = node
+		d.childCache[pmpath] = append(d.childCache[pmpath], node)
+
+		name := node.Name()
+		d.nameCache[name] = append(d.nameCache[name], node)
+
+		d.mutex.Unlock()
+	}
 }
 
 // Init the dao cache
@@ -261,6 +265,21 @@ func (d *daocache) Flush() error {
 	}
 
 	return nil
+}
+
+// AddNodeStream should not be used directly with the cache
+func (d *daocache) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
+	c := make(chan *utils.TreeNode)
+	e := make(chan error)
+
+	go func() {
+		defer close(e)
+		for _ = range c {
+			e <- errors.New("AddNodeStream should not be used directly when using the cache")
+		}
+	}()
+
+	return c, e
 }
 
 // AddNode to the cache and prepares it to be added to the database
@@ -519,7 +538,11 @@ func (d *daocache) ListCommits(node *utils.TreeNode) ([]*tree.ChangeLog, error) 
 	return d.DAO.ListCommits(node)
 }
 func (d *daocache) ResyncDirtyEtags(rootNode *utils.TreeNode) error {
-	return d.DAO.ResyncDirtyEtags(rootNode)
+	err := d.DAO.ResyncDirtyEtags(rootNode)
+
+	d.resync()
+
+	return err
 }
 func (d *daocache) CleanResourcesOnDeletion() (error, string) {
 	return d.DAO.CleanResourcesOnDeletion()

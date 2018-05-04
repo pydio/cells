@@ -63,6 +63,7 @@ type DAO interface {
 	CleanResourcesOnDeletion() (error, string)
 }
 
+// NewDAO for the common sql index
 func NewDAO(o dao.DAO, rootNodeId string) dao.DAO {
 	switch v := o.(type) {
 	case sql.DAO:

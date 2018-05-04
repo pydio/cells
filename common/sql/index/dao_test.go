@@ -32,7 +32,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/sql"
@@ -40,45 +39,10 @@ import (
 )
 
 var (
-	ctx     context.Context
-	options config.Map
-
-	mockNode *utils.TreeNode
-
-	mockLongNodeMPath       utils.MPath
-	mockLongNodeChild1MPath utils.MPath
-	mockLongNodeChild2MPath utils.MPath
-
-	mockLongNode       *utils.TreeNode
-	mockLongNodeChild1 *utils.TreeNode
-	mockLongNodeChild2 *utils.TreeNode
+	ctxNoCache context.Context
 )
 
 func init() {
-	mockLongNodeMPath = []uint64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40}
-	mockLongNodeChild1MPath = append(mockLongNodeMPath, 41)
-	mockLongNodeChild2MPath = append(mockLongNodeMPath, 42)
-
-	mockNode = NewNode(&tree.Node{
-		Uuid: "ROOT",
-		Type: tree.NodeType_LEAF,
-	}, []uint64{1}, []string{""})
-
-	mockLongNode = NewNode(&tree.Node{
-		Uuid: "mockLongNode",
-		Type: tree.NodeType_LEAF,
-	}, mockLongNodeMPath, []string{"mockLongNode"})
-
-	mockLongNodeChild1 = NewNode(&tree.Node{
-		Uuid: "mockLongNodeChild1",
-		Type: tree.NodeType_LEAF,
-	}, mockLongNodeChild1MPath, []string{"mockLongNodeChild1"})
-
-	mockLongNodeChild2 = NewNode(&tree.Node{
-		Uuid: "mockLongNodeChild2",
-		Type: tree.NodeType_LEAF,
-	}, mockLongNodeChild2MPath, []string{"mockLongNodeChild2"})
-
 	// Running first without a cache
 	sqlDAO := sql.NewDAO("sqlite3", "file::memnocache:?mode=memory&cache=shared", "test")
 	if sqlDAO == nil {
@@ -92,60 +56,14 @@ func init() {
 		return
 	}
 
-	ctx = servicecontext.WithDAO(context.Background(), d)
-
-}
-
-func getSQLDAO(ctx context.Context) sql.DAO {
-	return servicecontext.GetDAO(ctx).(sql.DAO)
-}
-
-func getDAO(ctx context.Context) DAO {
-	return servicecontext.GetDAO(ctx).(DAO)
-}
-
-func printTree() {
-	// query
-
-	rows, _ := getSQLDAO(ctx).GetStmt("printTree").Query()
-
-	var uuid, mpath string
-	var level int
-	var rat []byte
-
-	for rows.Next() {
-		err := rows.Scan(&uuid, &level, &mpath, &rat)
-		if err != nil {
-			return
-		}
-
-		fmt.Println(uuid, level, mpath, rat)
-	}
-}
-
-func printNodes() {
-	// query
-	rows, _ := getSQLDAO(ctx).GetStmt("printNodes").Query()
-
-	var uuid, name, etag, mode string
-	var mtime, size int
-	var leaf *bool
-
-	for rows.Next() {
-		err := rows.Scan(&uuid, &name, &leaf, &mtime, &etag, &size, &mode)
-		if err != nil {
-			return
-		}
-
-		fmt.Println(uuid, name, leaf, mtime, etag, size, mode)
-	}
+	ctxNoCache = servicecontext.WithDAO(context.Background(), d)
 }
 
 func TestMysql(t *testing.T) {
 
 	// Adding a file
 	Convey("Test adding a file - Success", t, func() {
-		err := getDAO(ctx).AddNode(mockNode)
+		err := getDAO(ctxNoCache).AddNode(mockNode)
 		So(err, ShouldBeNil)
 
 		// printTree()
@@ -159,20 +77,20 @@ func TestMysql(t *testing.T) {
 			Type: tree.NodeType_LEAF,
 		}, []uint64{2}, []string{""})
 
-		err := getDAO(ctx).SetNode(newNode)
+		err := getDAO(ctxNoCache).SetNode(newNode)
 		So(err, ShouldBeNil)
 
 		// printTree()
 		// printNodes()
 
-		err = getDAO(ctx).SetNode(mockNode)
+		err = getDAO(ctxNoCache).SetNode(mockNode)
 		So(err, ShouldBeNil)
 	})
 
 	// Delete a file
 	// TODO - needs to be deleted by UUID
 	Convey("Test deleting a file - Success", t, func() {
-		err := getDAO(ctx).DelNode(mockNode)
+		err := getDAO(ctxNoCache).DelNode(mockNode)
 		So(err, ShouldBeNil)
 
 		// printTree()
@@ -180,7 +98,7 @@ func TestMysql(t *testing.T) {
 	})
 
 	Convey("Re-adding a file - Success", t, func() {
-		err := getDAO(ctx).AddNode(mockNode)
+		err := getDAO(ctxNoCache).AddNode(mockNode)
 		So(err, ShouldBeNil)
 
 		//printTree()
@@ -188,7 +106,7 @@ func TestMysql(t *testing.T) {
 	})
 
 	Convey("Re-adding the same file - Failure", t, func() {
-		err := getDAO(ctx).AddNode(mockNode)
+		err := getDAO(ctxNoCache).AddNode(mockNode)
 		So(err, ShouldNotBeNil)
 
 		// printTree()
@@ -197,7 +115,7 @@ func TestMysql(t *testing.T) {
 
 	Convey("Test Getting a file - Success", t, func() {
 
-		node, err := getDAO(ctx).GetNode([]uint64{1})
+		node, err := getDAO(ctxNoCache).GetNode([]uint64{1})
 		So(err, ShouldBeNil)
 
 		// Setting MTime to 0 so we can compare
@@ -209,19 +127,19 @@ func TestMysql(t *testing.T) {
 	// Setting a file
 	Convey("Test setting a file with a massive path - Success", t, func() {
 
-		err := getDAO(ctx).AddNode(mockLongNode)
+		err := getDAO(ctxNoCache).AddNode(mockLongNode)
 		So(err, ShouldBeNil)
 
-		err = getDAO(ctx).AddNode(mockLongNodeChild1)
+		err = getDAO(ctxNoCache).AddNode(mockLongNodeChild1)
 		So(err, ShouldBeNil)
 
-		err = getDAO(ctx).AddNode(mockLongNodeChild2)
+		err = getDAO(ctxNoCache).AddNode(mockLongNodeChild2)
 		So(err, ShouldBeNil)
 
 		//printTree()
 		//printNodes()
 
-		node, err := getDAO(ctx).GetNode(mockLongNodeChild2MPath)
+		node, err := getDAO(ctxNoCache).GetNode(mockLongNodeChild2MPath)
 		So(err, ShouldBeNil)
 
 		// TODO - find a way
@@ -232,7 +150,7 @@ func TestMysql(t *testing.T) {
 	})
 
 	Convey("Test Getting a node by uuid - Success", t, func() {
-		node, err := getDAO(ctx).GetNodeByUUID("mockLongNode")
+		node, err := getDAO(ctxNoCache).GetNodeByUUID("mockLongNode")
 		So(err, ShouldBeNil)
 
 		// Setting MTime to 0 so we can compare
@@ -245,7 +163,7 @@ func TestMysql(t *testing.T) {
 	// Getting a file
 	Convey("Test Getting a child node", t, func() {
 
-		node, err := getDAO(ctx).GetNodeChild(mockLongNodeMPath, "mockLongNodeChild1")
+		node, err := getDAO(ctxNoCache).GetNodeChild(mockLongNodeMPath, "mockLongNodeChild1")
 
 		So(err, ShouldBeNil)
 
@@ -260,7 +178,7 @@ func TestMysql(t *testing.T) {
 	// Setting a file
 	Convey("Test Getting the last child of a node", t, func() {
 
-		node, err := getDAO(ctx).GetNodeLastChild(mockLongNodeMPath)
+		node, err := getDAO(ctxNoCache).GetNodeLastChild(mockLongNodeMPath)
 
 		So(err, ShouldBeNil)
 
@@ -276,7 +194,7 @@ func TestMysql(t *testing.T) {
 	Convey("Test Getting the Children of a node", t, func() {
 
 		var i int
-		for _ = range getDAO(ctx).GetNodeChildren(mockLongNodeMPath) {
+		for _ = range getDAO(ctxNoCache).GetNodeChildren(mockLongNodeMPath) {
 			i++
 		}
 
@@ -287,7 +205,7 @@ func TestMysql(t *testing.T) {
 	Convey("Test Getting the Children of a node", t, func() {
 
 		var i int
-		for _ = range getDAO(ctx).GetNodeTree([]uint64{1}) {
+		for _ = range getDAO(ctxNoCache).GetNodeTree([]uint64{1}) {
 			i++
 		}
 
@@ -298,7 +216,7 @@ func TestMysql(t *testing.T) {
 	Convey("Test Getting Nodes by MPath", t, func() {
 
 		var i int
-		for _ = range getDAO(ctx).GetNodes(mockLongNodeChild1MPath, mockLongNodeChild2MPath) {
+		for _ = range getDAO(ctxNoCache).GetNodes(mockLongNodeChild1MPath, mockLongNodeChild2MPath) {
 			i++
 		}
 
@@ -307,7 +225,7 @@ func TestMysql(t *testing.T) {
 
 	// Setting a file
 	Convey("Setting multiple nodes at once", t, func() {
-		b := getDAO(ctx).SetNodes("test", 10)
+		b := getDAO(ctxNoCache).SetNodes("test", 10)
 
 		mpath := mockLongNodeMPath
 
@@ -329,13 +247,13 @@ func TestMysql(t *testing.T) {
 		node1 := utils.NewTreeNode()
 		node1.Node = &tree.Node{Uuid: "test-same-mpath", Type: tree.NodeType_LEAF}
 		node1.SetMPath(1, 21, 12, 7)
-		err := getDAO(ctx).AddNode(node1)
+		err := getDAO(ctxNoCache).AddNode(node1)
 		So(err, ShouldBeNil)
 
 		node2 := utils.NewTreeNode()
 		node2.Node = &tree.Node{Uuid: "test-same-mpath2", Type: tree.NodeType_LEAF}
 		node2.SetMPath(1, 21, 12, 7)
-		err = getDAO(ctx).AddNode(node2)
+		err = getDAO(ctxNoCache).AddNode(node2)
 		So(err, ShouldNotBeNil)
 	})
 
@@ -357,17 +275,17 @@ func TestMysql(t *testing.T) {
 		node21.Node = &tree.Node{Uuid: "child2.1", Type: tree.NodeType_COLLECTION}
 		node21.SetMPath(1, 15, 1)
 
-		e := getDAO(ctx).AddNode(node1)
+		e := getDAO(ctxNoCache).AddNode(node1)
 		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node2)
+		e = getDAO(ctxNoCache).AddNode(node2)
 		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node11)
+		e = getDAO(ctxNoCache).AddNode(node11)
 		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node21)
+		e = getDAO(ctxNoCache).AddNode(node21)
 		So(e, ShouldBeNil)
 
 		// List Root
-		nodes := getDAO(ctx).GetNodeChildren(utils.MPath{1})
+		nodes := getDAO(ctxNoCache).GetNodeChildren(utils.MPath{1})
 		count := 0
 		for range nodes {
 			count++
@@ -375,7 +293,7 @@ func TestMysql(t *testing.T) {
 		So(count, ShouldEqual, 2)
 
 		// List Parent1 Children
-		nodes = getDAO(ctx).GetNodeTree(utils.MPath{1})
+		nodes = getDAO(ctxNoCache).GetNodeTree(utils.MPath{1})
 		count = 0
 		for c := range nodes {
 			log.Println(c)
@@ -384,7 +302,7 @@ func TestMysql(t *testing.T) {
 		So(count, ShouldEqual, 8) // Because of previous tests there are other nodes
 
 		// List Parent1 Children
-		nodes = getDAO(ctx).GetNodeChildren(utils.MPath{1, 1})
+		nodes = getDAO(ctxNoCache).GetNodeChildren(utils.MPath{1, 1})
 		count = 0
 		for range nodes {
 			count++
@@ -447,29 +365,29 @@ func TestMysql(t *testing.T) {
 		node15.Etag = etag4
 		node15.SetMeta("name", "\"a-bbb\"")
 
-		e := getDAO(ctx).AddNode(node)
+		e := getDAO(ctxNoCache).AddNode(node)
 		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node11)
+		e = getDAO(ctxNoCache).AddNode(node11)
 		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node12)
+		e = getDAO(ctxNoCache).AddNode(node12)
 		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node13)
+		e = getDAO(ctxNoCache).AddNode(node13)
 		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node14)
+		e = getDAO(ctxNoCache).AddNode(node14)
 		So(e, ShouldBeNil)
-		e = getDAO(ctx).AddNode(node15)
+		e = getDAO(ctxNoCache).AddNode(node15)
 		So(e, ShouldBeNil)
 
-		e = getDAO(ctx).ResyncDirtyEtags(node)
+		e = getDAO(ctxNoCache).ResyncDirtyEtags(node)
 		So(e, ShouldBeNil)
-		intermediaryNode, e := getDAO(ctx).GetNode(node13.MPath)
+		intermediaryNode, e := getDAO(ctxNoCache).GetNode(node13.MPath)
 		So(e, ShouldBeNil)
 		hash := md5.New()
 		hash.Write([]byte(etag3 + "." + etag4))
 		newEtag := hex.EncodeToString(hash.Sum(nil))
 		So(intermediaryNode.Etag, ShouldEqual, newEtag)
 
-		parentNode, e := getDAO(ctx).GetNode(node.MPath)
+		parentNode, e := getDAO(ctxNoCache).GetNode(node.MPath)
 		So(e, ShouldBeNil)
 		hash2 := md5.New()
 		hash2.Write([]byte(etag2 + "." + etag1 + "." + intermediaryNode.Etag))
@@ -492,22 +410,22 @@ func TestCommits(t *testing.T) {
 		node.Size = 2444
 		node.SetMeta("name", "\"bbb\"")
 
-		err := getDAO(ctx).PushCommit(node)
+		err := getDAO(ctxNoCache).PushCommit(node)
 		So(err, ShouldBeNil)
 
 		node.Etag = "second-etag"
-		err = getDAO(ctx).PushCommit(node)
+		err = getDAO(ctxNoCache).PushCommit(node)
 		So(err, ShouldBeNil)
 
-		logs, err := getDAO(ctx).ListCommits(node)
+		logs, err := getDAO(ctxNoCache).ListCommits(node)
 		So(err, ShouldBeNil)
 		So(logs, ShouldHaveLength, 2)
 		So(logs[0].Uuid, ShouldEqual, "second-etag")
 		So(logs[1].Uuid, ShouldEqual, "first-etag")
 
-		err = getDAO(ctx).DeleteCommits(node)
+		err = getDAO(ctxNoCache).DeleteCommits(node)
 		So(err, ShouldBeNil)
-		logs, err = getDAO(ctx).ListCommits(node)
+		logs, err = getDAO(ctxNoCache).ListCommits(node)
 		So(err, ShouldBeNil)
 		So(logs, ShouldHaveLength, 0)
 
@@ -517,7 +435,7 @@ func TestCommits(t *testing.T) {
 
 func TestStreams(t *testing.T) {
 	Convey("Re-adding a file - Success", t, func() {
-		c, e := getDAO(ctx).AddNodeStream(5)
+		c, e := getDAO(ctxNoCache).AddNodeStream(5)
 
 		for i := 1; i <= 1152; i++ {
 			node := utils.NewTreeNode()
@@ -531,7 +449,7 @@ func TestStreams(t *testing.T) {
 
 		So(<-e, ShouldBeNil)
 
-		idx, err := getDAO(ctx).GetNodeFirstAvailableChildIndex(utils.NewMPath(1, 17))
+		idx, err := getDAO(ctxNoCache).GetNodeFirstAvailableChildIndex(utils.NewMPath(1, 17))
 		So(err, ShouldBeNil)
 		So(idx, ShouldEqual, 1153)
 	})
@@ -637,12 +555,12 @@ func TestArborescence(t *testing.T) {
 	}
 
 	for _, path := range arborescence {
-		getDAO(ctx).Path(path, true)
+		getDAO(ctxNoCache).Path(path, true)
 	}
 
-	getDAO(ctx).Flush()
+	getDAO(ctxNoCache).Flush()
 
-	printTree()
+	printTree(ctxNoCache)
 }
 
 func TestSmallArborescence(t *testing.T) {
@@ -652,10 +570,10 @@ func TestSmallArborescence(t *testing.T) {
 	}
 
 	for _, path := range arborescence {
-		getDAO(ctx).Path(path, true)
+		getDAO(ctxNoCache).Path(path, true)
 	}
 
-	getDAO(ctx).Flush()
+	getDAO(ctxNoCache).Flush()
 
-	printTree()
+	printTree(ctxNoCache)
 }
