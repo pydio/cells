@@ -45,6 +45,8 @@ var (
 type daocache struct {
 	DAO
 
+	session string
+
 	// MPAth Cache
 	cache      map[string]*utils.TreeNode
 	childCache map[string][]*utils.TreeNode
@@ -72,6 +74,7 @@ func NewDAOCache(session string, d DAO) DAO {
 
 	c := &daocache{
 		DAO:        d,
+		session:    session,
 		cache:      make(map[string]*utils.TreeNode),
 		childCache: make(map[string][]*utils.TreeNode),
 		nameCache:  make(map[string][]*utils.TreeNode),
@@ -110,8 +113,14 @@ func GetDAOCache(session string) DAO {
 }
 
 func (d *daocache) resync() {
+	d.mutex.Lock()
+	defer d.mutex.Unlock()
+
+	d.cache = make(map[string]*utils.TreeNode)
+	d.childCache = make(map[string][]*utils.TreeNode)
+	d.nameCache = make(map[string][]*utils.TreeNode)
+
 	for node := range d.DAO.GetNodeTree(utils.NewMPath(1)) {
-		d.mutex.Lock()
 		mpath := node.MPath.String()
 		pmpath := node.MPath.Parent().String()
 
@@ -120,8 +129,6 @@ func (d *daocache) resync() {
 
 		name := node.Name()
 		d.nameCache[name] = append(d.nameCache[name], node)
-
-		d.mutex.Unlock()
 	}
 }
 
@@ -200,7 +207,6 @@ func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (uti
 
 	// We are in creation mode, so we need to retrieve the parent node
 	// In this function, we consider that the parent node always exists
-
 	ppath := utils.NewMPath(1)
 	if len(names) > 1 {
 		if pnode, err := d.GetNodeByPath(names[0 : len(names)-1]); err != nil {
@@ -246,6 +252,8 @@ func (d *daocache) Flush() error {
 
 	// Waiting for the insertion to be fully done
 	<-d.insertDone
+
+	d.resync()
 
 	err := d.errors
 
@@ -389,7 +397,11 @@ func (d *daocache) GetNodeByPath(path []string) (*utils.TreeNode, error) {
 		return nil, fmt.Errorf("node missing")
 	} else {
 		if len(nodes) == 1 {
-			return nodes[0], nil
+			node := nodes[0]
+			if len(node.MPath) != len(path)+1 {
+				return nil, fmt.Errorf("node missing")
+			}
+			return node, nil
 		}
 
 		potentialNodes := []*utils.TreeNode{}
@@ -526,7 +538,18 @@ func (d *daocache) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
 	return c
 }
 func (d *daocache) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNode) error {
-	return d.DAO.MoveNodeTree(nodeFrom, nodeTo)
+	// If we move a node tree, then we need to flush the currently inserted files
+	d.Flush()
+
+	newCache := NewDAOCache(d.session, d.DAO).(*daocache)
+
+	*d = *newCache
+
+	err := d.DAO.MoveNodeTree(nodeFrom, nodeTo)
+
+	d.resync()
+
+	return err
 }
 func (d *daocache) PushCommit(node *utils.TreeNode) error {
 	return d.DAO.PushCommit(node)
