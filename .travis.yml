@@ -1,4 +1,8 @@
-  language: go
-  go:
-    - "1.10"
-  script: go build main.go
+language: go
+
+go:
+- "1.10"
+
+script:
+- go build main.go
+- go test ./...

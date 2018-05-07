@@ -3869,10 +3869,10 @@
 			"revisionTime": "2018-04-06T10:54:59Z"
 		},
 		{
-			"checksumSHA1": "1KVewmQICPa+IH1gYJUKDgNbKpY=",
+			"checksumSHA1": "Ne3D+KJs1TU2trnDy1UCSwlXbAE=",
 			"path": "github.com/russross/blackfriday",
-			"revision": "6d1ef893fcb01b4f50cb6e57ed7df3e2e627b6b2",
-			"revisionTime": "2017-10-11T18:22:19Z"
+			"revision": "11635eb403ff09dbc3a6b5a007ab5ab09151c229",
+			"revisionTime": "2018-04-28T10:25:19Z"
 		},
 		{
 			"checksumSHA1": "Q68FxXX04PtPDIG7C1RlSDhx/ko=",
@@ -4124,12 +4124,6 @@
 			"path": "github.com/spf13/cobra",
 			"revision": "c439c4fa093711d42e1b01acb1235b52004753c1",
 			"revisionTime": "2018-03-19T06:20:04Z"
-		},
-		{
-			"checksumSHA1": "rzHwCPAwPztYic1Jm6y0utSJVPE=",
-			"path": "github.com/spf13/cobra/doc",
-			"revision": "ef82de70bb3f60c65fb8eebacbb2d122ef517385",
-			"revisionTime": "2018-04-27T13:45:50Z"
 		},
 		{
 			"checksumSHA1": "+JFKK0z5Eutk29rUz1lEhLxHMfk=",
