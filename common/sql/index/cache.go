@@ -247,32 +247,38 @@ func (d *daocache) Path(strpath string, create bool, reqNode ...*tree.Node) (uti
 }
 
 // Flush
-func (d *daocache) Flush() error {
+func (d *daocache) Flush(final bool) error {
 	close(d.insertChan)
 
 	// Waiting for the insertion to be fully done
 	<-d.insertDone
 
-	d.resync()
+	var err error
 
-	err := d.errors
-
-	l := len(err)
+	errs := d.errors
+	l := len(errs)
 
 	if l == 1 {
-		return err[0]
+		return errs[0]
 	}
 
 	if l > 0 {
 		f := make([]string, l)
-		for i, e := range err {
+		for i, e := range errs {
 			f[i] = e.Error()
 		}
 
-		return errors.New("Combined errors : " + strings.Join(f, " "))
+		err = errors.New("Combined errors : " + strings.Join(f, " "))
 	}
 
-	return nil
+	if !final {
+		// If this isn't the final flush, then we reopen a new cache
+		newCache := NewDAOCache(d.session, d.DAO).(*daocache)
+		*d = *newCache
+		d.resync()
+	}
+
+	return err
 }
 
 // AddNodeStream should not be used directly with the cache
@@ -538,12 +544,6 @@ func (d *daocache) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
 	return c
 }
 func (d *daocache) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNode) error {
-	// If we move a node tree, then we need to flush the currently inserted files
-	d.Flush()
-
-	newCache := NewDAOCache(d.session, d.DAO).(*daocache)
-
-	*d = *newCache
 
 	err := d.DAO.MoveNodeTree(nodeFrom, nodeTo)
 

@@ -447,8 +447,6 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		return err
 	}
 
-	fmt.Println("HERE 1")
-
 	newNode, err := dao.GetNode(pathTo)
 	if err == nil && newNode != nil {
 		newNode.Path = reqToPath
@@ -509,12 +507,26 @@ func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest
 
 // OpenSession opens an indexer session.
 func (s *TreeServer) OpenSession(ctx context.Context, req *tree.OpenSessionRequest, resp *tree.OpenSessionResponse) error {
+	log.Logger(ctx).Info("Opening Indexation Session " + req.GetSession().GetUuid())
 
-	log.Logger(ctx).Info("Starting Indexation Session " + req.GetSession().GetUuid())
 	s.sessionStore.PutSession(req.GetSession())
 	resp.Session = req.GetSession()
 	return nil
 
+}
+
+// FlushSession allows to flsuh what's in the dao cache for the current session to ensure we are up to date moving on to the next phase of the indexation.
+func (s *TreeServer) FlushSession(ctx context.Context, req *tree.FlushSessionRequest, resp *tree.FlushSessionResponse) error {
+	session, _, _ := s.sessionStore.ReadSession(req.GetSession().GetUuid())
+	if session != nil {
+		log.Logger(ctx).Info("Flushing Indexation Session " + req.GetSession().GetUuid())
+
+		dao := getDAO(ctx, session.GetUuid())
+		dao.Flush(false)
+	}
+
+	resp.Session = req.GetSession()
+	return nil
 }
 
 // CloseSession closes an indexer session.
@@ -522,11 +534,11 @@ func (s *TreeServer) CloseSession(ctx context.Context, req *tree.CloseSessionReq
 
 	session, batcher, _ := s.sessionStore.ReadSession(req.GetSession().GetUuid())
 	if session != nil {
-		log.Logger(ctx).Info("Flushing Indexation Session " + req.GetSession().GetUuid())
+		log.Logger(ctx).Info("Closing Indexation Session " + req.GetSession().GetUuid())
 
 		dao := getDAO(ctx, session.GetUuid())
 
-		dao.Flush()
+		dao.Flush(true)
 		batcher.Flush(ctx, dao)
 
 		s.sessionStore.DeleteSession(req.GetSession())

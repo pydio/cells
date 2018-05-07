@@ -77,7 +77,7 @@ func TestMysqlWithCache(t *testing.T) {
 		err := getDAO(ctxWithCache).AddNode(mockNode)
 		So(err, ShouldBeNil)
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 
 		// printTree()
 		// printNodes()
@@ -101,7 +101,7 @@ func TestMysqlWithCache(t *testing.T) {
 		err = getDAO(ctxWithCache).SetNode(mockNode)
 		So(err, ShouldBeNil)
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 	})
 
 	// Delete a file
@@ -113,7 +113,7 @@ func TestMysqlWithCache(t *testing.T) {
 		err := getDAO(ctxWithCache).DelNode(mockNode)
 		So(err, ShouldBeNil)
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 
 		// printTree()
 		// printNodes()
@@ -125,7 +125,7 @@ func TestMysqlWithCache(t *testing.T) {
 		err := getDAO(ctxWithCache).AddNode(mockNode)
 		So(err, ShouldBeNil)
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 
 		//printTree()
 		//printNodes()
@@ -137,7 +137,7 @@ func TestMysqlWithCache(t *testing.T) {
 		err := getDAO(ctxWithCache).AddNode(mockNode)
 		So(err, ShouldBeNil)
 
-		err = getDAO(ctxWithCache).Flush()
+		err = getDAO(ctxWithCache).Flush(true)
 		So(err, ShouldNotBeNil)
 
 		// printTree()
@@ -155,7 +155,7 @@ func TestMysqlWithCache(t *testing.T) {
 
 		So(node.Node, ShouldResemble, mockNode.Node)
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 	})
 
 	// Setting a file
@@ -181,7 +181,7 @@ func TestMysqlWithCache(t *testing.T) {
 		node.MTime = 0
 		node.Path = mockLongNodeChild2.Path
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 
 		So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
 	})
@@ -196,7 +196,7 @@ func TestMysqlWithCache(t *testing.T) {
 		node.MTime = 0
 		node.Path = "mockLongNode"
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 
 		So(node.Node, ShouldResemble, mockLongNode.Node)
 	})
@@ -214,7 +214,7 @@ func TestMysqlWithCache(t *testing.T) {
 		node.MTime = 0
 		node.Path = mockLongNodeChild1.Path
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 
 		So(node.Node, ShouldNotResemble, mockLongNodeChild2.Node)
 		So(node.Node, ShouldResemble, mockLongNodeChild1.Node)
@@ -233,7 +233,7 @@ func TestMysqlWithCache(t *testing.T) {
 		node.MTime = 0
 		node.Path = mockLongNodeChild2.Path
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 
 		So(node.Node, ShouldNotResemble, mockLongNodeChild1.Node)
 		So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
@@ -248,7 +248,7 @@ func TestMysqlWithCache(t *testing.T) {
 			i++
 		}
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 
 		So(i, ShouldEqual, 2)
 	})
@@ -265,7 +265,7 @@ func TestMysqlWithCache(t *testing.T) {
 
 		So(i, ShouldEqual, 3)
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 	})
 
 	// Setting a file
@@ -297,7 +297,7 @@ func TestMysqlWithCache(t *testing.T) {
 
 		So(err, ShouldBeNil)
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 	})
 
 	// Setting a mpath multiple times
@@ -317,7 +317,7 @@ func TestMysqlWithCache(t *testing.T) {
 		err = getDAO(ctxWithCache).AddNode(node2)
 		So(err, ShouldBeNil)
 
-		err = getDAO(ctxWithCache).Flush()
+		err = getDAO(ctxWithCache).Flush(true)
 		So(err, ShouldNotBeNil)
 	})
 
@@ -350,7 +350,7 @@ func TestMysqlWithCache(t *testing.T) {
 		e = getDAO(ctxWithCache).AddNode(node21)
 		So(e, ShouldBeNil)
 
-		e = getDAO(ctxWithCache).Flush()
+		e = getDAO(ctxWithCache).Flush(true)
 		So(e, ShouldBeNil)
 
 		// List Root
@@ -450,7 +450,7 @@ func TestMysqlWithCache(t *testing.T) {
 		e = getDAO(ctxWithCache).AddNode(node15)
 		So(e, ShouldBeNil)
 
-		e = getDAO(ctxWithCache).Flush()
+		e = getDAO(ctxWithCache).Flush(true)
 		So(e, ShouldBeNil)
 
 		e = getDAO(ctxWithCache).ResyncDirtyEtags(node)
@@ -533,7 +533,7 @@ func TestStreamsWithCache(t *testing.T) {
 
 		close(c)
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 
 		wg.Wait()
 
@@ -651,7 +651,7 @@ func TestArborescenceWithCache(t *testing.T) {
 			getDAO(ctxWithCache).Path(path, true)
 		}
 
-		getDAO(ctxWithCache).Flush()
+		getDAO(ctxWithCache).Flush(true)
 	})
 }
 
@@ -666,6 +666,8 @@ func TestSmallArborescenceWithCache(t *testing.T) {
 			"document sans titre",
 			"document sans titre/.pydio",
 			"document sans titre/target",
+			"document sans titre/mobile_header.jpg",
+			"document sans titre/mobile-header.jpg",
 		}
 
 		newSession()
@@ -676,15 +678,30 @@ func TestSmallArborescenceWithCache(t *testing.T) {
 			nodes[path] = mpath
 		}
 
+		getDAO(ctxWithCache).Flush(false)
+
 		// Then we move a node
-		node1, _ := getDAO(ctxWithCache).GetNode(nodes["test copie"])
-		node2, _ := getDAO(ctxWithCache).GetNode(nodes["document sans titre/target"])
-		err := getDAO(ctxWithCache).MoveNodeTree(node1, node2)
+		path1, _, err := getDAO(ctxWithCache).Path("/test copie", false)
 		So(err, ShouldBeNil)
+		path2, _, err := getDAO(ctxWithCache).Path("/document sans titre/target", true)
+		So(err, ShouldBeNil)
+
+		// Then we move a node
+		node1, _ := getDAO(ctxWithCache).GetNode(path1)
+		node2, _ := getDAO(ctxWithCache).GetNode(path2)
+		err = getDAO(ctxWithCache).MoveNodeTree(node1, node2)
+		So(err, ShouldBeNil)
+
+		getDAO(ctxWithCache).Flush(false)
 
 		_, _, err = getDAO(ctxWithCache).Path("document sans titre/test copie/whatever", false)
 		So(err, ShouldBeNil)
+		_, _, err = getDAO(ctxWithCache).Path("document sans titre/test copie/whatever2", true)
+		So(err, ShouldBeNil)
 
-		getDAO(ctxWithCache).Flush()
+		// printTree(ctxWithCache)
+		// printNodes(ctxWithCache)
+
+		getDAO(ctxWithCache).Flush(true)
 	})
 }

@@ -558,7 +558,7 @@ func TestArborescence(t *testing.T) {
 		getDAO(ctxNoCache).Path(path, true)
 	}
 
-	getDAO(ctxNoCache).Flush()
+	getDAO(ctxNoCache).Flush(true)
 
 	printTree(ctxNoCache)
 }
@@ -573,7 +573,7 @@ func TestSmallArborescence(t *testing.T) {
 		getDAO(ctxNoCache).Path(path, true)
 	}
 
-	getDAO(ctxNoCache).Flush()
+	getDAO(ctxNoCache).Flush(true)
 
 	printTree(ctxNoCache)
 }

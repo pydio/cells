@@ -92,6 +92,7 @@ message DeleteNodeResponse {
 // ==========================================================
 service SessionIndexer {
     rpc OpenSession(OpenSessionRequest) returns (OpenSessionResponse) {};
+    rpc FlushSession(FlushSessionRequest) returns (FlushSessionResponse) {};
     rpc CloseSession(CloseSessionRequest) returns (CloseSessionResponse) {};
 }
 
@@ -114,6 +115,14 @@ message OpenSessionRequest{
 }
 
 message OpenSessionResponse{
+    IndexationSession Session = 1;
+}
+
+message FlushSessionRequest{
+    IndexationSession Session = 1;
+}
+
+message FlushSessionResponse{
     IndexationSession Session = 1;
 }
 
