@@ -3869,6 +3869,12 @@
 			"revisionTime": "2018-04-06T10:54:59Z"
 		},
 		{
+			"checksumSHA1": "Ne3D+KJs1TU2trnDy1UCSwlXbAE=",
+			"path": "github.com/russross/blackfriday",
+			"revision": "11635eb403ff09dbc3a6b5a007ab5ab09151c229",
+			"revisionTime": "2018-04-28T10:25:19Z"
+		},
+		{
 			"checksumSHA1": "Q68FxXX04PtPDIG7C1RlSDhx/ko=",
 			"path": "github.com/rwcarlsen/goexif/exif",
 			"revision": "17202558c8d9c3fd047859f1a5e73fd9ae709187",
