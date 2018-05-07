@@ -531,7 +531,10 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 	mpath3 := string(bytes.Trim(mpath[(indexLen*2):(indexLen*3-1)], "\x00"))
 	mpath4 := string(bytes.Trim(mpath[(indexLen*3):(indexLen*4-1)], "\x00"))
 
-	if stmt := dao.GetStmt("updateTree"); stmt != nil {
+	updateTree := dao.GetStmt("updateTree")
+	updateNode := dao.GetStmt("updateNode")
+
+	if stmt := tx.Stmt(updateTree); stmt != nil {
 		defer stmt.Close()
 
 		if _, err = stmt.Exec(
@@ -550,7 +553,7 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 		return fmt.Errorf("Empty statement")
 	}
 
-	if stmt := dao.GetStmt("updateNode"); stmt != nil {
+	if stmt := tx.Stmt(updateNode); stmt != nil {
 		defer stmt.Close()
 
 		if _, err = stmt.Exec(
@@ -562,6 +565,7 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 			node.Mode,
 			node.Uuid,
 		); err != nil {
+			fmt.Println("Here we fail 2")
 			return err
 		}
 	} else {
@@ -1258,7 +1262,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 	c := make(chan *utils.TreeNode)
 	go func() {
 		for node := range c {
-			update(node)
+			go update(node)
 		}
 	}()
 
