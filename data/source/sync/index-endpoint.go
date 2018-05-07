@@ -187,6 +187,12 @@ func (i *IndexEndpoint) StartSession(ctx context.Context, rootNode *tree.Node) (
 	}
 }
 
+func (i *IndexEndpoint) FlushSession(ctx context.Context, sessionUuid string) error {
+	_, err := i.sessionClient.FlushSession(ctx, &tree.FlushSessionRequest{Session: &tree.IndexationSession{Uuid: sessionUuid}})
+	i.internalSession = nil
+	return err
+}
+
 func (i *IndexEndpoint) FinishSession(ctx context.Context, sessionUuid string) error {
 	_, err := i.sessionClient.CloseSession(ctx, &tree.CloseSessionRequest{Session: &tree.IndexationSession{Uuid: sessionUuid}})
 	i.internalSession = nil

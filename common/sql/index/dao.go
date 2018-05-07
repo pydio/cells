@@ -39,7 +39,7 @@ type DAO interface {
 
 	// Simple Add / Set / Delete
 	AddNodeStream(int) (chan *utils.TreeNode, chan error)
-	Flush() error
+	Flush(bool) error
 
 	// Batch Add / Set / Delete
 	GetNodes(...utils.MPath) chan *utils.TreeNode

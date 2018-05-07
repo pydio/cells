@@ -142,6 +142,10 @@ func (b *Merger) process(batch *filters.Batch) {
 			batch.StatusChan, cursor, total, zap.String("path", event.EventInfo.Path))
 	}
 
+	if len(batch.FolderMoves) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
+		batch.SessionProvider.FlushSession(batch.SessionProviderContext, sessionUuid)
+	}
+
 	// Move folders
 	for _, eKey := range b.sortedKeys(batch.FolderMoves) {
 		event := batch.FolderMoves[eKey]
@@ -150,6 +154,10 @@ func (b *Merger) process(batch *filters.Batch) {
 		cursor++
 		b.applyProcessFunc(event, operationId, b.processMove, "Moved Folder", "Error while moving folder",
 			batch.StatusChan, cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
+	}
+
+	if len(batch.FileMoves) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
+		batch.SessionProvider.FlushSession(batch.SessionProviderContext, sessionUuid)
 	}
 
 	// Move files
@@ -162,11 +170,19 @@ func (b *Merger) process(batch *filters.Batch) {
 			batch.StatusChan, cursor, total, zap.String("from", fromPath), zap.String("to", toPath))
 	}
 
+	if len(batch.CreateFiles) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
+		batch.SessionProvider.FlushSession(batch.SessionProviderContext, sessionUuid)
+	}
+
 	// Create files
 	for _, event = range batch.CreateFiles {
 		cursor++
 		b.applyProcessFunc(event, operationId, b.processCreateFile, "Created File", "Error while creating file",
 			batch.StatusChan, cursor, total, zap.String("path", event.EventInfo.Path))
+	}
+
+	if len(batch.Deletes) > 0 && sessionUuid != "" && batch.SessionProvider != nil {
+		batch.SessionProvider.FlushSession(batch.SessionProviderContext, sessionUuid)
 	}
 
 	// Deletes

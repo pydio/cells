@@ -140,6 +140,7 @@ type Versioner interface {
 
 type SessionProvider interface {
 	StartSession(ctx context.Context, rootNode *tree.Node) (*tree.IndexationSession, error)
+	FlushSession(ctx context.Context, sessionUuid string) error
 	FinishSession(ctx context.Context, sessionUuid string) error
 }
 
