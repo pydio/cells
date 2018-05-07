@@ -666,6 +666,8 @@ func TestSmallArborescenceWithCache(t *testing.T) {
 			"document sans titre",
 			"document sans titre/.pydio",
 			"document sans titre/target",
+			"document sans titre/mobile_header.jpg",
+			"document sans titre/mobile-header.jpg",
 		}
 
 		newSession()
@@ -692,11 +694,13 @@ func TestSmallArborescenceWithCache(t *testing.T) {
 
 		getDAO(ctxWithCache).Flush(false)
 
-		// printTree(ctxWithCache)
-		// printNodes(ctxWithCache)
-
 		_, _, err = getDAO(ctxWithCache).Path("document sans titre/test copie/whatever", false)
 		So(err, ShouldBeNil)
+		_, _, err = getDAO(ctxWithCache).Path("document sans titre/test copie/whatever2", true)
+		So(err, ShouldBeNil)
+
+		// printTree(ctxWithCache)
+		// printNodes(ctxWithCache)
 
 		getDAO(ctxWithCache).Flush(true)
 	})

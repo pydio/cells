@@ -409,6 +409,7 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
 			defer dao.Unlock()
 
 			db := dao.DB()
+
 			// Starting a transaction
 			tx, err := db.BeginTx(context.Background(), nil)
 			if err != nil {
@@ -566,7 +567,6 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 			node.Mode,
 			node.Uuid,
 		); err != nil {
-			fmt.Println("Here we fail 2")
 			return err
 		}
 	} else {
