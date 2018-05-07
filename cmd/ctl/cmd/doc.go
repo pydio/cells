@@ -21,11 +21,8 @@
 package cmd
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/spf13/cobra"
-	"github.com/spf13/cobra/doc"
+	// "github.com/spf13/cobra/doc"
 )
 
 var docPath string
@@ -34,31 +31,36 @@ var docPath string
 var docCmd = &cobra.Command{
 	Use:   "doc",
 	Short: "Generate ReST documentation for this command",
-	Long: `Generate ReStructuredText documentation for this command.
+	Long: `Generate ReStructuredText documentation for the Pydio Cells Command Line Interface.
+
 Provide a target folder where to put the generated files.
+
+Note: this command is currently broken due to a dependency issue introduced by 
+github.com/spf13/cobra/doc and the vendor/github.com/cpuguy83/go-md2man/md2man/roff.go 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		cmd.Print("This command is currently unavailable.")
 
-		if docPath == "" {
-			log.Fatal("Cannot get path flag")
-		} else {
+		// if docPath == "" {
+		// 	log.Fatal("Cannot get path flag")
+		// } else {
 
-			// log.Fatal("Broken command, should be fixed in a next future")
+		// 	// log.Fatal("Broken command, should be fixed in a next future")
 
-			// Sphinx cross-referencing format
-			linkHandler := func(name, ref string) string {
-				return fmt.Sprintf(":ref:`%s <%s>`", name, ref)
-			}
+		// 	// Sphinx cross-referencing format
+		// 	linkHandler := func(name, ref string) string {
+		// 		return fmt.Sprintf(":ref:`%s <%s>`", name, ref)
+		// 	}
 
-			filePrepender := func(filename string) string {
-				return ""
-			}
+		// 	filePrepender := func(filename string) string {
+		// 		return ""
+		// 	}
 
-			err := doc.GenReSTTreeCustom(RootCmd, docPath, filePrepender, linkHandler)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
+		// 	err := doc.GenReSTTreeCustom(RootCmd, docPath, filePrepender, linkHandler)
+		// 	if err != nil {
+		// 		log.Fatal(err)
+		// 	}
+		// }
 
 	},
 }
