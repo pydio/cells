@@ -879,32 +879,32 @@ var InstallForm = function (_React$Component) {
                                 _react2.default.createElement(
                                     'div',
                                     { style: { flex: 1, marginRight: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDex', component: renderTextField, floatingLabel: 'OIDC Service', label: 'Authentication' })
+                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDex', component: renderTextField, floatingLabel: 'OIDC', label: 'OIDC' })
                                 ),
                                 _react2.default.createElement(
                                     'div',
                                     { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalMicro', component: renderTextField, floatingLabel: 'API Gateway', label: 'Rest Access' })
+                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalMicro', component: renderTextField, floatingLabel: 'API', label: 'API' })
                                 ),
                                 _react2.default.createElement(
                                     'div',
                                     { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalGateway', component: renderTextField, floatingLabel: 'Data Gateway', label: 'Data Access' })
+                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalGateway', component: renderTextField, floatingLabel: 'Data', label: 'Data' })
                                 ),
                                 _react2.default.createElement(
                                     'div',
                                     { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalWebsocket', component: renderTextField, floatingLabel: 'WebSocket', label: 'Websocket Server' })
+                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalWebsocket', component: renderTextField, floatingLabel: 'WebSocket', label: 'Websocket' })
                                 ),
                                 _react2.default.createElement(
                                     'div',
                                     { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDAV', component: renderTextField, floatingLabel: 'DAV', label: 'DAV Server' })
+                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalDAV', component: renderTextField, floatingLabel: 'DAV', label: 'DAV' })
                                 ),
                                 _react2.default.createElement(
                                     'div',
                                     { style: { flex: 1, marginLeft: 2 } },
-                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalWOPI', component: renderTextField, floatingLabel: 'WOPI', label: 'WOPI Server' })
+                                    _react2.default.createElement(_reduxForm.Field, { name: 'externalWOPI', component: renderTextField, floatingLabel: 'WOPI', label: 'WOPI' })
                                 )
                             )
                         )
@@ -1031,7 +1031,7 @@ InstallForm = (0, _reduxForm.reduxForm)({
         if (values['frontendPassword'] && values['frontendRepeatPassword'] !== values['frontendPassword']) {
             errors['frontendRepeatPassword'] = 'Passwords differ!';
         }
-        console.log(errors);
+        //console.log(errors);
         return errors;
     }
 })(InstallForm);
