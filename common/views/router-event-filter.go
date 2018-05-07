@@ -26,6 +26,9 @@ import (
 
 	"go.uber.org/zap"
 
+	"time"
+
+	"github.com/patrickmn/go-cache"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
@@ -35,9 +38,11 @@ import (
 // Extended Router used mainly to filter events sent from inside to outside the application
 type RouterEventFilter struct {
 	Router
-	RootNodesCache map[string]*tree.Node
+	//RootNodesCache map[string]*tree.Node
+	RootNodesCache *cache.Cache
 }
 
+// NewRouterEventFilter creates a new EventFilter properly initialized
 func NewRouterEventFilter(options RouterOptions) *RouterEventFilter {
 
 	handlers := []Handler{
@@ -61,12 +66,13 @@ func NewRouterEventFilter(options RouterOptions) *RouterEventFilter {
 	r := &RouterEventFilter{}
 	r.Router.handlers = handlers
 	r.Router.pool = pool
-
+	r.RootNodesCache = cache.New(120*time.Second, 10*time.Minute)
 	r.initHandlers()
 	return r
 
 }
 
+// WorkspaceCanSeeNode will check workspaces roots to see if a node in below one of them
 func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, workspace *idm.Workspace, node *tree.Node, refresh bool) (*tree.Node, bool) {
 	if node == nil {
 		return node, false
@@ -104,6 +110,7 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, workspace *
 	return nil, false
 }
 
+// NodeIsChildOfRoot compares pathes between possible parent and child
 func (r *RouterEventFilter) NodeIsChildOfRoot(ctx context.Context, node *tree.Node, rootId string) (*tree.Node, bool) {
 
 	vManager := GetVirtualNodesManager()
@@ -121,16 +128,15 @@ func (r *RouterEventFilter) NodeIsChildOfRoot(ctx context.Context, node *tree.No
 
 }
 
+// getRoot provides a loaded root node from the cache or from the TreeClient
 func (r *RouterEventFilter) getRoot(ctx context.Context, rootId string) *tree.Node {
 
-	if r.RootNodesCache == nil {
-		r.RootNodesCache = make(map[string]*tree.Node)
-	}
-	if node, ok := r.RootNodesCache[rootId]; ok {
-		return node
+	if node, ok := r.RootNodesCache.Get(rootId); ok {
+		return node.(*tree.Node)
 	}
 	resp, e := r.pool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}})
 	if e == nil && resp.Node != nil {
+		r.RootNodesCache.Set(rootId, resp.Node.Clone(), cache.DefaultExpiration)
 		return resp.Node
 	}
 	return nil

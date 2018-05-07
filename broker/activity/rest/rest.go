@@ -41,6 +41,7 @@ import (
 	"github.com/pydio/cells/common/views"
 )
 
+// ActivityHandler responds to activity REST requests
 type ActivityHandler struct {
 	router *views.RouterEventFilter
 }
@@ -61,10 +62,12 @@ func (a *ActivityHandler) Filter() func(string) string {
 	return nil
 }
 
+// Internal function to retrieve activity GRPC client
 func (a *ActivityHandler) getClient() activity.ActivityServiceClient {
 	return activity.NewActivityServiceClient(registry.GetClient(common.SERVICE_ACTIVITY))
 }
 
+// Stream returns a collection of activities
 func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -166,6 +169,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 	}
 }
 
+// Subscribe hooks a given object to another one activity streams
 func (a *ActivityHandler) Subscribe(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -190,6 +194,7 @@ func (a *ActivityHandler) Subscribe(req *restful.Request, rsp *restful.Response)
 	rsp.WriteEntity(resp.Subscription)
 }
 
+// SearchSubscriptions loads existing subscription for a given object
 func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
@@ -225,6 +230,7 @@ func (a *ActivityHandler) SearchSubscriptions(req *restful.Request, rsp *restful
 	rsp.WriteEntity(collection)
 }
 
+// FilterActivity is used internally to show only authorized events depending on the context
 func (a *ActivityHandler) FilterActivity(ctx context.Context, workspaces map[string]*idm.Workspace, ac *activity.Object) bool {
 
 	if ac.Object == nil {
