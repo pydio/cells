@@ -30,6 +30,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -50,9 +51,16 @@ import (
 // updates available
 func LoadUpdates(ctx context.Context, config config.Map) ([]*update.Package, error) {
 
-	url := config.String("updateUrl")
-	if url == "" {
+	urlConf := config.String("updateUrl")
+	if urlConf == "" {
 		return nil, errors.BadRequest(common.SERVICE_UPDATE, "cannot find update url")
+	}
+	parsed, e := url.Parse(urlConf)
+	if e != nil {
+		return nil, errors.BadRequest(common.SERVICE_UPDATE, e.Error())
+	}
+	if strings.Trim(parsed.Path, "/") == "" {
+		parsed.Path = "/a/update-server"
 	}
 	channel := config.String("channel")
 	if channel == "" {
@@ -72,7 +80,7 @@ func LoadUpdates(ctx context.Context, config config.Map) ([]*update.Package, err
 	marshaller := jsonpb.Marshaler{}
 	jsonReq, _ := marshaller.MarshalToString(request)
 	reader := strings.NewReader(string(jsonReq))
-	response, err := http.Post(strings.TrimRight(url, "/")+"/", "application/json", reader)
+	response, err := http.Post(strings.TrimRight(parsed.String(), "/")+"/", "application/json", reader)
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +101,7 @@ func LoadUpdates(ctx context.Context, config config.Map) ([]*update.Package, err
 // The dryRun option will download the binary and just put it in the /tmp folder
 func ApplyUpdate(ctx context.Context, p *update.Package, conf config.Map, dryRun bool) error {
 
-	url := p.BinaryURL
-	if resp, err := http.Get(url); err != nil {
+	if resp, err := http.Get(p.BinaryURL); err != nil {
 		return err
 	} else {
 		targetPath := ""

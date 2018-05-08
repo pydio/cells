@@ -20,6 +20,8 @@
 
 package config
 
+import "github.com/pydio/cells/common"
+
 var SampleConfig = `{
     "ports":{
         "nats": 4222
@@ -142,6 +144,11 @@ var SampleConfig = `{
         "pydio.grpc.changes": {
             "dsn": "default"
         },
+		"pydio.grpc.update" : {
+			"channel": ` + common.UpdateDefaultChannel + `,
+			"publicKey": ` + common.UpdateDefaultPublicKey + `
+			"updateUrl": ` + common.UpdateDefaultServerUrl + `
+		},
 		"pydio.grpc.user-meta": {
 			"dsn": "default"
 		}
