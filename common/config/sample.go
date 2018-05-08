@@ -146,7 +146,7 @@ var SampleConfig = `{
         },
 		"pydio.grpc.update" : {
 			"channel": ` + common.UpdateDefaultChannel + `,
-			"publicKey": ` + common.UpdateDefaultPublicKey + `
+			"publicKey": ` + common.UpdateDefaultPublicKey + `,
 			"updateUrl": ` + common.UpdateDefaultServerUrl + `
 		},
 		"pydio.grpc.user-meta": {
