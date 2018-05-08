@@ -353,6 +353,8 @@ func promptAdvanced(c *install.InstallConfig) error {
 	microPort := p.Prompt{Label: "Rest Gateway Port", Default: c.ExternalMicro, Validate: validPortNumber}
 	gatewayPort := p.Prompt{Label: "Data Gateway Port", Default: c.ExternalGateway, Validate: validPortNumber}
 	websocketPort := p.Prompt{Label: "WebSocket Port", Default: c.ExternalWebsocket, Validate: validPortNumber}
+	davPort := p.Prompt{Label: "WebDAV Gateway Port", Default: c.ExternalDAV, Validate: validPortNumber}
+	wopiPort := p.Prompt{Label: "WOPI Api Port (for Collabora support)", Default: c.ExternalWOPI, Validate: validPortNumber}
 
 	if folder, e := dsPath.Run(); e == nil {
 		c.DsFolder = folder
@@ -377,6 +379,12 @@ func promptAdvanced(c *install.InstallConfig) error {
 		return e
 	}
 	if c.ExternalWebsocket, e = websocketPort.Run(); e != nil {
+		return e
+	}
+	if c.ExternalDAV, e = davPort.Run(); e != nil {
+		return e
+	}
+	if c.ExternalWOPI, e = wopiPort.Run(); e != nil {
 		return e
 	}
 
