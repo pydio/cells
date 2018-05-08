@@ -145,9 +145,9 @@ var SampleConfig = `{
             "dsn": "default"
         },
 		"pydio.grpc.update" : {
-			"channel": ` + common.UpdateDefaultChannel + `,
-			"publicKey": ` + common.UpdateDefaultPublicKey + `,
-			"updateUrl": ` + common.UpdateDefaultServerUrl + `
+			"channel": "` + common.UpdateDefaultChannel + `",
+			"publicKey": "` + common.UpdateDefaultPublicKey + `",
+			"updateUrl": "` + common.UpdateDefaultServerUrl + `"
 		},
 		"pydio.grpc.user-meta": {
 			"dsn": "default"
