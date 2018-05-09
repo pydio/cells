@@ -36,6 +36,8 @@ import (
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
+	"time"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
@@ -281,6 +283,10 @@ func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) 
 func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
+	start := time.Now()
+	track := func(msg string) {
+		log.Logger(ctx).Info(msg, zap.Duration("t", time.Since(start)))
+	}
 	var putRequest rest.PutShareLinkRequest
 	if err := req.ReadEntity(&putRequest); err != nil {
 		service.RestError500(req, rsp, err)
@@ -295,6 +301,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	if link.Uuid == "" {
 		create = true
 		workspace, _, err = h.GetOrCreateWorkspace(ctx, "", idm.WorkspaceScope_LINK, link.Label, link.Description, false)
+		track("GetOrCreateWorkspace")
 		for _, node := range link.RootNodes {
 			aclClient.CreateACL(ctx, &idm.CreateACLRequest{
 				ACL: &idm.ACL{
@@ -304,6 +311,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 				},
 			})
 		}
+		track("CreateACL")
 		link.Uuid = workspace.UUID
 		link.LinkHash = strings.Replace(uuid.NewUUID().String(), "-", "", -1)[0:12]
 	} else {
@@ -317,6 +325,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this link"))
 		return
 	}
+	track("IsContextEditable")
 
 	// Load Hidden User
 	user, err = h.GetOrCreateHiddenUser(ctx, link, putRequest.PasswordEnabled, putRequest.CreatePassword)
@@ -324,6 +333,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		service.RestError500(req, rsp, err)
 		return
 	}
+	track("GetOrCreateHiddenUser")
 	if create {
 		link.UserLogin = user.Login
 		link.UserUuid = user.Uuid
@@ -337,6 +347,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		})
 		wsClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
 		wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace})
+		track("CreateWorkspace")
 	} else {
 		// Manage password if status was updated
 		storedLink := &rest.ShareLink{Uuid: link.Uuid}
@@ -368,6 +379,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	}
 
 	err = h.UpdateACLsForHiddenUser(ctx, user.Uuid, workspace.UUID, link.RootNodes, link.Permissions, !create)
+	track("UpdateACLsForHiddenUser")
 	if err != nil {
 		service.RestError500(req, rsp, err)
 		return
@@ -378,6 +390,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 			log.GetAuditId(common.AUDIT_LINK_CREATE),
 			zap.String(common.KEY_LINK_UUID, link.Uuid),
 		)
+		track("Auditer")
 	} else {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("ShareLink %s has been updated", link.Label),
@@ -391,6 +404,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		service.RestError500(req, rsp, err)
 		return
 	}
+	track("StoreHashDocument")
 
 	// Reload
 	if output, e := h.WorkspaceToShareLinkObject(ctx, workspace); e != nil {
@@ -398,6 +412,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	} else {
 		rsp.WriteEntity(output)
 	}
+	track("WorkspaceToShareLinkObject")
 }
 
 // GetShareLink loads link information.
@@ -1224,8 +1239,6 @@ func (h *SharesHandler) GetTemplateACLsForMinisite(ctx context.Context, roleId s
 		}
 
 	}
-
-	log.Logger(ctx).Info("TEMPLATE ACLS ARE ", zap.Any("acls", acls))
 
 	return
 }
