@@ -52,7 +52,7 @@ func (e *Executor) ReadNode(ctx context.Context, in *tree.ReadNodeRequest, opts 
 	resp, err := e.clientsPool.GetTreeClient().ReadNode(ctx, in, opts...)
 	if err != nil {
 		if errors.Parse(err.Error()).Code != 404 {
-			log.Logger(ctx).Error("Failed to read node", zap.Error(err))
+			log.Logger(ctx).Error("Failed to read node", zap.Any("in", in), zap.Error(err))
 		}
 	}
 

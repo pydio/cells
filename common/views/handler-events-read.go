@@ -25,8 +25,10 @@ import (
 	"io"
 
 	"github.com/micro/go-micro/client"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -35,7 +37,7 @@ type HandlerEventRead struct {
 }
 
 func (h *HandlerEventRead) feedNodeUuid(ctx context.Context, node *tree.Node) error {
-	response, e := h.clientsPool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
+	response, e := h.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
 	if e != nil {
 		return e
 	}
@@ -50,18 +52,20 @@ func (h *HandlerEventRead) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 		return c, e
 	}
 	if e == nil && in.Node != nil {
-		go func() {
-			node := in.Node
-			if node.Uuid == "" {
-				if e := h.feedNodeUuid(ctx, node); e != nil {
-					return
-				}
+		node := in.Node.Clone()
+		if node.Uuid == "" {
+			if e := h.feedNodeUuid(ctx, node); e != nil {
+				log.Logger(ctx).Error("HandlerEventRead did not find Uuid!", zap.Error(e))
 			}
-			client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
-				Type:   tree.NodeChangeEvent_READ,
-				Target: node,
-			}))
-		}()
+		}
+		if node.Uuid != "" {
+			go func() {
+				client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+					Type:   tree.NodeChangeEvent_READ,
+					Target: node,
+				}))
+			}()
+		}
 	}
 	return c, e
 }
@@ -72,17 +76,20 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 		return reader, e
 	}
 	if e == nil {
-		go func() {
-			if node.Uuid == "" {
-				if e := h.feedNodeUuid(ctx, node); e != nil {
-					return
-				}
+		eventNode := node.Clone()
+		if eventNode.Uuid == "" {
+			if e := h.feedNodeUuid(ctx, eventNode); e != nil {
+				log.Logger(ctx).Error("HandlerEventRead did not find Uuid!", zap.Error(e))
 			}
-			client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
-				Type:   tree.NodeChangeEvent_READ,
-				Target: node,
-			}))
-		}()
+		}
+		if eventNode.Uuid != "" {
+			go func() {
+				client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+					Type:   tree.NodeChangeEvent_READ,
+					Target: eventNode,
+				}))
+			}()
+		}
 	}
 	return reader, e
 

@@ -160,12 +160,26 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		streamer.Close()
 
 		if !bulkRequest.Versions {
-			go func() {
-				client.Publish(ctx, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
-					Type:   tree.NodeChangeEvent_READ,
-					Target: folderNode,
-				}))
-			}()
+			fNode := folderNode.Clone()
+
+			if resp, e := h.getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: fNode}); e == nil {
+				er := h.getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+					c, n, e := inputFilter(ctx, resp.Node, "in")
+					if e != nil {
+						return e
+					}
+					client.Publish(c, client.NewPublication(common.TOPIC_TREE_CHANGES, &tree.NodeChangeEvent{
+						Type:   tree.NodeChangeEvent_READ,
+						Target: n,
+					}))
+					return nil
+				})
+				if er != nil {
+					log.Logger(ctx).Error("Cannot publish READ event on node", fNode.Zap(), zap.Error(e))
+				}
+			} else {
+				log.Logger(ctx).Error("Cannot publish READ event on node", fNode.Zap(), zap.Error(e))
+			}
 		}
 
 	}
