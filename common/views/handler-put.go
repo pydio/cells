@@ -75,8 +75,15 @@ func (m *PutHandler) GetOrCreatePutNode(ctx context.Context, nodePath string, si
 	if er != nil {
 		return nil, er, nil
 	}
+	delNode := createResp.Node.Clone()
 	errorFunc := func() {
-		treeWriter.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: createResp.Node})
+		if ctx.Err() != nil {
+			ctx = context.Background()
+		}
+		_, e := treeWriter.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: delNode})
+		if e != nil {
+			log.Logger(ctx).Error("Error while trying to delete temporary node after upload failure", zap.Error(e), delNode.Zap())
+		}
 	}
 	return createResp.Node, nil, errorFunc
 
@@ -163,15 +170,9 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 		}
 		if !newNode.IsLeaf() {
 			// This was a PYDIO_SYNC_HIDDEN_FILE_META and the folder already exists, replace the content
-			// with the actual folder Uuid to avoid replacing it
-			// We should never pass there???
+			// with the actual folder Uuid to avoid replacing it We should never pass there???
 			reader = bytes.NewBufferString(newNode.Uuid)
 		}
-
-		// Never called (see above)
-		// if requestData.Metadata == nil {
-		// 	requestData.Metadata = make(map[string]string)
-		// }
 
 		requestData.Metadata["X-Amz-Meta-Pydio-Node-Uuid"] = newNode.Uuid
 		if encrypted {
