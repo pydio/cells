@@ -54,19 +54,19 @@ var (
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "pydio",
+	Use:   os.Args[0],
 	Short: "Secure File Sharing for business",
-	Long: `Thank you for using Pydio Cells !
+	Long: `Thank you for using ` + common.PackageLabel + `!
 Comprehensive sync & share solution for your collaborators. Open-source software deployed on-premise or in a private cloud.
 
 INSTALL
 =======
-For the very first run, use './pydio install' to load browser-based or command-line based installation wizard. Services
+For the very first run, use '` + os.Args[0] + ` install' to load browser-based or command-line based installation wizard. Services
 will start at the end of the installation.
 
 RUN
 ===
-Run './pydio start' to load all services.
+Run '` + os.Args[0] + ` start' to load all services.
 
 LOGS LEVEL
 ==========
@@ -77,8 +77,8 @@ to one of the following values:
 
 SERVICES DISCOVERY
 ==================
-Micro services need a registry mechanism to discover each other. By default, Pydio ships with Nats.io and Consul.io implementations.
-You don't need to install any dependency. By default, Pydio uses the NATS implementation. You can switch to consul by using
+Micro services need a registry mechanism to discover each other. By default, Cells ships with Nats.io and Consul.io implementations.
+You don't need to install any dependency. By default, Cells uses the NATS implementation. You can switch to consul by using
 the flag --registry=consul.
 
 `,

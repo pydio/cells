@@ -57,8 +57,8 @@ const (
 // installCmd represents the install command
 var installCmd = &cobra.Command{
 	Use:   "install",
-	Short: "Pydio Cells Installer",
-	Long: `This command launch the installation process of Pydio Cells.
+	Short: common.PackageLabel + " Installer",
+	Long: `This command launch the installation process of ` + common.PackageLabel + `.
 
 It will ask for the Bind Host to hook the webserver on a network interface IP, and you can set different hosts for accessing
 the machine from outside world (if it is behind a proxy or inside a container with ports mapping for example).
@@ -75,19 +75,19 @@ Or
 - Bind Host : IP:8080
 - External Host : IP:8080
 
-It will open a browser to gather necessary information and configuration for Pydio Cells. if you don't have a browser access,
+It will open a browser to gather necessary information and configuration for ` + common.PackageLabel + `. if you don't have a browser access,
 you can launch the command line installation using the install-cli command:
 
-$ ./pydio install-cli
+$ ./cells install-cli
 
-Pydio services will all start automatically after the install process is finished.
+Services will all start automatically after the install process is finished.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var internal, external *url.URL
 		fmt.Println("")
-		fmt.Println("\033[1mWelcome to Pydio Cells installation\033[0m")
-		fmt.Println("Pydio Cells services will be configured to run on this machine. Make sure to prepare the following data")
+		fmt.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m")
+		fmt.Println(common.PackageLabel + " will be configured to run on this machine. Make sure to prepare the following data")
 		fmt.Println(" - IPs and ports for binding the webserver to outside world")
 		fmt.Println(" - MySQL 5.6+ (or MariaDB equivalent) server access")
 		fmt.Println(" - PHP-FPM 7+ for running frontend")
@@ -142,7 +142,6 @@ Pydio services will all start automatically after the install process is finishe
 				}
 			}
 		}
-		fmt.Println(tls)
 
 		// Creating temporary caddy file
 		if err := config.InitCaddyFile(caddyfile, struct {
@@ -156,7 +155,7 @@ Pydio services will all start automatically after the install process is finishe
 			Micro: micro,
 			TLS:   tls,
 		}); err != nil {
-			cmd.Println("Could not configure caddy", err)
+			log.Fatal(err.Error())
 			os.Exit(0)
 		}
 

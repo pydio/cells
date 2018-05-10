@@ -50,15 +50,18 @@ func notEmpty(input string) error {
 	}
 }
 
-func validUrl(input string) error {
+func validHostPort(input string) error {
 	if e := notEmpty(input); e != nil {
 		return e
 	}
-	u, e := url.ParseRequestURI(input)
-	if u == nil || u.Scheme == "" || u.Host == "" || u.Port() == "" {
-		return fmt.Errorf("Please use a valid URL like http://host:port")
+	parts := strings.Split(input, ":")
+	if len(parts) != 2 {
+		return fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
 	}
-	return e
+	if e := validPortNumber(parts[1]); e != nil {
+		return e
+	}
+	return nil
 }
 
 func validPortNumber(input string) error {
@@ -95,7 +98,7 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 		Label:    "Binding Host (ip:port or yourdomain.tld that the webserver will listen. If internal and external urls differ, use internal here)",
 		Items:    items,
 		AddLabel: "Other",
-		Validate: notEmpty,
+		Validate: validHostPort,
 	}
 	_, internalHost, e = prompt.Run()
 	if e != nil {
@@ -104,11 +107,18 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 	internalHost = strings.TrimSuffix(internalHost, "/")
 	internalHost = strings.TrimPrefix(internalHost, "http://")
 	internalHost = strings.TrimPrefix(internalHost, "https://")
-
+	parts := strings.Split(internalHost, ":")
+	if len(parts) != 2 {
+		return nil, nil, fmt.Errorf("Please use an [IP|DOMAIN]:[PORT] string")
+	}
+	defaultExternal := internalHost
+	if parts[1] == "80" || parts[1] == "443" {
+		defaultExternal = parts[0]
+	}
 	extPrompt := p.Prompt{
-		Label:    "External Host (used to access this machine from outside world, if different from Bind Host)",
+		Label:    "External Host (used to access this machine from outside world if it differs from Bind Host)",
 		Validate: notEmpty,
-		Default:  internalHost,
+		Default:  defaultExternal,
 	}
 	externalHost, e = extPrompt.Run()
 	if e != nil {
@@ -147,9 +157,8 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 // installCmd represents the install command
 var installCliCmd = &cobra.Command{
 	Use:   "install-cli",
-	Short: "Pydio Cells Command-Line Installer",
-	Long: `This command launch the installation process of Pydio Cells in the command line instead of a browser.
-	`,
+	Short: common.PackageLabel + " Command-Line Installer",
+	Long:  "This command launch the installation process of " + common.PackageLabel + " in the command line instead of a browser.",
 	Run: func(cmd *cobra.Command, args []string) {
 
 		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
@@ -169,21 +178,21 @@ var installCliCmd = &cobra.Command{
 		fmt.Println("")
 		fmt.Println("\033[1m## Database Connection\033[0m")
 		if e := promptDB(installConfig); e != nil {
-			os.Exit(1)
+			log.Fatal(err.Error())
 		}
 
 		fmt.Println("")
 		fmt.Println("\033[1m## Frontend Configuration\033[0m")
 		if e := promptFPM(installConfig); e != nil {
-			os.Exit(1)
+			log.Fatal(err.Error())
 		}
 		if e := promptFrontendAdmin(installConfig); e != nil {
-			os.Exit(1)
+			log.Fatal(err.Error())
 		}
 		fmt.Println("")
 		fmt.Println("\033[1m## Advanced Settings\033[0m")
 		if e := promptAdvanced(installConfig); e != nil {
-			os.Exit(1)
+			log.Fatal(err.Error())
 		}
 
 		fmt.Println("")
@@ -196,7 +205,7 @@ var installCliCmd = &cobra.Command{
 		}
 
 		fmt.Println("")
-		fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with './cells start' command\033[0m")
+		fmt.Println(p.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
 		fmt.Println("")
 	},
 }

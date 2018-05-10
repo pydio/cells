@@ -67,6 +67,9 @@ type CaddyTemplateConf struct {
 	Logs string
 	// Caddy compliant TLS string, either "self_signed" or paths to "cert key"
 	TLS string
+	// If TLS is enabled, also enable auto-redirect from http to https
+	HttpRedirectSource *url.URL
+	HttpRedirectTarget *url.URL
 }
 
 var (
@@ -148,6 +151,11 @@ var (
 	root "{{.Root}}"
 	errors "{{.Logs}}/caddy_errors.log"
 }
+{{if .HttpRedirectSource}}
+http://{{.HttpRedirectSource.Host}} {
+	redir https://{{.HttpRedirectTarget.Host}}
+}
+{{end}}
 `
 
 	DefaultCaddyfile = filepath.Join(ApplicationDataDir(), "Caddyfile")
@@ -183,6 +191,16 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 				c.TLS = fmt.Sprintf("%s %s", cert, key)
 			} else {
 				fmt.Println("Missing one of certFile/keyFile in SSL declaration. Will not enable SSL on proxy")
+			}
+		}
+		if redir := Get("cert", "proxy", "httpRedir").Bool(false); redir && c.TLS != "" {
+			if extUrl := Get("defaults", "url").String(""); extUrl != "" {
+				var e error
+				if c.HttpRedirectTarget, e = url.Parse(extUrl); e == nil {
+					c.HttpRedirectSource, _ = url.Parse("http://" + c.HttpRedirectTarget.Hostname())
+				}
+			} else {
+				return c, fmt.Errorf("cannot find url configuration")
 			}
 		}
 	}

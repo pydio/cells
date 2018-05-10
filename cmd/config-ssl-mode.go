@@ -73,11 +73,11 @@ var SslModeCmd = &cobra.Command{
 
 		if frontWrite == nil {
 			cmd.Println("*************************************************************")
-			cmd.Println(" Please restart pydio now. Frontend config has been updated  ")
+			cmd.Println(" Please restart now. Frontend config has been updated  ")
 			cmd.Println("**************************************************************")
 		} else {
 			cmd.Println("*************************************************************")
-			cmd.Println(" Please restart pydio now.")
+			cmd.Println(" Please restart now.")
 			cmd.Println(" WARNING: Frontend Config was not updated, update it manually!")
 			cmd.Println(" Error was  ", frontWrite.Error())
 			cmd.Println("**************************************************************")
@@ -126,6 +126,25 @@ func promptSslMode() (enabled bool, e error) {
 		config.Set(true, "cert", "proxy", "self")
 	case 2:
 		config.Set(false, "cert", "proxy", "ssl")
+	}
+
+	enableRedir := false
+	if enabled {
+		redirPrompt := promptui.Select{
+			Label: "Do you want to automatically redirect HTTP (80) to HTTPS? Warning, this require the right to bind to port 80 on this machine.",
+			Items: []string{
+				"Yes",
+				"No",
+			}}
+		if i, _, e = redirPrompt.Run(); e == nil && i == 0 {
+			enableRedir = true
+		}
+	}
+	if enableRedir {
+		fmt.Println("Setting httpRedir flag")
+		config.Set(true, "cert", "proxy", "httpRedir")
+	} else {
+		config.Del("cert", "proxy", "httpRedir")
 	}
 
 	return

@@ -29,6 +29,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 )
 
@@ -131,6 +132,12 @@ $ pydio start --exclude=pydio.grpc.idm.roles
 
 	Run: func(cmd *cobra.Command, args []string) {
 		//var err error
+
+		if !IsFork {
+			if e := checkFdlimit(); e != nil {
+				log.Fatal(e.Error())
+			}
+		}
 
 		// Start services that have not been deregistered via flags and filtering.
 		for _, service := range allServices {
