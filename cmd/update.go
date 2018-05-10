@@ -23,6 +23,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -56,7 +57,7 @@ To apply the actual update, re-run the command with a --version parameter.
 
 		binaries, e := update2.LoadUpdates(context.Background(), configs)
 		if e != nil {
-			log.Fatal("cannot retrieve available updates", zap.Error(e))
+			log.Fatal("Cannot retrieve available updates", zap.Error(e))
 		}
 		if len(binaries) == 0 {
 			fmt.Println("No updates available for this version")
@@ -64,7 +65,7 @@ To apply the actual update, re-run the command with a --version parameter.
 
 		if updateToVersion == "" {
 			// List versions
-			fmt.Println("Following packages are available: please run pydio update --version=x.y.z to upgrade to a given version")
+			fmt.Println("Following packages are available: please run \n$ " + os.Args[0] + " update --version=x.y.z\n to upgrade to a given version")
 			for _, bin := range binaries {
 				fmt.Println(fmt.Sprintf(" %s \t %s \t %s", bin.PackageName, bin.Version, bin.Label))
 			}
@@ -83,7 +84,7 @@ To apply the actual update, re-run the command with a --version parameter.
 
 			fmt.Println("Updating binary now")
 			if err := update2.ApplyUpdate(context.Background(), apply, configs, updateDryRun); err != nil {
-				log.Fatal("could not update the binary: " + err.Error())
+				log.Fatal("Could not update the binary: " + err.Error())
 			} else {
 				fmt.Println("Successfully upgraded binary, you can restart pydio now!")
 			}

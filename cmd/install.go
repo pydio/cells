@@ -57,8 +57,8 @@ const (
 // installCmd represents the install command
 var installCmd = &cobra.Command{
 	Use:   "install",
-	Short: common.PackageLabel + " Installer",
-	Long: `This command launch the installation process of ` + common.PackageLabel + `.
+	Short: "Pydio Cells Installer",
+	Long: `This command launch the installation process of Pydio Cells.
 
 It will ask for the Bind Host to hook the webserver on a network interface IP, and you can set different hosts for accessing
 the machine from outside world (if it is behind a proxy or inside a container with ports mapping for example).
@@ -75,10 +75,10 @@ Or
 - Bind Host : IP:8080
 - External Host : IP:8080
 
-It will open a browser to gather necessary information and configuration for ` + common.PackageLabel + `. if you don't have a browser access,
+It will open a browser to gather necessary information and configuration for Pydio Cells. if you don't have a browser access,
 you can launch the command line installation using the install-cli command:
 
-$ ./cells install-cli
+$ ` + os.Args[0] + ` install-cli
 
 Services will all start automatically after the install process is finished.
 	`,

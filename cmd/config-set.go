@@ -25,6 +25,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"os"
+
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/utils"
 )
@@ -45,10 +47,10 @@ Configurations are represented by three parameters that you must pass as argumen
 EXAMPLES
 ========
 Change the port of micro.web service (rest api)
-$ config set micro.web port 8083
+$ ` + os.Args[0] + ` config set micro.web port 8083
 
 Json parameter value
-$ config set pydio.grpc.yourservice configName '{"key":"value"}'
+$ ` + os.Args[0] + ` config set pydio.grpc.yourservice configName '{"key":"value"}'
 
 `,
 	Args: func(cmd *cobra.Command, args []string) error {

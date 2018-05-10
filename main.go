@@ -101,6 +101,6 @@ import (
 
 func main() {
 	common.PackageType = "PydioHome"
-	common.PackageLabel = "PydioCells Home Edition"
+	common.PackageLabel = "Pydio Cells Home Edition"
 	cmd.Execute()
 }

@@ -25,6 +25,8 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"os"
+
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/utils"
 )
@@ -44,7 +46,7 @@ Configurations are represented by two parameters that you must pass as arguments
 EXAMPLES
 ========
 Delete the port entry for the micro.web service (rest api)
-$ config delete micro.web port
+$ ` + os.Args[0] + ` config delete micro.web port
 
 `,
 	Args: func(cmd *cobra.Command, args []string) error {

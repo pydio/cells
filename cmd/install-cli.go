@@ -157,8 +157,8 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 // installCmd represents the install command
 var installCliCmd = &cobra.Command{
 	Use:   "install-cli",
-	Short: common.PackageLabel + " Command-Line Installer",
-	Long:  "This command launch the installation process of " + common.PackageLabel + " in the command line instead of a browser.",
+	Short: "Pydio Cells Command-Line Installer",
+	Long:  "This command launch the installation process of Pydio Cells in the command line instead of a browser.",
 	Run: func(cmd *cobra.Command, args []string) {
 
 		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)

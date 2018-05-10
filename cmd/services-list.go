@@ -69,8 +69,8 @@ type Tags struct {
 // listCmd represents the list command
 var servicesListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List all available micro services and their statuses",
-	Long: `List all available micro services and their statuses
+	Short: "List all available services and their statuses",
+	Long: `List all available services and their statuses
 
 Use this command to list all running services on this machine.
 Services fall into main categories (GENERIC, GRPC, REST, API) and are then

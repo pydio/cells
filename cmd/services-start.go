@@ -48,28 +48,28 @@ type serviceContext struct {
 // StartCmd represents the start command
 var StartCmd = &cobra.Command{
 	Use:   "start",
-	Short: "Start micro services",
+	Short: "Start Cells services",
 	Long: `Start one or more services on this machine
 
 SYNTAX
 ======
-$ pydio start [flags] args...
+$ ` + os.Args[0] + ` start [flags] args...
 
-Additional arguments are regexp that can match any of the service names available (see pydio list command).
+Additional arguments are regexp that can match any of the service names available (see 'list' command).
 The -t/--tags flag may limit to only a certain category of services, use lowercase like broker, idm, data, etc...
 The -x/--exclude flag may exclude one or more services
-Both flags may be used in cunjonction with the regexp arguments.
+Both flags may be used in conjunction with the regexp arguments.
 
 EXAMPLES
 ========
 Start only services starting with grpc
-$ pydio start pydio.grpc
+$ ` + os.Args[0] + ` start pydio.grpc
 
 Start only services for scheduler
-$ pydio start --tag=scheduler
+$ ` + os.Args[0] + ` start --tag=scheduler
 
 Start whole plateform except the roles service
-$ pydio start --exclude=pydio.grpc.idm.roles
+$ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
