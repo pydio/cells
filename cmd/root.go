@@ -85,7 +85,7 @@ the flag --registry=consul.
 	PreRun: func(cmd *cobra.Command, args []string) {},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// Special case
-		if cmd == StartCmd {
+		if cmd.Long == StartCmd.Long {
 			common.LogCaptureStdOut = true
 		}
 		// Making sure we capture the signals
