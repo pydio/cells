@@ -21,6 +21,7 @@
 package grpc
 
 import (
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/discovery/update/lang"
 )
@@ -35,13 +36,14 @@ var ExposedConfigs = &forms.Form{
 				Type:        forms.ParamString,
 				Label:       "Update.Config.Url.Label",
 				Description: "Update.Config.Url.Description",
-				Default:     "https://update.pydio.com/cells/",
+				Default:     common.UpdateDefaultServerUrl,
 			},
 			&forms.FormField{
 				Name:        "publicKey",
 				Type:        forms.ParamTextarea,
 				Label:       "Update.Config.PublicKey.Label",
 				Description: "Update.Config.PublicKey.Description",
+				Default:     common.UpdateDefaultPublicKey,
 			},
 			&forms.FormField{
 				Name:        "channel",
@@ -52,7 +54,7 @@ var ExposedConfigs = &forms.Form{
 					{"stable": "Update.Config.Channel.ValueStable"},
 					{"dev": "Update.Config.Channel.ValueDev"},
 				},
-				Default:   "stable",
+				Default:   common.UpdateDefaultChannel,
 				Mandatory: true,
 			},
 			/*

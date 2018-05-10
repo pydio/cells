@@ -158,8 +158,8 @@ var (
 
 	// Update Server Default values
 	UpdateDefaultChannel   = "stable"
-	UpdateDefaultServerUrl = "https://update.pydio.com/cells"
-	UpdateDefaultPublicKey = `-----BEGIN PUBLIC KEY-----\nMIIBCgKCAQEApW6pRgwl9ippyaH7goGscRo24QLHmtEH7X5vrqdR7ee/sTb0Jw0L\n5UmodCJVOLJXqQizTQOoKwtwtfjUkzdMh5ovvg3Qpcsj2Dd2J6Wjh4k1VrZiaYwv\ntWqklyApdcXSIiTKKIZbwVrDuETxnOQk2IDl0ftTxBvvrG6IB2xdJMCh4V6ZxHu1\neEKHR2eMNO0TepsOp5SOb7x2nrB3Ri1RbUoC8zizfrZFj18wnTKPt3P+I2pFFSZf\nXwJUABVyucTN3rCWw9X32gxAZhcqDIjBSW2/vmpSUIEHQVTuh8ZZYlJbDoQW6x5r\nsJzNmlQ1P8Iyv6yiRUpniwT0Yj83Oqy2uQIDAQAB\n-----END PUBLIC KEY-----`
+	UpdateDefaultServerUrl = "https://updatecells.pydio.com/"
+	UpdateDefaultPublicKey = `-----BEGIN PUBLIC KEY-----\nMIIBCgKCAQEAwh/ofjZTITlQc4h/qDZMR3RquBxlG7UTunDKLG85JQwRtU7EL90v\nlWxamkpSQsaPeqho5Q6OGkhJvZkbWsLBJv6LZg+SBhk6ZSPxihD+Kfx8AwCcWZ46\nDTpKpw+mYnkNH1YEAedaSfJM8d1fyU1YZ+WM3P/j1wTnUGRgebK9y70dqZEo2dOK\nn98v3kBP7uEN9eP/wig63RdmChjCpPb5gK1/WKnY4NFLQ60rPAOBsXurxikc9N/3\nEvbIB/1vQNqm7yEwXk8LlOC6Fp8W/6A0DIxr2BnZAJntMuH2ulUfhJgw0yJalMNF\nDR0QNzGVktdLOEeSe8BSrASe9uZY2SDbTwIDAQAB\n-----END PUBLIC KEY-----`
 
 	// Logging Levels
 	LogConfig        LogConfigType
