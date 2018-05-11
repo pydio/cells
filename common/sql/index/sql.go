@@ -533,10 +533,12 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 	mpath3 := string(bytes.Trim(mpath[(indexLen*2):(indexLen*3-1)], "\x00"))
 	mpath4 := string(bytes.Trim(mpath[(indexLen*3):(indexLen*4-1)], "\x00"))
 
-	updateTree := dao.GetStmt("updateTree")
-	updateNode := dao.GetStmt("updateNode")
+	// TODO : Transaction is not really used here as stmts are taken from dao.
+	// It is disabled as it can create locks when updating nodes in batch
+	//updateTree := dao.GetStmt("updateTree")
+	//updateNode := dao.GetStmt("updateNode")
 
-	if stmt := tx.Stmt(updateTree); stmt != nil {
+	if stmt := dao.GetStmt("updateTree"); stmt != nil {
 		defer stmt.Close()
 
 		if _, err = stmt.Exec(
@@ -555,7 +557,7 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 		return fmt.Errorf("Empty statement")
 	}
 
-	if stmt := tx.Stmt(updateNode); stmt != nil {
+	if stmt := dao.GetStmt("updateNode"); stmt != nil {
 		defer stmt.Close()
 
 		if _, err = stmt.Exec(

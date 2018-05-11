@@ -109,8 +109,8 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 			deleteEvent.Node = dbNode
 			if dbNode.IsLeaf() {
 				for _, createEvent = range batch.CreateFiles {
-					if createEvent.Node != nil && createEvent.Node.Etag == dbNode.Etag {
-						log.Logger(ev.globalContext).Debug("Existing leaf node with hash: this is a move", zap.String("etag", dbNode.Etag), zap.String("path", dbNode.Path))
+					if createEvent.Node != nil && (createEvent.Node.Etag == dbNode.Etag || createEvent.Node.Uuid == dbNode.Uuid) {
+						log.Logger(ev.globalContext).Debug("Existing leaf node with same hash or Uuid: this is a move", zap.String("etag", dbNode.Etag), zap.String("path", dbNode.Path))
 						createEvent.Node = dbNode
 						batch.FileMoves[createEvent.Key] = createEvent
 						delete(batch.Deletes, deleteEvent.Key)

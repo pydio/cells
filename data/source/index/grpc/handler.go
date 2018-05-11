@@ -465,6 +465,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 // DeleteNode implementation for the TreeServer.
 func (s *TreeServer) DeleteNode(ctx context.Context, req *tree.DeleteNodeRequest, resp *tree.DeleteNodeResponse) (err error) {
 
+	log.Logger(ctx).Debug("DeleteNode", zap.Any("request", req))
 	defer track("DeleteNode", ctx, time.Now(), req, resp)
 	defer func() {
 		if r := recover(); r != nil {

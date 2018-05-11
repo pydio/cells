@@ -23,12 +23,12 @@ package tree
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
-	"github.com/micro/protobuf/proto"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
@@ -159,38 +159,47 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 			// CREATE NEW FILES - DO NOT HANDLE PYDIO_SYNC_HIDDEN_FILE_META, HANDLE FOLDERS INSTEAD
 
 			log.Logger(ctx).Info("Copy/Move " + childNode.Path + " to " + targetPath)
+			folderExists := false
+			if !childNode.IsLeaf() || filepath.Base(targetPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
+				if cResp, cE := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: targetPath}}); cE == nil && cResp.Node != nil {
+					log.Logger(ctx).Info("-- Ignoring folder move/copy as it already exists")
+					folderExists = true
+				}
+			}
 
-			if childNode.IsLeaf() {
-				meta := make(map[string]string, 1)
-				if c.Move {
-					meta["X-Amz-Metadata-Directive"] = "COPY"
+			if !folderExists {
+
+				if childNode.IsLeaf() {
+
+					meta := make(map[string]string, 1)
+					if c.Move {
+						meta["X-Amz-Metadata-Directive"] = "COPY"
+					} else {
+						meta["X-Amz-Metadata-Directive"] = "REPLACE"
+					}
+					meta["X-Pydio-Session"] = session
+					_, e := c.Client.CopyObject(ctx, childNode, &tree.Node{Path: targetPath}, &views.CopyRequestData{Metadata: meta})
+					if e != nil {
+						log.Logger(ctx).Info("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
+						return output.WithError(e), e
+					}
+					log.Logger(ctx).Info("-- Copy Success: " + childNode.Path)
+
 				} else {
-					meta["X-Amz-Metadata-Directive"] = "REPLACE"
+
+					folderNode := childNode.Clone()
+					folderNode.Path = targetPath
+					if !c.Move {
+						folderNode.Uuid = uuid.NewUUID().String()
+					}
+					_, e := c.Client.CreateNode(ctx, &tree.CreateNodeRequest{Node: folderNode, IndexationSession: session})
+					if e != nil {
+						log.Logger(ctx).Info("-- Create Folder ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
+						return output.WithError(e), e
+					}
+					log.Logger(ctx).Info("-- Create Folder Success " + childNode.Path)
+
 				}
-
-				meta["X-Pydio-Session"] = session
-
-				_, e := c.Client.CopyObject(ctx, childNode, &tree.Node{Path: targetPath}, &views.CopyRequestData{Metadata: meta})
-				if e != nil {
-					log.Logger(ctx).Info("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
-					return output.WithError(e), e
-				}
-				log.Logger(ctx).Info("-- Copy Success: " + childNode.Path)
-
-			} else {
-
-				folderNode := proto.Clone(childNode).(*tree.Node)
-				folderNode.Path = targetPath
-				if !c.Move {
-					folderNode.Uuid = uuid.NewUUID().String()
-				}
-				_, e := c.Client.CreateNode(ctx, &tree.CreateNodeRequest{Node: folderNode, IndexationSession: session})
-				if e != nil {
-					log.Logger(ctx).Info("-- Create Folder ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
-					return output.WithError(e), e
-				}
-				log.Logger(ctx).Info("-- Create Folder Success " + childNode.Path)
-
 			}
 
 			// REMOVE SOURCE IF NECESSARY - DO REMOVE PYDIO_SYNC_HIDDEN_FILE_META
@@ -279,5 +288,6 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		Success: true,
 	})
 
+	log.Logger(ctx).Info("Should now exit copy/move action")
 	return output, nil
 }
