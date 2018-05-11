@@ -327,6 +327,7 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 		"Version":       common.Version().String(),
 		"BuildRevision": common.BuildRevision,
 		"BuildStamp":    common.BuildStamp,
+		"License":       "agplv3",
 	}
 
 	marshalled, _ := json.Marshal(data)
