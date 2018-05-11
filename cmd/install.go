@@ -104,14 +104,13 @@ Services will all start automatically after the install process is finished.
 
 		if niBindUrl != "" && niExtUrl != "" {
 
-			config.Set(niBindUrl, "defaults", "internalUrl")
-			config.Set(niExtUrl, "defaults", "url")
+			internal, _ = url.Parse("https://" + niBindUrl)
+			external, _ = url.Parse("https://" + niExtUrl)
+			config.Set(internal.String(), "defaults", "urlInternal")
+			config.Set(external.String(), "defaults", "url")
 			config.Set(true, "cert", "proxy", "ssl")
 			config.Set(true, "cert", "proxy", "self")
 			utils.SaveConfigs()
-
-			internal, _ = url.Parse("https://" + niBindUrl)
-			external, _ = url.Parse("https://" + niExtUrl)
 
 		} else {
 
