@@ -54,6 +54,11 @@ const (
 	`
 )
 
+var (
+	niBindUrl string
+	niExtUrl  string
+)
+
 // installCmd represents the install command
 var installCmd = &cobra.Command{
 	Use:   "install",
@@ -62,6 +67,9 @@ var installCmd = &cobra.Command{
 
 It will ask for the Bind Host to hook the webserver on a network interface IP, and you can set different hosts for accessing
 the machine from outside world (if it is behind a proxy or inside a container with ports mapping for example).
+You can launch this installer in non-interactive mode by providing --bind and --external. This will launch the browser-based
+installer with SSL active using self_signed setup by default.
+
 For example
 - Bind Host : 0.0.0.0:8080
 - External Host : share.mydomain.tld
@@ -93,27 +101,43 @@ Services will all start automatically after the install process is finished.
 		fmt.Println(" - PHP-FPM 7+ for running frontend")
 		fmt.Println("Pick your installation mode when you are ready.")
 		fmt.Println("")
-		p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
-		if i, _, e := p.Run(); e != nil {
-			cmd.Help()
-			log.Fatal(e.Error())
-			os.Exit(1)
+
+		if niBindUrl != "" && niExtUrl != "" {
+
+			config.Set(niBindUrl, "defaults", "internalUrl")
+			config.Set(niExtUrl, "defaults", "url")
+			config.Set(true, "cert", "proxy", "ssl")
+			config.Set(true, "cert", "proxy", "self")
+			utils.SaveConfigs()
+
+			internal, _ = url.Parse("https://" + niBindUrl)
+			external, _ = url.Parse("https://" + niExtUrl)
+
 		} else {
-			if i == 0 {
-				var err error
-				internal, external, err = promptAndSaveInstallUrls()
-				if err != nil {
-					cmd.Help()
-					log.Fatal(err.Error())
-				}
+
+			p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
+			if i, _, e := p.Run(); e != nil {
+				cmd.Help()
+				log.Fatal(e.Error())
+				os.Exit(1)
 			} else {
-				// Launch install cli then
-				installCliCmd.Run(cmd, args)
-				return
+				if i == 0 {
+					var err error
+					internal, external, err = promptAndSaveInstallUrls()
+					if err != nil {
+						cmd.Help()
+						log.Fatal(err.Error())
+					}
+				} else {
+					// Launch install cli then
+					installCliCmd.Run(cmd, args)
+					return
+				}
 			}
+
 		}
 
-		// Installing the php data
+		// Installing the JS data
 		dir, err := assets.GetAssets("../assets/src/install")
 		if err != nil {
 			dir = filepath.Join(config.ApplicationDataDir(), "static", "install")
@@ -262,5 +286,10 @@ func open(url string) error {
 }
 
 func init() {
+
+	flags := installCmd.PersistentFlags()
+	flags.StringVar(&niBindUrl, "bind", "", "[Non interactive mode] internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
+	flags.StringVar(&niExtUrl, "external", "", "[Non interactive mode] external URL:PORT exposed to outside")
+
 	RootCmd.AddCommand(installCmd)
 }
