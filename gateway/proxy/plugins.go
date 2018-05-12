@@ -26,6 +26,7 @@ import (
 	"fmt"
 
 	"github.com/mholt/caddy"
+	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
 
@@ -44,6 +45,8 @@ func init() {
 
 			caddy.AppName = common.PackageLabel
 			caddy.AppVersion = common.Version().String()
+			httpserver.HTTP2 = false
+
 			conf, e := config.LoadCaddyConf()
 			if e != nil {
 				return nil, nil, nil, e
