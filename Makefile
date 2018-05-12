@@ -49,7 +49,7 @@ dev:
 	go build\
 	 -ldflags "-X github.com/pydio/cells/common.version=0.2.0\
 	 -X github.com/pydio/cells/common.BuildStamp=2018-01-01T00:00:00\
-	 -X github.com/pydio/cells/common.BuildRevision=dev\
+	 -X github.com/pydio/cells/common.BuildRevision=dev"\
 	 -o cells\
 	 main.go
 
