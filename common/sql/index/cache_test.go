@@ -473,6 +473,72 @@ func TestMysqlWithCache(t *testing.T) {
 
 }
 
+func TestDaocache_GetNodeFirstAvailableChildIndex(t *testing.T) {
+
+	Convey("Test mPath with free slots", t, func() {
+
+		newSession()
+
+		node1 := utils.NewTreeNode()
+		node1.Node = &tree.Node{Uuid: "parent-slots-1", Type: tree.NodeType_COLLECTION}
+		node1.SetMPath(1, 40)
+
+		node11 := utils.NewTreeNode()
+		node11.Node = &tree.Node{Uuid: "child-slots-1.1", Type: tree.NodeType_COLLECTION}
+		node11.SetMPath(1, 40, 1)
+
+		node13 := utils.NewTreeNode()
+		node13.Node = &tree.Node{Uuid: "child-slots-1.3", Type: tree.NodeType_COLLECTION}
+		node13.SetMPath(1, 40, 3)
+
+		node14 := utils.NewTreeNode()
+		node14.Node = &tree.Node{Uuid: "child-slots-1.4", Type: tree.NodeType_COLLECTION}
+		node14.SetMPath(1, 40, 4)
+
+		e := getDAO(ctxWithCache).AddNode(node1)
+		So(e, ShouldBeNil)
+
+		// No Children yet, should return 1
+		slot, e := getDAO(ctxWithCache).GetNodeFirstAvailableChildIndex(utils.NewMPath(1, 40))
+		So(e, ShouldBeNil)
+		So(slot, ShouldEqual, 1)
+
+		e = getDAO(ctxWithCache).AddNode(node11)
+		So(e, ShouldBeNil)
+
+		// One or more children, should return length(children) + 1
+		slot, e = getDAO(ctxWithCache).GetNodeFirstAvailableChildIndex(utils.NewMPath(1, 40))
+		So(e, ShouldBeNil)
+		So(slot, ShouldEqual, 2)
+
+		e = getDAO(ctxWithCache).AddNode(node13)
+		So(e, ShouldBeNil)
+		e = getDAO(ctxWithCache).AddNode(node14)
+		So(e, ShouldBeNil)
+
+		// One or more children but there are free slots, should return first free slot
+		slot, e = getDAO(ctxWithCache).GetNodeFirstAvailableChildIndex(utils.NewMPath(1, 40))
+		So(e, ShouldBeNil)
+		So(slot, ShouldEqual, 2)
+
+		node12 := utils.NewTreeNode()
+		node12.Node = &tree.Node{Uuid: "child-slots-1.2", Type: tree.NodeType_COLLECTION}
+		node12.SetMPath(1, 40, 2)
+		e = getDAO(ctxWithCache).AddNode(node12)
+		So(e, ShouldBeNil)
+
+		// One or more children, should return length(children) + 1
+		slot, e = getDAO(ctxWithCache).GetNodeFirstAvailableChildIndex(utils.NewMPath(1, 40))
+		So(e, ShouldBeNil)
+		So(slot, ShouldEqual, 5)
+
+		e = getDAO(ctxWithCache).Flush(true)
+		So(e, ShouldBeNil)
+
+	})
+
+}
+
 func TestCommitsWithCache(t *testing.T) {
 
 	Convey("Test Insert / List / Delete", t, func() {
@@ -701,6 +767,24 @@ func TestSmallArborescenceWithCache(t *testing.T) {
 
 		// printTree(ctxWithCache)
 		// printNodes(ctxWithCache)
+
+		getDAO(ctxWithCache).Flush(true)
+	})
+}
+
+func TestOtherArborescenceWithCache(t *testing.T) {
+	Convey("Re-adding a file - Success", t, func() {
+		arborescence := []string{
+			"pydiods1/Dossier Chateau de Vaux - Dossier diag -",
+			"pydiods1/Dossier Chateau de Vaux - Dossier diag -/Fonts",
+			"pydiods1/Dossier Chateau de Vaux - Dossier diag -/Links",
+		}
+
+		newSession()
+
+		for _, path := range arborescence {
+			getDAO(ctxWithCache).Path(path, true)
+		}
 
 		getDAO(ctxWithCache).Flush(true)
 	})

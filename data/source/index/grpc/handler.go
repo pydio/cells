@@ -23,21 +23,22 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"runtime/debug"
 	"strings"
 	"time"
 
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/data/source/index"
-
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/errors"
-	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/data/source/index/sessions"
-	"go.uber.org/zap"
 )
 
 // TreeServer definition.
@@ -80,6 +81,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic recovered in CreateNode: %s. Node path was %s", r, req.Node.Path)
+			fmt.Printf("%s\n", debug.Stack())
 		}
 	}()
 

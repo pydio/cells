@@ -259,15 +259,12 @@ func (d *daocache) Flush(final bool) error {
 	l := len(errs)
 
 	if l == 1 {
-		return errs[0]
-	}
-
-	if l > 0 {
+		err = errs[0]
+	} else if l > 0 {
 		f := make([]string, l)
 		for i, e := range errs {
 			f[i] = e.Error()
 		}
-
 		err = errors.New("Combined errors : " + strings.Join(f, " "))
 	}
 
@@ -504,8 +501,37 @@ func (d *daocache) GetNodeFirstAvailableChildIndex(path utils.MPath) (uint64, er
 		return 1, nil
 	}
 
-	return uint64(count + 1), nil
+	var currentLast uint64
+	slots := make(map[uint64]bool, count)
+	for _, node := range c {
+		last := node.MPath[len(node.MPath)-1]
+		slots[last] = true
+		if last > currentLast {
+			currentLast = last
+		}
+	}
+
+	if currentLast > uint64(count) {
+		var freeSlot uint64
+		for i := 1; i <= count; i++ {
+			if _, ok := slots[uint64(i)]; !ok {
+				freeSlot = uint64(i)
+				break
+			}
+		}
+		if freeSlot > 0 {
+			// Found a free slot indeed, return it
+			//fmt.Println("Get Node Last Child: returning free slot! ", path.String(), freeSlot)
+			return freeSlot, nil
+		}
+	}
+
+	// Return currentLast + 1
+	//fmt.Println("Get Node Last Child: returning last+1", path.String(), currentLast+1)
+	return uint64(currentLast + 1), nil
+
 }
+
 func (d *daocache) GetNodeChildren(path utils.MPath) chan *utils.TreeNode {
 
 	c := make(chan *utils.TreeNode)
