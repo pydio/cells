@@ -73,7 +73,13 @@ func (w *ScheduleWaiter) Stop() {
 // WaitUntilNext implements the intelligence of the waiter.
 func (w *ScheduleWaiter) WaitUntilNext() {
 
-	wait := w.computeNextWait()
+	var wait time.Duration
+	if w.interval == 0 {
+		// This is not normal, this will trigger the job too many times
+		wait = 5 * time.Minute
+	} else {
+		wait = w.computeNextWait()
+	}
 
 	go func() {
 		for {

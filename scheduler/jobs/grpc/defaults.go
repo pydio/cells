@@ -92,20 +92,6 @@ func getDefaultJobs() []*jobs.Job {
 		},
 	}
 
-	directoriesJob := &jobs.Job{
-		ID:             "external-directories-sync",
-		Owner:          common.PYDIO_SYSTEM_USERNAME,
-		Label:          "Jobs.Default.Directories",
-		Inactive:       false,
-		MaxConcurrency: 1,
-		Actions: []*jobs.Action{
-			{
-				ID:         "actions.auth.sync-users",
-				Parameters: map[string]string{},
-			},
-		},
-	}
-
 	stuckTasksJob := &jobs.Job{
 		ID:             "internal-prune-jobs",
 		Owner:          common.PYDIO_SYSTEM_USERNAME,
@@ -176,7 +162,6 @@ func getDefaultJobs() []*jobs.Job {
 	defJobs := []*jobs.Job{
 		thumbnailsJob,
 		cleanThumbsJob,
-		directoriesJob,
 		stuckTasksJob,
 		// Testing Jobs
 		fakeLongJob,
