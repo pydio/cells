@@ -22,7 +22,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
@@ -58,7 +57,6 @@ func (h *Handler) PutLog(ctx context.Context, stream proto.LogRecorder_PutLogStr
 // ListLogs is a simple gateway from protobuf to the indexer search engine.
 func (h *Handler) ListLogs(ctx context.Context, req *proto.ListLogRequest, stream proto.LogRecorder_ListLogsStream) error {
 
-	fmt.Println("Core Log Handler, listing", req, h)
 	q := req.GetQuery()
 	p := req.GetPage()
 	s := req.GetSize()

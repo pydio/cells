@@ -29,6 +29,8 @@ import (
 	"github.com/hashicorp/go-version"
 	"go.uber.org/zap"
 
+	"strings"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -71,7 +73,7 @@ func LastKnownVersion(serviceName string) (v *version.Version, e error) {
 			return nil, err
 		}
 	} else {
-		return version.NewVersion(string(data))
+		return version.NewVersion(strings.TrimSpace(string(data)))
 	}
 
 }

@@ -140,6 +140,7 @@ var (
 						"rest:/user",
 						"rest:/user/<.+>",
 						"rest:/workspace",
+						"rest:/workspace/<.+>",
 						"rest:/role",
 						"rest:/role/<.+>",
 						"rest:/graph<.+>",
