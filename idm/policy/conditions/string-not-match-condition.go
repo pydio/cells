@@ -30,18 +30,17 @@ import (
 )
 
 // StringNotMatchCondition is a condition which is fulfilled if the given
-// string value matches the regex pattern specified in StringNotMatchCondition
+// string value does *NOT* match the regex pattern specified in StringNotMatchCondition
 type StringNotMatchCondition struct {
 	Matches string `json:"matches"`
 }
 
-// Fulfills returns true if the given value is a string and matches the regex
-// pattern in StringMatchCondition.Matches
+// Fulfills returns true if the given value is a string and does *NOT* matches the regex
+// pattern in StringNotMatchCondition
 func (c *StringNotMatchCondition) Fulfills(value interface{}, _ *ladon.Request) bool {
 	s, ok := value.(string)
 
 	log.Logger(context.Background()).Error("in string not match condition for string " + s)
-	// 	debug.PrintStack()
 
 	matches, _ := regexp.MatchString(c.Matches, s)
 
