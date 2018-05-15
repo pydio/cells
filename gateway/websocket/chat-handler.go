@@ -131,6 +131,9 @@ func (c *ChatHandler) InitHandlers(serviceCtx context.Context) {
 				if e1 == nil {
 					session = c.roomsWithValue(session, foundRoom.Uuid)
 				}
+				if foundRoom == nil {
+					break
+				}
 				// Update Room Users
 				c.AppendUserToRoom(foundRoom, userName)
 				chatClient := c.getChatClient()

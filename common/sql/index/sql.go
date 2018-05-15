@@ -859,7 +859,6 @@ func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 			insert(all...)
 		}
 
-		fmt.Println("End Setting nodes ")
 	}()
 
 	return b
