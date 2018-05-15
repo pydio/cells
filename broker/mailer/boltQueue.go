@@ -105,7 +105,9 @@ func (b *BoltQueue) Push(email *mailer.Mail) error {
 
 func (b *BoltQueue) Consume(mh func(email *mailer.Mail) error) error {
 
-	return b.db.Update(func(tx *bolt.Tx) error {
+	var output error
+
+	b.db.Update(func(tx *bolt.Tx) error {
 
 		b := tx.Bucket([]byte("MailerQueue"))
 		c := b.Cursor()
@@ -149,12 +151,11 @@ func (b *BoltQueue) Consume(mh func(email *mailer.Mail) error) error {
 			i++
 		}
 		if len(errStack) > 0 {
-			return fmt.Errorf("consuming queue had %d errors (successfully sent %d), errors were %s", len(errStack), i, strings.Join(errStack, ",\n"))
-		} else {
-			return nil
+			output = fmt.Errorf("consuming queue had %d errors (successfully sent %d), errors were %s", len(errStack), i, strings.Join(errStack, ",\n"))
 		}
+		return nil
 	})
-	// return nil
+	return output
 }
 
 // itob returns an 8-byte big endian representation of v.

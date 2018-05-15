@@ -157,12 +157,12 @@ func (m *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 		}
 
 		if req.InQueue {
-			log.Logger(ctx).Info("SendMail: pushing email to queue", zap.Any("to", mail.To), zap.Any("subject", mail.Subject))
+			log.Logger(ctx).Info("SendMail: pushing email to queue", zap.Any("to", mail.To), zap.Any("from", mail.From), zap.Any("subject", mail.Subject))
 			if e := m.Queue.Push(mail); e != nil {
 				return e
 			}
 		} else {
-			log.Logger(ctx).Info("SendMail: sending email", zap.Any("to", mail.To), zap.Any("subject", mail.Subject))
+			log.Logger(ctx).Info("SendMail: sending email", zap.Any("to", mail.To), zap.Any("from", mail.From), zap.Any("subject", mail.Subject))
 			if e := m.sender.Send(mail); e != nil {
 				return e
 			}
