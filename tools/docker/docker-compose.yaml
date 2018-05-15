@@ -10,11 +10,7 @@ services:
          command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
          ports: ["3306:3306"]
 
-    php:
-        image: php:fpm-alpine
-        ports: ["9000:9000"]
-
-    pydio:
-        image: debian:jessie
+    cells:
+        image: pydio:cells
         volumes: ["/Users/gregory:/data"]
         ports: ["8080:8080"]
