@@ -747,16 +747,27 @@ func TestSmallArborescenceWithCache(t *testing.T) {
 		getDAO(ctxWithCache).Flush(false)
 
 		// Then we move a node
-		path1, _, err := getDAO(ctxWithCache).Path("/test copie", false)
+		pathFrom, _, err := getDAO(ctxWithCache).Path("/test copie", false)
 		So(err, ShouldBeNil)
-		path2, _, err := getDAO(ctxWithCache).Path("/document sans titre/target", true)
+		pathTo, _, err := getDAO(ctxWithCache).Path("/document sans titre/target", true)
 		So(err, ShouldBeNil)
 
 		// Then we move a node
-		node1, _ := getDAO(ctxWithCache).GetNode(path1)
-		node2, _ := getDAO(ctxWithCache).GetNode(path2)
-		err = getDAO(ctxWithCache).MoveNodeTree(node1, node2)
+		nodeFrom, _ := getDAO(ctxWithCache).GetNode(pathFrom)
+		nodeTo, _ := getDAO(ctxWithCache).GetNode(pathTo)
+
+		// First of all, we delete the existing node
+		if nodeTo != nil {
+			err = getDAO(ctxWithCache).DelNode(nodeTo)
+			So(err, ShouldBeNil)
+		}
+
+		getDAO(ctxWithCache).Flush(false)
+
+		fmt.Println("In here")
+		err = getDAO(ctxWithCache).MoveNodeTree(nodeFrom, nodeTo)
 		So(err, ShouldBeNil)
+		fmt.Println("In there")
 
 		getDAO(ctxWithCache).Flush(false)
 
