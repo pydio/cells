@@ -402,7 +402,7 @@ func (d *daocache) GetNodeByPath(path []string) (*utils.TreeNode, error) {
 		if len(nodes) == 1 {
 			node := nodes[0]
 			if len(node.MPath) != len(path)+1 {
-				return nil, fmt.Errorf("node missing")
+				return nil, fmt.Errorf("node missing at this level")
 			}
 			return node, nil
 		}
@@ -449,7 +449,8 @@ func (d *daocache) GetNodeByPath(path []string) (*utils.TreeNode, error) {
 			newPotentialNodes = []*utils.TreeNode{}
 		}
 	}
-	return nil, fmt.Errorf("node missing")
+
+	return nil, fmt.Errorf("node presumably missing")
 }
 
 func (d *daocache) GetNodeChild(path utils.MPath, name string) (*utils.TreeNode, error) {

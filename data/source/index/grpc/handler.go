@@ -414,7 +414,7 @@ func (s *TreeServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 	var nodeFrom, nodeTo *utils.TreeNode
 
 	if pathFrom, _, err = dao.Path(reqFromPath, false); err != nil {
-		return errors.InternalServerError(name, "Error while reading source path"+reqFromPath, err)
+		return errors.InternalServerError(name, "Error while reading source path "+reqFromPath, err)
 	}
 
 	if pathTo, _, err = dao.Path(reqToPath, true); err != nil {

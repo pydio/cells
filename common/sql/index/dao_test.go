@@ -577,3 +577,179 @@ func TestSmallArborescence(t *testing.T) {
 
 	printTree(ctxNoCache)
 }
+
+func TestMoveNodeTree(t *testing.T) {
+	Convey("Test movin a node in the tree", t, func() {
+		arborescence := []string{
+			"personal",
+			"personal/.DS_Store",
+			"personal/.pydio",
+			"personal/admin",
+			"personal/admin/.DS_Store",
+			"personal/admin/.pydio",
+			"personal/admin/Archive",
+			"personal/admin/Archive/.pydio",
+			"personal/admin/Archive/__MACOSX",
+			"personal/admin/Archive/__MACOSX/.pydio",
+			"personal/admin/Archive/EventsDarwin.txt",
+			"personal/admin/Archive/photographie.jpg",
+			"personal/admin/Archive.zip",
+			"personal/admin/download.png",
+			"personal/admin/EventsDarwin.txt",
+			"personal/admin/Labellized",
+			"personal/admin/Labellized/.pydio",
+			"personal/admin/Labellized/Dossier Chateau de Vaux - Dossier diag -.zip",
+			"personal/admin/Labellized/photographie.jpg",
+			"personal/admin/PydioCells",
+			"personal/admin/PydioCells/.DS_Store",
+			"personal/admin/PydioCells/.pydio",
+			"personal/admin/PydioCells/4c7f2f-EventsDarwin.txt",
+			"personal/admin/PydioCells/download1.png",
+			"personal/admin/PydioCells/icomoon (1)",
+			"personal/admin/PydioCells/icomoon (1)/.DS_Store",
+			"personal/admin/PydioCells/icomoon (1)/.pydio",
+			"personal/admin/PydioCells/icomoon (1)/demo-files",
+			"personal/admin/PydioCells/icomoon (1)/demo-files/.pydio",
+			"personal/admin/PydioCells/icomoon (1)/demo-files/demo.css",
+			"personal/admin/PydioCells/icomoon (1)/demo-files/demo.js",
+			"personal/admin/PydioCells/icomoon (1)/demo.html",
+			"personal/admin/PydioCells/icomoon (1)/Read Me.txt",
+			"personal/admin/PydioCells/icomoon (1)/selection.json",
+			"personal/admin/PydioCells/icomoon (1)/style.css",
+			"personal/admin/PydioCells/icomoon (1).zip",
+			"personal/admin/PydioCells/icons-signs.svg",
+			"personal/admin/PydioCells/Pydio-cells0.ai",
+			"personal/admin/PydioCells/Pydio-cells1-Mod.ai",
+			"personal/admin/PydioCells/Pydio-cells1.ai",
+			"personal/admin/PydioCells/Pydio-cells2.ai",
+			"personal/admin/PydioCells/PydioCells Logos.zip",
+			"personal/admin/recycle_bin",
+			"personal/admin/recycle_bin/.ajxp_recycle_cache.ser",
+			"personal/admin/recycle_bin/.DS_Store",
+			"personal/admin/recycle_bin/.pydio",
+			"personal/admin/recycle_bin/Archive.zip",
+			"personal/admin/recycle_bin/cells-clear-minus.svg",
+			"personal/admin/recycle_bin/cells-clear-plus.svg",
+			"personal/admin/recycle_bin/cells-full-minus.svg",
+			"personal/admin/recycle_bin/cells-full-plus.svg",
+			"personal/admin/recycle_bin/cells.svg",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/.DS_Store",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/.pydio",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -/.pydio",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag - 2",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag - 2/.DS_Store",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -.zip",
+			"personal/admin/recycle_bin/STACK.txt",
+			"personal/admin/recycle_bin/Synthèse des pathologies et urgences sanitaires.doc",
+			"personal/admin/STACK.txt",
+			"personal/admin/Test Toto",
+			"personal/admin/Test Toto/.pydio",
+			"personal/admin/Test Toto/download1 very long name test with me please.png",
+			"personal/admin/Test Toto/Pydio-color-logo-4.png",
+			"personal/admin/Test Toto/PydioCells Logos.zip",
+			"personal/admin/Test Toto/STACK.txt",
+			"personal/admin/Up",
+			"personal/admin/Up/.DS_Store",
+			"personal/admin/Up/.pydio",
+			"personal/admin/Up/2018 03 08 - Pydio Cells.key",
+			"personal/admin/Up/2018 03 08 - Pydio Cells.pdf",
+			"personal/admin/Up/Pydio-color-logo-2.png",
+			"personal/admin/Up/Pydio-color-logo-4.png",
+			"personal/admin/Up/Pydio20180201.mm",
+			"personal/admin/Up/Repair Result to pydio-logs-2018-3-13 06348.xml",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/.pydio",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Chateau de Vaux - Dossier diag -.indd",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Chateau de Vaux - Dossier diag RELU.pdf",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/ep assemble.txt",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Fonts",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Fonts/.pydio",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Fonts/arial.ttf",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Fonts/arialbd.ttf",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Fonts/ariali.ttf",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Fonts/calibri.ttf",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Fonts/calibrib.ttf",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Fonts/calibrii.ttf",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/.pydio",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/2017061674_ET7_SLR_AVOIR5_ET_7_SLR_AVOIR1_CHATEAU_VAUX-p.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/Atlas de Trudaine Foucheres.tif",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/cache_31574817.png",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/Carte de Vaux.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/carte localisation.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/elevation cour avec retombe.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/elevation jardin.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/Etage 2.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/Etage avec retombes.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/Hôtel Dieu.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/maps commune.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/PDG.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/pdg2.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/Plan domaine fin XVIIIe.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/plan masse.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/Projet XIXe plan.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/Projet XIXe siècle.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/RDC Avec modifs.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/Saint ménéhould.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/Seigneurie de Vaux.jpg",
+			"personal/Dossier Chateau de Vaux - Dossier diag - 2/Links/SS avec retombefs.jpg",
+			"personal/external",
+			"personal/external/.DS_Store",
+			"personal/external/.pydio",
+			"personal/external/Pydio-color-logo-4.png",
+			"personal/external/recycle_bin",
+			"personal/external/recycle_bin/.pydio",
+			"personal/recycle_bin",
+			"personal/recycle_bin/.ajxp_recycle_cache.ser",
+			"personal/recycle_bin/.pydio",
+			"personal/toto",
+			"personal/toto/.pydio",
+			"personal/toto/recycle_bin",
+			"personal/toto/recycle_bin/.pydio",
+			"personal/user",
+			"personal/user/.DS_Store",
+			"personal/user/.pydio",
+			"personal/user/recycle_bin",
+			"personal/user/recycle_bin/.pydio",
+			"personal/user/User Folder",
+			"personal/user/User Folder/.pydio",
+		}
+
+		for _, path := range arborescence {
+			getDAO(ctxNoCache).Path(path, true)
+		}
+
+		getDAO(ctxNoCache).Flush(true)
+
+		// Then we move a node
+		pathFrom, _, err := getDAO(ctxNoCache).Path("/personal/Dossier Chateau de Vaux - Dossier diag - 2", false)
+		So(err, ShouldBeNil)
+		pathTo, _, err := getDAO(ctxNoCache).Path("/Dossier Chateau de Vaux - Dossier diag - 2", true)
+		So(err, ShouldBeNil)
+
+		nodeFrom, err := getDAO(ctxNoCache).GetNode(pathFrom)
+		So(err, ShouldBeNil)
+		nodeTo, err := getDAO(ctxNoCache).GetNode(pathTo)
+		So(err, ShouldBeNil)
+
+		// First of all, we delete the existing node
+		if nodeTo != nil {
+			err = getDAO(ctxNoCache).DelNode(nodeTo)
+			So(err, ShouldBeNil)
+		}
+
+		err = getDAO(ctxNoCache).MoveNodeTree(nodeFrom, nodeTo)
+		So(err, ShouldBeNil)
+
+		var i int
+		for node := range getDAO(ctxNoCache).GetNodeTree(pathTo) {
+			fmt.Println(node.MPath)
+			i++
+		}
+
+		So(i, ShouldEqual, 35)
+
+	})
+}

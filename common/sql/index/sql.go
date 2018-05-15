@@ -535,10 +535,10 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 
 	// TODO : Transaction is not really used here as stmts are taken from dao.
 	// It is disabled as it can create locks when updating nodes in batch
-	//updateTree := dao.GetStmt("updateTree")
-	//updateNode := dao.GetStmt("updateNode")
+	updateTree := dao.GetStmt("updateTree")
+	updateNode := dao.GetStmt("updateNode")
 
-	if stmt := dao.GetStmt("updateTree"); stmt != nil {
+	if stmt := tx.Stmt(updateTree); stmt != nil {
 		defer stmt.Close()
 
 		if _, err = stmt.Exec(
@@ -557,7 +557,7 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 		return fmt.Errorf("Empty statement")
 	}
 
-	if stmt := dao.GetStmt("updateNode"); stmt != nil {
+	if stmt := tx.Stmt(updateNode); stmt != nil {
 		defer stmt.Close()
 
 		if _, err = stmt.Exec(
@@ -858,6 +858,8 @@ func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 			// }
 			insert(all...)
 		}
+
+		fmt.Println("End Setting nodes ")
 	}()
 
 	return b
@@ -931,6 +933,10 @@ func (dao *IndexSQL) GetNode(path utils.MPath) (*utils.TreeNode, error) {
 
 	dao.Lock()
 	defer dao.Unlock()
+
+	if len(path) == 0 {
+		return nil, fmt.Errorf("Empty path")
+	}
 
 	node := utils.NewTreeNode()
 	node.SetMPath(path...)
@@ -1206,6 +1212,7 @@ func (dao *IndexSQL) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
 	return c
 }
 
+// MoveNodeTree move all the nodes belonging to a tree by calculating the new mpathes
 func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNode) error {
 
 	var err error
@@ -1213,18 +1220,28 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 	pathFrom = nodeFrom.MPath
 	pathTo = nodeTo.MPath
 
-	p := pathFrom.Parent()
+	ppf := pathFrom.Parent()
+	if len(ppf) == 0 {
+		return fmt.Errorf("Cannot move root")
+	}
+
+	ppt := pathTo.Parent()
+	if len(ppt) == 0 {
+		return fmt.Errorf("Cannot replace root")
+	}
+
 	pf0, psf0, pf1, psf1 := utils.NewRat(), utils.NewRat(), utils.NewRat(), utils.NewRat()
-	pf0.SetMPath(p...)
-	psf0.SetMPath(p.Sibling()...)
-	pf1.SetMPath(pathTo.Parent()...)
-	psf1.SetMPath(pathTo.Parent().Sibling()...)
+	pf0.SetMPath(ppf...)
+	psf0.SetMPath(ppf.Sibling()...)
+
+	pf1.SetMPath(ppt...)
+	psf1.SetMPath(ppt.Sibling()...)
 
 	var idx uint64
 	m, n := new(big.Int), new(big.Int)
 
-	if idx, err = dao.GetNodeFirstAvailableChildIndex(pathTo.Parent()); err != nil {
-		return fmt.Errorf("Could not retrieve new materialized p(ath " + nodeTo.Path)
+	if idx, err = dao.GetNodeFirstAvailableChildIndex(ppt); err != nil {
+		return fmt.Errorf("Could not retrieve new materialized path " + nodeTo.Path)
 	}
 
 	m.SetUint64(idx)
@@ -1236,12 +1253,7 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 
 	var updateErrors []error
 
-	wg := &sync.WaitGroup{}
-
 	update := func(node *utils.TreeNode) {
-		wg.Add(1)
-		defer wg.Done()
-
 		M0 := utils.NewMatrix(node.NV(), node.SNV(), node.DV(), node.SDV())
 		M1 := utils.MoveSubtree(p0, m, p1, n, M0)
 		rat := utils.NewRat()
@@ -1261,22 +1273,11 @@ func (dao *IndexSQL) MoveNodeTree(nodeFrom *utils.TreeNode, nodeTo *utils.TreeNo
 		}
 	}
 
-	// Making a channel to control the multi update
-	c := make(chan *utils.TreeNode)
-	go func() {
-		for node := range c {
-			go update(node)
-		}
-	}()
-
 	// Updating the original node
-	c <- nodeFrom
-
+	update(nodeFrom)
 	for node := range dao.GetNodeTree(pathFrom) {
-		c <- node
+		update(node)
 	}
-
-	wg.Wait()
 
 	if len(updateErrors) > 0 {
 		return updateErrors[0]
