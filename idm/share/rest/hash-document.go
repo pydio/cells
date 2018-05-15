@@ -28,6 +28,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
@@ -184,7 +185,7 @@ func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls [
 		}
 	}
 
-	shareLink.LinkUrl = "https://fakedomain/share/" + shareLink.LinkHash
+	shareLink.LinkUrl = config.Get("defaults", "url").String("") + "/public/" + shareLink.LinkHash
 
 	return nil
 
