@@ -44,7 +44,7 @@ var versionCmd = &cobra.Command{
 		fmt.Println("")
 		fmt.Println("    " + fmt.Sprintf("%s (%s)", common.PackageLabel, common.Version().String()))
 		fmt.Println("    " + fmt.Sprintf("Published on %s", t.Format(time.RFC822Z)))
-		fmt.Println("    " + fmt.Sprintf("TMP - This is a fake test for patching stable branch - %s", common.BuildRevision))
+		fmt.Println("    " + fmt.Sprintf("Revision number %s", common.BuildRevision))
 		fmt.Println("")
 
 	},
