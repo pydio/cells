@@ -1,7 +1,7 @@
 version: '3'
 services:
     mysql:
-         image: mysql:latest
+         image: mysql:5.7
          environment:
              MYSQL_ROOT_PASSWORD: P@ssw0rd
              MYSQL_DATABASE: pydio
@@ -9,8 +9,16 @@ services:
              MYSQL_PASSWORD: P@ssw0rd
          command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
          ports: ["3306:3306"]
-
+    php:
+        image: php:fpm-alpine
+        volumes: ["static:/var/www/html"]
     cells:
-        image: pydio:cells
-        volumes: ["/Users/gregory:/data"]
-        ports: ["8080:8080"]
+        image: cells:latest
+        volumes: ["static:/root/.config/static/pydio", "data:/root/.config/data"]
+        ports: ["8081:8080"]
+        links:
+            - mysql
+
+volumes:
+    static: {}
+    data: {}
