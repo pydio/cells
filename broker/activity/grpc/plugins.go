@@ -49,6 +49,7 @@ func init() {
 		service.Tag(common.SERVICE_TAG_BROKER),
 		service.Description("Activity Service is collecting activity for users and nodes"),
 		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
 		service.Migrations([]*service.Migration{
 			{
 				TargetVersion: service.FirstRun(),

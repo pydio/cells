@@ -45,6 +45,7 @@ func init() {
 		service.Name(Name),
 		service.Tag(common.SERVICE_TAG_DATA),
 		service.Description("Search Engine"),
+		service.RouterDependencies(),
 		service.WithMicro(func(m micro.Service) error {
 			var indexContent bool
 

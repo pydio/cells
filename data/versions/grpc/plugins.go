@@ -50,6 +50,7 @@ func init() {
 		service.Description("Versioning service"),
 		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
 		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
 		service.Migrations([]*service.Migration{
 			{
 				TargetVersion: service.FirstRun(),

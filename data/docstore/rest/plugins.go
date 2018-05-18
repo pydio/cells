@@ -31,6 +31,7 @@ func init() {
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_DOCSTORE),
 		service.Tag(common.SERVICE_TAG_DATA),
 		service.Description("RESTful Gateway to document store"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, []string{}),
 		service.WithWeb(func() service.WebHandler {
 			return new(Handler)
 		}),

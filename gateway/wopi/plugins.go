@@ -28,14 +28,12 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/views"
 )
 
 var (
-	treeClient  tree.NodeProviderClient
 	viewsRouter *views.Router
 )
 
@@ -43,6 +41,7 @@ func init() {
 	service.NewService(
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_GATEWAY_WOPI),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
+		service.RouterDependencies(),
 		service.Description("WOPI REST Gateway to tree service"),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 			viewsRouter = views.NewUuidRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})

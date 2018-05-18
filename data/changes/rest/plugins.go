@@ -30,6 +30,8 @@ func init() {
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_CHANGES),
 		service.Tag(common.SERVICE_TAG_DATA),
 		service.Description("RESTful Gateway to changes store"),
+		service.RouterDependencies(),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHANGES, []string{}),
 		service.WithWeb(func() service.WebHandler {
 			return new(Handler)
 		}),

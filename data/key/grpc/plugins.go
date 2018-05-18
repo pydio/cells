@@ -35,6 +35,7 @@ func init() {
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ENC_KEY),
 		service.Tag(common.SERVICE_TAG_DATA),
 		service.Description("Encryption Keys server"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
 		service.WithStorage(key.NewDAO, "data_key"),
 		service.WithMicro(func(m micro.Service) error {
 			h := &NodeKeyManagerHandler{}

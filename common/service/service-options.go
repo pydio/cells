@@ -171,6 +171,20 @@ func Dependency(n string, t []string) ServiceOption {
 	}
 }
 
+func RouterDependencies() ServiceOption {
+	return func(o *ServiceOptions) {
+		routerDependencies := []string{
+			common.SERVICE_TREE,
+			common.SERVICE_ACL,
+			common.SERVICE_VERSIONS,
+			common.SERVICE_DOCSTORE,
+		}
+		for _, s := range routerDependencies {
+			o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + s, []string{}})
+		}
+	}
+}
+
 func PluginBoxes(boxes ...frontend.PluginBox) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_FRONTPLUGS, []string{}})
