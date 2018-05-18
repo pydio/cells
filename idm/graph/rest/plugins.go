@@ -35,6 +35,8 @@ func init() {
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_GRAPH),
 		service.Tag(common.SERVICE_TAG_IDM),
 		service.Description("RESTful service aggregating data from various services"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, []string{}),
 		service.WithWeb(func() service.WebHandler {
 			return new(GraphHandler)
 		}),

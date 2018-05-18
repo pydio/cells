@@ -33,6 +33,8 @@ func init() {
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_SHARE),
 		service.Tag(common.SERVICE_TAG_IDM),
 		service.Description("Meta Provider for share information"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, []string{}),
 		service.WithMicro(func(m micro.Service) error {
 			m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
 

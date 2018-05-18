@@ -43,6 +43,9 @@ func init() {
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH),
 		service.Tag(common.SERVICE_TAG_IDM),
 		service.Description("Authentication Service : JWT provider and token revocation"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
 		service.Migrations([]*service.Migration{{
 			TargetVersion: service.FirstRun(),
 			Up:            auth.InsertPruningJob,

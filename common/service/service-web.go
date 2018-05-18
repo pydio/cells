@@ -70,6 +70,9 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
 		o.Web = web.NewService()
+		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH, []string{}})
+		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_POLICY, []string{}})
+		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER, []string{}})
 		o.BeforeStart = append(o.BeforeStart, func(s Service) error {
 			name := s.Options().Name
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)

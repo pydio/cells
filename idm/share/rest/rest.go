@@ -27,6 +27,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/emicklei/go-restful"
 	"github.com/golang/protobuf/ptypes"
@@ -35,8 +36,6 @@ import (
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
-
-	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"

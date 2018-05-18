@@ -30,6 +30,7 @@ func init() {
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_TREE),
 		service.Tag(common.SERVICE_TAG_DATA),
 		service.Description("RESTful Gateway to tree service"),
+		service.RouterDependencies(),
 		service.WithWeb(func() service.WebHandler {
 			return new(Handler)
 		}),

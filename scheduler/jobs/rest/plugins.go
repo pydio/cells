@@ -31,6 +31,8 @@ func init() {
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_JOBS),
 		service.Tag(common.SERVICE_TAG_SCHEDULER),
 		service.Description("REST gateway to the scheduler service"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TASKS, []string{}),
 		service.WithWeb(func() service.WebHandler {
 			return new(JobsHandler)
 		}),
