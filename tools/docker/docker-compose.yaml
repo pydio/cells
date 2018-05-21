@@ -4,20 +4,21 @@ services:
          image: mysql:5.7
          environment:
              MYSQL_ROOT_PASSWORD: P@ssw0rd
-             MYSQL_DATABASE: pydio
+             MYSQL_DATABASE: cells
              MYSQL_USER: pydio
              MYSQL_PASSWORD: P@ssw0rd
          command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
          ports: ["3306:3306"]
     php:
-        image: php:fpm-alpine
-        volumes: ["static:/var/www/html"]
+        image: cells-php:latest
+        volumes: ["static:/root/.config/pydio/cells/static/pydio"]
     cells:
         image: cells:latest
-        volumes: ["static:/root/.config/static/pydio", "data:/root/.config/data"]
-        ports: ["8081:8080"]
-        links:
-            - mysql
+        volumes: ["static:/root/.config/pydio/cells/static/pydio", "data:/root/.config/pydio/cells/data"]
+        ports: ["8080:8080"]
+        environment:
+            - CELLS_BIND=cells:8080
+            - CELLS_EXTERNAL=cells:8080
 
 volumes:
     static: {}
