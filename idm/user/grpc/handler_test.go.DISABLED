@@ -9,7 +9,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 
-	"github.com/pydio/cells/common/dao"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
@@ -22,53 +22,46 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// FIXME: FAILING TEST
-// This times out after 10 minutes
-
 var (
-	ctx     context.Context
-	mockDAO user.DAO
-
-	wg sync.WaitGroup
+	ctx context.Context
+	wg  sync.WaitGroup
 )
 
 func TestMain(m *testing.M) {
 
 	views.IsUnitTestEnv = true
-	// This always fails: the user.DAO does not respect the generic pydio DAO interface
 
-	sqlDao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user_grpc_test")
+	sqlDao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user")
 	if sqlDao == nil {
 		log.Fatal("unable to open sqlite3 DB file, could not start test")
 		return
 	}
 
-	// // rather use migration scripts.
-	// createTables := `CREATE TABLE IF NOT EXISTS idm_user_attributes (
-	// 	uuid         INTEGER NOT NULL,
-	// 	name       VARCHAR(255) NOT NULL,
-	// 	value      TEXT,
-	// 	PRIMARY KEY (uuid, name));
+	// rather use migration scripts.
+	createTables := `CREATE TABLE IF NOT EXISTS idm_user_attributes (
+		uuid         INTEGER NOT NULL,
+		name       VARCHAR(255) NOT NULL,
+		value      TEXT,
+		PRIMARY KEY (uuid, name));
 
-	// CREATE TABLE IF NOT EXISTS idm_user_roles (
-	// 	uuid         INTEGER NOT NULL,
-	// 	role       VARCHAR(255) NOT NULL,
-	// 	PRIMARY KEY (uuid, role));`
+	CREATE TABLE IF NOT EXISTS idm_user_roles (
+		uuid         INTEGER NOT NULL,
+		role       VARCHAR(255) NOT NULL,
+		PRIMARY KEY (uuid, role));`
 
-	// _, err := sqlDao.DB().Query(createTables)
-	// if err != nil {
-	// 	log.Fatal("could not create tables : ", err)
-	// }
+	_, err := sqlDao.DB().Query(createTables)
+	if err != nil {
+		log.Fatal("could not create tables : ", err)
+	}
 
-	mockDAO = user.NewDAO(sqlDao).(user.DAO)
-	// var options config.Map
-	// if err := mockDAO.Init(options); err != nil {
-	// 	log.Fatal("could not start test: unable to initialise DAO, error: ", err)
-	// 	return
-	// }
+	mockDAO := user.NewDAO(sqlDao)
+	var options config.Map
+	if err := mockDAO.Init(options); err != nil {
+		log.Fatal("could not start test: unable to initialise DAO, error: ", err)
+		return
+	}
 
-	// // mockDAO.DAO.Init()
-	ctx = servicecontext.WithDAO(context.Background(), mockDAO.(dao.DAO))
+	ctx = servicecontext.WithDAO(context.Background(), mockDAO)
 
 	m.Run()
 	wg.Wait()
