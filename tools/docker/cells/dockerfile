@@ -19,6 +19,8 @@ RUN ln -s /cells/docker-entrypoint.sh /bin/docker-entrypoint.sh
 ENV CELLS_BIND localhost:8080
 ENV CELLS_EXTERNAL localhost:8080
 
+VOLUME ["/root/.config"]
+
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 CMD ["cells", "start"]
