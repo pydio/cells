@@ -1,4 +1,9 @@
+// +build linux
+
 package crypto
+
+// We only run these tests on Linux: special characters may fail on MacOS
+// TODO write a darwin test for that
 
 import (
 	"testing"
@@ -10,8 +15,6 @@ import (
 func TestKeyring(t *testing.T) {
 
 	var (
-		// Specifial chars may FAIL on MacOS
-		// Todo write a MacOS test for that
 		password    = "pass\r\\0nword"
 		user        = "tester"
 		serviceName = "pydio.tests"
