@@ -5,16 +5,17 @@ import (
 	"log"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	cache "github.com/patrickmn/go-cache"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
-	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/idm/user"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -29,7 +30,10 @@ var (
 
 func TestMain(m *testing.M) {
 
-	views.IsUnitTestEnv = true
+	// views.IsUnitTestEnv = true
+	// Use the cache mechanism to avoid trying to retrieve the role service
+	autoAppliesCache = cache.New(3600*time.Second, 7200*time.Second)
+	autoAppliesCache.Set("autoApplies", map[string][]*idm.Role{}, 0)
 
 	sqlDao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user")
 	if sqlDao == nil {
@@ -37,22 +41,22 @@ func TestMain(m *testing.M) {
 		return
 	}
 
-	// rather use migration scripts.
-	createTables := `CREATE TABLE IF NOT EXISTS idm_user_attributes (
-		uuid         INTEGER NOT NULL,
-		name       VARCHAR(255) NOT NULL,
-		value      TEXT,
-		PRIMARY KEY (uuid, name));
+	// // rather use migration scripts.
+	// createTables := `CREATE TABLE IF NOT EXISTS idm_user_attributes (
+	// 	uuid         INTEGER NOT NULL,
+	// 	name       VARCHAR(255) NOT NULL,
+	// 	value      TEXT,
+	// 	PRIMARY KEY (uuid, name));
 
-	CREATE TABLE IF NOT EXISTS idm_user_roles (
-		uuid         INTEGER NOT NULL,
-		role       VARCHAR(255) NOT NULL,
-		PRIMARY KEY (uuid, role));`
+	// CREATE TABLE IF NOT EXISTS idm_user_roles (
+	// 	uuid         INTEGER NOT NULL,
+	// 	role       VARCHAR(255) NOT NULL,
+	// 	PRIMARY KEY (uuid, role));`
 
-	_, err := sqlDao.DB().Query(createTables)
-	if err != nil {
-		log.Fatal("could not create tables : ", err)
-	}
+	// _, err := sqlDao.DB().Query(createTables)
+	// if err != nil {
+	// 	log.Fatal("could not create tables : ", err)
+	// }
 
 	mockDAO := user.NewDAO(sqlDao)
 	var options config.Map
@@ -69,20 +73,19 @@ func TestMain(m *testing.M) {
 
 func TestUser(t *testing.T) {
 
-	s := new(Handler)
+	h := new(Handler)
 
-	Convey("Create Users", t, func() {
+	Convey("Create one user", t, func() {
 		resp := new(idm.CreateUserResponse)
-		err := s.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user1"}}, resp)
+		err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user1"}}, resp)
 
 		So(err, ShouldBeNil)
 		So(resp.GetUser().GetLogin(), ShouldEqual, "user1")
-
 	})
 
-	Convey("Create Users", t, func() {
+	Convey("Create a second user with name attribute", t, func() {
 		resp := new(idm.CreateUserResponse)
-		err := s.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user2", Attributes: map[string]string{"name": "User 2"}}}, resp)
+		err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user2", Attributes: map[string]string{"name": "User 2"}}}, resp)
 
 		So(err, ShouldBeNil)
 		So(resp.GetUser().GetLogin(), ShouldEqual, "user2")
@@ -90,7 +93,7 @@ func TestUser(t *testing.T) {
 
 	Convey("Get User", t, func() {
 		mock := &userStreamMock{}
-		err := s.StreamUser(ctx, mock)
+		err := h.StreamUser(ctx, mock)
 
 		So(err, ShouldBeNil)
 		So(len(mock.InternalBuffer), ShouldEqual, 0)
@@ -102,7 +105,7 @@ func TestUser(t *testing.T) {
 			Login: "user1",
 		}
 		userQueryAny, _ := ptypes.MarshalAny(userQuery)
-		err := s.SearchUser(ctx, &idm.SearchUserRequest{
+		err := h.SearchUser(ctx, &idm.SearchUserRequest{
 			Query: &service.Query{
 				SubQueries: []*any.Any{userQueryAny},
 			},
@@ -113,7 +116,7 @@ func TestUser(t *testing.T) {
 	})
 
 	Convey("Del User", t, func() {
-		err := s.DeleteUser(ctx, &idm.DeleteUserRequest{}, &idm.DeleteUserResponse{})
+		err := h.DeleteUser(ctx, &idm.DeleteUserRequest{}, &idm.DeleteUserResponse{})
 		So(err, ShouldNotBeNil)
 	})
 
@@ -132,13 +135,13 @@ func TestUser(t *testing.T) {
 			SubQueries: []*any.Any{singleQ1Any},
 		}
 
-		err = s.DeleteUser(ctx, &idm.DeleteUserRequest{Query: query}, &idm.DeleteUserResponse{})
+		err = h.DeleteUser(ctx, &idm.DeleteUserRequest{Query: query}, &idm.DeleteUserResponse{})
 		So(err, ShouldBeNil)
 	})
 
 	Convey("Search User", t, func() {
 		mock := &userStreamMock{}
-		err := s.SearchUser(ctx, &idm.SearchUserRequest{}, mock)
+		err := h.SearchUser(ctx, &idm.SearchUserRequest{}, mock)
 
 		So(err, ShouldBeNil)
 		So(len(mock.InternalBuffer), ShouldEqual, 2)
@@ -146,7 +149,7 @@ func TestUser(t *testing.T) {
 
 	Convey("Create and bind user", t, func() {
 		resp := new(idm.CreateUserResponse)
-		err := s.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "john", Password: "f00"}}, resp)
+		err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "john", Password: "f00"}}, resp)
 
 		So(err, ShouldBeNil)
 		So(resp.GetUser().GetLogin(), ShouldEqual, "john")

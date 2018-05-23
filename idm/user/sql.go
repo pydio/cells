@@ -158,8 +158,8 @@ func safeGroupPath(gPath string) string {
 // Add to the mysql DB
 func (s *sqlimpl) Add(in interface{}) (interface{}, bool, error) {
 
-	s.Lock()
-	defer s.Unlock()
+	// s.Lock()
+	// defer s.Unlock()
 
 	var user *idm.User
 	var ok bool
@@ -234,6 +234,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, bool, error) {
 	if er != nil {
 		return nil, false, er
 	}
+
 	if len(created) == 0 && node.Etag != "" {
 		log.Logger(context.Background()).Debug("User update w/ password")
 		updateNode := utils.NewTreeNode()
@@ -335,8 +336,8 @@ func (s *sqlimpl) Count(query sql.Enquirer) (int, error) {
 // Search in the mysql DB
 func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents ...bool) error {
 
-	s.Lock()
-	defer s.Unlock()
+	// s.Lock()
+	// defer s.Unlock()
 
 	var includeParents bool
 	if len(withParents) > 0 {
@@ -423,8 +424,8 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 // Del from the mysql DB
 func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
-	s.Lock()
-	defer s.Unlock()
+	// s.Lock()
+	// defer s.Unlock()
 
 	converter := &queryConverter{
 		treeDao:       s.IndexSQL,
