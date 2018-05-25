@@ -166,13 +166,12 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 		whereString = sql.JoinWheresWithParenthesis(wheres, "AND")
 	}
 
-	offset, limit := int64(query.GetOffset()), int64(query.GetLimit())
+	offset, limit := int64(0), int64(100)
 	if query.GetOffset() > 0 {
 		offset = query.GetOffset()
 	}
-	if query.GetLimit() == 0 {
-		// Default limit
-		limit = 100
+	if query.GetLimit() != 0 {
+		limit = query.GetLimit()
 	}
 
 	limitString := fmt.Sprintf(" limit %v,%v", offset, limit)
@@ -226,9 +225,10 @@ func (s *sqlimpl) SearchUsingBuilder(query sql.Enquirer, workspaces *[]interface
 	if query.GetOffset() > 0 {
 		offset = query.GetOffset()
 	}
-	if query.GetLimit() == 0 {
-		limit = 100
+	if query.GetLimit() != 0 {
+		limit = query.GetLimit()
 	}
+
 	dataset = dataset.Offset(uint(offset)).Limit(uint(limit))
 
 	queryString, _, err := dataset.ToSql()
