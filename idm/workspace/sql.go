@@ -170,7 +170,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 	if query.GetOffset() > 0 {
 		offset = query.GetOffset()
 	}
-	if query.GetLimit() != 0 {
+	if query.GetLimit() > 0 {
 		limit = query.GetLimit()
 	}
 
@@ -225,7 +225,7 @@ func (s *sqlimpl) SearchUsingBuilder(query sql.Enquirer, workspaces *[]interface
 	if query.GetOffset() > 0 {
 		offset = query.GetOffset()
 	}
-	if query.GetLimit() != 0 {
+	if query.GetLimit() > 0 {
 		limit = query.GetLimit()
 	}
 
