@@ -222,7 +222,7 @@ func (s *sqlimpl) SearchUsingBuilder(query sql.Enquirer, workspaces *[]interface
 	db = goqu.New("sqlite3", nil)
 
 	dataset := db.From("idm_workspaces").Where(whereExpression)
-	offset, limit := int64(query.GetOffset()), int64(query.GetLimit())
+	offset, limit := int64(0), int64(100)
 	if query.GetOffset() > 0 {
 		offset = query.GetOffset()
 	}
