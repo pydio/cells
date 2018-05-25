@@ -13,7 +13,7 @@ Pydio Cells is the nextgen file sharing platform for organizations. It is a full
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See "Deployment" for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
@@ -64,7 +64,7 @@ Please read the [CONTRIBUTING.md](CONTRIBUTING.md) document if you wish to add m
 
 ## Deployment
 
-Binaries are currently provided for Linux and MacOSX distributions. To deploy them on a live system, please see the Wiki instructions. 
+Binaries are currently provided for [Linux and MacOSX distributions](https://pydio.com/en/download). To deploy them on a live system, please see the [Installation Guide](https://pydio.com/en/docs/cells/v1/installation-guides) instructions. 
 
 ## Built With
 
