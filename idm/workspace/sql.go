@@ -26,6 +26,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/doug-martin/goqu"
+
 	"github.com/gobuffalo/packr"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -164,7 +166,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 		whereString = sql.JoinWheresWithParenthesis(wheres, "AND")
 	}
 
-	offset, limit := int64(0), int64(0)
+	offset, limit := int64(query.GetOffset()), int64(query.GetLimit())
 	if query.GetOffset() > 0 {
 		offset = query.GetOffset()
 	}
@@ -207,6 +209,48 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 		*workspaces = append(*workspaces, workspace)
 	}
 
+	return nil
+}
+
+func (s *sqlimpl) SearchUsingBuilder(query sql.Enquirer, workspaces *[]interface{}) error {
+	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression()
+	if whereExpression == nil {
+		return errors.New("internal", "failed to generate query conditions", 500)
+	}
+
+	var db *goqu.Database
+	db = goqu.New("sqlite3", nil)
+
+	dataset := db.From("idm_workspaces").Where(whereExpression)
+	offset, limit := int64(query.GetOffset()), int64(query.GetLimit())
+	if query.GetOffset() > 0 {
+		offset = query.GetOffset()
+	}
+	if query.GetLimit() == 0 {
+		limit = 100
+	}
+	dataset = dataset.Offset(uint(offset)).Limit(uint(limit))
+
+	queryString, _, err := dataset.ToSql()
+	if err != nil {
+		return err
+	}
+
+	res, err := s.DB().Query(queryString)
+	if err != nil {
+		return err
+	}
+
+	defer res.Close()
+	for res.Next() {
+		workspace := new(idm.Workspace)
+		var lastUpdate int
+		var scope int
+		res.Scan(&workspace.UUID, &workspace.Label, &workspace.Description, &workspace.Attributes, &workspace.Slug, &scope, &lastUpdate)
+		workspace.LastUpdated = int32(lastUpdate)
+		workspace.Scope = idm.WorkspaceScope(scope)
+		*workspaces = append(*workspaces, workspace)
+	}
 	return nil
 }
 
@@ -273,4 +317,57 @@ func (c *queryConverter) Convert(val *any.Any) (string, bool) {
 	}
 
 	return qString, true
+}
+
+type queryBuilder idm.WorkspaceSingleQuery
+
+func (c *queryBuilder) Convert(val *any.Any) (goqu.Expression, bool) {
+	q := new(idm.WorkspaceSingleQuery)
+
+	if err := ptypes.UnmarshalAny(val, q); err != nil {
+		return nil, false
+	}
+
+	var expressions []goqu.Expression
+
+	if q.Uuid != "" {
+		if strings.Contains(q.Uuid, "*") {
+			expressions = append(expressions, goqu.I("uuid").Like(strings.Replace(q.Uuid, "*", "%", -1)))
+		} else {
+			expressions = append(expressions, goqu.I("uuid").Eq(q.Uuid))
+		}
+	}
+
+	if q.Slug != "" {
+		if strings.Contains(q.Slug, "*") {
+			expressions = append(expressions, goqu.I("slug").Like(strings.Replace(q.Slug, "*", "%", -1)))
+		} else {
+			expressions = append(expressions, goqu.I("slug").Eq(q.Slug))
+		}
+	}
+
+	if q.Label != "" {
+		if strings.Contains(q.Label, "*") {
+			expressions = append(expressions, goqu.I("label").Like(strings.Replace(q.Label, "*", "%", -1)))
+		} else {
+			expressions = append(expressions, goqu.I("label").Eq(q.Label))
+		}
+	}
+
+	if q.Description != "" {
+		if strings.Contains(q.Description, "*") {
+			expressions = append(expressions, goqu.I("description").Like(strings.Replace(q.Description, "*", "%", -1)))
+		} else {
+			expressions = append(expressions, goqu.I("description").Eq(q.Label))
+		}
+	}
+
+	if q.Scope != idm.WorkspaceScope_ANY {
+		expressions = append(expressions, goqu.I("scope").Eq(q.Scope))
+	}
+
+	if len(expressions) > 0 {
+		return goqu.And(expressions...), true
+	}
+	return nil, true
 }
