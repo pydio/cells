@@ -5116,6 +5116,12 @@
 			"revisionTime": "2017-05-11T16:59:59Z"
 		},
 		{
+			"checksumSHA1": "Nmc9X7jcU7+7jNx657Kd4a14H0I=",
+			"path": "gopkg.in/doug-martin/goqu.v4/adapters/sqlite3",
+			"revision": "cd495d70a4ff280202e22a09de9502a3fe0b66cb",
+			"revisionTime": "2017-12-27T16:44:32Z"
+		},
+		{
 			"checksumSHA1": "NGg7/qIJVUfXi7xnEyyDLocdi6Y=",
 			"path": "gopkg.in/fatih/set.v0",
 			"revision": "27c40922c40b43fe04554d8223a402af3ea333f3",
