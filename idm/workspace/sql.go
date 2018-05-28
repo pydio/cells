@@ -21,23 +21,20 @@
 package workspace
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
-
-	"github.com/doug-martin/goqu"
 
 	"github.com/gobuffalo/packr"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
-	migrate "github.com/rubenv/sql-migrate"
-	"go.uber.org/zap"
+	"github.com/rubenv/sql-migrate"
+	"gopkg.in/doug-martin/goqu.v4"
+	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
@@ -51,9 +48,6 @@ var (
 		"ExistsWorkspace":         `select count(uuid) from idm_workspaces where uuid = ?`,
 		"ExistsWorkspaceWithSlug": `select count(uuid) from idm_workspaces where slug = ?`,
 	}
-
-	search  = `select * from idm_workspaces`
-	deleteQ = `delete from idm_workspaces`
 )
 
 // Impl of the Mysql interface
@@ -145,93 +139,15 @@ func (s *sqlimpl) slugExists(slug string) bool {
 	return false
 }
 
-// Search in the mysql DB
+// Search searches
 func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 
-	var wheres []string
-
-	if query.GetResourcePolicyQuery() != nil {
-		resourceString := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
-		if resourceString != "" {
-			wheres = append(wheres, resourceString)
-		}
-	}
-
-	whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
-	if len(whereString) != 0 {
-		wheres = append(wheres, whereString)
-	}
-
-	if len(wheres) > 0 {
-		whereString = sql.JoinWheresWithParenthesis(wheres, "AND")
-	}
-
-	offset, limit := int64(0), int64(100)
-	if query.GetOffset() > 0 {
-		offset = query.GetOffset()
-	}
-	if query.GetLimit() > 0 {
-		limit = query.GetLimit()
-	}
-
-	limitString := fmt.Sprintf(" limit %v,%v", offset, limit)
-	if query.GetLimit() == -1 {
-		limitString = ""
-	}
-
-	queryString := search + whereString + limitString
-
-	log.Logger(context.Background()).Debug("Search Workspaces", zap.String("sql", queryString))
-
-	res, err := s.DB().Query(queryString)
-	if err != nil {
-		return err
-	}
-
-	defer res.Close()
-	for res.Next() {
-		workspace := new(idm.Workspace)
-		var lastUpdate int
-		var scope int
-		res.Scan(
-			&workspace.UUID,
-			&workspace.Label,
-			&workspace.Description,
-			&workspace.Attributes,
-			&workspace.Slug,
-			&scope,
-			&lastUpdate,
-		)
-		workspace.LastUpdated = int32(lastUpdate)
-		workspace.Scope = idm.WorkspaceScope(scope)
-
-		*workspaces = append(*workspaces, workspace)
-	}
-
-	return nil
-}
-
-func (s *sqlimpl) SearchUsingBuilder(query sql.Enquirer, workspaces *[]interface{}) error {
-	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression()
+	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
 	if whereExpression == nil {
 		return errors.New("internal", "failed to generate query conditions", 500)
 	}
-
-	var db *goqu.Database
-	db = goqu.New("sqlite3", nil)
-
-	dataset := db.From("idm_workspaces").Where(whereExpression)
-	offset, limit := int64(0), int64(100)
-	if query.GetOffset() > 0 {
-		offset = query.GetOffset()
-	}
-	if query.GetLimit() > 0 {
-		limit = query.GetLimit()
-	}
-
-	dataset = dataset.Offset(uint(offset)).Limit(uint(limit))
-
-	queryString, _, err := dataset.ToSql()
+	resourceString := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
+	queryString, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceString, 100)
 	if err != nil {
 		return err
 	}
@@ -251,23 +167,19 @@ func (s *sqlimpl) SearchUsingBuilder(query sql.Enquirer, workspaces *[]interface
 		workspace.Scope = idm.WorkspaceScope(scope)
 		*workspaces = append(*workspaces, workspace)
 	}
+
 	return nil
 }
 
 // Del from the mysql DB
 func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
-	whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
-
-	if len(whereString) == 0 || len(strings.Trim(whereString, "()")) == 0 {
-		return 0, errors.BadRequest(common.SERVICE_WORKSPACE, "Empty condition for Delete, this is too broad a query!")
+	//whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
+	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
+	queryString, err := sql.DeleteStringFromExpression("idm_workspaces", s.Driver(), whereExpression)
+	if err != nil {
+		return 0, err
 	}
-
-	if len(whereString) != 0 {
-		whereString = " where " + whereString
-	}
-
-	queryString := deleteQ + whereString
 
 	res, err := s.DB().Exec(queryString)
 	if err != nil {
@@ -321,7 +233,7 @@ func (c *queryConverter) Convert(val *any.Any) (string, bool) {
 
 type queryBuilder idm.WorkspaceSingleQuery
 
-func (c *queryBuilder) Convert(val *any.Any) (goqu.Expression, bool) {
+func (c *queryBuilder) Convert(val *any.Any, driver string) (goqu.Expression, bool) {
 	q := new(idm.WorkspaceSingleQuery)
 
 	if err := ptypes.UnmarshalAny(val, q); err != nil {
@@ -331,43 +243,24 @@ func (c *queryBuilder) Convert(val *any.Any) (goqu.Expression, bool) {
 	var expressions []goqu.Expression
 
 	if q.Uuid != "" {
-		if strings.Contains(q.Uuid, "*") {
-			expressions = append(expressions, goqu.I("uuid").Like(strings.Replace(q.Uuid, "*", "%", -1)))
-		} else {
-			expressions = append(expressions, goqu.I("uuid").Eq(q.Uuid))
-		}
+		expressions = append(expressions, sql.GetExpressionForString(q.Not, "uuid", q.Uuid))
 	}
 
 	if q.Slug != "" {
-		if strings.Contains(q.Slug, "*") {
-			expressions = append(expressions, goqu.I("slug").Like(strings.Replace(q.Slug, "*", "%", -1)))
-		} else {
-			expressions = append(expressions, goqu.I("slug").Eq(q.Slug))
-		}
+		expressions = append(expressions, sql.GetExpressionForString(q.Not, "slug", q.Slug))
 	}
 
 	if q.Label != "" {
-		if strings.Contains(q.Label, "*") {
-			expressions = append(expressions, goqu.I("label").Like(strings.Replace(q.Label, "*", "%", -1)))
-		} else {
-			expressions = append(expressions, goqu.I("label").Eq(q.Label))
-		}
-	}
-
-	if q.Description != "" {
-		if strings.Contains(q.Description, "*") {
-			expressions = append(expressions, goqu.I("description").Like(strings.Replace(q.Description, "*", "%", -1)))
-		} else {
-			expressions = append(expressions, goqu.I("description").Eq(q.Label))
-		}
+		expressions = append(expressions, sql.GetExpressionForString(q.Not, "label", q.Label))
 	}
 
 	if q.Scope != idm.WorkspaceScope_ANY {
 		expressions = append(expressions, goqu.I("scope").Eq(q.Scope))
 	}
 
-	if len(expressions) > 0 {
-		return goqu.And(expressions...), true
+	if len(expressions) == 0 {
+		return nil, true
 	}
-	return nil, true
+	return goqu.And(expressions...), true
+
 }

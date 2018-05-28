@@ -972,12 +972,6 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
-			"checksumSHA1": "9GykjJAL4iXN/mJXWCzbmuY0bsY=",
-			"path": "github.com/doug-martin/goqu",
-			"revision": "cd495d70a4ff280202e22a09de9502a3fe0b66cb",
-			"revisionTime": "2017-12-27T16:44:32Z"
-		},
-		{
 			"checksumSHA1": "kQvcgAP03E4wJi0M7d7BBcbaCKY=",
 			"origin": "github.com/mholt/caddy/vendor/github.com/dustin/go-humanize",
 			"path": "github.com/dustin/go-humanize",
@@ -5118,6 +5112,12 @@
 		{
 			"checksumSHA1": "/M23tzfVu52Cns1yUFoh0VBkngw=",
 			"path": "gopkg.in/doug-martin/goqu.v4",
+			"revision": "cd495d70a4ff280202e22a09de9502a3fe0b66cb",
+			"revisionTime": "2017-12-27T16:44:32Z"
+		},
+		{
+			"checksumSHA1": "i82yGdNENO9/kZaxb5CYdoiRytA=",
+			"path": "gopkg.in/doug-martin/goqu.v4/adapters/mysql",
 			"revision": "cd495d70a4ff280202e22a09de9502a3fe0b66cb",
 			"revisionTime": "2017-12-27T16:44:32Z"
 		},

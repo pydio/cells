@@ -269,7 +269,7 @@ func TestSearch(t *testing.T) {
 
 		var result []interface{}
 		wdao := mockDAO.(*sqlimpl)
-		err = wdao.SearchUsingBuilder(composedQuery, &result)
+		err = wdao.Search(composedQuery, &result)
 		So(err, ShouldBeNil)
 		So(len(result), ShouldBeGreaterThan, 0)
 
@@ -298,7 +298,7 @@ func TestSearch(t *testing.T) {
 		composedQuery.SubQueries = []*any.Any{a}
 
 		result = []interface{}{}
-		err = wdao.SearchUsingBuilder(composedQuery, &result)
+		err = wdao.Search(composedQuery, &result)
 		So(err, ShouldBeNil)
 		So(len(result), ShouldBeGreaterThan, 0)
 		for _, wsi := range result {
