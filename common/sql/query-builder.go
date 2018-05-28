@@ -1,13 +1,12 @@
 package sql
 
 import (
-	"strings"
-
 	"fmt"
+	"strings"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/service/proto"
 	"gopkg.in/doug-martin/goqu.v4"
 )
 
@@ -36,6 +35,7 @@ func NewQueryBuilder(e Enquirer, c ...ExpressionConverter) Expressioner {
 	}
 }
 
+// Expression recursively builds a goku.Expression using dedicated converters
 func (qb *queryBuilder) Expression(driver string) (ex goqu.Expression) {
 
 	for _, subQ := range qb.enquirer.GetSubQueries() {
