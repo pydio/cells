@@ -213,7 +213,7 @@ func TestSearch(t *testing.T) {
 
 		// Get any workspaces that relates to admins
 		singleq.Scope = idm.WorkspaceScope_ADMIN
-		singleq.Description = "*admin*"
+		singleq.Label = "*admin*"
 
 		a, err = ptypes.MarshalAny(singleq)
 		So(err, ShouldBeNil)

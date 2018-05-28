@@ -34,8 +34,6 @@ import (
 	"go.uber.org/zap"
 	"gopkg.in/doug-martin/goqu.v4"
 
-	"fmt"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -149,7 +147,6 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 
 	queryString, err := s.buildSearchQuery(query, true, false)
-	fmt.Println("COUNT Q", queryString)
 	if err != nil {
 		return 0, err
 	}
@@ -171,7 +168,6 @@ func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 
 	queryString, err := s.buildSearchQuery(query, false, false)
-	fmt.Println("SEARCH Q", queryString)
 	if err != nil {
 		return err
 	}
@@ -215,7 +211,6 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
 
 	queryString, err := s.buildSearchQuery(query, false, true)
-	fmt.Println("DELETE Q", queryString)
 	if err != nil {
 		return 0, err
 	}

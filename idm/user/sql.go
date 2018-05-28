@@ -86,9 +86,6 @@ var (
 		},
 	}
 
-	search = `select t.uuid, t.level, t.rat, n.name, n.leaf, n.etag from idm_user_idx_tree as t, idm_user_idx_nodes as n`
-	count  = `select count(t.uuid) from idm_user_idx_tree as t, idm_user_idx_nodes as n`
-
 	hasher = auth.PydioPW{
 		PBKDF2_HASH_ALGORITHM: "sha256",
 		PBKDF2_ITERATIONS:     1000,
@@ -322,11 +319,14 @@ func (s *sqlimpl) Count(query sql.Enquirer) (int, error) {
 	s.Lock()
 	defer s.Unlock()
 
-	queryString := s.makeSearchQuery(query, true, false, false)
+	queryString, err := s.makeSearchQuery(query, true, false, false)
+	if err != nil {
+		return 0, err
+	}
 
 	row := s.DB().QueryRow(queryString)
 	total := new(int)
-	err := row.Scan(
+	err = row.Scan(
 		&total,
 	)
 	return *total, err
@@ -344,7 +344,10 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 		includeParents = withParents[0]
 	}
 
-	queryString := s.makeSearchQuery(query, false, true, includeParents)
+	queryString, err := s.makeSearchQuery(query, false, includeParents, false)
+	if err != nil {
+		return err
+	}
 
 	log.Logger(context.Background()).Debug("Users Search Query ", zap.String("q", queryString), zap.Any("q2", query.GetSubQueries()))
 	res, err := s.DB().Query(queryString)
@@ -424,20 +427,10 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 // Del from the mysql DB
 func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
-	// s.Lock()
-	// defer s.Unlock()
-
-	converter := &queryConverter{
-		treeDao:       s.IndexSQL,
-		includeParent: true,
+	queryString, err := s.makeSearchQuery(query, false, true, true)
+	if err != nil {
+		return 0, err
 	}
-	whereString := sql.NewDAOQuery(query, converter).String()
-
-	if len(whereString) == 0 || len(strings.Trim(whereString, "()")) == 0 {
-		return 0, fmt.Errorf("condition cannot be empty")
-	}
-
-	queryString := s.makeSearchQuery(query, false, false, true)
 
 	log.Logger(context.Background()).Debug("Delete", zap.String("q", queryString))
 
