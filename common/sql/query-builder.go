@@ -103,6 +103,29 @@ func QueryStringFromExpression(tableName string, driver string, e Enquirer, ex g
 
 }
 
+// QueryStringFromExpression finally builds a full SELECT from a Goqu Expression
+func CountStringFromExpression(tableName string, columnCount string, driver string, e Enquirer, ex goqu.Expression, resourceSqlCondition string) (string, error) {
+
+	var db *goqu.Database
+	db = goqu.New(driver, nil)
+
+	if resourceSqlCondition != "" {
+		if ex != nil {
+			ex = goqu.And(ex, goqu.L(resourceSqlCondition))
+		} else {
+			ex = goqu.L(resourceSqlCondition)
+		}
+	}
+	dataset := db.From(tableName).Select(goqu.COUNT(columnCount))
+	if ex != nil {
+		dataset = dataset.Where(ex)
+	}
+
+	queryString, _, err := dataset.ToSql()
+	return queryString, err
+
+}
+
 // DeleteStringFromExpression creates sql for DELETE FROM expression
 func DeleteStringFromExpression(tableName string, driver string, ex goqu.Expression) (string, error) {
 

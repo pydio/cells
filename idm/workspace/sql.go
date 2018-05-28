@@ -193,8 +193,8 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 type queryBuilder idm.WorkspaceSingleQuery
 
 func (c *queryBuilder) Convert(val *any.Any, driver string) (goqu.Expression, bool) {
-	q := new(idm.WorkspaceSingleQuery)
 
+	q := new(idm.WorkspaceSingleQuery)
 	if err := ptypes.UnmarshalAny(val, q); err != nil {
 		return nil, false
 	}
