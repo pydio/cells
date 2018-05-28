@@ -8,6 +8,7 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pydio/cells/common/service/proto"
 	"gopkg.in/doug-martin/goqu.v4"
+	_ "gopkg.in/doug-martin/goqu.v4/adapters/mysql"
 )
 
 // Expressioner ...
