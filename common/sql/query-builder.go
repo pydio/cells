@@ -64,12 +64,11 @@ func (qb *queryBuilder) Expression(driver string) (ex goqu.Expression) {
 	}
 
 	if qb.enquirer.GetOperation() == service.OperationType_AND {
-		ex = goqu.And(qb.wheres...)
+		return goqu.And(qb.wheres...)
 	} else {
-		ex = goqu.On(qb.wheres...)
+		return goqu.Or(qb.wheres...)
 	}
 
-	return goqu.Or(qb.wheres...)
 }
 
 // QueryStringFromExpression finally builds a full SELECT from a Goqu Expression

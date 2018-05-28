@@ -22,7 +22,6 @@ package workspace
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/packr"
@@ -143,9 +142,6 @@ func (s *sqlimpl) slugExists(slug string) bool {
 func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 
 	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
-	if whereExpression == nil {
-		return errors.New("internal", "failed to generate query conditions", 500)
-	}
 	resourceString := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
 	queryString, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceString, 100)
 	if err != nil {
@@ -192,43 +188,6 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 	}
 
 	return rows, nil
-}
-
-type queryConverter idm.WorkspaceSingleQuery
-
-func (c *queryConverter) Convert(val *any.Any) (string, bool) {
-
-	q := new(idm.WorkspaceSingleQuery)
-
-	if err := ptypes.UnmarshalAny(val, q); err != nil {
-		return "", false
-	}
-	var wheres []string
-	if q.Uuid != "" {
-		wheres = append(wheres, sql.GetQueryValueFor("uuid", q.Uuid))
-	}
-
-	if q.Slug != "" {
-		wheres = append(wheres, sql.GetQueryValueFor("slug", q.Slug))
-	}
-
-	if q.Label != "" {
-		wheres = append(wheres, sql.GetQueryValueFor("label", q.Label))
-	}
-
-	if q.Scope != idm.WorkspaceScope_ANY {
-		wheres = append(wheres, fmt.Sprintf("scope=%v", int32(q.Scope)))
-	}
-
-	if len(wheres) == 0 {
-		return "", false
-	}
-	qString := strings.Join(wheres, " AND ")
-	if q.Not {
-		qString = fmt.Sprintf("NOT (%s)", qString)
-	}
-
-	return qString, true
 }
 
 type queryBuilder idm.WorkspaceSingleQuery
