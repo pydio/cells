@@ -53,9 +53,12 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 	var wheres []goqu.Expression
 
 	if query.GetResourcePolicyQuery() != nil {
-		resourceString := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
-		if resourceString != "" {
-			wheres = append(wheres, goqu.L(resourceString))
+		resourceExpr, e := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
+		if e != nil {
+			return "", e
+		}
+		if resourceExpr != nil {
+			wheres = append(wheres, resourceExpr)
 		}
 	}
 

@@ -22,7 +22,6 @@ package policy
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/packr"
@@ -30,12 +29,13 @@ import (
 	"github.com/ory/ladon"
 	manager "github.com/ory/ladon/manager/sql"
 	"github.com/pborman/uuid"
+	"github.com/rubenv/sql-migrate"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/sql"
-	migrate "github.com/rubenv/sql-migrate"
-	"go.uber.org/zap"
 )
 
 type sqlimpl struct {
@@ -50,9 +50,9 @@ var (
 		"deletePolicyGroup": `DELETE FROM idm_policy_group WHERE uuid=?`,
 		"insertRelPolicy":   `INSERT INTO idm_policy_rel (group_uuid,policy_id) VALUES (?,?)`,
 		"deleteRelPolicies": `DELETE FROM idm_policy_rel WHERE group_uuid=?`,
+		"listJoined":        `SELECT p.uuid,p.name,p.description,p.owner_uuid,p.resource_group,p.last_updated,r.policy_id FROM idm_policy_group as p,idm_policy_rel as r WHERE r.group_uuid=p.uuid`,
+		"listRelPolicies":   `SELECT policy_id FROM idm_policy_rel WHERE group_uuid=?`,
 	}
-	listJoined      = `SELECT p.uuid,p.name,p.description,p.owner_uuid,p.resource_group,p.last_updated,r.policy_id FROM idm_policy_group as p,idm_policy_rel as r WHERE r.group_uuid=p.uuid`
-	listRelPolicies = `SELECT policy_id FROM idm_policy_rel WHERE group_uuid='%s'`
 )
 
 // Init of the MySQL DAO
@@ -145,7 +145,7 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 
 func (s *sqlimpl) ListPolicyGroups(ctx context.Context) (groups []*idm.PolicyGroup, e error) {
 
-	res, err := s.DB().Query(listJoined)
+	res, err := s.GetStmt("listJoined").Query()
 	if err != nil {
 		return groups, err
 	}
@@ -182,7 +182,7 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context) (groups []*idm.PolicyGro
 func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error {
 
 	var policies []string
-	if res, err := s.DB().Query(fmt.Sprintf(listRelPolicies, group.Uuid)); err == nil {
+	if res, err := s.GetStmt("listRelPolicies").Query(group.Uuid); err == nil {
 		defer res.Close()
 		for res.Next() {
 			var pId string

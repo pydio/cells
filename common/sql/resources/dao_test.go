@@ -41,21 +41,26 @@ func TestQueryResourceForAction(t *testing.T) {
 
 	dao := NewDAO(sqlDAO, "left.uuid").(*ResourcesSQL)
 
-	// ctx = servicecontext.WithDAO(context.Background(), NewDAOCache("test", d.(DAO)).(dao.DAO))
-
 	Convey("Test Query Builder", t, func() {
 
-		queryString := dao.BuildPolicyConditionForAction(&service.ResourcePolicyQuery{Subjects: []string{"subject-1", "subject-2"}}, service.ResourcePolicyAction_READ)
-		So(queryString, ShouldEqual, "EXISTS ( select 1 from _policies WHERE (_policies.subject='subject-1' OR _policies.subject='subject-2') AND _policies.action='READ' AND _policies.resource=left.uuid )")
+		expr, e := dao.BuildPolicyConditionForAction(&service.ResourcePolicyQuery{Subjects: []string{"subject-1", "subject-2"}}, service.ResourcePolicyAction_READ)
+		So(e, ShouldBeNil)
+		So(expr, ShouldNotBeNil)
+		//So(queryString, ShouldEqual, "EXISTS ( select 1 from _policies WHERE (_policies.subject='subject-1' OR _policies.subject='subject-2') AND _policies.action='READ' AND _policies.resource=left.uuid )")
 
-		queryString = dao.BuildPolicyConditionForAction(&service.ResourcePolicyQuery{Subjects: []string{}, Empty: true}, service.ResourcePolicyAction_READ)
-		So(queryString, ShouldEqual, "NOT EXISTS ( select 1 from _policies WHERE _policies.resource=left.uuid AND _policies.action='READ' )")
+		expr, e = dao.BuildPolicyConditionForAction(&service.ResourcePolicyQuery{Subjects: []string{}, Empty: true}, service.ResourcePolicyAction_READ)
+		So(e, ShouldBeNil)
+		So(expr, ShouldNotBeNil)
+		//So(queryString, ShouldEqual, "NOT EXISTS ( select 1 from _policies WHERE _policies.resource=left.uuid AND _policies.action='READ' )")
 
-		queryString = dao.BuildPolicyConditionForAction(&service.ResourcePolicyQuery{Subjects: []string{}, Empty: false}, service.ResourcePolicyAction_READ)
-		So(queryString, ShouldEqual, "EXISTS ( select 1 from _policies WHERE _policies.action='READ' AND _policies.resource=left.uuid )")
+		expr, e = dao.BuildPolicyConditionForAction(&service.ResourcePolicyQuery{Subjects: []string{}, Empty: false}, service.ResourcePolicyAction_READ)
+		So(e, ShouldBeNil)
+		So(expr, ShouldNotBeNil)
+		//So(queryString, ShouldEqual, "EXISTS ( select 1 from _policies WHERE _policies.action='READ' AND _policies.resource=left.uuid )")
 
-		queryString = dao.BuildPolicyConditionForAction(&service.ResourcePolicyQuery{Subjects: []string{}, Any: true}, service.ResourcePolicyAction_READ)
-		So(queryString, ShouldEqual, "")
+		expr, e = dao.BuildPolicyConditionForAction(&service.ResourcePolicyQuery{Subjects: []string{}, Any: true}, service.ResourcePolicyAction_READ)
+		So(e, ShouldBeNil)
+		So(expr, ShouldBeNil)
 
 	})
 

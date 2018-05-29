@@ -25,6 +25,7 @@ import (
 	"github.com/pydio/cells/common/dao"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
+	"gopkg.in/doug-martin/goqu.v4"
 )
 
 // DAO interface
@@ -36,7 +37,7 @@ type DAO interface {
 	DeletePoliciesForResourceAndAction(resourceId string, action service.ResourcePolicyAction) error
 	DeletePoliciesBySubject(subject string) error
 
-	BuildPolicyConditionForAction(q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (query string)
+	BuildPolicyConditionForAction(q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr goqu.Expression, e error)
 }
 
 func NewDAO(o dao.DAO, leftIdentifier string) dao.DAO {

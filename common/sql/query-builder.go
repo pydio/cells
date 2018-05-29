@@ -73,16 +73,16 @@ func (qb *queryBuilder) Expression(driver string) (ex goqu.Expression) {
 }
 
 // QueryStringFromExpression finally builds a full SELECT from a Goqu Expression
-func QueryStringFromExpression(tableName string, driver string, e Enquirer, ex goqu.Expression, resourceSqlCondition string, limit int64) (string, error) {
+func QueryStringFromExpression(tableName string, driver string, e Enquirer, ex goqu.Expression, resourceExpression goqu.Expression, limit int64) (string, error) {
 
 	var db *goqu.Database
 	db = goqu.New(driver, nil)
 
-	if resourceSqlCondition != "" {
+	if resourceExpression != nil {
 		if ex != nil {
-			ex = goqu.And(ex, goqu.L(resourceSqlCondition))
+			ex = goqu.And(ex, resourceExpression)
 		} else {
-			ex = goqu.L(resourceSqlCondition)
+			ex = resourceExpression
 		}
 	}
 	dataset := db.From(tableName)
@@ -105,16 +105,16 @@ func QueryStringFromExpression(tableName string, driver string, e Enquirer, ex g
 }
 
 // QueryStringFromExpression finally builds a full SELECT from a Goqu Expression
-func CountStringFromExpression(tableName string, columnCount string, driver string, e Enquirer, ex goqu.Expression, resourceSqlCondition string) (string, error) {
+func CountStringFromExpression(tableName string, columnCount string, driver string, e Enquirer, ex goqu.Expression, resourceExpression goqu.Expression) (string, error) {
 
 	var db *goqu.Database
 	db = goqu.New(driver, nil)
 
-	if resourceSqlCondition != "" {
+	if resourceExpression != nil {
 		if ex != nil {
-			ex = goqu.And(ex, goqu.L(resourceSqlCondition))
+			ex = goqu.And(ex, resourceExpression)
 		} else {
-			ex = goqu.L(resourceSqlCondition)
+			ex = resourceExpression
 		}
 	}
 	dataset := db.From(tableName).Select(goqu.COUNT(columnCount))

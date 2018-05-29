@@ -238,11 +238,14 @@ func (s *sqlimpl) buildSearchQuery(query sql.Enquirer, countOnly bool, delete bo
 
 	} else {
 
-		resourceString := s.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
+		resourceExpr, e := s.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
+		if e != nil {
+			return "", e
+		}
 		if countOnly {
-			return sql.CountStringFromExpression("idm_roles", "uuid", s.Driver(), query, ex, resourceString)
+			return sql.CountStringFromExpression("idm_roles", "uuid", s.Driver(), query, ex, resourceExpr)
 		} else {
-			return sql.QueryStringFromExpression("idm_roles", s.Driver(), query, ex, resourceString, 100)
+			return sql.QueryStringFromExpression("idm_roles", s.Driver(), query, ex, resourceExpr, 100)
 		}
 
 	}

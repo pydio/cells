@@ -22,8 +22,6 @@ package meta
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/packr"
@@ -38,6 +36,7 @@ import (
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/resources"
 	"github.com/pydio/cells/idm/meta/namespace"
+	"gopkg.in/doug-martin/goqu.v4"
 )
 
 var (
@@ -47,8 +46,6 @@ var (
 		"Exists":     `select uuid from idm_usr_meta where node_uuid=? and namespace=? and owner=?`,
 		"DeleteMeta": `delete from idm_usr_meta where uuid=?`,
 	}
-
-	search = `select * from idm_usr_meta`
 )
 
 // Impl of the Mysql interface
@@ -167,38 +164,45 @@ func (dao *sqlimpl) Del(meta *idm.UserMeta) (e error) {
 // Search meta on their conditions
 func (dao *sqlimpl) Search(metaIds []string, nodeUuids []string, namespace string, ownerSubject string, resourceQuery *service.ResourcePolicyQuery) (result []*idm.UserMeta, e error) {
 
-	var wheres []string
+	var wheres []goqu.Expression
 
-	policyQ := dao.BuildPolicyConditionForAction(resourceQuery, service.ResourcePolicyAction_READ)
-	if policyQ != "" {
+	policyQ, e := dao.BuildPolicyConditionForAction(resourceQuery, service.ResourcePolicyAction_READ)
+	if e != nil {
+		return
+	}
+	if policyQ != nil {
 		wheres = append(wheres, policyQ)
 	}
 
 	if len(metaIds) > 0 {
-		var ors []string
+		var ors []goqu.Expression
 		for _, metaId := range metaIds {
-			ors = append(ors, fmt.Sprintf("uuid='%s'", metaId))
+			ors = append(ors, goqu.I("uuid").Eq(metaId))
 		}
-		wheres = append(wheres, "("+strings.Join(ors, " OR ")+")")
+		wheres = append(wheres, goqu.Or(ors...))
 	}
 	if len(nodeUuids) > 0 {
-		var ors []string
+		var ors []goqu.Expression
 		for _, nodeId := range nodeUuids {
-			ors = append(ors, fmt.Sprintf("node_uuid='%s'", nodeId))
+			ors = append(ors, goqu.I("node_uuid").Eq(nodeId))
 		}
-		wheres = append(wheres, "("+strings.Join(ors, " OR ")+")")
+		wheres = append(wheres, goqu.Or(ors...))
 	}
 	if namespace != "" {
-		wheres = append(wheres, fmt.Sprintf("namespace='%s'", namespace))
+		wheres = append(wheres, goqu.I("namespace").Eq(namespace))
 	}
 	if ownerSubject != "" {
-		wheres = append(wheres, fmt.Sprintf("owner='%s'", ownerSubject))
+		wheres = append(wheres, goqu.I("owner").Eq(ownerSubject))
 	}
 	if len(wheres) == 0 {
 		return
 	}
 
-	q := search + " WHERE " + strings.Join(wheres, " AND ")
+	q, _, err := goqu.New(dao.Driver(), nil).From("idm_usr_meta").Where(goqu.And(wheres...)).ToSql()
+	if err != nil {
+		e = err
+		return
+	}
 
 	res, err := dao.DB().Query(q)
 	if err != nil {

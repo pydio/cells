@@ -22,7 +22,6 @@ package resources
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/gobuffalo/packr"
 	migrate "github.com/rubenv/sql-migrate"
@@ -30,6 +29,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
+	"gopkg.in/doug-martin/goqu.v4"
 )
 
 var (
@@ -152,10 +152,10 @@ func (s *ResourcesSQL) DeletePoliciesForResourceAndAction(resourceId string, act
 }
 
 // BuildPolicyConditionForAction builds an ResourcesSQL condition from claims toward the associated resource table
-func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (query string) {
+func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQuery, action service.ResourcePolicyAction) (expr goqu.Expression, e error) {
 
 	if q == nil || q.Any {
-		return ""
+		return nil, nil
 	}
 
 	leftIdentifier := s.LeftIdentifier
@@ -164,25 +164,33 @@ func (s *ResourcesSQL) BuildPolicyConditionForAction(q *service.ResourcePolicyQu
 
 	if q.Empty {
 
-		join := fmt.Sprintf("%s=%s", resourcesTableName+".resource", leftIdentifier)
-		actionQ := fmt.Sprintf("%s='%s'", resourcesTableName+".action", action.String())
-		return fmt.Sprintf("NOT EXISTS ( select 1 from %s WHERE %s AND %s )", resourcesTableName, join, actionQ)
+		join := goqu.I(resourcesTableName + ".resource").Eq(goqu.I(leftIdentifier))
+		actionQ := goqu.I(resourcesTableName + ".action").Eq(action.String())
+		str, _, e := goqu.New(s.Driver(), nil).From(resourcesTableName).Select(goqu.L("1")).Where(goqu.And(join, actionQ)).ToSql()
+		if e != nil {
+			return nil, e
+		}
+		return goqu.L("NOT EXISTS (" + str + ")"), nil
 
 	} else {
 
 		resSubject := resourcesTableName + ".subject"
-		var ors []string
-		var ands []string
+		var ors []goqu.Expression
+		var ands []goqu.Expression
 		if len(subjects) > 0 {
 			for _, subject := range subjects {
-				ors = append(ors, fmt.Sprintf("%s='%s'", resSubject, subject))
+				ors = append(ors, goqu.I(resSubject).Eq(subject))
 			}
-			ands = append(ands, fmt.Sprintf("(%s)", strings.Join(ors, " OR ")))
+			ands = append(ands, goqu.Or(ors...))
 		}
 
-		ands = append(ands, fmt.Sprintf("%s='%s'", resourcesTableName+".action", action.String()))
-		ands = append(ands, fmt.Sprintf("%s=%s", resourcesTableName+".resource", leftIdentifier))
-		return fmt.Sprintf("EXISTS ( select 1 from %s WHERE %s )", resourcesTableName, strings.Join(ands, " AND "))
+		ands = append(ands, goqu.I(resourcesTableName+".resource").Eq(goqu.I(leftIdentifier))) // Join
+		ands = append(ands, goqu.I(resourcesTableName+".action").Eq(action.String()))
+		str, _, e := goqu.New(s.Driver(), nil).From(resourcesTableName).Select(goqu.L("1")).Where(goqu.And(ands...)).ToSql()
+		if e != nil {
+			return nil, e
+		}
+		return goqu.L("EXISTS (" + str + ")"), nil
 
 	}
 }

@@ -141,8 +141,11 @@ func (s *sqlimpl) slugExists(slug string) bool {
 func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 
 	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
-	resourceString := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
-	queryString, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceString, 100)
+	resourceExpr, e := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
+	if e != nil {
+		return e
+	}
+	queryString, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceExpr, 100)
 	if err != nil {
 		return err
 	}
