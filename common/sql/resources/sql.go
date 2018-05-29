@@ -24,7 +24,7 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/packr"
-	migrate "github.com/rubenv/sql-migrate"
+	"github.com/rubenv/sql-migrate"
 
 	"github.com/pydio/cells/common/config"
 	service "github.com/pydio/cells/common/service/proto"
@@ -57,8 +57,7 @@ func (s *ResourcesSQL) Init(options config.Map) error {
 		Dir:         "./" + s.Driver(),
 		TablePrefix: s.Prefix() + "_policies",
 	}
-
-	_, err := migrate.Exec(s.DB(), s.Driver(), migrations, migrate.Up)
+	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, s.Prefix()+"_policies")
 	if err != nil {
 		return err
 	}

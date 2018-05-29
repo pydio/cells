@@ -276,7 +276,7 @@ func (dao *IndexSQL) Init(options config.Map) error {
 		TablePrefix: dao.Prefix() + "_idx",
 	}
 
-	_, err := migrate.Exec(dao.DB(), dao.Driver(), migrations, migrate.Up)
+	_, err := sql.ExecMigration(dao.DB(), dao.Driver(), migrations, migrate.Up, dao.Prefix()+"_idx_")
 	if err != nil {
 		return err
 	}
@@ -301,7 +301,7 @@ func (dao *IndexSQL) CleanResourcesOnDeletion() (error, string) {
 		TablePrefix: dao.Prefix() + "_idx",
 	}
 
-	_, err := migrate.Exec(dao.DB(), dao.Driver(), migrations, migrate.Down)
+	_, err := sql.ExecMigration(dao.DB(), dao.Driver(), migrations, migrate.Down, dao.Prefix()+"_idx_")
 	if err != nil {
 		return err, ""
 	}

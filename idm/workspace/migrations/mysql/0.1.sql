@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS idm_workspaces (
     description VARCHAR(1000) NULL,
     attributes VARCHAR (2000) NULL,
     slug VARCHAR(500) NOT NULL,
-    scope	INT(1),
+    scope INT(1),
     last_updated INT,
 
     PRIMARY KEY (uuid),

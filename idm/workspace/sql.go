@@ -66,19 +66,16 @@ func (s *sqlimpl) Init(options config.Map) error {
 	if err := s.ResourcesSQL.Init(options); err != nil {
 		return err
 	}
-
 	// Doing the database migrations
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../idm/workspace/migrations"),
 		Dir:         s.Driver(),
 		TablePrefix: s.Prefix(),
 	}
-
-	_, err := migrate.Exec(s.DB(), s.Driver(), migrations, migrate.Up)
+	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_workspace_")
 	if err != nil {
 		return err
 	}
-
 	// Preparing the db statements
 	if options.Bool("prepare", true) {
 		for key, query := range queries {

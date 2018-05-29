@@ -64,7 +64,7 @@ func (s *sqlimpl) Init(options config.Map) error {
 		TablePrefix: s.Prefix() + "_ns",
 	}
 
-	_, err := migrate.Exec(s.DB(), s.Driver(), migrations, migrate.Up)
+	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_usr_meta_ns_")
 	if err != nil {
 		return err
 	}

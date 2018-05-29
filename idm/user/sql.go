@@ -131,7 +131,7 @@ func (s *sqlimpl) Init(options config.Map) error {
 		Dir:         s.Driver(),
 		TablePrefix: s.Prefix(),
 	}
-	_, err := migrate.Exec(s.DB(), s.Driver(), migrations, migrate.Up)
+	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_user_")
 	if err != nil {
 		return fmt.Errorf("cannot perform migration: %v", err)
 	}
