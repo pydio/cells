@@ -27,15 +27,22 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 
+	"context"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/service/defaults"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/views"
+	"go.uber.org/zap"
 )
 
 // ListSharedResources implements the corresponding Rest API operation
@@ -135,8 +142,12 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 			roots[acl.NodeID][acl.WorkspaceID] = ws
 		}
 	}
-
-	rootNodes := h.LoadDetectedRootNodes(ctx, detectedRoots)
+	var rootNodes map[string]*tree.Node
+	if request.Subject != "" {
+		rootNodes = h.LoadAdminRootNodes(ctx, detectedRoots)
+	} else {
+		rootNodes = h.LoadDetectedRootNodes(ctx, detectedRoots)
+	}
 
 	// Build resources
 	for nodeId, node := range rootNodes {
@@ -166,5 +177,31 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 	}
 
 	rsp.WriteEntity(response)
+
+}
+
+// LoadDetectedRootNodes find actual nodes in the tree, and enrich their metadata if they appear
+// in many workspaces for the current user.
+func (h *SharesHandler) LoadAdminRootNodes(ctx context.Context, detectedRoots []string) (rootNodes map[string]*tree.Node) {
+
+	rootNodes = make(map[string]*tree.Node)
+	router := views.NewUuidRouter(views.RouterOptions{AdminView: true})
+	metaClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
+	for _, rootId := range detectedRoots {
+		request := &tree.ReadNodeRequest{Node: &tree.Node{Uuid: rootId}}
+		if resp, err := router.ReadNode(ctx, request); err == nil {
+			node := resp.Node
+			if metaResp, e := metaClient.ReadNode(ctx, request); e == nil {
+				var isRoomNode bool
+				if metaResp.GetNode().GetMeta("CellNode", &isRoomNode); err == nil && isRoomNode {
+					node.SetMeta("CellNode", true)
+				}
+			}
+			rootNodes[node.GetUuid()] = node.WithoutReservedMetas()
+		} else {
+			log.Logger(ctx).Error("Share Load - Ignoring Root Node, probably deleted", zap.String("nodeId", rootId), zap.Error(err))
+		}
+	}
+	return
 
 }

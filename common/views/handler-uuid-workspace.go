@@ -28,6 +28,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils"
 )
@@ -46,6 +47,14 @@ func NewUuidNodeHandler() *UuidNodeHandler {
 func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	if info, alreadySet := GetBranchInfo(ctx, identifier); alreadySet && info.Client != nil {
+		return ctx, node, nil
+	}
+
+	if isAdmin := ctx.Value(ctxAdminContextKey{}); isAdmin != nil {
+		ws := &idm.Workspace{UUID: "ROOT", RootNodes: []string{"ROOT"}, Slug: "ROOT"}
+		branchInfo := BranchInfo{}
+		branchInfo.Workspace = *ws
+		ctx = WithBranchInfo(ctx, identifier, branchInfo)
 		return ctx, node, nil
 	}
 
