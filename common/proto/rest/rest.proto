@@ -288,7 +288,7 @@ service UserService {
         };
     };
     // Bind a user with her login and password
-    rpc BindUsers(idm.User) returns (BindResponse) {
+    rpc BindUser(idm.User) returns (BindResponse) {
         option (google.api.http) =  {
             post: "/user/{Login}/bind"
             body: "*"
