@@ -301,6 +301,12 @@ func (h Handler) enrichChange(ctx context.Context, change *tree.SyncChange, inde
 	change.Node = &tree.SyncChangeNode{}
 
 	if change.Type == tree.SyncChange_delete {
+		change.Node = &tree.SyncChangeNode{
+			Bytesize: 0,
+			Mtime:    0,
+			Md5:      "deleted",
+			NodePath: change.Source,
+		}
 		return nil
 	}
 
