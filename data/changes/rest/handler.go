@@ -221,20 +221,20 @@ func (h Handler) lastSequenceId(ctx context.Context, changesClient tree.SyncChan
 // 3 - Filter by ACLs here to ignore changes that are entirely out of path, transform moves to create/delete
 func (h Handler) filterChange(ctx context.Context, change *tree.SyncChange, aclList *utils.AccessList, pathFilter string, recyclePath string) (ignore bool) {
 
-	log.Logger(ctx).Info("FILTER CHANGE", zap.Any("change", change), zap.Any("pathFilter", pathFilter), zap.Any("recycle", recyclePath))
+	log.Logger(ctx).Debug("FILTER CHANGE", zap.Any("change", change), zap.Any("pathFilter", pathFilter), zap.Any("recycle", recyclePath))
 	// 1 - Filter out moves that are node inside our filter
 	if h.filterByPath("out", change, pathFilter) {
 		return true
 	}
 
-	log.Logger(ctx).Info("FILTER CHANGE > 1", zap.Any("change", change))
+	log.Logger(ctx).Debug("FILTER CHANGE > 1", zap.Any("change", change))
 
 	// 2 - Filter /recycle_bin/* path, transform moves to create/delete
 	if h.filterByPath("in", change, recyclePath) {
 		return true
 	}
 
-	log.Logger(ctx).Info("FILTER CHANGE > 2", zap.Any("change", change))
+	log.Logger(ctx).Debug("FILTER CHANGE > 2", zap.Any("change", change))
 
 	// 3 - Acl List
 	/*
@@ -247,7 +247,7 @@ func (h Handler) filterChange(ctx context.Context, change *tree.SyncChange, aclL
 	// 4 - Now Trim Prefix on absolute path's
 	h.trimPrefix(change, pathFilter)
 
-	log.Logger(ctx).Info("FILTER CHANGE > 4", zap.Any("change", change))
+	log.Logger(ctx).Debug("FILTER CHANGE > 4", zap.Any("change", change))
 
 	return false
 }
