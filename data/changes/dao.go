@@ -32,6 +32,7 @@ type DAO interface {
 	dao.DAO
 
 	Put(*tree.SyncChange) error
+	BulkPut([]*tree.SyncChange) error
 	Get(uint64, string) (chan *tree.SyncChange, error)
 	LastSeq() (uint64, error)
 	HasNodeById(id string) (bool, error)

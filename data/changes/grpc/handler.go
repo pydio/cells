@@ -40,14 +40,25 @@ import (
 )
 
 // Handler to GRPC interface to changes API
-type Handler struct{}
+type Handler struct {
+	batcher *changes.BatchInsert
+}
+
+func NewHandler(ctx context.Context) *Handler {
+	dao := servicecontext.GetDAO(ctx).(changes.DAO)
+	return &Handler{
+		batcher: changes.NewBatchInsert(dao, 1*time.Second, 20),
+	}
+}
 
 // OnTreeEvent receives events about node changes from the router
 func (h Handler) OnTreeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
-	if servicecontext.GetDAO(ctx) == nil {
-		return fmt.Errorf("no DAO found, wrong initialization")
-	}
-	dao := servicecontext.GetDAO(ctx).(changes.DAO)
+	/*
+		if servicecontext.GetDAO(ctx) == nil {
+			return fmt.Errorf("no DAO found, wrong initialization")
+		}
+		dao := servicecontext.GetDAO(ctx).(changes.DAO)
+	*/
 
 	change := &tree.SyncChange{}
 	var refNode *tree.Node
@@ -67,7 +78,13 @@ func (h Handler) OnTreeEvent(ctx context.Context, event *tree.NodeChangeEvent) e
 		return nil
 	}
 
-	if strings.HasSuffix(refNode.GetPath(), common.PYDIO_SYNC_HIDDEN_FILE_META) {
+	if strings.HasSuffix(refNode.GetPath(), common.PYDIO_SYNC_HIDDEN_FILE_META) ||
+		strings.HasSuffix(refNode.GetPath(), ".ajxp_recycle_cache.ser") {
+		// Ignore
+		return nil
+	}
+
+	if refNode.GetEtag() == common.NODE_FLAG_ETAG_TEMPORARY {
 		// Ignore
 		return nil
 	}
@@ -89,11 +106,9 @@ func (h Handler) OnTreeEvent(ctx context.Context, event *tree.NodeChangeEvent) e
 	}
 
 	log.Logger(ctx).Debug("NodeChangeEvent received", zap.Any(common.KEY_NODE_CHANGE_EVENT, change))
-	err := dao.Put(change)
-	if err != nil {
-		log.Logger(ctx).Error("cannot store Change", zap.Any(common.KEY_NODE_CHANGE_EVENT, change), zap.Error(err))
-	}
-	return err
+	//err := dao.Put(change)
+	h.batcher.Put(change)
+	return nil
 }
 
 // TriggerResync allows a resync to be triggered by the pydio client

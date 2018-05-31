@@ -23,7 +23,6 @@ package changes
 import (
 	"context"
 	"fmt"
-	"sync/atomic"
 
 	"github.com/gobuffalo/packr"
 	migrate "github.com/rubenv/sql-migrate"
@@ -36,16 +35,26 @@ import (
 )
 
 var (
-	tableName = "data_changes"
-	queries   = map[string]string{
+	queries = map[string]interface{}{
 		"insert": `INSERT INTO data_changes (node_id, type, source, target) values (?, ?, ?, ?)`,
-		//"select": `SELECT seq, node_id, type, source, target FROM data_changes WHERE seq >= ? and (source LIKE ? or target LIKE ?)`,
-		// TO VERIFY: shall we order by (node_id,seq) so that events are grouped by node id ?
+		"bulkInsert": func(args ...interface{}) string {
+			var num int
+			if len(args) == 1 {
+				num = args[0].(int)
+			}
+
+			str := `INSERT INTO data_changes (node_id, type, source, target) values `
+			str = str + `(?, ?, ?, ?)`
+			for i := 1; i < num; i++ {
+				str = str + `, (?, ?, ?, ?)`
+			}
+			return str
+		},
+		// Order by (node_id,seq) so that events are grouped by node id
 		"select":   `SELECT seq, node_id, type, source, target FROM data_changes WHERE seq > ? and (source LIKE ? or target LIKE ?) ORDER BY node_id,seq`,
 		"lastSeq":  `SELECT MAX(seq) FROM data_changes`,
 		"nodeById": `SELECT node_id FROM data_changes WHERE node_id = ? LIMIT 0,1`,
 	}
-	mu atomic.Value
 )
 
 // sqlimpl for the sql implementation
@@ -97,6 +106,17 @@ func (h *sqlimpl) Put(c *tree.SyncChange) error {
 	}
 
 	return nil
+}
+
+// Put a slice of changes at once
+func (h *sqlimpl) BulkPut(changes []*tree.SyncChange) error {
+	stmt := h.GetStmt("bulkInsert", len(changes))
+	var values []interface{}
+	for _, change := range changes {
+		values = append(values, change.NodeId, change.Type.String(), change.Source, change.Target)
+	}
+	_, err := stmt.Exec(values...)
+	return err
 }
 
 func (h *sqlimpl) HasNodeById(id string) (bool, error) {

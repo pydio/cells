@@ -49,7 +49,7 @@ func init() {
 		}}),
 		service.WithStorage(changes.NewDAO, "data_changes"),
 		service.WithMicro(func(m micro.Service) error {
-			h := &Handler{}
+			h := NewHandler(m.Options().Context)
 			tree.RegisterSyncChangesHandler(m.Options().Server, h)
 			sync.RegisterSyncEndpointHandler(m.Options().Server, h)
 

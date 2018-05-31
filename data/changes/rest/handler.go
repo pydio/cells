@@ -86,15 +86,67 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 	coll := collPool.Get()
 	defer collPool.Put(coll)
 
-	// Do not declare clients as package var, we must create clients as we need them
-	// to make sure to get a "fresh" connection
 	indexClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	changesClient := tree.NewSyncChangesClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHANGES, defaults.NewClient())
 
 	// Use router to transform filter to absolute path
 	// TODO : if root of a workspace, we have to list the root to get all the possible root nodes
 	// In that case make multiple calls of modify grpc handler to manage multiple filters ?
 	r := views.NewStandardRouter(views.RouterOptions{LogReadEvents: false})
 	inputFilterNode := &tree.Node{Path: restReq.Filter}
+
+	if restReq.SeqID == 0 && !restReq.Flatten {
+
+		respColl := &rest.ChangeCollection{}
+		// Flatten output should simply list files under the given path. Directly use the router
+		streamer, e := r.ListNodes(ctx, &tree.ListNodesRequest{Node: inputFilterNode, Recursive: true})
+		if e != nil {
+			service.RestError500(req, rsp, e)
+			return
+		}
+		defer streamer.Close()
+		fakeSeq := uint64(0)
+		for {
+			resp, er := streamer.Recv()
+			if er != nil {
+				break
+			}
+			fakeSeq++
+			outNode := resp.Node
+			outPath := strings.TrimPrefix(outNode.Path, restReq.Filter)
+			if strings.HasPrefix(outPath, "recycle_bin") || strings.HasSuffix(outPath, common.PYDIO_SYNC_HIDDEN_FILE_META) {
+				continue
+			}
+
+			// Build a fake change from this node
+			c := &tree.SyncChange{
+				NodeId: outNode.Uuid,
+				Seq:    fakeSeq,
+				Type:   tree.SyncChange_create,
+				Source: "NULL",
+				Target: outPath,
+			}
+			md5 := outNode.Etag
+			if !outNode.IsLeaf() {
+				md5 = "directory"
+			}
+			c.Node = &tree.SyncChangeNode{
+				NodePath: outPath,
+				Bytesize: outNode.Size,
+				Md5:      md5,
+				Mtime:    outNode.MTime,
+			}
+			respColl.Changes = append(respColl.Changes, c)
+		}
+
+		// Make a last call to get Last Seq ID
+		if last, e := h.lastSequenceId(ctx, changesClient); e == nil {
+			respColl.LastSeqId = int64(last)
+		}
+		rsp.WriteEntity(respColl)
+		return
+	}
+
 	var wrapError error
 	r.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 		ctx, inputFilterNode, wrapError = inputFilter(ctx, inputFilterNode, "in")
@@ -115,7 +167,6 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 		Seq:    uint64(restReq.SeqID),
 		Prefix: inputFilterNode.Path,
 	}
-	changesClient := tree.NewSyncChangesClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHANGES, defaults.NewClient())
 	res, err := changesClient.Search(ctx, q)
 	if err != nil {
 		service.RestError500(req, rsp, err)
