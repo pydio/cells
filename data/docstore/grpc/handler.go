@@ -60,7 +60,7 @@ func (h *Handler) PutDocument(ctx context.Context, request *proto.PutDocumentReq
 }
 
 func (h *Handler) GetDocument(ctx context.Context, request *proto.GetDocumentRequest, response *proto.GetDocumentResponse) error {
-	log.Logger(ctx).Info("GetDocument", zap.String("store", request.StoreID), zap.String("docId", request.DocumentID))
+	log.Logger(ctx).Debug("GetDocument", zap.String("store", request.StoreID), zap.String("docId", request.DocumentID))
 	doc, e := h.Db.GetDocument(request.StoreID, request.DocumentID)
 	if e != nil {
 		return nil
@@ -81,6 +81,8 @@ func (h *Handler) DeleteDocuments(ctx context.Context, request *proto.DeleteDocu
 		for _, docId := range docIds {
 			log.Logger(ctx).Info("DeleteDocument", zap.String("store", request.StoreID), zap.String("docId", docId))
 			if e := h.Db.DeleteDocument(request.StoreID, docId); e == nil {
+				// Remove from indexer as well
+				h.Indexer.DeleteDocument(request.StoreID, docId)
 				response.DeletionCount++
 			}
 

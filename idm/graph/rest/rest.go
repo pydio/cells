@@ -63,7 +63,7 @@ func (h *GraphHandler) getRouter() *views.Router {
 func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 
 	ctx := req.Request.Context()
-	log.Logger(ctx).Info("Received Graph.UserState API request for uuid")
+	log.Logger(ctx).Debug("Received Graph.UserState API request for uuid")
 
 	accessList, err := utils.AccessListFromContextClaims(ctx)
 	if err != nil {

@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/defaults"
+	"go.uber.org/zap"
 )
 
 type Handler struct{}
@@ -58,7 +59,7 @@ func (a *Handler) Filter() func(string) string {
 
 func (h *Handler) GetDoc(req *restful.Request, resp *restful.Response) {
 
-	log.Logger(req.Request.Context()).Info("Docstore.Get on " + req.PathParameter("StoreID"))
+	log.Logger(req.Request.Context()).Debug("Docstore.Get on " + req.PathParameter("StoreID"))
 
 	input := &docstore.GetDocumentRequest{
 		StoreID:    req.PathParameter("StoreID"),
@@ -77,7 +78,7 @@ func (h *Handler) GetDoc(req *restful.Request, resp *restful.Response) {
 
 func (h *Handler) PutDoc(req *restful.Request, resp *restful.Response) {
 
-	log.Logger(req.Request.Context()).Info("Docstore.Put on " + req.PathParameter("StoreID"))
+	log.Logger(req.Request.Context()).Debug("Docstore.Put on " + req.PathParameter("StoreID"))
 
 	var input docstore.PutDocumentRequest
 	if err := req.ReadEntity(&input); err != nil {
@@ -102,7 +103,7 @@ func (h *Handler) PutDoc(req *restful.Request, resp *restful.Response) {
 
 func (h *Handler) ListDocs(req *restful.Request, resp *restful.Response) {
 
-	log.Logger(req.Request.Context()).Info("Docstore.List on " + req.PathParameter("StoreID"))
+	log.Logger(req.Request.Context()).Debug("Docstore.List on " + req.PathParameter("StoreID"))
 
 	var input rest.ListDocstoreRequest
 	if err := req.ReadEntity(&input); err != nil {
@@ -161,16 +162,16 @@ func (h *Handler) ListDocs(req *restful.Request, resp *restful.Response) {
 
 func (h *Handler) DeleteDoc(req *restful.Request, resp *restful.Response) {
 
-	log.Logger(req.Request.Context()).Info("Docstore.Delete on " + req.PathParameter("StoreID"))
-
 	var input docstore.DeleteDocumentsRequest
 	if err := req.ReadEntity(&input); err != nil {
 		service.RestError500(req, resp, err)
 		return
 	}
 
+	log.Logger(req.Request.Context()).Info("Docstore.Delete on ", zap.Any("DeleteDocRequest", input))
+
 	if input.DocumentID == "" && (input.Query == nil || (input.Query.MetaQuery == "" && input.Query.Owner == "")) {
-		service.RestError500(req, resp, errors.New("Please provide a context for deletion."))
+		service.RestError500(req, resp, errors.New("please provide a context for deletion."))
 		return
 	}
 

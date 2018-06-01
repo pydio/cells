@@ -74,10 +74,9 @@ func PolicyHttpWrapper(h http.Handler) http.Handler {
 
 		// Effective request to ladon
 		resp, err := client.IsAllowed(c, request)
-		// log.Logger(c).Error("Querying Policy Service", zap.Any("request", request), zap.Any("response", resp), zap.Error(err))
 
 		if err != nil || !resp.Allowed {
-			log.Logger(c).Error("PolicyHttpHandlerWrapper", zap.Error(err))
+			log.Logger(c).Debug("PolicyHttpHandlerWrapper denied access", zap.Error(err), zap.Any("request", request))
 			w.WriteHeader(401)
 			w.Write([]byte("Unauthorized.\n"))
 			return
