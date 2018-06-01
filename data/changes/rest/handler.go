@@ -186,8 +186,9 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 		if h.filterChange(ctx, change, aclList, inputFilterNode.Path, recyclePath) {
 			continue
 		}
-		h.enrichChange(ctx, change, indexClient, inputFilterNode.Path)
-		coll.Changes = append(coll.Changes, change)
+		if e := h.enrichChange(ctx, change, indexClient, inputFilterNode.Path); e == nil {
+			coll.Changes = append(coll.Changes, change)
+		}
 	}
 
 	// Make a last call to get Last Seq ID
@@ -323,8 +324,8 @@ func (h Handler) enrichChange(ctx context.Context, change *tree.SyncChange, inde
 			Md5:      md5,
 			Mtime:    found.MTime,
 		}
+	} else {
+		return e
 	}
-
 	return nil
-
 }
