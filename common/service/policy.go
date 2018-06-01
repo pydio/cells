@@ -81,7 +81,7 @@ func PolicyHttpWrapper(h http.Handler) http.Handler {
 			log.Logger(c).Debug("PolicyHttpHandlerWrapper denied access", zap.Error(err), zap.Any("request", request))
 			var msg string
 			if err != nil {
-				msg = "ladon validation failed: " + err.Error()
+				msg = "Ladon validation failed: " + err.Error()
 			} else { //resp.Allowed == false
 				msg = fmt.Sprintf("Ladon blocked %s request at %s. Ladon Response: %s", r.Method, r.RequestURI, resp.String())
 			}
