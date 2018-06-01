@@ -22,6 +22,7 @@ package service
 
 import (
 	"context"
+	"net/http"
 	"regexp"
 
 	"github.com/micro/go-micro"
@@ -82,6 +83,10 @@ type ServiceOptions struct {
 
 	// Micro init
 	MicroInit func(Service) error
+
+	// Web init
+	WebInit         func(Service) error
+	webHandlerWraps []func(http.Handler) http.Handler
 }
 
 type ServiceOption func(*ServiceOptions)

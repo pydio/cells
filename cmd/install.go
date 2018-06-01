@@ -153,6 +153,9 @@ Services will all start automatically after the install process is finished.
 			micro = utils.GetAvailablePort()
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)
 		}
+
+		utils.SaveConfigs()
+
 		var tls string
 		if config.Get("cert", "proxy", "ssl").Bool(false) {
 			if config.Get("cert", "proxy", "self").Bool(false) {

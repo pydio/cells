@@ -70,9 +70,11 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
 		o.Web = web.NewService()
-		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH, []string{}})
-		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_POLICY, []string{}})
-		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER, []string{}})
+
+		o.WebInit = func(s Service) error {
+			return nil
+		}
+
 		o.BeforeStart = append(o.BeforeStart, func(s Service) error {
 			name := s.Options().Name
 			ctx := servicecontext.WithServiceName(s.Options().Context, name)
@@ -152,12 +154,10 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 			var e error
 			wrapped := http.Handler(wc)
 
-			if s.Options().Name != common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL {
-				wrapped = PolicyHttpWrapper(wrapped)
-				wrapped = JWTHttpWrapper(wrapped)
-				wrapped = servicecontext.HttpSpanHandlerWrapper(wrapped)
-				wrapped = servicecontext.HttpMetaExtractorWrapper(wrapped)
+			for _, wrap := range s.Options().webHandlerWraps {
+				wrapped = wrap(wrapped)
 			}
+
 			if wrapped, e = NewConfigHttpHandlerWrapper(wrapped, name); e != nil {
 				return e
 			}
@@ -169,6 +169,25 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 		})
 		o.AfterStart = append(o.AfterStart, func(service Service) error {
 			return UpdateServiceVersion(service)
+		})
+	}
+}
+
+// WithWebAuth adds dependencies to the web services and auth wrappers to auth handlers
+func WithWebAuth() ServiceOption {
+	return func(o *ServiceOptions) {
+
+		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH, []string{}})
+		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_POLICY, []string{}})
+		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER, []string{}})
+
+		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
+			wrapped := PolicyHttpWrapper(handler)
+			wrapped = JWTHttpWrapper(wrapped)
+			wrapped = servicecontext.HttpSpanHandlerWrapper(wrapped)
+			wrapped = servicecontext.HttpMetaExtractorWrapper(wrapped)
+
+			return wrapped
 		})
 	}
 }

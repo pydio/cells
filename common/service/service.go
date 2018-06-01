@@ -137,6 +137,11 @@ func NewService(opts ...ServiceOption) Service {
 		ctx = servicecontext.WithServiceColor(ctx, 31)
 	} else if s.IsREST() {
 		ctx = servicecontext.WithServiceColor(ctx, 32)
+
+		// TODO : adding web services automatic dependencies to auth, this should be done in each service instead
+		if s.Options().Name != common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL {
+			s.Init(WithWebAuth())
+		}
 	} else {
 		ctx = servicecontext.WithServiceColor(ctx, 34)
 	}
@@ -226,6 +231,7 @@ func NewService(opts ...ServiceOption) Service {
 
 		// Adding a check before starting the service to ensure all dependencies are running
 		BeforeStart(func(_ Service) error {
+
 			for _, d := range s.Options().Dependencies {
 				Retry(func() error {
 					runningServices, err := registry.ListRunningServices()
@@ -325,15 +331,21 @@ func (s *service) Start() {
 				cancel()
 			}
 		}()
+
 	}
 
 	if s.Options().Web != nil {
 		go func() {
+			if err := s.Options().WebInit(s); err != nil {
+				log.Logger(ctx).Error("Could not web init ", zap.Error(err))
+				cancel()
+			}
 			if err := s.Options().Web.Run(); err != nil {
 				log.Logger(ctx).Error("Could not run ", zap.Error(err))
 				cancel()
 			}
 		}()
+
 	}
 
 	for _, f := range s.Options().AfterStart {
