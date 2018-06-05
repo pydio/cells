@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package gateway spins an S3 gateway for serving files using the Amazon S3 protocol
+// Package gateway spins an S3 gateway for serving files using the Amazon S3 protocol.
 package gateway
 
 import (
