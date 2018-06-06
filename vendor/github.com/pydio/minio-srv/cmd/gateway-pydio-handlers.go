@@ -45,6 +45,7 @@ func (api gatewayPydioAPIHandlers) GetObjectHandler(w http.ResponseWriter, r *ht
 	vars := router.Vars(r)
 	bucket = vars["bucket"]
 	object = vars["object"]
+	reqParams := extractReqParams(r)
 
 	pydioApi := api.PydioAPI()
 	if pydioApi == nil {
@@ -167,7 +168,7 @@ func (api gatewayPydioAPIHandlers) GetObjectHandler(w http.ResponseWriter, r *ht
 		Type:      ObjectAccessedGet,
 		Bucket:    bucket,
 		ObjInfo:   objInfo,
-		ReqParams: extractReqParams(r),
+		ReqParams: reqParams,
 		UserAgent: r.UserAgent(),
 		Host:      host,
 		Port:      port,
@@ -266,6 +267,7 @@ func (api gatewayPydioAPIHandlers) PutObjectHandler(w http.ResponseWriter, r *ht
 		return
 	}
 	defer objectLock.Unlock()
+	reqParams := extractReqParams(r)
 
 	var objInfo ObjectInfo
 	switch reqAuthType {
@@ -330,7 +332,7 @@ func (api gatewayPydioAPIHandlers) PutObjectHandler(w http.ResponseWriter, r *ht
 		Type:      ObjectCreatedPut,
 		Bucket:    bucket,
 		ObjInfo:   objInfo,
-		ReqParams: extractReqParams(r),
+		ReqParams: reqParams,
 		UserAgent: r.UserAgent(),
 		Host:      host,
 		Port:      port,
@@ -345,6 +347,7 @@ func (api gatewayPydioAPIHandlers) CopyObjectHandler(w http.ResponseWriter, r *h
 	vars := router.Vars(r)
 	dstBucket := vars["bucket"]
 	dstObject := vars["object"]
+	reqParams := extractReqParams(r)
 
 	pydioApi := api.PydioAPI()
 	if pydioApi == nil {
@@ -477,7 +480,7 @@ func (api gatewayPydioAPIHandlers) CopyObjectHandler(w http.ResponseWriter, r *h
 		Type:      ObjectCreatedCopy,
 		Bucket:    dstBucket,
 		ObjInfo:   objInfo,
-		ReqParams: extractReqParams(r),
+		ReqParams: reqParams,
 		UserAgent: r.UserAgent(),
 		Host:      host,
 		Port:      port,
@@ -492,6 +495,7 @@ func (api gatewayPydioAPIHandlers) HeadObjectHandler(w http.ResponseWriter, r *h
 	vars := router.Vars(r)
 	bucket = vars["bucket"]
 	object = vars["object"]
+	reqParams := extractReqParams(r)
 
 	pydioApi := api.PydioAPI()
 	if pydioApi == nil {
@@ -558,7 +562,7 @@ func (api gatewayPydioAPIHandlers) HeadObjectHandler(w http.ResponseWriter, r *h
 		Type:      ObjectAccessedHead,
 		Bucket:    bucket,
 		ObjInfo:   objInfo,
-		ReqParams: extractReqParams(r),
+		ReqParams: reqParams,
 		UserAgent: r.UserAgent(),
 		Host:      host,
 		Port:      port,
@@ -846,6 +850,7 @@ func (api gatewayPydioAPIHandlers) DeleteObjectHandler(w http.ResponseWriter, r 
 func (api gatewayPydioAPIHandlers) DeleteMultipleObjectsHandler(w http.ResponseWriter, r *http.Request) {
 	vars := router.Vars(r)
 	bucket := vars["bucket"]
+	reqParams := extractReqParams(r)
 
 	pydioApi := api.PydioAPI()
 	if pydioApi == nil {
@@ -960,7 +965,7 @@ func (api gatewayPydioAPIHandlers) DeleteMultipleObjectsHandler(w http.ResponseW
 			ObjInfo: ObjectInfo{
 				Name: dobj.ObjectName,
 			},
-			ReqParams: extractReqParams(r),
+			ReqParams: reqParams,
 			UserAgent: r.UserAgent(),
 			Host:      host,
 			Port:      port,
@@ -979,6 +984,7 @@ func gatewayDeleteObject(obj PydioGateway, bucket, object string, r *http.Reques
 		return errors.New("Cannot get lock")
 	}
 	defer objectLock.Unlock()
+	reqParams := extractReqParams(r)
 
 	// Proceed to delete the object.
 	if err = obj.DeleteObjectWithContext(r.Context(), bucket, object); err != nil {
@@ -995,7 +1001,7 @@ func gatewayDeleteObject(obj PydioGateway, bucket, object string, r *http.Reques
 		ObjInfo: ObjectInfo{
 			Name: object,
 		},
-		ReqParams: extractReqParams(r),
+		ReqParams: reqParams,
 		UserAgent: r.UserAgent(),
 		Host:      host,
 		Port:      port,
