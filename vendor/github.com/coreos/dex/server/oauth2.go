@@ -326,7 +326,7 @@ func (s *Server) newIDToken(clientID string, claims storage.Claims, scopes []str
 	scopes = append(scopes, scopePydio)
 	for _, scope := range scopes {
 
-		s.logger.Info("scope scan range: ", scope)
+		//s.logger.Info("scope scan range: ", scope)
 
 		switch {
 		case scope == scopeEmail:

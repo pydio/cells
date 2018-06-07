@@ -263,7 +263,8 @@ func (c *conn) GetAuthCode(id string) (a storage.AuthCode, err error) {
 }
 
 func (c *conn) CreateRefresh(r storage.RefreshToken) error {
-	_, err := c.Exec(`
+	return c.ExecTx(func(tx *trans) error {
+		_, err := tx.Exec(`
 		insert into dex_refresh_token (
 			id, client_id, scopes, nonce,
 			claims_user_id, claims_username, claims_email, claims_email_verified,
@@ -273,19 +274,20 @@ func (c *conn) CreateRefresh(r storage.RefreshToken) error {
 		)
 		values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);
 	`,
-		r.ID, r.ClientID, encoder(r.Scopes), r.Nonce,
-		r.Claims.UserID, r.Claims.Username, r.Claims.Email, r.Claims.EmailVerified,
-		encoder(r.Claims.Groups), r.PClaims.JsonMarshal(),
-		r.ConnectorID, r.ConnectorData,
-		r.Token, r.CreatedAt, r.LastUsed,
-	)
-	if err != nil {
-		if c.alreadyExistsCheck(err) {
-			return storage.ErrAlreadyExists
+			r.ID, r.ClientID, encoder(r.Scopes), r.Nonce,
+			r.Claims.UserID, r.Claims.Username, r.Claims.Email, r.Claims.EmailVerified,
+			encoder(r.Claims.Groups), r.PClaims.JsonMarshal(),
+			r.ConnectorID, r.ConnectorData,
+			r.Token, r.CreatedAt, r.LastUsed,
+		)
+		if err != nil {
+			if c.alreadyExistsCheck(err) {
+				return storage.ErrAlreadyExists
+			}
+			return fmt.Errorf("insert dex_refresh_token: %v", err)
 		}
-		return fmt.Errorf("insert dex_refresh_token: %v", err)
-	}
-	return nil
+		return nil
+	})
 }
 
 func (c *conn) UpdateRefreshToken(id string, updater func(old storage.RefreshToken) (storage.RefreshToken, error)) error {
@@ -663,7 +665,8 @@ func scanPassword(s scanner) (p storage.Password, err error) {
 }
 
 func (c *conn) CreateOfflineSessions(s storage.OfflineSessions) error {
-	_, err := c.Exec(`
+	return c.ExecTx(func(tx *trans) error {
+		_, err := tx.Exec(`
 		insert into dex_offline_session (
 			user_id, conn_id, refresh
 		)
@@ -671,15 +674,16 @@ func (c *conn) CreateOfflineSessions(s storage.OfflineSessions) error {
 			$1, $2, $3
 		);
 	`,
-		s.UserID, s.ConnID, encoder(s.Refresh),
-	)
-	if err != nil {
-		if c.alreadyExistsCheck(err) {
-			return storage.ErrAlreadyExists
+			s.UserID, s.ConnID, encoder(s.Refresh),
+		)
+		if err != nil {
+			if c.alreadyExistsCheck(err) {
+				return storage.ErrAlreadyExists
+			}
+			return fmt.Errorf("insert offline session: %v", err)
 		}
-		return fmt.Errorf("insert offline session: %v", err)
-	}
-	return nil
+		return nil
+	})
 }
 
 func (c *conn) UpdateOfflineSessions(userID string, connID string, updater func(s storage.OfflineSessions) (storage.OfflineSessions, error)) error {
@@ -845,38 +849,42 @@ func (c *conn) DeletePydioUser(login string) error {
 func (c *conn) DeleteConnector(id string) error { return c.delete("dex_connector", "id", id) }
 
 func (c *conn) DeleteOfflineSessions(userID string, connID string) error {
-	result, err := c.Exec(`delete from dex_offline_session where user_id = $1 AND conn_id = $2`, userID, connID)
-	if err != nil {
-		return fmt.Errorf("delete dex_offline_session: user_id = %s, conn_id = %s", userID, connID)
-	}
+	return c.ExecTx(func(tx *trans) error {
+		result, err := tx.Exec(`delete from dex_offline_session where user_id = $1 AND conn_id = $2`, userID, connID)
+		if err != nil {
+			return fmt.Errorf("delete dex_offline_session: user_id = %s, conn_id = %s", userID, connID)
+		}
 
-	// For now mandate that the driver implements RowsAffected. If we ever need to support
-	// a driver that doesn't implement this, we can run this in a transaction with a get beforehand.
-	n, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("rows affected: %v", err)
-	}
-	if n < 1 {
-		return storage.ErrNotFound
-	}
-	return nil
+		// For now mandate that the driver implements RowsAffected. If we ever need to support
+		// a driver that doesn't implement this, we can run this in a transaction with a get beforehand.
+		n, err := result.RowsAffected()
+		if err != nil {
+			return fmt.Errorf("rows affected: %v", err)
+		}
+		if n < 1 {
+			return storage.ErrNotFound
+		}
+		return nil
+	})
 }
 
 // Do NOT call directly. Does not escape table.
 func (c *conn) delete(table, field, id string) error {
-	result, err := c.Exec(`delete from `+table+` where `+field+` = $1`, id)
-	if err != nil {
-		return fmt.Errorf("delete %s: %v", table, id)
-	}
+	return c.ExecTx(func(tx *trans) error {
+		result, err := tx.Exec(`delete from `+table+` where `+field+` = $1`, id)
+		if err != nil {
+			return fmt.Errorf("delete %s: %v", table, id)
+		}
 
-	// For now mandate that the driver implements RowsAffected. If we ever need to support
-	// a driver that doesn't implement this, we can run this in a transaction with a get beforehand.
-	n, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("rows affected: %v", err)
-	}
-	if n < 1 {
-		return storage.ErrNotFound
-	}
-	return nil
+		// For now mandate that the driver implements RowsAffected. If we ever need to support
+		// a driver that doesn't implement this, we can run this in a transaction with a get beforehand.
+		n, err := result.RowsAffected()
+		if err != nil {
+			return fmt.Errorf("rows affected: %v", err)
+		}
+		if n < 1 {
+			return storage.ErrNotFound
+		}
+		return nil
+	})
 }

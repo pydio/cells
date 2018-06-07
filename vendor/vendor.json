@@ -812,10 +812,10 @@
 			"revisionTime": "2018-04-06T10:54:59Z"
 		},
 		{
-			"checksumSHA1": "yKpVQ/gl86iP5c+2z1uKHGtaCJI=",
+			"checksumSHA1": "f/MfiEwB+w0g/PDHJxUmZSfWH6w=",
 			"path": "github.com/coreos/dex/server",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "47d14035007dc7d34210621a5d8ccc70633dc238",
+			"revisionTime": "2018-06-07T16:34:05Z"
 		},
 		{
 			"checksumSHA1": "zqifAxI1D9ALpAFGq6HDolxTa34=",
@@ -848,10 +848,10 @@
 			"revisionTime": "2018-04-06T10:54:59Z"
 		},
 		{
-			"checksumSHA1": "IwrrLAfLOrdv6eZgp7kI7zpy9M8=",
+			"checksumSHA1": "cF3YSiJap5zJP60uAr1fA8g32Pg=",
 			"path": "github.com/coreos/dex/storage/sql",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "47d14035007dc7d34210621a5d8ccc70633dc238",
+			"revisionTime": "2018-06-07T16:34:05Z"
 		},
 		{
 			"checksumSHA1": "bUKVUnGHjs8pb4RNhoO+j6P5hKc=",
