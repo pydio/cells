@@ -86,7 +86,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Key:         "workspaces",
 					Label:       "settings.3",
 					Description: "settings.138",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\RepositoriesManager",
+					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\WorkspacesManager",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-folder-open",
 						Component: "AdminWorkspaces.WsDashboard",
