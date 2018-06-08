@@ -31,10 +31,13 @@ import (
 )
 
 type DexClient struct {
-	Id           string
-	Name         string
-	Secret       string
-	RedirectURIs []string
+	Id                     string
+	Name                   string
+	Secret                 string
+	RedirectURIs           []string
+	IdTokensExpiry         string
+	RefreshTokensExpiry    string
+	OfflineSessionsSliding bool
 }
 
 func actionConfigsSet(c *install.InstallConfig) error {
@@ -50,10 +53,13 @@ func actionConfigsSet(c *install.InstallConfig) error {
 	config.Set(fmt.Sprintf("0.0.0.0:%s", c.GetExternalDex()), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "web", "http")
 
 	dexStaticClient := &DexClient{
-		Id:           c.GetExternalDexID(),
-		Name:         c.GetExternalDexID(),
-		Secret:       c.GetExternalDexSecret(),
-		RedirectURIs: []string{"http://127.0.0.1:5555/callback"},
+		Id:                     c.GetExternalDexID(),
+		Name:                   c.GetExternalDexID(),
+		Secret:                 c.GetExternalDexSecret(),
+		RedirectURIs:           []string{"http://127.0.0.1:5555/callback"},
+		IdTokensExpiry:         "10m",
+		RefreshTokensExpiry:    "30m",
+		OfflineSessionsSliding: true,
 	}
 	config.Set([]*DexClient{dexStaticClient}, "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "staticClients")
 
