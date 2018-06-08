@@ -12,14 +12,6 @@ import (
 	"github.com/pydio/cells/common/sql"
 )
 
-var (
-	queries = map[string]string{
-		"listOffline":   `SELECT * FROM dex_offline_session`,
-		"deleteOffline": `DELETE FROM dex_offline_session WHERE user_id=? AND conn_id=?;`,
-		"deleteRefresh": `DELETE FROM dex_refresh_token WHERE claims_user_id=? AND nonce=?;`,
-	}
-)
-
 type dexSql struct {
 	sql.DAO
 }
@@ -30,21 +22,19 @@ func (s *dexSql) Init(options config.Map) error {
 	// super
 	s.DAO.Init(options)
 
-	// Preparing the db statements
-	if options.Bool("prepare", true) {
-		for key, query := range queries {
-			if err := s.Prepare(key, query); err != nil {
-				return err
-			}
-		}
-	}
+	// Do NOT prepare the stmts now
 	return nil
 }
 
 // DexPruneOfflineSessions browses existing sessions looking of refresh tokens totally expired
 func (s *dexSql) DexPruneOfflineSessions(c Config) (pruned int64, e error) {
 
-	rows, e := s.GetStmt("listOffline").Query()
+	stmt, e := s.DB().Prepare("SELECT * FROM dex_offline_session")
+	if e != nil {
+		return 0, e
+	}
+
+	rows, e := stmt.Query()
 	if e != nil {
 		return 0, e
 	}
@@ -92,9 +82,18 @@ func (s *dexSql) DexPruneOfflineSessions(c Config) (pruned int64, e error) {
 // DexDeleteOfflineSessions Delete offline session and refresh token based on uuid / session uuid (nonce)
 func (s *dexSql) DexDeleteOfflineSessions(c Config, userUuid string, sessionUuid string) error {
 
+	offline, e := s.DB().Prepare(`DELETE FROM dex_offline_session WHERE user_id=? AND conn_id=?`)
+	if e != nil {
+		return e
+	}
+	refresh, e := s.DB().Prepare(`DELETE FROM dex_refresh_token WHERE claims_user_id=? AND nonce=?`)
+	if e != nil {
+		return e
+	}
+
 	// This session needs deletion. Delete offline session and refresh_token
-	if _, e1 := s.GetStmt("deleteOffline").Exec(userUuid, sessionUuid); e1 == nil {
-		if _, e2 := s.GetStmt("deleteRefresh").Exec(userUuid, sessionUuid); e2 == nil {
+	if _, e1 := offline.Exec(userUuid, sessionUuid); e1 == nil {
+		if _, e2 := refresh.Exec(userUuid, sessionUuid); e2 == nil {
 			log.Logger(context.Background()).Debug("Deleted offline session and refresh token")
 		} else {
 			return e2
