@@ -22,19 +22,28 @@ package grpc
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"path"
+	"strings"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/cells/common/proto/auth"
+	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/idm/auth"
 )
 
-func NewAuthTokenRevokerHandler() (proto.AuthTokenRevokerHandler, error) {
-	h := new(TokenRevokerHandler)
+func NewAuthTokenRevokerHandler(dexConfig auth.Config) (proto.AuthTokenRevokerHandler, error) {
+	h := &TokenRevokerHandler{
+		dexConfig: dexConfig,
+	}
 	dataDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH)
 	if e != nil {
 		return nil, e
@@ -43,15 +52,16 @@ func NewAuthTokenRevokerHandler() (proto.AuthTokenRevokerHandler, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	h.dao = dao
 	return h, nil
 }
 
 type TokenRevokerHandler struct {
-	dao auth.DAO
+	dao       auth.DAO
+	dexConfig auth.Config
 }
 
+// MatchInvalid checks if token is part of revocation list
 func (h *TokenRevokerHandler) MatchInvalid(ctx context.Context, in *proto.MatchInvalidTokenRequest, out *proto.MatchInvalidTokenResponse) error {
 	info, err := h.dao.GetInfo(in.Token)
 	if err != nil || len(info) == 0 {
@@ -63,10 +73,29 @@ func (h *TokenRevokerHandler) MatchInvalid(ctx context.Context, in *proto.MatchI
 	return nil
 }
 
+// Revoke adds token to revocation list and eventually clear RefreshToken as well (directly inside Dex)
 func (h *TokenRevokerHandler) Revoke(ctx context.Context, in *proto.RevokeTokenRequest, out *proto.RevokeTokenResponse) error {
+
+	// Revoke RefreshToken if any
+	if payload, err := parseJWT(in.Token.Value); err == nil {
+		var claims claim.Claims
+		if err := json.Unmarshal(payload, &claims); err == nil {
+			claimsUuid, _ := claims.DecodeUserUuid()
+			claimsNonce := claims.Nonce
+			log.Logger(ctx).Info("Deleting offline session for ", zap.Any("userUuid", claimsUuid), zap.Any("nonce", claimsNonce))
+			if dexDao, ok := servicecontext.GetDAO(ctx).(auth.DexDAO); ok {
+				dexDao.DexDeleteOfflineSessions(h.dexConfig, claimsUuid, claimsNonce)
+			}
+		} else {
+			log.Logger(ctx).Error("Cannot unmarshall token", zap.Error(err), zap.Any("token", in.Token))
+		}
+	}
+	// Put in revocation list for IdToken
 	return h.dao.PutToken(in.Token)
+
 }
 
+// PruneTokens garbage collect expired IdTokens and Tokens
 func (h *TokenRevokerHandler) PruneTokens(ctx context.Context, in *proto.PruneTokensRequest, out *proto.PruneTokensResponse) error {
 	var offset = 0
 
@@ -80,13 +109,15 @@ func (h *TokenRevokerHandler) PruneTokens(ctx context.Context, in *proto.PruneTo
 		select {
 		case t := <-tc:
 			var claims claim.Claims
-			err := json.Unmarshal([]byte(t.Value), &claims)
-			if err == nil {
-				if claims.Expiry.Before(time.Now()) {
-					bytes, err := json.Marshal(claims)
-					if err == nil {
-						if e := h.dao.DeleteToken(string(bytes)); e == nil {
-							out.Tokens = append(out.Tokens, "token")
+			if payload, err := parseJWT(t.Value); err == nil {
+				if err := json.Unmarshal(payload, &claims); err == nil {
+					if claims.Expiry.Before(time.Now()) {
+						// IdToken is expired so there is no need to keep it in the revoked list
+						bytes, err := json.Marshal(claims)
+						if err == nil {
+							if e := h.dao.DeleteToken(string(bytes)); e == nil {
+								out.Tokens = append(out.Tokens, "token")
+							}
 						}
 					}
 				}
@@ -95,5 +126,28 @@ func (h *TokenRevokerHandler) PruneTokens(ctx context.Context, in *proto.PruneTo
 			done = true
 		}
 	}
+
+	if dexDao, ok := servicecontext.GetDAO(ctx).(auth.DexDAO); ok {
+		pruned, _ := dexDao.DexPruneOfflineSessions(h.dexConfig)
+		if pruned > 0 {
+			log.Logger(ctx).Info(fmt.Sprintf("Pruned %d expired offline sessions", pruned))
+		}
+	} else {
+		log.Logger(ctx).Info("Cannot get dexDAO")
+	}
+
 	return nil
+}
+
+// Util
+func parseJWT(p string) ([]byte, error) {
+	parts := strings.Split(p, ".")
+	if len(parts) < 2 {
+		return nil, fmt.Errorf("oidc: malformed jwt, expected 3 parts got %d", len(parts))
+	}
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return nil, fmt.Errorf("oidc: malformed jwt payload: %v", err)
+	}
+	return payload, nil
 }

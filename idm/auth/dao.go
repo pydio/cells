@@ -21,11 +21,28 @@
 // Package auth provides all authentication related features
 package auth
 
-import "github.com/pydio/cells/common/proto/auth"
+import (
+	"github.com/pydio/cells/common/dao"
+	"github.com/pydio/cells/common/proto/auth"
+	"github.com/pydio/cells/common/sql"
+)
 
 type DAO interface {
 	PutToken(t *auth.Token) error
 	GetInfo(value string) (string, error)
 	DeleteToken(t string) error
 	ListTokens(offset int, count int) (chan *auth.Token, error)
+}
+
+type DexDAO interface {
+	DexPruneOfflineSessions(c Config) (pruned int64, e error)
+	DexDeleteOfflineSessions(c Config, userUuid string, sessionUuid string) error
+}
+
+func NewDAO(o dao.DAO) dao.DAO {
+	switch v := o.(type) {
+	case sql.DAO:
+		return &dexSql{DAO: v}
+	}
+	return nil
 }

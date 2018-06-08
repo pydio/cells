@@ -46,6 +46,7 @@ type Claims struct {
 	ClientApp   string    `json:"aud"`
 	Issuer      string    `json:"iss"`
 	Subject     string    `json:"sub"`
+	Nonce       string    `json:"nonce"`
 	Name        string    `json:"name"`
 	Email       string    `json:"email"`
 	Profile     string    `json:"profile"`

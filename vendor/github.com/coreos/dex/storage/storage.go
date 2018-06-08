@@ -138,6 +138,13 @@ type Client struct {
 	// Name and LogoURL used when displaying this client to the end user.
 	Name    string `json:"name" yaml:"name"`
 	LogoURL string `json:"logoURL" yaml:"logoURL"`
+
+	// Override global config value for this client
+	IdTokensExpiry string `json:"IdTokensExpiry" yaml:"IdTokensExpiry"`
+
+	// Additional constraints on refresh tokens and how they are garbage collected
+	RefreshTokensExpiry string `json:"RefreshTokensExpiry" yaml:"RefreshTokensExpiry"`
+	OfflineSessionsSliding bool `json:"OfflineSessionsSliding"`
 }
 
 // Claims represents the ID Token claims supported by the server.
