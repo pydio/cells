@@ -61,17 +61,24 @@ func DefaultJWTVerifier() *JWTVerifier {
 	remarshall, _ := json.Marshal(configDex)
 	json.Unmarshal(remarshall, &dex)
 
+	var cIds []string
+	for _, c := range dex.StaticClients {
+		cIds = append(cIds, c.ID)
+	}
+
 	return &JWTVerifier{
-		IssuerUrl:    dex.Issuer,
-		ClientID:     dex.StaticClients[0].ID,
-		ClientSecret: dex.StaticClients[0].Secret,
+		IssuerUrl:           dex.Issuer,
+		checkClientIds:      cIds,
+		defaultClientID:     dex.StaticClients[0].ID,
+		defaultClientSecret: dex.StaticClients[0].Secret,
 	}
 }
 
 type JWTVerifier struct {
-	IssuerUrl    string
-	ClientID     string
-	ClientSecret string
+	IssuerUrl           string
+	checkClientIds      []string
+	defaultClientID     string
+	defaultClientSecret string
 }
 
 // Verify validates an existing JWT token against the OIDC service that issued it
@@ -84,13 +91,23 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 		log.Logger(ctx).Error("verify", zap.Error(err))
 		return ctx, claims, err
 	}
-	var verifier = provider.Verifier(&oidc.Config{ClientID: j.ClientID, SkipNonceCheck: true})
 
-	// Parse and verify ID Token payload.
-	idToken, err := verifier.Verify(ctx, rawIDToken)
-	if err != nil {
-		log.Logger(ctx).Error("verify", zap.Error(err))
-		return ctx, claims, err
+	var idToken *oidc.IDToken
+	var checkErr error
+	for _, clientId := range j.checkClientIds {
+		var verifier = provider.Verifier(&oidc.Config{ClientID: clientId, SkipNonceCheck: true})
+		// Parse and verify ID Token payload.
+		testToken, err := verifier.Verify(ctx, rawIDToken)
+		if err != nil {
+			log.Logger(ctx).Error("verify", zap.Error(err))
+			checkErr = err
+		} else {
+			idToken = testToken
+			break
+		}
+	}
+	if idToken == nil {
+		return ctx, claims, checkErr
 	}
 
 	cli := auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())
@@ -143,8 +160,8 @@ func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName str
 	provider, _ := oidc.NewProvider(ctx, j.IssuerUrl)
 	// Configure an OpenID Connect aware OAuth2 client.
 	oauth2Config := oauth2.Config{
-		ClientID:     j.ClientID,
-		ClientSecret: j.ClientSecret,
+		ClientID:     j.defaultClientID,
+		ClientSecret: j.defaultClientSecret,
 		// Discovery returns the OAuth2 endpoints.
 		Endpoint: provider.Endpoint(),
 		// "openid" is a required scope for OpenID Connect flows.
@@ -154,8 +171,7 @@ func (j *JWTVerifier) PasswordCredentialsToken(ctx context.Context, userName str
 	claims := claim.Claims{}
 
 	if token, err := oauth2Config.PasswordCredentialsToken(ctx, userName, password); err == nil {
-
-		idToken, _ := provider.Verifier(&oidc.Config{ClientID: j.ClientID, SkipNonceCheck: true}).Verify(ctx, token.Extra("id_token").(string))
+		idToken, _ := provider.Verifier(&oidc.Config{SkipClientIDCheck: true, SkipNonceCheck: true}).Verify(ctx, token.Extra("id_token").(string))
 
 		if e := idToken.Claims(&claims); e == nil {
 

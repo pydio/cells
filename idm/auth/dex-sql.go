@@ -95,7 +95,7 @@ func (s *dexSql) DexDeleteOfflineSessions(c Config, userUuid string, sessionUuid
 	// This session needs deletion. Delete offline session and refresh_token
 	if _, e1 := s.GetStmt("deleteOffline").Exec(userUuid, sessionUuid); e1 == nil {
 		if _, e2 := s.GetStmt("deleteRefresh").Exec(userUuid, sessionUuid); e2 == nil {
-			log.Logger(context.Background()).Info("Deleted offline session and refresh token")
+			log.Logger(context.Background()).Debug("Deleted offline session and refresh token")
 		} else {
 			return e2
 		}
