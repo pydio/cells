@@ -75,7 +75,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		config.Set(conf.Name, "defaults", "datasource")
 	}
 
-	utils.SaveConfigs()
+	config.Save("cli", "Install / Setting default DataSources")
 
 	return nil
 }

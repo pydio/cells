@@ -37,7 +37,6 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/go-phpfpm-detect/fpm"
 )
 
@@ -113,7 +112,7 @@ func actionFrontendsAdd(c *install.InstallConfig, publisher func(event *InstallP
 	config.Set(conf.Hosts, "defaults", "fronts")
 	config.Set(conf.Hosts, "services", "pydio.frontends", "allowed")
 
-	utils.SaveConfigs()
+	config.Save("cli", "Install / Setting Frontend settings")
 
 	return msg, nil
 }
@@ -140,7 +139,7 @@ func createConfigurationFiles(c *install.InstallConfig) error {
 
 	config.Set(root, "defaults", "frontRoot")
 	config.Set(fpmAddress, "defaults", "fpm")
-	utils.SaveConfigs()
+	config.Save("cli", "Install / Create configuration files for frontend")
 
 	u, _ := url.Parse(config.Get("defaults", "url").String(""))
 

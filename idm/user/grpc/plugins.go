@@ -37,7 +37,6 @@ import (
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/idm/user"
 )
 
@@ -84,7 +83,7 @@ func InitDefaults(ctx context.Context) error {
 		pwd = parts[1]
 		// Now remove from configs
 		config.Del("defaults", "root")
-		utils.SaveConfigs()
+		config.Save("cli", "First Run / Creating default root user")
 	}
 
 	if login != "" && pwd != "" {

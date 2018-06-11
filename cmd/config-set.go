@@ -27,8 +27,10 @@ import (
 
 	"os"
 
+	"fmt"
+	"log"
+
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/utils"
 )
 
 // updateCmd represents the update command
@@ -68,8 +70,11 @@ $ ` + os.Args[0] + ` config set pydio.grpc.yourservice configName '{"key":"value
 
 		config.Set(data, "services", id, path)
 
-		utils.SaveConfigs()
-		cmd.Println("Config set")
+		if err := config.Save("cli", fmt.Sprintf("Set by path %s/%s", id, path)); err == nil {
+			cmd.Println("Config set")
+		} else {
+			log.Fatal(err)
+		}
 	},
 }
 

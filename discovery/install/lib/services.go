@@ -27,7 +27,6 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/cells/common/utils"
 )
 
 type DexClient struct {
@@ -83,7 +82,7 @@ func actionConfigsSet(c *install.InstallConfig) error {
 		"dsn":    filepath.Join(chatDir, "chat.db"),
 	}, "databases", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT)
 
-	utils.SaveConfigs()
+	config.Save("cli", "Install / Setting Dex default settings")
 
 	return nil
 }

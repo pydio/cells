@@ -31,18 +31,20 @@ import (
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/file"
 
+	"encoding/json"
+	"time"
+
 	"github.com/pydio/cells/common/config/envvar"
+	file2 "github.com/pydio/cells/common/config/file"
 )
 
 var (
 	PydioConfigDir  = ApplicationDataDir()
 	PydioConfigFile = "pydio.json"
 
-	configMutex   = &sync.Mutex{}
+	VersionsStore file2.VersionsStore
 	defaultConfig *Config
-
-	once sync.Once
-	done uint32
+	once          sync.Once
 )
 
 // Config wrapper around micro Config
@@ -51,7 +53,27 @@ type Config struct {
 }
 
 func init() {
-	copySampleConfig(filepath.Join(PydioConfigDir, PydioConfigFile))
+	var e error
+	VersionsStore, e = file2.NewStore(PydioConfigDir)
+	if e != nil {
+		//log.Println("Could not open versions store", e)
+	}
+	written, err := file2.WriteIfNotExists(filepath.Join(PydioConfigDir, PydioConfigFile), SampleConfig)
+	if err != nil {
+		fmt.Println("Error while trying to create default config file")
+		os.Exit(1)
+	}
+	if written && VersionsStore != nil {
+		var data interface{}
+		if e := json.Unmarshal([]byte(SampleConfig), data); e == nil {
+			VersionsStore.Put(&file2.Version{
+				User: "cli",
+				Date: time.Now(),
+				Log:  "Initialize with sample config",
+				Data: data,
+			})
+		}
+	}
 }
 
 // Default Config with initialisation
@@ -90,21 +112,6 @@ func Del(path ...string) {
 	Default().Del(path...)
 }
 
-func setConfigsInFile(filename string, data interface{}) error {
-
-	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	if _, err := f.WriteString(fmt.Sprintf("%s", data)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // func newConfig() *Config {
 // 	dir := ApplicationDataDir()
 //
@@ -113,15 +120,12 @@ func setConfigsInFile(filename string, data interface{}) error {
 // 	// Setting the sources
 // 	// 1 . From the sample file
 // 	// 2 . From the local save
-// 	// 3 . From the server save
 // 	src1 := file.NewSource(config.SourceName(filepath.Join(dir, pydioConfigFile)))
-// 	src2 := NewSource(config.SourceClient(defaults.NewClient()))
 //
 // 	// Create a default config handle with the 3 sources
 // 	return &Config{
 // 		Config: config.NewConfig(
 // 			config.WithSource(src2),
-// 			config.WithSource(src1),
 // 			config.PollInterval(5*time.Second),
 // 		)}
 // }
@@ -134,37 +138,10 @@ func (c *Config) UnmarshalKey(key string, val interface{}) error {
 	return c.Config.Get(key).Scan(&val)
 }
 
-func copySampleConfig(filename string) {
-
-	if _, err := os.Stat(filename); err == nil {
-		return
-	}
-
-	dst, err := os.Create(filename)
-	if err != nil {
-		return
-	}
-
-	defer dst.Close()
-
-	_, err = dst.WriteString(SampleConfig)
-
-	if err != nil {
-		fmt.Println("Config copy failed")
-		os.Exit(1)
-	}
-
-	err = dst.Sync()
-	if err != nil {
-		fmt.Println("Could not sync config file")
-		os.Exit(1)
-	}
-}
-
 func watchConfig() {
 }
 
-// GetFile that contain the local config
-func GetFile() string {
+// GetJsonPath build path for json that contain the local config
+func GetJsonPath() string {
 	return filepath.Join(PydioConfigDir, PydioConfigFile)
 }

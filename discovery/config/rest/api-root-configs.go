@@ -45,12 +45,15 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 		resp.WriteError(500, err)
 		return
 	}
-
+	u, _ := utils.FindUserNameInContext(ctx)
+	if u == "" {
+		u = "rest"
+	}
 	path := strings.Split(strings.Trim(configuration.FullPath, "/"), "/")
 	var parsed map[string]interface{}
 	if e := json.Unmarshal([]byte(configuration.Data), &parsed); e == nil {
 		config.Set(parsed, path...)
-		if err := utils.SaveConfigs(); err != nil {
+		if err := config.Save(u, "Setting config via API"); err != nil {
 			log.Logger(ctx).Error("Put", zap.Error(err))
 			resp.WriteError(500, err)
 			return

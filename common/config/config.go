@@ -26,6 +26,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/pydio/cells/common/config/file"
 	"github.com/spf13/cast"
 )
 
@@ -233,6 +234,33 @@ func (c Map) Set(key string, value interface{}) error {
 // Del deletes the values associated with key.
 func (c Map) Del(key string) error {
 	delete(c, key)
+
+	return nil
+}
+
+// SaveConfigs sends configuration to a local file.
+func Save(ctxUser string, ctxMessage string) error {
+
+	var data map[string]interface{}
+	err := Default().Unmarshal(&data)
+	if err != nil {
+		return err
+	}
+
+	if err := file.Save(GetJsonPath(), data); err != nil {
+		return err
+	}
+
+	if VersionsStore != nil {
+		if err := VersionsStore.Put(&file.Version{
+			Date: time.Now(),
+			User: ctxUser,
+			Log:  ctxMessage,
+			Data: data,
+		}); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

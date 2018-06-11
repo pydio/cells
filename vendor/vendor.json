@@ -3950,6 +3950,12 @@
 			"revisionTime": "2018-02-07T00:05:56Z"
 		},
 		{
+			"checksumSHA1": "QxBGuFiDP7AZx9/QOwJVVDlHjLM=",
+			"path": "github.com/sergi/go-diff/diffmatchpatch",
+			"revision": "da645544ed44df016359bd4c0e3dc60ee3a0da43",
+			"revisionTime": "2018-02-05T16:33:09Z"
+		},
+		{
 			"checksumSHA1": "aRFS3vu2wJRT6NZ2qUM+ubj8lhQ=",
 			"path": "github.com/shibukawa/configdir",
 			"revision": "e180dbdc8da04c4fa04272e875ce64949f38bd3e",
@@ -4233,6 +4239,24 @@
 			"path": "github.com/xenolf/lego/acme",
 			"revision": "f1eaae9b0d4a6e37882ba2cd38cc842513c502cf",
 			"revisionTime": "2018-03-19T02:42:43Z"
+		},
+		{
+			"checksumSHA1": "jxa5QGd5XWyonlS+O/C9Fadmafc=",
+			"path": "github.com/yudai/gojsondiff",
+			"revision": "0525c875b75ca60b9e67ddc44496aa16f21066b0",
+			"revisionTime": "2018-05-04T02:02:46Z"
+		},
+		{
+			"checksumSHA1": "50gdo5Kq0/gEKG1A4agCPOZ26JA=",
+			"path": "github.com/yudai/gojsondiff/formatter",
+			"revision": "0525c875b75ca60b9e67ddc44496aa16f21066b0",
+			"revisionTime": "2018-05-04T02:02:46Z"
+		},
+		{
+			"checksumSHA1": "5xoBoioS8LWHn9FC0pL+vo7wDjs=",
+			"path": "github.com/yudai/golcs",
+			"revision": "ecda9a501e8220fae3b4b600c3db4b0ba22cfc68",
+			"revisionTime": "2017-03-16T03:48:04Z"
 		},
 		{
 			"checksumSHA1": "//vnPN1cVjTt4sbL9/dylf2IGAE=",
