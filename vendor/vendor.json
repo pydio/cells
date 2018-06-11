@@ -3950,6 +3950,12 @@
 			"revisionTime": "2018-02-07T00:05:56Z"
 		},
 		{
+			"checksumSHA1": "QxBGuFiDP7AZx9/QOwJVVDlHjLM=",
+			"path": "github.com/sergi/go-diff/diffmatchpatch",
+			"revision": "da645544ed44df016359bd4c0e3dc60ee3a0da43",
+			"revisionTime": "2018-02-05T16:33:09Z"
+		},
+		{
 			"checksumSHA1": "aRFS3vu2wJRT6NZ2qUM+ubj8lhQ=",
 			"path": "github.com/shibukawa/configdir",
 			"revision": "e180dbdc8da04c4fa04272e875ce64949f38bd3e",
