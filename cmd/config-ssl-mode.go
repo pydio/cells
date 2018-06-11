@@ -29,7 +29,6 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/utils"
 )
 
 // enableCmd represents the enable command
@@ -56,7 +55,9 @@ var SslModeCmd = &cobra.Command{
 		}
 		config.Set(extUrl.String(), "defaults", "url")
 		config.Set(intUrl.String(), "defaults", "urlInternal")
-		utils.SaveConfigs()
+		if e := config.Save("cli", "Update SSL mode"); e != nil {
+			cmd.Println("Error while saving config: " + e.Error())
+		}
 
 		var frontWrite error
 		if fConf, e := config.FrontBootstrapFromConfig(extUrl.String()); e == nil {

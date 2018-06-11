@@ -97,7 +97,11 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	utils.SourceNamesToConfig(currentSources)
 	utils.MinioConfigNamesToConfig(currentMinios)
 
-	if err := utils.SaveConfigs(); err == nil {
+	u, _ := utils.FindUserNameInContext(ctx)
+	if u == "" {
+		u = "rest"
+	}
+	if err := config.Save(u, "Create DataSource"); err == nil {
 		eventType := object.DataSourceEvent_CREATE
 		if update {
 			eventType = object.DataSourceEvent_UPDATE
@@ -151,7 +155,11 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 		utils.MinioConfigNamesToConfig(currentMinios)
 	}
 
-	if e := utils.SaveConfigs(); e != nil {
+	u, _ := utils.FindUserNameInContext(req.Request.Context())
+	if u == "" {
+		u = "rest"
+	}
+	if e := config.Save(u, "Delete DataSource"); e != nil {
 		service.RestError500(req, resp, e)
 		return
 	}

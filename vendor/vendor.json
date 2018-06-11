@@ -4235,6 +4235,18 @@
 			"revisionTime": "2018-03-19T02:42:43Z"
 		},
 		{
+			"checksumSHA1": "jxa5QGd5XWyonlS+O/C9Fadmafc=",
+			"path": "github.com/yudai/gojsondiff",
+			"revision": "0525c875b75ca60b9e67ddc44496aa16f21066b0",
+			"revisionTime": "2018-05-04T02:02:46Z"
+		},
+		{
+			"checksumSHA1": "50gdo5Kq0/gEKG1A4agCPOZ26JA=",
+			"path": "github.com/yudai/gojsondiff/formatter",
+			"revision": "0525c875b75ca60b9e67ddc44496aa16f21066b0",
+			"revisionTime": "2018-05-04T02:02:46Z"
+		},
+		{
 			"checksumSHA1": "//vnPN1cVjTt4sbL9/dylf2IGAE=",
 			"path": "github.com/zalando/go-keyring",
 			"revision": "6d81c293b3fbc8a9b1bcf4bc9c167c2e1d1f52cf",
