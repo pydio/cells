@@ -635,7 +635,7 @@ func (s *Server) handleToken(w http.ResponseWriter, r *http.Request) {
 
 	grantType := r.PostFormValue("grant_type")
 
-	s.logger.Info("Grant Type: ", grantType)
+	//s.logger.Info("Grant Type: ", grantType)
 
 	switch grantType {
 	case grantTypeAuthorizationCode:
@@ -825,7 +825,7 @@ func (s *Server) handleCredentialGrant(w http.ResponseWriter, r *http.Request, c
 
 	if username == "" || password == "" {
 		// Respose with error message
-		s.logger.Info("Error : Invalid request")
+		s.logger.Error("Error : Called credential grant without username and password")
 		s.tokenErrHelper(w, errInvalidRequest, "Invalid request", http.StatusBadRequest)
 		return
 	}
@@ -854,8 +854,8 @@ func (s *Server) handleCredentialGrant(w http.ResponseWriter, r *http.Request, c
 	}
 
 	// if okay, return Access Token, TokenID and refreshToken
-	s.logger.Info("IdToken for: ", identity.UserID)
-	s.logger.Info("IdToken email: ", identity.Email)
+	//s.logger.Info("IdToken for: ", identity.UserID)
+	//s.logger.Info("IdToken email: ", identity.Email)
 
 	claims := storage.Claims{
 		UserID:        identity.UserID,
@@ -1031,7 +1031,7 @@ func (s *Server) handleRefreshToken(w http.ResponseWriter, r *http.Request, clie
 		return
 	}
 
-	s.logger.Info("Refreshing Token for " + nonce)
+	//s.logger.Info("Refreshing Token for " + nonce)
 
 	token := new(internal.RefreshToken)
 	if err := internal.Unmarshal(code, token); err != nil {

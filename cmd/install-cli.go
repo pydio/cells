@@ -149,7 +149,7 @@ func promptAndSaveInstallUrls() (internal *url.URL, external *url.URL, e error) 
 
 	config.Set(externalUrl, "defaults", "url")
 	config.Set(internalUrl, "defaults", "urlInternal")
-	utils.SaveConfigs()
+	config.Save("cli", "Install / Setting default URLs")
 
 	return
 }
@@ -165,7 +165,7 @@ var installCliCmd = &cobra.Command{
 		if micro == 0 {
 			micro = utils.GetAvailablePort()
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)
-			utils.SaveConfigs()
+			config.Save("cli", "Install / Setting default Ports")
 		}
 
 		internalUrl, _, err := promptAndSaveInstallUrls()

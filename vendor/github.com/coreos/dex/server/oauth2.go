@@ -297,7 +297,7 @@ func (s *Server) newIDToken(clientID string, claims storage.Claims, scopes []str
 	expiry = issuedAt.Add(s.idTokensValidFor)
 	if client, e := s.storage.GetClient(clientID); e == nil && client.IdTokensExpiry != "" {
 		if parsed, er := time.ParseDuration(client.IdTokensExpiry); er == nil {
-			s.logger.Info("Setting Token Expiry using client specific value ", parsed)
+			//s.logger.Info("Setting Token Expiry using client specific value ", parsed)
 			expiry = issuedAt.Add(parsed)
 		}
 	}

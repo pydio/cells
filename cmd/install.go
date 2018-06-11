@@ -110,7 +110,7 @@ Services will all start automatically after the install process is finished.
 			config.Set(external.String(), "defaults", "url")
 			config.Set(true, "cert", "proxy", "ssl")
 			config.Set(true, "cert", "proxy", "self")
-			utils.SaveConfigs()
+			config.Save("cli", "Install / Setting SSL flags")
 
 		} else {
 
@@ -154,7 +154,7 @@ Services will all start automatically after the install process is finished.
 			config.Set(micro, "ports", common.SERVICE_MICRO_API)
 		}
 
-		utils.SaveConfigs()
+		config.Save("cli", "Install / Setting default Port")
 
 		var tls string
 		if config.Get("cert", "proxy", "ssl").Bool(false) {
@@ -206,7 +206,7 @@ Services will all start automatically after the install process is finished.
 			s.Start()
 		}
 
-		utils.SaveConfigs()
+		config.Save("cli", "Install / Saving final configs")
 
 		// load caddyfile
 		caddyfile, err := caddy.LoadCaddyfile("http")
