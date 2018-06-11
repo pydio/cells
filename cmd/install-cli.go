@@ -178,21 +178,21 @@ var installCliCmd = &cobra.Command{
 		fmt.Println("")
 		fmt.Println("\033[1m## Database Connection\033[0m")
 		if e := promptDB(installConfig); e != nil {
-			log.Fatal(err.Error())
+			log.Fatal(e.Error())
 		}
 
 		fmt.Println("")
 		fmt.Println("\033[1m## Frontend Configuration\033[0m")
 		if e := promptFPM(installConfig); e != nil {
-			log.Fatal(err.Error())
+			log.Fatal(e.Error())
 		}
 		if e := promptFrontendAdmin(installConfig); e != nil {
-			log.Fatal(err.Error())
+			log.Fatal(e.Error())
 		}
 		fmt.Println("")
 		fmt.Println("\033[1m## Advanced Settings\033[0m")
 		if e := promptAdvanced(installConfig); e != nil {
-			log.Fatal(err.Error())
+			log.Fatal(e.Error())
 		}
 
 		fmt.Println("")
@@ -268,10 +268,9 @@ func promptDB(c *install.InstallConfig) error {
 		}
 	}
 	if res := lib.PerformCheck(context.Background(), "DB", c); !res.Success {
-		return fmt.Errorf("Cannot connect to this database!")
-	} else {
-		fmt.Println(p.IconGood + " Successfully connected to the database")
+		return fmt.Errorf("Cannot connect to this database, please double ckeck your connection parameters and try again.")
 	}
+	fmt.Println(p.IconGood + " Successfully connected to the database")
 	return nil
 }
 
