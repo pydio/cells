@@ -55,7 +55,7 @@ type PydioGateway interface {
 	ListMultipartUploadsWithContext(ctx context.Context, bucket string, prefix string, keyMarker string, uploadIDMarker string, delimiter string, maxUploads int) (lmi ListMultipartsInfo, e error)
 	NewMultipartUploadWithContext(ctx context.Context, bucket string, object string, metadata map[string]string) (uploadID string, err error)
 	CopyObjectPartWithContext(ctx context.Context, srcBucket string, srcObject string, destBucket string, destObject string, uploadID string, partID int, startOffset int64, length int64) (info PartInfo, err error)
-	PutObjectPartWithContext(ctx context.Context, bucket string, object string, uploadID string, partID int, size int64, data io.Reader, md5Hex string, sha256sum string) (pi PartInfo, e error)
+	PutObjectPartWithContext(ctx context.Context, bucket string, object string, uploadID string, partID int, data *HashReader) (pi PartInfo, e error)
 	ListObjectPartsWithContext(ctx context.Context, bucket string, object string, uploadID string, partNumberMarker int, maxParts int) (lpi ListPartsInfo, e error)
 	AbortMultipartUploadWithContext(ctx context.Context, bucket string, object string, uploadID string) error
 	CompleteMultipartUploadWithContext(ctx context.Context, bucket string, object string, uploadID string, uploadedParts []completePart) (oi ObjectInfo, e error)
@@ -530,33 +530,25 @@ func (l *pydioObjects) NewMultipartUploadWithContext(ctx context.Context, bucket
 }
 
 // PutObjectPart puts a part of object in bucket
-func (l *pydioObjects) PutObjectPartWithContext(ctx context.Context, bucket string, object string, uploadID string, partID int, size int64, data io.Reader, md5Hex string, sha256sum string) (pi PartInfo, e error) {
+func (l *pydioObjects) PutObjectPartWithContext(ctx context.Context, bucket string, object string, uploadID string, partID int, data *HashReader) (pi PartInfo, e error) {
 
-	md5HexBytes, err := hex.DecodeString(md5Hex)
-	if err != nil {
-		return pi, err
-	}
-
-	sha256sumBytes, err := hex.DecodeString(sha256sum)
-	if err != nil {
-		return pi, err
-	}
-	written, err := l.Router.PutObject(ctx, &tree.Node{Path: object}, data, &views.PutRequestData{
-		Size:              size,
-		Md5Sum:            md5HexBytes,
-		Sha256Sum:         sha256sumBytes,
+	sha256Sum, err := hex.DecodeString(data.sha256Sum)
+	md5Sum, err := hex.DecodeString(data.md5Sum)
+	objectPart, err := l.Router.MultipartPutObjectPart(ctx, &tree.Node{Path: object}, uploadID, partID, data, &views.PutRequestData{
+		Size:              data.Size(),
+		Md5Sum:            md5Sum,
+		Sha256Sum:         sha256Sum,
 		MultipartPartID:   partID,
 		MultipartUploadID: uploadID,
 	})
 	if err != nil {
 		return pi, err
 	}
-	// TODO
-	//return fromMinioClientObjectPart(info), nil
+
 	return PartInfo{
-		Size:         written,
-		ETag:         "",
-		LastModified: time.Now(),
+		Size:         objectPart.Size,
+		ETag:         objectPart.ETag,
+		LastModified: objectPart.LastModified,
 		PartNumber:   partID,
 	}, nil
 
