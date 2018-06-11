@@ -23,14 +23,20 @@ package lib
 import (
 	"crypto/sha1"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
 	"github.com/pydio/cells/common/utils"
+)
+
+var (
+	ErrMySQLCharsetNotSupported = errors.New("Charset is not supported for this version of MySQL")
 )
 
 func dsnFromInstallConfig(c *install.InstallConfig) (string, error) {
@@ -133,7 +139,7 @@ func checkConnection(dsn string) error {
 			return err
 		} else {
 			// Open doesn't open a connection. Validate DSN data:
-			if err = db.Ping(); err != nil && strings.HasPrefix(err.Error(), "Error 1049") {
+			if err := db.Ping(); err != nil && strings.HasPrefix(err.Error(), "Error 1049") {
 				rootconf, _ := mysql.ParseDSN(dsn)
 				dbname := rootconf.DBName
 				rootconf.DBName = ""
@@ -143,6 +149,15 @@ func checkConnection(dsn string) error {
 				if rootdb, rooterr := sql.Open("mysql", rootdsn); rooterr != nil {
 					return rooterr
 				} else {
+					err := checkMysqlCharset(rootdb)
+
+					switch {
+					case err == ErrMySQLCharsetNotSupported:
+						dbname = dbname + " CHARACTER SET utf8 COLLATE utf8_general_ci"
+					case err != nil:
+						return err
+					}
+
 					if _, err = rootdb.Exec(fmt.Sprintf("create database if not exists %s", dbname)); err != nil {
 						return err
 					}
@@ -150,9 +165,53 @@ func checkConnection(dsn string) error {
 			} else if err != nil {
 				return err
 			} else {
+
+				if err := checkMysqlCharset(db); err != nil {
+					return err
+				}
+
 				break
 			}
 		}
 	}
+	return nil
+}
+
+func checkMysqlCharset(db *sql.DB) error {
+	// Here we check the version of mysql and the default charset
+	var version string
+	err := db.QueryRow("SELECT VERSION()").Scan(&version)
+	switch {
+	case err == sql.ErrNoRows:
+		return fmt.Errorf("Could not retrieve your mysql version - Please create the database manually and retry")
+	case err != nil:
+		return err
+	default:
+	}
+
+	// Matches
+	mysqlMatched, err1 := regexp.MatchString("^5.[456].*$", version)
+	mariaMatched, err2 := regexp.MatchString("^10.1.*-MariaDB$", version)
+
+	if err1 != nil || err2 != nil {
+		return fmt.Errorf("Could not determine db version")
+	}
+
+	if mysqlMatched || mariaMatched {
+		var charname, charvalue string
+		err := db.QueryRow("SHOW VARIABLES LIKE 'character_set_database'").Scan(&charname, &charvalue)
+		switch {
+		case err == sql.ErrNoRows:
+			return fmt.Errorf("Could not retrieve your default charset - Please create the database manually and retry")
+		case err != nil:
+			return err
+		default:
+		}
+
+		if charvalue == "utf8mb4" {
+			return ErrMySQLCharsetNotSupported
+		}
+	}
+
 	return nil
 }
