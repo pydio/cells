@@ -4253,6 +4253,12 @@
 			"revisionTime": "2018-05-04T02:02:46Z"
 		},
 		{
+			"checksumSHA1": "5xoBoioS8LWHn9FC0pL+vo7wDjs=",
+			"path": "github.com/yudai/golcs",
+			"revision": "ecda9a501e8220fae3b4b600c3db4b0ba22cfc68",
+			"revisionTime": "2017-03-16T03:48:04Z"
+		},
+		{
 			"checksumSHA1": "//vnPN1cVjTt4sbL9/dylf2IGAE=",
 			"path": "github.com/zalando/go-keyring",
 			"revision": "6d81c293b3fbc8a9b1bcf4bc9c167c2e1d1f52cf",
