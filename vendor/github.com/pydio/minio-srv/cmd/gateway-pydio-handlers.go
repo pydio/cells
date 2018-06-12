@@ -66,7 +66,7 @@ func (api gatewayPydioAPIHandlers) GetObjectHandler(w http.ResponseWriter, r *ht
 			return
 		}
 	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticated(r, serverConfig.GetRegion())
+		s3Error := isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
@@ -294,7 +294,7 @@ func (api gatewayPydioAPIHandlers) PutObjectHandler(w http.ResponseWriter, r *ht
 		}
 		objInfo, err = pydioApi.PutObjectWithContext(r.Context(), bucket, object, size, r.Body, metadata, "")
 	case authTypePresigned, authTypeSigned:
-		if s3Error := reqSignatureV4Verify(r, serverConfig.GetRegion()); s3Error != ErrNone {
+		if s3Error := reqSignatureV4VerifySkipAccessKey(r, serverConfig.GetRegion()); s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
 			return
@@ -356,7 +356,7 @@ func (api gatewayPydioAPIHandlers) CopyObjectHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, dstBucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, dstBucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -516,7 +516,7 @@ func (api gatewayPydioAPIHandlers) HeadObjectHandler(w http.ResponseWriter, r *h
 			return
 		}
 	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticated(r, serverConfig.GetRegion())
+		s3Error := isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
@@ -582,7 +582,7 @@ func (api gatewayPydioAPIHandlers) PutBucketPolicyHandler(w http.ResponseWriter,
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -645,7 +645,7 @@ func (api gatewayPydioAPIHandlers) DeleteBucketPolicyHandler(w http.ResponseWrit
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -679,7 +679,7 @@ func (api gatewayPydioAPIHandlers) GetBucketPolicyHandler(w http.ResponseWriter,
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -749,10 +749,10 @@ func (api gatewayPydioAPIHandlers) PutBucketHandler(w http.ResponseWriter, r *ht
 	}
 
 	// PutBucket does not have any bucket action.
-	s3Error := checkRequestAuthType(r, "", "", globalMinioDefaultRegion)
+	s3Error := checkRequestAuthTypeSkipAccessKey(r, "", "", globalMinioDefaultRegion)
 	if s3Error == ErrInvalidRegion {
 		// Clients like boto3 send putBucket() call signed with region that is configured.
-		s3Error = checkRequestAuthType(r, "", "", serverConfig.GetRegion())
+		s3Error = checkRequestAuthTypeSkipAccessKey(r, "", "", serverConfig.GetRegion())
 	}
 	if s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
@@ -800,7 +800,7 @@ func (api gatewayPydioAPIHandlers) DeleteBucketHandler(w http.ResponseWriter, r 
 	}
 
 	// DeleteBucket does not have any bucket action.
-	if s3Error := checkRequestAuthType(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -831,7 +831,7 @@ func (api gatewayPydioAPIHandlers) DeleteObjectHandler(w http.ResponseWriter, r 
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, bucket, "s3:DeleteObject", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:DeleteObject", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -859,7 +859,7 @@ func (api gatewayPydioAPIHandlers) DeleteMultipleObjectsHandler(w http.ResponseW
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, bucket, "s3:DeleteObject", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:DeleteObject", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -1039,7 +1039,7 @@ func (api gatewayPydioAPIHandlers) ListObjectsV1Handler(w http.ResponseWriter, r
 			return
 		}
 	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticated(r, serverConfig.GetRegion())
+		s3Error := isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
@@ -1107,7 +1107,7 @@ func (api gatewayPydioAPIHandlers) ListObjectsV2Handler(w http.ResponseWriter, r
 			return
 		}
 	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticated(r, serverConfig.GetRegion())
+		s3Error := isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
@@ -1182,7 +1182,7 @@ func (api gatewayPydioAPIHandlers) HeadBucketHandler(w http.ResponseWriter, r *h
 			return
 		}
 	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticated(r, serverConfig.GetRegion())
+		s3Error := isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
@@ -1232,7 +1232,7 @@ func (api gatewayPydioAPIHandlers) GetBucketLocationHandler(w http.ResponseWrite
 		s3Error := isReqAuthenticated(r, globalMinioDefaultRegion)
 		if s3Error == ErrInvalidRegion {
 			// Clients like boto3 send getBucketLocation() call signed with region that is configured.
-			s3Error = isReqAuthenticated(r, serverConfig.GetRegion())
+			s3Error = isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		}
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
@@ -1288,7 +1288,7 @@ func (api gatewayPydioAPIHandlers) NewMultipartUploadHandler(w http.ResponseWrit
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, bucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -1327,7 +1327,7 @@ func (api gatewayPydioAPIHandlers) CopyObjectPartHandler(w http.ResponseWriter, 
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, dstBucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, dstBucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -1527,7 +1527,7 @@ func (api gatewayPydioAPIHandlers) PutObjectPartHandler(w http.ResponseWriter, r
 		}
 		partInfo, err = objectAPI.PutObjectPartWithContext(ctx, bucket, object, uploadID, partID, NewHashReader(r.Body, size, incomingMD5, sha256sum))
 	case authTypePresigned, authTypeSigned:
-		if s3Error := reqSignatureV4Verify(r, serverConfig.GetRegion()); s3Error != ErrNone {
+		if s3Error := reqSignatureV4VerifySkipAccessKey(r, serverConfig.GetRegion()); s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
 			return
@@ -1565,7 +1565,7 @@ func (api gatewayPydioAPIHandlers) AbortMultipartUploadHandler(w http.ResponseWr
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, bucket, "s3:AbortMultipartUpload", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:AbortMultipartUpload", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -1592,7 +1592,7 @@ func (api gatewayPydioAPIHandlers) ListObjectPartsHandler(w http.ResponseWriter,
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, bucket, "s3:ListMultipartUploadParts", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:ListMultipartUploadParts", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -1632,7 +1632,7 @@ func (api gatewayPydioAPIHandlers) CompleteMultipartUploadHandler(w http.Respons
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, bucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
