@@ -49,6 +49,10 @@ func init() {
 				TargetVersion: service.FirstRun(),
 				Up:            InitDefaults,
 			},
+			{
+				TargetVersion: service.ValidVersion("1.0.1"),
+				Up:            Upgrade101,
+			},
 		}),
 		service.WithMicro(func(m micro.Service) error {
 			handler := new(Handler)
@@ -89,5 +93,42 @@ func InitDefaults(ctx context.Context) error {
 		}
 	}
 	log.Logger(ctx).Info("Successfully inserted default policies")
+	return nil
+}
+
+func Upgrade101(ctx context.Context) error {
+	dao := servicecontext.GetDAO(ctx).(policy.DAO)
+	if dao == nil {
+		return fmt.Errorf("cannot find DAO for policies initialization")
+	}
+	groups, e := dao.ListPolicyGroups(ctx)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.Uuid == "frontend-restricted-accesses" {
+			for _, p := range group.Policies {
+				if p.Id == "anon-frontend-logs" {
+					p.Resources = []string{"rest:/frontend/frontlogs"}
+				}
+			}
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("Could not update policy group "+group.Uuid, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updating policy group " + group.Uuid)
+			}
+		} else if group.Uuid == "rest-apis-default-accesses" {
+			for _, p := range group.Policies {
+				if p.Id == "user-default-policy" {
+					p.Resources = append(p.Resources, "rest:/docstore/keystore<.+>", "rest:/changes", "rest:/changes<.+>")
+				}
+			}
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("Could not update policy group "+group.Uuid, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updating policy group " + group.Uuid)
+			}
+		}
+	}
 	return nil
 }
