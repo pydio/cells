@@ -114,7 +114,8 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 			fakeSeq++
 			outNode := resp.Node
 			outPath := strings.TrimPrefix(outNode.Path, restReq.Filter)
-			if strings.HasPrefix(outPath, "recycle_bin") || strings.HasSuffix(outPath, common.PYDIO_SYNC_HIDDEN_FILE_META) {
+			if strings.HasPrefix(outPath, "/recycle_bin") || strings.HasPrefix(outPath, "recycle_bin") ||
+				strings.HasSuffix(outPath, common.PYDIO_SYNC_HIDDEN_FILE_META) {
 				continue
 			}
 
