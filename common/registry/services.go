@@ -55,6 +55,9 @@ type Service interface {
 	IsGRPC() bool
 	IsREST() bool
 
+	RequiresFork() bool
+	ForkStart()
+
 	MatchesRegexp(string) bool
 
 	BeforeInit() error

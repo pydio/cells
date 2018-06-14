@@ -30,8 +30,11 @@
 package service
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 	"time"
@@ -356,6 +359,51 @@ func (s *service) Start() {
 	}
 }
 
+// ForkStart uses a fork process to start the service
+func (s *service) ForkStart() {
+
+	name := s.Options().Name
+	ctx := s.Options().Context
+	cancel := s.Options().Cancel
+
+	// Do not do anything
+	cmd := exec.CommandContext(ctx, os.Args[0], "start", "--fork", name)
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Logger(ctx).Error("Could not initiate fork ", zap.Error(err))
+		cancel()
+	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		log.Logger(ctx).Error("Could not initiate fork", zap.Error(err))
+		cancel()
+	}
+	scannerOut := bufio.NewScanner(stdout)
+	go func() {
+		for scannerOut.Scan() {
+			log.StdOut.WriteString(strings.TrimRight(scannerOut.Text(), "\n") + "\n")
+		}
+	}()
+	scannerErr := bufio.NewScanner(stderr)
+	go func() {
+		for scannerErr.Scan() {
+			log.StdOut.WriteString(strings.TrimRight(scannerErr.Text(), "\n") + "\n")
+		}
+	}()
+
+	log.Logger(ctx).Debug("Starting SubProcess: " + name)
+	if err := cmd.Start(); err != nil {
+		log.Logger(ctx).Error("Could not start process", zap.Error(err))
+		cancel()
+	}
+	log.Logger(ctx).Debug("Started SubProcess: " + name)
+
+	if err := cmd.Wait(); err != nil {
+		cancel()
+	}
+}
+
 // Start a service and its dependencies
 func (s *service) Stop() {
 
@@ -475,6 +523,11 @@ func (s *service) IsGRPC() bool {
 
 func (s *service) IsREST() bool {
 	return s.Options().Web != nil
+}
+
+func (s *service) RequiresFork() bool {
+	ctx := s.Options().Context
+	return servicecontext.GetConfig(ctx).Bool("fork")
 }
 
 func (s *service) Client() (string, client.Client) {
