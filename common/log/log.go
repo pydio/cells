@@ -59,12 +59,13 @@ func initLogger() *zap.Logger {
 	StdOut = os.Stdout
 
 	if common.LogConfig == common.LogConfigProduction {
+
+		// Forwards logs to the pydio.grpc.logs service to store them
 		serverSync := zapcore.AddSync(NewLogSyncer(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_LOG))
 
+		// Additional logger: stores messages in local file
 		pydioDir := config2.ApplicationDataDir()
 		os.MkdirAll(filepath.Join(pydioDir, "logs"), 0755)
-
-		// Additional Logger: stores messages in local file
 		rotaterSync := zapcore.AddSync(&lumberjack.Logger{
 			Filename:   filepath.Join(pydioDir, "logs", "pydio.log"),
 			MaxSize:    500, // megabytes
