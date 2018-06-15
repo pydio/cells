@@ -22,18 +22,21 @@ package views
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"io"
+	"strings"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
 	"github.com/patrickmn/go-cache"
-	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/minio-go"
 )
 
 type AbstractBranchFilter struct {
@@ -69,7 +72,19 @@ func (v *AbstractBranchFilter) getRoot(uuid string) (*tree.Node, error) {
 }
 
 func (v *AbstractBranchFilter) makeRootKey(rNode *tree.Node) string {
-	return rNode.Uuid[0:6] + "-" + rNode.GetStringMeta("name")
+	if len(strings.Split(strings.Trim(rNode.GetPath(), "/"), "/")) == 1 && strings.HasPrefix(rNode.GetUuid(), "DATASOURCE:") {
+		// This is a datasource root.
+		return strings.TrimPrefix(rNode.GetUuid(), "DATASOURCE:")
+	}
+	if rNode.HasMetaKey("resolution") {
+		// This is a template path
+		return "template-" + rNode.GetUuid()
+	}
+	// make a unique prefix. md5 to be sure it's varying and longer than 8 chars
+	hash := md5.New()
+	hash.Write([]byte(rNode.Uuid))
+	rand := hex.EncodeToString(hash.Sum(nil))
+	return rand[0:8] + "-" + rNode.GetStringMeta("name")
 }
 
 func (v *AbstractBranchFilter) rootKeysMap(rootNodes []string) (map[string]*tree.Node, error) {
