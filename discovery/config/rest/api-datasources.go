@@ -66,6 +66,11 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	}
 	ctx := req.Request.Context()
 
+	if err := utils.ValidateDataSourceConfig(&ds); err != nil {
+		service.RestError500(req, resp, err)
+		return
+	}
+
 	currentSources := utils.ListSourcesFromConfig()
 	currentMinios := utils.ListMinioConfigsFromConfig()
 	_, update := currentSources[ds.Name]
