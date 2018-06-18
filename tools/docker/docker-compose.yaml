@@ -10,6 +10,7 @@ services:
         environment:
             - CELLS_BIND=localhost:8080
             - CELLS_EXTERNAL=localhost:8080
+            - CELLS_NO_SSL=1
         network_mode: "host"
 
     # MySQL image with a default database cells and a dedicated user pydio
