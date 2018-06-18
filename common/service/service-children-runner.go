@@ -160,7 +160,7 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string) error {
 	c.services[source] = cmd
 	c.mutex.Unlock()
 
-	log.Logger(ctx).Info("Starting SubProcess: " + name)
+	log.Logger(ctx).Debug("Starting SubProcess: " + name)
 	if err := cmd.Start(); err != nil {
 		return err
 	}
@@ -182,7 +182,7 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string) error {
 
 func (c *ChildrenRunner) StopAll(ctx context.Context) {
 	for name, cmd := range c.services {
-		log.Logger(ctx).Info("stopping sub-process " + c.childPrefix + name)
+		log.Logger(ctx).Debug("stopping sub-process " + c.childPrefix + name)
 		if cmd.Process != nil {
 			if e := cmd.Process.Signal(syscall.SIGINT); e != nil {
 				cmd.Process.Kill()
