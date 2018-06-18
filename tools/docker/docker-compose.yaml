@@ -10,8 +10,6 @@ services:
         environment:
             - CELLS_BIND=localhost:8080
             - CELLS_EXTERNAL=localhost:8080
-            - CELLS_NO_SSL=1
-        network_mode: "host"
 
     # MySQL image with a default database cells and a dedicated user pydio
     mysql:
@@ -24,15 +22,14 @@ services:
              MYSQL_PASSWORD: P@ssw0rd
          command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
          ports: ["3306:3306"]
-         network_mode: "host"
 
     # PHP FPM image with the static named volume from the cells container
     php:
         image: cells-php:latest
         restart: always
         volumes: ["static:/root/.config/pydio/cells/static/pydio"]
-        network_mode: "host"
 
 volumes:
     static: {}
     data: {}
+    php: {}
