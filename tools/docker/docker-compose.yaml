@@ -3,7 +3,7 @@ services:
 
     # Cells image with two named volumes for the static and for the data
     cells:
-        image: cells:latest
+        image: pydio/cells:latest
         restart: always
         volumes: ["static:/root/.config/pydio/cells/static/pydio", "data:/root/.config/pydio/cells/data"]
         ports: ["8080:8080"]
@@ -25,7 +25,7 @@ services:
 
     # PHP FPM image with the static named volume from the cells container
     php:
-        image: cells-php:latest
+        image: pydio/cells-php-fpm:latest
         restart: always
         volumes: ["static:/root/.config/pydio/cells/static/pydio"]
 
