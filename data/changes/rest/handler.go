@@ -86,15 +86,68 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 	coll := collPool.Get()
 	defer collPool.Put(coll)
 
-	// Do not declare clients as package var, we must create clients as we need them
-	// to make sure to get a "fresh" connection
 	indexClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	changesClient := tree.NewSyncChangesClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHANGES, defaults.NewClient())
 
 	// Use router to transform filter to absolute path
 	// TODO : if root of a workspace, we have to list the root to get all the possible root nodes
 	// In that case make multiple calls of modify grpc handler to manage multiple filters ?
 	r := views.NewStandardRouter(views.RouterOptions{LogReadEvents: false})
 	inputFilterNode := &tree.Node{Path: restReq.Filter}
+
+	if restReq.SeqID == 0 && !restReq.Flatten {
+
+		respColl := &rest.ChangeCollection{}
+		// Flatten output should simply list files under the given path. Directly use the router
+		streamer, e := r.ListNodes(ctx, &tree.ListNodesRequest{Node: inputFilterNode, Recursive: true})
+		if e != nil {
+			service.RestError500(req, rsp, e)
+			return
+		}
+		defer streamer.Close()
+		fakeSeq := uint64(0)
+		for {
+			resp, er := streamer.Recv()
+			if er != nil {
+				break
+			}
+			fakeSeq++
+			outNode := resp.Node
+			outPath := strings.TrimPrefix(outNode.Path, restReq.Filter)
+			if strings.HasPrefix(outPath, "/recycle_bin") || strings.HasPrefix(outPath, "recycle_bin") ||
+				strings.HasSuffix(outPath, common.PYDIO_SYNC_HIDDEN_FILE_META) {
+				continue
+			}
+
+			// Build a fake change from this node
+			c := &tree.SyncChange{
+				NodeId: outNode.Uuid,
+				Seq:    fakeSeq,
+				Type:   tree.SyncChange_create,
+				Source: "NULL",
+				Target: outPath,
+			}
+			md5 := outNode.Etag
+			if !outNode.IsLeaf() {
+				md5 = "directory"
+			}
+			c.Node = &tree.SyncChangeNode{
+				NodePath: outPath,
+				Bytesize: outNode.Size,
+				Md5:      md5,
+				Mtime:    outNode.MTime,
+			}
+			respColl.Changes = append(respColl.Changes, c)
+		}
+
+		// Make a last call to get Last Seq ID
+		if last, e := h.lastSequenceId(ctx, changesClient); e == nil {
+			respColl.LastSeqId = int64(last)
+		}
+		rsp.WriteEntity(respColl)
+		return
+	}
+
 	var wrapError error
 	r.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 		ctx, inputFilterNode, wrapError = inputFilter(ctx, inputFilterNode, "in")
@@ -115,7 +168,6 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 		Seq:    uint64(restReq.SeqID),
 		Prefix: inputFilterNode.Path,
 	}
-	changesClient := tree.NewSyncChangesClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHANGES, defaults.NewClient())
 	res, err := changesClient.Search(ctx, q)
 	if err != nil {
 		service.RestError500(req, rsp, err)
@@ -135,8 +187,9 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 		if h.filterChange(ctx, change, aclList, inputFilterNode.Path, recyclePath) {
 			continue
 		}
-		h.enrichChange(ctx, change, indexClient, inputFilterNode.Path)
-		coll.Changes = append(coll.Changes, change)
+		if e := h.enrichChange(ctx, change, indexClient, inputFilterNode.Path); e == nil {
+			coll.Changes = append(coll.Changes, change)
+		}
 	}
 
 	// Make a last call to get Last Seq ID
@@ -170,20 +223,20 @@ func (h Handler) lastSequenceId(ctx context.Context, changesClient tree.SyncChan
 // 3 - Filter by ACLs here to ignore changes that are entirely out of path, transform moves to create/delete
 func (h Handler) filterChange(ctx context.Context, change *tree.SyncChange, aclList *utils.AccessList, pathFilter string, recyclePath string) (ignore bool) {
 
-	log.Logger(ctx).Info("FILTER CHANGE", zap.Any("change", change), zap.Any("pathFilter", pathFilter), zap.Any("recycle", recyclePath))
+	log.Logger(ctx).Debug("FILTER CHANGE", zap.Any("change", change), zap.Any("pathFilter", pathFilter), zap.Any("recycle", recyclePath))
 	// 1 - Filter out moves that are node inside our filter
 	if h.filterByPath("out", change, pathFilter) {
 		return true
 	}
 
-	log.Logger(ctx).Info("FILTER CHANGE > 1", zap.Any("change", change))
+	log.Logger(ctx).Debug("FILTER CHANGE > 1", zap.Any("change", change))
 
 	// 2 - Filter /recycle_bin/* path, transform moves to create/delete
 	if h.filterByPath("in", change, recyclePath) {
 		return true
 	}
 
-	log.Logger(ctx).Info("FILTER CHANGE > 2", zap.Any("change", change))
+	log.Logger(ctx).Debug("FILTER CHANGE > 2", zap.Any("change", change))
 
 	// 3 - Acl List
 	/*
@@ -196,7 +249,7 @@ func (h Handler) filterChange(ctx context.Context, change *tree.SyncChange, aclL
 	// 4 - Now Trim Prefix on absolute path's
 	h.trimPrefix(change, pathFilter)
 
-	log.Logger(ctx).Info("FILTER CHANGE > 4", zap.Any("change", change))
+	log.Logger(ctx).Debug("FILTER CHANGE > 4", zap.Any("change", change))
 
 	return false
 }
@@ -250,6 +303,12 @@ func (h Handler) enrichChange(ctx context.Context, change *tree.SyncChange, inde
 	change.Node = &tree.SyncChangeNode{}
 
 	if change.Type == tree.SyncChange_delete {
+		change.Node = &tree.SyncChangeNode{
+			Bytesize: 0,
+			Mtime:    0,
+			Md5:      "deleted",
+			NodePath: change.Source,
+		}
 		return nil
 	}
 
@@ -266,8 +325,8 @@ func (h Handler) enrichChange(ctx context.Context, change *tree.SyncChange, inde
 			Md5:      md5,
 			Mtime:    found.MTime,
 		}
+	} else {
+		return e
 	}
-
 	return nil
-
 }

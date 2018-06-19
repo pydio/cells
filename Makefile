@@ -67,5 +67,5 @@ linux:
 cleanall: stop clean rm
 
 clean:
-	rm -f cells pydioctl
+	rm -f cells cells-ctl
 	${GOPATH}/bin/packr clean

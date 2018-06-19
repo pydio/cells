@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/object"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/utils"
@@ -130,16 +131,28 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string) error {
 	if err != nil {
 		return err
 	}
+	serviceCtx := servicecontext.WithServiceName(ctx, name)
 	scannerOut := bufio.NewScanner(stdout)
+	parentName := c.childPrefix + "(.+)"
 	go func() {
 		for scannerOut.Scan() {
-			log.StdOut.WriteString(strings.TrimRight(scannerOut.Text(), "\n") + "\n")
+			text := strings.TrimRight(scannerOut.Text(), "\n")
+			if strings.Contains(text, name) || strings.Contains(text, parentName) {
+				log.StdOut.WriteString(text + "\n")
+			} else {
+				log.Logger(serviceCtx).Info(text)
+			}
 		}
 	}()
 	scannerErr := bufio.NewScanner(stderr)
 	go func() {
 		for scannerErr.Scan() {
-			log.StdOut.WriteString(strings.TrimRight(scannerErr.Text(), "\n") + "\n")
+			text := strings.TrimRight(scannerErr.Text(), "\n")
+			if strings.Contains(text, name) || strings.Contains(text, parentName) {
+				log.StdOut.WriteString(text + "\n")
+			} else {
+				log.Logger(serviceCtx).Error(text)
+			}
 		}
 	}()
 
@@ -151,9 +164,12 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string) error {
 	if err := cmd.Start(); err != nil {
 		return err
 	}
-	log.Logger(ctx).Debug("Started SubProcess: " + name)
 
 	if err := cmd.Wait(); err != nil {
+		if err.Error() != "signal: killed" {
+			log.Logger(serviceCtx).Error("SubProcess was not killed properly: " + err.Error())
+			registry.Default.SetServiceStopped(name)
+		}
 		return err
 	}
 
@@ -166,7 +182,7 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string) error {
 
 func (c *ChildrenRunner) StopAll(ctx context.Context) {
 	for name, cmd := range c.services {
-		log.Logger(ctx).Info("stopping sub-process " + c.childPrefix + name)
+		log.Logger(ctx).Debug("stopping sub-process " + c.childPrefix + name)
 		if cmd.Process != nil {
 			if e := cmd.Process.Signal(syscall.SIGINT); e != nil {
 				cmd.Process.Kill()

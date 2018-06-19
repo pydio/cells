@@ -36,15 +36,13 @@ func init() {
 	service.NewService(
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE),
 		service.Tag(common.SERVICE_TAG_DATA),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
 		service.Description("Aggregator of all datasources into one master tree"),
 		service.WithMicro(func(m micro.Service) error {
 
 			ctx := m.Options().Context
 
 			dataSources := map[string]DataSource{}
-			// metaServiceClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, srv.Client())
-			//metaServiceStreamer := tree.NewNodeProviderStreamerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, srv.Client())
-
 			treeServer := &TreeServer{
 				ConfigsMutex: &sync.Mutex{},
 				DataSources:  dataSources,

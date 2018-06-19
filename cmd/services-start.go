@@ -141,7 +141,11 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 
 		// Start services that have not been deregistered via flags and filtering.
 		for _, service := range allServices {
-			go service.Start()
+			if !IsFork && service.RequiresFork() {
+				go service.ForkStart()
+			} else {
+				go service.Start()
+			}
 		}
 
 		wg.Add(1)

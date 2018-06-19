@@ -310,7 +310,7 @@ func doesPresignedSignatureMatch(hashedPayload string, r *http.Request, region s
 // doesSignatureMatch - Verify authorization header with calculated header in accordance with
 //     - http://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html
 // returns ErrNone if signature matches.
-func doesSignatureMatch(hashedPayload string, r *http.Request, region string) APIErrorCode {
+func doesSignatureMatch(hashedPayload string, r *http.Request, region string, skipAccessKey bool) APIErrorCode {
 	// Access credentials.
 	cred := serverConfig.GetCredential()
 
@@ -333,7 +333,7 @@ func doesSignatureMatch(hashedPayload string, r *http.Request, region string) AP
 	}
 
 	// Verify if the access key id matches.
-	if signV4Values.Credential.accessKey != cred.AccessKey {
+	if !skipAccessKey && signV4Values.Credential.accessKey != cred.AccessKey {
 		return ErrInvalidAccessKeyID
 	}
 

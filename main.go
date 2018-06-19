@@ -52,6 +52,8 @@ import (
 	_ "github.com/pydio/cells/data/tree/grpc"
 	_ "github.com/pydio/cells/data/tree/rest"
 	_ "github.com/pydio/cells/data/versions/grpc"
+	_ "github.com/pydio/cells/data/changes/grpc"
+	_ "github.com/pydio/cells/data/changes/rest"
 
 	_ "github.com/pydio/cells/discovery/config/grpc"
 	_ "github.com/pydio/cells/discovery/config/rest"

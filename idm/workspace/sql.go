@@ -21,21 +21,18 @@
 package workspace
 
 import (
-	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/packr"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
-	migrate "github.com/rubenv/sql-migrate"
-	"go.uber.org/zap"
+	"github.com/rubenv/sql-migrate"
+	"gopkg.in/doug-martin/goqu.v4"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
@@ -49,9 +46,6 @@ var (
 		"ExistsWorkspace":         `select count(uuid) from idm_workspaces where uuid = ?`,
 		"ExistsWorkspaceWithSlug": `select count(uuid) from idm_workspaces where slug = ?`,
 	}
-
-	search  = `select * from idm_workspaces`
-	deleteQ = `delete from idm_workspaces`
 )
 
 // Impl of the Mysql interface
@@ -72,19 +66,16 @@ func (s *sqlimpl) Init(options config.Map) error {
 	if err := s.ResourcesSQL.Init(options); err != nil {
 		return err
 	}
-
 	// Doing the database migrations
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../idm/workspace/migrations"),
 		Dir:         s.Driver(),
 		TablePrefix: s.Prefix(),
 	}
-
-	_, err := migrate.Exec(s.DB(), s.Driver(), migrations, migrate.Up)
+	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_workspace_")
 	if err != nil {
 		return err
 	}
-
 	// Preparing the db statements
 	if options.Bool("prepare", true) {
 		for key, query := range queries {
@@ -143,44 +134,18 @@ func (s *sqlimpl) slugExists(slug string) bool {
 	return false
 }
 
-// Search in the mysql DB
+// Search searches
 func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 
-	var wheres []string
-
-	if query.GetResourcePolicyQuery() != nil {
-		resourceString := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
-		if resourceString != "" {
-			wheres = append(wheres, resourceString)
-		}
+	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
+	resourceExpr, e := s.ResourcesSQL.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
+	if e != nil {
+		return e
 	}
-
-	whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
-	if len(whereString) != 0 {
-		wheres = append(wheres, whereString)
+	queryString, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceExpr, 100)
+	if err != nil {
+		return err
 	}
-
-	if len(wheres) > 0 {
-		whereString = sql.JoinWheresWithParenthesis(wheres, "AND")
-	}
-
-	offset, limit := int64(0), int64(0)
-	if query.GetOffset() > 0 {
-		offset = query.GetOffset()
-	}
-	if query.GetLimit() == 0 {
-		// Default limit
-		limit = 100
-	}
-
-	limitString := fmt.Sprintf(" limit %v,%v", offset, limit)
-	if query.GetLimit() == -1 {
-		limitString = ""
-	}
-
-	queryString := search + whereString + limitString
-
-	log.Logger(context.Background()).Debug("Search Workspaces", zap.String("sql", queryString))
 
 	res, err := s.DB().Query(queryString)
 	if err != nil {
@@ -192,18 +157,9 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 		workspace := new(idm.Workspace)
 		var lastUpdate int
 		var scope int
-		res.Scan(
-			&workspace.UUID,
-			&workspace.Label,
-			&workspace.Description,
-			&workspace.Attributes,
-			&workspace.Slug,
-			&scope,
-			&lastUpdate,
-		)
+		res.Scan(&workspace.UUID, &workspace.Label, &workspace.Description, &workspace.Attributes, &workspace.Slug, &scope, &lastUpdate)
 		workspace.LastUpdated = int32(lastUpdate)
 		workspace.Scope = idm.WorkspaceScope(scope)
-
 		*workspaces = append(*workspaces, workspace)
 	}
 
@@ -213,17 +169,12 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 // Del from the mysql DB
 func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
-	whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
-
-	if len(whereString) == 0 || len(strings.Trim(whereString, "()")) == 0 {
-		return 0, errors.BadRequest(common.SERVICE_WORKSPACE, "Empty condition for Delete, this is too broad a query!")
+	//whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
+	whereExpression := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
+	queryString, err := sql.DeleteStringFromExpression("idm_workspaces", s.Driver(), whereExpression)
+	if err != nil {
+		return 0, err
 	}
-
-	if len(whereString) != 0 {
-		whereString = " where " + whereString
-	}
-
-	queryString := deleteQ + whereString
 
 	res, err := s.DB().Exec(queryString)
 	if err != nil {
@@ -238,39 +189,36 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 	return rows, nil
 }
 
-type queryConverter idm.WorkspaceSingleQuery
+type queryBuilder idm.WorkspaceSingleQuery
 
-func (c *queryConverter) Convert(val *any.Any) (string, bool) {
+func (c *queryBuilder) Convert(val *any.Any, driver string) (goqu.Expression, bool) {
 
 	q := new(idm.WorkspaceSingleQuery)
-
 	if err := ptypes.UnmarshalAny(val, q); err != nil {
-		return "", false
+		return nil, false
 	}
-	var wheres []string
+
+	var expressions []goqu.Expression
+
 	if q.Uuid != "" {
-		wheres = append(wheres, sql.GetQueryValueFor("uuid", q.Uuid))
+		expressions = append(expressions, sql.GetExpressionForString(q.Not, "uuid", q.Uuid))
 	}
 
 	if q.Slug != "" {
-		wheres = append(wheres, sql.GetQueryValueFor("slug", q.Slug))
+		expressions = append(expressions, sql.GetExpressionForString(q.Not, "slug", q.Slug))
 	}
 
 	if q.Label != "" {
-		wheres = append(wheres, sql.GetQueryValueFor("label", q.Label))
+		expressions = append(expressions, sql.GetExpressionForString(q.Not, "label", q.Label))
 	}
 
 	if q.Scope != idm.WorkspaceScope_ANY {
-		wheres = append(wheres, fmt.Sprintf("scope=%v", int32(q.Scope)))
+		expressions = append(expressions, goqu.I("scope").Eq(q.Scope))
 	}
 
-	if len(wheres) == 0 {
-		return "", false
+	if len(expressions) == 0 {
+		return nil, true
 	}
-	qString := strings.Join(wheres, " AND ")
-	if q.Not {
-		qString = fmt.Sprintf("NOT (%s)", qString)
-	}
+	return goqu.And(expressions...), true
 
-	return qString, true
 }

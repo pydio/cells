@@ -27,8 +27,9 @@ import (
 
 	"os"
 
+	"fmt"
+
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/utils"
 )
 
 // delCmd represents the delete command
@@ -63,7 +64,7 @@ $ ` + os.Args[0] + ` config delete micro.web port
 
 		config.Del("services", id, path)
 
-		err := utils.SaveConfigs()
+		err := config.Save("cli", fmt.Sprintf("Delete by path %s/%s", id, path))
 		if err != nil {
 			cmd.Println(err)
 			return

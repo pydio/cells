@@ -90,7 +90,7 @@ func (h *Handler) SearchACL(ctx context.Context, request *idm.SearchACLRequest, 
 	for _, in := range *acls {
 		val, ok := in.(*idm.ACL)
 		if !ok {
-			return errors.InternalServerError(common.SERVICE_ROLE, "Wrong type")
+			return errors.InternalServerError(common.SERVICE_ACL, "Wrong type")
 		}
 
 		response.Send(&idm.SearchACLResponse{ACL: val})

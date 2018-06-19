@@ -56,6 +56,11 @@ func (h *Handler) Filter() func(string) string {
 	}
 }
 
+func error404(req *restful.Request, resp *restful.Response, err error) {
+	// Do not log error as it's polluting logs for nothing
+	resp.WriteError(404, err)
+}
+
 func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) {
 	path := req.PathParameter("NodePath")
 	var nsRequest rest.MetaNamespaceRequest
@@ -67,7 +72,7 @@ func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) {
 	nsRequest.NodePath = path
 	node, err := h.loadNodeByUuidOrPath(ctx, nsRequest.NodePath, "")
 	if err != nil {
-		service.RestError404(req, resp, err)
+		error404(req, resp, err)
 		return
 	}
 
@@ -99,7 +104,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 				}
 				folderNodes = append(folderNodes, readResp)
 			} else {
-				service.RestError404(req, resp, err)
+				error404(req, resp, err)
 				return
 			}
 		} else {
@@ -107,7 +112,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 				output.Nodes = append(output.Nodes, node.WithoutReservedMetas())
 			} else {
 				// Do not send 404, just send no result
-				//service.RestError404(req, resp, err)
+				//service.error404(req, resp, err)
 				//return
 			}
 		}
@@ -116,7 +121,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		if node, err := h.loadNodeByUuidOrPath(ctx, "", u); err == nil {
 			output.Nodes = append(output.Nodes, node.WithoutReservedMetas())
 		} else {
-			service.RestError404(req, resp, err)
+			error404(req, resp, err)
 			return
 		}
 	}

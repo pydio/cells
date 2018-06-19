@@ -43,8 +43,10 @@ func init() {
 		service.WithWeb(func() service.WebHandler {
 			return new(Handler)
 		}),
+		//service.WithWebAuth(),
 		func(o *service.ServiceOptions) {
 			o.BeforeStart = append(o.BeforeStart, func(s service.Service) error {
+
 				var e error
 				if eventManager, e = golongpoll.StartLongpoll(golongpoll.Options{}); e != nil {
 					return e

@@ -82,7 +82,7 @@ func (a *ArchiveReader) ListChildrenZip(ctx context.Context, archiveNode *tree.N
 	reader := zipstream.NewReader(archive)
 	for {
 		file, err := reader.Next()
-		if err == io.EOF {
+		if err == io.EOF || file == nil {
 			break
 		}
 

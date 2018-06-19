@@ -31,6 +31,7 @@ func init() {
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_ROLE),
 		service.Tag(common.SERVICE_TAG_IDM),
 		service.Description("REST gateway to role service"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
 		service.WithWeb(func() service.WebHandler {
 			return NewRoleHandler()
 		}),

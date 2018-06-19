@@ -22,6 +22,7 @@ package service
 
 import (
 	"context"
+	"net/http"
 	"regexp"
 
 	"github.com/micro/go-micro"
@@ -82,6 +83,10 @@ type ServiceOptions struct {
 
 	// Micro init
 	MicroInit func(Service) error
+
+	// Web init
+	WebInit         func(Service) error
+	webHandlerWraps []func(http.Handler) http.Handler
 }
 
 type ServiceOption func(*ServiceOptions)
@@ -168,6 +173,20 @@ func ExposedConfigs(f *forms.Form) ServiceOption {
 func Dependency(n string, t []string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Dependencies = append(o.Dependencies, &dependency{n, t})
+	}
+}
+
+func RouterDependencies() ServiceOption {
+	return func(o *ServiceOptions) {
+		routerDependencies := []string{
+			common.SERVICE_TREE,
+			common.SERVICE_ACL,
+			common.SERVICE_VERSIONS,
+			common.SERVICE_DOCSTORE,
+		}
+		for _, s := range routerDependencies {
+			o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + s, []string{}})
+		}
 	}
 }
 

@@ -36,6 +36,7 @@ func init() {
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE),
 		service.Tag(common.SERVICE_TAG_IDM),
 		service.Description("Roles Service"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
 		service.Migrations([]*service.Migration{{
 			TargetVersion: service.FirstRun(),
 			Up:            InitRoles,

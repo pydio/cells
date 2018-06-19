@@ -22,7 +22,6 @@ package role
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -31,14 +30,15 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
-	migrate "github.com/rubenv/sql-migrate"
+	"github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
+	"gopkg.in/doug-martin/goqu.v4"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
-	service "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/sql/resources"
 )
@@ -51,10 +51,6 @@ var (
 		"Exists":     `select count(uuid) from idm_roles where uuid = ?`,
 		"DeleteRole": `delete from idm_roles where uuid = ?`,
 	}
-
-	search  = `select * from idm_roles`
-	count   = `select count(uuid) from idm_roles`
-	deleteQ = `delete from idm_roles`
 )
 
 // Impl of the Mysql interface
@@ -83,7 +79,7 @@ func (s *sqlimpl) Init(options config.Map) error {
 		TablePrefix: s.Prefix(),
 	}
 
-	_, err := migrate.Exec(s.DB(), s.Driver(), migrations, migrate.Up)
+	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_role_")
 	if err != nil {
 		return err
 	}
@@ -150,7 +146,7 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 
 func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 
-	queryString, err := s.buildSearchQuery(query, false, true, false)
+	queryString, err := s.buildSearchQuery(query, true, false)
 	if err != nil {
 		return 0, err
 	}
@@ -171,7 +167,7 @@ func (s *sqlimpl) Count(query sql.Enquirer) (int32, error) {
 // Search in the mysql DB
 func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 
-	queryString, err := s.buildSearchQuery(query, true, false, false)
+	queryString, err := s.buildSearchQuery(query, false, false)
 	if err != nil {
 		return err
 	}
@@ -214,7 +210,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 // Deleteete from the mysql DB
 func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
 
-	queryString, err := s.buildSearchQuery(query, false, false, true)
+	queryString, err := s.buildSearchQuery(query, false, true)
 	if err != nil {
 		return 0, err
 	}
@@ -232,100 +228,77 @@ func (s *sqlimpl) Delete(query sql.Enquirer) (int64, error) {
 	return rows, nil
 }
 
-func (s *sqlimpl) buildSearchQuery(query sql.Enquirer, withLimit bool, countOnly bool, delete bool) (string, error) {
+func (s *sqlimpl) buildSearchQuery(query sql.Enquirer, countOnly bool, delete bool) (string, error) {
 
-	var wheres []string
+	ex := sql.NewQueryBuilder(query, new(queryBuilder)).Expression(s.Driver())
 
-	if query.GetResourcePolicyQuery() != nil {
-		resourceString := s.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
-		if resourceString != "" {
-			wheres = append(wheres, resourceString)
-		}
-	}
-	if whereString := sql.NewDAOQuery(query, new(queryConverter)).String(); len(whereString) != 0 {
-		wheres = append(wheres, whereString)
-	}
-	whereString := sql.JoinWheresWithParenthesis(wheres, "AND")
+	if delete {
 
-	limitString := ""
-	if withLimit && query.GetLimit() > -1 {
-		offset, limit := int64(0), int64(0)
-		if query.GetOffset() > 0 {
-			offset = query.GetOffset()
-		}
-		if query.GetLimit() == 0 {
-			// Default limit
-			limit = 100
-		} else {
-			limit = query.GetLimit()
-		}
-		limitString = fmt.Sprintf(" limit %v,%v", offset, limit)
-	}
+		return sql.DeleteStringFromExpression("idm_roles", s.Driver(), ex)
 
-	queryString := ""
-	if countOnly {
-		queryString = count + whereString
-	} else if delete {
-		queryString = deleteQ + whereString + limitString
 	} else {
-		queryString = search + whereString + limitString
+
+		resourceExpr, e := s.BuildPolicyConditionForAction(query.GetResourcePolicyQuery(), service.ResourcePolicyAction_READ)
+		if e != nil {
+			return "", e
+		}
+		if countOnly {
+			return sql.CountStringFromExpression("idm_roles", "uuid", s.Driver(), query, ex, resourceExpr)
+		} else {
+			return sql.QueryStringFromExpression("idm_roles", s.Driver(), query, ex, resourceExpr, 100)
+		}
+
 	}
 
-	//	fmt.Println(queryString)
-
-	return queryString, nil
 }
 
-type queryConverter idm.RoleSingleQuery
+type queryBuilder idm.RoleSingleQuery
 
-func (c *queryConverter) Convert(val *any.Any) (string, bool) {
+func (c *queryBuilder) Convert(val *any.Any, driver string) (goqu.Expression, bool) {
 
 	q := new(idm.RoleSingleQuery)
-
 	if err := ptypes.UnmarshalAny(val, q); err != nil {
-		log.Logger(context.Background()).Debug(fmt.Sprintf("Any: %s - %s", val.TypeUrl, val.String()))
-		log.Logger(context.Background()).Error("could not unmarshal RoleSingleQuery", zap.Error(err))
-		return "false", false
+		return nil, false
 	}
-	var wheres []string
+	var expressions []goqu.Expression
 	if len(q.Uuid) > 0 {
-		w := sql.GetQueryValueFor("uuid", q.Uuid...)
-		if len(q.Uuid) > 1 {
-			w = fmt.Sprintf("(%s)", w)
-		}
-		wheres = append(wheres, w)
+		expressions = append(expressions, sql.GetExpressionForString(q.Not, "uuid", q.Uuid...))
 	}
 	if len(q.Label) > 0 {
-		wheres = append(wheres, sql.GetQueryValueFor("label", q.Label))
+		expressions = append(expressions, sql.GetExpressionForString(q.Not, "label", q.Label))
 	}
 	if q.IsGroupRole {
 		if q.Not {
-			wheres = append(wheres, "group_role=0")
+			expressions = append(expressions, goqu.I("group_role").Eq(0))
 		} else {
-			wheres = append(wheres, "group_role=1")
+			expressions = append(expressions, goqu.I("group_role").Eq(1))
 		}
 	}
 	if q.IsUserRole {
 		if q.Not {
-			wheres = append(wheres, "user_role=0")
+			expressions = append(expressions, goqu.I("user_role").Eq(0))
 		} else {
-			wheres = append(wheres, "user_role=1")
+			expressions = append(expressions, goqu.I("user_role").Eq(1))
 		}
 	}
 	if q.IsTeam {
 		if q.Not {
-			wheres = append(wheres, "team_role=0")
+			expressions = append(expressions, goqu.I("team_role").Eq(0))
 		} else {
-			wheres = append(wheres, "team_role=1")
+			expressions = append(expressions, goqu.I("team_role").Eq(1))
 		}
 	}
 	if q.HasAutoApply {
 		if q.Not {
-			wheres = append(wheres, "auto_applies = ''")
+			expressions = append(expressions, goqu.I("auto_applies").Eq(""))
 		} else {
-			wheres = append(wheres, "auto_applies <> ''")
+			expressions = append(expressions, goqu.I("auto_applies").Neq(""))
 		}
 	}
 
-	return strings.Join(wheres, " and "), true
+	if len(expressions) == 0 {
+		return nil, true
+	}
+	return goqu.And(expressions...), true
+
 }

@@ -38,7 +38,7 @@ type DAO interface {
 
 	// Add creates or updates a user in the underlying repository.
 	// It returns the resulting user, a true flag in case of an update
-	// of an existing user and/or an error is something went wrong.
+	// of an existing user and/or an error if something went wrong.
 	Add(interface{}) (interface{}, bool, error)
 
 	Del(sql.Enquirer) (numRows int64, e error)

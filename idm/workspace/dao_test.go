@@ -36,6 +36,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 	// Use SQLite backend for the tests
 	_ "github.com/mattn/go-sqlite3"
+	_ "gopkg.in/doug-martin/goqu.v4/adapters/sqlite3"
 )
 
 var (
@@ -125,85 +126,117 @@ func TestUniqueSlug(t *testing.T) {
 			So(result.Label, ShouldEqual, "label")
 			So(result.Slug, ShouldEqual, "my-slug-1")
 		}
-
 	})
-
 }
 
-func TestQueryBuilder(t *testing.T) {
+func TestSearch(t *testing.T) {
 
 	Convey("Query Builder", t, func() {
 
-		singleQ1, singleQ2 := new(idm.WorkspaceSingleQuery), new(idm.WorkspaceSingleQuery)
+		workspaces := []*idm.Workspace{
+			&idm.Workspace{
+				UUID:        "ws1",
+				Slug:        "admin-files",
+				Label:       "Admin Files",
+				Attributes:  "{}",
+				Description: "Reserved for admin",
+				Scope:       idm.WorkspaceScope_ADMIN,
+			},
 
-		singleQ1.Label = "workspace1"
-		singleQ2.Label = "workspace2"
+			&idm.Workspace{
+				UUID:        "ws2",
+				Slug:        "common",
+				Label:       "Common",
+				Attributes:  "{}",
+				Description: "Shared files",
+				Scope:       idm.WorkspaceScope_ROOM,
+			},
 
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
-		So(err, ShouldBeNil)
+			&idm.Workspace{
+				UUID:        "ws3",
+				Slug:        "admins-share",
+				Label:       "Admin shared files",
+				Attributes:  "{}",
+				Description: "Shared files for admin ",
+				Scope:       idm.WorkspaceScope_ADMIN,
+			},
 
-		singleQ2Any, err := ptypes.MarshalAny(singleQ2)
-		So(err, ShouldBeNil)
-
-		var singleQueries []*any.Any
-		singleQueries = append(singleQueries, singleQ1Any)
-		singleQueries = append(singleQueries, singleQ2Any)
-
-		simpleQuery := &service.Query{
-			SubQueries: singleQueries,
-			Operation:  service.OperationType_OR,
-			Offset:     0,
-			Limit:      10,
+			&idm.Workspace{
+				UUID:        "ws4",
+				Slug:        "public",
+				Label:       "Public",
+				Attributes:  "{}",
+				Description: "Public access files",
+				Scope:       idm.WorkspaceScope_ANY,
+			},
 		}
 
-		s := sql.NewDAOQuery(simpleQuery, new(queryConverter)).String()
-		So(s, ShouldEqual, "(label='workspace1') OR (label='workspace2')")
-
-	})
-
-	Convey("Query Builder W/ subquery", t, func() {
-
-		singleQ1, singleQ2, singleQ3 := new(idm.WorkspaceSingleQuery), new(idm.WorkspaceSingleQuery), new(idm.WorkspaceSingleQuery)
-
-		singleQ1.Label = "workspace1"
-		singleQ2.Label = "workspace2"
-		singleQ3.Label = "workspace3"
-
-		singleQ1Any, err := ptypes.MarshalAny(singleQ1)
-		So(err, ShouldBeNil)
-
-		singleQ2Any, err := ptypes.MarshalAny(singleQ2)
-		So(err, ShouldBeNil)
-
-		singleQ3Any, err := ptypes.MarshalAny(singleQ3)
-		So(err, ShouldBeNil)
-
-		subQuery1 := &service.Query{
-			SubQueries: []*any.Any{singleQ1Any, singleQ2Any},
-			Operation:  service.OperationType_OR,
+		for _, ws := range workspaces {
+			_, err := mockDAO.Add(ws)
+			So(err, ShouldBeNil)
 		}
 
-		subQuery2 := &service.Query{
-			SubQueries: []*any.Any{singleQ3Any},
-		}
-
-		subQuery1Any, err := ptypes.MarshalAny(subQuery1)
-		So(err, ShouldBeNil)
-
-		subQuery2Any, err := ptypes.MarshalAny(subQuery2)
+		// Asked for worspace - with ROOM Scope
+		singleq := new(idm.WorkspaceSingleQuery)
+		singleq.Scope = idm.WorkspaceScope_ROOM
+		a, err := ptypes.MarshalAny(singleq)
 		So(err, ShouldBeNil)
 
 		composedQuery := &service.Query{
-			SubQueries: []*any.Any{
-				subQuery1Any,
-				subQuery2Any,
-			},
-			Offset:    0,
-			Limit:     10,
-			Operation: service.OperationType_AND,
+			SubQueries: []*any.Any{a},
+			Offset:     0,
+			Limit:      10,
+			Operation:  service.OperationType_AND,
 		}
 
-		s := sql.NewDAOQuery(composedQuery, new(queryConverter)).String()
-		So(s, ShouldEqual, "((label='workspace1') OR (label='workspace2')) AND (label='workspace3')")
+		var result []interface{}
+		wdao := mockDAO.(*sqlimpl)
+		err = wdao.Search(composedQuery, &result)
+		So(err, ShouldBeNil)
+		So(len(result), ShouldBeGreaterThan, 0)
+
+		for _, wsi := range result {
+			if ws, ok := wsi.(*idm.Workspace); ok {
+				So(ws.Slug, ShouldBeIn, []string{"common"})
+			}
+		}
+
+		result = []interface{}{}
+		mockDAO.Search(composedQuery, &result)
+		So(err, ShouldBeNil)
+		So(len(result), ShouldBeGreaterThan, 0)
+		for _, wsi := range result {
+			if ws, ok := wsi.(*idm.Workspace); ok {
+				So(ws.Slug, ShouldBeIn, []string{"common"})
+			}
+		}
+
+		// Get any workspaces that relates to admins
+		singleq.Scope = idm.WorkspaceScope_ADMIN
+		singleq.Label = "*admin*"
+
+		a, err = ptypes.MarshalAny(singleq)
+		So(err, ShouldBeNil)
+		composedQuery.SubQueries = []*any.Any{a}
+
+		result = []interface{}{}
+		err = wdao.Search(composedQuery, &result)
+		So(err, ShouldBeNil)
+		So(len(result), ShouldBeGreaterThan, 0)
+		for _, wsi := range result {
+			if ws, ok := wsi.(*idm.Workspace); ok {
+				So(ws.Slug, ShouldBeIn, []string{"admin-files", "admins-share"})
+			}
+		}
+
+		result = []interface{}{}
+		mockDAO.Search(composedQuery, &result)
+		So(err, ShouldBeNil)
+		So(len(result), ShouldBeGreaterThan, 0)
+		for _, wsi := range result {
+			if ws, ok := wsi.(*idm.Workspace); ok {
+				So(ws.Slug, ShouldBeIn, []string{"admin-files", "admins-share"})
+			}
+		}
 	})
 }

@@ -40,14 +40,19 @@ import (
 )
 
 // Handler to GRPC interface to changes API
-type Handler struct{}
+type Handler struct {
+	batcher *changes.BatchInsert
+}
+
+func NewHandler(ctx context.Context) *Handler {
+	dao := servicecontext.GetDAO(ctx).(changes.DAO)
+	return &Handler{
+		batcher: changes.NewBatchInsert(dao, 1*time.Second, 20),
+	}
+}
 
 // OnTreeEvent receives events about node changes from the router
 func (h Handler) OnTreeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
-	if servicecontext.GetDAO(ctx) == nil {
-		return fmt.Errorf("no DAO found, wrong initialization")
-	}
-	dao := servicecontext.GetDAO(ctx).(changes.DAO)
 
 	change := &tree.SyncChange{}
 	var refNode *tree.Node
@@ -67,7 +72,13 @@ func (h Handler) OnTreeEvent(ctx context.Context, event *tree.NodeChangeEvent) e
 		return nil
 	}
 
-	if strings.HasSuffix(refNode.GetPath(), common.PYDIO_SYNC_HIDDEN_FILE_META) {
+	if strings.HasSuffix(refNode.GetPath(), common.PYDIO_SYNC_HIDDEN_FILE_META) ||
+		strings.HasSuffix(refNode.GetPath(), ".ajxp_recycle_cache.ser") {
+		// Ignore
+		return nil
+	}
+
+	if refNode.GetEtag() == common.NODE_FLAG_ETAG_TEMPORARY {
 		// Ignore
 		return nil
 	}
@@ -89,11 +100,9 @@ func (h Handler) OnTreeEvent(ctx context.Context, event *tree.NodeChangeEvent) e
 	}
 
 	log.Logger(ctx).Debug("NodeChangeEvent received", zap.Any(common.KEY_NODE_CHANGE_EVENT, change))
-	err := dao.Put(change)
-	if err != nil {
-		log.Logger(ctx).Error("cannot store Change", zap.Any(common.KEY_NODE_CHANGE_EVENT, change), zap.Error(err))
-	}
-	return err
+	//err := dao.Put(change)
+	h.batcher.Put(change)
+	return nil
 }
 
 // TriggerResync allows a resync to be triggered by the pydio client
@@ -101,18 +110,37 @@ func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, res
 
 	log.Logger(ctx).Info("[Changes] Starting Resync Action For Changes")
 
-	if servicecontext.GetDAO(ctx) == nil {
-		return fmt.Errorf("no DAO found, wrong initialization")
-	}
-	dao := servicecontext.GetDAO(ctx).(changes.DAO)
-
+	var outputError error
 	var taskClient jobs.JobServiceClient
 	var theTask *jobs.Task
 	if req.Task != nil {
 		taskClient = jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
 		theTask = req.Task
 		theTask.StartTime = int32(time.Now().Unix())
+		defer func() {
+			if outputError != nil {
+				theTask.StatusMessage = outputError.Error()
+				theTask.Status = jobs.TaskStatus_Error
+				theTask.EndTime = int32(time.Now().Unix())
+				theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
+					OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{ErrorString: outputError.Error()}}},
+				})
+			} else {
+				theTask.StatusMessage = "Complete"
+				theTask.Status = jobs.TaskStatus_Finished
+				theTask.EndTime = int32(time.Now().Unix())
+			}
+			if _, e := taskClient.PutTask(ctx, &jobs.PutTaskRequest{Task: theTask}); e != nil {
+				log.Logger(ctx).Error("[Changes] Could not update task", zap.Error(e))
+			}
+		}()
 	}
+
+	if servicecontext.GetDAO(ctx) == nil {
+		outputError = fmt.Errorf("no DAO found, wrong initialization")
+		return outputError
+	}
+	dao := servicecontext.GetDAO(ctx).(changes.DAO)
 
 	indexClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
 	streamer, err := indexClient.ListNodes(ctx, &tree.ListNodesRequest{
@@ -122,15 +150,7 @@ func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, res
 		Recursive: true,
 	})
 	if err != nil {
-		if req.Task != nil {
-			theTask.StatusMessage = err.Error()
-			theTask.Status = jobs.TaskStatus_Error
-			theTask.EndTime = int32(time.Now().Unix())
-			theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
-				OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{ErrorString: err.Error()}}},
-			})
-			taskClient.PutTask(ctx, &jobs.PutTaskRequest{Task: theTask})
-		}
+		outputError = err
 		return err
 	}
 	defer streamer.Close()
@@ -143,7 +163,9 @@ func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, res
 			continue
 		}
 		node := listResp.Node
-		if strings.HasSuffix(node.GetPath(), common.PYDIO_SYNC_HIDDEN_FILE_META) {
+		if strings.HasSuffix(node.GetPath(), common.PYDIO_SYNC_HIDDEN_FILE_META) ||
+			strings.HasSuffix(node.GetPath(), ".ajxp_recycle_cache.ser") ||
+			node.GetEtag() == common.NODE_FLAG_ETAG_TEMPORARY {
 			continue
 		}
 		if ok, err := dao.HasNodeById(node.Uuid); ok && err == nil {
@@ -162,18 +184,14 @@ func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, res
 			theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
 				OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{StringBody: theTask.StatusMessage}}},
 			})
-			taskClient.PutTask(ctx, &jobs.PutTaskRequest{Task: theTask})
+			_, e := taskClient.PutTask(ctx, &jobs.PutTaskRequest{Task: theTask})
+			if e != nil {
+				log.Logger(ctx).Error("[Changes] Could not update task", zap.Error(e))
+			}
 		}
 	}
 
-	if req.Task != nil {
-		theTask.StatusMessage = "Complete"
-		theTask.Status = jobs.TaskStatus_Finished
-		theTask.EndTime = int32(time.Now().Unix())
-		taskClient.PutTask(ctx, &jobs.PutTaskRequest{Task: theTask})
-	}
 	return nil
-
 }
 
 // Put a change in the service storage

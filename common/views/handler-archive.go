@@ -126,7 +126,10 @@ func (a *ArchiveHandler) ListNodes(ctx context.Context, in *tree.ListNodesReques
 
 	if ok, format, archivePath, innerPath := a.isArchivePath(in.Node.Path); ok {
 		extractor := &ArchiveReader{Router: a.next}
-		statResp, _ := a.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: archivePath}})
+		statResp, e := a.next.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: archivePath}})
+		if e != nil {
+			return nil, e
+		}
 		archiveNode := statResp.Node
 
 		if in.Limit == 1 && innerPath == "" {

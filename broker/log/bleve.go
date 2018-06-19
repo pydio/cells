@@ -126,8 +126,8 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 			msg.Level = val
 		case "logger":
 			msg.Logger = val
-		case "msg":
-			msg.Msg = val
+			//		case "msg":
+			//			msg.Msg = val
 		case common.KEY_MSG_ID:
 			msg.MsgId = val
 		case common.KEY_NODE_UUID:
@@ -164,6 +164,15 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 			break
 		}
 	}
+
+	text := ""
+	if m, o := line["msg"]; o {
+		text = m
+	}
+	if m, o := line["error"]; o {
+		text += " - " + m
+	}
+	msg.Msg = text
 
 	return msg, nil
 }

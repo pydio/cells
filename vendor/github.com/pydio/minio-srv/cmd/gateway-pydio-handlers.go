@@ -34,6 +34,7 @@ import (
 	router "github.com/gorilla/mux"
 	"github.com/pydio/minio-go/pkg/policy"
 	"strings"
+	"sort"
 )
 
 // GetObjectHandler - GET Object
@@ -45,6 +46,7 @@ func (api gatewayPydioAPIHandlers) GetObjectHandler(w http.ResponseWriter, r *ht
 	vars := router.Vars(r)
 	bucket = vars["bucket"]
 	object = vars["object"]
+	reqParams := extractReqParams(r)
 
 	pydioApi := api.PydioAPI()
 	if pydioApi == nil {
@@ -64,7 +66,7 @@ func (api gatewayPydioAPIHandlers) GetObjectHandler(w http.ResponseWriter, r *ht
 			return
 		}
 	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticated(r, serverConfig.GetRegion())
+		s3Error := isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
@@ -167,7 +169,7 @@ func (api gatewayPydioAPIHandlers) GetObjectHandler(w http.ResponseWriter, r *ht
 		Type:      ObjectAccessedGet,
 		Bucket:    bucket,
 		ObjInfo:   objInfo,
-		ReqParams: extractReqParams(r),
+		ReqParams: reqParams,
 		UserAgent: r.UserAgent(),
 		Host:      host,
 		Port:      port,
@@ -266,6 +268,7 @@ func (api gatewayPydioAPIHandlers) PutObjectHandler(w http.ResponseWriter, r *ht
 		return
 	}
 	defer objectLock.Unlock()
+	reqParams := extractReqParams(r)
 
 	var objInfo ObjectInfo
 	switch reqAuthType {
@@ -291,7 +294,7 @@ func (api gatewayPydioAPIHandlers) PutObjectHandler(w http.ResponseWriter, r *ht
 		}
 		objInfo, err = pydioApi.PutObjectWithContext(r.Context(), bucket, object, size, r.Body, metadata, "")
 	case authTypePresigned, authTypeSigned:
-		if s3Error := reqSignatureV4Verify(r, serverConfig.GetRegion()); s3Error != ErrNone {
+		if s3Error := reqSignatureV4VerifySkipAccessKey(r, serverConfig.GetRegion()); s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
 			return
@@ -330,7 +333,7 @@ func (api gatewayPydioAPIHandlers) PutObjectHandler(w http.ResponseWriter, r *ht
 		Type:      ObjectCreatedPut,
 		Bucket:    bucket,
 		ObjInfo:   objInfo,
-		ReqParams: extractReqParams(r),
+		ReqParams: reqParams,
 		UserAgent: r.UserAgent(),
 		Host:      host,
 		Port:      port,
@@ -345,6 +348,7 @@ func (api gatewayPydioAPIHandlers) CopyObjectHandler(w http.ResponseWriter, r *h
 	vars := router.Vars(r)
 	dstBucket := vars["bucket"]
 	dstObject := vars["object"]
+	reqParams := extractReqParams(r)
 
 	pydioApi := api.PydioAPI()
 	if pydioApi == nil {
@@ -352,7 +356,7 @@ func (api gatewayPydioAPIHandlers) CopyObjectHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, dstBucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, dstBucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -477,7 +481,7 @@ func (api gatewayPydioAPIHandlers) CopyObjectHandler(w http.ResponseWriter, r *h
 		Type:      ObjectCreatedCopy,
 		Bucket:    dstBucket,
 		ObjInfo:   objInfo,
-		ReqParams: extractReqParams(r),
+		ReqParams: reqParams,
 		UserAgent: r.UserAgent(),
 		Host:      host,
 		Port:      port,
@@ -492,6 +496,7 @@ func (api gatewayPydioAPIHandlers) HeadObjectHandler(w http.ResponseWriter, r *h
 	vars := router.Vars(r)
 	bucket = vars["bucket"]
 	object = vars["object"]
+	reqParams := extractReqParams(r)
 
 	pydioApi := api.PydioAPI()
 	if pydioApi == nil {
@@ -511,7 +516,7 @@ func (api gatewayPydioAPIHandlers) HeadObjectHandler(w http.ResponseWriter, r *h
 			return
 		}
 	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticated(r, serverConfig.GetRegion())
+		s3Error := isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
@@ -558,7 +563,7 @@ func (api gatewayPydioAPIHandlers) HeadObjectHandler(w http.ResponseWriter, r *h
 		Type:      ObjectAccessedHead,
 		Bucket:    bucket,
 		ObjInfo:   objInfo,
-		ReqParams: extractReqParams(r),
+		ReqParams: reqParams,
 		UserAgent: r.UserAgent(),
 		Host:      host,
 		Port:      port,
@@ -577,7 +582,7 @@ func (api gatewayPydioAPIHandlers) PutBucketPolicyHandler(w http.ResponseWriter,
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -640,7 +645,7 @@ func (api gatewayPydioAPIHandlers) DeleteBucketPolicyHandler(w http.ResponseWrit
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -674,7 +679,7 @@ func (api gatewayPydioAPIHandlers) GetBucketPolicyHandler(w http.ResponseWriter,
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -744,10 +749,10 @@ func (api gatewayPydioAPIHandlers) PutBucketHandler(w http.ResponseWriter, r *ht
 	}
 
 	// PutBucket does not have any bucket action.
-	s3Error := checkRequestAuthType(r, "", "", globalMinioDefaultRegion)
+	s3Error := checkRequestAuthTypeSkipAccessKey(r, "", "", globalMinioDefaultRegion)
 	if s3Error == ErrInvalidRegion {
 		// Clients like boto3 send putBucket() call signed with region that is configured.
-		s3Error = checkRequestAuthType(r, "", "", serverConfig.GetRegion())
+		s3Error = checkRequestAuthTypeSkipAccessKey(r, "", "", serverConfig.GetRegion())
 	}
 	if s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
@@ -795,7 +800,7 @@ func (api gatewayPydioAPIHandlers) DeleteBucketHandler(w http.ResponseWriter, r 
 	}
 
 	// DeleteBucket does not have any bucket action.
-	if s3Error := checkRequestAuthType(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, "", "", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -826,7 +831,7 @@ func (api gatewayPydioAPIHandlers) DeleteObjectHandler(w http.ResponseWriter, r 
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, bucket, "s3:DeleteObject", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:DeleteObject", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -846,6 +851,7 @@ func (api gatewayPydioAPIHandlers) DeleteObjectHandler(w http.ResponseWriter, r 
 func (api gatewayPydioAPIHandlers) DeleteMultipleObjectsHandler(w http.ResponseWriter, r *http.Request) {
 	vars := router.Vars(r)
 	bucket := vars["bucket"]
+	reqParams := extractReqParams(r)
 
 	pydioApi := api.PydioAPI()
 	if pydioApi == nil {
@@ -853,7 +859,7 @@ func (api gatewayPydioAPIHandlers) DeleteMultipleObjectsHandler(w http.ResponseW
 		return
 	}
 
-	if s3Error := checkRequestAuthType(r, bucket, "s3:DeleteObject", serverConfig.GetRegion()); s3Error != ErrNone {
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:DeleteObject", serverConfig.GetRegion()); s3Error != ErrNone {
 		writeErrorResponse(w, s3Error, r.URL)
 		return
 	}
@@ -960,7 +966,7 @@ func (api gatewayPydioAPIHandlers) DeleteMultipleObjectsHandler(w http.ResponseW
 			ObjInfo: ObjectInfo{
 				Name: dobj.ObjectName,
 			},
-			ReqParams: extractReqParams(r),
+			ReqParams: reqParams,
 			UserAgent: r.UserAgent(),
 			Host:      host,
 			Port:      port,
@@ -979,6 +985,7 @@ func gatewayDeleteObject(obj PydioGateway, bucket, object string, r *http.Reques
 		return errors.New("Cannot get lock")
 	}
 	defer objectLock.Unlock()
+	reqParams := extractReqParams(r)
 
 	// Proceed to delete the object.
 	if err = obj.DeleteObjectWithContext(r.Context(), bucket, object); err != nil {
@@ -995,7 +1002,7 @@ func gatewayDeleteObject(obj PydioGateway, bucket, object string, r *http.Reques
 		ObjInfo: ObjectInfo{
 			Name: object,
 		},
-		ReqParams: extractReqParams(r),
+		ReqParams: reqParams,
 		UserAgent: r.UserAgent(),
 		Host:      host,
 		Port:      port,
@@ -1032,7 +1039,7 @@ func (api gatewayPydioAPIHandlers) ListObjectsV1Handler(w http.ResponseWriter, r
 			return
 		}
 	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticated(r, serverConfig.GetRegion())
+		s3Error := isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
@@ -1100,7 +1107,7 @@ func (api gatewayPydioAPIHandlers) ListObjectsV2Handler(w http.ResponseWriter, r
 			return
 		}
 	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticated(r, serverConfig.GetRegion())
+		s3Error := isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
@@ -1175,7 +1182,7 @@ func (api gatewayPydioAPIHandlers) HeadBucketHandler(w http.ResponseWriter, r *h
 			return
 		}
 	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticated(r, serverConfig.GetRegion())
+		s3Error := isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
 			writeErrorResponse(w, s3Error, r.URL)
@@ -1225,7 +1232,7 @@ func (api gatewayPydioAPIHandlers) GetBucketLocationHandler(w http.ResponseWrite
 		s3Error := isReqAuthenticated(r, globalMinioDefaultRegion)
 		if s3Error == ErrInvalidRegion {
 			// Clients like boto3 send getBucketLocation() call signed with region that is configured.
-			s3Error = isReqAuthenticated(r, serverConfig.GetRegion())
+			s3Error = isReqAuthenticatedSkipAccessKey(r, serverConfig.GetRegion())
 		}
 		if s3Error != ErrNone {
 			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
@@ -1263,4 +1270,458 @@ func (api gatewayPydioAPIHandlers) GetBucketLocationHandler(w http.ResponseWrite
 
 	// Write success response.
 	writeSuccessResponseXML(w, encodedSuccessResponse)
+}
+
+/// Multipart objectAPIHandlers
+
+// NewMultipartUploadHandler - New multipart upload.
+func (api gatewayPydioAPIHandlers) NewMultipartUploadHandler(w http.ResponseWriter, r *http.Request) {
+	var object, bucket string
+	vars := router.Vars(r)
+	bucket = vars["bucket"]
+	object = vars["object"]
+	ctx := r.Context()
+
+	objectAPI := api.PydioAPI()
+	if objectAPI == nil {
+		writeErrorResponse(w, ErrServerNotInitialized, r.URL)
+		return
+	}
+
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
+		writeErrorResponse(w, s3Error, r.URL)
+		return
+	}
+	// Extract metadata that needs to be saved.
+	metadata, err := extractMetadataFromHeader(r.Header)
+	if err != nil {
+		errorIf(err, "found invalid http request header")
+		writeErrorResponse(w, ErrInternalError, r.URL)
+		return
+	}
+
+	uploadID, err := objectAPI.NewMultipartUploadWithContext(ctx, bucket, object, metadata)
+	if err != nil {
+		errorIf(err, "Unable to initiate new multipart upload id.")
+		writeErrorResponse(w, toAPIErrorCode(err), r.URL)
+		return
+	}
+
+	response := generateInitiateMultipartUploadResponse(bucket, object, uploadID)
+	encodedSuccessResponse := encodeResponse(response)
+
+	// Write success response.
+	writeSuccessResponseXML(w, encodedSuccessResponse)
+}
+
+// CopyObjectPartHandler - uploads a part by copying data from an existing object as data source.
+func (api gatewayPydioAPIHandlers) CopyObjectPartHandler(w http.ResponseWriter, r *http.Request) {
+	vars := router.Vars(r)
+	dstBucket := vars["bucket"]
+	dstObject := vars["object"]
+	ctx := r.Context()
+
+	objectAPI := api.PydioAPI()
+	if objectAPI == nil {
+		writeErrorResponse(w, ErrServerNotInitialized, r.URL)
+		return
+	}
+
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, dstBucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
+		writeErrorResponse(w, s3Error, r.URL)
+		return
+	}
+
+	// Copy source path.
+	cpSrcPath, err := url.QueryUnescape(r.Header.Get("X-Amz-Copy-Source"))
+	if err != nil {
+		// Save unescaped string as is.
+		cpSrcPath = r.Header.Get("X-Amz-Copy-Source")
+	}
+
+	srcBucket, srcObject := path2BucketAndObject(cpSrcPath)
+	// If source object is empty or bucket is empty, reply back invalid copy source.
+	if srcObject == "" || srcBucket == "" {
+		writeErrorResponse(w, ErrInvalidCopySource, r.URL)
+		return
+	}
+
+	uploadID := r.URL.Query().Get("uploadId")
+	partIDString := r.URL.Query().Get("partNumber")
+
+	partID, err := strconv.Atoi(partIDString)
+	if err != nil {
+		writeErrorResponse(w, ErrInvalidPart, r.URL)
+		return
+	}
+
+	// check partID with maximum part ID for multipart objects
+	if isMaxPartID(partID) {
+		writeErrorResponse(w, ErrInvalidMaxParts, r.URL)
+		return
+	}
+
+	// Hold read locks on source object only if we are
+	// going to read data from source object.
+	objectSRLock := globalNSMutex.NewNSLock(srcBucket, srcObject)
+	if objectSRLock.GetRLock(globalObjectTimeout) != nil {
+		writeErrorResponse(w, ErrOperationTimedOut, r.URL)
+		return
+	}
+	defer objectSRLock.RUnlock()
+
+	objInfo, err := objectAPI.GetObjectInfoWithContext(ctx, srcBucket, srcObject, "")
+	if err != nil {
+		errorIf(err, "Unable to fetch object info.")
+		writeErrorResponse(w, toAPIErrorCode(err), r.URL)
+		return
+	}
+
+	// Get request range.
+	var hrange *httpRange
+	rangeHeader := r.Header.Get("x-amz-copy-source-range")
+	if rangeHeader != "" {
+		if hrange, err = parseCopyPartRange(rangeHeader, objInfo.Size); err != nil {
+			// Handle only errInvalidRange
+			// Ignore other parse error and treat it as regular Get request like Amazon S3.
+			errorIf(err, "Unable to extract range %s", rangeHeader)
+			writeCopyPartErr(w, err, r.URL)
+			return
+		}
+	}
+
+	// Verify before x-amz-copy-source preconditions before continuing with CopyObject.
+	if checkCopyObjectPartPreconditions(w, r, objInfo) {
+		return
+	}
+
+	// Get the object.
+	var startOffset int64
+	length := objInfo.Size
+	if hrange != nil {
+		length = hrange.getLength()
+		startOffset = hrange.offsetBegin
+	}
+
+	/// maximum copy size for multipart objects in a single operation
+	if isMaxAllowedPartSize(length) {
+		writeErrorResponse(w, ErrEntityTooLarge, r.URL)
+		return
+	}
+
+	// Copy source object to destination, if source and destination
+	// object is same then only metadata is updated.
+	partInfo, err := objectAPI.CopyObjectPartWithContext(ctx, srcBucket, srcObject, dstBucket, dstObject, uploadID, partID, startOffset, length)
+	if err != nil {
+		errorIf(err, "Unable to perform CopyObjectPart %s/%s", srcBucket, srcObject)
+		writeErrorResponse(w, toAPIErrorCode(err), r.URL)
+		return
+	}
+
+	response := generateCopyObjectPartResponse(partInfo.ETag, partInfo.LastModified)
+	encodedSuccessResponse := encodeResponse(response)
+
+	// Write success response.
+	writeSuccessResponseXML(w, encodedSuccessResponse)
+}
+
+// PutObjectPartHandler - uploads an incoming part for an ongoing multipart operation.
+func (api gatewayPydioAPIHandlers) PutObjectPartHandler(w http.ResponseWriter, r *http.Request) {
+	vars := router.Vars(r)
+	bucket := vars["bucket"]
+	object := vars["object"]
+	ctx := r.Context()
+
+	objectAPI := api.PydioAPI()
+	if objectAPI == nil {
+		writeErrorResponse(w, ErrServerNotInitialized, r.URL)
+		return
+	}
+
+	// X-Amz-Copy-Source shouldn't be set for this call.
+	if _, ok := r.Header["X-Amz-Copy-Source"]; ok {
+		writeErrorResponse(w, ErrInvalidCopySource, r.URL)
+		return
+	}
+
+	// get Content-Md5 sent by client and verify if valid
+	md5Bytes, err := checkValidMD5(r.Header.Get("Content-Md5"))
+	if err != nil {
+		writeErrorResponse(w, ErrInvalidDigest, r.URL)
+		return
+	}
+
+	/// if Content-Length is unknown/missing, throw away
+	size := r.ContentLength
+
+	rAuthType := getRequestAuthType(r)
+	// For auth type streaming signature, we need to gather a different content length.
+	if rAuthType == authTypeStreamingSigned {
+		sizeStr := r.Header.Get("x-amz-decoded-content-length")
+		size, err = strconv.ParseInt(sizeStr, 10, 64)
+		if err != nil {
+			errorIf(err, "Unable to parse `x-amz-decoded-content-length` into its integer value", sizeStr)
+			writeErrorResponse(w, toAPIErrorCode(err), r.URL)
+			return
+		}
+	}
+	if size == -1 {
+		writeErrorResponse(w, ErrMissingContentLength, r.URL)
+		return
+	}
+
+	/// maximum Upload size for multipart objects in a single operation
+	if isMaxAllowedPartSize(size) {
+		writeErrorResponse(w, ErrEntityTooLarge, r.URL)
+		return
+	}
+
+	uploadID := r.URL.Query().Get("uploadId")
+	partIDString := r.URL.Query().Get("partNumber")
+
+	partID, err := strconv.Atoi(partIDString)
+	if err != nil {
+		writeErrorResponse(w, ErrInvalidPart, r.URL)
+		return
+	}
+
+	// check partID with maximum part ID for multipart objects
+	if isMaxPartID(partID) {
+		writeErrorResponse(w, ErrInvalidMaxParts, r.URL)
+		return
+	}
+
+	var partInfo PartInfo
+	incomingMD5 := hex.EncodeToString(md5Bytes)
+	sha256sum := ""
+	switch rAuthType {
+	default:
+		// For all unknown auth types return error.
+		writeErrorResponse(w, ErrAccessDenied, r.URL)
+		return
+	case authTypeAnonymous:
+		// http://docs.aws.amazon.com/AmazonS3/latest/dev/mpuAndPermissions.html
+		sourceIP := getSourceIPAddress(r)
+		if s3Error := enforceBucketPolicy(bucket, "s3:PutObject", r.URL.Path,
+			r.Referer(), sourceIP, r.URL.Query()); s3Error != ErrNone {
+			writeErrorResponse(w, s3Error, r.URL)
+			return
+		}
+		// No need to verify signature, anonymous request access is already allowed.
+		partInfo, err = objectAPI.PutObjectPartWithContext(ctx, bucket, object, uploadID, partID, NewHashReader(r.Body, size, incomingMD5, sha256sum))
+	case authTypeStreamingSigned:
+		// Initialize stream signature verifier.
+		reader, s3Error := newSignV4ChunkedReader(r)
+		if s3Error != ErrNone {
+			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
+			writeErrorResponse(w, s3Error, r.URL)
+			return
+		}
+		partInfo, err = objectAPI.PutObjectPartWithContext(ctx, bucket, object, uploadID, partID, NewHashReader(reader, size, incomingMD5, sha256sum))
+	case authTypeSignedV2, authTypePresignedV2:
+		s3Error := isReqAuthenticatedV2(r)
+		if s3Error != ErrNone {
+			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
+			writeErrorResponse(w, s3Error, r.URL)
+			return
+		}
+		partInfo, err = objectAPI.PutObjectPartWithContext(ctx, bucket, object, uploadID, partID, NewHashReader(r.Body, size, incomingMD5, sha256sum))
+	case authTypePresigned, authTypeSigned:
+		if s3Error := reqSignatureV4VerifySkipAccessKey(r, serverConfig.GetRegion()); s3Error != ErrNone {
+			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
+			writeErrorResponse(w, s3Error, r.URL)
+			return
+		}
+
+		if !skipContentSha256Cksum(r) {
+			sha256sum = r.Header.Get("X-Amz-Content-Sha256")
+		}
+		partInfo, err = objectAPI.PutObjectPartWithContext(ctx, bucket, object, uploadID, partID, NewHashReader(r.Body, size, incomingMD5, sha256sum))
+	}
+	if err != nil {
+		errorIf(err, "Unable to create object part.")
+		// Verify if the underlying error is signature mismatch.
+		writeErrorResponse(w, toAPIErrorCode(err), r.URL)
+		return
+	}
+	if partInfo.ETag != "" {
+		w.Header().Set("ETag", "\""+partInfo.ETag+"\"")
+	}
+
+	writeSuccessResponseHeadersOnly(w)
+}
+
+// AbortMultipartUploadHandler - Abort multipart upload
+func (api gatewayPydioAPIHandlers) AbortMultipartUploadHandler(w http.ResponseWriter, r *http.Request) {
+	vars := router.Vars(r)
+	bucket := vars["bucket"]
+	object := vars["object"]
+	ctx := r.Context()
+
+
+	objectAPI := api.PydioAPI()
+	if objectAPI == nil {
+		writeErrorResponse(w, ErrServerNotInitialized, r.URL)
+		return
+	}
+
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:AbortMultipartUpload", serverConfig.GetRegion()); s3Error != ErrNone {
+		writeErrorResponse(w, s3Error, r.URL)
+		return
+	}
+
+	uploadID, _, _, _ := getObjectResources(r.URL.Query())
+	if err := objectAPI.AbortMultipartUploadWithContext(ctx, bucket, object, uploadID); err != nil {
+		errorIf(err, "Unable to abort multipart upload.")
+		writeErrorResponse(w, toAPIErrorCode(err), r.URL)
+		return
+	}
+	writeSuccessNoContent(w)
+}
+
+// ListObjectPartsHandler - List object parts
+func (api gatewayPydioAPIHandlers) ListObjectPartsHandler(w http.ResponseWriter, r *http.Request) {
+	vars := router.Vars(r)
+	bucket := vars["bucket"]
+	object := vars["object"]
+	ctx := r.Context()
+
+	objectAPI := api.PydioAPI()
+	if objectAPI == nil {
+		writeErrorResponse(w, ErrServerNotInitialized, r.URL)
+		return
+	}
+
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:ListMultipartUploadParts", serverConfig.GetRegion()); s3Error != ErrNone {
+		writeErrorResponse(w, s3Error, r.URL)
+		return
+	}
+
+	uploadID, partNumberMarker, maxParts, _ := getObjectResources(r.URL.Query())
+	if partNumberMarker < 0 {
+		writeErrorResponse(w, ErrInvalidPartNumberMarker, r.URL)
+		return
+	}
+	if maxParts < 0 {
+		writeErrorResponse(w, ErrInvalidMaxParts, r.URL)
+		return
+	}
+	listPartsInfo, err := objectAPI.ListObjectPartsWithContext(ctx, bucket, object, uploadID, partNumberMarker, maxParts)
+	if err != nil {
+		errorIf(err, "Unable to list uploaded parts.")
+		writeErrorResponse(w, toAPIErrorCode(err), r.URL)
+		return
+	}
+	response := generateListPartsResponse(listPartsInfo)
+	encodedSuccessResponse := encodeResponse(response)
+
+	// Write success response.
+	writeSuccessResponseXML(w, encodedSuccessResponse)
+}
+
+// CompleteMultipartUploadHandler - Complete multipart upload.
+func (api gatewayPydioAPIHandlers) CompleteMultipartUploadHandler(w http.ResponseWriter, r *http.Request) {
+	vars := router.Vars(r)
+	bucket := vars["bucket"]
+	object := vars["object"]
+	ctx := r.Context()
+
+	objectAPI := api.PydioAPI()
+	if objectAPI == nil {
+		writeErrorResponse(w, ErrServerNotInitialized, r.URL)
+		return
+	}
+
+	if s3Error := checkRequestAuthTypeSkipAccessKey(r, bucket, "s3:PutObject", serverConfig.GetRegion()); s3Error != ErrNone {
+		writeErrorResponse(w, s3Error, r.URL)
+		return
+	}
+
+	// Get upload id.
+	uploadID, _, _, _ := getObjectResources(r.URL.Query())
+
+	completeMultipartBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		errorIf(err, "Unable to complete multipart upload.")
+		writeErrorResponse(w, ErrInternalError, r.URL)
+		return
+	}
+	complMultipartUpload := &completeMultipartUpload{}
+	if err = xml.Unmarshal(completeMultipartBytes, complMultipartUpload); err != nil {
+		errorIf(err, "Unable to parse complete multipart upload XML.")
+		writeErrorResponse(w, ErrMalformedXML, r.URL)
+		return
+	}
+	if len(complMultipartUpload.Parts) == 0 {
+		writeErrorResponse(w, ErrMalformedXML, r.URL)
+		return
+	}
+	if !sort.IsSorted(completedParts(complMultipartUpload.Parts)) {
+		writeErrorResponse(w, ErrInvalidPartOrder, r.URL)
+		return
+	}
+
+	// Complete parts.
+	var completeParts []completePart
+	for _, part := range complMultipartUpload.Parts {
+		part.ETag = canonicalizeETag(part.ETag)
+		completeParts = append(completeParts, part)
+	}
+
+	// Hold write lock on the object.
+	destLock := globalNSMutex.NewNSLock(bucket, object)
+	if destLock.GetLock(globalObjectTimeout) != nil {
+		writeErrorResponse(w, ErrOperationTimedOut, r.URL)
+		return
+	}
+	defer destLock.Unlock()
+
+	objInfo, err := objectAPI.CompleteMultipartUploadWithContext(ctx, bucket, object, uploadID, completeParts)
+	if err != nil {
+		errorIf(err, "Unable to complete multipart upload.")
+		err = errorCause(err)
+		switch oErr := err.(type) {
+		case PartTooSmall:
+			// Write part too small error.
+			writePartSmallErrorResponse(w, r, oErr)
+		default:
+			// Handle all other generic issues.
+			writeErrorResponse(w, toAPIErrorCode(err), r.URL)
+		}
+		return
+	}
+
+	// Get object location.
+	location := getLocation(r)
+	// Generate complete multipart response.
+	response := generateCompleteMultpartUploadResponse(bucket, object, location, objInfo.ETag)
+	encodedSuccessResponse := encodeResponse(response)
+	if err != nil {
+		errorIf(err, "Unable to parse CompleteMultipartUpload response")
+		writeErrorResponse(w, ErrInternalError, r.URL)
+		return
+	}
+
+	// Set etag.
+	w.Header().Set("ETag", "\""+objInfo.ETag+"\"")
+
+	// Write success response.
+	writeSuccessResponseXML(w, encodedSuccessResponse)
+
+	// Get host and port from Request.RemoteAddr.
+	host, port, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		host, port = "", ""
+	}
+
+	// Notify object created event.
+	eventNotify(eventData{
+		Type:      ObjectCreatedCompleteMultipartUpload,
+		Bucket:    bucket,
+		ObjInfo:   objInfo,
+		ReqParams: extractReqParams(r),
+		UserAgent: r.UserAgent(),
+		Host:      host,
+		Port:      port,
+	})
 }

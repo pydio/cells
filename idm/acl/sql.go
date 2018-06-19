@@ -24,13 +24,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/gobuffalo/packr"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	migrate "github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
+	goqu "gopkg.in/doug-martin/goqu.v4"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -51,9 +51,6 @@ var (
 		"CleanRoles":      `DELETE FROM idm_acl_roles WHERE id != -1 and id NOT IN (select distinct(role_id) from idm_acls)`,
 		"CleanNodes":      `DELETE FROM idm_acl_nodes WHERE id != -1 and id NOT IN (select distinct(node_id) from idm_acls)`,
 	}
-
-	search  = `select a.id, n.uuid, a.action_name, a.action_value, r.uuid, w.name from idm_acls a, idm_acl_nodes n, idm_acl_workspaces w, idm_acl_roles r where (n.id = a.node_id and w.id = a.workspace_id and r.id = a.role_id) `
-	deleteQ = `delete from idm_acls`
 )
 
 type sqlimpl struct {
@@ -73,7 +70,7 @@ func (s *sqlimpl) Init(options config.Map) error {
 		TablePrefix: s.Prefix(),
 	}
 
-	_, err := migrate.Exec(s.DB(), s.Driver(), migrations, migrate.Up)
+	_, err := sql.ExecMigration(s.DB(), s.Driver(), migrations, migrate.Up, "idm_acl_")
 	if err != nil {
 		return err
 	}
@@ -148,31 +145,41 @@ func (dao *sqlimpl) Add(in interface{}) error {
 // Search in the mysql DB
 func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 
-	whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
-
-	//	whereString, _ := query.Build(new(queryConverter))
-
-	if len(whereString) != 0 {
-		whereString = " and " + whereString
+	var db *goqu.Database
+	db = goqu.New(dao.Driver(), nil)
+	expressions := []goqu.Expression{
+		goqu.I("n.id").Eq(goqu.I("a.node_id")),
+		goqu.I("w.id").Eq(goqu.I("a.workspace_id")),
+		goqu.I("r.id").Eq(goqu.I("a.role_id")),
 	}
 
-	offset, limit := int64(0), int64(0)
+	whereExpression := sql.NewQueryBuilder(query, new(queryConverter)).Expression(dao.Driver())
+	if whereExpression != nil {
+		expressions = append(expressions, whereExpression)
+	}
+
+	offset, limit := int64(0), int64(100)
 	if query.GetOffset() > 0 {
 		offset = query.GetOffset()
 	}
-	if query.GetLimit() == 0 {
-		// Default limit
-		limit = 100
+	if query.GetLimit() > 0 {
+		limit = query.GetLimit()
 	}
 
-	limitString := fmt.Sprintf(" limit %v,%v", offset, limit)
-	if query.GetLimit() == -1 {
-		limitString = ""
+	dataset := db.From(goqu.I("idm_acls").As("a"),
+		goqu.I("idm_acl_nodes").As("n"), goqu.I("idm_acl_workspaces").As("w"), goqu.I("idm_acl_roles").As("r"))
+
+	dataset = dataset.Select(goqu.I("a.id"), goqu.I("n.uuid"), goqu.I("a.action_name"), goqu.I("a.action_value"), goqu.I("r.uuid"), goqu.I("w.name"))
+	dataset = dataset.Offset(uint(offset))
+	if limit > -1 {
+		dataset = dataset.Limit(uint(limit))
 	}
 
-	queryString := search + whereString + limitString
-
-	//log.Logger(context.Background()).Debug("SQL SEARCH", zap.String("q", queryString))
+	dataset = dataset.Where(expressions...)
+	queryString, _, err := dataset.ToSql()
+	if err != nil {
+		return err
+	}
 
 	res, err := dao.DB().Query(queryString)
 	if err != nil {
@@ -194,7 +201,6 @@ func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 		)
 
 		val.Action = action
-
 		*acls = append(*acls, val)
 	}
 
@@ -204,18 +210,11 @@ func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 // Del from the mysql DB
 func (dao *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
-	whereString := sql.NewDAOQuery(query, new(queryConverter)).String()
-
-	if len(whereString) == 0 || len(strings.Trim(whereString, "()")) == 0 {
-		return 0, errors.New("Empty condition for Delete, this is too broad a query!")
+	whereExpression := sql.NewQueryBuilder(query, new(queryConverter)).Expression(dao.Driver())
+	queryString, err := sql.DeleteStringFromExpression("idm_acls", dao.Driver(), whereExpression)
+	if err != nil {
+		return 0, err
 	}
-
-	if len(whereString) != 0 {
-		whereString = " where " + whereString
-	}
-
-	//log.Logger(context.Background()).Debug("DELETE WHERE", zap.String("w", whereString))
-	queryString := deleteQ + whereString
 
 	res, err := dao.DB().Exec(queryString)
 	if err != nil {
@@ -331,36 +330,46 @@ func (dao *sqlimpl) addRole(uuid string) (string, error) {
 
 type queryConverter idm.ACLSingleQuery
 
-func (c *queryConverter) Convert(val *any.Any) (string, bool) {
+func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, bool) {
 
 	q := new(idm.ACLSingleQuery)
 
 	if err := ptypes.UnmarshalAny(val, q); err != nil {
-		return "", false
+		return nil, false
 	}
 
-	var wheres []string
+	db := goqu.New(driver, nil)
+	var expressions []goqu.Expression
 
 	if len(q.RoleIDs) > 0 {
-		list := strings.Join(applyMapping(q.RoleIDs, quote), ",")
-
-		if list != "" {
-			wheres = append(wheres, fmt.Sprintf("role_id in (select id from idm_acl_roles where uuid in (%s))", list))
+		dataset := db.From("idm_acl_roles").Select("id")
+		dataset = dataset.Where(sql.GetExpressionForString(false, "uuid", q.RoleIDs...))
+		str, _, err := dataset.ToSql()
+		if err != nil {
+			return nil, true
 		}
+		expressions = append(expressions, goqu.I("role_id").In(goqu.L(str)))
 	}
 
 	if len(q.WorkspaceIDs) > 0 {
-		list := strings.Join(applyMapping(q.WorkspaceIDs, quote), ",")
-		if list != "" {
-			wheres = append(wheres, fmt.Sprintf("workspace_id in (select id from idm_acl_workspaces where name in (%s))", list))
+		dataset := db.From("idm_acl_workspaces").Select("id")
+		dataset = dataset.Where(sql.GetExpressionForString(false, "name", q.WorkspaceIDs...))
+		str, _, err := dataset.ToSql()
+		if err != nil {
+			return nil, true
 		}
+		expressions = append(expressions, goqu.I("workspace_id").In(goqu.L(str)))
 	}
 
 	if len(q.NodeIDs) > 0 {
-		list := strings.Join(applyMapping(q.NodeIDs, quote), ",")
-		if list != "" {
-			wheres = append(wheres, fmt.Sprintf("node_id in (select id from idm_acl_nodes where uuid in (%s))", list))
+
+		dataset := db.From("idm_acl_nodes").Select("id")
+		dataset = dataset.Where(sql.GetExpressionForString(false, "uuid", q.NodeIDs...))
+		str, _, err := dataset.ToSql()
+		if err != nil {
+			return nil, true
 		}
+		expressions = append(expressions, goqu.I("node_id").In(goqu.L(str)))
 	}
 
 	// Special case for Actions
@@ -377,26 +386,23 @@ func (c *queryConverter) Convert(val *any.Any) (string, bool) {
 			actionsByName[act.Name] = values
 		}
 
-		var orWheres []string
+		var orExpression []goqu.Expression
+		//var orWheres []string
 		for actName, actValues := range actionsByName {
-			var actionWheres []string
+			var actionAndExpression []goqu.Expression
 
-			actionWheres = append(actionWheres, sql.GetQueryValueFor("action_name", actName))
+			actionAndExpression = append(actionAndExpression, sql.GetExpressionForString(false, "action_name", actName))
 			if len(actValues) > 0 {
-				actionWheres = append(actionWheres, sql.GetQueryValueFor("action_value", actValues...))
-				orWheres = append(orWheres, "("+strings.Join(actionWheres, " AND ")+")")
+				actionAndExpression = append(actionAndExpression, sql.GetExpressionForString(false, "action_value", actValues...))
+				orExpression = append(orExpression, goqu.And(actionAndExpression...))
 			} else {
-				orWheres = append(orWheres, strings.Join(actionWheres, ""))
+				orExpression = append(orExpression, actionAndExpression...)
 			}
 		}
-		if len(orWheres) > 1 {
-			wheres = append(wheres, "("+strings.Join(orWheres, " OR ")+")")
-		} else {
-			wheres = append(wheres, strings.Join(orWheres, ""))
-		}
+		expressions = append(expressions, goqu.Or(orExpression...))
 	}
 
-	return strings.Join(wheres, " AND "), true
+	return goqu.And(expressions...), true
 }
 
 // Internal helper functions

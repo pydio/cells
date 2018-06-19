@@ -37,7 +37,6 @@ import (
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	service2 "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/idm/user"
 )
 
@@ -51,6 +50,7 @@ func init() {
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER),
 		service.Tag(common.SERVICE_TAG_IDM),
 		service.Description("Users persistence layer"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
 		service.Migrations([]*service.Migration{
 			{
 				TargetVersion: service.FirstRun(),
@@ -83,7 +83,7 @@ func InitDefaults(ctx context.Context) error {
 		pwd = parts[1]
 		// Now remove from configs
 		config.Del("defaults", "root")
-		utils.SaveConfigs()
+		config.Save("cli", "First Run / Creating default root user")
 	}
 
 	if login != "" && pwd != "" {

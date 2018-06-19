@@ -31,6 +31,7 @@ func init() {
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_POLICY),
 		service.Tag(common.SERVICE_TAG_IDM),
 		service.Description("RESTful service for managing policies"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
 		service.WithWeb(func() service.WebHandler {
 			return new(PolicyHandler)
 		}),

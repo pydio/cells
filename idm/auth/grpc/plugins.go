@@ -42,53 +42,57 @@ func init() {
 	service.NewService(
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH),
 		service.Tag(common.SERVICE_TAG_IDM),
+		service.WithStorage(auth.NewDAO, "dex_"),
 		service.Description("Authentication Service : JWT provider and token revocation"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
 		service.Migrations([]*service.Migration{{
 			TargetVersion: service.FirstRun(),
 			Up:            auth.InsertPruningJob,
 		}}),
 		service.WithMicro(func(m micro.Service) error {
-			tokenRevokerHandler, err := NewAuthTokenRevokerHandler()
+
+			// INIT DEX CONFIG
+			ctx := m.Options().Context
+			conf := servicecontext.GetConfig(ctx)
+			log.Logger(ctx).Debug("Config ", zap.Any("config", conf))
+			configDex := conf.Get("dex")
+			var c auth.Config
+			remarshall, _ := json.Marshal(configDex)
+			if err := json.Unmarshal(remarshall, &c); err != nil {
+				return fmt.Errorf("error parsing config file %s: %v", configDex, err)
+			}
+
+			driver, dsn := conf.Database("dsn")
+
+			switch driver {
+			case "mysql":
+				sqlConfig := new(sql.MySQL)
+				sqlConfig.DSN = dsn
+				c.Storage.Config = sqlConfig
+			case "sqlite3":
+				sqlConfig := new(sql.SQLite3)
+				sqlConfig.File = dsn
+			}
+
+			if config.Get("cert", "http", "ssl").Bool(false) {
+				log.Logger(ctx).Info("DEX SHOULD START WITH SSL")
+				certFile := config.Get("cert", "http", "certFile").String("")
+				keyFile := config.Get("cert", "http", "keyFile").String("")
+				c.Web.HTTPS = c.Web.HTTP
+				c.Web.HTTP = ""
+				c.Web.TLSCert = certFile
+				c.Web.TLSKey = keyFile
+			}
+
+			tokenRevokerHandler, err := NewAuthTokenRevokerHandler(c)
 			if err != nil {
 				return err
 			}
 			proto.RegisterAuthTokenRevokerHandler(m.Options().Server, tokenRevokerHandler)
 
 			m.Init(micro.AfterStart(func() error {
-				ctx := m.Options().Context
-
-				conf := servicecontext.GetConfig(ctx)
-
-				log.Logger(ctx).Debug("Config ", zap.Any("config", conf))
-
-				configDex := conf.Get("dex")
-				var c auth.Config
-				remarshall, _ := json.Marshal(configDex)
-				if err := json.Unmarshal(remarshall, &c); err != nil {
-					return fmt.Errorf("error parsing config file %s: %v", configDex, err)
-				}
-
-				driver, dsn := conf.Database("dsn")
-
-				switch driver {
-				case "mysql":
-					sqlConfig := new(sql.MySQL)
-					sqlConfig.DSN = dsn
-					c.Storage.Config = sqlConfig
-				case "sqlite3":
-					sqlConfig := new(sql.SQLite3)
-					sqlConfig.File = dsn
-				}
-
-				if config.Get("cert", "http", "ssl").Bool(false) {
-					log.Logger(ctx).Info("DEX SHOULD START WITH SSL")
-					certFile := config.Get("cert", "http", "certFile").String("")
-					keyFile := config.Get("cert", "http", "keyFile").String("")
-					c.Web.HTTPS = c.Web.HTTP
-					c.Web.HTTP = ""
-					c.Web.TLSCert = certFile
-					c.Web.TLSKey = keyFile
-				}
 
 				go func() {
 					err := serve(c, ctx, log.Logger(ctx))

@@ -21,6 +21,7 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -77,7 +78,15 @@ func PolicyHttpWrapper(h http.Handler) http.Handler {
 		// log.Logger(c).Error("Querying Policy Service", zap.Any("request", request), zap.Any("response", resp), zap.Error(err))
 
 		if err != nil || !resp.Allowed {
-			log.Logger(c).Error("PolicyHttpHandlerWrapper", zap.Error(err))
+			log.Logger(c).Debug("PolicyHttpHandlerWrapper denied access", zap.Error(err), zap.Any("request", request))
+			var msg string
+			if err != nil {
+				msg = "Ladon validation failed: " + err.Error()
+			} else { //resp.Allowed == false
+				msg = fmt.Sprintf("Ladon blocked %s request at %s. Ladon Response: %s", r.Method, r.RequestURI, resp.String())
+			}
+
+			log.Logger(c).Error(msg, zap.Error(err))
 			w.WriteHeader(401)
 			w.Write([]byte("Unauthorized.\n"))
 			return

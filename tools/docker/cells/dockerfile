@@ -1,0 +1,26 @@
+FROM busybox:glibc
+
+ENV CELLS_VERSION 1.0.0
+
+WORKDIR /cells
+
+RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells"
+
+COPY docker-entrypoint.sh /cells/docker-entrypoint.sh
+COPY libdl.so.2 /cells/libdl.so.2
+
+RUN chmod +x /cells/cells
+RUN chmod +x /cells/docker-entrypoint.sh
+
+RUN ln -s /cells/cells /bin/cells
+RUN ln -s /cells/libdl.so.2 /lib64/libdl.so.2
+RUN ln -s /cells/docker-entrypoint.sh /bin/docker-entrypoint.sh
+
+ENV CELLS_BIND localhost:8080
+ENV CELLS_EXTERNAL localhost:8080
+
+VOLUME ["/root/.config"]
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+CMD ["cells", "start"]

@@ -41,13 +41,15 @@ func init() {
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHANGES),
 		service.Tag(common.SERVICE_TAG_DATA),
 		service.Description("Index of nodes changes"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
 		service.Migrations([]*service.Migration{{
 			TargetVersion: service.FirstRun(),
 			Up:            RegisterResync,
 		}}),
 		service.WithStorage(changes.NewDAO, "data_changes"),
 		service.WithMicro(func(m micro.Service) error {
-			h := &Handler{}
+			h := NewHandler(m.Options().Context)
 			tree.RegisterSyncChangesHandler(m.Options().Server, h)
 			sync.RegisterSyncEndpointHandler(m.Options().Server, h)
 

@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package gateway spins an S3 gateway for serving files using the Amazon S3 protocol
+// Package gateway spins an S3 gateway for serving files using the Amazon S3 protocol.
 package gateway
 
 import (
@@ -37,6 +37,7 @@ func init() {
 	service.NewService(
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_GATEWAY_DATA),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
+		service.RouterDependencies(),
 		service.Description("S3 Gateway to tree service"),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 			config := servicecontext.GetConfig(ctx)

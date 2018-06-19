@@ -766,98 +766,98 @@
 		{
 			"checksumSHA1": "0a1SxY6u2ChUk16fhbO3pcFf41M=",
 			"path": "github.com/coreos/dex/api",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "/53RnmrQqcmm3DrvHMB8f3ZMQYg=",
 			"path": "github.com/coreos/dex/connector",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "dAgUYWnytoZyyInRjgV81RkO3kA=",
 			"path": "github.com/coreos/dex/connector/github",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "u6AxfFqDoEWv8cc2xZE6IoFId4U=",
 			"path": "github.com/coreos/dex/connector/gitlab",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "I83x46h/kPv+L2ua5ggRZqZvMyc=",
 			"path": "github.com/coreos/dex/connector/ldap",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "g/87jFFJi/LTlSw7RGIOMK47W84=",
 			"path": "github.com/coreos/dex/connector/mock",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "0PwQyoc39/XOVnT6OeCie0SBfx8=",
 			"path": "github.com/coreos/dex/connector/oidc",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "y+/yleb47rjC5EC1YYYq26DhnyE=",
 			"path": "github.com/coreos/dex/connector/saml",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
-			"checksumSHA1": "yKpVQ/gl86iP5c+2z1uKHGtaCJI=",
+			"checksumSHA1": "mCV0cr1mzgL262CNPSInweg7aYM=",
 			"path": "github.com/coreos/dex/server",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "zqifAxI1D9ALpAFGq6HDolxTa34=",
 			"path": "github.com/coreos/dex/server/internal",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
-			"checksumSHA1": "9LdzBc3FWwe8CuVpuU7f1F9UMuQ=",
+			"checksumSHA1": "lBmOI9Zog2EzmwfTjHVV9UtZ6mo=",
 			"path": "github.com/coreos/dex/storage",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "Q4h74qAaLQ1Oule+YnJeJfRdmKU=",
 			"path": "github.com/coreos/dex/storage/kubernetes",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "/zH14s/TiaZ3OzYH7Wl31bAns9Y=",
 			"path": "github.com/coreos/dex/storage/kubernetes/k8sapi",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "QrRicuwS/rpxs4b5oeI0z8fgFbM=",
 			"path": "github.com/coreos/dex/storage/memory",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
-			"checksumSHA1": "IwrrLAfLOrdv6eZgp7kI7zpy9M8=",
+			"checksumSHA1": "cF3YSiJap5zJP60uAr1fA8g32Pg=",
 			"path": "github.com/coreos/dex/storage/sql",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "bUKVUnGHjs8pb4RNhoO+j6P5hKc=",
 			"path": "github.com/coreos/dex/version",
-			"revision": "a8abebc32ad372328714d3845f4d32666717e3f4",
-			"revisionTime": "2018-04-06T10:54:59Z"
+			"revision": "38638be9e9f03a44e6995cb90cb4bdf0b07f8f1e",
+			"revisionTime": "2018-06-08T13:39:12Z"
 		},
 		{
 			"checksumSHA1": "t6GkLUdf0ydkb/CuG90XPRY8H/o=",
@@ -3665,10 +3665,10 @@
 			"revisionTime": "2018-03-26T12:43:35Z"
 		},
 		{
-			"checksumSHA1": "l5bPxzq4tW+UqP27py6DDG5T3YE=",
+			"checksumSHA1": "1bUGFMFSkVi8hvYLghHnblNRKco=",
 			"path": "github.com/pydio/minio-srv/cmd",
-			"revision": "1a44db20b5dfbb35c2bfcd369663006ab730accc",
-			"revisionTime": "2018-04-17T13:59:23Z"
+			"revision": "7b3de9a9f20e3162de64f53b7c8c6b980103127b",
+			"revisionTime": "2018-06-12T20:30:47Z"
 		},
 		{
 			"checksumSHA1": "C/fcEn40/Ei7OfNkkt55rxjClXo=",
@@ -3948,6 +3948,12 @@
 			"path": "github.com/sendgrid/sendgrid-go/helpers/mail",
 			"revision": "588320a743278a1824a54d232a7e9f36df6f6c99",
 			"revisionTime": "2018-02-07T00:05:56Z"
+		},
+		{
+			"checksumSHA1": "QxBGuFiDP7AZx9/QOwJVVDlHjLM=",
+			"path": "github.com/sergi/go-diff/diffmatchpatch",
+			"revision": "da645544ed44df016359bd4c0e3dc60ee3a0da43",
+			"revisionTime": "2018-02-05T16:33:09Z"
 		},
 		{
 			"checksumSHA1": "aRFS3vu2wJRT6NZ2qUM+ubj8lhQ=",
@@ -4233,6 +4239,24 @@
 			"path": "github.com/xenolf/lego/acme",
 			"revision": "f1eaae9b0d4a6e37882ba2cd38cc842513c502cf",
 			"revisionTime": "2018-03-19T02:42:43Z"
+		},
+		{
+			"checksumSHA1": "jxa5QGd5XWyonlS+O/C9Fadmafc=",
+			"path": "github.com/yudai/gojsondiff",
+			"revision": "0525c875b75ca60b9e67ddc44496aa16f21066b0",
+			"revisionTime": "2018-05-04T02:02:46Z"
+		},
+		{
+			"checksumSHA1": "50gdo5Kq0/gEKG1A4agCPOZ26JA=",
+			"path": "github.com/yudai/gojsondiff/formatter",
+			"revision": "0525c875b75ca60b9e67ddc44496aa16f21066b0",
+			"revisionTime": "2018-05-04T02:02:46Z"
+		},
+		{
+			"checksumSHA1": "5xoBoioS8LWHn9FC0pL+vo7wDjs=",
+			"path": "github.com/yudai/golcs",
+			"revision": "ecda9a501e8220fae3b4b600c3db4b0ba22cfc68",
+			"revisionTime": "2017-03-16T03:48:04Z"
 		},
 		{
 			"checksumSHA1": "//vnPN1cVjTt4sbL9/dylf2IGAE=",
@@ -5108,6 +5132,24 @@
 			"path": "gopkg.in/asn1-ber.v1",
 			"revision": "379148ca0225df7a432012b8df0355c2a2063ac0",
 			"revisionTime": "2017-05-11T16:59:59Z"
+		},
+		{
+			"checksumSHA1": "/M23tzfVu52Cns1yUFoh0VBkngw=",
+			"path": "gopkg.in/doug-martin/goqu.v4",
+			"revision": "cd495d70a4ff280202e22a09de9502a3fe0b66cb",
+			"revisionTime": "2017-12-27T16:44:32Z"
+		},
+		{
+			"checksumSHA1": "i82yGdNENO9/kZaxb5CYdoiRytA=",
+			"path": "gopkg.in/doug-martin/goqu.v4/adapters/mysql",
+			"revision": "cd495d70a4ff280202e22a09de9502a3fe0b66cb",
+			"revisionTime": "2017-12-27T16:44:32Z"
+		},
+		{
+			"checksumSHA1": "Nmc9X7jcU7+7jNx657Kd4a14H0I=",
+			"path": "gopkg.in/doug-martin/goqu.v4/adapters/sqlite3",
+			"revision": "cd495d70a4ff280202e22a09de9502a3fe0b66cb",
+			"revisionTime": "2017-12-27T16:44:32Z"
 		},
 		{
 			"checksumSHA1": "NGg7/qIJVUfXi7xnEyyDLocdi6Y=",

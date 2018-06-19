@@ -33,6 +33,8 @@ func init() {
 	service.NewService(
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_META),
 		service.Tag(common.SERVICE_TAG_DATA),
+		service.RouterDependencies(),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
 		service.Description("RESTful Gateway to metadata storage"),
 		service.WithWeb(func() service.WebHandler {
 			return new(Handler)

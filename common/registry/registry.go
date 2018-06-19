@@ -52,6 +52,7 @@ type Registry interface {
 	ListServices(withExcluded ...bool) ([]Service, error)
 	ListRunningServices() ([]Service, error)
 	ListServicesWithMicroMeta(string, ...string) ([]Service, error)
+	SetServiceStopped(string) error
 	Filter(func(Service) bool) error
 	Watch() (Watcher, error)
 	String() string

@@ -531,127 +531,6 @@ var SwaggerJson = `{
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Disabled",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
-          },
-          {
-            "name": "StorageType",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "enum": [
-              "LOCAL",
-              "S3",
-              "SMB"
-            ],
-            "default": "LOCAL"
-          },
-          {
-            "name": "ObjectsServiceName",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "ObjectsHost",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "ObjectsPort",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "ObjectsSecure",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
-          },
-          {
-            "name": "ObjectsBucket",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "ObjectsBaseFolder",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "ApiKey",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "ApiSecret",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "PeerAddress",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Watch",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
-          },
-          {
-            "name": "EncryptionMode",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "enum": [
-              "CLEAR",
-              "MASTER",
-              "USER",
-              "USER_PWD"
-            ],
-            "default": "CLEAR"
-          },
-          {
-            "name": "EncryptionKey",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "VersioningPolicyName",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "CreationDate",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "LastSynchronizationDate",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
           }
         ],
         "tags": [
@@ -724,215 +603,6 @@ var SwaggerJson = `{
             "name": "ConfigId",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "Config.ConfigId",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.DomainName",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.Host",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.Connection",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.BindDN",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.BindPW",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.SkipVerifyCertificate",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
-          },
-          {
-            "name": "Config.RootCA",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.RootCAData",
-            "description": "To be converted to []byte.",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.PageSize",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "Config.User.DNs",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Config.User.Filter",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.User.IDAttribute",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.User.DisplayAttribute",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.User.Scope",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.Mapping.LeftAttribute",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.Mapping.RightAttribute",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.Mapping.RuleString",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.Mapping.RolePrefix",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.GroupFilter.DNs",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Config.MemberOfMapping.GroupFilter.Filter",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.GroupFilter.IDAttribute",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.GroupFilter.DisplayAttribute",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.GroupFilter.Scope",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.SupportNestedGroup",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
-          },
-          {
-            "name": "Config.MemberOfMapping.RealMemberOf",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
-          },
-          {
-            "name": "Config.MemberOfMapping.RealMemberOfAttribute",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.RealMemberOfValueFormat",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.PydioMemberOfAttribute",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.MemberOfMapping.PydioMemberOfValueFormat",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.RolePrefix",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.Schedule",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Config.SchedulerDetails",
-            "in": "query",
-            "required": false,
             "type": "string"
           }
         ],
@@ -1335,51 +1005,6 @@ var SwaggerJson = `{
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Name",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Description",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "VersionsDataSourceName",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "VersionsDataSourceBucket",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "MaxTotalSize",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "int64"
-          },
-          {
-            "name": "MaxSizePerFile",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "int64"
-          },
-          {
-            "name": "IgnoreFilesGreaterThan",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "int64"
           }
         ],
         "tags": [
@@ -2307,43 +1932,6 @@ var SwaggerJson = `{
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Name",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Description",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "OwnerUuid",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "ResourceGroup",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "enum": [
-              "rest",
-              "acl",
-              "oidc"
-            ],
-            "default": "rest"
-          },
-          {
-            "name": "LastUpdated",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
           }
         ],
         "tags": [
@@ -2469,56 +2057,6 @@ var SwaggerJson = `{
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Label",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "IsTeam",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
-          },
-          {
-            "name": "GroupRole",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
-          },
-          {
-            "name": "UserRole",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
-          },
-          {
-            "name": "LastUpdated",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "AutoApplies",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "PoliciesContextEditable",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
           }
         ],
         "tags": [
@@ -3164,45 +2702,6 @@ var SwaggerJson = `{
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "Uuid",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "GroupPath",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Password",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "IsGroup",
-            "description": "Group specific data.",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
-          },
-          {
-            "name": "GroupLabel",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "PoliciesContextEditable",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
           }
         ],
         "tags": [
@@ -3244,7 +2743,7 @@ var SwaggerJson = `{
     "/user/{Login}/bind": {
       "post": {
         "summary": "Bind a user with her login and password",
-        "operationId": "BindUsers",
+        "operationId": "BindUser",
         "responses": {
           "200": {
             "description": "",
@@ -3319,66 +2818,6 @@ var SwaggerJson = `{
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "UUID",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Label",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Description",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "Scope",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "enum": [
-              "ANY",
-              "ADMIN",
-              "ROOM",
-              "LINK"
-            ],
-            "default": "ANY"
-          },
-          {
-            "name": "LastUpdated",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "Attributes",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "RootNodes",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "PoliciesContextEditable",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
           }
         ],
         "tags": [
@@ -5954,7 +5393,7 @@ var SwaggerJson = `{
       "properties": {
         "type_url": {
           "type": "string",
-          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\npath/google.protobuf.Duration). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme http, https, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, https is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
+          "description": "A URL/resource name whose content describes the type of the\nserialized protocol buffer message.\n\nFor URLs which use the scheme http, https, or no scheme, the\nfollowing restrictions and interpretations apply:\n\n* If no scheme is provided, https is assumed.\n* The last segment of the URL's path must represent the fully\n  qualified name of the type (as in path/google.protobuf.Duration).\n  The name should be in a canonical form (e.g., leading \".\" is\n  not accepted).\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nSchemes other than http, https (or the empty scheme) might be\nused with implementation specific semantics."
         },
         "value": {
           "type": "string",
