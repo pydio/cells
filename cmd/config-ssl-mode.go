@@ -34,8 +34,16 @@ import (
 // enableCmd represents the enable command
 var SslModeCmd = &cobra.Command{
 	Use:   "mode",
-	Short: "Enable HTTPS on proxy",
-	Long:  `Setup SSL on application main access point`,
+	Short: "Manage HTTPS support on proxy",
+	Long: `
+This command lets you enable/disabled SSL on application main access point.
+
+Three modes are currently supported :
+- TLS mode : provide the paths to certificate and key (as you would on an apache server)
+- Self-Signed : a self-signed certificate will be generated at each application start
+- Disabled : application will be served on HTTP
+
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		enabled, e := promptSslMode()

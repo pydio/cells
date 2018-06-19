@@ -41,7 +41,7 @@ var (
 
 // RootCmd represents the base command when called without any subcommands.
 var RootCmd = &cobra.Command{
-	Use:   "pydioctl",
+	Use:   "cells-ctl",
 	Short: "Pydio Cells Client application",
 	Long: `
 Pydio Cells client allows you to interact with the micro services directly. 

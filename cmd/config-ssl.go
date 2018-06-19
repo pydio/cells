@@ -27,7 +27,7 @@ import (
 // SslCmd represents the ssl command
 var SslCmd = &cobra.Command{
 	Use:   "ssl",
-	Short: "Enable/Disable SSL support",
+	Short: "Manage SSL configuration",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

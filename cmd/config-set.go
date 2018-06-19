@@ -39,15 +39,15 @@ var updateCmd = &cobra.Command{
 	Short: "Store a configuration",
 	Long: `Stores a configuration. Will be stored in both your pydio.json file and in the database.
 
-SYNTAX
-======
+### Syntax
+
 Configurations are represented by three parameters that you must pass as arguments :
 - serviceName: name of the corresponding service
 - configName: name of the parameter
 - configValue: json-encoded value of the parameter you want to set/change
 
-EXAMPLES
-========
+### Examples
+
 Change the port of micro.web service (rest api)
 $ ` + os.Args[0] + ` config set micro.web port 8083
 
