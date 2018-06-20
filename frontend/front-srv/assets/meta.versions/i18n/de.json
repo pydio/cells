@@ -1,0 +1,23 @@
+{
+    "1": "Versionen",
+    "2": "Ältere Versionen des Elements",
+    "3": "Herunterladen",
+    "4": "Ausgewählte Version herunterladen",
+    "5": "Vorschau (Browser)",
+    "6": "Ausgewählte Version in einem Browserfenster öffnen",
+    "7": "Zurückkehren zu...",
+    "8": "Zum ausgewählten Stand auf dem Server zurückkehre",
+    "9": "#",
+    "10": "Datum",
+    "11": "Autor",
+    "12": "&Auml;nderung",
+    "13": "Wenn Sie zum alten Stand zurückkehren wird eine neue Version mit dem ausgewählten Stand des Dokuments erstellt. Soll diese Änderung durchgeführt werden?",
+    "RENAME": "Datei umbenannt",
+    "MOVE": "Datei verschoben",
+    "MODIFICATION": "Inhalt bearbeitet",
+    "DELETION": "Datei gelöscht",
+    "CREATION": "Datei erstellt",
+    "14": "No previous versions found",
+    "15": "Versions are created when you update the file content",
+    "16": "Previous versions for '%s'"
+}

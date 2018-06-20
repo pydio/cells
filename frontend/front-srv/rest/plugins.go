@@ -22,15 +22,37 @@
 package rest
 
 import (
+	"github.com/gobuffalo/packr"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/service/frontend"
 )
+
+var BasePluginsBox = frontend.PluginBox{
+	Box: packr.NewBox("../../../frontend/front-srv/assets"),
+	Exposes: []string{
+		"action.demo_counter",
+		"editor.browser",
+		"editor.ckeditor",
+		"editor.codemirror",
+		"editor.exif",
+		"editor.infopanel",
+		"editor.openlayer",
+		"editor.pdfjs",
+		"editor.soundmanager",
+		"editor.text",
+		"editor.video",
+		"meta.comments",
+		"meta.versions",
+	},
+}
 
 func init() {
 	service.NewService(
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),
 		service.Tag(common.SERVICE_TAG_FRONTEND),
 		service.Description("REST service for serving specific requests directly to frontend"),
+		service.PluginBoxes(BasePluginsBox),
 		service.WithWeb(func() service.WebHandler {
 			return new(FrontendHandler)
 		}),

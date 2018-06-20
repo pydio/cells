@@ -1,0 +1,9 @@
+/* PDF.JS plugin viewer styles: hide the viewer controls which don't make any sense
+   in Pydio: opening (another) file and bookmarks. */
+
+/* Hides from toolbar. */
+#openFile, #viewBookmark {display: none !important}
+
+/* Hides from drop-down menu: the menu includes duplicates of these actions
+   to display them when there's not enough space on toolbar. */
+#secondaryOpenFile, #secondaryViewBookmark {display: none !important}

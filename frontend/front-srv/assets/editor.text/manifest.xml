@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editor id="editor.text" openable="true" iconClass="mdi mdi-file-document-box" order="10" text="51" title="162" canWrite="true"
+        actions="PydioText.Actions" className="PydioText" mimes="none" formId="edit_box" label="CONF_MESSAGE[Text Editor]" description="CONF_MESSAGE[Very basic text editor]">
+	<client_settings>
+        <resources>
+            <js file="plug/editor.text/res/build/PydioText.js" className="PydioText"/>
+            <i18n remote="plug/editor.text/i18n" namespace="text_editor"/>
+        </resources>
+	</client_settings>
+	<dependencies>
+		<!-- Stream Wrapper Access -->
+		<activePlugin pluginName="access.STREAM_PROVIDER"/>
+	</dependencies>
+</editor>

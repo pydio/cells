@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editor id="editor.pdfjs" openable="true" iconClass="mdi mdi-file-pdf-box" order="9" text="pdf_viewer.1" title="pdf_viewer.2" previewProvider="true"
+        className="PydioPDFJS" mimes="pdf" label="CONF_MESSAGE[PDF Viewer]"
+        description="CONF_MESSAGE[JavaScript PDF viewer]">
+    <plugin_info>
+        <core_relation packaged="true" tested_version="follow_core"/>
+        <plugin_author>Garnetius</plugin_author>
+    </plugin_info>
+    <server_settings>
+        <global_param name="PDFJS_USE_PREVIEW" type="boolean" label="CONF_MESSAGE[Use for previews]"
+                      description="CONF_MESSAGE[If set to true, a small viewer will be open in the right-hand panel. Can be disabled in favor of Imagick previews]" default="true" expose="true"/>
+    </server_settings>
+	<client_settings>
+		<resources>
+			<js file="plug/editor.pdfjs/res/build/PydioPDFJS.js" className="PydioPDFJS"/>
+			<css file="plug/editor.pdfjs/PDFJSViewer.css"/>
+			<i18n remote="plug/editor.pdfjs/i18n" namespace="pdf_viewer"/>
+		</resources>
+	</client_settings>
+	<clientForm id="pdf_box"><![CDATA[
+		<div id="pdf_box"  box_width="90%" box_height="90%" box_resize="true" box_padding="5" class="editor_container pdfjs_viewer"><iframe></iframe></div>
+	]]></clientForm>
+	<dependencies>
+		<!-- Stream Wrapper Access -->
+		<activePlugin pluginName="access.STREAM_PROVIDER"/>
+	</dependencies>
+</editor>

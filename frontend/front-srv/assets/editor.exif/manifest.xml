@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editor id="editor.exif" openable="true" text="editor.exif.1" iconClass="mdi mdi-camera" title="editor.exif.2"
+        actions="PydioExif.Actions" className="PydioExif" mimes="jpg,jpeg"
+        formId="exif_box" label="CONF_MESSAGE[EXIF Extractor]"
+        description="CONF_MESSAGE[Display the Exif metadata contained inside the JPG files. Can locate the image on a map if it contains geolocation data.]">
+    <client_settings>
+        <resources>
+            <i18n namespace="editor.exif" remote="plug/editor.exif/i18n" />
+            <js file="plug/meta.exif/res/build/PydioExif.js" className="PydioExif"/>
+        </resources>
+    </client_settings>
+	<dependencies>
+		<!-- Stream Wrapper Access -->
+		<activePlugin pluginName="meta.exif"/>
+	</dependencies>
+</editor>

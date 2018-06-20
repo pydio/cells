@@ -1,0 +1,23 @@
+{
+    "1": "Versioni",
+    "2": "Documento versioni precedenti",
+    "3": "Download",
+    "4": "Download delle versioni selezionate",
+    "5": "Anteprima (browser)",
+    "6": "Apre le versioni selezionate in una finestra del browser",
+    "7": "Riporta a...",
+    "8": "Riporta il file alla revisione selezionata sul server",
+    "9": "#",
+    "10": "Data",
+    "11": "Autore",
+    "12": "Modifica",
+    "13": "Sicuro di voler procedere? Ripristinare ad una vecchia versione creerà una nuova versione di questo documento con la revisione selezionata.",
+    "RENAME": "File rinominato",
+    "MOVE": "File spostato",
+    "MODIFICATION": "Contenuto modificato",
+    "DELETION": "File cancellato",
+    "CREATION": "File creato",
+    "14": "No previous versions found",
+    "15": "Versions are created when you update the file content",
+    "16": "Previous versions for '%s'"
+}

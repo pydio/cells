@@ -1,0 +1,23 @@
+{
+    "1": "Versões",
+    "2": "Versão anterior do Documento",
+    "3": "Transferir",
+    "4": "Transferir a versão seleccionada para o computador",
+    "5": "Pré-Visualizar (Navegador)",
+    "6": "Abrir a versão seleccionada numa janela do navegador",
+    "7": "Reverter para...",
+    "8": "Reverter o ficheiro para a seguinte revisão no servidor",
+    "9": "#",
+    "10": "Data",
+    "11": "Autor",
+    "12": "Modificação",
+    "13": "Tem a certeza de que deseja continuar? Reverter para uma versão antiga irá criar uma nova versão do documento com a versão seleccionada.",
+    "RENAME": "Ficheiro Renomeado",
+    "MOVE": "Ficheiro Movido",
+    "MODIFICATION": "Conteúdo modificado",
+    "DELETION": "Ficheiro Apagado",
+    "CREATION": "Ficheiro Criado",
+    "14": "No previous versions found",
+    "15": "Versions are created when you update the file content",
+    "16": "Previous versions for '%s'"
+}

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editor enabled="true" id="editor.infopanel" openable="true" order="1000" text="341" title="341"
+        iconClass="icon-list-alt" className="InfoPanel"
+        mimes="*" formId="ip_content_info_panel" label="CONF_MESSAGE[Info Panel...]" description="CONF_MESSAGE[Info Panel]">
+    <client_settings>
+        <resources>
+            <i18n namespace="editor.infopanel" remote="plug/editor.infopanel/i18n" />
+        </resources>
+    </client_settings>
+    <registry_contributions>
+        <actions>
+            <action name="dir_infopanel">
+                <gui text="342" title="342" iconClass="icon-eye-close" accessKey="open_with_access" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="hidden"  behaviour="hidden"
+                        actionBar="true" contextMenu="true" infoPanel="false"
+                        actionBarGroup="inline" inZip="false">
+                    </context>
+                    <selectionContext dir="true" file="false" recycle="false" unique="true" allowedMimes="PYDIO_MIMES_EDITABLE" behaviour="hidden"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback><![CDATA[
+                        var editorData = window.actionArguments[0];
+                        if(!editorData){
+                            var editorData = pydio.Registry.findEditorById('editor.infopanel');
+                        }
+                        if(editorData){
+                            pydio.Registry.loadEditorResources(editorData.resourcesManager);
+                            modal.openEditorDialog(editorData);
+                        }
+                    ]]></clientCallback>
+                    <serverCallback methodName="switchAction"/>
+                    </processing>
+            </action>
+        </actions>
+    </registry_contributions>
+    <dependencies>
+        <activePlugin pluginName="gui.mobile"/>
+    </dependencies>
+</editor>

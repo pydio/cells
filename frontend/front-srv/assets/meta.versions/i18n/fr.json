@@ -1,0 +1,23 @@
+{
+    "1": "Versions",
+    "2": "Précédentes versions du document",
+    "3": "Télécharger",
+    "4": "Télécharger cette version sur votre ordinateur",
+    "5": "Voir (navigateur)",
+    "6": "Ouvrir la version sélectionnée dans le navigateur",
+    "7": "Revenir à...",
+    "8": "Revenir à la version sélectionnée",
+    "9": "#",
+    "10": "Date",
+    "11": "Auteur",
+    "12": "Modification",
+    "13": "Êtes-vous sûr ? Cette opération va créer une nouvelle version du fichier avec le contenu de la révision sélectionnée.",
+    "RENAME": "Fichier renommé",
+    "MOVE": "Déplacement",
+    "MODIFICATION": "Contenu modifié",
+    "DELETION": "Fichier supprimé",
+    "CREATION": "Fichier créé",
+    "14": "Pas de précédentes versions",
+    "15": "Les versions sont créées lorsque le contenu est modifié",
+    "16": "Versions précédentes de '%s'"
+}

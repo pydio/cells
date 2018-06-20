@@ -1,0 +1,827 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="pydio_registry">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="actions"/>
+                <xs:element ref="plugins"/>
+                <xs:element ref="user"/>
+                <xs:element ref="client_configs"/>
+                <xs:element ref="hooks"/>
+                <xs:element ref="extensions"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="mixins">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:any/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="actions">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="action"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="action">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" ref="gui"/>
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element ref="rightsContext"/>
+                    <xs:element ref="subMenu"/>
+                    <xs:element ref="post_processing"/>
+                    <xs:element ref="processing"/>
+                    <xs:element ref="pre_processing"/>
+                </xs:choice>
+            </xs:sequence>
+            <xs:attribute name="ctrlDragndropDefault" type="xs:boolean"/>
+            <xs:attribute name="dirDefault" type="xs:boolean"/>
+            <xs:attribute name="dragndropDefault" type="xs:boolean"/>
+            <xs:attribute name="expireDefault" type="xs:boolean"/>
+            <xs:attribute name="fileDefault" type="xs:boolean"/>
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="skipSecureToken" type="xs:boolean"/>
+            <xs:attribute name="contentTypedProvider" type="xs:boolean"/>
+            <xs:attribute name="forbidOverride" type="xs:boolean"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="gui">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="context"/>
+                <xs:element minOccurs="0" ref="selectionContext"/>
+            </xs:sequence>
+            <xs:attribute name="accessKey"/>
+            <xs:attribute name="hasAccessKey" type="xs:boolean"/>
+            <xs:attribute name="specialAccessKey" type="xs:NCName"/>
+            <xs:attribute name="iconClass" use="optional"/>
+            <xs:attribute name="text" use="required" type="xs:NMTOKEN"/>
+            <xs:attribute name="title" use="required" type="xs:NMTOKEN"/>
+            <xs:attribute name="weight" use="optional" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="context">
+        <xs:complexType mixed="true">
+            <xs:attribute name="actionBar" type="xs:boolean"/>
+            <xs:attribute name="actionBarGroup" type="xs:string"/>
+            <xs:attribute name="ajxpWidgets" type="xs:NMTOKEN"/>
+            <xs:attribute name="behaviour" type="xs:NCName"/>
+            <xs:attribute name="contextMenu" type="xs:boolean"/>
+            <xs:attribute name="dir" use="required"/>
+            <xs:attribute name="inZip" type="xs:boolean"/>
+            <xs:attribute name="infoPanel" type="xs:boolean"/>
+            <xs:attribute name="recycle" type="xs:NCName"/>
+            <xs:attribute name="selection" type="xs:boolean"/>
+            <xs:attribute name="allowedMimes"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="selectionContext">
+        <xs:complexType mixed="true">
+            <xs:attribute name="allowedMimes"/>
+            <xs:attribute name="evalMetadata"/>
+            <xs:attribute name="behaviour" type="xs:NCName"/>
+            <xs:attribute name="dir" use="required" type="xs:boolean"/>
+            <xs:attribute name="editable" type="xs:boolean"/>
+            <xs:attribute name="file" use="required" type="xs:NCName"/>
+            <xs:attribute name="image" type="xs:boolean"/>
+            <xs:attribute name="multipleOnly" type="xs:boolean"/>
+            <xs:attribute name="enableRoot" type="xs:boolean"/>
+            <xs:attribute name="recycle" use="required" type="xs:boolean"/>
+            <xs:attribute name="unique" use="required" type="xs:boolean"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="rightsContext">
+        <xs:complexType mixed="true">
+            <xs:attribute name="adminOnly" use="required"/>
+            <xs:attribute name="guestLogged" type="xs:NCName"/>
+            <xs:attribute name="noUser" use="required" type="xs:boolean"/>
+            <xs:attribute name="read" use="required" type="xs:boolean"/>
+            <xs:attribute name="userLogged" use="required"/>
+            <xs:attribute name="write" use="required" type="xs:boolean"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="subMenu">
+        <xs:complexType>
+            <xs:choice maxOccurs="1">
+                <xs:element ref="dynamicBuilder"/>
+                <xs:element ref="dynamicItems"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="dynamicBuilder">
+        <xs:complexType>
+            <xs:attribute name="module" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="post_processing">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="serverCallback"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="pre_processing">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="serverCallback"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="dynamicItems">
+        <xs:complexType>
+            <xs:sequence maxOccurs="unbounded">
+                <xs:element ref="item"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="item">
+        <xs:complexType>
+            <xs:attribute name="actionId" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:element name="registry_contributions">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="external_file">
+                    <xs:complexType>
+                        <xs:attribute name="filename" type="xs:string"/>
+                        <xs:attribute name="include" type="xs:string"/>
+                        <xs:attribute name="exclude" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element minOccurs="0" maxOccurs="1" ref="actions"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="client_configs"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="hooks"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="extensions"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:complexType name="plugin_type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element minOccurs="0" ref="plugin_info" />
+            <xs:element minOccurs="0" ref="class_definition" />
+            <xs:element minOccurs="0" ref="client_settings"/>
+            <xs:element minOccurs="0" ref="server_settings"/>
+            <xs:element minOccurs="0" ref="dependencies"/>
+            <xs:element minOccurs="0" ref="plugin_configs"/>
+            <xs:element minOccurs="0" ref="registry_contributions"/>
+        </xs:choice>
+        <xs:attribute name="id" use="optional" type="xs:NCName"/>
+        <xs:attribute name="name" use="optional" type="xs:NCName"/>
+        <xs:attribute name="label" use="required"/>
+        <xs:attribute name="description" use="required"/>
+        <xs:attribute name="enabled" use="optional" type="xs:string"/>
+        <xs:attribute name="mixins" use="optional" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:element name="plugins">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element maxOccurs="unbounded" minOccurs="0" ref="plugin"/>
+                <xs:element ref="confdriver"/>
+                <xs:element ref="authdriver"/>
+                <xs:element ref="ajxpdriver"/>
+                <xs:element ref="metastore"/>
+                <xs:element maxOccurs="unbounded" ref="meta"/>
+                <xs:element ref="indexer"/>
+                <xs:element ref="guidriver"/>
+                <xs:element maxOccurs="unbounded" ref="editor"/>
+                <xs:element maxOccurs="unbounded" ref="ajxpcore"/>
+                <xs:element maxOccurs="unbounded" ref="uploader"/>
+            </xs:choice>
+            <xs:attribute name="uuidAttr" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="plugin">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="confdriver">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="authdriver">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="logdriver">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="ajxpdriver">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type">
+                    <xs:choice minOccurs="0">
+                        <xs:element ref="class_stream_wrapper"/>
+                    </xs:choice>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="metastore">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="meta">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="notify">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="indexer">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type">
+                    <xs:attribute name="indexed_meta_fields" use="optional"/>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+
+    </xs:element>
+    <xs:element name="guidriver">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="editor">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type">
+                    <xs:sequence>
+                        <xs:choice maxOccurs="unbounded">
+                            <xs:element minOccurs="0" ref="plugin_info" />
+                            <xs:element minOccurs="0" ref="class_definition" />
+                            <xs:element minOccurs="0" ref="client_settings"/>
+                            <xs:element minOccurs="0" ref="server_settings"/>
+                            <xs:element minOccurs="0" ref="plugin_configs"/>
+                            <xs:element minOccurs="0" ref="registry_contributions"/>
+                            <xs:element minOccurs="0" maxOccurs="100" ref="clientForm"/>
+                            <xs:element minOccurs="0" ref="processing"/>
+                            <xs:element minOccurs="0" ref="dependencies"/>
+                        </xs:choice>
+                    </xs:sequence>
+                    <xs:attribute name="className" use="required" type="xs:NCName"/>
+                    <xs:attribute name="formId" type="xs:NCName"/>
+                    <xs:attribute name="iconClass" use="optional"/>
+                    <xs:attribute name="mimes" use="required"/>
+                    <xs:attribute name="openable" use="required" type="xs:boolean"/>
+                    <xs:attribute name="modalOnly" type="xs:boolean"/>
+                    <xs:attribute name="order" type="xs:integer"/>
+                    <xs:attribute name="previewProvider" type="xs:boolean"/>
+                    <xs:attribute name="text" use="required" type="xs:NMTOKEN"/>
+                    <xs:attribute name="title" use="required" type="xs:NMTOKEN"/>
+                    <xs:attribute name="write" type="xs:boolean"/>
+                    <xs:attribute name="canWrite" type="xs:boolean"/>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="ajxpcore">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="uploader">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="plugin_type">
+                    <xs:sequence>
+                        <xs:element minOccurs="0" ref="processing"/>
+                    </xs:sequence>
+                    <xs:attribute name="className" type="xs:NCName"/>
+                    <xs:attribute name="text" use="required" type="xs:integer"/>
+                    <xs:attribute name="title" use="required" type="xs:integer"/>
+                    <xs:attribute name="order" type="xs:integer"/>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+
+
+    <xs:element name="user">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="active_repo"/>
+                <xs:element ref="repositories"/>
+                <xs:element ref="preferences"/>
+                <xs:element ref="special_rights"/>
+                <xs:element ref="bookmarks"/>
+            </xs:sequence>
+            <xs:attribute name="id" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="active_repo">
+        <xs:complexType>
+            <xs:attribute name="id" use="required"/>
+            <xs:attribute name="read" use="required" type="xs:integer"/>
+            <xs:attribute name="write" use="required" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="repositories">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="repo"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="repo">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="label"/>
+                <xs:element ref="client_settings"/>
+            </xs:sequence>
+            <xs:attribute name="access_type" use="required" type="xs:NCName"/>
+            <xs:attribute name="allowCrossRepositoryCopy" type="xs:boolean"/>
+            <xs:attribute name="id" use="required" type="xs:NMTOKEN"/>
+            <xs:attribute name="repositorySlug" use="required" type="xs:NCName"/>
+            <xs:attribute name="user_editable_repository" type="xs:boolean"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="label" type="xs:string"/>
+    <xs:element name="preferences">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="pref"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="pref">
+        <xs:complexType mixed="true">
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="value"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="special_rights">
+        <xs:complexType>
+            <xs:attribute name="is_admin" use="required" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="bookmarks">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="bookmark"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="bookmark">
+        <xs:complexType>
+            <xs:attribute name="path" use="required"/>
+            <xs:attribute name="title" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="client_configs">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element ref="component_config"/>
+                <xs:element ref="template"/>
+                <xs:element ref="template_part"/>
+            </xs:choice>
+            <xs:attribute name="uuidAttr" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="component_config">
+        <xs:complexType>
+            <xs:choice>
+                <xs:any maxOccurs="unbounded" processContents="skip"/>
+            </xs:choice>
+            <xs:attribute name="component" use="required" type="xs:Name"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="columns">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element ref="additional_column"/>
+                <xs:element maxOccurs="unbounded" ref="column"/>
+            </xs:choice>
+            <xs:attribute name="switchGridMode" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="additional_column">
+        <xs:complexType>
+            <xs:attribute name="attributeName" use="required" type="xs:NCName"/>
+            <xs:attribute name="defaultVisibilty" type="xs:NCName"/>
+            <xs:attribute name="defaultWidth" use="optional"/>
+            <xs:attribute name="fixedWidth" use="optional"/>
+            <xs:attribute name="messageId" type="xs:integer"/>
+            <xs:attribute name="messageString"/>
+            <xs:attribute name="modifier" use="optional"/>
+            <xs:attribute name="sortType" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="column">
+        <xs:complexType>
+            <xs:attribute name="attributeName" use="required" type="xs:NCName"/>
+            <xs:attribute name="messageId" use="required" type="xs:string"/>
+            <xs:attribute name="defaultVisibilty" type="xs:NCName"/>
+            <xs:attribute name="defaultWidth" use="optional"/>
+            <xs:attribute name="fixedWidth" use="optional"/>
+            <xs:attribute name="modifier" use="optional"/>
+            <xs:attribute name="sortType" use="optional" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="infoPanel">
+        <xs:complexType>
+            <xs:attribute name="mime" use="required" type="xs:NCName"/>
+            <xs:attribute name="theme" type="xs:NCName"/>
+            <xs:attribute name="reactComponent" type="xs:NCName"/>
+            <xs:attribute name="primary" type="xs:boolean"/>
+            <xs:attribute name="weight" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="template">
+        <xs:complexType mixed="true">
+            <xs:attribute name="element" use="required" type="xs:NCName"/>
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="position" use="required" type="xs:NCName"/>
+            <xs:attribute name="namespace" type="xs:NCName"/>
+            <xs:attribute name="component" type="xs:NCName"/>
+            <xs:attribute name="props" type="xs:NCName"/>
+            <xs:attribute name="theme" type="xs:NCName"/>
+            <xs:attribute name="label" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="template_part">
+        <xs:complexType mixed="true">
+            <xs:attribute name="theme" use="optional" type="xs:NCName"/>
+            <xs:attribute name="ajxpId" use="required" type="xs:NCName"/>
+            <!-- legacy components -->
+            <xs:attribute name="ajxpClass" type="xs:NCName"/>
+            <xs:attribute name="ajxpOptions" />
+            <!-- react components -->
+            <xs:attribute name="component" type="xs:NCName"/>
+            <xs:attribute name="namespace" type="xs:NCName"/>
+            <xs:attribute name="dependencies" type="xs:NCName"/>
+            <xs:attribute name="props" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="hooks">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="serverCallback"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="extensions">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="extension"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="extension">
+        <xs:complexType>
+            <xs:attribute name="mime" use="required" type="xs:NCName"/>
+            <xs:attribute name="font" use="required" type="xs:Name"/>
+            <xs:attribute name="messageId" use="required" type="xs:Name"/>
+            <xs:attribute name="icon"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="processing">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" ref="clientCallback"/>
+                <xs:element minOccurs="0" maxOccurs="100" ref="clientForm"/>
+                <xs:element minOccurs="0" ref="extensionOnInit"/>
+                <xs:element minOccurs="0" ref="clientListener"/>
+                <xs:element minOccurs="0" ref="standardFormDefinition"/>
+                <xs:element minOccurs="0" ref="serverCallback"/>
+                <xs:element minOccurs="0" ref="activeCondition"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="clientCallback">
+        <xs:complexType mixed="true">
+            <xs:attribute name="module" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="extensionOnInit" type="xs:string"/>
+    <xs:element name="clientListener">
+        <xs:complexType mixed="true">
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="module" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="activeCondition" type="xs:string"/>
+    <xs:element name="serverCallback">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded" minOccurs="0">
+                <xs:element ref="input_param"/>
+                <xs:element ref="output"/>
+            </xs:choice>
+            <xs:attribute name="applyCondition"/>
+            <xs:attribute name="capture" type="xs:boolean"/>
+            <xs:attribute name="hookName" type="xs:NCName"/>
+            <xs:attribute name="dontBreakOnException" type="xs:boolean"/>
+            <xs:attribute name="methodName" use="required" type="xs:NCName"/>
+            <xs:attribute name="pluginId" use="optional" type="xs:NCName"/>
+            <xs:attribute name="defer" type="xs:boolean"/>
+            <xs:attribute name="restParams"/>
+            <xs:attribute name="preferredHttp" type="xs:NCName"/>
+            <xs:attribute name="sdkMethodName"/>
+            <xs:attribute name="developerComment"/>
+            <xs:attribute name="checkParams" type="xs:boolean"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="standardFormDefinition">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element ref="param"/>
+            </xs:choice>
+            <xs:attribute name="name"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="client_settings">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="resources"/>
+                <xs:element minOccurs="0" ref="node_provider"/>
+            </xs:sequence>
+            <xs:attribute name="iconClass"/>
+            <xs:attribute name="description_template"/>
+            <xs:attribute name="icon"/>
+            <xs:attribute name="icon_tpl_id"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="class_stream_wrapper">
+        <xs:complexType>
+            <xs:attribute name="classname" use="required" type="xs:string"/>
+            <xs:attribute name="filename" use="required"/>
+            <xs:attribute name="protocol" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="resources">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element ref="css"/>
+                <xs:element ref="i18n"/>
+                <xs:element ref="img_library"/>
+                <xs:element ref="js"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="css">
+        <xs:complexType>
+            <xs:attribute name="autoload" type="xs:boolean"/>
+            <xs:attribute name="file" use="required"/>
+            <xs:attribute name="fallbackCondition"/>
+            <xs:attribute name="fallbackFile"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="i18n">
+        <xs:complexType>
+            <xs:attribute name="autoload" type="xs:boolean"/>
+            <xs:attribute name="namespace" use="required"/>
+            <xs:attribute name="path" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="img_library">
+        <xs:complexType>
+            <xs:attribute name="alias" use="required" type="xs:NCName"/>
+            <xs:attribute name="path" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="js">
+        <xs:complexType>
+            <xs:attribute name="autoload" type="xs:boolean"/>
+            <xs:attribute name="className" use="required" type="xs:NCName"/>
+            <xs:attribute name="file" use="required"/>
+            <xs:attribute name="depends"/>
+            <xs:attribute name="expose"/>
+            <xs:attribute name="fallbackCondition"/>
+            <xs:attribute name="fallbackFile"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="node_provider">
+        <xs:complexType>
+            <xs:attribute name="ajxpClass" use="required" type="xs:NCName"/>
+            <xs:attribute name="ajxpOptions" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="server_settings">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element ref="global_param"/>
+                <xs:element ref="param"/>
+                <xs:element ref="user_param"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="global_param">
+        <xs:complexType>
+            <xs:attribute name="choices"/>
+            <xs:attribute name="default"/>
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="type" use="required" type="xs:Name"/>
+            <xs:attribute name="label" use="required"/>
+            <xs:attribute name="description" use="required"/>
+            <xs:attribute name="expose" type="xs:boolean"/>
+            <xs:attribute name="group"/>
+            <xs:attribute name="replicationGroup"/>
+            <xs:attribute name="replicationTitle" type="xs:Name" use="optional"/>
+            <xs:attribute name="replicationDescription" type="xs:Name" use="optional"/>
+            <xs:attribute name="replicationMandatory" type="xs:boolean" use="optional"/>
+            <xs:attribute name="mandatory" type="xs:boolean"/>
+            <xs:attribute name="scope"/>
+            <xs:attribute name="repoScope"/>
+            <xs:attribute name="editable" type="xs:boolean" use="optional"/>
+            <xs:attribute name="uploadAction" use="optional"/>
+            <xs:attribute name="loadAction" use="optional"/>
+            <xs:attribute name="defaultImage" use="optional"/>
+            <xs:attribute name="group_switch_name" use="optional"/>
+            <xs:attribute name="group_switch_value" use="optional"/>
+            <xs:attribute name="group_switch_label" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="param">
+        <xs:complexType>
+            <xs:attribute name="choices"/>
+            <xs:attribute name="default"/>
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="type" use="required" type="xs:Name"/>
+            <xs:attribute name="label" use="required"/>
+            <xs:attribute name="description" use="required"/>
+            <xs:attribute name="expose" type="xs:boolean"/>
+            <xs:attribute name="group"/>
+            <xs:attribute name="replicationGroup"/>
+            <xs:attribute name="replicationTitle" type="xs:Name" use="optional"/>
+            <xs:attribute name="replicationDescription" type="xs:Name" use="optional"/>
+            <xs:attribute name="replicationMandatory" type="xs:boolean" use="optional"/>
+            <xs:attribute name="mandatory" type="xs:boolean"/>
+            <xs:attribute name="no_templates" type="xs:boolean"/>
+            <xs:attribute name="templates_only" type="xs:boolean"/>
+            <xs:attribute name="scope"/>
+            <xs:attribute name="repoScope"/>
+            <xs:attribute name="editable" type="xs:boolean" use="optional"/>
+            <xs:attribute name="inherit" type="xs:boolean" use="optional"/>
+            <xs:attribute name="uploadAction" use="optional"/>
+            <xs:attribute name="loadAction" use="optional"/>
+            <xs:attribute name="defaultImage" use="optional"/>
+            <xs:attribute name="group_switch_name" use="optional"/>
+            <xs:attribute name="group_switch_value" use="optional"/>
+            <xs:attribute name="group_switch_label" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="input_param">
+        <xs:complexType>
+            <xs:attribute name="name" use="required" type="xs:Name"/>
+            <xs:attribute name="type" use="required" type="xs:Name"/>
+            <xs:attribute name="description" use="required"/>
+            <xs:attribute name="choices"/>
+            <xs:attribute name="default"/>
+            <xs:attribute name="mandatory" type="xs:boolean"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="output">
+        <xs:complexType>
+            <xs:attribute name="type" use="required" type="xs:Name"/>
+            <xs:attribute name="description" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="user_param">
+        <xs:complexType>
+            <xs:attribute name="choices"/>
+            <xs:attribute name="default"/>
+            <xs:attribute name="description" use="required"/>
+            <xs:attribute name="expose" type="xs:boolean"/>
+            <xs:attribute name="group"/>
+            <xs:attribute name="replicationGroup"/>
+            <xs:attribute name="label" use="required"/>
+            <xs:attribute name="mandatory" type="xs:boolean"/>
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="no_templates" type="xs:boolean"/>
+            <xs:attribute name="templates_only" type="xs:boolean"/>
+            <xs:attribute name="type" use="required" type="xs:Name"/>
+            <xs:attribute name="scope"/>
+            <xs:attribute name="repoScope"/>
+            <xs:attribute name="editable" type="xs:boolean" use="optional"/>
+            <xs:attribute name="uploadAction" use="optional"/>
+            <xs:attribute name="loadAction" use="optional"/>
+            <xs:attribute name="defaultImage" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="plugin_info">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element minOccurs="0" ref="plugin_author" />
+                <xs:element minOccurs="0" ref="plugin_version" />
+                <xs:element minOccurs="0" ref="plugin_uri" />
+                <xs:element minOccurs="0" ref="core_relation" />
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="plugin_author"/>
+    <xs:element name="plugin_version"/>
+    <xs:element name="plugin_uri"/>
+    <xs:element name="core_relation">
+        <xs:complexType>
+            <xs:attribute name="packaged" use="required" type="xs:boolean" default="false"/>
+            <xs:attribute name="tested_version" use="required" default="follow_core"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="class_definition">
+        <xs:complexType>
+            <xs:attribute name="classname" use="required" type="xs:string"/>
+            <xs:attribute name="filename" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="dependencies">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element ref="activePlugin"/>
+                <xs:element ref="phpExtension"/>
+                <xs:element ref="pluginClass"/>
+                <xs:element name="pluginResources">
+                    <xs:complexType>
+                        <xs:attribute name="pluginName"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="activePlugin">
+        <xs:complexType>
+            <xs:attribute name="pluginName" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="phpExtension">
+        <xs:complexType>
+            <xs:attribute name="name" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="pluginClass">
+        <xs:complexType>
+            <xs:attribute name="pluginName" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="clientForm">
+        <xs:complexType mixed="true">
+            <xs:attribute name="id" use="required" type="xs:NCName"/>
+            <xs:attribute name="theme" use="optional" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="plugin_configs">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="property"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="messages">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="message"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="message">
+        <xs:complexType>
+            <xs:attribute name="id" use="required" type="xs:integer"/>
+            <xs:attribute name="key" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="html" type="xs:string"/>
+    <xs:element name="property">
+        <xs:complexType mixed="true">
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="value" type="xs:NMTOKEN"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="dialogOnOpen" type="xs:string"/>
+</xs:schema>

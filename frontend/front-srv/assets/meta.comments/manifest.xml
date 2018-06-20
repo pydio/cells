@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta id="meta.comments" label="CONF_MESSAGE[Comments Feed]" description="CONF_MESSAGE[Display a chat-like feed on every nodes]">
+	<client_settings>
+		<resources>
+			<i18n namespace="meta.comments" remote="plug/meta.comments/res/i18n"/>
+			<js file="plug/meta.comments/res/build/MetaComments.js" className="MetaComments"/>
+		</resources>
+	</client_settings>
+    <server_settings>
+        <param name="COMMENT_SIZE_LIMIT" type="integer" label="CONF_MESSAGE[Comment limit]"
+                      description="CONF_MESSAGE[Maximum number of characters for each comment]" default="1000" />
+    </server_settings>
+	<registry_contributions>
+		<client_configs>
+			<component_config component="InfoPanel">
+                <infoPanel mime="generic_file,generic_dir" reactComponent="MetaComments.InfoPanel" weight="10"/>
+			</component_config>
+		</client_configs>
+	</registry_contributions>
+	<dependencies>
+		<pluginClass pluginName="access.gateway"/>
+	</dependencies>
+</meta>

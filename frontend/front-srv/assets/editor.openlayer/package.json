@@ -1,0 +1,15 @@
+{
+  "name": "editor.openlayer",
+  "description": "Maps viewer",
+  "source_path": "res/js",
+  "main": "index.js",
+  "author": "Abstrium SAS",
+  "license": "agpl",
+  "devDependencies": {},
+  "dependencies": {
+      "grunt": "^1.0.1",
+      "grunt-babel": "~5.0.3",
+      "grunt-contrib-watch": "^1.0.0",
+      "grunt-browserify": "~4.0.1"
+  }
+}
