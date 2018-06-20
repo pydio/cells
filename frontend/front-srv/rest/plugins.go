@@ -31,6 +31,7 @@ import (
 var BasePluginsBox = frontend.PluginBox{
 	Box: packr.NewBox("../../../frontend/front-srv/assets"),
 	Exposes: []string{
+		"action.compression",
 		"action.demo_counter",
 		"editor.browser",
 		"editor.ckeditor",

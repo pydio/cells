@@ -1,0 +1,19 @@
+{
+    "1": "Komprimieren",
+    "2": "Auswahl komprimieren",
+    "3": "Format des Archivs",
+    "4": "Name des Archivs",
+    "5": "Starte Komprimierung...",
+    "6": "Dateien werden zu Archiv hinzugefügt... %s ",
+    "7": "%s Archiv wird erstellt...",
+    "8": "Archiv erfolgreich abgeschlossen!",
+    "9": "Entpacken",
+    "10": "Ausgewähltes Archiv entpacken",
+    "11": "Pfad zu den entpackten Dateien ",
+    "12": "Starte das Entpacken ...",
+    "13": "Archiv wird entpackt ... %s ",
+    "14": "Entpacken in den folgenden Ordner wurde erfolgreich abgeschlossen: '%s'.",
+    "15": "Bei der ausgewählten Datei handelt es sich nicht um ein TAR, TAR.GZ oder TAR.BZ2 Archiv.",
+    "16": "Es ist nur möglich, TAR, TAR.GZ oder TAR.BZ2 zu komprimieren.",
+    "17": "Ein leerer Ordner kann nicht komprimiert werden."
+}

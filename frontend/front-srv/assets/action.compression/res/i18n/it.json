@@ -1,0 +1,19 @@
+{
+    "1": "Comprimi",
+    "2": "Comprimi i file selezionati",
+    "3": "Comprimi in ",
+    "4": "Nome archivio",
+    "5": "Avvio compressione...",
+    "6": "Aggiunta file all'archivio... %s ",
+    "7": "Compressione in %s ...",
+    "8": "Archivio creato correttamente!!",
+    "9": "Estrai",
+    "10": "Estrai gli archivi selezionati",
+    "11": "Percorsi dei file estratti ",
+    "12": "Avvio estrazione...",
+    "13": "Estrazione file ... %s ",
+    "14": "Estrazione avvenuta correttamente nella cartella '%s'!!",
+    "15": "I file selezionati non sono archivi TAR, TAR.GZ o TAR.BZ2!!",
+    "16": "E' possibile comprimere solo in TAR, TAR.GZ o TAR.BZ2!!",
+    "17": "Non è possibile comprire una cartella vuota."
+}

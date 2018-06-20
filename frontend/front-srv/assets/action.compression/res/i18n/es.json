@@ -1,0 +1,19 @@
+{
+    "1": "Comprimir",
+    "2": "Comprimir Selección",
+    "3": "Selecciona el formato del archivo:",
+    "4": "Nombre del archivo:",
+    "5": "Comprimiendo...",
+    "6": "Añadiendo archivo al archivo comprimido... %s ",
+    "7": "Durante la compresión en %s ...",
+    "8": "¡El archivo terminó correctamente!",
+    "9": "Extraer",
+    "10": "Extraer los archivos seleccionados",
+    "11": "Ruta a los archivos extraidos ",
+    "12": "Extrayendo...",
+    "13": "Extrayendo archivos... %s ",
+    "14": "La extracción terminó correctamente en la carpeta '%s'.",
+    "15": "El archivo seleccionado no es de tipo TAR, TAR.GZ o TAR.BZ2.",
+    "16": "Sólo puedes comprimir en formato TAR, TAR.GZ o TAR.BZ2.",
+    "17": "No puedes comprimir carpetas vacías"
+}
