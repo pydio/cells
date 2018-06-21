@@ -44,7 +44,7 @@ var _redux = require('redux');
 
 var _materialUi = require('material-ui');
 
-OpenLayers.ImgPath = 'plugins/editor.openlayer/openlayer/img/';
+OpenLayers.ImgPath = 'plug/editor.openlayer/openlayer/img/';
 
 var OLMap = (function (_React$Component) {
     _inherits(OLMap, _React$Component);

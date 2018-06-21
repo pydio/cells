@@ -23,7 +23,7 @@ import React, {Component} from 'react'
 import {compose} from 'redux'
 import {ToolbarTitle} from 'material-ui'
 
-OpenLayers.ImgPath = 'plugins/editor.openlayer/openlayer/img/'
+OpenLayers.ImgPath = 'plug/editor.openlayer/openlayer/img/'
 
 export default class OLMap extends React.Component {
     static get propTypes() {
@@ -153,7 +153,7 @@ export default class OLMap extends React.Component {
         map.addLayer(markers);
         const size = new OpenLayers.Size(22,22);
         const offset = new OpenLayers.Pixel(0, -size.h);
-        const icon = new OpenLayers.Icon('plugins/editor.openlayer/res/services.png',size,offset);
+        const icon = new OpenLayers.Icon('plug/editor.openlayer/res/services.png',size,offset);
         markers.addMarker(new OpenLayers.Marker(projectedCenter,icon));
         try{
             map.setCenter(projectedCenter, 10);

@@ -163,7 +163,7 @@ var OLMap = (function (_Component) {
             map.addLayer(markers);
             var size = new OpenLayers.Size(22, 22);
             var offset = new OpenLayers.Pixel(0, -size.h);
-            var icon = new OpenLayers.Icon('plugins/editor.openlayer/res/services.png', size, offset);
+            var icon = new OpenLayers.Icon('plug/editor.openlayer/res/services.png', size, offset);
             markers.addMarker(new OpenLayers.Marker(projectedCenter, icon));
             try {
                 map.setCenter(projectedCenter, 10);

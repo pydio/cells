@@ -152,7 +152,7 @@ class OLMap extends Component {
         map.addLayer(markers);
         const size = new OpenLayers.Size(22,22);
         const offset = new OpenLayers.Pixel(0, -size.h);
-        const icon = new OpenLayers.Icon('plugins/editor.openlayer/res/services.png',size,offset);
+        const icon = new OpenLayers.Icon('plug/editor.openlayer/res/services.png',size,offset);
         markers.addMarker(new OpenLayers.Marker(projectedCenter,icon));
         try{
             map.setCenter(projectedCenter, 10);
