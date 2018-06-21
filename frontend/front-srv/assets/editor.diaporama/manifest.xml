@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editor id="editor.diaporama" order="-1" openable="true"
+        iconClass="mdi mdi-image" previewProvider="true" text="186"
+        title="136" actions="PydioDiaporama.Actions" className="PydioDiaporama" mimes="png,jpg,jpeg,gif"
+        label="CONF_MESSAGE[Image viewer]"
+        description="CONF_MESSAGE[Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.]">
+	<server_settings>
+		<global_param name="PREVIEWER_LOWRES_SIZES" type="string" label="CONF_MESSAGE[Low-res Sizes]" description="CONF_MESSAGE[Threshold for low-res versions of images]" default="300,700,1000,1300" expose="true"/>
+    	<global_param name="EXIF_ROTATION" type="boolean" label="CONF_MESSAGE[Exif Rotation]" description="CONF_MESSAGE[Rotate image using exif rotation]" default="true"/>
+	</server_settings>
+    <client_settings>
+        <resources>
+            <js file="plug/editor.diaporama/res/build/PydioDiaporama.js" className="PydioDiaporama"/>
+            <i18n namespace="diaporama" remote="plug/editor.diaporama/res/i18n"/>
+            <css file="plug/editor.diaporama/res/rotator.css"/>
+        </resources>
+    </client_settings>
+    <dependencies>
+        <!-- Image proxy must be implemented -->
+        <activePlugin pluginName="access.STREAM_PROVIDER"/>
+        <activePlugin pluginName="access.homepage"/>
+    </dependencies>
+	<registry_contributions>
+		<actions>
+			<action name="slideshow_sel">
+				<gui text="234" title="234" accessKey="" hasAccessKey="false">
+					<context selection="true" dir="" recycle="hidden"
+						actionBar="false" infoPanel="true" actionBarGroup="get">
+					</context>
+					<selectionContext dir="true" file="true" recycle="true" unique="false" multipleOnly="true" allowedMimes="PYDIO_MIMES_IMAGE" behaviour="hidden"/>
+                </gui>
+				<rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+				<processing>
+					<clientCallback><![CDATA[
+						var selectedMime = getAjxpMimeType(pydio.getUserSelection().getUniqueNode());
+						var editors = pydio.Registry.findEditorsForMime(selectedMime);
+						var editorData;
+						if(editors.length){
+							editorData = editors[0];
+						}
+						if(editorData){
+							pydio.Registry.loadEditorResources(editorData.resourcesManager);
+							modal.openEditorDialog(editorData);
+						}else{
+							alert('no data found!');
+						}
+						]]></clientCallback>
+					</processing>
+			</action>
+		</actions>
+		<client_configs>
+			<component_config component="FilesList">
+				<columns>
+					<additional_column messageId="135" attributeName="readable_dimension" sortType="String" defaultVisibilty="hidden"/>
+				</columns>
+			</component_config>
+		</client_configs>
+	</registry_contributions>
+</editor>

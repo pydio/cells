@@ -36,6 +36,7 @@ var BasePluginsBox = frontend.PluginBox{
 		"editor.browser",
 		"editor.ckeditor",
 		"editor.codemirror",
+		"editor.diaporama",
 		"editor.exif",
 		"editor.infopanel",
 		"editor.openlayer",

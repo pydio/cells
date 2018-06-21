@@ -1,0 +1,16 @@
+{
+    "Image viewer": "Visualizzatore Immagini",
+    "Image viewer, used for previewing images and browsing them in a diaporam. Generates a thumbnail version of the images.": "Usato per anteprime di immagini e navigazione in diaporama. Genera una versione thumbnail delle immagini.",
+    "Remote Wrappers": "Wrappers Remoti",
+    "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": "Quando connesso ad un server remoto, l'estrazione dei metadati può rendere la fase di creazione dell'elenco molto lunga, poichè deve prima copiare ogni file localmente. Per i plugin che usano i wrappers definiti e i file che hanno dimensione superiore alla soglia, il tipo di immagine e la dimensione verranno saltate.",
+    "Size Threshold": "Soglia Dimensione",
+    "Threshold": "Soglia",
+    "Thumbnails": "Thumbnails",
+    "Generate thumbnails or not": "Genera thumbnails o no",
+    "Quality": "Qualità",
+    "Thumbs quality": "Qualità Thumbs",
+    "Exif Rotation": "Rotazione Exif",
+    "Rotate image using exif rotation": "Ruota l'immagine usando la rotazione exif",
+    "Low-res Sizes": "Low-res Sizes",
+    "Threshold for low-res versions of images": "Threshold for low-res versions of images"
+}
