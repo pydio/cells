@@ -193,7 +193,7 @@ func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		author = claims.Name
 	}
 
-	if err := dao.SetMetadata(req.Node.Uuid, author, req.Node.MetaStore); err != nil {
+	if err := dao.SetMetadata(req.Node.Uuid, author, s.filterMetaToStore(ctx, req.Node.MetaStore)); err != nil {
 		resp.Success = false
 	}
 
@@ -221,7 +221,7 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		author = claims.Name
 	}
 
-	if err := dao.SetMetadata(req.To.Uuid, author, req.To.MetaStore); err != nil {
+	if err := dao.SetMetadata(req.To.Uuid, author, s.filterMetaToStore(ctx, req.To.MetaStore)); err != nil {
 		log.Logger(ctx).Error("failed to update meta node", zap.Any("error", err))
 		resp.Success = false
 		return err
@@ -278,4 +278,18 @@ func (s *MetaServer) Search(ctx context.Context, request *tree.SearchRequest, re
 
 	result.Close()
 	return nil
+}
+
+func (s *MetaServer) filterMetaToStore(ctx context.Context, metaStore map[string]string) map[string]string {
+
+	filtered := make(map[string]string)
+	for k, v := range metaStore {
+		if k == common.META_NAMESPACE_DATASOURCE_NAME || k == common.META_NAMESPACE_DATASOURCE_PATH {
+			continue
+		}
+		filtered[k] = v
+	}
+
+	return filtered
+
 }
