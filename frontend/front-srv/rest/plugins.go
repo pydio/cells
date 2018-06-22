@@ -31,6 +31,7 @@ import (
 var BasePluginsBox = frontend.PluginBox{
 	Box: packr.NewBox("../../../frontend/front-srv/assets"),
 	Exposes: []string{
+		"action.avatar",
 		"action.compression",
 		"action.demo_counter",
 		"action.user",
