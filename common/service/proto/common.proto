@@ -88,3 +88,12 @@ service Service {
 message StatusResponse {
     bool OK = 1;
 }
+
+service Archiver {
+    rpc Archive(Query) returns (StatusResponse);
+}
+
+// TODO - move from there
+message ChangesArchiveQuery {
+    uint64 RemainingRows = 1;
+}
