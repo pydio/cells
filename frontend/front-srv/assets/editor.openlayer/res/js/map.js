@@ -58,9 +58,9 @@ export default class OLMap extends React.Component {
             ({latitude, longitude} = centerPoint)
         } else if (centerNode){
             let meta = centerNode.getMetadata();
-            if(meta.has("COMPUTED_GPS-GPS_Latitude") && meta.has("COMPUTED_GPS-GPS_Longitude")) {
-                latitude = parseFloat(meta.get("COMPUTED_GPS-GPS_Latitude").split('--').pop());
-                longitude = parseFloat(meta.get("COMPUTED_GPS-GPS_Longitude").split('--').pop());
+            if(meta.has("GeoLocation")) {
+                latitude = parseFloat(meta.get('GeoLocation')['lat']);
+                longitude = parseFloat(meta.get('GeoLocation')['lon']);
             }
         }
 

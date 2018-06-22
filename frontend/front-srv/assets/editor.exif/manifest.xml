@@ -6,7 +6,6 @@
     <client_settings>
         <resources>
             <i18n namespace="editor.exif" remote="plug/editor.exif/i18n" />
-            <js file="plugins/meta.exif/res/build/PydioExif.js" className="PydioExif"/>
         </resources>
     </client_settings>
 	<dependencies>

@@ -46,6 +46,7 @@ var BasePluginsBox = frontend.PluginBox{
 		"editor.text",
 		"editor.video",
 		"meta.comments",
+		"meta.exif",
 		"meta.simple_lock",
 		"meta.versions",
 	},

@@ -79,9 +79,9 @@ var OLMap = (function (_React$Component) {
                 longitude = centerPoint.longitude;
             } else if (centerNode) {
                 var meta = centerNode.getMetadata();
-                if (meta.has("COMPUTED_GPS-GPS_Latitude") && meta.has("COMPUTED_GPS-GPS_Longitude")) {
-                    latitude = parseFloat(meta.get("COMPUTED_GPS-GPS_Latitude").split('--').pop());
-                    longitude = parseFloat(meta.get("COMPUTED_GPS-GPS_Longitude").split('--').pop());
+                if (meta.has("GeoLocation")) {
+                    latitude = parseFloat(meta.get('GeoLocation')['lat']);
+                    longitude = parseFloat(meta.get('GeoLocation')['lon']);
                 }
             }
 
@@ -169,7 +169,7 @@ var OLMap = (function (_React$Component) {
             map.addLayer(markers);
             var size = new OpenLayers.Size(22, 22);
             var offset = new OpenLayers.Pixel(0, -size.h);
-            var icon = new OpenLayers.Icon('plugins/editor.openlayer/res/services.png', size, offset);
+            var icon = new OpenLayers.Icon('plug/editor.openlayer/res/services.png', size, offset);
             markers.addMarker(new OpenLayers.Marker(projectedCenter, icon));
             try {
                 map.setCenter(projectedCenter, 10);

@@ -1,12 +1,12 @@
-import { signalLater } from "../util/operation_group"
-import { ensureCursorVisible } from "../display/scrolling"
-import { clipPos, cmp, Pos } from "../line/pos"
-import { getLine } from "../line/utils_line"
-import { hasHandler, signal, signalCursorActivity } from "../util/event"
-import { lst, sel_dontScroll } from "../util/misc"
+import { signalLater } from "../util/operation_group.js"
+import { ensureCursorVisible } from "../display/scrolling.js"
+import { clipPos, cmp, Pos } from "../line/pos.js"
+import { getLine } from "../line/utils_line.js"
+import { hasHandler, signal, signalCursorActivity } from "../util/event.js"
+import { lst, sel_dontScroll } from "../util/misc.js"
 
-import { addSelectionToHistory } from "./history"
-import { normalizeSelection, Range, Selection, simpleSelection } from "./selection"
+import { addSelectionToHistory } from "./history.js"
+import { normalizeSelection, Range, Selection, simpleSelection } from "./selection.js"
 
 // The 'scroll' parameter given to many of these indicated whether
 // the new cursor position should be scrolled into view after
@@ -16,8 +16,8 @@ import { normalizeSelection, Range, Selection, simpleSelection } from "./selecti
 // include a given position (and optionally a second position).
 // Otherwise, simply returns the range between the given positions.
 // Used for cursor motion and such.
-export function extendRange(doc, range, head, other) {
-  if (doc.cm && doc.cm.display.shift || doc.extend) {
+export function extendRange(range, head, other, extend) {
+  if (extend) {
     let anchor = range.anchor
     if (other) {
       let posBefore = cmp(head, anchor) < 0
@@ -35,16 +35,18 @@ export function extendRange(doc, range, head, other) {
 }
 
 // Extend the primary selection range, discard the rest.
-export function extendSelection(doc, head, other, options) {
-  setSelection(doc, new Selection([extendRange(doc, doc.sel.primary(), head, other)], 0), options)
+export function extendSelection(doc, head, other, options, extend) {
+  if (extend == null) extend = doc.cm && (doc.cm.display.shift || doc.extend)
+  setSelection(doc, new Selection([extendRange(doc.sel.primary(), head, other, extend)], 0), options)
 }
 
 // Extend all selections (pos is an array of selections with length
 // equal the number of selections)
 export function extendSelections(doc, heads, options) {
   let out = []
+  let extend = doc.cm && (doc.cm.display.shift || doc.extend)
   for (let i = 0; i < doc.sel.ranges.length; i++)
-    out[i] = extendRange(doc, doc.sel.ranges[i], heads[i], null)
+    out[i] = extendRange(doc.sel.ranges[i], heads[i], null, extend)
   let newSel = normalizeSelection(out, doc.sel.primIndex)
   setSelection(doc, newSel, options)
 }

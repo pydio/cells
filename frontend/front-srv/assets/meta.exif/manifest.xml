@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta id="meta.exif" label="CONF_MESSAGE[Exif Metadata]" description="CONF_MESSAGE[Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif]">
+	<client_settings>
+		<resources>
+			<i18n namespace="meta.exif" remote="plug/meta.exif/res/i18n" />
+            <js file="plug/meta.exif/res/build/PydioExif.js" className="PydioExif"/>
+		</resources>
+	</client_settings>
+	<server_settings>
+		<global_param name="exif_meta_fields" type="string" label="CONF_MESSAGE[Info Panel Fields]" description="CONF_MESSAGE[Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'.]" mandatory="false" default="GeoLocation.GPS_latitude,GeoLocation.GPS_longitude,ImageExif.Make,ImageExif.Model" expose="true"/>
+		<global_param name="exif_meta_labels" type="string" label="CONF_MESSAGE[Info Panel Labels]" description="CONF_MESSAGE[Associated list of labels, be sure to define as many as fields!]" mandatory="false" default="Latitude,Longitude,Maker,Model" expose="true"/>
+	</server_settings>
+	<registry_contributions>
+		<client_configs>
+			<component_config component="InfoPanel">
+                <infoPanel mime="jpg,jpeg,tiff,riff" theme="material" reactComponent="PydioExif.Panel" weight="-10"/>
+			</component_config>
+		</client_configs>
+	</registry_contributions>
+	<dependencies>
+		<!-- Wrapper type plugins only -->
+		<pluginClass pluginName="access.gateway"/>
+	</dependencies>
+</meta>

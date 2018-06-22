@@ -1,21 +1,21 @@
-import { onBlur } from "../display/focus"
-import { setGuttersForLineNumbers, updateGutters } from "../display/gutters"
-import { alignHorizontally } from "../display/line_numbers"
-import { loadMode, resetModeState } from "../display/mode_state"
-import { initScrollbars, updateScrollbars } from "../display/scrollbars"
-import { updateSelection } from "../display/selection"
-import { regChange } from "../display/view_tracking"
-import { getKeyMap } from "../input/keymap"
-import { defaultSpecialCharPlaceholder } from "../line/line_data"
-import { Pos } from "../line/pos"
-import { findMaxLine } from "../line/spans"
-import { clearCaches, compensateForHScroll, estimateLineHeights } from "../measurement/position_measurement"
-import { replaceRange } from "../model/changes"
-import { mobile, windows } from "../util/browser"
-import { addClass, rmClass } from "../util/dom"
-import { off, on } from "../util/event"
+import { onBlur } from "../display/focus.js"
+import { setGuttersForLineNumbers, updateGutters } from "../display/gutters.js"
+import { alignHorizontally } from "../display/line_numbers.js"
+import { loadMode, resetModeState } from "../display/mode_state.js"
+import { initScrollbars, updateScrollbars } from "../display/scrollbars.js"
+import { updateSelection } from "../display/selection.js"
+import { regChange } from "../display/view_tracking.js"
+import { getKeyMap } from "../input/keymap.js"
+import { defaultSpecialCharPlaceholder } from "../line/line_data.js"
+import { Pos } from "../line/pos.js"
+import { findMaxLine } from "../line/spans.js"
+import { clearCaches, compensateForHScroll, estimateLineHeights } from "../measurement/position_measurement.js"
+import { replaceRange } from "../model/changes.js"
+import { mobile, windows } from "../util/browser.js"
+import { addClass, rmClass } from "../util/dom.js"
+import { off, on } from "../util/event.js"
 
-import { themeChanged } from "./utils"
+import { themeChanged } from "./utils.js"
 
 export let Init = {toString: function(){return "CodeMirror.Init"}}
 
@@ -52,6 +52,7 @@ export function defineOptions(CodeMirror) {
     clearCaches(cm)
     regChange(cm)
   }, true)
+
   option("lineSeparator", null, (cm, val) => {
     cm.doc.lineSep = val
     if (!val) return
@@ -92,6 +93,7 @@ export function defineOptions(CodeMirror) {
     if (next.attach) next.attach(cm, prev || null)
   })
   option("extraKeys", null)
+  option("configureMouse", null)
 
   option("lineWrapping", false, wrappingChanged, true)
   option("gutters", [], cm => {
@@ -119,14 +121,12 @@ export function defineOptions(CodeMirror) {
 
   option("resetSelectionOnContextMenu", true)
   option("lineWiseCopyCut", true)
+  option("pasteLinesPerSelection", true)
 
   option("readOnly", false, (cm, val) => {
     if (val == "nocursor") {
       onBlur(cm)
       cm.display.input.blur()
-      cm.display.disabled = true
-    } else {
-      cm.display.disabled = false
     }
     cm.display.input.readOnlyChanged(val)
   })

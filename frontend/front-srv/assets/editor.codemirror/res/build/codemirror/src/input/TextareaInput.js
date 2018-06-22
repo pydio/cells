@@ -1,15 +1,15 @@
-import { operation, runInOp } from "../display/operations"
-import { prepareSelection } from "../display/selection"
-import { applyTextInput, copyableRanges, handlePaste, hiddenTextarea, lastCopied, setLastCopied } from "./input"
-import { cursorCoords, posFromMouse } from "../measurement/position_measurement"
-import { eventInWidget } from "../measurement/widgets"
-import { simpleSelection } from "../model/selection"
-import { selectAll, setSelection } from "../model/selection_updates"
-import { captureRightClick, ie, ie_version, ios, mac, mobile, presto, webkit } from "../util/browser"
-import { activeElt, removeChildrenAndAdd, selectInput } from "../util/dom"
-import { e_preventDefault, e_stop, off, on, signalDOMEvent } from "../util/event"
-import { hasCopyEvent, hasSelection } from "../util/feature_detection"
-import { Delayed, sel_dontScroll } from "../util/misc"
+import { operation, runInOp } from "../display/operations.js"
+import { prepareSelection } from "../display/selection.js"
+import { applyTextInput, copyableRanges, handlePaste, hiddenTextarea, setLastCopied } from "./input.js"
+import { cursorCoords, posFromMouse } from "../measurement/position_measurement.js"
+import { eventInWidget } from "../measurement/widgets.js"
+import { simpleSelection } from "../model/selection.js"
+import { selectAll, setSelection } from "../model/selection_updates.js"
+import { captureRightClick, ie, ie_version, ios, mac, mobile, presto, webkit } from "../util/browser.js"
+import { activeElt, removeChildrenAndAdd, selectInput } from "../util/dom.js"
+import { e_preventDefault, e_stop, off, on, signalDOMEvent } from "../util/event.js"
+import { hasSelection } from "../util/feature_detection.js"
+import { Delayed, sel_dontScroll } from "../util/misc.js"
 
 // TEXTAREA INPUT STYLE
 
@@ -25,9 +25,6 @@ export default class TextareaInput {
     this.pollingFast = false
     // Self-resetting timeout for the poller
     this.polling = new Delayed()
-    // Tracks when input.reset has punted to just putting a short
-    // string into the textarea instead of the full selection.
-    this.inaccurateSelection = false
     // Used to work around IE issue with selection being forgotten when focus moves away from textarea
     this.hasSelection = false
     this.composing = null
@@ -35,13 +32,10 @@ export default class TextareaInput {
 
   init(display) {
     let input = this, cm = this.cm
+    this.createField(display)
+    const te = this.textarea
 
-    // Wraps and hides input textarea
-    let div = this.wrapper = hiddenTextarea()
-    // The semihidden textarea that is focused when the editor is
-    // focused, and receives input.
-    let te = this.textarea = div.firstChild
-    display.wrapper.insertBefore(div, display.wrapper.firstChild)
+    display.wrapper.insertBefore(this.wrapper, display.wrapper.firstChild)
 
     // Needed to hide big blue blinking cursor on Mobile Safari (doesn't seem to work in iOS 8 anymore)
     if (ios) te.style.width = "0px"
@@ -62,12 +56,6 @@ export default class TextareaInput {
       if (signalDOMEvent(cm, e)) return
       if (cm.somethingSelected()) {
         setLastCopied({lineWise: false, text: cm.getSelections()})
-        if (input.inaccurateSelection) {
-          input.prevInput = ""
-          input.inaccurateSelection = false
-          te.value = lastCopied.text.join("\n")
-          selectInput(te)
-        }
       } else if (!cm.options.lineWiseCopyCut) {
         return
       } else {
@@ -114,6 +102,14 @@ export default class TextareaInput {
     })
   }
 
+  createField(_display) {
+    // Wraps and hides input textarea
+    this.wrapper = hiddenTextarea()
+    // The semihidden textarea that is focused when the editor is
+    // focused, and receives input.
+    this.textarea = this.wrapper.firstChild
+  }
+
   prepareSelection() {
     // Redraw the selection and/or cursor
     let cm = this.cm, display = cm.display, doc = cm.doc
@@ -146,13 +142,10 @@ export default class TextareaInput {
   // when not typing and nothing is selected)
   reset(typing) {
     if (this.contextMenuPending || this.composing) return
-    let minimal, selected, cm = this.cm, doc = cm.doc
+    let cm = this.cm
     if (cm.somethingSelected()) {
       this.prevInput = ""
-      let range = doc.sel.primary()
-      minimal = hasCopyEvent &&
-        (range.to().line - range.from().line > 100 || (selected = cm.getSelection()).length > 1000)
-      let content = minimal ? "-" : selected || cm.getSelection()
+      let content = cm.getSelection()
       this.textarea.value = content
       if (cm.state.focused) selectInput(this.textarea)
       if (ie && ie_version >= 9) this.hasSelection = content
@@ -160,7 +153,6 @@ export default class TextareaInput {
       this.prevInput = this.textarea.value = ""
       if (ie && ie_version >= 9) this.hasSelection = null
     }
-    this.inaccurateSelection = minimal
   }
 
   getField() { return this.textarea }
@@ -354,6 +346,7 @@ export default class TextareaInput {
 
   readOnlyChanged(val) {
     if (!val) this.reset()
+    this.textarea.disabled = val == "nocursor"
   }
 
   setUneditable() {}

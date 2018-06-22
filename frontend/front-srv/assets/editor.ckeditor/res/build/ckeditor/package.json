@@ -10,17 +10,17 @@
         "spec": ">=4.6.2 <5.0.0",
         "type": "range"
       },
-      "/Users/charles/Sources/pydio9-front/plugins/editor.ckeditor"
+      "/Users/charles/Sources/go/src/github.com/pydio/cells/frontend/front-srv/assets/editor.ckeditor"
     ]
   ],
   "_from": "ckeditor@>=4.6.2 <5.0.0",
-  "_id": "ckeditor@4.7.0",
+  "_id": "ckeditor@4.9.2",
   "_inCache": true,
   "_location": "/ckeditor",
   "_nodeVersion": "6.8.1",
   "_npmOperationalInternal": {
     "host": "s3://npm-registry-packages",
-    "tmp": "tmp/ckeditor-4.7.0.tgz_1495729525337_0.9432397915516049"
+    "tmp": "tmp/ckeditor_4.9.2_1524042431061_0.5954451838639139"
   },
   "_npmUser": {
     "name": "cksource",
@@ -40,11 +40,11 @@
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/ckeditor/-/ckeditor-4.7.0.tgz",
-  "_shasum": "79b0fe6067503883a572f99a3e72b19d3a567a1a",
+  "_resolved": "https://registry.npmjs.org/ckeditor/-/ckeditor-4.9.2.tgz",
+  "_shasum": "385600cb4028e0055c92720e22435bb97f413cdc",
   "_shrinkwrap": null,
   "_spec": "ckeditor@^4.6.2",
-  "_where": "/Users/charles/Sources/pydio9-front/plugins/editor.ckeditor",
+  "_where": "/Users/charles/Sources/go/src/github.com/pydio/cells/frontend/front-srv/assets/editor.ckeditor",
   "author": {
     "name": "CKSource",
     "url": "http://cksource.com/"
@@ -57,10 +57,13 @@
   "devDependencies": {},
   "directories": {},
   "dist": {
-    "shasum": "79b0fe6067503883a572f99a3e72b19d3a567a1a",
-    "tarball": "https://registry.npmjs.org/ckeditor/-/ckeditor-4.7.0.tgz"
+    "shasum": "385600cb4028e0055c92720e22435bb97f413cdc",
+    "tarball": "https://registry.npmjs.org/ckeditor/-/ckeditor-4.9.2.tgz",
+    "fileCount": 2693,
+    "unpackedSize": 6188423,
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJa1wrACRA9TVsSAnZWagAA81AP/j8U8UfI/66+cvXtnUSb\nd8ihrVmJqnIxYiOdG+hLzL3DVFDTnrUdpgGmsXLRhRDDixAFXfgzGT1DGhUJ\nKPWnUTE0NebiIciW+GB70g1OTw5kMt9HpAH8CnGO5pXBnl20PoQlatADyavf\nbdWqKL0uNBfUsml896XPcws5QIZWwtjpq0GVU7uryt9Lb+P7muvxuGBHggBB\niLKb+6qBF2CWQeLxfeayc4JQbivQaDDN3wuM42zGQ2Kk2H8koBdeMxeW5j6f\nv1DlGMIHlyflFtJDQkWDcPPphzTFHuU0saaTwIbm2vDPu0TYmC73J6+zt8wl\nTkvfLfPwSYgJgrhwWx4MqnyOjM8oHDaL+Yk+aUKjmFebYcz5/bVHIePr/VIM\nyoiCrwJ8fRmytFUv7elpo7bh04Xvv6+4w4+uoT183uSWOMQ7gZWf23MSDevl\nvhRezh41CYCsVutyd0C4zPddsq22qpc+pZP3NGv3wjLmTH2Bc8YqsbcnRg6m\nnLpxXYaGqm0B3uKZ69A17mvy1YjOx5P6k7o5U8nI7TY1C9Jvd6hDWni8YfUq\nO5Jwq1NapWwKRwsz/PqCUdsan49w4o/HM9KC7MpDyhNVPADm6iAzDFRjvRtY\nhMLIlwHf6nmMrcZfh3kG/MPThdaHWBYKxIiXPiool8W2rEnI8365sonJJSBh\nitnl\r\n=WEOH\r\n-----END PGP SIGNATURE-----\r\n"
   },
-  "gitHead": "8edc5545364d3bd2b928852a7c270a044d1b3ea4",
+  "gitHead": "993eb4fba6a70545f6c50da1988d39ecd9cf47a3",
   "homepage": "http://ckeditor.com",
   "keywords": [
     "ckeditor",
@@ -88,5 +91,5 @@
     "url": "git+https://github.com/ckeditor/ckeditor-releases.git"
   },
   "scripts": {},
-  "version": "4.7.0"
+  "version": "4.9.2"
 }

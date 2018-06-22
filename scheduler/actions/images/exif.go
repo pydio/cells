@@ -22,6 +22,7 @@ package images
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -98,9 +99,37 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 	}
 	lat, long, err := exifData.LatLong()
 	if err == nil {
-		geoLocation := map[string]float64{
+		var readLat, readLong string
+		geoLocation := map[string]interface{}{
 			"lat": lat,
 			"lon": long,
+		}
+		if lat2, e := exifData.Get(exif.GPSLatitude); e == nil {
+			if l0, e1 := lat2.Rat(0); e1 == nil {
+				l1, _ := lat2.Rat(1)
+				l2, _ := lat2.Rat(2)
+				ref, _ := exifData.Get(exif.GPSLatitudeRef)
+				refStr, _ := ref.StringVal()
+				readLat = fmt.Sprintf("%d deg %d' %d %s", l0.Num(), l1.Num(), l2.Num(), refStr)
+			}
+		}
+		if long2, e := exifData.Get(exif.GPSLongitude); e == nil {
+			if l0, e1 := long2.Rat(0); e1 == nil {
+				l1, _ := long2.Rat(1)
+				l2, _ := long2.Rat(2)
+				ref, _ := exifData.Get(exif.GPSLatitudeRef)
+				refStr, _ := ref.StringVal()
+				readLong = fmt.Sprintf("%d deg %d' %d %s", l0.Num(), l1.Num(), l2.Num(), refStr)
+			}
+		}
+		if readLat != "" && readLong != "" {
+			geoLocation["GPS_latitude"] = readLat
+			geoLocation["GPS_longitude"] = readLong
+		}
+		if alt, e := exifData.Get(exif.GPSAltitude); e == nil {
+			if a0, e1 := alt.Rat(0); e1 == nil {
+				geoLocation["GPS_altitude"] = fmt.Sprintf("%d", a0.Num())
+			}
 		}
 		node.SetMeta(METADATA_GEOLOCATION, geoLocation)
 	}

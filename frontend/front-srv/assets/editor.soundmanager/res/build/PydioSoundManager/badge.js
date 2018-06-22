@@ -83,8 +83,6 @@ var Badge = (function (_Component) {
                 _this.setState({
                     url: url,
                     mimeType: "audio/" + node.getAjxpMime()
-                }, function () {
-                    threeSixtyPlayer.init();
                 });
             }, "audio/" + node.getAjxpMime());
         }
