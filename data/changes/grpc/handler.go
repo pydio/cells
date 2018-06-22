@@ -29,6 +29,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/micro/protobuf/ptypes"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -36,6 +37,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/defaults"
+	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/data/changes"
 )
 
@@ -249,4 +251,47 @@ func (h Handler) Search(ctx context.Context, req *tree.SearchSyncChangeRequest, 
 		return err
 	}
 	return changes.NewOptimizer(ctx, changes.ChangeChan(res)).Output(ctx, stream)
+}
+
+// Archive change in the service storage
+func (h Handler) Archive(ctx context.Context, req *service.Query, resp *service.StatusResponse) error {
+
+	log.Logger(ctx).Debug("Archive")
+
+	if servicecontext.GetDAO(ctx) == nil {
+		return fmt.Errorf("no DAO found, wrong initialization")
+	}
+	dao := servicecontext.GetDAO(ctx).(changes.DAO)
+
+	subqueries := req.GetSubQueries()
+	if len(subqueries) != 1 {
+		return fmt.Errorf("Can only treate one query with a seq id")
+	}
+
+	query := &service.ChangesArchiveQuery{}
+
+	if err := ptypes.UnmarshalAny(subqueries[0], query); err != nil {
+		return err
+	}
+
+	first, err := dao.FirstSeq()
+	if err != nil {
+		return err
+	}
+
+	last, err := dao.LastSeq()
+	if err != nil {
+		return err
+	}
+	log.Logger(ctx).Debug(fmt.Sprintf("Archiving from seq %d > %d", last-query.RemainingRows, first))
+
+	if seq := last - query.RemainingRows; seq >= first {
+		if err := dao.Archive(seq); err != nil {
+			return err
+		}
+	}
+
+	resp.OK = true
+
+	return nil
 }

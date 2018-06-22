@@ -108,6 +108,24 @@ func getDefaultJobs() []*jobs.Job {
 		},
 	}
 
+	archiveChangesJob := &jobs.Job{
+		ID:             "archive-changes-job",
+		Owner:          common.PYDIO_SYSTEM_USERNAME,
+		Label:          "Jobs.Default.ArchiveJobs",
+		MaxConcurrency: 1,
+		Schedule: &jobs.Schedule{
+			Iso8601Schedule: "R/2012-06-04T19:25:16.828696-07:03/PT10M",
+		},
+		Actions: []*jobs.Action{
+			{
+				ID: "actions.changes.archive",
+				Parameters: map[string]string{
+					"remainingRows": "1000",
+				},
+			},
+		},
+	}
+
 	fakeLongJob := &jobs.Job{
 		ID:             "fake-long-job",
 		Owner:          common.PYDIO_SYSTEM_USERNAME,
@@ -163,6 +181,7 @@ func getDefaultJobs() []*jobs.Job {
 		thumbnailsJob,
 		cleanThumbsJob,
 		stuckTasksJob,
+		archiveChangesJob,
 		// Testing Jobs
 		fakeLongJob,
 		fakeRPCJob,
