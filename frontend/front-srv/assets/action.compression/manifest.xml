@@ -4,8 +4,8 @@
 
     <client_settings>
         <resources>
-            <i18n namespace="compression" remote="plugins/action.compression/res/i18n"/>
-            <js className="CompressionActions" file="plugins/action.compression/res/build/CompressionActions.js"/>
+            <i18n namespace="compression" remote="plug/action.compression/res/i18n"/>
+            <js className="CompressionActions" file="plug/action.compression/res/build/CompressionActions.js"/>
         </resources>
     </client_settings>
 

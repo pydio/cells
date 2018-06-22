@@ -1,0 +1,19 @@
+{
+    "1": "Beobachten auf...",
+    "2": "Benachrichtigen, wenn auf dieses Element zugegriffen wird",
+    "3": "Nicht mehr beobachten",
+    "4": "Ordner nicht mehr auf Änderungen beobachten",
+    "5": "Beobachten auf...",
+    "6": "Diese Datei auf Änderungen beobachten",
+    "7": "Nicht mehr beobachten",
+    "8": "Datei nicht mehr auf Änderungen beobachten",
+    "9": "Zugriffe",
+    "10": "Benachrichtigen, wenn die Datei geöffnet wird",
+    "10b": "Benachrichtigen, wenn Dateien des Ordners geöffnet werden",
+    "11": "Veränderungen",
+    "12": "Benachrichtigen, wenn die Datei bearbeitet wird",
+    "12b": "Benachrichtigen, wenn Dateien des Ordners bearbeitet werden",
+    "13": "Beides",
+    "14": "Benachrichtigen, wenn die Datei bearbeitet oder geöffnet wird",
+    "14b": "Benachrichtigen, wenn Dateien des Ordners bearbeitet oder geöffnet werden"
+}
