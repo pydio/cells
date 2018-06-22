@@ -33,6 +33,7 @@ var BasePluginsBox = frontend.PluginBox{
 	Exposes: []string{
 		"action.compression",
 		"action.demo_counter",
+		"action.user",
 		"core.activitystreams",
 		"editor.browser",
 		"editor.ckeditor",
