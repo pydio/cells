@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ajxpdriver id="action.user" enabled="always" label="CONF_MESSAGE[User Account Panel]" description="CONF_MESSAGE[User account panel for managing settings and opening address book]">
+<plugin id="action.user" enabled="always" label="CONF_MESSAGE[User Account Panel]" description="CONF_MESSAGE[User account panel for managing settings and opening address book]">
 	<client_settings>
 		<resources>
 			<i18n namespace="user_dash" remote="plug/action.user/res/i18n" />
@@ -32,4 +32,4 @@
 			</action>
 		</actions>
 	</registry_contributions>
-</ajxpdriver>
+</plugin>

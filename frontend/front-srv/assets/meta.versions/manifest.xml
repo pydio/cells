@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="meta.versions" label="CONF_MESSAGE[Files Versioning]" description="CONF_MESSAGE[Keep tracks of all files modifications]">
+<meta id="meta.versions" label="CONF_MESSAGE[Files Versioning]" description="CONF_MESSAGE[Keep tracks of all files modifications]">
     <plugin_info>
         <core_relation packaged="true" tested_version="follow_core"/>
         <plugin_author>Charles du Jeu</plugin_author>
@@ -26,4 +26,4 @@
             </action>
         </actions>
     </registry_contributions>
-</plugin>
+</meta>

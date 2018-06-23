@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta id="meta.quota" label="CONF_MESSAGE[Quota Limitation]" description="CONF_MESSAGE[Limit storage usage]"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <server_settings>
+        <global_param name="USAGE_QUOTA" type="string" label="CONF_MESSAGE[Usage Quota]"
+                      description="CONF_MESSAGE[Role-based storage usage limitation]"/>
+    </server_settings>
+	<dependencies>
+		<pluginClass pluginName="access.gateway"/>
+	</dependencies>
+</meta>

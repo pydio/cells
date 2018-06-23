@@ -173,7 +173,7 @@ var mapStateToProps = function mapStateToProps(state, props) {
     var tab = tabs.filter(function (_ref3) {
         var editorData = _ref3.editorData;
         var node = _ref3.node;
-        return (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath();
+        return (!editorData || editorData.id === props.editorData.id) && (!props.node || node.getPath() === props.node.getPath());
     })[0] || {};
 
     if (!tab) return props;
