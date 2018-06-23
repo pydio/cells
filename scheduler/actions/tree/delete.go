@@ -22,9 +22,13 @@ package tree
 
 import (
 	"context"
+	"path/filepath"
 
 	"github.com/micro/go-micro/client"
+	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/views"
@@ -32,7 +36,8 @@ import (
 )
 
 type DeleteAction struct {
-	Client views.Handler
+	Client             views.Handler
+	deleteChildrenOnly bool
 }
 
 var (
@@ -48,6 +53,9 @@ func (c *DeleteAction) GetName() string {
 func (c *DeleteAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) error {
 
 	c.Client = views.NewStandardRouter(views.RouterOptions{AdminView: true})
+	if co, ok := action.Parameters["childrenOnly"]; ok && co == "true" {
+		c.deleteChildrenOnly = true
+	}
 
 	return nil
 }
@@ -59,9 +67,43 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		return input.WithIgnore(), nil // Ignore
 	}
 
-	_, err := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: input.Nodes[0]})
-	if err != nil {
-		return input.WithError(err), err
+	sourceNode := input.Nodes[0]
+
+	readR, readE := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
+	if readE != nil {
+		log.Logger(ctx).Error("Read Source", zap.Error(readE))
+		return input.WithError(readE), readE
+	}
+	sourceNode = readR.Node
+
+	if sourceNode.IsLeaf() {
+		_, err := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: sourceNode})
+		if err != nil {
+			return input.WithError(err), err
+		}
+	} else {
+
+		list, e := c.Client.ListNodes(ctx, &tree.ListNodesRequest{Node: sourceNode, Recursive: true})
+		if e != nil {
+			return input.WithError(e), e
+		}
+		defer list.Close()
+		for {
+			resp, e := list.Recv()
+			if e != nil {
+				break
+			}
+			if resp.Node.Path == filepath.Join(sourceNode.Path, common.PYDIO_SYNC_HIDDEN_FILE_META) && c.deleteChildrenOnly {
+				// Do not delete first .pydio!
+				continue
+			}
+			log.Logger(ctx).Info("Deleting node in background", resp.Node.ZapPath())
+			_, er := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: resp.Node})
+			if er != nil {
+				return input.WithError(er), er
+			}
+		}
+
 	}
 
 	output := input.WithNode(nil)

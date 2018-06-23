@@ -46,6 +46,7 @@ type CopyMoveAction struct {
 	Recursive         bool
 	TargetPlaceholder string
 	CreateFolder      bool
+	TargetIsParent    bool
 }
 
 var (
@@ -81,6 +82,10 @@ func (c *CopyMoveAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 		c.CreateFolder, _ = strconv.ParseBool(createParam)
 	}
 
+	if targetParent, ok := action.Parameters["targetParent"]; ok && targetParent == "true" {
+		c.TargetIsParent = true
+	}
+
 	if recurseParam, ok := action.Parameters["recursive"]; ok {
 		c.Recursive, _ = strconv.ParseBool(recurseParam)
 	}
@@ -94,16 +99,22 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	if len(input.Nodes) == 0 {
 		return input.WithIgnore(), nil // Ignore
 	}
+	sourceNode := input.Nodes[0]
 
+	// Todo - handle target already existing with -X suffix?
 	targetNode := &tree.Node{
 		Path: c.TargetPlaceholder,
 	}
+	if c.TargetIsParent {
+		targetNode.Path = filepath.Join(targetNode.Path, filepath.Base(sourceNode.Path))
+	}
+
+	log.Logger(ctx).Info("Copy/Move target path is", targetNode.ZapPath(), zap.Bool("targetIsParent", c.TargetIsParent))
 
 	if targetNode.Path == input.Nodes[0].Path {
 		// Do not copy on itself, ignore
 		return input, nil
 	}
-	sourceNode := input.Nodes[0]
 
 	readR, readE := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
 	if readE != nil {

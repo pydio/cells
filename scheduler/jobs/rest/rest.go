@@ -233,11 +233,26 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 			nodes = append(nodes, i.(string))
 		}
 		target := jsonParams["target"].(string)
+		var targetIsParent bool
+		if p, ok := jsonParams["targetParent"]; ok && p == true {
+			targetIsParent = true
+		}
 		move := false
 		if request.JobName == "move" {
 			move = true
 		}
-		jobUuid, err = dircopy(ctx, nodes, target, move, languages...)
+		jobUuid, err = dirCopy(ctx, nodes, target, targetIsParent, move, languages...)
+		break
+	case "delete":
+		var nodes []string
+		for _, i := range jsonParams["nodes"].([]interface{}) {
+			nodes = append(nodes, i.(string))
+		}
+		var childrenOnly bool
+		if c, ok := jsonParams["childrenOnly"]; ok {
+			childrenOnly = c.(bool)
+		}
+		jobUuid, err = backgroundDelete(ctx, nodes, childrenOnly, languages...)
 		break
 	case "datasource-resync":
 		dsName := jsonParams["dsName"].(string)

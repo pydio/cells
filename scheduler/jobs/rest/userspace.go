@@ -163,7 +163,7 @@ func extract(ctx context.Context, selectedNode string, targetPath string, format
 
 }
 
-func dircopy(ctx context.Context, selectedPathes []string, targetNodePath string, move bool, languages ...string) (string, error) {
+func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string, targetIsParent bool, move bool, languages ...string) (string, error) {
 
 	T := lang.Bundle().GetTranslationFunc(languages...)
 
@@ -191,17 +191,30 @@ func dircopy(ctx context.Context, selectedPathes []string, targetNodePath string
 		}
 
 		if targetNodePath != "" {
-			dir, base := filepath.Split(targetNodePath)
+			var dir, base string
+			if targetIsParent {
+				dir = targetNodePath
+			} else {
+				dir, base = filepath.Split(targetNodePath)
+			}
 			node := &tree.Node{Path: dir}
 			_, node, nodeErr := inputFilter(ctx, node, "sel")
 			if nodeErr != nil {
 				log.Logger(ctx).Error("Filtering Input Node Parent", zap.Any("node", node), zap.Error(nodeErr))
 				return nodeErr
 			}
-			targetNodePath = node.Path + "/" + base
+			if targetIsParent {
+				targetNodePath = node.Path
+			} else {
+				targetNodePath = node.Path + "/" + base
+			}
 		}
 
-		log.Logger(ctx).Debug("Creating copy/move job", zap.Any("pathes", selectedPathes), zap.String("target", targetNodePath))
+		var targetParent = ""
+		if targetIsParent {
+			targetParent = "true"
+		}
+		log.Logger(ctx).Info("Creating copy/move job", zap.Any("paths", selectedPathes), zap.String("target", targetNodePath))
 
 		job := &jobs.Job{
 			ID:             "copy-move-" + jobUuid,
@@ -216,14 +229,74 @@ func dircopy(ctx context.Context, selectedPathes []string, targetNodePath string
 				{
 					ID: "actions.tree.copymove",
 					Parameters: map[string]string{
-						"type":      taskType,
-						"target":    targetNodePath,
-						"recursive": "true",
-						"create":    "true",
+						"type":         taskType,
+						"target":       targetNodePath,
+						"targetParent": targetParent,
+						"recursive":    "true",
+						"create":       "true",
 					},
 					NodesSelector: &jobs.NodesSelector{
-						Collect: true,
-						Pathes:  selectedPathes,
+						//Collect: true,
+						Pathes: selectedPathes,
+					},
+				},
+			},
+		}
+
+		cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		return er
+
+	})
+
+	return jobUuid, err
+}
+
+func backgroundDelete(ctx context.Context, selectedPathes []string, childrenOnly bool, languages ...string) (string, error) {
+
+	T := lang.Bundle().GetTranslationFunc(languages...)
+
+	taskLabel := T("Jobs.User.Delete")
+
+	jobUuid := uuid.NewUUID().String()
+	claims := ctx.Value(claim.ContextKey).(claim.Claims)
+	userName := claims.Name
+
+	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+
+		for i, path := range selectedPathes {
+			node := &tree.Node{Path: path}
+			_, node, nodeErr := inputFilter(ctx, node, "sel")
+			log.Logger(ctx).Debug("Filtering Input Node", zap.Any("node", node), zap.Error(nodeErr))
+			if nodeErr != nil {
+				return nodeErr
+			}
+			selectedPathes[i] = node.Path
+		}
+
+		log.Logger(ctx).Debug("Creating background delete job", zap.Any("pathes", selectedPathes), zap.Bool("childrenOnly", childrenOnly))
+
+		var params = map[string]string{}
+		if childrenOnly {
+			params["childrenOnly"] = "true"
+		}
+
+		job := &jobs.Job{
+			ID:             "delete-" + jobUuid,
+			Owner:          userName,
+			Label:          taskLabel,
+			Inactive:       false,
+			Languages:      languages,
+			MaxConcurrency: 1,
+			AutoStart:      true,
+			AutoClean:      true,
+			Actions: []*jobs.Action{
+				{
+					ID:         "actions.tree.delete",
+					Parameters: params,
+					NodesSelector: &jobs.NodesSelector{
+						//Collect: true,
+						Pathes: selectedPathes,
 					},
 				},
 			},
