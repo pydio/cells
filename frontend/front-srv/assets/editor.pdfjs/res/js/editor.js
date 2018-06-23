@@ -65,7 +65,7 @@ class Viewer extends Component {
             + '&fake_file_name=' + encodeURIComponent(PathUtils.getBasename(node.getPath())));
 
         this.setState({
-            url: 'plugins/editor.pdfjs/pdfjs/web/viewer.html?file=' + pdfurl
+            url: 'plug/editor.pdfjs/pdfjs/web/viewer.html?file=' + pdfurl
         })
 
     }

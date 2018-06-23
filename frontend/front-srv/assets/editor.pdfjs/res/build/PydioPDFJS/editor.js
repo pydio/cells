@@ -93,7 +93,7 @@ var Viewer = (function (_Component) {
             var pdfurl = encodeURIComponent(LangUtils.trimRight(url, '\/') + '/' + pydio.Parameters.get('ajxpServerAccess') + '&action=get_content&file=base64encoded:' + HasherUtils.base64_encode(node.getPath()) + '&fake_file_name=' + encodeURIComponent(PathUtils.getBasename(node.getPath())));
 
             this.setState({
-                url: 'plugins/editor.pdfjs/pdfjs/web/viewer.html?file=' + pdfurl
+                url: 'plug/editor.pdfjs/pdfjs/web/viewer.html?file=' + pdfurl
             });
         }
     }, {
