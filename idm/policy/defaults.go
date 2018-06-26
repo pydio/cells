@@ -54,6 +54,14 @@ var (
 					Actions:     []string{"PUT", "POST"},
 					Effect:      ladon.AllowAccess,
 				}),
+				LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "frontend-state",
+					Description: "PolicyGroup.PublicAccess.Rule3",
+					Subjects:    []string{"profile:anon"},
+					Resources:   []string{"rest:/front-state/<.*>", "rest:/front-state"},
+					Actions:     []string{"GET"},
+					Effect:      ladon.AllowAccess,
+				}),
 			},
 		},
 
@@ -156,6 +164,8 @@ var (
 						"rest:/activity<.+>",
 						"rest:/changes",
 						"rest:/changes<.+>",
+						"rest:/front-state/<.*>",
+						"rest:/front-state",
 					},
 					Actions: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 					Effect:  ladon.AllowAccess,

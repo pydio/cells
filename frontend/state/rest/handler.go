@@ -24,8 +24,6 @@ func NewRestHandler() *RestHandler {
 	frontend.RegisterPluginBoxes(frontend.PluginBox{
 		Box: packr.NewBox("/Users/charles/Sources/cells-front/plugins"),
 		Exposes: []string{
-			"access.fs",
-			"access.s3",
 			"access.gateway",
 			"access.homepage",
 			"access.settings",
@@ -59,8 +57,6 @@ func NewRestHandler() *RestHandler {
 			"log.pydio",
 			"meta.user",
 			"metastore.pydio",
-			"uploader.html",
-			"uploader.http",
 		},
 	})
 

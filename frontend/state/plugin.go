@@ -243,17 +243,5 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 		}
 	}
 
-	if param.Attrname == "ENDPOINT_REST_API" {
-		val = "http://192.168.0.198:8080/a"
-	} else if param.Attrname == "ENDPOINT_S3_GATEWAY" {
-		val = "http://192.168.0.198:8080/io"
-	} else if param.Attrname == "ENDPOINT_WEBSOCKET" {
-		val = "ws://192.168.0.198:8080/ws/event"
-	} else if param.Attrname == "FRONTEND_URL" {
-		val = "http://192.168.0.198:8080"
-	} else if param.Attrname == "PUBLIC_BASEURI" {
-		val = "/public"
-	}
-
 	return val
 }

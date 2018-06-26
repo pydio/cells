@@ -11,6 +11,7 @@ import (
 	"github.com/gyuho/goraph"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service/frontend"
+	"go.uber.org/zap"
 )
 
 type PluginsPool struct {
@@ -43,7 +44,8 @@ func (p *PluginsPool) Load(fs *frontend.UnionHttpFs) error {
 	for _, plugin := range plugs {
 		object, e := p.readManifest(fs, plugin)
 		if e != nil {
-			return e
+			log.Logger(context.Background()).Error("Ignoring "+plugin, zap.Error(e))
+			continue
 		}
 		p.Plugins[plugin] = object
 	}
