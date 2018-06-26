@@ -18,7 +18,6 @@
 		</client_configs>
 	</registry_contributions>
 	<dependencies>
-		<!-- Wrapper type plugins only -->
 		<pluginClass pluginName="access.gateway"/>
 	</dependencies>
 </meta>

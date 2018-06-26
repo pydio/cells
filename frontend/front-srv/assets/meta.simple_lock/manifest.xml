@@ -21,4 +21,7 @@
             </action>
         </actions>
     </registry_contributions>
+    <dependencies>
+        <activePlugin pluginName="access.gateway"/>
+    </dependencies>
 </meta>

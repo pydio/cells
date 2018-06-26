@@ -52,6 +52,8 @@ var BasePluginsBox = frontend.PluginBox{
 		"meta.exif",
 		"meta.simple_lock",
 		"meta.versions",
+		"uploader.html",
+		"uploader.http",
 	},
 }
 

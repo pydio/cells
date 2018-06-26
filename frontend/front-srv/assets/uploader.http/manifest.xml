@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uploader text="51" title="132" order="10" id="uploader.http" label="CONF_MESSAGE[Remote Download]"
+          description="CONF_MESSAGE[Async downloader to load a file from another source]">
+	<client_settings>
+		<resources>
+			<js file="plug/uploader.http/js/build/UploaderView.js" className="HTTPUploaderView" depends="React"/>
+	        <i18n namespace="httpdownloader" remote="plug/uploader.http/resources/i18n" />
+            <css file="plug/uploader.http/resources/downloader.css" autoload="true"/>
+		</resources>
+	</client_settings>
+	<registry_contributions>
+        <extensions>
+            <extension mime="download" messageId="httpdownloader.17" font="cloud-download" icon="httpdownloader_images/ICON_SIZE/kget_list.png"/>
+            <extension mime="dlpart" messageId="httpdownloader.18" font="file-import" icon="exe.png"/>
+        </extensions>
+		<actions>
+            <action name="external_download">
+				<gui text="httpdownloader.1" title="httpdownloader.2" accessKey="httpdownloader.3" hasAccessKey="true">
+					<context selection="false" dir="true" recycle="hidden"
+						actionBar="false" contextMenu="false" infoPanel="false"
+						actionBarGroup="put" inZip="false">
+					</context>
+				</gui>
+				<rightsContext noUser="true" userLogged="only" read="false" write="true" adminOnly=""/>
+			</action>
+		</actions>
+	</registry_contributions>
+	<dependencies>
+		<!-- Stream Wrapper Access -->
+		<activePlugin pluginName="access.gateway"/>
+	</dependencies>
+    <processing>
+		<clientForm module="HTTPUploaderView.Uploader"/>
+    </processing>
+</uploader>

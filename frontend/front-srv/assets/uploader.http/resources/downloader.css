@@ -1,0 +1,14 @@
+#dynamic_bookmarklet a{
+   display: block;
+background-image: url('images/16/bookmarklet.png');
+background-repeat: no-repeat;
+padding-left: 21px;
+border: 1px solid #CCC;
+width: 150px;
+margin: 5px;
+padding: 5px;
+padding-left: 26px;
+background-position: 4px;
+border-radius: 4px;
+float: left;
+}

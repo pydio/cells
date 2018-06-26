@@ -1,0 +1,14 @@
+{
+    "HTML Uploader": "Envio por HTML",
+    "Auto-switching HTML5 or IFrame uploader.": "Ferramenta de Envio de ficheiros Auto-Manipulável por HTML5 ou IFrame.",
+    "Default Behaviour": "Comportamento Pré-Definido",
+    "Existing Files": "Ficheiros Existentes",
+    "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)": "Informar o utilizador ou não se um ficheiro já existe (comportamento pré definido, o utilizador tem a possibilidade de alterar esta preferência)",
+    "Auto Start": "Começar Automaticamente",
+    "Default value for automatically starting upload or not": "Valor Pré-Definido para começar ou não o envio automaticamente",
+    "Auto Close": "Fechar Automaticamente",
+    "Default value for automatically closing the dialog after upload or not": "Valor Pré-Definido para fechar ou não automaticamente a caixa de diálogo após terminar o envio",
+    "Always Override": "Always Override",
+    "Auto Rename File": "Auto Rename File",
+    "Prompt user": "Prompt user"
+}

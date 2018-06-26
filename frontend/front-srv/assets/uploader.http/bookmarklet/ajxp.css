@@ -1,0 +1,104 @@
+#ajxp_bm_main, #ajxp_bm_main a {
+	color: #999 !important;
+}
+
+.ajxp_bm_menu{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 245px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-family: arial;
+    font-size: 16px;
+    opacity: 1;
+    box-shadow: 4px 4px 15px rgba(0,0,0,0.3);
+    z-index: 1000000;
+    font-weight: bold;
+    /*text-shadow: 1px 1px 3px black;*/
+}
+
+.ajxp_bm_menu_legend{
+    color: #ccc;
+    font-size: 0.5em;
+    padding: 10px 5px;
+    text-shadow: none;
+}
+
+#ajxp_bm_iframe{
+    margin-bottom: 5px;
+    width: 248px;
+    height: 134px;
+    margin-top: 12px;
+    /*border-radius: 5px;*/
+}
+
+#ajxp_bm_link_title{
+	font-size: 11px;
+	border-bottom: 1px solid #999;
+	padding: 3px 0px 5px 0px;
+}
+
+#ajxp_bm_link_menu{
+	display:none;
+	width:240px;
+	right: 300px;
+    background-color: rgba(255,255,255,0.70);
+    -moz-opacity:1;
+    opacity: 1;
+    filter:alpha(opacity=100);
+    padding: 5px;
+    color: #000;
+    text-align: center;
+}
+
+#ajxp_bm_link_menu.ajxp_bm_small{
+    width:200px;
+    text-align: left;
+    background-color: rgba(255,255,255,0.90);
+}
+#ajxp_bm_link_menu.ajxp_bm_small a{
+    font-family: inherit;
+    font-size: inherit;
+}
+
+#ajxp_bm_link_menu a#ajxp_bm_link_dl1,
+#ajxp_bm_link_menu a#ajxp_bm_link_dl2{
+    display: block;
+    color: #999 !important;
+    margin-top: 4px;
+    text-shadow: 1px 1px white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#ajxp_bm_link_menu.ajxp_bm_big a#ajxp_bm_link_dl1{
+	display:inline-block;
+	cursor:pointer;
+	color:#aaa;
+    font-size: 18px;
+    line-height: 33px;
+    border: 2px solid #BBB;
+    display: inline-block;
+    padding: 2px 5px;
+    border-radius: 5px;
+    margin-top: 20%;
+    background-color: white;
+    box-shadow: 0px 0px 29px #999;
+}
+
+#ajxp_bm_link_menu.ajxp_bm_small a#ajxp_bm_link_dl1{
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+    margin-top: 0px;
+}
+
+#ajxp_bm_link_menu a img{
+    vertical-align: middle;
+}
+
+#ajxp_bm_link_menu.ajxp_bm_small a img{
+    display: none;
+}

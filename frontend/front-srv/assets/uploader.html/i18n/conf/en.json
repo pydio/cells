@@ -1,0 +1,14 @@
+{
+    "HTML Uploader": "Standard",
+    "Auto-switching HTML5 or IFrame uploader.": "Auto-switching HTML5 or IFrame uploader.",
+    "Default Behaviour": "Default Behaviour",
+    "Existing Files": "Existing Files",
+    "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)": "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)",
+    "Auto Start": "Auto Start",
+    "Default value for automatically starting upload or not": "Default value for automatically starting upload or not",
+    "Auto Close": "Auto Close",
+    "Default value for automatically closing the dialog after upload or not": "Default value for automatically closing the dialog after upload or not",
+    "Always Override": "Always Override",
+    "Auto Rename File": "Auto Rename File",
+    "Prompt user": "Prompt user"
+}
