@@ -432,3 +432,12 @@ func AccessListFromRoles(ctx context.Context, roles []*idm.Role, countPolicies b
 	return
 
 }
+
+func AccessListLoadFrontValues(ctx context.Context, accessList *AccessList) error {
+
+	values := GetACLsForRoles(ctx, accessList.OrderedRoles, ACL_FRONT_ACTION_, ACL_FRONT_PARAM_)
+	accessList.FrontPluginsValues = values
+	log.Logger(ctx).Debug("Frontend ACL Values", zap.Any("values", accessList.FlattenedFrontValues()))
+
+	return nil
+}

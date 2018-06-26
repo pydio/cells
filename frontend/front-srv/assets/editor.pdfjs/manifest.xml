@@ -22,6 +22,6 @@
 	]]></clientForm>
 	<dependencies>
 		<!-- Stream Wrapper Access -->
-		<activePlugin pluginName="access.STREAM_PROVIDER"/>
+		<activePlugin pluginName="access.gateway"/>
 	</dependencies>
 </editor>

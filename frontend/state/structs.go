@@ -1,6 +1,8 @@
-package registry
+package state
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+)
 
 type Caction struct {
 	XMLName                  xml.Name          `xml:"action,omitempty" json:"action,omitempty"`
@@ -26,7 +28,7 @@ type Cactions struct {
 
 type CactiveCondition struct {
 	XMLName xml.Name `xml:"activeCondition,omitempty" json:"activeCondition,omitempty"`
-	string  string   `xml:",chardata" json:",omitempty"`
+	Cdata   string   `xml:",cdata" json:",omitempty"`
 }
 
 type CactivePlugin struct {
@@ -71,14 +73,14 @@ type Cclass_definition struct {
 type CclientCallback struct {
 	XMLName    xml.Name `xml:"clientCallback,omitempty" json:"clientCallback,omitempty"`
 	Attrmodule string   `xml:"module,attr,omitempty"  json:",omitempty"`
-	string     string   `xml:",chardata" json:",omitempty"`
+	Cdata      string   `xml:",cdata" json:",omitempty"`
 }
 
 type CclientForm struct {
 	XMLName    xml.Name `xml:"clientForm,omitempty" json:"clientForm,omitempty"`
 	Attrid     string   `xml:"id,attr,omitempty"  json:",omitempty"`
 	Attrmodule string   `xml:"module,attr,omitempty"  json:",omitempty"`
-	string     string   `xml:",chardata" json:",omitempty"`
+	Cdata      string   `xml:",cdata" json:",omitempty"`
 }
 
 type CclientListener struct {
@@ -92,7 +94,7 @@ type Cclient_configs struct {
 	AttruuidAttr      string               `xml:"uuidAttr,attr,omitempty"  json:",omitempty"`
 	Ccomponent_config []*Ccomponent_config `xml:"component_config,omitempty" json:"component_config,omitempty"`
 	Ctemplate         []*Ctemplate         `xml:"template,omitempty" json:"template,omitempty"`
-	Ctemplate_part    *Ctemplate_part      `xml:"template_part,omitempty" json:"template_part,omitempty"`
+	Ctemplate_part    []*Ctemplate_part    `xml:"template_part,omitempty" json:"template_part,omitempty"`
 }
 
 type Cclient_settings struct {
@@ -156,7 +158,7 @@ type Ccss struct {
 
 type Cdescription struct {
 	XMLName xml.Name `xml:"description,omitempty" json:"description,omitempty"`
-	string  string   `xml:",chardata" json:",omitempty"`
+	Cdata   string   `xml:",cdata" json:",omitempty"`
 }
 
 type Cdependencies struct {
@@ -199,7 +201,7 @@ type Cextension struct {
 
 type CextensionOnInit struct {
 	XMLName xml.Name `xml:"extensionOnInit,omitempty" json:"extensionOnInit,omitempty"`
-	string  string   `xml:",chardata" json:",omitempty"`
+	Cdata   string   `xml:",cdata" json:",omitempty"`
 }
 
 type Cextensions struct {
@@ -273,7 +275,7 @@ type Cjs struct {
 
 type Clabel struct {
 	XMLName xml.Name `xml:"label,omitempty" json:"label,omitempty"`
-	string  string   `xml:",chardata" json:",omitempty"`
+	Cdata   string   `xml:",cdata" json:",omitempty"`
 }
 
 type Cmeta struct {
@@ -293,21 +295,9 @@ type Coutput struct {
 }
 
 type Cparam struct {
-	XMLName          xml.Name `xml:"param,omitempty" json:"param,omitempty"`
-	Attrchoices      string   `xml:"choices,attr,omitempty"  json:",omitempty"`
-	Attrdefault      string   `xml:"default,attr,omitempty"  json:",omitempty"`
-	AttrdefaultImage string   `xml:"defaultImage,attr,omitempty"  json:",omitempty"`
-	Attrdescription  string   `xml:"description,attr,omitempty"  json:",omitempty"`
-	Attreditable     string   `xml:"editable,attr,omitempty"  json:",omitempty"`
-	Attrexpose       string   `xml:"expose,attr,omitempty"  json:",omitempty"`
-	Attrgroup        string   `xml:"group,attr,omitempty"  json:",omitempty"`
-	Attrlabel        string   `xml:"label,attr,omitempty"  json:",omitempty"`
-	AttrloadAction   string   `xml:"loadAction,attr,omitempty"  json:",omitempty"`
-	Attrmandatory    string   `xml:"mandatory,attr,omitempty"  json:",omitempty"`
-	Attrname         string   `xml:"name,attr,omitempty"  json:",omitempty"`
-	Attrscope        string   `xml:"scope,attr,omitempty"  json:",omitempty"`
-	Attrtype         string   `xml:"type,attr,omitempty"  json:",omitempty"`
-	AttruploadAction string   `xml:"uploadAction,attr,omitempty"  json:",omitempty"`
+	Cglobal_param
+	XMLName   xml.Name `xml:"param,omitempty" json:"param,omitempty"`
+	Attrscope string   `xml:"scope,attr,omitempty"  json:",omitempty"`
 }
 
 type Cplugin struct {
@@ -345,12 +335,12 @@ type Cplugin_info struct {
 
 type Cplugin_uri struct {
 	XMLName xml.Name `xml:"plugin_uri,omitempty" json:"plugin_uri,omitempty"`
-	string  string   `xml:",chardata" json:",omitempty"`
+	Cdata   string   `xml:",cdata" json:",omitempty"`
 }
 
 type Cplugin_version struct {
 	XMLName xml.Name `xml:"plugin_version,omitempty" json:"plugin_version,omitempty"`
-	string  string   `xml:",chardata" json:",omitempty"`
+	Cdata   string   `xml:",cdata" json:",omitempty"`
 }
 
 type Cplugins struct {
@@ -376,7 +366,7 @@ type Cpref struct {
 	Attrname     string   `xml:"name,attr,omitempty"  json:",omitempty"`
 	AttrpluginId string   `xml:"pluginId,attr,omitempty"  json:",omitempty"`
 	Attrvalue    string   `xml:"value,attr,omitempty"  json:",omitempty"`
-	string       string   `xml:",chardata" json:",omitempty"`
+	Cdata        string   `xml:",cdata" json:",omitempty"`
 }
 
 type Cpreferences struct {
@@ -398,7 +388,7 @@ type Cproperty struct {
 	XMLName   xml.Name `xml:"property,omitempty" json:"property,omitempty"`
 	Attrname  string   `xml:"name,attr,omitempty"  json:",omitempty"`
 	Attrvalue string   `xml:"value,attr,omitempty"  json:",omitempty"`
-	string    string   `xml:",chardata" json:",omitempty"`
+	Cdata     string   `xml:",cdata" json:",omitempty"`
 }
 
 type Cpydio_registry struct {
@@ -538,4 +528,25 @@ type Cuser struct {
 	Cpreferences    *Cpreferences    `xml:"preferences,omitempty" json:"preferences,omitempty"`
 	Crepositories   *Crepositories   `xml:"repositories,omitempty" json:"repositories,omitempty"`
 	Cspecial_rights *Cspecial_rights `xml:"special_rights,omitempty" json:"special_rights,omitempty"`
+}
+
+type ExposedParam struct {
+	Cparam
+	PluginId string
+}
+
+func (c *Cactions) MergeActions(actions []*Caction) {
+	for _, a := range actions {
+		replace := false
+		for i, b := range c.Caction {
+			if b.Attrname == a.Attrname {
+				c.Caction[i] = a
+				replace = true
+				break
+			}
+		}
+		if !replace {
+			c.Caction = append(c.Caction, a)
+		}
+	}
 }

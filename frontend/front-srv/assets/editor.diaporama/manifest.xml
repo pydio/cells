@@ -17,8 +17,7 @@
     </client_settings>
     <dependencies>
         <!-- Image proxy must be implemented -->
-        <activePlugin pluginName="access.STREAM_PROVIDER"/>
-        <activePlugin pluginName="access.homepage"/>
+        <activePlugin pluginName="access.gateway|access.homepage"/>
     </dependencies>
 	<registry_contributions>
 		<actions>

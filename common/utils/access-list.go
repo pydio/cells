@@ -28,7 +28,10 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	"encoding/json"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
@@ -74,6 +77,8 @@ var (
 	ACL_QUOTA        = &idm.ACLAction{Name: "quota"}
 	ACL_CONTENT_LOCK = &idm.ACLAction{Name: "content_lock"}
 	// Not used yet
+	ACL_FRONT_ACTION_    = &idm.ACLAction{Name: "action:*"}
+	ACL_FRONT_PARAM_     = &idm.ACLAction{Name: "parameter:*"}
 	ACL_DELETE           = &idm.ACLAction{Name: "delete", Value: "1"}
 	ACL_LIST             = &idm.ACLAction{Name: "list", Value: "1"}
 	ResolvePolicyRequest PolicyResolver
@@ -165,11 +170,12 @@ func (r *Right) String() string {
 // AccessList is a merged representation of all ACLs that a user has access to.
 // ACLs are merged using a Bitmask form to ease flags detections and comparisons.
 type AccessList struct {
-	Workspaces      map[string]*idm.Workspace
-	Acls            []*idm.ACL
-	NodesAcls       map[string]Bitmask
-	WorkspacesNodes map[string]map[string]Bitmask
-	OrderedRoles    []*idm.Role
+	Workspaces         map[string]*idm.Workspace
+	Acls               []*idm.ACL
+	NodesAcls          map[string]Bitmask
+	WorkspacesNodes    map[string]map[string]Bitmask
+	OrderedRoles       []*idm.Role
+	FrontPluginsValues []*idm.ACL
 }
 
 // NewAccessList creates a new AccessList.
@@ -381,6 +387,54 @@ func (a *AccessList) BelongsToWorkspaces(ctx context.Context, nodes ...*tree.Nod
 	}
 	return workspaces, workspacesRoots
 
+}
+
+// FlattenedFrontValues generates a config.Map with frontend actions/parameters configs
+func (a *AccessList) FlattenedFrontValues() *config.Map {
+	actions := config.NewMap()
+	parameters := config.NewMap()
+	for _, acl := range a.FrontPluginsValues {
+		name := acl.Action.Name
+		value := acl.Action.Value
+		scope := acl.WorkspaceID
+		var iVal interface{}
+		if e := json.Unmarshal([]byte(value), &iVal); e != nil {
+			log.Logger(context.Background()).Error("Cannot parse config value")
+			continue
+		}
+		parts := strings.Split(name, ":")
+		t := parts[0]
+		p := parts[1]
+		n := parts[2]
+		var plugins *config.Map
+		if t == "action" {
+			plugins = actions
+		} else {
+			plugins = parameters
+		}
+		if plugs := plugins.Get(p); plugs != nil {
+			plugins = plugs.(*config.Map)
+		} else {
+			plugins = config.NewMap()
+		}
+		var param *config.Map
+		if sc := plugins.Get(n); sc != nil {
+			param = sc.(*config.Map)
+		} else {
+			param = config.NewMap()
+		}
+		param.Set(scope, iVal)
+		plugins.Set(n, param)
+		if t == "action" {
+			actions.Set(p, plugins)
+		} else {
+			parameters.Set(p, plugins)
+		}
+	}
+	output := config.NewMap()
+	output.Set("actions", actions)
+	output.Set("parameters", parameters)
+	return output
 }
 
 /* LOGGING SUPPORT */
