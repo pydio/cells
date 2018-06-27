@@ -1,0 +1,38 @@
+.folders-tree{
+  &, ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  div.tree-item{
+
+    line-height: 14px;
+
+    div.tree-item-label{
+      padding: 10px 6px;
+      cursor: pointer;
+      .tree-icon{
+        padding: 0 8px;
+        &.icon-angle-right, &.icon-angle-down{
+          padding-right: 0;
+          font-size: 16px;
+          width: 20px;
+          display: inline-block;
+          text-align: center;
+          &.no-folder-children{
+            visibility: hidden;
+          }
+        }
+      }
+    }
+    &.mui-is-selected{
+      div.tree-item-label{
+        color: darken(@applicationPrimaryLightFont, 15);
+      }
+    }
+    &:hover{
+      div.tree-item-label{
+      }
+    }
+  }
+}

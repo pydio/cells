@@ -1,0 +1,12 @@
+{
+    "Mobile": "Mobile Browser",
+    "Template extending gui.ajax for small screen terminals.": "Erweitert die Ansicht im Browser um eine Vorlage für mobile Geräte mit kleiner Auflösung.",
+    "1.ios": "Für den Zugriff auf %s steht ein Nativer iOs Client zu Verfügung.",
+    "2.ios": "Ich habe den Client bereits. Öffne ihn und füge diesen Server zu meinen Remote Servern hinzu.",
+    "3.ios": "Ich habe den Client nicht. Jetzt im App Store öffnen!",
+    "4.ios": "Ich habe kein Interesse, lass mich die Webversion von %s benutzen.",
+    "1.android": "Für den Zugriff auf %s steht ein Nativer Android Client zu Verfügung.",
+    "2.android": "Ich habe den Client bereits. Öffne ihn und füge diesen Server zu meinen Remote Servern hinzu.",
+    "3.android": "Ich habe den Client nicht. Jetzt im Play Store öffnen!",
+    "4.android": "Ich habe kein Interesse, lass mich die Webversion von %s benutzen."
+}

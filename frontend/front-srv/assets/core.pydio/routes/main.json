@@ -1,0 +1,50 @@
+{
+  "/api": {
+    "methods": "*",
+    "routes": [
+      "/api[{optional:.+}]"
+    ],
+    "class": "Pydio\\Core\\Http\\Base",
+    "method": "handleRoute"
+  },
+  "/user":{
+    "methods": "GET",
+    "routes": [
+      "/user/reset-password/{key}"
+    ],
+    "class": "Pydio\\Core\\Http\\Base",
+    "method": "handleRoute"
+  },
+  "%PUBLIC_BASEURI%":{
+    "methods": "*",
+    "routes": [
+      "%PUBLIC_BASEURI%/{hash}/dl/[{optional:.+}]",
+      "%PUBLIC_BASEURI%/{hash}",
+      "%PUBLIC_BASEURI%[{optional:.+}]"
+    ],
+    "class": "Pydio\\Share\\ShareCenter",
+    "path" : "plugins/action.share/src/ShareCenter.php",
+    "method": "publicRoute"
+  },
+  "/favicon":{
+    "methods": "GET",
+    "routes":[
+      "/favicon.ico"
+    ],
+    "class":"Pydio\\Core\\Http\\Base",
+    "method":"handleRoute"
+  },
+  "/": {
+    "methods": "*",
+    "routes": [
+      "/",
+      "/index[{optional:.+}]",
+      "/dashboard[{optional:.+}]",
+      "/settings[{optional:.+}]",
+      "/welcome[{optional:.+}]",
+      "/ws-[{optional:.+}]"
+    ],
+    "class": "Pydio\\Core\\Http\\Base",
+    "method": "handleRoute"
+  }
+}

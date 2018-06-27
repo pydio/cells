@@ -1,0 +1,18 @@
+{
+  "name": "gui.mobile",
+  "description": "Additional Mobile Extensions",
+  "source_path": "res/js",
+  "main": "index.js",
+  "author": "Abstrium SAS",
+  "license": "agpl",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-browserify": "~4.0.1",
+    "grunt-babel": "~5.0.3",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-contrib-copy": "1.0.0"
+  },
+  "dependencies": {
+    "smart-app-banner": "git://github.com/tomek-f/smart-app-banner.git#patch-1"
+  }
+}

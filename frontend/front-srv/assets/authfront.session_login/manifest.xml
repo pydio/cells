@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="authfront.session_login" enabled="always" label="CONF_MESSAGE[Standard login screen]"
+          description="CONF_MESSAGE[Display a standard user/password login screen]"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <client_settings>
+        <resources>
+            <i18n namespace="authfront.session_login" remote="plug/authfront.session_login/i18n"/>
+        </resources>
+    </client_settings>
+    <server_settings>
+        <global_param name="ORDER" type="integer" label="CONF_MESSAGE[Order]" description="CONF_MESSAGE[Order this plugin with other auth frontends]" default="20"/>
+        <global_param name="PROTOCOL_TYPE" type="select"
+                      choices="session_only|CONF_MESSAGE[Sessions Only],no_session|CONF_MESSAGE[REST Only],both|CONF_MESSAGE[Session-based or Rest]"
+                      label="CONF_MESSAGE[Protocol Type]" description="CONF_MESSAGE[Enable/disable automatically based on the protocol used]" default="session_only"/>
+    </server_settings>
+    <registry_contributions>
+        <actions>
+            <action name="login">
+                <gui text="163" title="168" iconClass="icon-signin"
+                     accessKey="" hasAccessKey="false">
+                    <context selection="false" dir="" recycle="false"
+                             actionBar="true" contextMenu="false" infoPanel="false"
+                             actionBarGroup="user,admin">
+                    </context>
+                </gui>
+                <rightsContext noUser="false" userLogged="hidden" guestLogged="show" read="false" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="AuthfrontCoreActions.Callbacks.loginPassword"/>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="logout" expireDefault="true">
+                <gui text="164" title="169" iconClass="mdi mdi-logout"
+                     accessKey="" hasAccessKey="false">
+                    <context selection="false" dir="" recycle="false"
+                             contextMenu="false" actionBar="true" actionBarGroup="zlogin,minisite">
+                    </context>
+                </gui>
+                <rightsContext noUser="false" userLogged="only" guestLogged="hidden" read="false" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="AuthfrontCoreActions.Callbacks.sessionLogout"/>
+                    <serverCallback methodName="switchAction"></serverCallback>
+                </processing>
+            </action>
+            <action name="back">
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="get_seed">
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="get_captcha">
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+        </actions>
+    </registry_contributions>
+</plugin>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin name="pydio" id="conf.pydio" label="CONF_MESSAGE[Pydio Backend]" description="CONF_MESSAGE[Stores the conf data inside the Pydio Backend.]"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd" >
+
+	<registry_contributions>
+        <actions>
+            <action name="get_xml_registry">
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="state">
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/xPath+" sdkMethodName="getAccountData" developerComment="REST equivalent of the get_xml_registry query, to load some non-workspace-specific data based on a registry xPath. Output format can be sent back in JSON (XML by default).">
+                        <input_param name="xPath" type="string" description="Optional xPath to search in registry"/>
+                        <input_param name="format" type="string" description="Optional format parameter, xml by default, can be forced to json"/>
+                        <output type="JSON|XML" description="Return XML or JSON depending on the format parameter."/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="user_state">
+                <!-- Alias to "state" for API V2 -->
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="switch_repository">
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="load_repository_info">
+                <rightsContext adminOnly="false" noUser="true" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/" developerComment="Retrieve some plugins-contributed info about the workspace (e.g. Quota, Sharing status, etc).">
+                        <output type="JSON" description="Array of plugins informations"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="user_delete_user">
+                <rightsContext adminOnly="false" noUser="true" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="user_public_data">
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/user_id"/>
+                </processing>
+            </action>
+            <action name="user_team_create">
+                <gui iconClass="icon-plus" text="user_dash.57" title="user_dash.57">
+                    <context dir="false" recycle="false" selection="false" actionBar="true" actionBarGroup="team_address_book"/>
+                </gui>
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/team_label"/>
+                </processing>
+            </action>
+            <action name="user_team_add_user">
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/team_id/user_id"/>
+                </processing>
+            </action>
+            <action name="user_team_list_users">
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/team_id"/>
+                </processing>
+            </action>
+            <action name="user_team_update_label">
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/team_id/team_label"/>
+                </processing>
+            </action>
+            <action name="user_team_delete">
+                <gui iconClass="icon-trash" text="7" title="7">
+                    <context dir="false" recycle="false" selection="true" actionBar="true" actionBarGroup="team_address_book"/>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="ajxp_team"/>
+                </gui>
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/team_id"/>
+                </processing>
+            </action>
+            <action name="user_team_delete_user">
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/team_id/user_id"/>
+                </processing>
+            </action>
+            <action name="user_team_edit_users">
+                <gui iconClass="icon-edit" text="user_dash.54" title="user_dash.55">
+                    <context dir="false" recycle="false" selection="true" actionBar="true" actionBarGroup="team_address_book"/>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="ajxp_team"/>
+                </gui>
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="save_user_pref">
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="get_binary_param" skipSecureToken="true">
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="get_global_binary_param" skipSecureToken="true">
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="store_binary_temp">
+                <rightsContext adminOnly="false" noUser="true" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="user_list_authorized_users">
+                <rightsContext adminOnly="false" noUser="true" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/value" developerComment="List users that are visible to the currently logged users">
+                        <input_param name="value" type="string" description="Search string: users will be searched starting with this value. Can be empty."/>
+                        <input_param name="users_only" type="boolean" description="Whether to return users only or users, groups and roles"/>
+                        <input_param name="existing_only" type="boolean" description="If false and value is a non-existing user, will return a Create User ... entry in the list"/>
+                        <input_param name="exclude_current" type="boolean" description="Do not send the currently logged user in the results. True by default" default="true"/>
+                        <output type="HTML" description="an UL/LI HTML list of users, groups, roles"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="custom_data_edit">
+                <gui text="442" title="443" iconClass="icon-reorder" accessKey="" hasAccessKey="false">
+                    <context selection="false" dir="" recycle="true" actionBar="false" actionBarGroup="utils" contextMenu="false" infoPanel="false"/>
+                </gui>
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="user_update_user">
+                <gui text="519" title="520" iconClass="icon-user" accessKey="" hasAccessKey="false">
+                    <context selection="true" dir="" recycle="true" actionBar="true" actionBarGroup="address_book" contextMenu="false" infoPanel="false"/>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="shared_user"/>
+                </gui>
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="user_create_user">
+                <gui text="484" title="485" iconClass="icon-user" accessKey="" hasAccessKey="false">
+                    <context selection="false" dir="" recycle="true" actionBar="true" actionBarGroup="address_book" contextMenu="false" infoPanel="false"/>
+                </gui>
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="switch_language">
+                <gui text="190" title="190" accessKey="" hasAccessKey="false" iconClass="icon-flag">
+                    <context selection="false" dir="" recycle="true" actionBar="false" actionBarGroup="utils" contextMenu="false" infoPanel="false"/>
+                </gui>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Callbacks.switchLanguage"/>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="webdav_preferences">
+                <gui text="403" title="403" iconClass="icon-cog" accessKey="" hasAccessKey="false">
+                    <context selection="false" dir="" recycle="true" actionBar="false" actionBarGroup="utils" contextMenu="false" infoPanel="false"/>
+                </gui>
+                <rightsContext noUser="false" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="switch_to_settings">
+                <gui text="165" title="506" accessKey="settings_access_key" hasAccessKey="true" iconClass="mdi mdi-settings" >
+                    <context dir="false" recycle="true" selection="false" actionBar="true" actionBarGroup="zlogin"/>
+                </gui>
+                <rightsContext adminOnly="true" noUser="true" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Navigation.switchToSettings"/>
+                </processing>
+            </action>
+            <action name="clear_all_caches">
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+        </actions>
+	</registry_contributions>
+</plugin>

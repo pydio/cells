@@ -1,0 +1,15 @@
+{
+    "Basic Http by Server": "Standard-HTTP (Server)",
+    "Basic Http Auth performed by server (e.g. apache htaccess)": "Über Standard-HTTP des Servers authentifizieren. (z.B. durch Apache htaccess)",
+    "Create User": "Benutzer erstellen",
+    "Automatically create user if it does not already exists": "Benutzer automatisch erstellen, wenn dieser noch nicht existiert",
+    "Admin login": "Anmeldung als Administrator",
+    "Automatically set this login as pydio administrator": "Diesen Benutzer automatisch als Pydio Administrator festlegen",
+    "Order": "Reihenfolge der Erweiterung",
+    "Order this plugin with other auth frontends": "Diese Erweiterung unter den anderen aktiven Authentifizierungs-Erweiterungen einordnen",
+    "Protocol Type": "Aktivieren für",
+    "Enable\/disable automatically based on the protocol used": "Erweiterung abhängig vom verwendeten Protokoll aktivieren oder deaktivieren",
+    "Sessions Only": "Web-Sitzungen",
+    "REST Only": "REST-API",
+    "Session-based or Rest": "Web-Sitzungen und REST-API"
+}

@@ -1,0 +1,23 @@
+{
+    "1": "Mise à jour",
+    "2": "Mise à jour automatique",
+    "3": "Cliquez sur le bouton pour démarrer la mise à jour. Veuillez vérifier que le répertoire de l'application est accessible en écriture avant de démarrer.",
+    "4": "Démarrer",
+    "5": "Depuis 3.2.4",
+    "6": "Importer les données de configuration depuis 3.2.4",
+    "7": "Simuler l'import des données",
+    "8": "Entrez le chemin complet (depuis la racine du serveur) vers l'installation précédente, puis simulez l'import.",
+    "9": "Effectuer l'import maintenant",
+    "10": "C'est un \"essai\". Veuillez vérifier les journaux de toutes les actions qui vont-être effectuées, si tout est correct, cliquez sur le bouton \"Effectuer l'import maintenant\".",
+    "12": "L'ancien plugin meta.serial a été supprimé et divisé dans metastore.serial et meta.user",
+    "13": "Simuler la migration",
+    "14": "Effectuer la migration",
+    "15": "Etes-vous certain de vouloir appliquer cette mise à jour?",
+    "16": "Les paquets suivants seront téléchargés et installés sur le serveur.",
+    "17": "Vérification des mises à jours...",
+    "18": "Pas de mise à jour nécessaire, cliquez pour déclencher une nouvelle vérification.",
+    "19": "Cliquer pour vérifier si une mise à jour est nécessaire.",
+    "20": "Vérifier maintenant",
+    "21": "Currently in development mode.",
+    "22": "Current version is %1 (%2)."
+}

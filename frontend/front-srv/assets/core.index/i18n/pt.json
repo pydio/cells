@@ -1,0 +1,12 @@
+{
+    "1": "Indexar Conteúdo",
+    "2": "Indexar conteúdos desta pasta",
+    "3": "Correr Indexação em segundo plano",
+    "4": "O Índice parece encontrar-se bloqueado, um processo de Indexação parece já estar a correr. Caso não, por favor remova o ficheiro '.ajxp_lock' localizado em 'cache\/indexes'.",
+    "5": "Indexação Completa",
+    "6": "A Área de Trabalho encontra-se de momento a ser Indexada , por favor tente novamente mais tarde. Para forçar uma re-Indexação, remova o ficheiro '.ajxp_lock' localizado em 'data\/cache\/indexes'.",
+    "7": "A indexar pela primeira vez esta Área de Trabalho, por favor aguarde e tente efectuar novamente a sua pesquisa",
+    "8": "A Indexação de %s está a correr em segundo plano",
+    "9": "Não foi possível encontrar um Índice para a Área de Trabalho Actual! Deverá ordenar uma Indexação dos ficheiros primeiro!",
+    "10": "A Indexar sub-pastas em segundo plano"
+}

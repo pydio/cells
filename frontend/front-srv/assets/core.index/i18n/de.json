@@ -1,0 +1,12 @@
+{
+    "1": "Inhalt in­de­xie­ren",
+    "2": "Ordnerinhalt in­de­xie­ren",
+    "3": "In­de­xie­rung wird im Hintergrund ausführt",
+    "4": "Der Index scheint gesperrt zu sein, ein In­de­xie­rungsprozess könnte bereits laufen. Falls nicht, bitte die .ajxp_lock-Datei im Ordner cache\/indexes löschen.",
+    "5": "Indexierung abgeschlossen",
+    "6": "Warnung, die Indexierung der Arbeitsumgebung wird gerade ausgeführt. Bitte versuchen Sie es später noch einmal.",
+    "7": "Die Arbeitsumgebung wird zum ersten Mal indexiert. Bitte versuchen Sie es später noch einmal.",
+    "8": "In­de­xie­rung von '%s' wird im Hintergrund ausführt",
+    "9": "Für die Arbeitsumgebung existiert kein Index. Bitte starten Sie zuerst die Indexierung.",
+    "10": "In­de­xie­rung des Unterordners wird im Hintergrund ausführt"
+}

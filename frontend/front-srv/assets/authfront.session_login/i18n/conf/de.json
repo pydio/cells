@@ -1,0 +1,11 @@
+{
+    "Standard login screen": "Standard Anmelde-Bildschirm",
+    "Display a standard user\/password login screen": "Den Standard-Bildschirm zum Anmelden mit Benutzername und Passwort anzeigen",
+    "Order": "Reihenfolge der Erweiterung",
+    "Order this plugin with other auth frontends": "Diese Erweiterung unter den anderen aktiven Authentifizierungs-Erweiterungen einordnen",
+    "Protocol Type": "Aktivieren für",
+    "Enable\/disable automatically based on the protocol used": "Erweiterung abhängig vom verwendeten Protokoll aktivieren oder deaktivieren",
+    "Sessions Only": "Web-Sitzungen",
+    "REST Only": "REST-API",
+    "Session-based or Rest": "Web-Sitzungen und REST-API"
+}

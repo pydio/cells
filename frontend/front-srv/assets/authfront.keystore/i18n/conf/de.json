@@ -1,0 +1,11 @@
+{
+    "API Keystore": "API-Keystore",
+    "Store API keys\/token to simplify REST connection": "Speichert den API-Key und Token um REST-Verbindungen zu vereinfachen",
+    "Order": "Reihenfolge der Erweiterung",
+    "Order this plugin with other auth frontends": "Diese Erweiterung unter den anderen aktiven Authentifizierungs-Erweiterungen einordnen",
+    "Protocol Type": "Aktivieren für",
+    "Enable\/disable automatically based on the protocol used": "Erweiterung abhängig vom verwendeten Protokoll aktivieren oder deaktivieren",
+    "Sessions Only": "Web-Sitzungen",
+    "REST Only": "REST-API",
+    "Session-based or Rest": "Web-Sitzungen und REST-API"
+}

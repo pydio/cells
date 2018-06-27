@@ -1,0 +1,54 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "fc6b51cebc6f9e00afc4f94af1976e6a",
+    "content-hash": "2a50cf36b2bf89d32c2ba8197c29b715",
+    "packages": [
+        {
+            "name": "duosecurity/duo_php",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/duosecurity/duo_php.git",
+                "reference": "8ae5485e8ca0608758d97301f9045d26d6c29dfd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/duosecurity/duo_php/zipball/8ae5485e8ca0608758d97301f9045d26d6c29dfd",
+                "reference": "8ae5485e8ca0608758d97301f9045d26d6c29dfd",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~5.1",
+                "satooshi/php-coveralls": "dev-master",
+                "squizlabs/php_codesniffer": "2.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Duo\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "A PHP implementation of the Duo Web SDK.",
+            "homepage": "https://duo.com/",
+            "time": "2017-06-16 18:41:51"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "duosecurity/duo_php": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

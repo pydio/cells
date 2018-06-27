@@ -1,0 +1,12 @@
+<p>This plugin uses the Zend_Search_Lucene library that implement the Apache Lucene module in PHP for indexing the files and
+providing an efficient search tool. You must make sure to add a meta source "index.lucene" to the repositories that
+you want to be indexed.</p>
+<p>The plugin supports the indexation of metadata, the background indexation of huge folders (if the framework can be run
+in background via the command line), and also the indexation of files contents when they are textual files (TXT, HTML). It
+could be possible to add PDF indexation using some pdf-to-text conversion, but it's not implemented yet.</p>
+<p>The search results display a "Hit Score" that is provided by the search engine.</p>
+
+<p><b>UNICONV + XPDF INTEGRATION</b></p>
+<p>If you can install the uniconv utilitary on your server, along with the openoffice or libreoffice headless suite, and the xpdf utilitary, the plugin will be able to extract and index textual contents from office documents (Word,Excel,Powerpoint and all their closed or open-source variants). </p>
+<p>Examples to install the packages on CentOS : yum install unoconv openoffice.org-headless openoffice.org-writer openoffice.org-calc openoffice.org-impress xpdf<br>
+Or on Debian : apt-get install unoconv openoffice.org-headless openoffice.org-writer openoffice.org-calc openoffice.org-impress xpdf</p>

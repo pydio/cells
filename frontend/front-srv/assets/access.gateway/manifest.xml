@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ajxpdriver name="gateway" label="CONF_MESSAGE[Gateway]" description="CONF_MESSAGE[Pydio S3 Gateway]" mixins="slug_provider,template_provider">
+
+    <client_settings icon="plugins/access.fs/icon.png" iconClass="icon-sitemap">
+        <resources>
+            <i18n namespace="openother" remote="plug/access.gateway/i18n/editor.picker"/>
+            <i18n namespace="access_fs" remote="plug/access.gateway/i18n/access.fs"/>
+            <js className="FSActions" file="plug/access.gateway/res/build/FSActions.js" depends="PydioComponents"/>
+        </resources>
+        <node_provider ajxpClass="MetaNodeProvider" ajxpOptions="{}"/>
+    </client_settings>
+
+    <server_settings>
+        <param name="ROOT_NODES" type="autocomplete-tree" choices="admin_list_tree" label="CONF_MESSAGE[Path]" description="CONF_MESSAGE[Path to the folder on the server]" mandatory="true"
+               replicationGroup="CONF_MESSAGE[ROOTS]" replicationDescription="CONF_MESSAGE[Absolute path to one or more root nodes]"
+               replicationMandatory="true" replicationTitle="CONF_MESSAGE[Root Nodes]"/>
+	</server_settings>
+
+	<registry_contributions>
+        <actions>
+            <action name="ls" dirDefault="true">
+                <gui text="32" title="32" iconClass="mdi mdi-folder-open"
+                     accessKey="folder_access_key">
+                    <context selection="true" dir="" recycle="false"
+                             actionBar="true" actionBarGroup="put" contextMenu="true" infoPanel="true"/>
+                    <selectionContext dir="true" file="true" recycle="false" enableRoot="true"
+                                      unique="true" allowedMimes="ajxp_folder,PYDIO_MIMES_ZIP" behaviour="hidden">
+                    </selectionContext>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true"
+                               write="false" adminOnly="false">
+                </rightsContext>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.ls"/>
+                    <serverCallback methodName="lsAction" restParams="/dir+" preferredHttp="GET" sdkMethodName="listNodes" checkParams="false" developerComment="Standard listing action
+				    to retrieve the list of children for a given directory. For the main parameters, use {nodes} parameter, the {dir}+{file} are kept for backward compatibility.">
+                        <input_param description="Directory to browse, from the repository root" name="dir" type="string" mandatory="false"/>
+                        <input_param description="One file to check" name="file" type="string" mandatory="false"/>
+                        <input_param description="One folder to list or one or more files to check" name="nodes" type="PYDIO_NODE[]" mandatory="false"/>
+                        <input_param description="Details to send back" name="options" type="string" mandatory="false" default="al"/>
+                        <input_param description="Recursively list all folders" name="recursive" type="boolean" mandatory="false" default="false"/>
+                        <input_param description="If recursive listing, maximum depth" name="max_depth" type="integer" mandatory="false"/>
+                        <input_param description="If recursive listing, maximum number of nodes gathered (soft limit)" name="max_nodes" type="integer" mandatory="false"/>
+                        <input_param description="Trigger remote order" name="remote_order" type="boolean" mandatory="false" default="false"/>
+                        <input_param description="Remote order column" name="order_column" type="string" mandatory="false"/>
+                        <input_param description="Remote order direction" name="order_direction" type="string" mandatory="false"/>
+                        <input_param description="Find page position of required file for multipage listing" name="page_position" type="boolean" mandatory="false"/>
+                        <output type="PYDIO_NODE[]"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="download_folder">
+                <gui text="88" title="88" iconClass="mdi mdi-download" accessKey="download_access_key" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="false"
+                             actionBar="true" contextMenu="true" infoPanel="true"
+                             actionBarGroup="0_get,inline,info_panel,minisite_toolbar">
+                    </context>
+                    <selectionContext dir="true" file="false" recycle="false" unique="true" enableRoot="true"/>
+                </gui>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.downloadFolder"/>
+                </processing>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+            </action>
+            <action name="presigned">
+                <processing>
+                    <serverCallback methodName="getPresignedUrl" restParams="/node+"/>
+                </processing>
+            </action>
+            <action name="download_version">
+                <processing>
+                    <serverCallback methodName="downloadVersion" restParams="/node+"/>
+                </processing>
+            </action>
+            <action name="restore_version">
+                <processing>
+                    <serverCallback methodName="restoreVersion" restParams="/node+"/>
+                </processing>
+            </action>
+            <action name="stat_hash">
+                <rightsContext adminOnly="false" noUser="false" read="true" userLogged="true" write="false"/>
+                <processing>
+                    <serverCallback methodName="statHashAction" checkParams="false" restParams="/file+" developerComment="Returns an fstat() structure including the hash of the file">
+                        <input_param description="One or more nodes to stat." name="nodes" type="AJXP_NODE[]"/>
+                        <output type="json"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="changes">
+                <processing>
+                    <serverCallback methodName="changesAction" restParams="/seq_id" developerComment="List all changes on this workspace starting at a given sequence id">
+                        <input_param name="filter" type="path" description="Path to a directory: will return changes as if this dir was the root"/>
+                        <input_param name="flatten" type="boolen" description="Flatten results or not, i.e. send the full sequence of changes, or try to reduce the ones that cancel the others (like move a to b plus move b to c = move a to c)."/>
+                        <input_param name="stream" type="boolean" description="Return json as a stream or as a whole"/>
+                        <output type="JSON" description="Json OR Streamable JSON : json structures that are line separated, giving the ability to parse the answer as a stream by http clients."/>
+                    </serverCallback>
+                </processing>
+            </action>
+
+            <action name="fs_create_resource">
+                <rightsContext adminOnly="false" noUser="false" read="true" userLogged="true" write="true"/>
+                <processing>
+                    <serverCallback methodName="createResourceAction"/>
+                </processing>
+            </action>
+            <action name="mkdir">
+                <gui text="154" title="155" iconClass="mdi mdi-folder-plus" accessKey="folder_access_key" hasAccessKey="true">
+                    <context selection="false" dir="true" recycle="hidden" actionBar="true"
+                             contextMenu="true" infoPanel="false" actionBarGroup="create,minisite" inZip="false"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="false" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.mkdir"/>
+                    <serverCallback methodName="switchAction" sdkMethodName="mkdir" restParams="/file+" checkParams="false" developerComment="Creates a directory with name {dirname} at the given location.">
+                        <input_param description="Folder parent" name="dir" type="PYDIO_NODE" mandatory="true"/>
+                        <input_param description="Folder name" name="dirname" type="string" mandatory="true"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="mkfile">
+                <gui text="156" title="157" accessKey="file_access_key" iconClass="mdi mdi-file-plus" hasAccessKey="false">
+                    <context selection="false" dir="true" recycle="hidden" actionBar="true"
+                             contextMenu="true" infoPanel="false" actionBarGroup="create" inZip="false"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="false" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.mkfile"/>
+                    <serverCallback methodName="switchAction" restParams="/node+" sdkMethodName="mkfile" developerComment="Creates a file at the given path. Optionally sets a content.">
+                        <input_param description="New file path" name="node" type="PYDIO_NODE"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="upload">
+                <gui text="27" title="27" iconClass="mdi mdi-upload" accessKey="upload_access_key" hasAccessKey="true">
+                    <context selection="false" dir="true" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="upload,minisite" inZip="false">
+                    </context></gui>
+                <rightsContext noUser="true" userLogged="only" read="false" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.upload"/>
+                </processing>
+            </action>
+            <action name="empty_recycle">
+                <gui text="220" title="221" iconClass="mdi mdi-delete-forever" accessKey="empty_recycle_access_key" hasAccessKey="true">
+                    <context selection="false" dir="true" recycle="only" actionBar="true" contextMenu="true" infoPanel="false" actionBarGroup="info_panel,change_main"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.emptyRecycle"/>
+                </processing>
+            </action>
+            <action name="download" fileDefault="false">
+                <gui text="88" title="88" iconClass="mdi mdi-download" accessKey="download_access_key" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="false"
+                             actionBar="true" contextMenu="true" infoPanel="true"
+                             actionBarGroup="0_get,inline,info_panel,minisite_toolbar">
+                    </context>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" enableRoot="false"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.download"/>
+                    <clientListener module="FSActions.Listeners.downloadSelectionChange" name="selectionChange"/>
+                </processing>
+            </action>
+            <action name="open_with_unique">
+                <gui text="462" title="462" iconClass="mdi mdi-eye-outline" accessKey="preview_access_key" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="hidden"  behaviour="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="inline,info_panel" inZip="false">
+                    </context>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="PYDIO_MIMES_EDITABLE,^ajxp_browsable_archive,^zip" behaviour="hidden"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.openInEditor"/>
+                </processing>
+            </action>
+            <action name="open_with" fileDefault="true">
+                <gui text="316" title="316" iconClass="mdi mdi-eye-outline" accessKey="open_with_access" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="hidden"  behaviour="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="0_get,info_panel,minisite_toolbar" inZip="false">
+                    </context>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="PYDIO_MIMES_EDITABLE,^ajxp_browsable_archive,^zip" behaviour="hidden"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <subMenu>
+                    <dynamicBuilder module="FSActions.Listeners.openWithDynamicBuilder"/>
+                </subMenu>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.openInEditor"/>
+                </processing>
+            </action>
+            <action name="stat">
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly="false"/>
+                <processing>
+                    <serverCallback methodName="switchAction" checkParams="false" restParams="/file+" developerComment="Returns an fstat() structure">
+                        <input_param description="One or more nodes to stat." name="nodes" type="PYDIO_NODE[]"/>
+                        <output type="json"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="apply_check_hook">
+                <rightsContext noUser="true" userLogged="only" read="false" write="true" adminOnly="false"/>
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/hook_name/node+" developerComment="Applies a node.before_create or node.before_change event to check for exemple that an upload is authorized before posting actual upload.">
+                        <input_param description="Hook name, can be before_create, before_change, before_path_change" name="hook_node" type="path" mandatory="true"/>
+                        <input_param description="Path of the node" name="node" type="path" mandatory="true"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="get_content">
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly="false"/>
+                <processing>
+                    <serverCallback methodName="downloadAction" restParams="/node+" developerComment="Alternative to Download, without attachment headers but more in a stream-like format, depending on file type (image, audio, video, plain text).">
+                        <input_param description="Path of the node" name="node" type="path" mandatory="true"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="put_content">
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly="false"/>
+                <processing>
+                    <serverCallback methodName="switchAction" restParams="/node+" developerComment="PUT the content inside a file, directly from the POST array.">
+                        <input_param description="Path of the node" name="node" type="path" mandatory="true"/>
+                        <input_param description="Raw content of the file, or base64-encoded if {encode} is set to true." name="content" type="string" mandatory="true"/>
+                        <input_param description="Whether the content is raw or must be base64-decoded before saving. Value can be base64 or empty."
+                                     name="encode" type="string"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="restore">
+                <gui text="222" title="223" iconClass="mdi mdi-file-restore" accessKey="restore_access_key" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="only"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="change_main">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.restore"/>
+                    <serverCallback methodName="switchAction" restParams="/node+" developerComment="For an item located inside the recycle bin, tries to find its original location and move it there.">
+                        <input_param description="Path of the node inside the recycle bin" name="node" type="path" mandatory="true"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="rename">
+                <gui text="6" title="158" accessKey="rename_access_key" iconClass="mdi mdi-rename-box" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="change,change_main" inZip="false">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="true" image="false" editable="false"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.rename"/>
+                    <serverCallback methodName="switchAction" restParams="/" developerComment="Rename a resource, file or folder.">
+                        <input_param description="Full path to the resource that will be renamed" name="file" type="path" mandatory="true"/>
+                        <input_param description="New basename of the resource, in that case the new fullname will be the parent folder of source plus this filename_new." name="filename_new" type="string"/>
+                        <input_param description="Full path to the new resource. Can be used instead of filename_new parameter." name="dest" type="path"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="cross_copy">
+                <processing>
+                    <serverCallback methodName="crossRepositoryCopy"/>
+                </processing>
+            </action>
+            <action name="copy" ctrlDragndropDefault="true">
+                <gui text="66" title="159" iconClass="mdi mdi-content-copy" hasAccessKey="false">
+                    <context selection="true" dir="" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="change">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.copy"/>
+                    <clientListener name="contextChange" module="FSActions.Listeners.copyContextChange"/>
+                </processing>
+            </action>
+            <action name="move" dragndropDefault="true">
+                <gui text="70" title="160" iconClass="mdi mdi-folder-move" accessKey="move_access_key" hasAccessKey="true">
+                    <context selection="true" dir="" recycle="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="change,change_main" inZip="false">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.move"/>
+                </processing>
+            </action>
+            <action name="delete">
+                <gui text="7" title="161" iconClass="mdi mdi-delete" accessKey="delete_access_key" hasAccessKey="true" specialAccessKey="delete">
+                    <context selection="true" dir="" recycle="false"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="change,change_main,minisite" inZip="false">
+                    </context>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" image="false" editable="false"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.deleteAction"/>
+                </processing>
+            </action>
+            <action name="prepare_chunk_dl">
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly="false"/>
+                <processing>
+                    <serverCallback methodName="downloadAction" restParams="/chunk_count/node+" developerComment="Use the filesize of the file to generate an list of pieces to be downloaded using {download_chunk} action. Will generate a unique file_id to be used later.">
+                        <input_param description="Selected node" name="node" type="path" mandatory="true"/>
+                        <input_param description="Number of pieces to create for the file" name="chunk_count" type="integer"/>
+                        <output type="application/json"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="download_chunk">
+                <gui text="397" title="398" iconClass="mdi mdi-cloud-download" hasAccessKey="false">
+                    <context selection="true" dir="" recycle="false"
+                             actionBar="true" contextMenu="false" infoPanel="true" actionBarGroup="change">
+                    </context>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.downloadChunked"/>
+                    <serverCallback methodName="downloadAction" restParams="/chunk_index/file_id" developerComment="Chunk file into pieces before downloading the pieces. Can be handy for problematic and limited servers.">
+                        <input_param description="Unique key generated during the {prepare_chunk_dl} action." name="file_id" type="string"/>
+                        <input_param description="Position of the file to download" name="chunk_index" type="integer"/>
+                    </serverCallback>
+                </processing>
+            </action>
+
+        </actions>
+        <client_configs>
+            <component_config component="FilesList">
+                <columns switchGridMode="filelist">
+                    <column messageId="1" attributeName="ajxp_label" sortType="StringDirFile" defaultWidth="48%"/>
+                    <column messageId="2" attributeName="filesize" sortType="CellSorterValue" modifier="FilesList.prototype.partSizeCellRenderer" defaultWidth="9%"/>
+                    <column messageId="3" attributeName="mimestring" sortType="String" defaultWidth="5%" defaultVisibilty="hidden"/>
+                    <column messageId="4" attributeName="ajxp_modiftime" sortType="MyDate" defaultWidth="19%"/>
+                </columns>
+            </component_config>
+            <component_config component="FoldersTree">
+                <property name="display" value="dz"/>
+            </component_config>
+            <component_config component="InfoPanel">
+                <infoPanel mime="generic_file" reactComponent="PydioWorkspaces.GenericInfoCard" weight="-1000"/>
+                <infoPanel mime="generic_file" reactComponent="PydioWorkspaces.FileInfoCard" weight="-500"/>
+                <infoPanel mime="generic_dir" reactComponent="PydioWorkspaces.GenericInfoCard" weight="-1000"/>
+                <infoPanel mime="generic_multiple" reactComponent="PydioWorkspaces.GenericInfoCard" weight="-1000"/>
+            </component_config>
+            <template_part
+                    name="orbit_content"
+                    ajxpId="orbit_content"
+                    theme="material"
+                    namespace="PydioWorkspaces"
+                    component="FSTemplate"
+                    dependencies="PydioComponents"
+                    props='{"style": {"background": "white"}}'
+            />
+        </client_configs>
+	</registry_contributions>
+    <dependencies>
+        <pluginClass pluginName="access.s3"/>
+        <pluginResources pluginName="access.s3"/>
+    </dependencies>
+    <class_stream_wrapper filename="plugins/access.s3/S3AccessWrapper.php" classname="Pydio\Access\Driver\StreamProvider\S3\S3AccessWrapper" protocol="ajxp.s3"/>
+</ajxpdriver>

@@ -1,0 +1,9 @@
+{
+    "DB Storage": "Stockage BDD",
+    "Stores the Authentication data in an SQL database.": "Stockage des informations d'authentification dans une base de données.",
+    "Connexion": "Connexion",
+    "The Database Connexion": "Connexion à la base de données",
+    "DB Auth Storage": "Stockage en BDD des authentifications",
+    "SQL Tables": "Tables SQL",
+    "Install SQL Tables": "Installer les tables SQL"
+}

@@ -1,0 +1,120 @@
+*:focus{
+  outline: none;
+}
+
+body{
+  font-family: @fontReact;
+}
+
+h3{
+  font-weight: 500;
+}
+
+/*
+MAJOR STYLES
+*/
+a:link, a:visited, a:hover, a:active, a:focus {
+  text-decoration: none;
+  outline: 0;
+  color: #333;
+}
+
+.linked{
+  cursor: pointer;
+  z-index: 10;
+}
+
+body, html
+{
+  margin: 0;
+  padding: 0;
+  background-color: #fcfcff;
+  overflow-x: hidden;
+}
+
+*{
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input, textarea, .selectable{
+  -khtml-user-select: auto;
+  -webkit-user-select: auto;
+  user-select: auto;
+  -moz-user-select: text;
+}
+
+input{
+  font-weight: 300;
+}
+
+*::-moz-focus-inner {
+  border: none;
+}
+
+.no_select_bg::selection {
+  background:transparent;
+}
+
+.selected{
+  text-decoration: none;
+}
+
+.selected-focus,
+.selected-focus span.text_label
+{
+  color: #fff !important;
+}
+
+.no_select_bg::-moz-selection {
+  background-color:transparent;
+}
+
+.css_boxshadow{
+  box-shadow : 1px 1px 4px rgba(100, 100, 100, 0.7);
+}
+
+span.letter_badge {
+  display: inline-block;
+  float: left;
+  width: 32px;
+  background-color: #111;
+  border-radius: 34px;
+  color: white;
+  text-align: center;
+  padding: 7px 0;
+  font-size: 0.8em;
+  font-family: @fontBold;
+}
+
+.kbd {
+  padding: .1em .6em;
+  border: 1px solid #ccc;
+  font-size: 11px;
+  font-family: @fontMachine;
+  background-color: #f7f7f7;
+  -moz-box-shadow: 0 1px 0 rgba(0,0,0,0.2),0 0 0 2px #fff inset;
+  -webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.2),0 0 0 2px #fff inset;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2),0 0 0 2px #fff inset;
+  border-radius: 3px;
+  display: inline-block;
+  margin: 0 .1em;
+  text-shadow: 0 1px 0 #fff;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+kbd{
+  .kbd();
+}
+
+.resizableHandle{
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-image: url('../images/resize_handle.png');
+  opacity: 0.5;
+  cursor: nwse-resize;
+}

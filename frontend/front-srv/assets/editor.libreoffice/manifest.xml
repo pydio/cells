@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editor
+        id="editor.libreoffice" enabled="false" openable="true" order="3" text="libreoffice.1" title="libreoffice.1"
+        canWrite="true" iconClass="mdi mdi-file-word" actions="PydioLibreOffice.Actions" className="PydioLibreOffice" mimes="docx,pptx,xlsx,dotx,xltx,ppsx,doc,ppt,xls,dot,xlt,pps,odt,odp,ods,ots,ott,otp,rtf,csv"
+        formId="libreoffice_box" label="CONF_MESSAGE[Collabora Online]" description="CONF_MESSAGE[Collabora Online Editor for office documents]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+
+    <server_settings>
+        <global_param name="LIBREOFFICE_IFRAME_URL" type="string" label="CONF_MESSAGE[URL to the Libre Office Editor Iframe]" description="CONF_MESSAGE[URL to the Libre Office Editor Iframe...]" mandatory="true" expose="true"/>
+        <global_param name="LIBREOFFICE_WEBSOCKET_SECURE" type="boolean" label="CONF_MESSAGE[Websocket Uses TLS]" description="CONF_MESSAGE[Web Socket Uses TLS...]" default="false" mandatory="true"  expose="true"/>
+        <global_param name="LIBREOFFICE_WEBSOCKET_HOST" type="string" label="CONF_MESSAGE[Web Socket Connector Host]" description="CONF_MESSAGE[Host of the Web Socket Connector...]" default="localhost" mandatory="true"  expose="true"/>
+        <global_param name="LIBREOFFICE_WEBSOCKET_PORT" type="string" label="CONF_MESSAGE[Web Socket Connector Port]" description="CONF_MESSAGE[Host of the Web Socket Connector...]" default="9980" mandatory="true"  expose="true"/>
+    </server_settings>
+    <client_settings>
+        <resources>
+            <js file="plug/editor.libreoffice/res/build/PydioLibreOffice.js" className="PydioLibreOffice"/>
+            <js file="plug/editor.libreoffice/res/build/PydioLibreOfficeActions.js" className="PydioLibreOfficeActions"/>
+            <i18n namespace="libreoffice" remote="plug/editor.libreoffice/resources/i18n" />
+        </resources>
+    </client_settings>
+
+    <dependencies>
+        <activePlugin pluginName="authfront.keystore" />
+        <!-- Stream Wrapper Access
+        <activePlugin pluginName="access.STREAM_PROVIDER"/>-->
+    </dependencies>
+
+    <clientForm id="libreoffice_box"><![CDATA[
+		<div id="libreoffice_box"  box_width="90%" box_height="90%" box_resize="true" box_padding="5" class="editor_container pdf_viewer"><div id="libreOfficeContainer"></div></div>
+	]]></clientForm>
+
+    <registry_contributions>
+        <actions>
+            <action name="libreoffice_get_file_url">
+                <processing>
+                    <serverCallback methodName="switchAction"/>
+                </processing>
+            </action>
+            <action name="libreoffice_list_formats">
+                <processing>
+                    <serverCallback methodName="listEmptyFormatsAction"/>
+                </processing>
+            </action>
+            <action name="libreoffice_mkempty_file">
+                <gui text="libreoffice.10" title="libreoffice.10" iconClass="mdi mdi-file-document" hasAccessKey="false">
+                    <context selection="false" dir="true" recycle="hidden" actionBar="true"
+                             contextMenu="true" infoPanel="false" actionBarGroup="create" inZip="false"/>
+
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <subMenu>
+                    <dynamicBuilder module="PydioLibreOfficeActions.Callbacks.dynamicBuilder"/>
+                </subMenu>
+                <processing>
+
+                    <serverCallback methodName="createEmptyAction" restParams="/format/dir+"/>
+                </processing>
+            </action>
+        </actions>
+    </registry_contributions>
+</editor>

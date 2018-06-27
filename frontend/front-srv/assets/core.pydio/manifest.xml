@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="core.pydio" label="CONF_MESSAGE[Pydio Main Options]"
+          description="CONF_MESSAGE[Main container for core Pydio settings (application title, sharing, webdav server config, etc...)]"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd"
+        >
+    <plugin_info>
+        <plugin_author>Charles du Jeu</plugin_author>
+        <plugin_version>follow</plugin_version>
+        <plugin_uri>https://pydio.com/plugins/core/pydio</plugin_uri>
+        <core_relation packaged="true" tested_version="follow_core"/>
+    </plugin_info>
+    <client_settings>
+        <resources>
+            <i18n namespace="" remote="plug/core.pydio/i18n"/>
+        </resources>
+    </client_settings>
+	<server_settings>
+		<global_param name="APPLICATION_TITLE" group="CONF_MESSAGE[Main]" type="string" label="CONF_MESSAGE[App Title]" description="CONF_MESSAGE[Your application title]" mandatory="true" default="Pydio" expose="true"/>
+        <!-- MAKE SURE NOT TO CHANGE ORDER OF name AND default ATTRIBUTES, CAN BE REPLACED BY INSTALLERS -->
+        <!-- TODO: Remove / replace with backend service options -->
+        <global_param name="DISABLE_ZIP_BROWSING" group="CONF_MESSAGE[Compression Features]" type="boolean" label="CONF_MESSAGE[Disable Zip browsing]" description="CONF_MESSAGE[Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance.]" mandatory="false" default="false"/>
+        <global_param name="ZIP_CREATION" expose="true" group="CONF_MESSAGE[Compression Features]" type="boolean" label="CONF_MESSAGE[Zip Creation]" description="CONF_MESSAGE[If you encounter problems with online zip creation or multiple files downloading, you can disable the feature.]" mandatory="false" default="true"/>
+        <global_param name="ZIP_ENCODING" expose="false" group="CONF_MESSAGE[Compression Features]" type="string" label="CONF_MESSAGE[Zip Encoding]" description="CONF_MESSAGE[Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac).]" mandatory="false"/>
+
+        <!-- Downloads Group -->
+        <global_param name="GZIP_COMPRESSION" group="CONF_MESSAGE[Downloads]" type="boolean" label="CONF_MESSAGE[Gzip Download]" description="CONF_MESSAGE[Gzip files on-the-fly before downloading. Disabled by default, as it's generally useful only on small files, and decreases performances on big files. This has nothing to see with the Zip Creation feature, it's just a on-the-fly compression applied on a unique file at download.]" mandatory="false" default="false"/>
+        <global_param name="GZIP_LIMIT" group="CONF_MESSAGE[Downloads]" type="string" label="CONF_MESSAGE[Gzip Limit]" description="CONF_MESSAGE[If activated, a default limit should be set above when files are no more compressed.]" mandatory="false" default="1048576"/>
+
+		<global_param name="NODENAME_MAX_LENGTH" expose="true" group="CONF_MESSAGE[Miscellaneous]" type="integer" label="CONF_MESSAGE[Filename length]" description="CONF_MESSAGE[Maximum characters length of new files or folders]" mandatory="false" default="255"/>
+		<global_param name="PYDIO_TMP_DIR" group="CONF_MESSAGE[Miscellaneous]" type="string" label="CONF_MESSAGE[Temporary Folder]" description="CONF_MESSAGE[This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder]" mandatory="false" default=""/>
+	</server_settings>
+</plugin>

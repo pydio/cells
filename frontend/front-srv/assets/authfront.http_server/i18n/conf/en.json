@@ -1,0 +1,15 @@
+{
+    "Basic Http by Server": "Basic Http by Server",
+    "Basic Http Auth performed by server (e.g. apache htaccess)": "Basic Http Auth performed by server (e.g. apache htaccess)",
+    "Create User": "Create User",
+    "Automatically create user if it does not already exists": "Automatically create user if it does not already exists",
+    "Admin login": "Admin login",
+    "Automatically set this login as pydio administrator": "Automatically set this login as pydio administrator",
+    "Order": "Order",
+    "Order this plugin with other auth frontends": "Order this plugin with other auth frontends",
+    "Protocol Type": "Protocol Type",
+    "Enable\/disable automatically based on the protocol used": "Enable\/disable automatically based on the protocol used",
+    "Sessions Only": "Sessions Only",
+    "REST Only": "REST Only",
+    "Session-based or Rest": "Session-based or Rest"
+}

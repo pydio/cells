@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="core.mailer" label="CONF_MESSAGE[Mailers]" description="CONF_MESSAGE[Core configs for sending emails]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <server_settings>
+        <global_param name="FROM" group="CONF_MESSAGE[Sender]" type="string" label="CONF_MESSAGE[Sender email]" description="CONF_MESSAGE[Adress of the sender]" mandatory="true" default=""/>
+        <global_param name="FROM_NAME" group="CONF_MESSAGE[Sender]" type="string" label="CONF_MESSAGE[Sender name]" description="CONF_MESSAGE[Name of the sender]" mandatory="true" default=""/>
+        <global_param name="FORCE_UNIQUE_FROM" group="CONF_MESSAGE[Sender]" type="boolean" label="CONF_MESSAGE[Unique Sender]" description="CONF_MESSAGE[Force all mails to be sent by this Sender email, instead of users adresses]" mandatory="true" default="false"/>
+        <global_param name="SUBJECT_PREPEND" group="CONF_MESSAGE[Content]" label="CONF_MESSAGE[Subject Prepend]" description="CONF_MESSAGE[String automatically added at the beginning of the mail subject]" type="string" mandatory="false" default=""/>
+        <global_param name="SUBJECT_APPEND" group="CONF_MESSAGE[Content]" label="CONF_MESSAGE[Subject Append]" description="CONF_MESSAGE[String automatically added at the end of the mail subject]" type="string" mandatory="false" default=""/>
+        <global_param name="BODY_LAYOUT" group="CONF_MESSAGE[Content]" label="CONF_MESSAGE[Body Layout]" description="CONF_MESSAGE[Main Layout for the email body, use HTML for send nice emails, and use the PYDIO_MAIL_BODY keyword for the real content.]" type="textarea" mandatory="false" default="PYDIO_MAIL_BODY"/>
+        <global_param name="DIGEST_DISPLAY_LINKS" group="CONF_MESSAGE[Content]" label="CONF_MESSAGE[Display Links in Digest]" description="CONF_MESSAGE[Append links to the files for each alert when sending emails as digest]" type="boolean" mandatory="false" default="false"/>
+        <!--
+        <param name="NOTIFICATIONS_EMAIL_GET" type="select" choices="true|PYDIO_MESSAGE[440],false|PYDIO_MESSAGE[441]" scope="user" description="CONF_MESSAGE[Receive Notifcations by email]" label="CONF_MESSAGE[Active notifications by email]" expose="true" mandatory="true" default="true" />
+        <param name="NOTIFICATIONS_EMAIL_FREQUENCY" scope="user" type="select" choices="M|CONF_MESSAGE[Every X min],H|CONF_MESSAGE[Every X hour],D1|CONF_MESSAGE[Every day at ],D2|CONF_MESSAGE[Twice a day (every day at and)],W1|CONF_MESSAGE[Once a Week]" label="CONF_MESSAGE[Emails frequency]" description="CONF_MESSAGE[Emails frequency]" expose="true" mandatory="true" default="M" />
+        <param name="NOTIFICATIONS_EMAIL_FREQUENCY_USER" scope="user" type="string" description="CONF_MESSAGE[Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)]" label="CONF_MESSAGE[Detail your frequency here]" expose="true" mandatory="true" default="5" />
+        <param name="NOTIFICATIONS_EMAIL" scope="user" description="CONF_MESSAGE[You can add many email separated by commas]" label="CONF_MESSAGE[Send email to...]" type="string" expose="true" editable="true"/>
+        <param name="NOTIFICATIONS_EMAIL_SEND_HTML" scope="user" type="select" choices="true|PYDIO_MESSAGE[440],false|PYDIO_MESSAGE[441]" description="CONF_MESSAGE[Send as HTML]" label="CONF_MESSAGE[Get the email in HTML]" expose="true" mandatory="true" default="true" />
+        -->
+    </server_settings>
+    <client_settings>
+        <resources>
+            <i18n namespace="core.mailer" remote="plug/core.mailer/i18n"/>
+            <js className="PydioMailer" file="plug/core.mailer/js/build/PydioMailer.js" depends="React,PydioComponents,PydioForm"/>
+        </resources>
+    </client_settings>
+    <registry_contributions>
+        <actions>
+            <action name="send_mail">
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="hidden" write="false"/>
+                <processing>
+                    <serverCallback methodName="sendMailAction" restParams="/" developerComment="Trigger an email to a user or external email, sent by currently logged user">
+                        <input_param name="from" type="string" description="From email"/>
+                        <input_param name="emails" type="string" description="A list of emails or user names"/>
+                        <input_param name="subject" type="string" description="Subject of the message"/>
+                        <input_param name="message" type="string" description="Body of the message"/>
+                        <input_param name="link" type="string" description="URL of an image to be used in the message body."/>
+                    </serverCallback>
+                </processing>
+            </action>
+        </actions>
+    </registry_contributions>
+</plugin>

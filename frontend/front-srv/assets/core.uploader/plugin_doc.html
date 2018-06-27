@@ -1,0 +1,8 @@
+<p>Global upload options provider shared by all uploader plugins.</p>
+        <h2>How to change the upload limit?</h2>
+        <b>Upload size is limited by PHP configuration</b>. Thus, by default, this plugin can only <b>lower</b> the original php.ini value. You cannot simply raise the configuration here, you have to change the php.ini value by a way or another (php.ini file, .htaccess php_value key). The following parameters must be updated :
+        <ul>
+            <li>post_max_size</li>
+            <li>upload_max_size</li>
+        </ul>
+        Once updated, restart your webserver (Apache for example) to make sure the configuration is taken into account, then in this configuration panel, <B>set the "File Size" parameter to 0</B> and save. Re-open the panel, you should see the php.ini value reloaded.

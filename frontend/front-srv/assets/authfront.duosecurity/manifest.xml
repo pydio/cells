@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="authfront.duosecurity" enabled="false" label="CONF_MESSAGE[Dual-form Authentication]"
+          description="CONF_MESSAGE[Dual-form authentication using the DuoSecurity web service]"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <client_settings>
+        <resources>
+            <js className="Duo" file="plug/authfront.duosecurity/vendor/duosecurity/duo_php/js/Duo-Web-v2.min.js"/>
+            <i18n namespace="duosecurity" remote="plug/authfront.duosecurity/i18n"/>
+            <js className="DuoSecurityActions" file="plug/authfront.duosecurity/res/build/DuoSecurityActions.js" depends="Duo"/>
+        </resources>
+    </client_settings>
+    <server_settings>
+        <global_param name="ORDER" type="integer" label="CONF_MESSAGE[Order]" description="CONF_MESSAGE[Order this plugin with other auth frontends]" default="15"/>
+        <global_param name="PROTOCOL_TYPE" type="select"
+                      choices="session_only|CONF_MESSAGE[Sessions Only],no_session|CONF_MESSAGE[REST Only],both|CONF_MESSAGE[Session-based or Rest]"
+                      label="CONF_MESSAGE[Protocol Type]" description="CONF_MESSAGE[Enable/disable automatically based on the protocol used]" default="session_only"/>
+        <global_param name="DUO_AUTH_HOST" type="string" label="CONF_MESSAGE[Api Host]"
+                      description="CONF_MESSAGE[DuoSecurity Host]" group="CONF_MESSAGE[DuoSecurity Config]" expose="true"/>
+        <global_param name="DUO_AUTH_IKEY" type="string" label="CONF_MESSAGE[Integration Key]"
+                      description="CONF_MESSAGE[DuoSecurity Integration Key]" group="CONF_MESSAGE[DuoSecurity Config]"/>
+        <global_param name="DUO_AUTH_SKEY" type="string" label="CONF_MESSAGE[Secret Key]"
+                      description="CONF_MESSAGE[DuoSecurity Secret Key]" group="CONF_MESSAGE[DuoSecurity Config]"/>
+        <global_param name="DUO_AUTH_AKEY" type="string" label="CONF_MESSAGE[Application Key]"
+                      description="CONF_MESSAGE[DuoSecurity Application Key (generate your own)]" group="CONF_MESSAGE[DuoSecurity Config]"/>
+        <global_param name="DUO_AUTH_ACTIVE" group="CONF_MESSAGE[Dual-level Authentication]" type="boolean" label="CONF_MESSAGE[Duo Authentication Active]"
+                      description="CONF_MESSAGE[Active dual-form authentication]" default="false" scope="user"/>
+        <global_param name="DUO_AUTH_LAST_SIGNATURE" group="CONF_MESSAGE[Dual-level Authentication]" type="string" label="CONF_MESSAGE[Request Signature (leave empty)]"
+                      description="CONF_MESSAGE[Used internally]" default="false" expose="true"/>
+    </server_settings>
+    <registry_contributions>
+        <actions>
+            <action name="duo_show_iframe">
+                <gui text="duosecurity.1" title="duosecurity.2" iconClass="icon-signin" accessKey="" hasAccessKey="false">
+                    <context selection="false" dir="" recycle="false"
+                             actionBar="false" contextMenu="false" infoPanel="false">
+                    </context>
+                </gui>
+                <processing>
+                    <clientCallback module="DuoSecurityActions.Callbacks.duoPrompt"/>
+                </processing>
+            </action>
+            <action name="duo_post_verification_code">
+                <processing>
+                    <serverCallback methodName="postVerificationCode"/>
+                </processing>
+            </action>
+        </actions>
+    </registry_contributions>
+</plugin>

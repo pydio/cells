@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry_contributions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+	<actions>
+        <action name="get_secure_token">
+            <processing>
+                <serverCallback methodName="switchAction"/>
+            </processing>
+        </action>
+        <action name="jwt">
+            <processing>
+                <serverCallback restParams="/" methodName="getJWT"/>
+            </processing>
+        </action>
+        <action name="pass_change">
+            <gui text="194" title="194" iconClass="icon-key" accessKey="" hasAccessKey="false">
+                <context selection="false" dir="" recycle="true" actionBarGroup="utils"/>
+            </gui>
+            <rightsContext adminOnly="false" noUser="false" read="false" userLogged="only" write="false"/>
+            <processing>
+                <clientCallback module="PydioCoreActions.Callbacks.changePass"/>
+                <serverCallback methodName="switchAction" restParams="/pass_seed/old_pass/new_pass">
+                    <input_param name="pass_seed" type="string" description="A unique seed sent by server, generally -1" default="-1"/>
+                    <input_param name="old_pass" type="string" description="Current active pass for logged user"/>
+                    <input_param name="new_pass" type="string" description="New password"/>
+                </serverCallback>
+            </processing>
+        </action>
+	</actions>
+</registry_contributions>

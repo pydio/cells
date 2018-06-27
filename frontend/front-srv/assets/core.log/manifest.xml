@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin label="CONF_MESSAGE[Application Logger]" description="CONF_MESSAGE[Setup the logging system]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <client_settings>
+        <resources>
+            <i18n namespace="core.log" remote="plug/core.log/i18n"/>
+        </resources>
+    </client_settings>
+    <server_settings>
+        <global_param description="CONF_MESSAGE[Plugin instance to handle log implementation]" label="CONF_MESSAGE[Logger plugin]"
+                      name="UNIQUE_PLUGIN_INSTANCE" type="plugin_instance:log" default="log.pydio" mandatory="true"/>
+        <global_param name="ERROR_TO_ERROR_LOG" type="boolean" label="CONF_MESSAGE[Send errors to system log]"
+                      description="CONF_MESSAGE[Always send all Error-level messages to the system error log]" default="false" mandatory="true"/>
+        <global_param name="CUSTOM_HEADER_FOR_IP" type="string" label="CONF_MESSAGE[Custom Header for IP]"
+                      description="CONF_MESSAGE[Can be used in a proxy situation to use e.g. X-Forwarded-For header value instead of proxy IP.]" mandatory="false"/>
+    </server_settings>
+</plugin>

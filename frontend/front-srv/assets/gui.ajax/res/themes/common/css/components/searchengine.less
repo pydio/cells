@@ -1,0 +1,226 @@
+.react-mui-context{
+
+  .top_search_form{
+
+    margin-right: 10px;
+    margin-top:   10px;
+    width: 186px;
+    height: 42px;
+    z-index: 10;
+    overflow: hidden;
+    background-color: transparent;
+    transition: @bezier_transition;
+
+    .search-input{
+      background-color: transparent;
+      padding: 5px;
+      .mui-text-field{
+        width: 100%;
+        padding: 0 10px;
+        box-shadow: @reactBoxShadowDepth2;
+        background-color: white;
+        border-radius: 2px;
+        height: 36px;
+        .mui-text-field-hint{
+          margin-top: -5px;
+          color: rgba(0,0,0,0.47);
+        }
+        .mui-text-field-underline, .mui-text-field-focus-underline{
+          display: none;
+        }
+      }
+      .panel-header{
+        height: 0;
+        overflow: hidden;
+        padding: 0 6px;
+        font-size: 22px;
+        color: @applicationPrimaryFontColor;
+        transition: @bezier_transition;
+
+        .panel-header-close{
+          float: right;
+          cursor: pointer;
+        }
+      }
+    }
+
+    .search-advanced, .search-advanced-button{
+      display: none;
+      .advanced-section{
+        font-weight: 500;
+        padding: 40px 10px 0;
+        &:first-child{
+          padding-top: 10px;
+        }
+      }
+      .mui-text-field{
+        width: 210px ;
+        margin: -16px 15px 0;
+      }
+      .mui-drop-down-menu{
+        width: 256px !important;
+        margin-left: -8px;
+      }
+      .mui-menu{
+        width: 216px !important;
+        margin-left: 20px;
+      }
+      .advanced-search-stars {
+        display: flex;
+        margin: 16px 0 5px !important;
+        .stars-label{
+          padding: 0 15px !important;
+          display: inline-block;
+          font-size: 17px;
+          color: #b4b4b4;
+        }
+        .stars-icons{
+          padding-top: 1px;
+        }
+      }
+      .paginator-dates{
+        margin-top: 20px;
+        display: flex;
+        .mui-text-field{
+          width: 98px;
+        }
+        span.mdi-close{
+          display: inline-block;
+          padding: 3px 1px;
+          margin-left: -30px;
+          color: rgba(0,0,0,0.33);
+        }
+      }
+      .mui-toggle{
+        width: 215px;
+        margin-left: 15px;
+        margin-top: 16px;
+      }
+    }
+
+    .search-results{
+      display: none;
+      .mui-toolbar{
+        display: none;
+      }
+      .files-list{
+        margin-right: 0 !important;
+      }
+    }
+
+    &.small, &.more, &.advanced{
+      background-color: white;
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      width: 256px;
+      height: auto;
+
+      box-shadow: @reactBoxShadowDepth1;
+      .search-input{
+        box-shadow: @reactBoxShadowDepth1;
+      }
+      .search-results {
+        display: block;
+      }
+    }
+
+    &.small{
+      .search-results{
+        .material-list-entry.list-group-header{
+          margin-top: 0;
+        }
+        .material-list-entry.material-list-entry-1-lines{
+          border-bottom: 1px solid rgba(0,0,0,0.13);
+          .material-list-icon {
+            width: 42px;
+            .mui-font-icon{
+              background-color: transparent;
+              font-size: 16px;
+              margin: 8px 4px 0;
+              color: rgba(0,0,0,0.83);
+            }
+          }
+          .material-list-line-1{
+            font-size: 14px;
+            line-height: 16px;
+          }
+        }
+      }
+    }
+
+    &.more, &.advanced{
+      background-color: #fafafa;
+      width: 512px;
+      height: 512px;
+      &.advanced{
+        height: 612px;
+      }
+      .search-results{
+        height: 412px;
+        .material-list-entry.material-list-entry-2-lines {
+          background-color: white;
+          border-bottom: 0 !important;
+          margin: 5px;
+          box-shadow: @reactBoxShadowDepthMini;
+        }
+      }
+      .material-list-icon{
+        img{
+          border-radius: 0;
+          background-color: transparent;
+        }
+        .covering-bg-preview{
+          height: 50px;
+          width: 50px;
+          margin: 9px;
+        }
+      }
+      .panel-header{
+        display: block;
+        height: 54px;
+        padding: 23px 6px 10px;
+      }
+      .search-advanced-button{
+        width: 120px;
+        overflow: visible;
+        top: 69px;
+      }
+    }
+
+    &.advanced{
+
+      .search-advanced-button{
+        display: none;
+      }
+
+      .search-input{
+        .panel-header{
+          padding: 63px 12px 10px;
+          height: 90px;
+        }
+        .mui-text-field{
+          display: none;
+        }
+      }
+
+      width: 512px + 256px;
+      .search-advanced{
+        display: block;
+        position: absolute;
+        left:6px;
+        width: 240px;
+        background-color: white;
+        top: 104px;
+        bottom: 7px;
+        overflow-y: scroll;
+        box-shadow: @reactBoxShadowDepth1;
+      }
+
+      .search-results{
+        margin-left: 249px;
+      }
+    }
+
+  }
+}

@@ -1,0 +1,53 @@
+.comments_feed{
+  padding: 0 !important;
+  div.date{
+    color: rgba(0,0,0,0.23);
+    text-align: center;
+    display: flex;
+    margin: 5px 0;
+    &:before, &:after{
+      content: ' -------- ';
+      display: block;
+      flex: 1;
+    }
+  }
+  div.comment-line{
+    padding: 8px;
+    display: flex;
+    div.content{
+      flex: 1;
+      margin-left: 8px;
+      position: relative;
+      padding: 6px 8px;
+      div.part{
+        font-size: 14px;
+        padding: 8px;
+      }
+      div.link{
+        color: rgba(0,0,0,0.53);
+        font-size: 11px;
+        padding: 2px 8px;
+        border-top: 1px solid rgba(0,0,0,0.13);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+      div.delete-comment{
+        color: rgba(0,0,0,0.23);
+        position: absolute;
+        display: none;
+        top: 0;
+        right: 0;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        font-size: 20px;
+        line-height: 30px;
+        text-align: center;
+      }
+      &:hover div.delete-comment{
+        display: block;
+      }
+    }
+  }
+}

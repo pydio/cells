@@ -1,0 +1,12 @@
+{
+    "Mobile": "Móvil",
+    "Template extending gui.ajax for small screen terminals.": "Plantilla para extender gui.ajax a terminales con pantalla pequeña.",
+    "1.ios": "¡Hay una aplicación nativa para acceder a %s desde iPhone\/iPad!",
+    "2.ios": "Ya la tengo, ábrela y añade este servidor a mis servidores",
+    "3.ios": "No la tengo, ¡envíame a la App Store!",
+    "4.ios": "No me importa, déjame usar la version web de %s.",
+    "1.android": "Hay una cliente nativo de APPLICATION_TITLE para acceder a %s en Android.",
+    "2.android": "Ya la tengo, ábrela y añade este servidor a mis servidores",
+    "3.android": "No la tengo, ¡envíame a la Play Store!",
+    "4.android": "No me importa, déjame usar la version web de %s."
+}

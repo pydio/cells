@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="authfront.keystore" label="CONF_MESSAGE[API Keystore]" enabled="true" description="CONF_MESSAGE[Store API keys/token to simplify REST connection]"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <client_settings>
+        <resources>
+            <i18n namespace="authfront.keystore" remote="plug/authfront.keystore/i18n"/>
+            <js className="ApiKeys" file="plug/authfront.keystore/res/build/ApiKeys.js"/>
+            <i18n namespace="keystore" remote="plug/authfront.keystore/i18n"/>
+            <css file="plug/authfront.keystore/apikeypane.css" autoload="true"/>
+        </resources>
+    </client_settings>
+    <server_settings>
+        <global_param name="ORDER" type="integer" label="CONF_MESSAGE[Order]"
+                      description="CONF_MESSAGE[Order this plugin with other auth frontends]" default="2"/>
+        <global_param name="PROTOCOL_TYPE" type="select"
+                      choices="session_only|CONF_MESSAGE[Sessions Only],no_session|CONF_MESSAGE[REST Only],both|CONF_MESSAGE[Session-based or Rest]"
+                      label="CONF_MESSAGE[Protocol Type]" description="CONF_MESSAGE[Enable/disable automatically based on the protocol used]" default="both"/>
+        <global_param name="USER_GENERATE_KEYS" type="boolean" label="Let users generate keys"
+                      description="Display a Generate Key button in the Api key panel to let the user create their own key. Not really useful yet, for future usage."
+                      default="false" mandatory="false" expose="true"/>
+    </server_settings>
+    <registry_contributions>
+        <!--
+        <client_configs>
+            <component_config component="UserAccountTabs">
+                <additional_tab id="api_keys"
+                                tabInfo='{"icon":"mdi mdi-account-key","label":"keystore.1","title":"keystore.2","position":10}'
+                                paneInfo='{"namespace":"ApiKeys", "componentName":"Panel"}'/>
+            </component_config>
+        </client_configs>
+        -->
+        <actions>
+            <action name="keystore_generate_auth_token" skipSecureToken="true">
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="true" write="false"/>
+                <processing>
+                    <serverCallback methodName="authTokenActions" restParams="/device" sdkMethodName="generateAuthToken" developerComment="Generate and store a authentication key that can be used by the currently logged user. Used by SDKs talking to REST API to avoid renegociating basic auth on each query.">
+                        <input_param name="device" type="string"
+                                     description="A unique ID identifying the client connecting."/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="keystore_revoke_tokens">
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="true" write="false"/>
+                <processing>
+                    <serverCallback methodName="authTokenActions" restParams="/" sdkMethodName="revokeAuthToken" developerComment="Revoke current tokens for logged user."/>
+                </processing>
+            </action>
+            <action name="keystore_list_tokens">
+                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="true" write="false"/>
+                <processing>
+                    <serverCallback methodName="authTokenActions" restParams="/" sdkMethodName="listAuthToken" developerComment="List current tokens for logged user."/>
+                </processing>
+            </action>
+        </actions>
+        <hooks>
+            <serverCallback methodName="revokeUserTokens" hookName="user.after_password_change"/>
+            <serverCallback methodName="revokeUserTokens" hookName="user.after_delete"/>
+        </hooks>
+    </registry_contributions>
+</plugin>

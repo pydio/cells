@@ -1,0 +1,36 @@
+.meta_important{	
+	background-image: url('red.png');
+}
+.meta_work{
+	background-image: url('brown.png');
+}
+.meta_personal{
+	background-image: url('green.png');
+}
+.meta_todo{
+	background-image: url('blue.png');
+}
+.meta_low{
+	background-image: url('purple.png');
+}
+
+table.infoPanelTable td.meta_important{	
+	background: transparent;
+	color: #c66;
+}
+table.infoPanelTable td.meta_work{
+	background: transparent;
+	color :#c96;
+}
+table.infoPanelTable td.meta_personal{
+	background: transparent;
+	color: #6c6;
+}
+table.infoPanelTable td.meta_todo{
+	background: transparent;
+	color: #69c
+}
+table.infoPanelTable td.meta_low{
+	background: transparent;
+	color: #66c;
+}

@@ -1,0 +1,2671 @@
+@import "../../common/css/fonts/font-awesome.css";
+@import "../../common/css/fonts/mdi.css";
+@import "../../common/css/fonts/icomoon.css";
+.react-mui-context * {
+  font-family: Roboto, sans-serif;
+}
+.react-mui-context [class^="icon-"],
+.react-mui-context [class*=" icon-"] {
+  font-family: FontAwesome;
+}
+.react-mui-context [class^="mdi-"],
+.react-mui-context [class*=" mdi-"] {
+  font-family: "Material Design Icons";
+}
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('../themes/common/fonts/awesome/fontawesome-webfont.eot?v=3.2.1');
+  src: url('../themes/common/fonts/awesome/fontawesome-webfont.eot?#iefix&v=3.2.1') format('embedded-opentype'), url('../themes/common/fonts/awesome/fontawesome-webfont.woff?v=3.2.1') format('woff'), url('../themes/common/fonts/awesome/fontawesome-webfont.ttf?v=3.2.1') format('truetype'), url('../themes/common/fonts/awesome/fontawesome-webfont.svg#fontawesomeregular?v=3.2.1') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 300;
+  src: url('../themes/common/fonts/roboto-font/roboto-light.woff2') format('woff2'), url('../themes/common/fonts/roboto-font/roboto-light.woff') format('woff');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 400;
+  src: url('../themes/common/fonts/roboto-font/roboto.woff2') format('woff2'), url('../themes/common/fonts/roboto-font/roboto.woff') format('woff');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 500;
+  src: url('../themes/common/fonts/roboto-font/roboto-medium.woff2') format('woff2'), url('../themes/common/fonts/roboto-font/roboto-medium.woff') format('woff');
+}
+/* MaterialDesignIcons.com */
+@font-face {
+  font-family: "Material Design Icons";
+  src: url("../themes/common/fonts/mdi/materialdesignicons-webfont.eot?v=1.4.57");
+  src: url("../themes/common/fonts/mdi/materialdesignicons-webfont.eot?#iefix&v=1.4.57") format("embedded-opentype"), url("../themes/common/fonts/mdi/materialdesignicons-webfont.woff2?v=1.4.57") format("woff2"), url("../themes/common/fonts/mdi/materialdesignicons-webfont.woff?v=1.4.57") format("woff"), url("../themes/common/fonts/mdi/materialdesignicons-webfont.ttf?v=1.4.57") format("truetype"), url("../themes/common/fonts/mdi/materialdesignicons-webfont.svg?v=1.4.57#materialdesigniconsregular") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+/* Generated from SVG */
+@font-face {
+  font-family: 'icomoon';
+  src: url('../themes/common/fonts/icomoon/icomoon.eot?krpqh6');
+  src: url('../themes/common/fonts/icomoon/icomoon.eot?krpqh6#iefix') format('embedded-opentype'), url('../themes/common/fonts/icomoon/icomoon.ttf?krpqh6') format('truetype'), url('../themes/common/fonts/icomoon/icomoon.woff?krpqh6') format('woff'), url('../themes/common/fonts/icomoon/icomoon.svg?krpqh6#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+*:focus {
+  outline: none;
+}
+body {
+  font-family: Roboto, sans-serif;
+}
+h3 {
+  font-weight: 500;
+}
+/*
+MAJOR STYLES
+*/
+a:link,
+a:visited,
+a:hover,
+a:active,
+a:focus {
+  text-decoration: none;
+  outline: 0;
+  color: #333;
+}
+.linked {
+  cursor: pointer;
+  z-index: 10;
+}
+body,
+html {
+  margin: 0;
+  padding: 0;
+  background-color: #fcfcff;
+  overflow-x: hidden;
+}
+* {
+  -moz-user-select: -moz-none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+      user-select: none;
+}
+input,
+textarea,
+.selectable {
+  -webkit-user-select: auto;
+  -ms-user-select: auto;
+      user-select: auto;
+  -moz-user-select: text;
+}
+input {
+  font-weight: 300;
+}
+*::-moz-focus-inner {
+  border: none;
+}
+.no_select_bg::-moz-selection {
+  background: transparent;
+}
+.no_select_bg::selection {
+  background: transparent;
+}
+.selected {
+  text-decoration: none;
+}
+.selected-focus,
+.selected-focus span.text_label {
+  color: #fff !important;
+}
+.no_select_bg::-moz-selection {
+  background-color: transparent;
+}
+.css_boxshadow {
+  box-shadow: 1px 1px 4px rgba(100, 100, 100, 0.7);
+}
+span.letter_badge {
+  display: inline-block;
+  float: left;
+  width: 32px;
+  background-color: #111;
+  border-radius: 34px;
+  color: white;
+  text-align: center;
+  padding: 7px 0;
+  font-size: 0.8em;
+  font-family: Roboto, sans-serif;
+}
+.kbd {
+  padding: .1em .6em;
+  border: 1px solid #ccc;
+  font-size: 11px;
+  font-family: Arial, sans-serif;
+  background-color: #f7f7f7;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
+  border-radius: 3px;
+  display: inline-block;
+  margin: 0 .1em;
+  text-shadow: 0 1px 0 #fff;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+kbd {
+  padding: .1em .6em;
+  border: 1px solid #ccc;
+  font-size: 11px;
+  font-family: Arial, sans-serif;
+  background-color: #f7f7f7;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #fff inset;
+  border-radius: 3px;
+  display: inline-block;
+  margin: 0 .1em;
+  text-shadow: 0 1px 0 #fff;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.resizableHandle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-image: url('../images/resize_handle.png');
+  opacity: 0.5;
+  cursor: nwse-resize;
+}
+.flexbox body {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.vertical_layout {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+}
+.vertical_layout > * {
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.horizontal_layout {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: row;
+      flex-direction: row;
+  -ms-flex-align: stretch;
+      align-items: stretch;
+  -webkit-align-items: stretch;
+}
+.vertical_fit {
+  -ms-flex: 1;
+      flex: 1;
+  -webkit-flex: 1;
+  overflow-y: hidden;
+}
+.fit_background_height {
+  background-size: auto 100% !important;
+}
+.table {
+  display: table;
+}
+.table > div {
+  display: table-row;
+}
+.table > div > div {
+  display: table-cell;
+}
+.flexbox {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-flow: column;
+      flex-flow: column;
+}
+.flexbox .row {
+  -ms-flex: 0 1 30px;
+      flex: 0 1 30px;
+}
+.flexbox .row.header {
+  -ms-flex: 0 1 auto;
+      flex: 0 1 auto;
+}
+.flexbox .row.content {
+  -ms-flex: 1 1 auto;
+      flex: 1 1 auto;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+}
+.text-right {
+  text-align: right;
+}
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+#container {
+  width: 50%;
+  margin: 0 auto;
+  text-align: left;
+}
+.footer {
+  background-color: #000;
+  padding: 0.5em;
+}
+.leightbox {
+  color: #333;
+  display: none;
+  position: absolute;
+  top: 45%;
+  left: 45%;
+  width: 50%;
+  height: 50%;
+  padding: 1em;
+  border: 1em solid #B8B8B8;
+  background-color: white;
+  text-align: left;
+  z-index: 1040;
+  overflow: auto;
+}
+#overlay,
+#loading_overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1040;
+  background-color: #000000;
+  -moz-opacity: 0.6;
+  opacity: .20;
+  filter: alpha(opacity=60);
+}
+#loading_overlay {
+  display: block;
+  z-index: 2000;
+  -moz-opacity: 1.0 ;
+  opacity: 1.0 ;
+  filter: alpha(opacity=100) !important;
+  background-color: rgba(0, 0, 0, 0.83) !important;
+}
+#element_overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  background-color: #EEEEEE;
+  -moz-opacity: 0;
+  opacity: 0;
+  filter: alpha(opacity=0);
+  text-align: center;
+  overflow: hidden;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+div.dialogBox div#element_overlay {
+  background-color: #252525;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+#element_overlay img {
+  margin-top: 30%;
+}
+#element_iframe {
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  z-index: 1010;
+  background-color: #eee;
+  border: 1px solid black;
+}
+.lightbox[id] {
+  /* IE6 and below Can't See This */
+  position: fixed;
+}
+#overlay[id] {
+  /* IE6 and below Can't See This */
+  position: fixed;
+}
+.folders-tree,
+.folders-tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.folders-tree div.tree-item {
+  line-height: 14px;
+}
+.folders-tree div.tree-item div.tree-item-label {
+  padding: 10px 6px;
+  cursor: pointer;
+}
+.folders-tree div.tree-item div.tree-item-label .tree-icon {
+  padding: 0 8px;
+}
+.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-right,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-down {
+  padding-right: 0;
+  font-size: 16px;
+  width: 20px;
+  display: inline-block;
+  text-align: center;
+}
+.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-right.no-folder-children,
+.folders-tree div.tree-item div.tree-item-label .tree-icon.icon-angle-down.no-folder-children {
+  visibility: hidden;
+}
+.folders-tree div.tree-item.mui-is-selected div.tree-item-label {
+  color: #43555d;
+}
+.comments_feed {
+  padding: 0 !important;
+}
+.comments_feed div.date {
+  color: rgba(0, 0, 0, 0.23);
+  text-align: center;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 5px 0;
+}
+.comments_feed div.date:before,
+.comments_feed div.date:after {
+  content: ' -------- ';
+  display: block;
+  -ms-flex: 1;
+      flex: 1;
+}
+.comments_feed div.comment-line {
+  padding: 8px;
+  display: -ms-flexbox;
+  display: flex;
+}
+.comments_feed div.comment-line div.content {
+  -ms-flex: 1;
+      flex: 1;
+  margin-left: 8px;
+  position: relative;
+  padding: 6px 8px;
+}
+.comments_feed div.comment-line div.content div.part {
+  font-size: 14px;
+  padding: 8px;
+}
+.comments_feed div.comment-line div.content div.link {
+  color: rgba(0, 0, 0, 0.53);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.13);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.comments_feed div.comment-line div.content div.delete-comment {
+  color: rgba(0, 0, 0, 0.23);
+  position: absolute;
+  display: none;
+  top: 0;
+  right: 0;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  line-height: 30px;
+  text-align: center;
+}
+.comments_feed div.comment-line div.content:hover div.delete-comment {
+  display: block;
+}
+.react-mui-context .material-list.files-list {
+  opacity: 1;
+}
+.react-mui-context .material-list.files-list .material-list-entry .material-list-icon .covering-bg-preview {
+  border-radius: 50%;
+  height: 40px;
+  width: 40px;
+  margin: 15px;
+}
+.react-mui-context .material-list.files-list .material-list-entry .material-list-icon > div {
+  width: 100%;
+  height: 100%;
+}
+.react-mui-context .material-list.files-list .material-list-entry .material-list-icon > div.mimefont-container {
+  border-radius: 50%;
+  margin: 15px 15px;
+  height: 40px;
+  width: 40px;
+  line-height: 40px;
+  overflow: hidden;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+}
+.react-mui-context .material-list.files-list .material-list-entry .material-list-icon > div.mimefont-container div.mimefont {
+  font-size: 24px;
+  text-align: center;
+  -ms-flex: 1;
+      flex: 1;
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 {
+  line-height: 22px;
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk {
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  opacity: 0;
+  color: rgba(0, 0, 0, 0.23);
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.metadata_chunk.metadata_chunk_description {
+  opacity: 1;
+  color: rgba(0, 0, 0, 0.33);
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-line-2 span.icon-angle-right {
+  display: inline-block;
+  margin: 0 1px;
+  visibility: hidden;
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-actions .overlay_icon_div .overlay-class-span {
+  display: inline-block;
+  padding: 14px;
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-actions .overlay_icon_div .overlay-class-span.mdi.mdi-share-variant {
+  color: #009688;
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-actions .overlay_icon_div .overlay-class-span.icon-bookmark-empty {
+  color: #2196f3;
+}
+.react-mui-context .material-list.files-list .material-list-entry.material-list-entry-2-lines .material-list-actions .overlay_icon_div .overlay-class-span.icon-eye-open {
+  color: #ffc107;
+}
+.react-mui-context .material-list.files-list .material-list-entry.selected {
+  color: inherit;
+  border-bottom-color: transparent;
+}
+.react-mui-context .material-list.files-list .material-list-entry.selected .material-list-line-1 {
+  font-weight: inherit;
+}
+.react-mui-context .material-list.files-list .material-list-entry.selected .material-list-line-2 span.metadata_chunk {
+  opacity: 1;
+}
+.react-mui-context .material-list.files-list .material-list-entry.selected .material-list-line-2 span.metadata_chunk.metadata_chunk_description {
+  color: rgba(0, 0, 0, 0.63);
+}
+.react-mui-context .material-list.files-list .material-list-entry.selected .overlay_icon_div span.overlay-class-span {
+  color: rgba(0, 0, 0, 0.63);
+}
+.react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark span.metadata_chunk {
+  color: rgba(255, 255, 255, 0.87);
+}
+.react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark span.metadata_chunk.metadata_chunk_description {
+  color: rgba(255, 255, 255, 0.87);
+}
+.react-mui-context .material-list.files-list .material-list-entry.selected.selected-dark .overlay_icon_div span.overlay-class-span {
+  color: rgba(255, 255, 255, 0.87) !important;
+}
+.react-mui-context .material-list.files-list .material-list-entry:hover:not(.selected) .material-list-line-2 span.metadata_chunk {
+  opacity: 1;
+}
+.react-mui-context .material-list.files-list .material-list-entry:hover:not(.selected) .material-list-line-2 span.metadata_chunk.metadata_chunk_description {
+  color: rgba(0, 0, 0, 0.63);
+}
+.react-mui-context .material-list.files-list .material-list-entry.list-parent-node .material-list-icon .mui-font-icon {
+  color: white !important;
+  margin: 15px;
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-text {
+  padding: 18px 0 13px;
+}
+.react-mui-context .material-list.files-list.table-mode span.cell {
+  color: rgba(0, 0, 0, 0.53);
+}
+.react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label {
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 14px;
+  font-weight: 400;
+  min-width: 250px;
+}
+.react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label.header_cell {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  padding-left: 42px;
+}
+.react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label > span {
+  display: -ms-flexbox;
+  display: flex;
+  margin-left: 16px;
+}
+.react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label > span div.mimefont-container {
+  font-size: 17px;
+  margin-top: -2px;
+  margin-right: 10px;
+}
+.react-mui-context .material-list.files-list.table-mode span.cell.cell-ajxp_label > span span:last-child {
+  display: inline;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-icon-none {
+  display: none;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-actions {
+  display: none;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-actions .overlay_icon_div {
+  padding-right: 8px;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-actions .overlay_icon_div .overlay-class-span {
+  display: inline-block;
+  padding: 18px 8px 0;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.selected-dark span.cell {
+  color: rgba(255, 255, 255, 0.63);
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.selected-dark span.cell.cell-ajxp_label {
+  color: #ffffff;
+  font-weight: 500;
+}
+.react-mui-context .material-list.files-list.material-list-grid {
+  padding-left: 2px;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry {
+  width: 230px;
+  float: left;
+  height: 200px;
+  position: relative;
+  display: block;
+  margin: 1px;
+  border-bottom-width: 0 !important;
+  transition: width 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, height 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon {
+  width: 100%;
+  height: 100%;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.covering-bg-preview {
+  border-radius: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.mimefont-container {
+  border-radius: 50%;
+  margin: 0 0;
+  height: 100%;
+  width: 100%;
+  line-height: 100%;
+  overflow: hidden;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  border-radius: 0;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.mimefont-container div.mimefont {
+  font-size: 40px;
+  text-align: center;
+  -ms-flex: 1;
+      flex: 1;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-icon div.mimefont-container .mimefont {
+  margin: auto;
+  padding-bottom: 10%;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-text {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  padding: 8px 10px;
+  background-color: rgba(0, 0, 0, 0.43);
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-text .material-list-line-1 {
+  font-size: 14px;
+  color: white;
+  font-weight: 500;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry .material-list-actions span.overlay-class-span {
+  color: rgba(0, 0, 0, 0.63);
+  padding: 0 2px;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .mimefont-container {
+  background-color: transparent !important;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .mimefont-container .mimefont {
+  color: white !important;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .mimefont-container.with-editor-badge::before {
+  content: ' ';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background-color: #03a9f4;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.selected-dark .material-list-text {
+  background-color: rgba(0, 0, 0, 0.53);
+}
+.react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-text {
+  display: none;
+  padding: 5px;
+}
+.react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry .material-list-text .material-list-line-1 {
+  font-size: 12px;
+  line-height: 12px;
+}
+.react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry div.mimefont-container .mimefont {
+  margin: auto;
+  font-size: 30px !important;
+}
+.react-mui-context .material-list.files-list.material-list-grid.grid-size-80 .material-list-entry:hover .material-list-text {
+  display: block;
+}
+.react-mui-context .material-list.files-list.material-list-grid.grid-size-320 .material-list-entry div.mimefont-container .mimefont {
+  margin: auto;
+  font-size: 60px !important;
+  padding-bottom: 10%;
+}
+.react-mui-context .material-list.files-list.material-list-grid.horizontal-ribbon > div.layout-fill > div {
+  overflow-y: hidden !important;
+  overflow-x: auto !important;
+}
+.react-mui-context .material-list.files-list.material-list-grid.horizontal-ribbon > div.layout-fill > div > div {
+  width: 100000px;
+}
+.react-mui-context .material-list.files-list .mui-toolbar {
+  background-color: transparent;
+  padding: 0;
+  display: inline;
+  height: 0;
+  border-bottom: 0;
+}
+.react-mui-context .material-list.files-list .mui-toolbar .mui-toolbar-group.mui-left:first-child {
+  display: none;
+}
+.react-mui-context .material-list.files-list .mui-toolbar .mui-toolbar-group.mui-right:last-child {
+  display: none;
+}
+.react-mui-context .material-list.files-list .inline-editor {
+  position: absolute;
+  background-color: white;
+  margin-top: -11px;
+  z-index: 1;
+}
+.react-mui-context .material-list.files-list .inline-editor > .mui-paper-container {
+  padding: 8px 24px;
+}
+.react-mui-context .material-list.files-list .inline-editor > .mui-paper-container .modal-buttons {
+  text-align: right;
+}
+.react-mui-context .material-list.files-list .inline-editor.detached {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+.react-mui-context .material-list.files-list.table-mode .mui-toolbar {
+  display: block;
+  height: 56px;
+  position: absolute;
+}
+.react-mui-context .material-list.files-list.table-mode .mui-toolbar .mui-toolbar-group.mui-left:first-child {
+  display: block;
+  width: 100%;
+  padding: 20px 0;
+}
+.react-mui-context .material-list.files-list.table-mode > div.layout-fill {
+  margin-top: 56px;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.list-parent-node .material-list-text {
+  padding: 14px 0;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.list-parent-node .material-list-text .material-list-line-1 {
+  display: none;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.list-parent-node .material-list-text .material-list-line-2 {
+  font-size: 14px;
+  text-transform: capitalize;
+  font-style: italic;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.list-parent-node .material-list-icon {
+  padding: 0;
+  width: inherit;
+}
+.react-mui-context .material-list.files-list.table-mode .material-list-entry.list-parent-node .material-list-icon .mui-font-icon {
+  background-color: transparent !important;
+  color: rgba(0, 0, 0, 0.73) !important;
+  margin: 13px 3px 0px 7px !important;
+  font-size: 20px!important;
+  line-height: 13px!important;
+  padding: 3px!important;
+}
+.react-mui-context .material-list.files-list.table-mode .inline-editor {
+  margin-left: 40px;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-parent-node .material-list-text .material-list-line-1 {
+  display: none;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-entry.list-parent-node .material-list-text .material-list-line-2 {
+  line-height: 20px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+.react-mui-context .material-list.files-list.material-list-grid .material-list-text {
+  overflow: visible;
+}
+.react-mui-context .material-list.card-list {
+  background-color: #fafafa;
+}
+.react-mui-context .material-list.card-list .material-list-entry {
+  background-color: #fff;
+  margin: 6px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+  border-bottom: 0;
+}
+.react-mui-context .mui-dialog-window {
+  z-index: 1002 !important;
+}
+.react-mui-context .mui-dialog-window .mui-dialog-window-contents.dialog-max-420 {
+  max-width: 420px !important;
+}
+.react-mui-context .mui-dialog-window .bezier-transitions {
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.react-mui-context .mui-dialog-window .mui-dialog-window-contents.dialog-no-padding .mui-dialog-content {
+  padding: 0 !important;
+}
+.react-mui-context input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px white inset;
+}
+.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur > div {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  position: relative;
+}
+.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-size: cover;
+  background-position: center center;
+  filter: blur(7px);
+}
+.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField label {
+  color: rgba(255, 255, 255, 0.73) !important;
+}
+.react-mui-context div[data-reactroot].dialogRootBlur > div > div.dialogRootBlur div.blurDialogTextField input {
+  color: white !important;
+  height: 26px !important;
+  margin-top: 37px !important;
+}
+.react-mui-context div[data-reactroot].dialogRootBlur .red-background {
+  background-color: rgba(244, 67, 54, 0.45);
+  margin-left: -24px;
+  margin-right: -24px;
+  padding: 12px 24px;
+}
+.react-mui-context div[data-reactroot].dialogRootBlur .captcha_container {
+  text-align: center;
+  background-color: rgba(244, 67, 54, 0.45);
+  margin-left: -24px;
+  margin-right: -24px;
+  padding: 12px 24px;
+}
+.react-mui-context div[data-reactroot].dialogRootBlur .ajxp_login_error {
+  font-size: 14px;
+  margin-top: 12px;
+  background-color: rgba(244, 67, 54, 0.45);
+  margin-left: -24px;
+  margin-right: -24px;
+  padding: 12px 24px;
+}
+.react-mui-context div[data-reactroot].dialogRootBlur .forgot-password-link {
+  text-align: right;
+}
+.react-mui-context div[data-reactroot].dialogRootBlur .forgot-password-link a,
+.react-mui-context div[data-reactroot].dialogRootBlur .forgot-password-link a:hover {
+  color: rgba(255, 255, 255, 0.67);
+  font-size: 13px;
+}
+#activity_monitor_warning {
+  box-shadow: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  left: 35%;
+  position: absolute;
+  text-align: center;
+  top: 30%;
+  width: 20%;
+}
+#activity_monitor_warning div.dialogContent {
+  border-radius: 2px;
+  padding: 30px;
+  box-shadow: 1px 1px 46px rgba(0, 0, 0, 0.67);
+}
+#activity_monitor_warning span.click_anywhere {
+  color: #676965;
+  display: block;
+  font-size: 12px;
+  font-weight: normal;
+  padding-top: 15px;
+}
+#activity_monitor_warning span.warning_timer {
+  color: #0077b3;
+}
+#flashframe {
+  border: 0;
+  width: 450px;
+  height: 300px;
+  overflow: hidden;
+  margin-top: -9px;
+}
+/*
+UPLOAD MULTIFILE FORM
+*/
+div#upload_files_list,
+div#multiple_download_container {
+  overflow: auto;
+  height: 350px;
+  text-align: left;
+  border-radius: 1px;
+}
+div#multi_download_form a#dl_form_submit {
+  border-radius: 2px;
+  display: inline-block;
+  margin-top: 4px;
+  margin-left: 5px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 15px;
+  color: #009688;
+  text-transform: uppercase;
+}
+div#multi_download_form a#dl_form_submit:hover {
+  background-color: #bffff9;
+}
+div#multiple_download_container {
+  width: 100%;
+}
+div#multiple_download_container a {
+  font-size: 16px;
+}
+div#multiple_download_container a span.mdi-download {
+  font-size: 14px;
+  display: inline-block;
+  margin-right: 5px;
+}
+.droparea {
+  background: url("../../../../../../index.php?get_action=get_drop_bg") no-repeat scroll left bottom transparent;
+}
+.uploadFilesList.droparea {
+  background-position: center;
+}
+.dropareaHover,
+.dropareaHover #content_pane {
+  background-color: #FFF8E1 !important;
+}
+.webfx-tree-item.dropareaHover {
+  background-color: rgba(255, 253, 231, 0.43) !important;
+}
+#content_pane.dropareaHover div.thumbnail_selectable_cell {
+  background-color: transparent !important;
+}
+#uploader_chooser {
+  width: 100%;
+}
+#uploader_chooser ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: block;
+  position: relative;
+  border-bottom: 1px solid #FF5722;
+  background-color: #ffffff;
+}
+#uploader_chooser ul li {
+  display: inline-block;
+  padding: 12px 14px;
+  margin: 0;
+  border-bottom: 0;
+  cursor: pointer;
+  font-size: 13px;
+}
+#uploader_chooser ul li:hover {
+  background-color: #f5f5f5;
+  border-bottom: 2px solid #f5f5f5;
+}
+#uploader_chooser ul li.current {
+  font-weight: 500;
+  cursor: default;
+  border-bottom: 3px solid #FF5722;
+}
+div.upload-options-pane {
+  position: absolute;
+  top: 0;
+  right: 0;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.16), 0 1px 6px rgba(0, 0, 0, 0.23);
+  padding: 16px;
+}
+div.upload-options-pane .option-row {
+  padding: 8px 0;
+}
+div.upload-options-pane .close-options {
+  float: right;
+  cursor: pointer;
+  display: inline-block;
+}
+div.upload-options-pane .mui-radio-button {
+  margin: 12px 0;
+}
+div.uploader-action-bar {
+  margin-bottom: 10px;
+}
+div.uploader-action-bar > button,
+div.uploader-action-bar > div {
+  margin-right: 5px;
+}
+div#total_files_list {
+  display: none !important;
+}
+.dotted_container_item_mixin {
+  overflow: hidden;
+  padding: 16px 14px;
+  position: relative;
+  background-repeat: no-repeat;
+  background-size: 0 100%;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.87);
+}
+.dotted_container_item_mixin rect {
+  fill: #ffffff;
+}
+div#upload_files_list {
+  border: 1px solid rgba(0, 0, 0, 0.13);
+}
+div#upload_files_list > div {
+  overflow: hidden;
+  padding: 16px 14px;
+  position: relative;
+  background-repeat: no-repeat;
+  background-size: 0 100%;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.87);
+}
+div#upload_files_list > div rect {
+  fill: #ffffff;
+}
+div#upload_files_list > div.header {
+  padding: 8px 14px;
+  font-weight: 500;
+  font-size: 13px;
+  color: #636e75;
+  border-bottom: 0;
+}
+div#upload_files_list > div span.mdi.mdi-file,
+div#upload_files_list > div span.mdi.mdi-folder {
+  margin: 0 8px 0 0;
+}
+div#upload_files_list > div span.status,
+div#upload_files_list > div span.path {
+  font-size: 11px;
+  display: inline-block;
+  margin: 0 6px;
+  color: rgba(0, 0, 0, 0.53);
+}
+div#upload_files_list > div span.stop-button {
+  cursor: pointer;
+  color: #6b7781;
+  float: right;
+  display: inline-block;
+  margin: 4px 10px;
+}
+div#upload_files_list > div div.uploader-pgbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background-color: #009688;
+  height: 2px;
+  width: 0;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+div#upload_files_list > div.section-processed,
+div#upload_files_list > div.header {
+  display: none;
+}
+div#upload_files_list > div.upload-error {
+  display: block;
+  color: #d32f2f;
+}
+div#upload_files_list > div.upload-error span.status {
+  color: #d32f2f;
+}
+div#upload_files_list.show-processed > div.section-processed,
+div#upload_files_list.show-processed > div.header {
+  display: block;
+}
+div#upload_files_list span.item_relative_path {
+  color: #5f5f5f;
+  margin-left: 15px;
+  font-size: 0.8em;
+}
+div#upload_files_list img.fakeUploadButton {
+  display: none;
+}
+div#upload_files_list div a {
+  color: #ddd;
+  font-style: italic;
+}
+div#upload_files_list span.statusText,
+div#upload_files_list span.percentText {
+  font-size: 10px;
+  display: inline-block;
+  padding: 0 6px;
+  color: rgba(0, 0, 0, 0.53);
+}
+div#upload_files_list span.statusText.new,
+div#upload_files_list #upload_files_list span.statusText.loaded {
+  display: none;
+}
+div#upload_files_list span.icon-folder-close {
+  margin-right: 2px;
+}
+div#upload_files_list span.icon-file-alt {
+  display: inline-block;
+  margin: 0 6px 0 2px;
+}
+div#upload_files_list span.item-indent {
+  display: inline-block;
+  margin-right: 3px;
+}
+div#upload_files_list span.icon-remove-sign,
+div#upload_files_list span.mdi-close,
+div#upload_files_list span.icon-ok {
+  color: rgba(0, 0, 0, 0.53);
+  display: block;
+  position: absolute;
+  padding: 12px;
+  right: 5px;
+  top: 2px;
+  cursor: pointer;
+}
+div#upload_files_list span.icon-remove-sign:hover,
+div#upload_files_list span.mdi-close:hover {
+  color: #d00;
+}
+div#multiple_download_container div {
+  overflow: hidden;
+  padding: 16px 14px;
+  position: relative;
+  background-repeat: no-repeat;
+  background-size: 0 100%;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.87);
+}
+div#multiple_download_container div rect {
+  fill: #ffffff;
+}
+div#multiple_download_container div div a {
+  display: block;
+}
+div#multiple_download_container div div a:hover {
+  text-decoration: none;
+  color: #aaa;
+}
+#fileInputContainer {
+  position: relative;
+}
+#fileInputContainer #fileInputContainerDiv {
+  /* to fit 1px border */
+  margin: 0;
+  padding: 0;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  height: 47px;
+  width: 272px;
+  cursor: pointer;
+}
+#fileInputContainer #fileInputContainerDiv.folder_upload_button .fakeUploadButton {
+  background-color: #fefefe;
+  width: 130px;
+  color: rgba(0, 0, 0, 0.76);
+}
+#fileInputContainer input {
+  opacity: 0;
+  -moz-opacity: 0;
+  position: absolute;
+  font-size: 60px;
+  /* causes it to fill the containing div */
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  height: 30px;
+  cursor: pointer !important;
+  filter: alpha(opacity=0);
+  width: 250px;
+}
+#fileInputContainer #fileInputPos {
+  text-align: left;
+  height: 30px;
+  width: 250px;
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  z-index: 9999;
+  /* this was needed to work in IE */
+  cursor: pointer;
+}
+#fileInputContainer .fakeUploadButton {
+  width: 250px;
+  padding: 6px;
+  text-align: left;
+  vertical-align: middle;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+  background-color: #ffffff;
+  color: #485e68;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.33);
+  position: absolute;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  top: 0;
+  left: 0;
+  margin: 0;
+}
+#fileInputContainer .fakeUploadButton span.icon-desktop,
+#fileInputContainer .fakeUploadButton span.icon-folder-open-alt {
+  font-size: 20px;
+  display: block;
+  float: left;
+  padding: 2px 10px 0 6px;
+}
+#fileInputContainer .fakeUploadButton span.icon-folder-open-alt {
+  font-size: 18px;
+  padding: 3px 10px 0 6px;
+}
+#fileInputContainer .fakeUploadButton .disabled {
+  -moz-opacity: 0.5;
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+  cursor: default;
+}
+#fileInputContainer .fakeUploadButton img {
+  margin-bottom: 3px;
+}
+#uploaderTextActions {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  color: #cbccce;
+  font-size: 12px;
+}
+#uploaderTextActions span {
+  cursor: pointer;
+}
+#uploaderTextActions span:hover {
+  color: #5C5C5C;
+}
+.fakeOptionButton {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  margin-bottom: 0;
+  margin-top: 5px;
+  background-position: center;
+  border-radius: 5px;
+}
+#uploaderTextActions span.disabled {
+  display: none;
+}
+#uploadFilesListContainer {
+  vertical-align: top;
+  font-size: 11px;
+}
+.react-mui-context .scrollarea > .scrollbar-container {
+  opacity: 0 !important;
+}
+.react-mui-context .scrollarea:hover > .scrollbar-container {
+  opacity: .3 !important;
+}
+.user-widget {
+  height: 110px;
+  width: 250px;
+  z-index: 1002;
+}
+.user-widget .user-display {
+  color: white;
+  padding: 0 2px 0 10px;
+  font-size: 22px;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  height: 62px;
+}
+.user-widget .user-display .userLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.user-widget .action_bar {
+  padding: 6px 8px;
+  text-align: left;
+}
+.user-widget .action_bar button.userActionButton {
+  width: 40px !important;
+  height: 40px !important;
+}
+.user-widget .action_bar button.userActionButton span.userActionIcon {
+  font-size: 18px !important;
+  color: rgba(255, 255, 255, 0.93) !important;
+}
+.react-mui-context .top_search_form {
+  margin-right: 10px;
+  margin-top: 10px;
+  width: 186px;
+  height: 42px;
+  z-index: 10;
+  overflow: hidden;
+  background-color: transparent;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.react-mui-context .top_search_form .search-input {
+  background-color: transparent;
+  padding: 5px;
+}
+.react-mui-context .top_search_form .search-input .mui-text-field {
+  width: 100%;
+  padding: 0 10px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px;
+  background-color: white;
+  border-radius: 2px;
+  height: 36px;
+}
+.react-mui-context .top_search_form .search-input .mui-text-field .mui-text-field-hint {
+  margin-top: -5px;
+  color: rgba(0, 0, 0, 0.47);
+}
+.react-mui-context .top_search_form .search-input .mui-text-field .mui-text-field-underline,
+.react-mui-context .top_search_form .search-input .mui-text-field .mui-text-field-focus-underline {
+  display: none;
+}
+.react-mui-context .top_search_form .search-input .panel-header {
+  height: 0;
+  overflow: hidden;
+  padding: 0 6px;
+  font-size: 22px;
+  color: white;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.react-mui-context .top_search_form .search-input .panel-header .panel-header-close {
+  float: right;
+  cursor: pointer;
+}
+.react-mui-context .top_search_form .search-advanced,
+.react-mui-context .top_search_form .search-advanced-button {
+  display: none;
+}
+.react-mui-context .top_search_form .search-advanced .advanced-section,
+.react-mui-context .top_search_form .search-advanced-button .advanced-section {
+  font-weight: 500;
+  padding: 40px 10px 0;
+}
+.react-mui-context .top_search_form .search-advanced .advanced-section:first-child,
+.react-mui-context .top_search_form .search-advanced-button .advanced-section:first-child {
+  padding-top: 10px;
+}
+.react-mui-context .top_search_form .search-advanced .mui-text-field,
+.react-mui-context .top_search_form .search-advanced-button .mui-text-field {
+  width: 210px ;
+  margin: -16px 15px 0;
+}
+.react-mui-context .top_search_form .search-advanced .mui-drop-down-menu,
+.react-mui-context .top_search_form .search-advanced-button .mui-drop-down-menu {
+  width: 256px !important;
+  margin-left: -8px;
+}
+.react-mui-context .top_search_form .search-advanced .mui-menu,
+.react-mui-context .top_search_form .search-advanced-button .mui-menu {
+  width: 216px !important;
+  margin-left: 20px;
+}
+.react-mui-context .top_search_form .search-advanced .advanced-search-stars,
+.react-mui-context .top_search_form .search-advanced-button .advanced-search-stars {
+  display: -ms-flexbox;
+  display: flex;
+  margin: 16px 0 5px !important;
+}
+.react-mui-context .top_search_form .search-advanced .advanced-search-stars .stars-label,
+.react-mui-context .top_search_form .search-advanced-button .advanced-search-stars .stars-label {
+  padding: 0 15px !important;
+  display: inline-block;
+  font-size: 17px;
+  color: #b4b4b4;
+}
+.react-mui-context .top_search_form .search-advanced .advanced-search-stars .stars-icons,
+.react-mui-context .top_search_form .search-advanced-button .advanced-search-stars .stars-icons {
+  padding-top: 1px;
+}
+.react-mui-context .top_search_form .search-advanced .paginator-dates,
+.react-mui-context .top_search_form .search-advanced-button .paginator-dates {
+  margin-top: 20px;
+  display: -ms-flexbox;
+  display: flex;
+}
+.react-mui-context .top_search_form .search-advanced .paginator-dates .mui-text-field,
+.react-mui-context .top_search_form .search-advanced-button .paginator-dates .mui-text-field {
+  width: 98px;
+}
+.react-mui-context .top_search_form .search-advanced .paginator-dates span.mdi-close,
+.react-mui-context .top_search_form .search-advanced-button .paginator-dates span.mdi-close {
+  display: inline-block;
+  padding: 3px 1px;
+  margin-left: -30px;
+  color: rgba(0, 0, 0, 0.33);
+}
+.react-mui-context .top_search_form .search-advanced .mui-toggle,
+.react-mui-context .top_search_form .search-advanced-button .mui-toggle {
+  width: 215px;
+  margin-left: 15px;
+  margin-top: 16px;
+}
+.react-mui-context .top_search_form .search-results {
+  display: none;
+}
+.react-mui-context .top_search_form .search-results .mui-toolbar {
+  display: none;
+}
+.react-mui-context .top_search_form .search-results .files-list {
+  margin-right: 0 !important;
+}
+.react-mui-context .top_search_form.small,
+.react-mui-context .top_search_form.more,
+.react-mui-context .top_search_form.advanced {
+  background-color: white;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 256px;
+  height: auto;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+.react-mui-context .top_search_form.small .search-input,
+.react-mui-context .top_search_form.more .search-input,
+.react-mui-context .top_search_form.advanced .search-input {
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+.react-mui-context .top_search_form.small .search-results,
+.react-mui-context .top_search_form.more .search-results,
+.react-mui-context .top_search_form.advanced .search-results {
+  display: block;
+}
+.react-mui-context .top_search_form.small .search-results .material-list-entry.list-group-header {
+  margin-top: 0;
+}
+.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.13);
+}
+.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines .material-list-icon {
+  width: 42px;
+}
+.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines .material-list-icon .mui-font-icon {
+  background-color: transparent;
+  font-size: 16px;
+  margin: 8px 4px 0;
+  color: rgba(0, 0, 0, 0.83);
+}
+.react-mui-context .top_search_form.small .search-results .material-list-entry.material-list-entry-1-lines .material-list-line-1 {
+  font-size: 14px;
+  line-height: 16px;
+}
+.react-mui-context .top_search_form.more,
+.react-mui-context .top_search_form.advanced {
+  background-color: #fafafa;
+  width: 512px;
+  height: 512px;
+}
+.react-mui-context .top_search_form.more.advanced,
+.react-mui-context .top_search_form.advanced.advanced {
+  height: 612px;
+}
+.react-mui-context .top_search_form.more .search-results,
+.react-mui-context .top_search_form.advanced .search-results {
+  height: 412px;
+}
+.react-mui-context .top_search_form.more .search-results .material-list-entry.material-list-entry-2-lines,
+.react-mui-context .top_search_form.advanced .search-results .material-list-entry.material-list-entry-2-lines {
+  background-color: white;
+  border-bottom: 0 !important;
+  margin: 5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.33);
+}
+.react-mui-context .top_search_form.more .material-list-icon img,
+.react-mui-context .top_search_form.advanced .material-list-icon img {
+  border-radius: 0;
+  background-color: transparent;
+}
+.react-mui-context .top_search_form.more .material-list-icon .covering-bg-preview,
+.react-mui-context .top_search_form.advanced .material-list-icon .covering-bg-preview {
+  height: 50px;
+  width: 50px;
+  margin: 9px;
+}
+.react-mui-context .top_search_form.more .panel-header,
+.react-mui-context .top_search_form.advanced .panel-header {
+  display: block;
+  height: 54px;
+  padding: 23px 6px 10px;
+}
+.react-mui-context .top_search_form.more .search-advanced-button,
+.react-mui-context .top_search_form.advanced .search-advanced-button {
+  width: 120px;
+  overflow: visible;
+  top: 69px;
+}
+.react-mui-context .top_search_form.advanced {
+  width: 768px;
+}
+.react-mui-context .top_search_form.advanced .search-advanced-button {
+  display: none;
+}
+.react-mui-context .top_search_form.advanced .search-input .panel-header {
+  padding: 63px 12px 10px;
+  height: 90px;
+}
+.react-mui-context .top_search_form.advanced .search-input .mui-text-field {
+  display: none;
+}
+.react-mui-context .top_search_form.advanced .search-advanced {
+  display: block;
+  position: absolute;
+  left: 6px;
+  width: 240px;
+  background-color: white;
+  top: 104px;
+  bottom: 7px;
+  overflow-y: scroll;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+.react-mui-context .top_search_form.advanced .search-results {
+  margin-left: 249px;
+}
+.indeterminate-loader {
+  left: 0 !important;
+  top: 0 !important;
+  z-index: 1102 !important;
+  height: 2px;
+  width: 100%;
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.26);
+}
+.indeterminate-loader:before {
+  display: block;
+  position: absolute;
+  content: "";
+  left: -200px;
+  width: 200px;
+  height: 2px;
+  background-color: #03A9F4;
+  animation: connexionLoading 1.5s linear infinite;
+}
+@keyframes connexionLoading {
+  from {
+    left: -200px;
+    width: 30%;
+  }
+  50% {
+    width: 30%;
+  }
+  70% {
+    width: 70%;
+  }
+  80% {
+    left: 50%;
+  }
+  95% {
+    left: 120%;
+  }
+  to {
+    left: 100%;
+  }
+}
+.react_breadcrumb span.segment {
+  display: inline-block;
+  cursor: pointer;
+}
+.react_breadcrumb span.segment:hover {
+  font-weight: 500;
+}
+.react_breadcrumb span.segment:last-of-type:hover {
+  cursor: default;
+  font-weight: 400;
+}
+.context-menu .menu-positioner {
+  position: absolute;
+}
+.context-menu .menu-positioner .mui-menu {
+  position: absolute;
+  width: 250px !important;
+  top: 0;
+  z-index: 2000;
+}
+.context-menu .menu-positioner .mui-menu .mui-subheader {
+  height: 0 !important;
+}
+div.menu.desktop {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-radius: 2px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.24);
+}
+div.menu.desktop a {
+  color: rgba(0, 0, 0, 0.93);
+  padding: 13px 16px 13px 24px;
+}
+div.menu.desktop a span.ajxp_icon_span {
+  opacity: 1;
+  font-size: 16px;
+  margin-right: 24px;
+}
+.mui-menu .mui-nested-menu-item > .mui-menu-item {
+  padding-left: 32px;
+}
+.mui-menu .mui-nested-menu-item .muidocs-icon-custom-arrow-drop-right {
+  font-family: FontAwesome;
+  font-size: 16px;
+}
+.mui-menu .mui-nested-menu-item .muidocs-icon-custom-arrow-drop-right::before {
+  content: "\f0da";
+}
+.mui-menu span.mui-menu-item-icon.mui-font-icon {
+  font-size: 16px;
+  text-align: center;
+  width: 20px;
+}
+.menuPopover,
+.menuPopover > div {
+  overflow: visible !important;
+}
+.menuPopover .mui-subheader,
+.menuPopover > div .mui-subheader {
+  height: 0;
+}
+.react-editor .editor-overlay {
+  position: absolute;
+  z-index: 10000;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.53);
+  opacity: 1;
+  transition: opacity 300ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.react-editor .editor-overlay.fade-in-enter,
+.react-editor .editor-overlay.fade-in-leave {
+  opacity: 0.01;
+}
+.react-editor .editor-window {
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+  background-color: white;
+  position: absolute;
+  z-index: 100000;
+  transition: border-radius 250ms cubic-bezier(0.06, 0.73, 0.6, 0.95) 0ms, height 250ms cubic-bezier(0.23, 1, 0.32, 1) 250ms, width 250ms cubic-bezier(0.23, 1, 0.32, 1) 250ms, bottom 250ms cubic-bezier(0.23, 1, 0.32, 1) 250ms;
+  bottom: 20px;
+  right: 20px;
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+}
+.react-editor .editor-window .mui-tabs-container,
+.react-editor .editor-window .editor_container {
+  visibility: hidden;
+}
+.react-editor .editor-window .mui-tabs-container .mui-tab-item-container,
+.react-editor .editor-window .editor_container .mui-tab-item-container {
+  background-color: white !important;
+}
+.react-editor .editor-window button.mui-icon-button {
+  margin-top: 2px;
+  margin-left: 1px;
+}
+.react-editor .editor-window .mui-font-icon {
+  /*color: white;*/
+  font-size: 18px;
+}
+.react-editor .editor-window .editor-container {
+  background-color: #fafafa;
+}
+.react-editor .editor-window .mfb-component--br {
+  bottom: -6px;
+}
+.react-editor .editor-window .mfb-component--br a {
+  background-color: white;
+}
+.react-editor .editor-window .mfb-component--br .mfb-component__button--main {
+  width: 50px;
+  height: 50px;
+  box-shadow: none;
+}
+.react-editor .editor-window .mfb-component--br .mfb-component__button--main i {
+  line-height: 50px;
+}
+.react-editor .editor-window .mfb-component--br .mfb-component__list > li {
+  right: -1px;
+}
+.react-editor .editor-window.open {
+  overflow: hidden;
+  border-radius: 2px;
+  height: calc(100% - 41px);
+  width: calc(100% - 40px);
+}
+.react-editor .editor-window.open .mui-tabs-container,
+.react-editor .editor-window.open .editor_container {
+  visibility: visible;
+}
+.react-editor .editor-window.open .mui-tabs-container .mui-tab-item,
+.react-editor .editor-window.open .editor_container .mui-tab-item {
+  padding: 0 10px !important;
+}
+.react-editor .editor-window.open .mui-tabs-container .mui-tab-item span.closeable-tab,
+.react-editor .editor-window.open .editor_container .mui-tab-item span.closeable-tab {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+}
+.react-editor .editor-window.open .mui-tabs-container .mui-tab-item span.closeable-tab .label,
+.react-editor .editor-window.open .editor_container .mui-tab-item span.closeable-tab .label {
+  -ms-flex: 1;
+      flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.react-editor .editor-window.open .mui-tabs-container .mui-tab-item span.closeable-tab .mui-font-icon,
+.react-editor .editor-window.open .editor_container .mui-tab-item span.closeable-tab .mui-font-icon {
+  font-size: 16px;
+  padding: 6px;
+}
+.react-editor .editor-window.open .editor-title {
+  background-color: white;
+  height: 51px;
+  font-size: 24px;
+  padding: 14px 16px;
+  font-weight: 400;
+}
+.react-editor .editor-window.open .editor-title > div {
+  visibility: hidden;
+}
+.react-editor .editor-window.open .editor-title button.mui-icon-button {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+.react-editor .editor-window.opened {
+  transition: border-radius 500ms cubic-bezier(0.06, 0.73, 0.6, 0.95) 300ms, height 400ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, width 400ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, bottom 400ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.react-editor .editor-window.opened .editor-title > div {
+  visibility: visible;
+}
+.react-editor .editor-window #diaporama_box > div.vertical_fit {
+  background-color: #fafafa !important;
+}
+.left-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 250px;
+  z-index: 900;
+  overflow: hidden;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 10px, rgba(0, 0, 0, 0.23) 0px 3px 10px;
+}
+.left-panel .nav-list-entry {
+  padding: 6px 1px 6px 16px;
+  display: -ms-flexbox;
+  display: flex;
+  line-height: 24px;
+  cursor: pointer;
+}
+.left-panel .nav-list-entry:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+.left-panel .nav-list-entry-icon {
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin-right: 16px;
+  text-align: center;
+}
+.left-panel .nav-list-entry-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.left-panel .section-title {
+  padding: 16px 20px;
+  font-weight: 500;
+  border-top: 1px solid rgba(99, 126, 138, 0.3);
+  margin-top: 10px;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.left-panel .section-title:first-of-type {
+  padding: 10px 20px ;
+  border-top: none;
+}
+.left-panel .workspaces {
+  font-size: 15px;
+}
+.left-panel .workspaces .workspace-entry {
+  padding: 6px 1px 6px 16px;
+  display: -ms-flexbox;
+  display: flex;
+  line-height: 24px;
+  cursor: pointer;
+  padding: 10px 20px;
+}
+.left-panel .workspaces .workspace-entry:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+.left-panel .workspaces .workspace-entry .workspace-badge {
+  display: none;
+}
+.left-panel .workspaces .workspace-entry .workspace-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.left-panel .workspaces .workspace-entry .workspace-label .workspace-new,
+.left-panel .workspaces .workspace-entry .workspace-label .workspace-num-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: 3px;
+  margin-left: 5px;
+  height: 13px;
+  line-height: 13px;
+  padding: 0 3px;
+  text-transform: uppercase;
+}
+.left-panel .workspaces .workspace-entry .workspace-description {
+  display: none;
+}
+.left-panel .workspaces .workspace-entry .workspace-additional-action {
+  font-size: 22px;
+  position: absolute;
+  right: 8px;
+  margin-top: -3px;
+  border-radius: 50%;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  height: 30px;
+  width: 30px;
+  line-height: 30px;
+  text-align: center;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.5;
+}
+.left-panel .workspaces .workspace-entry .workspace-additional-action:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.left-panel .workspaces .workspace-entry.workspace-current {
+  opacity: 1;
+  position: relative;
+  font-weight: 500;
+}
+.left-panel .workspaces div.tree-item-label {
+  color: rgba(0, 0, 0, 0.77);
+}
+.left-panel .workspaces div.tree-item-label .tree-icon.icon-angle-down,
+.left-panel .workspaces div.tree-item-label .tree-icon.icon-angle-right {
+  color: rgba(0, 0, 0, 0.43);
+}
+.left-panel.hidden {
+  left: -255px;
+}
+.left-panel.expanded {
+  width: 100% !important;
+  overflow-y: auto;
+}
+.left-panel.expanded .workspaces .workspace-entry {
+  padding: 16px 1px 0px 16px;
+  line-height: 20px;
+}
+.left-panel.expanded .workspaces .workspace-entry .workspace-badge {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 1em;
+  display: -ms-flexbox;
+  display: flex;
+  background-color: #ECEFF1;
+  border-radius: 50%;
+  -ms-flex-align: center;
+      align-items: center;
+  -ms-flex-pack: center;
+      justify-content: center;
+  margin-right: 10px;
+  position: relative;
+}
+.left-panel.expanded .workspaces .workspace-entry .workspace-badge .mdi {
+  font-size: 1.4em;
+}
+.left-panel.expanded .workspaces .workspace-entry .workspace-badge .badge-overlay {
+  position: absolute;
+  font-size: 0.6em;
+  margin-top: 1px;
+  color: #ECEFF1;
+  z-index: 2;
+}
+.left-panel.expanded .workspaces .workspace-entry .workspace-label-container {
+  display: block;
+  -ms-flex: 1;
+      flex: 1;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  padding-bottom: 10px;
+  padding-left: 5px;
+}
+.left-panel.expanded .workspaces .workspace-entry .workspace-label-container .workspace-label {
+  font-size: 16px;
+}
+.left-panel.expanded .workspaces .workspace-entry .workspace-label-container .workspace-description {
+  display: block;
+  color: rgba(0, 0, 0, 0.33);
+}
+.left-panel.expanded .workspaces .workspace-entry .workspace-additional-action {
+  padding: 0 10px;
+  color: rgba(0, 0, 0, 0.23);
+  font-size: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+.left-panel.expanded .workspaces .workspace-entry .workspace-additional-action:hover {
+  color: rgba(0, 0, 0, 0.53);
+}
+.left-panel.expanded .filter-shared .workspaces .workspace-entry {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+.left-panel.expanded .filter-shared .workspaces .workspace-entry .workspace-label-container {
+  border-bottom: 0;
+}
+.left-panel.expanded .filter-shared .workspaces .workspace-entry .workspace-badge {
+  width: 36px;
+  height: 36px;
+  background-color: transparent;
+  color: #607D8B;
+  font-size: 22px;
+}
+.left-panel.expanded .filter-shared .workspaces .workspace-entry.workspace-access-inbox .workspace-badge .access-icon {
+  font-size: 32px;
+  font-family: "Material Design Icons";
+}
+.left-panel.expanded .filter-shared .workspaces .workspace-entry.workspace-access-inbox .workspace-badge .access-icon:before {
+  content: "\f309";
+}
+.left-panel .folders-tree {
+  margin-left: -15px;
+}
+.left-panel .folders-tree.closed {
+  display: none;
+}
+.left-panel .folders-tree div.tree-item {
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  line-height: 24px;
+}
+.left-panel .folders-tree div.tree-item.mui-is-selected div.tree-item-label {
+  color: inherit;
+}
+.left-panel .folders-tree div.tree-item div.tree-item-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#info_panel {
+  position: absolute;
+  width: 270px;
+  top: 110px;
+  bottom: 0;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  overflow-y: auto;
+  font-weight: 400;
+}
+#info_panel .panelCard {
+  margin: 10px !important;
+  margin-bottom: 0;
+}
+#info_panel .panelCard .panelHeader {
+  padding: 24px 16px 16px;
+  font-size: 19px;
+  font-weight: 400;
+}
+#info_panel .panelCard .panelContent {
+  background-color: transparent;
+  padding-bottom: 0;
+  border-radius: 2px 2px 0 0 ;
+}
+#info_panel .panelCard .panelContent > div {
+  padding: 0 16px;
+}
+#info_panel .panelCard .panelContent > div.richPreviewContainer {
+  padding: 0;
+  overflow: hidden;
+}
+#info_panel .panelCard .panelContent div.mimefont-container {
+  display: -ms-flexbox;
+  display: flex;
+  text-align: center;
+  font-size: 60px;
+}
+#info_panel .panelCard .panelContent div.mimefont-container div.mimefont {
+  margin: auto;
+}
+#info_panel .panelCard .panelContent div.covering-bg-preview {
+  border-radius: 2px 2px 0 0 ;
+}
+#info_panel .panelCard .panelContent .infoPanelRow {
+  padding-bottom: 12px;
+}
+#info_panel .panelCard .panelContent .infoPanelRow.no-value {
+  display: none;
+}
+#info_panel .panelCard .panelContent .infoPanelRow .infoPanelLabel {
+  color: rgba(0, 0, 0, 0.33);
+  font-weight: 500;
+}
+#info_panel .panelCard .panelActions {
+  padding: 8px;
+  text-align: right;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+#info_panel .panelCard .primaryToolbar {
+  padding: 10px !important;
+  -ms-flex-align: start;
+      align-items: flex-start;
+  -ms-flex-pack: end;
+      justify-content: flex-end;
+  border-radius: 0 0 2px 2px;
+}
+#info_panel .panelCard .primaryToolbar.empty-toolbar {
+  display: none;
+}
+#info_panel .panelCard .primaryToolbar .mui-flat-button {
+  min-width: 0;
+  margin: 0 1px;
+}
+#info_panel .panelCard .primaryToolbar .mui-flat-button .mui-flat-button-label {
+  color: white;
+  display: block;
+  padding: 0 5px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 19px;
+}
+#info_panel .panelCard .primaryToolbar .mui-flat-button .mui-flat-button-label span.button-icon span.button-icon-icon {
+  display: block;
+  font-size: 17px;
+  height: 24px;
+  line-height: 20px;
+}
+#info_panel .panelCard .primaryToolbar .mui-flat-button .mui-flat-button-label span.button-icon span.button-icon-label {
+  font-size: 13px;
+}
+#info_panel .panelCard .primaryToolbar .action-open_with button {
+  min-width: 0 !important;
+}
+#info_panel .panelCard .primaryToolbar .action-open_with button > div > span {
+  padding: 0 !important;
+}
+#info_panel .panelCard .primaryToolbar .action-open_with button > div > span > span .button-icon {
+  display: none;
+}
+#info_panel .panelCard .primaryToolbar .action-open_with button > div > span > span .icon-caret-down {
+  color: white;
+}
+#info_panel .panelCard .primaryToolbar .mui-menu {
+  position: absolute;
+  width: 230px;
+  right: 10px;
+  z-index: 2;
+}
+#info_panel .panelCard .primaryToolbar .mui-menu .mui-subheader {
+  height: 0;
+}
+div.pydio-tasks-panel {
+  position: absolute;
+  width: 356px;
+  height: 60px;
+  bottom: 20px;
+  right: 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: white;
+  /*box-shadow: @reactBoxShadowDepth1;*/
+  z-index: 20001;
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+div.pydio-tasks-panel.invisible {
+  right: -361px;
+}
+div.pydio-tasks-panel div.task {
+  padding: 10px;
+  border-bottom: 1px solid #f2f2f2;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: row;
+      flex-direction: row;
+}
+div.pydio-tasks-panel div.task .task_texts {
+  -ms-flex: 5;
+      flex: 5;
+  max-width: 296px;
+}
+div.pydio-tasks-panel div.task .task_texts div {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+div.pydio-tasks-panel div.task .task_texts div.task_label {
+  font-weight: 500;
+}
+div.pydio-tasks-panel div.task.show-full .task_texts div {
+  text-overflow: inherit;
+  overflow: visible;
+  white-space: normal;
+}
+div.pydio-tasks-panel div.task .task_actions {
+  cursor: pointer;
+}
+div.pydio-tasks-panel div.task .task_actions > span {
+  display: inline-block;
+  margin-top: 11px;
+  color: #325e74;
+  margin-left: 10px;
+  font-size: 20px;
+}
+div.pydio-tasks-panel div.task.task-status-8 {
+  /* error status */
+}
+div.pydio-tasks-panel div.task.task-status-8 .task_texts .status_message,
+div.pydio-tasks-panel div.task.task-status-8 .task_actions > span {
+  color: #d32f2f;
+}
+.react-mui-context .joyride-beacon {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  display: inline-block;
+  line-height: 1;
+  padding: 0;
+  height: 36px;
+  position: relative;
+  width: 36px;
+  z-index: 1500;
+}
+.react-mui-context .joyride-beacon:active,
+.react-mui-context .joyride-beacon:focus,
+.react-mui-context .joyride-beacon:hover {
+  outline: none;
+}
+.react-mui-context .joyride-beacon__inner {
+  animation: joyride-beacon-inner 1.2s infinite ease-in-out;
+  background-color: #f04;
+  border-radius: 50%;
+  display: block;
+  height: 50%;
+  left: 50%;
+  opacity: .7;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+}
+.react-mui-context .joyride-beacon__outer {
+  animation: joyride-beacon-outer 1.2s infinite ease-in-out;
+  background-color: rgba(255, 0, 68, 0.2);
+  border: 2px solid #f04;
+  border-radius: 50%;
+  box-sizing: border-box;
+  display: block;
+  height: 100%;
+  left: 0;
+  opacity: .9;
+  position: absolute;
+  top: 0;
+  transform: translateY(-50%);
+  transform-origin: center;
+  width: 100%;
+}
+.react-mui-context .joyride-overlay {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1500;
+}
+.react-mui-context .joyride-hole {
+  border-radius: 2px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 0, 0, 0.4);
+  position: absolute;
+  transition: all 250ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.react-mui-context .joyride-hole.safari {
+  box-shadow: 0 0 999px 9999px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 0, 0, 0.5);
+}
+.react-mui-context .joyride-tooltip {
+  background-color: #fff;
+  border-radius: 2px;
+  color: #555;
+  cursor: default;
+  filter: drop-shadow(-1px -2px 3px rgba(0, 0, 0, 0.3)) drop-shadow(1px 2px 3px rgba(0, 0, 0, 0.3));
+  opacity: 0;
+  padding: 16px;
+  pointer-events: auto;
+  transform: translateZ(0);
+  width: 290px;
+  z-index: 1510;
+}
+.react-mui-context .joyride-tooltip--animate {
+  animation: joyride-tooltip 0.4s forwards;
+  animation-timing-function: cubic-bezier(0, 1.05, 0.55, 1.18);
+}
+.react-mui-context .joyride-tooltip__triangle {
+  background-repeat: no-repeat;
+  position: absolute;
+}
+.react-mui-context .joyride-tooltip.bottom,
+.react-mui-context .joyride-tooltip.bottom-left,
+.react-mui-context .joyride-tooltip.bottom-right {
+  margin-top: 10px;
+}
+.react-mui-context .joyride-tooltip.bottom-left .joyride-tooltip__triangle,
+.react-mui-context .joyride-tooltip.bottom-right .joyride-tooltip__triangle,
+.react-mui-context .joyride-tooltip.bottom .joyride-tooltip__triangle {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='24' height='12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23fff' d='M24 12L12 0 0 12z'/%3E%3C/svg%3E");
+  height: 12px;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+  width: 24px;
+}
+.react-mui-context .joyride-tooltip.top,
+.react-mui-context .joyride-tooltip.top-left,
+.react-mui-context .joyride-tooltip.top-right {
+  margin-bottom: 10px;
+}
+.react-mui-context .joyride-tooltip.top-left .joyride-tooltip__triangle,
+.react-mui-context .joyride-tooltip.top-right .joyride-tooltip__triangle,
+.react-mui-context .joyride-tooltip.top .joyride-tooltip__triangle {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='24' height='12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23fff' d='M0 0l12 12L24 0z'/%3E%3C/svg%3E");
+  bottom: -10px;
+  height: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+}
+.react-mui-context .joyride-tooltip.bottom-left .joyride-tooltip__triangle,
+.react-mui-context .joyride-tooltip.top-left .joyride-tooltip__triangle {
+  left: 3%;
+  transform: translateX(0);
+}
+@media screen and (min-width: 480px) {
+  .react-mui-context .joyride-tooltip.bottom-left .joyride-tooltip__triangle,
+  .react-mui-context .joyride-tooltip.top-left .joyride-tooltip__triangle {
+    left: 2%;
+  }
+}
+.react-mui-context .joyride-tooltip.bottom-right .joyride-tooltip__triangle,
+.react-mui-context .joyride-tooltip.top-right .joyride-tooltip__triangle {
+  left: auto;
+  right: 3%;
+  transform: translateX(0);
+}
+@media screen and (min-width: 480px) {
+  .react-mui-context .joyride-tooltip.bottom-right .joyride-tooltip__triangle,
+  .react-mui-context .joyride-tooltip.top-right .joyride-tooltip__triangle {
+    right: 2%;
+  }
+}
+.react-mui-context .joyride-tooltip.left {
+  margin-right: 8px;
+}
+.react-mui-context .joyride-tooltip.left .joyride-tooltip__triangle {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='12' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23fff' d='M0 24l12-12L0 0z'/%3E%3C/svg%3E");
+  height: 24px;
+  right: -10px;
+  width: 12px;
+}
+.react-mui-context .joyride-tooltip.right {
+  margin-left: 8px;
+}
+.react-mui-context .joyride-tooltip.right .joyride-tooltip__triangle {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='12' height='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23fff' d='M12 0L0 12l12 12z'/%3E%3C/svg%3E");
+  height: 24px;
+  left: -10px;
+  width: 12px;
+}
+.react-mui-context .joyride-tooltip__close {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  display: inline-block;
+  line-height: 1;
+  padding: 0;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14.117.323L8.044 6.398 2.595.323a1.105 1.105 0 0 0-1.562 1.562L6.482 7.96.323 14.119a1.105 1.105 0 0 0 1.562 1.562L7.96 9.608l5.449 6.073a1.103 1.103 0 1 0 1.56-1.562L9.517 8.046l6.159-6.161a1.103 1.103 0 1 0-1.56-1.562z' fill='rgba(85,85,85,0.5)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 12px;
+  position: absolute;
+  right: 10px;
+  text-decoration: none;
+  top: 10px;
+  width: 12px;
+  z-index: 10;
+  display: block;
+}
+.react-mui-context .joyride-tooltip__close:active,
+.react-mui-context .joyride-tooltip__close:focus,
+.react-mui-context .joyride-tooltip__close:hover {
+  outline: none;
+}
+.react-mui-context .joyride-tooltip__close:focus,
+.react-mui-context .joyride-tooltip__close:hover {
+  color: rgba(60, 60, 60, 0.5);
+  outline: none;
+}
+.react-mui-context .joyride-tooltip__close--header {
+  right: 20px;
+  top: 20px;
+}
+.react-mui-context .joyride-tooltip__header {
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 20px;
+  padding-bottom: 6px;
+  padding-right: 18px;
+  position: relative;
+}
+.react-mui-context .joyride-tooltip__header ~ .joyride-tooltip__main {
+  padding: 12px 0 18px;
+}
+.react-mui-context .joyride-tooltip__main {
+  font-size: 13px;
+  padding-bottom: 18px;
+  padding-right: 18px;
+}
+.react-mui-context .joyride-tooltip__footer {
+  text-align: right;
+  margin-bottom: -6px;
+  margin-right: -6px;
+}
+.react-mui-context .joyride-tooltip__button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  display: inline-block;
+  line-height: 1;
+  padding: 0;
+}
+.react-mui-context .joyride-tooltip__button:active,
+.react-mui-context .joyride-tooltip__button:focus,
+.react-mui-context .joyride-tooltip__button:hover {
+  outline: none;
+}
+.react-mui-context .joyride-tooltip__button--primary {
+  border-radius: 2px;
+  color: #009688;
+  padding: 6px 12px;
+  transition: background-color 0.2s ease-in-out;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 15px;
+}
+.react-mui-context .joyride-tooltip__button--primary:active,
+.react-mui-context .joyride-tooltip__button--primary:focus,
+.react-mui-context .joyride-tooltip__button--primary:hover {
+  /*
+    background-color: #ff1f5a;
+    color: #fff
+    */
+}
+.react-mui-context .joyride-tooltip__button--secondary {
+  color: #757575;
+  font-weight: 500;
+  margin-right: 12px;
+}
+.react-mui-context .joyride-tooltip__button--skip {
+  color: #ccc;
+  float: left;
+  margin-right: 10px;
+}
+.react-mui-context .joyride-tooltip--standalone .joyride-tooltip__main {
+  padding-bottom: 0;
+}
+.react-mui-context .joyride-tooltip--standalone .joyride-tooltip__footer {
+  display: none;
+}
+@media screen and (min-width: 480px) {
+  .joyride-tooltip {
+    width: 360px;
+  }
+}
+@media screen and (min-width: 960px) {
+  .joyride-tooltip {
+    width: 450px;
+  }
+}
+@keyframes joyride-tooltip {
+  0% {
+    transform: scale(0.1);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1px) scale(1);
+  }
+}
+@keyframes joyride-beacon-inner {
+  20% {
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.7;
+  }
+}
+@keyframes joyride-beacon-outer {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    opacity: .7;
+    transform: scale(0.75);
+  }
+  to {
+    opacity: .9;
+    transform: scale(1);
+  }
+}
+/**********************/
+/* MASTER VARIABLES
+/**********************/
+/**********************
+/* OVERRIDE COMPONENTS
+/**********************
+/* about.less */
+/* accordion.less */
+/* activity */
+/* backgroundtasks */
+/* breadcrumb */
+/* carousel */
+/* dialog */
+/* dnd */
+/* forms */
+/* loader */
+/* message box */
+/* search engine */
+/* selectable list */
+/* slider */
+/* splitter */
+/* tabs */
+/* tooltips */
+/* tree */
+/* uploaders */
+/* user widget && top toolbar actions */
+/* menus */
+/* InfoPanel */
+/* Left PAnel */
+/*@selectionMainTint: rgba(0, 150, 136, 0.24);
+@selectionMainTint: lighten(@applicationSecondaryColor, 10);*/
+.primaryColorPane {
+  background-color: #546e7a;
+  color: white;
+}
+.primaryColorPaper {
+  background-color: #546e7a !important;
+  color: white;
+}
+.primaryColorDarkerPane {
+  background-color: #3f535c;
+  color: white;
+}
+.primaryColorDarkerPaper {
+  /*background-color: darken(@applicationPrimaryColor, 10) !important;*/
+  color: white;
+}
+.secondaryColorPane {
+  background-color: #FF5722;
+  color: white;
+}
+.primaryLightPane {
+  background-color: #f6f8f8;
+  color: #637e8a;
+}
+/* INFO PANEL GENERIC APPLICATION COLOR */
+/* INFOPANEL GREY TINT */
+body,
+#ajxp_desktop,
+#background-imager {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+  -ms-flex: 1;
+      flex: 1;
+}
+#orbit_content {
+  -webkit-font-smoothing: antialiased;
+  -ms-flex: 1;
+      flex: 1;
+  -webkit-flex: 1;
+  overflow-y: hidden;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+}
+#orbit_content > * {
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+.react-mui-context .left-panel {
+  width: 250px;
+}
+@media only screen and (max-width: 758px) {
+  .react-mui-context .left-panel:not(.expanded) {
+    transform: translateX(-250px);
+  }
+}
+@media only screen and (max-width: 758px) {
+  .react-mui-context .drawer-open .left-panel {
+    transform: translateX(0px);
+  }
+}
+.react-mui-context .desktop-container {
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  margin-left: 250px;
+  overflow-x: hidden;
+}
+@media only screen and (max-width: 758px) {
+  .react-mui-context .desktop-container {
+    margin-left: 0;
+  }
+}
+.react-mui-context .desktop-container #workspace_toolbar {
+  display: -ms-flexbox;
+  display: flex;
+  height: 68px;
+}
+.react-mui-context .desktop-container #workspace_toolbar .react_breadcrumb {
+  -ms-flex: 1;
+      flex: 1;
+}
+.react-mui-context .desktop-container #workspace_toolbar .drawer-button {
+  display: none;
+}
+@media only screen and (max-width: 758px) {
+  .react-mui-context .desktop-container #workspace_toolbar .drawer-button {
+    display: block;
+    margin: 6px 0;
+  }
+}
+.react-mui-context .desktop-container #main_toolbar {
+  padding: 3px 12px 4px 8px;
+  display: -ms-flexbox;
+  display: flex;
+  height: 42px;
+  color: inherit;
+  font-size: inherit;
+  overflow: visible;
+}
+.react-mui-context .desktop-container #main_toolbar span.toolbars-button-menu {
+  position: relative;
+}
+.react-mui-context .desktop-container #main_toolbar span.toolbars-button-menu .mui-menu {
+  right: 5px;
+  top: 0;
+}
+.react-mui-context .desktop-container #main_toolbar .mui-flat-button-label {
+  color: rgba(255, 255, 255, 0.87);
+}
+.react-mui-context .desktop-container #main_toolbar #create-button-menu {
+  margin-right: 5px;
+  margin-left: 12px;
+  margin-top: 3px;
+}
+.react-mui-context .desktop-container #main_toolbar #create-button-menu .mui-raised-button {
+  height: 30px;
+}
+.react-mui-context .desktop-container #main_toolbar #create-button-menu .mui-raised-button .mui-raised-button-label {
+  line-height: 30px;
+}
+.react-mui-context .desktop-container #main_toolbar .mui-menu {
+  position: absolute;
+  z-index: 1;
+  margin-top: 1px;
+}
+.react-mui-context .desktop-container #main_toolbar .mui-menu .mui-subheader {
+  height: 0;
+}
+.react-mui-context .desktop-container #main_toolbar #main-toolbar {
+  -ms-flex: 1;
+      flex: 1;
+}
+.react-mui-context .desktop-container #main_toolbar #display-toolbar,
+.react-mui-context .desktop-container #main_toolbar #paginator-toolbar {
+  margin-top: -4px;
+  display: -ms-flexbox;
+  display: flex;
+}
+.react-mui-context .desktop-container #main_toolbar #display-toolbar .mui-tooltip,
+.react-mui-context .desktop-container #main_toolbar #paginator-toolbar .mui-tooltip {
+  z-index: 3;
+}
+.react-mui-context .desktop-container #main_toolbar #display-toolbar .mui-font-icon,
+.react-mui-context .desktop-container #main_toolbar #paginator-toolbar .mui-font-icon,
+.react-mui-context .desktop-container #main_toolbar #display-toolbar .mui-icon-button,
+.react-mui-context .desktop-container #main_toolbar #paginator-toolbar .mui-icon-button {
+  font-size: 24px;
+  color: #2f3d44;
+}
+.react-mui-context .desktop-container #main_toolbar .mui-drop-down-menu {
+  color: rgba(255, 255, 255, 0.87);
+  width: 135px !important;
+  margin-top: -6px;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 500;
+}
+.react-mui-context .desktop-container #main_toolbar .mui-drop-down-menu .mui-menu-control .mui-menu-control-bg {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.react-mui-context .desktop-container #main_toolbar .mui-drop-down-menu .mui-menu-drop-down-icon * {
+  fill: rgba(255, 255, 255, 0.87);
+}
+.react-mui-context .desktop-container #main_toolbar .mui-drop-down-menu .mui-menu-control-underline {
+  display: none;
+}
+.react-mui-context .desktop-container #main_toolbar .mui-drop-down-menu .mui-menu {
+  width: 150px !important;
+  color: rgba(0, 0, 0, 0.83);
+}
+.react-mui-context .material-list.files-list {
+  transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+.react-mui-context #info_panel {
+  right: -270px;
+}
+.react-mui-context .info-panel-open #info_panel {
+  right: 0;
+}
+@media only screen and (max-width: 420px) {
+  .react-mui-context .info-panel-open #info_panel {
+    right: -270px;
+  }
+}
+.react-mui-context .info-panel-open .material-list.main-files-list {
+  margin-right: 270px;
+}
+@media only screen and (max-width: 420px) {
+  .react-mui-context .info-panel-open .material-list.main-files-list {
+    margin-right: 0;
+  }
+}
+.toolbar {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+}
+.icon_buttons_toolbar {
+  background-color: transparent;
+  color: #35454d;
+}
+.icon_buttons_toolbar:hover {
+  background-color: transparent;
+}
+.icon_buttons_toolbar:hover span.ajxp_icon_span {
+  color: white;
+}
+.icon_buttons_toolbar span.ajxp_icon_span {
+  font-size: 16px;
+  color: inherit;
+}
+.icon_buttons_toolbar span.actionbar_button_label {
+  display: none;
+}

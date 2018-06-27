@@ -1,0 +1,11 @@
+{
+    "1": "API Keys",
+    "2": "Mantiene las API keys creadas por los dispositivos del cliente como teléfonos, etc...",
+    "3": "Generar una key",
+    "4": "Generar una pareja de API keys",
+    "5": "Elimina todo el acceso",
+    "6": "Invalida las API keys existentes",
+    "7": "¿Estas seguro que quiers eliminar esta(s) key(s)?",
+    "8": "¡La(s) key(s) se eliminaron!",
+    "9": "Dispositivos conectado a tu cuenta:"
+}

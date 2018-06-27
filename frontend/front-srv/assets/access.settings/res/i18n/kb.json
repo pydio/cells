@@ -1,0 +1,58 @@
+[
+  {
+    "link"  : "https://pydio.com/en/docs/v8/binding-ldapad-server",
+    "title" : "How to connect my LDAP / AD directory ?",
+    "desc"  : "Binding to an existing LDAP directory or Microsoft Active Directory (AD) allows you to reuse the user accounts that you already have in the directory, without having to create new accounts in Pydio."
+  },
+  {
+    "link"  : "https://pydio.com/en/docs/v8/install-collabora-online",
+    "title" : "How to install Collabora Online ?",
+    "desc"  : "Collabora Online is a powerful LibreOffice-based online office suite which supports all major document, spreadsheet and presentation file formats. "
+  },
+  {
+    "link"  : "https://pydio.com/en/docs/references/plugins",
+    "title" : "Plugins & Parameters List",
+    "desc"  : "Browse our plugin list and all the parameters attached to it and extend your Pydio!"
+  },
+  {
+    "link"  : "https://pydio.com/en/docs/v8/setup-webdav-server-access",
+    "title" : "How to setup a WebDAV server access ?",
+    "desc"  : "Pydio comes with a bundled webDAV server which allows you to expose your files to a variety of clients applications for easy access."
+  },
+  {
+    "link"  : "https://pydio.com/en/docs/v8/checking-sync",
+    "title" : "Checking Sync",
+    "desc"  : "Go through these checks to make sure that your Sync client will properly work"
+  },
+  {
+    "link"  : "https://pydio.com/en/docs/v8/accessing-remote-servers-ftp-sftp-smb-webdav-dropbox",
+    "title" : "How to access remote servers: ftp, sftp, smb, webdav, dropbox ?",
+    "desc"  : "Pydio comes bundled with plugins allowing to access remote file-system based servers via various protocols. Here is how to use them"
+  },
+  {
+    "link"  : "https://pydio.com/en/docs/v8/checking-apis",
+    "title" : "Checking APIs",
+    "desc"  : "You have to make sure that your webserver supports a Rewrite rule mechanism, and that the application .htaccess files (or equivalent) are correctly configured."
+  },
+  {
+    "link"  : "https://pydio.com/en/docs/kb/authentication/setup-webftp",
+    "title" : "How to setup a \"webftp\"?",
+    "desc"  : "Pydio provides drivers for accessing a remote FTP server, and also specific settings of the auth.ftp driver to let you setup a “webftp” like configuration"
+  },
+  {
+    "link"  : "https://pydio.com/en/docs/kb/security/permission-pydio%E2%80%99s-filesfolders",
+    "title" : "How to configure permissions for files and folers ?",
+    "desc"  : "Correct permissions reduce the risk of modification from others entities than the web server and system administrator. We highly recommend to use the most restricted permission for Pydio data, and here is how to do it."
+  },
+  {
+    "link"  : "https://pydio.com/en/docs/faq",
+    "title" : "How to raise upload file limit ? ",
+    "desc"  : "If you are on your own server and can edit the PHP configuration file (php.ini), please have a look at the upload_max_filesize instruction on the PHP website. Do not forget to update the post_max_size as well."
+  },
+  {
+    "link"  : "https://pydio.com/en/docs/faq",
+    "title" : "Can I modify and/or integrate Pydio inside my open-source software?",
+    "desc"  : "As long as your software license is compatible with the AGPL, that the modifications are contributed back to the community, and that you leave the Pydio copyright link on the user interface, yes you can."
+  }
+
+]

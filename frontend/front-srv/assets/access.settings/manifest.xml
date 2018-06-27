@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ajxpdriver name="settings" enabled="always" label="CONF_MESSAGE[Admin Driver]" description="CONF_MESSAGE[Access Pydio configuration data.]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+    <plugin_info>
+        <core_relation packaged="true"/>
+        <plugin_author>Charles du Jeu</plugin_author>
+    </plugin_info>
+	<client_settings icon="plugins/access.settings/admin.png">
+		<resources>
+			<i18n namespace="settings" remote="plug/access.settings/res/i18n" />
+			<i18n namespace="role_editor" remote="plug/access.settings/res/i18n/role" />
+			<i18n namespace="pydio_role" remote="plug/access.settings/res/i18n/editor" />
+            <i18n namespace="ajxp_admin" remote="plug/access.settings/res/i18n/admin" />
+            <i18n namespace="admin_dashboard" remote="plug/access.settings/res/i18n/dashboard" />
+            <i18n namespace="action.scheduler" remote="plug/access.settings/res/i18n/scheduler" />
+            <i18n namespace="license" remote="plug/access.settings/res/i18n/license" />
+            <i18n namespace="updater" remote="plug/access.settings/res/i18n/updater" />
+            <i18n namespace="ldap" remote="plug/access.settings/res/i18n/ldap" />
+
+            <css file="plug/access.settings/res/css/ajxp_admin.css" autoload="true"/>
+            <css file="plug/access.settings/res/css/rolesEditor.css" autoload="true"/>
+            <css file="plug/access.settings/res/css/codemirror.css" autoload="true"/>
+            <css file="plug/access.settings/res/css/codemirror-hints.css" autoload="true"/>
+            <css file="plug/access.settings/res/css/swagger-custom.css" autoload="true"/>
+
+            <js className="AdminComponents" file="plug/access.settings/res/build/AdminComponents.js" depends="React,PydioComponents,PydioWorkspaces,PydioCoreActions"/>
+            <js className="AdminActions" file="plug/access.settings/res/build/AdminActions.js" depends="AdminComponents"/>
+            <js className="AdminPeople" file="plug/access.settings/res/build/AdminPeople.js" depends="React,PydioComponents,PydioForm"/>
+            <js className="AdminRoleEditor" file="plug/access.settings/res/build/AdminRoleEditor.js" depends="React,AdminComponents,PydioComponents,PydioForm"/>
+            <js className="AdminWorkspaces" file="plug/access.settings/res/build/AdminWorkspaces.js" depends="PydioForm"/>
+            <js className="AdminPlugins" file="plug/access.settings/res/build/AdminPlugins.js" depends="React,AdminComponents,PydioComponents,PydioForm"/>
+            <js className="AdminLogs" file="plug/access.settings/res/build/AdminLogs.js" depends="React,PydioComponents"/>
+            <js className="AdminScheduler" file="plug/access.settings/res/build/AdminScheduler.js" depends="React,PydioForm,PydioComponents"/>
+            <js className="AdminServices" file="plug/access.settings/res/build/AdminServices.js" depends="React"/>
+
+		</resources>
+        <node_provider ajxpClass="SettingsNodeProvider" ajxpOptions="{}"/>
+	</client_settings>
+	<registry_contributions>
+		<client_configs>
+            <template_part ajxpId="orbit_content" theme="material" namespace="AdminComponents" component="AdminDashboard" dependencies="PydioComponents,PydioForm"/>
+        </client_configs>
+        <actions>
+
+            <!-- SHARED ACTIONS -->
+            <action name="ls" dirDefault="true">
+                <gui text="32" title="32" accessKey="folder_access_key" iconClass="icon-folder-open-alt">
+                    <context selection="true" dir="" recycle="false"/>
+                    <selectionContext dir="true" file="false" recycle="false" unique="true" allowedMimes="*"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly="false">
+                </rightsContext>
+                <processing>
+                    <clientCallback><![CDATA[
+					var path;
+					if(window.actionArguments && window.actionArguments.length>0){
+						path = window.actionArguments[0];
+						if(Object.isString(path)){path = new AjxpNode(path,false,getBaseName(path));}
+					}else{
+						userSelection = pydio.getUserSelection();
+						if(userSelection && userSelection.isUnique() && (userSelection.hasDir() || userSelection.hasMime(["zip"]))){
+							path = userSelection.getUniqueNode();
+						}
+					}
+					if(path){
+						pydio.updateContextData(path);
+					}
+					]]></clientCallback>
+                    <serverCallback methodName="listAction" restParams="/dir+" developerComment="List the content of the config. Depending on the path, will return users, workspaces, roles, etc..">
+                        <input_param name="dir" type="path" description="Path to config data to list. See URIs in webapp to guess the correct path."/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="stat">
+                <processing>
+                    <serverCallback methodName="listAction" developerComment="To comply with GUI client, always returns true."/>
+                </processing>
+            </action>
+            <action name="edit" fileDefault="true">
+                <gui text="settings.93" title="301" iconClass="mdi mdi-pencil" accessKey="edit_access_key" hasAccessKey="true">
+                    <context selection="true" dir=""/>
+                    <selectionContext dir="true" file="true" recycle="false" unique="true" allowedMimes="user,user_editable,repository,repository_editable,role,group,plugin,ajxp_role,ajxp_graphs,datagrid" behaviour="hidden"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback><![CDATA[
+                    var editorData = window.actionArguments[0];
+                    pydio.UI.openCurrentSelectionInEditor(editorData);
+                ]]></clientCallback>
+                    <serverCallback methodName="editAction" restParams="/sub_action" developerComment="Shortcut for various actions, calling edit with subaction parameter."/>
+                </processing>
+            </action>
+            <action name="delete">
+                <gui text="7" title="161" iconClass="icon-trash" accessKey="delete_access_key" hasAccessKey="true" specialAccessKey="delete">
+                    <context selection="true" dir=""/>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false"  allowedMimes="user_editable,repository_editable,role,group" image="false" editable="false" behaviour="hidden"/></gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback module="AdminActions.Callbacks.deleteAction"/>
+                    <serverCallback methodName="deleteAction" restParams="/data_type/data_id+" developerComment="Generic delete action for config driver, used to delete users, workspaces, roles, etc.">
+                        <input_param description="Type of the data to delete. Can be : user, group, role, repository" name="data_type" type="String"/>
+                        <input_param description="Id of the data to delete. For groups, full group path." name="data_id"
+                                     type="string"/>
+                    </serverCallback>
+                </processing>
+            </action>
+
+            <!-- REPOSITORIES ACTIONS -->
+            <action name="create_repository">
+                <gui text="settings.90" title="300" iconClass="icon-sitemap" accessKey="settings.repository_access_key" hasAccessKey="false">
+                    <context selection="false" dir="false" recycle="hidden"  behaviour="hidden" allowedMimes="workspaces_zone"
+                             actionBar="true" contextMenu="false" infoPanel="false"
+                             actionBarGroup="put" inZip="false">
+                    </context>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly="true"/>
+                <processing>
+                    <serverCallback methodName="repositoriesAction" restParams="/json_data" developerComment="Create a workspace ( = repository, it's the same ) by passing a structured JSON object.">
+                        <input_param description="A JSON object containing the following mandatory keys : DISPLAY (string), DRIVER (string), DRIVER_OPTIONS (array of options) and optional keys : DISPLAY_ID (string), DESCRIPTION_ID (string), PYDIO_SLUG (string), IS_TEMPLATE (boolean). &lt;br&gt;&lt;br&gt; The expected DRIVER value can be either an access type plugin name (fs, ftp, etc), or a template id by using the ajxp_template_ prefix (ajxp_template_TEMPLATE_ID). The DRIVER_OPTIONS array may depend on the used access type." name="json_data" type="JSON"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="edit_repository_label">
+                <gui text="6" title="158" iconClass="icon-pencil" accessKey="rename_access_key" hasAccessKey="true">
+                    <context selection="true" dir="" allowedMimes="workspaces_zone"/>
+                    <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="repository_editable" behaviour="hidden"/>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
+                <processing>
+                    <clientCallback><![CDATA[
+					var callback = function(node, newValue){
+						var conn = new Connexion();
+						conn.addParameter('get_action', 'edit');
+						conn.addParameter('sub_action', 'edit_repository_label');
+						conn.addParameter('repository_id', node.getMetadata().get('repository_id'));
+						conn.addParameter('newLabel', newValue);
+						conn.onComplete = function(transport){
+							PydioApi.getClient().parseXmlMessage(transport.responseXML);
+						};
+						conn.sendSync();
+					};
+
+					if(pydio.getUserSelection() && pydio.getUserSelection().getSelectionSource() && pydio.getUserSelection().getSelectionSource().switchCurrentLabelToEdition) {pydio.getUserSelection().getSelectionSource().switchCurrentLabelToEdition(callback);}
+					]]></clientCallback>
+                    <serverCallback methodName="repositoriesAction" restParams="/repository_id/newLabel" developerComment="Update a workspace label">
+                        <input_param description="Repository Identifier" name="repository_id" type="string"/>
+                        <input_param description="New Label" name="newLabel" type="string"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="edit_repository">
+                <processing>
+                    <serverCallback methodName="repositoriesAction" developerComment="Load Repository." restParams="/repository_id"/>
+                </processing>
+            </action>
+            <action name="virtualnodes_list">
+                <processing>
+                    <serverCallback methodName="repositoriesAction" developerComment="List Virtual Nodes." restParams="/"/>
+                </processing>
+            </action>
+            <action name="virtualnodes_put">
+                <processing>
+                    <serverCallback methodName="repositoriesAction" developerComment="Create or update virtual node." restParams="/docId"/>
+                </processing>
+            </action>
+            <action name="virtualnodes_delete">
+                <processing>
+                    <serverCallback methodName="repositoriesAction" developerComment="Delete virtual node." restParams="/docId"/>
+                </processing>
+            </action>
+
+            <action name="meta_source_edit">
+                <processing>
+                    <serverCallback methodName="repositoriesAction" developerComment="Edit an existing meta source parameters." restParams="/repository_id/plugId/json_data">
+                        <input_param description="Id of the repository" name="repository_id" type="string"/>
+                        <input_param description="Id of the plugin" name="plugId" type="string"/>
+                        <input_param description="JSON Representation of the plugin necessary options" name="json_data"
+                                     type="JSON"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="meta_source_add">
+                <processing>
+                    <serverCallback methodName="repositoriesAction" developerComment="Add a meta source to a repository, setting its parameters." restParams="/repository_id/plugId/json_data">
+                        <input_param description="Id of the repository" name="repository_id" type="string"/>
+                        <input_param description="Id of the plugin" name="plugId" type="string"/>
+                        <input_param description="JSON Representation of the plugin necessary options" name="json_data"
+                                     type="JSON"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="meta_source_delete">
+                <processing>
+                    <serverCallback methodName="repositoriesAction" developerComment="Remove a given meta source from a repository." restParams="/repository_id/plugId">
+                        <input_param description="Id of the repository" name="repository_id" type="string"/>
+                        <input_param description="Id of the plugin" name="plugId" type="string"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="patch_repository">
+                <processing><serverCallback methodName="repositoriesAction"/></processing>
+            </action>
+            <action name="post_repository">
+                <processing><serverCallback methodName="repositoriesAction"/></processing>
+            </action>
+            <action name="list_all_repositories_json">
+                <processing>
+                    <serverCallback methodName="repositoriesAction" restParams="/" developerComment="Returns all repository (output format is JSON)"/>
+                </processing>
+            </action>
+            <action name="list_versioning_policies">
+                <processing>
+                    <serverCallback methodName="repositoriesAction" restParams="/" developerComment="List available versioning policies"/>
+                </processing>
+            </action>
+            <action name="admin_list_tree">
+                <processing>
+                    <serverCallback methodName="repositoriesAction" restParams="/path+" developerComment="List nodes from the root (output in JSON)"/>
+                </processing>
+            </action>
+            <action name="meta_user_clear_cache">
+                <processing>
+                    <serverCallback methodName="repositoriesAction"/>
+                </processing>
+            </action>
+            <action name="export_logs">
+                <processing>
+                    <serverCallback methodName="logsAction"/>
+                </processing>
+            </action>
+
+            <!-- USERS ACTIONS -->
+            <action name="create_user">
+                <gui text="297" title="298" iconClass="icon-user" accessKey="create_user_accesskey" hasAccessKey="true">
+                    <context selection="false" dir="false" recycle="hidden" allowedMimes="users_zone,group" behaviour="hidden"
+                             actionBar="true" contextMenu="true" infoPanel="false"
+                             actionBarGroup="put" inZip="false">
+                    </context>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly="true"/>
+                <processing>
+                    <serverCallback methodName="usersAction"
+                                    developerComment="Create a user with login and password in the AUTH directory."
+                                    restParams="/new_user_login/new_user_pwd"
+                    >
+                        <input_param description="User login, must be alphanumerical, no special chars" name="new_user_login" type="string"/>
+                        <input_param description="User password, must be alphanumerical, no special chars" name="new_user_pwd" type="string"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="create_group">
+                <gui text="settings.118" title="settings.118" iconClass="icon-group" accessKey="settings.group_access" hasAccessKey="true">
+                    <context selection="false" dir="false" recycle="hidden" allowedMimes="users_zone,group"  behaviour="hidden"
+                             actionBar="true" contextMenu="false" infoPanel="false"
+                             actionBarGroup="put" inZip="false">
+                    </context>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly="true"/>
+                <processing>
+                    <serverCallback methodName="usersAction" developerComment="Create a new group of users" restParams="/group_label/group_path+">
+                        <input_param description="Full group path, must be in the form /group/path/name" name="group_path" type="String"/>
+                        <input_param description="Group Label" name="group_label" type="String"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="user_update_group" dragndropDefault="true">
+                <gui text="settings.119" title="settings.119" accessKey="settings.role_access" hasAccessKey="true">
+                    <context selection="false" dir="false" recycle="hidden"  behaviour="hidden"
+                             actionBar="false" contextMenu="false" infoPanel="false"
+                             actionBarGroup="put" inZip="false">
+                    </context>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly="true"/>
+                <processing>
+                    <clientCallback module="AdminActions.Callbacks.applyDND"/>
+                    <serverCallback methodName="usersAction" developerComment="Move an existing user to an existing group" restParams="/file/group_path+">
+                        <input_param description="User identifier" name="file" type="String"/>
+                        <input_param description="Target group path, must be /group/path" name="group_path" type="String"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="save_user_preference">
+                <processing>
+                    <serverCallback methodName="usersAction" developerComment="Sets a user preference value. Rest can only take one value, but CLI or http GET can pass many preferences, using _1, _2, _3, etc." restParams="/user_id/pref_name_0/pref_value_0">
+                        <input_param description="User login" name="user_id" type="string"/>
+                        <input_param description="Preference name" name="pref_name_0" type="string"/>
+                        <input_param description="Preference value" name="pref_value_0" type="string"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="user_update_right">
+                <processing>
+                    <serverCallback methodName="usersAction" restParams="/repository_id/user_id/right" checkParams="true" developerComment="Update a user access right on a given workspace.">
+                        <input_param name="user_id" type="string" mandatory="true" description="ID of the user"/>
+                        <input_param name="repository_id" type="PYDIO_REPOSITORY" mandatory="true" description="Repository ID"/>
+                        <input_param name="right" type="string" mandatory="true" description="Must be r (read), w (write) or n (none)"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="admin_search_users">
+                <processing>
+                    <serverCallback methodName="searchUsersAction" restParams="/query/dir+" developerComment="Remote search implementation, currently only supporting users search."/>
+                </processing>
+            </action>
+            <action name="people-create-resource">
+                <processing><serverCallback methodName="usersAction"/></processing>
+            </action>
+            <action name="people-delete-resource">
+                <processing><serverCallback methodName="usersAction"/></processing>
+            </action>
+            <action name="people-patch-resource">
+                <processing><serverCallback methodName="usersAction"/></processing>
+            </action>
+
+            <!-- ROLES ACTIONS -->
+            <action name="create_role">
+                <gui text="settings.75" title="settings.75" iconClass="icon-th" accessKey="settings.role_access" hasAccessKey="true">
+                    <context selection="false" dir="false" recycle="hidden" allowedMimes="roles_zone"  behaviour="hidden"
+                             actionBar="true" contextMenu="false" infoPanel="false"
+                             actionBarGroup="put" inZip="false">
+                    </context>
+                </gui>
+                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly="true"/>
+                <processing>
+                    <serverCallback methodName="rolesAction" developerComment="Create an empty role" restParams="/role_id">
+                        <input_param description="Role identifier" name="role_id" type="string"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="role_update_right">
+                <processing>
+                    <serverCallback methodName="rolesAction" restParams="/repository_id/role_id/right" checkParams="true" developerComment="Update a role access right on a given workspace.">
+                        <input_param name="role_id" type="PYDIO_ROLE" mandatory="true" description="ID of the role"/>
+                        <input_param name="repository_id" type="PYDIO_REPOSITORY" mandatory="true" description="Repository ID"/>
+                        <input_param name="right" type="string" mandatory="true" description="Must be r (read), w (write) or n (none)"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="edit_role">
+                <processing>
+                    <serverCallback methodName="rolesAction"/>
+                </processing>
+            </action>
+            <action name="post_json_role">
+                <processing>
+                    <serverCallback methodName="rolesAction"/>
+                </processing>
+            </action>
+
+            <!-- PLUGINS ACTIONS -->
+            <action name="clear_plugins_cache">
+                <gui text="settings.129" title="settings.130">
+                    <context dir="true" recycle="true" allowedMimes="plugins_zone" selection="false"/>
+                </gui>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Callbacks.clearPluginsCache"/>
+                    <serverCallback methodName="pluginsAction"/>
+                </processing>
+            </action>
+            <action name="get_plugin_manifest">
+                <processing>
+                    <serverCallback methodName="pluginsAction" restParams="/plugin_id" developerComment="Send a plugin Manifest file.">
+                        <input_param description="Plugin identifier (like type.name)" name="plugin_id" type="string"/>
+                        <output type="XML" description="Manifest content"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="run_plugin_action">
+                <processing>
+                    <serverCallback methodName="pluginsAction" restParams="/action_plugin_id/action_plugin_method" developerComment="Execute a class method on a plugin. Used for example for testing a DB connexion.">
+                        <input_param name="action_plugin_id" type="string" description="A plugin id, in the form type.name"/>
+                        <input_param name="action_plugin_method" type="string" description="A plugin method"/>
+                        <input_param name="form_data" type="FORM_DATA"
+                                     description="A set of parameters complying to the standard form parser"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="list_all_plugins_actions">
+                <processing>
+                    <serverCallback methodName="pluginsAction" restParams="/" developerComment="Returns a structured JSON object of all plugins and all their available actions"/>
+                </processing>
+            </action>
+            <action name="list_all_plugins_parameters">
+                <processing>
+                    <serverCallback methodName="pluginsAction" restParams="/" developerComment="Returns a structured JSON object of all plugins and all their available parameter"/>
+                </processing>
+            </action>
+            <action name="parameters_to_form_definitions">
+                <processing>
+                    <serverCallback methodName="pluginsAction" restParams="/" developerComment="Takes in input a list of plugin parameters and builds the corresponding XML to create a standard form."/>
+                </processing>
+            </action>
+
+            <!-- OTHER ACTIONS -->
+            <action name="pydio-go-pro">
+                <gui text="settings.120" title="settings.121" iconClass="icon-rocket">
+                    <context dir="true" recycle="true" selection="false" actionBar="true" actionBarGroup="admin"/>
+                </gui>
+                <processing>
+                    <clientCallback module="PydioCoreActions.Navigation.openGoPro"/>
+                </processing>
+            </action>
+            <action name="share_react" forbidOverride="true"></action>
+
+
+            <!-- SCHEDULER ACTIONS -->
+            <action name="scheduler_listRepositories">
+                <processing>
+                    <serverCallback methodName="handleTasks"/>
+                </processing>
+            </action>
+            <action name="scheduler_addTask" forbidOverride="true">
+                <gui text="action.scheduler.8" title="action.scheduler.9" iconClass="icon-plus" hasAccessKey="false">
+                    <context selection="false" dir="" recycle="hidden" allowedMimes="scheduler_zone"
+                             actionBar="false" contextMenu="true" infoPanel="true"
+                             actionBarGroup="put">
+                    </context>
+                </gui>
+                <processing>
+                    <clientCallback module="AdminActions.Callbacks.addSchedulerTask"/>
+                    <clientForm id="react_scheduler_editor"><![CDATA[
+                        <div id="react_scheduler_editor" box_width="420" box_padding="0" class="react-mui-context reset-pydio-forms"></div>
+                    ]]></clientForm>
+                    <standardFormDefinition name="main">
+                        <!-- LABEL -->
+                        <param name="label" group="action.scheduler.12" label="action.scheduler.12" description="action.scheduler.12d" type="string" mandatory="true"/>
+                        <!-- SCHEDULE -->
+                        <param name="legend" group="action.scheduler.2" type="legend" description="Set up task label and schedule: use a crontab-like expression to define the frequency of this job." label=""/>
+                        <param name="schedule" group="action.scheduler.2" label="action.scheduler.2" description="action.scheduler.2d" type="string" mandatory="true"/>
+                        <!-- ACTION -->
+                        <param name="legend" group="action.scheduler.24" type="legend" description="Set the plugin action to be applied, and add optional parameters depending on the action." label=""/>
+                        <param name="action_name" group="action.scheduler.24" label="action.scheduler.1" description="action.scheduler.1d" type="autocomplete" choices="json_list:list_all_plugins_actions" mandatory="true"/>
+                        <param name="param_name" group="action.scheduler.24" replicationGroup="group1" replicationTitle="Action Parameters" replicationDescription="Set zero or more, depending on the action" replicationMandatory="false" label="action.scheduler.6" description="action.scheduler.6d" type="string" mandatory="false"/>
+                        <param name="param_value" group="action.scheduler.24" replicationGroup="group1" label="action.scheduler.7" description="action.scheduler.7d" type="string" mandatory="false"/>
+                        <!-- CONTEXT -->
+                        <param name="legend" group="action.scheduler.23" type="legend" description="Run the action in one or more 'contexts': on which workspace(s), under which user identifier(s)." label=""/>
+                        <param name="user_id" group="action.scheduler.23" label="action.scheduler.17" description="action.scheduler.17d" type="string" mandatory="true" default=""/>
+                        <param name="repository_id" group="action.scheduler.23" replicationGroup="group2" label="action.scheduler.4" description="action.scheduler.4d" type="select" choices="json_list:scheduler_listRepositories" mandatory="true"/>
+                    </standardFormDefinition>
+                    <serverCallback methodName="handleTasks" developerComment="Create a new task by posting parameters" pluginId="action.scheduler">
+                        <input_param description="All parameters generated by the FormManager (label, schedule, user_id, repository_id, action_name, one or more param_name / param_value)" name="FORM_DATA"
+                                     type="FORM_DATA"/>
+                    </serverCallback>
+                </processing>
+            </action>
+            <action name="scheduler_editTask" forbidOverride="true">
+                <gui text="action.scheduler.10" title="action.scheduler.11" iconClass="mdi mdi-pencil" hasAccessKey="false">
+                    <selectionContext dir="false" file="true" behaviour="hidden" recycle="false" unique="true" allowedMimes="scheduler_task"/>
+                    <context selection="true" dir="" allowedMimes="scheduler_zone"/>
+                </gui>
+                <processing>
+                    <clientCallback module="AdminActions.Callbacks.editSchedulerTask"/>
+                </processing>
+            </action>
+
+        </actions>
+
+	</registry_contributions>
+
+</ajxpdriver>

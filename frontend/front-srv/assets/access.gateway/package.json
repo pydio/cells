@@ -1,0 +1,14 @@
+{
+  "name": "access.gateway",
+  "description": "Standard FS actions",
+  "source_path": "res/js",
+  "main": "index.js",
+  "author": "Abstrium SAS",
+  "license": "agpl",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-babel": "~5.0.3",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-browserify": "^5.0.0"
+  }
+}

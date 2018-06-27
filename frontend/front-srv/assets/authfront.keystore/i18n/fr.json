@@ -1,0 +1,11 @@
+{
+    "1": "Clés d'API",
+    "2": "Gérer les clés d'API créées par les appareils qui se connectent (mobile, client de synchro, etc).",
+    "3": "Générer une clé",
+    "4": "Génération d'une paire clé\/secret",
+    "5": "Revoquer tous les accès",
+    "6": "Invalide toutes les clés existantes et requiert leur régéneration par les clients.",
+    "7": "Etes-vous sûr de vouloir révoquer cette clé?",
+    "8": "Clé supprimée avec succès!",
+    "9": "Appareils connectés à votre compte"
+}

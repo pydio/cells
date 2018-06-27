@@ -1,0 +1,75 @@
+@applicationPrimaryColor: #2196F3;
+@applicationPrimaryColor:#546e7a;
+@applicationPrimaryFontColor: white;
+
+@applicationPrimaryLight:#f6f8f8;
+@applicationPrimaryLightFont: #637e8a;
+
+@applicationSecondaryColor:#FF5722;
+@applicationSecondaryFontColor:white;
+
+/*@selectionMainTint: rgba(0, 150, 136, 0.24);
+@selectionMainTint: lighten(@applicationSecondaryColor, 10);*/
+@selectionMainTint: #E3F2FD;
+
+.primaryColorPane{
+  background-color: @applicationPrimaryColor;
+  color: @applicationPrimaryFontColor;
+}
+
+.primaryColorPaper{
+  background-color: @applicationPrimaryColor !important;
+  color: @applicationPrimaryFontColor;
+}
+
+.primaryColorDarkerPane{
+  background-color: darken(@applicationPrimaryColor, 10);
+  color: @applicationPrimaryFontColor;
+}
+
+.primaryColorDarkerPaper{
+  /*background-color: darken(@applicationPrimaryColor, 10) !important;*/
+  color: @applicationPrimaryFontColor;
+}
+
+.secondaryColorPane{
+  background-color: @applicationSecondaryColor;
+  color: @applicationSecondaryFontColor;
+}
+
+.primaryLightPane{
+  background-color: @applicationPrimaryLight;
+  color: @applicationPrimaryLightFont;
+}
+
+@workspacesToolbarHeight: 68px;
+
+@leftpanel_background_color:@applicationPrimaryLight;
+@leftpanel_text_color:@applicationPrimaryLightFont;
+
+/* INFO PANEL GENERIC APPLICATION COLOR */
+@infopanel_main_text_color:@applicationPrimaryLightFont;
+@infopanel_section_title_color:darken(@applicationPrimaryLightFont, 5);
+@infopanel_labels_color:lighten(@applicationPrimaryLightFont, 30);
+@infopanel_values_color:darken(@applicationPrimaryLightFont, 15);
+@infopanel_quick_button_border:1px dotted @applicationPrimaryLightFont;
+@infopanel_fetchedpane_text_color: @applicationPrimaryLightFont;
+@infopanel_fetchedpane_legend_color: @applicationPrimaryLightFont;
+@infopanel_main_background_color: #CFD8DC;
+@infopanel_width:270px;
+
+/* INFOPANEL GREY TINT */
+@infopanel_grey_tint_base: rgba(0,0,0,0.83);
+@infopanel_main_background_color: @applicationPrimaryLight;
+@infopanel_main_text_color:rgba(0,0,0,0.73);
+@infopanel_section_title_color:@infopanel_grey_tint_base;
+@infopanel_labels_color:lighten(@infopanel_grey_tint_base, 70);
+@infopanel_values_color:@infopanel_grey_tint_base;
+@infopanel_quick_button_border:1px dotted @infopanel_grey_tint_base;
+@infopanel_fetchedpane_text_color: @infopanel_grey_tint_base;
+@infopanel_fetchedpane_legend_color: @infopanel_grey_tint_base;
+
+@infopanel_toolbar_buttons_bgcolor: #2196F3;
+@infopanel_toolbar_buttons_color: white;
+
+@infopanel_section_separator_color: darken(@applicationPrimaryLight, 5);

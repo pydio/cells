@@ -1,0 +1,18 @@
+{
+    "1": "Pydio Setup Wizard",
+    "2": "Welcome in the Pydio Setup Wizard",
+    "3": "Thank you for installing Pydio. <br\/> Please follow this installation wizard to start sharing and syncing files across all of your devices in no time.  Make sure to create a database and prepare your SQL credentials before starting.  You can hover over the field labels for more information. <br\/> Press start when you are ready",
+    "4": "Start Wizard",
+    "5": "Please wait while Pydio is being configured! It will be up and running in a couple of seconds...",
+    "6": "Install Pydio",
+    "7": "Language",
+    "8": "Click on each section to edit parameters",
+    "9": "Next",
+    "10": "Verify API address",
+    "11": "Back",
+    "12": "Connection failed!",
+    "13": "Pydio Installation succeeded! You can now log in with the admin user %1 you have just defined. This page with reload automatically in %2 seconds.",
+    "14": "Pydio Installation succeeded, except we could not update the file the .htaccess file. Please copy the content below inside the file %1, then reload the page and log in with the admin user %2 you have just defined.",
+    "15": "Connect to backend",
+    "16": "User %s connected"
+}

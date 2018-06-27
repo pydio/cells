@@ -36,11 +36,16 @@ import (
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
+	"github.com/pydio/cells/frontend/front-srv/web/index"
+)
+
+var (
+	Name = common.SERVICE_API_NAMESPACE_ + common.SERVICE_FRONTPLUGS
 )
 
 func init() {
 	service.NewService(
-		service.Name(common.SERVICE_API_NAMESPACE_+common.SERVICE_FRONTPLUGS),
+		service.Name(Name),
 		service.Tag(common.SERVICE_TAG_FRONTEND),
 		service.Description("REST service for providing additional plugins to PHP frontend"),
 		service.Migrations([]*service.Migration{
@@ -59,10 +64,12 @@ func init() {
 			port := cfg.Int("port", 9025)
 
 			return service.RunnerFunc(func() error {
-
-					boxes := frontend.GetRegisteredPluginBoxes()
-					httpFs := frontend.NewUnionHttpFs(boxes...)
+					httpFs := frontend.GetPluginsFS()
 					http.Handle("/", http.FileServer(httpFs))
+
+					h := index.NewHandler()
+					http.Handle("/gui", h)
+
 					http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 
 					return nil

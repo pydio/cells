@@ -1,0 +1,11 @@
+{
+    "Standard login screen": "Pantalla de Inicio de Sesión",
+    "Display a standard user\/password login screen": "Muestra la pantalla estándar de inicio de sesión usuario\/contraseña",
+    "Order": "Ordenar",
+    "Order this plugin with other auth frontends": "Ordenar este plugin con otros frontends de autenticación",
+    "Protocol Type": "Tipo de Protocolo",
+    "Enable\/disable automatically based on the protocol used": "Activa\/desactiva automáticamente en base al protocolo usado",
+    "Sessions Only": "Sólo Sesiónes",
+    "REST Only": "Sólo REST",
+    "Session-based or Rest": "Sesión o REST"
+}

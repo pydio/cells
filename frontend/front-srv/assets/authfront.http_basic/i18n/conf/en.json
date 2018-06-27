@@ -1,0 +1,11 @@
+{
+    "Basic Http FrontEnd": "Basic Http FrontEnd",
+    "Send a basic http request to the user": "Send a basic http request to the user",
+    "Order": "Order",
+    "Order this plugin with other auth frontends": "Order this plugin with other auth frontends",
+    "Protocol Type": "Protocol Type",
+    "Enable\/disable automatically based on the protocol used": "Enable\/disable automatically based on the protocol used",
+    "Sessions Only": "Sessions Only",
+    "REST Only": "REST Only",
+    "Session-based or Rest": "Session-based or Rest"
+}

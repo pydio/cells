@@ -1,0 +1,46 @@
+{
+    "name" : "Test Client",
+    "description" : "Test REST API client",
+    "operations" : {
+        "Stat" : {
+            "httpMethod" : "GET",
+            "uri": "57625f95100000970e8b13d7",
+            "responseClass": "BodyOutput"
+        },
+        "Open" : {
+            "httpMethod" : "GET"
+        },
+        "Mkdir" : {
+            "httpMethod" : "POST"
+        },
+        "Rmdir" : {
+            "httpMethod" : "DELETE"
+        },
+        "Rename" : {
+            "httpMethod" : "MOVE"
+        },
+        "Put" : {
+            "httpMethod" : "PUT"
+        },
+        "Delete" : {
+            "httpMethod": "DELETE"
+        }
+    },
+    "models": {
+        "BodyOutput": {
+            "type": "object",
+            "properties": {
+                "type" : {
+                    "location": "header",
+                    "sentAs": "Content-Type",
+                    "type": "string"
+                },
+                "size": {
+                    "location": "header",
+                    "sentAs": "Content-Length",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

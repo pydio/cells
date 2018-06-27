@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mixins xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:pydio_registry.xsd">
+    <slug_provider>
+        <server_settings uuidAttr="name">
+            <param group="MIXIN_MESSAGE[Repository Commons]" name="USER_DESCRIPTION" type="textarea" label="MIXIN_MESSAGE[Description]" description="MIXIN_MESSAGE[A user-defined description of the content of this workspace]" no_templates="false" default=""/>
+            <param group="MIXIN_MESSAGE[Repository Commons]" name="DEFAULT_RIGHTS" type="select" choices="r|MIXIN_MESSAGE[Read Only],rw|MIXIN_MESSAGE[Read and Write],w|MIXIN_MESSAGE[Write Only (upload)]" label="MIXIN_MESSAGE[Default Rights]" description="MIXIN_MESSAGE[This right pattern (empty, r, or rw) will be applied at user creation for this repository.]" no_templates="false" default=""/>
+            <param group="MIXIN_MESSAGE[Repository Commons]" name="PYDIO_SLUG" type="string" label="MIXIN_MESSAGE[Alias]" description="MIXIN_MESSAGE[Alias for replacing the generated unique id of the repository]" mandatory="false" no_templates="true"/>
+            <param group="MIXIN_MESSAGE[Repository Commons]" name="ALLOW_SYNC" type="boolean" label="CONF_MESSAGE[Allow Synchronization]" description="CONF_MESSAGE[Allow users to use Pydio Sync with this workspace. Recommended usecases are for Personal Files workspaces or for shared workspaces with uni-directional synchronizations.]" no_templates="true"/>
+        </server_settings>
+    </slug_provider>
+    <template_provider>
+        <server_settings uuidAttr="name">
+            <param group="MIXIN_MESSAGE[Template Options]" name="TPL_USER_CAN_CREATE" type="boolean" label="MIXIN_MESSAGE[Allow to user]" description="MIXIN_MESSAGE[Allow non-admin users to create a repository from this template.]" mandatory="true" default="false" templates_only="true"/>
+            <param group="MIXIN_MESSAGE[Template Options]" name="TPL_GRP_ADMINS_CAN_CREATE" type="boolean" label="MIXIN_MESSAGE[Allow to group admins]" description="MIXIN_MESSAGE[Allow group administrators to create a repository from this template.]" mandatory="true" default="false" templates_only="true"/>
+            <param group="MIXIN_MESSAGE[Template Options]" name="TPL_DEFAULT_LABEL" type="string" label="MIXIN_MESSAGE[Default Label]" description="MIXIN_MESSAGE[Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.]" mandatory="true" templates_only="true"/>
+            <param group="MIXIN_MESSAGE[Template Options]" name="TPL_ICON_SMALL" type="string" label="MIXIN_MESSAGE[Small Icon]" description="MIXIN_MESSAGE[16X16 Icon for representing the template]" mandatory="false" templates_only="true"/>
+            <param group="MIXIN_MESSAGE[Template Options]" name="TPL_ICON_BIG" type="string" label="MIXIN_MESSAGE[Big Icon]" description="MIXIN_MESSAGE[Big Icon for representing the template]" mandatory="false" templates_only="true"/>
+        </server_settings>
+    </template_provider>
+    <filesystem_commons>
+        <server_settings uuidAttr="name">
+            <param group="MIXIN_MESSAGE[Filesystem Commons]" name="RECYCLE_BIN" type="string" label="MIXIN_MESSAGE[Recycle Bin Folder]" description="MIXIN_MESSAGE[Leave empty if you do not want to use a recycle bin.]" default="recycle_bin"/>
+            <param group="MIXIN_MESSAGE[Filesystem Commons]" name="CHARSET" type="string" label="MIXIN_MESSAGE[Character Encoding]" description="MIXIN_MESSAGE[If your server does not set correctly its charset, it can be good to specify it here manually.]" mandatory="false"/>
+            <param group="MIXIN_MESSAGE[Filesystem Commons]" name="PAGINATION_THRESHOLD" type="integer" label="MIXIN_MESSAGE[Pagination Threshold]" description="MIXIN_MESSAGE[When a folder will contain more items than this number, display will switch to pagination mode, for better performances.]" default="500"/>
+            <param group="MIXIN_MESSAGE[Filesystem Commons]" name="PAGINATION_NUMBER" type="integer" label="MIXIN_MESSAGE[#Items per page]" description="MIXIN_MESSAGE[Once in pagination mode, number of items to display per page.]" default="200"/>
+            <param group="MIXIN_MESSAGE[Filesystem Commons]" name="REMOTE_SORTING" type="boolean" label="MIXIN_MESSAGE[Remote Sorting]" description="MIXIN_MESSAGE[Force remote sorting when in paginated mode. Warning, this can impact the performances.]" default="true"/>
+            <param group="MIXIN_MESSAGE[Filesystem Commons]" name="REMOTE_SORTING_DEFAULT_COLUMN" type="select" label="MIXIN_MESSAGE[Remote Sorting Default Field]" description="MIXIN_MESSAGE[Default field to sort on]" default="ajxp_label" choices="ajxp_label|MIXIN_MESSAGE[Name],ajxp_modiftime|MIXIN_MESSAGE[Modification date],filesize|MIXIN_MESSAGE[File size],mimestring|MIXIN_MESSAGE[File Type]" mandatory="true" expose="true"/>
+            <param group="MIXIN_MESSAGE[Filesystem Commons]" name="REMOTE_SORTING_DEFAULT_DIRECTION" type="select" label="MIXIN_MESSAGE[Remote Sorting Default Direction]" description="MIXIN_MESSAGE[Default sorting direction]" default="asc" choices="asc|MIXIN_MESSAGE[Ascending],desc|MIXIN_MESSAGE[Descending]" mandatory="true" expose="true"/>
+            <global_param group="MIXIN_MESSAGE[Filesystem Commons]" name="SHOW_HIDDEN_FILES" type="boolean" label="MIXIN_MESSAGE[Show hidden files]" description="MIXIN_MESSAGE[Show files beginning with a .]" default="false"/>
+            <global_param group="MIXIN_MESSAGE[Filesystem Commons]" name="HIDE_RECYCLE" type="boolean" label="MIXIN_MESSAGE[Hide recycle bin]" description="MIXIN_MESSAGE[Whether to show the recycle bin folder. Unlike in the following options, the folder will be hidden but still writeable.]" default="false"/>
+            <global_param group="MIXIN_MESSAGE[Filesystem Commons]" name="HIDE_EXTENSIONS" type="string" label="MIXIN_MESSAGE[Hide extensions]" description="MIXIN_MESSAGE[Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden.]" default="ser"/>
+            <global_param group="MIXIN_MESSAGE[Filesystem Commons]" name="HIDE_FOLDERS" type="textarea" label="MIXIN_MESSAGE[Hide folders]" description="MIXIN_MESSAGE[Comma-separated list of specific folders to hide]"/>
+            <global_param group="MIXIN_MESSAGE[Filesystem Commons]" name="HIDE_FILENAMES" type="textarea" label="MIXIN_MESSAGE[Hide files]" description="MIXIN_MESSAGE[Comma-separated list of specific files to hide]" default="bootstrap.json"/>
+            <global_param group="MIXIN_MESSAGE[Metadata and indexation]" name="DEFAULT_METASOURCES" type="string" label="MIXIN_MESSAGE[Default Metasources]" description="MIXIN_MESSAGE[Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver]" mandatory="false"/>
+        </server_settings>
+    </filesystem_commons>
+    <authdriver_commons>
+        <server_settings uuidAttr="name">
+            <param group="MIXIN_MESSAGE[Auth Driver Commons]" name="LOGIN_REDIRECT" type="string" label="MIXIN_MESSAGE[Login Redirect]" description="MIXIN_MESSAGE[If set to a given URL, the login action will not trigger the display of login screen but redirect to this URL.]" mandatory="false"/>
+            <param group="MIXIN_MESSAGE[Auth Driver Commons]" name="PYDIO_ADMIN_LOGIN" type="string" label="MIXIN_MESSAGE[Admin Login]" description="MIXIN_MESSAGE[For exotic auth drivers, an user ID that must be considered as admin by default.]" mandatory="false"/>
+            <param group="MIXIN_MESSAGE[Auth Driver Commons]" name="AUTO_APPLY_ROLE" type="string" label="MIXIN_MESSAGE[Auto apply role]" description="MIXIN_MESSAGE[For multiple authentication, apply this role to users authenticated via this driver]" mandatory="false"/>
+        </server_settings>
+    </authdriver_commons>
+</mixins>

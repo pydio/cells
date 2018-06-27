@@ -22,257 +22,35 @@ package rest
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
 
 	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	"strings"
+
+	"encoding/base64"
+
+	"time"
+
+	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/service/frontend"
 )
 
-var settingsNode = &rest.SettingsMenuResponse{
-	RootMetadata: &rest.SettingsEntryMeta{
-		IconClass: "mdi mdi-view-dashboard",
-		Component: "AdminComponents.SimpleDashboard",
-	},
-	Sections: []*rest.SettingsSection{
-		{
-			Key:         "idm",
-			Label:       "settings.174",
-			Description: "settings.174",
-			Children: []*rest.SettingsEntry{
-				{
-					Key:         "users",
-					Label:       "settings.2",
-					Description: "settings.139",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\UsersManager",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-account-circle",
-						Component: "AdminPeople.Dashboard",
-						Props:     `{"advancedAcl":false}`,
-					},
-				},
-				{
-					Key:         "roles",
-					Label:       "settings.69",
-					Description: "settings.71",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\RolesManager",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-account-card-details",
-						Component: "AdminPeople.RolesDashboard",
-						Props:     `{"advancedAcl":false}`,
-					},
-				},
-				{
-					Key:         "policies",
-					Label:       "settings.176",
-					Description: "settings.177",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-security",
-						Component: "AdminPeople.PoliciesBoard",
-						Props:     `{"readonly":true}`,
-					},
-				},
-			},
-		},
-		{
-			Key:         "data",
-			Label:       "settings.175",
-			Description: "settings.175",
-			Children: []*rest.SettingsEntry{
-				{
-					Key:         "workspaces",
-					Label:       "settings.3",
-					Description: "settings.138",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\WorkspacesManager",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-folder-open",
-						Component: "AdminWorkspaces.WsDashboard",
-						Props:     `{"filter":"workspaces"}`,
-					},
-				},
-				{
-					Key:         "datasources",
-					Label:       "settings.3b",
-					Description: "settings.3b",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-database",
-						Component: "AdminWorkspaces.DataSourcesBoard",
-						Props:     `{"versioningReadonly":true}`,
-					},
-				},
-				{
-					Key:         "template-paths",
-					Label:       "settings.3c",
-					Description: "settings.3c",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-file-tree",
-						Component: "AdminWorkspaces.VirtualNodes",
-						Props:     `{"readonly":true}`,
-					},
-				},
-				{
-					Key:         "metadata",
-					Label:       "Metadata",
-					Description: "Metadata Definition",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-tag-multiple",
-						Component: "AdminWorkspaces.MetadataBoard",
-					},
-				},
-			},
-		},
-		{
-			Key:         "admin",
-			Label:       "settings.111",
-			Description: "settings.141",
-			Children: []*rest.SettingsEntry{
-				{
-					Key:         "services",
-					Label:       "settings.172",
-					Description: "settings.173",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-access-point-network",
-						Component: "AdminServices.Dashboard",
-					},
-				},
-				{
-					Key:         "logs",
-					Label:       "settings.4",
-					Description: "settings.142",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-pulse",
-						Component: "AdminLogs.Dashboard",
-						Props:     `{"disableExport":true}`,
-					},
-				},
-				{
-					Key:         "update",
-					Label:       "updater.1",
-					Description: "updater.2",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-update",
-						Component: "AdminPlugins.UpdaterDashboard",
-					},
-				},
-				{
-					Key:         "scheduler",
-					Label:       "action.scheduler.18",
-					Description: "action.scheduler.22",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-timetable",
-						Component: "AdminScheduler.Dashboard",
-					},
-				},
-				{
-					Key:         "php",
-					Label:       "settings.5",
-					Description: "settings.5",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\DiagnosticManager",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-language-php",
-						Component: "AdminPlugins.DiagnosticDashboard",
-					},
-				},
-			},
-		},
-		{
-			Key:         "parameters",
-			Label:       "settings.109",
-			Description: "settings.136",
-			Children: []*rest.SettingsEntry{
-				{
-					Key:         "core",
-					Label:       "settings.98",
-					Description: "settings.133",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-settings-box",
-						Component: "AdminPlugins.PluginEditor",
-					},
-				},
-				{
-					Key:         "core.auth",
-					Label:       "ajxp_admin.menu.11",
-					Description: "plugtype.desc.auth",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-account-key",
-						Component: "AdminPlugins.AuthenticationPluginsDashboard",
-					},
-				},
-				{
-					Key:         "core.conf",
-					Label:       "ajxp_admin.menu.12",
-					Description: "plugtype.desc.conf",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-database",
-						Component: "AdminPlugins.PluginEditor",
-					},
-				},
-				{
-					Key:         "uploader",
-					Label:       "ajxp_admin.menu.9",
-					Description: "ajxp_admin.menu.10",
-					Alias:       "/config/plugins/uploader",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\PluginsManager",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-upload",
-						Component: "AdminPlugins.CoreAndPluginsDashboard",
-					},
-				},
-				{
-					Key:         "mailer",
-					Label:       "plugtype.title.mailer",
-					Description: "plugtype.desc.mailer",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-email",
-						Component: "AdminPlugins.ServiceEditor",
-						Props:     `{"serviceName":"pydio.grpc.mailer"}`,
-					},
-				},
-			},
-		},
-		{
-			Key:         "plugins",
-			Label:       "ajxp_admin.menu.18",
-			Description: "ajxp_admin.menu.18",
-			Children: []*rest.SettingsEntry{
-				{
-					Key:         "manager",
-					Label:       "ajxp_admin.menu.19",
-					Description: "ajxp_admin.menu.19",
-					Alias:       "/config/all",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\PluginsManager",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-google-circles-group",
-						Component: "AdminPlugins.PluginsManager",
-					},
-				},
-				{
-					Key:         "apis",
-					Label:       "Rest APIs",
-					Description: "Rest APIs",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-routes",
-						Component: "AdminPlugins.OpenApiDashboard",
-					},
-				},
-				{
-					Key:         "jsdocs",
-					Label:       "Javascript Docs",
-					Description: "Javascript Classes Documentation",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-nodejs",
-						Component: "AdminPlugins.JSDocsDashboard",
-					},
-				},
-			},
-		},
-	},
-}
-
 type FrontendHandler struct{}
+
+func NewFrontendHandler() *FrontendHandler {
+	f := &FrontendHandler{}
+	return f
+}
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
 func (a *FrontendHandler) SwaggerTags() []string {
@@ -282,6 +60,160 @@ func (a *FrontendHandler) SwaggerTags() []string {
 // Filter returns a function to filter the swagger path
 func (a *FrontendHandler) Filter() func(string) string {
 	return nil
+}
+
+func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response) {
+	pool, e := frontend.GetPluginsPool()
+	if e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+	ctx := req.Request.Context()
+	wsId := req.QueryParameter("ws")
+
+	user := &frontend.User{}
+	if e := user.Load(ctx); e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+	user.LoadActiveWorkspace(wsId)
+	cfg := config.Default()
+	rolesConfigs := user.FlattenedRolesConfigs()
+
+	status := frontend.RequestStatus{
+		Config:        cfg,
+		AclParameters: rolesConfigs.Get("parameters").(*config.Map),
+		AclActions:    rolesConfigs.Get("actions").(*config.Map),
+		WsScopes:      user.GetActiveScopes(),
+		User:          user,
+		NoClaims:      !user.Logged,
+	}
+	registry := pool.RegistryForStatus(ctx, status)
+	rsp.WriteAsXml(registry)
+}
+
+func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Response) {
+
+	pool, e := frontend.GetPluginsPool()
+	if e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+	bootConf := frontend.ComputeBootConf(pool)
+	rsp.WriteAsJson(bootConf)
+
+}
+
+func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
+
+	var loginRequest rest.FrontSessionRequest
+	if e := req.ReadEntity(&loginRequest); e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+
+	if loginRequest.Logout {
+		if session, err := frontend.SessionStore.Get(req.Request, "pydio"); err == nil {
+			if _, ok := session.Values["jwt"]; ok {
+				log.Logger(req.Request.Context()).Info("Clearing session")
+				delete(session.Values, "jwt")
+				session.Save(req.Request, rsp.ResponseWriter)
+			}
+		}
+		rsp.WriteEntity(&rest.FrontSessionResponse{})
+		return
+	}
+
+	if loginRequest.Login == "" && loginRequest.Password == "" {
+		if session, err := frontend.SessionStore.Get(req.Request, "pydio"); err == nil {
+			if val, ok := session.Values["jwt"]; ok {
+				expiry := session.Values["expiry"].(int)
+				expTime := time.Unix(int64(expiry), 0)
+				response := &rest.FrontSessionResponse{
+					JWT:        val.(string),
+					ExpireTime: int32(expTime.Sub(time.Now()).Seconds()),
+				}
+				log.Logger(req.Request.Context()).Info("Sending response from session", zap.Any("r", response))
+				rsp.WriteEntity(response)
+			} else {
+				// Just send an empty response
+				rsp.WriteEntity(&rest.FrontSessionResponse{})
+			}
+		} else {
+			service.RestError500(req, rsp, fmt.Errorf("could not load session store", err))
+		}
+		return
+	}
+
+	fullURL := config.Get("defaults", "urlInternal").String("") + "/auth/dex/token"
+
+	data := url.Values{}
+	data.Set("grant_type", "password")
+	data.Add("username", loginRequest.Login)
+	data.Add("password", loginRequest.Password)
+	data.Add("scope", "email profile pydio")
+	data.Add("nonce", uuid.New())
+
+	httpReq, err := http.NewRequest("POST", fullURL, strings.NewReader(data.Encode()))
+	if err != nil {
+		service.RestError500(req, rsp, err)
+		return
+	}
+
+	auth := "cells-front" + ":" + "2va32eFc43l8Sy91JscvL5cN"
+	basic := "Basic " + base64.StdEncoding.EncodeToString([]byte(auth))
+
+	httpReq.Header.Add("Content-Type", "application/x-www-form-urlencoded") // Important our dex API does not yet support json payload.
+	httpReq.Header.Add("Cache-Control", "no-cache")
+	httpReq.Header.Add("Authorization", basic)
+
+	res, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		service.RestError500(req, rsp, err)
+		return
+	}
+	defer res.Body.Close()
+
+	var respMap map[string]interface{}
+	err = json.NewDecoder(res.Body).Decode(&respMap)
+	if err != nil {
+		service.RestError500(req, rsp, fmt.Errorf("could not unmarshall response with status %d: %s\nerror cause: %s", res.StatusCode, res.Status, err.Error()))
+		return
+	}
+	if errMsg, exists := respMap["error"]; exists {
+		service.RestError500(req, rsp, fmt.Errorf("could not retrieve token, %s: %s", errMsg, respMap["error_description"]))
+	}
+
+	token := respMap["id_token"].(string)
+	expiry := respMap["expires_in"].(float64) - 60 // Secure by shortening expiration time
+
+	response := &rest.FrontSessionResponse{
+		JWT:        token,
+		ExpireTime: int32(expiry),
+	}
+
+	if session, err := frontend.SessionStore.Get(req.Request, "pydio"); err == nil {
+		log.Logger(req.Request.Context()).Info("Saving token in session")
+		session.Values["jwt"] = token
+		session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Second()
+		if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
+			log.Logger(req.Request.Context()).Error("Error saving session", zap.Error(e))
+		}
+	} else {
+		log.Logger(req.Request.Context()).Error("Could not load session store", zap.Error(err))
+	}
+
+	rsp.WriteEntity(response)
+}
+
+func (a *FrontendHandler) FrontMessages(req *restful.Request, rsp *restful.Response) {
+	pool, e := frontend.GetPluginsPool()
+	if e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+	lang := req.PathParameter("Lang")
+	rsp.WriteAsJson(pool.I18nMessages(lang).Messages)
 }
 
 // Log handles all HTTP requests sent to the FrontLogService, reads the message and directly returns.
@@ -316,27 +248,5 @@ func (a *FrontendHandler) FrontLog(req *restful.Request, rsp *restful.Response) 
 func (a *FrontendHandler) SettingsMenu(req *restful.Request, rsp *restful.Response) {
 
 	rsp.WriteEntity(settingsNode)
-
-}
-
-func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Response) {
-
-	data := map[string]string{
-		"PackageType":   common.PackageType,
-		"PackageLabel":  common.PackageLabel,
-		"Version":       common.Version().String(),
-		"BuildRevision": common.BuildRevision,
-		"BuildStamp":    common.BuildStamp,
-		"License":       "agplv3",
-	}
-
-	marshalled, _ := json.Marshal(data)
-
-	response := &rest.FrontBootConfResponse{
-		JsonData: map[string]string{
-			"backend": string(marshalled),
-		},
-	}
-	rsp.WriteEntity(response)
 
 }

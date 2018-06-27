@@ -8,7 +8,7 @@
 !/config/file/sample.*
 /search/pydio.bleve/
 /.project
-/.idea/
+.idea
 /.vscode/
 /debug
 /assets/src/pydio/*
