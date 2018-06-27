@@ -10,6 +10,9 @@ services:
         environment:
             - CELLS_BIND=localhost:8080
             - CELLS_EXTERNAL=localhost:8080
+        depends_on:
+            - mysql
+            - php
 
     # MySQL image with a default database cells and a dedicated user pydio
     mysql:
@@ -21,7 +24,6 @@ services:
              MYSQL_USER: pydio
              MYSQL_PASSWORD: P@ssw0rd
          command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
-         ports: ["3306:3306"]
 
     # PHP FPM image with the static named volume from the cells container
     php:
