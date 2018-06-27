@@ -1,4 +1,4 @@
-package state
+package frontend
 
 import (
 	"github.com/pydio/cells/common/config"

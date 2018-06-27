@@ -1,9 +1,12 @@
-package state
+package frontend
 
 import (
 	"encoding/json"
 	"strconv"
 	"strings"
+
+	"encoding/xml"
+	"fmt"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -65,6 +68,67 @@ func (plugin *Cplugin) GetRegistryContributions() *Cregistry_contributions {
 func (plugin *Cplugin) GetDependencies() *Cdependencies {
 	return plugin.Cdependencies
 }
+
+func LoadPluginFromXML(id string, data []byte) (output Plugin, err error) {
+
+	plugType := strings.Split(id, ".")[0]
+
+	switch plugType {
+	case "editor":
+		var target Ceditor
+		if e1 := xml.Unmarshal(data, &target); e1 == nil {
+			if target.Attrid == "" {
+				target.Attrid = id
+			}
+			output = &target
+		} else {
+			err = fmt.Errorf("Could not load "+id, e1)
+		}
+	case "meta":
+		var target Cmeta
+		if e1 := xml.Unmarshal(data, &target); e1 == nil {
+			if target.Attrid == "" {
+				target.Attrid = id
+			}
+			output = &target
+		} else {
+			err = fmt.Errorf("Could not load "+id, e1)
+		}
+	case "access":
+		var target Cajxpdriver
+		if e1 := xml.Unmarshal(data, &target); e1 == nil {
+			if target.Attrid == "" {
+				target.Attrid = id
+			}
+			output = &target
+		} else {
+			err = fmt.Errorf("Could not load "+id, e1)
+		}
+	case "uploader":
+		var target Cuploader
+		if e1 := xml.Unmarshal(data, &target); e1 == nil {
+			if target.Attrid == "" {
+				target.Attrid = id
+			}
+			output = &target
+		} else {
+			err = fmt.Errorf("Could not load "+id, e1)
+		}
+	default:
+		var target Cplugin
+		if e1 := xml.Unmarshal(data, &target); e1 == nil {
+			if target.Attrid == "" {
+				target.Attrid = id
+			}
+			output = &target
+		} else {
+			err = fmt.Errorf("Could not load "+id, e1)
+		}
+	}
+	return
+
+}
+
 func (plugin *Cplugin) ListDependencies() (ids []string) {
 	if plugin.Cdependencies == nil {
 		return

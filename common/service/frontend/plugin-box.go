@@ -20,10 +20,14 @@
 
 package frontend
 
-import "github.com/gobuffalo/packr"
+import (
+	"github.com/gobuffalo/packr"
+)
 
 var (
-	registry []PluginBox
+	registry   []PluginBox
+	loadedFs   *UnionHttpFs
+	loadedPool *PluginsPool
 )
 
 type PluginBox struct {
@@ -49,4 +53,23 @@ func GetRegisteredPluginBoxes() []PluginBox {
 
 	return registry
 
+}
+
+func GetPluginsFS() *UnionHttpFs {
+	if loadedFs == nil {
+		loadedFs = NewUnionHttpFs(GetRegisteredPluginBoxes()...)
+	}
+	return loadedFs
+}
+
+func GetPluginsPool() (*PluginsPool, error) {
+	if loadedPool == nil {
+		pool := NewPluginsPool()
+		if e := pool.Load(GetPluginsFS()); e != nil {
+			return nil, e
+		} else {
+			loadedPool = pool
+		}
+	}
+	return loadedPool, nil
 }

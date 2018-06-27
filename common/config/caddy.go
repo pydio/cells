@@ -124,10 +124,6 @@ var (
 	}
 	{{end}}
 
-	fastcgi / {{.Fpm}} php {
-		root  "{{.Root}}"
-		index index.php
-	}
 	status 403 {
 		/data
 		/core
@@ -144,7 +140,12 @@ var (
 		if {path} not_starts_with "/loleaflet/"
 		if {path} not_starts_with "/hosting/discovery"
 		if {path} not_starts_with "/lool/"
-		to {path} {path}/ /index.php
+		to {path} {path}/ /index.html
+	}
+
+	proxy /index.html {{.FrontPlugins.Host}}/gui {
+		transparent
+		without /index.html
 	}
 
 	{{if .TLS}}tls {{.TLS}}{{end}}

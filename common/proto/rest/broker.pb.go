@@ -66,6 +66,12 @@ It has these top-level messages:
 	SettingsMenuResponse
 	FrontBootConfRequest
 	FrontBootConfResponse
+	FrontStateRequest
+	FrontStateResponse
+	FrontMessagesRequest
+	FrontMessagesResponse
+	FrontSessionRequest
+	FrontSessionResponse
 	UserStateRequest
 	UserStateResponse
 	RelationRequest

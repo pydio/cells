@@ -1283,6 +1283,58 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/frontend/messages/{Lang}": {
+      "get": {
+        "summary": "Serve list of I18n messages",
+        "operationId": "FrontMessages",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontMessagesResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Lang",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "FrontendService"
+        ]
+      }
+    },
+    "/frontend/session": {
+      "post": {
+        "summary": "Handle JWT",
+        "operationId": "FrontSession",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontSessionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restFrontSessionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "FrontendService"
+        ]
+      }
+    },
     "/frontend/settings-menu": {
       "get": {
         "summary": "Sends a tree of nodes to be used a menu in the Settings panel",
@@ -1292,6 +1344,23 @@ var SwaggerJson = `{
             "description": "",
             "schema": {
               "$ref": "#/definitions/restSettingsMenuResponse"
+            }
+          }
+        },
+        "tags": [
+          "FrontendService"
+        ]
+      }
+    },
+    "/frontend/state": {
+      "get": {
+        "summary": "Send XML state registry",
+        "operationId": "FrontState",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontStateResponse"
             }
           }
         },
@@ -5758,6 +5827,51 @@ var SwaggerJson = `{
         }
       },
       "title": "Basic response for confirmation"
+    },
+    "restFrontMessagesResponse": {
+      "type": "object",
+      "properties": {
+        "Messages": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "restFrontSessionRequest": {
+      "type": "object",
+      "properties": {
+        "ClientTime": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "Login": {
+          "type": "string"
+        },
+        "Password": {
+          "type": "string"
+        },
+        "Logout": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "restFrontSessionResponse": {
+      "type": "object",
+      "properties": {
+        "JWT": {
+          "type": "string"
+        },
+        "ExpireTime": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "restFrontStateResponse": {
+      "type": "object"
     },
     "restGetBulkMetaRequest": {
       "type": "object",

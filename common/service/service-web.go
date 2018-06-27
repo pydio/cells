@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/service/frontend"
 )
 
 var (
@@ -188,6 +189,14 @@ func WithWebAuth() ServiceOption {
 			wrapped = servicecontext.HttpMetaExtractorWrapper(wrapped)
 
 			return wrapped
+		})
+	}
+}
+
+func WithWebSession() ServiceOption {
+	return func(o *ServiceOptions) {
+		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
+			return frontend.NewSessionWrapper(handler)
 		})
 	}
 }

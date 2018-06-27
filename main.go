@@ -40,7 +40,6 @@ import (
 	_ "github.com/pydio/cells/broker/mailer/rest"
 	_ "github.com/pydio/cells/frontend/front-srv/rest"
 	_ "github.com/pydio/cells/frontend/front-srv/web"
-	_ "github.com/pydio/cells/frontend/state/rest"
 
 	_ "github.com/pydio/cells/data/docstore/grpc"
 	_ "github.com/pydio/cells/data/docstore/rest"

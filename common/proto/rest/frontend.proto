@@ -61,3 +61,26 @@ message FrontBootConfRequest {}
 message FrontBootConfResponse {
     map<string, string> JsonData = 1;
 }
+
+message FrontStateRequest {}
+message FrontStateResponse {}
+
+message FrontMessagesRequest{
+    string Lang = 1;
+}
+message FrontMessagesResponse{
+    map<string,string> Messages = 1;
+}
+
+message FrontSessionRequest{
+    int32 ClientTime = 1;
+
+    string Login = 2;
+    string Password = 3;
+
+    bool Logout = 4;
+}
+message FrontSessionResponse{
+    string JWT = 1;
+    int32 ExpireTime = 2;
+}

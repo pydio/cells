@@ -1,4 +1,4 @@
-package state
+package frontend
 
 import (
 	"encoding/xml"

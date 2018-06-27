@@ -812,6 +812,26 @@ service FrontendService {
             get: "/frontend/bootconf"
         };
     }
+    // Send XML state registry
+    rpc FrontState(FrontStateRequest) returns (FrontStateResponse) {
+        option (google.api.http) = {
+            get: "/frontend/state"
+        };
+    }
+    // Serve list of I18n messages
+    rpc FrontMessages(FrontMessagesRequest) returns (FrontMessagesResponse) {
+        option (google.api.http) = {
+            get: "/frontend/messages/{Lang}"
+        };
+    }
+    // Handle JWT
+    rpc FrontSession(FrontSessionRequest) returns (FrontSessionResponse) {
+        option (google.api.http) = {
+            post: "/frontend/session"
+            body: "*"
+        };
+    }
+
 }
 
 // Used only in the Enterprise Distribution
