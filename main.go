@@ -41,6 +41,8 @@ import (
 	_ "github.com/pydio/cells/frontend/front-srv/rest"
 	_ "github.com/pydio/cells/frontend/front-srv/web"
 
+	_ "github.com/pydio/cells/data/changes/grpc"
+	_ "github.com/pydio/cells/data/changes/rest"
 	_ "github.com/pydio/cells/data/docstore/grpc"
 	_ "github.com/pydio/cells/data/docstore/rest"
 	_ "github.com/pydio/cells/data/key/grpc"
@@ -52,8 +54,6 @@ import (
 	_ "github.com/pydio/cells/data/tree/grpc"
 	_ "github.com/pydio/cells/data/tree/rest"
 	_ "github.com/pydio/cells/data/versions/grpc"
-	_ "github.com/pydio/cells/data/changes/grpc"
-	_ "github.com/pydio/cells/data/changes/rest"
 
 	_ "github.com/pydio/cells/discovery/config/grpc"
 	_ "github.com/pydio/cells/discovery/config/rest"
@@ -93,6 +93,7 @@ import (
 	// All Actions for scheduler
 	_ "github.com/pydio/cells/broker/activity/actions"
 	_ "github.com/pydio/cells/scheduler/actions/archive"
+	_ "github.com/pydio/cells/scheduler/actions/changes"
 	_ "github.com/pydio/cells/scheduler/actions/cmd"
 	_ "github.com/pydio/cells/scheduler/actions/images"
 	_ "github.com/pydio/cells/scheduler/actions/scheduler"

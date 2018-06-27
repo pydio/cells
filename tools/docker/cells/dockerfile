@@ -1,6 +1,7 @@
 FROM busybox:glibc
 
-ENV CELLS_VERSION 1.0.0
+ARG version
+ENV CELLS_VERSION ${version}
 
 WORKDIR /cells
 

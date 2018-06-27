@@ -26,6 +26,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/update"
 	"github.com/pydio/cells/common/service/context"
@@ -36,7 +37,11 @@ type Handler struct{}
 
 func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequest, response *update.UpdateResponse) error {
 
-	configs := servicecontext.GetConfig(ctx)
+	var configs config.Map
+	if e := config.Get("services", servicecontext.GetServiceName(ctx)).Scan(&configs); e != nil {
+		log.Logger(ctx).Error("Cannot load configs for update service", zap.Error(e))
+		configs = servicecontext.GetConfig(ctx)
+	}
 	binaries, e := update2.LoadUpdates(ctx, configs)
 	if e != nil {
 		log.Logger(ctx).Error("Failed retrieving available updates", zap.Error(e))
@@ -50,7 +55,11 @@ func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequ
 
 func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRequest, response *update.ApplyUpdateResponse) error {
 
-	configs := servicecontext.GetConfig(ctx)
+	var configs config.Map
+	if e := config.Get("services", servicecontext.GetServiceName(ctx)).Scan(&configs); e != nil {
+		log.Logger(ctx).Error("Cannot load configs for update service", zap.Error(e))
+		configs = servicecontext.GetConfig(ctx)
+	}
 	binaries, e := update2.LoadUpdates(ctx, configs)
 	if e != nil {
 		log.Logger(ctx).Error("Failed retrieving available updates", zap.Error(e))

@@ -199,7 +199,7 @@ func checkPhpFpm(installConfig *install.InstallConfig) *install.CheckResult {
 	if e != nil {
 		checkError = e
 	} else {
-		folder := filepath.Join(config.ApplicationDataDir(), "phptest")
+		folder := filepath.Join(config.ApplicationDataDir(), "static", "pydio", "phptest")
 		os.MkdirAll(folder, 0777)
 		fpm.DetectPhpInfos(configs, folder)
 		os.Remove(folder)

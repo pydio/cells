@@ -151,6 +151,9 @@ var SampleConfig = `{
 		},
 		"pydio.grpc.user-meta": {
 			"dsn": "default"
-		}
+		},
+        "pydio.grpc.tasks": {
+            "fork": true
+        }
     }
 }`

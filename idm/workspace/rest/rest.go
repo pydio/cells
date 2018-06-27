@@ -200,6 +200,7 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 		}
 		resp.Workspace.PoliciesContextEditable = h.IsContextEditable(ctx, resp.Workspace.UUID, resp.Workspace.Policies)
 		collection.Workspaces = append(collection.Workspaces, resp.Workspace)
+		collection.Total++
 	}
 	rsp.WriteEntity(collection)
 

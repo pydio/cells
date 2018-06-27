@@ -51,9 +51,13 @@ var (
 			return str
 		},
 		// Order by (node_id,seq) so that events are grouped by node id
-		"select":   `SELECT seq, node_id, type, source, target FROM data_changes WHERE seq > ? and (source LIKE ? or target LIKE ?) ORDER BY node_id,seq`,
-		"lastSeq":  `SELECT MAX(seq) FROM data_changes`,
-		"nodeById": `SELECT node_id FROM data_changes WHERE node_id = ? LIMIT 0,1`,
+		"select":            `SELECT seq, node_id, type, source, target FROM data_changes WHERE seq > ? and (source LIKE ? or target LIKE ?) ORDER BY node_id,seq`,
+		"selectFromArchive": `SELECT seq, node_id, type, source, target FROM data_changes_archive WHERE seq > ? and (source LIKE ? or target LIKE ?) ORDER BY node_id,seq`,
+		"firstSeq":          `SELECT MIN(seq) FROM data_changes`,
+		"lastSeq":           `SELECT MAX(seq) FROM data_changes`,
+		"nodeById":          `SELECT node_id FROM data_changes WHERE node_id = ? LIMIT 0,1`,
+		"delete":            `DELETE FROM data_changes where seq <= ?`,
+		"archive":           `INSERT INTO data_changes_archive (seq, node_id, type, source, target) SELECT seq, node_id, type, source, target from data_changes where seq <= ?`,
 	}
 )
 
@@ -137,6 +141,43 @@ func (h *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) 
 		defer close(res)
 
 		p := fmt.Sprintf("%s%%", prefix)
+
+		// Checking if we need to retrieve from archive
+		if first, err := h.FirstSeq(); err != nil || first > seq {
+
+			rarch, err := h.GetStmt("selectFromArchive").Query(seq, p, p)
+			if err != nil {
+				return
+			}
+
+			defer rarch.Close()
+			for rarch.Next() {
+
+				row := new(tree.SyncChange)
+				var stringType string
+				rarch.Scan(
+					&row.Seq,
+					&row.NodeId,
+					&stringType,
+					&row.Source,
+					&row.Target,
+				)
+
+				if row.Source == "" {
+					row.Source = "NULL"
+				}
+				if row.Target == "" {
+					row.Target = "NULL"
+				}
+				row.Type = tree.SyncChange_Type(tree.SyncChange_Type_value[stringType])
+				log.Logger(context.Background()).Debug("[Grpc Changes] Reading Row",
+					zap.String("type", stringType),
+					zap.Any("r", row),
+					zap.Any("intType", tree.SyncChange_Type_value[stringType]))
+				res <- row
+			}
+		}
+
 		r, err := h.GetStmt("select").Query(seq, p, p)
 		if err != nil {
 			return
@@ -153,6 +194,7 @@ func (h *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) 
 				&row.Source,
 				&row.Target,
 			)
+
 			if row.Source == "" {
 				row.Source = "NULL"
 			}
@@ -171,9 +213,64 @@ func (h *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) 
 	return res, nil
 }
 
+// FirstSeq returns the first sequence id in the data changes table (without archive)
+func (h *sqlimpl) FirstSeq() (uint64, error) {
+	var last uint64
+	row := h.GetStmt("firstSeq").QueryRow()
+	err := row.Scan(&last)
+	return last, err
+}
+
+// LastSeq returns the last sequence id in the data changes table
 func (h *sqlimpl) LastSeq() (uint64, error) {
 	var last uint64
 	row := h.GetStmt("lastSeq").QueryRow()
 	err := row.Scan(&last)
 	return last, err
+}
+
+// Archive places all rows before the sequence id in an archive table and delete them from the main table
+func (h *sqlimpl) Archive(seq uint64) error {
+
+	db := h.DB()
+
+	// Starting a transaction
+	tx, err := db.BeginTx(context.Background(), nil)
+	if err != nil {
+		return err
+	}
+
+	// Checking transaction went fine
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	archive := h.GetStmt("archive")
+	delete := h.GetStmt("delete")
+
+	if stmt := tx.Stmt(archive); stmt != nil {
+		defer stmt.Close()
+
+		if _, err = stmt.Exec(seq); err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("Empty statement")
+	}
+
+	if stmt := tx.Stmt(delete); stmt != nil {
+		defer stmt.Close()
+
+		if _, err = stmt.Exec(seq); err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("Empty statement")
+	}
+
+	return nil
 }

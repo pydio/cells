@@ -89,6 +89,11 @@ func (m *mockService) IsGRPC() bool {
 func (m *mockService) IsREST() bool {
 	return false
 }
+func (m *mockService) RequiresFork() bool {
+	return false
+}
+func (m *mockService) ForkStart() {
+}
 func (m *mockService) MatchesRegexp(string) bool {
 	return false
 }

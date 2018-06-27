@@ -36,71 +36,26 @@ import (
 	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/cells/common/proto/mailer"
+	"github.com/pydio/cells/common/service/context"
 )
 
 type Handler struct {
-	Queue  mailer.Queue
-	sender mailer.Sender
+	queueName    string
+	queueConfig  config.Map
+	senderName   string
+	senderConfig config.Map
+	queue        mailer.Queue
+	sender       mailer.Sender
 }
 
 func NewHandler(serviceCtx context.Context, conf config.Map) (*Handler, error) {
 	h := new(Handler)
-	if q := conf.String("queue"); q != "" {
-		var queueData struct {
-			Value string `json:"@value"`
-		}
-		if e := json.Unmarshal([]byte(q), &queueData); e == nil && queueData.Value != "" {
-			h.Queue = mailer.GetQueue(serviceCtx, queueData.Value, conf)
-		}
-
-	}
-
-	if h.Queue == nil {
-		h.Queue = mailer.GetQueue(serviceCtx, "boltdb", conf)
-	}
-
-	var sender mailer.Sender
-	var err error
-
-	var senderConf map[string]interface{}
-	if s := conf.String("sender"); s != "" {
-		json.Unmarshal([]byte(s), &senderConf)
-	} else if m := conf.Map("sender"); m != nil {
-		senderConf = m
-	}
-
-	if senderConf != nil {
-		conf := config.Map{}
-		var name string
-		for k, v := range senderConf {
-			if k == forms.SwitchFieldValueKey {
-				name = v.(string)
-			} else {
-				conf.Set(k, v)
-			}
-		}
-		log.Logger(serviceCtx).Info("Starting mailer with sender '" + name + "'")
-		sender, err = mailer.GetSender(name, conf)
-		if err != nil {
-			return nil, err
-		}
-
-		h.sender = sender
-		return h, nil
-	}
-
-	sender, err = mailer.GetSender("sendmail", conf)
-	if err != nil {
-		return nil, err
-	}
-
-	h.sender = sender
-	log.Logger(serviceCtx).Info("Starting mailer using default sender 'sendmail'")
-
+	h.initFromConf(serviceCtx, conf)
 	return h, nil
 }
 
-func (m *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp *proto.SendMailResponse) error {
+// SendMail either queues or send a mail directly
+func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp *proto.SendMailResponse) error {
 	mail := req.Mail
 	if mail == nil || (len(mail.Subject) == 0 && mail.TemplateId == "") || len(mail.To) == 0 {
 		e := errors.BadRequest(common.SERVICE_MAILER, "SendMail: some required fields are missing")
@@ -112,6 +67,7 @@ func (m *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 		log.Logger(ctx).Error("SendMail", zap.Error(e))
 		return e
 	}
+	h.checkConfigChange(ctx)
 
 	for _, to := range mail.To {
 		// To find language
@@ -126,8 +82,10 @@ func (m *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 				Address: configs.From,
 				Name:    configs.Title,
 			}
+		} else if mail.From.Address == "" {
+			mail.From.Address = configs.From
 		}
-		h := templates.GetHermes(languages...)
+		he := templates.GetHermes(languages...)
 		if mail.ContentHtml == "" {
 			var body hermes.Body
 			if mail.TemplateId != "" {
@@ -150,20 +108,20 @@ func (m *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 			}
 			hermesMail := hermes.Email{Body: body}
 			var e error
-			mail.ContentHtml, _ = h.GenerateHTML(hermesMail)
-			if mail.ContentPlain, e = h.GenerateHTML(hermesMail); e != nil {
+			mail.ContentHtml, _ = he.GenerateHTML(hermesMail)
+			if mail.ContentPlain, e = he.GenerateHTML(hermesMail); e != nil {
 				return e
 			}
 		}
 
 		if req.InQueue {
 			log.Logger(ctx).Info("SendMail: pushing email to queue", zap.Any("to", mail.To), zap.Any("from", mail.From), zap.Any("subject", mail.Subject))
-			if e := m.Queue.Push(mail); e != nil {
+			if e := h.queue.Push(mail); e != nil {
 				return e
 			}
 		} else {
 			log.Logger(ctx).Info("SendMail: sending email", zap.Any("to", mail.To), zap.Any("from", mail.From), zap.Any("subject", mail.Subject))
-			if e := m.sender.Send(mail); e != nil {
+			if e := h.sender.Send(mail); e != nil {
 				return e
 			}
 		}
@@ -172,7 +130,10 @@ func (m *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 	return nil
 }
 
-func (m *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueRequest, rsp *proto.ConsumeQueueResponse) error {
+// ConsumeQueue browses current queue for emails to be sent
+func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueRequest, rsp *proto.ConsumeQueueResponse) error {
+
+	h.checkConfigChange(ctx)
 
 	counter := int64(0)
 	c := func(em *proto.Mail) error {
@@ -181,10 +142,10 @@ func (m *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 			return fmt.Errorf("cannot send empty email")
 		}
 		counter++
-		return m.sender.Send(em)
+		return h.sender.Send(em)
 	}
 
-	if e := m.Queue.Consume(c); e == nil {
+	if e := h.queue.Consume(c); e == nil {
 		rsp.Message = fmt.Sprintf("Successfully sent %d messages", counter)
 		rsp.EmailsSent = counter
 		return nil
@@ -192,4 +153,87 @@ func (m *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 		return e
 	}
 
+}
+
+func (h *Handler) parseConf(conf config.Map) (queueName string, queueConfig config.Map, senderName string, senderConfig config.Map) {
+
+	// Defaults
+	queueName = "boltdb"
+	senderName = "sendmail"
+	senderConfig = conf
+	queueConfig = conf
+
+	// Parse configs for queue
+	if q := conf.String("queue"); q != "" {
+		var queueData struct {
+			Value string `json:"@value"`
+		}
+		if e := json.Unmarshal([]byte(q), &queueData); e == nil && queueData.Value != "" {
+			queueName = queueData.Value
+		}
+
+	}
+
+	// Parse configs for sender
+	var senderConf map[string]interface{}
+	if s := conf.String("sender"); s != "" {
+		json.Unmarshal([]byte(s), &senderConf)
+	} else if m := conf.Map("sender"); m != nil {
+		senderConf = m
+	}
+	if senderConf != nil {
+		senderConfig = config.Map{}
+		var name string
+		for k, v := range senderConf {
+			if k == forms.SwitchFieldValueKey {
+				name = v.(string)
+			} else {
+				senderConfig.Set(k, v)
+			}
+		}
+		senderName = name
+	}
+	return
+}
+
+func (h *Handler) initFromConf(ctx context.Context, conf config.Map) error {
+
+	queueName, queueConfig, senderName, senderConfig := h.parseConf(conf)
+	h.queue = mailer.GetQueue(ctx, queueName, queueConfig)
+	if h.queue == nil {
+		queueName = "boltdb"
+		h.queue = mailer.GetQueue(ctx, "boltdb", conf)
+	} else {
+		log.Logger(ctx).Info("Starting mailer with queue '" + queueName + "'")
+	}
+
+	if sender, err := mailer.GetSender(senderName, senderConfig); err != nil {
+		return err
+	} else {
+		log.Logger(ctx).Info("Starting mailer with sender '" + senderName + "'")
+		h.sender = sender
+	}
+
+	h.queueName = queueName
+	h.queueConfig = queueConfig
+	h.senderName = senderName
+	h.senderConfig = senderConfig
+
+	return nil
+}
+
+func (h *Handler) checkConfigChange(ctx context.Context) error {
+
+	var cfg config.Map
+	if e := config.Get("services", servicecontext.GetServiceName(ctx)).Scan(&cfg); e != nil {
+		return e
+	}
+	queueName, _, senderName, senderConfig := h.parseConf(cfg)
+	m1, _ := json.Marshal(senderConfig)
+	m2, _ := json.Marshal(h.senderConfig)
+	if queueName != h.queueName || senderName != h.senderName || string(m1) != string(m2) {
+		log.Logger(ctx).Info("Mailer config has changed - Refresh sender and queue")
+		return h.initFromConf(ctx, cfg)
+	}
+	return nil
 }

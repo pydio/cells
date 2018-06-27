@@ -51,8 +51,8 @@ var StartCmd = &cobra.Command{
 	Short: "Start Cells services",
 	Long: `Start one or more services on this machine
 
-SYNTAX
-======
+### Syntax
+
 $ ` + os.Args[0] + ` start [flags] args...
 
 Additional arguments are regexp that can match any of the service names available (see 'list' command).
@@ -60,8 +60,8 @@ The -t/--tags flag may limit to only a certain category of services, use lowerca
 The -x/--exclude flag may exclude one or more services
 Both flags may be used in conjunction with the regexp arguments.
 
-EXAMPLES
-========
+### Examples
+
 Start only services starting with grpc
 $ ` + os.Args[0] + ` start pydio.grpc
 
@@ -141,7 +141,11 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 
 		// Start services that have not been deregistered via flags and filtering.
 		for _, service := range allServices {
-			go service.Start()
+			if !IsFork && service.RequiresFork() {
+				go service.ForkStart()
+			} else {
+				go service.Start()
+			}
 		}
 
 		wg.Add(1)

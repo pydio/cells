@@ -197,6 +197,7 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 			attWheres = append(attWheres, exprName)
 		} else {
 			exprValue := sql.GetExpressionForString(false, "a.value", q.AttributeValue)
+			attWheres = append(attWheres, exprName)
 			attWheres = append(attWheres, exprValue)
 		}
 		attQ, _, _ := dataset.Where(attWheres...).ToSql()

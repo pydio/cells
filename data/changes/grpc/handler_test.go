@@ -26,12 +26,15 @@ import (
 	"testing"
 
 	// SQLite Driver
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	_ "github.com/mattn/go-sqlite3"
 	. "github.com/smartystreets/goconvey/convey"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
+	service "github.com/pydio/cells/common/service/proto"
 	commonsql "github.com/pydio/cells/common/sql"
 	changessql "github.com/pydio/cells/data/changes"
 )
@@ -91,6 +94,39 @@ func TestBasicEvents(t *testing.T) {
 		err := mockHandler.Search(ctx, req, streamMock)
 		So(err, ShouldBeNil)
 		So(streamMock.counter, ShouldEqual, 1)
+	})
+
+	Convey("Test search for a change", t, func() {
+
+		streamMock := newSearchStreamMock()
+		req := NewSearchRequest(0, "/putchange", false, false)
+
+		err := mockHandler.Search(ctx, req, streamMock)
+		So(err, ShouldBeNil)
+		So(streamMock.counter, ShouldEqual, 1)
+	})
+
+	Convey("Archive changes with an emty query", t, func() {
+
+		req := &service.Query{}
+		resp := &service.StatusResponse{}
+
+		err := mockHandler.Archive(ctx, req, resp)
+		So(err, ShouldNotBeNil)
+	})
+
+	Convey("Archive changes", t, func() {
+
+		query, err := ptypes.MarshalAny(&service.ChangesArchiveQuery{RemainingRows: 0})
+		So(err, ShouldBeNil)
+
+		req := &service.Query{
+			SubQueries: []*any.Any{query},
+		}
+		resp := &service.StatusResponse{}
+
+		err = mockHandler.Archive(ctx, req, resp)
+		So(err, ShouldBeNil)
 	})
 
 	Convey("Test search for a change", t, func() {

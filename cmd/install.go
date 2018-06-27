@@ -55,8 +55,9 @@ const (
 )
 
 var (
-	niBindUrl string
-	niExtUrl  string
+	niBindUrl    string
+	niExtUrl     string
+	niDisableSsl bool
 )
 
 // installCmd represents the install command
@@ -104,13 +105,21 @@ Services will all start automatically after the install process is finished.
 
 		if niBindUrl != "" && niExtUrl != "" {
 
-			internal, _ = url.Parse("https://" + niBindUrl)
-			external, _ = url.Parse("https://" + niExtUrl)
-			config.Set(internal.String(), "defaults", "urlInternal")
-			config.Set(external.String(), "defaults", "url")
-			config.Set(true, "cert", "proxy", "ssl")
-			config.Set(true, "cert", "proxy", "self")
-			config.Save("cli", "Install / Setting SSL flags")
+			if niDisableSsl {
+				internal, _ = url.Parse("http://" + niBindUrl)
+				external, _ = url.Parse("http://" + niExtUrl)
+				config.Set(internal.String(), "defaults", "urlInternal")
+				config.Set(external.String(), "defaults", "url")
+				config.Save("cli", "Install / Non-Interactive / Without SSL")
+			} else {
+				internal, _ = url.Parse("https://" + niBindUrl)
+				external, _ = url.Parse("https://" + niExtUrl)
+				config.Set(internal.String(), "defaults", "urlInternal")
+				config.Set(external.String(), "defaults", "url")
+				config.Set(true, "cert", "proxy", "ssl")
+				config.Set(true, "cert", "proxy", "self")
+				config.Save("cli", "Install / Non-Interactive / With SSL")
+			}
 
 		} else {
 
@@ -292,6 +301,7 @@ func init() {
 	flags := installCmd.PersistentFlags()
 	flags.StringVar(&niBindUrl, "bind", "", "[Non interactive mode] internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
 	flags.StringVar(&niExtUrl, "external", "", "[Non interactive mode] external URL:PORT exposed to outside")
+	flags.BoolVar(&niDisableSsl, "no_ssl", false, "[Non interactive mode] do not enable self signed automatically")
 
 	RootCmd.AddCommand(installCmd)
 }

@@ -62,6 +62,20 @@ func (c *pydioregistry) ListRunningServices() ([]Service, error) {
 	return services, nil
 }
 
+// SetServiceStopped artificially removes a service from the running services list
+// This may be necessary for processes started as forks and crashing unexpectedly
+func (c *pydioregistry) SetServiceStopped(name string) error {
+	c.runningmutex.Lock()
+	defer c.runningmutex.Unlock()
+	for k, v := range c.running {
+		if v.Name == name {
+			c.running = append(c.running[:k], c.running[k+1:]...)
+			break
+		}
+	}
+	return nil
+}
+
 // maintain a list of services currently running for easy discovery
 func (c *pydioregistry) maintainRunningServicesList() {
 

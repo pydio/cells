@@ -59,24 +59,24 @@ var RootCmd = &cobra.Command{
 	Long: `Thank you for using Pydio Cells.
 Comprehensive sync & share solution for your collaborators. Open-source software deployed on-premise or in a private cloud.
 
-INSTALL
-=======
+### Installation
+
 For the very first run, use '` + os.Args[0] + ` install' to load browser-based or command-line based installation wizard. Services
 will start at the end of the installation.
 
-RUN
-===
+### Run
+
 Run '` + os.Args[0] + ` start' to load all services.
 
-LOGS LEVEL
-==========
+### Logs level
+
 By default, logs are outputted in console format at the Info level. You can set the --log flag or set the PYDIO_LOGS_LEVEL environment
 variable to one of the following values:
  - debug, info, error : logs are written in console format with the according level
  - production : logs are written in json format, for usage with a log aggregator tool.
 
-SERVICES DISCOVERY
-==================
+### Services Discovery
+
 Micro services need a registry mechanism to discover each other. By default, Pydio Cells ships with Nats.io and Consul.io implementations.
 You don't need to install any dependency. By default, Cells uses the NATS implementation. You can switch to consul by using
 the flag --registry=consul.

@@ -49,7 +49,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	config.Set([]string{minioConfig.Name}, "services", "pydio.grpc.data.objects", "sources")
 
 	// Store keys
-	sources := []string{conf.Name, "personal", "cells"}
+	sources := []string{conf.Name, "personal", "cellsdata"}
 	config.Set(sources, "services", "pydio.grpc.data.index", "sources")
 	config.Set(sources, "services", "pydio.grpc.data.sync", "sources")
 	storageFolder := filepath.Dir(conf.StorageConfiguration["folder"])
@@ -112,7 +112,7 @@ func addDatasourceLocal(c *install.InstallConfig) (*object.DataSource, error) {
 		return nil, err
 	}
 
-	if err := os.MkdirAll(filepath.Join(folder, "cells"), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(folder, "cellsdata"), 0755); err != nil {
 		return nil, err
 	}
 

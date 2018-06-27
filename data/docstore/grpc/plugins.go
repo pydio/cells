@@ -87,7 +87,7 @@ func defaults() map[string]string {
 
 	return map[string]string{
 		"my-files": "{\"Uuid\":\"my-files\",\"Path\":\"my-files\",\"Type\":\"COLLECTION\",\"MetaStore\":{\"name\":\"my-files\",\"resolution\":\"\\/\\/ Default node used for storing personal users data in separate folders. \\n\\/\\/ Use Ctrl+Space to see the objects available for completion.\\nPath = DataSources.personal + \\\"\\/\\\" + User.Name;\",\"contentType\":\"text\\/javascript\"}}",
-		"cells":    "{\"Uuid\":\"cells\",\"Path\":\"cells\",\"Type\":\"COLLECTION\",\"MetaStore\":{\"name\":\"cells\",\"resolution\":\"\\/\\/ Default node used as parent for creating empty cells. \\n\\/\\/ Use Ctrl+Space to see the objects available for completion.\\nPath = DataSources.cells + \\\"\\/\\\" + User.Name;\",\"contentType\":\"text\\/javascript\"}}",
+		"cells":    "{\"Uuid\":\"cells\",\"Path\":\"cells\",\"Type\":\"COLLECTION\",\"MetaStore\":{\"name\":\"cells\",\"resolution\":\"\\/\\/ Default node used as parent for creating empty cells. \\n\\/\\/ Use Ctrl+Space to see the objects available for completion.\\nPath = DataSources.cellsdata + \\\"\\/\\\" + User.Name;\",\"contentType\":\"text\\/javascript\"}}",
 	}
 
 }

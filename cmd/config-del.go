@@ -38,14 +38,14 @@ var delCmd = &cobra.Command{
 	Short: "Delete a configuration item",
 	Long: `Deletes a configuration item. It will be removed both from the pydio.json file and from the database.
 
-SYNTAX
-======
+### Syntax
+
 Configurations are represented by two parameters that you must pass as arguments :
 - serviceName: name of the corresponding service
 - configName: name of the parameter you want to delete
 
-EXAMPLES
-========
+### Examples
+
 Delete the port entry for the micro.web service (rest api)
 $ ` + os.Args[0] + ` config delete micro.web port
 

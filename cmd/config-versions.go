@@ -48,7 +48,13 @@ var (
 var versionsListCmd = &cobra.Command{
 	Use:   "versions",
 	Short: "List all configurations versions",
-	Long:  `Display the various versions of configuration`,
+	Long: `
+This command allows to manage configurations changes history and eventually
+revert to a given version.
+
+A version is created at each call to config.Save() inside the application, along with a log message
+and the user originating this call.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var store file.VersionsStore

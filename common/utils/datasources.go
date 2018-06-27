@@ -28,6 +28,9 @@ import (
 
 	"github.com/dchest/uniuri"
 
+	"os"
+
+	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/object"
@@ -115,6 +118,28 @@ func UnusedMinioServers(minios map[string]*object.MinioConfig, sources map[strin
 		}
 	}
 	return ""
+}
+
+func ValidateDataSourceConfig(newSource *object.DataSource) error {
+	if newSource.StorageType == object.StorageType_LOCAL {
+		folder := newSource.StorageConfiguration["folder"]
+		_, e := os.Stat(folder)
+		if e != nil && os.IsNotExist(e) {
+			return e
+		}
+		parentName := filepath.Dir(folder)
+		if strings.Trim(parentName, "/") == "" {
+			return fmt.Errorf("Please use at least a two-levels deep folder")
+		}
+		// Try to write a tmp file and remove it
+		touch := filepath.Join(parentName, uuid.New())
+		if _, e := os.OpenFile(touch, os.O_RDONLY|os.O_CREATE, 0666); e != nil {
+			return fmt.Errorf("Please make sure that parent folder is writeable by the application")
+		} else {
+			os.Remove(touch)
+		}
+	}
+	return nil
 }
 
 // FactorizeMinioServers tries to find exisiting MinioConfig that can be directly reused by the new source, or creates a new one
