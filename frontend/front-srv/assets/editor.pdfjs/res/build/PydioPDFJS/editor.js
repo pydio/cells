@@ -36,6 +36,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -64,6 +68,8 @@ var Viewer = (function (_Component) {
     }, {
         key: 'loadNode',
         value: function loadNode(props) {
+            var _this = this;
+
             var pydio = props.pydio;
             var node = props.node;
 
@@ -82,18 +88,17 @@ var Viewer = (function (_Component) {
             } else {
                 // Get the URL for current workspace path.
                 url = document.location.href.split('#').shift().split('?').shift();
-                if (url[url.length - 1] == '/') {
+                if (url[url.length - 1] === '/') {
                     url = url.substr(0, url.length - 1);
                 } else if (url.lastIndexOf('/') > -1) {
                     url = url.substr(0, url.lastIndexOf('/'));
                 }
             }
 
-            // Get the direct PDF file link valid for this session.
-            var pdfurl = encodeURIComponent(LangUtils.trimRight(url, '\/') + '/' + pydio.Parameters.get('ajxpServerAccess') + '&action=get_content&file=base64encoded:' + HasherUtils.base64_encode(node.getPath()) + '&fake_file_name=' + encodeURIComponent(PathUtils.getBasename(node.getPath())));
-
-            this.setState({
-                url: 'plug/editor.pdfjs/pdfjs/web/viewer.html?file=' + pdfurl
+            _pydioHttpApi2['default'].getClient().buildPresignedGetUrl(node).then(function (pdfurl) {
+                _this.setState({
+                    url: 'plug/editor.pdfjs/pdfjs/web/viewer.html?file=' + encodeURIComponent(pdfurl)
+                });
             });
         }
     }, {

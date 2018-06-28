@@ -83,12 +83,8 @@ var Editor = (function (_React$Component) {
             var dispatch = _props2.dispatch;
             var id = tab.id;
 
-            pydio.ApiClient.request({
-                get_action: 'get_content',
-                file: node.getPath()
-            }, function (_ref) {
-                var responseText = _ref.responseText;
-                return dispatch(EditorActions.tabModify({ id: id || node.getLabel(), lineNumbers: true, content: responseText }));
+            pydio.ApiClient.getPlainContent(node, function (content) {
+                dispatch(EditorActions.tabModify({ id: id || node.getLabel(), lineNumbers: true, content: content }));
             });
         }
     }, {
@@ -133,9 +129,9 @@ var Editor = (function (_React$Component) {
 var mapStateToProps = function mapStateToProps(state, props) {
     var tabs = state.tabs;
 
-    var tab = tabs.filter(function (_ref2) {
-        var editorData = _ref2.editorData;
-        var node = _ref2.node;
+    var tab = tabs.filter(function (_ref) {
+        var editorData = _ref.editorData;
+        var node = _ref.node;
         return (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath();
     })[0] || {};
 

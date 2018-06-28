@@ -2421,6 +2421,60 @@
         ]
       }
     },
+    "/tree/create": {
+      "post": {
+        "summary": "Create dirs or empty files inside the tree",
+        "operationId": "CreateNodes",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restNodesCollection"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restCreateNodesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TreeService"
+        ]
+      }
+    },
+    "/tree/stats": {
+      "post": {
+        "summary": "List meta for a list of nodes, or a full directory using /path/* syntax",
+        "operationId": "BulkStatNodes",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restBulkMetaResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restGetBulkMetaRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TreeService"
+        ]
+      }
+    },
     "/update": {
       "get": {
         "summary": "Check the remote server to see if there are available binaries",
@@ -5631,6 +5685,21 @@
         },
         "Command": {
           "$ref": "#/definitions/ctlServiceCommand"
+        }
+      }
+    },
+    "restCreateNodesRequest": {
+      "type": "object",
+      "properties": {
+        "Nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/treeNode"
+          }
+        },
+        "Recursive": {
+          "type": "boolean",
+          "format": "boolean"
         }
       }
     },

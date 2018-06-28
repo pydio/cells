@@ -23,12 +23,19 @@ package rest
 
 import (
 	"github.com/emicklei/go-restful"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/views"
+	rest_meta "github.com/pydio/cells/data/meta/rest"
+	"go.uber.org/zap"
+	"gopkg.in/h2non/gentleman.v1/utils"
 )
 
-type Handler struct{}
+type Handler struct {
+	rest_meta.Handler
+}
 
 var (
 	providerClient tree.NodeProviderClient
@@ -43,12 +50,53 @@ func getClient() tree.NodeProviderClient {
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
 func (a *Handler) SwaggerTags() []string {
-	return []string{"AdminTreeService"}
+	return []string{"TreeService", "AdminTreeService"}
 }
 
 // Filter returns a function to filter the swagger path
 func (a *Handler) Filter() func(string) string {
 	return nil
+}
+
+func (h *Handler) BulkStatNodes(req *restful.Request, resp *restful.Response) {
+
+	// This is exactly the same a MetaService => BulkStatNodes
+	h.GetBulkMeta(req, resp)
+
+}
+
+func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
+
+	var input rest.CreateNodesRequest
+	if e := req.ReadEntity(&input); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	ctx := req.Request.Context()
+	output := &rest.NodesCollection{}
+
+	log.Logger(ctx).Info("Got CreateNodes Request", zap.Any("r", input))
+	router := h.GetRouter()
+	for _, n := range input.Nodes {
+		if !n.IsLeaf() {
+			r, e := router.CreateNode(ctx, &tree.CreateNodeRequest{Node: n})
+			if e != nil {
+				service.RestError500(req, resp, e)
+				return
+			}
+			output.Children = append(output.Children, r.Node)
+		} else {
+			_, e := router.PutObject(ctx, n, utils.StringReader(" "), &views.PutRequestData{Size: 1})
+			if e != nil {
+				service.RestError500(req, resp, e)
+				return
+			}
+			output.Children = append(output.Children, n)
+		}
+	}
+
+	resp.WriteEntity(output)
+
 }
 
 func (h *Handler) ListAdminTree(req *restful.Request, resp *restful.Response) {

@@ -131,6 +131,7 @@ import RestChangeCollection from './model/RestChangeCollection';
 import RestChangeRequest from './model/RestChangeRequest';
 import RestConfiguration from './model/RestConfiguration';
 import RestControlServiceRequest from './model/RestControlServiceRequest';
+import RestCreateNodesRequest from './model/RestCreateNodesRequest';
 import RestDataSourceCollection from './model/RestDataSourceCollection';
 import RestDeleteCellResponse from './model/RestDeleteCellResponse';
 import RestDeleteDataSourceResponse from './model/RestDeleteDataSourceResponse';
@@ -247,6 +248,7 @@ import RoleServiceApi from './api/RoleServiceApi';
 import SearchServiceApi from './api/SearchServiceApi';
 import ShareServiceApi from './api/ShareServiceApi';
 import TokenServiceApi from './api/TokenServiceApi';
+import TreeServiceApi from './api/TreeServiceApi';
 import UpdateServiceApi from './api/UpdateServiceApi';
 import UserMetaServiceApi from './api/UserMetaServiceApi';
 import UserServiceApi from './api/UserServiceApi';
@@ -1000,6 +1002,12 @@ export {
     RestControlServiceRequest,
 
     /**
+     * The RestCreateNodesRequest model constructor.
+     * @property {module:model/RestCreateNodesRequest}
+     */
+    RestCreateNodesRequest,
+
+    /**
      * The RestDataSourceCollection model constructor.
      * @property {module:model/RestDataSourceCollection}
      */
@@ -1694,6 +1702,12 @@ export {
     * @property {module:api/TokenServiceApi}
     */
     TokenServiceApi,
+
+    /**
+    * The TreeServiceApi service constructor.
+    * @property {module:api/TreeServiceApi}
+    */
+    TreeServiceApi,
 
     /**
     * The UpdateServiceApi service constructor.

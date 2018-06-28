@@ -292,17 +292,56 @@ class PydioApi{
 
     }
 
-    postPlainTextContent(filePath, content, finishedCallback){
+    getPlainContent(node, contentCallback) {
+        PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+            const url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+            const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
 
-        this.request({
-            get_action:'put_content',
-            file: filePath,
-            content: content
-        }, function(transport){
-            const success = this.parseXmlMessage(transport.responseXML);
-            finishedCallback(success);
-        }.bind(this), function(){
-            finishedCallback(false);
+            AWS.config.update({
+                accessKeyId: jwt,
+                secretAccessKey: 'gatewaysecret'
+            });
+            const params = {
+                Bucket: "io",
+                Key: slug + node.getPath(),
+                ResponseContentType: 'text/plain'
+            };
+            const s3 = new AWS.S3({endpoint:url.replace('/io', '')});
+            s3.getObject(params, (err,data) => {
+                if (!err) {
+                    contentCallback(data.Body.toString('utf-8'));
+                } else {
+                    this.getPydioObject().UI.displayMessage('ERROR', err.message);
+                }
+            })
+        });
+
+    }
+
+    postPlainTextContent(nodePath, content, finishedCallback){
+
+        PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+            const url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+            const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
+
+            AWS.config.update({
+                accessKeyId: jwt,
+                secretAccessKey: 'gatewaysecret'
+            });
+            const params = {
+                Bucket: "io",
+                Key: slug + nodePath,
+                Body: content,
+            };
+            const s3 = new AWS.S3({endpoint:url.replace('/io', '')});
+            s3.putObject(params, (err) => {
+                if (!err) {
+                    finishedCallback('Ok');
+                }  else {
+                    this.getPydioObject().UI.displayMessage('ERROR', err.message);
+                    finishedCallback(false);
+                }
+            })
         });
 
 

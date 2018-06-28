@@ -511,6 +511,26 @@ service SearchService {
     }
 }
 
+// Tree service is used to browse the tree and create non-files resources
+service TreeService {
+    // List meta for a list of nodes, or a full directory using /path/* syntax
+    rpc BulkStatNodes(GetBulkMetaRequest) returns (BulkMetaResponse) {
+        option (google.api.http) = {
+            post: "/tree/stats"
+            body: "*"
+        };
+    }
+    // Create dirs or empty files inside the tree
+    rpc CreateNodes(CreateNodesRequest) returns (NodesCollection) {
+        option (google.api.http) = {
+            post: "/tree/create"
+            body: "*"
+        };
+    }
+
+}
+
+
 // Direct access to nodes metadata
 service MetaService {
     // Load metadata for a given node

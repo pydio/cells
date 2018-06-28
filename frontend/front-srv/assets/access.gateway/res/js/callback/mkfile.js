@@ -18,14 +18,25 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import PydioApi from "pydio/http/api";
+import LangUtils from 'pydio/util/lang';
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from "pydio/http/rest-api";
+
+
 export default function(pydio){
 
     return function(){
-        let submit = function(value){
-            PydioApi.getClient().request({
-                get_action:'mkfile',
-                dir: pydio.getContextNode().getPath(),
-                filename:value
+        let submit = value => {
+            const api = new TreeServiceApi(PydioApi.getRestClient());
+            const request = new RestCreateNodesRequest();
+            const slug = pydio.user.getActiveRepositoryObject().getSlug();
+            const path = slug + LangUtils.trimRight(pydio.getContextNode().getPath(), '/') + '/' + value;
+            const node = new TreeNode();
+            node.Path = path;
+            node.Type = TreeNodeType.constructFromObject('LEAF');
+            request.Nodes = [node];
+            api.createNodes(request).then(collection => {
+                console.log('Create files', collection.Children);
             });
         };
         pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {

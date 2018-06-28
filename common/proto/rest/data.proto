@@ -36,6 +36,12 @@ message BulkMetaResponse{
     repeated tree.Node Nodes = 1;
 }
 
+message CreateNodesRequest {
+    repeated tree.Node Nodes = 1;
+    bool Recursive = 2;
+}
+
+
 message SetBulkMetaRequest{
     repeated MetaCollection Metas = 1;
 }

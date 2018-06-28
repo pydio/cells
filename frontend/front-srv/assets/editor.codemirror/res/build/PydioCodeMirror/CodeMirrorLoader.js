@@ -48,7 +48,7 @@ var define = window.define;
 var require = window.require;
 
 _systemjs2['default'].config({
-    baseURL: 'plugins/editor.codemirror/res/build',
+    baseURL: 'plug/editor.codemirror/res/build',
     packages: {
         'codemirror': {},
         '.': {}

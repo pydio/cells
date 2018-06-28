@@ -19,7 +19,7 @@
  */
 
 
-
+import PydioApi from 'pydio/http/api'
 import React, {Component} from 'react'
 
 class Viewer extends Component {
@@ -51,21 +51,17 @@ class Viewer extends Component {
         } else {
             // Get the URL for current workspace path.
             url = document.location.href.split('#').shift().split('?').shift();
-            if(url[(url.length-1)] == '/'){
+            if(url[(url.length-1)] === '/'){
                 url = url.substr(0, url.length-1);
             }else if(url.lastIndexOf('/') > -1){
                 url = url.substr(0, url.lastIndexOf('/'));
             }
         }
 
-        // Get the direct PDF file link valid for this session.
-        const pdfurl = encodeURIComponent(LangUtils.trimRight(url, '\/')
-            + '/' + pydio.Parameters.get('ajxpServerAccess')
-            + '&action=get_content&file=base64encoded:' + HasherUtils.base64_encode(node.getPath())
-            + '&fake_file_name=' + encodeURIComponent(PathUtils.getBasename(node.getPath())));
-
-        this.setState({
-            url: 'plug/editor.pdfjs/pdfjs/web/viewer.html?file=' + pdfurl
+        PydioApi.getClient().buildPresignedGetUrl(node).then(pdfurl => {
+            this.setState({
+                url: 'plug/editor.pdfjs/pdfjs/web/viewer.html?file=' + encodeURIComponent(pdfurl)
+            })
         })
 
     }

@@ -18,21 +18,39 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-exports['default'] = function (pydio) {
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _pydioHttpApi = require("pydio/http/api");
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _pydioHttpRestApi = require("pydio/http/rest-api");
+
+exports["default"] = function (pydio) {
 
     return function () {
 
         var submit = function submit(value) {
-            PydioApi.getClient().request({
-                get_action: 'mkdir',
-                dir: pydio.getContextNode().getPath(),
-                dirname: value
+            var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2["default"].getRestClient());
+            var request = new _pydioHttpRestApi.RestCreateNodesRequest();
+            var slug = pydio.user.getActiveRepositoryObject().getSlug();
+            var path = slug + _pydioUtilLang2["default"].trimRight(pydio.getContextNode().getPath(), '/') + '/' + value;
+            var node = new _pydioHttpRestApi.TreeNode();
+            node.Path = path;
+            node.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('COLLECTION');
+            request.Nodes = [node];
+            api.createNodes(request).then(function (collection) {
+                console.log('Created nodes', collection.Children);
             });
         };
         pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
@@ -45,4 +63,4 @@ exports['default'] = function (pydio) {
     };
 };
 
-module.exports = exports['default'];
+module.exports = exports["default"];

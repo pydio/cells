@@ -59,7 +59,7 @@ class Editor extends React.Component {
 
     static get config() {
         return {
-            basePath: `${DOMUtils.getUrlFromBase()}plugins/editor.ckeditor/res/build/ckeditor/`,
+            basePath: `${DOMUtils.getUrlFromBase()}plug/editor.ckeditor/res/build/ckeditor/`,
             desktop : {
                 ...Editor.base,
     			toolbar_Ajxp : [
@@ -94,10 +94,9 @@ class Editor extends React.Component {
 
         const {id} = tab
 
-        pydio.ApiClient.request({
-            get_action: 'get_content',
-            file: node.getPath()
-        }, ({responseText}) => dispatch(EditorActions.tabModify({id, content: responseText})))
+        pydio.ApiClient.getPlainContent(node, responseText => {
+            dispatch(EditorActions.tabModify({id, content: responseText}))
+        })
     }
 
     render() {

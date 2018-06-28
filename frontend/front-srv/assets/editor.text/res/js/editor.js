@@ -51,14 +51,12 @@ class Editor extends Component {
 
     loadNode(props) {
         const {pydio, node, tab, dispatch} = this.props
-        const {id, content} = tab
+        const {id} = tab
 
-        pydio.ApiClient.request({
-            get_action: 'get_content',
-            file: node.getPath(),
-        }, ({responseText}) => {
-            dispatch(EditorActions.tabModify({id, content: responseText}))
+        pydio.ApiClient.getPlainContent(node, (content) => {
+            dispatch(EditorActions.tabModify({id, content: content}))
         });
+
     }
 
     render() {

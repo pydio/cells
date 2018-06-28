@@ -50,6 +50,7 @@ It has these top-level messages:
 	MetaNamespaceRequest
 	GetBulkMetaRequest
 	BulkMetaResponse
+	CreateNodesRequest
 	SetBulkMetaRequest
 	DeleteBulkMetaRequest
 	NodesCollection

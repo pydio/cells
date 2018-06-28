@@ -28,8 +28,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var React = require('react');
 var PydioDataModel = require('pydio/model/data-model');
-var AjxpNode = require('pydio/model/node');
-var RemoteNodeProvider = require('pydio/model/remote-node-provider');
 
 var _require = require('material-ui');
 

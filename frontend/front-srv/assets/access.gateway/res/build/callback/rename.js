@@ -18,19 +18,24 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
-var PydioApi = require('pydio/http/api');
 
-exports['default'] = function (pydio) {
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _pydioHttpApi = require("pydio/http/api");
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+exports["default"] = function (pydio) {
 
     return function () {
         var _callback = function _callback(node, newValue) {
             if (!node) node = pydio.getUserSelection().getUniqueNode();
-            PydioApi.getClient().request({
+            _pydioHttpApi2["default"].getClient().request({
                 get_action: 'rename',
                 file: node.getPath(),
                 filename_new: newValue
@@ -50,4 +55,4 @@ exports['default'] = function (pydio) {
     };
 };
 
-module.exports = exports['default'];
+module.exports = exports["default"];

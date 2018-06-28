@@ -83,10 +83,7 @@ var Editor = (function (_Component) {
 
             var alwaysOpenLinksInBrowser = configs.get('OPEN_LINK_IN_TAB') === 'browser';
 
-            PydioApi.getClient().request({
-                get_action: 'get_content',
-                file: node.getPath()
-            }, function (_ref) {
+            PydioApi.getClient().getPlainContent(node, function (_ref) {
                 var url = _ref.responseText;
 
                 if (url.indexOf('URL=') !== -1) {

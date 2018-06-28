@@ -296,6 +296,9 @@ func (u *User) publishWorkspaces(status RequestStatus, pool *PluginsPool) (works
 			repo.Attruser_editable_repository = "true"
 		}
 		repo.Attracl = ws.AccessRight
+		if ws.AccessType == "gateway" && strings.Contains(ws.AccessRight, "w") {
+			repo.AttrallowCrossRepositoryCopy = "true"
+		}
 		workspaceNodes = append(workspaceNodes, repo)
 	}
 

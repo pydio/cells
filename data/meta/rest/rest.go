@@ -144,7 +144,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 	defer closer()
 
 	for _, folderNode := range folderNodes {
-		streamer, err := h.getRouter().ListNodes(ctx, &tree.ListNodesRequest{Node: folderNode, WithVersions: bulkRequest.Versions})
+		streamer, err := h.GetRouter().ListNodes(ctx, &tree.ListNodesRequest{Node: folderNode, WithVersions: bulkRequest.Versions})
 		if err != nil {
 			continue
 		}
@@ -167,8 +167,8 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		if !bulkRequest.Versions {
 			fNode := folderNode.Clone()
 
-			if resp, e := h.getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: fNode}); e == nil {
-				er := h.getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+			if resp, e := h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: fNode}); e == nil {
+				er := h.GetRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 					c, n, e := inputFilter(ctx, resp.Node, "in")
 					if e != nil {
 						return e
@@ -215,7 +215,7 @@ func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 		}
 	}
 	ctx := req.Request.Context()
-	er := h.getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+	er := h.GetRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
 		cli := tree.NewNodeReceiverClient(registry.GetClient(common.SERVICE_META))
@@ -253,7 +253,7 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 	}
 
 	ctx := req.Request.Context()
-	er := h.getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+	er := h.GetRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 		ctx, node, _ = inputFilter(ctx, node, "in")
 
 		cli := tree.NewNodeReceiverClient(registry.GetClient(common.SERVICE_META))
@@ -338,7 +338,7 @@ func (h *Handler) GetMetaProviderStreamers() []tree.NodeProviderStreamerClient {
 
 }
 
-func (h *Handler) getRouter() *views.Router {
+func (h *Handler) GetRouter() *views.Router {
 	if h.router == nil {
 		h.router = views.NewStandardRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})
 	}
@@ -361,7 +361,7 @@ func (h *Handler) loadNodeByUuidOrPath(ctx context.Context, nodePath string, nod
 		})
 	} else {
 		log.Logger(ctx).Debug("Querying Tree Service by Path: ", zap.String("p", nodePath))
-		response, err = h.getRouter().ReadNode(ctx, &tree.ReadNodeRequest{
+		response, err = h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{
 			Node: &tree.Node{
 				Path: nodePath,
 			},

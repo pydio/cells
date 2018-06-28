@@ -40,14 +40,13 @@ class Editor extends React.Component {
     }
 
     componentDidMount() {
-        const {pydio, node, tab, dispatch} = this.props
+        const {pydio, node, tab, dispatch} = this.props;
+        const {id} = tab;
 
-        const {id} = tab
+        pydio.ApiClient.getPlainContent(node, (content) => {
+            dispatch(EditorActions.tabModify({id: id || node.getLabel(), lineNumbers: true, content: content}));
+        });
 
-        pydio.ApiClient.request({
-            get_action: 'get_content',
-            file: node.getPath()
-        }, ({responseText}) => dispatch(EditorActions.tabModify({id: id || node.getLabel(), lineNumbers: true, content: responseText})));
     }
 
     render() {

@@ -82,15 +82,9 @@ var Editor = (function (_Component) {
             var tab = _props.tab;
             var dispatch = _props.dispatch;
             var id = tab.id;
-            var content = tab.content;
 
-            pydio.ApiClient.request({
-                get_action: 'get_content',
-                file: node.getPath()
-            }, function (_ref) {
-                var responseText = _ref.responseText;
-
-                dispatch(EditorActions.tabModify({ id: id, content: responseText }));
+            pydio.ApiClient.getPlainContent(node, function (content) {
+                dispatch(EditorActions.tabModify({ id: id, content: content }));
             });
         }
     }, {
@@ -104,8 +98,8 @@ var Editor = (function (_Component) {
 
             return _react2['default'].createElement('textarea', {
                 style: Editor.styles.textarea,
-                onChange: function (_ref2) {
-                    var target = _ref2.target;
+                onChange: function (_ref) {
+                    var target = _ref.target;
                     return dispatch(EditorActions.tabModify({ id: id, content: target.value }));
                 },
                 value: content
@@ -137,9 +131,9 @@ var withControls = _PydioHOCs.withControls;
 var mapStateToProps = function mapStateToProps(state, props) {
     var tabs = state.tabs;
 
-    var tab = tabs.filter(function (_ref3) {
-        var editorData = _ref3.editorData;
-        var node = _ref3.node;
+    var tab = tabs.filter(function (_ref2) {
+        var editorData = _ref2.editorData;
+        var node = _ref2.node;
         return (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath();
     })[0] || {};
 

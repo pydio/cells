@@ -75,12 +75,8 @@ var Editor = (function (_React$Component) {
             var dispatch = _props.dispatch;
             var id = tab.id;
 
-            pydio.ApiClient.request({
-                get_action: 'get_content',
-                file: node.getPath()
-            }, function (_ref) {
-                var responseText = _ref.responseText;
-                return dispatch(EditorActions.tabModify({ id: id, content: responseText }));
+            pydio.ApiClient.getPlainContent(node, function (responseText) {
+                dispatch(EditorActions.tabModify({ id: id, content: responseText }));
             });
         }
     }, {
@@ -143,7 +139,7 @@ var Editor = (function (_React$Component) {
         key: 'config',
         get: function get() {
             return {
-                basePath: DOMUtils.getUrlFromBase() + 'plugins/editor.ckeditor/res/build/ckeditor/',
+                basePath: DOMUtils.getUrlFromBase() + 'plug/editor.ckeditor/res/build/ckeditor/',
                 desktop: _extends({}, Editor.base, {
                     toolbar_Ajxp: [['Source', 'Preview', 'Templates'], ['Undo', 'Redo', '-', 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Print', 'SpellChecker', 'Scayt'], ['Find', 'Replace', '-', 'SelectAll', 'RemoveFormat'], ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField'], '/', ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript', 'Superscript'], ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', 'Blockquote'], ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'], ['Link', 'Unlink', 'Anchor'], ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak'], '/', ['Styles', 'Format', 'Font', 'FontSize'], ['TextColor', 'BGColor'], ['Maximize', 'ShowBlocks', '-', 'About']]
                 }),
@@ -163,9 +159,9 @@ CKEDITOR.contentsCss = Editor.config.basePath + '../../res/css/ckeditor.css';
 var mapStateToProps = function mapStateToProps(state, props) {
     var tabs = state.tabs;
 
-    var tab = tabs.filter(function (_ref2) {
-        var editorData = _ref2.editorData;
-        var node = _ref2.node;
+    var tab = tabs.filter(function (_ref) {
+        var editorData = _ref.editorData;
+        var node = _ref.node;
         return (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath();
     })[0] || {};
 
