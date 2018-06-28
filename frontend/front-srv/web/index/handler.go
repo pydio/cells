@@ -39,7 +39,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	tplConf := &TplConf{
 		ApplicationTitle: "Pydio",
 		Rebase:           url,
-		ResourcesFolder:  "plugins/gui.ajax/res",
+		ResourcesFolder:  "plug/gui.ajax/res",
 		Theme:            "material",
 		Version:          "1.0.0",
 		Debug:            true,
