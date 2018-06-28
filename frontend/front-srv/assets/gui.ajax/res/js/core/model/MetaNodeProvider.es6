@@ -111,12 +111,14 @@ export default class MetaNodeProvider{
                 node.replaceBy(origNode);
             }
             childrenNodes.map(child => {
+                if(this.properties.has("versions")){
+                    child._path = child.getMetadata().get('versionId');
+                }
                 node.addChild(child);
             });
             if(nodeCallback !== null){
                 nodeCallback(node);
             }
-            //console.log("Bulk Meta Request Result", origNode, childrenNodes);
         }).catch(e => {
             console.log(e);
         });

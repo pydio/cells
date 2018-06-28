@@ -344,6 +344,54 @@ class PydioApi{
             })
         });
 
+    }
+
+    openVersion(node, versionId){
+
+        const pydio = this.getPydioObject();
+        const agent = navigator.userAgent || '';
+        const agentIsMobile = (agent.indexOf('iPhone')!=-1||agent.indexOf('iPod')!=-1||agent.indexOf('iPad')!=-1||agent.indexOf('iOs')!=-1);
+        const hiddenForm = pydio && pydio.UI && pydio.UI.hasHiddenDownloadForm();
+        const slug = pydio.user.getActiveRepositoryObject().getSlug();
+
+        this.buildPresignedGetUrl(node, (url) => {
+            if(agentIsMobile || !hiddenForm){
+                document.location.href = url;
+            } else {
+                pydio.UI.sendDownloadToHiddenForm(null, {presignedUrl: url});
+            }
+        }, '', {
+            Bucket: 'io',
+            Key: slug + node.getPath(),
+            VersionId: versionId
+        });
+
+    }
+
+
+    revertToVersion(node, versionId, callback){
+        PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+            const url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+            const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
+
+            AWS.config.update({
+                accessKeyId: jwt,
+                secretAccessKey: 'gatewaysecret'
+            });
+            const params = {
+                Bucket: "io",
+                Key: slug + node.getPath(),
+                CopySource:encodeURIComponent('io/' + slug + node.getPath() + '?versionId=' + versionId)
+            };
+            const s3 = new AWS.S3({endpoint:url.replace('/io', '')});
+            s3.copyObject(params, (err) => {
+                if (err) {
+                    this.getPydioObject().UI.displayMessage('ERROR', err.message);
+                } else if (callback) {
+                    callback('Copy version to original node');
+                }
+            })
+        });
 
     }
 

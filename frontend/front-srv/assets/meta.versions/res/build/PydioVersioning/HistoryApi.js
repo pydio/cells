@@ -55,9 +55,7 @@ var HistoryApi = (function () {
         key: 'openVersion',
         value: function openVersion(versionNode) {
 
-            var selection = new PydioDataModel(true);
-            selection.setSelectedNodes([this.node]);
-            PydioApi.getClient().downloadSelection(selection, 'download_version', { versionId: versionNode.getMetadata().get('versionId') });
+            PydioApi.getClient().openVersion(this.node, versionNode.getMetadata().get('versionId'));
         }
     }, {
         key: 'revertToVersion',
@@ -67,16 +65,7 @@ var HistoryApi = (function () {
             if (!confirm(pydio.MessageHash["meta.versions.13"])) {
                 return;
             }
-            PydioApi.getClient().request({
-                get_action: 'restore_version',
-                file: this.node.getPath(),
-                versionId: versionNode.getMetadata().get('versionId')
-            }, function (transport) {
-                // Transport responseJson should return {success: true}
-                if (callback) {
-                    callback(transport);
-                }
-            });
+            PydioApi.getClient().revertToVersion(this.node, versionNode.getMetadata().get('versionId'), callback);
         }
     }]);
 
