@@ -21,6 +21,6 @@ go run cmd/main.go
 
 echo "Generating Javascript client"
 
-swagger-codegen generate -i $GOPATH/src/github.com/pydio/cells/common/proto/rest/rest.swagger.json -l javascript -c jsclient.json -o /tmp/js-client
+swagger-codegen generate -i $GOPATH/src/github.com/pydio/cells/common/proto/rest/rest.swagger.json -l javascript -c swagger-jsclient.json -o /tmp/js-client
 rm -rf $GOPATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen
 mv /tmp/js-client/src $GOPATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen
