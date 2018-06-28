@@ -143,6 +143,8 @@ import RestDocstoreCollection from './model/RestDocstoreCollection';
 import RestExternalDirectoryCollection from './model/RestExternalDirectoryCollection';
 import RestExternalDirectoryConfig from './model/RestExternalDirectoryConfig';
 import RestExternalDirectoryResponse from './model/RestExternalDirectoryResponse';
+import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
+import RestFrontBinaryType from './model/RestFrontBinaryType';
 import RestFrontBootConfResponse from './model/RestFrontBootConfResponse';
 import RestFrontLogMessage from './model/RestFrontLogMessage';
 import RestFrontLogResponse from './model/RestFrontLogResponse';
@@ -1072,6 +1074,18 @@ export {
      * @property {module:model/RestExternalDirectoryResponse}
      */
     RestExternalDirectoryResponse,
+
+    /**
+     * The RestFrontBinaryResponse model constructor.
+     * @property {module:model/RestFrontBinaryResponse}
+     */
+    RestFrontBinaryResponse,
+
+    /**
+     * The RestFrontBinaryType model constructor.
+     * @property {module:model/RestFrontBinaryType}
+     */
+    RestFrontBinaryType,
 
     /**
      * The RestFrontBootConfResponse model constructor.

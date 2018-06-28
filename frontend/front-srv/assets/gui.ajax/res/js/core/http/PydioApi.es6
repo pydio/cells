@@ -21,6 +21,7 @@ import XMLUtils from '../util/XMLUtils'
 import LangUtils from '../util/LangUtils'
 import RestClient from './RestClient'
 import AWS from 'aws-sdk'
+import IdmUser from "./gen/model/IdmUser";
 
 /**
  * API Client
@@ -439,7 +440,7 @@ class PydioApi{
      * @param aSync Boolean load library asynchroneously
      */
     static loadLibrary(fileName, onLoadedCode, aSync){
-        if(window.pydio && pydio.Parameters.get("ajxpVersion") && fileName.indexOf("?")==-1){
+        if(window.pydio && pydio.Parameters.get("ajxpVersion") && fileName.indexOf("?")===-1){
             fileName += "?v="+ pydio.Parameters.get("ajxpVersion");
         }
         PydioApi._libUrl = false;
@@ -457,14 +458,6 @@ class PydioApi{
 
     }
 
-    switchRepository(repositoryId, completeCallback){
-        const params = {
-            get_action: 'switch_repository',
-            repository_id:repositoryId
-        };
-        this.request(params, completeCallback);
-    }
-
     switchLanguage(lang, completeCallback){
 
         let url = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/messages/' + lang;
@@ -476,52 +469,6 @@ class PydioApi{
                 completeCallback(data);
             });
         });
-
-    }
-
-    loadXmlRegistry(completeCallback, xPath=null){
-        let params = {get_action:'get_xml_registry'};
-        if(xPath) params[xPath] = xPath;
-        this.request(params, completeCallback);
-    }
-
-    getBootConf(completeCallback){
-        const params = {get_action:'get_boot_conf'};
-        const cB = function(transport){
-            if(transport.responseJSON && transport.responseJSON.SECURE_TOKEN){
-                this._pydioObject.Parameters.set('SECURE_TOKEN', transport.responseJSON.SECURE_TOKEN);
-                Connexion.updateServerAccess(this._pydioObject.Parameters)
-            }
-            if(completeCallback) {
-                completeCallback(transport);
-            }
-        }.bind(this);
-        this.request(params, cB);
-    }
-
-    userSavePreference(prefName, prefValue){
-        this.request({get_action:"save_user_pref", "pref_name_0":prefName, "pref_value_0":prefValue}, null, null, {discrete:true, method:'post'});
-    }
-
-    userSavePreferences(preferences, completeCallback){
-        let params = {'get_action':'save_user_pref'};
-        let i=0;
-        preferences.forEach(function(value, key){
-            params["pref_name_"+i] = key;
-            params["pref_value_"+i] = value;
-            i++;
-        });
-        this.request(params, completeCallback, null, {discrete:true, method:'post'});
-    }
-
-    userSavePassword(oldPass, newPass, seed, completeCallback){
-        this.request({
-            get_action:'save_user_pref',
-            pref_name_0:"password",
-            pref_value_0:newPass,
-            crt:oldPass,
-            pass_seed:seed
-        }, completeCallback, null, {discrete:true, method:'post'});
 
     }
 
@@ -743,14 +690,6 @@ class PydioApi{
         }
         this.request(params, callback);
 
-    }
-
-    /**
-     * Trigger a simple download
-     * @param url String
-     */
-    static triggerDownload(url){
-        document.location.href = url;
     }
 
     static storeRememberData(){

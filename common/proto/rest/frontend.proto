@@ -84,3 +84,15 @@ message FrontSessionResponse{
     string JWT = 1;
     int32 ExpireTime = 2;
 }
+
+enum FrontBinaryType {
+    USER = 0;
+    GLOBAL = 1;
+}
+
+message FrontBinaryRequest {
+    FrontBinaryType BinaryType = 1;
+    string Uuid = 2;
+}
+// Not used, endpoint returns octet-stream
+message FrontBinaryResponse {}

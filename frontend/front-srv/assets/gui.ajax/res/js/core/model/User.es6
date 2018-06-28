@@ -22,6 +22,7 @@ import PydioApi from '../http/PydioApi'
 import Repository from './Repository'
 import CellModel from './CellModel'
 import {UserServiceApi, IdmUserSingleQuery, RestSearchUserRequest} from '../http/gen/index';
+import HasherUtils from "../util/HasherUtils";
 
 /**
  * Abstraction of the currently logged user. Can be a "fake" user when users management
@@ -280,33 +281,24 @@ export default class User{
 	}
 	/**
 	 * Send the preference to the server for saving
-	 * @param prefName String
 	 */
-	savePreference(prefName){
-		if(!this.preferences.has(prefName)) return;
-        const prefValue = this.preferences.get(prefName);
-        window.setTimeout( function(){
-            PydioApi.getClient().userSavePreference(prefName, prefValue);
-        } , 250);
-	}
-
-	/**
-	 * Send all preferences to the server. If oldPass, newPass and seed are set, also save pass.
-	 * @param oldPass String
-	 * @param newPass String
-	 * @param seed String
-	 * @param onCompleteFunc Function
-	 */
-	savePreferences(oldPass, newPass, seed, onCompleteFunc){
-        if(oldPass && newPass){
-            PydioApi.getClient().userSavePassword(oldPass, newPass, seed, onCompleteFunc);
-        }else{
-            PydioApi.getClient().userSavePreferences(this.preferences, onCompleteFunc);
+	savePreference(){
+		if(!this.preferences.has('gui_preferences')) {
+		    return;
         }
+        const guiPrefs = this.preferences.get('gui_preferences');
+        const stringPref = HasherUtils.base64_encode(guiPrefs);
+        this.getIdmUser().then(idmUser => {
+            idmUser.Attributes['preferences'] = JSON.stringify({gui_preferences: stringPref});
+            const api = new UserServiceApi(PydioApi.getRestClient());
+            api.putUser(idmUser.Login, idmUser).then(ok => {
+                this.idmUser = idmUser;
+            })
+        });
 	}
 
     /**
-     * @return Promise
+     * @return {Promise<IdmUser>}
      */
 	getIdmUser() {
 	    if(this.idmUser) {

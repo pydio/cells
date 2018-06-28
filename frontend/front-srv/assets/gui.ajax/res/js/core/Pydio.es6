@@ -114,13 +114,6 @@ class Pydio extends Observable{
      * Real initialisation sequence. Will Trigger the whole GUI building.
      */
     init(){
-        if(!this.Parameters.has('SECURE_TOKEN')){
-            PydioApi.getClient().getBootConf(function(){
-                this.init();
-            }.bind(this));
-            return;
-        }
-
         this.observe("registry_loaded", () => {
 
             this.Registry.refreshExtensionsRegistry();

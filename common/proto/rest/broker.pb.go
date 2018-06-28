@@ -73,6 +73,8 @@ It has these top-level messages:
 	FrontMessagesResponse
 	FrontSessionRequest
 	FrontSessionResponse
+	FrontBinaryRequest
+	FrontBinaryResponse
 	UserStateRequest
 	UserStateResponse
 	RelationRequest

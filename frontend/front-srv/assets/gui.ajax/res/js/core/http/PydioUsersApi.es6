@@ -419,9 +419,7 @@ class UsersApi{
     static buildUserAvatarUrl(userId, avatarId = null){
 
         if(avatarId){
-            return PydioApi.getClient().getPydioObject().Parameters.get('ajxpServerAccess')
-                + "&get_action=get_binary_param&binary_id="
-                + avatarId + "&user_id=" + userId;
+            return PydioApi.getClient().getPydioObject().Parameters.get('ENDPOINT_REST_API') + '/frontend/binaries/USER/' + userId;
         }else{
             return null;
         }

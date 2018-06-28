@@ -1239,6 +1239,37 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/frontend/binaries/{BinaryType}/{Uuid}": {
+      "get": {
+        "summary": "Serve frontend binaries directly (avatars / logos / bg images)",
+        "operationId": "FrontServeBinary",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontBinaryResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "BinaryType",
+            "in": "path",
+            "required": true,
+            "type": "restFrontBinaryType"
+          },
+          {
+            "name": "Uuid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "FrontendService"
+        ]
+      }
+    },
     "/frontend/bootconf": {
       "get": {
         "summary": "Add some data to the initial set of parameters loaded by the frontend",
@@ -5842,6 +5873,18 @@ var SwaggerJson = `{
           "format": "boolean"
         }
       }
+    },
+    "restFrontBinaryResponse": {
+      "type": "object",
+      "title": "Not used, endpoint returns octet-stream"
+    },
+    "restFrontBinaryType": {
+      "type": "string",
+      "enum": [
+        "USER",
+        "GLOBAL"
+      ],
+      "default": "USER"
     },
     "restFrontBootConfResponse": {
       "type": "object",

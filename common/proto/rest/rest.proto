@@ -851,6 +851,12 @@ service FrontendService {
             body: "*"
         };
     }
+    // Serve frontend binaries directly (avatars / logos / bg images)
+    rpc FrontServeBinary(FrontBinaryRequest) returns (FrontBinaryResponse) {
+        option (google.api.http) =  {
+            get: "/frontend/binaries/{BinaryType}/{Uuid}"
+        };
+    }
 
 }
 

@@ -36,13 +36,22 @@ import (
 
 	"time"
 
+	"io"
+
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/frontend"
+	service2 "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/views"
 )
 
 type FrontendHandler struct{}
@@ -244,6 +253,71 @@ func (a *FrontendHandler) FrontLog(req *restful.Request, rsp *restful.Response) 
 			logger.Info(message.Message, zaps...)
 		}
 	}()
+}
+
+func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Response) {
+
+	binaryType := req.PathParameter("BinaryType")
+	binaryUuid := req.PathParameter("Uuid")
+	ctx := req.Request.Context()
+
+	if binaryType == "USER" {
+
+		var user *idm.User
+		cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		subQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
+			Login: binaryUuid,
+		})
+		stream, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
+			Query: &service2.Query{
+				SubQueries: []*any.Any{subQ},
+			},
+		})
+		if err != nil {
+			return
+		}
+		defer stream.Close()
+		for {
+			rsp, e := stream.Recv()
+			if e != nil {
+				break
+			}
+			if rsp == nil {
+				continue
+			}
+			user = rsp.User
+			break
+		}
+		if user == nil {
+			service.RestError404(req, rsp, fmt.Errorf("cannot find user"))
+			return
+		}
+		if avatarId, ok := user.Attributes["avatar"]; ok {
+
+			router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
+			node := &tree.Node{
+				Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/users_binaries." + user.Login + "-" + avatarId,
+			}
+			info, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
+			if e != nil {
+				service.RestError404(req, rsp, e)
+				return
+			}
+			reader, e := router.GetObject(ctx, node, &views.GetRequestData{Length: info.Node.Size})
+			if e == nil {
+				defer reader.Close()
+				rsp.Header().Set("Content-Type", "image/"+strings.Split(avatarId, ".")[1])
+				rsp.Header().Set("Content-Length", fmt.Sprintf("%d", info.Node.Size))
+				_, e := io.Copy(rsp.ResponseWriter, reader)
+				if e != nil {
+					service.RestError500(req, rsp, e)
+				}
+			} else {
+				service.RestError500(req, rsp, e)
+			}
+		}
+	}
+
 }
 
 func (a *FrontendHandler) SettingsMenu(req *restful.Request, rsp *restful.Response) {

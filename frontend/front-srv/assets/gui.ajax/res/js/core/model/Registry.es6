@@ -63,34 +63,6 @@ export default class Registry{
             return;
         }
         this._globalLoading = true;
-        /*
-        if( (xPath === null && this._globalLoading) || (xPath && this._xPathLoading === xPath) ){
-            return;
-        }
-        if(xPath) this._xPathLoading = xPath;
-        else this._globalLoading = true;
-        const onComplete = function(transport){
-            if(xPath) this._xPathLoading = false
-            else this._globalLoading = false;
-            if(transport.responseXML == null || transport.responseXML.documentElement == null) return;
-            if(transport.responseXML.documentElement.nodeName === "pydio_registry"){
-                this._registry = transport.responseXML.documentElement;
-                if(!completeFunc) {
-                    this._pydioObject.fire("registry_loaded", this._registry);
-                }
-            }else if(transport.responseXML.documentElement.nodeName === "pydio_registry_part"){
-                this.refreshXmlRegistryPart(transport.responseXML.documentElement);
-            }
-            if(completeFunc) completeFunc(this._registry);
-        }.bind(this);
-        let params = {get_action: 'get_xml_registry'};
-        if(xPath){
-            params['xPath'] = xPath;
-        }
-        if(repositoryId){
-            params['ws_id'] = repositoryId; // for caching only
-        }
-        */
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
             let url = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/state/';
             let headers = {};

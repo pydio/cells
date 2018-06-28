@@ -13,6 +13,7 @@
 
 
 import ApiClient from "../ApiClient";
+import RestFrontBinaryResponse from '../model/RestFrontBinaryResponse';
 import RestFrontBootConfResponse from '../model/RestFrontBootConfResponse';
 import RestFrontLogMessage from '../model/RestFrontLogMessage';
 import RestFrontLogResponse from '../model/RestFrontLogResponse';
@@ -174,6 +175,63 @@ export default class FrontendServiceApi {
      */
     frontMessages(lang) {
       return this.frontMessagesWithHttpInfo(lang)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Serve frontend binaries directly (avatars / logos / bg images)
+     * @param {String} binaryType 
+     * @param {String} uuid 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBinaryResponse} and HTTP response
+     */
+    frontServeBinaryWithHttpInfo(binaryType, uuid) {
+      let postBody = null;
+
+      // verify the required parameter 'binaryType' is set
+      if (binaryType === undefined || binaryType === null) {
+        throw new Error("Missing the required parameter 'binaryType' when calling frontServeBinary");
+      }
+
+      // verify the required parameter 'uuid' is set
+      if (uuid === undefined || uuid === null) {
+        throw new Error("Missing the required parameter 'uuid' when calling frontServeBinary");
+      }
+
+
+      let pathParams = {
+        'BinaryType': binaryType,
+        'Uuid': uuid
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestFrontBinaryResponse;
+
+      return this.apiClient.callApi(
+        '/frontend/binaries/{BinaryType}/{Uuid}', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Serve frontend binaries directly (avatars / logos / bg images)
+     * @param {String} binaryType 
+     * @param {String} uuid 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBinaryResponse}
+     */
+    frontServeBinary(binaryType, uuid) {
+      return this.frontServeBinaryWithHttpInfo(binaryType, uuid)
         .then(function(response_and_data) {
           return response_and_data.data;
         });
