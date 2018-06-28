@@ -1,8 +1,11 @@
 package frontend
 
 import (
+	"strings"
+
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 )
 
 type BackendConf struct {
@@ -50,13 +53,16 @@ type BootConf struct {
 
 func ComputeBootConf(pool *PluginsPool) *BootConf {
 
+	url := config.Get("defaults", "url").String("")
+	wsUrl := strings.Replace(strings.Replace(url, "https", "wss", -1), "http", "ws", -1)
+
 	b := &BootConf{
 		AjxpResourcesFolder:          "plug/gui.ajax/res",
 		AjxpServerAccess:             "index.php",
-		ENDPOINT_REST_API:            "http://192.168.0.198:8080/a",
-		ENDPOINT_S3_GATEWAY:          "http://192.168.0.198:8080/io",
-		ENDPOINT_WEBSOCKET:           "ws://192.168.0.198:8080/ws/event",
-		FRONTEND_URL:                 "http://192.168.0.198:8080",
+		ENDPOINT_REST_API:            url + "/a",
+		ENDPOINT_S3_GATEWAY:          url + "/io",
+		ENDPOINT_WEBSOCKET:           wsUrl + "/ws/event",
+		FRONTEND_URL:                 url,
 		PUBLIC_BASE_URI:              "/public",
 		ZipEnabled:                   true,
 		MultipleFilesDownloadEnabled: true,
