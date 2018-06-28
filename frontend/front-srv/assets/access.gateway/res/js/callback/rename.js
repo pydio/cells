@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const PydioApi = require('pydio/http/api')
+import PydioApi from "pydio/http/api";
 
 export default function (pydio) {
 

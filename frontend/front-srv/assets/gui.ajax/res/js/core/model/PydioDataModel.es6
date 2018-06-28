@@ -24,6 +24,7 @@ import AjxpNode from './AjxpNode'
 import LangUtils from '../util/LangUtils'
 import PathUtils from '../util/PathUtils'
 import PydioApi from '../http/PydioApi'
+import MetaNodeProvider from '../model/MetaNodeProvider'
 
 /**
  * Full container of the data tree. Contains the SelectionModel as well.
@@ -54,7 +55,7 @@ export default class PydioDataModel extends Observable{
 
 	static RemoteDataModelFactory(providerProperties, rootLabel=''){
         let dataModel = new PydioDataModel(true);
-        let rNodeProvider = new RemoteNodeProvider(providerProperties);
+        let rNodeProvider = new MetaNodeProvider(providerProperties);
         dataModel.setAjxpNodeProvider(rNodeProvider);
         const rootNode = new AjxpNode("/", false, rootLabel, '', rNodeProvider);
         dataModel.setRootNode(rootNode);
@@ -83,10 +84,10 @@ export default class PydioDataModel extends Observable{
 	 * @param forceReload Boolean If set to true, the node will be reloaded even if already loaded.
 	 */
 	requireContextChange (ajxpNode, forceReload=false){
-        if(ajxpNode == null) return;
+        if(ajxpNode === null) return;
         this.setSelectedNodes([]);
 		const path = ajxpNode.getPath();
-		if((path == "" || path == "/") && ajxpNode != this._rootNode){
+		if((path === "" || path === "/") && ajxpNode !== this._rootNode){
 			ajxpNode = this._rootNode;
 		}
 		let paginationPage = null;

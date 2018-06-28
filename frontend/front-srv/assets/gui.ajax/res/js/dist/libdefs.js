@@ -35,6 +35,7 @@ const PydioCoreRequires = {
     'model/User.js'             :'pydio/model/user',
     'model/RemoteNodeProvider.js':'pydio/model/remote-node-provider',
     'model/EmptyNodeProvider.js':'pydio/model/empty-node-provider',
+    'model/MetaNodeProvider.js':'pydio/model/meta-node-provider',
     'model/Repository.js'       :'pydio/model/repository',
     'model/Action.js'           :'pydio/model/action',
     'model/Controller.js'       :'pydio/model/controller',

@@ -24,7 +24,6 @@ import PydioApi from './http/PydioApi'
 import Registry from './model/Registry'
 import AjxpNode from './model/AjxpNode'
 import PydioDataModel from './model/PydioDataModel'
-import RemoteNodeProvider from './model/RemoteNodeProvider'
 import Repository from './model/Repository'
 import Controller from './model/Controller'
 import XMLUtils from './util/XMLUtils'
@@ -65,7 +64,7 @@ class Pydio extends Observable{
         this.Registry = new Registry(this);
         this._rootNode = new AjxpNode("/", "Root");
         this._dataModel = this._contextHolder = new PydioDataModel(false);
-        this._dataModel.setAjxpNodeProvider(new RemoteNodeProvider());
+        this._dataModel.setAjxpNodeProvider(new EmptyNodeProvider());
         this._dataModel.setRootNode(this._rootNode);
         // Must happen AFTER datamodel initization.
         this.Controller = new Controller(this);

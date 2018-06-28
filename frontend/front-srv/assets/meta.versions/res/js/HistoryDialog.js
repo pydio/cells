@@ -19,10 +19,12 @@
  */
 import React from 'react'
 import HistoryApi from './HistoryApi'
+import PathUtils from 'pydio/util/path'
 import {Toolbar, ToolbarGroup, Divider, FontIcon, IconButton, Paper} from 'material-ui'
 const PydioComponents = require('pydio').requireLib('components');
 const Node = require('pydio/model/node');
 const PydioReactUi = require('pydio').requireLib('boot');
+
 
 let HistoryBrowser = React.createClass({
 
@@ -82,9 +84,16 @@ let HistoryBrowser = React.createClass({
     render: function(){
 
         const mess = window.pydio.MessageHash;
+        let index = 0;
         const tableKeys = {
-            index: {label: mess['meta.versions.9'], sortType: 'string', width: '5%'},
-            readableSize:{label: mess['2'], sortType: 'number', width: '20%'},
+            index: {label: mess['meta.versions.9'], sortType: 'string', width: '5%', renderCell:data=>{
+                    index ++;
+                    return index + "";
+            }},
+            Size:{label: mess['2'], sortType: 'number', width: '20%', renderCell:data=>{
+                    const s = parseInt(data.getMetadata().get('bytesize'));
+                    return PathUtils.roundFileSize(s);
+            }},
             ajxp_modiftime: {label: mess['meta.versions.10'], sortType: 'string', width: '25%'},
             versionDescription: {label: mess['meta.versions.11'], sortType: 'string', width: '50%'},
         };

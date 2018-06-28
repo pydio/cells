@@ -20,8 +20,6 @@
 
 const React = require('react')
 const PydioDataModel = require('pydio/model/data-model');
-const AjxpNode = require('pydio/model/node');
-const RemoteNodeProvider = require('pydio/model/remote-node-provider');
 const {MenuItem, SelectField, TextField, Paper, RaisedButton, IconButton, FlatButton} = require('material-ui');
 const {FoldersTree} = require('pydio').requireLib('components');
 

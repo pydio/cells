@@ -186,7 +186,7 @@ export default class User{
 	
 	/**
 	 * Get all repositories 
-	 * @returns Map
+	 * @returns {Map}
 	 */
 	getRepositoriesList(){
 		return this.repositories;

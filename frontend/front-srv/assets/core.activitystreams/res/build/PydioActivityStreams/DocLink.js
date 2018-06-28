@@ -50,7 +50,7 @@ var Divider = _require.Divider;
 
 var Pydio = require('pydio');
 var debounce = require('lodash.debounce');
-var RemoteNodeProvider = require('pydio/model/remote-node-provider');
+var MetaNodeProvider = require('pydio/model/meta-node-provider');
 
 var _Pydio$requireLib = Pydio.requireLib('boot');
 
@@ -144,7 +144,7 @@ var DocPreview = (function (_React$Component) {
                     (function () {
                         var nodeRepoId = previewNode.getMetadata().get('repository_id');
                         var nodeRepoLabel = previewNode.getMetadata().get('repository_label');
-                        var provider = new RemoteNodeProvider();
+                        var provider = new MetaNodeProvider();
                         previewNode.observeOnce('error', function () {
                             _this.setState({ previewLoaded: true, previewFailed: true });
                         });

@@ -79,9 +79,18 @@ export default class MetaNodeProvider{
         let request = new RestGetBulkMetaRequest();
         let slug = '';
         if(pydio.user){
-            slug = pydio.user.getActiveRepositoryObject().getSlug();
+            if(this.properties.has('tmp_repository_id')) {
+                const repos = pydio.user.getRepositoriesList();
+                slug = repos.get(this.properties.get('tmp_repository_id')).getSlug();
+            } else {
+                slug = pydio.user.getActiveRepositoryObject().getSlug();
+            }
         }
         request.NodePaths = [slug + node.getPath(), slug + node.getPath() + '/*'];
+        if(this.properties.has("versions")){
+            request.Versions = true;
+            request.NodePaths = [slug + this.properties.get('file')];
+        }
         api.getBulkMeta(request).then(res => {
             let origNode;
             let childrenNodes = [];
@@ -98,7 +107,7 @@ export default class MetaNodeProvider{
                     childrenNodes.push(newNode);
                 }
             });
-            if(origNode !== null){
+            if(origNode !== undefined){
                 node.replaceBy(origNode);
             }
             childrenNodes.map(child => {

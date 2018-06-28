@@ -33,6 +33,10 @@ var _HistoryApi = require('./HistoryApi');
 
 var _HistoryApi2 = _interopRequireDefault(_HistoryApi);
 
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
 var _materialUi = require('material-ui');
 
 var PydioComponents = require('pydio').requireLib('components');
@@ -101,9 +105,16 @@ var HistoryBrowser = _react2['default'].createClass({
     render: function render() {
 
         var mess = window.pydio.MessageHash;
+        var index = 0;
         var tableKeys = {
-            index: { label: mess['meta.versions.9'], sortType: 'string', width: '5%' },
-            readableSize: { label: mess['2'], sortType: 'number', width: '20%' },
+            index: { label: mess['meta.versions.9'], sortType: 'string', width: '5%', renderCell: function renderCell(data) {
+                    index++;
+                    return index + "";
+                } },
+            Size: { label: mess['2'], sortType: 'number', width: '20%', renderCell: function renderCell(data) {
+                    var s = parseInt(data.getMetadata().get('bytesize'));
+                    return _pydioUtilPath2['default'].roundFileSize(s);
+                } },
             ajxp_modiftime: { label: mess['meta.versions.10'], sortType: 'string', width: '25%' },
             versionDescription: { label: mess['meta.versions.11'], sortType: 'string', width: '50%' }
         };

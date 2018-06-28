@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 const PydioApi = require('pydio/http/api');
-const RemoteNodeProvider = require('pydio/model/remote-node-provider');
+const MetaNodeProvider = require('pydio/model/meta-node-provider');
 const PydioDataModel = require('pydio/model/data-model');
 const Node = require('pydio/model/node');
 
@@ -30,7 +30,7 @@ export default class HistoryApi{
 
     getDataModel(){
         if(!this.versionsDm){
-            const provider = new RemoteNodeProvider({get_action:'ls', versions:'true',file:this.node.getPath()});
+            const provider = new MetaNodeProvider({versions:'true',file:this.node.getPath()});
             this.versionsDm = new PydioDataModel(true);
             this.versionsDm.setAjxpNodeProvider(provider);
             this.versionsRoot = new Node("/", false, "Versions", "folder.png", provider);

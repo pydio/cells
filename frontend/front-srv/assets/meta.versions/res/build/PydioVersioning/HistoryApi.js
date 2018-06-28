@@ -28,7 +28,7 @@ var _createClass = (function () { function defineProperties(target, props) { for
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 var PydioApi = require('pydio/http/api');
-var RemoteNodeProvider = require('pydio/model/remote-node-provider');
+var MetaNodeProvider = require('pydio/model/meta-node-provider');
 var PydioDataModel = require('pydio/model/data-model');
 var Node = require('pydio/model/node');
 
@@ -43,7 +43,7 @@ var HistoryApi = (function () {
         key: 'getDataModel',
         value: function getDataModel() {
             if (!this.versionsDm) {
-                var provider = new RemoteNodeProvider({ get_action: 'ls', versions: 'true', file: this.node.getPath() });
+                var provider = new MetaNodeProvider({ versions: 'true', file: this.node.getPath() });
                 this.versionsDm = new PydioDataModel(true);
                 this.versionsDm.setAjxpNodeProvider(provider);
                 this.versionsRoot = new Node("/", false, "Versions", "folder.png", provider);

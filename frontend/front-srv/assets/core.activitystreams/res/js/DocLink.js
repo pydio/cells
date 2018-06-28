@@ -22,7 +22,7 @@ import React from 'react'
 const {Popover, Paper, IconButton, FlatButton, Divider} = require('material-ui');
 const Pydio = require('pydio');
 const debounce = require('lodash.debounce');
-const RemoteNodeProvider = require('pydio/model/remote-node-provider');
+const MetaNodeProvider = require('pydio/model/meta-node-provider');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
 const {FilePreview} = Pydio.requireLib('workspaces');
 
@@ -98,7 +98,7 @@ class DocPreview extends React.Component {
             } else {
                 const nodeRepoId = previewNode.getMetadata().get('repository_id');
                 const nodeRepoLabel = previewNode.getMetadata().get('repository_label');
-                const provider = new RemoteNodeProvider();
+                const provider = new MetaNodeProvider();
                 previewNode.observeOnce('error', () => {
                     this.setState({previewLoaded:true, previewFailed: true});
                 });
