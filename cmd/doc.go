@@ -21,11 +21,11 @@
 package cmd
 
 import (
-	//	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
-	//	"github.com/spf13/cobra/doc"
+
+	"github.com/pydio/cells/common/utils"
 )
 
 var docPath string
@@ -33,33 +33,21 @@ var docPath string
 // versionCmd represents the versioning command
 var docCmd = &cobra.Command{
 	Use:   "doc",
-	Short: "Generate ReST documentation for this command",
-	Long: `Generate ReStructuredText documentation for this command.
+	Short: "Generate MD documentation for this command",
+	Long: `Generate Markdown documentation for this command.
 Provide a target folder where to put the generated files.
+This command also generates yaml files for pydio.com documentation format.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		log.Fatal("Currently broken because of govendor issues - TODO")
-
 		if docPath == "" {
-			log.Fatal("Cannot get path flag")
+			log.Fatal("Please provide a path to store output files")
 		} else {
 
-			// Sphinx cross-referencing format
-			/**
-			linkHandler := func(name, ref string) string {
-				return fmt.Sprintf(":ref:`%s <%s>`", name, ref)
-			}
-
-			filePrepender := func(filename string) string {
-				return ""
-			}
-
-			err := doc.GenReSTTreeCustom(RootCmd, docPath, filePrepender, linkHandler)
+			err := utils.GenMarkdownTree(RootCmd, docPath)
 			if err != nil {
 				log.Fatal(err)
 			}
-			*/
 		}
 
 	},

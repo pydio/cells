@@ -76,18 +76,20 @@ Use this command to list all running services on this machine.
 Services fall into main categories (GENERIC, GRPC, REST, API) and are then
 organized by tags (broker, data, idm, etc.)
 
-EXAMPLE
-=======
+### Example
+
 Use the --tags/-t flag to limit display to one specific tag, use lowercase for tags.
 
 $ pydio list -t=broker
-	  pydio.grpc.activity   [X]
-	  pydio.grpc.chat       [X]
-	  pydio.grpc.mailer     [X]
-	  pydio.api.websocket   [X]
-	  pydio.rest.activity   [X]
-	  pydio.rest.frontlogs  [X]
-	  pydio.rest.mailer     [X]
+
+- pydio.grpc.activity   [X]
+- pydio.grpc.chat       [X]
+- pydio.grpc.mailer     [X]
+- pydio.api.websocket   [X]
+- pydio.rest.activity   [X]
+- pydio.rest.frontlogs  [X]
+- pydio.rest.mailer     [X]
+
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		// If we have an error (registry not running) the running list simply is empty

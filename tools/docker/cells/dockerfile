@@ -1,18 +1,25 @@
 FROM busybox:glibc
 
-ENV CELLS_VERSION 1.0.0
+ARG version
+ENV CELLS_VERSION ${version}
 
 WORKDIR /cells
 
 RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells"
+RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells-ctl"
+RUN wget "https://download.pydio.com/pub/cells-sdk-go/nightly/latest/linux-amd64/cells-sdk-go"
 
 COPY docker-entrypoint.sh /cells/docker-entrypoint.sh
 COPY libdl.so.2 /cells/libdl.so.2
 
 RUN chmod +x /cells/cells
+RUN chmod +x /cells/cells-ctl
+RUN chmod +x /cells/cells-sdk-go
 RUN chmod +x /cells/docker-entrypoint.sh
 
 RUN ln -s /cells/cells /bin/cells
+RUN ln -s /cells/cells-ctl /bin/cells-ctl
+RUN ln -s /cells/cells-sdk-go /bin/cells-sdk-go
 RUN ln -s /cells/libdl.so.2 /lib64/libdl.so.2
 RUN ln -s /cells/docker-entrypoint.sh /bin/docker-entrypoint.sh
 
