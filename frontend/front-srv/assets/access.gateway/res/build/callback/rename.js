@@ -18,27 +18,40 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _pydioHttpApi = require("pydio/http/api");
+var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-exports["default"] = function (pydio) {
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
+exports['default'] = function (pydio) {
 
     return function () {
         var _callback = function _callback(node, newValue) {
-            if (!node) node = pydio.getUserSelection().getUniqueNode();
-            _pydioHttpApi2["default"].getClient().request({
-                get_action: 'rename',
-                file: node.getPath(),
-                filename_new: newValue
+            if (!node) {
+                node = pydio.getUserSelection().getUniqueNode();
+            }
+            var slug = pydio.user.getActiveRepositoryObject().getSlug();
+            var path = slug + node.getPath();
+            var target = _pydioUtilPath2['default'].getDirname(path) + '/' + newValue;
+            var jobParams = {
+                nodes: [path],
+                target: target,
+                targetParent: false
+            };
+            _pydioHttpApi2['default'].getRestClient().userJob('move', jobParams).then(function (r) {
+                pydio.UI.displayMessage('SUCCESS', 'Renaming');
+                pydio.getContextHolder().setSelectedNodes([]);
             });
         };
         var n = pydio.getUserSelection().getSelectedNodes()[0];
@@ -55,4 +68,4 @@ exports["default"] = function (pydio) {
     };
 };
 
-module.exports = exports["default"];
+module.exports = exports['default'];

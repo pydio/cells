@@ -52,10 +52,10 @@ var ConfigLogo = (function (_React$Component) {
                 logo = this.props.pydio.Registry.getDefaultImageFromParameters(this.props.pluginName, this.props.pluginParameter);
             }
             if (logo) {
-                if (logo.indexOf('plugins/') === 0) {
+                if (logo.indexOf('plug/') === 0) {
                     url = logo;
                 } else {
-                    url = this.props.pydio.Parameters.get('ajxpServerAccess') + "&get_action=get_global_binary_param&binary_id=" + logo;
+                    url = this.props.pydio.Parameters.get('ENDPOINT_REST_API') + "/frontend/binaries/GLOBAL/" + logo;
                 }
             }
             return React.createElement('img', { src: url, style: this.props.style, className: this.props.className });

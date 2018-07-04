@@ -2081,7 +2081,7 @@ var OpenApiDashboard = (function (_React$Component) {
         _classCallCheck(this, OpenApiDashboard);
 
         _get(Object.getPrototypeOf(OpenApiDashboard.prototype), 'constructor', this).call(this, props);
-        var restEndpoint = props.pydio.getPluginConfigs('core.conf').get("ENDPOINT_REST_API");
+        var restEndpoint = props.pydio.Parameters.get("ENDPOINT_REST_API");
         this.state = { specUrl: restEndpoint + '/config/discovery/openapi' };
     }
 

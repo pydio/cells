@@ -91,25 +91,22 @@ exports['default'] = function (pydio) {
      * @param wsId string
      */
     return function (type, selection, path, wsId) {
-        var action = undefined,
-            params = { dest: path };
-        if (wsId) {
-            action = 'cross_copy';
-            params['dest_repository_id'] = wsId;
-            if (type === 'move') {
-                params['moving_files'] = 'true';
-            }
-            PydioApi.getClient().postSelectionWithAction(action, null, selection, params);
-            return;
-        }
 
         var slug = pydio.user.getActiveRepositoryObject().getSlug();
+        var targetSlug = slug;
+        if (wsId) {
+            var target = pydio.user.getRepositoriesList().get(wsId);
+            if (target) {
+                targetSlug = target.getSlug();
+            }
+        }
+
         var paths = selection.getSelectedNodes().map(function (n) {
             return slug + n.getPath();
         });
         var jobParams = {
             nodes: paths,
-            target: slug + path,
+            target: targetSlug + path,
             targetParent: true
         };
         PydioApi.getRestClient().userJob(type, jobParams).then(function (r) {
@@ -122,45 +119,6 @@ exports['default'] = function (pydio) {
 module.exports = exports['default'];
 
 },{"pydio/http/api":"pydio/http/api"}],3:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-exports['default'] = function (pydio) {
-
-    return function () {
-        pydio.UI.openComponentInModal('FSActions', 'PermissionsDialog', {
-            dialogTitleId: 287,
-            selection: pydio.getUserSelection()
-        });
-    };
-};
-
-module.exports = exports['default'];
-
-},{}],4:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -226,7 +184,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/util/path":"pydio/util/path"}],5:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/util/path":"pydio/util/path"}],4:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -275,7 +233,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"./applyCopyOrMove":2}],6:[function(require,module,exports){
+},{"./applyCopyOrMove":2}],5:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -384,7 +342,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],7:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api"}],6:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -430,7 +388,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],8:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api"}],7:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -468,7 +426,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"./download":7}],9:[function(require,module,exports){
+},{"./download":6}],8:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -511,7 +469,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -564,7 +522,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node"}],11:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node"}],10:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -612,7 +570,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],12:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api"}],11:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -660,7 +618,6 @@ var Callbacks = {
     compressUI: require('./compressUI')(pydio),
     openInEditor: require('./openInEditor')(pydio),
     ajxpLink: require('./ajxpLink')(pydio),
-    chmod: require('./chmod')(pydio),
     openOtherEditorPicker: require('./openOtherEditorPicker')(pydio),
     lock: require('./lock')(pydio)
 };
@@ -669,7 +626,7 @@ exports['default'] = Callbacks;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ajxpLink":1,"./applyCopyOrMove":2,"./chmod":3,"./compressUI":4,"./copy":5,"./deleteAction":6,"./download":7,"./downloadAll":8,"./downloadChunked":9,"./downloadFolder":10,"./emptyRecycle":11,"./lock":13,"./ls":14,"./mkdir":15,"./mkfile":16,"./move":17,"./openInEditor":18,"./openOtherEditorPicker":19,"./rename":20,"./restore":21,"./upload":22}],13:[function(require,module,exports){
+},{"./ajxpLink":1,"./applyCopyOrMove":2,"./compressUI":3,"./copy":4,"./deleteAction":5,"./download":6,"./downloadAll":7,"./downloadChunked":8,"./downloadFolder":9,"./emptyRecycle":10,"./lock":12,"./ls":13,"./mkdir":14,"./mkfile":15,"./move":16,"./openInEditor":17,"./openOtherEditorPicker":18,"./rename":19,"./restore":20,"./upload":21}],12:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -726,7 +683,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],14:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],13:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -762,7 +719,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -830,7 +787,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang"}],16:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang"}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -897,7 +854,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang"}],17:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang"}],16:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -981,7 +938,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"./applyCopyOrMove":2,"pydio":"pydio"}],18:[function(require,module,exports){
+},{"./applyCopyOrMove":2,"pydio":"pydio"}],17:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1018,7 +975,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1057,7 +1014,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1078,27 +1035,40 @@ module.exports = exports['default'];
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _pydioHttpApi = require("pydio/http/api");
+var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-exports["default"] = function (pydio) {
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
+exports['default'] = function (pydio) {
 
     return function () {
         var _callback = function _callback(node, newValue) {
-            if (!node) node = pydio.getUserSelection().getUniqueNode();
-            _pydioHttpApi2["default"].getClient().request({
-                get_action: 'rename',
-                file: node.getPath(),
-                filename_new: newValue
+            if (!node) {
+                node = pydio.getUserSelection().getUniqueNode();
+            }
+            var slug = pydio.user.getActiveRepositoryObject().getSlug();
+            var path = slug + node.getPath();
+            var target = _pydioUtilPath2['default'].getDirname(path) + '/' + newValue;
+            var jobParams = {
+                nodes: [path],
+                target: target,
+                targetParent: false
+            };
+            _pydioHttpApi2['default'].getRestClient().userJob('move', jobParams).then(function (r) {
+                pydio.UI.displayMessage('SUCCESS', 'Renaming');
+                pydio.getContextHolder().setSelectedNodes([]);
             });
         };
         var n = pydio.getUserSelection().getSelectedNodes()[0];
@@ -1115,9 +1085,9 @@ exports["default"] = function (pydio) {
     };
 };
 
-module.exports = exports["default"];
+module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],21:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/util/path":"pydio/util/path"}],20:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1167,7 +1137,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],22:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api"}],21:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1204,7 +1174,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],23:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1345,7 +1315,7 @@ var MultiDownloadDialog = React.createClass({
 exports['default'] = MultiDownloadDialog;
 module.exports = exports['default'];
 
-},{"react":"react"}],24:[function(require,module,exports){
+},{"react":"react"}],23:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1516,308 +1486,7 @@ var OtherEditorPickerDialog = React.createClass({
 exports['default'] = OtherEditorPickerDialog;
 module.exports = exports['default'];
 
-},{"../callback/openInEditor":18,"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],25:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-var React = require('react');
-
-var PermissionsDialog = React.createClass({
-    displayName: 'PermissionsDialog',
-
-    propsTypes: {
-        selection: React.PropTypes.instanceOf(PydioDataModel)
-    },
-
-    mixins: [PydioReactUI.ActionDialogMixin, PydioReactUI.CancelButtonProviderMixin, PydioReactUI.SubmitButtonProviderMixin],
-
-    componentWillMount: function componentWillMount() {
-        var _this = this;
-
-        var nodes = this.props.selection;
-        this.setState({
-            permissions: this.props.selection.getUniqueNode().getMetadata().get('file_perms'),
-            uPermissions: [false, false, false], // USER
-            gPermissions: [false, false, false], // GROUP
-            aPermissions: [false, false, false], // ALL
-
-            dropDownValue: 1,
-            recursive: false,
-            recursiveRange: 'both'
-        }, function () {
-            _this.getPermissionsMasks();
-        });
-    },
-    getDefaultProps: function getDefaultProps() {
-        return {
-            dialogTitleId: 88,
-            dialogIsModal: true
-        };
-    },
-    getPermissionValue: function getPermissionValue(byteMask) {
-        var value = 0;
-        value += byteMask[2] ? 4 : 0;
-        value += byteMask[1] ? 2 : 0;
-        value += byteMask[0] ? 1 : 0;
-        return value;
-    },
-    getChmodValue: function getChmodValue() {
-        var value = 0;
-        value += this.getPermissionValue(this.state.uPermissions) * 100;
-        value += this.getPermissionValue(this.state.gPermissions) * 10;
-        value += this.getPermissionValue(this.state.aPermissions);
-        return value;
-    },
-    getByteMask: function getByteMask(nMask) {
-        if (nMask > 0x7fffffff || nMask < -0x80000000) {
-            throw new TypeError("tableauMasque - intervalle de valeur dépassé");
-        }
-        for (var nShifted = nMask, aFromMask = []; nShifted; aFromMask.push(Boolean(nShifted & 1)), nShifted >>>= 1);
-        return aFromMask;
-    },
-    getPermissionsMasks: function getPermissionsMasks() {
-        this.setState({
-            uPermissions: this.getByteMask(Math.floor(this.state.permissions / 100 % 10)), // USER
-            gPermissions: this.getByteMask(Math.floor(this.state.permissions / 10 % 10)), // GROUP
-            aPermissions: this.getByteMask(Math.floor(this.state.permissions % 10)) // ALL
-        });
-    },
-    onTextFieldChange: function onTextFieldChange(event, value) {
-        var _this2 = this;
-
-        this.setState({
-            permissions: value
-        }, function () {
-            _this2.getPermissionsMasks();
-        });
-    },
-    onCheck: function onCheck(row, column, event) {
-        var _this3 = this;
-
-        var perm = [].concat(_toConsumableArray(this.state[row]));
-        perm[column] = !perm[column];
-        var newState = {};
-        newState[row] = perm;
-        this.setState(newState, function () {
-            _this3.setState({ permissions: _this3.getChmodValue() });
-        });
-    },
-    onDropDownMenuChange: function onDropDownMenuChange(event, index, value) {
-        this.setState({ dropDownValue: value });
-        switch (value) {
-            case 1:
-                this.setState({
-                    recursiveRange: "",
-                    recursive: false
-                });
-                break;
-            case 2:
-                this.setState({
-                    recursiveRange: 'file',
-                    recursive: true
-                });
-                break;
-            case 3:
-                this.setState({
-                    recursiveRange: 'dir',
-                    recursive: true
-                });
-                break;
-            case 4:
-                this.setState({
-                    recursiveRange: 'both',
-                    recursive: true
-                });
-                break;
-            default:
-                break;
-        }
-    },
-    submit: function submit() {
-        PydioApi.getClient().request({
-            get_action: 'chmod',
-            file: this.props.selection.getUniqueNode().getPath(),
-            chmod_value: this.state.permissions,
-            recursive: this.state.recursive ? 'on' : '',
-            recur_apply_to: this.state.recursiveRange
-        }, (function (transport) {
-            this.dismiss();
-        }).bind(this));
-    },
-    render: function render() {
-        var MessageHash = this.props.pydio.MessageHash;
-
-        return React.createElement(
-            'div',
-            null,
-            React.createElement(
-                MaterialUI.Table,
-                {
-                    selectable: false
-                },
-                React.createElement(
-                    MaterialUI.TableHeader,
-                    {
-                        displaySelectAll: false,
-                        adjustForCheckbox: false
-                    },
-                    React.createElement(
-                        MaterialUI.TableRow,
-                        null,
-                        React.createElement(MaterialUI.TableHeaderColumn, null),
-                        React.createElement(
-                            MaterialUI.TableHeaderColumn,
-                            { tooltip: 'R' },
-                            MessageHash[361]
-                        ),
-                        React.createElement(
-                            MaterialUI.TableHeaderColumn,
-                            { tooltip: 'W' },
-                            MessageHash[362]
-                        ),
-                        React.createElement(
-                            MaterialUI.TableHeaderColumn,
-                            { tooltip: 'X' },
-                            MessageHash[615]
-                        )
-                    )
-                ),
-                React.createElement(
-                    MaterialUI.TableBody,
-                    {
-                        displayRowCheckbox: false
-                    },
-                    React.createElement(
-                        MaterialUI.TableRow,
-                        null,
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            MessageHash[288]
-                        ),
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            React.createElement(MaterialUI.Checkbox, { onCheck: this.onCheck.bind(this, 'uPermissions', 2), checked: this.state.uPermissions[2] })
-                        ),
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            React.createElement(MaterialUI.Checkbox, { onCheck: this.onCheck.bind(this, 'uPermissions', 1), checked: this.state.uPermissions[1] })
-                        ),
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            React.createElement(MaterialUI.Checkbox, { onCheck: this.onCheck.bind(this, 'uPermissions', 0), checked: this.state.uPermissions[0] })
-                        )
-                    ),
-                    React.createElement(
-                        MaterialUI.TableRow,
-                        null,
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            MessageHash[289]
-                        ),
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            React.createElement(MaterialUI.Checkbox, { onCheck: this.onCheck.bind(this, 'gPermissions', 2), checked: this.state.gPermissions[2] })
-                        ),
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            React.createElement(MaterialUI.Checkbox, { onCheck: this.onCheck.bind(this, 'gPermissions', 1), checked: this.state.gPermissions[1] })
-                        ),
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            React.createElement(MaterialUI.Checkbox, { onCheck: this.onCheck.bind(this, 'gPermissions', 0), checked: this.state.gPermissions[0] })
-                        )
-                    ),
-                    React.createElement(
-                        MaterialUI.TableRow,
-                        null,
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            MessageHash[290]
-                        ),
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            React.createElement(MaterialUI.Checkbox, { onCheck: this.onCheck.bind(this, 'aPermissions', 2), checked: this.state.aPermissions[2] })
-                        ),
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            React.createElement(MaterialUI.Checkbox, { onCheck: this.onCheck.bind(this, 'aPermissions', 1), checked: this.state.aPermissions[1] })
-                        ),
-                        React.createElement(
-                            MaterialUI.TableRowColumn,
-                            null,
-                            React.createElement(MaterialUI.Checkbox, { onCheck: this.onCheck.bind(this, 'aPermissions', 0), checked: this.state.aPermissions[0] })
-                        )
-                    )
-                )
-            ),
-            React.createElement(
-                'div',
-                { style: { display: 'flex', alignItems: 'baseline' } },
-                React.createElement(
-                    'p',
-                    null,
-                    MessageHash[616]
-                ),
-                React.createElement(MaterialUI.TextField, { value: this.state.permissions, onChange: this.onTextFieldChange, style: { marginLeft: 4, width: 50 }, type: 'number' }),
-                React.createElement(
-                    'p',
-                    { style: { marginLeft: 20 } },
-                    MessageHash[291]
-                ),
-                React.createElement(
-                    MaterialUI.DropDownMenu,
-                    { value: this.state.dropDownValue, onChange: this.onDropDownMenuChange, style: { marginLeft: -10 } },
-                    React.createElement(MaterialUI.MenuItem, { value: 1, primaryText: MessageHash[441] }),
-                    React.createElement(MaterialUI.MenuItem, { value: 2, primaryText: MessageHash[265] }),
-                    React.createElement(MaterialUI.MenuItem, { value: 3, primaryText: MessageHash[130] }),
-                    React.createElement(MaterialUI.MenuItem, { value: 4, primaryText: MessageHash[597] })
-                )
-            )
-        );
-    }
-
-});
-
-exports['default'] = PermissionsDialog;
-module.exports = exports['default'];
-
-},{"react":"react"}],26:[function(require,module,exports){
+},{"../callback/openInEditor":17,"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],24:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -2058,7 +1727,7 @@ exports['default'] = TreeDialog;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","react":"react"}],27:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","react":"react"}],25:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2151,7 +1820,7 @@ var UploadDialog = React.createClass({
 exports['default'] = UploadDialog;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","react":"react"}],28:[function(require,module,exports){
+},{"pydio":"pydio","react":"react"}],26:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2188,10 +1857,6 @@ var _dialogOtherEditorPickerDialog = require('./dialog/OtherEditorPickerDialog')
 
 var _dialogOtherEditorPickerDialog2 = _interopRequireDefault(_dialogOtherEditorPickerDialog);
 
-var _dialogPermissionsDialog = require('./dialog/PermissionsDialog');
-
-var _dialogPermissionsDialog2 = _interopRequireDefault(_dialogPermissionsDialog);
-
 var _dialogTreeDialog = require('./dialog/TreeDialog');
 
 var _dialogTreeDialog2 = _interopRequireDefault(_dialogTreeDialog);
@@ -2213,10 +1878,9 @@ exports.Listeners = _listenerIndex2['default'];
 exports.MultiDownloadDialog = _dialogMultiDownloadDialog2['default'];
 exports.UploadDialog = _dialogUploadDialog2['default'];
 exports.OtherEditorPickerDialog = _dialogOtherEditorPickerDialog2['default'];
-exports.PermissionsDialog = _dialogPermissionsDialog2['default'];
 exports.TreeDialog = _dialogTreeDialog2['default'];
 
-},{"./callback/index":12,"./dialog/MultiDownloadDialog":23,"./dialog/OtherEditorPickerDialog":24,"./dialog/PermissionsDialog":25,"./dialog/TreeDialog":26,"./dialog/UploadDialog":27,"./listener/index":33}],29:[function(require,module,exports){
+},{"./callback/index":11,"./dialog/MultiDownloadDialog":22,"./dialog/OtherEditorPickerDialog":23,"./dialog/TreeDialog":24,"./dialog/UploadDialog":25,"./listener/index":31}],27:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2255,7 +1919,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],30:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2308,7 +1972,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],31:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2348,7 +2012,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],32:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2395,7 +2059,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],33:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -2437,7 +2101,7 @@ exports['default'] = Listeners;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./compressUiSelectionChange":29,"./copyContextChange":30,"./downloadAllInit":31,"./downloadSelectionChange":32,"./lockSelectionChange":34,"./openWithDynamicBuilder":35}],34:[function(require,module,exports){
+},{"./compressUiSelectionChange":27,"./copyContextChange":28,"./downloadAllInit":29,"./downloadSelectionChange":30,"./lockSelectionChange":32,"./openWithDynamicBuilder":33}],32:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2487,7 +2151,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{}],35:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2595,5 +2259,5 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"../callback/openOtherEditorPicker":19,"pydio/util/path":"pydio/util/path"}]},{},[28])(28)
+},{"../callback/openOtherEditorPicker":18,"pydio/util/path":"pydio/util/path"}]},{},[26])(26)
 });

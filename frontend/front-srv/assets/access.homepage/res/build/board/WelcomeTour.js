@@ -202,7 +202,7 @@ var WidgetsCard = function WidgetsCard(props) {
         React.createElement(
             Scheme,
             null,
-            React.createElement('img', { src: 'plugins/access.homepage/res/images/movecards.gif', style: { height: 70, margin: '15px 30px' } })
+            React.createElement('img', { src: 'plug/access.homepage/res/images/movecards.gif', style: { height: 70, margin: '15px 30px' } })
         )
     );
 };

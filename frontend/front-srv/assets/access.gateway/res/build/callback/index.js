@@ -44,7 +44,6 @@ var Callbacks = {
     compressUI: require('./compressUI')(pydio),
     openInEditor: require('./openInEditor')(pydio),
     ajxpLink: require('./ajxpLink')(pydio),
-    chmod: require('./chmod')(pydio),
     openOtherEditorPicker: require('./openOtherEditorPicker')(pydio),
     lock: require('./lock')(pydio)
 };

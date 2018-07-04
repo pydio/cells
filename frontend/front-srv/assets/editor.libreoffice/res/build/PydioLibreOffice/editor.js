@@ -76,6 +76,13 @@ var Editor = (function (_React$Component) {
                 webSocketHost = configs.get('LIBREOFFICE_WEBSOCKET_HOST'),
                 webSocketPort = configs.get('LIBREOFFICE_WEBSOCKET_PORT');
 
+            // FIXME: was retrieved from the response JSON before, we manually add the prefix otherwise collabora cannot get the doc.
+            var host = 'http://' + webSocketHost;
+            // TODO also manage backend port when we have found a solution for the collabora container
+            // to call the backend on a specific port. For the time being, all request that are sent to:
+            // mypydiohost.example.com/wopi/... must be proxied to the correct host, f.i. mypydiohost.example.com:5014/wopi
+            // via a reverse proxy.
+
             var webSocketProtocol = webSocketSecure ? 'wss' : 'ws',
                 webSocketUrl = encodeURIComponent(webSocketProtocol + '://' + webSocketHost + ':' + webSocketPort);
 
@@ -86,13 +93,14 @@ var Editor = (function (_React$Component) {
             }, function (_ref2) {
                 var _ref2$responseJSON = _ref2.responseJSON;
                 var responseJSON = _ref2$responseJSON === undefined ? {} : _ref2$responseJSON;
-                var host = responseJSON.host;
+
+                //was (see above): let {host, uri, permission, jwt} = responseJSON;
                 var uri = responseJSON.uri;
                 var permission = responseJSON.permission;
                 var jwt = responseJSON.jwt;
 
                 var fileSrcUrl = encodeURIComponent('' + host + uri);
-                _this.setState({ url: iframeUrl + '?host=' + webSocketUrl + '&WOPISrc=' + fileSrcUrl + '&access_token=' + jwt + '&permisson=' + permission });
+                _this.setState({ url: iframeUrl + '?host=' + webSocketUrl + '&WOPISrc=' + fileSrcUrl + '&access_token=' + jwt + '&permission=' + permission });
             });
         }
     }, {

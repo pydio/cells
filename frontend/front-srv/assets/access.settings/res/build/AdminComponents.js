@@ -33,7 +33,9 @@
     // Find the token at the cursor
     var cur = editor.getCursor(), token = getToken(editor, cur);
     if (/\b(?:string|comment)\b/.test(token.type)) return;
-    token.state = CodeMirror.innerMode(editor.getMode(), token.state).state;
+    var innerMode = CodeMirror.innerMode(editor.getMode(), token.state);
+    if (innerMode.mode.helperType === "json") return;
+    token.state = innerMode.state;
 
     // If it's not a 'word-style' token, ignore the token.
     if (!/^[\w$_]*$/.test(token.string)) {
@@ -93,8 +95,8 @@
   var arrayProps = ("length concat join splice push pop shift unshift slice reverse sort indexOf " +
                     "lastIndexOf every some filter forEach map reduce reduceRight ").split(" ");
   var funcProps = "prototype apply call bind".split(" ");
-  var javascriptKeywords = ("break case catch continue debugger default delete do else false finally for function " +
-                  "if in instanceof new null return switch throw true try typeof var void while with").split(" ");
+  var javascriptKeywords = ("break case catch class const continue debugger default delete do else export extends false finally for function " +
+                  "if in import instanceof new null return super switch this throw true try typeof var void while with yield").split(" ");
   var coffeescriptKeywords = ("and break catch class continue delete do else extends false finally for " +
                   "if in instanceof isnt new no not null of off on or return switch then throw true try typeof until void while with yes").split(" ");
 
@@ -491,7 +493,7 @@
         i = avoidWrap ? 0  : this.data.list.length - 1;
       if (this.selectedHint == i) return;
       var node = this.hints.childNodes[this.selectedHint];
-      node.className = node.className.replace(" " + ACTIVE_HINT_ELEMENT_CLASS, "");
+      if (node) node.className = node.className.replace(" " + ACTIVE_HINT_ELEMENT_CLASS, "");
       node = this.hints.childNodes[this.selectedHint = i];
       node.className += " " + ACTIVE_HINT_ELEMENT_CLASS;
       if (node.offsetTop < this.hints.scrollTop)
@@ -555,12 +557,13 @@
   });
 
   CodeMirror.registerHelper("hint", "fromList", function(cm, options) {
-    var cur = cm.getCursor(), token = cm.getTokenAt(cur);
-    var to = CodeMirror.Pos(cur.line, token.end);
-    if (token.string && /\w/.test(token.string[token.string.length - 1])) {
-      var term = token.string, from = CodeMirror.Pos(cur.line, token.start);
+    var cur = cm.getCursor(), token = cm.getTokenAt(cur)
+    var term, from = CodeMirror.Pos(cur.line, token.start), to = cur
+    if (token.start < cur.ch && /\w/.test(token.string.charAt(cur.ch - token.start - 1))) {
+      term = token.string.substr(0, cur.ch - token.start)
     } else {
-      var term = "", from = to;
+      term = ""
+      from = cur
     }
     var found = [];
     for (var i = 0; i < options.words.length; i++) {
@@ -1337,6 +1340,16 @@ function collapsedSpanAtSide(line, start) {
 }
 function collapsedSpanAtStart(line) { return collapsedSpanAtSide(line, true) }
 function collapsedSpanAtEnd(line) { return collapsedSpanAtSide(line, false) }
+
+function collapsedSpanAround(line, ch) {
+  var sps = sawCollapsedSpans && line.markedSpans, found;
+  if (sps) { for (var i = 0; i < sps.length; ++i) {
+    var sp = sps[i];
+    if (sp.marker.collapsed && (sp.from == null || sp.from < ch) && (sp.to == null || sp.to > ch) &&
+        (!found || compareCollapsedMarkers(found, sp.marker) < 0)) { found = sp.marker; }
+  } }
+  return found
+}
 
 // Test whether there exists a collapsed span that partially
 // overlaps (covers the start or end, but not both) of a new span.
@@ -3372,12 +3385,11 @@ function coordsChar(cm, x, y) {
   var lineObj = getLine(doc, lineN);
   for (;;) {
     var found = coordsCharInner(cm, lineObj, lineN, x, y);
-    var merged = collapsedSpanAtEnd(lineObj);
-    var mergedPos = merged && merged.find(0, true);
-    if (merged && (found.ch > mergedPos.from.ch || found.ch == mergedPos.from.ch && found.xRel > 0))
-      { lineN = lineNo(lineObj = mergedPos.to.line); }
-    else
-      { return found }
+    var collapsed = collapsedSpanAround(lineObj, found.ch + (found.xRel > 0 ? 1 : 0));
+    if (!collapsed) { return found }
+    var rangeEnd = collapsed.find(1);
+    if (rangeEnd.line == lineN) { return rangeEnd }
+    lineObj = getLine(doc, lineN = rangeEnd.line);
   }
 }
 
@@ -4137,6 +4149,7 @@ var NativeScrollbars = function(place, scroll, cm) {
   this.cm = cm;
   var vert = this.vert = elt("div", [elt("div", null, null, "min-width: 1px")], "CodeMirror-vscrollbar");
   var horiz = this.horiz = elt("div", [elt("div", null, null, "height: 100%; min-height: 1px")], "CodeMirror-hscrollbar");
+  vert.tabIndex = horiz.tabIndex = -1;
   place(vert); place(horiz);
 
   on(vert, "scroll", function () {
@@ -5388,7 +5401,7 @@ function addChangeToHistory(doc, change, selAfter, opId) {
 
   if ((hist.lastOp == opId ||
        hist.lastOrigin == change.origin && change.origin &&
-       ((change.origin.charAt(0) == "+" && doc.cm && hist.lastModTime > time - doc.cm.options.historyEventDelay) ||
+       ((change.origin.charAt(0) == "+" && hist.lastModTime > time - (doc.cm ? doc.cm.options.historyEventDelay : 500)) ||
         change.origin.charAt(0) == "*")) &&
       (cur = lastChangeEvent(hist, hist.lastOp == opId))) {
     // Merge this change into the last event
@@ -5817,7 +5830,8 @@ function makeChangeInner(doc, change) {
 
 // Revert a change stored in a document's history.
 function makeChangeFromHistory(doc, type, allowSelectionOnly) {
-  if (doc.cm && doc.cm.state.suppressEdits && !allowSelectionOnly) { return }
+  var suppress = doc.cm && doc.cm.state.suppressEdits;
+  if (suppress && !allowSelectionOnly) { return }
 
   var hist = doc.history, event, selAfter = doc.sel;
   var source = type == "undo" ? hist.done : hist.undone, dest = type == "undo" ? hist.undone : hist.done;
@@ -5842,8 +5856,10 @@ function makeChangeFromHistory(doc, type, allowSelectionOnly) {
         return
       }
       selAfter = event;
-    }
-    else { break }
+    } else if (suppress) {
+      source.push(event);
+      return
+    } else { break }
   }
 
   // Build up a reverse change object to add to the opposite history
@@ -5999,7 +6015,7 @@ function makeChangeSingleDocInEditor(cm, change, spans) {
 function replaceRange(doc, code, from, to, origin) {
   if (!to) { to = from; }
   if (cmp(to, from) < 0) { var assign;
-    (assign = [to, from], from = assign[0], to = assign[1], assign); }
+    (assign = [to, from], from = assign[0], to = assign[1]); }
   if (typeof code == "string") { code = doc.splitLines(code); }
   makeChange(doc, {from: from, to: to, text: code, origin: origin});
 }
@@ -6095,10 +6111,10 @@ function LeafChunk(lines) {
 }
 
 LeafChunk.prototype = {
-  chunkSize: function chunkSize() { return this.lines.length },
+  chunkSize: function() { return this.lines.length },
 
   // Remove the n lines at offset 'at'.
-  removeInner: function removeInner(at, n) {
+  removeInner: function(at, n) {
     var this$1 = this;
 
     for (var i = at, e = at + n; i < e; ++i) {
@@ -6111,13 +6127,13 @@ LeafChunk.prototype = {
   },
 
   // Helper used to collapse a small branch into a single leaf.
-  collapse: function collapse(lines) {
+  collapse: function(lines) {
     lines.push.apply(lines, this.lines);
   },
 
   // Insert the given array of lines at offset 'at', count them as
   // having the given height.
-  insertInner: function insertInner(at, lines, height) {
+  insertInner: function(at, lines, height) {
     var this$1 = this;
 
     this.height += height;
@@ -6126,7 +6142,7 @@ LeafChunk.prototype = {
   },
 
   // Used to iterate over a part of the tree.
-  iterN: function iterN(at, n, op) {
+  iterN: function(at, n, op) {
     var this$1 = this;
 
     for (var e = at + n; at < e; ++at)
@@ -6150,9 +6166,9 @@ function BranchChunk(children) {
 }
 
 BranchChunk.prototype = {
-  chunkSize: function chunkSize() { return this.size },
+  chunkSize: function() { return this.size },
 
-  removeInner: function removeInner(at, n) {
+  removeInner: function(at, n) {
     var this$1 = this;
 
     this.size -= n;
@@ -6178,13 +6194,13 @@ BranchChunk.prototype = {
     }
   },
 
-  collapse: function collapse(lines) {
+  collapse: function(lines) {
     var this$1 = this;
 
     for (var i = 0; i < this.children.length; ++i) { this$1.children[i].collapse(lines); }
   },
 
-  insertInner: function insertInner(at, lines, height) {
+  insertInner: function(at, lines, height) {
     var this$1 = this;
 
     this.size += lines.length;
@@ -6213,7 +6229,7 @@ BranchChunk.prototype = {
   },
 
   // When a node has grown, check whether it should be split.
-  maybeSpill: function maybeSpill() {
+  maybeSpill: function() {
     if (this.children.length <= 10) { return }
     var me = this;
     do {
@@ -6235,7 +6251,7 @@ BranchChunk.prototype = {
     me.parent.maybeSpill();
   },
 
-  iterN: function iterN(at, n, op) {
+  iterN: function(at, n, op) {
     var this$1 = this;
 
     for (var i = 0; i < this.children.length; ++i) {
@@ -6319,7 +6335,7 @@ function addLineWidget(doc, handle, node, options) {
     }
     return true
   });
-  signalLater(cm, "lineWidgetAdded", cm, widget, typeof handle == "number" ? handle : lineNo(handle));
+  if (cm) { signalLater(cm, "lineWidgetAdded", cm, widget, typeof handle == "number" ? handle : lineNo(handle)); }
   return widget
 }
 
@@ -7168,8 +7184,6 @@ function registerGlobalHandlers() {
 // Called when the window resizes
 function onResize(cm) {
   var d = cm.display;
-  if (d.lastWrapHeight == d.wrapper.clientHeight && d.lastWrapWidth == d.wrapper.clientWidth)
-    { return }
   // Might be a text scaling operation, clear size caches.
   d.cachedCharWidth = d.cachedTextHeight = d.cachedPaddingH = null;
   d.scrollbarsClipped = false;
@@ -7177,11 +7191,11 @@ function onResize(cm) {
 }
 
 var keyNames = {
-  3: "Enter", 8: "Backspace", 9: "Tab", 13: "Enter", 16: "Shift", 17: "Ctrl", 18: "Alt",
+  3: "Pause", 8: "Backspace", 9: "Tab", 13: "Enter", 16: "Shift", 17: "Ctrl", 18: "Alt",
   19: "Pause", 20: "CapsLock", 27: "Esc", 32: "Space", 33: "PageUp", 34: "PageDown", 35: "End",
   36: "Home", 37: "Left", 38: "Up", 39: "Right", 40: "Down", 44: "PrintScrn", 45: "Insert",
   46: "Delete", 59: ";", 61: "=", 91: "Mod", 92: "Mod", 93: "Mod",
-  106: "*", 107: "=", 109: "-", 110: ".", 111: "/", 127: "Delete",
+  106: "*", 107: "=", 109: "-", 110: ".", 111: "/", 127: "Delete", 145: "ScrollLock",
   173: "-", 186: ";", 187: "=", 188: ",", 189: "-", 190: ".", 191: "/", 192: "`", 219: "[", 220: "\\",
   221: "]", 222: "'", 63232: "Up", 63233: "Down", 63234: "Left", 63235: "Right", 63272: "Delete",
   63273: "Home", 63275: "End", 63276: "PageUp", 63277: "PageDown", 63302: "Insert"
@@ -7328,6 +7342,9 @@ function keyName(event, noShift) {
   if (presto && event.keyCode == 34 && event["char"]) { return false }
   var name = keyNames[event.keyCode];
   if (name == null || event.altGraphKey) { return false }
+  // Ctrl-ScrollLock has keyCode 3, same as Ctrl-Pause,
+  // so we'll use event.code when available (Chrome 48+, FF 38+, Safari 10.1+)
+  if (event.keyCode == 3 && event.code) { name = event.code; }
   return addModifierNames(name, event, noShift)
 }
 
@@ -7910,8 +7927,8 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
   var dragEnd = operation(cm, function (e) {
     if (webkit) { display.scroller.draggable = false; }
     cm.state.draggingText = false;
-    off(document, "mouseup", dragEnd);
-    off(document, "mousemove", mouseMove);
+    off(display.wrapper.ownerDocument, "mouseup", dragEnd);
+    off(display.wrapper.ownerDocument, "mousemove", mouseMove);
     off(display.scroller, "dragstart", dragStart);
     off(display.scroller, "drop", dragEnd);
     if (!moved) {
@@ -7920,7 +7937,7 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
         { extendSelection(cm.doc, pos, null, null, behavior.extend); }
       // Work around unexplainable focus problem in IE9 (#2127) and Chrome (#3081)
       if (webkit || ie && ie_version == 9)
-        { setTimeout(function () {document.body.focus(); display.input.focus();}, 20); }
+        { setTimeout(function () {display.wrapper.ownerDocument.body.focus(); display.input.focus();}, 20); }
       else
         { display.input.focus(); }
     }
@@ -7935,8 +7952,8 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
   dragEnd.copy = !behavior.moveOnDrag;
   // IE's approach to draggable
   if (display.scroller.dragDrop) { display.scroller.dragDrop(); }
-  on(document, "mouseup", dragEnd);
-  on(document, "mousemove", mouseMove);
+  on(display.wrapper.ownerDocument, "mouseup", dragEnd);
+  on(display.wrapper.ownerDocument, "mousemove", mouseMove);
   on(display.scroller, "dragstart", dragStart);
   on(display.scroller, "drop", dragEnd);
 
@@ -8068,19 +8085,19 @@ function leftButtonSelect(cm, event, start, behavior) {
     counter = Infinity;
     e_preventDefault(e);
     display.input.focus();
-    off(document, "mousemove", move);
-    off(document, "mouseup", up);
+    off(display.wrapper.ownerDocument, "mousemove", move);
+    off(display.wrapper.ownerDocument, "mouseup", up);
     doc.history.lastSelOrigin = null;
   }
 
   var move = operation(cm, function (e) {
-    if (!e_button(e)) { done(e); }
+    if (e.buttons === 0 || !e_button(e)) { done(e); }
     else { extend(e); }
   });
   var up = operation(cm, done);
   cm.state.selectingText = up;
-  on(document, "mousemove", move);
-  on(document, "mouseup", up);
+  on(display.wrapper.ownerDocument, "mousemove", move);
+  on(display.wrapper.ownerDocument, "mouseup", up);
 }
 
 // Used when mouse-selecting to adjust the anchor to the proper side
@@ -8617,7 +8634,7 @@ function applyTextInput(cm, inserted, deleted, sel, origin) {
 
   var paste = cm.state.pasteIncoming || origin == "paste";
   var textLines = splitLinesAuto(inserted), multiPaste = null;
-  // When pasing N lines into N selections, insert one line per selection
+  // When pasting N lines into N selections, insert one line per selection
   if (paste && sel.ranges.length > 1) {
     if (lastCopied && lastCopied.text.join("\n") == inserted) {
       if (sel.ranges.length % lastCopied.text.length == 0) {
@@ -9353,8 +9370,12 @@ ContentEditableInput.prototype.showSelection = function (info, takeFocus) {
   this.showMultipleSelections(info);
 };
 
+ContentEditableInput.prototype.getSelection = function () {
+  return this.cm.display.wrapper.ownerDocument.getSelection()
+};
+
 ContentEditableInput.prototype.showPrimarySelection = function () {
-  var sel = window.getSelection(), cm = this.cm, prim = cm.doc.sel.primary();
+  var sel = this.getSelection(), cm = this.cm, prim = cm.doc.sel.primary();
   var from = prim.from(), to = prim.to();
 
   if (cm.display.viewTo == cm.display.viewFrom || from.line >= cm.display.viewTo || to.line < cm.display.viewFrom) {
@@ -9421,13 +9442,13 @@ ContentEditableInput.prototype.showMultipleSelections = function (info) {
 };
 
 ContentEditableInput.prototype.rememberSelection = function () {
-  var sel = window.getSelection();
+  var sel = this.getSelection();
   this.lastAnchorNode = sel.anchorNode; this.lastAnchorOffset = sel.anchorOffset;
   this.lastFocusNode = sel.focusNode; this.lastFocusOffset = sel.focusOffset;
 };
 
 ContentEditableInput.prototype.selectionInEditor = function () {
-  var sel = window.getSelection();
+  var sel = this.getSelection();
   if (!sel.rangeCount) { return false }
   var node = sel.getRangeAt(0).commonAncestorContainer;
   return contains(this.div, node)
@@ -9462,14 +9483,14 @@ ContentEditableInput.prototype.receivedFocus = function () {
 };
 
 ContentEditableInput.prototype.selectionChanged = function () {
-  var sel = window.getSelection();
+  var sel = this.getSelection();
   return sel.anchorNode != this.lastAnchorNode || sel.anchorOffset != this.lastAnchorOffset ||
     sel.focusNode != this.lastFocusNode || sel.focusOffset != this.lastFocusOffset
 };
 
 ContentEditableInput.prototype.pollSelection = function () {
   if (this.readDOMTimeout != null || this.gracePeriod || !this.selectionChanged()) { return }
-  var sel = window.getSelection(), cm = this.cm;
+  var sel = this.getSelection(), cm = this.cm;
   // On Android Chrome (version 56, at least), backspacing into an
   // uneditable block element will put the cursor in that element,
   // and then, because it's not editable, hide the virtual keyboard.
@@ -9603,7 +9624,7 @@ ContentEditableInput.prototype.setUneditable = function (node) {
 };
 
 ContentEditableInput.prototype.onKeyPress = function (e) {
-  if (e.charCode == 0) { return }
+  if (e.charCode == 0 || this.composing) { return }
   e.preventDefault();
   if (!this.cm.isReadOnly())
     { operation(this.cm, applyTextInput)(this.cm, String.fromCharCode(e.charCode == null ? e.keyCode : e.charCode), 0); }
@@ -9643,12 +9664,13 @@ function isInGutter(node) {
 function badPos(pos, bad) { if (bad) { pos.bad = true; } return pos }
 
 function domTextBetween(cm, from, to, fromLine, toLine) {
-  var text = "", closing = false, lineSep = cm.doc.lineSeparator();
+  var text = "", closing = false, lineSep = cm.doc.lineSeparator(), extraLinebreak = false;
   function recognizeMarker(id) { return function (marker) { return marker.id == id; } }
   function close() {
     if (closing) {
       text += lineSep;
-      closing = false;
+      if (extraLinebreak) { text += lineSep; }
+      closing = extraLinebreak = false;
     }
   }
   function addText(str) {
@@ -9660,8 +9682,8 @@ function domTextBetween(cm, from, to, fromLine, toLine) {
   function walk(node) {
     if (node.nodeType == 1) {
       var cmText = node.getAttribute("cm-text");
-      if (cmText != null) {
-        addText(cmText || node.textContent.replace(/\u200b/g, ""));
+      if (cmText) {
+        addText(cmText);
         return
       }
       var markerID = node.getAttribute("cm-marker"), range$$1;
@@ -9672,19 +9694,24 @@ function domTextBetween(cm, from, to, fromLine, toLine) {
         return
       }
       if (node.getAttribute("contenteditable") == "false") { return }
-      var isBlock = /^(pre|div|p)$/i.test(node.nodeName);
+      var isBlock = /^(pre|div|p|li|table|br)$/i.test(node.nodeName);
+      if (!/^br$/i.test(node.nodeName) && node.textContent.length == 0) { return }
+
       if (isBlock) { close(); }
       for (var i = 0; i < node.childNodes.length; i++)
         { walk(node.childNodes[i]); }
+
+      if (/^(pre|p)$/i.test(node.nodeName)) { extraLinebreak = true; }
       if (isBlock) { closing = true; }
     } else if (node.nodeType == 3) {
-      addText(node.nodeValue);
+      addText(node.nodeValue.replace(/\u200b/g, "").replace(/\u00a0/g, " "));
     }
   }
   for (;;) {
     walk(from);
     if (from == to) { break }
     from = from.nextSibling;
+    extraLinebreak = false;
   }
   return text
 }
@@ -9785,13 +9812,10 @@ TextareaInput.prototype.init = function (display) {
     var this$1 = this;
 
   var input = this, cm = this.cm;
+  this.createField(display);
+  var te = this.textarea;
 
-  // Wraps and hides input textarea
-  var div = this.wrapper = hiddenTextarea();
-  // The semihidden textarea that is focused when the editor is
-  // focused, and receives input.
-  var te = this.textarea = div.firstChild;
-  display.wrapper.insertBefore(div, display.wrapper.firstChild);
+  display.wrapper.insertBefore(this.wrapper, display.wrapper.firstChild);
 
   // Needed to hide big blue blinking cursor on Mobile Safari (doesn't seem to work in iOS 8 anymore)
   if (ios) { te.style.width = "0px"; }
@@ -9856,6 +9880,14 @@ TextareaInput.prototype.init = function (display) {
       input.composing = null;
     }
   });
+};
+
+TextareaInput.prototype.createField = function (_display) {
+  // Wraps and hides input textarea
+  this.wrapper = hiddenTextarea();
+  // The semihidden textarea that is focused when the editor is
+  // focused, and receives input.
+  this.textarea = this.wrapper.firstChild;
 };
 
 TextareaInput.prototype.prepareSelection = function () {
@@ -10251,7 +10283,7 @@ CodeMirror$1.fromTextArea = fromTextArea;
 
 addLegacyProps(CodeMirror$1);
 
-CodeMirror$1.version = "5.33.0";
+CodeMirror$1.version = "5.39.0";
 
 return CodeMirror$1;
 
@@ -10335,17 +10367,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return ret(ch);
     } else if (ch == "=" && stream.eat(">")) {
       return ret("=>", "operator");
-    } else if (ch == "0" && stream.eat(/x/i)) {
-      stream.eatWhile(/[\da-f]/i);
-      return ret("number", "number");
-    } else if (ch == "0" && stream.eat(/o/i)) {
-      stream.eatWhile(/[0-7]/i);
-      return ret("number", "number");
-    } else if (ch == "0" && stream.eat(/b/i)) {
-      stream.eatWhile(/[01]/i);
+    } else if (ch == "0" && stream.match(/^(?:x[\da-f]+|o[0-7]+|b[01]+)n?/i)) {
       return ret("number", "number");
     } else if (/\d/.test(ch)) {
-      stream.match(/^\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
+      stream.match(/^\d*(?:n|(?:\.\d*)?(?:[eE][+\-]?\d+)?)?/);
       return ret("number", "number");
     } else if (ch == "/") {
       if (stream.eat("*")) {
@@ -10356,7 +10381,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         return ret("comment", "comment");
       } else if (expressionAllowed(stream, state, 1)) {
         readRegexp(stream);
-        stream.match(/^\b(([gimyu])(?![gimyu]*\2))+\b/);
+        stream.match(/^\b(([gimyus])(?![gimyus]*\2))+\b/);
         return ret("regexp", "string-2");
       } else {
         stream.eat("=");
@@ -10386,7 +10411,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
           var kw = keywords[word]
           return ret(kw.type, kw.style, word)
         }
-        if (word == "async" && stream.match(/^(\s|\/\*.*?\*\/)*[\(\w]/, false))
+        if (word == "async" && stream.match(/^(\s|\/\*.*?\*\/)*[\[\(\w]/, false))
           return ret("async", "keyword", word)
       }
       return ret("variable", "variable", word)
@@ -10525,21 +10550,42 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     pass.apply(null, arguments);
     return true;
   }
+  function inList(name, list) {
+    for (var v = list; v; v = v.next) if (v.name == name) return true
+    return false;
+  }
   function register(varname) {
-    function inList(list) {
-      for (var v = list; v; v = v.next)
-        if (v.name == varname) return true;
-      return false;
-    }
     var state = cx.state;
     cx.marked = "def";
     if (state.context) {
-      if (inList(state.localVars)) return;
-      state.localVars = {name: varname, next: state.localVars};
+      if (state.lexical.info == "var" && state.context && state.context.block) {
+        // FIXME function decls are also not block scoped
+        var newContext = registerVarScoped(varname, state.context)
+        if (newContext != null) {
+          state.context = newContext
+          return
+        }
+      } else if (!inList(varname, state.localVars)) {
+        state.localVars = new Var(varname, state.localVars)
+        return
+      }
+    }
+    // Fall through means this is global
+    if (parserConfig.globalVars && !inList(varname, state.globalVars))
+      state.globalVars = new Var(varname, state.globalVars)
+  }
+  function registerVarScoped(varname, context) {
+    if (!context) {
+      return null
+    } else if (context.block) {
+      var inner = registerVarScoped(varname, context.prev)
+      if (!inner) return null
+      if (inner == context.prev) return context
+      return new Context(inner, context.vars, true)
+    } else if (inList(varname, context.vars)) {
+      return context
     } else {
-      if (inList(state.globalVars)) return;
-      if (parserConfig.globalVars)
-        state.globalVars = {name: varname, next: state.globalVars};
+      return new Context(context.prev, new Var(varname, context.vars), false)
     }
   }
 
@@ -10549,15 +10595,23 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   // Combinators
 
-  var defaultVars = {name: "this", next: {name: "arguments"}};
+  function Context(prev, vars, block) { this.prev = prev; this.vars = vars; this.block = block }
+  function Var(name, next) { this.name = name; this.next = next }
+
+  var defaultVars = new Var("this", new Var("arguments", null))
   function pushcontext() {
-    cx.state.context = {prev: cx.state.context, vars: cx.state.localVars};
-    cx.state.localVars = defaultVars;
+    cx.state.context = new Context(cx.state.context, cx.state.localVars, false)
+    cx.state.localVars = defaultVars
+  }
+  function pushblockcontext() {
+    cx.state.context = new Context(cx.state.context, cx.state.localVars, true)
+    cx.state.localVars = null
   }
   function popcontext() {
-    cx.state.localVars = cx.state.context.vars;
-    cx.state.context = cx.state.context.prev;
+    cx.state.localVars = cx.state.context.vars
+    cx.state.context = cx.state.context.prev
   }
+  popcontext.lex = true
   function pushlex(type, info) {
     var result = function() {
       var state = cx.state, indent = state.indented;
@@ -10582,19 +10636,19 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function expect(wanted) {
     function exp(type) {
       if (type == wanted) return cont();
-      else if (wanted == ";") return pass();
+      else if (wanted == ";" || type == "}" || type == ")" || type == "]") return pass();
       else return cont(exp);
     };
     return exp;
   }
 
   function statement(type, value) {
-    if (type == "var") return cont(pushlex("vardef", value.length), vardef, expect(";"), poplex);
+    if (type == "var") return cont(pushlex("vardef", value), vardef, expect(";"), poplex);
     if (type == "keyword a") return cont(pushlex("form"), parenExpr, statement, poplex);
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
     if (type == "keyword d") return cx.stream.match(/^\s*$/, false) ? cont() : cont(pushlex("stat"), maybeexpression, expect(";"), poplex);
     if (type == "debugger") return cont(expect(";"));
-    if (type == "{") return cont(pushlex("}"), block, poplex);
+    if (type == "{") return cont(pushlex("}"), pushblockcontext, block, poplex, popcontext);
     if (type == ";") return cont();
     if (type == "if") {
       if (cx.state.lexical.info == "else" && cx.state.cc[cx.state.cc.length - 1] == poplex)
@@ -10605,33 +10659,37 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "for") return cont(pushlex("form"), forspec, statement, poplex);
     if (type == "class" || (isTS && value == "interface")) { cx.marked = "keyword"; return cont(pushlex("form"), className, poplex); }
     if (type == "variable") {
-      if (isTS && value == "type") {
-        cx.marked = "keyword"
-        return cont(typeexpr, expect("operator"), typeexpr, expect(";"));
-      } else if (isTS && value == "declare") {
+      if (isTS && value == "declare") {
         cx.marked = "keyword"
         return cont(statement)
-      } else if (isTS && (value == "module" || value == "enum") && cx.stream.match(/^\s*\w/, false)) {
+      } else if (isTS && (value == "module" || value == "enum" || value == "type") && cx.stream.match(/^\s*\w/, false)) {
         cx.marked = "keyword"
-        return cont(pushlex("form"), pattern, expect("{"), pushlex("}"), block, poplex, poplex)
+        if (value == "enum") return cont(enumdef);
+        else if (value == "type") return cont(typeexpr, expect("operator"), typeexpr, expect(";"));
+        else return cont(pushlex("form"), pattern, expect("{"), pushlex("}"), block, poplex, poplex)
       } else if (isTS && value == "namespace") {
         cx.marked = "keyword"
         return cont(pushlex("form"), expression, block, poplex)
+      } else if (isTS && value == "abstract") {
+        cx.marked = "keyword"
+        return cont(statement)
       } else {
         return cont(pushlex("stat"), maybelabel);
       }
     }
-    if (type == "switch") return cont(pushlex("form"), parenExpr, expect("{"), pushlex("}", "switch"),
-                                      block, poplex, poplex);
+    if (type == "switch") return cont(pushlex("form"), parenExpr, expect("{"), pushlex("}", "switch"), pushblockcontext,
+                                      block, poplex, poplex, popcontext);
     if (type == "case") return cont(expression, expect(":"));
     if (type == "default") return cont(expect(":"));
-    if (type == "catch") return cont(pushlex("form"), pushcontext, expect("("), funarg, expect(")"),
-                                     statement, poplex, popcontext);
+    if (type == "catch") return cont(pushlex("form"), pushcontext, maybeCatchBinding, statement, poplex, popcontext);
     if (type == "export") return cont(pushlex("stat"), afterExport, poplex);
     if (type == "import") return cont(pushlex("stat"), afterImport, poplex);
     if (type == "async") return cont(statement)
     if (value == "@") return cont(expression, statement)
     return pass(pushlex("stat"), expression, expect(";"), poplex);
+  }
+  function maybeCatchBinding(type) {
+    if (type == "(") return cont(funarg, expect(")"))
   }
   function expression(type, value) {
     return expressionInner(type, value, false);
@@ -10661,6 +10719,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "{") return contCommasep(objprop, "}", null, maybeop);
     if (type == "quasi") return pass(quasi, maybeop);
     if (type == "new") return cont(maybeTarget(noComma));
+    if (type == "import") return cont(expression);
     return cont();
   }
   function maybeexpression(type) {
@@ -10820,19 +10879,19 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
   }
   function typeexpr(type, value) {
+    if (value == "keyof" || value == "typeof") {
+      cx.marked = "keyword"
+      return cont(value == "keyof" ? typeexpr : expressionNoComma)
+    }
     if (type == "variable" || value == "void") {
-      if (value == "keyof") {
-        cx.marked = "keyword"
-        return cont(typeexpr)
-      } else {
-        cx.marked = "type"
-        return cont(afterType)
-      }
+      cx.marked = "type"
+      return cont(afterType)
     }
     if (type == "string" || type == "number" || type == "atom") return cont(afterType);
     if (type == "[") return cont(pushlex("]"), commasep(typeexpr, "]", ","), poplex, afterType)
     if (type == "{") return cont(pushlex("}"), commasep(typeprop, "}", ",;"), poplex, afterType)
     if (type == "(") return cont(commasep(typearg, ")"), maybeReturnType)
+    if (type == "<") return cont(commasep(typeexpr, ">"), typeexpr)
   }
   function maybeReturnType(type) {
     if (type == "=>") return cont(typeexpr)
@@ -10849,13 +10908,14 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(expression, maybetype, expect("]"), typeprop)
     }
   }
-  function typearg(type) {
-    if (type == "variable") return cont(typearg)
-    else if (type == ":") return cont(typeexpr)
+  function typearg(type, value) {
+    if (type == "variable" && cx.stream.match(/^\s*[?:]/, false) || value == "?") return cont(typearg)
+    if (type == ":") return cont(typeexpr)
+    return pass(typeexpr)
   }
   function afterType(type, value) {
     if (value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, afterType)
-    if (value == "|" || type == ".") return cont(typeexpr)
+    if (value == "|" || type == "." || value == "&") return cont(typeexpr)
     if (type == "[") return cont(expect("]"), afterType)
     if (value == "extends" || value == "implements") { cx.marked = "keyword"; return cont(typeexpr) }
   }
@@ -10868,7 +10928,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function maybeTypeDefault(_, value) {
     if (value == "=") return cont(typeexpr)
   }
-  function vardef() {
+  function vardef(_, value) {
+    if (value == "enum") {cx.marked = "keyword"; return cont(enumdef)}
     return pass(pattern, maybetype, maybeAssign, vardefCont);
   }
   function pattern(type, value) {
@@ -10897,7 +10958,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function maybeelse(type, value) {
     if (type == "keyword b" && value == "else") return cont(pushlex("form", "else"), statement, poplex);
   }
-  function forspec(type) {
+  function forspec(type, value) {
+    if (value == "await") return cont(forspec);
     if (type == "(") return cont(pushlex(")"), forspec1, expect(")"), poplex);
   }
   function forspec1(type) {
@@ -10940,8 +11002,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function classNameAfter(type, value) {
     if (value == "<") return cont(pushlex(">"), commasep(typeparam, ">"), poplex, classNameAfter)
-    if (value == "extends" || value == "implements" || (isTS && type == ","))
+    if (value == "extends" || value == "implements" || (isTS && type == ",")) {
+      if (value == "implements") cx.marked = "keyword";
       return cont(isTS ? typeexpr : expression, classNameAfter);
+    }
     if (type == "{") return cont(pushlex("}"), classBody, poplex);
   }
   function classBody(type, value) {
@@ -10984,6 +11048,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function afterImport(type) {
     if (type == "string") return cont();
+    if (type == "(") return pass(expression);
     return pass(importSpec, maybeMoreImports, maybeFrom);
   }
   function importSpec(type, value) {
@@ -11004,6 +11069,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function arrayLiteral(type) {
     if (type == "]") return cont();
     return pass(commasep(expressionNoComma, "]"));
+  }
+  function enumdef() {
+    return pass(pushlex("form"), pattern, expect("{"), pushlex("}"), commasep(enummember, "}"), poplex, poplex)
+  }
+  function enummember() {
+    return pass(pattern, maybeAssign);
   }
 
   function isContinuedStatement(state, textAfter) {
@@ -11028,7 +11099,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         cc: [],
         lexical: new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false),
         localVars: parserConfig.localVars,
-        context: parserConfig.localVars && {vars: parserConfig.localVars},
+        context: parserConfig.localVars && new Context(null, null, false),
         indented: basecolumn || 0
       };
       if (parserConfig.globalVars && typeof parserConfig.globalVars == "object")
@@ -11069,7 +11140,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         lexical = lexical.prev;
       var type = lexical.type, closing = firstChar == type;
 
-      if (type == "vardef") return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? lexical.info + 1 : 0);
+      if (type == "vardef") return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? lexical.info.length + 1 : 0);
       else if (type == "form" && firstChar == "{") return lexical.indented;
       else if (type == "form") return lexical.indented + indentUnit;
       else if (type == "stat")
@@ -11390,6 +11461,27 @@ function factory(ReactComponent, isValidElement, ReactNoopUpdateQueue) {
      */
     componentWillUnmount: 'DEFINE_MANY',
 
+    /**
+     * Replacement for (deprecated) `componentWillMount`.
+     *
+     * @optional
+     */
+    UNSAFE_componentWillMount: 'DEFINE_MANY',
+
+    /**
+     * Replacement for (deprecated) `componentWillReceiveProps`.
+     *
+     * @optional
+     */
+    UNSAFE_componentWillReceiveProps: 'DEFINE_MANY',
+
+    /**
+     * Replacement for (deprecated) `componentWillUpdate`.
+     *
+     * @optional
+     */
+    UNSAFE_componentWillUpdate: 'DEFINE_MANY',
+
     // ==== Advanced methods ====
 
     /**
@@ -11403,6 +11495,23 @@ function factory(ReactComponent, isValidElement, ReactNoopUpdateQueue) {
      * @overridable
      */
     updateComponent: 'OVERRIDE_BASE'
+  };
+
+  /**
+   * Similar to ReactClassInterface but for static methods.
+   */
+  var ReactClassStaticInterface = {
+    /**
+     * This method is invoked after a component is instantiated and when it
+     * receives new props. Return an object to update state in response to
+     * prop changes. Return null to indicate no change to state.
+     *
+     * If an object is returned, its keys will be merged into the existing state.
+     *
+     * @return {object || null}
+     * @optional
+     */
+    getDerivedStateFromProps: 'DEFINE_MANY_MERGED'
   };
 
   /**
@@ -11639,6 +11748,7 @@ function factory(ReactComponent, isValidElement, ReactNoopUpdateQueue) {
     if (!statics) {
       return;
     }
+
     for (var name in statics) {
       var property = statics[name];
       if (!statics.hasOwnProperty(name)) {
@@ -11655,14 +11765,25 @@ function factory(ReactComponent, isValidElement, ReactNoopUpdateQueue) {
         name
       );
 
-      var isInherited = name in Constructor;
-      _invariant(
-        !isInherited,
-        'ReactClass: You are attempting to define ' +
-          '`%s` on your component more than once. This conflict may be ' +
-          'due to a mixin.',
-        name
-      );
+      var isAlreadyDefined = name in Constructor;
+      if (isAlreadyDefined) {
+        var specPolicy = ReactClassStaticInterface.hasOwnProperty(name)
+          ? ReactClassStaticInterface[name]
+          : null;
+
+        _invariant(
+          specPolicy === 'DEFINE_MANY_MERGED',
+          'ReactClass: You are attempting to define ' +
+            '`%s` on your component more than once. This conflict may be ' +
+            'due to a mixin.',
+          name
+        );
+
+        Constructor[name] = createMergedResultFunction(Constructor[name], property);
+
+        return;
+      }
+
       Constructor[name] = property;
     }
   }
@@ -11970,6 +12091,12 @@ function factory(ReactComponent, isValidElement, ReactNoopUpdateQueue) {
         !Constructor.prototype.componentWillRecieveProps,
         '%s has a method called ' +
           'componentWillRecieveProps(). Did you mean componentWillReceiveProps()?',
+        spec.displayName || 'A component'
+      );
+      warning(
+        !Constructor.prototype.UNSAFE_componentWillRecieveProps,
+        '%s has a method called UNSAFE_componentWillRecieveProps(). ' +
+          'Did you mean UNSAFE_componentWillReceiveProps()?',
         spec.displayName || 'A component'
       );
     }
@@ -15525,11 +15652,24 @@ process.umask = function() { return 0; };
 
 'use strict';
 
+var printWarning = function() {};
+
 if (process.env.NODE_ENV !== 'production') {
-  var invariant = require('fbjs/lib/invariant');
-  var warning = require('fbjs/lib/warning');
   var ReactPropTypesSecret = require('./lib/ReactPropTypesSecret');
   var loggedTypeFailures = {};
+
+  printWarning = function(text) {
+    var message = 'Warning: ' + text;
+    if (typeof console !== 'undefined') {
+      console.error(message);
+    }
+    try {
+      // --- Welcome to debugging React ---
+      // This error was thrown as a convenience so that you can use this stack
+      // to find the callsite that caused this warning to fire.
+      throw new Error(message);
+    } catch (x) {}
+  };
 }
 
 /**
@@ -15554,12 +15694,29 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
         try {
           // This is intentionally an invariant that gets caught. It's the same
           // behavior as without this statement except with a better message.
-          invariant(typeof typeSpecs[typeSpecName] === 'function', '%s: %s type `%s` is invalid; it must be a function, usually from ' + 'the `prop-types` package, but received `%s`.', componentName || 'React class', location, typeSpecName, typeof typeSpecs[typeSpecName]);
+          if (typeof typeSpecs[typeSpecName] !== 'function') {
+            var err = Error(
+              (componentName || 'React class') + ': ' + location + ' type `' + typeSpecName + '` is invalid; ' +
+              'it must be a function, usually from the `prop-types` package, but received `' + typeof typeSpecs[typeSpecName] + '`.'
+            );
+            err.name = 'Invariant Violation';
+            throw err;
+          }
           error = typeSpecs[typeSpecName](values, typeSpecName, componentName, location, null, ReactPropTypesSecret);
         } catch (ex) {
           error = ex;
         }
-        warning(!error || error instanceof Error, '%s: type specification of %s `%s` is invalid; the type checker ' + 'function must return `null` or an `Error` but returned a %s. ' + 'You may have forgotten to pass an argument to the type checker ' + 'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' + 'shape all require an argument).', componentName || 'React class', location, typeSpecName, typeof error);
+        if (error && !(error instanceof Error)) {
+          printWarning(
+            (componentName || 'React class') + ': type specification of ' +
+            location + ' `' + typeSpecName + '` is invalid; the type checker ' +
+            'function must return `null` or an `Error` but returned a ' + typeof error + '. ' +
+            'You may have forgotten to pass an argument to the type checker ' +
+            'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' +
+            'shape all require an argument).'
+          )
+
+        }
         if (error instanceof Error && !(error.message in loggedTypeFailures)) {
           // Only monitor this failure once because there tends to be a lot of the
           // same error.
@@ -15567,7 +15724,9 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
 
           var stack = getStack ? getStack() : '';
 
-          warning(false, 'Failed %s type: %s%s', location, error.message, stack != null ? stack : '');
+          printWarning(
+            'Failed ' + location + ' type: ' + error.message + (stack != null ? stack : '')
+          );
         }
       }
     }
@@ -15577,7 +15736,7 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
 module.exports = checkPropTypes;
 
 }).call(this,require('_process'))
-},{"./lib/ReactPropTypesSecret":19,"_process":14,"fbjs/lib/invariant":9,"fbjs/lib/warning":10}],16:[function(require,module,exports){
+},{"./lib/ReactPropTypesSecret":19,"_process":14}],16:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  *
@@ -15587,9 +15746,9 @@ module.exports = checkPropTypes;
 
 'use strict';
 
-var emptyFunction = require('fbjs/lib/emptyFunction');
-var invariant = require('fbjs/lib/invariant');
 var ReactPropTypesSecret = require('./lib/ReactPropTypesSecret');
+
+function emptyFunction() {}
 
 module.exports = function() {
   function shim(props, propName, componentName, location, propFullName, secret) {
@@ -15597,12 +15756,13 @@ module.exports = function() {
       // It is still safe when called from React.
       return;
     }
-    invariant(
-      false,
+    var err = new Error(
       'Calling PropTypes validators directly is not supported by the `prop-types` package. ' +
       'Use PropTypes.checkPropTypes() to call them. ' +
       'Read more at http://fb.me/use-check-prop-types'
     );
+    err.name = 'Invariant Violation';
+    throw err;
   };
   shim.isRequired = shim;
   function getShim() {
@@ -15637,7 +15797,7 @@ module.exports = function() {
   return ReactPropTypes;
 };
 
-},{"./lib/ReactPropTypesSecret":19,"fbjs/lib/emptyFunction":7,"fbjs/lib/invariant":9}],17:[function(require,module,exports){
+},{"./lib/ReactPropTypesSecret":19}],17:[function(require,module,exports){
 (function (process){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -15648,13 +15808,31 @@ module.exports = function() {
 
 'use strict';
 
-var emptyFunction = require('fbjs/lib/emptyFunction');
-var invariant = require('fbjs/lib/invariant');
-var warning = require('fbjs/lib/warning');
 var assign = require('object-assign');
 
 var ReactPropTypesSecret = require('./lib/ReactPropTypesSecret');
 var checkPropTypes = require('./checkPropTypes');
+
+var printWarning = function() {};
+
+if (process.env.NODE_ENV !== 'production') {
+  printWarning = function(text) {
+    var message = 'Warning: ' + text;
+    if (typeof console !== 'undefined') {
+      console.error(message);
+    }
+    try {
+      // --- Welcome to debugging React ---
+      // This error was thrown as a convenience so that you can use this stack
+      // to find the callsite that caused this warning to fire.
+      throw new Error(message);
+    } catch (x) {}
+  };
+}
+
+function emptyFunctionThatReturnsNull() {
+  return null;
+}
 
 module.exports = function(isValidElement, throwOnDirectAccess) {
   /* global Symbol */
@@ -15798,12 +15976,13 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
       if (secret !== ReactPropTypesSecret) {
         if (throwOnDirectAccess) {
           // New behavior only for users of `prop-types` package
-          invariant(
-            false,
+          var err = new Error(
             'Calling PropTypes validators directly is not supported by the `prop-types` package. ' +
             'Use `PropTypes.checkPropTypes()` to call them. ' +
             'Read more at http://fb.me/use-check-prop-types'
           );
+          err.name = 'Invariant Violation';
+          throw err;
         } else if (process.env.NODE_ENV !== 'production' && typeof console !== 'undefined') {
           // Old behavior for people using React.PropTypes
           var cacheKey = componentName + ':' + propName;
@@ -15812,15 +15991,12 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
             // Avoid spamming the console because they are often not actionable except for lib authors
             manualPropTypeWarningCount < 3
           ) {
-            warning(
-              false,
+            printWarning(
               'You are manually calling a React.PropTypes validation ' +
-              'function for the `%s` prop on `%s`. This is deprecated ' +
+              'function for the `' + propFullName + '` prop on `' + componentName  + '`. This is deprecated ' +
               'and will throw in the standalone `prop-types` package. ' +
               'You may be seeing this warning due to a third-party PropTypes ' +
-              'library. See https://fb.me/react-warning-dont-call-proptypes ' + 'for details.',
-              propFullName,
-              componentName
+              'library. See https://fb.me/react-warning-dont-call-proptypes ' + 'for details.'
             );
             manualPropTypeCallCache[cacheKey] = true;
             manualPropTypeWarningCount++;
@@ -15864,7 +16040,7 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
   }
 
   function createAnyTypeChecker() {
-    return createChainableTypeChecker(emptyFunction.thatReturnsNull);
+    return createChainableTypeChecker(emptyFunctionThatReturnsNull);
   }
 
   function createArrayOfTypeChecker(typeChecker) {
@@ -15914,8 +16090,8 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 
   function createEnumTypeChecker(expectedValues) {
     if (!Array.isArray(expectedValues)) {
-      process.env.NODE_ENV !== 'production' ? warning(false, 'Invalid argument supplied to oneOf, expected an instance of array.') : void 0;
-      return emptyFunction.thatReturnsNull;
+      process.env.NODE_ENV !== 'production' ? printWarning('Invalid argument supplied to oneOf, expected an instance of array.') : void 0;
+      return emptyFunctionThatReturnsNull;
     }
 
     function validate(props, propName, componentName, location, propFullName) {
@@ -15957,21 +16133,18 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 
   function createUnionTypeChecker(arrayOfTypeCheckers) {
     if (!Array.isArray(arrayOfTypeCheckers)) {
-      process.env.NODE_ENV !== 'production' ? warning(false, 'Invalid argument supplied to oneOfType, expected an instance of array.') : void 0;
-      return emptyFunction.thatReturnsNull;
+      process.env.NODE_ENV !== 'production' ? printWarning('Invalid argument supplied to oneOfType, expected an instance of array.') : void 0;
+      return emptyFunctionThatReturnsNull;
     }
 
     for (var i = 0; i < arrayOfTypeCheckers.length; i++) {
       var checker = arrayOfTypeCheckers[i];
       if (typeof checker !== 'function') {
-        warning(
-          false,
+        printWarning(
           'Invalid argument supplied to oneOfType. Expected an array of check functions, but ' +
-          'received %s at index %s.',
-          getPostfixForTypeWarning(checker),
-          i
+          'received ' + getPostfixForTypeWarning(checker) + ' at index ' + i + '.'
         );
-        return emptyFunction.thatReturnsNull;
+        return emptyFunctionThatReturnsNull;
       }
     }
 
@@ -16183,7 +16356,7 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 };
 
 }).call(this,require('_process'))
-},{"./checkPropTypes":15,"./lib/ReactPropTypesSecret":19,"_process":14,"fbjs/lib/emptyFunction":7,"fbjs/lib/invariant":9,"fbjs/lib/warning":10,"object-assign":13}],18:[function(require,module,exports){
+},{"./checkPropTypes":15,"./lib/ReactPropTypesSecret":19,"_process":14,"object-assign":13}],18:[function(require,module,exports){
 (function (process){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.

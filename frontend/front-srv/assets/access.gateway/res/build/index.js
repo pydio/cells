@@ -34,10 +34,6 @@ var _dialogOtherEditorPickerDialog = require('./dialog/OtherEditorPickerDialog')
 
 var _dialogOtherEditorPickerDialog2 = _interopRequireDefault(_dialogOtherEditorPickerDialog);
 
-var _dialogPermissionsDialog = require('./dialog/PermissionsDialog');
-
-var _dialogPermissionsDialog2 = _interopRequireDefault(_dialogPermissionsDialog);
-
 var _dialogTreeDialog = require('./dialog/TreeDialog');
 
 var _dialogTreeDialog2 = _interopRequireDefault(_dialogTreeDialog);
@@ -59,5 +55,4 @@ exports.Listeners = _listenerIndex2['default'];
 exports.MultiDownloadDialog = _dialogMultiDownloadDialog2['default'];
 exports.UploadDialog = _dialogUploadDialog2['default'];
 exports.OtherEditorPickerDialog = _dialogOtherEditorPickerDialog2['default'];
-exports.PermissionsDialog = _dialogPermissionsDialog2['default'];
 exports.TreeDialog = _dialogTreeDialog2['default'];
