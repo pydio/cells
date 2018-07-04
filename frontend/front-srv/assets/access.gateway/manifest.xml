@@ -359,9 +359,4 @@
             />
         </client_configs>
 	</registry_contributions>
-    <dependencies>
-        <pluginClass pluginName="access.s3"/>
-        <pluginResources pluginName="access.s3"/>
-    </dependencies>
-    <class_stream_wrapper filename="plugins/access.s3/S3AccessWrapper.php" classname="Pydio\Access\Driver\StreamProvider\S3\S3AccessWrapper" protocol="ajxp.s3"/>
 </ajxpdriver>

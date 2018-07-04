@@ -3,14 +3,10 @@
 	<client_settings icon="plug/access.mysql/resources/images/mysql_icon.png">
 		<resources>
 			<i18n namespace="meta.user" remote="plug/meta.user/i18n" />
-			<js file="plug/meta.user/class.MetaCellRenderer.js" className="MetaCellRenderer"/>
 			<js file="plug/meta.user/js/build/ReactMeta.js" className="ReactMeta"/>
 		</resources>
 	</client_settings>
 	<registry_contributions>
-		<hooks>
-			<serverCallback hookName="node.info" methodName="extractMeta" applyCondition="$apply=($args[2]!='minimal');"/>
-		</hooks>
 		<client_configs>
 			<template_part ajxpId="search_container" ajxpClass="SearchEngine" ajxpOptions='{"toggleResultsVisibility":"search_results_cont", "searchChooserAsResultsHeader":true, "openSearchInput":"true", "openSearchStickLeftTo":"topPane", "toggleResultsFitTo":"cpane_tabs", "fitMarginBottom":0, "toggleResultsOffsetRight":0, "toggleResultsOffsetTop":0, "detailThumbSize":24}' theme="orbit"/>
 			<template_part ajxpId="search_container" ajxpClass="SearchEngine" ajxpOptions='{"toggleResultsVisibility":"search_results_cont", "searchChooserAsResultsHeader":true, "openSearchInput":"true", "openSearchStickLeftTo":"cpane_container", "toggleResultsFitTo":"cpane_tabs", "fitMarginBottom":0, "toggleResultsOffsetRight":0, "toggleResultsOffsetTop":0, "detailThumbSize":24}' theme="material"/>
@@ -65,8 +61,4 @@
 			</action>
 		</actions>
 	</registry_contributions>
-	<dependencies>
-		<!-- Wrapper type plugins only -->
-		<pluginClass pluginName="access.gateway"/>
-	</dependencies>
 </meta>
