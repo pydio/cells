@@ -12,4 +12,5 @@ type RequestStatus struct {
 
 	User     *User
 	NoClaims bool
+	Lang     string
 }

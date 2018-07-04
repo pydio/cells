@@ -149,7 +149,6 @@ var (
 	}
 
 	{{if .TLS}}tls {{.TLS}}{{end}}
-	root "{{.Root}}"
 	errors "{{.Logs}}/caddy_errors.log"
 }
 {{if .HttpRedirectSource}}

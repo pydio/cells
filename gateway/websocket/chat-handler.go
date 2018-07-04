@@ -116,7 +116,7 @@ func (c *ChatHandler) InitHandlers(serviceCtx context.Context) {
 			ctx := context.Background()
 			log.Logger(serviceCtx).Debug("Got Message", zap.Any("msg", chatMsg))
 			var userName string
-			if userData, ok := session.Get(SessionUsernameKey); !ok {
+			if userData, ok := session.Get(SessionUsernameKey); !ok && userData != nil {
 				log.Logger(ctx).Error("Chat Message requires ws subscription first")
 			} else {
 				userName = userData.(string)

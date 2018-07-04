@@ -40,3 +40,8 @@ func RestError403(req *restful.Request, resp *restful.Response, err error) {
 	log.Logger(req.Request.Context()).Error("Rest Error 403", zap.Error(err))
 	resp.WriteError(403, err)
 }
+
+func RestError401(req *restful.Request, resp *restful.Response, err error) {
+	log.Logger(req.Request.Context()).Error("Rest Error 401", zap.Error(err))
+	resp.WriteError(401, err)
+}

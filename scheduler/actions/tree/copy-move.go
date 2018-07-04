@@ -248,7 +248,13 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	// Now Copy/Move initial node
 	if sourceNode.IsLeaf() {
-		_, e := c.Client.CopyObject(ctx, sourceNode, targetNode, &views.CopyRequestData{})
+		meta := make(map[string]string, 1)
+		if c.Move {
+			meta["X-Amz-Metadata-Directive"] = "COPY"
+		} else {
+			meta["X-Amz-Metadata-Directive"] = "REPLACE"
+		}
+		_, e := c.Client.CopyObject(ctx, sourceNode, targetNode, &views.CopyRequestData{Metadata: meta})
 		if e != nil {
 			return output.WithError(e), e
 		}

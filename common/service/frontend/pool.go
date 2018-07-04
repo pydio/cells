@@ -16,11 +16,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type I18nMessages struct {
-	Messages     map[string]string
-	ConfMessages map[string]string
-}
-
 type PluginsPool struct {
 	Plugins             map[string]Plugin
 	loadedEditableMimes []string
@@ -79,6 +74,13 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 	registry.Cclient_configs = &Cclient_configs{}
 	registry.Cuser = status.User.Publish(status, p)
 
+	messages := p.Messages["en"]
+	if status.Lang != "" {
+		if msg, ok := p.Messages[status.Lang]; ok {
+			messages = msg
+		}
+	}
+
 	for _, plugin := range plugins {
 
 		configs := plugin.PluginConfigs(status)
@@ -87,30 +89,35 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 			clone := &Cuploader{}
 			copier.Copy(&clone, p)
 			clone.ExposeConfigs(configs)
+			clone.Translate(messages)
 			clone.Cregistry_contributions = nil
 			registry.Cplugins.Cuploader = append(registry.Cplugins.Cuploader, clone)
 		} else if p, ok := plugin.(*Ceditor); ok {
 			clone := &Ceditor{}
 			copier.Copy(&clone, p)
 			clone.ExposeConfigs(configs)
+			clone.Translate(messages)
 			clone.Cregistry_contributions = nil
 			registry.Cplugins.Ceditor = append(registry.Cplugins.Ceditor, clone)
 		} else if p, ok := plugin.(*Cmeta); ok {
 			clone := &Cmeta{}
 			copier.Copy(&clone, p)
 			clone.ExposeConfigs(configs)
+			clone.Translate(messages)
 			clone.Cregistry_contributions = nil
 			registry.Cplugins.Cmeta = append(registry.Cplugins.Cmeta, clone)
 		} else if p, ok := plugin.(*Cajxpdriver); ok {
 			clone := &Cajxpdriver{}
 			copier.Copy(&clone, p)
 			clone.ExposeConfigs(configs)
+			clone.Translate(messages)
 			clone.Cregistry_contributions = nil
 			registry.Cplugins.Cajxpdriver = append(registry.Cplugins.Cajxpdriver, clone)
 		} else if p, ok := plugin.(*Cplugin); ok {
 			clone := &Cplugin{}
 			copier.Copy(&clone, p)
 			clone.ExposeConfigs(configs)
+			clone.Translate(messages)
 			clone.Cregistry_contributions = nil
 			registry.Cplugins.Cplugin = append(registry.Cplugins.Cplugin, clone)
 		}

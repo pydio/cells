@@ -9,6 +9,8 @@ import (
 
 	"encoding/base64"
 
+	"strings"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
@@ -49,9 +51,12 @@ func NewSessionWrapper(h http.Handler) http.Handler {
 			ctx := r.Context()
 			ctx, _, err = jwtVerifier.Verify(ctx, value.(string))
 			if err != nil {
-				// This JWT is invalid. Silently remove it from session
-				delete(session.Values, "jwt")
-				session.Save(r, w)
+				// If it is expired, may be it will be refreshed after so do not remove it from session
+				if !strings.Contains(err.Error(), "token is expired") {
+					// There is something wrong. Silently remove it from session
+					delete(session.Values, "jwt")
+					session.Save(r, w)
+				}
 			} else {
 				log.Logger(ctx).Info("Found token in session")
 				// Update context

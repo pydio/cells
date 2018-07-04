@@ -21,22 +21,14 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
+	"io"
+	"strings"
+	"time"
 
 	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-
-	"strings"
-
-	"encoding/base64"
-
-	"time"
-
-	"io"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -79,6 +71,10 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 	}
 	ctx := req.Request.Context()
 	wsId := req.QueryParameter("ws")
+	lang := req.QueryParameter("lang")
+	if lang == "" {
+		lang = "en"
+	}
 
 	user := &frontend.User{}
 	if e := user.Load(ctx); e != nil {
@@ -96,6 +92,7 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 		WsScopes:      user.GetActiveScopes(),
 		User:          user,
 		NoClaims:      !user.Logged,
+		Lang:          lang,
 	}
 	registry := pool.RegistryForStatus(ctx, status)
 	rsp.WriteAsXml(registry)
@@ -114,6 +111,8 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 }
 
 func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
+
+	ctx := req.Request.Context()
 
 	var loginRequest rest.FrontSessionRequest
 	if e := req.ReadEntity(&loginRequest); e != nil {
@@ -135,15 +134,36 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 
 	if loginRequest.Login == "" && loginRequest.Password == "" {
+
 		if session, err := frontend.GetSessionStore().Get(req.Request, "pydio"); err == nil {
 			if val, ok := session.Values["jwt"]; ok {
-				expiry := session.Values["expiry"].(int)
-				expTime := time.Unix(int64(expiry), 0)
+				expiry := session.Values["expiry"].(int64)
+				expTime := time.Unix(expiry, 0)
+				ref := time.Now()
+				if refresh, refOk := session.Values["refresh_token"]; refOk && (expTime.Before(ref) || expTime.Equal(ref)) {
+					// Refresh token
+					log.Logger(req.Request.Context()).Info("Refreshing Token Now", zap.Any("refresh", refresh), zap.Any("nonce", session.Values["nonce"]))
+					refreshResponse, err := GrantTypeAccess(session.Values["nonce"].(string), refresh.(string), "", "")
+					if err != nil {
+						service.RestError401(req, rsp, err)
+						return
+					}
+					expiry := refreshResponse["expires_in"].(float64)
+					expTime = time.Now().Add(time.Duration(expiry) * time.Second)
+					val = refreshResponse["id_token"].(string)
+					newRefresh := refreshResponse["refresh_token"].(string)
+					session.Values["jwt"] = val
+					session.Values["expiry"] = expTime.Unix()
+					session.Values["refresh_token"] = newRefresh
+					if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
+						log.Logger(req.Request.Context()).Error("Error saving session", zap.Error(e))
+					}
+				}
 				response := &rest.FrontSessionResponse{
 					JWT:        val.(string),
 					ExpireTime: int32(expTime.Sub(time.Now()).Seconds()),
 				}
-				log.Logger(req.Request.Context()).Info("Sending response from session", zap.Any("r", response))
+				log.Logger(ctx).Debug("Sending response from session", zap.Any("r", response))
 				rsp.WriteEntity(response)
 			} else {
 				// Just send an empty response
@@ -153,49 +173,19 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 			service.RestError500(req, rsp, fmt.Errorf("could not load session store", err))
 		}
 		return
+
 	}
 
-	fullURL := config.Get("defaults", "urlInternal").String("") + "/auth/dex/token"
-
-	data := url.Values{}
-	data.Set("grant_type", "password")
-	data.Add("username", loginRequest.Login)
-	data.Add("password", loginRequest.Password)
-	data.Add("scope", "email profile pydio")
-	data.Add("nonce", uuid.New())
-
-	httpReq, err := http.NewRequest("POST", fullURL, strings.NewReader(data.Encode()))
+	nonce := uuid.New()
+	respMap, err := GrantTypeAccess(nonce, "", loginRequest.Login, loginRequest.Password)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		service.RestError401(req, rsp, err)
 		return
-	}
-
-	auth := "cells-front" + ":" + "2va32eFc43l8Sy91JscvL5cN"
-	basic := "Basic " + base64.StdEncoding.EncodeToString([]byte(auth))
-
-	httpReq.Header.Add("Content-Type", "application/x-www-form-urlencoded") // Important our dex API does not yet support json payload.
-	httpReq.Header.Add("Cache-Control", "no-cache")
-	httpReq.Header.Add("Authorization", basic)
-
-	res, err := http.DefaultClient.Do(httpReq)
-	if err != nil {
-		service.RestError500(req, rsp, err)
-		return
-	}
-	defer res.Body.Close()
-
-	var respMap map[string]interface{}
-	err = json.NewDecoder(res.Body).Decode(&respMap)
-	if err != nil {
-		service.RestError500(req, rsp, fmt.Errorf("could not unmarshall response with status %d: %s\nerror cause: %s", res.StatusCode, res.Status, err.Error()))
-		return
-	}
-	if errMsg, exists := respMap["error"]; exists {
-		service.RestError500(req, rsp, fmt.Errorf("could not retrieve token, %s: %s", errMsg, respMap["error_description"]))
 	}
 
 	token := respMap["id_token"].(string)
-	expiry := respMap["expires_in"].(float64) - 60 // Secure by shortening expiration time
+	expiry := respMap["expires_in"].(float64)
+	refreshToken := respMap["refresh_token"].(string)
 
 	response := &rest.FrontSessionResponse{
 		JWT:        token,
@@ -204,8 +194,10 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 
 	if session, err := frontend.GetSessionStore().Get(req.Request, "pydio"); err == nil {
 		log.Logger(req.Request.Context()).Info("Saving token in session")
+		session.Values["nonce"] = nonce
 		session.Values["jwt"] = token
-		session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Second()
+		session.Values["refresh_token"] = refreshToken
+		session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Unix()
 		if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
 			log.Logger(req.Request.Context()).Error("Error saving session", zap.Error(e))
 		}

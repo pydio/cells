@@ -175,6 +175,27 @@ func (plugin *Cplugin) ExposeConfigs(c map[string]interface{}) {
 	}
 }
 
+func (plugin *Cplugin) Translate(messages I18nMessages) {
+	if plugin.Cserver_settings != nil {
+		for _, param := range plugin.Cserver_settings.Cglobal_param {
+			param.Attrlabel = i18nConfMessages(param.Attrlabel, messages.ConfMessages)
+			param.Attrdescription = i18nConfMessages(param.Attrdescription, messages.ConfMessages)
+			param.Attrchoices = i18nConfMessages(param.Attrchoices, messages.ConfMessages)
+			param.Attrdefault = i18nConfMessages(param.Attrdefault, messages.ConfMessages)
+			param.Attrgroup = i18nConfMessages(param.Attrgroup, messages.ConfMessages)
+		}
+		for _, param := range plugin.Cserver_settings.Cparam {
+			param.Attrlabel = i18nConfMessages(param.Attrlabel, messages.ConfMessages)
+			param.Attrdescription = i18nConfMessages(param.Attrdescription, messages.ConfMessages)
+			param.Attrchoices = i18nConfMessages(param.Attrchoices, messages.ConfMessages)
+			param.Attrdefault = i18nConfMessages(param.Attrdefault, messages.ConfMessages)
+			param.Attrgroup = i18nConfMessages(param.Attrgroup, messages.ConfMessages)
+		}
+	}
+	plugin.Attrlabel = i18nConfMessages(plugin.Attrlabel, messages.ConfMessages)
+	plugin.Attrdescription = i18nConfMessages(plugin.Attrdescription, messages.ConfMessages)
+}
+
 func (plugin *Cplugin) PluginEnabled(status RequestStatus) bool {
 
 	enabled := plugin.DefaultEnabled()
