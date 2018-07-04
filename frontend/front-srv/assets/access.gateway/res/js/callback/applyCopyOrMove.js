@@ -28,22 +28,20 @@ export default function (pydio) {
      * @param wsId string
      */
     return function(type, selection, path, wsId){
-        let action, params = {dest:path};
-        if(wsId) {
-            action = 'cross_copy';
-            params['dest_repository_id'] = wsId;
-            if(type === 'move') {
-                params['moving_files'] = 'true';
-            }
-            PydioApi.getClient().postSelectionWithAction(action, null, selection, params);
-            return;
-        }
 
         const slug = pydio.user.getActiveRepositoryObject().getSlug();
+        let targetSlug = slug;
+        if(wsId) {
+            const target = pydio.user.getRepositoriesList().get(wsId);
+            if(target){
+                targetSlug = target.getSlug();
+            }
+        }
+
         const paths = selection.getSelectedNodes().map(n => slug + n.getPath());
         const jobParams =  {
             nodes: paths,
-            target: slug + path,
+            target: targetSlug + path,
             targetParent: true
         };
         PydioApi.getRestClient().userJob(type, jobParams).then(r => {

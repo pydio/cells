@@ -18,17 +18,27 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import PydioApi from "pydio/http/api";
+import PydioApi from 'pydio/http/api'
+import PathUtils from 'pydio/util/path'
 
 export default function (pydio) {
 
     return function(){
-        const callback = function(node, newValue){
-            if(!node) node = pydio.getUserSelection().getUniqueNode();
-            PydioApi.getClient().request({
-                get_action:'rename',
-                file:node.getPath(),
-                filename_new: newValue
+        const callback = (node, newValue) => {
+            if(!node) {
+                node = pydio.getUserSelection().getUniqueNode();
+            }
+            const slug = pydio.user.getActiveRepositoryObject().getSlug();
+            const path = slug + node.getPath();
+            const target = PathUtils.getDirname(path) + '/' + newValue;
+            const jobParams =  {
+                nodes: [path],
+                target: target,
+                targetParent: false
+            };
+            PydioApi.getRestClient().userJob('move', jobParams).then(r => {
+                pydio.UI.displayMessage('SUCCESS', 'Renaming');
+                pydio.getContextHolder().setSelectedNodes([]);
             });
         };
         const n = pydio.getUserSelection().getSelectedNodes()[0];

@@ -20,7 +20,6 @@
 
 import MultiDownloadDialog from './dialog/MultiDownloadDialog'
 import OtherEditorPickerDialog from './dialog/OtherEditorPickerDialog'
-import PermissionsDialog from './dialog/PermissionsDialog'
 import TreeDialog from './dialog/TreeDialog'
 import UploadDialog from './dialog/UploadDialog'
 
@@ -34,6 +33,5 @@ export {
     MultiDownloadDialog,
     UploadDialog,
     OtherEditorPickerDialog,
-    PermissionsDialog,
     TreeDialog
 }

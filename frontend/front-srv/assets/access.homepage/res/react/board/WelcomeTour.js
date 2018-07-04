@@ -105,7 +105,7 @@ let WidgetsCard = (props) => {
         <div>
             <p>{props.message('widget-cards')}</p>
             <Scheme>
-                <img src="plugins/access.homepage/res/images/movecards.gif" style={{height:70, margin:'15px 30px'}}/>
+                <img src="plug/access.homepage/res/images/movecards.gif" style={{height:70, margin:'15px 30px'}}/>
             </Scheme>
         </div>
     );
