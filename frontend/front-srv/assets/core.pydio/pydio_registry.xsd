@@ -608,7 +608,7 @@
         <xs:complexType>
             <xs:attribute name="autoload" type="xs:boolean"/>
             <xs:attribute name="namespace" use="required"/>
-            <xs:attribute name="path" use="required"/>
+            <xs:attribute name="remote" use="required"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="img_library">

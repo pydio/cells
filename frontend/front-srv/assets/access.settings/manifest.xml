@@ -4,7 +4,7 @@
         <core_relation packaged="true"/>
         <plugin_author>Charles du Jeu</plugin_author>
     </plugin_info>
-	<client_settings icon="plugins/access.settings/admin.png">
+	<client_settings icon="plug/access.settings/admin.png">
 		<resources>
 			<i18n namespace="settings" remote="plug/access.settings/res/i18n" />
 			<i18n namespace="role_editor" remote="plug/access.settings/res/i18n/role" />

@@ -10,7 +10,7 @@
             <js
                 className="PydioCoreActions"
                 file="plug/gui.ajax/res/build/PydioCoreActions.min.js"
-                fallbackFile="plugins/gui.ajax/res/build/PydioCoreActions.js"
+                fallbackFile="plug/gui.ajax/res/build/PydioCoreActions.js"
                 fallbackCondition="pydio.Parameters.get('debugMode')"
                 depends="React"
                 expose="actions/core"
@@ -23,7 +23,7 @@
             <js
                 className="PydioReactUI"
                 file="plug/gui.ajax/res/build/PydioReactUI.min.js"
-                fallbackFile="plugins/gui.ajax/res/build/PydioReactUI.js"
+                fallbackFile="plug/gui.ajax/res/build/PydioReactUI.js"
                 fallbackCondition="pydio.Parameters.get('debugMode')"
                 depends="React,PydioHOCs"
                 expose="boot"
@@ -33,7 +33,7 @@
                 file="plug/gui.ajax/res/build/PydioComponents.min.js"
                 depends="React,PydioForm"
                 fallbackCondition="pydio.Parameters.get('debugMode')"
-                fallbackFile="plugins/gui.ajax/res/build/PydioComponents.js"
+                fallbackFile="plug/gui.ajax/res/build/PydioComponents.js"
                 expose="components"
             />
             <js
@@ -41,14 +41,14 @@
                 file="plug/gui.ajax/res/build/PydioHOCs.min.js"
                 depends="React"
                 fallbackCondition="pydio.Parameters.get('debugMode')"
-                fallbackFile="plugins/gui.ajax/res/build/PydioHOCs.js"
+                fallbackFile="plug/gui.ajax/res/build/PydioHOCs.js"
                 expose="hoc"
             />
             <js
                 className="PydioWorkspaces"
                 file="plug/gui.ajax/res/build/PydioWorkspaces.min.js"
                 fallbackCondition="pydio.Parameters.get('debugMode')"
-                fallbackFile="plugins/gui.ajax/res/build/PydioWorkspaces.js"
+                fallbackFile="plug/gui.ajax/res/build/PydioWorkspaces.js"
                 depends="React,PydioComponents,PydioHOCs"
                 expose="workspaces"
             />
@@ -61,16 +61,16 @@
                     editable="true"
                     uploadAction="store_binary_temp"
                     loadAction="get_global_binary_param"
-                    defaultImage="plugins/gui.ajax/res/themes/common/images/LoginBoxLogo.png"
+                    defaultImage="plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png"
                     mandatory="false"
                     expose="true"
                 />
-        <global_param name="CUSTOM_ICON" group="CONF_MESSAGE[Login Screen]" type="string" label="CONF_MESSAGE[Icon Path (Legacy)]" description="CONF_MESSAGE[URI to a custom image to be used as start up logo]" default="plugins/gui.ajax/res/themes/common/images/LoginBoxLogo.png" mandatory="false" expose="true"/>
+        <global_param name="CUSTOM_ICON" group="CONF_MESSAGE[Login Screen]" type="string" label="CONF_MESSAGE[Icon Path (Legacy)]" description="CONF_MESSAGE[URI to a custom image to be used as start up logo]" default="plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png" mandatory="false" expose="true"/>
         <global_param name="CUSTOM_DASH_LOGO" group="CONF_MESSAGE[Login Screen]"  label="CONF_MESSAGE[User Home Logo]" description="CONF_MESSAGE[Replace the logo displayed in the welcome page]"  type="image"
                       editable="true"
                       uploadAction="store_binary_temp"
                       loadAction="get_global_binary_param"
-                      defaultImage="plugins/gui.ajax/res/themes/common/images/PydioLogo250.png"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/PydioLogo250.png"
                       expose="true"
                 />
         <global_param name="CLIENT_TIMEOUT_TIME" group="CONF_MESSAGE[Web Session]" type="integer" label="CONF_MESSAGE[Client Timeout]" description="CONF_MESSAGE[The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.]" mandatory="false"/>
@@ -80,7 +80,7 @@
                       editable="true"
                       uploadAction="store_binary_temp"
                       loadAction="get_global_binary_param"
-                      defaultImage="plugins/gui.ajax/res/themes/common/images/hires-photos/01.jpg"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/01.jpg"
                       expose="true"
                 />
         <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_1" group="CONF_MESSAGE[Page Background Images]" type="select"
@@ -92,7 +92,7 @@
                       editable="true"
                       uploadAction="store_binary_temp"
                       loadAction="get_global_binary_param"
-                      defaultImage="plugins/gui.ajax/res/themes/common/images/hires-photos/02.jpg"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/02.jpg"
                       expose="true"
                 />
         <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_2" group="CONF_MESSAGE[Page Background Images]" type="select"
@@ -104,7 +104,7 @@
                       editable="true"
                       uploadAction="store_binary_temp"
                       loadAction="get_global_binary_param"
-                      defaultImage="plugins/gui.ajax/res/themes/common/images/hires-photos/03.jpg"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/03.jpg"
                       expose="true"
                 />
         <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_3" group="CONF_MESSAGE[Page Background Images]" type="select"
@@ -116,7 +116,7 @@
                       editable="true"
                       uploadAction="store_binary_temp"
                       loadAction="get_global_binary_param"
-                      defaultImage="plugins/gui.ajax/res/themes/common/images/hires-photos/04.jpg"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/04.jpg"
                       expose="true"
                 />
         <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_4" group="CONF_MESSAGE[Page Background Images]" type="select"
@@ -128,7 +128,7 @@
                       editable="true"
                       uploadAction="store_binary_temp"
                       loadAction="get_global_binary_param"
-                      defaultImage="plugins/gui.ajax/res/themes/common/images/hires-photos/05.jpg"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/05.jpg"
                       expose="true"
                 />
         <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_5" group="CONF_MESSAGE[Page Background Images]" type="select"
@@ -140,7 +140,7 @@
                       editable="true"
                       uploadAction="store_binary_temp"
                       loadAction="get_global_binary_param"
-                      defaultImage="plugins/gui.ajax/res/themes/common/images/hires-photos/06.jpg"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/06.jpg"
                       expose="true"
                 />
         <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_6" group="CONF_MESSAGE[Page Background Images]" type="select"
@@ -152,7 +152,7 @@
                       editable="true"
                       uploadAction="store_binary_temp"
                       loadAction="get_global_binary_param"
-                      defaultImage="plugins/gui.ajax/res/themes/common/images/hires-photos/03-mobile.jpg"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/03-mobile.jpg"
                       expose="true"
                 />
 
@@ -165,7 +165,7 @@
                       editable="true"
                       uploadAction="store_binary_temp"
                       loadAction="get_global_binary_param"
-                      defaultImage="plugins/gui.ajax/res/themes/common/images/hires-photos/02.jpg"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/02.jpg"
                       expose="true"
                 />
         <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_ATTRIBUTES_1" group="CONF_MESSAGE[Minisite]" type="select"
@@ -176,7 +176,7 @@
                       editable="true"
                       uploadAction="store_binary_temp"
                       loadAction="get_global_binary_param"
-                      defaultImage="plugins/gui.ajax/res/themes/common/images/hires-photos/03.jpg"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/03.jpg"
                       expose="true"
                 />
         <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_ATTRIBUTES_2" group="CONF_MESSAGE[Minisite]" type="select"
@@ -186,7 +186,7 @@
                       editable="true"
                       uploadAction="store_binary_temp"
                       loadAction="get_global_binary_param"
-                      defaultImage="plugins/gui.ajax/res/themes/common/images/hires-photos/05.jpg"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/05.jpg"
                       expose="true"
                 />
         <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_ATTRIBUTES_3" group="CONF_MESSAGE[Minisite]" type="select"

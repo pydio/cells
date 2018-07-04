@@ -69,7 +69,7 @@ class BackgroundImage{
                 bgrounds[n] = d.getAttribute("defaultImage");
             }else{
                 if(PathUtils.getBasename(bgrounds[n]) == bgrounds[n]){
-                    bgrounds[n] = pydio.Parameters.get('ajxpServerAccess')+"&get_action=get_global_binary_param&binary_id="+bgrounds[n];
+                    bgrounds[n] = pydio.Parameters.get('ENDPOINT_REST_API')+"/frontend/binaries/GLOBAL/"+bgrounds[n];
                 }
             }
         });

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ajxpdriver id="access.homepage" enabled="always" label="CONF_MESSAGE[Welcome Page]" description="CONF_MESSAGE[Welcome Page displaying a list of workspaces]"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
-	<client_settings icon="plugins/access.homepage/share.png">
+	<client_settings icon="plug/access.homepage/share.png">
 		<resources>
 			<i18n namespace="user_home" remote="plug/access.homepage/res/i18n" />
             <js className="WelcomeComponents" file="plug/access.homepage/res/build/WelcomeComponents.js" depends="React,PydioComponents,PydioWorkspaces,PydioForm,PydioActivityStreams"/>

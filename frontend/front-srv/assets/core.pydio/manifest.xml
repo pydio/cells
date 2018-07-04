@@ -30,4 +30,82 @@
 		<global_param name="NODENAME_MAX_LENGTH" expose="true" group="CONF_MESSAGE[Miscellaneous]" type="integer" label="CONF_MESSAGE[Filename length]" description="CONF_MESSAGE[Maximum characters length of new files or folders]" mandatory="false" default="255"/>
 		<global_param name="PYDIO_TMP_DIR" group="CONF_MESSAGE[Miscellaneous]" type="string" label="CONF_MESSAGE[Temporary Folder]" description="CONF_MESSAGE[This is necessary only if you have errors concerning the tmp dir access or writeability : most probably, they are due to PHP SAFE MODE (should disappear in php6) or various OPEN_BASEDIR restrictions. In that case, create and set writeable a tmp folder somewhere at the root of your hosting (but above the web/ or www/ or http/ if possible!!) and enter here the full path to this folder]" mandatory="false" default=""/>
 	</server_settings>
+
+
+    <registry_contributions>
+        <extensions>
+            <extension mime="ajxp_folder" messageId="8" font="folder"/>
+            <extension mime="ajxp_empty" messageId="23" font="file"/>
+
+            <extension mime="mid" messageId="9" font="file-music"/>
+            <extension mime="txt" messageId="10" font="file-document"/>
+            <extension mime="sql" messageId="10" font="file-document"/>
+            <extension mime="js" messageId="11" font="language-javascript"/>
+            <extension mime="gif" messageId="12" font="file-image"/>
+            <extension mime="jpg" messageId="13" font="file-image"/>
+            <extension mime="jpeg" messageId="13" font="file-image"/>
+            <extension mime="bmp" messageId="56" font="file-image"/>
+            <extension mime="png" messageId="57" font="file-image"/>
+            <extension mime="tiff" messageId="TIFF" font="file-image"/>
+            <extension mime="tif" messageId="TIFF" font="file-image"/>
+            <extension mime="svg" messageId="SVG" font="file-image"/>
+            <extension mime="psd" messageId="Photoshop" font="file-image"/>
+            <extension mime="html" messageId="14" font="language-html5"/>
+            <extension mime="htm" messageId="14" font="language-html5"/>
+            <extension mime="rar" messageId="60" font="archive"/>
+            <extension mime="tar" messageId="61" font="archive"/>
+            <extension mime="tgz" messageId="61" font="archive"/>
+            <extension mime="gz" messageId="61" font="archive"/>
+            <extension mime="z" messageId="61" font="archive"/>
+            <extension mime="zip" messageId="19" font="archive"/>
+            <extension mime="ra" messageId="16" font="file-video"/>
+            <extension mime="ram" messageId="17" font="file-video"/>
+            <extension mime="rm" messageId="17" font="file-video"/>
+            <extension mime="mov" messageId="80" font="file-video"/>
+            <extension mime="avi" messageId="81" font="file-video"/>
+            <extension mime="mpg" messageId="82" font="file-video"/>
+            <extension mime="mpeg" messageId="83" font="file-video"/>
+            <extension mime="mp4" messageId="83" font="file-video"/>
+            <extension mime="m4v" messageId="83" font="file-video"/>
+            <extension mime="ogv" messageId="Video" font="file-video"/>
+            <extension mime="webm" messageId="Video" font="file-video"/>
+            <extension mime="wmv" messageId="81" font="file-video"/>
+            <extension mime="mp3" messageId="59" font="file-music"/>
+            <extension mime="m4a" messageId="59" font="file-music"/>
+            <extension mime="aac" messageId="59" font="file-music"/>
+            <extension mime="wav" messageId="20" font="file-music"/>
+            <extension mime="php" messageId="21" font="language-php"/>
+            <extension mime="phar" messageId="22" font="language-php"/>
+            <extension mime="phtml" messageId="22" font="language-php"/>
+            <extension mime="css" messageId="58" font="language-css3"/>
+            <extension mime="exe" messageId="50" font="application"/>
+            <extension mime="pdf" messageId="79" font="file-pdf"/>
+            <extension mime="swf" messageId="91" font="movie"/>
+            <extension mime="flv" messageId="91" font="movie"/>
+            <extension mime="ers" messageId="Timestamp" font="timer"/>
+            <extension mime="dwg" messageId="DWG" font="cube-outline"/>
+            <extension mime="xls" font="file-excel" messageId="64"/>
+            <extension mime="xlsx" font="file-excel" messageId="64"/>
+            <extension mime="xlt" font="file-excel" messageId="64"/>
+            <extension mime="xltx" font="file-excel" messageId="64"/>
+            <extension mime="ods" font="file-excel" messageId="64"/>
+            <extension mime="sxc" font="file-excel" messageId="64"/>
+            <extension mime="csv" font="file-excel" messageId="64"/>
+            <extension mime="tsv" font="file-excel" messageId="64"/>
+            <extension mime="doc" font="file-word" messageId="65"/>
+            <extension mime="docx" font="file-word" messageId="65"/>
+            <extension mime="dot" font="file-word" messageId="65"/>
+            <extension mime="dotx" font="file-word" messageId="65"/>
+            <extension mime="odt" font="file-word" messageId="65"/>
+            <extension mime="swx" font="file-word" messageId="65"/>
+            <extension mime="rtf" font="file-word" messageId="65"/>
+            <extension mime="ppt" font="file-powerpoint" messageId="446"/>
+            <extension mime="pptx" font="file-powerpoint" messageId="446"/>
+            <extension mime="pps" font="file-powerpoint" messageId="446"/>
+            <extension mime="odp" font="file-powerpoint" messageId="446"/>
+            <extension mime="sxi" font="file-powerpoint" messageId="446"/>
+            <extension mime="key" font="file-powerpoint" messageId="446"/>
+        </extensions>
+    </registry_contributions>
+
 </plugin>
