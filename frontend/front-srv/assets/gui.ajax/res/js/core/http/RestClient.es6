@@ -19,6 +19,7 @@
  */
 
 import PydioApi from './PydioApi'
+import Pydio from 'pydio'
 const {ApiClient} = require('./gen/index');
 import moment from 'moment'
 import JobsServiceApi from "./gen/api/JobsServiceApi";
@@ -36,6 +37,10 @@ ApiClient.parseDate = function (str) {
 // Override callApi Method
 class JwtApiClient extends ApiClient{
 
+    /**
+     *
+     * @param pydioObject {Pydio}
+     */
     constructor(pydioObject){
         super();
         this.basePath = pydioObject.Parameters.get('ENDPOINT_REST_API');
@@ -101,32 +106,45 @@ class JwtApiClient extends ApiClient{
     }
 
     /**
-     * @return Promise
+     * @return {Promise}
      */
     getOrUpdateJwt(){
 
-        return new Promise((resolve) => {
+        const now = Math.floor(Date.now() / 1000);
+        if(PydioApi.JWT_DATA && PydioApi.JWT_DATA['jwt'] && PydioApi.JWT_DATA['expirationTime'] >= now) {
+            return Promise.resolve(PydioApi.JWT_DATA['jwt']);
+        }
 
-            if(PydioApi.JWT_DATA && PydioApi.JWT_DATA['jwt']){
-                resolve(PydioApi.JWT_DATA['jwt']);
-            } else {
-                // Try to load JWT from session
-                const request = new RestFrontSessionRequest();
-                this.jwtEndpoint(new RestFrontSessionRequest()).then(response => {
-                    if(response.data && response.data.JWT){
-                        JwtApiClient.storeJwtLocally(response.data);
-                        resolve(response.data.JWT)
-                    } else {
-                        PydioApi.JWT_DATA = null;
-                        resolve('');
-                    }
-                }).catch(e => {
+        if(PydioApi.ResolvingJwt) {
+            return PydioApi.ResolvingJwt;
+        }
+
+        PydioApi.ResolvingJwt = new Promise((resolve) => {
+
+            // Try to load JWT from session
+            this.jwtEndpoint(new RestFrontSessionRequest()).then(response => {
+                if(response.data && response.data.JWT){
+                    JwtApiClient.storeJwtLocally(response.data);
+                    resolve(response.data.JWT)
+                } else {
                     PydioApi.JWT_DATA = null;
                     resolve('');
-                });
-            }
+                }
+                PydioApi.ResolvingJwt = null;
+            }).catch(e => {
+                if(e.response && e.response.status === 401) {
+                    this.pydio.getController().fireAction('logout');
+                    PydioApi.ResolvingJwt = null;
+                    throw e;
+                }
+                PydioApi.JWT_DATA = null;
+                resolve('');
+                PydioApi.ResolvingJwt = null;
+            });
 
         });
+
+        return PydioApi.ResolvingJwt;
 
     }
 
@@ -184,6 +202,9 @@ class JwtApiClient extends ApiClient{
         let msg = reason.message;
         if (reason.response && reason.response.text){
             msg = reason.response.text;
+        }
+        if (reason.response && reason.response.status === 401) {
+            this.pydio.getController().fireAction('logout');
         }
         if(this.pydio && this.pydio.UI) {
             this.pydio.UI.displayMessage('ERROR', msg);

@@ -167,10 +167,14 @@ export default class User{
 	    if(fromJSON){
 	        if(value){
                 try{
-                    if(typeof value == "object") return value;
+                    if(typeof value === "object") {
+                        return value;
+                    }
                     const parsed = JSON.parse(value);
                     this._parsedJSONCache.set(prefName, parsed);
-                    if(!parsed) return {};
+                    if(!parsed) {
+                        return {};
+                    }
                     return parsed;
                 }catch(e){
                     if(window.console){

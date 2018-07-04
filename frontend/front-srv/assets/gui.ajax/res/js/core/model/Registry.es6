@@ -72,6 +72,14 @@ export default class Registry{
                     url += '?ws=' + (repositoryId ? repositoryId : pydio.user.getActiveRepository())
                 }
             }
+            if (pydio.user && pydio.user.getPreference('lang')){
+                const lang = pydio.user.getPreference('lang', true);
+                if (url.indexOf('?') > 0) {
+                    url += '&lang=' + lang;
+                } else {
+                    url += '?lang=' + lang;
+                }
+            }
             window.fetch(url, {
                 method:'GET',
                 credentials:'same-origin',
