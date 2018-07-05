@@ -19,6 +19,10 @@ import IdmUpdateUserMetaNamespaceResponse from '../model/IdmUpdateUserMetaNamesp
 import IdmUpdateUserMetaRequest from '../model/IdmUpdateUserMetaRequest';
 import IdmUpdateUserMetaResponse from '../model/IdmUpdateUserMetaResponse';
 import RestBulkMetaResponse from '../model/RestBulkMetaResponse';
+import RestDeleteUserMetaTagsResponse from '../model/RestDeleteUserMetaTagsResponse';
+import RestListUserMetaTagsResponse from '../model/RestListUserMetaTagsResponse';
+import RestPutUserMetaTagRequest from '../model/RestPutUserMetaTagRequest';
+import RestPutUserMetaTagResponse from '../model/RestPutUserMetaTagResponse';
 import RestUserBookmarksRequest from '../model/RestUserBookmarksRequest';
 import RestUserMetaCollection from '../model/RestUserMetaCollection';
 import RestUserMetaNamespaceCollection from '../model/RestUserMetaNamespaceCollection';
@@ -41,6 +45,63 @@ export default class UserMetaServiceApi {
         this.apiClient = apiClient || ApiClient.instance;
     }
 
+
+
+    /**
+     * List Tags for a given namespace
+     * @param {String} namespace 
+     * @param {String} tags 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteUserMetaTagsResponse} and HTTP response
+     */
+    deleteUserMetaTagsWithHttpInfo(namespace, tags) {
+      let postBody = null;
+
+      // verify the required parameter 'namespace' is set
+      if (namespace === undefined || namespace === null) {
+        throw new Error("Missing the required parameter 'namespace' when calling deleteUserMetaTags");
+      }
+
+      // verify the required parameter 'tags' is set
+      if (tags === undefined || tags === null) {
+        throw new Error("Missing the required parameter 'tags' when calling deleteUserMetaTags");
+      }
+
+
+      let pathParams = {
+        'Namespace': namespace,
+        'Tags': tags
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestDeleteUserMetaTagsResponse;
+
+      return this.apiClient.callApi(
+        '/user-meta/tags/{Namespace}/{Tags}', 'DELETE',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * List Tags for a given namespace
+     * @param {String} namespace 
+     * @param {String} tags 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteUserMetaTagsResponse}
+     */
+    deleteUserMetaTags(namespace, tags) {
+      return this.deleteUserMetaTagsWithHttpInfo(namespace, tags)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
 
 
     /**
@@ -78,6 +139,111 @@ export default class UserMetaServiceApi {
      */
     listUserMetaNamespace() {
       return this.listUserMetaNamespaceWithHttpInfo()
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * List Tags for a given namespace
+     * @param {String} namespace 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestListUserMetaTagsResponse} and HTTP response
+     */
+    listUserMetaTagsWithHttpInfo(namespace) {
+      let postBody = null;
+
+      // verify the required parameter 'namespace' is set
+      if (namespace === undefined || namespace === null) {
+        throw new Error("Missing the required parameter 'namespace' when calling listUserMetaTags");
+      }
+
+
+      let pathParams = {
+        'Namespace': namespace
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestListUserMetaTagsResponse;
+
+      return this.apiClient.callApi(
+        '/user-meta/tags/{Namespace}', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * List Tags for a given namespace
+     * @param {String} namespace 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestListUserMetaTagsResponse}
+     */
+    listUserMetaTags(namespace) {
+      return this.listUserMetaTagsWithHttpInfo(namespace)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * List Tags for a given namespace
+     * @param {String} namespace 
+     * @param {module:model/RestPutUserMetaTagRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestPutUserMetaTagResponse} and HTTP response
+     */
+    putUserMetaTagWithHttpInfo(namespace, body) {
+      let postBody = body;
+
+      // verify the required parameter 'namespace' is set
+      if (namespace === undefined || namespace === null) {
+        throw new Error("Missing the required parameter 'namespace' when calling putUserMetaTag");
+      }
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling putUserMetaTag");
+      }
+
+
+      let pathParams = {
+        'Namespace': namespace
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestPutUserMetaTagResponse;
+
+      return this.apiClient.callApi(
+        '/user-meta/tags/{Namespace}', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * List Tags for a given namespace
+     * @param {String} namespace 
+     * @param {module:model/RestPutUserMetaTagRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestPutUserMetaTagResponse}
+     */
+    putUserMetaTag(namespace, body) {
+      return this.putUserMetaTagWithHttpInfo(namespace, body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

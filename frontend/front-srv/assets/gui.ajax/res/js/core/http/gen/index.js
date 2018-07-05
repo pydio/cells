@@ -137,6 +137,7 @@ import RestDeleteCellResponse from './model/RestDeleteCellResponse';
 import RestDeleteDataSourceResponse from './model/RestDeleteDataSourceResponse';
 import RestDeleteResponse from './model/RestDeleteResponse';
 import RestDeleteShareLinkResponse from './model/RestDeleteShareLinkResponse';
+import RestDeleteUserMetaTagsResponse from './model/RestDeleteUserMetaTagsResponse';
 import RestDeleteVersioningPolicyResponse from './model/RestDeleteVersioningPolicyResponse';
 import RestDiscoveryResponse from './model/RestDiscoveryResponse';
 import RestDocstoreCollection from './model/RestDocstoreCollection';
@@ -158,6 +159,7 @@ import RestListPeerFoldersRequest from './model/RestListPeerFoldersRequest';
 import RestListPeersAddressesResponse from './model/RestListPeersAddressesResponse';
 import RestListSharedResourcesRequest from './model/RestListSharedResourcesRequest';
 import RestListSharedResourcesResponse from './model/RestListSharedResourcesResponse';
+import RestListUserMetaTagsResponse from './model/RestListUserMetaTagsResponse';
 import RestLogLevel from './model/RestLogLevel';
 import RestLogMessageCollection from './model/RestLogMessageCollection';
 import RestMetaCollection from './model/RestMetaCollection';
@@ -167,6 +169,8 @@ import RestNodesCollection from './model/RestNodesCollection';
 import RestOpenApiResponse from './model/RestOpenApiResponse';
 import RestPutCellRequest from './model/RestPutCellRequest';
 import RestPutShareLinkRequest from './model/RestPutShareLinkRequest';
+import RestPutUserMetaTagRequest from './model/RestPutUserMetaTagRequest';
+import RestPutUserMetaTagResponse from './model/RestPutUserMetaTagResponse';
 import RestRelationResponse from './model/RestRelationResponse';
 import RestResetPasswordRequest from './model/RestResetPasswordRequest';
 import RestResetPasswordResponse from './model/RestResetPasswordResponse';
@@ -1040,6 +1044,12 @@ export {
     RestDeleteShareLinkResponse,
 
     /**
+     * The RestDeleteUserMetaTagsResponse model constructor.
+     * @property {module:model/RestDeleteUserMetaTagsResponse}
+     */
+    RestDeleteUserMetaTagsResponse,
+
+    /**
      * The RestDeleteVersioningPolicyResponse model constructor.
      * @property {module:model/RestDeleteVersioningPolicyResponse}
      */
@@ -1166,6 +1176,12 @@ export {
     RestListSharedResourcesResponse,
 
     /**
+     * The RestListUserMetaTagsResponse model constructor.
+     * @property {module:model/RestListUserMetaTagsResponse}
+     */
+    RestListUserMetaTagsResponse,
+
+    /**
      * The RestLogLevel model constructor.
      * @property {module:model/RestLogLevel}
      */
@@ -1218,6 +1234,18 @@ export {
      * @property {module:model/RestPutShareLinkRequest}
      */
     RestPutShareLinkRequest,
+
+    /**
+     * The RestPutUserMetaTagRequest model constructor.
+     * @property {module:model/RestPutUserMetaTagRequest}
+     */
+    RestPutUserMetaTagRequest,
+
+    /**
+     * The RestPutUserMetaTagResponse model constructor.
+     * @property {module:model/RestPutUserMetaTagResponse}
+     */
+    RestPutUserMetaTagResponse,
 
     /**
      * The RestRelationResponse model constructor.

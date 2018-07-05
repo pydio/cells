@@ -20,53 +20,24 @@
 
 
 import MetaClient from './MetaClient'
+import React from 'react'
+import {MenuItem, SelectField, Chip, AutoComplete, TextField, Checkbox, FlatButton} from 'material-ui'
 
 class Renderer{
 
     static getMetadataConfigs(){
+        return Renderer.getClient().loadConfigs();
+    }
 
-        const client = new MetaClient();
-        /*
-        if(pydio && pydio.user && pydio.user.activeRepository && Renderer.__CACHE
-            && Renderer.__CACHE.has(pydio.user.activeRepository)){
-            return Renderer.__CACHE.get(pydio.user.activeRepository);
+    /**
+     *
+     * @return {MetaClient}
+     */
+    static getClient(){
+        if(!Renderer.Client){
+            Renderer.Client = new MetaClient();
         }
-        */
-        let configMap = new Map();
-        try{
-            const configs = client.loadConfigs();
-            console.log(configs);
-            let arrConfigs = Object.entries(configs).map(entry => {
-                entry[1].ns = entry[0];
-                return entry[1];
-            });
-            arrConfigs.sort((a,b) => {
-                const orderA = a.order;
-                const orderB = b.order;
-                return orderA > orderB ? 1 : orderA === orderB ? 0 : -1;
-            });
-            arrConfigs.map((value) => {
-                const type = value.type;
-                if(type === 'choice' && value.data){
-                    let values = new Map();
-                    value.data.split(",").map(function(keyLabel){
-                        const parts = keyLabel.split("|");
-                        values.set(parts[0], parts[1]);
-                    });
-                    value.data = values;
-                }
-                configMap.set(value.ns, value);
-            });
-        }catch(e){
-            //console.debug(e);
-        }
-        /*
-        if(pydio && pydio.user && pydio.user.activeRepository){
-            if(!Renderer.__CACHE) Renderer.__CACHE = new Map();
-            Renderer.__CACHE.set(pydio.user.activeRepository, configMap);
-        }
-        */
-        return configMap;
+        return Renderer.Client;
     }
 
     static renderStars(node, column){
@@ -93,8 +64,7 @@ class Renderer{
 
         const menuItems = Object.keys(CSSLabelsFilter.CSS_LABELS).map(function(id){
             let label = CSSLabelsFilter.CSS_LABELS[id];
-            //return {payload:id, text:label.label};
-            return <MaterialUI.MenuItem value={id} primaryText={label.label}/>
+            return <MenuItem value={id} primaryText={label.label}/>
         }.bind(this));
 
         return <MetaSelectorFormPanel {...props} menuItems={menuItems}/>;
@@ -102,20 +72,23 @@ class Renderer{
 
     static formPanelSelectorFilter(props){
 
-        let configs = Renderer.getMetadataConfigs().get(props.fieldname);
-        let menuItems = [];
-        if(configs && configs.data){
-            configs.data.forEach(function(value, key){
-                //menuItems.push({payload:key, text:value});
-                menuItems.push(<MaterialUI.MenuItem value={key} primaryText={value}/>);
-            });
-        }
+        const itemsLoader = (callback) => {
+            Renderer.getMetadataConfigs().then(metaConfigs => {
+                let configs = metaConfigs.get(props.fieldname);
+                let menuItems = [];
+                if(configs && configs.data){
+                    configs.data.forEach(function(value, key){
+                        menuItems.push(<MenuItem value={key} primaryText={value}/>);
+                    });
+                }
+                callback(menuItems);
+            })
+        };
 
-        return <MetaSelectorFormPanel {...props} menuItems={menuItems}/>;
+        return <MetaSelectorFormPanel {...props} menuItems={[]} itemsLoader={itemsLoader}/>;
     }
 
     static formPanelTags(props){
-        let configs = Renderer.getMetadataConfigs().get(props.fieldname);
         return <TagsCloud {...props} editMode={true}/>;
     }
 
@@ -141,6 +114,16 @@ let MetaFieldFormPanelMixin = {
         onValueChange:React.PropTypes.func
     },
 
+    getInitialState(){
+        return {configs: new Map()}
+    },
+
+    componentDidMount(){
+        Renderer.getMetadataConfigs().then(c => {
+            this.setState({configs: c});
+        })
+    },
+
     updateValue(value, submit = true){
         this.setState({value:value});
         if(this.props.onChange){
@@ -159,6 +142,19 @@ let MetaFieldRendererMixin = {
     propTypes:{
         node:React.PropTypes.instanceOf(AjxpNode),
         column:React.PropTypes.object
+    },
+
+    getInitialState(){
+        return {
+            value: this.props.value || 0,
+            configs: new Map()
+        };
+    },
+
+    componentDidMount(){
+        Renderer.getMetadataConfigs().then(configs => {
+            this.setState({configs: configs});
+        })
     },
 
     getRealValue(){
@@ -213,11 +209,12 @@ let SelectorFilter = React.createClass({
     mixins:[MetaFieldRendererMixin],
 
     render(){
+        const {configs} = this.state;
         let value;
         let displayValue = value = this.getRealValue();
-        let configs = Renderer.getMetadataConfigs().get(this.props.column.name);
-        if(configs && configs.data){
-            displayValue = configs.data.get(value);
+        let fieldConfig = configs.get(this.props.column.name);
+        if(fieldConfig && fieldConfig.data){
+            displayValue = fieldConfig.data.get(value);
         }
         return <span>{displayValue}</span>;
     }
@@ -259,19 +256,33 @@ let MetaSelectorFormPanel = React.createClass({
         this.updateValue(payload);
     },
 
+    componentDidMount(){
+        if(this.props.itemsLoader){
+            this.props.itemsLoader((items) => {
+                this.setState({menuItems: items});
+            })
+        }
+    },
+
     getInitialState(){
         return {value: this.props.value};
     },
 
     render(){
         let index = 0, i = 1;
-        this.props.menuItems.unshift(<MaterialUI.MenuItem value={''} primaryText=""/>);
+        let menuItems;
+        if(this.state.menuItems === undefined){
+            menuItems = [...this.props.menuItems]
+        } else {
+            menuItems = [...this.state.menuItems]
+        }
+        menuItems.unshift(<MenuItem value={''} primaryText=""/>);
         return (
             <div>
-                <MaterialUI.SelectField
+                <SelectField
                     style={{width:'100%'}}
                     value={this.state.value}
-                    onChange={this.changeSelector}>{this.props.menuItems}</MaterialUI.SelectField>
+                    onChange={this.changeSelector}>{menuItems}</SelectField>
             </div>
         );
     }
@@ -326,12 +337,12 @@ let TagsCloud = React.createClass({
 
     suggestionLoader(callback) {
         this.setState({loading:this.state.loading + 1});
-        PydioApi.getClient().request({get_action: 'meta_user_list_tags', namespace: this.props.fieldname || this.props.column.name}, (transport) => {
+
+        Renderer.getClient().listTags(this.props.fieldname || this.props.column.name).then(tags => {
             this.setState({loading:this.state.loading - 1});
-            if(transport.responseJSON && transport.responseJSON.length){
-                callback(transport.responseJSON);
-            }
+            callback(tags);
         });
+
     },
 
     load() {
@@ -339,7 +350,7 @@ let TagsCloud = React.createClass({
         this.suggestionLoader(function(tags){
             let crtValueFound = false;
             const values = tags.map(function(tag){
-                let component = (<MaterialUI.MenuItem>{tag}</MaterialUI.MenuItem>);
+                let component = (<MenuItem>{tag}</MenuItem>);
                 return {
                     text        : tag,
                     value       : component
@@ -383,9 +394,9 @@ let TagsCloud = React.createClass({
     renderChip(tag) {
         const chipStyle = {margin:2, backgroundColor:'#F5F5F5'};
         if (this.props.editMode) {
-            return ( <MaterialUI.Chip key={tag} style={chipStyle} onRequestDelete={this.handleRequestDelete.bind(this, tag)}>{tag}</MaterialUI.Chip> );
+            return ( <Chip key={tag} style={chipStyle} onRequestDelete={this.handleRequestDelete.bind(this, tag)}>{tag}</Chip> );
         } else {
-            return ( <MaterialUI.Chip key={tag} style={chipStyle}>{tag}</MaterialUI.Chip> );
+            return ( <Chip key={tag} style={chipStyle}>{tag}</Chip> );
         }
     },
 
@@ -403,7 +414,7 @@ let TagsCloud = React.createClass({
         let autoCompleter;
         let textField;
         if (this.props.editMode) {
-            autoCompleter = <MaterialUI.AutoComplete
+            autoCompleter = <AutoComplete
                                 fullWidth={true}
                                 hintText={pydio.MessageHash['meta.user.10']}
                                 searchText={this.state.searchText}
@@ -449,10 +460,9 @@ let UserMetaDialog = React.createClass({
         values.forEach(function(v, k){
             params[k] = v;
         });
-        PydioApi.getClient().postSelectionWithAction("edit_user_meta", function(t){
-            PydioApi.getClient().parseXmlMessage(t.responseXML);
+        Renderer.getClient().saveMeta(this.props.selection.getSelectedNodes(), values).then(() => {
             this.dismiss();
-        }.bind(this), this.props.selection, params);
+        });
     },
     render(){
         return (
@@ -467,43 +477,47 @@ let UserMetaDialog = React.createClass({
     }
 });
 
-let UserMetaPanel = React.createClass({
+class UserMetaPanel extends React.Component{
 
-    propTypes:{
-        editMode: React.PropTypes.bool
-    },
-
-    getDefaultProps(){
-        return {editMode: false};
-    },
-    getInitialState(){
-        return {
+    constructor(props){
+        if(props.editMode === undefined){
+            props.editMode = false;
+        }
+        super(props);
+        this.state = {
             updateMeta: new Map(),
             isChecked: false,
-            fields: []
-            };
-    },
+            fields: [],
+            configs: new Map()
+        }
+    }
+
+    componentDidMount(){
+        Renderer.getMetadataConfigs().then(configs => {
+            this.setState({configs});
+        })
+    }
     updateValue(name, value){
         this.state.updateMeta.set(name, value);
         this.setState({
             updateMeta: this.state.updateMeta
         });
-    },
+    }
     deleteValue(name) {
         this.state.updateMeta.delete(name);
         this.setState({
             updateMeta: this.state.updateMeta
         })
-    },
+    }
     getUpdateData(){
         return this.state.updateMeta;
-    },
+    }
 
     resetUpdateData(){
         this.setState({
             updateMeta: new Map()
         });
-    },
+    }
     onCheck(e, isInputChecked, value){
         let state = this.state;
         state['fields'][e.target.value] = isInputChecked;
@@ -511,9 +525,9 @@ let UserMetaPanel = React.createClass({
             this.deleteValue(e.target.value);
         }
         this.setState(state);
-    },
+    }
     render(){
-        let configs = Renderer.getMetadataConfigs();
+        const {configs} = this.state;
         let data = [];
         let node = this.props.node;
         let metadata = this.props.node.getMetadata();
@@ -543,19 +557,19 @@ let UserMetaPanel = React.createClass({
                     fieldname: key,
                     label: label,
                     value: value,
-                    onValueChange: this.updateValue
+                    onValueChange: this.updateValue.bind(this)
                 };
                 if(type === 'stars_rate'){
                     field = <StarsFormPanel {...baseProps}/>;
                 }else if(type === 'choice') {
-                    field = Renderer.formPanelSelectorFilter(baseProps);
+                    field = Renderer.formPanelSelectorFilter(baseProps, configs);
                 }else if(type === 'css_label'){
-                    field = Renderer.formPanelCssLabels(baseProps);
+                    field = Renderer.formPanelCssLabels(baseProps, configs);
                 }else if(type === 'tags'){
-                    field = Renderer.formPanelTags(baseProps);
+                    field = Renderer.formPanelTags(baseProps, configs);
                 }else{
                     field = (
-                        <MaterialUI.TextField
+                        <TextField
                             value={value}
                             fullWidth={true}
                             disabled={readonly}
@@ -566,7 +580,7 @@ let UserMetaPanel = React.createClass({
                 if(this.props.multiple){
                     data.push(
                         <div className={"infoPanelRow"} key={key} style={{ marginBottom: 20}}>
-                            <MaterialUI.Checkbox value={key} label={label} onCheck={this.onCheck.bind(value)}/>
+                            <Checkbox value={key} label={label} onCheck={this.onCheck.bind(value)}/>
                             {this.state['fields'][key] && <div className="infoPanelValue">{field}</div>}
                         </div>
                     );
@@ -612,32 +626,29 @@ let UserMetaPanel = React.createClass({
         }
     }
 
-});
+}
 
-let InfoPanel = React.createClass({
+class InfoPanel extends React.Component{
 
-    propTypes: {
-        node: React.PropTypes.instanceOf(AjxpNode)
-    },
-
-    getInitialState(){
-        return {editMode: false};
-    },
+    constructor(props){
+        super(props);
+        this.state = {editMode: false};
+    }
 
     openEditMode(){
         this.setState({editMode:true });
-    },
+    }
 
     reset(){
         this.refs.panel.resetUpdateData();
         this.setState({editMode: false});
-    },
+    }
 
     componentWillReceiveProps(newProps){
         if(newProps.node !== this.props.node && this.refs.panel){
             this.reset();
         }
-    },
+    }
 
     saveChanges(){
         let values = this.refs.panel.getUpdateData();
@@ -645,11 +656,10 @@ let InfoPanel = React.createClass({
         values.forEach(function(v, k){
             params[k] = v;
         });
-        PydioApi.getClient().postSelectionWithAction("edit_user_meta", function(t){
-            PydioApi.getClient().parseXmlMessage(t.responseXML);
+        Renderer.getClient().saveMeta(this.props.pydio.getContextHolder().getSelectedNodes(), values).then(() => {
             this.reset();
-        }.bind(this), null, params);
-    },
+        });
+    }
 
     render(){
         let actions = [];
@@ -657,7 +667,7 @@ let InfoPanel = React.createClass({
 
         if(this.state.editMode){
             actions.push(
-                <MaterialUI.FlatButton
+                <FlatButton
                     key="cancel"
                     label={MessageHash['54']}
                     onClick={()=>{this.reset()}}
@@ -666,7 +676,7 @@ let InfoPanel = React.createClass({
         }
         if(!this.props.node.getMetadata().has('node_readonly')){
             actions.push(
-                <MaterialUI.FlatButton
+                <FlatButton
                     key="edit"
                     label={this.state.editMode?MessageHash['meta.user.15']:MessageHash['meta.user.14']}
                     onClick={()=>{!this.state.editMode?this.openEditMode():this.saveChanges()}}
@@ -687,6 +697,6 @@ let InfoPanel = React.createClass({
         );
     }
 
-});
+}
 
 export {Renderer, InfoPanel, Callbacks, UserMetaDialog}

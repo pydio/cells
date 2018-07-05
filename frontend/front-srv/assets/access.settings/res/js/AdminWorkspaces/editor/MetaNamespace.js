@@ -1,6 +1,6 @@
 import React from 'react'
 import {Dialog, FlatButton, TextField, SelectField, MenuItem, IconButton, Toggle} from 'material-ui'
-import {IdmUserMetaNamespace, ServiceResourcePolicy} from 'pydio/http/rest-api'
+import {IdmUserMetaNamespace, ServiceResourcePolicy, UserMetaServiceApi} from 'pydio/http/rest-api'
 import LangUtils from 'pydio/util/lang'
 import Metadata from '../model/Metadata'
 import PydioApi from 'pydio/http/api'
@@ -41,7 +41,6 @@ class MetaNamespace extends React.Component{
         Metadata.putNS(namespace).then(()=>{
             this.props.onRequestClose();
             this.props.reloadList();
-            PydioApi.getClient().request({get_action:'meta_user_clear_cache'});
         })
     }
 
@@ -173,12 +172,11 @@ class MetaNamespace extends React.Component{
         ];
         if(type === 'tags'){
             actions.unshift(<FlatButton primary={false} label={"Reset Tags"} onTouchTap={()=>{
-                PydioApi.getClient().request({get_action:'meta_user_reset_tags', namespace:namespace.Namespace}, (t) => {
-                    if(t.responseJSON && t.responseJSON.message){
-                        pydio.UI.displayMessage('SUCCESS', t.responseJSON.message);
-                    } else {
-                        pydio.UI.displayMessage('ERROR', 'No message received!');
-                    }
+                const api = new UserMetaServiceApi(PydioApi.getRestClient());
+                api.deleteUserMetaTags(namespace.Namespace, "*").then(() => {
+                    pydio.UI.displayMessage('SUCCESS', "Cleared tags for namespace " + namespace.Namespace);
+                }).catch(e => {
+                    pydio.UI.displayMessage('ERROR', e.message);
                 });
             }}/>);
         }

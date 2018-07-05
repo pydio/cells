@@ -1,5 +1,6 @@
 
 import PydioApi from 'pydio/http/api'
+import ResourcesManager from 'pydio/http/resources-manager'
 import {UserMetaServiceApi, IdmUserMetaNamespace, IdmUpdateUserMetaNamespaceRequest, UpdateUserMetaNamespaceRequestUserMetaNsOp} from 'pydio/http/rest-api'
 
 class Metadata {
@@ -18,6 +19,7 @@ class Metadata {
         let request = new IdmUpdateUserMetaNamespaceRequest();
         request.Operation = UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
         request.Namespaces = [namespace];
+        Metadata.clearLocalCache();
         return api.updateUserMetaNamespace(request)
     }
 
@@ -30,7 +32,21 @@ class Metadata {
         let request = new IdmUpdateUserMetaNamespaceRequest();
         request.Operation = UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('DELETE');
         request.Namespaces = [namespace];
+        Metadata.clearLocalCache();
         return api.updateUserMetaNamespace(request)
+    }
+
+    /**
+     * Clear ReactMeta cache if it exists
+     */
+    static clearLocalCache(){
+        try{
+            if(window.ReactMeta){
+                ReactMeta.Renderer.getClient().clearConfigs();
+            }
+        }catch (e){
+            //console.log(e)
+        }
     }
 
 }
