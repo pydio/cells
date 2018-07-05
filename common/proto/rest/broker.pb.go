@@ -91,6 +91,12 @@ It has these top-level messages:
 	WorkspaceCollection
 	UserMetaCollection
 	UserMetaNamespaceCollection
+	ListUserMetaTagsRequest
+	ListUserMetaTagsResponse
+	PutUserMetaTagRequest
+	PutUserMetaTagResponse
+	DeleteUserMetaTagsRequest
+	DeleteUserMetaTagsResponse
 	UserBookmarksRequest
 	RevokeRequest
 	RevokeResponse

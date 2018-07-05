@@ -602,6 +602,25 @@ service UserMetaService {
             get: "/user-meta/namespace"
         };
     }
+    // List Tags for a given namespace
+    rpc ListUserMetaTags(ListUserMetaTagsRequest) returns (ListUserMetaTagsResponse){
+        option (google.api.http) = {
+            get: "/user-meta/tags/{Namespace}"
+        };
+    }
+    // List Tags for a given namespace
+    rpc PutUserMetaTag(PutUserMetaTagRequest) returns (PutUserMetaTagResponse){
+        option (google.api.http) = {
+            post: "/user-meta/tags/{Namespace}"
+            body: "*"
+        };
+    }
+    // List Tags for a given namespace
+    rpc DeleteUserMetaTags(DeleteUserMetaTagsRequest) returns (DeleteUserMetaTagsResponse){
+        option (google.api.http) = {
+            delete: "/user-meta/tags/{Namespace}/{Tags}"
+        };
+    }
 }
 
 

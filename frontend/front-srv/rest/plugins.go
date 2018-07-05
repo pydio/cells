@@ -26,6 +26,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
+	"github.com/pydio/cells/frontend/front-srv/rest/modifiers"
 )
 
 var BasePluginsBox = frontend.PluginBox{
@@ -79,6 +80,9 @@ var BasePluginsBox = frontend.PluginBox{
 }
 
 func init() {
+
+	frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
+
 	service.NewService(
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),
 		service.Tag(common.SERVICE_TAG_FRONTEND),

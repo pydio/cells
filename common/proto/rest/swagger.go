@@ -2716,6 +2716,93 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/user-meta/tags/{Namespace}": {
+      "get": {
+        "summary": "List Tags for a given namespace",
+        "operationId": "ListUserMetaTags",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restListUserMetaTagsResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserMetaService"
+        ]
+      },
+      "post": {
+        "summary": "List Tags for a given namespace",
+        "operationId": "PutUserMetaTag",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restPutUserMetaTagResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restPutUserMetaTagRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
+    "/user-meta/tags/{Namespace}/{Tags}": {
+      "delete": {
+        "summary": "List Tags for a given namespace",
+        "operationId": "DeleteUserMetaTags",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restDeleteUserMetaTagsResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Namespace",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Tags",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserMetaService"
+        ]
+      }
+    },
     "/user-meta/update": {
       "put": {
         "summary": "Update/delete user meta",
@@ -5792,6 +5879,15 @@ var SwaggerJson = `{
         }
       }
     },
+    "restDeleteUserMetaTagsResponse": {
+      "type": "object",
+      "properties": {
+        "Success": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
     "restDeleteVersioningPolicyResponse": {
       "type": "object",
       "properties": {
@@ -6098,6 +6194,17 @@ var SwaggerJson = `{
         }
       }
     },
+    "restListUserMetaTagsResponse": {
+      "type": "object",
+      "properties": {
+        "Tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "restLogLevel": {
       "type": "string",
       "enum": [
@@ -6208,6 +6315,26 @@ var SwaggerJson = `{
         },
         "UpdateCustomHash": {
           "type": "string"
+        }
+      }
+    },
+    "restPutUserMetaTagRequest": {
+      "type": "object",
+      "properties": {
+        "Namespace": {
+          "type": "string"
+        },
+        "Tag": {
+          "type": "string"
+        }
+      }
+    },
+    "restPutUserMetaTagResponse": {
+      "type": "object",
+      "properties": {
+        "Success": {
+          "type": "boolean",
+          "format": "boolean"
         }
       }
     },

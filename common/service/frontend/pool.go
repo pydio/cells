@@ -134,6 +134,10 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 
 	}
 
+	if e := ApplyRegModifiers(ctx, status, registry); e != nil {
+		log.Logger(ctx).Error("Error while applying modifiers to registry!", zap.Error(e))
+	}
+
 	return registry
 
 }

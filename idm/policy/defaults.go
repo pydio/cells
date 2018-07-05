@@ -177,6 +177,16 @@ var (
 					Actions: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 					Effect:  ladon.AllowAccess,
 				}),
+				LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "user-meta-tags-no-delete",
+					Description: "Prevent clearing user meta tags for non admins",
+					Subjects:    []string{"profile:standard", "profile:shared"},
+					Resources: []string{
+						"rest:/user-meta/tags<.+>",
+					},
+					Actions: []string{"DELETE"},
+					Effect:  ladon.DenyAccess,
+				}),
 			},
 		},
 

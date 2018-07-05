@@ -56,7 +56,10 @@ type Cadditional_column struct {
 	AttrattributeName    string   `xml:"attributeName,attr,omitempty"  json:",omitempty"`
 	AttrdefaultVisibilty string   `xml:"defaultVisibilty,attr,omitempty"  json:",omitempty"`
 	AttrmessageId        string   `xml:"messageId,attr,omitempty"  json:",omitempty"`
+	AttrmessageString    string   `xml:"messageString,attr,omitempty"  json:",omitempty"`
 	AttrsortType         string   `xml:"sortType,attr,omitempty"  json:",omitempty"`
+	AttrreactModifier    string   `xml:"reactModifier,attr,omitempty"  json:",omitempty"`
+	AttrmetaAdditional   string   `xml:"metaAdditional,attr,omitempty"  json:",omitempty"`
 }
 
 type Cajxpdriver struct {
@@ -117,10 +120,10 @@ type Ccolumn struct {
 }
 
 type Ccolumns struct {
-	XMLName            xml.Name            `xml:"columns,omitempty" json:"columns,omitempty"`
-	AttrswitchGridMode string              `xml:"switchGridMode,attr,omitempty"  json:",omitempty"`
-	Cadditional_column *Cadditional_column `xml:"additional_column,omitempty" json:"additional_column,omitempty"`
-	Ccolumn            []*Ccolumn          `xml:"column,omitempty" json:"column,omitempty"`
+	XMLName            xml.Name              `xml:"columns,omitempty" json:"columns,omitempty"`
+	AttrswitchGridMode string                `xml:"switchGridMode,attr,omitempty"  json:",omitempty"`
+	Cadditional_column []*Cadditional_column `xml:"additional_column,omitempty" json:"additional_column,omitempty"`
+	Ccolumn            []*Ccolumn            `xml:"column,omitempty" json:"column,omitempty"`
 }
 
 type Ccomponent_config struct {
@@ -503,6 +506,8 @@ type Ctemplate struct {
 type Ctemplate_part struct {
 	XMLName          xml.Name `xml:"template_part,omitempty" json:"template_part,omitempty"`
 	AttrajxpId       string   `xml:"ajxpId,attr,omitempty"  json:",omitempty"`
+	AttrajxpClass    string   `xml:"ajxpClass,attr,omitempty"  json:",omitempty"`
+	AttrajxpOptions  string   `xml:"ajxpOptions,attr,omitempty"  json:",omitempty"`
 	Attrcomponent    string   `xml:"component,attr,omitempty"  json:",omitempty"`
 	Attrdependencies string   `xml:"dependencies,attr,omitempty"  json:",omitempty"`
 	Attrname         string   `xml:"name,attr,omitempty"  json:",omitempty"`
