@@ -47,6 +47,7 @@ const PydioCoreRequires = {
     'http/Connexion.js'         :'pydio/http/connexion',
     'http/ResourcesManager.js'  :'pydio/http/resources-manager',
     'http/PydioApi.js'          :'pydio/http/api',
+    'http/SearchApi.js'         :'pydio/http/search-api',
     'http/PydioUsersApi.js'     :'pydio/http/users-api',
     'http/gen/index.js'         :'pydio/http/rest-api',
     'http/MetaCacheService.js'  :'pydio/http/meta-cache-service',

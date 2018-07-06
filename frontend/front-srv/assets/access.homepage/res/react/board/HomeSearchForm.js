@@ -23,12 +23,13 @@ import Pydio from 'pydio'
 import {Paper, FontIcon, TextField, CircularProgress} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import PydioDataModel from 'pydio/model/data-model'
-import LangUtils from 'pydio/util/lang'
+import SearchApi from 'pydio/http/search-api'
+import EmptyNodeProvider from 'pydio/model/empty-node-provider'
 import _ from 'lodash';
 
-const {NodeListCustomProvider, SimpleList} = Pydio.requireLib('components')
-const {PydioContextConsumer} = Pydio.requireLib('boot')
-const {FilePreview} = Pydio.requireLib('workspaces')
+const {SimpleList} = Pydio.requireLib('components');
+const {PydioContextConsumer} = Pydio.requireLib('boot');
+const {FilePreview} = Pydio.requireLib('workspaces');
 
 class HomeSearchForm extends Component{
 
@@ -60,28 +61,22 @@ class HomeSearchForm extends Component{
         let {queryString} = this.state;
         if(forceValue) queryString = forceValue;
         if (!queryString) {
-            this.setState({empty: true, dataModel: this.basicDataModel});
+            this.setState({empty: true, loading: false});
             return;
         }
-        // Refresh data model
-        let dmParams = {
-            get_action          : 'search',
-            query               : queryString,
-            all_workspaces      : 'true',
-            limit               : this.props.limit || 5,
-            connexion_discrete  : true,
-        };
-        const newDM = PydioDataModel.RemoteDataModelFactory(dmParams);
-        newDM.getRootNode().observeOnce("loaded", () => {
+        const {dataModel} = this.state;
+        const rootNode = dataModel.getRootNode();
+        rootNode.setChildren([]);
+        rootNode.setLoaded(true);
+        this.setState({loading: true, empty: false});
+
+        const api = new SearchApi(this.props.pydio);
+        api.search({basename: queryString}, 'all', this.props.limit || 10).then(results => {
+            rootNode.setChildren(results);
+            rootNode.setLoaded(true);
             this.setState({loading: false});
         });
-        this.setState({
-            loading     : true,
-            dataModel   : newDM,
-            empty       : false
-        }, () => {
-            this.refs.results.reload();
-        });
+
     }
 
     render(){

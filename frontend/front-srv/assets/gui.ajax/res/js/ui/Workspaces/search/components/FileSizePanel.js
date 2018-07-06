@@ -26,7 +26,7 @@ import {TextField} from 'material-ui';
 class SearchFileSizePanel extends React.Component {
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
             from:false,
@@ -42,18 +42,20 @@ class SearchFileSizePanel extends React.Component {
     }
 
     componentWillUpdate(nextProps, nextState) {
-        if (nextState === this.state) return
+        if (nextState === this.state) {
+            return;
+        }
 
-        const {from, to} = nextState
+        const {from, to} = nextState;
 
         this.props.onChange({
-            ajxp_bytesize: (from && to) ? '['+from+' TO '+to+']' : null
+            ajxp_bytesize: (from || to) ? {from,to} : null
         })
     }
 
     render() {
 
-        const {inputStyle, getMessage, ...props} = this.props
+        const {inputStyle, getMessage, ...props} = this.props;
 
         return (
             <div>

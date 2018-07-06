@@ -311,8 +311,9 @@ export default class MetaNodeProvider{
      * @return AjxpNode | null
      * @param obj
      * @param workspaceSlug string
+     * @param defaultSlug string
      */
-    static parseTreeNode(obj, workspaceSlug) {
+    static parseTreeNode(obj, workspaceSlug, defaultSlug = '') {
 
         if (!obj){
             return null;
@@ -324,8 +325,20 @@ export default class MetaNodeProvider{
         } else{
             nodeName = PathUtils.getBasename(obj.Path);
         }
+        let slug = workspaceSlug;
+        if(!workspaceSlug){
+            if(obj.MetaStore['repository_id']){
+                const wsId = JSON.parse(obj.MetaStore['repository_id']);
+                if (pydio.user.getRepositoriesList().has(wsId)){
+                    slug = pydio.user.getRepositoriesList().get(wsId).getSlug();
+                }
+            }
+        }
+        if(!slug){
+            slug = defaultSlug;
+        }
         // Strip workspace slug
-        obj.Path = obj.Path.substr(workspaceSlug.length + 1);
+        obj.Path = obj.Path.substr(slug.length + 1);
 
         let node = new AjxpNode('/' + obj.Path, obj.Type === "LEAF", nodeName, '', null);
 

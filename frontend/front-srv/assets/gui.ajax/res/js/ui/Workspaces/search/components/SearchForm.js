@@ -22,9 +22,10 @@ import React, {Component} from 'react'
 
 import FilePreview from '../../views/FilePreview'
 import AdvancedSearch from './AdvancedSearch'
-import Textfit from 'react-textfit'
 import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
+import SearchApi from 'pydio/http/search-api'
+
 const {EmptyStateView} = Pydio.requireLib('components')
 const {PydioContextConsumer} = require('pydio').requireLib('boot')
 
@@ -57,11 +58,11 @@ class SearchForm extends Component {
             empty: true,
             loading: false,
             searchScope:  props.uniqueSearchScope || 'folder'
-        }
+        };
 
         this.setMode = _.debounce(this.setMode, 250);
-        this.update = _.debounce(this.update, 500)
-        this.submit = _.debounce(this.submit, 500)
+        this.update = _.debounce(this.update, 500);
+        this.submit = _.debounce(this.submit, 500);
 
         this.props.pydio.observe('repository_list_refreshed', () => {
             this.setState({
@@ -107,7 +108,7 @@ class SearchForm extends Component {
         let values = {
             ...this.state.values,
             ...newValues
-        }
+        };
 
         // Removing empty values
         Object.keys(values).forEach((key) => (!values[key]) && delete values[key]);
@@ -116,50 +117,27 @@ class SearchForm extends Component {
     }
 
     submit() {
-        const {display, values, searchScope} = this.state
-        const {crossWorkspace} = this.props
+        const {display, values, searchScope, dataModel} = this.state;
+        const {crossWorkspace} = this.props;
+        const limit = (crossWorkspace  || searchScope === 'all') ? 6 : (display === 'small' ? 9 : 100);
+        const rootNode = dataModel.getRootNode();
+        rootNode.setChildren([]);
+        rootNode.setLoaded(true);
 
-        let queryString = ''
         const keys = Object.keys(values);
-        if (keys.length === 1 && keys[0] === 'basename') {
-            queryString = values['basename'];
-        } else {
-            queryString = keys.map((k) => k + ':' + values[k]).join(' AND ')
+        if (keys.length === 0 || (keys.length === 1 && keys[0] === 'basename' && !values['basename'])) {
+            this.setState({loading: false,empty: true});
+            return;
         }
+        this.setState({loading: true, empty: false});
 
-        if (queryString === '') {
-            this.setState({
-                loading: false,
-                dataModel: this._basicDataModel,
-                empty: true
-            });
-            return
-        }
-
-        // Refresh data model
-        let dmParams = {
-            get_action : 'search',
-            query      : queryString,
-            limit      : (crossWorkspace  || searchScope === 'all') ? 5 : (display === 'small' ? 9 : 100),
-            connexion_discrete: true,
-        };
-        if ( crossWorkspace || searchScope === 'all' ) {
-            dmParams['all_workspaces'] = 'true';
-        }
-        if(searchScope === 'folder'){
-            dmParams.current_dir = this.props.pydio.getContextHolder().getContextNode().getPath();
-        }
-        const newDM = PydioDataModel.RemoteDataModelFactory(dmParams);
-        newDM.getRootNode().observeOnce("loaded", () => {
+        const api = new SearchApi(this.props.pydio);
+        api.search(values, crossWorkspace? 'all' : searchScope, limit).then(results => {
+            rootNode.setChildren(results);
+            rootNode.setLoaded(true);
             this.setState({loading: false});
         });
-        this.setState({
-            loading     : true,
-            dataModel   : newDM,
-            empty       : false
-        }, () => {
-            this.refs.results.reload();
-        });
+
     }
 
 

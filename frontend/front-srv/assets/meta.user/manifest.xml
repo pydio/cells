@@ -14,16 +14,6 @@
 			</component_config>
 		</client_configs>
 		<actions>
-            <action name="meta_user_list_tags">
-                <processing>
-                    <serverCallback methodName="listTags"/>
-                </processing>
-            </action>
-            <action name="meta_user_reset_tags">
-                <processing>
-                    <serverCallback methodName="resetTags"/>
-                </processing>
-            </action>
             <action name="edit_user_meta_mass">
                 <gui text="meta.user.1" title="meta.user.1" iconClass="mdi mdi-tag-multiple" hasAccessKey="false">
                     <context selection="true" dir="" recycle="hidden"
@@ -48,11 +38,6 @@
 				<rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
 				<processing>
 					<clientCallback module="ReactMeta.Callbacks.editMeta"/>
-					<serverCallback methodName="editMeta" restParams="/file+" developerComment="Edit user-defined metadata on a node">
-                        <input_param name="file" type="path" description="Path to the node to edit"/>
-                        <input_param name="ANY" type="ANY"
-                                     description="User-defined metadata key(s) and their corresponding values"/>
-					</serverCallback>
 					</processing>
 			</action>
 		</actions>

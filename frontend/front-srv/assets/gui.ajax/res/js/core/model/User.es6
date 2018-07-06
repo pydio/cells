@@ -75,10 +75,6 @@ export default class User{
          */
         this.crossRepositories=new Map();
         /**
-         * @var Map()
-         */
-        this.repoSearchEngines= new Map();
-        /**
          * @var Boolean
          */
         this.isAdmin=false;
@@ -274,14 +270,6 @@ export default class User{
 	 */
 	getRepositoryIcon(repoId){
 		return this.repoIcon.get(repoId);
-	}
-	/**
-	 * Get the repository search engine
-	 * @param repoId String
-	 * @returns String
-	 */
-	getRepoSearchEngine(repoId){
-		return this.repoSearchEngines.get(repoId);
 	}
 	/**
 	 * Send the preference to the server for saving

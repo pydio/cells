@@ -7576,9 +7576,13 @@ var _pydioModelDataModel = require('pydio/model/data-model');
 
 var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
 
-var _pydioUtilLang = require('pydio/util/lang');
+var _pydioHttpSearchApi = require('pydio/http/search-api');
 
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+var _pydioHttpSearchApi2 = _interopRequireDefault(_pydioHttpSearchApi);
+
+var _pydioModelEmptyNodeProvider = require('pydio/model/empty-node-provider');
+
+var _pydioModelEmptyNodeProvider2 = _interopRequireDefault(_pydioModelEmptyNodeProvider);
 
 var _lodash = require('lodash');
 
@@ -7586,7 +7590,6 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
-var NodeListCustomProvider = _Pydio$requireLib.NodeListCustomProvider;
 var SimpleList = _Pydio$requireLib.SimpleList;
 
 var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
@@ -7607,7 +7610,7 @@ var HomeSearchForm = (function (_Component) {
 
         // Create Fake DM
         this.basicDataModel = new _pydioModelDataModel2['default'](true);
-        var rNodeProvider = new EmptyNodeProvider();
+        var rNodeProvider = new _pydioModelEmptyNodeProvider2['default']();
         this.basicDataModel.setAjxpNodeProvider(rNodeProvider);
         var rootNode = new AjxpNode("/", false, '', '', rNodeProvider);
         this.basicDataModel.setRootNode(rootNode);
@@ -7641,27 +7644,21 @@ var HomeSearchForm = (function (_Component) {
 
             if (forceValue) queryString = forceValue;
             if (!queryString) {
-                this.setState({ empty: true, dataModel: this.basicDataModel });
+                this.setState({ empty: true, loading: false });
                 return;
             }
-            // Refresh data model
-            var dmParams = {
-                get_action: 'search',
-                query: queryString,
-                all_workspaces: 'true',
-                limit: this.props.limit || 5,
-                connexion_discrete: true
-            };
-            var newDM = _pydioModelDataModel2['default'].RemoteDataModelFactory(dmParams);
-            newDM.getRootNode().observeOnce("loaded", function () {
+            var dataModel = this.state.dataModel;
+
+            var rootNode = dataModel.getRootNode();
+            rootNode.setChildren([]);
+            rootNode.setLoaded(true);
+            this.setState({ loading: true, empty: false });
+
+            var api = new _pydioHttpSearchApi2['default'](this.props.pydio);
+            api.search({ basename: queryString }, 'all', this.props.limit || 10).then(function (results) {
+                rootNode.setChildren(results);
+                rootNode.setLoaded(true);
                 _this2.setState({ loading: false });
-            });
-            this.setState({
-                loading: true,
-                dataModel: newDM,
-                empty: false
-            }, function () {
-                _this2.refs.results.reload();
             });
         }
     }, {
@@ -7801,7 +7798,7 @@ exports['default'] = HomeSearchForm = (0, _materialUiStyles.muiThemeable)()(Home
 exports['default'] = HomeSearchForm;
 module.exports = exports['default'];
 
-},{"lodash":1,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],9:[function(require,module,exports){
+},{"lodash":1,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/search-api":"pydio/http/search-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/empty-node-provider":"pydio/model/empty-node-provider","react":"react"}],9:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

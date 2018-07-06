@@ -67,26 +67,74 @@ class SearchDatePanel extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState != this.state) {
-            let {value, startDate, endDate} = this.state
+        if (prevState !== this.state) {
+            let {value, startDate, endDate} = this.state;
+            if (value === 'custom' && !startDate && !endDate) {
+                this.props.onChange({ajxp_modiftime: null})
+            }
+            const startDay = (date) => {
+                date.setHours(0);
+                date.setMinutes(0);
+                date.setSeconds(1);
+                return date;
+            };
+            const endDay = (date) => {
+                date.setHours(23);
+                date.setMinutes(59);
+                date.setSeconds(59);
+                return date;
+            };
 
             if (value === 'custom') {
-                if (!startDate && !endDate) {
-                    this.props.onChange({ajxp_modiftime: null})
-                } else {
-                    if(!startDate) startDate = new Date(0);
-                    if(!endDate) {
-                        // Next year
-                        endDate = new Date();
-                        endDate.setFullYear(endDate.getFullYear()+1);
-                    }
-                    const format = (d) => {
-                        return d.getFullYear() + "" + ("0"+(d.getMonth()+1)).slice(-2) + "" +  ("0" + d.getDate()).slice(-2);
-                    }
-                    this.props.onChange({ajxp_modiftime: '['+format(startDate)+' TO '+format(endDate)+']'})
+                if(!startDate) {
+                    startDate = new Date(0);
                 }
-            } else {
-                this.props.onChange({ajxp_modiftime: value})
+                if(!endDate) {
+                    // Next year
+                    endDate = new Date();
+                    endDate.setFullYear(endDate.getFullYear()+1);
+                }
+                this.props.onChange({ajxp_modiftime: {from: startDate, to: endDate}});
+            } else if(value === 'PYDIO_SEARCH_RANGE_TODAY') {
+                this.props.onChange({ajxp_modiftime: {
+                    from: startDay(new Date()),
+                    to: endDay(new Date())
+                }})
+            } else if(value === 'PYDIO_SEARCH_RANGE_YESTERDAY') {
+                const y = new Date();
+                y.setDate(y.getDate() - 1);
+                const e = new Date();
+                e.setDate(e.getDate() - 1);
+                this.props.onChange({ajxp_modiftime: {
+                    from: startDay(y),
+                    to: endDay(e)
+                }})
+            } else if(value === 'PYDIO_SEARCH_RANGE_LAST_WEEK') {
+                const s = new Date();
+                s.setDate(s.getDate() - 7);
+                const e = new Date();
+                this.props.onChange({ajxp_modiftime: {
+                    from: s,
+                    to: e
+                }})
+            } else if(value === 'PYDIO_SEARCH_RANGE_LAST_MONTH') {
+                const s = new Date();
+                s.setMonth(s.getMonth() - 1);
+                const e = new Date();
+                this.props.onChange({ajxp_modiftime: {
+                    from: s,
+                    to: e
+                }});
+
+                this.props.onChange({ajxp_modiftime: {from: startDate, to: endDate}})
+            } else if(value === 'PYDIO_SEARCH_RANGE_LAST_YEAR') {
+                const s = new Date();
+                s.setFullYear(s.getFullYear() - 1);
+                const e = new Date();
+                this.props.onChange({ajxp_modiftime: {
+                    from: s,
+                    to: e
+                }});
             }
         }
     }

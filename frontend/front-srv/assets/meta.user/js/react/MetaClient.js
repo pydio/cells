@@ -71,7 +71,11 @@ class MetaClient{
             return Promise.resolve(this.configs);
         }
 
-        return new Promise(resolve => {
+        if(this.promise){
+            return this.promise;
+        }
+
+        this.promise = new Promise(resolve => {
             let defs = {};
             let configMap = new Map();
             const api = new UserMetaServiceApi(this.client);
@@ -124,10 +128,14 @@ class MetaClient{
                 });
                 this.configs = configMap;
                 resolve(configMap);
+                this.promise = null;
             }).catch(() => {
                 resolve(new Map());
+                this.promise = null;
             });
         });
+
+        return this.promise;
 
     }
 

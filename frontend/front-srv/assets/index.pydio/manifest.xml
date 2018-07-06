@@ -22,14 +22,7 @@
 	<registry_contributions>
 		<actions>
 			<action name="search">
-				<rightsContext noUser="true" userLogged="only" read="true"
-					write="false" adminOnly="false">
-				</rightsContext>
-				<processing>
-					<serverCallback methodName="searchAction" restParams="/query" sdkMethodName="search" developerComment="Search the Pydio index">
-                        <input_param description="Query term" name="query" type="string"/>
-					</serverCallback>
-				</processing>
+				<rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly="false"/>
 			</action>
 		</actions>
 	</registry_contributions>
