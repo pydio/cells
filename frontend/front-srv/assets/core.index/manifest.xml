@@ -17,10 +17,6 @@
                 </rightsContext>
                 <processing>
                     <clientCallback module="PydioCoreActions.Callbacks.launchIndexation"/>
-                    <serverCallback methodName="applyAction" restParams="/file+" developerComment="Trigger re-indexation of a directory, recursively">
-                        <input_param name="file" type="string" description="Folder to index (can be empty for root)"/>
-                        <input_param name="verboz" type="boolean" description="Print out some info about indexation"/>
-                    </serverCallback>
                 </processing>
             </action>
         </actions>
