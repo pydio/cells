@@ -580,7 +580,7 @@ class UserMetaPanel extends React.Component{
                 if(this.props.multiple){
                     data.push(
                         <div className={"infoPanelRow"} key={key} style={{ marginBottom: 20}}>
-                            <Checkbox value={key} label={label} onCheck={this.onCheck.bind(value)}/>
+                            <Checkbox value={key} label={label} onCheck={this.onCheck.bind(this)}/>
                             {this.state['fields'][key] && <div className="infoPanelValue">{field}</div>}
                         </div>
                     );
