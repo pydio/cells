@@ -1,6 +1,8 @@
-import PydioApi from 'pydio/http/api'
-import MetaNodeProvider from 'pydio/model/meta-node-provider'
-import {SearchServiceApi, TreeSearchRequest, TreeQuery} from 'pydio/http/rest-api'
+import PydioApi from './PydioApi'
+import MetaNodeProvider from '../model/MetaNodeProvider'
+import SearchServiceApi from './gen/api/SearchServiceApi'
+import TreeSearchRequest from './gen/model/TreeSearchRequest'
+import TreeQuery from './gen/model/TreeQuery'
 
 class SearchApi {
 
