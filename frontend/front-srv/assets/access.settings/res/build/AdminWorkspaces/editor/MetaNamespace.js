@@ -86,7 +86,6 @@ var MetaNamespace = (function (_React$Component) {
             _modelMetadata2['default'].putNS(namespace).then(function () {
                 _this.props.onRequestClose();
                 _this.props.reloadList();
-                _pydioHttpApi2['default'].getClient().request({ get_action: 'meta_user_clear_cache' });
             });
         }
     }, {
@@ -286,12 +285,11 @@ var MetaNamespace = (function (_React$Component) {
                 } })];
             if (type === 'tags') {
                 actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: "Reset Tags", onTouchTap: function () {
-                        _pydioHttpApi2['default'].getClient().request({ get_action: 'meta_user_reset_tags', namespace: namespace.Namespace }, function (t) {
-                            if (t.responseJSON && t.responseJSON.message) {
-                                pydio.UI.displayMessage('SUCCESS', t.responseJSON.message);
-                            } else {
-                                pydio.UI.displayMessage('ERROR', 'No message received!');
-                            }
+                        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+                        api.deleteUserMetaTags(namespace.Namespace, "*").then(function () {
+                            pydio.UI.displayMessage('SUCCESS', "Cleared tags for namespace " + namespace.Namespace);
+                        })['catch'](function (e) {
+                            pydio.UI.displayMessage('ERROR', e.message);
                         });
                     } }));
             }

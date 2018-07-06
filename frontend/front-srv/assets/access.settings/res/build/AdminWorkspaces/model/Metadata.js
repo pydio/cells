@@ -14,6 +14,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var Metadata = (function () {
@@ -39,6 +43,7 @@ var Metadata = (function () {
             var request = new _pydioHttpRestApi.IdmUpdateUserMetaNamespaceRequest();
             request.Operation = _pydioHttpRestApi.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
             request.Namespaces = [namespace];
+            Metadata.clearLocalCache();
             return api.updateUserMetaNamespace(request);
         }
 
@@ -53,7 +58,23 @@ var Metadata = (function () {
             var request = new _pydioHttpRestApi.IdmUpdateUserMetaNamespaceRequest();
             request.Operation = _pydioHttpRestApi.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('DELETE');
             request.Namespaces = [namespace];
+            Metadata.clearLocalCache();
             return api.updateUserMetaNamespace(request);
+        }
+
+        /**
+         * Clear ReactMeta cache if it exists
+         */
+    }, {
+        key: 'clearLocalCache',
+        value: function clearLocalCache() {
+            try {
+                if (window.ReactMeta) {
+                    ReactMeta.Renderer.getClient().clearConfigs();
+                }
+            } catch (e) {
+                //console.log(e)
+            }
         }
     }]);
 

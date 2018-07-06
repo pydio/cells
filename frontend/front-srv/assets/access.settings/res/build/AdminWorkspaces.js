@@ -25300,7 +25300,6 @@ var MetaNamespace = (function (_React$Component) {
             _modelMetadata2['default'].putNS(namespace).then(function () {
                 _this.props.onRequestClose();
                 _this.props.reloadList();
-                _pydioHttpApi2['default'].getClient().request({ get_action: 'meta_user_clear_cache' });
             });
         }
     }, {
@@ -25500,12 +25499,11 @@ var MetaNamespace = (function (_React$Component) {
                 } })];
             if (type === 'tags') {
                 actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: "Reset Tags", onTouchTap: function () {
-                        _pydioHttpApi2['default'].getClient().request({ get_action: 'meta_user_reset_tags', namespace: namespace.Namespace }, function (t) {
-                            if (t.responseJSON && t.responseJSON.message) {
-                                pydio.UI.displayMessage('SUCCESS', t.responseJSON.message);
-                            } else {
-                                pydio.UI.displayMessage('ERROR', 'No message received!');
-                            }
+                        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+                        api.deleteUserMetaTags(namespace.Namespace, "*").then(function () {
+                            pydio.UI.displayMessage('SUCCESS', "Cleared tags for namespace " + namespace.Namespace);
+                        })['catch'](function (e) {
+                            pydio.UI.displayMessage('ERROR', e.message);
                         });
                     } }));
             }
@@ -27307,6 +27305,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var Metadata = (function () {
@@ -27332,6 +27334,7 @@ var Metadata = (function () {
             var request = new _pydioHttpRestApi.IdmUpdateUserMetaNamespaceRequest();
             request.Operation = _pydioHttpRestApi.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('PUT');
             request.Namespaces = [namespace];
+            Metadata.clearLocalCache();
             return api.updateUserMetaNamespace(request);
         }
 
@@ -27346,7 +27349,23 @@ var Metadata = (function () {
             var request = new _pydioHttpRestApi.IdmUpdateUserMetaNamespaceRequest();
             request.Operation = _pydioHttpRestApi.UpdateUserMetaNamespaceRequestUserMetaNsOp.constructFromObject('DELETE');
             request.Namespaces = [namespace];
+            Metadata.clearLocalCache();
             return api.updateUserMetaNamespace(request);
+        }
+
+        /**
+         * Clear ReactMeta cache if it exists
+         */
+    }, {
+        key: 'clearLocalCache',
+        value: function clearLocalCache() {
+            try {
+                if (window.ReactMeta) {
+                    ReactMeta.Renderer.getClient().clearConfigs();
+                }
+            } catch (e) {
+                //console.log(e)
+            }
         }
     }]);
 
@@ -27365,7 +27384,7 @@ Metadata.MetaTypes = {
 exports['default'] = Metadata;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],178:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],178:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
