@@ -43,7 +43,7 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 	var plugs []string
 	e = json.Unmarshal(data, &plugs)
 	if e != nil {
-		return fmt.Errorf("Cannot parse json", string(data), e)
+		return fmt.Errorf("cannot parse json %s, %s", string(data), e.Error())
 	}
 	p.fs = fs
 	for _, plugin := range plugs {

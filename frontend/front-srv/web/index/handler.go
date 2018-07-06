@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/service/frontend"
 )
@@ -41,7 +42,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Rebase:           url,
 		ResourcesFolder:  "plug/gui.ajax/res",
 		Theme:            "material",
-		Version:          "1.0.0",
+		Version:          common.Version().String(),
 		Debug:            true,
 		StartParameters: map[string]interface{}{
 			"BOOTER_URL":          "/frontend/bootconf",

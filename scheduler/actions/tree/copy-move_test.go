@@ -217,7 +217,7 @@ func TestCopyMoveAction_RunMove(t *testing.T) {
 		So(output.Nodes, ShouldHaveLength, 1)
 		So(output.Nodes[0].Path, ShouldEqual, "target/path/moved")
 
-		So(mock.Nodes, ShouldHaveLength, 4)
+		So(mock.Nodes, ShouldHaveLength, 3)
 		So(mock.Nodes["from"].Path, ShouldEqual, "path/to/original")
 		So(mock.Nodes["to"].Path, ShouldEqual, "target/path/moved")
 		// Deleted Node

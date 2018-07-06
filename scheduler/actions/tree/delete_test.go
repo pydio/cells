@@ -55,7 +55,7 @@ func TestDeleteAction_Run(t *testing.T) {
 		job := &jobs.Job{}
 		action.Init(job, nil, &jobs.Action{})
 		mock := &views.HandlerMock{
-			Nodes: map[string]*tree.Node{},
+			Nodes: map[string]*tree.Node{"/test": {Path: "/test", Type: tree.NodeType_LEAF}},
 		}
 		action.Client = mock
 		status := make(chan string)
@@ -68,7 +68,7 @@ func TestDeleteAction_Run(t *testing.T) {
 
 		output, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
 			Nodes: []*tree.Node{&tree.Node{
-				Path: "test",
+				Path: "/test",
 			}},
 		})
 		close(status)
@@ -79,7 +79,8 @@ func TestDeleteAction_Run(t *testing.T) {
 
 		So(mock.Nodes, ShouldHaveLength, 1)
 		So(mock.Nodes["in"], ShouldResemble, &tree.Node{
-			Path: "test",
+			Path: "/test",
+			Type: tree.NodeType_LEAF,
 		})
 
 	})

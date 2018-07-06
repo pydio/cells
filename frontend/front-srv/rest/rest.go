@@ -170,7 +170,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 				rsp.WriteEntity(&rest.FrontSessionResponse{})
 			}
 		} else {
-			service.RestError500(req, rsp, fmt.Errorf("could not load session store", err))
+			service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
 		}
 		return
 
