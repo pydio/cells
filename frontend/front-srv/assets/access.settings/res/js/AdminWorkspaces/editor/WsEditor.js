@@ -311,7 +311,13 @@ class WsEditor extends React.Component {
                 <div style={styles.section}>
                     <div style={styles.title}>Permissions</div>
                     {completers}
-                    <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={"Default Access (all users)"} value={""}>
+                    <SelectField
+                        fullWidth={true}
+                        floatingLabelFixed={true}
+                        floatingLabelText={"Default Access (all users)"}
+                        value={workspace.Attributes['DEFAULT_RIGHTS']}
+                        onChange={(e,i,v) => {workspace.Attributes['DEFAULT_RIGHTS'] = v}}
+                    >
                         <MenuItem primaryText={"None"} value={""}/>
                         <MenuItem primaryText={"Read only"} value={"r"}/>
                         <MenuItem primaryText={"Read and write"} value={"rw"}/>

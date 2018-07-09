@@ -436,7 +436,15 @@ var WsEditor = (function (_React$Component2) {
                     completers,
                     _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Default Access (all users)", value: "" },
+                        {
+                            fullWidth: true,
+                            floatingLabelFixed: true,
+                            floatingLabelText: "Default Access (all users)",
+                            value: workspace.Attributes['DEFAULT_RIGHTS'],
+                            onChange: function (e, i, v) {
+                                workspace.Attributes['DEFAULT_RIGHTS'] = v;
+                            }
+                        },
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "None", value: "" }),
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Read only", value: "r" }),
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Read and write", value: "rw" }),

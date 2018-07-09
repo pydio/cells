@@ -64,6 +64,8 @@ class Workspace extends Observable{
             if (typeof atts === "object" && Object.keys(atts).length) {
                 this.internalAttributes = atts;
             }
+        } else {
+            this.internalAttributes = {};
         }
         if(!model.RootNodes){
             model.RootNodes = {};
@@ -102,6 +104,7 @@ class Workspace extends Observable{
     save(){
         // If Policies are not set, REST service will add default policies
         console.log('Saving model', this.model);
+        this.model.Attributes = JSON.stringify(this.internalAttributes);
         const api = new WorkspaceServiceApi(PydioApi.getRestClient());
         return api.putWorkspace(this.model.Slug, this.model).then(ws => {
             this.initModel(ws);

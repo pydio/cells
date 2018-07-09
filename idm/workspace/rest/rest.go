@@ -105,23 +105,32 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 		h.deduplicateSlug(ctx, &inputWorkspace, cli)
 	}
 
+	defaultRights := h.extractDefaultRights(ctx, &inputWorkspace)
+
 	response, er := cli.CreateWorkspace(req.Request.Context(), &idm.CreateWorkspaceRequest{
 		Workspace: &inputWorkspace,
 	})
 	if er != nil {
 		service2.RestError500(req, rsp, er)
-	} else if e := StoreRootNodesAsACLs(ctx, &inputWorkspace, update); e != nil {
+		return
+	}
+	if e := h.storeRootNodesAsACLs(ctx, &inputWorkspace, update); e != nil {
 		service2.RestError500(req, rsp, e)
 		return
-	} else {
-		u := response.Workspace
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Workspace %s has been saved", u.Slug),
-			log.GetAuditId(common.AUDIT_WS_UPDATE),
-			u.ZapUuid(),
-		)
-		rsp.WriteEntity(u)
 	}
+	if e := h.manageDefaultRights(ctx, &inputWorkspace, false, defaultRights); e != nil {
+		service2.RestError500(req, rsp, e)
+		return
+	}
+
+	u := response.Workspace
+	h.manageDefaultRights(ctx, u, true, "")
+	rsp.WriteEntity(u)
+	log.Auditer(ctx).Info(
+		fmt.Sprintf("Workspace %s has been saved", u.Slug),
+		log.GetAuditId(common.AUDIT_WS_UPDATE),
+		u.ZapUuid(),
+	)
 
 }
 
@@ -222,8 +231,11 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 			continue
 		}
 		resp.Workspace.PoliciesContextEditable = h.IsContextEditable(ctx, resp.Workspace.UUID, resp.Workspace.Policies)
-		if er := LoadRootNodesForWorkspace(ctx, resp.Workspace); er != nil {
+		if er := h.loadRootNodesForWorkspace(ctx, resp.Workspace); er != nil {
 			log.Logger(ctx).Error("Could not load root nodes for workspace", zap.Error(er))
+		}
+		if er := h.manageDefaultRights(ctx, resp.Workspace, true, ""); er != nil {
+			log.Logger(ctx).Error("Could not load default rights workspace", zap.Error(er))
 		}
 		collection.Workspaces = append(collection.Workspaces, resp.Workspace)
 	}

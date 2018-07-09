@@ -27076,7 +27076,15 @@ var WsEditor = (function (_React$Component2) {
                     completers,
                     _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Default Access (all users)", value: "" },
+                        {
+                            fullWidth: true,
+                            floatingLabelFixed: true,
+                            floatingLabelText: "Default Access (all users)",
+                            value: workspace.Attributes['DEFAULT_RIGHTS'],
+                            onChange: function (e, i, v) {
+                                workspace.Attributes['DEFAULT_RIGHTS'] = v;
+                            }
+                        },
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "None", value: "" }),
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Read only", value: "r" }),
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Read and write", value: "rw" }),
@@ -28439,6 +28447,8 @@ var Workspace = (function (_Observable) {
                 if (typeof atts === "object" && Object.keys(atts).length) {
                     this.internalAttributes = atts;
                 }
+            } else {
+                this.internalAttributes = {};
             }
             if (!model.RootNodes) {
                 model.RootNodes = {};
@@ -28491,6 +28501,7 @@ var Workspace = (function (_Observable) {
 
             // If Policies are not set, REST service will add default policies
             console.log('Saving model', this.model);
+            this.model.Attributes = JSON.stringify(this.internalAttributes);
             var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
             return api.putWorkspace(this.model.Slug, this.model).then(function (ws) {
                 _this4.initModel(ws);

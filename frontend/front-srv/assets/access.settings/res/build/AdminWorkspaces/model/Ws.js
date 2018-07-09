@@ -94,6 +94,8 @@ var Workspace = (function (_Observable) {
                 if (typeof atts === "object" && Object.keys(atts).length) {
                     this.internalAttributes = atts;
                 }
+            } else {
+                this.internalAttributes = {};
             }
             if (!model.RootNodes) {
                 model.RootNodes = {};
@@ -146,6 +148,7 @@ var Workspace = (function (_Observable) {
 
             // If Policies are not set, REST service will add default policies
             console.log('Saving model', this.model);
+            this.model.Attributes = JSON.stringify(this.internalAttributes);
             var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
             return api.putWorkspace(this.model.Slug, this.model).then(function (ws) {
                 _this4.initModel(ws);

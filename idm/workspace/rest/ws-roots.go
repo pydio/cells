@@ -2,10 +2,15 @@ package rest
 
 import (
 	"context"
+	"encoding/json"
+	"strings"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/defaults"
@@ -15,7 +20,7 @@ import (
 )
 
 // LoadRootNodesForWorkspace loads all root nodes for this workspace
-func LoadRootNodesForWorkspace(ctx context.Context, ws *idm.Workspace) error {
+func (h *WorkspaceHandler) loadRootNodesForWorkspace(ctx context.Context, ws *idm.Workspace) error {
 
 	acls, err := utils.GetACLsForWorkspace(ctx, []string{ws.UUID}, &idm.ACLAction{Name: utils.ACL_WSROOT_ACTION_NAME})
 	if err != nil {
@@ -42,7 +47,7 @@ func LoadRootNodesForWorkspace(ctx context.Context, ws *idm.Workspace) error {
 
 }
 
-func StoreRootNodesAsACLs(ctx context.Context, ws *idm.Workspace, update bool) error {
+func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Workspace, update bool) error {
 
 	reassign := make(map[string][]*idm.ACLAction)
 	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
@@ -120,5 +125,156 @@ func StoreRootNodesAsACLs(ctx context.Context, ws *idm.Workspace, update bool) e
 		}
 	}
 
+	return nil
+}
+
+func (h *WorkspaceHandler) extractDefaultRights(ctx context.Context, workspace *idm.Workspace) string {
+	var value string
+	if workspace.Attributes != "" {
+		var atts map[string]interface{}
+		if e := json.Unmarshal([]byte(workspace.Attributes), &atts); e == nil {
+			if passed, ok := atts["DEFAULT_RIGHTS"]; ok {
+				value = passed.(string)
+				delete(atts, "DEFAULT_RIGHTS")
+				jsonAttributes, _ := json.Marshal(atts)
+				workspace.Attributes = string(jsonAttributes)
+			}
+		}
+	}
+	return value
+}
+
+func (h *WorkspaceHandler) manageDefaultRights(ctx context.Context, workspace *idm.Workspace, read bool, value string) error {
+
+	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	if read {
+		// Load RootRole ACLs and append to Attributes
+		q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+			WorkspaceIDs: []string{workspace.UUID},
+			RoleIDs:      []string{"ROOT_GROUP"},
+		})
+		q2, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+			Actions: []*idm.ACLAction{utils.ACL_READ, utils.ACL_WRITE},
+		})
+		stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
+			Query: &service.Query{
+				SubQueries: []*any.Any{q1, q2},
+				Operation:  service.OperationType_AND,
+			},
+		})
+		if err != nil {
+			return err
+		}
+		defer stream.Close()
+		var read, write bool
+		for {
+			r, e := stream.Recv()
+			if e != nil {
+				break
+			}
+			if r.ACL.Action.Name == utils.ACL_READ.Name {
+				read = true
+			}
+			if r.ACL.Action.Name == utils.ACL_WRITE.Name {
+				write = true
+			}
+		}
+		s := ""
+		if read {
+			s += "r"
+		}
+		if write {
+			s += "w"
+		}
+		attributes := make(map[string]interface{}, 1)
+		if workspace.Attributes != "" {
+			var atts map[string]interface{}
+			if e := json.Unmarshal([]byte(workspace.Attributes), &atts); e == nil {
+				attributes = atts
+			}
+		}
+		attributes["DEFAULT_RIGHTS"] = s
+		jsonAttributes, _ := json.Marshal(attributes)
+		workspace.Attributes = string(jsonAttributes)
+
+	} else {
+		log.Logger(ctx).Info("Manage default Rights: " + value)
+
+		// Delete RootRole values first
+		q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+			WorkspaceIDs: []string{workspace.UUID},
+			RoleIDs:      []string{"ROOT_GROUP"},
+		})
+		q2, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+			Actions: []*idm.ACLAction{utils.ACL_READ, utils.ACL_WRITE},
+		})
+		_, err := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{
+			Query: &service.Query{
+				SubQueries: []*any.Any{q1, q2},
+				Operation:  service.OperationType_AND,
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		// Now Update RootRole
+		if value == "" {
+			return nil
+		}
+		read := strings.Contains(value, "r")
+		write := strings.Contains(value, "w")
+		for _, node := range workspace.RootNodes {
+			// Create ACLs for root group
+			if read {
+				aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+					WorkspaceID: workspace.UUID,
+					RoleID:      "ROOT_GROUP",
+					NodeID:      node.Uuid,
+					Action:      utils.ACL_READ,
+				}})
+			}
+			if write {
+				aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+					WorkspaceID: workspace.UUID,
+					RoleID:      "ROOT_GROUP",
+					NodeID:      node.Uuid,
+					Action:      utils.ACL_WRITE,
+				}})
+			}
+		}
+
+	}
+
+	return nil
+
+}
+
+func (h *WorkspaceHandler) allowCurrentUser(ctx context.Context, workspace *idm.Workspace) error {
+
+	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+
+	if ctx.Value(claim.ContextKey) != nil {
+		claims := ctx.Value(claim.ContextKey).(claim.Claims)
+		userId, e := claims.DecodeUserUuid()
+		if e != nil {
+			return e
+		}
+		for _, node := range workspace.RootNodes {
+			// Create ACLs for user id
+			aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+				WorkspaceID: workspace.UUID,
+				RoleID:      userId,
+				NodeID:      node.Uuid,
+				Action:      utils.ACL_READ,
+			}})
+			aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+				WorkspaceID: workspace.UUID,
+				RoleID:      userId,
+				NodeID:      node.Uuid,
+				Action:      utils.ACL_WRITE,
+			}})
+		}
+	}
 	return nil
 }
