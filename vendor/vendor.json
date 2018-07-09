@@ -1491,6 +1491,18 @@
 			"revisionTime": "2018-03-13T15:00:56Z"
 		},
 		{
+			"checksumSHA1": "mitzC+fL94AXk/KeUfEZG6Ynb3U=",
+			"path": "github.com/gorilla/securecookie",
+			"revision": "78f3d318a8bf316cda921f25e96fd0b441c5173d",
+			"revisionTime": "2018-06-08T14:44:17Z"
+		},
+		{
+			"checksumSHA1": "nB526COHQwGljTcMf+JJP3gc9Ck=",
+			"path": "github.com/gorilla/sessions",
+			"revision": "03b6f63cc43ef9c7240a635a5e22b13180e822b8",
+			"revisionTime": "2018-06-06T15:52:11Z"
+		},
+		{
 			"checksumSHA1": "+1LsRRZKa06yTFg/Tu5NCsyHxOA=",
 			"path": "github.com/gorilla/websocket",
 			"revision": "eb925808374e5ca90c83401a40d711dc08c0c0f6",

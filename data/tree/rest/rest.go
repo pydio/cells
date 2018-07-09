@@ -22,15 +22,17 @@
 package rest
 
 import (
+	"strings"
+
 	"github.com/emicklei/go-restful"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/views"
 	rest_meta "github.com/pydio/cells/data/meta/rest"
-	"go.uber.org/zap"
-	"gopkg.in/h2non/gentleman.v1/utils"
 )
 
 type Handler struct {
@@ -86,7 +88,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 			}
 			output.Children = append(output.Children, r.Node)
 		} else {
-			_, e := router.PutObject(ctx, n, utils.StringReader(" "), &views.PutRequestData{Size: 1})
+			_, e := router.PutObject(ctx, n, strings.NewReader(" "), &views.PutRequestData{Size: 1})
 			if e != nil {
 				service.RestError500(req, resp, e)
 				return
