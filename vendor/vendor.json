@@ -2324,6 +2324,12 @@
 			"revisionTime": "2018-03-19T02:42:43Z"
 		},
 		{
+			"checksumSHA1": "atFTH73uH2FkPpqock5dEp5PL08=",
+			"path": "github.com/jinzhu/copier",
+			"revision": "7e38e58719c33e0d44d585c4ab477a30f8cb82dd",
+			"revisionTime": "2018-03-08T03:41:24Z"
+		},
+		{
 			"checksumSHA1": "0ZrwvB6KoGPj2PoDNSEJwxQ6Mog=",
 			"origin": "github.com/hashicorp/consul/vendor/github.com/hashicorp/go-discover/provider/aws/vendor/github.com/jmespath/go-jmespath",
 			"path": "github.com/jmespath/go-jmespath",
