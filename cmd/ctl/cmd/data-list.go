@@ -105,7 +105,7 @@ $ ./pydioctl data list --source=pydiods1
 				// If the path is empty, we just render a list of workspaces
 				table.SetHeader([]string{"Name", "UUID"})
 				for _, workspace := range workspaces {
-					for _, nodeUUID := range workspace.GetRootNodes() {
+					for _, nodeUUID := range workspace.GetRootUUIDs() {
 						table.Append([]string{workspace.GetLabel(), nodeUUID})
 					}
 				}
@@ -123,7 +123,7 @@ $ ./pydioctl data list --source=pydiods1
 
 					if label == name {
 
-						for _, nodeUUID := range workspace.GetRootNodes() {
+						for _, nodeUUID := range workspace.GetRootUUIDs() {
 
 							// Retrieve the details of the root nodes
 							response, err := client.ReadNode(context.Background(), &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeUUID}})
