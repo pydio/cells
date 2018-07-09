@@ -17,25 +17,33 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import React from 'react'
+import PathUtils from 'pydio/util/path'
 import PluginsList from './PluginsList'
 import PluginEditor from './PluginEditor'
 
-const CoreAndPluginsDashboard = React.createClass({
+class CoreAndPluginsDashboard extends React.Component{
 
-    render:function(){
-        var coreId = PathUtils.getBasename(this.props.rootNode.getPath());
-        if(coreId.indexOf("core.") !== 0) coreId = "core." + coreId ;
-        var fakeNode = new AjxpNode('/' + coreId);
-        var pluginsList = <PluginsList {...this.props} title={this.props.rootNode.getLabel()}/>;
+    render(){
+        let basename = PathUtils.getBasename(this.props.rootNode.getPath());
+        let type, pluginId;
+        if(basename.indexOf('.') > -1){
+            type = basename.split('.')[1];
+            pluginId = basename;
+        } else{
+            type = basename;
+            pluginId = "core." + basename;
+        }
+        const pluginsList = <PluginsList {...this.props}  filterType={type} title={this.props.rootNode.getLabel()}/>;
         return (
             <PluginEditor
-                rootNode={fakeNode}
+                pydio={this.props.pydio}
+                pluginId={pluginId}
                 additionalPanes={{top:[], bottom:[pluginsList]}}
             />
         );
     }
 
-});
+}
 
 export {CoreAndPluginsDashboard as default}

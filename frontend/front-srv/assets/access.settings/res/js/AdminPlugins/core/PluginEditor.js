@@ -20,6 +20,9 @@
 
 import React from 'react'
 import {RaisedButton, FlatButton} from 'material-ui'
+import Loader from './Loader'
+import XMLUtils from 'pydio/util/xml'
+import LangUtils from 'pydio/util/lang'
 
 /**
  * Editor for a given plugin. By default, displays documentation in a left column panel,
@@ -31,7 +34,7 @@ const PluginEditor = React.createClass({
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     propTypes:{
-        rootNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
+        pluginId:React.PropTypes.string.isRequired,
         close:React.PropTypes.func,
         style:React.PropTypes.string,
         className:React.PropTypes.string,
@@ -49,76 +52,56 @@ const PluginEditor = React.createClass({
     },
 
 
-    loadPluginData:function(plugId){
+    loadPluginData(plugId){
 
-        PydioApi.getClient().request({
-            get_action:'get_plugin_manifest',
-            plugin_id:plugId
-        }, function(transport){
+        const loader = Loader.getInstance(this.props.pydio);
+        Promise.all([loader.loadPlugins(), loader.loadPluginConfigs(plugId)]).then(result => {
+            const xml = result[0];
+            const values = result[1];
 
-            var xmlData = transport.responseXML;
-            var params = PydioForm.Manager.parseParameters(xmlData, "//global_param");
-            var xmlValues = XMLUtils.XPathSelectNodes(xmlData, "//plugin_settings_values/param");
-            var documentation = XMLUtils.XPathSelectSingleNode(xmlData, "//plugin_doc");
-            var enabledAlways = false;
-            var rootNode = XMLUtils.XPathSelectSingleNode(xmlData, "admin_data");
-            var label = rootNode.firstChild.attributes.getNamedItem("label").value;
-            var description = rootNode.firstChild.attributes.getNamedItem("description").value;
-            try{enabledAlways = rootNode.firstChild.attributes.getNamedItem("enabled").value === 'always';}catch (e){}
+            const xmlData = XMLUtils.XPathSelectSingleNode(xml, '/plugins/*[@id="'+plugId+'"]');
+            console.log(xmlData);
+            const params = PydioForm.Manager.parseParameters(xmlData, "server_settings/global_param");
 
-            var paramsValues = {};
-            xmlValues.forEach(function(child){
-                if(child.nodeName != 'param') return;
-                var valueParamName = child.getAttribute("name");
-                if(child.getAttribute("cdatavalue")){
-                    paramsValues[valueParamName] = child.firstChild.nodeValue;
-                }else{
-                    paramsValues[valueParamName] = child.getAttribute('value');
-                }
-                var cType = null;
-                params.map(function(def){
-                    if(def.name == valueParamName) cType = def.type;
-                });
-                if(cType == 'boolean') paramsValues[valueParamName] = (paramsValues[valueParamName] == "true");
-                else if(cType == 'integer') paramsValues[valueParamName] = parseInt(paramsValues[valueParamName]);
-            });
-
+            let documentation = XMLUtils.XPathSelectSingleNode(xmlData, "//plugin_doc");
+            let enabledAlways = false;
+            const label = xmlData.getAttribute("label");
+            const description = xmlData.getAttribute("description");
+            try{enabledAlways = xmlData.getAttribute("enabled") === 'always';}catch (e){}
             this.setState({
                 loaded: true,
                 parameters:params,
-                values:paramsValues,
-                originalValues:LangUtils.deepCopy(paramsValues),
+                values:values,
+                originalValues:LangUtils.deepCopy(values),
                 documentation:documentation,
                 enabledAlways:enabledAlways,
                 dirty:false,
                 label:label,
-                description:description,
-                pluginId:plugId
+                description:description
             });
 
             if(this.props.registerCloseCallback){
-                this.props.registerCloseCallback(function(){
+                this.props.registerCloseCallback(() => {
                     if(this.state && this.state.dirty && !confirm(this.context.getMessage('19','role_editor'))){
                         return false;
                     }
-                }.bind(this));
+                });
             }
 
-        }.bind(this));
+        });
 
     },
 
-    componentWillReceiveProps:function(nextProps){
-        if(nextProps.rootNode.getPath()!= this.props.rootNode.getPath()){
-            this.loadPluginData(PathUtils.getBasename(nextProps.rootNode.getPath()));
+    componentWillReceiveProps(nextProps){
+        if(nextProps.pluginId !== this.props.pluginId){
+            this.loadPluginData(nextProps.pluginId);
             this.setState({values:{}});
         }
     },
 
-    getInitialState:function(){
+    getInitialState(){
 
-        var plugId = PathUtils.getBasename(this.props.rootNode.getPath());
-        this.loadPluginData(plugId);
+        this.loadPluginData(this.props.pluginId);
 
         return {
             loaded:false,
@@ -131,58 +114,45 @@ const PluginEditor = React.createClass({
         };
     },
 
-    externalSetDirty:function(){
+    externalSetDirty(){
         this.setState({dirty:true});
     },
 
-    onChange:function(formValues, dirty){
+    onChange(formValues, dirty){
         this.setState({dirty:dirty, values:formValues});
         if(this.props.onDirtyChange){
             this.props.onDirtyChange(dirty, formValues);
         }
     },
 
-    save:function(){
-        var clientParams = {
-            get_action:"edit",
-            sub_action:"edit_plugin_options",
-            plugin_id:this.state.pluginId
-        };
-        var postParams = this.refs['formPanel'].getValuesForPOST(this.state.values);
-        if(postParams['DRIVER_OPTION_PYDIO_PLUGIN_ENABLED']){
-            postParams['DRIVER_OPTION_PYDIO_PLUGIN_ENABLED_ajxptype'] = "boolean";
-        }
-        clientParams = LangUtils.mergeObjectsRecursive(clientParams, postParams);
-        if(this.props.onBeforeSave){
-            this.props.onBeforeSave(clientParams);
-        }
-        PydioApi.getClient().request(clientParams, function(transport){
+    save(){
+        Loader.getInstance(this.props.pydio).savePluginConfigs(this.props.pluginId, this.state.values, (newValues) => {
             this.setState({dirty:false});
             if(this.props.onAfterSave){
-                this.props.onAfterSave(transport);
+                this.props.onAfterSave(newValues);
             }
-        }.bind(this));
+        });
     },
 
-    revert:function(){
+    revert(){
         this.setState({dirty:false, values:this.state.originalValues});
         if(this.props.onRevert){
             this.props.onRevert(this.state.originalValues);
         }
     },
 
-    parameterHasHelper:function(paramName, testPluginId){
+    parameterHasHelper(paramName, testPluginId){
         paramName = paramName.split('/').pop();
-        var h = PydioForm.Manager.hasHelper(PathUtils.getBasename(this.props.rootNode.getPath()), paramName);
+        var h = PydioForm.Manager.hasHelper(this.props.pluginId, paramName);
         if(!h && testPluginId){
             h = PydioForm.Manager.hasHelper(testPluginId, paramName);
         }
         return h;
     },
 
-    showHelper:function(helperData, testPluginId){
+    showHelper(helperData, testPluginId){
         if(helperData){
-            var plugId = PathUtils.getBasename(this.props.rootNode.getPath());
+            let plugId = this.props.pluginId;
             if(testPluginId && !PydioForm.Manager.hasHelper(plugId, helperData['name'])){
                 helperData['pluginId'] = testPluginId;
             }else{
@@ -193,7 +163,7 @@ const PluginEditor = React.createClass({
         this.setState({helperData:helperData});
     },
 
-    closeHelper:function(){
+    closeHelper(){
         this.setState({helperData:null});
     },
 
@@ -201,46 +171,46 @@ const PluginEditor = React.createClass({
      * External helper can pass a full set of values and update them
      * @param newValues
      */
-    helperUpdateValues:function(newValues){
+    helperUpdateValues(newValues){
         this.onChange(newValues, true);
     },
 
-    toggleDocPane: function(){
+    toggleDocPane(){
         this.setState({docOpen:!this.state.docOpen});
     },
 
-    monitorMainPaneScrolling:function(event){
+    monitorMainPaneScrolling(event){
         if(event.target.className.indexOf('pydio-form-panel') === -1){
             return;
         }
-        var scroll = event.target.scrollTop;
-        var newState = (scroll > 5);
-        var currentScrolledState = (this.state && this.state.mainPaneScrolled);
-        if(newState != currentScrolledState){
+        const scroll = event.target.scrollTop;
+        const newState = (scroll > 5);
+        const currentScrolledState = (this.state && this.state.mainPaneScrolled);
+        if(newState !== currentScrolledState){
             this.setState({mainPaneScrolled:newState});
         }
     },
 
-    render: function(){
+    render(){
 
-        var addPanes = {top:[], bottom:[]};
+        let addPanes = {top:[], bottom:[]};
         if(this.props.additionalPanes){
             addPanes.top = this.props.additionalPanes.top.slice();
             addPanes.bottom = this.props.additionalPanes.bottom.slice();
         }
-        var closeButton;
+        let closeButton;
         if(this.props.closeEditor){
             closeButton = <RaisedButton label={this.context.getMessage('86','')} onTouchTap={this.props.closeEditor}/>
         }
 
-        var doc = this.state.documentation;
+        let doc = this.state.documentation;
         if(doc && this.props.docAsAdditionalPane){
             doc = doc.firstChild.nodeValue.replace('<p><ul', '<ul').replace('</ul></p>', '</ul>').replace('<p></p>', '');
-            doc = doc.replace('<img src="', '<img style="width:90%;" src="plugins/' + this.state.pluginId + '/');
-            var readDoc = function(){
+            doc = doc.replace('<img src="', '<img style="width:90%;" src="plugins/' + this.props.pluginId + '/');
+            const readDoc = () => {
                 return {__html:doc};
             };
-            var docPane = (
+            const docPane = (
                 <div className={"plugin-doc" + (this.state.docOpen?' plugin-doc-open':'')}>
                     <h3>Documentation</h3>
                     <div className="plugin-doc-pane" dangerouslySetInnerHTML={readDoc()}></div>
@@ -249,7 +219,7 @@ const PluginEditor = React.createClass({
             addPanes.top.push(docPane);
         }
 
-        var scrollingClassName = '';
+        let scrollingClassName = '';
         if(this.state && this.state.mainPaneScrolled){
             scrollingClassName = ' main-pane-scrolled';
         }
@@ -259,9 +229,6 @@ const PluginEditor = React.createClass({
         actions.push(closeButton);
 
         let icon;
-        if(this.props.rootNode.getMetadata().has('icon_class')){
-            icon = this.props.rootNode.getMetadata().get('icon_class');
-        }
         // Building  a form
         return (
             <div className={(this.props.className?this.props.className+" ":"") + "main-layout-nav-to-stack vertical-layout plugin-board" + scrollingClassName} style={this.props.style}>

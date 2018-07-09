@@ -150,6 +150,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-settings-box",
 						Component: "AdminPlugins.PluginEditor",
+						Props:     "{\"pluginId\":\"core.pydio\"}",
 					},
 				},
 				{
@@ -168,6 +169,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-database",
 						Component: "AdminPlugins.PluginEditor",
+						Props:     "{\"pluginId\":\"core.conf\"}",
 					},
 				},
 				{
@@ -179,6 +181,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-upload",
 						Component: "AdminPlugins.CoreAndPluginsDashboard",
+						Props:     "{\"pluginId\":\"core.uploader\"}",
 					},
 				},
 				{

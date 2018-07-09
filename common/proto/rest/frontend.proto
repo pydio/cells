@@ -65,6 +65,11 @@ message FrontBootConfResponse {
 message FrontStateRequest {}
 message FrontStateResponse {}
 
+message FrontPluginsRequest {
+    string Lang = 1;
+}
+message FrontPluginsResponse {}
+
 message FrontMessagesRequest{
     string Lang = 1;
 }

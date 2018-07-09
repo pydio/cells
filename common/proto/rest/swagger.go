@@ -1339,6 +1339,31 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/frontend/plugins/{Lang}": {
+      "get": {
+        "summary": "Serve list of I18n messages",
+        "operationId": "FrontPlugins",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontPluginsResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Lang",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "FrontendService"
+        ]
+      }
+    },
     "/frontend/session": {
       "post": {
         "summary": "Handle JWT",
@@ -6052,6 +6077,9 @@ var SwaggerJson = `{
           }
         }
       }
+    },
+    "restFrontPluginsResponse": {
+      "type": "object"
     },
     "restFrontSessionRequest": {
       "type": "object",

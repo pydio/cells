@@ -40,33 +40,16 @@ var AuthenticationPluginsDashboard = React.createClass({
     displayName: 'AuthenticationPluginsDashboard',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
-
-    openSelection: function openSelection(node) {
-        this.props.openRightPane({
-            COMPONENT: _corePluginEditor2['default'],
-            PROPS: {
-                rootNode: node,
-                docAsAdditionalPane: true,
-                className: "vertical edit-plugin-inpane",
-                closeEditor: this.props.closeRightPane
-            },
-            CHILDREN: null
-        });
-    },
-
-    getInitialState: function getInitialState() {
-        return { authfrontNode: new AjxpNode('/plugins/manager/authfront') };
-    },
-
     render: function render() {
         var pluginsList = React.createElement(_corePluginsList2['default'], {
             title: this.context.getMessage('plugtype.title.authfront', ''),
             dataModel: this.props.dataModel,
-            node: this.state.authfrontNode,
-            rootNode: this.state.authfrontNode,
-            openSelection: this.openSelection
+            filterType: "authfront",
+            openRightPane: this.props.openRightPane,
+            closeRightPane: this.props.closeRightPane
         });
         return React.createElement(_corePluginEditor2['default'], _extends({}, this.props, {
+            pluginId: "core.auth",
             style: _extends({}, this.props.style),
             additionalPanes: { top: [pluginsList], bottom: [] }
         }));

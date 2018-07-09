@@ -98,6 +98,23 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 	rsp.WriteAsXml(registry)
 }
 
+func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Response) {
+
+	pool, e := frontend.GetPluginsPool()
+	if e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+
+	lang := req.QueryParameter("lang")
+	if lang == "" {
+		lang = "en"
+	}
+	plugins := pool.AllPluginsManifests(req.Request.Context(), lang)
+	rsp.WriteAsXml(plugins)
+
+}
+
 func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Response) {
 
 	pool, e := frontend.GetPluginsPool()

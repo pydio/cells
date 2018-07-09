@@ -101,33 +101,16 @@ var AuthenticationPluginsDashboard = React.createClass({
     displayName: 'AuthenticationPluginsDashboard',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
-
-    openSelection: function openSelection(node) {
-        this.props.openRightPane({
-            COMPONENT: _corePluginEditor2['default'],
-            PROPS: {
-                rootNode: node,
-                docAsAdditionalPane: true,
-                className: "vertical edit-plugin-inpane",
-                closeEditor: this.props.closeRightPane
-            },
-            CHILDREN: null
-        });
-    },
-
-    getInitialState: function getInitialState() {
-        return { authfrontNode: new AjxpNode('/plugins/manager/authfront') };
-    },
-
     render: function render() {
         var pluginsList = React.createElement(_corePluginsList2['default'], {
             title: this.context.getMessage('plugtype.title.authfront', ''),
             dataModel: this.props.dataModel,
-            node: this.state.authfrontNode,
-            rootNode: this.state.authfrontNode,
-            openSelection: this.openSelection
+            filterType: "authfront",
+            openRightPane: this.props.openRightPane,
+            closeRightPane: this.props.closeRightPane
         });
         return React.createElement(_corePluginEditor2['default'], _extends({}, this.props, {
+            pluginId: "core.auth",
             style: _extends({}, this.props.style),
             additionalPanes: { top: [pluginsList], bottom: [] }
         }));
@@ -158,7 +141,6 @@ module.exports = exports['default'];
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -167,279 +149,23 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _materialUi = require('material-ui');
+var _pydioUtilPath = require('pydio/util/path');
 
-var _corePluginEditor = require('../core/PluginEditor');
-
-var _corePluginEditor2 = _interopRequireDefault(_corePluginEditor);
-
-var _require = require('react-chartjs');
-
-var Doughnut = _require.Doughnut;
-
-var CacheServerDashboard = _react2['default'].createClass({
-    displayName: 'CacheServerDashboard',
-
-    mixins: [AdminComponents.MessagesConsumerMixin],
-
-    getInitialState: function getInitialState() {
-        return { cacheStatuses: [], loading: false };
-    },
-
-    componentDidMount: function componentDidMount() {
-        this.checkCacheStats();
-    },
-
-    clearCache: function clearCache(namespace) {
-        PydioApi.getClient().request({ get_action: 'cache_service_clear_cache', namespace: namespace }, (function (transp) {
-            this.checkCacheStats();
-        }).bind(this));
-    },
-
-    checkCacheStats: function checkCacheStats() {
-        this.setState({ loading: true });
-        PydioApi.getClient().request({ get_action: 'cache_service_expose_stats' }, (function (transp) {
-            this.setState({ loading: false });
-            if (!this.isMounted()) return;
-            var response = transp.responseJSON;
-            this.setState({ cacheStatuses: response });
-            setTimeout(this.checkCacheStats.bind(this), 4000);
-        }).bind(this));
-    },
-
-    formatUptime: function formatUptime(time) {
-        var sec_num = parseInt(time, 10); // don't forget the second param
-        var hours = Math.floor(sec_num / 3600);
-        var minutes = Math.floor((sec_num - hours * 3600) / 60);
-        var seconds = sec_num - hours * 3600 - minutes * 60;
-
-        if (hours < 10) {
-            hours = "0" + hours;
-        }
-        if (minutes < 10) {
-            minutes = "0" + minutes;
-        }
-        if (seconds < 10) {
-            seconds = "0" + seconds;
-        }
-        return hours + ':' + minutes + ':' + seconds;
-    },
-
-    renderCachePane: function renderCachePane(cacheData) {
-        var healthPercent = parseInt(100 * cacheData.misses / cacheData.hits);
-        var health = undefined;
-        if (healthPercent < 5) {
-            health = '< 5%';
-        } else if (healthPercent < 20) {
-            health = '< 20%';
-        } else if (healthPercent < 40) {
-            health = '< 40%';
-        } else if (healthPercent < 60) {
-            health = '> 40%';
-        } else {
-            health = '> 60%';
-        }
-        var memoryUsage = undefined;
-        if (cacheData.memory_available) {
-            memoryUsage = _react2['default'].createElement(
-                'div',
-                { className: 'doughnut-chart' },
-                _react2['default'].createElement(
-                    'h5',
-                    null,
-                    'Memory Usage'
-                ),
-                _react2['default'].createElement(Doughnut, {
-                    data: [{
-                        value: cacheData.memory_usage,
-                        color: "rgba(247, 70, 74, 0.51)",
-                        highlight: "#FF5A5E",
-                        label: "Memory Used"
-                    }, {
-                        value: cacheData.memory_available - cacheData.memory_usage,
-                        color: "rgba(70, 191, 189, 0.59)",
-                        highlight: "#5AD3D1",
-                        label: "Memory Available"
-                    }],
-                    options: {},
-                    width: 150
-                }),
-                _react2['default'].createElement(
-                    'span',
-                    { className: 'figure' },
-                    parseInt(100 * cacheData.memory_usage / cacheData.memory_available),
-                    '%'
-                )
-            );
-        } else {
-            memoryUsage = _react2['default'].createElement(
-                'div',
-                { className: 'doughnut-chart' },
-                _react2['default'].createElement(
-                    'h5',
-                    null,
-                    'Memory Usage'
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { className: 'figure', style: { top: 'auto' } },
-                    PathUtils.roundFileSize(cacheData.memory_usage)
-                )
-            );
-        }
-
-        return _react2['default'].createElement(
-            'div',
-            null,
-            _react2['default'].createElement(
-                'h4',
-                null,
-                'Namespace \'',
-                cacheData.namespace,
-                '\''
-            ),
-            _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(
-                    'div',
-                    { style: { width: '50%', float: 'left' } },
-                    memoryUsage
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { width: '50%', float: 'left' } },
-                    _react2['default'].createElement(
-                        'div',
-                        { className: 'doughnut-chart' },
-                        _react2['default'].createElement(
-                            'h5',
-                            null,
-                            'Cache Health'
-                        ),
-                        _react2['default'].createElement(Doughnut, {
-                            data: [{
-                                value: cacheData.misses,
-                                color: "rgba(247, 70, 74, 0.51)",
-                                highlight: "#FF5A5E",
-                                label: "Missed"
-                            }, {
-                                value: cacheData.hits,
-                                color: "rgba(70, 191, 189, 0.59)",
-                                highlight: "#5AD3D1",
-                                label: "Hits"
-                            }],
-                            options: {},
-                            width: 150
-                        }),
-                        _react2['default'].createElement(
-                            'span',
-                            { className: 'figure' },
-                            health
-                        )
-                    )
-                )
-            ),
-            _react2['default'].createElement(
-                'div',
-                null,
-                'Uptime: ',
-                this.formatUptime(cacheData.uptime)
-            )
-        );
-    },
-
-    renderClearButton: function renderClearButton(cacheData) {
-        return _react2['default'].createElement(
-            'div',
-            { style: { paddingBottom: 10 } },
-            _react2['default'].createElement(_materialUi.RaisedButton, {
-                label: "Clear " + cacheData.namespace + " cache",
-                onTouchTap: this.clearCache.bind(this, cacheData.namespace)
-            })
-        );
-    },
-
-    renderStatusPane: function renderStatusPane() {
-        var overall = this.state.cacheStatuses.length ? this.renderCachePane(this.state.cacheStatuses[0]) : null;
-        return _react2['default'].createElement(
-            'div',
-            { style: { padding: '0 20px' } },
-            _react2['default'].createElement(
-                'h3',
-                null,
-                'Status'
-            ),
-            _react2['default'].createElement(
-                'div',
-                null,
-                overall
-            ),
-            _react2['default'].createElement(
-                'h3',
-                null,
-                'Cache Control'
-            ),
-            _react2['default'].createElement(
-                'div',
-                null,
-                this.state.cacheStatuses.map(this.renderClearButton.bind(this))
-            )
-        );
-    },
-
-    render: function render() {
-        var pane = this.renderStatusPane();
-        return _react2['default'].createElement(
-            'div',
-            { className: 'cache-server-panel', style: { height: '100%' } },
-            _react2['default'].createElement(_corePluginEditor2['default'], _extends({}, this.props, {
-                additionalPanes: { top: [], bottom: [pane] }
-            }))
-        );
-    }
-
-});
-
-exports['default'] = CacheServerDashboard;
-module.exports = exports['default'];
-
-},{"../core/PluginEditor":6,"material-ui":"material-ui","react":"react","react-chartjs":"react-chartjs"}],4:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
 
 var _PluginsList = require('./PluginsList');
 
@@ -449,26 +175,202 @@ var _PluginEditor = require('./PluginEditor');
 
 var _PluginEditor2 = _interopRequireDefault(_PluginEditor);
 
-var CoreAndPluginsDashboard = React.createClass({
-    displayName: 'CoreAndPluginsDashboard',
+var CoreAndPluginsDashboard = (function (_React$Component) {
+    _inherits(CoreAndPluginsDashboard, _React$Component);
 
-    render: function render() {
-        var coreId = PathUtils.getBasename(this.props.rootNode.getPath());
-        if (coreId.indexOf("core.") !== 0) coreId = "core." + coreId;
-        var fakeNode = new AjxpNode('/' + coreId);
-        var pluginsList = React.createElement(_PluginsList2['default'], _extends({}, this.props, { title: this.props.rootNode.getLabel() }));
-        return React.createElement(_PluginEditor2['default'], {
-            rootNode: fakeNode,
-            additionalPanes: { top: [], bottom: [pluginsList] }
-        });
+    function CoreAndPluginsDashboard() {
+        _classCallCheck(this, CoreAndPluginsDashboard);
+
+        _get(Object.getPrototypeOf(CoreAndPluginsDashboard.prototype), 'constructor', this).apply(this, arguments);
     }
 
-});
+    _createClass(CoreAndPluginsDashboard, [{
+        key: 'render',
+        value: function render() {
+            var basename = _pydioUtilPath2['default'].getBasename(this.props.rootNode.getPath());
+            var type = undefined,
+                pluginId = undefined;
+            if (basename.indexOf('.') > -1) {
+                type = basename.split('.')[1];
+                pluginId = basename;
+            } else {
+                type = basename;
+                pluginId = "core." + basename;
+            }
+            var pluginsList = _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, { filterType: type, title: this.props.rootNode.getLabel() }));
+            return _react2['default'].createElement(_PluginEditor2['default'], {
+                pydio: this.props.pydio,
+                pluginId: pluginId,
+                additionalPanes: { top: [], bottom: [pluginsList] }
+            });
+        }
+    }]);
+
+    return CoreAndPluginsDashboard;
+})(_react2['default'].Component);
 
 exports['default'] = CoreAndPluginsDashboard;
 module.exports = exports['default'];
 
-},{"./PluginEditor":6,"./PluginsList":7}],5:[function(require,module,exports){
+},{"./PluginEditor":6,"./PluginsList":7,"pydio/util/path":"pydio/util/path","react":"react"}],4:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _pydioHttpRestApi = require("pydio/http/rest-api");
+
+var Loader = (function () {
+    _createClass(Loader, null, [{
+        key: 'getInstance',
+        value: function getInstance(pydio) {
+            if (!Loader.INSTANCE) {
+                Loader.INSTANCE = new Loader(pydio);
+            }
+            return Loader.INSTANCE;
+        }
+    }]);
+
+    function Loader(pydio) {
+        _classCallCheck(this, Loader);
+
+        this.pydio = pydio;
+        this.pLoad = null;
+        this.plugins = null;
+    }
+
+    _createClass(Loader, [{
+        key: 'loadPlugins',
+        value: function loadPlugins() {
+            var _this = this;
+
+            var forceReload = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+            if (this.plugins && !forceReload) {
+                return Promise.resolve(this.plugins);
+            }
+
+            if (this.pLoad !== null) {
+                return this.pLoad;
+            }
+
+            this.pLoad = new Promise(function (resolve, reject) {
+
+                _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
+                    var headers = { Authorization: 'Bearer ' + jwt };
+                    var lang = 'en';
+                    if (_this.pydio.user && _this.pydio.user.getPreference('lang')) {
+                        lang = _this.pydio.user.getPreference('lang', true);
+                    }
+                    var url = _this.pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/plugins/' + lang;
+                    window.fetch(url, {
+                        method: 'GET',
+                        credentials: 'same-origin',
+                        headers: headers
+                    }).then(function (response) {
+                        _this.loading = false;
+                        response.text().then(function (text) {
+                            _this.plugins = _pydioUtilXml2['default'].parseXml(text).documentElement;
+                            _this.pLoad = null;
+                            resolve(_this.plugins);
+                        });
+                    })['catch'](function (e) {
+                        _this.pLoad = null;
+                        reject(e);
+                    });
+                });
+            });
+
+            return this.pLoad;
+        }
+
+        /**
+         *
+         * @param pluginNode DOMNode
+         * @param enabled boolean
+         * @param callback Function
+         */
+    }, {
+        key: 'toggleEnabled',
+        value: function toggleEnabled(pluginNode, enabled, callback) {
+
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var fullPath = "frontend/plugin/" + pluginNode.getAttribute('id');
+            // Load initial config
+
+            api.getConfig(fullPath).then(function (response) {
+                var currentData = JSON.parse(response.Data) || {};
+                currentData["PYDIO_PLUGIN_ENABLED"] = enabled;
+                var config = _pydioHttpRestApi.RestConfiguration.constructFromObject({
+                    FullPath: fullPath,
+                    Data: JSON.stringify(currentData)
+                });
+                api.putConfig(config.FullPath, config).then(function () {
+                    callback();
+                });
+            });
+        }
+    }, {
+        key: 'loadPluginConfigs',
+        value: function loadPluginConfigs(pluginId) {
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var fullPath = "frontend/plugin/" + pluginId;
+            return new Promise(function (resolve, reject) {
+                api.getConfig(fullPath).then(function (response) {
+                    var currentData = JSON.parse(response.Data) || {};
+                    resolve(currentData);
+                })['catch'](function (e) {
+                    reject(e);
+                });
+            });
+        }
+    }, {
+        key: 'savePluginConfigs',
+        value: function savePluginConfigs(pluginId, values, callback) {
+
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var fullPath = "frontend/plugin/" + pluginId;
+
+            api.getConfig(fullPath).then(function (response) {
+                var currentData = JSON.parse(response.Data) || {};
+                var newData = _pydioUtilLang2['default'].mergeObjectsRecursive(currentData, values);
+                var config = _pydioHttpRestApi.RestConfiguration.constructFromObject({
+                    FullPath: fullPath,
+                    Data: JSON.stringify(newData)
+                });
+                api.putConfig(config.FullPath, config).then(function () {
+                    callback(newData);
+                });
+            });
+        }
+    }]);
+
+    return Loader;
+})();
+
+exports['default'] = Loader;
+module.exports = exports['default'];
+
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml"}],5:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -518,21 +420,11 @@ var PluginsManager = _react2['default'].createClass({
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 
-    clearCache: function clearCache() {
-        _pydioHttpApi2['default'].getClient().request({
-            get_action: 'clear_plugins_cache'
-        }, (function (transp) {
-            this.refs.list.reload();
-            this.props.pydio.fire("admin_clear_plugins_cache");
-        }).bind(this));
-    },
-
     reload: function reload() {
         this.refs.list.reload();
     },
 
     render: function render() {
-        var clearCacheButton = _react2['default'].createElement(_materialUi.RaisedButton, { label: this.context.getMessage('129', 'settings'), onTouchTap: this.clearCache });
 
         return _react2['default'].createElement(
             'div',
@@ -540,7 +432,6 @@ var PluginsManager = _react2['default'].createClass({
             _react2['default'].createElement(AdminComponents.Header, {
                 title: this.props.currentNode.getLabel(),
                 icon: this.props.currentNode.getMetadata().get('icon_class'),
-                actions: clearCacheButton,
                 reloadAction: this.reload
             }),
             _react2['default'].createElement(
@@ -591,6 +482,18 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
+var _Loader = require('./Loader');
+
+var _Loader2 = _interopRequireDefault(_Loader);
+
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
 /**
  * Editor for a given plugin. By default, displays documentation in a left column panel,
  * and plugin parameters as form cards on the right.
@@ -602,7 +505,7 @@ var PluginEditor = _react2['default'].createClass({
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        rootNode: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
+        pluginId: _react2['default'].PropTypes.string.isRequired,
         close: _react2['default'].PropTypes.func,
         style: _react2['default'].PropTypes.string,
         className: _react2['default'].PropTypes.string,
@@ -620,74 +523,56 @@ var PluginEditor = _react2['default'].createClass({
     },
 
     loadPluginData: function loadPluginData(plugId) {
+        var _this = this;
 
-        PydioApi.getClient().request({
-            get_action: 'get_plugin_manifest',
-            plugin_id: plugId
-        }, (function (transport) {
+        var loader = _Loader2['default'].getInstance(this.props.pydio);
+        Promise.all([loader.loadPlugins(), loader.loadPluginConfigs(plugId)]).then(function (result) {
+            var xml = result[0];
+            var values = result[1];
 
-            var xmlData = transport.responseXML;
-            var params = PydioForm.Manager.parseParameters(xmlData, "//global_param");
-            var xmlValues = XMLUtils.XPathSelectNodes(xmlData, "//plugin_settings_values/param");
-            var documentation = XMLUtils.XPathSelectSingleNode(xmlData, "//plugin_doc");
+            var xmlData = _pydioUtilXml2['default'].XPathSelectSingleNode(xml, '/plugins/*[@id="' + plugId + '"]');
+            console.log(xmlData);
+            var params = PydioForm.Manager.parseParameters(xmlData, "server_settings/global_param");
+
+            var documentation = _pydioUtilXml2['default'].XPathSelectSingleNode(xmlData, "//plugin_doc");
             var enabledAlways = false;
-            var rootNode = XMLUtils.XPathSelectSingleNode(xmlData, "admin_data");
-            var label = rootNode.firstChild.attributes.getNamedItem("label").value;
-            var description = rootNode.firstChild.attributes.getNamedItem("description").value;
+            var label = xmlData.getAttribute("label");
+            var description = xmlData.getAttribute("description");
             try {
-                enabledAlways = rootNode.firstChild.attributes.getNamedItem("enabled").value === 'always';
+                enabledAlways = xmlData.getAttribute("enabled") === 'always';
             } catch (e) {}
-
-            var paramsValues = {};
-            xmlValues.forEach(function (child) {
-                if (child.nodeName != 'param') return;
-                var valueParamName = child.getAttribute("name");
-                if (child.getAttribute("cdatavalue")) {
-                    paramsValues[valueParamName] = child.firstChild.nodeValue;
-                } else {
-                    paramsValues[valueParamName] = child.getAttribute('value');
-                }
-                var cType = null;
-                params.map(function (def) {
-                    if (def.name == valueParamName) cType = def.type;
-                });
-                if (cType == 'boolean') paramsValues[valueParamName] = paramsValues[valueParamName] == "true";else if (cType == 'integer') paramsValues[valueParamName] = parseInt(paramsValues[valueParamName]);
-            });
-
-            this.setState({
+            _this.setState({
                 loaded: true,
                 parameters: params,
-                values: paramsValues,
-                originalValues: LangUtils.deepCopy(paramsValues),
+                values: values,
+                originalValues: _pydioUtilLang2['default'].deepCopy(values),
                 documentation: documentation,
                 enabledAlways: enabledAlways,
                 dirty: false,
                 label: label,
-                description: description,
-                pluginId: plugId
+                description: description
             });
 
-            if (this.props.registerCloseCallback) {
-                this.props.registerCloseCallback((function () {
-                    if (this.state && this.state.dirty && !confirm(this.context.getMessage('19', 'role_editor'))) {
+            if (_this.props.registerCloseCallback) {
+                _this.props.registerCloseCallback(function () {
+                    if (_this.state && _this.state.dirty && !confirm(_this.context.getMessage('19', 'role_editor'))) {
                         return false;
                     }
-                }).bind(this));
+                });
             }
-        }).bind(this));
+        });
     },
 
     componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-        if (nextProps.rootNode.getPath() != this.props.rootNode.getPath()) {
-            this.loadPluginData(PathUtils.getBasename(nextProps.rootNode.getPath()));
+        if (nextProps.pluginId !== this.props.pluginId) {
+            this.loadPluginData(nextProps.pluginId);
             this.setState({ values: {} });
         }
     },
 
     getInitialState: function getInitialState() {
 
-        var plugId = PathUtils.getBasename(this.props.rootNode.getPath());
-        this.loadPluginData(plugId);
+        this.loadPluginData(this.props.pluginId);
 
         return {
             loaded: false,
@@ -712,25 +597,14 @@ var PluginEditor = _react2['default'].createClass({
     },
 
     save: function save() {
-        var clientParams = {
-            get_action: "edit",
-            sub_action: "edit_plugin_options",
-            plugin_id: this.state.pluginId
-        };
-        var postParams = this.refs['formPanel'].getValuesForPOST(this.state.values);
-        if (postParams['DRIVER_OPTION_PYDIO_PLUGIN_ENABLED']) {
-            postParams['DRIVER_OPTION_PYDIO_PLUGIN_ENABLED_ajxptype'] = "boolean";
-        }
-        clientParams = LangUtils.mergeObjectsRecursive(clientParams, postParams);
-        if (this.props.onBeforeSave) {
-            this.props.onBeforeSave(clientParams);
-        }
-        PydioApi.getClient().request(clientParams, (function (transport) {
-            this.setState({ dirty: false });
-            if (this.props.onAfterSave) {
-                this.props.onAfterSave(transport);
+        var _this2 = this;
+
+        _Loader2['default'].getInstance(this.props.pydio).savePluginConfigs(this.props.pluginId, this.state.values, function (newValues) {
+            _this2.setState({ dirty: false });
+            if (_this2.props.onAfterSave) {
+                _this2.props.onAfterSave(newValues);
             }
-        }).bind(this));
+        });
     },
 
     revert: function revert() {
@@ -742,7 +616,7 @@ var PluginEditor = _react2['default'].createClass({
 
     parameterHasHelper: function parameterHasHelper(paramName, testPluginId) {
         paramName = paramName.split('/').pop();
-        var h = PydioForm.Manager.hasHelper(PathUtils.getBasename(this.props.rootNode.getPath()), paramName);
+        var h = PydioForm.Manager.hasHelper(this.props.pluginId, paramName);
         if (!h && testPluginId) {
             h = PydioForm.Manager.hasHelper(testPluginId, paramName);
         }
@@ -751,7 +625,7 @@ var PluginEditor = _react2['default'].createClass({
 
     showHelper: function showHelper(helperData, testPluginId) {
         if (helperData) {
-            var plugId = PathUtils.getBasename(this.props.rootNode.getPath());
+            var plugId = this.props.pluginId;
             if (testPluginId && !PydioForm.Manager.hasHelper(plugId, helperData['name'])) {
                 helperData['pluginId'] = testPluginId;
             } else {
@@ -785,7 +659,7 @@ var PluginEditor = _react2['default'].createClass({
         var scroll = event.target.scrollTop;
         var newState = scroll > 5;
         var currentScrolledState = this.state && this.state.mainPaneScrolled;
-        if (newState != currentScrolledState) {
+        if (newState !== currentScrolledState) {
             this.setState({ mainPaneScrolled: newState });
         }
     },
@@ -797,7 +671,7 @@ var PluginEditor = _react2['default'].createClass({
             addPanes.top = this.props.additionalPanes.top.slice();
             addPanes.bottom = this.props.additionalPanes.bottom.slice();
         }
-        var closeButton;
+        var closeButton = undefined;
         if (this.props.closeEditor) {
             closeButton = _react2['default'].createElement(_materialUi.RaisedButton, { label: this.context.getMessage('86', ''), onTouchTap: this.props.closeEditor });
         }
@@ -805,7 +679,7 @@ var PluginEditor = _react2['default'].createClass({
         var doc = this.state.documentation;
         if (doc && this.props.docAsAdditionalPane) {
             doc = doc.firstChild.nodeValue.replace('<p><ul', '<ul').replace('</ul></p>', '</ul>').replace('<p></p>', '');
-            doc = doc.replace('<img src="', '<img style="width:90%;" src="plugins/' + this.state.pluginId + '/');
+            doc = doc.replace('<img src="', '<img style="width:90%;" src="plugins/' + this.props.pluginId + '/');
             var readDoc = function readDoc() {
                 return { __html: doc };
             };
@@ -832,9 +706,6 @@ var PluginEditor = _react2['default'].createClass({
         actions.push(closeButton);
 
         var icon = undefined;
-        if (this.props.rootNode.getMetadata().has('icon_class')) {
-            icon = this.props.rootNode.getMetadata().get('icon_class');
-        }
         // Building  a form
         return _react2['default'].createElement(
             'div',
@@ -864,7 +735,7 @@ var PluginEditor = _react2['default'].createClass({
 exports['default'] = PluginEditor;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],7:[function(require,module,exports){
+},{"./Loader":4,"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml","react":"react"}],7:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -893,115 +764,129 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _materialUi = require('material-ui');
+
+var _Loader = require('./Loader');
+
+var _Loader2 = _interopRequireDefault(_Loader);
+
 var _PluginEditor = require('./PluginEditor');
 
 var _PluginEditor2 = _interopRequireDefault(_PluginEditor);
 
-var _materialUi = require('material-ui');
+var _Pydio$requireLib = Pydio.requireLib('components');
+
+var MaterialTable = _Pydio$requireLib.MaterialTable;
 
 var PluginsList = React.createClass({
     displayName: 'PluginsList',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 
+    getInitialState: function getInitialState() {
+        return {};
+    },
+
+    componentDidMount: function componentDidMount() {
+        var _this = this;
+
+        _Loader2['default'].getInstance(this.props.pydio).loadPlugins().then(function (res) {
+            _this.setState({ xmlPlugins: res });
+        });
+    },
+
     togglePluginEnable: function togglePluginEnable(node, toggled) {
-        var nodeId = PathUtils.getBasename(node.getPath());
-        var params = {
-            get_action: "edit",
-            sub_action: "edit_plugin_options",
-            plugin_id: nodeId,
-            DRIVER_OPTION_PYDIO_PLUGIN_ENABLED: toggled ? "true" : "false",
-            DRIVER_OPTION_PYDIO_PLUGIN_ENABLED_ajxptype: "boolean"
-        };
-        PydioApi.getClient().request(params, (function (transport) {
-            node.getMetadata().set("enabled", this.context.getMessage(toggled ? '440' : '441', ''));
-            this.forceUpdate();
-            pydio.fire("admin_clear_plugins_cache");
-        }).bind(this));
-        return true;
+        var _this2 = this;
+
+        _Loader2['default'].getInstance(this.props.pydio).toggleEnabled(node, toggled, function () {
+            _this2.reload();
+        });
     },
 
-    renderListIcon: function renderListIcon(node) {
-        if (!node.isLeaf()) {
-            return React.createElement(
-                'div',
-                null,
-                React.createElement('div', { className: 'icon-folder-open', style: { fontSize: 24, color: 'rgba(0,0,0,0.63)', padding: '20px 25px', display: 'block' } })
-            );
+    openTableRows: function openTableRows(rows) {
+        if (rows && rows.length && this.props.openRightPane) {
+            this.props.openRightPane({
+                COMPONENT: _PluginEditor2['default'],
+                PROPS: {
+                    pluginId: rows[0].id,
+                    docAsAdditionalPane: true,
+                    className: "vertical edit-plugin-inpane",
+                    closeEditor: this.props.closeRightPane
+                },
+                CHILDREN: null
+            });
         }
-        var onToggle = (function (e, toggled) {
-            e.stopPropagation();
-            var res = this.togglePluginEnable(node, toggled);
-            if (!res) {}
-        }).bind(this);
-
-        return React.createElement(
-            'div',
-            { style: { margin: '24px 8px' }, onClick: function (e) {
-                    e.stopPropagation();
-                } },
-            React.createElement(_materialUi.Toggle, {
-                ref: 'toggle',
-                className: 'plugin-enable-toggle',
-                name: 'plugin_toggle',
-                value: 'plugin_enabled',
-                defaultToggled: node.getMetadata().get("enabled") == this.context.getMessage('440', ''),
-                toggled: node.getMetadata().get("enabled") == this.context.getMessage('440', ''),
-                onToggle: onToggle
-            })
-        );
-    },
-
-    renderSecondLine: function renderSecondLine(node) {
-        return node.getMetadata().get('plugin_description');
-    },
-
-    renderActions: function renderActions(node) {
-        if (!node.isLeaf()) {
-            return null;
-        }
-        var edit = (function () {
-            if (this.props.openRightPane) {
-                this.props.openRightPane({
-                    COMPONENT: _PluginEditor2['default'],
-                    PROPS: {
-                        rootNode: node,
-                        docAsAdditionalPane: true,
-                        className: "vertical edit-plugin-inpane",
-                        closeEditor: this.props.closeRightPane
-                    },
-                    CHILDREN: null
-                });
-            }
-        }).bind(this);
-        return React.createElement(
-            'div',
-            { className: 'plugins-list-actions' },
-            React.createElement(_materialUi.IconButton, { iconStyle: { color: 'rgba(0,0,0,0.33)', fontSize: 21 }, style: { padding: 6 }, iconClassName: 'mdi mdi-pencil', onClick: edit })
-        );
     },
 
     reload: function reload() {
-        this.refs.list.reload();
+        var _this3 = this;
+
+        _Loader2['default'].getInstance(this.props.pydio).loadPlugins(true).then(function (res) {
+            _this3.setState({ xmlPlugins: res });
+        });
+    },
+
+    computeTableData: function computeTableData() {
+        var rows = [];
+        var xmlPlugins = this.state.xmlPlugins;
+
+        if (!xmlPlugins) {
+            return rows;
+        }
+
+        var _props = this.props;
+        var filterType = _props.filterType;
+        var filterString = _props.filterString;
+
+        return _pydioUtilXml2['default'].XPathSelectNodes(xmlPlugins, "/plugins/*").filter(function (xmlNode) {
+            return !filterType || xmlNode.getAttribute("id").indexOf(filterType) === 0;
+        }).filter(function (xmlNode) {
+            return !filterString || xmlNode.getAttribute("id").indexOf(filterString) !== -1;
+        }).map(function (xmlNode) {
+            return {
+                id: xmlNode.getAttribute("id"),
+                label: xmlNode.getAttribute("label"),
+                description: xmlNode.getAttribute("description"),
+                xmlNode: xmlNode
+            };
+        }).sort(_pydioUtilLang2['default'].arraySorter('id'));
     },
 
     render: function render() {
+        var _this4 = this;
 
-        return React.createElement(PydioComponents.SimpleList, {
-            ref: 'list',
-            node: this.props.currentNode || this.props.rootNode,
-            dataModel: this.props.dataModel,
-            className: 'plugins-list',
-            actionBarGroups: [],
-            entryRenderIcon: this.renderListIcon,
-            entryRenderActions: this.renderActions,
-            entryRenderSecondLine: this.renderSecondLine,
-            openEditor: this.props.openSelection,
-            infineSliceCount: 1000,
-            filterNodes: null,
-            listTitle: this.props.title,
-            hideToolbar: this.props.hideToolbar,
-            elementHeight: PydioComponents.SimpleList.HEIGHT_TWO_LINES
+        var columns = [{ name: 'enabled', label: 'Enabled', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+                return React.createElement(_materialUi.Toggle, {
+                    toggled: row.xmlNode.getAttribute("enabled") !== "false",
+                    onToggle: function (e, v) {
+                        return _this4.togglePluginEnable(row.xmlNode, v);
+                    },
+                    onClick: function (e) {
+                        return e.stopPropagation();
+                    }
+                });
+            } }, { name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'id', label: 'Id', style: { width: '15%' }, headerStyle: { width: '15%' } }, { name: 'description', label: 'Description' }, { name: 'action', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+                return React.createElement(_materialUi.IconButton, { iconStyle: { color: 'rgba(0,0,0,0.33)', fontSize: 21 }, iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
+                        return _this4.openTableRows([row]);
+                    } });
+            } }];
+
+        var data = this.computeTableData();
+
+        return React.createElement(MaterialTable, {
+            data: data,
+            columns: columns,
+            onSelectRows: this.openTableRows.bind(this),
+            deselectOnClickAway: true,
+            showCheckboxes: false
         });
     }
 
@@ -1010,7 +895,7 @@ var PluginsList = React.createClass({
 exports['default'] = PluginsList;
 module.exports = exports['default'];
 
-},{"./PluginEditor":6,"material-ui":"material-ui"}],8:[function(require,module,exports){
+},{"./Loader":4,"./PluginEditor":6,"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml"}],8:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1474,199 +1359,6 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var React = require('react');
-
-var _require = require('material-ui');
-
-var List = _require.List;
-var ListItem = _require.ListItem;
-var FlatButton = _require.FlatButton;
-var Paper = _require.Paper;
-var Divider = _require.Divider;
-
-var PydioApi = require('pydio/http/api');
-
-var _require$requireLib = require('pydio').requireLib('boot');
-
-var Loader = _require$requireLib.Loader;
-var PydioContextConsumer = _require$requireLib.PydioContextConsumer;
-
-var _require$requireLib2 = require('pydio').requireLib('components');
-
-var ClipboardTextField = _require$requireLib2.ClipboardTextField;
-var MaterialTable = _require$requireLib2.MaterialTable;
-
-var DiagnosticDashboard = (function (_React$Component) {
-    _inherits(DiagnosticDashboard, _React$Component);
-
-    function DiagnosticDashboard(props, context) {
-        _classCallCheck(this, DiagnosticDashboard);
-
-        _get(Object.getPrototypeOf(DiagnosticDashboard.prototype), 'constructor', this).call(this, props, context);
-        this.state = { loaded: false, entries: {}, copy: false };
-    }
-
-    _createClass(DiagnosticDashboard, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            var _this = this;
-
-            if (this.state.loaded) return;
-            this.setState({ loading: true });
-            PydioApi.getClient().request({
-                get_action: 'ls',
-                dir: this.props.access || '/admin/php',
-                format: 'json'
-            }, function (transport) {
-                var resp = transport.responseJSON;
-                if (!resp || !resp.children) return;
-                _this.setState({ loaded: true, loading: false, entries: resp.children });
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this2 = this;
-
-            var _state = this.state;
-            var entries = _state.entries;
-            var loading = _state.loading;
-            var copy = _state.copy;
-
-            var columns = [{ name: 'label', label: 'Label', style: { fontSize: 15, width: '30%' }, headerStyle: { width: '30%' } }, { name: 'info', label: 'Info' }];
-            var tableData = [];
-            var content = undefined,
-                copyPanel = undefined,
-                copyContent = '';
-            if (loading) {
-                content = React.createElement(Loader, null);
-            } else {
-                (function () {
-                    var listItems = [];
-                    Object.keys(entries).forEach(function (k) {
-                        var entry = entries[k];
-                        var data = entry.data;
-                        if (typeof data === 'boolean') {
-                            data = data ? 'Yes' : 'No';
-                        }
-                        listItems.push(React.createElement(ListItem, {
-                            key: k,
-                            primaryText: entry.label,
-                            secondaryText: data,
-                            disabled: true
-
-                        }));
-                        listItems.push(React.createElement(Divider, null));
-                        copyContent += entry.label + ' : ' + data + '\n';
-                        tableData.push({
-                            label: entry.label,
-                            info: data
-                        });
-                    });
-                    if (listItems.length) {
-                        listItems.pop();
-                    }
-                    content = React.createElement(
-                        List,
-                        null,
-                        listItems
-                    );
-                    content = React.createElement(MaterialTable, {
-                        data: tableData,
-                        columns: columns,
-                        onSelectRows: function () {},
-                        showCheckboxes: false
-                    });
-                })();
-            }
-
-            if (copy) {
-                copyPanel = React.createElement(
-                    Paper,
-                    { zDepth: 2, style: { position: 'absolute', top: '15%', left: '20%', width: '60%', padding: '20px 20px 0', height: 370, overflowY: 'auto', zIndex: 2 } },
-                    React.createElement(
-                        'div',
-                        { style: { fontSize: 20 } },
-                        'Copy Diagnostic'
-                    ),
-                    React.createElement(ClipboardTextField, { rows: 5, rowsMax: 10, multiLine: true, inputValue: copyContent, floatingLabelText: this.props.getMessage('5', 'settings'), getMessage: this.props.getMessage }),
-                    React.createElement(
-                        'div',
-                        { style: { textAlign: 'right' } },
-                        React.createElement(FlatButton, { label: 'Close', onTouchTap: function () {
-                                _this2.setState({ copy: false });
-                            }, secondary: true })
-                    )
-                );
-            }
-
-            return React.createElement(
-                'div',
-                { style: { height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' } },
-                React.createElement(AdminComponents.Header, {
-                    title: this.props.getMessage('5', 'settings'),
-                    icon: "mdi mdi-stethoscope",
-                    actions: React.createElement(FlatButton, { label: 'Copy', onTouchTap: function () {
-                            _this2.setState({ copy: true });
-                        }, secondary: true, style: { marginRight: 16 } }),
-                    loading: loading
-                }),
-                copyPanel,
-                React.createElement(
-                    'div',
-                    { style: { flex: 1, overflowY: 'auto' } },
-                    React.createElement(
-                        Paper,
-                        { zDepth: 1, style: { margin: 16 } },
-                        content
-                    )
-                )
-            );
-        }
-    }]);
-
-    return DiagnosticDashboard;
-})(React.Component);
-
-exports['default'] = DiagnosticDashboard = PydioContextConsumer(DiagnosticDashboard);
-exports['default'] = DiagnosticDashboard;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],11:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -1702,7 +1394,7 @@ var JSDocsPanel = (function (_Component) {
         value: function componentDidMount() {
             var _this = this;
 
-            PydioApi.getClient().loadFile('plugins/gui.ajax/docgen.json', function (transp) {
+            PydioApi.getClient().loadFile('plug/gui.ajax/docgen.json', function (transp) {
                 if (!transp.responseJSON || !transp.responseJSON['gui.ajax']) {
                     _this.setState({ error: 'Docs are not loaded, you probably have to run \'grunt docgen\' command inside the gui.ajax plugin.' });
                     return;
@@ -2030,7 +1722,7 @@ var ClassPanel = (function (_Component2) {
 exports['default'] = JSDocsPanel;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/util/path":"pydio/util/path","react":"react"}],12:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/util/path":"pydio/util/path","react":"react"}],11:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2115,7 +1807,7 @@ var OpenApiDashboard = (function (_React$Component) {
 exports['default'] = OpenApiDashboard;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react","react-swagger-ui":1}],13:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react","react-swagger-ui":1}],12:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2182,7 +1874,7 @@ var EditorsDashboard = React.createClass({
 exports['default'] = EditorsDashboard;
 module.exports = exports['default'];
 
-},{"../core/PluginsList":7,"material-ui":"material-ui"}],14:[function(require,module,exports){
+},{"../core/PluginsList":7,"material-ui":"material-ui"}],13:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2239,14 +1931,6 @@ var _updaterUpdaterDashboard = require('./updater/UpdaterDashboard');
 
 var _updaterUpdaterDashboard2 = _interopRequireDefault(_updaterUpdaterDashboard);
 
-var _cacheCacheServerDashboard = require('./cache/CacheServerDashboard');
-
-var _cacheCacheServerDashboard2 = _interopRequireDefault(_cacheCacheServerDashboard);
-
-var _diagnosticDiagnosticDashboard = require('./diagnostic/DiagnosticDashboard');
-
-var _diagnosticDiagnosticDashboard2 = _interopRequireDefault(_diagnosticDiagnosticDashboard);
-
 var _docsJSDocsDashboard = require('./docs/JSDocsDashboard');
 
 var _docsJSDocsDashboard2 = _interopRequireDefault(_docsJSDocsDashboard);
@@ -2268,8 +1952,6 @@ window.AdminPlugins = {
   AuthenticationPluginsDashboard: _authAuthenticationPluginsDashboard2['default'],
   EditorsDashboard: _editorsEditorsDashboard2['default'],
   UpdaterDashboard: _updaterUpdaterDashboard2['default'],
-  CacheServerDashboard: _cacheCacheServerDashboard2['default'],
-  DiagnosticDashboard: _diagnosticDiagnosticDashboard2['default'],
   JSDocsDashboard: _docsJSDocsDashboard2['default'],
   OpenApiDashboard: _docsOpenApiDashboard2['default'],
   ServiceEditor: _coreServiceEditor2['default'],
@@ -2277,7 +1959,7 @@ window.AdminPlugins = {
 
 };
 
-},{"./auth/AuthenticationPluginsDashboard":2,"./cache/CacheServerDashboard":3,"./core/CoreAndPluginsDashboard":4,"./core/Manager":5,"./core/PluginEditor":6,"./core/PluginsList":7,"./core/ServiceEditor":8,"./diagnostic/DiagnosticDashboard":10,"./docs/JSDocsDashboard":11,"./docs/OpenApiDashboard":12,"./editors/EditorsDashboard":13,"./license/LicenseBoard":15,"./updater/UpdaterDashboard":16}],15:[function(require,module,exports){
+},{"./auth/AuthenticationPluginsDashboard":2,"./core/CoreAndPluginsDashboard":3,"./core/Manager":5,"./core/PluginEditor":6,"./core/PluginsList":7,"./core/ServiceEditor":8,"./docs/JSDocsDashboard":10,"./docs/OpenApiDashboard":11,"./editors/EditorsDashboard":12,"./license/LicenseBoard":14,"./updater/UpdaterDashboard":15}],14:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -2549,7 +2231,7 @@ exports['default'] = Dashboard;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-chartjs":"react-chartjs"}],16:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-chartjs":"react-chartjs"}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2813,4 +2495,4 @@ var UpdaterDashboard = _react2['default'].createClass({
 exports['default'] = UpdaterDashboard;
 module.exports = exports['default'];
 
-},{"../core/ServiceExposedConfigs":9,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}]},{},[14]);
+},{"../core/ServiceExposedConfigs":9,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}]},{},[13]);

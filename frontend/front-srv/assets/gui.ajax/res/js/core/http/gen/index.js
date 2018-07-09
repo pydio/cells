@@ -150,6 +150,7 @@ import RestFrontBootConfResponse from './model/RestFrontBootConfResponse';
 import RestFrontLogMessage from './model/RestFrontLogMessage';
 import RestFrontLogResponse from './model/RestFrontLogResponse';
 import RestFrontMessagesResponse from './model/RestFrontMessagesResponse';
+import RestFrontPluginsResponse from './model/RestFrontPluginsResponse';
 import RestFrontSessionRequest from './model/RestFrontSessionRequest';
 import RestFrontSessionResponse from './model/RestFrontSessionResponse';
 import RestFrontStateResponse from './model/RestFrontStateResponse';
@@ -1120,6 +1121,12 @@ export {
      * @property {module:model/RestFrontMessagesResponse}
      */
     RestFrontMessagesResponse,
+
+    /**
+     * The RestFrontPluginsResponse model constructor.
+     * @property {module:model/RestFrontPluginsResponse}
+     */
+    RestFrontPluginsResponse,
 
     /**
      * The RestFrontSessionRequest model constructor.

@@ -26,115 +26,129 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _materialUi = require('material-ui');
+
+var _Loader = require('./Loader');
+
+var _Loader2 = _interopRequireDefault(_Loader);
+
 var _PluginEditor = require('./PluginEditor');
 
 var _PluginEditor2 = _interopRequireDefault(_PluginEditor);
 
-var _materialUi = require('material-ui');
+var _Pydio$requireLib = Pydio.requireLib('components');
+
+var MaterialTable = _Pydio$requireLib.MaterialTable;
 
 var PluginsList = React.createClass({
     displayName: 'PluginsList',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 
+    getInitialState: function getInitialState() {
+        return {};
+    },
+
+    componentDidMount: function componentDidMount() {
+        var _this = this;
+
+        _Loader2['default'].getInstance(this.props.pydio).loadPlugins().then(function (res) {
+            _this.setState({ xmlPlugins: res });
+        });
+    },
+
     togglePluginEnable: function togglePluginEnable(node, toggled) {
-        var nodeId = PathUtils.getBasename(node.getPath());
-        var params = {
-            get_action: "edit",
-            sub_action: "edit_plugin_options",
-            plugin_id: nodeId,
-            DRIVER_OPTION_PYDIO_PLUGIN_ENABLED: toggled ? "true" : "false",
-            DRIVER_OPTION_PYDIO_PLUGIN_ENABLED_ajxptype: "boolean"
-        };
-        PydioApi.getClient().request(params, (function (transport) {
-            node.getMetadata().set("enabled", this.context.getMessage(toggled ? '440' : '441', ''));
-            this.forceUpdate();
-            pydio.fire("admin_clear_plugins_cache");
-        }).bind(this));
-        return true;
+        var _this2 = this;
+
+        _Loader2['default'].getInstance(this.props.pydio).toggleEnabled(node, toggled, function () {
+            _this2.reload();
+        });
     },
 
-    renderListIcon: function renderListIcon(node) {
-        if (!node.isLeaf()) {
-            return React.createElement(
-                'div',
-                null,
-                React.createElement('div', { className: 'icon-folder-open', style: { fontSize: 24, color: 'rgba(0,0,0,0.63)', padding: '20px 25px', display: 'block' } })
-            );
+    openTableRows: function openTableRows(rows) {
+        if (rows && rows.length && this.props.openRightPane) {
+            this.props.openRightPane({
+                COMPONENT: _PluginEditor2['default'],
+                PROPS: {
+                    pluginId: rows[0].id,
+                    docAsAdditionalPane: true,
+                    className: "vertical edit-plugin-inpane",
+                    closeEditor: this.props.closeRightPane
+                },
+                CHILDREN: null
+            });
         }
-        var onToggle = (function (e, toggled) {
-            e.stopPropagation();
-            var res = this.togglePluginEnable(node, toggled);
-            if (!res) {}
-        }).bind(this);
-
-        return React.createElement(
-            'div',
-            { style: { margin: '24px 8px' }, onClick: function (e) {
-                    e.stopPropagation();
-                } },
-            React.createElement(_materialUi.Toggle, {
-                ref: 'toggle',
-                className: 'plugin-enable-toggle',
-                name: 'plugin_toggle',
-                value: 'plugin_enabled',
-                defaultToggled: node.getMetadata().get("enabled") == this.context.getMessage('440', ''),
-                toggled: node.getMetadata().get("enabled") == this.context.getMessage('440', ''),
-                onToggle: onToggle
-            })
-        );
-    },
-
-    renderSecondLine: function renderSecondLine(node) {
-        return node.getMetadata().get('plugin_description');
-    },
-
-    renderActions: function renderActions(node) {
-        if (!node.isLeaf()) {
-            return null;
-        }
-        var edit = (function () {
-            if (this.props.openRightPane) {
-                this.props.openRightPane({
-                    COMPONENT: _PluginEditor2['default'],
-                    PROPS: {
-                        rootNode: node,
-                        docAsAdditionalPane: true,
-                        className: "vertical edit-plugin-inpane",
-                        closeEditor: this.props.closeRightPane
-                    },
-                    CHILDREN: null
-                });
-            }
-        }).bind(this);
-        return React.createElement(
-            'div',
-            { className: 'plugins-list-actions' },
-            React.createElement(_materialUi.IconButton, { iconStyle: { color: 'rgba(0,0,0,0.33)', fontSize: 21 }, style: { padding: 6 }, iconClassName: 'mdi mdi-pencil', onClick: edit })
-        );
     },
 
     reload: function reload() {
-        this.refs.list.reload();
+        var _this3 = this;
+
+        _Loader2['default'].getInstance(this.props.pydio).loadPlugins(true).then(function (res) {
+            _this3.setState({ xmlPlugins: res });
+        });
+    },
+
+    computeTableData: function computeTableData() {
+        var rows = [];
+        var xmlPlugins = this.state.xmlPlugins;
+
+        if (!xmlPlugins) {
+            return rows;
+        }
+
+        var _props = this.props;
+        var filterType = _props.filterType;
+        var filterString = _props.filterString;
+
+        return _pydioUtilXml2['default'].XPathSelectNodes(xmlPlugins, "/plugins/*").filter(function (xmlNode) {
+            return !filterType || xmlNode.getAttribute("id").indexOf(filterType) === 0;
+        }).filter(function (xmlNode) {
+            return !filterString || xmlNode.getAttribute("id").indexOf(filterString) !== -1;
+        }).map(function (xmlNode) {
+            return {
+                id: xmlNode.getAttribute("id"),
+                label: xmlNode.getAttribute("label"),
+                description: xmlNode.getAttribute("description"),
+                xmlNode: xmlNode
+            };
+        }).sort(_pydioUtilLang2['default'].arraySorter('id'));
     },
 
     render: function render() {
+        var _this4 = this;
 
-        return React.createElement(PydioComponents.SimpleList, {
-            ref: 'list',
-            node: this.props.currentNode || this.props.rootNode,
-            dataModel: this.props.dataModel,
-            className: 'plugins-list',
-            actionBarGroups: [],
-            entryRenderIcon: this.renderListIcon,
-            entryRenderActions: this.renderActions,
-            entryRenderSecondLine: this.renderSecondLine,
-            openEditor: this.props.openSelection,
-            infineSliceCount: 1000,
-            filterNodes: null,
-            listTitle: this.props.title,
-            hideToolbar: this.props.hideToolbar,
-            elementHeight: PydioComponents.SimpleList.HEIGHT_TWO_LINES
+        var columns = [{ name: 'enabled', label: 'Enabled', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+                return React.createElement(_materialUi.Toggle, {
+                    toggled: row.xmlNode.getAttribute("enabled") !== "false",
+                    onToggle: function (e, v) {
+                        return _this4.togglePluginEnable(row.xmlNode, v);
+                    },
+                    onClick: function (e) {
+                        return e.stopPropagation();
+                    }
+                });
+            } }, { name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'id', label: 'Id', style: { width: '15%' }, headerStyle: { width: '15%' } }, { name: 'description', label: 'Description' }, { name: 'action', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+                return React.createElement(_materialUi.IconButton, { iconStyle: { color: 'rgba(0,0,0,0.33)', fontSize: 21 }, iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
+                        return _this4.openTableRows([row]);
+                    } });
+            } }];
+
+        var data = this.computeTableData();
+
+        return React.createElement(MaterialTable, {
+            data: data,
+            columns: columns,
+            onSelectRows: this.openTableRows.bind(this),
+            deselectOnClickAway: true,
+            showCheckboxes: false
         });
     }
 

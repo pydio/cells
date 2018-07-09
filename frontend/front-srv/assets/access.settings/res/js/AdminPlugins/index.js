@@ -27,8 +27,6 @@ import CoreAndPluginsDashboard from './core/CoreAndPluginsDashboard'
 import AuthenticationPluginsDashboard from './auth/AuthenticationPluginsDashboard'
 import EditorsDashboard from './editors/EditorsDashboard'
 import UpdaterDashboard from './updater/UpdaterDashboard'
-import CacheServerDashboard from './cache/CacheServerDashboard'
-import DiagnosticDashboard from './diagnostic/DiagnosticDashboard'
 import JSDocsDashboard from './docs/JSDocsDashboard'
 import OpenApiDashboard from './docs/OpenApiDashboard'
 import LicenseDashboard from './license/LicenseBoard'
@@ -42,8 +40,6 @@ window.AdminPlugins = {
     AuthenticationPluginsDashboard,
     EditorsDashboard,
     UpdaterDashboard,
-    CacheServerDashboard,
-    DiagnosticDashboard,
     JSDocsDashboard,
     OpenApiDashboard,
     ServiceEditor,

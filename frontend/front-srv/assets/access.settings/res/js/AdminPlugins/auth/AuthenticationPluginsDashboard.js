@@ -24,35 +24,18 @@ import PluginEditor from '../core/PluginEditor'
 const AuthenticationPluginsDashboard = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
-
-    openSelection: function(node){
-        this.props.openRightPane({
-            COMPONENT:PluginEditor,
-            PROPS:{
-                rootNode:node,
-                docAsAdditionalPane:true,
-                className:"vertical edit-plugin-inpane",
-                closeEditor:this.props.closeRightPane
-            },
-            CHILDREN:null
-        });
-    },
-
-    getInitialState: function(){
-        return {authfrontNode: new AjxpNode('/plugins/manager/authfront')};
-    },
-
-    render:function(){
+    render(){
         const pluginsList = <PluginsList
             title={this.context.getMessage('plugtype.title.authfront', '')}
             dataModel={this.props.dataModel}
-            node={this.state.authfrontNode}
-            rootNode={this.state.authfrontNode}
-            openSelection={this.openSelection}
+            filterType={"authfront"}
+            openRightPane={this.props.openRightPane}
+            closeRightPane={this.props.closeRightPane}
         />;
         return (
             <PluginEditor
                 {...this.props}
+                pluginId={"core.auth"}
                 style={{...this.props.style}}
                 additionalPanes={{top:[pluginsList], bottom:[]}}
             />

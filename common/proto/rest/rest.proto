@@ -863,6 +863,12 @@ service FrontendService {
             get: "/frontend/messages/{Lang}"
         };
     }
+    // Serve list of I18n messages
+    rpc FrontPlugins(FrontPluginsRequest) returns (FrontPluginsResponse) {
+        option (google.api.http) = {
+            get: "/frontend/plugins/{Lang}"
+        };
+    }
     // Handle JWT
     rpc FrontSession(FrontSessionRequest) returns (FrontSessionResponse) {
         option (google.api.http) = {

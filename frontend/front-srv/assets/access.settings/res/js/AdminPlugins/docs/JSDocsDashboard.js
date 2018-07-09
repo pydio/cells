@@ -31,7 +31,7 @@ class JSDocsPanel extends Component{
     }
 
     componentDidMount(){
-        PydioApi.getClient().loadFile('plugins/gui.ajax/docgen.json', (transp) => {
+        PydioApi.getClient().loadFile('plug/gui.ajax/docgen.json', (transp) => {
             if(!transp.responseJSON || !transp.responseJSON['gui.ajax']){
                 this.setState({error: 'Docs are not loaded, you probably have to run \'grunt docgen\' command inside the gui.ajax plugin.'});
                 return;

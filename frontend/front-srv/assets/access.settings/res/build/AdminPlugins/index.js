@@ -54,14 +54,6 @@ var _updaterUpdaterDashboard = require('./updater/UpdaterDashboard');
 
 var _updaterUpdaterDashboard2 = _interopRequireDefault(_updaterUpdaterDashboard);
 
-var _cacheCacheServerDashboard = require('./cache/CacheServerDashboard');
-
-var _cacheCacheServerDashboard2 = _interopRequireDefault(_cacheCacheServerDashboard);
-
-var _diagnosticDiagnosticDashboard = require('./diagnostic/DiagnosticDashboard');
-
-var _diagnosticDiagnosticDashboard2 = _interopRequireDefault(_diagnosticDiagnosticDashboard);
-
 var _docsJSDocsDashboard = require('./docs/JSDocsDashboard');
 
 var _docsJSDocsDashboard2 = _interopRequireDefault(_docsJSDocsDashboard);
@@ -83,8 +75,6 @@ window.AdminPlugins = {
   AuthenticationPluginsDashboard: _authAuthenticationPluginsDashboard2['default'],
   EditorsDashboard: _editorsEditorsDashboard2['default'],
   UpdaterDashboard: _updaterUpdaterDashboard2['default'],
-  CacheServerDashboard: _cacheCacheServerDashboard2['default'],
-  DiagnosticDashboard: _diagnosticDiagnosticDashboard2['default'],
   JSDocsDashboard: _docsJSDocsDashboard2['default'],
   OpenApiDashboard: _docsOpenApiDashboard2['default'],
   ServiceEditor: _coreServiceEditor2['default'],

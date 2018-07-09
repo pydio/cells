@@ -12,6 +12,7 @@ import (
 
 	"github.com/gyuho/goraph"
 	"github.com/jinzhu/copier"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
 )
@@ -140,6 +141,65 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 
 	return registry
 
+}
+
+func (p *PluginsPool) AllPluginsManifests(ctx context.Context, lang string) *Cplugins {
+
+	all := new(Cplugins)
+	messages := p.Messages["en"]
+	if lang != "" {
+		if msg, ok := p.Messages[lang]; ok {
+			messages = msg
+		}
+	}
+	emptyStatus := RequestStatus{
+		Config:        config.Default(),
+		Lang:          lang,
+		NoClaims:      true,
+		AclParameters: config.NewMap(),
+		AclActions:    config.NewMap(),
+	}
+
+	for _, plugin := range p.Plugins {
+		var enabled = "false"
+		if plugin.PluginEnabled(emptyStatus) {
+			enabled = "true"
+		}
+		if p, ok := plugin.(*Cuploader); ok {
+			clone := &Cuploader{}
+			copier.Copy(&clone, p)
+			clone.Translate(messages)
+			clone.Attrenabled = enabled
+			all.Cuploader = append(all.Cuploader, clone)
+		} else if p, ok := plugin.(*Ceditor); ok {
+			clone := &Ceditor{}
+			copier.Copy(&clone, p)
+			clone.Translate(messages)
+			clone.Attrenabled = enabled
+			all.Ceditor = append(all.Ceditor, clone)
+		} else if p, ok := plugin.(*Cmeta); ok {
+			clone := &Cmeta{}
+			copier.Copy(&clone, p)
+			clone.Translate(messages)
+			clone.Attrenabled = enabled
+			all.Cmeta = append(all.Cmeta, clone)
+		} else if p, ok := plugin.(*Cajxpdriver); ok {
+			clone := &Cajxpdriver{}
+			copier.Copy(&clone, p)
+			clone.Translate(messages)
+			clone.Attrenabled = enabled
+			all.Cajxpdriver = append(all.Cajxpdriver, clone)
+		} else if p, ok := plugin.(*Cplugin); ok {
+			clone := &Cplugin{}
+			copier.Copy(&clone, p)
+			clone.Translate(messages)
+			clone.Attrenabled = enabled
+			all.Cplugin = append(all.Cplugin, clone)
+		}
+
+	}
+
+	return all
 }
 
 func (p *PluginsPool) pluginsForStatus(ctx context.Context, status RequestStatus) []Plugin {

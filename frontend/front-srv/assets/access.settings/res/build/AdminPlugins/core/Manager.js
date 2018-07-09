@@ -47,21 +47,11 @@ var PluginsManager = _react2['default'].createClass({
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 
-    clearCache: function clearCache() {
-        _pydioHttpApi2['default'].getClient().request({
-            get_action: 'clear_plugins_cache'
-        }, (function (transp) {
-            this.refs.list.reload();
-            this.props.pydio.fire("admin_clear_plugins_cache");
-        }).bind(this));
-    },
-
     reload: function reload() {
         this.refs.list.reload();
     },
 
     render: function render() {
-        var clearCacheButton = _react2['default'].createElement(_materialUi.RaisedButton, { label: this.context.getMessage('129', 'settings'), onTouchTap: this.clearCache });
 
         return _react2['default'].createElement(
             'div',
@@ -69,7 +59,6 @@ var PluginsManager = _react2['default'].createClass({
             _react2['default'].createElement(AdminComponents.Header, {
                 title: this.props.currentNode.getLabel(),
                 icon: this.props.currentNode.getMetadata().get('icon_class'),
-                actions: clearCacheButton,
                 reloadAction: this.reload
             }),
             _react2['default'].createElement(

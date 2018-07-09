@@ -69,6 +69,8 @@ It has these top-level messages:
 	FrontBootConfResponse
 	FrontStateRequest
 	FrontStateResponse
+	FrontPluginsRequest
+	FrontPluginsResponse
 	FrontMessagesRequest
 	FrontMessagesResponse
 	FrontSessionRequest

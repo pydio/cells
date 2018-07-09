@@ -18,6 +18,7 @@ import RestFrontBootConfResponse from '../model/RestFrontBootConfResponse';
 import RestFrontLogMessage from '../model/RestFrontLogMessage';
 import RestFrontLogResponse from '../model/RestFrontLogResponse';
 import RestFrontMessagesResponse from '../model/RestFrontMessagesResponse';
+import RestFrontPluginsResponse from '../model/RestFrontPluginsResponse';
 import RestFrontSessionRequest from '../model/RestFrontSessionRequest';
 import RestFrontSessionResponse from '../model/RestFrontSessionResponse';
 import RestFrontStateResponse from '../model/RestFrontStateResponse';
@@ -175,6 +176,55 @@ export default class FrontendServiceApi {
      */
     frontMessages(lang) {
       return this.frontMessagesWithHttpInfo(lang)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Serve list of I18n messages
+     * @param {String} lang 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontPluginsResponse} and HTTP response
+     */
+    frontPluginsWithHttpInfo(lang) {
+      let postBody = null;
+
+      // verify the required parameter 'lang' is set
+      if (lang === undefined || lang === null) {
+        throw new Error("Missing the required parameter 'lang' when calling frontPlugins");
+      }
+
+
+      let pathParams = {
+        'Lang': lang
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestFrontPluginsResponse;
+
+      return this.apiClient.callApi(
+        '/frontend/plugins/{Lang}', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Serve list of I18n messages
+     * @param {String} lang 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontPluginsResponse}
+     */
+    frontPlugins(lang) {
+      return this.frontPluginsWithHttpInfo(lang)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

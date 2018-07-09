@@ -27,28 +27,17 @@ const PluginsManager = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 
-    clearCache: function(){
-        PydioApi.getClient().request({
-            get_action:'clear_plugins_cache'
-        }, function(transp){
-            this.refs.list.reload();
-            this.props.pydio.fire("admin_clear_plugins_cache");
-        }.bind(this));
-    },
-
-    reload: function(){
+    reload(){
         this.refs.list.reload();
     },
 
-    render: function(){
-        const clearCacheButton = <RaisedButton label={this.context.getMessage('129', 'settings')} onTouchTap={this.clearCache} />;
+    render(){
 
         return (
             <div style={{height:'100%'}} className="vertical-layout">
                 <AdminComponents.Header
                     title={this.props.currentNode.getLabel()}
                     icon={this.props.currentNode.getMetadata().get('icon_class')}
-                    actions={clearCacheButton}
                     reloadAction={this.reload}
                 />
                 <Paper zDepth={1} style={{margin: 16}} className="vertical-layout layout-fill">

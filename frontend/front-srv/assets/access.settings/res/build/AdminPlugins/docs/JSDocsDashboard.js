@@ -59,7 +59,7 @@ var JSDocsPanel = (function (_Component) {
         value: function componentDidMount() {
             var _this = this;
 
-            PydioApi.getClient().loadFile('plugins/gui.ajax/docgen.json', function (transp) {
+            PydioApi.getClient().loadFile('plug/gui.ajax/docgen.json', function (transp) {
                 if (!transp.responseJSON || !transp.responseJSON['gui.ajax']) {
                     _this.setState({ error: 'Docs are not loaded, you probably have to run \'grunt docgen\' command inside the gui.ajax plugin.' });
                     return;
