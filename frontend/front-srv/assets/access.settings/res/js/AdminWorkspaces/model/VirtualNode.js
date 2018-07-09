@@ -18,27 +18,28 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const LangUtils = require('pydio/util/lang');
-const Observable = require('pydio/lang/observable');
-const PydioApi = require('pydio/http/api');
+import LangUtils from 'pydio/util/lang'
+import Observable from 'pydio/lang/observable'
+import PydioApi from 'pydio/http/api'
+import {DocStoreServiceApi, RestListDocstoreRequest, DocstorePutDocumentRequest, DocstoreDocument, DocstoreDeleteDocumentsRequest} from 'pydio/http/rest-api'
 
 class VirtualNode extends Observable {
 
     data;
 
     static loadNodes(callback){
-        PydioApi.getClient().request({
-            get_action:'virtualnodes_list'
-        }, (t) => {
-            const data = t.responseJSON;
+        const api = new DocStoreServiceApi(PydioApi.getRestClient());
+        const request = new RestListDocstoreRequest();
+        request.StoreID = "virtualnodes";
+        api.listDocs("virtualnodes", request).then(response => {
             let result = [];
-            Object.keys(data).forEach((k) => {
-                const vNode = new VirtualNode(data[k]);
-                result.push(vNode);
-            });
-            console.log(result);
+            if(response.Docs){
+                response.Docs.map(doc => {
+                    result.push(new VirtualNode(JSON.parse(doc.Data)));
+                })
+            }
             callback(result);
-        })
+        });
     };
 
     constructor(data){
@@ -81,18 +82,31 @@ class VirtualNode extends Observable {
     }
 
     save(callback) {
-        PydioApi.getClient().request({
-            get_action:'virtualnodes_put',
-            docId: this.data.Uuid,
-            node: JSON.stringify(this.data)
-        }, () => {callback();})
+        const api = new DocStoreServiceApi(PydioApi.getRestClient());
+        const request = new DocstorePutDocumentRequest();
+        request.StoreID = "virtualnodes";
+        request.DocumentID = this.data.Uuid;
+        const doc = new DocstoreDocument();
+        doc.ID = this.data.Uuid;
+        doc.Data = JSON.stringify(this.data);
+        request.Document = doc;
+
+        api.putDoc("virtualnodes", this.data.Uuid, request).then(() => {
+            callback();
+        });
+
     }
 
     remove(callback){
-        PydioApi.getClient().request({
-            get_action:'virtualnodes_delete',
-            docId: this.data.Uuid,
-        }, () => {callback();})
+
+        const api = new DocStoreServiceApi(PydioApi.getRestClient());
+        const request = new DocstoreDeleteDocumentsRequest();
+        request.StoreID = "virtualnodes";
+        request.DocumentID = this.data.Uuid;
+        api.deleteDoc("virtualnodes", request).then(() => {
+            callback();
+        })
+
     }
 
 }
