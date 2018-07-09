@@ -4610,10 +4610,16 @@ var SwaggerJson = `{
         "Attributes": {
           "type": "string"
         },
-        "RootNodes": {
+        "RootUUIDs": {
           "type": "array",
           "items": {
             "type": "string"
+          }
+        },
+        "RootNodes": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/treeNode"
           }
         },
         "PoliciesContextEditable": {

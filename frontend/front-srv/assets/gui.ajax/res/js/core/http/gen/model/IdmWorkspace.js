@@ -15,6 +15,7 @@
 import ApiClient from '../ApiClient';
 import IdmWorkspaceScope from './IdmWorkspaceScope';
 import ServiceResourcePolicy from './ServiceResourcePolicy';
+import TreeNode from './TreeNode';
 
 
 
@@ -82,8 +83,11 @@ export default class IdmWorkspace {
             if (data.hasOwnProperty('Attributes')) {
                 obj['Attributes'] = ApiClient.convertToType(data['Attributes'], 'String');
             }
+            if (data.hasOwnProperty('RootUUIDs')) {
+                obj['RootUUIDs'] = ApiClient.convertToType(data['RootUUIDs'], ['String']);
+            }
             if (data.hasOwnProperty('RootNodes')) {
-                obj['RootNodes'] = ApiClient.convertToType(data['RootNodes'], ['String']);
+                obj['RootNodes'] = ApiClient.convertToType(data['RootNodes'], {'String': TreeNode});
             }
             if (data.hasOwnProperty('PoliciesContextEditable')) {
                 obj['PoliciesContextEditable'] = ApiClient.convertToType(data['PoliciesContextEditable'], 'Boolean');
@@ -125,7 +129,11 @@ export default class IdmWorkspace {
     */
     Attributes = undefined;
     /**
-    * @member {Array.<String>} RootNodes
+    * @member {Array.<String>} RootUUIDs
+    */
+    RootUUIDs = undefined;
+    /**
+    * @member {Object.<String, module:model/TreeNode>} RootNodes
     */
     RootNodes = undefined;
     /**

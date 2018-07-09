@@ -48,7 +48,7 @@ func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool 
 		// Resolve workspaces roots in the current context
 		for _, workspaces := range workspaces {
 			var resolvedRoots []string
-			for _, rootId := range workspaces.RootNodes {
+			for _, rootId := range workspaces.RootUUIDs {
 				if vNode, exists := vNodeManager.ByUuid(rootId); exists {
 					if resolved, e := vNodeManager.ResolveInContext(ctx, vNode, pool, true); e == nil && resolved.Uuid != "" {
 						resolvedRoots = append(resolvedRoots, resolved.Uuid)
@@ -57,7 +57,7 @@ func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool 
 				}
 				resolvedRoots = append(resolvedRoots, rootId)
 			}
-			workspaces.RootNodes = resolvedRoots
+			workspaces.RootUUIDs = resolvedRoots
 		}
 		log.Logger(ctx).Debug("Setting workspaces in session", zap.Any("workspaces", workspaces))
 		session.Set(SessionRolesKey, roles)

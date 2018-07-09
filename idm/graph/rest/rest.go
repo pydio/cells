@@ -103,7 +103,7 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 		if resp.Workspace != nil {
 			respWs := resp.Workspace
 			for nodeId, _ := range accessListWsNodes[respWs.UUID] {
-				respWs.RootNodes = append(respWs.RootNodes, nodeId)
+				respWs.RootUUIDs = append(respWs.RootUUIDs, nodeId)
 			}
 			state.Workspaces = append(state.Workspaces, respWs)
 		}

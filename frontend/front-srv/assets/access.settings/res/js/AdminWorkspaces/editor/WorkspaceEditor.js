@@ -77,50 +77,6 @@ class WorkspaceEditor extends React.Component{
         }
     }
 
-    showMetaSourceForm(){
-        pydio.UI.openComponentInModal('AdminWorkspaces', 'MetaSourceForm', {
-            model:this.state.model,
-            editor:this
-        });
-    }
-
-    addMetaSource(metaKey){
-        this.state.model.addMetaSource(metaKey);
-        var newMetas = this.state.model.getOption("META_SOURCES", true);
-        var saveData = this.state.saveData || {};
-        saveData[metaKey] = newMetas[metaKey];
-        var saveMS = this.state.saveMetaSourceData;
-        saveMS['add'][metaKey] = newMetas[metaKey];
-        this.setState({
-            saveData:saveData,
-            saveMetaSourceData:saveMS,
-            edit:metaKey,
-            dirty:true
-        });
-    }
-
-    removeMetaSource(metaKey){
-
-        this.state.model.removeMetaSource(metaKey);
-        // Do something with this?
-        var saveData = this.state.saveData || {};
-        if(saveData[metaKey]) delete saveData[metaKey];
-        var saveMS = this.state.saveMetaSourceData;
-        saveMS['delete'][metaKey] = metaKey;
-        if(saveMS['add'][metaKey]) delete saveMS['add'][metaKey];
-        if(saveMS['edit'][metaKey]) delete saveMS['edit'][metaKey];
-        var currentValid = this.state.valid || {};
-        if(currentValid[metaKey]) delete currentValid[metaKey];
-        this.setState({
-            saveData:saveData,
-            saveMetaSourceData:saveMS,
-            dirty:true,
-            edit:'activity',
-            valid:currentValid
-        });
-
-    }
-
     isDirty(){
         return this.state.dirty;
     }

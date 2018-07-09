@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "github.com/pydio/cells/common/service/proto/common.proto";
+import "github.com/pydio/cells/common/proto/tree/tree.proto";
 
 package idm;
 
@@ -223,8 +224,9 @@ message Workspace {
     repeated service.ResourcePolicy Policies = 7;
     string Attributes = 8;
 
-    repeated string RootNodes = 9;
-    bool PoliciesContextEditable = 10;
+    repeated string RootUUIDs = 9;
+    map<string,tree.Node> RootNodes = 11;
+    bool PoliciesContextEditable = 12;
 }
 
 message WorkspaceSingleQuery {

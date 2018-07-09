@@ -51,7 +51,7 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 	}
 
 	if isAdmin := ctx.Value(ctxAdminContextKey{}); isAdmin != nil {
-		ws := &idm.Workspace{UUID: "ROOT", RootNodes: []string{"ROOT"}, Slug: "ROOT"}
+		ws := &idm.Workspace{UUID: "ROOT", RootUUIDs: []string{"ROOT"}, Slug: "ROOT"}
 		branchInfo := BranchInfo{}
 		branchInfo.Workspace = *ws
 		ctx = WithBranchInfo(ctx, identifier, branchInfo)

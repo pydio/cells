@@ -48,7 +48,7 @@ func (a *PathWorkspaceHandler) extractWs(ctx context.Context, node *tree.Node) (
 	if admin, a := ctx.Value(ctxAdminContextKey{}).(bool); admin && a {
 		ws := &idm.Workspace{}
 		ws.UUID = "ROOT"
-		ws.RootNodes = []string{"ROOT"}
+		ws.RootUUIDs = []string{"ROOT"}
 		ws.Slug = "ROOT"
 		return ws, true
 	}
@@ -115,10 +115,10 @@ func (a *PathWorkspaceHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 		go func() {
 			defer streamer.Close()
 			for _, ws := range accessList.Workspaces {
-				if len(ws.RootNodes) > 0 {
+				if len(ws.RootUUIDs) > 0 {
 					node := &tree.Node{
 						Type: tree.NodeType_COLLECTION,
-						Uuid: ws.RootNodes[0],
+						Uuid: ws.RootUUIDs[0],
 						Path: ws.Slug,
 					}
 					streamer.Send(&tree.ListNodesResponse{Node: node})

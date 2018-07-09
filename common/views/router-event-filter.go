@@ -80,7 +80,7 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, workspace *
 	if utils.IgnoreNodeForOutput(ctx, node) {
 		return node, false
 	}
-	roots := workspace.RootNodes
+	roots := workspace.RootUUIDs
 	for _, root := range roots {
 		if parent, ok := r.NodeIsChildOfRoot(ctx, node, root); ok {
 

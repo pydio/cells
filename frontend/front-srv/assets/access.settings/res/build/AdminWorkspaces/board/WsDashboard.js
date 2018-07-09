@@ -32,13 +32,17 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
 var _modelWorkspace = require('../model/Workspace');
 
 var _modelWorkspace2 = _interopRequireDefault(_modelWorkspace);
 
-var _editorWorkspaceEditor = require('../editor/WorkspaceEditor');
+var _editorWsEditor = require('../editor/WsEditor');
 
-var _editorWorkspaceEditor2 = _interopRequireDefault(_editorWorkspaceEditor);
+var _editorWsEditor2 = _interopRequireDefault(_editorWsEditor);
 
 var _editorWorkspaceCreator = require('../editor/WorkspaceCreator');
 
@@ -92,28 +96,33 @@ exports['default'] = _react2['default'].createClass({
         this.props.currentNode.stopObserving('loading', this._setLoading);
     },
 
-    openWorkspace: function openWorkspace(node) {
-        var _this2 = this;
+    dirtyEditor: function dirtyEditor() {
+        var pydio = this.props.pydio;
 
         if (this.refs.editor && this.refs.editor.isDirty()) {
-            if (!window.confirm(global.pydio.MessageHash["role_editor.19"])) {
-                return false;
+            if (!confirm(pydio.MessageHash["role_editor.19"])) {
+                return true;
             }
         }
+        return false;
+    },
 
-        var editor = _editorWorkspaceEditor2['default'];
-        var editorNode = XMLUtils.XPathSelectSingleNode(this.props.pydio.getXmlRegistry(), '//client_configs/component_config[@component="AdminWorkspaces.Dashboard"]/editor');
+    openWorkspace: function openWorkspace(workspace) {
+        var _this2 = this;
+
+        if (this.dirtyEditor()) {
+            return;
+        }
+        var editor = _editorWsEditor2['default'];
+        var editorNode = _pydioUtilXml2['default'].XPathSelectSingleNode(this.props.pydio.getXmlRegistry(), '//client_configs/component_config[@component="AdminWorkspaces.Dashboard"]/editor');
         if (editorNode) {
             editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
-        }
-        if (node.getMetadata().get('is_datasource') === 'true') {
-            editor = _editorDataSourceEditor2['default'];
         }
         var editorData = {
             COMPONENT: editor,
             PROPS: {
                 ref: "editor",
-                node: node,
+                workspace: workspace,
                 closeEditor: this.closeWorkspace,
                 reloadList: function reloadList() {
                     _this2.refs['workspacesList'].reload();
@@ -127,89 +136,27 @@ exports['default'] = _react2['default'].createClass({
     },
 
     closeWorkspace: function closeWorkspace() {
-        if (this.refs.editor && this.refs.editor.isDirty()) {
-            if (!window.confirm(global.pydio.MessageHash["role_editor.19"])) {
-                return false;
-            }
+        if (!this.dirtyEditor()) {
+            this.props.closeRightPane();
         }
-        this.props.closeRightPane();
-    },
-
-    toggleWorkspacesFilter: function toggleWorkspacesFilter() {
-        this.setState({ filter: this.state.filter == 'workspaces' ? 'templates' : 'workspaces' });
     },
 
     showWorkspaceCreator: function showWorkspaceCreator(type) {
-        if (typeof type != "string") {
-            type = "workspace";
-        }
+        var _this3 = this;
+
         var editorData = {
-            COMPONENT: _editorWorkspaceCreator2['default'],
+            COMPONENT: _editorWsEditor2['default'],
             PROPS: {
                 ref: "editor",
                 type: type,
                 save: this.createWorkspace,
-                closeEditor: this.closeWorkspace
+                closeEditor: this.closeWorkspace,
+                reloadList: function reloadList() {
+                    _this3.refs['workspacesList'].reload();
+                }
             }
         };
         this.props.openRightPane(editorData);
-    },
-
-    showTplCreator: function showTplCreator() {
-        this.showWorkspaceCreator('template');
-    },
-
-    createWorkspace: function createWorkspace(type, creatorState) {
-        var driver = undefined;
-        if (!creatorState.selectedDriver && creatorState.selectedTemplate) {
-            driver = "ajxp_template_" + creatorState.selectedTemplate;
-            // Move drivers options inside the values['driver'] instead of values['general']
-            var tplDef = _modelWorkspace2['default'].TEMPLATES.get(creatorState.selectedTemplate);
-            var driverDefs = _modelWorkspace2['default'].DRIVERS.get(tplDef.type).params;
-            var newDriversValues = {};
-            Object.keys(creatorState.values['general']).map(function (k) {
-                driverDefs.map(function (param) {
-                    if (param['name'] === k) {
-                        newDriversValues[k] = creatorState.values['general'][k];
-                        delete creatorState.values['general'][k];
-                    }
-                });
-            });
-            creatorState.values['driver'] = newDriversValues;
-        } else {
-            driver = creatorState.selectedDriver;
-        }
-        if (creatorState.values['general']['DISPLAY']) {
-            var displayValues = { DISPLAY: creatorState.values['general']['DISPLAY'] };
-            delete creatorState.values['general']['DISPLAY'];
-        }
-        var generalValues = creatorState.values['general'];
-
-        var saveData = LangUtils.objectMerge({
-            DRIVER: driver,
-            DRIVER_OPTIONS: LangUtils.objectMerge(creatorState.values['general'], creatorState.values['driver'])
-        }, displayValues);
-
-        var parameters = {
-            get_action: 'create_repository',
-            json_data: JSON.stringify(saveData)
-        };
-        if (type == 'template') {
-            parameters['sf_checkboxes_active'] = 'true';
-        }
-        PydioApi.getClient().request(parameters, (function (transport) {
-            // Reload list & Open Editor
-            this.refs.workspacesList.reload();
-            var newId = XMLUtils.XPathGetSingleNodeText(transport.responseXML, "tree/reload_instruction/@file");
-            var fakeNode = new AjxpNode('/fake/path/' + newId);
-            if (type == 'template') {
-                fakeNode.getMetadata().set("is_datasource", "true");
-                fakeNode.getMetadata().set("datasource_id", newId);
-            } else {
-                fakeNode.getMetadata().set("ajxp_mime", "repository_editable");
-            }
-            this.openWorkspace(fakeNode, 'driver');
-        }).bind(this));
     },
 
     deleteWorkspace: function deleteWorkspace(workspaceId) {
@@ -288,13 +235,8 @@ exports['default'] = _react2['default'].createClass({
         var buttons = [];
         var icon = undefined;
         var title = this.props.currentNode.getLabel();
-        if (this.state.filter === 'workspaces') {
-            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage('ws.3'), onTouchTap: this.showWorkspaceCreator }));
-            icon = 'mdi mdi-folder-open';
-        } else {
-            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage('ws.4'), onTouchTap: this.showTplCreator }));
-            icon = 'mdi mdi-database';
-        }
+        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage('ws.3'), onTouchTap: this.showWorkspaceCreator }));
+        icon = 'mdi mdi-folder-open';
 
         return _react2['default'].createElement(
             'div',

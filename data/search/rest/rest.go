@@ -111,8 +111,8 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 				if len(passedWorkspaceSlug) > 0 && w.Slug != passedWorkspaceSlug {
 					continue
 				}
-				if len(w.RootNodes) > 1 {
-					for _, root := range w.RootNodes {
+				if len(w.RootUUIDs) > 1 {
+					for _, root := range w.RootUUIDs {
 						prefixes = append(prefixes, w.Slug+"/"+root)
 					}
 				} else {

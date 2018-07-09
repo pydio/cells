@@ -54,15 +54,15 @@ func (h *UuidRootsHandler) updateOutputBranch(ctx context.Context, node *tree.No
 	if !set || branch.UUID == "ROOT" {
 		return ctx, node, nil
 	}
-	if len(branch.RootNodes) == 0 {
+	if len(branch.RootUUIDs) == 0 {
 		return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot find roots for workspace")
 	}
 
 	multiRootKey := ""
 	var detectedRoot *tree.Node
-	if len(branch.RootNodes) > 1 {
+	if len(branch.RootUUIDs) > 1 {
 		// Root is not set, find it now
-		wsRoots, err := h.rootKeysMap(branch.RootNodes)
+		wsRoots, err := h.rootKeysMap(branch.RootUUIDs)
 		if err != nil {
 			return ctx, node, err
 		}
@@ -78,7 +78,7 @@ func (h *UuidRootsHandler) updateOutputBranch(ctx context.Context, node *tree.No
 		multiRootKey = h.makeRootKey(detectedRoot) + "/"
 	} else {
 		var err error
-		detectedRoot, err = h.getRoot(branch.RootNodes[0])
+		detectedRoot, err = h.getRoot(branch.RootUUIDs[0])
 		if err != nil {
 			return ctx, node, err
 		}

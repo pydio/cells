@@ -37,13 +37,17 @@ var _pydioModelNode = require('pydio/model/node');
 
 var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioUtilLang = require('pydio/util/lang');
+var _modelWs = require('../model/Ws');
 
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+var _modelWs2 = _interopRequireDefault(_modelWs);
 
 var PydioComponents = _pydio2['default'].requireLib('components');
 var MaterialTable = PydioComponents.MaterialTable;
@@ -60,49 +64,44 @@ exports['default'] = _react2['default'].createClass({
         filter: _react2['default'].PropTypes.string
     },
 
+    getInitialState: function getInitialState() {
+        return { workspaces: [] };
+    },
+
     reload: function reload() {
-        this.props.currentNode.reload();
+        var _this = this;
+
+        _modelWs2['default'].listWorkpsaces().then(function (response) {
+            _this.setState({ workspaces: response.Workspaces || [] });
+        });
     },
 
     componentDidMount: function componentDidMount() {
-        var _this = this;
-
-        this.props.currentNode.observe('loaded', function () {
-            _this.forceUpdate();
-        });
         this.reload();
-    },
-
-    componentWillUnmount: function componentWillUnmount() {
-        var _this2 = this;
-
-        this.props.currentNode.stopObserving('loaded', function () {
-            _this2.forceUpdate();
-        });
     },
 
     openTableRows: function openTableRows(rows) {
         if (rows.length) {
-            this.props.openSelection(rows[0].node);
+            this.props.openSelection(rows[0].payload);
         }
     },
 
-    computeTableData: function computeTableData(currentNode) {
+    computeTableData: function computeTableData() {
         var data = [];
-        currentNode.getChildren().forEach(function (child) {
-            if (child.getMetadata().get('accessType') !== 'gateway') {
-                return;
-            }
-            var summary = "";
-            var paths = JSON.parse(child.getMetadata().get('rootNodes'));
-            if (paths) {
-                summary = paths.join(", ");
+        var workspaces = this.state.workspaces;
+
+        workspaces.map(function (workspace) {
+            var summary = ""; // compute root nodes list ?
+            if (workspace.RootNodes) {
+                summary = Object.keys(workspace.RootNodes).map(function (k) {
+                    return _pydioUtilLang2['default'].trimRight(workspace.RootNodes[k].Path, '/');
+                }).join(', ');
             }
             data.push({
-                node: child,
-                label: child.getLabel(),
-                description: child.getMetadata().get("description"),
-                slug: child.getMetadata().get("slug"),
+                payload: workspace,
+                label: workspace.Label,
+                description: workspace.Description,
+                slug: workspace.Slug,
                 summary: summary
             });
         });
@@ -116,7 +115,7 @@ exports['default'] = _react2['default'].createClass({
 
         var columns = [{ name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: 'Description', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'summary', label: 'Root Nodes', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'slug', label: 'Slug', style: { width: '20%' }, headerStyle: { width: '20%' } }];
 
-        var data = this.computeTableData(this.props.currentNode);
+        var data = this.computeTableData();
 
         return _react2['default'].createElement(MaterialTable, {
             data: data,

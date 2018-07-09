@@ -50,8 +50,8 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 	if !set || branch.UUID == "ROOT" || branch.Client != nil {
 		return ctx, node, nil
 	}
-	if len(branch.RootNodes) == 1 {
-		rootNode, err := m.getRoot(branch.RootNodes[0])
+	if len(branch.RootUUIDs) == 1 {
+		rootNode, err := m.getRoot(branch.RootUUIDs[0])
 		if err != nil {
 			return ctx, node, err
 		}
@@ -67,8 +67,8 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 	parts := strings.Split(strings.Trim(node.Path, "/"), "/")
 	if len(parts) > 0 {
 		rootId := parts[0]
-		log.Logger(ctx).Debug("Searching", zap.String("root", rootId), zap.Any("rootNodes", branch.RootNodes))
-		rootKeys, e := m.rootKeysMap(branch.RootNodes)
+		log.Logger(ctx).Debug("Searching", zap.String("root", rootId), zap.Any("rootNodes", branch.RootUUIDs))
+		rootKeys, e := m.rootKeysMap(branch.RootUUIDs)
 		if e != nil {
 			return ctx, out, e
 		}
@@ -90,11 +90,11 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	branch, set := GetBranchInfo(ctx, identifier)
-	if !set || branch.UUID == "ROOT" || len(branch.RootNodes) < 2 {
+	if !set || branch.UUID == "ROOT" || len(branch.RootUUIDs) < 2 {
 		return ctx, node, nil
 	}
-	if len(branch.RootNodes) == 1 {
-		root, _ := m.getRoot(branch.RootNodes[0])
+	if len(branch.RootUUIDs) == 1 {
+		root, _ := m.getRoot(branch.RootUUIDs[0])
 		if !root.IsLeaf() {
 			return ctx, node, nil
 		}
@@ -124,7 +124,7 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 
 		branch, _ := GetBranchInfo(ctx, "in")
 		streamer := NewWrappingStreamer()
-		nodes, e := m.rootKeysMap(branch.RootNodes)
+		nodes, e := m.rootKeysMap(branch.RootUUIDs)
 		if e != nil {
 			return streamer, e
 		}
@@ -152,7 +152,7 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 		// Load root nodes and
 		// return a fake root node
 		branch, _ := GetBranchInfo(ctx, "in")
-		nodes, e := m.rootKeysMap(branch.RootNodes)
+		nodes, e := m.rootKeysMap(branch.RootUUIDs)
 		if e != nil {
 			return &tree.ReadNodeResponse{Success: true, Node: &tree.Node{Path: ""}}, nil
 		}

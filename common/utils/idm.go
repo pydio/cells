@@ -295,7 +295,7 @@ func GetWorkspacesForACLs(ctx context.Context, list *AccessList) []*idm.Workspac
 
 		ws := response.GetWorkspace()
 		for nodeUuid := range workspaceNodes[ws.UUID] {
-			ws.RootNodes = append(ws.RootNodes, nodeUuid)
+			ws.RootUUIDs = append(ws.RootUUIDs, nodeUuid)
 		}
 		workspaces = append(workspaces, ws)
 	}

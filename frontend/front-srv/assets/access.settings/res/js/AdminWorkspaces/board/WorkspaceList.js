@@ -20,8 +20,9 @@
 import React from 'react'
 import PydioDataModel from 'pydio/model/data-model'
 import Node from 'pydio/model/node'
-import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
+import Pydio from 'pydio'
+import Workspace from '../model/Ws'
 const PydioComponents = Pydio.requireLib('components');
 const {MaterialTable} = PydioComponents;
 
@@ -37,42 +38,41 @@ export default React.createClass({
         filter:         React.PropTypes.string
     },
 
-    reload:function(){
-        this.props.currentNode.reload();
+    getInitialState(){
+        return {workspaces: []};
     },
 
-    componentDidMount: function(){
-        this.props.currentNode.observe('loaded', () => {this.forceUpdate()});
+    reload(){
+        Workspace.listWorkpsaces().then(response => {
+            this.setState({workspaces: response.Workspaces || []});
+        });
+    },
+
+    componentDidMount(){
         this.reload();
-    },
-
-    componentWillUnmount: function(){
-        this.props.currentNode.stopObserving('loaded', () => {this.forceUpdate()});
     },
 
     openTableRows(rows) {
         if(rows.length){
-            this.props.openSelection(rows[0].node);
+            this.props.openSelection(rows[0].payload);
         }
     },
 
-
-    computeTableData: function(currentNode){
+    computeTableData(){
         let data = [];
-        currentNode.getChildren().forEach((child) => {
-            if (child.getMetadata().get('accessType') !== 'gateway'){
-                return;
-            }
-            let summary = "";
-            const paths = JSON.parse(child.getMetadata().get('rootNodes'));
-            if(paths){
-                summary = paths.join(", ");
+        const {workspaces} = this.state;
+        workspaces.map((workspace) => {
+            let summary = ""; // compute root nodes list ?
+            if(workspace.RootNodes){
+                summary = Object.keys(workspace.RootNodes).map(k => {
+                    return LangUtils.trimRight(workspace.RootNodes[k].Path, '/');
+                }).join(', ');
             }
             data.push({
-                node: child,
-                label: child.getLabel(),
-                description : child.getMetadata().get("description"),
-                slug : child.getMetadata().get("slug"),
+                payload: workspace,
+                label: workspace.Label,
+                description : workspace.Description,
+                slug : workspace.Slug,
                 summary: summary
             });
         });
@@ -82,7 +82,7 @@ export default React.createClass({
         return data;
     },
 
-    render:function(){
+    render(){
 
         const columns = [
             {name:'label', label: 'Label', style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
@@ -91,7 +91,7 @@ export default React.createClass({
             {name:'slug', label: 'Slug', style:{width:'20%'}, headerStyle:{width:'20%'}},
         ];
 
-        const data = this.computeTableData(this.props.currentNode);
+        const data = this.computeTableData();
 
         return (
             <MaterialTable

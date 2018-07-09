@@ -31,6 +31,7 @@ import (
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
+	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
@@ -77,12 +78,31 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 	log.Logger(req.Request.Context()).Debug("Received Workspace.Put API request", zap.Any("inputWorkspace", inputWorkspace))
 
 	cli := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
-
+	update := false
 	if ws, _ := h.workspaceById(ctx, inputWorkspace.UUID, cli); ws != nil {
+		update = true
 		if !h.MatchPolicies(ctx, ws.UUID, ws.Policies, service.ResourcePolicyAction_WRITE) {
 			service2.RestError403(req, rsp, errors.Forbidden(common.SERVICE_WORKSPACE, "You are not allowed to edit this workspace"))
 			return
 		}
+		// Check that slug is not already in use
+		if ws.Slug != inputWorkspace.Slug {
+			h.deduplicateSlug(ctx, &inputWorkspace, cli)
+		}
+	} else {
+		// Create a new Uuid
+		if inputWorkspace.UUID == "" {
+			inputWorkspace.UUID = uuid.New()
+		}
+		// If Policies are empty, create default policies
+		if len(inputWorkspace.Policies) == 0 {
+			inputWorkspace.Policies = []*service.ResourcePolicy{
+				{Subject: "profile:standard", Action: service.ResourcePolicyAction_READ, Effect: service.ResourcePolicy_allow},
+				{Subject: "profile:" + common.PYDIO_PROFILE_ADMIN, Action: service.ResourcePolicyAction_WRITE, Effect: service.ResourcePolicy_allow},
+			}
+		}
+		// Check that slug is not already in use
+		h.deduplicateSlug(ctx, &inputWorkspace, cli)
 	}
 
 	response, er := cli.CreateWorkspace(req.Request.Context(), &idm.CreateWorkspaceRequest{
@@ -90,6 +110,9 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 	})
 	if er != nil {
 		service2.RestError500(req, rsp, er)
+	} else if e := StoreRootNodesAsACLs(ctx, &inputWorkspace, update); e != nil {
+		service2.RestError500(req, rsp, e)
+		return
 	} else {
 		u := response.Workspace
 		log.Auditer(ctx).Info(
@@ -199,6 +222,9 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 			continue
 		}
 		resp.Workspace.PoliciesContextEditable = h.IsContextEditable(ctx, resp.Workspace.UUID, resp.Workspace.Policies)
+		if er := LoadRootNodesForWorkspace(ctx, resp.Workspace); er != nil {
+			log.Logger(ctx).Error("Could not load root nodes for workspace", zap.Error(er))
+		}
 		collection.Workspaces = append(collection.Workspaces, resp.Workspace)
 	}
 	rsp.WriteEntity(collection)
@@ -221,8 +247,53 @@ func (h *WorkspaceHandler) loadPoliciesForResource(ctx context.Context, resource
 
 func (h *WorkspaceHandler) workspaceById(ctx context.Context, wsId string, client idm.WorkspaceServiceClient) (*idm.Workspace, error) {
 
+	if wsId == "" {
+		return nil, nil
+	}
 	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
 		Uuid: wsId,
+	})
+	if client, err := client.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*any.Any{q}}}); err == nil {
+
+		defer client.Close()
+		for {
+			resp, e := client.Recv()
+			if e != nil {
+				break
+			}
+			if resp == nil {
+				continue
+			}
+			return resp.Workspace, nil
+		}
+
+	} else {
+		return nil, err
+	}
+	return nil, nil
+
+}
+
+func (h *WorkspaceHandler) deduplicateSlug(ctx context.Context, workspace *idm.Workspace, client idm.WorkspaceServiceClient) {
+
+	// Check that slug is not already in use
+	baseSlug := workspace.Slug
+	index := 0
+	for {
+		if existing, _ := h.workspaceBySlug(ctx, workspace.Slug, client); existing != nil {
+			index++
+			workspace.Slug = fmt.Sprintf("%s-%d", baseSlug, index)
+		} else {
+			break
+		}
+	}
+
+}
+
+func (h *WorkspaceHandler) workspaceBySlug(ctx context.Context, slug string, client idm.WorkspaceServiceClient) (*idm.Workspace, error) {
+
+	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+		Slug: slug,
 	})
 	if client, err := client.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{SubQueries: []*any.Any{q}}}); err == nil {
 

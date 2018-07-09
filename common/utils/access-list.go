@@ -77,11 +77,12 @@ var (
 	ACL_QUOTA        = &idm.ACLAction{Name: "quota"}
 	ACL_CONTENT_LOCK = &idm.ACLAction{Name: "content_lock"}
 	// Not used yet
-	ACL_FRONT_ACTION_    = &idm.ACLAction{Name: "action:*"}
-	ACL_FRONT_PARAM_     = &idm.ACLAction{Name: "parameter:*"}
-	ACL_DELETE           = &idm.ACLAction{Name: "delete", Value: "1"}
-	ACL_LIST             = &idm.ACLAction{Name: "list", Value: "1"}
-	ResolvePolicyRequest PolicyResolver
+	ACL_FRONT_ACTION_      = &idm.ACLAction{Name: "action:*"}
+	ACL_FRONT_PARAM_       = &idm.ACLAction{Name: "parameter:*"}
+	ACL_DELETE             = &idm.ACLAction{Name: "delete", Value: "1"}
+	ACL_LIST               = &idm.ACLAction{Name: "list", Value: "1"}
+	ACL_WSROOT_ACTION_NAME = "workspace-path"
+	ResolvePolicyRequest   PolicyResolver
 )
 
 type Bitmask struct {

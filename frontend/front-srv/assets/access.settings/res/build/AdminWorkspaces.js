@@ -22490,7 +22490,7 @@ DataSourcesBoard.propTypes = {
 exports['default'] = DataSourcesBoard;
 module.exports = exports['default'];
 
-},{"../editor/DataSourceEditor":162,"../editor/VersionPolicyEditor":169,"../editor/VersionPolicyPeriods":170,"../model/DataSource":176,"./EncryptionKeys":157,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid4":154}],157:[function(require,module,exports){
+},{"../editor/DataSourceEditor":162,"../editor/VersionPolicyEditor":169,"../editor/VersionPolicyPeriods":170,"../model/DataSource":177,"./EncryptionKeys":157,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid4":154}],157:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -23019,7 +23019,7 @@ var MetadataBoard = (function (_React$Component) {
 exports['default'] = MetadataBoard;
 module.exports = exports['default'];
 
-},{"../editor/MetaNamespace":167,"../model/Metadata":177,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],159:[function(require,module,exports){
+},{"../editor/MetaNamespace":167,"../model/Metadata":178,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],159:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23221,7 +23221,7 @@ var VirtualNodes = (function (_React$Component) {
 exports['default'] = VirtualNodes;
 module.exports = exports['default'];
 
-},{"../model/DataSource":176,"../model/VirtualNode":178,"../virtual/NodeCard":183,"material-ui":"material-ui","react":"react"}],160:[function(require,module,exports){
+},{"../model/DataSource":177,"../model/VirtualNode":179,"../virtual/NodeCard":185,"material-ui":"material-ui","react":"react"}],160:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23261,13 +23261,17 @@ var _pydioModelNode = require('pydio/model/node');
 
 var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioUtilLang = require('pydio/util/lang');
+var _modelWs = require('../model/Ws');
 
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+var _modelWs2 = _interopRequireDefault(_modelWs);
 
 var PydioComponents = _pydio2['default'].requireLib('components');
 var MaterialTable = PydioComponents.MaterialTable;
@@ -23284,49 +23288,44 @@ exports['default'] = _react2['default'].createClass({
         filter: _react2['default'].PropTypes.string
     },
 
+    getInitialState: function getInitialState() {
+        return { workspaces: [] };
+    },
+
     reload: function reload() {
-        this.props.currentNode.reload();
+        var _this = this;
+
+        _modelWs2['default'].listWorkpsaces().then(function (response) {
+            _this.setState({ workspaces: response.Workspaces || [] });
+        });
     },
 
     componentDidMount: function componentDidMount() {
-        var _this = this;
-
-        this.props.currentNode.observe('loaded', function () {
-            _this.forceUpdate();
-        });
         this.reload();
-    },
-
-    componentWillUnmount: function componentWillUnmount() {
-        var _this2 = this;
-
-        this.props.currentNode.stopObserving('loaded', function () {
-            _this2.forceUpdate();
-        });
     },
 
     openTableRows: function openTableRows(rows) {
         if (rows.length) {
-            this.props.openSelection(rows[0].node);
+            this.props.openSelection(rows[0].payload);
         }
     },
 
-    computeTableData: function computeTableData(currentNode) {
+    computeTableData: function computeTableData() {
         var data = [];
-        currentNode.getChildren().forEach(function (child) {
-            if (child.getMetadata().get('accessType') !== 'gateway') {
-                return;
-            }
-            var summary = "";
-            var paths = JSON.parse(child.getMetadata().get('rootNodes'));
-            if (paths) {
-                summary = paths.join(", ");
+        var workspaces = this.state.workspaces;
+
+        workspaces.map(function (workspace) {
+            var summary = ""; // compute root nodes list ?
+            if (workspace.RootNodes) {
+                summary = Object.keys(workspace.RootNodes).map(function (k) {
+                    return _pydioUtilLang2['default'].trimRight(workspace.RootNodes[k].Path, '/');
+                }).join(', ');
             }
             data.push({
-                node: child,
-                label: child.getLabel(),
-                description: child.getMetadata().get("description"),
-                slug: child.getMetadata().get("slug"),
+                payload: workspace,
+                label: workspace.Label,
+                description: workspace.Description,
+                slug: workspace.Slug,
                 summary: summary
             });
         });
@@ -23340,7 +23339,7 @@ exports['default'] = _react2['default'].createClass({
 
         var columns = [{ name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: 'Description', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'summary', label: 'Root Nodes', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'slug', label: 'Slug', style: { width: '20%' }, headerStyle: { width: '20%' } }];
 
-        var data = this.computeTableData(this.props.currentNode);
+        var data = this.computeTableData();
 
         return _react2['default'].createElement(MaterialTable, {
             data: data,
@@ -23354,8 +23353,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],161:[function(require,module,exports){
-(function (global){
+},{"../model/Ws":181,"pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],161:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23390,13 +23388,17 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
 var _modelWorkspace = require('../model/Workspace');
 
 var _modelWorkspace2 = _interopRequireDefault(_modelWorkspace);
 
-var _editorWorkspaceEditor = require('../editor/WorkspaceEditor');
+var _editorWsEditor = require('../editor/WsEditor');
 
-var _editorWorkspaceEditor2 = _interopRequireDefault(_editorWorkspaceEditor);
+var _editorWsEditor2 = _interopRequireDefault(_editorWsEditor);
 
 var _editorWorkspaceCreator = require('../editor/WorkspaceCreator');
 
@@ -23450,28 +23452,33 @@ exports['default'] = _react2['default'].createClass({
         this.props.currentNode.stopObserving('loading', this._setLoading);
     },
 
-    openWorkspace: function openWorkspace(node) {
-        var _this2 = this;
+    dirtyEditor: function dirtyEditor() {
+        var pydio = this.props.pydio;
 
         if (this.refs.editor && this.refs.editor.isDirty()) {
-            if (!window.confirm(global.pydio.MessageHash["role_editor.19"])) {
-                return false;
+            if (!confirm(pydio.MessageHash["role_editor.19"])) {
+                return true;
             }
         }
+        return false;
+    },
 
-        var editor = _editorWorkspaceEditor2['default'];
-        var editorNode = XMLUtils.XPathSelectSingleNode(this.props.pydio.getXmlRegistry(), '//client_configs/component_config[@component="AdminWorkspaces.Dashboard"]/editor');
+    openWorkspace: function openWorkspace(workspace) {
+        var _this2 = this;
+
+        if (this.dirtyEditor()) {
+            return;
+        }
+        var editor = _editorWsEditor2['default'];
+        var editorNode = _pydioUtilXml2['default'].XPathSelectSingleNode(this.props.pydio.getXmlRegistry(), '//client_configs/component_config[@component="AdminWorkspaces.Dashboard"]/editor');
         if (editorNode) {
             editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
-        }
-        if (node.getMetadata().get('is_datasource') === 'true') {
-            editor = _editorDataSourceEditor2['default'];
         }
         var editorData = {
             COMPONENT: editor,
             PROPS: {
                 ref: "editor",
-                node: node,
+                workspace: workspace,
                 closeEditor: this.closeWorkspace,
                 reloadList: function reloadList() {
                     _this2.refs['workspacesList'].reload();
@@ -23485,89 +23492,27 @@ exports['default'] = _react2['default'].createClass({
     },
 
     closeWorkspace: function closeWorkspace() {
-        if (this.refs.editor && this.refs.editor.isDirty()) {
-            if (!window.confirm(global.pydio.MessageHash["role_editor.19"])) {
-                return false;
-            }
+        if (!this.dirtyEditor()) {
+            this.props.closeRightPane();
         }
-        this.props.closeRightPane();
-    },
-
-    toggleWorkspacesFilter: function toggleWorkspacesFilter() {
-        this.setState({ filter: this.state.filter == 'workspaces' ? 'templates' : 'workspaces' });
     },
 
     showWorkspaceCreator: function showWorkspaceCreator(type) {
-        if (typeof type != "string") {
-            type = "workspace";
-        }
+        var _this3 = this;
+
         var editorData = {
-            COMPONENT: _editorWorkspaceCreator2['default'],
+            COMPONENT: _editorWsEditor2['default'],
             PROPS: {
                 ref: "editor",
                 type: type,
                 save: this.createWorkspace,
-                closeEditor: this.closeWorkspace
+                closeEditor: this.closeWorkspace,
+                reloadList: function reloadList() {
+                    _this3.refs['workspacesList'].reload();
+                }
             }
         };
         this.props.openRightPane(editorData);
-    },
-
-    showTplCreator: function showTplCreator() {
-        this.showWorkspaceCreator('template');
-    },
-
-    createWorkspace: function createWorkspace(type, creatorState) {
-        var driver = undefined;
-        if (!creatorState.selectedDriver && creatorState.selectedTemplate) {
-            driver = "ajxp_template_" + creatorState.selectedTemplate;
-            // Move drivers options inside the values['driver'] instead of values['general']
-            var tplDef = _modelWorkspace2['default'].TEMPLATES.get(creatorState.selectedTemplate);
-            var driverDefs = _modelWorkspace2['default'].DRIVERS.get(tplDef.type).params;
-            var newDriversValues = {};
-            Object.keys(creatorState.values['general']).map(function (k) {
-                driverDefs.map(function (param) {
-                    if (param['name'] === k) {
-                        newDriversValues[k] = creatorState.values['general'][k];
-                        delete creatorState.values['general'][k];
-                    }
-                });
-            });
-            creatorState.values['driver'] = newDriversValues;
-        } else {
-            driver = creatorState.selectedDriver;
-        }
-        if (creatorState.values['general']['DISPLAY']) {
-            var displayValues = { DISPLAY: creatorState.values['general']['DISPLAY'] };
-            delete creatorState.values['general']['DISPLAY'];
-        }
-        var generalValues = creatorState.values['general'];
-
-        var saveData = LangUtils.objectMerge({
-            DRIVER: driver,
-            DRIVER_OPTIONS: LangUtils.objectMerge(creatorState.values['general'], creatorState.values['driver'])
-        }, displayValues);
-
-        var parameters = {
-            get_action: 'create_repository',
-            json_data: JSON.stringify(saveData)
-        };
-        if (type == 'template') {
-            parameters['sf_checkboxes_active'] = 'true';
-        }
-        PydioApi.getClient().request(parameters, (function (transport) {
-            // Reload list & Open Editor
-            this.refs.workspacesList.reload();
-            var newId = XMLUtils.XPathGetSingleNodeText(transport.responseXML, "tree/reload_instruction/@file");
-            var fakeNode = new AjxpNode('/fake/path/' + newId);
-            if (type == 'template') {
-                fakeNode.getMetadata().set("is_datasource", "true");
-                fakeNode.getMetadata().set("datasource_id", newId);
-            } else {
-                fakeNode.getMetadata().set("ajxp_mime", "repository_editable");
-            }
-            this.openWorkspace(fakeNode, 'driver');
-        }).bind(this));
     },
 
     deleteWorkspace: function deleteWorkspace(workspaceId) {
@@ -23646,13 +23591,8 @@ exports['default'] = _react2['default'].createClass({
         var buttons = [];
         var icon = undefined;
         var title = this.props.currentNode.getLabel();
-        if (this.state.filter === 'workspaces') {
-            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage('ws.3'), onTouchTap: this.showWorkspaceCreator }));
-            icon = 'mdi mdi-folder-open';
-        } else {
-            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage('ws.4'), onTouchTap: this.showTplCreator }));
-            icon = 'mdi mdi-database';
-        }
+        buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage('ws.3'), onTouchTap: this.showWorkspaceCreator }));
+        icon = 'mdi mdi-folder-open';
 
         return _react2['default'].createElement(
             'div',
@@ -23691,8 +23631,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../editor/DataSourceEditor":162,"../editor/WorkspaceCreator":171,"../editor/WorkspaceEditor":172,"../model/Workspace":179,"./WorkspaceList":160,"material-ui":"material-ui","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],162:[function(require,module,exports){
+},{"../editor/DataSourceEditor":162,"../editor/WorkspaceCreator":171,"../editor/WsEditor":173,"../model/Workspace":180,"./WorkspaceList":160,"material-ui":"material-ui","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],162:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -24151,7 +24090,7 @@ DataSourceEditor.contextTypes = {
 exports['default'] = DataSourceEditor;
 module.exports = exports['default'];
 
-},{"../model/DataSource":176,"./DataSourceLocalSelector":163,"material-ui":"material-ui","react":"react"}],163:[function(require,module,exports){
+},{"../model/DataSource":177,"./DataSourceLocalSelector":163,"material-ui":"material-ui","react":"react"}],163:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -24575,7 +24514,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../meta/MetaList":174,"../model/Workspace":179,"react":"react"}],165:[function(require,module,exports){
+},{"../meta/MetaList":175,"../model/Workspace":180,"react":"react"}],165:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -24795,7 +24734,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Workspace":179,"material-ui":"material-ui","react":"react"}],166:[function(require,module,exports){
+},{"../model/Workspace":180,"material-ui":"material-ui","react":"react"}],166:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25211,7 +25150,7 @@ FeaturesStepper.contextTypes = {
 exports['default'] = FeaturesStepper;
 module.exports = exports['default'];
 
-},{"../model/Workspace":179,"material-ui":"material-ui","react":"react"}],167:[function(require,module,exports){
+},{"../model/Workspace":180,"material-ui":"material-ui","react":"react"}],167:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25599,7 +25538,7 @@ MetaNamespace.PropTypes = {
 exports['default'] = MetaNamespace;
 module.exports = exports['default'];
 
-},{"../model/Metadata":177,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],168:[function(require,module,exports){
+},{"../model/Metadata":178,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],168:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26311,7 +26250,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Workspace":179,"./FeaturesListWizard":165,"./FeaturesStepper":166,"./TplFieldsChooser":168,"react":"react"}],172:[function(require,module,exports){
+},{"../model/Workspace":180,"./FeaturesListWizard":165,"./FeaturesStepper":166,"./TplFieldsChooser":168,"react":"react"}],172:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26429,52 +26368,6 @@ var WorkspaceEditor = (function (_React$Component) {
                 };
                 this.setState(initState);
             }
-        }
-    }, {
-        key: 'showMetaSourceForm',
-        value: function showMetaSourceForm() {
-            pydio.UI.openComponentInModal('AdminWorkspaces', 'MetaSourceForm', {
-                model: this.state.model,
-                editor: this
-            });
-        }
-    }, {
-        key: 'addMetaSource',
-        value: function addMetaSource(metaKey) {
-            this.state.model.addMetaSource(metaKey);
-            var newMetas = this.state.model.getOption("META_SOURCES", true);
-            var saveData = this.state.saveData || {};
-            saveData[metaKey] = newMetas[metaKey];
-            var saveMS = this.state.saveMetaSourceData;
-            saveMS['add'][metaKey] = newMetas[metaKey];
-            this.setState({
-                saveData: saveData,
-                saveMetaSourceData: saveMS,
-                edit: metaKey,
-                dirty: true
-            });
-        }
-    }, {
-        key: 'removeMetaSource',
-        value: function removeMetaSource(metaKey) {
-
-            this.state.model.removeMetaSource(metaKey);
-            // Do something with this?
-            var saveData = this.state.saveData || {};
-            if (saveData[metaKey]) delete saveData[metaKey];
-            var saveMS = this.state.saveMetaSourceData;
-            saveMS['delete'][metaKey] = metaKey;
-            if (saveMS['add'][metaKey]) delete saveMS['add'][metaKey];
-            if (saveMS['edit'][metaKey]) delete saveMS['edit'][metaKey];
-            var currentValid = this.state.valid || {};
-            if (currentValid[metaKey]) delete currentValid[metaKey];
-            this.setState({
-                saveData: saveData,
-                saveMetaSourceData: saveMS,
-                dirty: true,
-                edit: 'activity',
-                valid: currentValid
-            });
         }
     }, {
         key: 'isDirty',
@@ -26744,7 +26637,488 @@ WorkspaceEditor.propTypes = {
 exports['default'] = WorkspaceEditor;
 module.exports = exports['default'];
 
-},{"../model/Workspace":179,"../panel/SharesList":180,"./FeaturesList":164,"./TplFieldsChooser":168,"material-ui":"material-ui","react":"react"}],173:[function(require,module,exports){
+},{"../model/Workspace":180,"../panel/SharesList":182,"./FeaturesList":164,"./TplFieldsChooser":168,"material-ui":"material-ui","react":"react"}],173:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require('material-ui');
+
+var _modelWs = require('../model/Ws');
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
+var _lodashDebounce = require('lodash.debounce');
+
+var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
+
+var _pydioHttpRestApi = require("pydio/http/rest-api");
+
+var AutocompleteTree = (function (_React$Component) {
+    _inherits(AutocompleteTree, _React$Component);
+
+    function AutocompleteTree(props) {
+        _classCallCheck(this, AutocompleteTree);
+
+        _get(Object.getPrototypeOf(AutocompleteTree.prototype), 'constructor', this).call(this, props);
+        this.debounced = (0, _lodashDebounce2['default'])(this.loadValues.bind(this), 300);
+        this.state = { searchText: props.value, value: props.value };
+        console.log(this.state);
+    }
+
+    _createClass(AutocompleteTree, [{
+        key: 'handleUpdateInput',
+        value: function handleUpdateInput(searchText) {
+            this.debounced();
+            this.setState({ searchText: searchText });
+        }
+    }, {
+        key: 'handleNewRequest',
+        value: function handleNewRequest(chosenValue) {
+            var key = undefined;
+            var chosenNode = undefined;
+            var nodes = this.state.nodes;
+
+            if (chosenValue.key === undefined) {
+                if (chosenValue === '') {
+                    this.props.onChange('');
+                }
+                key = chosenValue;
+                var ok = false;
+                nodes.map(function (node) {
+                    if (node.Path === key) {
+                        chosenNode = node;
+                        ok = true;
+                    }
+                });
+                if (!ok) {
+                    nodes.map(function (node) {
+                        if (node.Path.indexOf(key) === 0) {
+                            key = node.Path;
+                            chosenNode = node;
+                            ok = true;
+                        }
+                    });
+                }
+                if (!ok) {
+                    return;
+                }
+            } else {
+                key = chosenValue.key;
+                chosenNode = chosenValue.node;
+            }
+            this.setState({ value: key });
+            this.props.onChange(key, chosenNode);
+            this.loadValues(key);
+        }
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.lastSearch = null;
+            var value = "";
+            if (this.props.value) {
+                value = this.props.value;
+            }
+            this.loadValues(value);
+        }
+    }, {
+        key: 'loadValues',
+        value: function loadValues() {
+            var _this = this;
+
+            var value = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+            var searchText = this.state.searchText;
+
+            var basePath = value;
+            if (!value && searchText) {
+                var last = searchText.lastIndexOf('/');
+                basePath = searchText.substr(0, last);
+            }
+            if (this.lastSearch !== null && this.lastSearch === basePath) {
+                return;
+            }
+            this.lastSearch = basePath;
+
+            var api = new _pydioHttpRestApi.AdminTreeServiceApi(PydioApi.getRestClient());
+            var listRequest = new _pydioHttpRestApi.TreeListNodesRequest();
+            var treeNode = new _pydioHttpRestApi.TreeNode();
+            treeNode.Path = basePath;
+            listRequest.Node = treeNode;
+            this.setState({ loading: true });
+            api.listAdminTree(listRequest).then(function (nodesColl) {
+                _this.setState({ nodes: nodesColl.Children || [], loading: false });
+            })['catch'](function () {
+                _this.setState({ loading: false });
+            });
+        }
+    }, {
+        key: 'renderNode',
+        value: function renderNode(node) {
+            var label = _react2['default'].createElement(
+                'span',
+                null,
+                node.Path
+            );
+            var icon = "mdi mdi-folder";
+            var categ = "folder";
+            if (!node.Uuid.startsWith("DATASOURCE:")) {
+                icon = "mdi mdi-database";
+                categ = "templatePath";
+            }
+            return {
+                key: node.Path,
+                text: node.Path,
+                node: node,
+                categ: categ,
+                value: _react2['default'].createElement(
+                    _materialUi.MenuItem,
+                    null,
+                    _react2['default'].createElement(_materialUi.FontIcon, { className: icon, color: '#616161', style: { float: 'left', marginRight: 8 } }),
+                    ' ',
+                    label
+                )
+            };
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this2 = this;
+
+            var _props = this.props;
+            var onDelete = _props.onDelete;
+            var skipTemplates = _props.skipTemplates;
+            var label = _props.label;
+            var _state = this.state;
+            var nodes = _state.nodes;
+            var loading = _state.loading;
+
+            var dataSource = [];
+            if (nodes) {
+                (function () {
+                    var categs = {};
+                    nodes.forEach(function (node) {
+                        var data = _this2.renderNode(node);
+                        if (!categs[data.categ]) {
+                            categs[data.categ] = [];
+                        }
+                        categs[data.categ].push(data);
+                    });
+                    if (Object.keys(categs).length > 1) {
+                        dataSource.push({ key: "h1", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "DataSources and folders", style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
+                        dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[0]]));
+                        if (!skipTemplates) {
+                            dataSource.push({ key: "h2", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Preset Template Paths", style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
+                            dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[1]]));
+                        }
+                    } else if (Object.keys(categs).length === 1) {
+                        dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[0]]));
+                    }
+                })();
+            }
+
+            var displayText = this.state.value;
+
+            return _react2['default'].createElement(
+                _materialUi.Paper,
+                { zDepth: 1, style: { display: 'flex', alignItems: 'baseline', padding: 10, paddingTop: 0, marginTop: 10 } },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { position: 'relative', flex: 1, marginTop: -5 } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { position: 'absolute', right: 0, top: 30, width: 30 } },
+                        _react2['default'].createElement(_materialUi.RefreshIndicator, {
+                            size: 30,
+                            left: 0,
+                            top: 0,
+                            status: loading ? "loading" : "hide"
+                        })
+                    ),
+                    _react2['default'].createElement(_materialUi.AutoComplete, {
+                        fullWidth: true,
+                        searchText: displayText,
+                        onUpdateInput: this.handleUpdateInput.bind(this),
+                        onNewRequest: this.handleNewRequest.bind(this),
+                        dataSource: dataSource,
+                        floatingLabelText: label || 'Select a folder or a predefined template path',
+                        floatingLabelStyle: { whiteSpace: 'nowrap' },
+                        floatingLabelFixed: true,
+                        filter: function (searchText, key) {
+                            return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
+                        },
+                        openOnFocus: true,
+                        menuProps: { maxHeight: 200 }
+                    })
+                ),
+                onDelete && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onTouchTap: onDelete })
+            );
+        }
+    }]);
+
+    return AutocompleteTree;
+})(_react2['default'].Component);
+
+var WsEditor = (function (_React$Component2) {
+    _inherits(WsEditor, _React$Component2);
+
+    function WsEditor(props) {
+        var _this3 = this;
+
+        _classCallCheck(this, WsEditor);
+
+        _get(Object.getPrototypeOf(WsEditor.prototype), 'constructor', this).call(this, props);
+        var workspace = new _modelWs2['default'](props.workspace);
+        workspace.observe('update', function () {
+            _this3.forceUpdate();
+        });
+        this.state = {
+            workspace: workspace.getModel(),
+            container: workspace,
+            newFolderKey: Math.random()
+        };
+    }
+
+    _createClass(WsEditor, [{
+        key: 'revert',
+        value: function revert() {
+            var _this4 = this;
+
+            var container = this.state.container;
+
+            container.revert();
+            this.setState({ workspace: container.getModel() }, function () {
+                _this4.forceUpdate();
+            });
+        }
+    }, {
+        key: 'save',
+        value: function save() {
+            var _this5 = this;
+
+            var container = this.state.container;
+            var reloadList = this.props.reloadList;
+
+            container.save().then(function () {
+                reloadList();
+                _this5.setState({ workspace: container.getModel() }, function () {
+                    _this5.forceUpdate();
+                });
+            });
+        }
+    }, {
+        key: 'remove',
+        value: function remove() {
+            var container = this.state.container;
+            var _props2 = this.props;
+            var closeEditor = _props2.closeEditor;
+            var reloadList = _props2.reloadList;
+
+            if (confirm('Are you sure?')) {
+                container.remove().then(function () {
+                    reloadList();
+                    closeEditor();
+                });
+            }
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this6 = this;
+
+            var closeEditor = this.props.closeEditor;
+            var _state2 = this.state;
+            var workspace = _state2.workspace;
+            var container = _state2.container;
+            var newFolderKey = _state2.newFolderKey;
+
+            var buttons = [];
+            if (!container.create) {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "Revert", secondary: true, disabled: !container.isDirty(), onTouchTap: function () {
+                        _this6.revert();
+                    } }));
+            }
+            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "Save", secondary: true, disabled: !(container.isDirty() && container.isValid()), onTouchTap: function () {
+                    _this6.save();
+                } }));
+            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: "Close", onTouchTap: closeEditor }));
+
+            var delButton = undefined;
+            if (!container.create) {
+                delButton = _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 16, textAlign: 'center' } },
+                    'Dangerous Operation: ',
+                    _react2['default'].createElement('br', null),
+                    _react2['default'].createElement('br', null),
+                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: "Delete Workspace", onTouchTap: function () {
+                            _this6.remove();
+                        } })
+                );
+            }
+            var leftNav = _react2['default'].createElement(
+                'div',
+                null,
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 16 } },
+                    'Workspace are used to actually grant data access to the users.',
+                    _react2['default'].createElement('br', null),
+                    _react2['default'].createElement('br', null),
+                    'It is composed of one or many "roots" that are exposed to the users. You can pick either a folder or a file from any datasource, or a preset Template Path that will be resolved automatically at run time (see the Storage section).',
+                    _react2['default'].createElement('br', null),
+                    _react2['default'].createElement('br', null),
+                    'In the latter case (using template paths), you can only add one Template Path as root of a workspace.'
+                ),
+                delButton && _react2['default'].createElement(_materialUi.Divider, null),
+                delButton
+            );
+
+            var styles = {
+                title: {
+                    fontSize: 20,
+                    paddingTop: 20,
+                    marginBottom: 0
+                },
+                legend: {},
+                section: { padding: '0 20px 20px' },
+                toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
+            };
+
+            var roots = workspace.RootNodes;
+            var completers = Object.keys(roots).map(function (k) {
+                var label = "Folder Path";
+                if (_modelWs2['default'].rootIsTemplatePath(roots[k])) {
+                    label = "Template Path";
+                }
+                return _react2['default'].createElement(AutocompleteTree, {
+                    key: roots[k].Uuid,
+                    label: label,
+                    value: roots[k].Path,
+                    onDelete: function () {
+                        delete roots[k];_this6.forceUpdate();
+                    },
+                    onChange: function (key, node) {
+                        delete roots[k];
+                        if (key !== '') {
+                            roots[node.Uuid] = node;
+                        }
+                    },
+                    skipTemplates: container.hasFolderRoots()
+                });
+            });
+            if (!container.hasTemplatePath()) {
+                completers.push(_react2['default'].createElement(AutocompleteTree, {
+                    key: newFolderKey,
+                    value: "",
+                    onChange: function (k, node) {
+                        if (node) {
+                            roots[node.Uuid] = node;_this6.setState({ newFolderKey: Math.random() });
+                        }
+                    },
+                    skipTemplates: container.hasFolderRoots()
+                }));
+            }
+
+            return _react2['default'].createElement(
+                PydioComponents.PaperEditorLayout,
+                {
+                    title: workspace.Label || 'New Workspace',
+                    titleActionBar: buttons,
+                    leftNav: leftNav,
+                    className: 'workspace-editor',
+                    contentFill: false
+                },
+                _react2['default'].createElement(
+                    'div',
+                    { style: styles.section },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.title },
+                        'Main Options'
+                    ),
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Label", value: workspace.Label, onChange: function (e, v) {
+                            workspace.Label = v;
+                        } }),
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Description", value: workspace.Description, onChange: function (e, v) {
+                            workspace.Description = v;
+                        } }),
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Slug (technical access)", value: workspace.Slug, onChange: function (e, v) {
+                            workspace.Slug = v;
+                        } })
+                ),
+                _react2['default'].createElement(_materialUi.Divider, null),
+                _react2['default'].createElement(
+                    'div',
+                    { style: styles.section },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.title },
+                        'Permissions'
+                    ),
+                    completers,
+                    _react2['default'].createElement(
+                        _materialUi.SelectField,
+                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Default Access (all users)", value: "" },
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "None", value: "" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Read only", value: "r" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Read and write", value: "rw" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Write only", value: "w" })
+                    )
+                ),
+                _react2['default'].createElement(_materialUi.Divider, null),
+                _react2['default'].createElement(
+                    'div',
+                    { style: styles.section },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.title },
+                        'Other'
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.toggleDiv },
+                        _react2['default'].createElement(_materialUi.Toggle, { label: "Allow Synchronization", toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
+                                workspace.Attributes['ALLOW_SYNC'] = v;
+                            } })
+                    ),
+                    _react2['default'].createElement(
+                        _materialUi.SelectField,
+                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Layout", value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
+                                workspace.Attributes['META_LAYOUT'] = v;
+                            } },
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Default", value: "" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Easy Transfer Layout", value: "meta.layout_sendfile" })
+                    )
+                )
+            );
+        }
+    }]);
+
+    return WsEditor;
+})(_react2['default'].Component);
+
+exports['default'] = WsEditor;
+module.exports = exports['default'];
+
+},{"../model/Ws":181,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],174:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26827,7 +27201,7 @@ window.AdminWorkspaces = {
   MetadataBoard: _boardMetadataBoard2['default']
 };
 
-},{"./board/DataSourcesBoard":156,"./board/MetadataBoard":158,"./board/VirtualNodes":159,"./board/WsDashboard":161,"./editor/TplFieldsChooser":168,"./editor/WorkspaceEditor":172,"./meta/MetaList":174,"./meta/MetaSourceForm":175,"./model/Workspace":179,"./panel/SharesList":180,"./panel/WorkspaceSummary":181}],174:[function(require,module,exports){
+},{"./board/DataSourcesBoard":156,"./board/MetadataBoard":158,"./board/VirtualNodes":159,"./board/WsDashboard":161,"./editor/TplFieldsChooser":168,"./editor/WorkspaceEditor":172,"./meta/MetaList":175,"./meta/MetaSourceForm":176,"./model/Workspace":180,"./panel/SharesList":182,"./panel/WorkspaceSummary":183}],175:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26933,7 +27307,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],175:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],176:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27048,7 +27422,7 @@ var MetaSourceForm = React.createClass({
 exports['default'] = MetaSourceForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],176:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],177:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27288,7 +27662,7 @@ var DataSource = (function (_Observable) {
 exports['default'] = DataSource;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],177:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],178:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27384,7 +27758,7 @@ Metadata.MetaTypes = {
 exports['default'] = Metadata;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],178:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],179:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27518,7 +27892,7 @@ var VirtualNode = (function (_Observable) {
 exports['default'] = VirtualNode;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],179:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],180:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27968,7 +28342,227 @@ var Workspace = (function (_Observable) {
 exports['default'] = Workspace;
 module.exports = exports['default'];
 
-},{"pydio/model/repository":"pydio/model/repository"}],180:[function(require,module,exports){
+},{"pydio/model/repository":"pydio/model/repository"}],181:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var Observable = require('pydio/lang/observable');
+var PydioApi = require('pydio/http/api');
+
+var Workspace = (function (_Observable) {
+    _inherits(Workspace, _Observable);
+
+    _createClass(Workspace, [{
+        key: 'buildProxy',
+        value: function buildProxy(object) {
+            var _this = this;
+
+            return new Proxy(object, {
+                set: function set(target, p, value) {
+                    var val = value;
+                    if (p === 'Slug') {
+                        val = _pydioUtilLang2['default'].computeStringSlug(val);
+                    } else if (p === 'Label' && _this.create) {
+                        target['Slug'] = _pydioUtilLang2['default'].computeStringSlug(val);
+                    }
+                    target[p] = val;
+                    _this.dirty = true;
+                    _this.notify('update');
+                    return true;
+                },
+                get: function get(target, p) {
+                    var out = target[p];
+                    if (p === 'Attributes') {
+                        out = _this.internalAttributes;
+                    }
+                    if (out instanceof Array) {
+                        return out;
+                    } else if (out instanceof Object) {
+                        return _this.buildProxy(out);
+                    } else {
+                        return out;
+                    }
+                }
+            });
+        }
+
+        /**
+         * @param model {IdmWorkspace}
+         */
+    }]);
+
+    function Workspace(model) {
+        _classCallCheck(this, Workspace);
+
+        _get(Object.getPrototypeOf(Workspace.prototype), 'constructor', this).call(this);
+        this.internalAttributes = {};
+        this.dirty = false;
+        if (model) {
+            this.initModel(model);
+        } else {
+            this.create = true;
+            this.model = new _pydioHttpRestApi.IdmWorkspace();
+            this.model.Scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
+            this.model.RootNodes = {};
+        }
+        this.observableModel = this.buildProxy(this.model);
+    }
+
+    _createClass(Workspace, [{
+        key: 'initModel',
+        value: function initModel(model) {
+            this.create = false;
+            this.dirty = false;
+            this.model = model;
+            this.snapshot = JSON.parse(JSON.stringify(model));
+            if (model.Attributes) {
+                var atts = JSON.parse(model.Attributes);
+                if (typeof atts === "object" && Object.keys(atts).length) {
+                    this.internalAttributes = atts;
+                }
+            }
+            if (!model.RootNodes) {
+                model.RootNodes = {};
+            }
+        }
+
+        /**
+         * @return {IdmWorkspace}
+         */
+    }, {
+        key: 'getModel',
+        value: function getModel() {
+            return this.observableModel;
+        }
+
+        /**
+         * @return {boolean}
+         */
+    }, {
+        key: 'hasTemplatePath',
+        value: function hasTemplatePath() {
+            var _this2 = this;
+
+            return Object.keys(this.model.RootNodes).filter(function (k) {
+                return Workspace.rootIsTemplatePath(_this2.model.RootNodes[k]);
+            }).length > 0;
+        }
+
+        /**
+         * @return {boolean}
+         */
+    }, {
+        key: 'hasFolderRoots',
+        value: function hasFolderRoots() {
+            var _this3 = this;
+
+            return Object.keys(this.model.RootNodes).filter(function (k) {
+                return !Workspace.rootIsTemplatePath(_this3.model.RootNodes[k]);
+            }).length > 0;
+        }
+
+        /**
+         *
+         * @return {Promise<any>}
+         */
+    }, {
+        key: 'save',
+        value: function save() {
+            var _this4 = this;
+
+            // If Policies are not set, REST service will add default policies
+            console.log('Saving model', this.model);
+            var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
+            return api.putWorkspace(this.model.Slug, this.model).then(function (ws) {
+                _this4.initModel(ws);
+                _this4.observableModel = _this4.buildProxy(_this4.model);
+            });
+        }
+
+        /**
+         *
+         * @return {Promise}
+         */
+    }, {
+        key: 'remove',
+        value: function remove() {
+            var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
+            return api.deleteWorkspace(this.model.Slug);
+        }
+
+        /**
+         *
+         */
+    }, {
+        key: 'revert',
+        value: function revert() {
+            var revert = _pydioHttpRestApi.IdmWorkspace.constructFromObject(this.snapshot || {});
+            this.initModel(revert);
+            this.observableModel = this.buildProxy(this.model);
+        }
+
+        /**
+         * @return {boolean}
+         */
+    }, {
+        key: 'isValid',
+        value: function isValid() {
+            return this.model.Slug && this.model.Label && this.model.Description && Object.keys(this.model.RootNodes).length > 0;
+        }
+    }, {
+        key: 'isDirty',
+        value: function isDirty() {
+            return this.dirty;
+        }
+
+        /**
+         *
+         * @param node {TreeNode}
+         * @return bool
+         */
+    }], [{
+        key: 'rootIsTemplatePath',
+        value: function rootIsTemplatePath(node) {
+            return !!(node.MetaStore && node.MetaStore['resolution']);
+        }
+    }, {
+        key: 'listWorkpsaces',
+        value: function listWorkpsaces() {
+            var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
+            var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
+            var single = new _pydioHttpRestApi.IdmWorkspaceSingleQuery();
+            single.scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
+            request.Queries = [single];
+            return api.searchWorkspaces(request);
+        }
+    }]);
+
+    return Workspace;
+})(Observable);
+
+exports['default'] = Workspace;
+module.exports = exports['default'];
+
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],182:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28081,7 +28675,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Workspace":179,"material-ui":"material-ui","react":"react"}],181:[function(require,module,exports){
+},{"../model/Workspace":180,"material-ui":"material-ui","react":"react"}],183:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28213,7 +28807,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Workspace":179,"./WorkspaceSummaryCard":182}],182:[function(require,module,exports){
+},{"../model/Workspace":180,"./WorkspaceSummaryCard":184}],184:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28258,7 +28852,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{}],183:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28404,4 +28998,4 @@ var NodeCard = (function (_React$Component) {
 exports['default'] = NodeCard;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}]},{},[173]);
+},{"material-ui":"material-ui","react":"react"}]},{},[174]);

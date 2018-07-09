@@ -168,7 +168,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 	vManager := GetVirtualNodesManager()
 	ownerWsRoots := make(map[string]*idm.Workspace)
 	for _, ws := range ownerAcls.Workspaces {
-		for _, originalRoot := range ws.RootNodes {
+		for _, originalRoot := range ws.RootUUIDs {
 			realId := originalRoot
 			if virtual, exists := vManager.ByUuid(originalRoot); exists {
 				resolvedRoot, e := vManager.ResolveInContext(parentContext, virtual, a.clientsPool, false)
@@ -186,7 +186,7 @@ func (a *AclQuotaFilter) FindParentWorkspaces(ctx context.Context, workspace *id
 	}
 
 	treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
-	for _, root := range workspace.RootNodes {
+	for _, root := range workspace.RootUUIDs {
 
 		if virtual, exists := vManager.ByUuid(root); exists {
 			resolvedRoot, e := vManager.ResolveInContext(ctx, virtual, a.clientsPool, false)

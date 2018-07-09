@@ -20,9 +20,9 @@
 
 import React from 'react'
 import {FlatButton, IconButton, Paper} from 'material-ui'
-
+import XMLUtils from 'pydio/util/xml'
 import Workspace from '../model/Workspace'
-import WorkspaceEditor from '../editor/WorkspaceEditor'
+import WsEditor from '../editor/WsEditor'
 import WorkspaceCreator from '../editor/WorkspaceCreator'
 import WorkspaceList from './WorkspaceList'
 import DataSourceEditor from '../editor/DataSourceEditor'
@@ -43,11 +43,11 @@ export default React.createClass({
         filter:React.PropTypes.string,
     },
 
-    getInitialState:function(){
+    getInitialState(){
         return {selectedNode:null, filter:this.props.filter || 'workspaces'}
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
         this._setLoading = () => {
             this.setState({loading: true});
         };
@@ -58,31 +58,35 @@ export default React.createClass({
         this.props.currentNode.observe('loading', this._setLoading);
     },
 
-    componentWillUnmount: function(){
+    componentWillUnmount(){
         this.props.currentNode.stopObserving('loaded', this._stopLoading);
         this.props.currentNode.stopObserving('loading', this._setLoading);
     },
 
-    openWorkspace: function(node){
+    dirtyEditor(){
+        const {pydio} = this.props;
         if(this.refs.editor && this.refs.editor.isDirty()){
-            if(!window.confirm(global.pydio.MessageHash["role_editor.19"])) {
-                return false;
+            if(!confirm(pydio.MessageHash["role_editor.19"])) {
+                return true;
             }
         }
+        return false;
+    },
 
-        let editor = WorkspaceEditor;
+    openWorkspace(workspace){
+        if(this.dirtyEditor()){
+            return;
+        }
+        let editor = WsEditor;
         const editorNode = XMLUtils.XPathSelectSingleNode(this.props.pydio.getXmlRegistry(), '//client_configs/component_config[@component="AdminWorkspaces.Dashboard"]/editor');
         if(editorNode){
             editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
-        }
-        if (node.getMetadata().get('is_datasource') === 'true'){
-            editor = DataSourceEditor;
         }
         const editorData = {
             COMPONENT:editor,
             PROPS:{
                 ref:"editor",
-                node:node,
+                workspace:workspace,
                 closeEditor:this.closeWorkspace,
                 reloadList:()=>{this.refs['workspacesList'].reload();},
                 deleteWorkspace:this.deleteWorkspace,
@@ -93,95 +97,29 @@ export default React.createClass({
         return true;
     },
 
-    closeWorkspace:function(){
-        if(this.refs.editor && this.refs.editor.isDirty()){
-            if(!window.confirm(global.pydio.MessageHash["role_editor.19"])) {
-                return false;
-            }
+    closeWorkspace(){
+        if(!this.dirtyEditor()){
+            this.props.closeRightPane()
         }
-        this.props.closeRightPane();
     },
 
-    toggleWorkspacesFilter:function(){
-        this.setState({filter:this.state.filter=='workspaces'?'templates':'workspaces'});
-    },
-
-    showWorkspaceCreator: function(type){
-        if(typeof(type) != "string") {
-            type = "workspace";
-        }
+    showWorkspaceCreator(type){
         const editorData = {
-            COMPONENT:WorkspaceCreator,
+            COMPONENT:WsEditor,
             PROPS:{
                 ref:"editor",
                 type:type,
                 save:this.createWorkspace,
-                closeEditor:this.closeWorkspace
+                closeEditor:this.closeWorkspace,
+                reloadList:()=>{this.refs['workspacesList'].reload();}
             }
         };
         this.props.openRightPane(editorData);
 
     },
 
-    showTplCreator: function(){
-        this.showWorkspaceCreator('template');
-    },
 
-    createWorkspace: function(type, creatorState){
-        let driver;
-        if(!creatorState.selectedDriver && creatorState.selectedTemplate){
-            driver = "ajxp_template_" + creatorState.selectedTemplate;
-            // Move drivers options inside the values['driver'] instead of values['general']
-            var tplDef = Workspace.TEMPLATES.get(creatorState.selectedTemplate);
-            var driverDefs = Workspace.DRIVERS.get(tplDef.type).params;
-            var newDriversValues = {};
-            Object.keys(creatorState.values['general']).map(function(k){
-                driverDefs.map(function(param){
-                    if(param['name'] === k){
-                        newDriversValues[k] = creatorState.values['general'][k];
-                        delete creatorState.values['general'][k];
-                    }
-                });
-            });
-            creatorState.values['driver'] = newDriversValues;
-
-        }else{
-            driver = creatorState.selectedDriver;
-        }
-        if(creatorState.values['general']['DISPLAY']){
-            var displayValues = {DISPLAY:creatorState.values['general']['DISPLAY']};
-            delete creatorState.values['general']['DISPLAY'];
-        }
-        var generalValues = creatorState.values['general'];
-
-        var saveData = LangUtils.objectMerge({
-            DRIVER:driver,
-            DRIVER_OPTIONS:LangUtils.objectMerge(creatorState.values['general'], creatorState.values['driver'])
-        }, displayValues);
-
-        var parameters = {
-            get_action:'create_repository',
-            json_data:JSON.stringify(saveData)
-        };
-        if(type == 'template'){
-            parameters['sf_checkboxes_active'] = 'true';
-        }
-        PydioApi.getClient().request(parameters, function(transport){
-            // Reload list & Open Editor
-            this.refs.workspacesList.reload();
-            var newId = XMLUtils.XPathGetSingleNodeText(transport.responseXML, "tree/reload_instruction/@file");
-            var fakeNode = new AjxpNode('/fake/path/' + newId);
-            if(type == 'template'){
-                fakeNode.getMetadata().set("is_datasource", "true");
-                fakeNode.getMetadata().set("datasource_id", newId);
-            } else {
-                fakeNode.getMetadata().set("ajxp_mime", "repository_editable");
-            }
-            this.openWorkspace(fakeNode, 'driver');
-        }.bind(this));
-    },
-
-    deleteWorkspace:function(workspaceId){
+    deleteWorkspace(workspaceId){
         if(window.confirm(this.context.getMessage('35', 'settings'))){
             this.closeWorkspace();
             PydioApi.getClient().request({
@@ -200,7 +138,7 @@ export default React.createClass({
      * @param postData Object
      * @param editorData Object
      */
-    updateWorkspace:function(workspaceModel, postData, editorData){
+    updateWorkspace(workspaceModel, postData, editorData){
         let workspaceId = workspaceModel.wsId;
         if(workspaceModel.isTemplate()){
             let formDefs=[], formValues={}, templateAllFormDefs = [];
@@ -247,21 +185,16 @@ export default React.createClass({
         }
     },
 
-    reloadWorkspaceList:function(){
+    reloadWorkspaceList(){
         this.refs.workspacesList.reload();
     },
 
-    render:function(){
+    render(){
         let buttons = [];
         let icon;
         const title = this.props.currentNode.getLabel();
-        if (this.state.filter === 'workspaces') {
-            buttons.push(<FlatButton primary={true} label={this.context.getMessage('ws.3')} onTouchTap={this.showWorkspaceCreator}/>);
-            icon = 'mdi mdi-folder-open';
-        } else {
-            buttons.push(<FlatButton primary={true} label={this.context.getMessage('ws.4')} onTouchTap={this.showTplCreator}/>);
-            icon = 'mdi mdi-database';
-        }
+        buttons.push(<FlatButton primary={true} label={this.context.getMessage('ws.3')} onTouchTap={this.showWorkspaceCreator}/>);
+        icon = 'mdi mdi-folder-open';
 
         return (
 
