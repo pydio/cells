@@ -136,16 +136,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 						Component: "AdminScheduler.Dashboard",
 					},
 				},
-				{
-					Key:         "php",
-					Label:       "settings.5",
-					Description: "settings.5",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\DiagnosticManager",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-language-php",
-						Component: "AdminPlugins.DiagnosticDashboard",
-					},
-				},
 			},
 		},
 		{
