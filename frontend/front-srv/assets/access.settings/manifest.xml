@@ -23,7 +23,6 @@
             <css file="plug/access.settings/res/css/swagger-custom.css" autoload="true"/>
 
             <js className="AdminComponents" file="plug/access.settings/res/build/AdminComponents.js" depends="React,PydioComponents,PydioWorkspaces,PydioCoreActions"/>
-            <js className="AdminActions" file="plug/access.settings/res/build/AdminActions.js" depends="AdminComponents"/>
             <js className="AdminPeople" file="plug/access.settings/res/build/AdminPeople.js" depends="React,PydioComponents,PydioForm"/>
             <js className="AdminRoleEditor" file="plug/access.settings/res/build/AdminRoleEditor.js" depends="React,AdminComponents,PydioComponents,PydioForm"/>
             <js className="AdminWorkspaces" file="plug/access.settings/res/build/AdminWorkspaces.js" depends="PydioForm"/>
@@ -95,7 +94,7 @@
                     <selectionContext dir="true" file="true" recycle="false" unique="false"  allowedMimes="user_editable,repository_editable,role,group" image="false" editable="false" behaviour="hidden"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
                 <processing>
-                    <clientCallback module="AdminActions.Callbacks.deleteAction"/>
+                    <clientCallback module="AdminPeople.Callbacks.deleteAction"/>
                     <serverCallback methodName="deleteAction" restParams="/data_type/data_id+" developerComment="Generic delete action for config driver, used to delete users, workspaces, roles, etc.">
                         <input_param description="Type of the data to delete. Can be : user, group, role, repository" name="data_type" type="String"/>
                         <input_param description="Id of the data to delete. For groups, full group path." name="data_id"
@@ -112,39 +111,6 @@
             </action>
 
             <!-- USERS ACTIONS -->
-            <action name="create_user">
-                <gui text="297" title="298" iconClass="icon-user" accessKey="create_user_accesskey" hasAccessKey="true">
-                    <context selection="false" dir="false" recycle="hidden" allowedMimes="users_zone,group" behaviour="hidden"
-                             actionBar="true" contextMenu="true" infoPanel="false"
-                             actionBarGroup="put" inZip="false">
-                    </context>
-                </gui>
-                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly="true"/>
-                <processing>
-                    <serverCallback methodName="usersAction"
-                                    developerComment="Create a user with login and password in the AUTH directory."
-                                    restParams="/new_user_login/new_user_pwd"
-                    >
-                        <input_param description="User login, must be alphanumerical, no special chars" name="new_user_login" type="string"/>
-                        <input_param description="User password, must be alphanumerical, no special chars" name="new_user_pwd" type="string"/>
-                    </serverCallback>
-                </processing>
-            </action>
-            <action name="create_group">
-                <gui text="settings.118" title="settings.118" iconClass="icon-group" accessKey="settings.group_access" hasAccessKey="true">
-                    <context selection="false" dir="false" recycle="hidden" allowedMimes="users_zone,group"  behaviour="hidden"
-                             actionBar="true" contextMenu="false" infoPanel="false"
-                             actionBarGroup="put" inZip="false">
-                    </context>
-                </gui>
-                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly="true"/>
-                <processing>
-                    <serverCallback methodName="usersAction" developerComment="Create a new group of users" restParams="/group_label/group_path+">
-                        <input_param description="Full group path, must be in the form /group/path/name" name="group_path" type="String"/>
-                        <input_param description="Group Label" name="group_label" type="String"/>
-                    </serverCallback>
-                </processing>
-            </action>
             <action name="user_update_group" dragndropDefault="true">
                 <gui text="settings.119" title="settings.119" accessKey="settings.role_access" hasAccessKey="true">
                     <context selection="false" dir="false" recycle="hidden"  behaviour="hidden"
@@ -154,11 +120,7 @@
                 </gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly="true"/>
                 <processing>
-                    <clientCallback module="AdminActions.Callbacks.applyDND"/>
-                    <serverCallback methodName="usersAction" developerComment="Move an existing user to an existing group" restParams="/file/group_path+">
-                        <input_param description="User identifier" name="file" type="String"/>
-                        <input_param description="Target group path, must be /group/path" name="group_path" type="String"/>
-                    </serverCallback>
+                    <clientCallback module="AdminPeople.Callbacks.applyDND"/>
                 </processing>
             </action>
             <action name="save_user_preference">
@@ -177,11 +139,6 @@
                         <input_param name="repository_id" type="PYDIO_REPOSITORY" mandatory="true" description="Repository ID"/>
                         <input_param name="right" type="string" mandatory="true" description="Must be r (read), w (write) or n (none)"/>
                     </serverCallback>
-                </processing>
-            </action>
-            <action name="admin_search_users">
-                <processing>
-                    <serverCallback methodName="searchUsersAction" restParams="/query/dir+" developerComment="Remote search implementation, currently only supporting users search."/>
                 </processing>
             </action>
             <action name="people-create-resource">

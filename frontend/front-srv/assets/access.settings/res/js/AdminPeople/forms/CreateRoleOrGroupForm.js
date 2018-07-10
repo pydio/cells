@@ -21,6 +21,8 @@ import React from 'react'
 import PydioApi from 'pydio/http/api'
 import Node from 'pydio/model/node'
 import {TextField} from 'material-ui'
+import {RoleServiceApi, IdmRole} from 'pydio/http/rest-api';
+import uuid from 'uuid4'
 
 const CreateRoleOrGroupForm = React.createClass({
 
@@ -57,7 +59,7 @@ const CreateRoleOrGroupForm = React.createClass({
     },
 
     submit() {
-        const {type, pydio} = this.props;
+        const {type, pydio, reload} = this.props;
         let parameters;
         let currentNode;
         if( type === "group"){
@@ -78,8 +80,17 @@ const CreateRoleOrGroupForm = React.createClass({
             });
 
         }else if (type === "role"){
+            const api = new RoleServiceApi(PydioApi.getRestClient());
+            const idmRole = new IdmRole();
+            idmRole.Uuid = uuid.sync();
+            idmRole.Label = this.refs.role_id.getValue();
             currentNode = this.props.roleNode;
-            parameters = {get_action:'create_role', role_id:this.refs.role_id.getValue()};
+            api.setRole(idmRole.Uuid, idmRole).then(()=>{
+                this.dismiss();
+                if(reload) {
+                    reload();
+                }
+            })
         }
 
     },

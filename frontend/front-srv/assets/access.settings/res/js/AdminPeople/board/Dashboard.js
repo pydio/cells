@@ -26,6 +26,7 @@ import {muiThemeable} from 'material-ui/styles'
 import ResourcesManager from 'pydio/http/resources-manager'
 import UsersSearchBox from './UsersSearchBox'
 import AjxpNode from 'pydio/model/node'
+import Callbacks from './Callbacks'
 
 let Dashboard = React.createClass({
 
@@ -72,14 +73,14 @@ let Dashboard = React.createClass({
             }}/>;
         }
         const style={
-            backgroundColor: '#BDBDBD',
+            backgroundColor: '#9e9e9e',
             color:           'white',
             borderRadius:    '50%',
             margin:          16,
             width:           33,
             height:          33,
-            fontSize:        16,
-            padding:         8,
+            fontSize:        18,
+            padding:         6,
             textAlign:       'center'
         };
         const iconClass = node.isLeaf()?"mdi mdi-account":"mdi mdi-folder";
@@ -101,31 +102,30 @@ let Dashboard = React.createClass({
     },
 
     renderListEntrySecondLine(node){
-        return 'Todo';
-        /*
+        const idmUser = node.getMetadata().get('IdmUser');
         if(node.isLeaf()){
             if(node.getPath() === '/idm/users'){
                 // This is the Root Group
                 return this.context.getMessage('user.8');
             }
             let strings = [];
-            strings.push(node.getMetadata().get('object_id'));
-            const profile = node.getMetadata().get("profile");
-            if(profile && profile !== "standard") {
-                strings.push("Profile " + profile);
+            strings.push(idmUser.Login);
+            const attributes = idmUser.Attributes || {};
+            if(attributes['profile']) {
+                strings.push("Profile " + attributes['profile']);
             }
-            if(node.getMetadata().get("last_connection_readable")){
-                strings.push( this.context.getMessage('user.9') + ' ' + node.getMetadata().get("last_connection_readable"));
+            if(attributes['last_connection_readable']){
+                strings.push( this.context.getMessage('user.9') + ' ' + attributes['last_connection_readable']);
             }
-            const roles = node.getMetadata().get('ajxp_roles');
-            if(roles && roles.split(',').length){
-                strings.push(this.context.getMessage('user.11').replace("%i", roles.split(',').length));
+            const roles = idmUser.Roles;
+            if(roles && roles.length){
+                strings.push(this.context.getMessage('user.11').replace("%i", roles.length));
             }
             return strings.join(" - ");
         }else{
             return this.context.getMessage('user.12') + ': ' + node.getPath().replace('/idm/users', '');
         }
-        */
+
     },
 
     renderListEntrySelector(node){
@@ -201,9 +201,7 @@ let Dashboard = React.createClass({
     deleteAction(node){
         const dm = new PydioDataModel();
         dm.setSelectedNodes([node]);
-        ResourcesManager.loadClassesAndApply(['AdminActions'], () => {
-            AdminActions.Callbacks.deleteAction(null, [dm]);
-        })
+        Callbacks.deleteAction(null, [dm]);
     },
 
     renderNodeActions(node){
@@ -230,8 +228,9 @@ let Dashboard = React.createClass({
     },
 
     filterNodes(node) {
-        const profile = node.getMetadata().get("profile");
-        const isAdmin = node.getMetadata().get("isAdmin") === "true";
+        const attributes = node.getMetadata().get("IdmUser").Attributes || {};
+        const profile = attributes['profile'];
+        const isAdmin = profile === 'admin';
         const {filterValue} = this.state;
         switch(filterValue) {
             case 1:

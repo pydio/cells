@@ -56,6 +56,10 @@ var _pydioModelNode = require('pydio/model/node');
 
 var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
+var _Callbacks = require('./Callbacks');
+
+var _Callbacks2 = _interopRequireDefault(_Callbacks);
+
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
@@ -103,14 +107,14 @@ var Dashboard = _react2['default'].createClass({
                 } });
         }
         var style = {
-            backgroundColor: '#BDBDBD',
+            backgroundColor: '#9e9e9e',
             color: 'white',
             borderRadius: '50%',
             margin: 16,
             width: 33,
             height: 33,
-            fontSize: 16,
-            padding: 8,
+            fontSize: 18,
+            padding: 6,
             textAlign: 'center'
         };
         var iconClass = node.isLeaf() ? "mdi mdi-account" : "mdi mdi-folder";
@@ -136,31 +140,29 @@ var Dashboard = _react2['default'].createClass({
     },
 
     renderListEntrySecondLine: function renderListEntrySecondLine(node) {
-        return 'Todo';
-        /*
-        if(node.isLeaf()){
-            if(node.getPath() === '/idm/users'){
+        var idmUser = node.getMetadata().get('IdmUser');
+        if (node.isLeaf()) {
+            if (node.getPath() === '/idm/users') {
                 // This is the Root Group
                 return this.context.getMessage('user.8');
             }
-            let strings = [];
-            strings.push(node.getMetadata().get('object_id'));
-            const profile = node.getMetadata().get("profile");
-            if(profile && profile !== "standard") {
-                strings.push("Profile " + profile);
+            var strings = [];
+            strings.push(idmUser.Login);
+            var attributes = idmUser.Attributes || {};
+            if (attributes['profile']) {
+                strings.push("Profile " + attributes['profile']);
             }
-            if(node.getMetadata().get("last_connection_readable")){
-                strings.push( this.context.getMessage('user.9') + ' ' + node.getMetadata().get("last_connection_readable"));
+            if (attributes['last_connection_readable']) {
+                strings.push(this.context.getMessage('user.9') + ' ' + attributes['last_connection_readable']);
             }
-            const roles = node.getMetadata().get('ajxp_roles');
-            if(roles && roles.split(',').length){
-                strings.push(this.context.getMessage('user.11').replace("%i", roles.split(',').length));
+            var roles = idmUser.Roles;
+            if (roles && roles.length) {
+                strings.push(this.context.getMessage('user.11').replace("%i", roles.length));
             }
             return strings.join(" - ");
-        }else{
+        } else {
             return this.context.getMessage('user.12') + ': ' + node.getPath().replace('/idm/users', '');
         }
-        */
     },
 
     renderListEntrySelector: function renderListEntrySelector(node) {
@@ -239,9 +241,7 @@ var Dashboard = _react2['default'].createClass({
     deleteAction: function deleteAction(node) {
         var dm = new _pydioModelDataModel2['default']();
         dm.setSelectedNodes([node]);
-        _pydioHttpResourcesManager2['default'].loadClassesAndApply(['AdminActions'], function () {
-            AdminActions.Callbacks.deleteAction(null, [dm]);
-        });
+        _Callbacks2['default'].deleteAction(null, [dm]);
     },
 
     renderNodeActions: function renderNodeActions(node) {
@@ -286,8 +286,9 @@ var Dashboard = _react2['default'].createClass({
     },
 
     filterNodes: function filterNodes(node) {
-        var profile = node.getMetadata().get("profile");
-        var isAdmin = node.getMetadata().get("isAdmin") === "true";
+        var attributes = node.getMetadata().get("IdmUser").Attributes || {};
+        var profile = attributes['profile'];
+        var isAdmin = profile === 'admin';
         var filterValue = this.state.filterValue;
 
         switch (filterValue) {

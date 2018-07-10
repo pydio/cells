@@ -75,7 +75,7 @@ class IdmApi {
         request.Operation = ServiceOperationType.constructFromObject('AND');
         request.Queries = [];
         const query = new IdmUserSingleQuery();
-        query.GroupPath = baseGroup;
+        query.GroupPath = baseGroup || '/';
         query.Recursive = recursive;
         query.NodeType = IdmNodeType.constructFromObject('UNKNOWN');
         request.Queries.push(query);
@@ -194,6 +194,13 @@ class IdmApi {
         return api.putUser(groupIdentifier, object);
     }
 
+    /**
+     *
+     * @param baseGroup
+     * @param login
+     * @param password
+     * @return {Promise}
+     */
     createUser(baseGroup = '/', login, password){
         const api = new UserServiceApi(this.client);
         const object = new IdmUser();
@@ -201,6 +208,38 @@ class IdmApi {
         object.Login = login;
         object.Password = password;
         return api.putUser(login, object);
+    }
+
+    /**
+     *
+     * @param idmUser {IdmUser}
+     * @return {Promise}
+     */
+    updateIdmUser(idmUser){
+        const api = new UserServiceApi(this.client);
+        if(idmUser.IsGroup){
+            return api.putUser(idmUser.GroupLabel, idmUser);
+        } else {
+            return api.putUser(idmUser.Login, idmUser);
+        }
+    }
+
+    /**
+     *
+     * @param idmUser {IdmUser}
+     * @return {Promise}
+     */
+    deleteIdmUser(idmUser){
+        const api = new UserServiceApi(this.client);
+        if(idmUser.IsGroup){
+            const gPath = LangUtils.trimRight(idmUser.GroupPath, '/') + '/' + idmUser.GroupLabel + '/';
+            if(gPath === '/'){
+                return Promise.reject('cannot delete root group!');
+            }
+            return api.deleteUser(LangUtils.trimLeft(gPath, '/'));
+        } else {
+            return api.deleteUser(idmUser.Login);
+        }
     }
 
 }

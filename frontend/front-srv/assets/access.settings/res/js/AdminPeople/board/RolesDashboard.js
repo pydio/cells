@@ -21,9 +21,8 @@ import React from 'react'
 import {Paper, IconButton, TextField, FlatButton} from 'material-ui'
 import Editor from '../editor/Editor'
 import PydioApi from 'pydio/http/api'
-import PydioDataModel from 'pydio/model/data-model'
-import ResourcesManager from 'pydio/http/resources-manager'
 import Pydio from 'pydio'
+import {RoleServiceApi} from 'pydio/http/rest-api';
 const PydioComponents = Pydio.requireLib('components');
 const {MaterialTable} = PydioComponents;
 
@@ -91,16 +90,26 @@ let RolesDashboard = React.createClass({
     },
 
 
-    deleteAction(node){
-        const dm = new PydioDataModel();
-        dm.setSelectedNodes([node]);
-        ResourcesManager.loadClassesAndApply(['AdminActions'], () => {
-            AdminActions.Callbacks.deleteAction(null, [dm]);
-        })
+    deleteAction(roleId){
+        const {pydio} = this.props;
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message:pydio.MessageHash['settings.126'],
+            validCallback:() => {
+                const api = new RoleServiceApi(PydioApi.getRestClient());
+                api.deleteRole(roleId).then(()=> {
+                    this.load();
+                })
+            }
+        });
     },
 
     createRoleAction(){
-        pydio.UI.openComponentInModal('AdminPeople','CreateRoleOrGroupForm', {type:'role', roleNode:this.state.currentNode, openRoleEditor:this.openRoleEditor.bind(this)});
+        pydio.UI.openComponentInModal('AdminPeople','CreateRoleOrGroupForm', {
+            type:'role',
+            roleNode:this.state.currentNode,
+            openRoleEditor:this.openRoleEditor.bind(this),
+            reload: () => {this.load()}
+        });
     },
 
     computeTableData(searchRoleString){
@@ -111,16 +120,12 @@ let RolesDashboard = React.createClass({
             if (searchRoleString && label.toLowerCase().indexOf(searchRoleString.toLowerCase()) === -1) {
                 return;
             }
-            let roleSummary = '';
-            if(role && role.ACL && Object.keys(role.ACL).length > 1){
-                roleSummary = this.context.getMessage('user.10').replace("%i", Object.keys(role.ACL).length - 1);
-            }
             data.push({
                 role: role,
                 roleId: role.Uuid,
                 roleLabel: label,
-                isDefault: 'todo',
-                roleSummary: roleSummary
+                isDefault: role.AutoApplies.join(', ') || '-',
+                roleSummary: new Date(parseInt(role.LastUpdated)*1000).toISOString()
             });
         });
         return data;
@@ -145,10 +150,10 @@ let RolesDashboard = React.createClass({
         };
         const columns = [
             {name:'roleLabel', label: 'Label', style:{width:'35%', fontSize:15}, headerStyle:{width:'35%'}},
-            {name:'roleSummary', label: 'Summary'},
+            {name:'roleSummary', label: 'Last Updated'},
             {name:'isDefault', label: 'Applies to', style:{width:'20%'}, headerStyle:{width:'20%'}},
             {name:'actions', label:'', style:{width:80}, headerStyle:{width:80}, renderCell:(row) => {
-                return <IconButton key="delete" iconClassName="mdi mdi-delete" onTouchTap={() => {this.deleteAction(row.node)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />
+                return <IconButton key="delete" iconClassName="mdi mdi-delete" onTouchTap={() => {this.deleteAction(row.roleId)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />
             }}
         ];
         const data = this.computeTableData(searchRoleString);

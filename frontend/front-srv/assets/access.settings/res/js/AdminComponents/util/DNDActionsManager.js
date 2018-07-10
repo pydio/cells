@@ -17,6 +17,10 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import PathUtils from 'pydio/util/path'
+import LangUtils from 'pydio/util/lang'
+import PydioApi from 'pydio/http/api'
+
 class DNDActionsManager{
 
     /**
@@ -27,16 +31,16 @@ class DNDActionsManager{
      * @param target AjxpNode
      */
     static canDropNodeOnNode(source, target){
-        var sourceMime = source.getAjxpMime();
-        var targetMime = target.getAjxpMime();
-        if(sourceMime == "role" && source.getMetadata().get("role_id") == "PYDIO_GRP_/"){
+        const sourceMime = source.getAjxpMime();
+        const targetMime = target.getAjxpMime();
+        if(sourceMime === "role" && source.getMetadata().get("role_id") === "PYDIO_GRP_/"){
             throw new Error('Cannot drop this!');
         }
-        var result;
-        if(sourceMime == "role" && targetMime == "user_editable") {
+        let result;
+        if(sourceMime === "role" && targetMime === "user_editable") {
             result = true;
         }
-        if(sourceMime == "user_editable" && (targetMime == "group" || targetMime == "users_zone")){
+        if(sourceMime === "user_editable" && targetMime === "group"){
             result = true;
         }
         if(!result){
@@ -50,37 +54,29 @@ class DNDActionsManager{
      * @param target AjxpNode
      */
     static dropNodeOnNode(source, target){
-        //global.alert('Dropped ' + source.getPath() + ' on ' + target.getPath());
-        var sourceMime = source.getAjxpMime();
-        var targetMime = target.getAjxpMime();
-        if(sourceMime == "user_editable" && ( targetMime == "group" || targetMime == "users_zone" )){
-            if(PathUtils.getDirname(source.getPath()) == target.getPath()){
-                global.alert('Please drop user in a different group!');
+        const sourceMime = source.getAjxpMime();
+        const targetMime = target.getAjxpMime();
+        if(sourceMime === "user_editable" && targetMime === "group"){
+            if(PathUtils.getDirname(source.getPath()) === target.getPath()){
+                alert('Please drop user in a different group!');
                 return;
             }
             // update_user_group
-
-            PydioApi.getClient().request({
-                get_action:'user_update_group',
-                file:source.getPath().substr("/idm/users".length),
-                group_path: (targetMime == "users_zone" ? "/" : target.getPath().substr("/idm/users".length))
-            }, function(){
+            const idmUser = source.getMetadata().get('IdmUser');
+            const idmGroup = target.getMetadata().get('IdmUser');
+            if(!idmGroup && target.getPath() === '/idm/users'){
+                idmUser.GroupPath = '/';
+            } else {
+                idmUser.GroupPath = LangUtils.trimRight(idmGroup.GroupPath, '/') + '/' + idmGroup.GroupLabel;
+            }
+            PydioApi.getRestClient().getIdmApi().updateIdmUser(idmUser).then((res) => {
                 if(source.getParent()){
                     source.getParent().reload();
                 }
                 target.reload();
             });
-        }else if(sourceMime == "role" && targetMime == "user_editable"){
-            PydioApi.getClient().request({
-                get_action:'edit',
-                sub_action:'user_add_role',
-                user_id:PathUtils.getBasename(target.getPath()),
-                role_id:PathUtils.getBasename(source.getPath())
-            }, function(){
-                if (target.getParent()) {
-                    target.getParent().reload();
-                }
-            });
+        }else if(sourceMime === "role" && targetMime === "user_editable"){
+            // TODO : Apply role to user
         }
     }
 

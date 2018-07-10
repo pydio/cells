@@ -39,17 +39,11 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioModelDataModel = require('pydio/model/data-model');
-
-var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
-
-var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
-
-var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
-
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var PydioComponents = _pydio2['default'].requireLib('components');
 var MaterialTable = PydioComponents.MaterialTable;
@@ -123,21 +117,36 @@ var RolesDashboard = _react2['default'].createClass({
         return true;
     },
 
-    deleteAction: function deleteAction(node) {
-        var dm = new _pydioModelDataModel2['default']();
-        dm.setSelectedNodes([node]);
-        _pydioHttpResourcesManager2['default'].loadClassesAndApply(['AdminActions'], function () {
-            AdminActions.Callbacks.deleteAction(null, [dm]);
+    deleteAction: function deleteAction(roleId) {
+        var _this2 = this;
+
+        var pydio = this.props.pydio;
+
+        pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
+            message: pydio.MessageHash['settings.126'],
+            validCallback: function validCallback() {
+                var api = new _pydioHttpRestApi.RoleServiceApi(_pydioHttpApi2['default'].getRestClient());
+                api.deleteRole(roleId).then(function () {
+                    _this2.load();
+                });
+            }
         });
     },
 
     createRoleAction: function createRoleAction() {
-        pydio.UI.openComponentInModal('AdminPeople', 'CreateRoleOrGroupForm', { type: 'role', roleNode: this.state.currentNode, openRoleEditor: this.openRoleEditor.bind(this) });
+        var _this3 = this;
+
+        pydio.UI.openComponentInModal('AdminPeople', 'CreateRoleOrGroupForm', {
+            type: 'role',
+            roleNode: this.state.currentNode,
+            openRoleEditor: this.openRoleEditor.bind(this),
+            reload: function reload() {
+                _this3.load();
+            }
+        });
     },
 
     computeTableData: function computeTableData(searchRoleString) {
-        var _this2 = this;
-
         var roles = this.state.roles;
 
         var data = [];
@@ -146,23 +155,19 @@ var RolesDashboard = _react2['default'].createClass({
             if (searchRoleString && label.toLowerCase().indexOf(searchRoleString.toLowerCase()) === -1) {
                 return;
             }
-            var roleSummary = '';
-            if (role && role.ACL && Object.keys(role.ACL).length > 1) {
-                roleSummary = _this2.context.getMessage('user.10').replace("%i", Object.keys(role.ACL).length - 1);
-            }
             data.push({
                 role: role,
                 roleId: role.Uuid,
                 roleLabel: label,
-                isDefault: 'todo',
-                roleSummary: roleSummary
+                isDefault: role.AutoApplies.join(', ') || '-',
+                roleSummary: new Date(parseInt(role.LastUpdated) * 1000).toISOString()
             });
         });
         return data;
     },
 
     render: function render() {
-        var _this3 = this;
+        var _this4 = this;
 
         var searchRoleString = this.state.searchRoleString;
 
@@ -172,16 +177,16 @@ var RolesDashboard = _react2['default'].createClass({
             'div',
             { style: { height: 40, padding: '0px 20px', width: 240, display: 'inline-block' } },
             _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, hintText: this.context.getMessage('47', 'role_editor') + '...', value: searchRoleString || '', onChange: function (e, v) {
-                    return _this3.setState({ searchRoleString: v });
+                    return _this4.setState({ searchRoleString: v });
                 } })
         );
         var iconStyle = {
             color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
-        var columns = [{ name: 'roleLabel', label: 'Label', style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: 'Summary' }, { name: 'isDefault', label: 'Applies to', style: { width: '20%' }, headerStyle: { width: '20%' } }, { name: 'actions', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+        var columns = [{ name: 'roleLabel', label: 'Label', style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: 'Last Updated' }, { name: 'isDefault', label: 'Applies to', style: { width: '20%' }, headerStyle: { width: '20%' } }, { name: 'actions', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
                 return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
-                        _this3.deleteAction(row.node);
+                        _this4.deleteAction(row.roleId);
                     }, onClick: function (e) {
                         e.stopPropagation();
                     }, iconStyle: iconStyle });
@@ -197,7 +202,7 @@ var RolesDashboard = _react2['default'].createClass({
                 actions: buttons,
                 centerContent: centerContent,
                 reloadAction: function () {
-                    _this3.load();
+                    _this4.load();
                 },
                 loading: this.state.loading
             }),

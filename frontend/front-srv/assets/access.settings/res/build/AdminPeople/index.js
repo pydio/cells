@@ -38,6 +38,10 @@ var _boardDirectoriesBoard = require('./board/DirectoriesBoard');
 
 var _boardDirectoriesBoard2 = _interopRequireDefault(_boardDirectoriesBoard);
 
+var _boardCallbacks = require('./board/Callbacks');
+
+var _boardCallbacks2 = _interopRequireDefault(_boardCallbacks);
+
 var _formsCreateUserForm = require('./forms/CreateUserForm');
 
 var _formsCreateUserForm2 = _interopRequireDefault(_formsCreateUserForm);
@@ -82,6 +86,7 @@ window.AdminPeople = {
   CreateUserForm: _formsCreateUserForm2['default'],
   CreateRoleOrGroupForm: _formsCreateRoleOrGroupForm2['default'],
   ParameterCreate: _editorParametersParameterCreate2['default'],
+  Callbacks: _boardCallbacks2['default'],
 
   Dashboard: _boardDashboard2['default'],
   RolesDashboard: _boardRolesDashboard2['default'],

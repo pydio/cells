@@ -170,6 +170,7 @@ export default class SettingsNodeProvider{
         }
         if(sectionNode.getPath().indexOf(USERS_ROOT) === 0){
             sectionNode.setLoaded(false);
+            sectionNode.getMetadata().set('ajxp_mime', 'group');
         }else{
             sectionNode.setLoaded(true);
         }

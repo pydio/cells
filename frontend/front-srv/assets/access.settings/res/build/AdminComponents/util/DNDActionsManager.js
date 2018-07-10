@@ -17,15 +17,29 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var DNDActionsManager = (function () {
     function DNDActionsManager() {
@@ -33,7 +47,7 @@ var DNDActionsManager = (function () {
     }
 
     _createClass(DNDActionsManager, null, [{
-        key: "canDropNodeOnNode",
+        key: 'canDropNodeOnNode',
 
         /**
          * Check if a source can be dropped on a target.
@@ -45,14 +59,14 @@ var DNDActionsManager = (function () {
         value: function canDropNodeOnNode(source, target) {
             var sourceMime = source.getAjxpMime();
             var targetMime = target.getAjxpMime();
-            if (sourceMime == "role" && source.getMetadata().get("role_id") == "PYDIO_GRP_/") {
+            if (sourceMime === "role" && source.getMetadata().get("role_id") === "PYDIO_GRP_/") {
                 throw new Error('Cannot drop this!');
             }
-            var result;
-            if (sourceMime == "role" && targetMime == "user_editable") {
+            var result = undefined;
+            if (sourceMime === "role" && targetMime === "user_editable") {
                 result = true;
             }
-            if (sourceMime == "user_editable" && (targetMime == "group" || targetMime == "users_zone")) {
+            if (sourceMime === "user_editable" && targetMime === "group") {
                 result = true;
             }
             if (!result) {
@@ -66,39 +80,31 @@ var DNDActionsManager = (function () {
          * @param target AjxpNode
          */
     }, {
-        key: "dropNodeOnNode",
+        key: 'dropNodeOnNode',
         value: function dropNodeOnNode(source, target) {
-            //global.alert('Dropped ' + source.getPath() + ' on ' + target.getPath());
             var sourceMime = source.getAjxpMime();
             var targetMime = target.getAjxpMime();
-            if (sourceMime == "user_editable" && (targetMime == "group" || targetMime == "users_zone")) {
-                if (PathUtils.getDirname(source.getPath()) == target.getPath()) {
-                    global.alert('Please drop user in a different group!');
+            if (sourceMime === "user_editable" && targetMime === "group") {
+                if (_pydioUtilPath2['default'].getDirname(source.getPath()) === target.getPath()) {
+                    alert('Please drop user in a different group!');
                     return;
                 }
                 // update_user_group
-
-                PydioApi.getClient().request({
-                    get_action: 'user_update_group',
-                    file: source.getPath().substr("/idm/users".length),
-                    group_path: targetMime == "users_zone" ? "/" : target.getPath().substr("/idm/users".length)
-                }, function () {
+                var idmUser = source.getMetadata().get('IdmUser');
+                var idmGroup = target.getMetadata().get('IdmUser');
+                if (!idmGroup && target.getPath() === '/idm/users') {
+                    idmUser.GroupPath = '/';
+                } else {
+                    idmUser.GroupPath = _pydioUtilLang2['default'].trimRight(idmGroup.GroupPath, '/') + '/' + idmGroup.GroupLabel;
+                }
+                _pydioHttpApi2['default'].getRestClient().getIdmApi().updateIdmUser(idmUser).then(function (res) {
                     if (source.getParent()) {
                         source.getParent().reload();
                     }
                     target.reload();
                 });
-            } else if (sourceMime == "role" && targetMime == "user_editable") {
-                PydioApi.getClient().request({
-                    get_action: 'edit',
-                    sub_action: 'user_add_role',
-                    user_id: PathUtils.getBasename(target.getPath()),
-                    role_id: PathUtils.getBasename(source.getPath())
-                }, function () {
-                    if (target.getParent()) {
-                        target.getParent().reload();
-                    }
-                });
+            } else if (sourceMime === "role" && targetMime === "user_editable") {
+                // TODO : Apply role to user
             }
         }
     }]);
@@ -106,5 +112,5 @@ var DNDActionsManager = (function () {
     return DNDActionsManager;
 })();
 
-exports["default"] = DNDActionsManager;
-module.exports = exports["default"];
+exports['default'] = DNDActionsManager;
+module.exports = exports['default'];
