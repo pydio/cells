@@ -20,7 +20,7 @@
 import React from 'react'
 import {Paper, IconButton, TextField, FlatButton} from 'material-ui'
 import Editor from '../editor/Editor'
-import XMLUtils from 'pydio/util/xml'
+import PydioApi from 'pydio/http/api'
 import PydioDataModel from 'pydio/model/data-model'
 import ResourcesManager from 'pydio/http/resources-manager'
 import Pydio from 'pydio'
@@ -31,40 +31,33 @@ let RolesDashboard = React.createClass({
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 
-    getInitialState: function(){
+    getInitialState(){
         return {
-            currentNode:this.props.currentNode,
-            dataModel:this.props.dataModel,
+            roles: [],
             loading: false
         };
     },
 
-    componentDidMount: function(){
-        this._setLoading = () => {
-            this.setState({loading: true}, () => {this.forceUpdate()});
-        };
-        this._stopLoading = () => {
-            this.setState({loading: false}, () => {this.forceUpdate()});
-        };
-        this.props.currentNode.observe('loaded', this._stopLoading);
-        this.props.currentNode.observe('loading', this._setLoading);
-        setTimeout(()=>{
-            this.props.currentNode.reload();
-        }, 100)
+    load(){
+        this.setState({loading: true});
+        PydioApi.getRestClient().getIdmApi().listRoles().then(roles => {
+            this.setState({roles: roles, loading: false});
+        }).catch(e => {
+            this.setState({loading: false});
+        });
     },
 
-    componentWillUnmount: function(){
-        this.props.currentNode.stopObserving('loaded', this._stopLoading);
-        this.props.currentNode.stopObserving('loading', this._setLoading);
+    componentDidMount(){
+        this.load();
     },
 
-    openTableRows: function(rows) {
+    openTableRows(rows) {
         if (rows.length) {
-            this.openRoleEditor(rows[0].node);
+            this.openRoleEditor(rows[0].role);
         }
     },
 
-    openRoleEditor: function(node, initialSection = 'activity'){
+    openRoleEditor(node, initialSection = 'activity'){
         const {advancedAcl, pydio} = this.props;
         if(this.refs.editor && this.refs.editor.isDirty()){
             if(!window.confirm(pydio.MessageHash["role_editor.19"])) {
@@ -87,7 +80,7 @@ let RolesDashboard = React.createClass({
 
     },
 
-    closeRoleEditor: function(){
+    closeRoleEditor(){
         if(this.refs.editor && this.refs.editor.isDirty()){
             if(!window.confirm(this.props.pydio.MessageHash["role_editor.19"])) {
                 return false;
@@ -98,7 +91,7 @@ let RolesDashboard = React.createClass({
     },
 
 
-    deleteAction: function(node){
+    deleteAction(node){
         const dm = new PydioDataModel();
         dm.setSelectedNodes([node]);
         ResourcesManager.loadClassesAndApply(['AdminActions'], () => {
@@ -106,36 +99,36 @@ let RolesDashboard = React.createClass({
         })
     },
 
-    createRoleAction: function(){
+    createRoleAction(){
         pydio.UI.openComponentInModal('AdminPeople','CreateRoleOrGroupForm', {type:'role', roleNode:this.state.currentNode, openRoleEditor:this.openRoleEditor.bind(this)});
     },
 
-    computeTableData: function(currentNode, searchRoleString){
+    computeTableData(searchRoleString){
+        const {roles} = this.state;
         let data = [];
-        currentNode.getChildren().forEach((child) => {
-            const label = child.getLabel();
+        roles.map((role) => {
+            const label = role.Label;
             if (searchRoleString && label.toLowerCase().indexOf(searchRoleString.toLowerCase()) === -1) {
                 return;
             }
             let roleSummary = '';
-            const role = JSON.parse(child.getMetadata().get('role'));
             if(role && role.ACL && Object.keys(role.ACL).length > 1){
                 roleSummary = this.context.getMessage('user.10').replace("%i", Object.keys(role.ACL).length - 1);
             }
             data.push({
-                node: child,
-                roleId: child.getMetadata().get('role_id'),
+                role: role,
+                roleId: role.Uuid,
                 roleLabel: label,
-                isDefault:child.getMetadata().get('is_default'),
+                isDefault: 'todo',
                 roleSummary: roleSummary
             });
         });
         return data;
     },
 
-    render: function(){
+    render(){
 
-        const {currentNode, dataModel, searchRoleString} = this.state;
+        const {searchRoleString} = this.state;
 
         const buttons = [
             <FlatButton primary={true} label={this.context.getMessage("user.6")} onClick={this.createRoleAction.bind(this)}/>,
@@ -158,7 +151,7 @@ let RolesDashboard = React.createClass({
                 return <IconButton key="delete" iconClassName="mdi mdi-delete" onTouchTap={() => {this.deleteAction(row.node)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />
             }}
         ];
-        const data = this.computeTableData(currentNode, searchRoleString);
+        const data = this.computeTableData(searchRoleString);
 
         return(
 
@@ -168,7 +161,7 @@ let RolesDashboard = React.createClass({
                     icon="mdi mdi-account-multiple"
                     actions={buttons}
                     centerContent={centerContent}
-                    reloadAction={()=>{currentNode.reload();}}
+                    reloadAction={()=>{this.load()}}
                     loading={this.state.loading}
                 />
                 <AdminComponents.SubHeader legend="Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."/>

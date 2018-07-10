@@ -27,6 +27,7 @@ import RestUserJobRequest from "./gen/model/RestUserJobRequest";
 import FrontendServiceApi from "./gen/api/FrontendServiceApi";
 import RestFrontSessionRequest from "./gen/model/RestFrontSessionRequest";
 import RestFrontSessionResponse from "./gen/model/RestFrontSessionResponse";
+import IdmApi from './IdmApi'
 
 // Override parseDate method to support ISO8601 cross-browser
 ApiClient.parseDate = function (str) {
@@ -226,6 +227,13 @@ class JwtApiClient extends ApiClient{
         request.JobName = name;
         request.JsonParameters = JSON.stringify(parameters);
         return api.userCreateJob(name, request);
+    }
+
+    /**
+     * @return {IdmApi}
+     */
+    getIdmApi(){
+        return new IdmApi(this);
     }
 
 }

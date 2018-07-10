@@ -19,7 +19,6 @@
  */
 
 import React from 'react'
-import PydioDataModel from 'pydio/model/data-model'
 import PydioApi from 'pydio/http/api'
 import {TextField} from 'material-ui'
 import PassUtils from 'pydio/util/pass'
@@ -38,14 +37,14 @@ const CreateUserForm = React.createClass({
         PydioReactUI.SubmitButtonProviderMixin
     ],
 
-    getDefaultProps: function(){
+    getDefaultProps(){
         return {
             dialogSize:'sm',
             dialogTitleId: 'ajxp_admin.user.19'
         }
     },
 
-    getInitialState: function(){
+    getInitialState(){
         const passState = PassUtils.getState();
         return {
             step:1,
@@ -53,26 +52,29 @@ const CreateUserForm = React.createClass({
         }
     },
 
-    checkPassword:function(){
+    checkPassword(){
         const value1 = this.refs.pass.getValue();
         const value2 = this.refs.passconf.getValue();
         this.setState(PassUtils.getState(value1, value2, this.state));
     },
 
-    submit: function(dialog){
+    submit(){
         if(!this.state.valid){
             this.props.pydio.UI.displayMessage('ERROR', this.state.passErrorText || this.state.confirmErrorText);
             return;
         }
-        var parameters = {};
-        var ctx = this.props.dataModel.getUniqueNode() || this.props.dataModel.getContextNode();
-        parameters['get_action'] = 'create_user';
-        parameters['new_user_login'] = this.refs.user_id.getValue();
-        parameters['new_user_pwd'] = this.refs.pass.getValue();
-        var currentPath = ctx.getPath();
+
+        const ctxNode = this.props.dataModel.getUniqueNode() || this.props.dataModel.getContextNode();
+        let currentPath = ctxNode.getPath();
         if(currentPath.startsWith("/idm/users")){
-            parameters['group_path'] = currentPath.substr("/idm/users".length);
+            currentPath = currentPath.substr("/idm/users".length);
         }
+
+        PydioApi.getRestClient().getIdmApi().createUser(currentPath, this.refs.user_id.getValue(), this.refs.pass.getValue()).then(() => {
+            this.dismiss();
+            ctxNode.reload();
+        });
+        /*
         PydioApi.getClient().request(parameters, function(transport){
             var xml = transport.responseXML;
             var message = XMLUtils.XPathSelectSingleNode(xml, "//reload_instruction");
@@ -88,12 +90,13 @@ const CreateUserForm = React.createClass({
             }
         }.bind(this));
         this.dismiss();
+        */
     },
 
-    render: function(){
-        var ctx = this.props.dataModel.getUniqueNode() || this.props.dataModel.getContextNode();
-        var currentPath = ctx.getPath();
-        var path;
+    render(){
+        const ctx = this.props.dataModel.getUniqueNode() || this.props.dataModel.getContextNode();
+        let currentPath = ctx.getPath();
+        let path;
         if(currentPath.startsWith("/idm/users")){
             path = currentPath.substr("/idm/users".length);
             if(path){

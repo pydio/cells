@@ -48,6 +48,14 @@ var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
+var _UsersSearchBox = require('./UsersSearchBox');
+
+var _UsersSearchBox2 = _interopRequireDefault(_UsersSearchBox);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
 var Dashboard = _react2['default'].createClass({
     displayName: 'Dashboard',
 
@@ -55,8 +63,8 @@ var Dashboard = _react2['default'].createClass({
 
     propTypes: {
         dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
+        rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
         openEditor: _react2['default'].PropTypes.func.isRequired
     },
 
@@ -79,9 +87,11 @@ var Dashboard = _react2['default'].createClass({
     },
 
     renderListUserAvatar: function renderListUserAvatar(node) {
-        if (node.getMetadata().get("avatar")) {
-            var avatar = node.getMetadata().get("avatar");
-            var imgSrc = pydio.Parameters.get("ajxpServerAccess") + "&get_action=get_binary_param&user_id=" + PathUtils.getBasename(node.getPath()) + "&binary_id=" + avatar;
+        var idmUser = node.getMetadata().get('IdmUser');
+        var pydio = this.props.pydio;
+
+        if (idmUser.Attributes && idmUser.Attributes['avatar']) {
+            var imgSrc = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/binaries/USER/' + idmUser.Login;
             return _react2['default'].createElement('div', { style: {
                     width: 33,
                     height: 33,
@@ -103,14 +113,16 @@ var Dashboard = _react2['default'].createClass({
             padding: 8,
             textAlign: 'center'
         };
-        var iconClass = node.getMetadata().get("icon_class") ? node.getMetadata().get("icon_class") : node.isLeaf() ? "icon-file-alt" : "icon-folder-close";
+        var iconClass = node.isLeaf() ? "mdi mdi-account" : "mdi mdi-folder";
         return _react2['default'].createElement(_materialUi.FontIcon, { className: iconClass, style: style });
     },
 
     renderListEntryFirstLine: function renderListEntryFirstLine(node) {
-        if (node.getMetadata().get("shared_user")) {
+        var idmUser = node.getMetadata().get('IdmUser');
+        var profile = idmUser.Attributes ? idmUser.Attributes['profile'] : '';
+        if (profile === 'shared') {
             return node.getLabel() + " [" + this.context.getMessage('user.13') + "]";
-        } else if (node.getMetadata().get("profile") === "admin") {
+        } else if (profile === "admin") {
             return _react2['default'].createElement(
                 'span',
                 null,
@@ -124,32 +136,35 @@ var Dashboard = _react2['default'].createClass({
     },
 
     renderListEntrySecondLine: function renderListEntrySecondLine(node) {
-        if (node.isLeaf()) {
-            if (node.getPath() === '/idm/users') {
+        return 'Todo';
+        /*
+        if(node.isLeaf()){
+            if(node.getPath() === '/idm/users'){
                 // This is the Root Group
                 return this.context.getMessage('user.8');
             }
-            var strings = [];
+            let strings = [];
             strings.push(node.getMetadata().get('object_id'));
-            var profile = node.getMetadata().get("profile");
-            if (profile && profile !== "standard") {
+            const profile = node.getMetadata().get("profile");
+            if(profile && profile !== "standard") {
                 strings.push("Profile " + profile);
             }
-            if (node.getMetadata().get("last_connection_readable")) {
-                strings.push(this.context.getMessage('user.9') + ' ' + node.getMetadata().get("last_connection_readable"));
+            if(node.getMetadata().get("last_connection_readable")){
+                strings.push( this.context.getMessage('user.9') + ' ' + node.getMetadata().get("last_connection_readable"));
             }
-            var roles = node.getMetadata().get('ajxp_roles');
-            if (roles && roles.split(',').length) {
+            const roles = node.getMetadata().get('ajxp_roles');
+            if(roles && roles.split(',').length){
                 strings.push(this.context.getMessage('user.11').replace("%i", roles.split(',').length));
             }
             return strings.join(" - ");
-        } else {
+        }else{
             return this.context.getMessage('user.12') + ': ' + node.getPath().replace('/idm/users', '');
         }
+        */
     },
 
     renderListEntrySelector: function renderListEntrySelector(node) {
-        if (node.getPath() == '/idm/users') {
+        if (node.getPath() === '/idm/users') {
             return false;
         }
         return node.isLeaf();
@@ -312,7 +327,7 @@ var Dashboard = _react2['default'].createClass({
             importButton = _react2['default'].createElement(_materialUi.IconButton, _extends({}, disabled, { iconClassName: 'mdi mdi-file-excel', primary: false, tooltipPosition: "bottom-left", tooltip: this.context.getMessage('171', 'settings'), disabled: true }));
         }
 
-        var searchBox = _react2['default'].createElement(PydioComponents.SearchBox, {
+        var searchBox = _react2['default'].createElement(_UsersSearchBox2['default'], {
             displayResults: this.displaySearchResults,
             displayResultsState: this.state.searchResultData,
             hideResults: this.hideSearchResults,

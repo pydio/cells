@@ -35,9 +35,9 @@ var _editorEditor = require('../editor/Editor');
 
 var _editorEditor2 = _interopRequireDefault(_editorEditor);
 
-var _pydioUtilXml = require('pydio/util/xml');
+var _pydioHttpApi = require('pydio/http/api');
 
-var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 var _pydioModelDataModel = require('pydio/model/data-model');
 
@@ -61,40 +61,29 @@ var RolesDashboard = _react2['default'].createClass({
 
     getInitialState: function getInitialState() {
         return {
-            currentNode: this.props.currentNode,
-            dataModel: this.props.dataModel,
+            roles: [],
             loading: false
         };
     },
 
-    componentDidMount: function componentDidMount() {
+    load: function load() {
         var _this = this;
 
-        this._setLoading = function () {
-            _this.setState({ loading: true }, function () {
-                _this.forceUpdate();
-            });
-        };
-        this._stopLoading = function () {
-            _this.setState({ loading: false }, function () {
-                _this.forceUpdate();
-            });
-        };
-        this.props.currentNode.observe('loaded', this._stopLoading);
-        this.props.currentNode.observe('loading', this._setLoading);
-        setTimeout(function () {
-            _this.props.currentNode.reload();
-        }, 100);
+        this.setState({ loading: true });
+        _pydioHttpApi2['default'].getRestClient().getIdmApi().listRoles().then(function (roles) {
+            _this.setState({ roles: roles, loading: false });
+        })['catch'](function (e) {
+            _this.setState({ loading: false });
+        });
     },
 
-    componentWillUnmount: function componentWillUnmount() {
-        this.props.currentNode.stopObserving('loaded', this._stopLoading);
-        this.props.currentNode.stopObserving('loading', this._setLoading);
+    componentDidMount: function componentDidMount() {
+        this.load();
     },
 
     openTableRows: function openTableRows(rows) {
         if (rows.length) {
-            this.openRoleEditor(rows[0].node);
+            this.openRoleEditor(rows[0].role);
         }
     },
 
@@ -146,25 +135,26 @@ var RolesDashboard = _react2['default'].createClass({
         pydio.UI.openComponentInModal('AdminPeople', 'CreateRoleOrGroupForm', { type: 'role', roleNode: this.state.currentNode, openRoleEditor: this.openRoleEditor.bind(this) });
     },
 
-    computeTableData: function computeTableData(currentNode, searchRoleString) {
+    computeTableData: function computeTableData(searchRoleString) {
         var _this2 = this;
 
+        var roles = this.state.roles;
+
         var data = [];
-        currentNode.getChildren().forEach(function (child) {
-            var label = child.getLabel();
+        roles.map(function (role) {
+            var label = role.Label;
             if (searchRoleString && label.toLowerCase().indexOf(searchRoleString.toLowerCase()) === -1) {
                 return;
             }
             var roleSummary = '';
-            var role = JSON.parse(child.getMetadata().get('role'));
             if (role && role.ACL && Object.keys(role.ACL).length > 1) {
                 roleSummary = _this2.context.getMessage('user.10').replace("%i", Object.keys(role.ACL).length - 1);
             }
             data.push({
-                node: child,
-                roleId: child.getMetadata().get('role_id'),
+                role: role,
+                roleId: role.Uuid,
                 roleLabel: label,
-                isDefault: child.getMetadata().get('is_default'),
+                isDefault: 'todo',
                 roleSummary: roleSummary
             });
         });
@@ -174,10 +164,7 @@ var RolesDashboard = _react2['default'].createClass({
     render: function render() {
         var _this3 = this;
 
-        var _state = this.state;
-        var currentNode = _state.currentNode;
-        var dataModel = _state.dataModel;
-        var searchRoleString = _state.searchRoleString;
+        var searchRoleString = this.state.searchRoleString;
 
         var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.6"), onClick: this.createRoleAction.bind(this) })];
 
@@ -199,7 +186,7 @@ var RolesDashboard = _react2['default'].createClass({
                         e.stopPropagation();
                     }, iconStyle: iconStyle });
             } }];
-        var data = this.computeTableData(currentNode, searchRoleString);
+        var data = this.computeTableData(searchRoleString);
 
         return _react2['default'].createElement(
             'div',
@@ -210,7 +197,7 @@ var RolesDashboard = _react2['default'].createClass({
                 actions: buttons,
                 centerContent: centerContent,
                 reloadAction: function () {
-                    currentNode.reload();
+                    _this3.load();
                 },
                 loading: this.state.loading
             }),

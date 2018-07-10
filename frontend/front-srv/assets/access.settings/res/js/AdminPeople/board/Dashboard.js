@@ -24,6 +24,8 @@ import Editor from '../editor/Editor'
 import PydioDataModel from 'pydio/model/data-model'
 import {muiThemeable} from 'material-ui/styles'
 import ResourcesManager from 'pydio/http/resources-manager'
+import UsersSearchBox from './UsersSearchBox'
+import AjxpNode from 'pydio/model/node'
 
 let Dashboard = React.createClass({
 
@@ -36,7 +38,7 @@ let Dashboard = React.createClass({
         openEditor:React.PropTypes.func.isRequired
     },
 
-    getInitialState: function(){
+    getInitialState(){
         return {
             searchResultData: false,
             currentNode:this.props.currentNode,
@@ -45,7 +47,7 @@ let Dashboard = React.createClass({
         };
     },
 
-    componentWillReceiveProps: function(newProps){
+    componentWillReceiveProps(newProps){
         if(!this.state.searchResultData){
             this.setState({
                 currentNode:newProps.currentNode,
@@ -54,10 +56,11 @@ let Dashboard = React.createClass({
         }
     },
 
-    renderListUserAvatar:function(node){
-        if(node.getMetadata().get("avatar")){
-            const avatar = node.getMetadata().get("avatar");
-            const imgSrc = pydio.Parameters.get("ajxpServerAccess") + "&get_action=get_binary_param&user_id="+ PathUtils.getBasename(node.getPath()) +"&binary_id=" + avatar;
+    renderListUserAvatar(node){
+        const idmUser = node.getMetadata().get('IdmUser');
+        const {pydio} = this.props;
+        if(idmUser.Attributes && idmUser.Attributes['avatar']){
+            const imgSrc = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/binaries/USER/' + idmUser.Login;
             return <div style={{
                 width:          33,
                 height:         33,
@@ -79,14 +82,16 @@ let Dashboard = React.createClass({
             padding:         8,
             textAlign:       'center'
         };
-        const iconClass = node.getMetadata().get("icon_class")? node.getMetadata().get("icon_class") : (node.isLeaf()?"icon-file-alt":"icon-folder-close");
+        const iconClass = node.isLeaf()?"mdi mdi-account":"mdi mdi-folder";
         return <FontIcon className={iconClass} style={style}/>;
     },
 
-    renderListEntryFirstLine:function(node){
-        if(node.getMetadata().get("shared_user")) {
+    renderListEntryFirstLine(node){
+        const idmUser = node.getMetadata().get('IdmUser');
+        const profile = idmUser.Attributes ? idmUser.Attributes['profile'] : '';
+        if(profile === 'shared') {
             return node.getLabel() + " ["+this.context.getMessage('user.13')+"]";
-        }else if(node.getMetadata().get("profile") === "admin"){
+        }else if(profile === "admin"){
             return (
                 <span>{node.getLabel()} <span className="icon-lock" style={{display:'inline-block',marginRight:5}}></span></span>
             );
@@ -95,7 +100,9 @@ let Dashboard = React.createClass({
         }
     },
 
-    renderListEntrySecondLine:function(node){
+    renderListEntrySecondLine(node){
+        return 'Todo';
+        /*
         if(node.isLeaf()){
             if(node.getPath() === '/idm/users'){
                 // This is the Root Group
@@ -118,16 +125,17 @@ let Dashboard = React.createClass({
         }else{
             return this.context.getMessage('user.12') + ': ' + node.getPath().replace('/idm/users', '');
         }
+        */
     },
 
-    renderListEntrySelector:function(node){
-        if(node.getPath() == '/idm/users') {
+    renderListEntrySelector(node){
+        if(node.getPath() === '/idm/users') {
             return false;
         }
         return node.isLeaf();
     },
 
-    displaySearchResults:function(searchTerm, searchDataModel){
+    displaySearchResults(searchTerm, searchDataModel){
         this.setState({
             searchResultTerm:searchTerm,
             searchResultData: {
@@ -139,7 +147,7 @@ let Dashboard = React.createClass({
         })
     },
 
-    hideSearchResults:function(){
+    hideSearchResults(){
         this.setState({
             searchResultData: false,
             currentNode:this.props.currentNode,
@@ -147,19 +155,19 @@ let Dashboard = React.createClass({
         });
     },
 
-    createUserAction: function(){
+    createUserAction(){
         pydio.UI.openComponentInModal('AdminPeople','CreateUserForm', {dataModel: this.props.dataModel, openRoleEditor:this.openRoleEditor.bind(this)});
     },
 
-    createGroupAction: function(){
+    createGroupAction(){
         pydio.UI.openComponentInModal('AdminPeople','CreateRoleOrGroupForm', {type:'group', openRoleEditor:this.openRoleEditor.bind(this)});
     },
 
-    openUsersImporter: function(){
+    openUsersImporter(){
         pydio.UI.openComponentInModal('EnterprisePeople','UsersImportDialog', {dataModel: this.props.dataModel});
     },
 
-    openRoleEditor:function(node, initialSection = 'activity'){
+    openRoleEditor(node, initialSection = 'activity'){
         const {advancedAcl, pydio} = this.props;
         if(this.refs.editor && this.refs.editor.isDirty()){
             if(!window.confirm(pydio.MessageHash["role_editor.19"])) {
@@ -181,7 +189,7 @@ let Dashboard = React.createClass({
 
     },
 
-    closeRoleEditor:function(){
+    closeRoleEditor(){
         if(this.refs.editor && this.refs.editor.isDirty()){
             if(!window.confirm(this.props.pydio.MessageHash["role_editor.19"])) {
                 return false;
@@ -190,7 +198,7 @@ let Dashboard = React.createClass({
         this.props.closeRightPane();
     },
 
-    deleteAction: function(node){
+    deleteAction(node){
         const dm = new PydioDataModel();
         dm.setSelectedNodes([node]);
         ResourcesManager.loadClassesAndApply(['AdminActions'], () => {
@@ -198,7 +206,7 @@ let Dashboard = React.createClass({
         })
     },
 
-    renderNodeActions: function(node){
+    renderNodeActions(node){
         const mime = node.getAjxpMime();
         const iconStyle = {
             color: 'rgba(0,0,0,0.43)',
@@ -221,7 +229,7 @@ let Dashboard = React.createClass({
         )
     },
 
-    filterNodes: function(node) {
+    filterNodes(node) {
         const profile = node.getMetadata().get("profile");
         const isAdmin = node.getMetadata().get("isAdmin") === "true";
         const {filterValue} = this.state;
@@ -237,7 +245,7 @@ let Dashboard = React.createClass({
         }
     },
 
-    render: function(){
+    render(){
 
         const fontIconStyle = {
             style : {
@@ -262,7 +270,7 @@ let Dashboard = React.createClass({
         }
 
         const searchBox = (
-            <PydioComponents.SearchBox
+            <UsersSearchBox
                 displayResults={this.displaySearchResults}
                 displayResultsState={this.state.searchResultData}
                 hideResults={this.hideSearchResults}

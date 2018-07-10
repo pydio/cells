@@ -20,22 +20,26 @@
 import React from 'react'
 import {IconButton, TextField} from 'material-ui'
 import debounce from 'lodash.debounce'
+import PydioApi from 'pydio/http/api'
+import PydioDataModel from 'pydio/model/data-model'
+import Node from 'pydio/model/node'
+import LangUtils from 'pydio/util/lang';
 
 /**
  * Search input building a set of query parameters and calling
  * the callbacks to display / hide results
  */
-class SearchBox extends React.Component{
+class UsersSearchBox extends React.Component{
 
     constructor(props){
         super(props);
         const dm = new PydioDataModel();
-        dm.setRootNode(new AjxpNode());
+        dm.setRootNode(new Node());
         this.state = {
             dataModel: dm,
             displayResult:props.displayResultsState,
         };
-        this.searchDebounced = debounce(this.triggerSearch, 500);
+        this.searchDebounced = debounce(this.triggerSearch, 350);
     }
 
     displayResultsState(){
@@ -59,17 +63,31 @@ class SearchBox extends React.Component{
             return;
         }
         const dm = this.state.dataModel;
-        let params = this.props.parameters;
-        params[this.props.queryParameterName] = value;
-        params['limit'] = this.props.limit || 100;
+        const limit = this.props.limit || 100;
         dm.getRootNode().setChildren([]);
-        PydioApi.getClient().request(params, function(transport){
-            let remoteNodeProvider = new RemoteNodeProvider({});
-            remoteNodeProvider.parseNodes(dm.getRootNode(), transport);
+        const p1 = PydioApi.getRestClient().getIdmApi().listGroups('/', value, true, 0, limit);
+        const p2 = PydioApi.getRestClient().getIdmApi().listUsers('/', value, true, 0, limit);
+        Promise.all([p1, p2]).then(result => {
+            const groups = result[0];
+            const users = result[1];
+            groups.map(group => {
+                const label = (group.Attributes && group.Attributes['displayName']) ? group.Attributes['displayName'] : group.GroupLabel;
+                const gNode = new Node('/idm/users' + LangUtils.trimRight(group.GroupPath, '/') + '/' + group.GroupLabel, false, label);
+                gNode.getMetadata().set('IdmUser', group);
+                gNode.getMetadata().set('ajxp_mime', 'group');
+                dm.getRootNode().addChild(gNode);
+            });
+            users.map(user => {
+                const label = (user.Attributes && user.Attributes['displayName']) ? user.Attributes['displayName'] : user.Login;
+                const uNode = new Node('/idm/users' + user.Login, true, label);
+                uNode.getMetadata().set('IdmUser', user);
+                uNode.getMetadata().set('ajxp_mime', 'user_editable');
+                dm.getRootNode().addChild(uNode)
+            });
             dm.getRootNode().setLoaded(true);
             this.displayResultsState();
             this.props.displayResults(value, dm);
-        }.bind(this));
+        });
     }
 
     keyDown(event){
@@ -100,7 +118,7 @@ class SearchBox extends React.Component{
 
 }
 
-SearchBox.PropTypes = {
+UsersSearchBox.PropTypes = {
     // Required
     parameters:React.PropTypes.object.isRequired,
     queryParameterName:React.PropTypes.string.isRequired,
@@ -113,5 +131,5 @@ SearchBox.PropTypes = {
     style:React.PropTypes.object
 };
 
-export {SearchBox as default}
+export {UsersSearchBox as default}
 

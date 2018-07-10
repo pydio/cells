@@ -29,7 +29,6 @@ import {TreeView, DNDTreeView, FoldersTree} from './views/TreeView'
 
 import LabelWithTip from './elements/LabelWithTip'
 import SimpleFigureBadge from './elements/SimpleFigureBadge'
-import SearchBox from './views/SearchBox'
 import ClipboardTextField from './elements/ClipboardTextField'
 import EmptyStateView from './views/EmptyStateView'
 import ModalAppBar from './views/ModalAppBar'
@@ -75,7 +74,6 @@ const PydioComponents = {
     LabelWithTip            : LabelWithTip,
     EmptyStateView          : EmptyStateView,
     SimpleFigureBadge       : SimpleFigureBadge,
-    SearchBox               : SearchBox,
     ModalAppBar             : ModalAppBar,
 
     ReactEditorOpener       : ReactEditorOpener,

@@ -32,10 +32,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _pydioModelDataModel = require('pydio/model/data-model');
-
-var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
-
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
@@ -50,7 +46,7 @@ var CreateUserForm = _react2['default'].createClass({
     displayName: 'CreateUserForm',
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']),
+        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel),
         openRoleEditor: _react2['default'].PropTypes.func
     },
 
@@ -76,41 +72,47 @@ var CreateUserForm = _react2['default'].createClass({
         this.setState(_pydioUtilPass2['default'].getState(value1, value2, this.state));
     },
 
-    submit: function submit(dialog) {
+    submit: function submit() {
+        var _this = this;
+
         if (!this.state.valid) {
             this.props.pydio.UI.displayMessage('ERROR', this.state.passErrorText || this.state.confirmErrorText);
             return;
         }
-        var parameters = {};
-        var ctx = this.props.dataModel.getUniqueNode() || this.props.dataModel.getContextNode();
-        parameters['get_action'] = 'create_user';
-        parameters['new_user_login'] = this.refs.user_id.getValue();
-        parameters['new_user_pwd'] = this.refs.pass.getValue();
-        var currentPath = ctx.getPath();
+
+        var ctxNode = this.props.dataModel.getUniqueNode() || this.props.dataModel.getContextNode();
+        var currentPath = ctxNode.getPath();
         if (currentPath.startsWith("/idm/users")) {
-            parameters['group_path'] = currentPath.substr("/idm/users".length);
+            currentPath = currentPath.substr("/idm/users".length);
         }
-        _pydioHttpApi2['default'].getClient().request(parameters, (function (transport) {
+
+        _pydioHttpApi2['default'].getRestClient().getIdmApi().createUser(currentPath, this.refs.user_id.getValue(), this.refs.pass.getValue()).then(function () {
+            _this.dismiss();
+            ctxNode.reload();
+        });
+        /*
+        PydioApi.getClient().request(parameters, function(transport){
             var xml = transport.responseXML;
             var message = XMLUtils.XPathSelectSingleNode(xml, "//reload_instruction");
-            if (message) {
-                var node = new AjxpNode(currentPath + "/" + parameters['new_user_login'], true);
+            if(message){
+                var node = new AjxpNode(currentPath + "/"+ parameters['new_user_login'], true);
                 node.getMetadata().set("ajxp_mime", "user");
                 this.props.openRoleEditor(node);
-                var currentNode = global.pydio.getContextNode();
-                if (global.pydio.getContextHolder().getSelectedNodes().length) {
+                let currentNode = global.pydio.getContextNode();
+                if(global.pydio.getContextHolder().getSelectedNodes().length){
                     currentNode = global.pydio.getContextHolder().getSelectedNodes()[0];
                 }
                 currentNode.reload();
             }
-        }).bind(this));
+        }.bind(this));
         this.dismiss();
+        */
     },
 
     render: function render() {
         var ctx = this.props.dataModel.getUniqueNode() || this.props.dataModel.getContextNode();
         var currentPath = ctx.getPath();
-        var path;
+        var path = undefined;
         if (currentPath.startsWith("/idm/users")) {
             path = currentPath.substr("/idm/users".length);
             if (path) {

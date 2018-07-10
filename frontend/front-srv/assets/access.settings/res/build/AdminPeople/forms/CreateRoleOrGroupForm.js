@@ -51,7 +51,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
     },
 
     getTitle: function getTitle() {
-        if (this.props.type == 'group') {
+        if (this.props.type === 'group') {
             return this.context.getMessage('ajxp_admin.user.15');
         } else {
             return this.context.getMessage('ajxp_admin.user.14');
@@ -71,11 +71,15 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
     },
 
     submit: function submit() {
-        var type = this.props.type;
+        var _this = this;
+
+        var _props = this.props;
+        var type = _props.type;
+        var pydio = _props.pydio;
 
         var parameters = undefined;
         var currentNode = undefined;
-        if (type == "group") {
+        if (type === "group") {
             var gId = this.refs.group_id.getValue();
             var gLabel = this.refs.group_label.getValue();
             if (!gId || !gLabel) {
@@ -86,22 +90,19 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
             } else {
                 currentNode = pydio.getContextNode();
             }
-            parameters = { get_action: 'create_group', dir: currentNode.getPath(), group_name: gId, group_label: gLabel };
-        } else if (type == "role") {
+            var currentPath = currentNode.getPath().replace('/idm/users', '');
+            _pydioHttpApi2['default'].getRestClient().getIdmApi().createGroup(currentPath || '/', gId, gLabel).then(function () {
+                _this.dismiss();
+                currentNode.reload();
+            });
+        } else if (type === "role") {
             currentNode = this.props.roleNode;
             parameters = { get_action: 'create_role', role_id: this.refs.role_id.getValue() };
         }
-
-        _pydioHttpApi2['default'].getClient().request(parameters, (function () {
-            this.dismiss();
-            if (currentNode) {
-                currentNode.reload();
-            }
-        }).bind(this));
     },
 
     render: function render() {
-        if (this.props.type == 'group') {
+        if (this.props.type === 'group') {
             return _react2['default'].createElement(
                 'div',
                 { style: { width: '100%' } },
@@ -120,7 +121,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
             return _react2['default'].createElement(
                 'div',
                 { style: { width: '100%' } },
-                _react2['default'].createElement(ReactMUI.TextField, {
+                _react2['default'].createElement(_materialUi.TextField, {
                     ref: 'role_id',
                     floatingLabelText: this.context.getMessage('ajxp_admin.user.18')
                 })

@@ -18,15 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import MetaCacheService from '../http/MetaCacheService'
 import PydioApi from '../http/PydioApi'
-import PathUtils from '../util/PathUtils'
-import XMLUtils from '../util/XMLUtils'
-import Logger from '../lang/Logger'
+import LangUtils from '../util/LangUtils'
 import AjxpNode from './AjxpNode'
-import MetaServiceApi from "../http/gen/api/MetaServiceApi";
-import RestGetBulkMetaRequest from "../http/gen/model/RestGetBulkMetaRequest";
 
+const USERS_ROOT = '/idm/users';
 
 /**
  * Implementation of the IAjxpNodeProvider interface based on a remote server access.
@@ -66,6 +62,38 @@ export default class SettingsNodeProvider{
      * @param optionalParameters
      */
     loadNode (node, nodeCallback=null, childCallback=null, recursive=false, depth=-1, optionalParameters=null){
+
+        if(node.getPath().indexOf(USERS_ROOT) === 0) {
+            const basePath = node.getPath().substring(USERS_ROOT.length);
+            PydioApi.getRestClient().getIdmApi().listUsersGroups(basePath, recursive).then(collection => {
+                let childrenNodes = [];
+                if(collection.Groups){
+                    collection.Groups.map(group => {
+                        const label = (group.Attributes && group.Attributes['displayName']) ? group.Attributes['displayName'] : group.GroupLabel;
+                        const gNode = new AjxpNode(USERS_ROOT + LangUtils.trimRight(group.GroupPath, '/') + '/' + group.GroupLabel, false, label);
+                        gNode.getMetadata().set('IdmUser', group);
+                        gNode.getMetadata().set('ajxp_mime', 'group');
+                        childrenNodes.push(gNode)
+                    })
+                }
+                if(collection.Users){
+                    collection.Users.map(user => {
+                        const label = (user.Attributes && user.Attributes['displayName']) ? user.Attributes['displayName'] : user.Login;
+                        const uNode = new AjxpNode(USERS_ROOT + user.Login, true, label);
+                        uNode.getMetadata().set('IdmUser', user);
+                        uNode.getMetadata().set('ajxp_mime', 'user_editable');
+                        childrenNodes.push(uNode)
+                    })
+                }
+                childrenNodes.map(child => {
+                    node.addChild(child);
+                });
+                if(nodeCallback !== null){
+                    nodeCallback(node);
+                }
+            });
+            return;
+        }
 
         const client = PydioApi.getRestClient();
         client.callApi('/frontend/settings-menu', 'GET', '',
@@ -127,7 +155,7 @@ export default class SettingsNodeProvider{
         if(pydio && pydio.MessageHash && pydio.MessageHash[label]){
             label = pydio.MessageHash[label];
         }
-        let sectionNode = new AjxpNode(parentPath + section.Key, false, label);
+        let sectionNode = new AjxpNode(parentPath + section.Key, false, label, '', new SettingsNodeProvider());
         if (section.METADATA) {
             for (let k in section.METADATA) {
                 if (section.METADATA.hasOwnProperty(k)) {
@@ -140,7 +168,11 @@ export default class SettingsNodeProvider{
                 sectionNode.addChild(SettingsNodeProvider.parseSection(parentPath + section.Key + '/', c, childCallback));
             });
         }
-        sectionNode.setLoaded(true);
+        if(sectionNode.getPath().indexOf(USERS_ROOT) === 0){
+            sectionNode.setLoaded(false);
+        }else{
+            sectionNode.setLoaded(true);
+        }
         return sectionNode
     }
 
