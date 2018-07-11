@@ -18,40 +18,92 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react');
-const LangUtils = require('pydio/util/lang');
-const PathUtils = require('pydio/util/path');
-const Repository = require('pydio/model/repository');
-const {FormPanel} = require('pydio').requireLib('form');
-const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} = require('pydio').requireLib('components');
-const {FlatButton, RaisedButton, Snackbar, IconMenu, IconButton, MenuItem} = require('material-ui');
 
-import EditorCache from './util/EditorCache'
-import UserPasswordDialog from './user/UserPasswordDialog'
+import Pydio from 'pydio'
+const {FormPanel} = Pydio.requireLib('form');
+const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} = Pydio.requireLib('components');
+
+import Role from './model/Role'
+import User from './model/User'
+
+
 import UserRolesPicker from './user/UserRolesPicker'
 import WorkspacesList from './panel/WorkspacesList'
 import SharesList from './panel/SharesList'
+import React from "react";
+import LangUtils from "pydio/util/lang";
+import PathUtils from "pydio/util/path";
+import Repository from "pydio/model/repository";
+import {requireLib} from "pydio";
+import {FlatButton, IconButton, IconMenu, MenuItem, RaisedButton, Snackbar} from "material-ui";
+
+import RoleInfo from './info/RoleInfo'
+import UserInfo from './info/UserInfo'
+import GroupInfo from './info/GroupInfo'
 
 class Editor extends React.Component{
 
     constructor(props, context){
         super(props, context);
-        this.state = this._nodeToState(props.node);
+        if(props.node){
+            this.state = this.nodeToState(props.node);
+        } else if(props.idmRole) {
+            this.state = {
+                idmRole : props.idmRole,
+                roleType: "role",
+                currentPane:'info'
+            };
+            this.loadRoleData(true);
+        }
+        const loader = AdminComponents.PluginsLoader.getInstance(this.props.pydio);
+        loader.loadPlugins().then(plugins => {
+            this.setState({pluginsRegistry: plugins});
+        })
     }
+
+    nodeToState(node){
+        const mime = node.getAjxpMime();
+        const scope = mime === "group" ? "group" : "user";
+        let observableUser;
+
+        const idmUser = node.getMetadata().get("IdmUser");
+        observableUser = new User(idmUser);
+        observableUser.observe('update', ()=>{this.forceUpdate();});
+        observableUser.load();
+
+        return {
+            observableUser,
+            roleLabel:PathUtils.getBasename(node.getPath()),
+            roleType:scope,
+            dirty:false,
+            currentPane:'info',
+
+            localModalContent:{},
+            loadingMessage:this.getMessage('home.6', 'ajxp_admin'),
+        };
+    }
+
+    loadRoleData(showLoader){
+        if(showLoader) {
+            this.setState({loadingMessage:this.getMessage('home.6', 'ajxp_admin')});
+        }
+        const {idmRole} = this.state;
+        const role = new Role(idmRole);
+        role.load().then(() => {
+            this.setState({loadingMessage:null, observableRole: role});
+            role.observe('update', () => {this.forceUpdate()});
+        });
+
+    }
+
 
     getChildContext() {
         const messages = this.context.pydio.MessageHash;
         return {
             messages: messages,
-            getMessage: function (messageId, namespace = 'pydio_role') {
-                return messages[namespace + (namespace ? "." : "") + messageId] || messageId;
-            },
-            getPydioRoleMessage: function (messageId) {
-                return messages['role_editor.' + messageId] || messageId;
-            },
-            getRootMessage: function (messageId) {
-                return messages[messageId] || messageId;
-            }
+            getMessage: (messageId, namespace = 'pydio_role') => messages[namespace + (namespace ? "." : "") + messageId] || messageId,
+            getPydioRoleMessage: messageId => messages['role_editor.' + messageId] || messageId,
+            getRootMessage: messageId => messages[messageId] || messageId
         };
     }
 
@@ -68,195 +120,30 @@ class Editor extends React.Component{
         return this.getChildContext().getMessage(messageId, '');
     }
 
-    _loadRoleData(showLoader){
-        if(showLoader) {
-            this.setState({loadingMessage:this.getMessage('home.6', 'ajxp_admin')});
-        }
-        PydioApi.getClient().request({
-            get_action:"edit",
-            sub_action:"edit_role",
-            role_id: this.state.roleId,
-            format:'json'
-        }, function(transport){
-            //if(!this.isMounted()) return;
-            this._loadPluginsDataToCache(function(){
-                this.setState({loadingMessage:null});
-                this._parseRoleResponse(transport.responseJSON);
-            }.bind(this));
-        }.bind(this));
-    }
-
-    _parsePluginsDataForCache(response){
-        let map = new Map();
-        for(let pluginName in response.LIST){
-            if(!response.LIST.hasOwnProperty(pluginName)) continue;
-            var pData = response.LIST[pluginName];
-            var submap = new Map();
-            for(var key in pData){
-                if(!pData.hasOwnProperty(key)) continue;
-                var entry = pData[key];
-                if(entry['action']) submap.set(entry['action'], {label:entry['label']});
-                else if(entry['parameter']) submap.set(entry['parameter'], entry['attributes']);
-            }
-            map.set(pluginName, submap);
-        }
-        return map;
-    }
-
-    _loadPluginsDataToCache(callback){
-        if(EditorCache.CACHE){
-            callback();
-        }else{
-            const client = PydioApi.getClient();
-            EditorCache.CACHE = {};
-            this.setState({loadingMessage:this.getMessage('22')});
-            client.request({get_action:'list_all_plugins_actions'}, function(transport1){
-                EditorCache.CACHE['ACTIONS'] = this._parsePluginsDataForCache(transport1.responseJSON);
-                this.setState({loadingMessage:this.getMessage('23')});
-                client.request({get_action:'list_all_plugins_parameters'}, function(transport2){
-                    EditorCache.CACHE['PARAMETERS'] = this._parsePluginsDataForCache(transport2.responseJSON);
-                    callback();
-                }.bind(this));
-            }.bind(this));
-            global.pydio.observe("admin_clear_plugins_cache", function(){
-                EditorCache.CACHE = null;
-            });
-        }
-    }
-
-    _scopeParamsToScope(roleData, roleRead){
-        var SCOPE = {};
-        for (var key in roleData.SCOPE_PARAMS){
-            if(!roleData.SCOPE_PARAMS.hasOwnProperty(key)) continue;
-            var param = roleData.SCOPE_PARAMS[key];
-            var nameParts = param.name.split('/');
-            var repoScope = nameParts[0];
-            var pluginName = nameParts[1];
-            var paramName = nameParts[2];
-            if(!SCOPE[repoScope]) SCOPE[repoScope] = {};
-            if(!SCOPE[repoScope][pluginName]) SCOPE[repoScope][pluginName] = {};
-            var value;
-            if(roleRead['PARAMETERS'][repoScope] && roleRead['PARAMETERS'][repoScope][pluginName]
-                && roleRead['PARAMETERS'][repoScope][pluginName][paramName] !== undefined
-            ){
-                value = roleRead['PARAMETERS'][repoScope][pluginName][paramName];
-            }else{
-                value = param.default!==undefined?param.default:'';
-                if(param.type == 'boolean') value = (value == "true" || value === true);
-                else if(param.type == 'integer') value = parseInt(value);
-            }
-            SCOPE[repoScope][pluginName][paramName] = value;
-        }
-        return {ACL:{},ACTIONS:{},PARAMETERS:SCOPE};
-    }
-
-    _parseRoleResponse(roleData){
-
-        LangUtils.forceJSONArrayToObject(roleData.ROLE, "ACL");
-        LangUtils.forceJSONArrayToObject(roleData.ROLE, "ACTIONS");
-        LangUtils.forceJSONArrayToObject(roleData.ROLE, "PARAMETERS");
-
-        var roleWrite = LangUtils.deepCopy(roleData.ROLE);
-        var roleParent = {};
-        if(roleData.PARENT_ROLE){
-            roleParent = roleData.PARENT_ROLE;
-            LangUtils.forceJSONArrayToObject(roleParent, "ACL");
-            LangUtils.forceJSONArrayToObject(roleParent, "ACTIONS");
-            LangUtils.forceJSONArrayToObject(roleParent, "PARAMETERS");
-        }
-        var roleRead = this._recomputeRoleRead(roleParent, roleWrite);
-        roleData.SCOPE = this._scopeParamsToScope(roleData, roleRead);
-        this.setState({
-            roleData:roleData,
-            roleScope:roleData.SCOPE,
-            roleParent:roleParent,
-            roleWrite:roleWrite,
-            roleRead:roleRead,
-            dirty:false
-        });
-    }
-
-    _recomputeRoleRead(roleParent, roleMain, skipSetState=true){
-        var roleRead = roleMain;
-        if(roleParent) {
-            roleRead = LangUtils.mergeObjectsRecursive(roleParent, roleMain);
-        }
-        if(!skipSetState){
-            this.setState({roleRead:roleRead});
-        }
-        return roleRead;
-    }
-
-    _nodeToState(node){
-        const mime = node.getAjxpMime();
-        let scope = mime;
-        let roleId;
-        if(mime == "role"){
-            roleId = node.getMetadata().get("role_id");
-        }else if(mime == "group"){
-            roleId = "PYDIO_GRP_" + node.getPath().replace("/idm/users", "");
-        }else if(mime == "user" || mime == "user_editable"){
-            roleId = "PYDIO_USR_/" + PathUtils.getBasename(node.getPath());
-            scope = "user";
-        }
-        return {
-            roleId:roleId,
-            roleLabel:PathUtils.getBasename(node.getPath()),
-            roleType:scope,
-            dirty:false,
-            roleData:{},
-            roleParent:{},
-            roleWrite:{},
-            roleRead:{},
-            roleScope:{},
-            localModalContent:{},
-            currentPane:'info',
-            loadingMessage:this.getMessage('home.6', 'ajxp_admin'),
-            Controller:this.getController()
-        };
-    }
-
-    _toggleUserLock(userId, currentLock, buttonAction){
-        var reqParams = {
-            get_action:"edit",
-            sub_action:"user_set_lock",
-            user_id : userId
-        };
-        if(buttonAction == "user_set_lock-lock"){
-            reqParams["lock"] = (currentLock.indexOf("logout") > -1 ? "false" : "true");
-            reqParams["lock_type"] = "logout";
-        }else{
-            reqParams["lock"] = (currentLock.indexOf("pass_change") > -1 ? "false" : "true");
-            reqParams["lock_type"] = "pass_change";
-        }
-        PydioApi.getClient().request(reqParams, function(transport){
-            this._loadRoleData();
-        }.bind(this));
-
-    }
-
     setSelectedPane(key){
         this.setState({currentPane:key});
     }
 
     componentWillReceiveProps(newProps){
+        /*
         var oldN = this.props.node ? this.props.node.getPath() : 'EMPTY';
         var newN = newProps.node ? newProps.node.getPath(): 'EMPTY';
         if(newN != oldN){
-            this.setState(this._nodeToState(newProps.node), function(){
-                this._loadRoleData(true);
+            this.setState(this.nodeToState(newProps.node), function(){
+                this.loadRoleData(true);
             }.bind(this));
         }
+        */
     }
 
     componentDidMount(){
-        this._loadRoleData(true);
+        this.loadRoleData(true);
         if(this.props.registerCloseCallback){
-            this.props.registerCloseCallback(function(){
+            this.props.registerCloseCallback(()=>{
                 if(this.state && this.state.dirty && !global.confirm(this.getPydioRoleMessage('19'))){
                     return false;
                 }
-            }.bind(this));
+            });
         }
     }
 
@@ -268,51 +155,7 @@ class Editor extends React.Component{
         this.setState({modal:null});
     }
 
-    updateRoleWrite(roleWrite, dirty=true){
-        const roleRead = this._recomputeRoleRead(this.state.roleParent, roleWrite);
-        this.setState({
-            dirty:dirty,
-            roleWrite:roleWrite,
-            roleRead:roleRead,
-            roleScope:this._scopeParamsToScope(this.state.roleData, roleRead)
-        });
-    }
 
-    resetRoleChanges(){
-        this.updateRoleWrite(LangUtils.deepCopy(this.state.roleData.ROLE), false);
-    }
-
-    saveRoleChanges(reload=false){
-
-        let jsonData = {
-            ROLE:this.state.roleWrite,
-            METADATA:this.state.parametersMetaData || {}
-        };
-        if(this.state.roleWrite.USER){
-            jsonData["USER"] = this.state.roleWrite.USER;
-        }else if(this.state.roleWrite.GROUP && this.state.roleWrite.GROUP.LABEL){
-            jsonData["GROUP_LABEL"] = this.state.roleWrite.GROUP.LABEL;
-        }else if(this.state.roleWrite.LABEL){
-            jsonData["ROLE_LABEL"] = this.state.roleWrite.LABEL;
-        }
-
-        PydioApi.getClient().request({
-            get_action:'edit',
-            sub_action:'post_json_role',
-            role_id:this.state.roleId,
-            json_data:JSON.stringify(jsonData)
-        }, function(transport){
-            this.logAction(this.getPydioRoleMessage('20'));
-            if(reload){
-                this._loadRoleData();
-            }else{
-                this.setState({dirty:false});
-            }
-            if(this.props.node.getParent()){
-                this.props.node.getParent().reload();
-            }
-        }.bind(this));
-    }
 
     logAction(message){
         this.setState({snackbar:message, snackOpen:true});
@@ -398,7 +241,7 @@ class Editor extends React.Component{
             user_id:currentUserId,
             roles:JSON.stringify(roles)
         }, function(transport){
-            this._loadRoleData();
+            this.loadRoleData();
         }.bind(this));
     }
 
@@ -432,12 +275,13 @@ class Editor extends React.Component{
             sub_action:"users_bulk_update_roles",
             json_data:JSON.stringify(jsonData)
         }, function(transport){
-            this._loadRoleData();
+            this.loadRoleData();
         }.bind(this));
 
     }
 
     controllerGetBinaryContext(){
+        /*
         if(this.state.roleType == "user"){
             return "user_id="+this.state.roleId.replace("PYDIO_USR_/", "");
         }else if(this.state.roleType == "group"){
@@ -445,233 +289,81 @@ class Editor extends React.Component{
         }else{
             return "role_id="+this.state.roleId;
         }
+        */
+        return "";
     }
 
     getController(){
-        let controller = {};
-        controller.updateParameter = this.controllerUpdateParameter.bind(this);
-        controller.updateAcl = this.controllerUpdateAcl.bind(this);
-        controller.updateMask = this.controllerUpdateMask.bind(this);
-        controller.updateUserProfile = this.controllerUpdateUserProfile.bind(this);
-        controller.updateUserRoles = this.controllerUpdateUserRoles.bind(this);
-        controller.orderUserRoles = this.controllerOrderUserRoles.bind(this);
-        controller.getBinaryContext = this.controllerGetBinaryContext.bind(this);
-        return controller;
+        if(!this._controller){
+            const controller = {};
+            controller.updateParameter = this.controllerUpdateParameter.bind(this);
+            controller.updateAcl = this.controllerUpdateAcl.bind(this);
+            controller.updateMask = this.controllerUpdateMask.bind(this);
+            controller.updateUserProfile = this.controllerUpdateUserProfile.bind(this);
+            controller.updateUserRoles = this.controllerUpdateUserRoles.bind(this);
+            controller.orderUserRoles = this.controllerOrderUserRoles.bind(this);
+            controller.getBinaryContext = this.controllerGetBinaryContext.bind(this);
+            this._controller = controller;
+        }
+        return this._controller;
     }
 
     render(){
-        const {advancedAcl} = this.props;
+        const {advancedAcl, pydio} = this.props;
+        const {observableRole, observableUser, pluginsRegistry, currentPane, modal} = this.state;
 
-        const filterPages = function(wsId, role){
-            return Repository.isInternal(wsId);
-        };
-        const filterNoPages = function(wsId, role){
-            return !Repository.isInternal(wsId) && wsId !== "pydiogateway";
-        };
+        const filterPages = (wsId, role) => Repository.isInternal(wsId);
+        const filterNoPages = (wsId, role) => !Repository.isInternal(wsId) && wsId !== "pydiogateway";
 
-        var title = PathUtils.getBasename(this.props.node.getPath());
-        var infoTitle = "";
-        var infoMenuTitle = this.getMessage('24'); // user information
-        var testTitle;
-        var defs, values, otherForm, changeListener;
-        if(this.state.roleType === 'user' && this.state.roleData && this.state.roleData.ALL) {
+        let title = 'TITLE';
+        let infoTitle = "";
+        let infoMenuTitle = this.getMessage('24'); // user information
+        let otherForm;
 
-            try {
-                testTitle = this.state.roleRead['PARAMETERS']['PYDIO_REPO_SCOPE_ALL']['core.conf']['displayName'];
-                if(testTitle) {
-                    title = testTitle;
-                }
-            } catch (e) {}
-            const userId = PathUtils.getBasename(this.props.node.getPath());
-            const locked = this.state.roleData.USER.LOCK || "";
-            const buttonCallback = (action) => {
-                if(action === "update_user_pwd"){
-                    this.props.pydio.UI.openComponentInModal('AdminPeople', 'UserPasswordDialog', {userId: userId});
-                }else{
-                    this._toggleUserLock(userId, locked, action);
-                }
-            };
+        if(this.state.roleType === 'user') {
 
-            otherForm = (
-                <div>
-                    <h3 className={"paper-right-title"} style={{display:'flex', alignItems: 'center'}}>
-                        <div style={{flex:1}}>
-                            {this.getMessage('24')}
-                            <div className={"section-legend"}>{this.getMessage('54')}</div>
-                        </div>
-                        <IconMenu
-                            iconButtonElement={<IconButton iconClassName={"mdi mdi-dots-vertical"}/>}
-                            anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-                            targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                            tooltip={"Actions"}
-                        >
-                            <MenuItem primaryText={this.getPydioRoleMessage('25')} onTouchTap={() => buttonCallback('update_user_pwd')}/>
-                            <MenuItem primaryText={this.getPydioRoleMessage((locked.indexOf('logout') > -1?'27':'26'))} onTouchTap={() => buttonCallback('user_set_lock-lock')}/>
-                            <MenuItem primaryText={this.getPydioRoleMessage((locked.indexOf('pass_change') > -1?'28b':'28'))} onTouchTap={() => buttonCallback('user_set_lock-pass_change')}/>
-                        </IconMenu>
-                    </h3>
-                </div>
-            );
+            title = observableUser.getIdmUser().Login;
+            otherForm = <UserInfo user={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
 
         }else if(this.state.roleType === 'group'){
 
-            // GROUP MAIN INFO
             infoTitle = this.getMessage('26'); // group information
             infoMenuTitle = this.getMessage('27');
-            try {
-                testTitle = (this.state.roleWrite.GROUP &&this.state.roleWrite.GROUP.LABEL ) ? this.state.roleWrite.GROUP.LABEL : this.state.roleData.GROUP.LABEL;
-                if(testTitle) title = testTitle;
-            } catch (e) {}
-
-            if(this.state.roleData.GROUP){
-                defs = [
-                    {"name":"groupPath",label:this.getPydioRoleMessage('34'),"type":"string", readonly:true},
-                    {"name":"groupLabel",label:this.getPydioRoleMessage('35'),"type":"string", }
-                ];
-                let label = (this.state.roleWrite.GROUP &&this.state.roleWrite.GROUP.LABEL ) ? this.state.roleWrite.GROUP.LABEL : this.state.roleData.GROUP.LABEL;
-                values = {
-                    groupPath :this.state.roleData.GROUP.PATH || "/",
-                    groupLabel:label
-                };
-                changeListener = function(paramName, newValue, oldValue){
-                    if(!this.state.roleWrite.GROUP) this.state.roleWrite.GROUP = {};
-                    this.state.roleWrite.GROUP.LABEL = newValue;
-                    this.updateRoleWrite(this.state.roleWrite);
-                }.bind(this);
-                otherForm = (
-                    <FormPanel
-                        key="form"
-                        parameters={defs}
-                        onParameterChange={changeListener}
-                        values={values}
-                        depth={-2}
-                    />
-                );
-            }
+            title = observableUser.getIdmUser().GroupLabel;
+            otherForm = <GroupInfo group={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
 
         }else if(this.state.roleType === 'role'){
 
-            // ROLE MAIN INFO
             infoTitle = this.getMessage('28'); // role information
             infoMenuTitle = this.getMessage('29');
-            try {
-                testTitle = this.state.roleRead.LABEL;
-                if(testTitle) title = testTitle;
-            } catch (e) {}
-
-            if(this.state.roleData.ALL){
-                defs = [
-                    {"name":"roleId", label:this.getPydioRoleMessage('31'),"type":"string", readonly:true},
-                    {"name":"roleLabel", label:this.getPydioRoleMessage('32'),"type":"string"},
-                    {"name":"applies", label:this.getPydioRoleMessage('33'),"type":"select", multiple:true, choices:this.state.roleData.ALL.PROFILES.join(",")}
-                ];
-                values = {
-                    roleId:this.state.roleId,
-                    applies:LangUtils.objectValues(this.state.roleRead.APPLIES),
-                    roleLabel:this.state.roleRead.LABEL,
-                };
-                changeListener = function(paramName, newValue, oldValue){
-                    if(paramName === "applies") {
-                        this.state.roleWrite.APPLIES = newValue.split(',');
-                    } else if(paramName === "roleLabel"){
-                        this.state.roleWrite.LABEL = newValue;
-                    }
-                    this.updateRoleWrite(this.state.roleWrite);
-                }.bind(this);
-                otherForm = (
-                    <FormPanel
-                        key="form"
-                        parameters={defs}
-                        onParameterChange={changeListener}
-                        values={values}
-                        depth={-2}
-                    />
-                );
-            }
-        }
-
-        var crtPane = this.state.currentPane;
-        var rolesPane, rolesPaneMenu;
-        var shares, sharesMenu;
-        if(this.state.roleType === 'user'){
-            var filterUserId = PathUtils.getBasename(this.props.node.getPath());
-
-
-            // PROFILES & ROLES PANE - SHARE PANE
-            rolesPaneMenu = <PydioComponents.PaperEditorNavEntry key="roles" keyName="roles" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('30')} selectedKey={this.state.currentPane}/>;
-            sharesMenu = <PydioComponents.PaperEditorNavEntry key="shares" keyName="shares" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('49')} selectedKey={this.state.currentPane}/>;
-            if(this.state.roleData && this.state.roleData.ALL){
-
-                defs = [
-                    {name:"login", label:this.getPydioRoleMessage('21'),description:this.getMessage('31'),"type":"string", readonly:true},
-                    {name:"profile", label:this.getPydioRoleMessage('22'), description:this.getMessage('32'),"type":"select", choices:this.state.roleData.ALL.PROFILES.join(",")}
-                ];
-                values = {
-                    login:filterUserId,
-                    profile:this.state.roleData.USER.PROFILE
-                };
-                changeListener = function(paramName, newValue, oldValue){
-                    const controller = this.state.Controller;
-                    if(paramName === "profile") {
-                        controller.updateUserProfile(newValue);
-                    }
-                }.bind(this);
-
-                rolesPane = (
-                    <div>
-                        <h3 className="paper-right-title">{this.getMessage('30')}<div className={"section-legend"}>{this.getMessage('55')}</div></h3>
-                        <FormPanel
-                            key="form"
-                            parameters={defs}
-                            onParameterChange={changeListener}
-                            values={values}
-                            depth={-2}
-                        />
-                        <UserRolesPicker
-                            availableRoles={this.state.roleData.ALL.ROLES}
-                            rolesDetails={this.state.roleData.ALL.ROLES_DETAILS}
-                            currentRoles={this.state.roleData.USER.ROLES}
-                            currentRolesDetails={this.state.roleData.USER.ROLES_DETAILS}
-                            controller={this.state.Controller}
-                            loadingMessage={this.state.loadingMessage}
-                        />
-                    </div>
-                );
-
-                if(this.state.currentPane === 'shares'){
-                    const {node, pydio} = this.props;
-                    shares = (
-                        <SharesList
-                            pydio={pydio}
-                            userId={filterUserId}
-                            userData={this.state.roleData.USER}
-                        />
-                    );
-                }else{
-                    shares = <div></div>;
-                }
-
-            }
+            otherForm = <RoleInfo role={observableRole} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
 
         }
 
-        var changes = !this.state.dirty;
-        var save = function(){
-            this.saveRoleChanges();
-        }.bind(this);
-        const close = () => { this.props.onRequestTabClose(); };
-        var rightButtons = (
+        let saveDisabled = true;
+        let save = ()=>{}, revert= ()=>{};
+        if(observableUser) {
+            saveDisabled = !observableUser.isDirty();
+            save = () => {observableUser.save()};
+            revert = () => {observableUser.revert()};
+        } else if(observableRole){
+            saveDisabled = !observableRole.isDirty();
+            save = () => {observableRole.save()};
+            revert = () => {observableRole.revert()};
+        }
+
+
+        const rightButtons = (
             <div>
-                <FlatButton key="undo" disabled={changes} secondary={true} label={this.getMessage('plugins.6', 'ajxp_admin')} onTouchTap={this.resetRoleChanges.bind(this)}/>
-                <FlatButton key="save" disabled={changes} secondary={true} label={this.getRootMessage('53')} onTouchTap={save}/>
-                <RaisedButton key="close" label={this.getMessage('33')} onTouchTap={close}/>
+                <FlatButton key="undo" disabled={saveDisabled} secondary={true} label={this.getMessage('plugins.6', 'ajxp_admin')} onTouchTap={revert}/>
+                <FlatButton key="save" disabled={saveDisabled} secondary={true} label={this.getRootMessage('53')} onTouchTap={save}/>
+                <RaisedButton key="close" label={this.getMessage('33')} onTouchTap={() => { this.props.onRequestTabClose(); }}/>
             </div>
         );
 
-        var leftNav = [
+        const leftNav = [
             <PaperEditorNavHeader key="1" label={this.getMessage('ws.28', 'ajxp_admin')}/>,
             <PaperEditorNavEntry key="info" keyName="info" onClick={this.setSelectedPane.bind(this)} label={infoMenuTitle} selectedKey={this.state.currentPane}/>,
-            rolesPaneMenu, sharesMenu,
             <PaperEditorNavHeader key="2" label={this.getMessage('34')}/>,
             <PaperEditorNavEntry key="workspaces" keyName="workspaces" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('35')} selectedKey={this.state.currentPane}/>,
             <PaperEditorNavEntry key="pages" keyName="pages" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('36')} selectedKey={this.state.currentPane}/>,
@@ -681,19 +373,9 @@ class Editor extends React.Component{
             <PaperEditorNavEntry key="ws-params" keyName="ws-params" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('40')} selectedKey={this.state.currentPane}/>
         ];
 
-        var panes = [];
-        var classFor = function(key){return crtPane === key ? 'layout-fill' : ''};
-        var styleFor = function(key){return crtPane === key ? {overflow:'auto'}:{height:0,overflow:'hidden'}};
-        if(rolesPane){
-            panes.push(
-                <div key="roles" className={classFor('roles')} style={styleFor('roles')}>{rolesPane}</div>
-            )
-        }
-        if(shares){
-            panes.push(
-                <div key="shares" className={classFor('shares')} style={styleFor('shares')}>{shares}</div>
-            );
-        }
+        let panes = [];
+        const classFor = key => currentPane === key ? 'layout-fill' : '';
+        const styleFor = key => currentPane === key ? {overflow: 'auto'} : {height: 0, overflow: 'hidden'};
         panes.push(
             <div key="info" className={'avatar-provider ' + classFor('info')} style={styleFor('info')}>
                 {infoTitle && !this.state.loadingMessage ? <h3 className="paper-right-title">{infoTitle}</h3> : null}
@@ -703,10 +385,10 @@ class Editor extends React.Component{
                     roleRead={this.state.roleScope}
                     roleParent={this.state.roleParent}
                     roleType={this.state.roleType}
-                    Controller={this.state.Controller}
+                    Controller={this.getController()}
                     showModal={this.showModal.bind(this)}
                     hideModal={this.hideModal.bind(this)}
-                    globalData={this.state.roleData.ALL}
+                    globalData={{}}
                     showGlobalScopes={{PYDIO_REPO_SCOPE_ALL:this.getPydioRoleMessage('12d')}}
                     globalScopesFilterType="global"
                     initialEditCard="PYDIO_REPO_SCOPE_ALL"
@@ -716,6 +398,9 @@ class Editor extends React.Component{
                 />
             </div>
         );
+        /*
+
+
         panes.push(
             <div key="add-info" className={classFor('add-info')} style={styleFor('add-info')}>
                 <h3 className="paper-right-title">{this.getMessage('41')}
@@ -815,10 +500,9 @@ class Editor extends React.Component{
             </div>
         );
 
+        */
 
-
-        var modal = this.state.modal || null;
-        var loadingMessage = null;
+        let loadingMessage = null;
         if(this.state.loadingMessage){
             loadingMessage = (
                 <div className="loader-container layout-fill vertical-layout">

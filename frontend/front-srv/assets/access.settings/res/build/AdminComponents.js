@@ -18335,7 +18335,7 @@ exports['default'] = GraphBadge;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../graph/RemoteGraphLine":40,"../util/ReloadWrapper":47,"material-ui":"material-ui","pydio":"pydio","react":"react"}],30:[function(require,module,exports){
+},{"../graph/RemoteGraphLine":40,"../util/ReloadWrapper":48,"material-ui":"material-ui","pydio":"pydio","react":"react"}],30:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -18511,7 +18511,7 @@ exports['default'] = GraphCard;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../graph/GraphPaginator":39,"../graph/RemoteGraphLine":40,"../util/ReloadWrapper":47,"material-ui":"material-ui","pydio":"pydio","react":"react"}],31:[function(require,module,exports){
+},{"../graph/GraphPaginator":39,"../graph/RemoteGraphLine":40,"../util/ReloadWrapper":48,"material-ui":"material-ui","pydio":"pydio","react":"react"}],31:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19073,7 +19073,7 @@ exports['default'] = RecentLogs;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/ReloadWrapper":47,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],34:[function(require,module,exports){
+},{"../util/ReloadWrapper":48,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],34:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19303,7 +19303,7 @@ exports['default'] = ServerStatus;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/ReloadWrapper":47,"material-ui":"material-ui","pydio":"pydio","react":"react","react-chartjs":"react-chartjs"}],35:[function(require,module,exports){
+},{"../util/ReloadWrapper":48,"material-ui":"material-ui","pydio":"pydio","react":"react","react-chartjs":"react-chartjs"}],35:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19447,7 +19447,7 @@ exports['default'] = ServicesStatus;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/ReloadWrapper":47,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],36:[function(require,module,exports){
+},{"../util/ReloadWrapper":48,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],36:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -20344,6 +20344,10 @@ var _utilCodeMirrorField = require('./util/CodeMirrorField');
 
 var _utilCodeMirrorField2 = _interopRequireDefault(_utilCodeMirrorField);
 
+var _utilPluginsLoader = require('./util/PluginsLoader');
+
+var _utilPluginsLoader2 = _interopRequireDefault(_utilPluginsLoader);
+
 var _cardsGraphBadge = require('./cards/GraphBadge');
 
 var _cardsGraphBadge2 = _interopRequireDefault(_cardsGraphBadge);
@@ -20386,6 +20390,7 @@ window.AdminComponents = {
     NavigationHelper: _utilNavigationHelper2['default'],
     MenuItemListener: _utilMenuItemListener2['default'],
     DNDActionsManager: _utilDNDActionsManager2['default'],
+    PluginsLoader: _utilPluginsLoader2['default'],
 
     AdminDashboard: _boardAdminDashboard2['default'],
     SimpleDashboard: _boardSimpleDashboard2['default'],
@@ -20406,7 +20411,7 @@ window.AdminComponents = {
     WelcomePanel: _cardsWelcomePanel2['default']
 };
 
-},{"./board/AdminDashboard":21,"./board/GroupAdminDashboard":24,"./board/Header":25,"./board/SimpleDashboard":26,"./board/SubHeader":27,"./board/TabBoard":28,"./cards/GraphBadge":29,"./cards/GraphCard":30,"./cards/MostActiveBadge":31,"./cards/QuickLinks":32,"./cards/RecentLogs":33,"./cards/ServerStatus":34,"./cards/ServicesStatus":35,"./cards/ToDoList":36,"./cards/WelcomePanel":37,"./util/CodeMirrorField":42,"./util/DNDActionsManager":43,"./util/MenuItemListener":44,"./util/Mixins":45,"./util/NavigationHelper":46}],42:[function(require,module,exports){
+},{"./board/AdminDashboard":21,"./board/GroupAdminDashboard":24,"./board/Header":25,"./board/SimpleDashboard":26,"./board/SubHeader":27,"./board/TabBoard":28,"./cards/GraphBadge":29,"./cards/GraphCard":30,"./cards/MostActiveBadge":31,"./cards/QuickLinks":32,"./cards/RecentLogs":33,"./cards/ServerStatus":34,"./cards/ServicesStatus":35,"./cards/ToDoList":36,"./cards/WelcomePanel":37,"./util/CodeMirrorField":42,"./util/DNDActionsManager":43,"./util/MenuItemListener":44,"./util/Mixins":45,"./util/NavigationHelper":46,"./util/PluginsLoader":47}],42:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -20903,6 +20908,230 @@ exports['default'] = NavigationHelper;
 module.exports = exports['default'];
 
 },{"material-ui":"material-ui"}],47:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpRestApi = require("pydio/http/rest-api");
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('form');
+
+var Manager = _Pydio$requireLib.Manager;
+
+var PluginsLoader = (function () {
+    _createClass(PluginsLoader, null, [{
+        key: 'getInstance',
+        value: function getInstance(pydio) {
+            if (!PluginsLoader.INSTANCE) {
+                PluginsLoader.INSTANCE = new PluginsLoader(pydio);
+            }
+            return PluginsLoader.INSTANCE;
+        }
+    }]);
+
+    function PluginsLoader(pydio) {
+        _classCallCheck(this, PluginsLoader);
+
+        this.pydio = pydio;
+        this.pLoad = null;
+        this.plugins = null;
+    }
+
+    _createClass(PluginsLoader, [{
+        key: 'loadPlugins',
+        value: function loadPlugins() {
+            var _this = this;
+
+            var forceReload = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+            if (this.plugins && !forceReload) {
+                return Promise.resolve(this.plugins);
+            }
+
+            if (this.pLoad !== null) {
+                return this.pLoad;
+            }
+
+            this.pLoad = new Promise(function (resolve, reject) {
+
+                _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
+                    var headers = { Authorization: 'Bearer ' + jwt };
+                    var lang = 'en';
+                    if (_this.pydio.user && _this.pydio.user.getPreference('lang')) {
+                        lang = _this.pydio.user.getPreference('lang', true);
+                    }
+                    var url = _this.pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/plugins/' + lang;
+                    window.fetch(url, {
+                        method: 'GET',
+                        credentials: 'same-origin',
+                        headers: headers
+                    }).then(function (response) {
+                        _this.loading = false;
+                        response.text().then(function (text) {
+                            _this.plugins = _pydioUtilXml2['default'].parseXml(text).documentElement;
+                            _this.pLoad = null;
+                            resolve(_this.plugins);
+                        });
+                    })['catch'](function (e) {
+                        _this.pLoad = null;
+                        reject(e);
+                    });
+                });
+            });
+
+            return this.pLoad;
+        }
+
+        /**
+         *
+         * @param pluginNode DOMNode
+         * @param enabled boolean
+         * @param callback Function
+         */
+    }, {
+        key: 'toggleEnabled',
+        value: function toggleEnabled(pluginNode, enabled, callback) {
+
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var fullPath = "frontend/plugin/" + pluginNode.getAttribute('id');
+            // Load initial config
+
+            api.getConfig(fullPath).then(function (response) {
+                var currentData = JSON.parse(response.Data) || {};
+                currentData["PYDIO_PLUGIN_ENABLED"] = enabled;
+                var config = _pydioHttpRestApi.RestConfiguration.constructFromObject({
+                    FullPath: fullPath,
+                    Data: JSON.stringify(currentData)
+                });
+                api.putConfig(config.FullPath, config).then(function () {
+                    callback();
+                });
+            });
+        }
+    }, {
+        key: 'loadPluginConfigs',
+        value: function loadPluginConfigs(pluginId) {
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var fullPath = "frontend/plugin/" + pluginId;
+            return new Promise(function (resolve, reject) {
+                api.getConfig(fullPath).then(function (response) {
+                    var currentData = JSON.parse(response.Data) || {};
+                    resolve(currentData);
+                })['catch'](function (e) {
+                    reject(e);
+                });
+            });
+        }
+    }, {
+        key: 'savePluginConfigs',
+        value: function savePluginConfigs(pluginId, values, callback) {
+
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var fullPath = "frontend/plugin/" + pluginId;
+
+            api.getConfig(fullPath).then(function (response) {
+                var currentData = JSON.parse(response.Data) || {};
+                var newData = _pydioUtilLang2['default'].mergeObjectsRecursive(currentData, values);
+                var config = _pydioHttpRestApi.RestConfiguration.constructFromObject({
+                    FullPath: fullPath,
+                    Data: JSON.stringify(newData)
+                });
+                api.putConfig(config.FullPath, config).then(function () {
+                    callback(newData);
+                });
+            });
+        }
+    }, {
+        key: 'allPluginsActionsAndParameters',
+        value: function allPluginsActionsAndParameters() {
+            return this.loadPlugins().then(function (plugins) {
+                var xmlActions = _pydioUtilXml2['default'].XPathSelectNodes(plugins, "//action");
+                var xmlParameters = _pydioUtilXml2['default'].XPathSelectNodes(plugins, "//global_param|//param");
+                var ACTIONS = {};
+                var PARAMETERS = {};
+                xmlActions.map(function (action) {
+                    var pluginId = action.parentNode.parentNode.parentNode.getAttribute("id");
+                    if (!ACTIONS[pluginId]) {
+                        ACTIONS[pluginId] = [];
+                    }
+                    ACTIONS[pluginId].push({
+                        action: action.getAttribute('name'),
+                        label: action.getAttribute('name'),
+                        xmlNode: action
+                    });
+                });
+                xmlParameters.map(function (parameter) {
+                    if (parameter.parentNode.nodeName !== 'server_settings') {
+                        return;
+                    }
+                    var pluginId = parameter.parentNode.parentNode.getAttribute("id");
+                    if (!PARAMETERS[pluginId]) {
+                        PARAMETERS[pluginId] = [];
+                    }
+                    PARAMETERS[pluginId].push({
+                        parameter: parameter.getAttribute('name'),
+                        label: parameter.getAttribute('name'),
+                        xmlNode: parameter
+                    });
+                });
+                return { ACTIONS: ACTIONS, PARAMETERS: PARAMETERS };
+            });
+        }
+
+        /**
+         * @param xPath string
+         * @return {Promise}
+         */
+    }, {
+        key: 'formParameters',
+        value: function formParameters(xPath) {
+            var _this2 = this;
+
+            return this.loadPlugins().then(function (registry) {
+                return _pydioUtilXml2['default'].XPathSelectNodes(registry, xPath).filter(function (node) {
+                    return node.parentNode.nodeName === 'server_settings';
+                }).map((function (node) {
+                    var params = Manager.parameterNodeToHash(node);
+                    var pluginId = node.parentNode.parentNode.getAttribute("id");
+                    params['pluginId'] = pluginId;
+                    params['aclKey'] = 'parameter:' + pluginId + ':' + node.getAttribute("name");
+                    return params;
+                }).bind(_this2));
+            });
+        }
+    }]);
+
+    return PluginsLoader;
+})();
+
+exports['default'] = PluginsLoader;
+module.exports = exports['default'];
+
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml"}],48:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

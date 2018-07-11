@@ -30,6 +30,7 @@ import NavigationHelper from './util/NavigationHelper'
 import MenuItemListener from './util/MenuItemListener'
 import DNDActionsManager from './util/DNDActionsManager'
 import CodeMirrorField from './util/CodeMirrorField'
+import PluginsLoader from './util/PluginsLoader'
 
 import GraphBadge from './cards/GraphBadge'
 import GraphCard from './cards/GraphCard'
@@ -42,15 +43,16 @@ import ToDoList from './cards/ToDoList'
 import WelcomePanel from './cards/WelcomePanel'
 
 window.AdminComponents = {
-    MessagesConsumerMixin   : MessagesConsumerMixin,
-    PydioConsumerMixin      : PydioConsumerMixin,
-    NavigationHelper        : NavigationHelper,
-    MenuItemListener        : MenuItemListener,
-    DNDActionsManager       : DNDActionsManager,
+    MessagesConsumerMixin,
+    PydioConsumerMixin,
+    NavigationHelper,
+    MenuItemListener,
+    DNDActionsManager,
+    PluginsLoader,
 
-    AdminDashboard          : AdminDashboard,
-    SimpleDashboard         : SimpleDashboard,
-    GroupAdminDashboard     : GroupAdminDashboard,
+    AdminDashboard,
+    SimpleDashboard,
+    GroupAdminDashboard,
     Header,
     SubHeader,
     CodeMirrorField,

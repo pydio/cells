@@ -64,6 +64,10 @@ var _utilCodeMirrorField = require('./util/CodeMirrorField');
 
 var _utilCodeMirrorField2 = _interopRequireDefault(_utilCodeMirrorField);
 
+var _utilPluginsLoader = require('./util/PluginsLoader');
+
+var _utilPluginsLoader2 = _interopRequireDefault(_utilPluginsLoader);
+
 var _cardsGraphBadge = require('./cards/GraphBadge');
 
 var _cardsGraphBadge2 = _interopRequireDefault(_cardsGraphBadge);
@@ -106,6 +110,7 @@ window.AdminComponents = {
     NavigationHelper: _utilNavigationHelper2['default'],
     MenuItemListener: _utilMenuItemListener2['default'],
     DNDActionsManager: _utilDNDActionsManager2['default'],
+    PluginsLoader: _utilPluginsLoader2['default'],
 
     AdminDashboard: _boardAdminDashboard2['default'],
     SimpleDashboard: _boardSimpleDashboard2['default'],

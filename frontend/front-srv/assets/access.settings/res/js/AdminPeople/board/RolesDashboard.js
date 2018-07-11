@@ -22,7 +22,6 @@ import {Paper, IconButton, TextField, FlatButton} from 'material-ui'
 import Editor from '../editor/Editor'
 import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
-import {RoleServiceApi} from 'pydio/http/rest-api';
 const PydioComponents = Pydio.requireLib('components');
 const {MaterialTable} = PydioComponents;
 
@@ -56,7 +55,7 @@ let RolesDashboard = React.createClass({
         }
     },
 
-    openRoleEditor(node, initialSection = 'activity'){
+    openRoleEditor(idmRole, initialSection = 'activity'){
         const {advancedAcl, pydio} = this.props;
         if(this.refs.editor && this.refs.editor.isDirty()){
             if(!window.confirm(pydio.MessageHash["role_editor.19"])) {
@@ -67,7 +66,7 @@ let RolesDashboard = React.createClass({
             COMPONENT:Editor,
             PROPS:{
                 ref:"editor",
-                node:node,
+                idmRole:idmRole,
                 pydio: pydio,
                 initialEditSection:initialSection,
                 onRequestTabClose:this.closeRoleEditor,
@@ -95,8 +94,7 @@ let RolesDashboard = React.createClass({
         pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
             message:pydio.MessageHash['settings.126'],
             validCallback:() => {
-                const api = new RoleServiceApi(PydioApi.getRestClient());
-                api.deleteRole(roleId).then(()=> {
+                PydioApi.getRestClient().getIdmApi().deleteRole(roleId).then(()=> {
                     this.load();
                 })
             }

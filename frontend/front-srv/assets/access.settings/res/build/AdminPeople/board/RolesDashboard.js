@@ -43,8 +43,6 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var PydioComponents = _pydio2['default'].requireLib('components');
 var MaterialTable = PydioComponents.MaterialTable;
 
@@ -81,7 +79,7 @@ var RolesDashboard = _react2['default'].createClass({
         }
     },
 
-    openRoleEditor: function openRoleEditor(node) {
+    openRoleEditor: function openRoleEditor(idmRole) {
         var initialSection = arguments.length <= 1 || arguments[1] === undefined ? 'activity' : arguments[1];
         var _props = this.props;
         var advancedAcl = _props.advancedAcl;
@@ -96,7 +94,7 @@ var RolesDashboard = _react2['default'].createClass({
             COMPONENT: _editorEditor2['default'],
             PROPS: {
                 ref: "editor",
-                node: node,
+                idmRole: idmRole,
                 pydio: pydio,
                 initialEditSection: initialSection,
                 onRequestTabClose: this.closeRoleEditor,
@@ -125,8 +123,7 @@ var RolesDashboard = _react2['default'].createClass({
         pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
             message: pydio.MessageHash['settings.126'],
             validCallback: function validCallback() {
-                var api = new _pydioHttpRestApi.RoleServiceApi(_pydioHttpApi2['default'].getRestClient());
-                api.deleteRole(roleId).then(function () {
+                _pydioHttpApi2['default'].getRestClient().getIdmApi().deleteRole(roleId).then(function () {
                     _this2.load();
                 });
             }

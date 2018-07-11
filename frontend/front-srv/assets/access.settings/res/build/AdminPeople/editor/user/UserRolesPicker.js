@@ -25,17 +25,19 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
 var _materialUi = require('material-ui');
 
 var _utilMessagesMixin = require('../util/MessagesMixin');
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
 exports['default'] = _react2['default'].createClass({
     displayName: 'UserRolesPicker',
@@ -43,32 +45,44 @@ exports['default'] = _react2['default'].createClass({
     mixins: [_utilMessagesMixin.RoleMessagesConsumerMixin],
 
     propTypes: {
-        availableRoles: _react2['default'].PropTypes.array,
-        rolesDetails: _react2['default'].PropTypes.object,
-        currentRoles: _react2['default'].PropTypes.array,
-        currentRolesDetails: _react2['default'].PropTypes.array,
-        controller: _react2['default'].PropTypes.object
+        roles: _react2['default'].PropTypes.array,
+        addRole: _react2['default'].PropTypes.func,
+        removeRole: _react2['default'].PropTypes.func,
+        switchRoles: _react2['default'].PropTypes.func
+    },
+
+    getInitialState: function getInitialState() {
+        return {
+            availableRoles: []
+        };
+    },
+
+    componentDidMount: function componentDidMount() {
+        var _this = this;
+
+        _pydioHttpApi2['default'].getRestClient().getIdmApi().listRoles().then(function (roles) {
+            _this.setState({ availableRoles: roles });
+        });
     },
 
     onChange: function onChange(e, selectedIndex, value) {
         if (value === -1) {
             return;
         }
-        var newRoles = this.props.currentRoles.slice();
-        newRoles.push(value);
-        this.props.controller.updateUserRoles(newRoles);
+        this.props.addRole(value);
     },
 
-    remove: function remove(roleId) {
-        var newRoles = _pydioUtilLang2['default'].arrayWithout(this.props.currentRoles, this.props.currentRoles.indexOf(roleId));
-        this.props.controller.updateUserRoles(newRoles);
+    remove: function remove(value) {
+        var availableRoles = this.state.availableRoles;
+
+        var role = availableRoles.filter(function (r) {
+            return r.Uuid === value;
+        })[0];
+        this.props.removeRole(role);
     },
 
     orderUpdated: function orderUpdated(oldId, newId, currentValues) {
-        var ordered = currentValues.map(function (o) {
-            return o.payload;
-        });
-        this.props.controller.orderUserRoles(ordered);
+        this.props.switchRoles(oldId, newId);
     },
 
     render: function render() {
@@ -78,40 +92,34 @@ exports['default'] = _react2['default'].createClass({
             users = [];
         var ctx = this.context;
         var _props = this.props;
-        var currentRoles = _props.currentRoles;
-        var rolesDetails = _props.rolesDetails;
-        var currentRolesDetails = _props.currentRolesDetails;
-        var availableRoles = _props.availableRoles;
+        var roles = _props.roles;
         var loadingMessage = _props.loadingMessage;
+        var availableRoles = this.state.availableRoles;
 
-        currentRoles.map((function (r) {
-            var crtDetail = currentRolesDetails[r] || { label: r };
-            if (crtDetail.groupRole) {
-                if (r === 'ROOT_GROUP') {
+        roles.map((function (r) {
+            if (r.GroupRole) {
+                if (r.Uuid === 'ROOT_GROUP') {
                     groups.push('/ ' + ctx.getMessage('user.25', 'ajxp_admin'));
                 } else {
-                    groups.push(ctx.getMessage('user.26', 'ajxp_admin').replace('%s', crtDetail.label || r));
+                    groups.push(ctx.getMessage('user.26', 'ajxp_admin').replace('%s', r.Label || r.Uuid));
                 }
-            } else if (crtDetail.userRole) {
+            } else if (r.UserRole) {
                 users.push(ctx.getMessage('user.27', 'ajxp_admin'));
             } else {
-                if (!rolesDetails[r]) {
-                    return;
-                }
-                var label = rolesDetails[r].label;
-                if (rolesDetails[r].sticky) {
+                /*
+                if(rolesDetails[r].sticky) {
                     label += ' [' + ctx.getMessage('19') + ']';
                 } // always overrides
-                manual.push({ payload: r, text: label });
+                */
+                manual.push({ payload: r.Uuid, text: r.Label });
             }
         }).bind(this));
 
-        var addableRoles = [_react2['default'].createElement(_materialUi.MenuItem, { value: -1, primaryText: ctx.getMessage('20') })];
-        availableRoles.map(function (r) {
-            if (currentRoles.indexOf(r) === -1) {
-                addableRoles.push(_react2['default'].createElement(_materialUi.MenuItem, { value: r, primaryText: rolesDetails[r].label || r }));
-            }
-        });
+        var addableRoles = [_react2['default'].createElement(_materialUi.MenuItem, { value: -1, primaryText: ctx.getMessage('20') })].concat(_toConsumableArray(availableRoles.filter(function (r) {
+            return roles.indexOf(r) === -1;
+        }).map(function (r) {
+            return _react2['default'].createElement(_materialUi.MenuItem, { value: r, primaryText: r.Label || r.Uuid });
+        })));
 
         var fixedRoleStyle = {
             padding: 10,

@@ -39,12 +39,6 @@ var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
-var _uuid4 = require('uuid4');
-
-var _uuid42 = _interopRequireDefault(_uuid4);
-
 var CreateRoleOrGroupForm = _react2['default'].createClass({
     displayName: 'CreateRoleOrGroupForm',
 
@@ -84,7 +78,6 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
         var pydio = _props.pydio;
         var reload = _props.reload;
 
-        var parameters = undefined;
         var currentNode = undefined;
         if (type === "group") {
             var gId = this.refs.group_id.getValue();
@@ -103,12 +96,9 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
                 currentNode.reload();
             });
         } else if (type === "role") {
-            var api = new _pydioHttpRestApi.RoleServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var idmRole = new _pydioHttpRestApi.IdmRole();
-            idmRole.Uuid = _uuid42['default'].sync();
-            idmRole.Label = this.refs.role_id.getValue();
+            var label = this.refs.role_id.getValue();
             currentNode = this.props.roleNode;
-            api.setRole(idmRole.Uuid, idmRole).then(function () {
+            _pydioHttpApi2['default'].getRestClient().getIdmApi().createRole(label).then(function () {
                 _this.dismiss();
                 if (reload) {
                     reload();

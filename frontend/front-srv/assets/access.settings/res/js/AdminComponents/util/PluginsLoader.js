@@ -1,0 +1,178 @@
+import PydioApi from 'pydio/http/api'
+import XMLUtils from 'pydio/util/xml'
+import LangUtils from 'pydio/util/lang'
+import Pydio from 'pydio'
+import {ConfigServiceApi, RestConfiguration} from "pydio/http/rest-api";
+const {Manager} = Pydio.requireLib('form');
+
+class PluginsLoader {
+
+    static getInstance(pydio){
+        if(!PluginsLoader.INSTANCE){
+            PluginsLoader.INSTANCE = new PluginsLoader(pydio);
+        }
+        return PluginsLoader.INSTANCE;
+    }
+
+    constructor(pydio){
+        this.pydio = pydio;
+        this.pLoad = null;
+        this.plugins = null;
+    }
+
+    loadPlugins(forceReload = false){
+
+        if(this.plugins && !forceReload){
+            return Promise.resolve(this.plugins);
+        }
+
+        if(this.pLoad !== null){
+            return this.pLoad;
+        }
+
+        this.pLoad = new Promise((resolve, reject) => {
+
+            PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+                const headers = {Authorization: 'Bearer ' + jwt};
+                let lang = 'en';
+                if (this.pydio.user && this.pydio.user.getPreference('lang')){
+                    lang = this.pydio.user.getPreference('lang', true);
+                }
+                const url = this.pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/plugins/' + lang;
+                window.fetch(url, {
+                    method:'GET',
+                    credentials:'same-origin',
+                    headers:headers,
+                }).then((response) => {
+                    this.loading = false;
+                    response.text().then((text) => {
+                        this.plugins = XMLUtils.parseXml(text).documentElement;
+                        this.pLoad = null;
+                        resolve(this.plugins);
+                    });
+                }).catch(e=> {
+                    this.pLoad = null;
+                    reject(e);
+                });
+
+            });
+
+        });
+
+        return this.pLoad;
+
+    }
+
+    /**
+     *
+     * @param pluginNode DOMNode
+     * @param enabled boolean
+     * @param callback Function
+     */
+    toggleEnabled(pluginNode, enabled, callback){
+
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        const fullPath = "frontend/plugin/" + pluginNode.getAttribute('id');
+        // Load initial config
+
+        api.getConfig(fullPath).then((response) => {
+            const currentData = JSON.parse(response.Data) || {};
+            currentData["PYDIO_PLUGIN_ENABLED"] = enabled;
+            const config = RestConfiguration.constructFromObject({
+                FullPath: fullPath,
+                Data: JSON.stringify(currentData)
+            });
+            api.putConfig(config.FullPath, config).then(() => {
+                callback();
+            })
+        });
+    }
+
+    loadPluginConfigs(pluginId){
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        const fullPath = "frontend/plugin/" + pluginId;
+        return new Promise((resolve, reject) => {
+            api.getConfig(fullPath).then((response) => {
+                const currentData = JSON.parse(response.Data) || {};
+                resolve(currentData);
+            }).catch(e => {
+                reject(e);
+            });
+        });
+    }
+
+    savePluginConfigs(pluginId, values, callback){
+
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        const fullPath = "frontend/plugin/" + pluginId;
+
+        api.getConfig(fullPath).then((response) => {
+            const currentData = JSON.parse(response.Data) || {};
+            const newData = LangUtils.mergeObjectsRecursive(currentData, values);
+            const config = RestConfiguration.constructFromObject({
+                FullPath: fullPath,
+                Data: JSON.stringify(newData)
+            });
+            api.putConfig(config.FullPath, config).then(() => {
+                callback(newData);
+            })
+        });
+
+    }
+
+    allPluginsActionsAndParameters(){
+        return this.loadPlugins().then((plugins) => {
+            const xmlActions = XMLUtils.XPathSelectNodes(plugins, "//action");
+            const xmlParameters = XMLUtils.XPathSelectNodes(plugins, "//global_param|//param");
+            const ACTIONS = {};
+            const PARAMETERS = {};
+            xmlActions.map(action => {
+                const pluginId = action.parentNode.parentNode.parentNode.getAttribute("id");
+                if(!ACTIONS[pluginId]) {
+                    ACTIONS[pluginId] = [];
+                }
+                ACTIONS[pluginId].push({
+                    action: action.getAttribute('name'),
+                    label : action.getAttribute('name'),
+                    xmlNode: action
+                });
+            });
+            xmlParameters.map(parameter => {
+                if(parameter.parentNode.nodeName !== 'server_settings') {
+                    return;
+                }
+                const pluginId = parameter.parentNode.parentNode.getAttribute("id");
+                if(!PARAMETERS[pluginId]) {
+                    PARAMETERS[pluginId] = [];
+                }
+                PARAMETERS[pluginId].push({
+                    parameter: parameter.getAttribute('name'),
+                    label : parameter.getAttribute('name'),
+                    xmlNode: parameter
+                });
+            });
+            return {ACTIONS, PARAMETERS};
+        });
+    }
+
+    /**
+     * @param xPath string
+     * @return {Promise}
+     */
+    formParameters(xPath){
+        return this.loadPlugins().then(registry => {
+            return XMLUtils.XPathSelectNodes(registry, xPath).filter(node => {
+                return (node.parentNode.nodeName === 'server_settings');
+            }).map(function(node){
+                const params = Manager.parameterNodeToHash(node);
+                const pluginId = node.parentNode.parentNode.getAttribute("id");
+                params['pluginId'] = pluginId;
+                params['aclKey'] = 'parameter:' + pluginId + ':' + node.getAttribute("name");
+                return params;
+            }.bind(this));
+        })
+    }
+
+}
+
+export {PluginsLoader as default}

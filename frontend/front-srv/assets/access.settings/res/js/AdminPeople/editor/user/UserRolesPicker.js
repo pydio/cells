@@ -18,75 +18,81 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
-import LangUtils from 'pydio/util/lang'
 import {DropDownMenu, MenuItem} from 'material-ui'
 
 import {RoleMessagesConsumerMixin} from '../util/MessagesMixin'
+import PydioApi from 'pydio/http/api';
 
 export default React.createClass({
 
     mixins:[RoleMessagesConsumerMixin],
 
     propTypes: {
-        availableRoles: React.PropTypes.array,
-        rolesDetails: React.PropTypes.object,
-        currentRoles:React.PropTypes.array,
-        currentRolesDetails:React.PropTypes.array,
-        controller: React.PropTypes.object
+        roles:React.PropTypes.array,
+        addRole:React.PropTypes.func,
+        removeRole:React.PropTypes.func,
+        switchRoles:React.PropTypes.func,
     },
 
-    onChange: function(e, selectedIndex, value){
+    getInitialState(){
+        return {
+            availableRoles: []
+        }
+    },
+
+    componentDidMount(){
+        PydioApi.getRestClient().getIdmApi().listRoles().then(roles => {
+            this.setState({availableRoles: roles});
+        })
+    },
+
+    onChange(e, selectedIndex, value){
         if(value === -1) {
             return;
         }
-        let newRoles = this.props.currentRoles.slice();
-        newRoles.push(value);
-        this.props.controller.updateUserRoles(newRoles);
+        this.props.addRole(value);
     },
 
-    remove: function(roleId){
-        const newRoles = LangUtils.arrayWithout(this.props.currentRoles, this.props.currentRoles.indexOf(roleId));
-        this.props.controller.updateUserRoles(newRoles);
+    remove(value){
+        const {availableRoles} = this.state;
+        const role = availableRoles.filter(r => r.Uuid === value)[0];
+        this.props.removeRole(role);
     },
 
-    orderUpdated:function(oldId, newId, currentValues){
-        const ordered = currentValues.map(function(o){return o.payload;});
-        this.props.controller.orderUserRoles(ordered);
+    orderUpdated(oldId, newId, currentValues){
+        this.props.switchRoles(oldId, newId);
     },
 
-    render: function(){
+    render(){
 
         let groups=[], manual=[], users=[];
         const ctx = this.context;
-        const {currentRoles, rolesDetails, currentRolesDetails, availableRoles, loadingMessage} = this.props;
-        currentRoles.map(function(r){
-            const crtDetail = currentRolesDetails[r] || {label:r};
-            if(crtDetail.groupRole){
-                if(r === 'ROOT_GROUP') {
+        const {roles, loadingMessage} = this.props;
+        const {availableRoles} = this.state;
+
+        roles.map(function(r){
+            if(r.GroupRole){
+                if(r.Uuid === 'ROOT_GROUP') {
                     groups.push('/ ' + ctx.getMessage('user.25', 'ajxp_admin'));
                 }else {
-                    groups.push(ctx.getMessage('user.26', 'ajxp_admin').replace('%s', crtDetail.label || r));
+                    groups.push(ctx.getMessage('user.26', 'ajxp_admin').replace('%s', r.Label || r.Uuid));
                 }
-            }else if(crtDetail.userRole){
+            }else if(r.UserRole){
                 users.push(ctx.getMessage('user.27', 'ajxp_admin'));
             }else{
-                if(!rolesDetails[r]){
-                    return;
-                }
-                let label = rolesDetails[r].label;
+                /*
                 if(rolesDetails[r].sticky) {
                     label += ' [' + ctx.getMessage('19') + ']';
                 } // always overrides
-                manual.push({payload:r, text:label});
+                */
+                manual.push({payload:r.Uuid, text:r.Label});
             }
         }.bind(this));
 
-        let addableRoles = [<MenuItem value={-1} primaryText={ctx.getMessage('20')}/>];
-        availableRoles.map(function(r){
-            if(currentRoles.indexOf(r) === -1) {
-                addableRoles.push(<MenuItem value={r} primaryText={rolesDetails[r].label || r} />);
-            }
-        });
+        const addableRoles = [
+            <MenuItem value={-1} primaryText={ctx.getMessage('20')}/>,
+            ...availableRoles.filter(r => roles.indexOf(r) === -1).map(r => <MenuItem value={r} primaryText={r.Label || r.Uuid} />)
+        ];
 
         const fixedRoleStyle = {
             padding: 10,

@@ -6,8 +6,10 @@ import IdmNodeType from "./gen/model/IdmNodeType";
 import IdmUser from "./gen/model/IdmUser";
 import LangUtils from "../util/LangUtils"
 import RoleServiceApi from "./gen/api/RoleServiceApi";
+import IdmRole from "./gen/model/IdmRole";
 import RestSearchRoleRequest from "./gen/model/RestSearchRoleRequest";
 import IdmRoleSingleQuery from "./gen/model/IdmRoleSingleQuery";
+import uuid from 'uuid4'
 
 class IdmApi {
 
@@ -211,6 +213,19 @@ class IdmApi {
     }
 
     /**
+     * Create a role from scratch
+     * @param roleLabel string
+     * @return {Promise}
+     */
+    createRole(roleLabel) {
+        const api = new RoleServiceApi(this.client);
+        const idmRole = new IdmRole();
+        idmRole.Uuid = uuid.sync();
+        idmRole.Label = roleLabel;
+        return api.setRole(idmRole.Uuid, idmRole)
+    }
+
+    /**
      *
      * @param idmUser {IdmUser}
      * @return {Promise}
@@ -240,6 +255,16 @@ class IdmApi {
         } else {
             return api.deleteUser(idmUser.Login);
         }
+    }
+
+    /**
+     * Delete a role by Id
+     * @param roleId
+     * @return {Promise}
+     */
+    deleteRole(roleId){
+        const api = new RoleServiceApi(this.client);
+        return api.deleteRole(roleId);
     }
 
 }
