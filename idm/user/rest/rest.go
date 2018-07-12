@@ -296,15 +296,23 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 
-	if update == nil && inputUser.IsGroup {
-		roleCli := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
-		_, er := roleCli.CreateRole(ctx, &idm.CreateRoleRequest{
-			Role: &idm.Role{
+	if update == nil {
+		var newRole *idm.Role
+		if inputUser.IsGroup {
+			newRole = &idm.Role{
 				Uuid:      response.User.Uuid,
 				GroupRole: true,
-				Label:     "Group " + response.User.Uuid,
-			},
-		})
+				Label:     "Group " + response.User.GroupLabel,
+			}
+		} else {
+			newRole = &idm.Role{
+				Uuid:     response.User.Uuid,
+				UserRole: true,
+				Label:    "User " + response.User.Login,
+			}
+		}
+		roleCli := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+		_, er := roleCli.CreateRole(ctx, &idm.CreateRoleRequest{Role: newRole})
 		if er != nil {
 			rsp.WriteError(500, er)
 			return
@@ -325,7 +333,34 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	}
 
 	u := response.User
-	u.Roles = utils.GetRolesForUser(ctx, u, false)
+
+	// Reload user fully
+	q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: u.Uuid})
+	streamer, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
+		Query: &service2.Query{SubQueries: []*any.Any{q}},
+	})
+	if err != nil {
+		// Handle error
+		rsp.WriteError(500, err)
+		return
+	}
+	defer streamer.Close()
+	for {
+		resp, e := streamer.Recv()
+		if e != nil {
+			break
+		}
+		if resp == nil {
+			continue
+		}
+		u = resp.User
+		if !resp.User.IsGroup {
+			u = resp.User
+			u.Roles = utils.GetRolesForUser(ctx, u, false)
+			u.PoliciesContextEditable = s.IsContextEditable(ctx, u.Uuid, u.Policies)
+		}
+		break
+	}
 	rsp.WriteEntity(u)
 
 }

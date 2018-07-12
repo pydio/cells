@@ -93,7 +93,7 @@ func GetRolesForUser(ctx context.Context, user *idm.User, createMissing bool) []
 			// Create missing role now
 			var label string
 			if role.GroupRole {
-				label = "Group " + role.Uuid
+				label = "Group " + role.Label
 			} else {
 				label = "User " + user.Login
 			}
