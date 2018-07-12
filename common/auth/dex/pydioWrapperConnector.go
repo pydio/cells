@@ -149,6 +149,32 @@ func (p *pydioWrapperConnector) IdentityFromUserName(ctx context.Context, input 
 // It then checks all relevant policies. If one has deny, it returns false.
 func (p *pydioWrapperConnector) CheckConnectionPolicyForUser(ctx context.Context, user *idm.User) bool {
 
+	var hasLock bool
+	if user.Attributes != nil {
+		if l, ok := user.Attributes["locks"]; ok {
+			var locks []string
+			if e := json.Unmarshal([]byte(l), &locks); e == nil {
+				for _, lock := range locks {
+					if lock == "logout" {
+						hasLock = true
+						break
+					}
+				}
+			}
+		}
+	}
+	if hasLock {
+		e := fmt.Errorf("user " + user.Login + " has logout attribute")
+		log.Auditer(ctx).Error(
+			e.Error(),
+			log.GetAuditId(common.AUDIT_LOGIN_POLICY_DENIAL),
+			zap.String(common.KEY_USER_UUID, user.Uuid),
+			zap.Error(fmt.Errorf("user has logout attribute")),
+		)
+		log.Logger(ctx).Error("lock denies login for request", zap.Error(e))
+		return false
+	}
+
 	cli := idm.NewPolicyEngineServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, defaults.NewClient())
 	policyContext := make(map[string]string)
 	utils.PolicyContextFromMetadata(policyContext, ctx)

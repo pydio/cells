@@ -2926,6 +2926,12 @@ var SwaggerJson = `{
             "type": "string"
           },
           {
+            "name": "OldPassword",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
             "name": "IsGroup",
             "description": "Group specific data.",
             "in": "query",
@@ -4477,6 +4483,9 @@ var SwaggerJson = `{
           "title": "User specific data"
         },
         "Password": {
+          "type": "string"
+        },
+        "OldPassword": {
           "type": "string"
         },
         "IsGroup": {

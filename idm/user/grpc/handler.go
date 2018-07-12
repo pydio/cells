@@ -29,6 +29,9 @@ import (
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
+	"encoding/json"
+	"strings"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/patrickmn/go-cache"
@@ -38,6 +41,7 @@ import (
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/idm/user"
 )
 
@@ -86,6 +90,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 	}
 	dao := servicecontext.GetDAO(ctx).(user.DAO)
 
+	passChange := req.User.Password
 	// Create or update user
 	newUser, update, err := dao.Add(req.User)
 	if err != nil {
@@ -94,10 +99,41 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 	}
 
 	out := newUser.(*idm.User)
+	if passChange != "" {
+		// Check if it is a "force pass change operation".
+		ctxLogin, _ := utils.FindUserNameInContext(ctx)
+		if l, ok := out.Attributes["locks"]; ok && strings.Contains(l, "pass_change") && ctxLogin == out.Login {
+			if req.User.OldPassword == out.Password {
+				return fmt.Errorf("new password is the same as the old password, please use a different one")
+			}
+			var locks, newLocks []string
+			json.Unmarshal([]byte(l), &locks)
+			for _, lock := range locks {
+				if lock != "pass_change" {
+					newLocks = append(newLocks, lock)
+				}
+			}
+			marsh, _ := json.Marshal(newLocks)
+			out.Attributes["locks"] = string(marsh)
+			if _, _, e := dao.Add(out); e == nil {
+				log.Logger(ctx).Info("user "+req.User.Login+" successfully updated his password", req.User.ZapUuid())
+			}
+		}
+	}
 	out.Password = ""
 	resp.User = out
 	if len(req.User.Policies) == 0 {
-		req.User.Policies = defaultPolicies
+		var userPolicies []*service.ResourcePolicy
+		userPolicies = append(userPolicies, defaultPolicies...)
+		if !req.User.IsGroup {
+			// A user must be able to edit his own profile!
+			userPolicies = append(userPolicies, &service.ResourcePolicy{
+				Subject: "user:" + out.Login,
+				Action:  service.ResourcePolicyAction_WRITE,
+				Effect:  service.ResourcePolicy_allow,
+			})
+		}
+		req.User.Policies = userPolicies
 	}
 	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Any("p", req.User.Policies))
 	if err := dao.AddPolicies(update, out.Uuid, req.User.Policies); err != nil {

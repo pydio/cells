@@ -286,6 +286,15 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			service.RestError403(req, rsp, err)
 			return
 		}
+		// Check user own password change
+		ctxLogin, _ := utils.FindUserNameInContext(ctx)
+		if inputUser.Password != "" && ctxLogin == inputUser.Login {
+			if _, err := cli.BindUser(ctx, &idm.BindUserRequest{UserName: inputUser.Login, Password: inputUser.OldPassword}); err != nil {
+				service.RestError401(req, rsp, err)
+				return
+			}
+		}
+		// TODO: Check ability to edit profile
 	}
 
 	response, er := cli.CreateUser(ctx, &idm.CreateUserRequest{

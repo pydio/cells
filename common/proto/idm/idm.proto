@@ -130,6 +130,7 @@ message User {
     // User specific data
     string Login = 5;
     string Password = 6;
+    string OldPassword = 11;
 
     // Group specific data
     bool IsGroup = 7;

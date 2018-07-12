@@ -198,10 +198,7 @@ func (u *User) Publish(status RequestStatus, pool *PluginsPool) *Cuser {
 		return nil
 	}
 	reg := &Cuser{
-		Attrid: u.UserObject.Login,
-		Cactive_repo: &Cactive_repo{
-			Attrid: u.ActiveWorkspace,
-		},
+		Attrid:        u.UserObject.Login,
 		Crepositories: &Crepositories{},
 		Cpreferences:  &Cpreferences{},
 	}
@@ -211,7 +208,27 @@ func (u *User) Publish(status RequestStatus, pool *PluginsPool) *Cuser {
 		}
 	}
 	reg.Cpreferences.Cpref = u.publishPreferences(status, pool)
-	reg.Crepositories.Crepo = u.publishWorkspaces(status, pool)
+
+	// Add locks info
+	var hasLock bool
+	if l, ok := u.UserObject.Attributes["locks"]; ok {
+		var locks []string
+		if e := json.Unmarshal([]byte(l), &locks); e == nil {
+			if len(locks) > 0 {
+				if reg.Cspecial_rights == nil {
+					reg.Cspecial_rights = &Cspecial_rights{}
+				}
+				reg.Cspecial_rights.Attrlock = strings.Join(locks, ",")
+				hasLock = true
+			}
+		}
+	}
+	if !hasLock {
+		reg.Cactive_repo = &Cactive_repo{
+			Attrid: u.ActiveWorkspace,
+		}
+		reg.Crepositories.Crepo = u.publishWorkspaces(status, pool)
+	}
 
 	return reg
 }
