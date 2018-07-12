@@ -54,6 +54,10 @@ var _panelWorkspacesList = require('./panel/WorkspacesList');
 
 var _panelWorkspacesList2 = _interopRequireDefault(_panelWorkspacesList);
 
+var _aclWorkspacesAcls = require('./acl/WorkspacesAcls');
+
+var _aclWorkspacesAcls2 = _interopRequireDefault(_aclWorkspacesAcls);
+
 var _panelSharesList = require('./panel/SharesList');
 
 var _panelSharesList2 = _interopRequireDefault(_panelSharesList);
@@ -520,6 +524,50 @@ var Editor = (function (_React$Component) {
                     displayFormPanel: true
                 })
             ));
+
+            panes.push(_react2['default'].createElement(
+                'div',
+                { key: 'workspaces', className: classFor('workspaces'), style: styleFor('workspaces') },
+                _react2['default'].createElement(
+                    'h3',
+                    { className: 'paper-right-title' },
+                    this.getRootMessage('250'),
+                    _react2['default'].createElement(
+                        'div',
+                        { className: 'section-legend' },
+                        this.getMessage('43')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { className: 'read-write-header' },
+                        _react2['default'].createElement(
+                            'span',
+                            null,
+                            'read'
+                        ),
+                        _react2['default'].createElement(
+                            'span',
+                            null,
+                            'write'
+                        ),
+                        _react2['default'].createElement(
+                            'span',
+                            null,
+                            'deny'
+                        )
+                    ),
+                    _react2['default'].createElement('br', null)
+                ),
+                _react2['default'].createElement(_aclWorkspacesAcls2['default'], {
+                    key: 'workspaces-list',
+                    role: observableUser ? observableUser.getRole() : observableRole,
+                    roleType: this.state.roleType,
+                    advancedAcl: advancedAcl,
+                    showModal: this.showModal.bind(this),
+                    hideModal: this.hideModal.bind(this)
+                })
+            ));
+
             /*
               panes.push(
                 <div key="add-info" className={classFor('add-info')} style={styleFor('add-info')}>

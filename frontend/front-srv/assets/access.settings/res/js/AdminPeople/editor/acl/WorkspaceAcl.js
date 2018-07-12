@@ -21,24 +21,21 @@
 import {RoleMessagesConsumerMixin} from '../util/MessagesMixin'
 import RightsSelector from './RightsSelector'
 import PermissionMaskEditor from './PermissionMaskEditor'
+import Role from '../model/Role'
+import {IdmWorkspace} from 'pydio/http/rest-api';
 
 export default React.createClass({
 
     mixins:[RoleMessagesConsumerMixin],
 
     propTypes:{
-        id:React.PropTypes.string,
+        role:React.PropTypes.instanceOf(Role),
+        workspace: React.PropTypes.instanceOf(IdmWorkspace),
+
+        wsId:React.PropTypes.string,
         label:React.PropTypes.string,
-        role:React.PropTypes.object,
         roleParent:React.PropTypes.object,
-        pluginsFilter:React.PropTypes.func,
-        paramsFilter:React.PropTypes.func,
-        toggleEdit:React.PropTypes.func,
-        editMode:React.PropTypes.bool,
-        titleOnly:React.PropTypes.bool,
-        editOnly:React.PropTypes.bool,
-        noParamsListEdit:React.PropTypes.bool,
-        uniqueScope:React.PropTypes.bool,
+
         showModal:React.PropTypes.func,
         hideModal:React.PropTypes.func,
         Controller:React.PropTypes.object,
@@ -46,45 +43,39 @@ export default React.createClass({
         supportsFolderBrowsing:React.PropTypes.bool
     },
 
-    onAclChange:function(newValue, oldValue){
-        this.props.Controller.updateAcl(this.props.id, newValue);
+    onAclChange(newValue, oldValue){
+        const {role, workspace} = this.props;
+        role.updateAcl(workspace, newValue);
     },
 
-    onNodesChange:function(values){
+    onNodesChange(values){
         this.props.Controller.updateMask(values);
     },
 
-    getInitialState:function(){
+    getInitialState(){
         return {displayMask: false};
     },
 
-    toggleDisplayMask: function(){
+    toggleDisplayMask(){
         this.setState({displayMask:!this.state.displayMask});
     },
 
-    render: function(){
-        const {role, roleParent, id, advancedAcl, supportsFolderBrowsing} = this.props;
-        let {label} = this.props;
+    render(){
 
-        const wsId = id;
-        const parentAcls = (roleParent && roleParent.ACL) ?  roleParent.ACL : {};
-        const acls = (role && role.ACL) ?  role.ACL : {};
-        let inherited = false;
-        if(!acls[wsId] && parentAcls[wsId]){
-            label += ' ('+ this.context.getPydioRoleMessage('38') +')';
-            inherited = true;
-        }
-        let secondLine, action;
-        let aclString = acls[wsId] || parentAcls[wsId];
-        if(!aclString) {
-            aclString = "";
-        }
-        action = <RightsSelector
-            acl={aclString}
-            onChange={this.onAclChange}
-            hideLabels={true}
-            advancedAcl={advancedAcl}
-        />;
+        const {workspace, role, advancedAcl} = this.props;
+        const {aclString, inherited} = role.getAclString(workspace);
+
+        const action = (
+            <RightsSelector
+                acl={aclString}
+                onChange={this.onAclChange}
+                hideLabels={true}
+                advancedAcl={advancedAcl}
+            />
+        );
+
+        /*
+
         if(advancedAcl && (aclString.indexOf('read') !== -1 || aclString.indexOf('write') !== -1 ) && supportsFolderBrowsing){
 
             const toggleButton = <ReactMUI.FontIcon
@@ -126,14 +117,19 @@ export default React.createClass({
 
         }
 
+        */
+
+
         return (
             <PydioComponents.ListEntry
                 className={ (inherited ? "workspace-acl-entry-inherited " : "") + "workspace-acl-entry"}
-                firstLine={label}
-                secondLine={secondLine}
+                firstLine={workspace.Label + (inherited ? ' ('+ this.context.getPydioRoleMessage('38') +')' : '')}
+                secondLine={null}
                 actions={action}
             />
         );
+
+
     }
 
 });

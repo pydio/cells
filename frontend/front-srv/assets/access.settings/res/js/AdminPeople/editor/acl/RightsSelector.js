@@ -36,7 +36,7 @@ export default React.createClass({
         onChange:React.PropTypes.func
     },
 
-    getInitialState:function(){
+    getInitialState(){
         return {
             acl: this.props.acl,
             loaded: false,
@@ -44,21 +44,21 @@ export default React.createClass({
         };
     },
 
-    componentWillMount: function(){
+    componentWillMount(){
         PoliciesLoader.getInstance().getPolicies().then((data) => {
             this.setState({policies: data, loaded: true});
         });
     },
 
-    componentWillReceiveProps:function(newProps){
+    componentWillReceiveProps(newProps){
         this.setState({acl:newProps.acl});
     },
 
-    getAcl:function(){
+    getAcl(){
         return this.state.acl;
     },
 
-    updateAcl: function(){
+    updateAcl(){
 
         if(this.props.disabled) {
             return;
@@ -98,7 +98,7 @@ export default React.createClass({
         }
     },
 
-    render: function(){
+    render(){
 
         const {advancedAcl} = this.props;
 
@@ -128,7 +128,7 @@ export default React.createClass({
             );
         }
         return (
-            <div style={{display:'flex', alignItems:'center', width: advancedAcl? 180 : 140, height: 40}}>
+            <div style={{display:'flex', alignItems:'center', width: advancedAcl? 180 : 132, height: 40}}>
 
                 {advancedAcl &&
                     <IconMenu

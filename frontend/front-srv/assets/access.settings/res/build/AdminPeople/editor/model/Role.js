@@ -190,7 +190,12 @@ var Role = (function (_Observable) {
                         _this4.acls.forEach(function (acl) {
                             p2.push(aclApi.putAcl(acl));
                         });
-                        return Promise.all(p2).then(function () {
+                        return Promise.all(p2).then(function (results) {
+                            var newAcls = [];
+                            results.forEach(function (res) {
+                                newAcls.push(res);
+                            });
+                            _this4.acls = newAcls;
                             _this4.makeSnapshot();
                             _this4.dirty = false;
                             _this4.notify("update");
@@ -281,19 +286,126 @@ var Role = (function (_Observable) {
         }
 
         /**
+         * @param workspace {IdmWorkspace}
+         */
+    }, {
+        key: 'getAclString',
+        value: function getAclString(workspace) {
+            var _this7 = this;
+
+            var inherited = false;
+            var rootNodes = workspace.RootNodes;
+            var firstRoot = rootNodes[Object.keys(rootNodes).shift()];
+            var wsId = workspace.UUID;
+            var nodeId = firstRoot.Uuid;
+
+            var rights = undefined;
+            var parentRights = undefined;
+            this.parentRoles.forEach(function (role) {
+                var parentRight = _this7._aclStringForAcls(_this7.parentAcls[role.Uuid], wsId, nodeId);
+                if (parentRight !== undefined) {
+                    parentRights = parentRight;
+                }
+            });
+            var roleRigts = this._aclStringForAcls(this.acls, wsId, nodeId);
+            if (roleRigts !== undefined) {
+                rights = roleRigts;
+            } else if (parentRights !== undefined) {
+                rights = parentRights;
+                inherited = true;
+            } else {
+                return { aclString: "", 'false': false };
+            }
+
+            if (rights.deny) {
+                return { aclString: 'PYDIO_VALUE_CLEAR', inherited: inherited };
+            }
+            var aclString = Object.keys(rights).filter(function (r) {
+                return rights[r];
+            }).join(',');
+            return { aclString: aclString, inherited: inherited };
+        }
+    }, {
+        key: '_aclStringForAcls',
+        value: function _aclStringForAcls(acls, wsId, nodeId) {
+            var rights = { read: false, write: false, deny: false };
+
+            var policyValue = acls.filter(function (acl) {
+                return acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0 && acl.WorkspaceID === wsId && acl.NodeID === nodeId && acl.Action.Value === "1";
+            });
+
+            if (policyValue.length) {
+                rights[policyValue[0].Action.Name] = true;
+                return rights;
+            }
+
+            Object.keys(rights).forEach(function (rightName) {
+                var values = acls.filter(function (acl) {
+                    return acl.Action.Name === rightName && acl.WorkspaceID === wsId && acl.NodeID === nodeId && acl.Action.Value === "1";
+                });
+                if (values.length) {
+                    rights[rightName] |= true;
+                }
+            });
+            if (!rights.read && !rights.write && !rights.deny) {
+                return undefined;
+            } else {
+                return rights;
+            }
+        }
+
+        /**
+         *
+         * @param workspace {IdmWorkspace}
+         * @param value string
+         */
+    }, {
+        key: 'updateAcl',
+        value: function updateAcl(workspace, value) {
+            var _this8 = this;
+
+            console.log(workspace, value);
+
+            var nodeIds = Object.keys(workspace.RootNodes);
+            // Remove current acls
+            this.acls = this.acls.filter(function (acl) {
+                return !((acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0) && acl.WorkspaceID === workspace.UUID && nodeIds.indexOf(acl.NodeID) > -1 && acl.Action.Value === "1");
+            });
+            if (value !== '') {
+                var rights = value.split(',');
+                if (value === 'PYDIO_VALUE_CLEAR') {
+                    rights = ['deny'];
+                }
+                rights.forEach(function (r) {
+                    nodeIds.forEach(function (n) {
+                        var acl = new _pydioHttpRestApi.IdmACL();
+                        acl.NodeID = n;
+                        acl.WorkspaceID = workspace.UUID;
+                        acl.RoleID = _this8.idmRole.Uuid;
+                        acl.Action = _pydioHttpRestApi.IdmACLAction.constructFromObject({ Name: r, Value: "1" });
+                        _this8.acls.push(acl);
+                    });
+                });
+            }
+            console.log(this.acls);
+            this.dirty = true;
+            this.notify('update');
+        }
+
+        /**
          * @param object {IdmRole}
          * @return {IdmRole}
          */
     }, {
         key: 'buildProxy',
         value: function buildProxy(object) {
-            var _this7 = this;
+            var _this9 = this;
 
             return new Proxy(object, {
                 set: function set(target, p, value) {
                     target[p] = value;
-                    _this7.dirty = true;
-                    _this7.notify('update');
+                    _this9.dirty = true;
+                    _this9.notify('update');
                     return true;
                 },
                 get: function get(target, p) {
@@ -301,7 +413,7 @@ var Role = (function (_Observable) {
                     if (out instanceof Array) {
                         return out;
                     } else if (out instanceof Object) {
-                        return _this7.buildProxy(out);
+                        return _this9.buildProxy(out);
                     } else {
                         return out;
                     }

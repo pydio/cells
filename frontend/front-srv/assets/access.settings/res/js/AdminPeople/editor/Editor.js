@@ -29,6 +29,7 @@ import User from './model/User'
 
 import UserRolesPicker from './user/UserRolesPicker'
 import WorkspacesList from './panel/WorkspacesList'
+import WorkspacesAcls from './acl/WorkspacesAcls'
 import SharesList from './panel/SharesList'
 import React from "react";
 import LangUtils from "pydio/util/lang";
@@ -398,6 +399,31 @@ class Editor extends React.Component{
                 />
             </div>
         );
+
+        panes.push(
+            <div key="workspaces" className={classFor('workspaces')} style={styleFor('workspaces')}>
+                <h3 className="paper-right-title">
+                    {this.getRootMessage('250')}
+                    <div className="section-legend">{this.getMessage('43')}</div>
+                    <div className="read-write-header">
+                        <span>read</span>
+                        <span>write</span>
+                        <span>deny</span>
+                    </div>
+                    <br/>
+                </h3>
+                <WorkspacesAcls
+                    key="workspaces-list"
+                    role={observableUser ? observableUser.getRole() : observableRole}
+                    roleType={this.state.roleType}
+                    advancedAcl={advancedAcl}
+                    showModal={this.showModal.bind(this)}
+                    hideModal={this.hideModal.bind(this)}
+                />
+            </div>
+        );
+
+
         /*
 
 

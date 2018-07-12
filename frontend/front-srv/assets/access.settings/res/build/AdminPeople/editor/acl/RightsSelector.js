@@ -145,7 +145,7 @@ exports['default'] = _react2['default'].createClass({
         }
         return _react2['default'].createElement(
             'div',
-            { style: { display: 'flex', alignItems: 'center', width: advancedAcl ? 180 : 140, height: 40 } },
+            { style: { display: 'flex', alignItems: 'center', width: advancedAcl ? 180 : 132, height: 40 } },
             advancedAcl && _react2['default'].createElement(
                 _materialUi.IconMenu,
                 {

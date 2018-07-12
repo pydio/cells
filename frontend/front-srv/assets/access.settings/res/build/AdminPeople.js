@@ -22855,7 +22855,7 @@ exports['default'] = DirectoriesBoard = (0, _materialUiStyles.muiThemeable)()(Di
 exports['default'] = DirectoriesBoard;
 module.exports = exports['default'];
 
-},{"../editor/ldap/LdapEditor":174,"../editor/ldap/ServerConfigModel":177,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],159:[function(require,module,exports){
+},{"../editor/ldap/LdapEditor":175,"../editor/ldap/ServerConfigModel":178,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],159:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23232,7 +23232,7 @@ exports['default'] = PoliciesBoard = (0, _materialUiStyles.muiThemeable)()(Polic
 exports['default'] = PoliciesBoard;
 module.exports = exports['default'];
 
-},{"../policies/Policy":196,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":154}],160:[function(require,module,exports){
+},{"../policies/Policy":197,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":154}],160:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23707,6 +23707,10 @@ var _panelWorkspacesList = require('./panel/WorkspacesList');
 
 var _panelWorkspacesList2 = _interopRequireDefault(_panelWorkspacesList);
 
+var _aclWorkspacesAcls = require('./acl/WorkspacesAcls');
+
+var _aclWorkspacesAcls2 = _interopRequireDefault(_aclWorkspacesAcls);
+
 var _panelSharesList = require('./panel/SharesList');
 
 var _panelSharesList2 = _interopRequireDefault(_panelSharesList);
@@ -24173,6 +24177,50 @@ var Editor = (function (_React$Component) {
                     displayFormPanel: true
                 })
             ));
+
+            panes.push(_react2['default'].createElement(
+                'div',
+                { key: 'workspaces', className: classFor('workspaces'), style: styleFor('workspaces') },
+                _react2['default'].createElement(
+                    'h3',
+                    { className: 'paper-right-title' },
+                    this.getRootMessage('250'),
+                    _react2['default'].createElement(
+                        'div',
+                        { className: 'section-legend' },
+                        this.getMessage('43')
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { className: 'read-write-header' },
+                        _react2['default'].createElement(
+                            'span',
+                            null,
+                            'read'
+                        ),
+                        _react2['default'].createElement(
+                            'span',
+                            null,
+                            'write'
+                        ),
+                        _react2['default'].createElement(
+                            'span',
+                            null,
+                            'deny'
+                        )
+                    ),
+                    _react2['default'].createElement('br', null)
+                ),
+                _react2['default'].createElement(_aclWorkspacesAcls2['default'], {
+                    key: 'workspaces-list',
+                    role: observableUser ? observableUser.getRole() : observableRole,
+                    roleType: this.state.roleType,
+                    advancedAcl: advancedAcl,
+                    showModal: this.showModal.bind(this),
+                    hideModal: this.hideModal.bind(this)
+                })
+            ));
+
             /*
               panes.push(
                 <div key="add-info" className={classFor('add-info')} style={styleFor('add-info')}>
@@ -24333,7 +24381,7 @@ exports['default'] = Editor;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./info/GroupInfo":167,"./info/RoleInfo":168,"./info/UserInfo":169,"./model/Role":178,"./model/User":179,"./panel/SharesList":180,"./panel/WorkspacesList":181,"./user/UserRolesPicker":190,"material-ui":"material-ui","pydio":"pydio","pydio/model/repository":"pydio/model/repository","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],163:[function(require,module,exports){
+},{"./acl/WorkspacesAcls":167,"./info/GroupInfo":168,"./info/RoleInfo":169,"./info/UserInfo":170,"./model/Role":179,"./model/User":180,"./panel/SharesList":181,"./panel/WorkspacesList":182,"./user/UserRolesPicker":191,"material-ui":"material-ui","pydio":"pydio","pydio/model/repository":"pydio/model/repository","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],163:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -25005,7 +25053,7 @@ exports['default'] = _react2['default'].createClass({
         }
         return _react2['default'].createElement(
             'div',
-            { style: { display: 'flex', alignItems: 'center', width: advancedAcl ? 180 : 140, height: 40 } },
+            { style: { display: 'flex', alignItems: 'center', width: advancedAcl ? 180 : 132, height: 40 } },
             advancedAcl && _react2['default'].createElement(
                 _materialUi.IconMenu,
                 {
@@ -25042,7 +25090,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":192,"./PoliciesLoader":164,"material-ui":"material-ui","react":"react"}],166:[function(require,module,exports){
+},{"../util/MessagesMixin":193,"./PoliciesLoader":164,"material-ui":"material-ui","react":"react"}],166:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25081,24 +25129,25 @@ var _PermissionMaskEditor = require('./PermissionMaskEditor');
 
 var _PermissionMaskEditor2 = _interopRequireDefault(_PermissionMaskEditor);
 
+var _modelRole = require('../model/Role');
+
+var _modelRole2 = _interopRequireDefault(_modelRole);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
 exports['default'] = React.createClass({
     displayName: 'WorkspaceAcl',
 
     mixins: [_utilMessagesMixin.RoleMessagesConsumerMixin],
 
     propTypes: {
-        id: React.PropTypes.string,
+        role: React.PropTypes.instanceOf(_modelRole2['default']),
+        workspace: React.PropTypes.instanceOf(_pydioHttpRestApi.IdmWorkspace),
+
+        wsId: React.PropTypes.string,
         label: React.PropTypes.string,
-        role: React.PropTypes.object,
         roleParent: React.PropTypes.object,
-        pluginsFilter: React.PropTypes.func,
-        paramsFilter: React.PropTypes.func,
-        toggleEdit: React.PropTypes.func,
-        editMode: React.PropTypes.bool,
-        titleOnly: React.PropTypes.bool,
-        editOnly: React.PropTypes.bool,
-        noParamsListEdit: React.PropTypes.bool,
-        uniqueScope: React.PropTypes.bool,
+
         showModal: React.PropTypes.func,
         hideModal: React.PropTypes.func,
         Controller: React.PropTypes.object,
@@ -25107,7 +25156,11 @@ exports['default'] = React.createClass({
     },
 
     onAclChange: function onAclChange(newValue, oldValue) {
-        this.props.Controller.updateAcl(this.props.id, newValue);
+        var _props = this.props;
+        var role = _props.role;
+        var workspace = _props.workspace;
+
+        role.updateAcl(workspace, newValue);
     },
 
     onNodesChange: function onNodesChange(values) {
@@ -25123,80 +25176,67 @@ exports['default'] = React.createClass({
     },
 
     render: function render() {
-        var _props = this.props;
-        var role = _props.role;
-        var roleParent = _props.roleParent;
-        var id = _props.id;
-        var advancedAcl = _props.advancedAcl;
-        var supportsFolderBrowsing = _props.supportsFolderBrowsing;
-        var label = this.props.label;
+        var _props2 = this.props;
+        var workspace = _props2.workspace;
+        var role = _props2.role;
+        var advancedAcl = _props2.advancedAcl;
 
-        var wsId = id;
-        var parentAcls = roleParent && roleParent.ACL ? roleParent.ACL : {};
-        var acls = role && role.ACL ? role.ACL : {};
-        var inherited = false;
-        if (!acls[wsId] && parentAcls[wsId]) {
-            label += ' (' + this.context.getPydioRoleMessage('38') + ')';
-            inherited = true;
-        }
-        var secondLine = undefined,
-            action = undefined;
-        var aclString = acls[wsId] || parentAcls[wsId];
-        if (!aclString) {
-            aclString = "";
-        }
-        action = React.createElement(_RightsSelector2['default'], {
+        var _role$getAclString = role.getAclString(workspace);
+
+        var aclString = _role$getAclString.aclString;
+        var inherited = _role$getAclString.inherited;
+
+        var action = React.createElement(_RightsSelector2['default'], {
             acl: aclString,
             onChange: this.onAclChange,
             hideLabels: true,
             advancedAcl: advancedAcl
         });
-        if (advancedAcl && (aclString.indexOf('read') !== -1 || aclString.indexOf('write') !== -1) && supportsFolderBrowsing) {
 
-            var toggleButton = React.createElement(ReactMUI.FontIcon, {
-                className: "icon-" + (this.state.displayMask ? "minus" : "plus"),
-                onClick: this.toggleDisplayMask,
-                style: { cursor: 'pointer', padding: '0 8px' }
-            });
-            label = React.createElement(
-                'div',
-                null,
-                label,
-                ' ',
-                toggleButton
+        /*
+         if(advancedAcl && (aclString.indexOf('read') !== -1 || aclString.indexOf('write') !== -1 ) && supportsFolderBrowsing){
+             const toggleButton = <ReactMUI.FontIcon
+                className={"icon-" + (this.state.displayMask ? "minus" : "plus")}
+                onClick={this.toggleDisplayMask}
+                style={{cursor:'pointer', padding: '0 8px'}}
+            />;
+            label = (
+                <div>
+                    {label} {toggleButton}
+                </div>
             );
-            if (this.state.displayMask) {
-                var parentNodes = roleParent.NODES || {};
-                var nodes = role.NODES || {};
+            if(this.state.displayMask){
+                const parentNodes = roleParent.NODES || {};
+                const nodes = role.NODES || {};
                 action = null;
-                var aclObject = undefined;
-                if (aclString) {
+                let aclObject;
+                if(aclString){
                     aclObject = {
-                        read: aclString.indexOf('read') !== -1,
-                        write: aclString.indexOf('write') !== -1
+                        read:aclString.indexOf('read') !== -1,
+                        write:aclString.indexOf('write') !== -1
                     };
                 }
-
-                secondLine = React.createElement(
-                    ReactMUI.Paper,
-                    { zDepth: 1, style: { margin: '8px 20px', backgroundColor: 'white', color: 'rgba(0,0,0,0.87)' } },
-                    React.createElement(_PermissionMaskEditor2['default'], {
-                        workspaceId: wsId,
-                        parentNodes: parentNodes,
-                        nodes: nodes,
-                        onNodesChange: this.onNodesChange,
-                        showModal: this.props.showModal,
-                        hideModal: this.props.hideModal,
-                        globalWorkspacePermissions: aclObject
-                    })
+                 secondLine = (
+                    <ReactMUI.Paper zDepth={1} style={{margin: '8px 20px', backgroundColor:'white', color:'rgba(0,0,0,0.87)'}}>
+                        <PermissionMaskEditor
+                            workspaceId={wsId}
+                            parentNodes={parentNodes}
+                            nodes={nodes}
+                            onNodesChange={this.onNodesChange}
+                            showModal={this.props.showModal}
+                            hideModal={this.props.hideModal}
+                            globalWorkspacePermissions={aclObject}
+                        />
+                    </ReactMUI.Paper>
                 );
             }
-        }
+         }
+         */
 
         return React.createElement(PydioComponents.ListEntry, {
             className: (inherited ? "workspace-acl-entry-inherited " : "") + "workspace-acl-entry",
-            firstLine: label,
-            secondLine: secondLine,
+            firstLine: workspace.Label + (inherited ? ' (' + this.context.getPydioRoleMessage('38') + ')' : ''),
+            secondLine: null,
             actions: action
         });
     }
@@ -25204,7 +25244,89 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":192,"./PermissionMaskEditor":163,"./RightsSelector":165}],167:[function(require,module,exports){
+},{"../model/Role":179,"../util/MessagesMixin":193,"./PermissionMaskEditor":163,"./RightsSelector":165,"pydio/http/rest-api":"pydio/http/rest-api"}],167:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _WorkspaceAcl = require('./WorkspaceAcl');
+
+var _WorkspaceAcl2 = _interopRequireDefault(_WorkspaceAcl);
+
+var WorkspacesAcls = (function (_React$Component) {
+    _inherits(WorkspacesAcls, _React$Component);
+
+    function WorkspacesAcls(props) {
+        var _this = this;
+
+        _classCallCheck(this, WorkspacesAcls);
+
+        _get(Object.getPrototypeOf(WorkspacesAcls.prototype), 'constructor', this).call(this, props);
+        this.state = { workspaces: [] };
+        var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
+        request.Queries = [_pydioHttpRestApi.IdmWorkspaceSingleQuery.constructFromObject({
+            scope: 'ADMIN'
+        })];
+        api.searchWorkspaces(request).then(function (collection) {
+            _this.setState({ workspaces: collection.Workspaces || [] });
+        });
+    }
+
+    _createClass(WorkspacesAcls, [{
+        key: 'render',
+        value: function render() {
+            var _props = this.props;
+            var role = _props.role;
+            var advancedAcl = _props.advancedAcl;
+            var workspaces = this.state.workspaces;
+
+            if (!role) {
+                return _react2['default'].createElement('div', null);
+            }
+            return _react2['default'].createElement(
+                'div',
+                { className: "material-list" },
+                workspaces.map(function (ws) {
+                    return _react2['default'].createElement(_WorkspaceAcl2['default'], {
+                        workspace: ws,
+                        role: role,
+                        advancedAcl: advancedAcl
+                    });
+                })
+            );
+        }
+    }]);
+
+    return WorkspacesAcls;
+})(_react2['default'].Component);
+
+exports['default'] = WorkspacesAcls;
+module.exports = exports['default'];
+
+},{"./WorkspaceAcl":166,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],168:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25345,7 +25467,7 @@ GroupInfo.PropTypes = {
 exports['default'] = GroupInfo;
 module.exports = exports['default'];
 
-},{"../model/User":179,"pydio":"pydio","react":"react"}],168:[function(require,module,exports){
+},{"../model/User":180,"pydio":"pydio","react":"react"}],169:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25487,7 +25609,7 @@ RoleInfo.PropTypes = {
 exports['default'] = RoleInfo;
 module.exports = exports['default'];
 
-},{"../model/Role":178,"pydio":"pydio","react":"react"}],169:[function(require,module,exports){
+},{"../model/Role":179,"pydio":"pydio","react":"react"}],170:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25628,7 +25750,7 @@ var UserInfo = (function (_React$Component) {
                     var idmUser = user.getIdmUser();
                     var role = user.getRole();
                     if (idmUser.Attributes['locks']) {
-                        locks = JSON.parse(idmUser.Attributes['locks']);
+                        locks = JSON.parse(idmUser.Attributes['locks']) || [];
                     }
                     rolesPicker = _react2['default'].createElement(_userUserRolesPicker2['default'], {
                         roles: idmUser.Roles,
@@ -25718,7 +25840,7 @@ UserInfo.PropTypes = {
 exports['default'] = UserInfo;
 module.exports = exports['default'];
 
-},{"../model/User":179,"../user/UserRolesPicker":190,"material-ui":"material-ui","pydio":"pydio","react":"react"}],170:[function(require,module,exports){
+},{"../model/User":180,"../user/UserRolesPicker":191,"material-ui":"material-ui","pydio":"pydio","react":"react"}],171:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25894,7 +26016,7 @@ ConnectionPane.propTypes = {
 exports['default'] = ConnectionPane;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],171:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],172:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26002,7 +26124,7 @@ var DNs = (function (_React$Component) {
 exports['default'] = DNs;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],172:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],173:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26101,7 +26223,7 @@ FilterPane.propTypes = {
 exports['default'] = FilterPane;
 module.exports = exports['default'];
 
-},{"./DNs":171,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],173:[function(require,module,exports){
+},{"./DNs":172,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],174:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26248,7 +26370,7 @@ GeneralPane.propTypes = {
 exports['default'] = GeneralPane;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],174:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],175:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26523,7 +26645,7 @@ var LdapEditor = (function (_React$Component) {
 exports['default'] = LdapEditor;
 module.exports = exports['default'];
 
-},{"./ConnectionPane":170,"./FilterPane":172,"./GeneralPane":173,"./MappingsPane":175,"./MemberOfPane":176,"./ServerConfigModel":177,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","uuid4":154}],175:[function(require,module,exports){
+},{"./ConnectionPane":171,"./FilterPane":173,"./GeneralPane":174,"./MappingsPane":176,"./MemberOfPane":177,"./ServerConfigModel":178,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","uuid4":154}],176:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26655,7 +26777,7 @@ MappingsPane.propTypes = {
 exports['default'] = MappingsPane;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],176:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],177:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26911,7 +27033,7 @@ MemberOfPane.propTypes = {
 exports['default'] = MemberOfPane;
 module.exports = exports['default'];
 
-},{"./DNs":171,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],177:[function(require,module,exports){
+},{"./DNs":172,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],178:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27055,7 +27177,7 @@ var ServerConfigModel = (function (_Observable) {
 exports['default'] = ServerConfigModel;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}],178:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}],179:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27248,7 +27370,12 @@ var Role = (function (_Observable) {
                         _this4.acls.forEach(function (acl) {
                             p2.push(aclApi.putAcl(acl));
                         });
-                        return Promise.all(p2).then(function () {
+                        return Promise.all(p2).then(function (results) {
+                            var newAcls = [];
+                            results.forEach(function (res) {
+                                newAcls.push(res);
+                            });
+                            _this4.acls = newAcls;
                             _this4.makeSnapshot();
                             _this4.dirty = false;
                             _this4.notify("update");
@@ -27339,19 +27466,126 @@ var Role = (function (_Observable) {
         }
 
         /**
+         * @param workspace {IdmWorkspace}
+         */
+    }, {
+        key: 'getAclString',
+        value: function getAclString(workspace) {
+            var _this7 = this;
+
+            var inherited = false;
+            var rootNodes = workspace.RootNodes;
+            var firstRoot = rootNodes[Object.keys(rootNodes).shift()];
+            var wsId = workspace.UUID;
+            var nodeId = firstRoot.Uuid;
+
+            var rights = undefined;
+            var parentRights = undefined;
+            this.parentRoles.forEach(function (role) {
+                var parentRight = _this7._aclStringForAcls(_this7.parentAcls[role.Uuid], wsId, nodeId);
+                if (parentRight !== undefined) {
+                    parentRights = parentRight;
+                }
+            });
+            var roleRigts = this._aclStringForAcls(this.acls, wsId, nodeId);
+            if (roleRigts !== undefined) {
+                rights = roleRigts;
+            } else if (parentRights !== undefined) {
+                rights = parentRights;
+                inherited = true;
+            } else {
+                return { aclString: "", 'false': false };
+            }
+
+            if (rights.deny) {
+                return { aclString: 'PYDIO_VALUE_CLEAR', inherited: inherited };
+            }
+            var aclString = Object.keys(rights).filter(function (r) {
+                return rights[r];
+            }).join(',');
+            return { aclString: aclString, inherited: inherited };
+        }
+    }, {
+        key: '_aclStringForAcls',
+        value: function _aclStringForAcls(acls, wsId, nodeId) {
+            var rights = { read: false, write: false, deny: false };
+
+            var policyValue = acls.filter(function (acl) {
+                return acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0 && acl.WorkspaceID === wsId && acl.NodeID === nodeId && acl.Action.Value === "1";
+            });
+
+            if (policyValue.length) {
+                rights[policyValue[0].Action.Name] = true;
+                return rights;
+            }
+
+            Object.keys(rights).forEach(function (rightName) {
+                var values = acls.filter(function (acl) {
+                    return acl.Action.Name === rightName && acl.WorkspaceID === wsId && acl.NodeID === nodeId && acl.Action.Value === "1";
+                });
+                if (values.length) {
+                    rights[rightName] |= true;
+                }
+            });
+            if (!rights.read && !rights.write && !rights.deny) {
+                return undefined;
+            } else {
+                return rights;
+            }
+        }
+
+        /**
+         *
+         * @param workspace {IdmWorkspace}
+         * @param value string
+         */
+    }, {
+        key: 'updateAcl',
+        value: function updateAcl(workspace, value) {
+            var _this8 = this;
+
+            console.log(workspace, value);
+
+            var nodeIds = Object.keys(workspace.RootNodes);
+            // Remove current acls
+            this.acls = this.acls.filter(function (acl) {
+                return !((acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0) && acl.WorkspaceID === workspace.UUID && nodeIds.indexOf(acl.NodeID) > -1 && acl.Action.Value === "1");
+            });
+            if (value !== '') {
+                var rights = value.split(',');
+                if (value === 'PYDIO_VALUE_CLEAR') {
+                    rights = ['deny'];
+                }
+                rights.forEach(function (r) {
+                    nodeIds.forEach(function (n) {
+                        var acl = new _pydioHttpRestApi.IdmACL();
+                        acl.NodeID = n;
+                        acl.WorkspaceID = workspace.UUID;
+                        acl.RoleID = _this8.idmRole.Uuid;
+                        acl.Action = _pydioHttpRestApi.IdmACLAction.constructFromObject({ Name: r, Value: "1" });
+                        _this8.acls.push(acl);
+                    });
+                });
+            }
+            console.log(this.acls);
+            this.dirty = true;
+            this.notify('update');
+        }
+
+        /**
          * @param object {IdmRole}
          * @return {IdmRole}
          */
     }, {
         key: 'buildProxy',
         value: function buildProxy(object) {
-            var _this7 = this;
+            var _this9 = this;
 
             return new Proxy(object, {
                 set: function set(target, p, value) {
                     target[p] = value;
-                    _this7.dirty = true;
-                    _this7.notify('update');
+                    _this9.dirty = true;
+                    _this9.notify('update');
                     return true;
                 },
                 get: function get(target, p) {
@@ -27359,7 +27593,7 @@ var Role = (function (_Observable) {
                     if (out instanceof Array) {
                         return out;
                     } else if (out instanceof Object) {
-                        return _this7.buildProxy(out);
+                        return _this9.buildProxy(out);
                     } else {
                         return out;
                     }
@@ -27374,7 +27608,7 @@ var Role = (function (_Observable) {
 exports['default'] = Role;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":154}],179:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":154}],180:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27608,7 +27842,7 @@ var User = (function (_Observable) {
 exports['default'] = User;
 module.exports = exports['default'];
 
-},{"./Role":178,"pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":154}],180:[function(require,module,exports){
+},{"./Role":179,"pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":154}],181:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27697,7 +27931,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":192,"material-ui":"material-ui","pydio":"pydio","react":"react"}],181:[function(require,module,exports){
+},{"../util/MessagesMixin":193,"material-ui":"material-ui","pydio":"pydio","react":"react"}],182:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27956,7 +28190,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../acl/WorkspaceAcl":166,"../parameters/ParamsMixins":187,"../parameters/WorkspaceCard":188}],182:[function(require,module,exports){
+},{"../acl/WorkspaceAcl":166,"../parameters/ParamsMixins":188,"../parameters/WorkspaceCard":189}],183:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -28132,7 +28366,7 @@ exports['default'] = React.createClass({
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/EditorCache":191,"./ParametersPicker":185,"material-ui":"material-ui","pydio":"pydio","react":"react"}],183:[function(require,module,exports){
+},{"../util/EditorCache":192,"./ParametersPicker":186,"material-ui":"material-ui","pydio":"pydio","react":"react"}],184:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28289,7 +28523,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":192}],184:[function(require,module,exports){
+},{"../util/MessagesMixin":193}],185:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -28433,7 +28667,7 @@ exports['default'] = React.createClass({
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/MessagesMixin":192,"./ParameterEntry":183,"./ParamsMixins":187}],185:[function(require,module,exports){
+},{"../util/MessagesMixin":193,"./ParameterEntry":184,"./ParamsMixins":188}],186:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -28633,7 +28867,7 @@ exports['default'] = ParametersPicker;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"pydio/util/lang":"pydio/util/lang","react":"react"}],186:[function(require,module,exports){
+},{"pydio/util/lang":"pydio/util/lang","react":"react"}],187:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28706,7 +28940,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":192,"./ParamsMixins":187}],187:[function(require,module,exports){
+},{"../util/MessagesMixin":193,"./ParamsMixins":188}],188:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28805,7 +29039,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../util/EditorCache":191}],188:[function(require,module,exports){
+},{"../util/EditorCache":192}],189:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29009,7 +29243,7 @@ exports['default'] = WorkspaceCard = PydioContextConsumer(WorkspaceCard);
 exports['default'] = WorkspaceCard;
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":192,"./ParameterCreate":182,"./ParametersList":184,"./ParametersSummary":186,"material-ui":"material-ui","pydio":"pydio","react":"react"}],189:[function(require,module,exports){
+},{"../util/MessagesMixin":193,"./ParameterCreate":183,"./ParametersList":185,"./ParametersSummary":187,"material-ui":"material-ui","pydio":"pydio","react":"react"}],190:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -29135,7 +29369,7 @@ exports['default'] = React.createClass({
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../model/User":179,"material-ui":"material-ui","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],190:[function(require,module,exports){
+},{"../model/User":180,"material-ui":"material-ui","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],191:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29321,7 +29555,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":192,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],191:[function(require,module,exports){
+},{"../util/MessagesMixin":193,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],192:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29352,7 +29586,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{}],192:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29419,7 +29653,7 @@ var RoleMessagesProviderMixin = {
 exports.RoleMessagesConsumerMixin = RoleMessagesConsumerMixin;
 exports.RoleMessagesProviderMixin = RoleMessagesProviderMixin;
 
-},{}],193:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29562,7 +29796,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
 exports['default'] = CreateRoleOrGroupForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],194:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],195:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29725,7 +29959,7 @@ var CreateUserForm = _react2['default'].createClass({
 exports['default'] = CreateUserForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],195:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],196:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29822,7 +30056,7 @@ window.AdminPeople = {
   DirectoriesBoard: _boardDirectoriesBoard2['default']
 };
 
-},{"./board/Callbacks":156,"./board/Dashboard":157,"./board/DirectoriesBoard":158,"./board/PoliciesBoard":159,"./board/RolesDashboard":160,"./editor/Editor":162,"./editor/panel/SharesList":180,"./editor/panel/WorkspacesList":181,"./editor/parameters/ParameterCreate":182,"./editor/user/UserPasswordDialog":189,"./editor/user/UserRolesPicker":190,"./editor/util/MessagesMixin":192,"./forms/CreateRoleOrGroupForm":193,"./forms/CreateUserForm":194}],196:[function(require,module,exports){
+},{"./board/Callbacks":156,"./board/Dashboard":157,"./board/DirectoriesBoard":158,"./board/PoliciesBoard":159,"./board/RolesDashboard":160,"./editor/Editor":162,"./editor/panel/SharesList":181,"./editor/panel/WorkspacesList":182,"./editor/parameters/ParameterCreate":183,"./editor/user/UserPasswordDialog":190,"./editor/user/UserRolesPicker":191,"./editor/util/MessagesMixin":193,"./forms/CreateRoleOrGroupForm":194,"./forms/CreateUserForm":195}],197:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30067,7 +30301,7 @@ var Policy = (function (_React$Component) {
 exports['default'] = Policy;
 module.exports = exports['default'];
 
-},{"./Rule":197,"./editor/InlineLabel":202,"material-ui":"material-ui","react":"react","uuid4":154}],197:[function(require,module,exports){
+},{"./Rule":198,"./editor/InlineLabel":203,"material-ui":"material-ui","react":"react","uuid4":154}],198:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30222,7 +30456,7 @@ var Rule = (function (_React$Component) {
 exports['default'] = Rule;
 module.exports = exports['default'];
 
-},{"./editor/RuleEditor":205,"material-ui":"material-ui","react":"react"}],198:[function(require,module,exports){
+},{"./editor/RuleEditor":206,"material-ui":"material-ui","react":"react"}],199:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30326,7 +30560,7 @@ var Actions = (function (_React$Component) {
 exports['default'] = Actions;
 module.exports = exports['default'];
 
-},{"./ChipValues":199,"material-ui":"material-ui","react":"react"}],199:[function(require,module,exports){
+},{"./ChipValues":200,"material-ui":"material-ui","react":"react"}],200:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30469,7 +30703,7 @@ var ChipValues = (function (_React$Component) {
 exports['default'] = ChipValues;
 module.exports = exports['default'];
 
-},{"./ValuesOrRegexp":207,"material-ui":"material-ui","react":"react"}],200:[function(require,module,exports){
+},{"./ValuesOrRegexp":208,"material-ui":"material-ui","react":"react"}],201:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30676,7 +30910,7 @@ var Conditions = (function (_React$Component) {
 exports['default'] = Conditions;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],201:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],202:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30782,7 +31016,7 @@ var Effect = (function (_React$Component) {
 exports['default'] = Effect;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],202:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],203:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30936,7 +31170,7 @@ var InlineLabel = (function (_React$Component) {
 exports['default'] = InlineLabel;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],203:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],204:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31028,7 +31262,7 @@ var Label = (function (_React$Component) {
 exports['default'] = Label;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],204:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],205:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31124,7 +31358,7 @@ var Resources = (function (_React$Component) {
 exports['default'] = Resources;
 module.exports = exports['default'];
 
-},{"./ChipValues":199,"material-ui":"material-ui","react":"react"}],205:[function(require,module,exports){
+},{"./ChipValues":200,"material-ui":"material-ui","react":"react"}],206:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31309,7 +31543,7 @@ var RuleEditor = (function (_React$Component) {
 exports['default'] = RuleEditor;
 module.exports = exports['default'];
 
-},{"./Actions":198,"./Conditions":200,"./Effect":201,"./Label":203,"./Resources":204,"./Subjects":206,"material-ui":"material-ui","pydio":"pydio","react":"react"}],206:[function(require,module,exports){
+},{"./Actions":199,"./Conditions":201,"./Effect":202,"./Label":204,"./Resources":205,"./Subjects":207,"material-ui":"material-ui","pydio":"pydio","react":"react"}],207:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31405,7 +31639,7 @@ var Subjects = (function (_React$Component) {
 exports['default'] = Subjects;
 module.exports = exports['default'];
 
-},{"./ChipValues":199,"material-ui":"material-ui","react":"react"}],207:[function(require,module,exports){
+},{"./ChipValues":200,"material-ui":"material-ui","react":"react"}],208:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31552,4 +31786,4 @@ var ValuesOrRegexp = (function (_React$Component) {
 exports['default'] = ValuesOrRegexp;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}]},{},[195]);
+},{"material-ui":"material-ui","react":"react"}]},{},[196]);

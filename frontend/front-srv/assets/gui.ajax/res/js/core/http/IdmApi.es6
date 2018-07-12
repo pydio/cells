@@ -190,7 +190,7 @@ class IdmApi {
         const api = new UserServiceApi(this.client);
         const object = new IdmUser();
         object.IsGroup = true;
-        object.GroupPath = LangUtils.trimRight(baseGroup, '/') + '/' + groupIdentifier;
+        object.GroupPath = baseGroup || '/';
         object.GroupLabel = groupIdentifier;
         object.Attributes = {"displayName": displayName};
         return api.putUser(groupIdentifier, object);

@@ -127,7 +127,12 @@ class Role extends Observable{
                     this.acls.forEach(acl => {
                         p2.push(aclApi.putAcl(acl));
                     });
-                    return Promise.all(p2).then(() => {
+                    return Promise.all(p2).then((results) => {
+                        let newAcls = [];
+                        results.forEach(res => {
+                            newAcls.push(res);
+                        });
+                        this.acls = newAcls;
                         this.makeSnapshot();
                         this.dirty = false;
                         this.notify("update");
@@ -200,6 +205,117 @@ class Role extends Observable{
         }catch(e){
             return previousValue;
         }
+    }
+
+    /**
+     * @param workspace {IdmWorkspace}
+     */
+    getAclString(workspace){
+        let inherited = false;
+        const rootNodes = workspace.RootNodes;
+        const firstRoot = rootNodes[Object.keys(rootNodes).shift()];
+        const wsId = workspace.UUID;
+        const nodeId = firstRoot.Uuid;
+
+        let rights;
+        let parentRights;
+        this.parentRoles.forEach(role => {
+            const parentRight = this._aclStringForAcls(this.parentAcls[role.Uuid], wsId, nodeId);
+            if(parentRight !== undefined){
+                parentRights = parentRight;
+            }
+        });
+        let roleRigts = this._aclStringForAcls(this.acls, wsId, nodeId);
+        if(roleRigts !== undefined){
+            rights = roleRigts;
+        } else if(parentRights !== undefined){
+            rights = parentRights;
+            inherited = true;
+        } else {
+            return {aclString: "", false};
+        }
+
+        if(rights.deny){
+            return {aclString: 'PYDIO_VALUE_CLEAR', inherited}
+        }
+        const aclString = Object.keys(rights).filter(r=>rights[r]).join(',');
+        return {aclString, inherited}
+    }
+
+    _aclStringForAcls(acls, wsId, nodeId){
+        let rights = {read:false, write:false, deny:false};
+
+        const policyValue = acls.filter(acl => {
+            return (
+                acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0 &&
+                acl.WorkspaceID === wsId &&
+                acl.NodeID === nodeId &&
+                acl.Action.Value === "1"
+            );
+        });
+
+        if(policyValue.length){
+            rights[policyValue[0].Action.Name] = true;
+            return rights;
+        }
+
+        Object.keys(rights).forEach(rightName => {
+            const values = acls.filter(acl => {
+                return (
+                    acl.Action.Name === rightName &&
+                    acl.WorkspaceID === wsId &&
+                    acl.NodeID === nodeId &&
+                    acl.Action.Value === "1"
+                );
+            });
+            if(values.length){
+                rights[rightName] |= true
+            }
+        });
+        if(!rights.read && !rights.write && !rights.deny){
+            return undefined;
+        } else {
+            return rights;
+        }
+    }
+
+    /**
+     *
+     * @param workspace {IdmWorkspace}
+     * @param value string
+     */
+    updateAcl(workspace, value){
+        console.log(workspace, value);
+
+        const nodeIds = Object.keys(workspace.RootNodes);
+        // Remove current acls
+        this.acls = this.acls.filter(acl => {
+            return !(
+                (acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || (acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0))
+                && acl.WorkspaceID === workspace.UUID
+                && nodeIds.indexOf(acl.NodeID) > -1
+                && acl.Action.Value === "1"
+            );
+        });
+        if (value !== ''){
+            let rights = value.split(',');
+            if(value === 'PYDIO_VALUE_CLEAR') {
+                rights = ['deny'];
+            }
+            rights.forEach(r => {
+                nodeIds.forEach(n => {
+                    const acl = new IdmACL();
+                    acl.NodeID = n;
+                    acl.WorkspaceID = workspace.UUID;
+                    acl.RoleID = this.idmRole.Uuid;
+                    acl.Action = IdmACLAction.constructFromObject({Name:r, Value: "1"});
+                    this.acls.push(acl);
+                })
+            });
+        }
+        console.log(this.acls);
+        this.dirty = true;
+        this.notify('update');
     }
 
     /**

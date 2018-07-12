@@ -76,7 +76,7 @@ class UserInfo extends React.Component {
             const idmUser = user.getIdmUser();
             const role = user.getRole();
             if(idmUser.Attributes['locks']){
-                locks = JSON.parse(idmUser.Attributes['locks']);
+                locks = JSON.parse(idmUser.Attributes['locks']) || [];
             }
             rolesPicker = (
                 <UserRolesPicker

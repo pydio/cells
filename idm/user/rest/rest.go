@@ -169,10 +169,12 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 			if resp == nil {
 				continue
 			}
+			u := resp.User
 			if resp.User.IsGroup {
-				response.Groups = append(response.Groups, resp.User)
+				u.Roles = append(u.Roles, &idm.Role{Uuid: u.Uuid, GroupRole: true})
+				u.Roles = utils.GetRolesForUser(ctx, u, true)
+				response.Groups = append(response.Groups, u)
 			} else {
-				u := resp.User
 				u.Roles = utils.GetRolesForUser(ctx, u, false)
 				u.PoliciesContextEditable = s.IsContextEditable(ctx, u.Uuid, u.Policies)
 				response.Users = append(response.Users, u)
@@ -297,6 +299,10 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		// TODO: Check ability to edit profile
 	}
 
+	if inputUser.IsGroup {
+		inputUser.GroupPath = strings.TrimSuffix(inputUser.GroupPath, "/") + "/" + inputUser.GroupLabel
+	}
+
 	response, er := cli.CreateUser(ctx, &idm.CreateUserRequest{
 		User: &inputUser,
 	})
@@ -364,9 +370,11 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		}
 		u = resp.User
 		if !resp.User.IsGroup {
-			u = resp.User
 			u.Roles = utils.GetRolesForUser(ctx, u, false)
 			u.PoliciesContextEditable = s.IsContextEditable(ctx, u.Uuid, u.Policies)
+		} else if len(u.Roles) == 0 {
+			u.Roles = append(u.Roles, &idm.Role{Uuid: u.Uuid, GroupRole: true})
+			u.Roles = utils.GetRolesForUser(ctx, u, true)
 		}
 		break
 	}

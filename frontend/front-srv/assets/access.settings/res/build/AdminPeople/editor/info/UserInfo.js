@@ -138,7 +138,7 @@ var UserInfo = (function (_React$Component) {
                     var idmUser = user.getIdmUser();
                     var role = user.getRole();
                     if (idmUser.Attributes['locks']) {
-                        locks = JSON.parse(idmUser.Attributes['locks']);
+                        locks = JSON.parse(idmUser.Attributes['locks']) || [];
                     }
                     rolesPicker = _react2['default'].createElement(_userUserRolesPicker2['default'], {
                         roles: idmUser.Roles,
