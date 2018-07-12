@@ -22,6 +22,15 @@
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
 var React = require('react');
 var Pydio = require('pydio');
 
@@ -78,38 +87,54 @@ var PasswordForm = React.createClass({
     },
 
     post: function post(callback) {
+        var _this2 = this;
+
         var _state2 = this.state;
         var oldPass = _state2.oldPass;
         var newPass = _state2.newPass;
+        var pydio = this.props.pydio;
 
         var logoutString = '';
-        if (this.props.pydio.user.lock) {
+        if (pydio.user.lock) {
             logoutString = ' ' + this.getMessage(445);
         }
+        pydio.user.getIdmUser().then(function (idmUser) {
+            var updateUser = _pydioHttpRestApi.IdmUser.constructFromObject(JSON.parse(JSON.stringify(idmUser)));
+            updateUser.OldPassword = oldPass;
+            updateUser.Password = newPass;
+            var api = new _pydioHttpRestApi.UserServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.putUser(updateUser.Login, updateUser).then(function () {
+                pydio.displayMessage('SUCCESS', _this2.getMessage(197) + logoutString);
+                callback(true);
+                if (logoutString) {
+                    pydio.getController().fireAction('logout');
+                }
+            });
+        });
+
+        /*
         PydioApi.getClient().request({
-            get_action: 'pass_change',
+            get_action:'pass_change',
             old_pass: oldPass,
             new_pass: newPass,
             pass_seed: '-1'
-        }, (function (transport) {
-
-            if (transport.responseText === 'PASS_ERROR') {
-
-                this.setState({ error: this.getMessage(240) });
+        }, function(transport){
+             if(transport.responseText === 'PASS_ERROR'){
+                 this.setState({error: this.getMessage(240)});
                 callback(false);
-            } else if (transport.responseText === 'SUCCESS') {
-
-                this.props.pydio.displayMessage('SUCCESS', this.getMessage(197) + logoutString);
+             }else if(transport.responseText === 'SUCCESS'){
+                 this.props.pydio.displayMessage('SUCCESS', this.getMessage(197) + logoutString);
                 callback(true);
-                if (logoutString) {
+                if(logoutString) {
                     this.props.pydio.getController().fireAction('logout');
                 }
             }
-        }).bind(this));
+         }.bind(this));
+        */
     },
 
     render: function render() {
-        var _this2 = this;
+        var _this3 = this;
 
         var messages = this.props.pydio.MessageHash;
         var legend = undefined;
@@ -127,10 +152,10 @@ var PasswordForm = React.createClass({
             );
         }
         var oldChange = function oldChange(event, newV) {
-            _this2.update(newV, 'oldPass');
+            _this3.update(newV, 'oldPass');
         };
         var newChange = function newChange(newV, oldV) {
-            _this2.update(newV, 'newPass');
+            _this3.update(newV, 'newPass');
         };
         return React.createElement(
             'div',

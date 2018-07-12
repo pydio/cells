@@ -76,6 +76,9 @@ export default class IdmUser {
             if (data.hasOwnProperty('Password')) {
                 obj['Password'] = ApiClient.convertToType(data['Password'], 'String');
             }
+            if (data.hasOwnProperty('OldPassword')) {
+                obj['OldPassword'] = ApiClient.convertToType(data['OldPassword'], 'String');
+            }
             if (data.hasOwnProperty('IsGroup')) {
                 obj['IsGroup'] = ApiClient.convertToType(data['IsGroup'], 'Boolean');
             }
@@ -116,6 +119,10 @@ export default class IdmUser {
     * @member {String} Password
     */
     Password = undefined;
+    /**
+    * @member {String} OldPassword
+    */
+    OldPassword = undefined;
     /**
     * @member {Boolean} IsGroup
     */

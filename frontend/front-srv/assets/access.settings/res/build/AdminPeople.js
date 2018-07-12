@@ -25576,30 +25576,29 @@ var UserInfo = (function (_React$Component) {
     }, {
         key: 'buttonCallback',
         value: function buttonCallback(action) {
+            var user = this.props.user;
+
             if (action === "update_user_pwd") {
-                this.props.pydio.UI.openComponentInModal('AdminPeople', 'UserPasswordDialog', { userId: userId });
+                this.props.pydio.UI.openComponentInModal('AdminPeople', 'UserPasswordDialog', { user: user });
             } else {
-                this.toggleUserLock(userId, locked, action);
+                (function () {
+                    var idmUser = user.getIdmUser();
+                    var lockName = action === 'user_set_lock-lock' ? 'logout' : 'pass_change';
+                    var currentLocks = [];
+                    if (idmUser.Attributes['locks']) {
+                        currentLocks = JSON.parse(idmUser.Attributes['locks']);
+                    }
+                    if (currentLocks.indexOf(lockName) > -1) {
+                        currentLocks = currentLocks.filter(function (l) {
+                            return l !== lockName;
+                        });
+                    } else {
+                        currentLocks.push(lockName);
+                    }
+                    idmUser.Attributes['locks'] = JSON.stringify(currentLocks);
+                    user.save();
+                })();
             }
-        }
-    }, {
-        key: 'toggleUserLock',
-        value: function toggleUserLock(userId, currentLock, buttonAction) {
-            var reqParams = {
-                get_action: "edit",
-                sub_action: "user_set_lock",
-                user_id: userId
-            };
-            if (buttonAction == "user_set_lock-lock") {
-                reqParams["lock"] = currentLock.indexOf("logout") > -1 ? "false" : "true";
-                reqParams["lock_type"] = "logout";
-            } else {
-                reqParams["lock"] = currentLock.indexOf("pass_change") > -1 ? "false" : "true";
-                reqParams["lock_type"] = "pass_change";
-            }
-            PydioApi.getClient().request(reqParams, (function (transport) {
-                this.loadRoleData();
-            }).bind(this));
         }
     }, {
         key: 'render',
@@ -25619,18 +25618,18 @@ var UserInfo = (function (_React$Component) {
                 );
             }
 
-            // Load user-scope parameters
-            var values = {
-                profiles: []
-            },
-                locks = '';
+            var values = { profiles: [] };
+            var locks = [];
             var rolesPicker = undefined;
+
             if (user) {
                 (function () {
                     // Compute values
                     var idmUser = user.getIdmUser();
                     var role = user.getRole();
-                    console.log(idmUser.Roles);
+                    if (idmUser.Attributes['locks']) {
+                        locks = JSON.parse(idmUser.Attributes['locks']);
+                    }
                     rolesPicker = _react2['default'].createElement(_userUserRolesPicker2['default'], {
                         roles: idmUser.Roles,
                         loadingMessage: 'Loading Roles...',
@@ -29040,6 +29039,12 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _modelUser = require('../model/User');
+
+var _modelUser2 = _interopRequireDefault(_modelUser);
+
 var React = require('react');
 
 var _require = require('material-ui');
@@ -29055,7 +29060,6 @@ var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
 var SubmitButtonProviderMixin = _Pydio$requireLib.SubmitButtonProviderMixin;
 
 var PassUtils = require('pydio/util/pass');
-
 exports['default'] = React.createClass({
     displayName: 'UserPasswordDialog',
 
@@ -29063,12 +29067,12 @@ exports['default'] = React.createClass({
 
     propTypes: {
         pydio: React.PropTypes.instanceOf(Pydio),
-        userId: React.PropTypes.string.isRequired
+        user: React.PropTypes.instanceOf(_modelUser2['default'])
     },
 
     getDefaultProps: function getDefaultProps() {
         return {
-            dialogTitle: global.pydio.MessageHash['role_editor.25'],
+            dialogTitle: pydio.MessageHash['role_editor.25'],
             dialogSize: 'sm'
         };
     },
@@ -29086,6 +29090,7 @@ exports['default'] = React.createClass({
     },
 
     submit: function submit() {
+        var _this = this;
 
         if (!this.state.valid) {
             this.props.pydio.UI.displayMessage('ERROR', this.state.passErrorText || this.state.confirmErrorText);
@@ -29093,14 +29098,12 @@ exports['default'] = React.createClass({
         }
 
         var value = this.refs.pass.getValue();
-        PydioApi.getClient().request({
-            get_action: "edit",
-            sub_action: "update_user_pwd",
-            user_id: this.props.userId,
-            user_pwd: value
-        }, (function () {
-            this.dismiss();
-        }).bind(this));
+        var user = this.props.user;
+
+        user.getIdmUser().Password = value;
+        user.save().then(function () {
+            _this.dismiss();
+        });
     },
 
     render: function render() {
@@ -29109,7 +29112,6 @@ exports['default'] = React.createClass({
         // so we have to get the messages from the global.
         var getMessage = function getMessage(id) {
             var namespace = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-
             return global.pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
         };
         return React.createElement(
@@ -29133,7 +29135,7 @@ exports['default'] = React.createClass({
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"material-ui":"material-ui","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],190:[function(require,module,exports){
+},{"../model/User":179,"material-ui":"material-ui","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],190:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29605,6 +29607,10 @@ var _pydioUtilPass = require('pydio/util/pass');
 
 var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
 
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
 var CreateUserForm = _react2['default'].createClass({
     displayName: 'CreateUserForm',
 
@@ -29648,28 +29654,17 @@ var CreateUserForm = _react2['default'].createClass({
         if (currentPath.startsWith("/idm/users")) {
             currentPath = currentPath.substr("/idm/users".length);
         }
+        var login = this.refs.user_id.getValue();
+        var pwd = this.refs.pass.getValue();
 
-        _pydioHttpApi2['default'].getRestClient().getIdmApi().createUser(currentPath, this.refs.user_id.getValue(), this.refs.pass.getValue()).then(function () {
+        _pydioHttpApi2['default'].getRestClient().getIdmApi().createUser(currentPath, login, pwd).then(function (idmUser) {
             _this.dismiss();
             ctxNode.reload();
+            var node = new _pydioModelNode2['default'](currentPath + "/" + login, true);
+            node.getMetadata().set("ajxp_mime", "user");
+            node.getMetadata().set("IdmUser", idmUser);
+            _this.props.openRoleEditor(node);
         });
-        /*
-        PydioApi.getClient().request(parameters, function(transport){
-            var xml = transport.responseXML;
-            var message = XMLUtils.XPathSelectSingleNode(xml, "//reload_instruction");
-            if(message){
-                var node = new AjxpNode(currentPath + "/"+ parameters['new_user_login'], true);
-                node.getMetadata().set("ajxp_mime", "user");
-                this.props.openRoleEditor(node);
-                let currentNode = global.pydio.getContextNode();
-                if(global.pydio.getContextHolder().getSelectedNodes().length){
-                    currentNode = global.pydio.getContextHolder().getSelectedNodes()[0];
-                }
-                currentNode.reload();
-            }
-        }.bind(this));
-        this.dismiss();
-        */
     },
 
     render: function render() {
@@ -29730,7 +29725,7 @@ var CreateUserForm = _react2['default'].createClass({
 exports['default'] = CreateUserForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/util/pass":"pydio/util/pass","react":"react"}],195:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],195:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

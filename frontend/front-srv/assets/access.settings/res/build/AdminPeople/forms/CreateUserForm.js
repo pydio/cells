@@ -42,6 +42,10 @@ var _pydioUtilPass = require('pydio/util/pass');
 
 var _pydioUtilPass2 = _interopRequireDefault(_pydioUtilPass);
 
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
 var CreateUserForm = _react2['default'].createClass({
     displayName: 'CreateUserForm',
 
@@ -85,28 +89,17 @@ var CreateUserForm = _react2['default'].createClass({
         if (currentPath.startsWith("/idm/users")) {
             currentPath = currentPath.substr("/idm/users".length);
         }
+        var login = this.refs.user_id.getValue();
+        var pwd = this.refs.pass.getValue();
 
-        _pydioHttpApi2['default'].getRestClient().getIdmApi().createUser(currentPath, this.refs.user_id.getValue(), this.refs.pass.getValue()).then(function () {
+        _pydioHttpApi2['default'].getRestClient().getIdmApi().createUser(currentPath, login, pwd).then(function (idmUser) {
             _this.dismiss();
             ctxNode.reload();
+            var node = new _pydioModelNode2['default'](currentPath + "/" + login, true);
+            node.getMetadata().set("ajxp_mime", "user");
+            node.getMetadata().set("IdmUser", idmUser);
+            _this.props.openRoleEditor(node);
         });
-        /*
-        PydioApi.getClient().request(parameters, function(transport){
-            var xml = transport.responseXML;
-            var message = XMLUtils.XPathSelectSingleNode(xml, "//reload_instruction");
-            if(message){
-                var node = new AjxpNode(currentPath + "/"+ parameters['new_user_login'], true);
-                node.getMetadata().set("ajxp_mime", "user");
-                this.props.openRoleEditor(node);
-                let currentNode = global.pydio.getContextNode();
-                if(global.pydio.getContextHolder().getSelectedNodes().length){
-                    currentNode = global.pydio.getContextHolder().getSelectedNodes()[0];
-                }
-                currentNode.reload();
-            }
-        }.bind(this));
-        this.dismiss();
-        */
     },
 
     render: function render() {

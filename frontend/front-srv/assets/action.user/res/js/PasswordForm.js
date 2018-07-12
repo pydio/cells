@@ -17,6 +17,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import PydioApi from 'pydio/http/api'
+import {UserServiceApi, IdmUser} from 'pydio/http/rest-api'
 const React = require('react')
 const Pydio = require('pydio')
 const {TextField} = require('material-ui')
@@ -25,15 +27,15 @@ const {ValidPassword} = Pydio.requireLib('form')
 
 let PasswordForm = React.createClass({
 
-    getInitialState: function(){
+    getInitialState(){
         return {error: null, old: '', newPass: ''};
     },
 
-    getMessage: function(id){
+    getMessage(id){
         return this.props.pydio.MessageHash[id];
     },
 
-    update: function(value, field){
+    update(value, field){
         let newStatus = {}
         newStatus[field] = value;
         this.setState(newStatus, () => {
@@ -44,7 +46,7 @@ let PasswordForm = React.createClass({
         });
     },
 
-    validate: function(){
+    validate(){
         if(!this.refs.newpass.isValid()){
             return false;
         }
@@ -61,12 +63,28 @@ let PasswordForm = React.createClass({
         return true;
     },
 
-    post: function(callback){
+    post(callback){
         const {oldPass, newPass} = this.state;
+        const {pydio} = this.props;
         let logoutString = '';
-        if(this.props.pydio.user.lock) {
+        if(pydio.user.lock) {
             logoutString =  ' ' + this.getMessage(445);
         }
+        pydio.user.getIdmUser().then(idmUser => {
+            const updateUser = IdmUser.constructFromObject(JSON.parse(JSON.stringify(idmUser)));
+            updateUser.OldPassword = oldPass;
+            updateUser.Password = newPass;
+            const api = new UserServiceApi(PydioApi.getRestClient());
+            api.putUser(updateUser.Login, updateUser).then(() => {
+                pydio.displayMessage('SUCCESS', this.getMessage(197) + logoutString);
+                callback(true);
+                if(logoutString) {
+                    pydio.getController().fireAction('logout');
+                }
+            })
+        });
+
+        /*
         PydioApi.getClient().request({
             get_action:'pass_change',
             old_pass: oldPass,
@@ -89,9 +107,10 @@ let PasswordForm = React.createClass({
             }
 
         }.bind(this));
+        */
     },
 
-    render: function(){
+    render(){
 
         const messages = this.props.pydio.MessageHash;
         let legend;

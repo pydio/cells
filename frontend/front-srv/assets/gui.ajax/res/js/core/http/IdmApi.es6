@@ -198,17 +198,19 @@ class IdmApi {
 
     /**
      *
-     * @param baseGroup
-     * @param login
-     * @param password
+     * @param baseGroup string
+     * @param login string
+     * @param password string
+     * @param profile string
      * @return {Promise}
      */
-    createUser(baseGroup = '/', login, password){
+    createUser(baseGroup = '/', login, password, profile='standard'){
         const api = new UserServiceApi(this.client);
         const object = new IdmUser();
         object.GroupPath = baseGroup;
         object.Login = login;
         object.Password = password;
+        object.Attributes = {profile: profile};
         return api.putUser(login, object);
     }
 

@@ -86,30 +86,29 @@ var UserInfo = (function (_React$Component) {
     }, {
         key: 'buttonCallback',
         value: function buttonCallback(action) {
+            var user = this.props.user;
+
             if (action === "update_user_pwd") {
-                this.props.pydio.UI.openComponentInModal('AdminPeople', 'UserPasswordDialog', { userId: userId });
+                this.props.pydio.UI.openComponentInModal('AdminPeople', 'UserPasswordDialog', { user: user });
             } else {
-                this.toggleUserLock(userId, locked, action);
+                (function () {
+                    var idmUser = user.getIdmUser();
+                    var lockName = action === 'user_set_lock-lock' ? 'logout' : 'pass_change';
+                    var currentLocks = [];
+                    if (idmUser.Attributes['locks']) {
+                        currentLocks = JSON.parse(idmUser.Attributes['locks']);
+                    }
+                    if (currentLocks.indexOf(lockName) > -1) {
+                        currentLocks = currentLocks.filter(function (l) {
+                            return l !== lockName;
+                        });
+                    } else {
+                        currentLocks.push(lockName);
+                    }
+                    idmUser.Attributes['locks'] = JSON.stringify(currentLocks);
+                    user.save();
+                })();
             }
-        }
-    }, {
-        key: 'toggleUserLock',
-        value: function toggleUserLock(userId, currentLock, buttonAction) {
-            var reqParams = {
-                get_action: "edit",
-                sub_action: "user_set_lock",
-                user_id: userId
-            };
-            if (buttonAction == "user_set_lock-lock") {
-                reqParams["lock"] = currentLock.indexOf("logout") > -1 ? "false" : "true";
-                reqParams["lock_type"] = "logout";
-            } else {
-                reqParams["lock"] = currentLock.indexOf("pass_change") > -1 ? "false" : "true";
-                reqParams["lock_type"] = "pass_change";
-            }
-            PydioApi.getClient().request(reqParams, (function (transport) {
-                this.loadRoleData();
-            }).bind(this));
         }
     }, {
         key: 'render',
@@ -129,18 +128,18 @@ var UserInfo = (function (_React$Component) {
                 );
             }
 
-            // Load user-scope parameters
-            var values = {
-                profiles: []
-            },
-                locks = '';
+            var values = { profiles: [] };
+            var locks = [];
             var rolesPicker = undefined;
+
             if (user) {
                 (function () {
                     // Compute values
                     var idmUser = user.getIdmUser();
                     var role = user.getRole();
-                    console.log(idmUser.Roles);
+                    if (idmUser.Attributes['locks']) {
+                        locks = JSON.parse(idmUser.Attributes['locks']);
+                    }
                     rolesPicker = _react2['default'].createElement(_userUserRolesPicker2['default'], {
                         roles: idmUser.Roles,
                         loadingMessage: 'Loading Roles...',

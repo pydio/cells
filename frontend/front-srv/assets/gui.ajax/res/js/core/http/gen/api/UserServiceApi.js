@@ -151,6 +151,7 @@ export default class UserServiceApi {
      * @param {String} opts.uuid 
      * @param {String} opts.groupPath 
      * @param {String} opts.password 
+     * @param {String} opts.oldPassword 
      * @param {Boolean} opts.isGroup Group specific data.
      * @param {String} opts.groupLabel 
      * @param {Boolean} opts.policiesContextEditable 
@@ -173,6 +174,7 @@ export default class UserServiceApi {
         'Uuid': opts['uuid'],
         'GroupPath': opts['groupPath'],
         'Password': opts['password'],
+        'OldPassword': opts['oldPassword'],
         'IsGroup': opts['isGroup'],
         'GroupLabel': opts['groupLabel'],
         'PoliciesContextEditable': opts['policiesContextEditable']
@@ -201,6 +203,7 @@ export default class UserServiceApi {
      * @param {String} opts.uuid 
      * @param {String} opts.groupPath 
      * @param {String} opts.password 
+     * @param {String} opts.oldPassword 
      * @param {Boolean} opts.isGroup Group specific data.
      * @param {String} opts.groupLabel 
      * @param {Boolean} opts.policiesContextEditable 

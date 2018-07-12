@@ -22,6 +22,7 @@ import React from 'react'
 import PydioApi from 'pydio/http/api'
 import {TextField} from 'material-ui'
 import PassUtils from 'pydio/util/pass'
+import Node from 'pydio/model/node'
 
 const CreateUserForm = React.createClass({
 
@@ -69,28 +70,17 @@ const CreateUserForm = React.createClass({
         if(currentPath.startsWith("/idm/users")){
             currentPath = currentPath.substr("/idm/users".length);
         }
+        const login = this.refs.user_id.getValue();
+        const pwd = this.refs.pass.getValue();
 
-        PydioApi.getRestClient().getIdmApi().createUser(currentPath, this.refs.user_id.getValue(), this.refs.pass.getValue()).then(() => {
+        PydioApi.getRestClient().getIdmApi().createUser(currentPath, login, pwd).then((idmUser) => {
             this.dismiss();
             ctxNode.reload();
+            const node = new Node(currentPath + "/"+ login, true);
+            node.getMetadata().set("ajxp_mime", "user");
+            node.getMetadata().set("IdmUser", idmUser);
+            this.props.openRoleEditor(node);
         });
-        /*
-        PydioApi.getClient().request(parameters, function(transport){
-            var xml = transport.responseXML;
-            var message = XMLUtils.XPathSelectSingleNode(xml, "//reload_instruction");
-            if(message){
-                var node = new AjxpNode(currentPath + "/"+ parameters['new_user_login'], true);
-                node.getMetadata().set("ajxp_mime", "user");
-                this.props.openRoleEditor(node);
-                let currentNode = global.pydio.getContextNode();
-                if(global.pydio.getContextHolder().getSelectedNodes().length){
-                    currentNode = global.pydio.getContextHolder().getSelectedNodes()[0];
-                }
-                currentNode.reload();
-            }
-        }.bind(this));
-        this.dismiss();
-        */
     },
 
     render(){

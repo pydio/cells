@@ -26,6 +26,12 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _modelUser = require('../model/User');
+
+var _modelUser2 = _interopRequireDefault(_modelUser);
+
 var React = require('react');
 
 var _require = require('material-ui');
@@ -41,7 +47,6 @@ var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
 var SubmitButtonProviderMixin = _Pydio$requireLib.SubmitButtonProviderMixin;
 
 var PassUtils = require('pydio/util/pass');
-
 exports['default'] = React.createClass({
     displayName: 'UserPasswordDialog',
 
@@ -49,12 +54,12 @@ exports['default'] = React.createClass({
 
     propTypes: {
         pydio: React.PropTypes.instanceOf(Pydio),
-        userId: React.PropTypes.string.isRequired
+        user: React.PropTypes.instanceOf(_modelUser2['default'])
     },
 
     getDefaultProps: function getDefaultProps() {
         return {
-            dialogTitle: global.pydio.MessageHash['role_editor.25'],
+            dialogTitle: pydio.MessageHash['role_editor.25'],
             dialogSize: 'sm'
         };
     },
@@ -72,6 +77,7 @@ exports['default'] = React.createClass({
     },
 
     submit: function submit() {
+        var _this = this;
 
         if (!this.state.valid) {
             this.props.pydio.UI.displayMessage('ERROR', this.state.passErrorText || this.state.confirmErrorText);
@@ -79,14 +85,12 @@ exports['default'] = React.createClass({
         }
 
         var value = this.refs.pass.getValue();
-        PydioApi.getClient().request({
-            get_action: "edit",
-            sub_action: "update_user_pwd",
-            user_id: this.props.userId,
-            user_pwd: value
-        }, (function () {
-            this.dismiss();
-        }).bind(this));
+        var user = this.props.user;
+
+        user.getIdmUser().Password = value;
+        user.save().then(function () {
+            _this.dismiss();
+        });
     },
 
     render: function render() {
@@ -95,7 +99,6 @@ exports['default'] = React.createClass({
         // so we have to get the messages from the global.
         var getMessage = function getMessage(id) {
             var namespace = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-
             return global.pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
         };
         return React.createElement(

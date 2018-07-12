@@ -23,6 +23,7 @@ const {TextField} = require('material-ui')
 const Pydio = require('pydio');
 const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = Pydio.requireLib('boot');
 const PassUtils = require('pydio/util/pass');
+import User from '../model/User'
 
 export default React.createClass({
 
@@ -35,29 +36,29 @@ export default React.createClass({
 
     propTypes: {
         pydio : React.PropTypes.instanceOf(Pydio),
-        userId: React.PropTypes.string.isRequired
+        user:   React.PropTypes.instanceOf(User)
     },
 
-    getDefaultProps: function(){
+    getDefaultProps(){
         return {
-            dialogTitle: global.pydio.MessageHash['role_editor.25'],
+            dialogTitle: pydio.MessageHash['role_editor.25'],
             dialogSize: 'sm'
         }
     },
 
-    getInitialState: function () {
+    getInitialState () {
         const pwdState = PassUtils.getState();
         return {...pwdState};
     },
 
-    onChange: function (event, value) {
+    onChange (event, value) {
         const passValue = this.refs.pass.getValue();
         const confirmValue = this.refs.confirm.getValue();
         const newState = PassUtils.getState(passValue, confirmValue, this.state);
         this.setState(newState);
     },
 
-    submit: function () {
+    submit () {
 
         if(!this.state.valid){
             this.props.pydio.UI.displayMessage('ERROR', this.state.passErrorText || this.state.confirmErrorText);
@@ -65,24 +66,18 @@ export default React.createClass({
         }
 
         const value = this.refs.pass.getValue();
-        PydioApi.getClient().request({
-                get_action: "edit",
-                sub_action: "update_user_pwd",
-                user_id: this.props.userId,
-                user_pwd: value
-            }, function () {
-                this.dismiss()
-            }.bind(this)
-        );
+        const {user} = this.props;
+        user.getIdmUser().Password = value;
+        user.save().then(() => {
+            this.dismiss();
+        });
     },
 
-    render: function () {
+    render () {
 
         // This is passed via state, context is not working,
         // so we have to get the messages from the global.
-        const getMessage = function (id, namespace='') {
-            return global.pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
-        };
+        const getMessage = (id, namespace = '') => global.pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
         return (
             <div style={{width: '100%'}}>
                 <TextField ref="pass" type="password" fullWidth={true}
