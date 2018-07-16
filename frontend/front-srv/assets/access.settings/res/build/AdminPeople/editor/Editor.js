@@ -419,9 +419,12 @@ var Editor = (function (_React$Component) {
         value: function render() {
             var _this5 = this;
 
-            var _props = this.props;
-            var advancedAcl = _props.advancedAcl;
-            var pydio = _props.pydio;
+            //const {advancedAcl, pydio} = this.props;
+            // TODO TMP - to be reverted for tests
+            var pydio = this.props.pydio;
+
+            var advancedAcl = true;
+
             var _state2 = this.state;
             var observableRole = _state2.observableRole;
             var observableUser = _state2.observableUser;

@@ -72,7 +72,7 @@ Entity.prototype.encode = function encode(data, enc, /* internal */ reporter) {
   return this._getEncoder(enc).encode(data, reporter);
 };
 
-},{"../asn1":1,"inherits":101,"vm":155}],3:[function(require,module,exports){
+},{"../asn1":1,"inherits":102,"vm":156}],3:[function(require,module,exports){
 var inherits = require('inherits');
 var Reporter = require('../base').Reporter;
 var Buffer = require('buffer').Buffer;
@@ -190,7 +190,7 @@ EncoderBuffer.prototype.join = function join(out, offset) {
   return out;
 };
 
-},{"../base":4,"buffer":47,"inherits":101}],4:[function(require,module,exports){
+},{"../base":4,"buffer":47,"inherits":102}],4:[function(require,module,exports){
 var base = exports;
 
 base.Reporter = require('./reporter').Reporter;
@@ -834,7 +834,7 @@ Node.prototype._isPrintstr = function isPrintstr(str) {
   return /^[A-Za-z0-9 '\(\)\+,\-\.\/:=\?]*$/.test(str);
 };
 
-},{"../base":4,"minimalistic-assert":106}],6:[function(require,module,exports){
+},{"../base":4,"minimalistic-assert":107}],6:[function(require,module,exports){
 var inherits = require('inherits');
 
 function Reporter(options) {
@@ -957,7 +957,7 @@ ReporterError.prototype.rethrow = function rethrow(msg) {
   return this;
 };
 
-},{"inherits":101}],7:[function(require,module,exports){
+},{"inherits":102}],7:[function(require,module,exports){
 var constants = require('../constants');
 
 exports.tagClass = {
@@ -1348,7 +1348,7 @@ function derDecodeLen(buf, primitive, fail) {
   return len;
 }
 
-},{"../../asn1":1,"inherits":101}],10:[function(require,module,exports){
+},{"../../asn1":1,"inherits":102}],10:[function(require,module,exports){
 var decoders = exports;
 
 decoders.der = require('./der');
@@ -1405,7 +1405,7 @@ PEMDecoder.prototype.decode = function decode(data, options) {
   return DERDecoder.prototype.decode.call(this, input, options);
 };
 
-},{"./der":9,"buffer":47,"inherits":101}],12:[function(require,module,exports){
+},{"./der":9,"buffer":47,"inherits":102}],12:[function(require,module,exports){
 var inherits = require('inherits');
 var Buffer = require('buffer').Buffer;
 
@@ -1702,7 +1702,7 @@ function encodeTag(tag, primitive, cls, reporter) {
   return res;
 }
 
-},{"../../asn1":1,"buffer":47,"inherits":101}],13:[function(require,module,exports){
+},{"../../asn1":1,"buffer":47,"inherits":102}],13:[function(require,module,exports){
 var encoders = exports;
 
 encoders.der = require('./der');
@@ -1731,7 +1731,7 @@ PEMEncoder.prototype.encode = function encode(data, options) {
   return out.join('\n');
 };
 
-},{"./der":12,"inherits":101}],15:[function(require,module,exports){
+},{"./der":12,"inherits":102}],15:[function(require,module,exports){
 (function (module, exports) {
   'use strict';
 
@@ -5459,7 +5459,7 @@ AES.prototype.scrub = function () {
 
 module.exports.AES = AES
 
-},{"safe-buffer":142}],19:[function(require,module,exports){
+},{"safe-buffer":143}],19:[function(require,module,exports){
 var aes = require('./aes')
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('cipher-base')
@@ -5578,7 +5578,7 @@ StreamCipher.prototype.setAAD = function setAAD (buf) {
 
 module.exports = StreamCipher
 
-},{"./aes":18,"./ghash":23,"./incr32":24,"buffer-xor":46,"cipher-base":49,"inherits":101,"safe-buffer":142}],20:[function(require,module,exports){
+},{"./aes":18,"./ghash":23,"./incr32":24,"buffer-xor":46,"cipher-base":49,"inherits":102,"safe-buffer":143}],20:[function(require,module,exports){
 var ciphers = require('./encrypter')
 var deciphers = require('./decrypter')
 var modes = require('./modes/list.json')
@@ -5719,7 +5719,7 @@ function createDecipher (suite, password) {
 exports.createDecipher = createDecipher
 exports.createDecipheriv = createDecipheriv
 
-},{"./aes":18,"./authCipher":19,"./modes":31,"./streamCipher":34,"cipher-base":49,"evp_bytestokey":84,"inherits":101,"safe-buffer":142}],22:[function(require,module,exports){
+},{"./aes":18,"./authCipher":19,"./modes":31,"./streamCipher":34,"cipher-base":49,"evp_bytestokey":85,"inherits":102,"safe-buffer":143}],22:[function(require,module,exports){
 var MODES = require('./modes')
 var AuthCipher = require('./authCipher')
 var Buffer = require('safe-buffer').Buffer
@@ -5835,7 +5835,7 @@ function createCipher (suite, password) {
 exports.createCipheriv = createCipheriv
 exports.createCipher = createCipher
 
-},{"./aes":18,"./authCipher":19,"./modes":31,"./streamCipher":34,"cipher-base":49,"evp_bytestokey":84,"inherits":101,"safe-buffer":142}],23:[function(require,module,exports){
+},{"./aes":18,"./authCipher":19,"./modes":31,"./streamCipher":34,"cipher-base":49,"evp_bytestokey":85,"inherits":102,"safe-buffer":143}],23:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var ZEROES = Buffer.alloc(16, 0)
 
@@ -5926,7 +5926,7 @@ GHASH.prototype.final = function (abl, bl) {
 
 module.exports = GHASH
 
-},{"safe-buffer":142}],24:[function(require,module,exports){
+},{"safe-buffer":143}],24:[function(require,module,exports){
 function incr32 (iv) {
   var len = iv.length
   var item
@@ -5997,7 +5997,7 @@ exports.encrypt = function (self, data, decrypt) {
   return out
 }
 
-},{"buffer-xor":46,"safe-buffer":142}],27:[function(require,module,exports){
+},{"buffer-xor":46,"safe-buffer":143}],27:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 function encryptByte (self, byteParam, decrypt) {
@@ -6041,7 +6041,7 @@ exports.encrypt = function (self, chunk, decrypt) {
   return out
 }
 
-},{"safe-buffer":142}],28:[function(require,module,exports){
+},{"safe-buffer":143}],28:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 function encryptByte (self, byteParam, decrypt) {
@@ -6068,7 +6068,7 @@ exports.encrypt = function (self, chunk, decrypt) {
   return out
 }
 
-},{"safe-buffer":142}],29:[function(require,module,exports){
+},{"safe-buffer":143}],29:[function(require,module,exports){
 var xor = require('buffer-xor')
 var Buffer = require('safe-buffer').Buffer
 var incr32 = require('../incr32')
@@ -6100,7 +6100,7 @@ exports.encrypt = function (self, chunk) {
   return xor(chunk, pad)
 }
 
-},{"../incr32":24,"buffer-xor":46,"safe-buffer":142}],30:[function(require,module,exports){
+},{"../incr32":24,"buffer-xor":46,"safe-buffer":143}],30:[function(require,module,exports){
 exports.encrypt = function (self, block) {
   return self._cipher.encryptBlock(block)
 }
@@ -6371,7 +6371,7 @@ StreamCipher.prototype._final = function () {
 
 module.exports = StreamCipher
 
-},{"./aes":18,"cipher-base":49,"inherits":101,"safe-buffer":142}],35:[function(require,module,exports){
+},{"./aes":18,"cipher-base":49,"inherits":102,"safe-buffer":143}],35:[function(require,module,exports){
 var DES = require('browserify-des')
 var aes = require('browserify-aes/browser')
 var aesModes = require('browserify-aes/modes')
@@ -6440,7 +6440,7 @@ exports.createDecipher = exports.Decipher = createDecipher
 exports.createDecipheriv = exports.Decipheriv = createDecipheriv
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"browserify-aes/browser":20,"browserify-aes/modes":31,"browserify-des":36,"browserify-des/modes":37,"evp_bytestokey":84}],36:[function(require,module,exports){
+},{"browserify-aes/browser":20,"browserify-aes/modes":31,"browserify-des":36,"browserify-des/modes":37,"evp_bytestokey":85}],36:[function(require,module,exports){
 (function (Buffer){
 var CipherBase = require('cipher-base')
 var des = require('des.js')
@@ -6487,7 +6487,7 @@ DES.prototype._final = function () {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":47,"cipher-base":49,"des.js":57,"inherits":101}],37:[function(require,module,exports){
+},{"buffer":47,"cipher-base":49,"des.js":58,"inherits":102}],37:[function(require,module,exports){
 exports['des-ecb'] = {
   key: 8,
   iv: 0
@@ -6557,7 +6557,7 @@ function getr(priv) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"bn.js":15,"buffer":47,"randombytes":126}],39:[function(require,module,exports){
+},{"bn.js":15,"buffer":47,"randombytes":127}],39:[function(require,module,exports){
 module.exports = require('./browser/algorithms.json')
 
 },{"./browser/algorithms.json":40}],40:[function(require,module,exports){
@@ -6819,7 +6819,7 @@ module.exports = {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./algorithms.json":40,"./sign":43,"./verify":44,"buffer":47,"create-hash":52,"inherits":101,"stream":151}],43:[function(require,module,exports){
+},{"./algorithms.json":40,"./sign":43,"./verify":44,"buffer":47,"create-hash":53,"inherits":102,"stream":152}],43:[function(require,module,exports){
 (function (Buffer){
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
 var createHmac = require('create-hmac')
@@ -6968,7 +6968,7 @@ module.exports.getKey = getKey
 module.exports.makeKey = makeKey
 
 }).call(this,require("buffer").Buffer)
-},{"./curves.json":41,"bn.js":15,"browserify-rsa":38,"buffer":47,"create-hmac":54,"elliptic":67,"parse-asn1":112}],44:[function(require,module,exports){
+},{"./curves.json":41,"bn.js":15,"browserify-rsa":38,"buffer":47,"create-hmac":55,"elliptic":68,"parse-asn1":113}],44:[function(require,module,exports){
 (function (Buffer){
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
 var BN = require('bn.js')
@@ -7055,7 +7055,7 @@ function checkValue (b, q) {
 module.exports = verify
 
 }).call(this,require("buffer").Buffer)
-},{"./curves.json":41,"bn.js":15,"buffer":47,"elliptic":67,"parse-asn1":112}],45:[function(require,module,exports){
+},{"./curves.json":41,"bn.js":15,"buffer":47,"elliptic":68,"parse-asn1":113}],45:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8844,7 +8844,7 @@ function blitBuffer (src, dst, offset, length) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"base64-js":48,"ieee754":99,"isarray":103}],48:[function(require,module,exports){
+},{"base64-js":48,"ieee754":100,"isarray":104}],48:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -9071,7 +9071,61 @@ CipherBase.prototype._toString = function (value, enc, fin) {
 
 module.exports = CipherBase
 
-},{"inherits":101,"safe-buffer":142,"stream":151,"string_decoder":45}],50:[function(require,module,exports){
+},{"inherits":102,"safe-buffer":143,"stream":152,"string_decoder":45}],50:[function(require,module,exports){
+/*!
+  Copyright (c) 2017 Jed Watson.
+  Licensed under the MIT License (MIT), see
+  http://jedwatson.github.io/classnames
+*/
+/* global define */
+
+(function () {
+	'use strict';
+
+	var hasOwn = {}.hasOwnProperty;
+
+	function classNames () {
+		var classes = [];
+
+		for (var i = 0; i < arguments.length; i++) {
+			var arg = arguments[i];
+			if (!arg) continue;
+
+			var argType = typeof arg;
+
+			if (argType === 'string' || argType === 'number') {
+				classes.push(arg);
+			} else if (Array.isArray(arg) && arg.length) {
+				var inner = classNames.apply(null, arg);
+				if (inner) {
+					classes.push(inner);
+				}
+			} else if (argType === 'object') {
+				for (var key in arg) {
+					if (hasOwn.call(arg, key) && arg[key]) {
+						classes.push(key);
+					}
+				}
+			}
+		}
+
+		return classes.join(' ');
+	}
+
+	if (typeof module !== 'undefined' && module.exports) {
+		classNames.default = classNames;
+		module.exports = classNames;
+	} else if (typeof define === 'function' && typeof define.amd === 'object' && define.amd) {
+		// register as 'classnames', consistent with npm package name
+		define('classnames', [], function () {
+			return classNames;
+		});
+	} else {
+		window.classNames = classNames;
+	}
+}());
+
+},{}],51:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -9182,7 +9236,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":102}],51:[function(require,module,exports){
+},{"../../is-buffer/index.js":103}],52:[function(require,module,exports){
 (function (Buffer){
 var elliptic = require('elliptic')
 var BN = require('bn.js')
@@ -9310,7 +9364,7 @@ function formatReturnValue (bn, enc, len) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"bn.js":15,"buffer":47,"elliptic":67}],52:[function(require,module,exports){
+},{"bn.js":15,"buffer":47,"elliptic":68}],53:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var MD5 = require('md5.js')
@@ -9342,14 +9396,14 @@ module.exports = function createHash (alg) {
   return new Hash(sha(alg))
 }
 
-},{"cipher-base":49,"inherits":101,"md5.js":104,"ripemd160":141,"sha.js":144}],53:[function(require,module,exports){
+},{"cipher-base":49,"inherits":102,"md5.js":105,"ripemd160":142,"sha.js":145}],54:[function(require,module,exports){
 var MD5 = require('md5.js')
 
 module.exports = function (buffer) {
   return new MD5().update(buffer).digest()
 }
 
-},{"md5.js":104}],54:[function(require,module,exports){
+},{"md5.js":105}],55:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var Legacy = require('./legacy')
@@ -9413,7 +9467,7 @@ module.exports = function createHmac (alg, key) {
   return new Hmac(alg, key)
 }
 
-},{"./legacy":55,"cipher-base":49,"create-hash/md5":53,"inherits":101,"ripemd160":141,"safe-buffer":142,"sha.js":144}],55:[function(require,module,exports){
+},{"./legacy":56,"cipher-base":49,"create-hash/md5":54,"inherits":102,"ripemd160":142,"safe-buffer":143,"sha.js":145}],56:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var Buffer = require('safe-buffer').Buffer
@@ -9461,7 +9515,7 @@ Hmac.prototype._final = function () {
 }
 module.exports = Hmac
 
-},{"cipher-base":49,"inherits":101,"safe-buffer":142}],56:[function(require,module,exports){
+},{"cipher-base":49,"inherits":102,"safe-buffer":143}],57:[function(require,module,exports){
 'use strict'
 
 exports.randomBytes = exports.rng = exports.pseudoRandomBytes = exports.prng = require('randombytes')
@@ -9560,7 +9614,7 @@ exports.constants = {
   'POINT_CONVERSION_HYBRID': 6
 }
 
-},{"browserify-cipher":35,"browserify-sign":42,"browserify-sign/algos":39,"create-ecdh":51,"create-hash":52,"create-hmac":54,"diffie-hellman":63,"pbkdf2":113,"public-encrypt":120,"randombytes":126,"randomfill":127}],57:[function(require,module,exports){
+},{"browserify-cipher":35,"browserify-sign":42,"browserify-sign/algos":39,"create-ecdh":52,"create-hash":53,"create-hmac":55,"diffie-hellman":64,"pbkdf2":114,"public-encrypt":121,"randombytes":127,"randomfill":128}],58:[function(require,module,exports){
 'use strict';
 
 exports.utils = require('./des/utils');
@@ -9569,7 +9623,7 @@ exports.DES = require('./des/des');
 exports.CBC = require('./des/cbc');
 exports.EDE = require('./des/ede');
 
-},{"./des/cbc":58,"./des/cipher":59,"./des/des":60,"./des/ede":61,"./des/utils":62}],58:[function(require,module,exports){
+},{"./des/cbc":59,"./des/cipher":60,"./des/des":61,"./des/ede":62,"./des/utils":63}],59:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -9636,7 +9690,7 @@ proto._update = function _update(inp, inOff, out, outOff) {
   }
 };
 
-},{"inherits":101,"minimalistic-assert":106}],59:[function(require,module,exports){
+},{"inherits":102,"minimalistic-assert":107}],60:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -9779,7 +9833,7 @@ Cipher.prototype._finalDecrypt = function _finalDecrypt() {
   return this._unpad(out);
 };
 
-},{"minimalistic-assert":106}],60:[function(require,module,exports){
+},{"minimalistic-assert":107}],61:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -9924,7 +9978,7 @@ DES.prototype._decrypt = function _decrypt(state, lStart, rStart, out, off) {
   utils.rip(l, r, out, off);
 };
 
-},{"../des":57,"inherits":101,"minimalistic-assert":106}],61:[function(require,module,exports){
+},{"../des":58,"inherits":102,"minimalistic-assert":107}],62:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -9981,7 +10035,7 @@ EDE.prototype._update = function _update(inp, inOff, out, outOff) {
 EDE.prototype._pad = DES.prototype._pad;
 EDE.prototype._unpad = DES.prototype._unpad;
 
-},{"../des":57,"inherits":101,"minimalistic-assert":106}],62:[function(require,module,exports){
+},{"../des":58,"inherits":102,"minimalistic-assert":107}],63:[function(require,module,exports){
 'use strict';
 
 exports.readUInt32BE = function readUInt32BE(bytes, off) {
@@ -10239,7 +10293,7 @@ exports.padSplit = function padSplit(num, size, group) {
   return out.join(' ');
 };
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 (function (Buffer){
 var generatePrime = require('./lib/generatePrime')
 var primes = require('./lib/primes.json')
@@ -10285,7 +10339,7 @@ exports.DiffieHellmanGroup = exports.createDiffieHellmanGroup = exports.getDiffi
 exports.createDiffieHellman = exports.DiffieHellman = createDiffieHellman
 
 }).call(this,require("buffer").Buffer)
-},{"./lib/dh":64,"./lib/generatePrime":65,"./lib/primes.json":66,"buffer":47}],64:[function(require,module,exports){
+},{"./lib/dh":65,"./lib/generatePrime":66,"./lib/primes.json":67,"buffer":47}],65:[function(require,module,exports){
 (function (Buffer){
 var BN = require('bn.js');
 var MillerRabin = require('miller-rabin');
@@ -10453,7 +10507,7 @@ function formatReturnValue(bn, enc) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./generatePrime":65,"bn.js":15,"buffer":47,"miller-rabin":105,"randombytes":126}],65:[function(require,module,exports){
+},{"./generatePrime":66,"bn.js":15,"buffer":47,"miller-rabin":106,"randombytes":127}],66:[function(require,module,exports){
 var randomBytes = require('randombytes');
 module.exports = findPrime;
 findPrime.simpleSieve = simpleSieve;
@@ -10560,7 +10614,7 @@ function findPrime(bits, gen) {
 
 }
 
-},{"bn.js":15,"miller-rabin":105,"randombytes":126}],66:[function(require,module,exports){
+},{"bn.js":15,"miller-rabin":106,"randombytes":127}],67:[function(require,module,exports){
 module.exports={
     "modp1": {
         "gen": "02",
@@ -10595,7 +10649,7 @@ module.exports={
         "prime": "ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aaac42dad33170d04507a33a85521abdf1cba64ecfb850458dbef0a8aea71575d060c7db3970f85a6e1e4c7abf5ae8cdb0933d71e8c94e04a25619dcee3d2261ad2ee6bf12ffa06d98a0864d87602733ec86a64521f2b18177b200cbbe117577a615d6c770988c0bad946e208e24fa074e5ab3143db5bfce0fd108e4b82d120a92108011a723c12a787e6d788719a10bdba5b2699c327186af4e23c1a946834b6150bda2583e9ca2ad44ce8dbbbc2db04de8ef92e8efc141fbecaa6287c59474e6bc05d99b2964fa090c3a2233ba186515be7ed1f612970cee2d7afb81bdd762170481cd0069127d5b05aa993b4ea988d8fddc186ffb7dc90a6c08f4df435c93402849236c3fab4d27c7026c1d4dcb2602646dec9751e763dba37bdf8ff9406ad9e530ee5db382f413001aeb06a53ed9027d831179727b0865a8918da3edbebcf9b14ed44ce6cbaced4bb1bdb7f1447e6cc254b332051512bd7af426fb8f401378cd2bf5983ca01c64b92ecf032ea15d1721d03f482d7ce6e74fef6d55e702f46980c82b5a84031900b1c9e59e7c97fbec7e8f323a97a7e36cc88be0f1d45b7ff585ac54bd407b22b4154aacc8f6d7ebf48e1d814cc5ed20f8037e0a79715eef29be32806a1d58bb7c5da76f550aa3d8a1fbff0eb19ccb1a313d55cda56c9ec2ef29632387fe8d76e3c0468043e8f663f4860ee12bf2d5b0b7474d6e694f91e6dbe115974a3926f12fee5e438777cb6a932df8cd8bec4d073b931ba3bc832b68d9dd300741fa7bf8afc47ed2576f6936ba424663aab639c5ae4f5683423b4742bf1c978238f16cbe39d652de3fdb8befc848ad922222e04a4037c0713eb57a81a23f0c73473fc646cea306b4bcbc8862f8385ddfa9d4b7fa2c087e879683303ed5bdd3a062b3cf5b3a278a66d2a13f83f44f82ddf310ee074ab6a364597e899a0255dc164f31cc50846851df9ab48195ded7ea1b1d510bd7ee74d73faf36bc31ecfa268359046f4eb879f924009438b481c6cd7889a002ed5ee382bc9190da6fc026e479558e4475677e9aa9e3050e2765694dfc81f56e880b96e7160c980dd98edd3dfffffffffffffffff"
     }
 }
-},{}],67:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 'use strict';
 
 var elliptic = exports;
@@ -10610,7 +10664,7 @@ elliptic.curves = require('./elliptic/curves');
 elliptic.ec = require('./elliptic/ec');
 elliptic.eddsa = require('./elliptic/eddsa');
 
-},{"../package.json":82,"./elliptic/curve":70,"./elliptic/curves":73,"./elliptic/ec":74,"./elliptic/eddsa":77,"./elliptic/utils":81,"brorand":16}],68:[function(require,module,exports){
+},{"../package.json":83,"./elliptic/curve":71,"./elliptic/curves":74,"./elliptic/ec":75,"./elliptic/eddsa":78,"./elliptic/utils":82,"brorand":16}],69:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -10987,7 +11041,7 @@ BasePoint.prototype.dblp = function dblp(k) {
   return r;
 };
 
-},{"../../elliptic":67,"bn.js":15}],69:[function(require,module,exports){
+},{"../../elliptic":68,"bn.js":15}],70:[function(require,module,exports){
 'use strict';
 
 var curve = require('../curve');
@@ -11422,7 +11476,7 @@ Point.prototype.eqXToP = function eqXToP(x) {
 Point.prototype.toP = Point.prototype.normalize;
 Point.prototype.mixedAdd = Point.prototype.add;
 
-},{"../../elliptic":67,"../curve":70,"bn.js":15,"inherits":101}],70:[function(require,module,exports){
+},{"../../elliptic":68,"../curve":71,"bn.js":15,"inherits":102}],71:[function(require,module,exports){
 'use strict';
 
 var curve = exports;
@@ -11432,7 +11486,7 @@ curve.short = require('./short');
 curve.mont = require('./mont');
 curve.edwards = require('./edwards');
 
-},{"./base":68,"./edwards":69,"./mont":71,"./short":72}],71:[function(require,module,exports){
+},{"./base":69,"./edwards":70,"./mont":72,"./short":73}],72:[function(require,module,exports){
 'use strict';
 
 var curve = require('../curve');
@@ -11614,7 +11668,7 @@ Point.prototype.getX = function getX() {
   return this.x.fromRed();
 };
 
-},{"../../elliptic":67,"../curve":70,"bn.js":15,"inherits":101}],72:[function(require,module,exports){
+},{"../../elliptic":68,"../curve":71,"bn.js":15,"inherits":102}],73:[function(require,module,exports){
 'use strict';
 
 var curve = require('../curve');
@@ -12554,7 +12608,7 @@ JPoint.prototype.isInfinity = function isInfinity() {
   return this.z.cmpn(0) === 0;
 };
 
-},{"../../elliptic":67,"../curve":70,"bn.js":15,"inherits":101}],73:[function(require,module,exports){
+},{"../../elliptic":68,"../curve":71,"bn.js":15,"inherits":102}],74:[function(require,module,exports){
 'use strict';
 
 var curves = exports;
@@ -12761,7 +12815,7 @@ defineCurve('secp256k1', {
   ]
 });
 
-},{"../elliptic":67,"./precomputed/secp256k1":80,"hash.js":86}],74:[function(require,module,exports){
+},{"../elliptic":68,"./precomputed/secp256k1":81,"hash.js":87}],75:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -13003,7 +13057,7 @@ EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
   throw new Error('Unable to find valid recovery factor');
 };
 
-},{"../../elliptic":67,"./key":75,"./signature":76,"bn.js":15,"hmac-drbg":98}],75:[function(require,module,exports){
+},{"../../elliptic":68,"./key":76,"./signature":77,"bn.js":15,"hmac-drbg":99}],76:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -13124,7 +13178,7 @@ KeyPair.prototype.inspect = function inspect() {
          ' pub: ' + (this.pub && this.pub.inspect()) + ' >';
 };
 
-},{"../../elliptic":67,"bn.js":15}],76:[function(require,module,exports){
+},{"../../elliptic":68,"bn.js":15}],77:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -13261,7 +13315,7 @@ Signature.prototype.toDER = function toDER(enc) {
   return utils.encode(res, enc);
 };
 
-},{"../../elliptic":67,"bn.js":15}],77:[function(require,module,exports){
+},{"../../elliptic":68,"bn.js":15}],78:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -13381,7 +13435,7 @@ EDDSA.prototype.isPoint = function isPoint(val) {
   return val instanceof this.pointClass;
 };
 
-},{"../../elliptic":67,"./key":78,"./signature":79,"hash.js":86}],78:[function(require,module,exports){
+},{"../../elliptic":68,"./key":79,"./signature":80,"hash.js":87}],79:[function(require,module,exports){
 'use strict';
 
 var elliptic = require('../../elliptic');
@@ -13479,7 +13533,7 @@ KeyPair.prototype.getPublic = function getPublic(enc) {
 
 module.exports = KeyPair;
 
-},{"../../elliptic":67}],79:[function(require,module,exports){
+},{"../../elliptic":68}],80:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -13547,7 +13601,7 @@ Signature.prototype.toHex = function toHex() {
 
 module.exports = Signature;
 
-},{"../../elliptic":67,"bn.js":15}],80:[function(require,module,exports){
+},{"../../elliptic":68,"bn.js":15}],81:[function(require,module,exports){
 module.exports = {
   doubles: {
     step: 4,
@@ -14329,7 +14383,7 @@ module.exports = {
   }
 };
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -14451,7 +14505,7 @@ function intFromLE(bytes) {
 utils.intFromLE = intFromLE;
 
 
-},{"bn.js":15,"minimalistic-assert":106,"minimalistic-crypto-utils":107}],82:[function(require,module,exports){
+},{"bn.js":15,"minimalistic-assert":107,"minimalistic-crypto-utils":108}],83:[function(require,module,exports){
 module.exports={
   "_args": [
     [
@@ -14575,7 +14629,7 @@ module.exports={
   "version": "6.4.0"
 }
 
-},{}],83:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -14878,7 +14932,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var MD5 = require('md5.js')
 
@@ -14925,7 +14979,7 @@ function EVP_BytesToKey (password, salt, keyBits, ivLen) {
 
 module.exports = EVP_BytesToKey
 
-},{"md5.js":104,"safe-buffer":142}],85:[function(require,module,exports){
+},{"md5.js":105,"safe-buffer":143}],86:[function(require,module,exports){
 'use strict'
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('stream').Transform
@@ -15022,7 +15076,7 @@ HashBase.prototype._digest = function () {
 
 module.exports = HashBase
 
-},{"inherits":101,"safe-buffer":142,"stream":151}],86:[function(require,module,exports){
+},{"inherits":102,"safe-buffer":143,"stream":152}],87:[function(require,module,exports){
 var hash = exports;
 
 hash.utils = require('./hash/utils');
@@ -15039,7 +15093,7 @@ hash.sha384 = hash.sha.sha384;
 hash.sha512 = hash.sha.sha512;
 hash.ripemd160 = hash.ripemd.ripemd160;
 
-},{"./hash/common":87,"./hash/hmac":88,"./hash/ripemd":89,"./hash/sha":90,"./hash/utils":97}],87:[function(require,module,exports){
+},{"./hash/common":88,"./hash/hmac":89,"./hash/ripemd":90,"./hash/sha":91,"./hash/utils":98}],88:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -15133,7 +15187,7 @@ BlockHash.prototype._pad = function pad() {
   return res;
 };
 
-},{"./utils":97,"minimalistic-assert":106}],88:[function(require,module,exports){
+},{"./utils":98,"minimalistic-assert":107}],89:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -15182,7 +15236,7 @@ Hmac.prototype.digest = function digest(enc) {
   return this.outer.digest(enc);
 };
 
-},{"./utils":97,"minimalistic-assert":106}],89:[function(require,module,exports){
+},{"./utils":98,"minimalistic-assert":107}],90:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -15330,7 +15384,7 @@ var sh = [
   8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
 ];
 
-},{"./common":87,"./utils":97}],90:[function(require,module,exports){
+},{"./common":88,"./utils":98}],91:[function(require,module,exports){
 'use strict';
 
 exports.sha1 = require('./sha/1');
@@ -15339,7 +15393,7 @@ exports.sha256 = require('./sha/256');
 exports.sha384 = require('./sha/384');
 exports.sha512 = require('./sha/512');
 
-},{"./sha/1":91,"./sha/224":92,"./sha/256":93,"./sha/384":94,"./sha/512":95}],91:[function(require,module,exports){
+},{"./sha/1":92,"./sha/224":93,"./sha/256":94,"./sha/384":95,"./sha/512":96}],92:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -15415,7 +15469,7 @@ SHA1.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":87,"../utils":97,"./common":96}],92:[function(require,module,exports){
+},{"../common":88,"../utils":98,"./common":97}],93:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -15447,7 +15501,7 @@ SHA224.prototype._digest = function digest(enc) {
 };
 
 
-},{"../utils":97,"./256":93}],93:[function(require,module,exports){
+},{"../utils":98,"./256":94}],94:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -15554,7 +15608,7 @@ SHA256.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":87,"../utils":97,"./common":96,"minimalistic-assert":106}],94:[function(require,module,exports){
+},{"../common":88,"../utils":98,"./common":97,"minimalistic-assert":107}],95:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -15591,7 +15645,7 @@ SHA384.prototype._digest = function digest(enc) {
     return utils.split32(this.h.slice(0, 12), 'big');
 };
 
-},{"../utils":97,"./512":95}],95:[function(require,module,exports){
+},{"../utils":98,"./512":96}],96:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -15923,7 +15977,7 @@ function g1_512_lo(xh, xl) {
   return r;
 }
 
-},{"../common":87,"../utils":97,"minimalistic-assert":106}],96:[function(require,module,exports){
+},{"../common":88,"../utils":98,"minimalistic-assert":107}],97:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -15974,7 +16028,7 @@ function g1_256(x) {
 }
 exports.g1_256 = g1_256;
 
-},{"../utils":97}],97:[function(require,module,exports){
+},{"../utils":98}],98:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -16229,7 +16283,7 @@ function shr64_lo(ah, al, num) {
 }
 exports.shr64_lo = shr64_lo;
 
-},{"inherits":101,"minimalistic-assert":106}],98:[function(require,module,exports){
+},{"inherits":102,"minimalistic-assert":107}],99:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -16344,7 +16398,7 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
   return utils.encode(res, enc);
 };
 
-},{"hash.js":86,"minimalistic-assert":106,"minimalistic-crypto-utils":107}],99:[function(require,module,exports){
+},{"hash.js":87,"minimalistic-assert":107,"minimalistic-crypto-utils":108}],100:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -16430,7 +16484,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],100:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -16441,7 +16495,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],101:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -16466,7 +16520,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],102:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -16489,14 +16543,14 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],103:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],104:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 (function (Buffer){
 'use strict'
 var inherits = require('inherits')
@@ -16645,7 +16699,7 @@ function fnI (a, b, c, d, m, k, s) {
 module.exports = MD5
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":47,"hash-base":85,"inherits":101}],105:[function(require,module,exports){
+},{"buffer":47,"hash-base":86,"inherits":102}],106:[function(require,module,exports){
 var bn = require('bn.js');
 var brorand = require('brorand');
 
@@ -16762,7 +16816,7 @@ MillerRabin.prototype.getDivisor = function getDivisor(n, k) {
   return false;
 };
 
-},{"bn.js":15,"brorand":16}],106:[function(require,module,exports){
+},{"bn.js":15,"brorand":16}],107:[function(require,module,exports){
 module.exports = assert;
 
 function assert(val, msg) {
@@ -16775,7 +16829,7 @@ assert.equal = function assertEqual(l, r, msg) {
     throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
 };
 
-},{}],107:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -16835,7 +16889,7 @@ utils.encode = function encode(arr, enc) {
     return arr;
 };
 
-},{}],108:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.2": "aes-128-cbc",
 "2.16.840.1.101.3.4.1.3": "aes-128-ofb",
@@ -16849,7 +16903,7 @@ module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.43": "aes-256-ofb",
 "2.16.840.1.101.3.4.1.44": "aes-256-cfb"
 }
-},{}],109:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 // from https://github.com/indutny/self-signed/blob/gh-pages/lib/asn1.js
 // Fedor, you are amazing.
 'use strict'
@@ -16973,7 +17027,7 @@ exports.signature = asn1.define('signature', function () {
   )
 })
 
-},{"./certificate":110,"asn1.js":1}],110:[function(require,module,exports){
+},{"./certificate":111,"asn1.js":1}],111:[function(require,module,exports){
 // from https://github.com/Rantanen/node-dtls/blob/25a7dc861bda38cfeac93a723500eea4f0ac2e86/Certificate.js
 // thanks to @Rantanen
 
@@ -17063,7 +17117,7 @@ var X509Certificate = asn.define('X509Certificate', function () {
 
 module.exports = X509Certificate
 
-},{"asn1.js":1}],111:[function(require,module,exports){
+},{"asn1.js":1}],112:[function(require,module,exports){
 (function (Buffer){
 // adapted from https://github.com/apatil/pemstrip
 var findProc = /Proc-Type: 4,ENCRYPTED[\n\r]+DEK-Info: AES-((?:128)|(?:192)|(?:256))-CBC,([0-9A-H]+)[\n\r]+([0-9A-z\n\r\+\/\=]+)[\n\r]+/m
@@ -17097,7 +17151,7 @@ module.exports = function (okey, password) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"browserify-aes":20,"buffer":47,"evp_bytestokey":84}],112:[function(require,module,exports){
+},{"browserify-aes":20,"buffer":47,"evp_bytestokey":85}],113:[function(require,module,exports){
 (function (Buffer){
 var asn1 = require('./asn1')
 var aesid = require('./aesid.json')
@@ -17207,11 +17261,11 @@ function decrypt (data, password) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./aesid.json":108,"./asn1":109,"./fixProc":111,"browserify-aes":20,"buffer":47,"pbkdf2":113}],113:[function(require,module,exports){
+},{"./aesid.json":109,"./asn1":110,"./fixProc":112,"browserify-aes":20,"buffer":47,"pbkdf2":114}],114:[function(require,module,exports){
 exports.pbkdf2 = require('./lib/async')
 exports.pbkdf2Sync = require('./lib/sync')
 
-},{"./lib/async":114,"./lib/sync":117}],114:[function(require,module,exports){
+},{"./lib/async":115,"./lib/sync":118}],115:[function(require,module,exports){
 (function (process,global){
 var checkParameters = require('./precondition')
 var defaultEncoding = require('./default-encoding')
@@ -17315,7 +17369,7 @@ module.exports = function (password, salt, iterations, keylen, digest, callback)
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./default-encoding":115,"./precondition":116,"./sync":117,"_process":119,"safe-buffer":142}],115:[function(require,module,exports){
+},{"./default-encoding":116,"./precondition":117,"./sync":118,"_process":120,"safe-buffer":143}],116:[function(require,module,exports){
 (function (process){
 var defaultEncoding
 /* istanbul ignore next */
@@ -17329,7 +17383,7 @@ if (process.browser) {
 module.exports = defaultEncoding
 
 }).call(this,require('_process'))
-},{"_process":119}],116:[function(require,module,exports){
+},{"_process":120}],117:[function(require,module,exports){
 (function (Buffer){
 var MAX_ALLOC = Math.pow(2, 30) - 1 // default in iojs
 
@@ -17361,7 +17415,7 @@ module.exports = function (password, salt, iterations, keylen) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":102}],117:[function(require,module,exports){
+},{"../../is-buffer/index.js":103}],118:[function(require,module,exports){
 var md5 = require('create-hash/md5')
 var rmd160 = require('ripemd160')
 var sha = require('sha.js')
@@ -17464,7 +17518,7 @@ function pbkdf2 (password, salt, iterations, keylen, digest) {
 
 module.exports = pbkdf2
 
-},{"./default-encoding":115,"./precondition":116,"create-hash/md5":53,"ripemd160":141,"safe-buffer":142,"sha.js":144}],118:[function(require,module,exports){
+},{"./default-encoding":116,"./precondition":117,"create-hash/md5":54,"ripemd160":142,"safe-buffer":143,"sha.js":145}],119:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -17512,7 +17566,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this,require('_process'))
-},{"_process":119}],119:[function(require,module,exports){
+},{"_process":120}],120:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -17698,7 +17752,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],120:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 exports.publicEncrypt = require('./publicEncrypt');
 exports.privateDecrypt = require('./privateDecrypt');
 
@@ -17709,7 +17763,7 @@ exports.privateEncrypt = function privateEncrypt(key, buf) {
 exports.publicDecrypt = function publicDecrypt(key, buf) {
   return exports.privateDecrypt(key, buf, true);
 };
-},{"./privateDecrypt":122,"./publicEncrypt":123}],121:[function(require,module,exports){
+},{"./privateDecrypt":123,"./publicEncrypt":124}],122:[function(require,module,exports){
 (function (Buffer){
 var createHash = require('create-hash');
 module.exports = function (seed, len) {
@@ -17728,7 +17782,7 @@ function i2ops(c) {
   return out;
 }
 }).call(this,require("buffer").Buffer)
-},{"buffer":47,"create-hash":52}],122:[function(require,module,exports){
+},{"buffer":47,"create-hash":53}],123:[function(require,module,exports){
 (function (Buffer){
 var parseKeys = require('parse-asn1');
 var mgf = require('./mgf');
@@ -17839,7 +17893,7 @@ function compare(a, b){
   return dif;
 }
 }).call(this,require("buffer").Buffer)
-},{"./mgf":121,"./withPublic":124,"./xor":125,"bn.js":15,"browserify-rsa":38,"buffer":47,"create-hash":52,"parse-asn1":112}],123:[function(require,module,exports){
+},{"./mgf":122,"./withPublic":125,"./xor":126,"bn.js":15,"browserify-rsa":38,"buffer":47,"create-hash":53,"parse-asn1":113}],124:[function(require,module,exports){
 (function (Buffer){
 var parseKeys = require('parse-asn1');
 var randomBytes = require('randombytes');
@@ -17937,7 +17991,7 @@ function nonZero(len, crypto) {
   return out;
 }
 }).call(this,require("buffer").Buffer)
-},{"./mgf":121,"./withPublic":124,"./xor":125,"bn.js":15,"browserify-rsa":38,"buffer":47,"create-hash":52,"parse-asn1":112,"randombytes":126}],124:[function(require,module,exports){
+},{"./mgf":122,"./withPublic":125,"./xor":126,"bn.js":15,"browserify-rsa":38,"buffer":47,"create-hash":53,"parse-asn1":113,"randombytes":127}],125:[function(require,module,exports){
 (function (Buffer){
 var bn = require('bn.js');
 function withPublic(paddedMsg, key) {
@@ -17950,7 +18004,7 @@ function withPublic(paddedMsg, key) {
 
 module.exports = withPublic;
 }).call(this,require("buffer").Buffer)
-},{"bn.js":15,"buffer":47}],125:[function(require,module,exports){
+},{"bn.js":15,"buffer":47}],126:[function(require,module,exports){
 module.exports = function xor(a, b) {
   var len = a.length;
   var i = -1;
@@ -17959,7 +18013,7 @@ module.exports = function xor(a, b) {
   }
   return a
 };
-},{}],126:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 (function (process,global){
 'use strict'
 
@@ -18001,7 +18055,7 @@ function randomBytes (size, cb) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":119,"safe-buffer":142}],127:[function(require,module,exports){
+},{"_process":120,"safe-buffer":143}],128:[function(require,module,exports){
 (function (process,global){
 'use strict'
 
@@ -18113,10 +18167,10 @@ function randomFillSync (buf, offset, size) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":119,"randombytes":126,"safe-buffer":142}],128:[function(require,module,exports){
+},{"_process":120,"randombytes":127,"safe-buffer":143}],129:[function(require,module,exports){
 module.exports = require('./lib/_stream_duplex.js');
 
-},{"./lib/_stream_duplex.js":129}],129:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":130}],130:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -18248,7 +18302,7 @@ Duplex.prototype._destroy = function (err, cb) {
 
   pna.nextTick(cb, err);
 };
-},{"./_stream_readable":131,"./_stream_writable":133,"core-util-is":50,"inherits":101,"process-nextick-args":118}],130:[function(require,module,exports){
+},{"./_stream_readable":132,"./_stream_writable":134,"core-util-is":51,"inherits":102,"process-nextick-args":119}],131:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -18296,7 +18350,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":132,"core-util-is":50,"inherits":101}],131:[function(require,module,exports){
+},{"./_stream_transform":133,"core-util-is":51,"inherits":102}],132:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -19318,7 +19372,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":129,"./internal/streams/BufferList":134,"./internal/streams/destroy":135,"./internal/streams/stream":136,"_process":119,"core-util-is":50,"events":83,"inherits":101,"isarray":103,"process-nextick-args":118,"safe-buffer":142,"string_decoder/":152,"util":17}],132:[function(require,module,exports){
+},{"./_stream_duplex":130,"./internal/streams/BufferList":135,"./internal/streams/destroy":136,"./internal/streams/stream":137,"_process":120,"core-util-is":51,"events":84,"inherits":102,"isarray":104,"process-nextick-args":119,"safe-buffer":143,"string_decoder/":153,"util":17}],133:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -19533,7 +19587,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":129,"core-util-is":50,"inherits":101}],133:[function(require,module,exports){
+},{"./_stream_duplex":130,"core-util-is":51,"inherits":102}],134:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -20223,7 +20277,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":129,"./internal/streams/destroy":135,"./internal/streams/stream":136,"_process":119,"core-util-is":50,"inherits":101,"process-nextick-args":118,"safe-buffer":142,"util-deprecate":153}],134:[function(require,module,exports){
+},{"./_stream_duplex":130,"./internal/streams/destroy":136,"./internal/streams/stream":137,"_process":120,"core-util-is":51,"inherits":102,"process-nextick-args":119,"safe-buffer":143,"util-deprecate":154}],135:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -20303,7 +20357,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":142,"util":17}],135:[function(require,module,exports){
+},{"safe-buffer":143,"util":17}],136:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -20378,13 +20432,13 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":118}],136:[function(require,module,exports){
+},{"process-nextick-args":119}],137:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":83}],137:[function(require,module,exports){
+},{"events":84}],138:[function(require,module,exports){
 module.exports = require('./readable').PassThrough
 
-},{"./readable":138}],138:[function(require,module,exports){
+},{"./readable":139}],139:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -20393,13 +20447,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":129,"./lib/_stream_passthrough.js":130,"./lib/_stream_readable.js":131,"./lib/_stream_transform.js":132,"./lib/_stream_writable.js":133}],139:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":130,"./lib/_stream_passthrough.js":131,"./lib/_stream_readable.js":132,"./lib/_stream_transform.js":133,"./lib/_stream_writable.js":134}],140:[function(require,module,exports){
 module.exports = require('./readable').Transform
 
-},{"./readable":138}],140:[function(require,module,exports){
+},{"./readable":139}],141:[function(require,module,exports){
 module.exports = require('./lib/_stream_writable.js');
 
-},{"./lib/_stream_writable.js":133}],141:[function(require,module,exports){
+},{"./lib/_stream_writable.js":134}],142:[function(require,module,exports){
 'use strict'
 var Buffer = require('buffer').Buffer
 var inherits = require('inherits')
@@ -20564,7 +20618,7 @@ function fn5 (a, b, c, d, e, m, k, s) {
 
 module.exports = RIPEMD160
 
-},{"buffer":47,"hash-base":85,"inherits":101}],142:[function(require,module,exports){
+},{"buffer":47,"hash-base":86,"inherits":102}],143:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -20628,7 +20682,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":47}],143:[function(require,module,exports){
+},{"buffer":47}],144:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 // prototype class for hash functions
@@ -20711,7 +20765,7 @@ Hash.prototype._update = function () {
 
 module.exports = Hash
 
-},{"safe-buffer":142}],144:[function(require,module,exports){
+},{"safe-buffer":143}],145:[function(require,module,exports){
 var exports = module.exports = function SHA (algorithm) {
   algorithm = algorithm.toLowerCase()
 
@@ -20728,7 +20782,7 @@ exports.sha256 = require('./sha256')
 exports.sha384 = require('./sha384')
 exports.sha512 = require('./sha512')
 
-},{"./sha":145,"./sha1":146,"./sha224":147,"./sha256":148,"./sha384":149,"./sha512":150}],145:[function(require,module,exports){
+},{"./sha":146,"./sha1":147,"./sha224":148,"./sha256":149,"./sha384":150,"./sha512":151}],146:[function(require,module,exports){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
  * in FIPS PUB 180-1
@@ -20824,7 +20878,7 @@ Sha.prototype._hash = function () {
 
 module.exports = Sha
 
-},{"./hash":143,"inherits":101,"safe-buffer":142}],146:[function(require,module,exports){
+},{"./hash":144,"inherits":102,"safe-buffer":143}],147:[function(require,module,exports){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
  * in FIPS PUB 180-1
@@ -20925,7 +20979,7 @@ Sha1.prototype._hash = function () {
 
 module.exports = Sha1
 
-},{"./hash":143,"inherits":101,"safe-buffer":142}],147:[function(require,module,exports){
+},{"./hash":144,"inherits":102,"safe-buffer":143}],148:[function(require,module,exports){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
  * in FIPS 180-2
@@ -20980,7 +21034,7 @@ Sha224.prototype._hash = function () {
 
 module.exports = Sha224
 
-},{"./hash":143,"./sha256":148,"inherits":101,"safe-buffer":142}],148:[function(require,module,exports){
+},{"./hash":144,"./sha256":149,"inherits":102,"safe-buffer":143}],149:[function(require,module,exports){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
  * in FIPS 180-2
@@ -21117,7 +21171,7 @@ Sha256.prototype._hash = function () {
 
 module.exports = Sha256
 
-},{"./hash":143,"inherits":101,"safe-buffer":142}],149:[function(require,module,exports){
+},{"./hash":144,"inherits":102,"safe-buffer":143}],150:[function(require,module,exports){
 var inherits = require('inherits')
 var SHA512 = require('./sha512')
 var Hash = require('./hash')
@@ -21176,7 +21230,7 @@ Sha384.prototype._hash = function () {
 
 module.exports = Sha384
 
-},{"./hash":143,"./sha512":150,"inherits":101,"safe-buffer":142}],150:[function(require,module,exports){
+},{"./hash":144,"./sha512":151,"inherits":102,"safe-buffer":143}],151:[function(require,module,exports){
 var inherits = require('inherits')
 var Hash = require('./hash')
 var Buffer = require('safe-buffer').Buffer
@@ -21438,7 +21492,7 @@ Sha512.prototype._hash = function () {
 
 module.exports = Sha512
 
-},{"./hash":143,"inherits":101,"safe-buffer":142}],151:[function(require,module,exports){
+},{"./hash":144,"inherits":102,"safe-buffer":143}],152:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -21567,7 +21621,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":83,"inherits":101,"readable-stream/duplex.js":128,"readable-stream/passthrough.js":137,"readable-stream/readable.js":138,"readable-stream/transform.js":139,"readable-stream/writable.js":140}],152:[function(require,module,exports){
+},{"events":84,"inherits":102,"readable-stream/duplex.js":129,"readable-stream/passthrough.js":138,"readable-stream/readable.js":139,"readable-stream/transform.js":140,"readable-stream/writable.js":141}],153:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -21864,7 +21918,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":142}],153:[function(require,module,exports){
+},{"safe-buffer":143}],154:[function(require,module,exports){
 (function (global){
 
 /**
@@ -21935,7 +21989,7 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],154:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 'use strict';
 
 var crypto = require('crypto')
@@ -21977,7 +22031,7 @@ function generateUuid(callback) {
   return generateUuidAsync(callback);
 }
 
-},{"crypto":56}],155:[function(require,module,exports){
+},{"crypto":57}],156:[function(require,module,exports){
 var indexOf = require('indexof');
 
 var Object_keys = function (obj) {
@@ -22117,7 +22171,7 @@ exports.createContext = Script.createContext = function (context) {
     return copy;
 };
 
-},{"indexof":100}],156:[function(require,module,exports){
+},{"indexof":101}],157:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -22201,7 +22255,7 @@ var Callbacks = (function () {
 exports['default'] = Callbacks;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],157:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api"}],158:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22645,7 +22699,7 @@ exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"../editor/Editor":162,"./Callbacks":156,"./UsersSearchBox":161,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],158:[function(require,module,exports){
+},{"../editor/Editor":163,"./Callbacks":157,"./UsersSearchBox":162,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],159:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22855,7 +22909,7 @@ exports['default'] = DirectoriesBoard = (0, _materialUiStyles.muiThemeable)()(Di
 exports['default'] = DirectoriesBoard;
 module.exports = exports['default'];
 
-},{"../editor/ldap/LdapEditor":175,"../editor/ldap/ServerConfigModel":178,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],159:[function(require,module,exports){
+},{"../editor/ldap/LdapEditor":177,"../editor/ldap/ServerConfigModel":180,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],160:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23232,7 +23286,7 @@ exports['default'] = PoliciesBoard = (0, _materialUiStyles.muiThemeable)()(Polic
 exports['default'] = PoliciesBoard;
 module.exports = exports['default'];
 
-},{"../policies/Policy":197,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":154}],160:[function(require,module,exports){
+},{"../policies/Policy":199,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":155}],161:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23458,7 +23512,7 @@ var RolesDashboard = _react2['default'].createClass({
 exports['default'] = RolesDashboard;
 module.exports = exports['default'];
 
-},{"../editor/Editor":162,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],161:[function(require,module,exports){
+},{"../editor/Editor":163,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],162:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23649,7 +23703,7 @@ UsersSearchBox.PropTypes = {
 exports['default'] = UsersSearchBox;
 module.exports = exports['default'];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],162:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],163:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -24072,9 +24126,12 @@ var Editor = (function (_React$Component) {
         value: function render() {
             var _this5 = this;
 
-            var _props = this.props;
-            var advancedAcl = _props.advancedAcl;
-            var pydio = _props.pydio;
+            //const {advancedAcl, pydio} = this.props;
+            // TODO TMP - to be reverted for tests
+            var pydio = this.props.pydio;
+
+            var advancedAcl = true;
+
             var _state2 = this.state;
             var observableRole = _state2.observableRole;
             var observableUser = _state2.observableUser;
@@ -24381,43 +24438,172 @@ exports['default'] = Editor;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./acl/WorkspacesAcls":167,"./info/GroupInfo":168,"./info/RoleInfo":169,"./info/UserInfo":170,"./model/Role":179,"./model/User":180,"./panel/SharesList":181,"./panel/WorkspacesList":182,"./user/UserRolesPicker":191,"material-ui":"material-ui","pydio":"pydio","pydio/model/repository":"pydio/model/repository","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],163:[function(require,module,exports){
-(function (global){
-"use strict";
+},{"./acl/WorkspacesAcls":169,"./info/GroupInfo":170,"./info/RoleInfo":171,"./info/UserInfo":172,"./model/Role":181,"./model/User":182,"./panel/SharesList":183,"./panel/WorkspacesList":184,"./user/UserRolesPicker":193,"material-ui":"material-ui","pydio":"pydio","pydio/model/repository":"pydio/model/repository","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],164:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
 
-Object.defineProperty(exports, "__esModule", {
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+var _get = function get(_x6, _x7, _x8) { var _again = true; _function: while (_again) { var object = _x6, property = _x7, receiver = _x8; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x6 = parent; _x7 = property; _x8 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioModelMetaNodeProvider = require('pydio/model/meta-node-provider');
+
+var _pydioModelMetaNodeProvider2 = _interopRequireDefault(_pydioModelMetaNodeProvider);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+/**
+ * Implementation of the IAjxpNodeProvider interface based on a remote server access.
+ * Default for all repositories.
+ */
+
+var MaskNodesProvider = (function (_MetaNodeProvider) {
+    _inherits(MaskNodesProvider, _MetaNodeProvider);
+
+    function MaskNodesProvider() {
+        _classCallCheck(this, MaskNodesProvider);
+
+        _get(Object.getPrototypeOf(MaskNodesProvider.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(MaskNodesProvider, [{
+        key: 'loadNode',
+
+        /**
+         * Load a node
+         * @param node AjxpNode
+         * @param nodeCallback Function On node loaded
+         * @param childCallback Function On child added
+         * @param recursive
+         * @param depth
+         * @param optionalParameters
+         */
+        value: function loadNode(node) {
+            var nodeCallback = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+            var childCallback = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+            var recursive = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+            var depth = arguments.length <= 4 || arguments[4] === undefined ? -1 : arguments[4];
+            var optionalParameters = arguments.length <= 5 || arguments[5] === undefined ? null : arguments[5];
+
+            console.log('MaskNodes', node);
+            var api = new _pydioHttpRestApi.AdminTreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+
+            var listRequest = new _pydioHttpRestApi.TreeListNodesRequest();
+            listRequest.Node = _pydioHttpRestApi.TreeNode.constructFromObject({ Path: node.getPath() });
+            api.listAdminTree(listRequest).then(function (nodesColl) {
+                var children = nodesColl.Children || [];
+                children.forEach(function (c) {
+                    var nodeChild = undefined;
+                    try {
+                        nodeChild = _pydioModelMetaNodeProvider2['default'].parseTreeNode(c, null);
+                    } catch (e) {
+                        console.log(e);
+                        return;
+                    }
+                    if (childCallback) {
+                        childCallback(nodeChild);
+                    }
+                    node.addChild(nodeChild);
+                });
+                if (nodeCallback !== null) {
+                    nodeCallback(node);
+                }
+            })['catch'](function () {});
+        }
+    }]);
+
+    return MaskNodesProvider;
+})(_pydioModelMetaNodeProvider2['default']);
+
+exports['default'] = MaskNodesProvider;
+module.exports = exports['default'];
+
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/meta-node-provider":"pydio/model/meta-node-provider"}],165:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var PermissionMaskEditor = _react2["default"].createClass({
-    displayName: "PermissionMaskEditor",
+var _modelRole = require("../model/Role");
+
+var _modelRole2 = _interopRequireDefault(_modelRole);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _classNames = require('classNames');
+
+var _classNames2 = _interopRequireDefault(_classNames);
+
+var _materialUi = require('material-ui');
+
+var _pydioModelDataModel = require('pydio/model/data-model');
+
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
+
+var _MaskNodesProvider = require('./MaskNodesProvider');
+
+var _MaskNodesProvider2 = _interopRequireDefault(_MaskNodesProvider);
+
+var PermissionMaskEditor = _react2['default'].createClass({
+    displayName: 'PermissionMaskEditor',
 
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        workspaceId: _react2["default"].PropTypes.string,
+        role: _react2['default'].PropTypes.instanceOf(_modelRole2['default']),
+        workspace: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.IdmWorkspace),
 
         /* Global permissions may override the folders rights */
-        globalWorkspacePermissions: _react2["default"].PropTypes.object,
-        showGlobalPermissions: _react2["default"].PropTypes.bool,
-        onGlobalPermissionsChange: _react2["default"].PropTypes.func,
+        globalWorkspacePermissions: _react2['default'].PropTypes.object,
+        showGlobalPermissions: _react2['default'].PropTypes.bool,
+        onGlobalPermissionsChange: _react2['default'].PropTypes.func,
 
         /* Folders mask and parentMask */
-        nodes: _react2["default"].PropTypes.object,
-        parentNodes: _react2["default"].PropTypes.object,
-        onNodesChange: _react2["default"].PropTypes.func,
+        onNodesChange: _react2['default'].PropTypes.func,
 
         /* Maybe used to alert about inconsistencies */
-        showModal: _react2["default"].PropTypes.func,
-        hideModal: _react2["default"].PropTypes.func
+        showModal: _react2['default'].PropTypes.func,
+        hideModal: _react2['default'].PropTypes.func
     },
 
     dmObserver: function dmObserver() {
@@ -24486,15 +24672,15 @@ var PermissionMaskEditor = _react2["default"].createClass({
     },
 
     getInitialState: function getInitialState() {
-        var nodeProviderProperties = {
-            get_action: "ls",
-            tmp_repository_id: this.props.workspaceId
-        };
-        var dataModel = new PydioDataModel(true);
-        var rNodeProvider = new RemoteNodeProvider();
+        var dataModel = new _pydioModelDataModel2['default'](true);
+        var rNodeProvider = new _MaskNodesProvider2['default']();
         dataModel.setAjxpNodeProvider(rNodeProvider);
-        rNodeProvider.initProvider(nodeProviderProperties);
-        var rootNode = new AjxpNode("/", false, "Whole workspace", "folder.png", rNodeProvider);
+        // Todo:  multiple roots
+        var rootNodes = this.props.workspace.RootNodes;
+        var firstNode = rootNodes[Object.keys(rootNodes).shift()];
+        var rootNode = new AjxpNode("/" + firstNode.Path, false, "Whole workspace", "folder.png", rNodeProvider);
+        rootNode.getMetadata().set("uuid", firstNode.Uuid);
+
         dataModel.setRootNode(rootNode);
         this.recursiveLoadNodesWithChildren(rootNode, this.props.nodes);
         dataModel.observe("selection_changed", this.dmObserver);
@@ -24508,265 +24694,131 @@ var PermissionMaskEditor = _react2["default"].createClass({
         };
     },
 
-    updateRow: function updateRow(currentValues, checkboxName, value) {
-        if (checkboxName == "read" || checkboxName == "write" || checkboxName == "children") {
-            if (value) currentValues[checkboxName] = value;else if (currentValues[checkboxName]) delete currentValues[checkboxName];
+    onCheckboxCheck: function onCheckboxCheck(node, checkboxName, value) {
 
-            if (value && (checkboxName == "read" || checkboxName == "write") && currentValues["deny"]) {
-                delete currentValues["deny"];
-            }
-        } else if (checkboxName == "deny") {
-            if (value) {
-                currentValues[checkboxName] = value;
-                if (currentValues["read"]) delete currentValues["read"];
-                if (currentValues["write"]) delete currentValues["write"];
-            } else {
-                if (currentValues["deny"]) delete currentValues["deny"];
-            }
-        }
-        if (!Object.keys(currentValues).length) {
-            return "delete";
-        } else {
-            return "update";
-        }
-    },
-
-    updateColumn: function updateColumn(values, node, checkboxName, value, copy) {
-        // If we change the "children" status, remove children values
-        if (checkboxName == "children") {
-            if (copy) {
-                (function () {
-                    var currentValues = LangUtils.simpleCopy(values[node.getMetadata().get('uuid')]) || {};
-                    currentValues["children"] = false;
-                    node.getChildren().forEach(function (c) {
-                        if (!c.isLeaf()) {
-                            values[c.getMetadata().get("uuid")] = LangUtils.simpleCopy(currentValues);
-                        }
-                    });
-                })();
-            } else {
-                this.recursiveClearNodeValues(node, values);
-            }
-        }
-    },
-
-    applyConfirm: function applyConfirm(value, event) {
-        this.refs.dialog.dismiss();
-        switch (value) {
-            case "cancel":
-                break;
-            case "confirm-remove":
-            case "confirm-set-clear":
-                this.onCheckboxCheck.apply(this, _toConsumableArray(Object.values(this.state.confirmPending)).concat([true]));
-                break;
-            case "confirm-set-copy":
-                this.onCheckboxCheck(this.state.confirmPending["node"], "children", "copy", true);
-                break;
-            default:
-                break;
-        }
-        this.setState({ confirm: null, confirmPending: null });
-    },
-
-    onCheckboxCheck: function onCheckboxCheck(node, checkboxName, value, skipConfirm) {
-        var _this2 = this;
-
-        var values = this.state.nodes;
-        var nodeUuid = node.getMetadata().get('uuid');
-        var nodeValues = values[nodeUuid] || {};
-        if (checkboxName == "children" && !skipConfirm) {
-            if (value && !node.isLoaded()) {
-                (function () {
-                    var tree = _this2.refs.tree;
-                    node.observeOnce("loaded", function () {
-                        global.setTimeout(function () {
-                            tree.forceUpdate();
-                        }, 200);
-                    });
-                    node.load();
-                })();
-            }
-            var confirmationText = undefined,
-                buttons = undefined;
-            if (value) {
-                confirmationText = this.context.getMessage('react.8', 'ajxp_admin');
-                buttons = [{ text: this.context.getMessage('react.10', 'ajxp_admin'), onClick: this.applyConfirm.bind(this, 'confirm-set-copy') }, { text: this.context.getMessage('react.11', 'ajxp_admin'), onClick: this.applyConfirm.bind(this, 'confirm-set-clear') }, { text: this.context.getMessage('54', ''), onClick: this.applyConfirm.bind(this, 'cancel') }];
-            } else {
-                confirmationText = this.context.getMessage('react.9', 'ajxp_admin');
-                buttons = [{ text: this.context.getMessage('react.12', 'ajxp_admin'), onClick: this.applyConfirm.bind(this, 'confirm-remove') }, { text: this.context.getMessage('54', ''), onTouchTap: this.applyConfirm.bind(this, 'cancel') }];
-            }
-            this.setState({
-                confirm: {
-                    text: confirmationText,
-                    buttons: buttons
-                },
-                confirmPending: {
-                    node: node,
-                    checkboxName: checkboxName,
-                    value: value
-                }
-            }, (function () {
-                this.refs.dialog.show();
-            }).bind(this));
-            return;
-        }
-        var copy = undefined;
-        if (checkboxName == "children" && value == "copy") {
-            copy = true;
-            value = true;
-            this.updateColumn(values, node, checkboxName, value, true);
-        }
-        var result = this.updateRow(nodeValues, checkboxName, value);
-        if (!copy) {
-            this.updateColumn(values, node, checkboxName, value);
-        }
-
-        if (result == "delete" && values[nodeUuid]) {
-            delete values[nodeUuid];
-        } else {
-            nodeValues["uuid"] = nodeUuid;
-            values[nodeUuid] = nodeValues;
-        }
-        if (this.props.onNodesChange) {
-            this.props.onNodesChange(values);
-        }
-        this.setState({ nodes: values });
-    },
-
-    checkboxesComputeStatus: function checkboxesComputeStatus(node) {
-        var useParentMask = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+        console.log(node, checkboxName, value);
+        var role = this.props.role;
 
         var nodeUuid = node.getMetadata().get('uuid');
-        var values = {},
-            disabled = {};
-        var inherited = false,
-            foundParent = false,
-            foundParentChecksChildren = false;
-        var mask = this.state.nodes;
-        if (useParentMask) {
-            mask = this.state.parentNodes;
-        }
-        var firstParent = node.getParent();
-        if (firstParent && firstParent.getPath() != '/' && mask[firstParent.getMetadata().get('uuid')] && mask[firstParent.getMetadata().get('uuid')]['children']) {
-            foundParentChecksChildren = true;
-        }
-        if (mask[nodeUuid]) {
-            values = mask[nodeUuid];
-        } else {
-            var bNode = node,
-                _parent = undefined;
-            // IF direct parent has not values at all, it will always be inherited
-            if (firstParent && !mask[firstParent.getMetadata().get('uuid')]) {
-                inherited = true;
+
+        var _role$getAclString = role.getAclString(null, nodeUuid);
+
+        var aclString = _role$getAclString.aclString;
+        var inherited = _role$getAclString.inherited;
+
+        // Rebuild new value
+        var acls = [];
+        if (checkboxName === 'deny' && value) {
+            acls = [checkboxName];
+        } else if (aclString) {
+            acls = aclString.split(',');
+            if (acls.indexOf(checkboxName) > -1) {
+                acls = acls.filter(function (a) {
+                    return a !== checkboxName;
+                });
+            } else {
+                acls.push(checkboxName);
             }
-            while (_parent = bNode.getParent()) {
-                if (mask[_parent.getMetadata().get('uuid')]) {
-                    var parentValues = mask[_parent.getMetadata().get('uuid')];
-                    foundParent = true;
-                    if (!parentValues['children']) {
-                        inherited = true;
-                        values = LangUtils.deepCopy(parentValues);
-                    }
-                    break;
-                }
-                bNode = _parent;
-            }
+        } else if (value) {
+            acls.push(checkboxName);
         }
-        if (!Object.keys(values).length) {
-            if (node.getPath() != '/' && !foundParent) {
-                inherited = true;
-            }
-        }
-        // Update disabled state
-        if (inherited) {
-            disabled = { read: true, write: true, deny: true, children: true };
-        } else {
-            if (values['children']) {
-                disabled = { read: true, write: true, deny: true };
-                values['write'] = false;
-                values['deny'] = false;
-                values['read'] = true;
-            } else if (values['deny']) {
-                disabled = { read: true, write: true };
-            }
-        }
-        var additionalClass = undefined;
-        if (!values['read'] && !values['write'] && !values['deny'] && Object.keys(this.state.parentNodes).length && !foundParentChecksChildren && !useParentMask) {
-            // Still no values, compute from parent
-            additionalClass = 'parent-inherited';
-            var data = this.checkboxesComputeStatus(node, true);
-            values = data.VALUES;
-            disabled = { read: false, write: false, deny: false, children: false };
-            inherited = data.INHERITED;
-        }
+        this.props.onNodesChange(nodeUuid, acls.join(','));
+    },
+
+    roleAclObject: function roleAclObject(node) {
+        var role = this.props.role;
+
+        var _role$getAclString2 = role.getAclString(null, node.getMetadata().get("uuid"));
+
+        var aclString = _role$getAclString2.aclString;
+        var inherited = _role$getAclString2.inherited;
+
+        var read = aclString.indexOf("read") > -1,
+            write = aclString.indexOf("write") > -1,
+            deny = aclString.indexOf("deny") > -1;
         return {
-            VALUES: values,
-            INHERITED: inherited,
-            DISABLED: disabled,
-            CLASSNAME: additionalClass
+            VALUES: { read: read, write: write, deny: deny },
+            INHERITED: false,
+            DISABLED: {},
+            CLASSNAME: inherited ? "parent-inherited" : "",
+            EMPTY: !read && !write && !deny
         };
     },
 
+    checkboxesComputeStatus: function checkboxesComputeStatus(node) {
+
+        var data = this.roleAclObject(node);
+        var bNode = node,
+            parent = undefined;
+        var parentData = undefined;
+        while (parent = bNode.getParent()) {
+            parentData = this.roleAclObject(parent);
+            if (!parentData.EMPTY) {
+                break;
+            }
+            bNode = parent;
+        }
+        if (data.EMPTY && parentData) {
+            data.VALUES = parentData.VALUES;
+            data.INHERITED = true;
+        } else if (parentData && parentData.VALUES.deny) {
+            data.VALUES = parentData.VALUES;
+            data.INHERITED = true;
+        }
+        if (data.VALUES.deny) {
+            data.DISABLED = { read: true, write: true };
+        }
+
+        return data;
+    },
+
     render: function render() {
-        var mainClassNames = global.classNames("permission-mask-editor", { "tree-show-accessible-nodes": this.state && this.state.showResultingTree }, { "permission-mask-global-noread": this.props.globalWorkspacePermissions && !this.props.globalWorkspacePermissions.read }, { "permission-mask-global-nowrite": this.props.globalWorkspacePermissions && !this.props.globalWorkspacePermissions.write });
-        return _react2["default"].createElement(
-            "div",
+        var mainClassNames = (0, _classNames2['default'])("permission-mask-editor", { "tree-show-accessible-nodes": this.state && this.state.showResultingTree }, { "permission-mask-global-noread": this.props.globalWorkspacePermissions && !this.props.globalWorkspacePermissions.read });
+
+        //            {"permission-mask-global-nowrite":(this.props.globalWorkspacePermissions && !this.props.globalWorkspacePermissions.write)}
+        return _react2['default'].createElement(
+            'div',
             { className: mainClassNames },
-            _react2["default"].createElement(
-                ReactMUI.Dialog,
-                {
-                    ref: "dialog",
-                    title: "Warning",
-                    actions: this.state && this.state.confirm ? this.state.confirm.buttons : [],
-                    contentClassName: "dialog-max-480"
-                },
-                this.state && this.state.confirm ? this.state.confirm.text : ''
-            ),
-            _react2["default"].createElement(
-                "div",
+            _react2['default'].createElement(
+                'div',
                 { style: { margin: '0 16px', position: 'relative' } },
-                _react2["default"].createElement(
-                    "div",
+                _react2['default'].createElement(
+                    'div',
                     { style: { position: 'absolute' } },
-                    _react2["default"].createElement(ReactMUI.IconButton, {
-                        iconClassName: "icon-filter", className: "smaller-button",
+                    _react2['default'].createElement(_materialUi.IconButton, {
+                        iconClassName: 'icon-filter', className: 'smaller-button',
                         tooltip: this.context.getMessage(this.state.showResultingTree ? 'react.13' : 'react.14', 'ajxp_admin'),
                         onClick: (function () {
                             this.setState({ showResultingTree: !this.state.showResultingTree });
                         }).bind(this)
                     })
                 ),
-                _react2["default"].createElement(
-                    "div",
-                    { className: "read-write-header" },
-                    _react2["default"].createElement(
-                        "span",
-                        { className: "header-read" },
+                _react2['default'].createElement(
+                    'div',
+                    { className: 'read-write-header' },
+                    _react2['default'].createElement(
+                        'span',
+                        { className: 'header-read' },
                         this.context.getMessage('react.5a', 'ajxp_admin')
                     ),
-                    _react2["default"].createElement(
-                        "span",
-                        { className: "header-write" },
+                    _react2['default'].createElement(
+                        'span',
+                        { className: 'header-write' },
                         this.context.getMessage('react.5b', 'ajxp_admin')
                     ),
-                    _react2["default"].createElement(
-                        "span",
-                        { className: "header-deny" },
+                    _react2['default'].createElement(
+                        'span',
+                        { className: 'header-deny' },
                         this.context.getMessage('react.5', 'ajxp_admin')
-                    ),
-                    _react2["default"].createElement(
-                        "span",
-                        { className: "header-children" },
-                        this.context.getMessage('react.6', 'ajxp_admin')
                     )
                 ),
-                _react2["default"].createElement("br", { style: { clear: 'both' } }),
-                _react2["default"].createElement(PydioComponents.TreeView, {
-                    ref: "tree",
+                _react2['default'].createElement('br', { style: { clear: 'both' } }),
+                _react2['default'].createElement(PydioComponents.TreeView, {
+                    ref: 'tree',
                     dataModel: this.state.dataModel,
                     node: this.state.node,
                     showRoot: true,
-                    checkboxes: ["read", "write", "deny", "children"],
+                    checkboxes: ["read", "write", "deny"],
                     checkboxesValues: this.state.mask,
                     checkboxesComputeStatus: this.checkboxesComputeStatus,
                     onCheckboxCheck: this.onCheckboxCheck,
@@ -24778,11 +24830,10 @@ var PermissionMaskEditor = _react2["default"].createClass({
 
 });
 
-exports["default"] = PermissionMaskEditor;
-module.exports = exports["default"];
+exports['default'] = PermissionMaskEditor;
+module.exports = exports['default'];
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"react":"react"}],164:[function(require,module,exports){
+},{"../model/Role":181,"./MaskNodesProvider":164,"classNames":50,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","react":"react"}],166:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -24905,7 +24956,7 @@ PoliciesLoader.INSTANCE = null;
 exports['default'] = PoliciesLoader;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}],165:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}],167:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -24994,25 +25045,22 @@ exports['default'] = _react2['default'].createClass({
         var r = !d && this.refs.read.isChecked();
         var w = !d && this.refs.write.isChecked();
         var acl = undefined;
+        var parts = [];
         if (d) {
-            acl = 'PYDIO_VALUE_CLEAR';
-            this.setState({ acl: acl });
+            parts.push('deny');
         } else {
-            var parts = [];
             if (r) {
-                parts.push("read");
+                parts.push('read');
             }
             if (w) {
-                parts.push("write");
+                parts.push('write');
             }
-            acl = parts.join(",");
-            this.setState({ acl: acl });
         }
+        acl = parts.join(",");
         if (this.props.onChange) {
             this.props.onChange(acl, this.props.acl);
-        } else {
-            this.setState({ acl: acl });
         }
+        this.setState({ acl: acl });
     },
 
     handleChangePolicy: function handleChangePolicy(event, value) {
@@ -25049,7 +25097,7 @@ exports['default'] = _react2['default'].createClass({
         var deny = undefined;
         if (!this.props.hideDeny) {
             deny = _react2['default'].createElement(_materialUi.Checkbox, { ref: 'deny', label: this.props.hideLabels ? "" : this.context.getMessage('react.5', 'ajxp_admin'), value: '-', disabled: this.props.disabled,
-                onCheck: this.updateAcl, checked: acl.indexOf('PYDIO_VALUE_CLEAR') !== -1, style: checkboxStyle });
+                onCheck: this.updateAcl, checked: acl.indexOf('deny') !== -1, style: checkboxStyle });
         }
         return _react2['default'].createElement(
             'div',
@@ -25071,13 +25119,19 @@ exports['default'] = _react2['default'].createClass({
             selectedPolicy === 'manual-rights' && _react2['default'].createElement(_materialUi.Checkbox, { ref: 'read',
                 label: this.props.hideLabels ? "" : this.context.getMessage('react.5a', 'ajxp_admin'),
                 value: 'read',
-                onCheck: this.updateAcl, disabled: this.props.disabled || acl === 'PYDIO_VALUE_CLEAR',
-                checked: acl !== 'PYDIO_VALUE_CLEAR' && acl.indexOf('read') !== -1,
+                onCheck: this.updateAcl,
+                disabled: this.props.disabled || acl.indexOf('deny') > -1,
+                checked: acl.indexOf('deny') === -1 && acl.indexOf('read') !== -1,
                 style: checkboxStyle
             }),
-            selectedPolicy === 'manual-rights' && _react2['default'].createElement(_materialUi.Checkbox, { ref: 'write', label: this.props.hideLabels ? "" : this.context.getMessage('react.5b', 'ajxp_admin'), value: 'write',
-                onCheck: this.updateAcl, disabled: this.props.disabled || acl === 'PYDIO_VALUE_CLEAR',
-                checked: acl !== 'PYDIO_VALUE_CLEAR' && acl.indexOf('write') !== -1, style: checkboxStyle }),
+            selectedPolicy === 'manual-rights' && _react2['default'].createElement(_materialUi.Checkbox, {
+                ref: 'write',
+                label: this.props.hideLabels ? "" : this.context.getMessage('react.5b', 'ajxp_admin'),
+                value: 'write',
+                onCheck: this.updateAcl,
+                disabled: this.props.disabled || acl.indexOf('deny') > -1,
+                checked: acl.indexOf('deny') === -1 && acl.indexOf('write') !== -1,
+                style: checkboxStyle }),
             selectedPolicy === 'manual-rights' && deny,
             selectedPolicy !== 'manual-rights' && _react2['default'].createElement(
                 'div',
@@ -25090,7 +25144,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":193,"./PoliciesLoader":164,"material-ui":"material-ui","react":"react"}],166:[function(require,module,exports){
+},{"../util/MessagesMixin":195,"./PoliciesLoader":166,"material-ui":"material-ui","react":"react"}],168:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25135,6 +25189,8 @@ var _modelRole2 = _interopRequireDefault(_modelRole);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
+var _materialUi = require('material-ui');
+
 exports['default'] = React.createClass({
     displayName: 'WorkspaceAcl',
 
@@ -25160,11 +25216,13 @@ exports['default'] = React.createClass({
         var role = _props.role;
         var workspace = _props.workspace;
 
-        role.updateAcl(workspace, newValue);
+        role.updateAcl(workspace, null, newValue);
     },
 
-    onNodesChange: function onNodesChange(values) {
-        this.props.Controller.updateMask(values);
+    onNodesChange: function onNodesChange(nodeUuid, checkboxName, value) {
+        var role = this.props.role;
+
+        role.updateAcl(null, nodeUuid, checkboxName);
     },
 
     getInitialState: function getInitialState() {
@@ -25193,50 +25251,51 @@ exports['default'] = React.createClass({
             advancedAcl: advancedAcl
         });
 
-        /*
-         if(advancedAcl && (aclString.indexOf('read') !== -1 || aclString.indexOf('write') !== -1 ) && supportsFolderBrowsing){
-             const toggleButton = <ReactMUI.FontIcon
-                className={"icon-" + (this.state.displayMask ? "minus" : "plus")}
-                onClick={this.toggleDisplayMask}
-                style={{cursor:'pointer', padding: '0 8px'}}
-            />;
-            label = (
-                <div>
-                    {label} {toggleButton}
-                </div>
+        var label = workspace.Label + (inherited ? ' (' + this.context.getPydioRoleMessage('38') + ')' : '');
+        var secondLine = undefined;
+
+        if (advancedAcl && (aclString.indexOf('read') !== -1 || aclString.indexOf('write') !== -1)) {
+
+            label = React.createElement(
+                'div',
+                null,
+                label,
+                React.createElement(_materialUi.FontIcon, {
+                    className: "mdi mdi-" + (this.state.displayMask ? "minus" : "plus"),
+                    onClick: this.toggleDisplayMask,
+                    style: { cursor: 'pointer', padding: '0 8px', fontSize: 16 }
+                })
             );
-            if(this.state.displayMask){
-                const parentNodes = roleParent.NODES || {};
-                const nodes = role.NODES || {};
-                action = null;
-                let aclObject;
-                if(aclString){
+            if (this.state.displayMask) {
+                var aclObject = undefined;
+                if (aclString) {
                     aclObject = {
-                        read:aclString.indexOf('read') !== -1,
-                        write:aclString.indexOf('write') !== -1
+                        read: aclString.indexOf('read') !== -1,
+                        write: aclString.indexOf('write') !== -1
                     };
                 }
-                 secondLine = (
-                    <ReactMUI.Paper zDepth={1} style={{margin: '8px 20px', backgroundColor:'white', color:'rgba(0,0,0,0.87)'}}>
-                        <PermissionMaskEditor
-                            workspaceId={wsId}
-                            parentNodes={parentNodes}
-                            nodes={nodes}
-                            onNodesChange={this.onNodesChange}
-                            showModal={this.props.showModal}
-                            hideModal={this.props.hideModal}
-                            globalWorkspacePermissions={aclObject}
-                        />
-                    </ReactMUI.Paper>
+
+                secondLine = React.createElement(
+                    _materialUi.Paper,
+                    { zDepth: 1, style: { margin: '30px 3px 3px' } },
+                    React.createElement(_PermissionMaskEditor2['default'], {
+                        workspace: workspace,
+                        role: role,
+                        nodes: {},
+                        parentNodes: {},
+                        onNodesChange: this.onNodesChange,
+                        showModal: this.props.showModal,
+                        hideModal: this.props.hideModal,
+                        globalWorkspacePermissions: aclObject
+                    })
                 );
             }
-         }
-         */
+        }
 
         return React.createElement(PydioComponents.ListEntry, {
             className: (inherited ? "workspace-acl-entry-inherited " : "") + "workspace-acl-entry",
-            firstLine: workspace.Label + (inherited ? ' (' + this.context.getPydioRoleMessage('38') + ')' : ''),
-            secondLine: null,
+            firstLine: label,
+            secondLine: secondLine,
             actions: action
         });
     }
@@ -25244,7 +25303,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Role":179,"../util/MessagesMixin":193,"./PermissionMaskEditor":163,"./RightsSelector":165,"pydio/http/rest-api":"pydio/http/rest-api"}],167:[function(require,module,exports){
+},{"../model/Role":181,"../util/MessagesMixin":195,"./PermissionMaskEditor":165,"./RightsSelector":167,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api"}],169:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25326,7 +25385,7 @@ var WorkspacesAcls = (function (_React$Component) {
 exports['default'] = WorkspacesAcls;
 module.exports = exports['default'];
 
-},{"./WorkspaceAcl":166,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],168:[function(require,module,exports){
+},{"./WorkspaceAcl":168,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],170:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25467,7 +25526,7 @@ GroupInfo.PropTypes = {
 exports['default'] = GroupInfo;
 module.exports = exports['default'];
 
-},{"../model/User":180,"pydio":"pydio","react":"react"}],169:[function(require,module,exports){
+},{"../model/User":182,"pydio":"pydio","react":"react"}],171:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25609,7 +25668,7 @@ RoleInfo.PropTypes = {
 exports['default'] = RoleInfo;
 module.exports = exports['default'];
 
-},{"../model/Role":179,"pydio":"pydio","react":"react"}],170:[function(require,module,exports){
+},{"../model/Role":181,"pydio":"pydio","react":"react"}],172:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25840,7 +25899,7 @@ UserInfo.PropTypes = {
 exports['default'] = UserInfo;
 module.exports = exports['default'];
 
-},{"../model/User":180,"../user/UserRolesPicker":191,"material-ui":"material-ui","pydio":"pydio","react":"react"}],171:[function(require,module,exports){
+},{"../model/User":182,"../user/UserRolesPicker":193,"material-ui":"material-ui","pydio":"pydio","react":"react"}],173:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26016,7 +26075,7 @@ ConnectionPane.propTypes = {
 exports['default'] = ConnectionPane;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],172:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],174:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26124,7 +26183,7 @@ var DNs = (function (_React$Component) {
 exports['default'] = DNs;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],173:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],175:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26223,7 +26282,7 @@ FilterPane.propTypes = {
 exports['default'] = FilterPane;
 module.exports = exports['default'];
 
-},{"./DNs":172,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],174:[function(require,module,exports){
+},{"./DNs":174,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],176:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26370,7 +26429,7 @@ GeneralPane.propTypes = {
 exports['default'] = GeneralPane;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],175:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],177:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26645,7 +26704,7 @@ var LdapEditor = (function (_React$Component) {
 exports['default'] = LdapEditor;
 module.exports = exports['default'];
 
-},{"./ConnectionPane":171,"./FilterPane":173,"./GeneralPane":174,"./MappingsPane":176,"./MemberOfPane":177,"./ServerConfigModel":178,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","uuid4":154}],176:[function(require,module,exports){
+},{"./ConnectionPane":173,"./FilterPane":175,"./GeneralPane":176,"./MappingsPane":178,"./MemberOfPane":179,"./ServerConfigModel":180,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","uuid4":155}],178:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26777,7 +26836,7 @@ MappingsPane.propTypes = {
 exports['default'] = MappingsPane;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],177:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],179:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27033,7 +27092,7 @@ MemberOfPane.propTypes = {
 exports['default'] = MemberOfPane;
 module.exports = exports['default'];
 
-},{"./DNs":172,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],178:[function(require,module,exports){
+},{"./DNs":174,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],180:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27177,7 +27236,7 @@ var ServerConfigModel = (function (_Observable) {
 exports['default'] = ServerConfigModel;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}],179:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}],181:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27467,17 +27526,24 @@ var Role = (function (_Observable) {
 
         /**
          * @param workspace {IdmWorkspace}
+         * @param nodeUuid string
          */
     }, {
         key: 'getAclString',
-        value: function getAclString(workspace) {
+        value: function getAclString(workspace, nodeUuid) {
             var _this7 = this;
 
             var inherited = false;
-            var rootNodes = workspace.RootNodes;
-            var firstRoot = rootNodes[Object.keys(rootNodes).shift()];
-            var wsId = workspace.UUID;
-            var nodeId = firstRoot.Uuid;
+            var wsId = undefined,
+                nodeId = undefined;
+            if (workspace) {
+                var rootNodes = workspace.RootNodes;
+                var firstRoot = rootNodes[Object.keys(rootNodes).shift()];
+                wsId = workspace.UUID;
+                nodeId = firstRoot.Uuid;
+            } else {
+                nodeId = nodeUuid;
+            }
 
             var rights = undefined;
             var parentRights = undefined;
@@ -27497,9 +27563,6 @@ var Role = (function (_Observable) {
                 return { aclString: "", 'false': false };
             }
 
-            if (rights.deny) {
-                return { aclString: 'PYDIO_VALUE_CLEAR', inherited: inherited };
-            }
             var aclString = Object.keys(rights).filter(function (r) {
                 return rights[r];
             }).join(',');
@@ -27511,7 +27574,7 @@ var Role = (function (_Observable) {
             var rights = { read: false, write: false, deny: false };
 
             var policyValue = acls.filter(function (acl) {
-                return acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0 && acl.WorkspaceID === wsId && acl.NodeID === nodeId && acl.Action.Value === "1";
+                return acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0 && (!wsId || acl.WorkspaceID === wsId) && acl.NodeID === nodeId && acl.Action.Value === "1";
             });
 
             if (policyValue.length) {
@@ -27521,7 +27584,7 @@ var Role = (function (_Observable) {
 
             Object.keys(rights).forEach(function (rightName) {
                 var values = acls.filter(function (acl) {
-                    return acl.Action.Name === rightName && acl.WorkspaceID === wsId && acl.NodeID === nodeId && acl.Action.Value === "1";
+                    return acl.Action.Name === rightName && (!wsId || acl.WorkspaceID === wsId) && acl.NodeID === nodeId && acl.Action.Value === "1";
                 });
                 if (values.length) {
                     rights[rightName] |= true;
@@ -27537,30 +27600,40 @@ var Role = (function (_Observable) {
         /**
          *
          * @param workspace {IdmWorkspace}
+         * @param nodeUuid string
          * @param value string
          */
     }, {
         key: 'updateAcl',
-        value: function updateAcl(workspace, value) {
+        value: function updateAcl(workspace, nodeUuid, value) {
             var _this8 = this;
 
             console.log(workspace, value);
-
-            var nodeIds = Object.keys(workspace.RootNodes);
-            // Remove current acls
-            this.acls = this.acls.filter(function (acl) {
-                return !((acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0) && acl.WorkspaceID === workspace.UUID && nodeIds.indexOf(acl.NodeID) > -1 && acl.Action.Value === "1");
-            });
+            var nodeIds = [];
+            if (nodeUuid) {
+                nodeIds = [nodeUuid];
+            } else {
+                nodeIds = Object.keys(workspace.RootNodes);
+            }
+            if (workspace) {
+                // Remove current global acls
+                this.acls = this.acls.filter(function (acl) {
+                    return !((acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0) && acl.WorkspaceID === workspace.UUID && nodeIds.indexOf(acl.NodeID) > -1 && acl.Action.Value === "1");
+                });
+            } else {
+                // Remove node acls
+                this.acls = this.acls.filter(function (acl) {
+                    return !((acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0) && acl.NodeID === nodeUuid && acl.Action.Value === "1");
+                });
+            }
             if (value !== '') {
-                var rights = value.split(',');
-                if (value === 'PYDIO_VALUE_CLEAR') {
-                    rights = ['deny'];
-                }
-                rights.forEach(function (r) {
+                value.split(',').forEach(function (r) {
                     nodeIds.forEach(function (n) {
                         var acl = new _pydioHttpRestApi.IdmACL();
                         acl.NodeID = n;
-                        acl.WorkspaceID = workspace.UUID;
+                        if (workspace) {
+                            acl.WorkspaceID = workspace.UUID;
+                        }
                         acl.RoleID = _this8.idmRole.Uuid;
                         acl.Action = _pydioHttpRestApi.IdmACLAction.constructFromObject({ Name: r, Value: "1" });
                         _this8.acls.push(acl);
@@ -27608,7 +27681,7 @@ var Role = (function (_Observable) {
 exports['default'] = Role;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":154}],180:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":155}],182:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27842,7 +27915,7 @@ var User = (function (_Observable) {
 exports['default'] = User;
 module.exports = exports['default'];
 
-},{"./Role":179,"pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":154}],181:[function(require,module,exports){
+},{"./Role":181,"pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":155}],183:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27931,7 +28004,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":193,"material-ui":"material-ui","pydio":"pydio","react":"react"}],182:[function(require,module,exports){
+},{"../util/MessagesMixin":195,"material-ui":"material-ui","pydio":"pydio","react":"react"}],184:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28190,7 +28263,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../acl/WorkspaceAcl":166,"../parameters/ParamsMixins":188,"../parameters/WorkspaceCard":189}],183:[function(require,module,exports){
+},{"../acl/WorkspaceAcl":168,"../parameters/ParamsMixins":190,"../parameters/WorkspaceCard":191}],185:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -28366,7 +28439,7 @@ exports['default'] = React.createClass({
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/EditorCache":192,"./ParametersPicker":186,"material-ui":"material-ui","pydio":"pydio","react":"react"}],184:[function(require,module,exports){
+},{"../util/EditorCache":194,"./ParametersPicker":188,"material-ui":"material-ui","pydio":"pydio","react":"react"}],186:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28523,7 +28596,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":193}],185:[function(require,module,exports){
+},{"../util/MessagesMixin":195}],187:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -28667,7 +28740,7 @@ exports['default'] = React.createClass({
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/MessagesMixin":193,"./ParameterEntry":184,"./ParamsMixins":188}],186:[function(require,module,exports){
+},{"../util/MessagesMixin":195,"./ParameterEntry":186,"./ParamsMixins":190}],188:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -28867,7 +28940,7 @@ exports['default'] = ParametersPicker;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"pydio/util/lang":"pydio/util/lang","react":"react"}],187:[function(require,module,exports){
+},{"pydio/util/lang":"pydio/util/lang","react":"react"}],189:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28940,7 +29013,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":193,"./ParamsMixins":188}],188:[function(require,module,exports){
+},{"../util/MessagesMixin":195,"./ParamsMixins":190}],190:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29039,7 +29112,7 @@ exports['default'] = {
 };
 module.exports = exports['default'];
 
-},{"../util/EditorCache":192}],189:[function(require,module,exports){
+},{"../util/EditorCache":194}],191:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29243,7 +29316,7 @@ exports['default'] = WorkspaceCard = PydioContextConsumer(WorkspaceCard);
 exports['default'] = WorkspaceCard;
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":193,"./ParameterCreate":183,"./ParametersList":185,"./ParametersSummary":187,"material-ui":"material-ui","pydio":"pydio","react":"react"}],190:[function(require,module,exports){
+},{"../util/MessagesMixin":195,"./ParameterCreate":185,"./ParametersList":187,"./ParametersSummary":189,"material-ui":"material-ui","pydio":"pydio","react":"react"}],192:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -29369,7 +29442,7 @@ exports['default'] = React.createClass({
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../model/User":180,"material-ui":"material-ui","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],191:[function(require,module,exports){
+},{"../model/User":182,"material-ui":"material-ui","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],193:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29555,7 +29628,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":193,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],192:[function(require,module,exports){
+},{"../util/MessagesMixin":195,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],194:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29586,7 +29659,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{}],193:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29653,7 +29726,7 @@ var RoleMessagesProviderMixin = {
 exports.RoleMessagesConsumerMixin = RoleMessagesConsumerMixin;
 exports.RoleMessagesProviderMixin = RoleMessagesProviderMixin;
 
-},{}],194:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29796,7 +29869,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
 exports['default'] = CreateRoleOrGroupForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],195:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],197:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29959,7 +30032,7 @@ var CreateUserForm = _react2['default'].createClass({
 exports['default'] = CreateUserForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],196:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],198:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30056,7 +30129,7 @@ window.AdminPeople = {
   DirectoriesBoard: _boardDirectoriesBoard2['default']
 };
 
-},{"./board/Callbacks":156,"./board/Dashboard":157,"./board/DirectoriesBoard":158,"./board/PoliciesBoard":159,"./board/RolesDashboard":160,"./editor/Editor":162,"./editor/panel/SharesList":181,"./editor/panel/WorkspacesList":182,"./editor/parameters/ParameterCreate":183,"./editor/user/UserPasswordDialog":190,"./editor/user/UserRolesPicker":191,"./editor/util/MessagesMixin":193,"./forms/CreateRoleOrGroupForm":194,"./forms/CreateUserForm":195}],197:[function(require,module,exports){
+},{"./board/Callbacks":157,"./board/Dashboard":158,"./board/DirectoriesBoard":159,"./board/PoliciesBoard":160,"./board/RolesDashboard":161,"./editor/Editor":163,"./editor/panel/SharesList":183,"./editor/panel/WorkspacesList":184,"./editor/parameters/ParameterCreate":185,"./editor/user/UserPasswordDialog":192,"./editor/user/UserRolesPicker":193,"./editor/util/MessagesMixin":195,"./forms/CreateRoleOrGroupForm":196,"./forms/CreateUserForm":197}],199:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30301,7 +30374,7 @@ var Policy = (function (_React$Component) {
 exports['default'] = Policy;
 module.exports = exports['default'];
 
-},{"./Rule":198,"./editor/InlineLabel":203,"material-ui":"material-ui","react":"react","uuid4":154}],198:[function(require,module,exports){
+},{"./Rule":200,"./editor/InlineLabel":205,"material-ui":"material-ui","react":"react","uuid4":155}],200:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30456,7 +30529,7 @@ var Rule = (function (_React$Component) {
 exports['default'] = Rule;
 module.exports = exports['default'];
 
-},{"./editor/RuleEditor":206,"material-ui":"material-ui","react":"react"}],199:[function(require,module,exports){
+},{"./editor/RuleEditor":208,"material-ui":"material-ui","react":"react"}],201:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30560,7 +30633,7 @@ var Actions = (function (_React$Component) {
 exports['default'] = Actions;
 module.exports = exports['default'];
 
-},{"./ChipValues":200,"material-ui":"material-ui","react":"react"}],200:[function(require,module,exports){
+},{"./ChipValues":202,"material-ui":"material-ui","react":"react"}],202:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30703,7 +30776,7 @@ var ChipValues = (function (_React$Component) {
 exports['default'] = ChipValues;
 module.exports = exports['default'];
 
-},{"./ValuesOrRegexp":208,"material-ui":"material-ui","react":"react"}],201:[function(require,module,exports){
+},{"./ValuesOrRegexp":210,"material-ui":"material-ui","react":"react"}],203:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30910,7 +30983,7 @@ var Conditions = (function (_React$Component) {
 exports['default'] = Conditions;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],202:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],204:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31016,7 +31089,7 @@ var Effect = (function (_React$Component) {
 exports['default'] = Effect;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],203:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],205:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31170,7 +31243,7 @@ var InlineLabel = (function (_React$Component) {
 exports['default'] = InlineLabel;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],204:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],206:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31262,7 +31335,7 @@ var Label = (function (_React$Component) {
 exports['default'] = Label;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],205:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],207:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31358,7 +31431,7 @@ var Resources = (function (_React$Component) {
 exports['default'] = Resources;
 module.exports = exports['default'];
 
-},{"./ChipValues":200,"material-ui":"material-ui","react":"react"}],206:[function(require,module,exports){
+},{"./ChipValues":202,"material-ui":"material-ui","react":"react"}],208:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31543,7 +31616,7 @@ var RuleEditor = (function (_React$Component) {
 exports['default'] = RuleEditor;
 module.exports = exports['default'];
 
-},{"./Actions":199,"./Conditions":201,"./Effect":202,"./Label":204,"./Resources":205,"./Subjects":207,"material-ui":"material-ui","pydio":"pydio","react":"react"}],207:[function(require,module,exports){
+},{"./Actions":201,"./Conditions":203,"./Effect":204,"./Label":206,"./Resources":207,"./Subjects":209,"material-ui":"material-ui","pydio":"pydio","react":"react"}],209:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31639,7 +31712,7 @@ var Subjects = (function (_React$Component) {
 exports['default'] = Subjects;
 module.exports = exports['default'];
 
-},{"./ChipValues":200,"material-ui":"material-ui","react":"react"}],208:[function(require,module,exports){
+},{"./ChipValues":202,"material-ui":"material-ui","react":"react"}],210:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31786,4 +31859,4 @@ var ValuesOrRegexp = (function (_React$Component) {
 exports['default'] = ValuesOrRegexp;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}]},{},[196]);
+},{"material-ui":"material-ui","react":"react"}]},{},[198]);

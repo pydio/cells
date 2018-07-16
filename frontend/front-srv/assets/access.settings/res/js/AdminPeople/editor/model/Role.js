@@ -209,13 +209,19 @@ class Role extends Observable{
 
     /**
      * @param workspace {IdmWorkspace}
+     * @param nodeUuid string
      */
-    getAclString(workspace){
+    getAclString(workspace, nodeUuid){
         let inherited = false;
-        const rootNodes = workspace.RootNodes;
-        const firstRoot = rootNodes[Object.keys(rootNodes).shift()];
-        const wsId = workspace.UUID;
-        const nodeId = firstRoot.Uuid;
+        let wsId, nodeId;
+        if(workspace){
+            const rootNodes = workspace.RootNodes;
+            const firstRoot = rootNodes[Object.keys(rootNodes).shift()];
+            wsId = workspace.UUID;
+            nodeId = firstRoot.Uuid;
+        } else {
+            nodeId = nodeUuid;
+        }
 
         let rights;
         let parentRights;
@@ -235,9 +241,6 @@ class Role extends Observable{
             return {aclString: "", false};
         }
 
-        if(rights.deny){
-            return {aclString: 'PYDIO_VALUE_CLEAR', inherited}
-        }
         const aclString = Object.keys(rights).filter(r=>rights[r]).join(',');
         return {aclString, inherited}
     }
@@ -248,7 +251,7 @@ class Role extends Observable{
         const policyValue = acls.filter(acl => {
             return (
                 acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0 &&
-                acl.WorkspaceID === wsId &&
+                (!wsId || acl.WorkspaceID === wsId) &&
                 acl.NodeID === nodeId &&
                 acl.Action.Value === "1"
             );
@@ -263,7 +266,7 @@ class Role extends Observable{
             const values = acls.filter(acl => {
                 return (
                     acl.Action.Name === rightName &&
-                    acl.WorkspaceID === wsId &&
+                    (!wsId || acl.WorkspaceID === wsId) &&
                     acl.NodeID === nodeId &&
                     acl.Action.Value === "1"
                 );
@@ -282,31 +285,45 @@ class Role extends Observable{
     /**
      *
      * @param workspace {IdmWorkspace}
+     * @param nodeUuid string
      * @param value string
      */
-    updateAcl(workspace, value){
+    updateAcl(workspace, nodeUuid, value){
         console.log(workspace, value);
-
-        const nodeIds = Object.keys(workspace.RootNodes);
-        // Remove current acls
-        this.acls = this.acls.filter(acl => {
-            return !(
-                (acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || (acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0))
-                && acl.WorkspaceID === workspace.UUID
-                && nodeIds.indexOf(acl.NodeID) > -1
-                && acl.Action.Value === "1"
-            );
-        });
+        let nodeIds = [];
+        if(nodeUuid){
+            nodeIds = [nodeUuid];
+        } else {
+            nodeIds = Object.keys(workspace.RootNodes);
+        }
+        if(workspace){
+            // Remove current global acls
+            this.acls = this.acls.filter(acl => {
+                return !(
+                    (acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || (acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0))
+                    && acl.WorkspaceID === workspace.UUID
+                    && nodeIds.indexOf(acl.NodeID) > -1
+                    && acl.Action.Value === "1"
+                );
+            });
+        } else {
+            // Remove node acls
+            this.acls = this.acls.filter(acl => {
+                return !(
+                    (acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || (acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0))
+                    && acl.NodeID === nodeUuid
+                    && acl.Action.Value === "1"
+                );
+            });
+        }
         if (value !== ''){
-            let rights = value.split(',');
-            if(value === 'PYDIO_VALUE_CLEAR') {
-                rights = ['deny'];
-            }
-            rights.forEach(r => {
+            value.split(',').forEach(r => {
                 nodeIds.forEach(n => {
                     const acl = new IdmACL();
                     acl.NodeID = n;
-                    acl.WorkspaceID = workspace.UUID;
+                    if(workspace){
+                        acl.WorkspaceID = workspace.UUID;
+                    }
                     acl.RoleID = this.idmRole.Uuid;
                     acl.Action = IdmACLAction.constructFromObject({Name:r, Value: "1"});
                     this.acls.push(acl);

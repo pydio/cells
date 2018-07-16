@@ -310,7 +310,11 @@ class Editor extends React.Component{
     }
 
     render(){
-        const {advancedAcl, pydio} = this.props;
+        //const {advancedAcl, pydio} = this.props;
+        // TODO TMP - to be reverted for tests
+        const {pydio} = this.props;
+        const advancedAcl = true;
+
         const {observableRole, observableUser, pluginsRegistry, currentPane, modal} = this.state;
 
         const filterPages = (wsId, role) => Repository.isInternal(wsId);

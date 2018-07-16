@@ -23,6 +23,7 @@ import RightsSelector from './RightsSelector'
 import PermissionMaskEditor from './PermissionMaskEditor'
 import Role from '../model/Role'
 import {IdmWorkspace} from 'pydio/http/rest-api';
+import {FontIcon, Paper} from 'material-ui'
 
 export default React.createClass({
 
@@ -45,11 +46,12 @@ export default React.createClass({
 
     onAclChange(newValue, oldValue){
         const {role, workspace} = this.props;
-        role.updateAcl(workspace, newValue);
+        role.updateAcl(workspace, null, newValue);
     },
 
-    onNodesChange(values){
-        this.props.Controller.updateMask(values);
+    onNodesChange(nodeUuid, checkboxName, value){
+        const {role} = this.props;
+        role.updateAcl(null, nodeUuid, checkboxName);
     },
 
     getInitialState(){
@@ -74,24 +76,22 @@ export default React.createClass({
             />
         );
 
-        /*
+        let label = workspace.Label + (inherited ? ' ('+ this.context.getPydioRoleMessage('38') +')' : '');
+        let secondLine;
 
-        if(advancedAcl && (aclString.indexOf('read') !== -1 || aclString.indexOf('write') !== -1 ) && supportsFolderBrowsing){
+        if(advancedAcl && (aclString.indexOf('read') !== -1 || aclString.indexOf('write') !== -1 )){
 
-            const toggleButton = <ReactMUI.FontIcon
-                className={"icon-" + (this.state.displayMask ? "minus" : "plus")}
-                onClick={this.toggleDisplayMask}
-                style={{cursor:'pointer', padding: '0 8px'}}
-            />;
             label = (
                 <div>
-                    {label} {toggleButton}
+                    {label}
+                    <FontIcon
+                        className={"mdi mdi-" + (this.state.displayMask ? "minus" : "plus")}
+                        onClick={this.toggleDisplayMask}
+                        style={{cursor:'pointer', padding: '0 8px', fontSize: 16}}
+                    />
                 </div>
             );
             if(this.state.displayMask){
-                const parentNodes = roleParent.NODES || {};
-                const nodes = role.NODES || {};
-                action = null;
                 let aclObject;
                 if(aclString){
                     aclObject = {
@@ -101,30 +101,29 @@ export default React.createClass({
                 }
 
                 secondLine = (
-                    <ReactMUI.Paper zDepth={1} style={{margin: '8px 20px', backgroundColor:'white', color:'rgba(0,0,0,0.87)'}}>
+                    <Paper zDepth={1} style={{margin: '30px 3px 3px'}}>
                         <PermissionMaskEditor
-                            workspaceId={wsId}
-                            parentNodes={parentNodes}
-                            nodes={nodes}
+                            workspace={workspace}
+                            role={role}
+                            nodes={{}}
+                            parentNodes={{}}
                             onNodesChange={this.onNodesChange}
                             showModal={this.props.showModal}
                             hideModal={this.props.hideModal}
                             globalWorkspacePermissions={aclObject}
                         />
-                    </ReactMUI.Paper>
+                    </Paper>
                 );
             }
 
         }
 
-        */
-
 
         return (
             <PydioComponents.ListEntry
                 className={ (inherited ? "workspace-acl-entry-inherited " : "") + "workspace-acl-entry"}
-                firstLine={workspace.Label + (inherited ? ' ('+ this.context.getPydioRoleMessage('38') +')' : '')}
-                secondLine={null}
+                firstLine={label}
+                secondLine={secondLine}
                 actions={action}
             />
         );

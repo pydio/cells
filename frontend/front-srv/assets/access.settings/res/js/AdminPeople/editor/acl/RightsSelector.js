@@ -68,25 +68,22 @@ export default React.createClass({
         const r = !d && this.refs.read.isChecked();
         const w = !d && this.refs.write.isChecked();
         let acl;
+        let parts = [];
         if (d) {
-            acl = 'PYDIO_VALUE_CLEAR';
-            this.setState({acl: acl});
+            parts.push('deny');
         } else {
-            let parts = [];
             if (r) {
-                parts.push("read");
+                parts.push('read');
             }
             if (w) {
-                parts.push("write");
+                parts.push('write');
             }
-            acl = parts.join(",");
-            this.setState({acl: acl});
         }
+        acl = parts.join(",");
         if(this.props.onChange){
             this.props.onChange(acl, this.props.acl);
-        }else{
-            this.setState({acl:acl});
         }
+        this.setState({acl: acl});
     },
 
     handleChangePolicy(event, value){
@@ -124,7 +121,7 @@ export default React.createClass({
         if(!this.props.hideDeny){
             deny = (
                 <Checkbox ref="deny" label={this.props.hideLabels?"":this.context.getMessage('react.5', 'ajxp_admin')} value="-" disabled={this.props.disabled}
-                                       onCheck={this.updateAcl} checked={acl.indexOf('PYDIO_VALUE_CLEAR') !== -1}  style={checkboxStyle}/>
+                                       onCheck={this.updateAcl} checked={acl.indexOf('deny') !== -1}  style={checkboxStyle}/>
             );
         }
         return (
@@ -149,15 +146,21 @@ export default React.createClass({
                     <Checkbox ref="read"
                               label={this.props.hideLabels ? "" : this.context.getMessage('react.5a', 'ajxp_admin')}
                               value="read"
-                              onCheck={this.updateAcl} disabled={this.props.disabled || acl === 'PYDIO_VALUE_CLEAR'}
-                              checked={acl !== 'PYDIO_VALUE_CLEAR' && acl.indexOf('read') !== -1}
+                              onCheck={this.updateAcl}
+                              disabled={this.props.disabled || acl.indexOf('deny') > -1}
+                              checked={acl.indexOf('deny') === -1 && acl.indexOf('read') !== -1}
                               style={checkboxStyle}
                     />
                 }
                 {selectedPolicy === 'manual-rights' &&
-                    <Checkbox ref="write" label={this.props.hideLabels?"":this.context.getMessage('react.5b', 'ajxp_admin')} value="write"
-                                       onCheck={this.updateAcl} disabled={this.props.disabled || acl==='PYDIO_VALUE_CLEAR'}
-                                       checked={acl !== 'PYDIO_VALUE_CLEAR' && acl.indexOf('write') !== -1} style={checkboxStyle}/>
+                    <Checkbox
+                        ref="write"
+                        label={this.props.hideLabels?"":this.context.getMessage('react.5b', 'ajxp_admin')}
+                        value="write"
+                        onCheck={this.updateAcl}
+                        disabled={this.props.disabled || acl.indexOf('deny') > -1}
+                        checked={acl.indexOf('deny') === -1 && acl.indexOf('write') !== -1}
+                        style={checkboxStyle}/>
                 }
                 {selectedPolicy === 'manual-rights' && deny}
                 {selectedPolicy !== 'manual-rights' &&

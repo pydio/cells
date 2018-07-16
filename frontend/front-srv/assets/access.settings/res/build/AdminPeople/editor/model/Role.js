@@ -287,17 +287,24 @@ var Role = (function (_Observable) {
 
         /**
          * @param workspace {IdmWorkspace}
+         * @param nodeUuid string
          */
     }, {
         key: 'getAclString',
-        value: function getAclString(workspace) {
+        value: function getAclString(workspace, nodeUuid) {
             var _this7 = this;
 
             var inherited = false;
-            var rootNodes = workspace.RootNodes;
-            var firstRoot = rootNodes[Object.keys(rootNodes).shift()];
-            var wsId = workspace.UUID;
-            var nodeId = firstRoot.Uuid;
+            var wsId = undefined,
+                nodeId = undefined;
+            if (workspace) {
+                var rootNodes = workspace.RootNodes;
+                var firstRoot = rootNodes[Object.keys(rootNodes).shift()];
+                wsId = workspace.UUID;
+                nodeId = firstRoot.Uuid;
+            } else {
+                nodeId = nodeUuid;
+            }
 
             var rights = undefined;
             var parentRights = undefined;
@@ -317,9 +324,6 @@ var Role = (function (_Observable) {
                 return { aclString: "", 'false': false };
             }
 
-            if (rights.deny) {
-                return { aclString: 'PYDIO_VALUE_CLEAR', inherited: inherited };
-            }
             var aclString = Object.keys(rights).filter(function (r) {
                 return rights[r];
             }).join(',');
@@ -331,7 +335,7 @@ var Role = (function (_Observable) {
             var rights = { read: false, write: false, deny: false };
 
             var policyValue = acls.filter(function (acl) {
-                return acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0 && acl.WorkspaceID === wsId && acl.NodeID === nodeId && acl.Action.Value === "1";
+                return acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0 && (!wsId || acl.WorkspaceID === wsId) && acl.NodeID === nodeId && acl.Action.Value === "1";
             });
 
             if (policyValue.length) {
@@ -341,7 +345,7 @@ var Role = (function (_Observable) {
 
             Object.keys(rights).forEach(function (rightName) {
                 var values = acls.filter(function (acl) {
-                    return acl.Action.Name === rightName && acl.WorkspaceID === wsId && acl.NodeID === nodeId && acl.Action.Value === "1";
+                    return acl.Action.Name === rightName && (!wsId || acl.WorkspaceID === wsId) && acl.NodeID === nodeId && acl.Action.Value === "1";
                 });
                 if (values.length) {
                     rights[rightName] |= true;
@@ -357,30 +361,40 @@ var Role = (function (_Observable) {
         /**
          *
          * @param workspace {IdmWorkspace}
+         * @param nodeUuid string
          * @param value string
          */
     }, {
         key: 'updateAcl',
-        value: function updateAcl(workspace, value) {
+        value: function updateAcl(workspace, nodeUuid, value) {
             var _this8 = this;
 
             console.log(workspace, value);
-
-            var nodeIds = Object.keys(workspace.RootNodes);
-            // Remove current acls
-            this.acls = this.acls.filter(function (acl) {
-                return !((acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0) && acl.WorkspaceID === workspace.UUID && nodeIds.indexOf(acl.NodeID) > -1 && acl.Action.Value === "1");
-            });
+            var nodeIds = [];
+            if (nodeUuid) {
+                nodeIds = [nodeUuid];
+            } else {
+                nodeIds = Object.keys(workspace.RootNodes);
+            }
+            if (workspace) {
+                // Remove current global acls
+                this.acls = this.acls.filter(function (acl) {
+                    return !((acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0) && acl.WorkspaceID === workspace.UUID && nodeIds.indexOf(acl.NodeID) > -1 && acl.Action.Value === "1");
+                });
+            } else {
+                // Remove node acls
+                this.acls = this.acls.filter(function (acl) {
+                    return !((acl.Action.Name === 'read' || acl.Action.Name === 'write' || acl.Action.Name === 'deny' || acl.Action.Name && acl.Action.Name.indexOf("policy:") === 0) && acl.NodeID === nodeUuid && acl.Action.Value === "1");
+                });
+            }
             if (value !== '') {
-                var rights = value.split(',');
-                if (value === 'PYDIO_VALUE_CLEAR') {
-                    rights = ['deny'];
-                }
-                rights.forEach(function (r) {
+                value.split(',').forEach(function (r) {
                     nodeIds.forEach(function (n) {
                         var acl = new _pydioHttpRestApi.IdmACL();
                         acl.NodeID = n;
-                        acl.WorkspaceID = workspace.UUID;
+                        if (workspace) {
+                            acl.WorkspaceID = workspace.UUID;
+                        }
                         acl.RoleID = _this8.idmRole.Uuid;
                         acl.Action = _pydioHttpRestApi.IdmACLAction.constructFromObject({ Name: r, Value: "1" });
                         _this8.acls.push(acl);

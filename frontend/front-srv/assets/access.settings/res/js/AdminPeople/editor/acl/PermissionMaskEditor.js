@@ -1,11 +1,19 @@
 import React from 'react'
+import Role from "../model/Role";
+import {IdmWorkspace} from 'pydio/http/rest-api';
+import classNames from 'classNames';
+import {IconButton} from 'material-ui';
+import PydioDataModel from 'pydio/model/data-model';
+import MaskNodesProvider from './MaskNodesProvider';
+
 
 const PermissionMaskEditor = React.createClass({
 
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     propTypes:{
-        workspaceId:React.PropTypes.string,
+        role:React.PropTypes.instanceOf(Role),
+        workspace: React.PropTypes.instanceOf(IdmWorkspace),
 
         /* Global permissions may override the folders rights */
         globalWorkspacePermissions:React.PropTypes.object,
@@ -13,8 +21,6 @@ const PermissionMaskEditor = React.createClass({
         onGlobalPermissionsChange:React.PropTypes.func,
 
         /* Folders mask and parentMask */
-        nodes:React.PropTypes.object,
-        parentNodes:React.PropTypes.object,
         onNodesChange:React.PropTypes.func,
 
         /* Maybe used to alert about inconsistencies */
@@ -22,7 +28,7 @@ const PermissionMaskEditor = React.createClass({
         hideModal:React.PropTypes.func
     },
 
-    dmObserver:function(){
+    dmObserver(){
         const dataModel = this.state.dataModel;
         const sel = dataModel.getSelectedNodes();
         if(!sel.length) {
@@ -39,11 +45,11 @@ const PermissionMaskEditor = React.createClass({
         }
     },
 
-    componentDidMount:function(){
+    componentDidMount(){
         this.state.dataModel.setSelectedNodes([this.state.node]);
     },
 
-    componentWillReceiveProps:function(newProps){
+    componentWillReceiveProps(newProps){
         if(newProps.nodes !== this.state.nodes || newProps.parentNodes !== this.state.parentNodes){
             this.setState({
                 nodes: newProps.nodes,
@@ -80,16 +86,16 @@ const PermissionMaskEditor = React.createClass({
         });
     },
 
-    getInitialState:function(){
-        const nodeProviderProperties = {
-            get_action:"ls",
-            tmp_repository_id:this.props.workspaceId
-        };
+    getInitialState(){
         const dataModel = new PydioDataModel(true);
-        const rNodeProvider = new RemoteNodeProvider();
+        const rNodeProvider = new MaskNodesProvider();
         dataModel.setAjxpNodeProvider(rNodeProvider);
-        rNodeProvider.initProvider(nodeProviderProperties);
-        const rootNode = new AjxpNode("/", false, "Whole workspace", "folder.png", rNodeProvider);
+        // Todo:  multiple roots
+        const rootNodes = this.props.workspace.RootNodes;
+        const firstNode = rootNodes[Object.keys(rootNodes).shift()];
+        const rootNode = new AjxpNode("/" + firstNode.Path, false, "Whole workspace", "folder.png", rNodeProvider);
+        rootNode.getMetadata().set("uuid", firstNode.Uuid);
+
         dataModel.setRootNode(rootNode);
         this.recursiveLoadNodesWithChildren(rootNode, this.props.nodes);
         dataModel.observe("selection_changed", this.dmObserver);
@@ -103,222 +109,82 @@ const PermissionMaskEditor = React.createClass({
         };
     },
 
-    updateRow: function(currentValues, checkboxName, value){
-        if(checkboxName == "read" || checkboxName == "write" || checkboxName == "children"){
-            if(value) currentValues[checkboxName] = value;
-            else if (currentValues[checkboxName]) delete currentValues[checkboxName];
+    onCheckboxCheck(node, checkboxName, value){
 
-            if(value && (checkboxName == "read" || checkboxName == "write") && currentValues["deny"]){
-                delete currentValues["deny"];
-            }
-        }else if(checkboxName == "deny"){
-            if(value) {
-                currentValues[checkboxName] = value;
-                if(currentValues["read"]) delete currentValues["read"];
-                if(currentValues["write"]) delete currentValues["write"];
-            }else{
-                if(currentValues["deny"]) delete currentValues["deny"];
-            }
-        }
-        if(!Object.keys(currentValues).length){
-            return "delete";
-        }else{
-            return "update";
-        }
-    },
-
-    updateColumn: function(values, node, checkboxName, value, copy){
-        // If we change the "children" status, remove children values
-        if(checkboxName == "children"){
-            if(copy){
-                let currentValues = LangUtils.simpleCopy(values[node.getMetadata().get('uuid')]) || {};
-                currentValues["children"] = false;
-                node.getChildren().forEach(function(c){
-                    if(!c.isLeaf()) {
-                        values[c.getMetadata().get("uuid")] = LangUtils.simpleCopy(currentValues);
-                    }
-                });
-            }else{
-                this.recursiveClearNodeValues(node, values);
-            }
-        }
-    },
-
-    applyConfirm:function(value, event){
-        this.refs.dialog.dismiss();
-        switch(value){
-            case "cancel":
-                break;
-            case "confirm-remove":
-            case "confirm-set-clear":
-                this.onCheckboxCheck(...Object.values(this.state.confirmPending), true);
-                break;
-            case "confirm-set-copy":
-                this.onCheckboxCheck(this.state.confirmPending["node"], "children", "copy", true);
-                break;
-            default:
-                break;
-        }
-        this.setState({confirm: null, confirmPending:null});
-    },
-
-    onCheckboxCheck:function(node, checkboxName, value, skipConfirm){
-
-        let values = this.state.nodes;
+        console.log(node, checkboxName, value);
+        const {role} = this.props;
         const nodeUuid = node.getMetadata().get('uuid');
-        let nodeValues = values[nodeUuid] || {};
-        if(checkboxName == "children" && !skipConfirm){
-            if(value && !node.isLoaded()){
-                const tree = this.refs.tree;
-                node.observeOnce("loaded", function(){
-                    global.setTimeout(function(){
-                        tree.forceUpdate();
-                    }, 200);
-                });
-                node.load();
+        const {aclString, inherited} = role.getAclString(null, nodeUuid);
+        // Rebuild new value
+        let acls = [];
+        if(checkboxName === 'deny' && value) {
+            acls = [checkboxName];
+        } else if(aclString){
+            acls = aclString.split(',');
+            if(acls.indexOf(checkboxName) > -1){
+                acls = acls.filter((a) => a !== checkboxName);
+            } else {
+                acls.push(checkboxName);
             }
-            let confirmationText, buttons;
-            if(value){
-                confirmationText = this.context.getMessage('react.8','ajxp_admin');
-                buttons = [
-                    {text:this.context.getMessage('react.10','ajxp_admin'), onClick:this.applyConfirm.bind(this, 'confirm-set-copy')},
-                    {text:this.context.getMessage('react.11','ajxp_admin'), onClick:this.applyConfirm.bind(this, 'confirm-set-clear')},
-                    {text:this.context.getMessage('54', ''), onClick:this.applyConfirm.bind(this, 'cancel')}
-                ];
-            }else{
-                confirmationText = this.context.getMessage('react.9','ajxp_admin');
-                buttons = [
-                    {text:this.context.getMessage('react.12','ajxp_admin'), onClick:this.applyConfirm.bind(this, 'confirm-remove')},
-                    {text:this.context.getMessage('54', ''), onTouchTap:this.applyConfirm.bind(this, 'cancel')}];
-            }
-            this.setState({
-                confirm:{
-                    text:confirmationText,
-                    buttons:buttons
-                },
-                confirmPending:{
-                    node:node,
-                    checkboxName:checkboxName,
-                    value:value
-                }
-            }, function(){this.refs.dialog.show();}.bind(this));
-            return;
+        } else if(value) {
+            acls.push(checkboxName);
         }
-        let copy;
-        if(checkboxName == "children" && value == "copy"){
-            copy = true;
-            value = true;
-            this.updateColumn(values, node, checkboxName, value, true);
-        }
-        let result = this.updateRow(nodeValues, checkboxName, value);
-        if(!copy){
-            this.updateColumn(values, node, checkboxName, value);
-        }
+        this.props.onNodesChange(nodeUuid, acls.join(','));
 
-        if(result == "delete" && values[nodeUuid]){
-            delete values[nodeUuid];
-        }else{
-            nodeValues["uuid"] = nodeUuid;
-            values[nodeUuid] = nodeValues;
-        }
-        if(this.props.onNodesChange){
-            this.props.onNodesChange(values);
-        }
-        this.setState({nodes:values});
     },
 
-    checkboxesComputeStatus:function(node, useParentMask=false){
-
-        const nodeUuid = node.getMetadata().get('uuid');
-        let values = {}, disabled = {};
-        let inherited = false, foundParent = false, foundParentChecksChildren = false;
-        let mask = this.state.nodes;
-        if(useParentMask){
-            mask = this.state.parentNodes;
-        }
-        let firstParent = node.getParent();
-        if(firstParent && firstParent.getPath() != '/' && mask[firstParent.getMetadata().get('uuid')] && mask[firstParent.getMetadata().get('uuid')]['children']){
-            foundParentChecksChildren = true;
-        }
-        if(mask[nodeUuid]){
-            values = mask[nodeUuid]
-        }else{
-            let bNode = node, parent;
-            // IF direct parent has not values at all, it will always be inherited
-            if(firstParent && !mask[firstParent.getMetadata().get('uuid')]){
-                inherited = true;
-            }
-            while(parent = bNode.getParent()){
-                if(mask[parent.getMetadata().get('uuid')]){
-                    const parentValues = mask[parent.getMetadata().get('uuid')];
-                    foundParent = true;
-                    if(!parentValues['children']){
-                        inherited = true;
-                        values = LangUtils.deepCopy(parentValues);
-                    }
-                    break;
-                }
-                bNode = parent;
-            }
-        }
-        if(!Object.keys(values).length) {
-            if(node.getPath() != '/' && !foundParent){
-                inherited = true;
-            }
-        }
-        // Update disabled state
-        if(inherited) {
-            disabled = {read: true, write:true, deny:true, children:true};
-        } else{
-            if(values['children']) {
-                disabled = {read: true, write:true, deny:true};
-                values['write'] = false;
-                values['deny'] = false;
-                values['read'] = true;
-            } else if(values['deny']) {
-                disabled = {read: true, write:true};
-            }
-        }
-        let additionalClass;
-        if(!values['read'] && !values['write'] && !values['deny']
-            && Object.keys(this.state.parentNodes).length
-            && !foundParentChecksChildren
-            && !useParentMask){
-            // Still no values, compute from parent
-            additionalClass = 'parent-inherited';
-            let data = this.checkboxesComputeStatus(node, true);
-            values = data.VALUES;
-            disabled = {read: false, write:false, deny:false, children:false};
-            inherited = data.INHERITED;
-        }
+    roleAclObject(node){
+        const {role} = this.props;
+        let {aclString, inherited} = role.getAclString(null, node.getMetadata().get("uuid"));
+        const read = aclString.indexOf("read") > -1, write = aclString.indexOf("write") > -1, deny = aclString.indexOf("deny") > -1;
         return {
-            VALUES:values,
-            INHERITED:inherited,
-            DISABLED:disabled,
-            CLASSNAME:additionalClass
+            VALUES:{read,write,deny},
+            INHERITED:false,
+            DISABLED:{},
+            CLASSNAME:inherited ? "parent-inherited" : "",
+            EMPTY: !read && !write && !deny
         };
     },
 
-    render: function(){
-        const mainClassNames = global.classNames(
+    checkboxesComputeStatus(node){
+
+        const data = this.roleAclObject(node);
+        let bNode = node, parent;
+        let parentData;
+        while(parent = bNode.getParent()){
+            parentData = this.roleAclObject(parent);
+            if(!parentData.EMPTY){
+                break;
+            }
+            bNode = parent;
+        }
+        if(data.EMPTY && parentData){
+            data.VALUES = parentData.VALUES;
+            data.INHERITED = true;
+        } else if(parentData && parentData.VALUES.deny){
+            data.VALUES = parentData.VALUES;
+            data.INHERITED = true;
+        }
+        if (data.VALUES.deny) {
+            data.DISABLED = {read: true, write: true};
+        }
+
+        return data;
+
+    },
+
+    render(){
+        const mainClassNames = classNames(
             "permission-mask-editor",
             {"tree-show-accessible-nodes":(this.state && this.state.showResultingTree)},
             {"permission-mask-global-noread":(this.props.globalWorkspacePermissions && !this.props.globalWorkspacePermissions.read)},
-            {"permission-mask-global-nowrite":(this.props.globalWorkspacePermissions && !this.props.globalWorkspacePermissions.write)}
+//            {"permission-mask-global-nowrite":(this.props.globalWorkspacePermissions && !this.props.globalWorkspacePermissions.write)}
         );
         return (
             <div className={mainClassNames}>
-                <ReactMUI.Dialog
-                    ref="dialog"
-                    title="Warning"
-                    actions={this.state && this.state.confirm ? this.state.confirm.buttons : []}
-                    contentClassName="dialog-max-480"
-                >
-                    {this.state && this.state.confirm  ? this.state.confirm.text: ''}
-                </ReactMUI.Dialog>
                 <div style={{margin:'0 16px', position:'relative'}}>
                     <div style={{position: 'absolute'}}>
-                        <ReactMUI.IconButton
+                        <IconButton
                             iconClassName="icon-filter" className="smaller-button"
                             tooltip={this.context.getMessage(this.state.showResultingTree?'react.13': 'react.14', 'ajxp_admin')}
                             onClick={function(){this.setState({showResultingTree:!this.state.showResultingTree});}.bind(this)}
@@ -328,7 +194,6 @@ const PermissionMaskEditor = React.createClass({
                         <span className="header-read">{this.context.getMessage('react.5a','ajxp_admin')}</span>
                         <span className="header-write">{this.context.getMessage('react.5b','ajxp_admin')}</span>
                         <span className="header-deny">{this.context.getMessage('react.5','ajxp_admin')}</span>
-                        <span  className="header-children">{this.context.getMessage('react.6','ajxp_admin')}</span>
                     </div>
                     <br  style={{clear: 'both'}}/>
                     <PydioComponents.TreeView
@@ -336,7 +201,7 @@ const PermissionMaskEditor = React.createClass({
                         dataModel={this.state.dataModel}
                         node={this.state.node}
                         showRoot={true}
-                        checkboxes={["read", "write", "deny", "children"]}
+                        checkboxes={["read", "write", "deny"]}
                         checkboxesValues={this.state.mask}
                         checkboxesComputeStatus={this.checkboxesComputeStatus}
                         onCheckboxCheck={this.onCheckboxCheck}

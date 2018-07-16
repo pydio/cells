@@ -19,15 +19,16 @@
  */
 
 import {Types, collect, collectDrop, nodeDragSource, nodeDropTarget} from '../util/DND'
-const React = require('react')
+import React from 'react';
+import Pydio from 'pydio';
 const {withContextMenu} = Pydio.requireLib('hoc');
 
 let ContextMenuWrapper = (props) => {
     return (
         <div {...props} />
     )
-}
-ContextMenuWrapper = withContextMenu(ContextMenuWrapper)
+};
+ContextMenuWrapper = withContextMenu(ContextMenuWrapper);
 
 
 /**

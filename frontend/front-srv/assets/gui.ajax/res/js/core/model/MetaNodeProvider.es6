@@ -39,7 +39,10 @@ export default class MetaNodeProvider{
      */
     constructor(properties = null){
         this.discrete = false;
-        if(properties) this.initProvider(properties);
+        this.properties = new Map();
+        if(properties) {
+            this.initProvider(properties);
+        }
     }
     /**
      * Initialize properties
@@ -95,7 +98,13 @@ export default class MetaNodeProvider{
             let origNode;
             let childrenNodes = [];
             res.Nodes.map(n => {
-                const newNode = MetaNodeProvider.parseTreeNode(n, slug);
+                let newNode;
+                try{
+                    newNode = MetaNodeProvider.parseTreeNode(n, slug);
+                } catch(e){
+                    console.error(e);
+                    return;
+                }
                 if(newNode.getLabel() === '.pydio'){
                     return;
                 } else if(newNode.getPath() === node.getPath()){
@@ -216,98 +225,6 @@ export default class MetaNodeProvider{
     }
 
     /**
-     * Parse the answer and create AjxpNodes
-     * @param origNode AjxpNode
-     * @param transport Ajax.Response
-     * @param nodeCallback Function
-     * @param childCallback Function
-     * @param childrenOnly
-     */
-    parseNodes (origNode, transport, nodeCallback, childCallback, childrenOnly){
-
-        if(!transport.responseXML || !transport.responseXML.documentElement) {
-            Logger.debug('Loading node ' + origNode.getPath() + ' has wrong response: ' + transport.responseText);
-            if(nodeCallback) nodeCallback(origNode);
-            origNode.setLoaded(false);
-            if(!transport.responseText){
-                throw new Error('Empty response!');
-            }
-            throw new Error('Invalid XML Document (see console)');
-        }
-        const rootNode = transport.responseXML.documentElement;
-        if(!childrenOnly){
-            const contextNode = this.parseAjxpNode(rootNode);
-            origNode.replaceBy(contextNode, "merge");
-        }
-
-        // CHECK FOR MESSAGE OR ERRORS
-        let errorNode = XMLUtils.XPathSelectSingleNode(rootNode, "error|message");
-        if(errorNode){
-            let type;
-            if(errorNode.nodeName == "message") {
-                type = errorNode.getAttribute('type');
-            }
-            if(type == "ERROR"){
-                origNode.notify("error", errorNode.firstChild.nodeValue + '(Source:'+origNode.getPath()+')');
-            }
-        }
-
-        // CHECK FOR AUTH PROMPT REQUIRED
-        const authNode = XMLUtils.XPathSelectSingleNode(rootNode, "prompt");
-        if(authNode && pydio && pydio.UI && pydio.UI.openPromptDialog){
-            let jsonData = XMLUtils.XPathSelectSingleNode(authNode, "data").firstChild.nodeValue;
-            pydio.UI.openPromptDialog(JSON.parse(jsonData));
-            return false;
-        }
-
-        // CHECK FOR PAGINATION DATA
-        const paginationNode = XMLUtils.XPathSelectSingleNode(rootNode, "pagination");
-        if(paginationNode){
-            let paginationData = new Map();
-            Array.from(paginationNode.attributes).forEach(function(att){
-                paginationData.set(att.nodeName, att.value);
-            }.bind(this));
-            origNode.getMetadata().set('paginationData', paginationData);
-        }else if(origNode.getMetadata().get('paginationData')){
-            origNode.getMetadata().delete('paginationData');
-        }
-
-        // CHECK FOR COMPONENT CONFIGS CONTEXTUAL DATA
-        const configs = XMLUtils.XPathSelectSingleNode(rootNode, "client_configs");
-        if(configs){
-            origNode.getMetadata().set('client_configs', configs);
-        }
-
-        // NOW PARSE CHILDREN
-        const children = XMLUtils.XPathSelectNodes(rootNode, "tree");
-        children.forEach(function(childNode){
-            const child = this.parseAjxpNode(childNode);
-            if(!childrenOnly) {
-                origNode.addChild(child);
-            }
-            let cLoaded;
-            if(XMLUtils.XPathSelectNodes(childNode, 'tree').length){
-                XMLUtils.XPathSelectNodes(childNode, 'tree').forEach(function(c){
-                    const newChild = this.parseAjxpNode(c);
-                    if(newChild){
-                        child.addChild(newChild);
-                    }
-                }.bind(this));
-                cLoaded = true;
-            }
-            if(childCallback){
-                childCallback(child);
-            }
-            if(cLoaded) child.setLoaded(true);
-        }.bind(this) );
-
-        if(nodeCallback){
-            nodeCallback(origNode);
-        }
-    }
-
-
-    /**
      * @return AjxpNode | null
      * @param obj
      * @param workspaceSlug string
@@ -337,8 +254,10 @@ export default class MetaNodeProvider{
         if(!slug){
             slug = defaultSlug;
         }
-        // Strip workspace slug
-        obj.Path = obj.Path.substr(slug.length + 1);
+        if(slug){
+            // Strip workspace slug
+            obj.Path = obj.Path.substr(slug.length + 1);
+        }
 
         let node = new AjxpNode('/' + obj.Path, obj.Type === "LEAF", nodeName, '', null);
 
@@ -449,6 +368,104 @@ export default class MetaNodeProvider{
         }
         node.setMetadata(meta);
     }
+
+    /************************************
+     * TODO : REMOVE BELOW - FOR REFERENCE
+     */
+
+
+    /**
+     * Parse the answer and create AjxpNodes
+     * @param origNode AjxpNode
+     * @param transport Ajax.Response
+     * @param nodeCallback Function
+     * @param childCallback Function
+     * @param childrenOnly
+     */
+    parseNodes (origNode, transport, nodeCallback, childCallback, childrenOnly){
+
+        if(!transport.responseXML || !transport.responseXML.documentElement) {
+            Logger.debug('Loading node ' + origNode.getPath() + ' has wrong response: ' + transport.responseText);
+            if(nodeCallback) nodeCallback(origNode);
+            origNode.setLoaded(false);
+            if(!transport.responseText){
+                throw new Error('Empty response!');
+            }
+            throw new Error('Invalid XML Document (see console)');
+        }
+        const rootNode = transport.responseXML.documentElement;
+        if(!childrenOnly){
+            const contextNode = this.parseAjxpNode(rootNode);
+            origNode.replaceBy(contextNode, "merge");
+        }
+
+        // CHECK FOR MESSAGE OR ERRORS
+        let errorNode = XMLUtils.XPathSelectSingleNode(rootNode, "error|message");
+        if(errorNode){
+            let type;
+            if(errorNode.nodeName == "message") {
+                type = errorNode.getAttribute('type');
+            }
+            if(type == "ERROR"){
+                origNode.notify("error", errorNode.firstChild.nodeValue + '(Source:'+origNode.getPath()+')');
+            }
+        }
+
+        // CHECK FOR AUTH PROMPT REQUIRED
+        const authNode = XMLUtils.XPathSelectSingleNode(rootNode, "prompt");
+        if(authNode && pydio && pydio.UI && pydio.UI.openPromptDialog){
+            let jsonData = XMLUtils.XPathSelectSingleNode(authNode, "data").firstChild.nodeValue;
+            pydio.UI.openPromptDialog(JSON.parse(jsonData));
+            return false;
+        }
+
+        // CHECK FOR PAGINATION DATA
+        const paginationNode = XMLUtils.XPathSelectSingleNode(rootNode, "pagination");
+        if(paginationNode){
+            let paginationData = new Map();
+            Array.from(paginationNode.attributes).forEach(function(att){
+                paginationData.set(att.nodeName, att.value);
+            }.bind(this));
+            origNode.getMetadata().set('paginationData', paginationData);
+        }else if(origNode.getMetadata().get('paginationData')){
+            origNode.getMetadata().delete('paginationData');
+        }
+
+        // CHECK FOR COMPONENT CONFIGS CONTEXTUAL DATA
+        const configs = XMLUtils.XPathSelectSingleNode(rootNode, "client_configs");
+        if(configs){
+            origNode.getMetadata().set('client_configs', configs);
+        }
+
+        // NOW PARSE CHILDREN
+        const children = XMLUtils.XPathSelectNodes(rootNode, "tree");
+        children.forEach(function(childNode){
+            const child = this.parseAjxpNode(childNode);
+            if(!childrenOnly) {
+                origNode.addChild(child);
+            }
+            let cLoaded;
+            if(XMLUtils.XPathSelectNodes(childNode, 'tree').length){
+                XMLUtils.XPathSelectNodes(childNode, 'tree').forEach(function(c){
+                    const newChild = this.parseAjxpNode(c);
+                    if(newChild){
+                        child.addChild(newChild);
+                    }
+                }.bind(this));
+                cLoaded = true;
+            }
+            if(childCallback){
+                childCallback(child);
+            }
+            if(cLoaded) child.setLoaded(true);
+        }.bind(this) );
+
+        if(nodeCallback){
+            nodeCallback(origNode);
+        }
+    }
+
+
 
 
     /**

@@ -86,25 +86,22 @@ exports['default'] = _react2['default'].createClass({
         var r = !d && this.refs.read.isChecked();
         var w = !d && this.refs.write.isChecked();
         var acl = undefined;
+        var parts = [];
         if (d) {
-            acl = 'PYDIO_VALUE_CLEAR';
-            this.setState({ acl: acl });
+            parts.push('deny');
         } else {
-            var parts = [];
             if (r) {
-                parts.push("read");
+                parts.push('read');
             }
             if (w) {
-                parts.push("write");
+                parts.push('write');
             }
-            acl = parts.join(",");
-            this.setState({ acl: acl });
         }
+        acl = parts.join(",");
         if (this.props.onChange) {
             this.props.onChange(acl, this.props.acl);
-        } else {
-            this.setState({ acl: acl });
         }
+        this.setState({ acl: acl });
     },
 
     handleChangePolicy: function handleChangePolicy(event, value) {
@@ -141,7 +138,7 @@ exports['default'] = _react2['default'].createClass({
         var deny = undefined;
         if (!this.props.hideDeny) {
             deny = _react2['default'].createElement(_materialUi.Checkbox, { ref: 'deny', label: this.props.hideLabels ? "" : this.context.getMessage('react.5', 'ajxp_admin'), value: '-', disabled: this.props.disabled,
-                onCheck: this.updateAcl, checked: acl.indexOf('PYDIO_VALUE_CLEAR') !== -1, style: checkboxStyle });
+                onCheck: this.updateAcl, checked: acl.indexOf('deny') !== -1, style: checkboxStyle });
         }
         return _react2['default'].createElement(
             'div',
@@ -163,13 +160,19 @@ exports['default'] = _react2['default'].createClass({
             selectedPolicy === 'manual-rights' && _react2['default'].createElement(_materialUi.Checkbox, { ref: 'read',
                 label: this.props.hideLabels ? "" : this.context.getMessage('react.5a', 'ajxp_admin'),
                 value: 'read',
-                onCheck: this.updateAcl, disabled: this.props.disabled || acl === 'PYDIO_VALUE_CLEAR',
-                checked: acl !== 'PYDIO_VALUE_CLEAR' && acl.indexOf('read') !== -1,
+                onCheck: this.updateAcl,
+                disabled: this.props.disabled || acl.indexOf('deny') > -1,
+                checked: acl.indexOf('deny') === -1 && acl.indexOf('read') !== -1,
                 style: checkboxStyle
             }),
-            selectedPolicy === 'manual-rights' && _react2['default'].createElement(_materialUi.Checkbox, { ref: 'write', label: this.props.hideLabels ? "" : this.context.getMessage('react.5b', 'ajxp_admin'), value: 'write',
-                onCheck: this.updateAcl, disabled: this.props.disabled || acl === 'PYDIO_VALUE_CLEAR',
-                checked: acl !== 'PYDIO_VALUE_CLEAR' && acl.indexOf('write') !== -1, style: checkboxStyle }),
+            selectedPolicy === 'manual-rights' && _react2['default'].createElement(_materialUi.Checkbox, {
+                ref: 'write',
+                label: this.props.hideLabels ? "" : this.context.getMessage('react.5b', 'ajxp_admin'),
+                value: 'write',
+                onCheck: this.updateAcl,
+                disabled: this.props.disabled || acl.indexOf('deny') > -1,
+                checked: acl.indexOf('deny') === -1 && acl.indexOf('write') !== -1,
+                style: checkboxStyle }),
             selectedPolicy === 'manual-rights' && deny,
             selectedPolicy !== 'manual-rights' && _react2['default'].createElement(
                 'div',

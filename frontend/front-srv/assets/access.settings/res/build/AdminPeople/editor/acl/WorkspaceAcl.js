@@ -42,6 +42,8 @@ var _modelRole2 = _interopRequireDefault(_modelRole);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
+var _materialUi = require('material-ui');
+
 exports['default'] = React.createClass({
     displayName: 'WorkspaceAcl',
 
@@ -67,11 +69,13 @@ exports['default'] = React.createClass({
         var role = _props.role;
         var workspace = _props.workspace;
 
-        role.updateAcl(workspace, newValue);
+        role.updateAcl(workspace, null, newValue);
     },
 
-    onNodesChange: function onNodesChange(values) {
-        this.props.Controller.updateMask(values);
+    onNodesChange: function onNodesChange(nodeUuid, checkboxName, value) {
+        var role = this.props.role;
+
+        role.updateAcl(null, nodeUuid, checkboxName);
     },
 
     getInitialState: function getInitialState() {
@@ -100,50 +104,51 @@ exports['default'] = React.createClass({
             advancedAcl: advancedAcl
         });
 
-        /*
-         if(advancedAcl && (aclString.indexOf('read') !== -1 || aclString.indexOf('write') !== -1 ) && supportsFolderBrowsing){
-             const toggleButton = <ReactMUI.FontIcon
-                className={"icon-" + (this.state.displayMask ? "minus" : "plus")}
-                onClick={this.toggleDisplayMask}
-                style={{cursor:'pointer', padding: '0 8px'}}
-            />;
-            label = (
-                <div>
-                    {label} {toggleButton}
-                </div>
+        var label = workspace.Label + (inherited ? ' (' + this.context.getPydioRoleMessage('38') + ')' : '');
+        var secondLine = undefined;
+
+        if (advancedAcl && (aclString.indexOf('read') !== -1 || aclString.indexOf('write') !== -1)) {
+
+            label = React.createElement(
+                'div',
+                null,
+                label,
+                React.createElement(_materialUi.FontIcon, {
+                    className: "mdi mdi-" + (this.state.displayMask ? "minus" : "plus"),
+                    onClick: this.toggleDisplayMask,
+                    style: { cursor: 'pointer', padding: '0 8px', fontSize: 16 }
+                })
             );
-            if(this.state.displayMask){
-                const parentNodes = roleParent.NODES || {};
-                const nodes = role.NODES || {};
-                action = null;
-                let aclObject;
-                if(aclString){
+            if (this.state.displayMask) {
+                var aclObject = undefined;
+                if (aclString) {
                     aclObject = {
-                        read:aclString.indexOf('read') !== -1,
-                        write:aclString.indexOf('write') !== -1
+                        read: aclString.indexOf('read') !== -1,
+                        write: aclString.indexOf('write') !== -1
                     };
                 }
-                 secondLine = (
-                    <ReactMUI.Paper zDepth={1} style={{margin: '8px 20px', backgroundColor:'white', color:'rgba(0,0,0,0.87)'}}>
-                        <PermissionMaskEditor
-                            workspaceId={wsId}
-                            parentNodes={parentNodes}
-                            nodes={nodes}
-                            onNodesChange={this.onNodesChange}
-                            showModal={this.props.showModal}
-                            hideModal={this.props.hideModal}
-                            globalWorkspacePermissions={aclObject}
-                        />
-                    </ReactMUI.Paper>
+
+                secondLine = React.createElement(
+                    _materialUi.Paper,
+                    { zDepth: 1, style: { margin: '30px 3px 3px' } },
+                    React.createElement(_PermissionMaskEditor2['default'], {
+                        workspace: workspace,
+                        role: role,
+                        nodes: {},
+                        parentNodes: {},
+                        onNodesChange: this.onNodesChange,
+                        showModal: this.props.showModal,
+                        hideModal: this.props.hideModal,
+                        globalWorkspacePermissions: aclObject
+                    })
                 );
             }
-         }
-         */
+        }
 
         return React.createElement(PydioComponents.ListEntry, {
             className: (inherited ? "workspace-acl-entry-inherited " : "") + "workspace-acl-entry",
-            firstLine: workspace.Label + (inherited ? ' (' + this.context.getPydioRoleMessage('38') + ')' : ''),
-            secondLine: null,
+            firstLine: label,
+            secondLine: secondLine,
             actions: action
         });
     }
