@@ -2220,6 +2220,32 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/scheduler/jobs": {
+      "put": {
+        "operationId": "PutJob",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/jobsPutJobResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/jobsPutJobRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SchedulerService"
+        ]
+      }
+    },
     "/search/nodes": {
       "post": {
         "summary": "Search indexed nodes (files/folders) on various aspects",
@@ -5185,6 +5211,22 @@ var SwaggerJson = `{
         }
       },
       "title": "/////////////////\nJOB  SERVICE  //\n/////////////////"
+    },
+    "jobsPutJobRequest": {
+      "type": "object",
+      "properties": {
+        "Job": {
+          "$ref": "#/definitions/jobsJob"
+        }
+      }
+    },
+    "jobsPutJobResponse": {
+      "type": "object",
+      "properties": {
+        "Job": {
+          "$ref": "#/definitions/jobsJob"
+        }
+      }
     },
     "jobsSchedule": {
       "type": "object",

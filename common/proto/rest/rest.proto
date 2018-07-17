@@ -656,6 +656,16 @@ service JobsService {
     }
 }
 
+// Implemented in Enterprise Distribution
+service SchedulerService {
+    rpc PutJob(jobs.PutJobRequest) returns (jobs.PutJobResponse) {
+        option (google.api.http) = {
+            put: "/scheduler/jobs"
+            body:"*"
+        };
+    }
+}
+
 // Admin Tree service is a specific endpoint to list all data from the root
 service AdminTreeService {
     // List files and folders starting at the root (first level lists the datasources)

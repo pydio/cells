@@ -98,6 +98,8 @@ import JobsDeleteTasksResponse from './model/JobsDeleteTasksResponse';
 import JobsJob from './model/JobsJob';
 import JobsListJobsRequest from './model/JobsListJobsRequest';
 import JobsNodesSelector from './model/JobsNodesSelector';
+import JobsPutJobRequest from './model/JobsPutJobRequest';
+import JobsPutJobResponse from './model/JobsPutJobResponse';
 import JobsSchedule from './model/JobsSchedule';
 import JobsSourceFilter from './model/JobsSourceFilter';
 import JobsTask from './model/JobsTask';
@@ -252,6 +254,7 @@ import MailerServiceApi from './api/MailerServiceApi';
 import MetaServiceApi from './api/MetaServiceApi';
 import PolicyServiceApi from './api/PolicyServiceApi';
 import RoleServiceApi from './api/RoleServiceApi';
+import SchedulerServiceApi from './api/SchedulerServiceApi';
 import SearchServiceApi from './api/SearchServiceApi';
 import ShareServiceApi from './api/ShareServiceApi';
 import TokenServiceApi from './api/TokenServiceApi';
@@ -809,6 +812,18 @@ export {
      * @property {module:model/JobsNodesSelector}
      */
     JobsNodesSelector,
+
+    /**
+     * The JobsPutJobRequest model constructor.
+     * @property {module:model/JobsPutJobRequest}
+     */
+    JobsPutJobRequest,
+
+    /**
+     * The JobsPutJobResponse model constructor.
+     * @property {module:model/JobsPutJobResponse}
+     */
+    JobsPutJobResponse,
 
     /**
      * The JobsSchedule model constructor.
@@ -1733,6 +1748,12 @@ export {
     * @property {module:api/RoleServiceApi}
     */
     RoleServiceApi,
+
+    /**
+    * The SchedulerServiceApi service constructor.
+    * @property {module:api/SchedulerServiceApi}
+    */
+    SchedulerServiceApi,
 
     /**
     * The SearchServiceApi service constructor.
