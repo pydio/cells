@@ -17,7 +17,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Key:         "users",
 					Label:       "settings.2",
 					Description: "settings.139",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\UsersManager",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-account-circle",
 						Component: "AdminPeople.Dashboard",
@@ -28,7 +27,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Key:         "roles",
 					Label:       "settings.69",
 					Description: "settings.71",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\RolesManager",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-account-card-details",
 						Component: "AdminPeople.RolesDashboard",
@@ -56,7 +54,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Key:         "workspaces",
 					Label:       "settings.3",
 					Description: "settings.138",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\WorkspacesManager",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-folder-open",
 						Component: "AdminWorkspaces.WsDashboard",
@@ -177,7 +174,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Label:       "ajxp_admin.menu.9",
 					Description: "ajxp_admin.menu.10",
 					Alias:       "/config/plugins/uploader",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\PluginsManager",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-upload",
 						Component: "AdminPlugins.CoreAndPluginsDashboard",
@@ -206,7 +202,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Label:       "ajxp_admin.menu.19",
 					Description: "ajxp_admin.menu.19",
 					Alias:       "/config/all",
-					Manager:     "Pydio\\Access\\Driver\\DataProvider\\Provisioning\\PluginsManager",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-google-circles-group",
 						Component: "AdminPlugins.PluginsManager",
