@@ -23286,7 +23286,7 @@ exports['default'] = PoliciesBoard = (0, _materialUiStyles.muiThemeable)()(Polic
 exports['default'] = PoliciesBoard;
 module.exports = exports['default'];
 
-},{"../policies/Policy":199,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":155}],161:[function(require,module,exports){
+},{"../policies/Policy":195,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":155}],161:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23733,7 +23733,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x4, _x5, _x6) { var _again = true; _function: while (_again) { var object = _x4, property = _x5, receiver = _x6; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x4 = parent; _x5 = property; _x6 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -23753,21 +23753,13 @@ var _modelUser = require('./model/User');
 
 var _modelUser2 = _interopRequireDefault(_modelUser);
 
-var _userUserRolesPicker = require('./user/UserRolesPicker');
+var _panelSharesList = require('./panel/SharesList');
 
-var _userUserRolesPicker2 = _interopRequireDefault(_userUserRolesPicker);
-
-var _panelWorkspacesList = require('./panel/WorkspacesList');
-
-var _panelWorkspacesList2 = _interopRequireDefault(_panelWorkspacesList);
+var _panelSharesList2 = _interopRequireDefault(_panelSharesList);
 
 var _aclWorkspacesAcls = require('./acl/WorkspacesAcls');
 
 var _aclWorkspacesAcls2 = _interopRequireDefault(_aclWorkspacesAcls);
-
-var _panelSharesList = require('./panel/SharesList');
-
-var _panelSharesList2 = _interopRequireDefault(_panelSharesList);
 
 var _react = require("react");
 
@@ -23780,10 +23772,6 @@ var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 var _pydioUtilPath = require("pydio/util/path");
 
 var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
-
-var _pydioModelRepository = require("pydio/model/repository");
-
-var _pydioModelRepository2 = _interopRequireDefault(_pydioModelRepository);
 
 var _materialUi = require("material-ui");
 
@@ -23799,15 +23787,15 @@ var _infoGroupInfo = require('./info/GroupInfo');
 
 var _infoGroupInfo2 = _interopRequireDefault(_infoGroupInfo);
 
-var _Pydio$requireLib = _pydio2['default'].requireLib('form');
+var _paramsParametersPanel = require('./params/ParametersPanel');
 
-var FormPanel = _Pydio$requireLib.FormPanel;
+var _paramsParametersPanel2 = _interopRequireDefault(_paramsParametersPanel);
 
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
-var PaperEditorLayout = _Pydio$requireLib2.PaperEditorLayout;
-var PaperEditorNavEntry = _Pydio$requireLib2.PaperEditorNavEntry;
-var PaperEditorNavHeader = _Pydio$requireLib2.PaperEditorNavHeader;
+var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
+var PaperEditorNavEntry = _Pydio$requireLib.PaperEditorNavEntry;
+var PaperEditorNavHeader = _Pydio$requireLib.PaperEditorNavHeader;
 
 var Editor = (function (_React$Component) {
     _inherits(Editor, _React$Component);
@@ -23967,131 +23955,6 @@ var Editor = (function (_React$Component) {
             this.setState({ snackOpen: false });
         }
     }, {
-        key: 'controllerUpdateParameter',
-        value: function controllerUpdateParameter(type, crudAction, scope, pluginName, paramName, paramValue) {
-            var additionalFormData = arguments.length <= 6 || arguments[6] === undefined ? null : arguments[6];
-
-            var role = this.state.roleWrite;
-            var metaData = this.state.parametersMetaData || { PARAMETERS: {}, ACTIONS: {} };
-            var key = type == 'parameter' ? 'PARAMETERS' : 'ACTIONS';
-            if (crudAction == 'add' || crudAction == 'update') {
-                if (!role[key]) role[key] = {};
-                if (!role[key][scope]) role[key][scope] = {};
-                if (!role[key][scope][pluginName]) role[key][scope][pluginName] = {};
-                role[key][scope][pluginName][paramName] = crudAction == 'add' ? paramValue !== undefined ? paramValue : '' : paramValue;
-                if (additionalFormData) {
-                    additionalFormData['ajxp_form_element'] = paramName;
-                    if (!metaData[key][scope]) metaData[key][scope] = {};
-                    if (!metaData[key][scope][pluginName]) metaData[key][scope][pluginName] = {};
-                    metaData[key][scope][pluginName][paramName] = additionalFormData;
-                    //this.setState({parametersMetaData:metaData});
-                }
-                this.updateRoleWrite(role);
-            } else if (crudAction == 'delete') {
-                try {
-                    var _parent = role[key][scope][pluginName];
-                    if (_parent) {
-                        delete _parent[paramName];
-                        this.updateRoleWrite(role);
-                    }
-                } catch (e) {}
-            }
-            if (additionalFormData && additionalFormData['type']) {
-                // Trigger save now for uploaded images
-                this.setState({ parametersMetaData: metaData }, (function () {
-                    this.saveRoleChanges(true);
-                }).bind(this));
-            }
-        }
-    }, {
-        key: 'controllerUpdateAcl',
-        value: function controllerUpdateAcl(scope, acl) {
-            var role = this.state.roleWrite;
-            if (role.ACL) {
-                role.ACL[scope] = acl;
-                this.updateRoleWrite(role);
-            }
-        }
-    }, {
-        key: 'controllerUpdateMask',
-        value: function controllerUpdateMask(mask) {
-            var role = this.state.roleWrite;
-            if (role['NODES']) {
-                role['NODES'] = mask;
-                this.updateRoleWrite(role);
-            }
-        }
-    }, {
-        key: 'controllerUpdateUserProfile',
-        value: function controllerUpdateUserProfile(profile) {
-            var role = this.state.roleWrite;
-            if (!role.USER) role.USER = this.state.roleData.USER;
-            role.USER.PROFILE = profile;
-            this.updateRoleWrite(role);
-        }
-    }, {
-        key: 'controllerOrderUserRoles',
-        value: function controllerOrderUserRoles(roles) {
-            var _state = this.state;
-            var roleId = _state.roleId;
-            var roleData = _state.roleData;
-
-            var currentUserId = roleId.replace("PYDIO_USR_/", "");
-            var stateRoles = [];
-            roleData.USER.ROLES.map(function (r) {
-                var crtDetail = roleData.USER.ROLES_DETAILS[r] || { label: r };
-                if (crtDetail.groupRole || crtDetail.userRole) {
-                    stateRoles.push(r);
-                }
-            });
-            stateRoles = stateRoles.concat(roles);
-            roleData.USER.ROLES = stateRoles;
-            PydioApi.getClient().request({
-                get_action: "edit",
-                sub_action: "user_reorder_roles",
-                user_id: currentUserId,
-                roles: JSON.stringify(roles)
-            }, (function (transport) {
-                this.loadRoleData();
-            }).bind(this));
-        }
-    }, {
-        key: 'controllerUpdateUserRoles',
-        value: function controllerUpdateUserRoles(roles) {
-
-            var currentUserId = this.state.roleId.replace("PYDIO_USR_/", "");
-            var previousRoles = this.state.roleData.USER.ROLES || [];
-            var remove = previousRoles.slice(0),
-                add = roles.slice(0);
-            for (var i = 0; i < previousRoles.length; i++) {
-                add = _pydioUtilLang2['default'].arrayWithout(add, add.indexOf(previousRoles[i]));
-            }
-            for (i = 0; i < roles.length; i++) {
-                remove = _pydioUtilLang2['default'].arrayWithout(remove, remove.indexOf(roles[i]));
-            }
-            if (!add.length && !remove.length) return;
-
-            var stateRoles = [];
-            var crtDetails = this.state.roleData.USER.ROLES_DETAILS;
-            this.state.roleData.USER.ROLES.map(function (r) {
-                var crtDetail = crtDetails[r] || { label: r };
-                if (crtDetail.groupRole || crtDetail.userRole) {
-                    stateRoles.push(r);
-                }
-            });
-            stateRoles = stateRoles.concat(roles);
-            this.state.roleData.USER.ROLES = stateRoles;
-
-            var jsonData = { users: [currentUserId], roles: { add: add, remove: remove } };
-            PydioApi.getClient().request({
-                get_action: "edit",
-                sub_action: "users_bulk_update_roles",
-                json_data: JSON.stringify(jsonData)
-            }, (function (transport) {
-                this.loadRoleData();
-            }).bind(this));
-        }
-    }, {
         key: 'controllerGetBinaryContext',
         value: function controllerGetBinaryContext() {
             /*
@@ -24106,45 +23969,19 @@ var Editor = (function (_React$Component) {
             return "";
         }
     }, {
-        key: 'getController',
-        value: function getController() {
-            if (!this._controller) {
-                var controller = {};
-                controller.updateParameter = this.controllerUpdateParameter.bind(this);
-                controller.updateAcl = this.controllerUpdateAcl.bind(this);
-                controller.updateMask = this.controllerUpdateMask.bind(this);
-                controller.updateUserProfile = this.controllerUpdateUserProfile.bind(this);
-                controller.updateUserRoles = this.controllerUpdateUserRoles.bind(this);
-                controller.orderUserRoles = this.controllerOrderUserRoles.bind(this);
-                controller.getBinaryContext = this.controllerGetBinaryContext.bind(this);
-                this._controller = controller;
-            }
-            return this._controller;
-        }
-    }, {
         key: 'render',
         value: function render() {
             var _this5 = this;
 
-            //const {advancedAcl, pydio} = this.props;
-            // TODO TMP - to be reverted for tests
-            var pydio = this.props.pydio;
-
-            var advancedAcl = true;
-
-            var _state2 = this.state;
-            var observableRole = _state2.observableRole;
-            var observableUser = _state2.observableUser;
-            var pluginsRegistry = _state2.pluginsRegistry;
-            var currentPane = _state2.currentPane;
-            var modal = _state2.modal;
-
-            var filterPages = function filterPages(wsId, role) {
-                return _pydioModelRepository2['default'].isInternal(wsId);
-            };
-            var filterNoPages = function filterNoPages(wsId, role) {
-                return !_pydioModelRepository2['default'].isInternal(wsId) && wsId !== "pydiogateway";
-            };
+            var _props = this.props;
+            var advancedAcl = _props.advancedAcl;
+            var pydio = _props.pydio;
+            var _state = this.state;
+            var observableRole = _state.observableRole;
+            var observableUser = _state.observableUser;
+            var pluginsRegistry = _state.pluginsRegistry;
+            var currentPane = _state.currentPane;
+            var modal = _state.modal;
 
             var title = 'TITLE';
             var infoTitle = "";
@@ -24199,7 +24036,7 @@ var Editor = (function (_React$Component) {
                     } })
             );
 
-            var leftNav = [_react2['default'].createElement(PaperEditorNavHeader, { key: '1', label: this.getMessage('ws.28', 'ajxp_admin') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'info', keyName: 'info', onClick: this.setSelectedPane.bind(this), label: infoMenuTitle, selectedKey: this.state.currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '2', label: this.getMessage('34') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'workspaces', keyName: 'workspaces', onClick: this.setSelectedPane.bind(this), label: this.getMessage('35'), selectedKey: this.state.currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'pages', keyName: 'pages', onClick: this.setSelectedPane.bind(this), label: this.getMessage('36'), selectedKey: this.state.currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '3', label: this.getMessage('37') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'add-info', keyName: 'add-info', onClick: this.setSelectedPane.bind(this), label: this.getMessage('38'), selectedKey: this.state.currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'glob-params', keyName: 'global-params', onClick: this.setSelectedPane.bind(this), label: this.getMessage('39'), selectedKey: this.state.currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'ws-params', keyName: 'ws-params', onClick: this.setSelectedPane.bind(this), label: this.getMessage('40'), selectedKey: this.state.currentPane })];
+            var leftNav = [_react2['default'].createElement(PaperEditorNavHeader, { key: '1', label: this.getMessage('ws.28', 'ajxp_admin') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'info', keyName: 'info', onClick: this.setSelectedPane.bind(this), label: infoMenuTitle, selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '2', label: this.getMessage('34') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'workspaces', keyName: 'workspaces', onClick: this.setSelectedPane.bind(this), label: this.getMessage('35'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'pages', keyName: 'pages', onClick: this.setSelectedPane.bind(this), label: this.getMessage('36'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '3', label: this.getMessage('37') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'params', keyName: 'params', onClick: this.setSelectedPane.bind(this), label: this.getMessage('38'), selectedKey: currentPane })];
 
             var panes = [];
             var classFor = function classFor(key) {
@@ -24216,167 +24053,63 @@ var Editor = (function (_React$Component) {
                     { className: 'paper-right-title' },
                     infoTitle
                 ) : null,
-                otherForm,
-                _react2['default'].createElement(_panelWorkspacesList2['default'], {
-                    key: 'global-scope',
-                    roleRead: this.state.roleScope,
-                    roleParent: this.state.roleParent,
-                    roleType: this.state.roleType,
-                    Controller: this.getController(),
-                    showModal: this.showModal.bind(this),
-                    hideModal: this.hideModal.bind(this),
-                    globalData: {},
-                    showGlobalScopes: { PYDIO_REPO_SCOPE_ALL: this.getPydioRoleMessage('12d') },
-                    globalScopesFilterType: 'global',
-                    initialEditCard: 'PYDIO_REPO_SCOPE_ALL',
-                    noParamsListEdit: true,
-                    editOnly: true,
-                    displayFormPanel: true
-                })
+                otherForm
             ));
 
-            panes.push(_react2['default'].createElement(
-                'div',
-                { key: 'workspaces', className: classFor('workspaces'), style: styleFor('workspaces') },
-                _react2['default'].createElement(
-                    'h3',
-                    { className: 'paper-right-title' },
-                    this.getRootMessage('250'),
+            if (currentPane === 'workspaces') {
+                panes.push(_react2['default'].createElement(
+                    'div',
+                    { key: 'workspaces', className: classFor('workspaces'), style: styleFor('workspaces') },
                     _react2['default'].createElement(
-                        'div',
-                        { className: 'section-legend' },
-                        this.getMessage('43')
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { className: 'read-write-header' },
+                        'h3',
+                        { className: 'paper-right-title' },
+                        this.getRootMessage('250'),
                         _react2['default'].createElement(
-                            'span',
-                            null,
-                            'read'
+                            'div',
+                            { className: 'section-legend' },
+                            this.getMessage('43')
                         ),
                         _react2['default'].createElement(
-                            'span',
-                            null,
-                            'write'
+                            'div',
+                            { className: 'read-write-header' },
+                            _react2['default'].createElement(
+                                'span',
+                                null,
+                                'read'
+                            ),
+                            _react2['default'].createElement(
+                                'span',
+                                null,
+                                'write'
+                            ),
+                            _react2['default'].createElement(
+                                'span',
+                                null,
+                                'deny'
+                            )
                         ),
-                        _react2['default'].createElement(
-                            'span',
-                            null,
-                            'deny'
-                        )
+                        _react2['default'].createElement('br', null)
                     ),
-                    _react2['default'].createElement('br', null)
-                ),
-                _react2['default'].createElement(_aclWorkspacesAcls2['default'], {
-                    key: 'workspaces-list',
-                    role: observableUser ? observableUser.getRole() : observableRole,
-                    roleType: this.state.roleType,
-                    advancedAcl: advancedAcl,
-                    showModal: this.showModal.bind(this),
-                    hideModal: this.hideModal.bind(this)
-                })
-            ));
-
-            /*
-              panes.push(
-                <div key="add-info" className={classFor('add-info')} style={styleFor('add-info')}>
-                    <h3 className="paper-right-title">{this.getMessage('41')}
-                        <div className="section-legend">{this.getMessage('42')}</div>
-                    </h3>
-                    <WorkspacesList {...this.state}
-                                    key="global-all"
-                                    showModal={this.showModal.bind(this)}
-                                    hideModal={this.hideModal.bind(this)}
-                                    globalData={this.state.roleData.ALL}
-                                    showGlobalScopes={{PYDIO_REPO_SCOPE_ALL:this.getPydioRoleMessage('12d')}}
-                                    globalScopesFilterType="global-noscope"
-                                    initialEditCard="PYDIO_REPO_SCOPE_ALL"
-                                    editOnly={true}
-                                    roleType={this.state.roleType}
-                    />
-                </div>
-            );
-            panes.push(
-                <div key="workspaces" className={classFor('workspaces')} style={styleFor('workspaces')}>
-                    <h3 className="paper-right-title">
-                        {this.getRootMessage('250')}
-                        <div className="section-legend">{this.getMessage('43')}</div>
-                        <div className="read-write-header">
-                            <span>read</span>
-                            <span>write</span>
-                            <span>deny</span>
-                        </div>
-                        <br/>
-                    </h3>
-                    <WorkspacesList {...this.state}
-                                    key="workspaces-list"
-                                    listType="acl"
-                                    roleType={this.state.roleType}
-                                    advancedAcl={advancedAcl}
-                                    showModal={this.showModal.bind(this)}
-                                    hideModal={this.hideModal.bind(this)}
-                                    globalData={this.state.roleData.ALL}
-                                    filterCards={filterNoPages}/>
-                </div>
-            );
-             panes.push(
-                <div key="pages" className={classFor('pages')} style={styleFor('pages')}>
-                    <h3 className="paper-right-title">{this.getMessage('44')}
-                        <div className="section-legend">{this.getMessage('45')}</div>
-                        <div className="read-write-header">
-                            <span>{this.getMessage('react.5a', 'ajxp_admin')}</span>
-                            <span>{this.getMessage('react.5b', 'ajxp_admin')}</span>
-                            <span>{this.getMessage('react.5', 'ajxp_admin')}</span>
-                        </div>
-                        <br/>
-                    </h3>
-                    <WorkspacesList {...this.state}
-                                    key="workspaces-pages"
-                                    listType="acl"
-                                    roleType={this.state.roleType}
-                                    showModal={this.showModal.bind(this)}
-                                    hideModal={this.hideModal.bind(this)}
-                                    globalData={this.state.roleData.ALL}
-                                    filterCards={filterPages}/>
-                </div>
-            );
-            panes.push(
-                <div key="global-params" className={classFor('global-params')} style={styleFor('global-params')}>
-                    <h3 className="paper-right-title">{this.getMessage('46')}
-                        <div className="section-legend">{this.getMessage('47')}</div>
-                    </h3>
-                    <WorkspacesList {...this.state}
-                                    key="workspaces-global"
-                                    roleType={this.state.roleType}
-                                    showModal={this.showModal.bind(this)}
-                                    hideModal={this.hideModal.bind(this)}
-                                    globalData={this.state.roleData.ALL}
-                                    showGlobalScopes={this.state.roleData.ALL?{
-                                        PYDIO_REPO_SCOPE_ALL:this.getPydioRoleMessage('12d'),
-                                        PYDIO_REPO_SCOPE_SHARED:this.getPydioRoleMessage('12e')
-                                    }:{}}
-                                    globalScopesFilterType="workspace"
-                    />
-                </div>
-            );
-            panes.push(
-                <div key="ws-param" className={classFor('ws-param')} style={styleFor('ws-params')}>
-                    <h3 className="paper-right-title">
-                        {this.getMessage('40')}
-                        <div className="section-legend">{this.getMessage('48')}</div>
-                    </h3>
-                    <WorkspacesList {...this.state}
-                                    key="workspaces-list"
-                                    listType="parameters"
-                                    roleType={this.state.roleType}
-                                    showModal={this.showModal.bind(this)}
-                                    hideModal={this.hideModal.bind(this)}
-                                    globalData={this.state.roleData.ALL}
-                                    filterCards={filterNoPages}/>
-                </div>
-            );
-             */
+                    _react2['default'].createElement(_aclWorkspacesAcls2['default'], {
+                        key: 'workspaces-list',
+                        role: observableUser ? observableUser.getRole() : observableRole,
+                        roleType: this.state.roleType,
+                        advancedAcl: advancedAcl,
+                        showModal: this.showModal.bind(this),
+                        hideModal: this.hideModal.bind(this)
+                    })
+                ));
+            } else if (currentPane === 'params') {
+                panes.push(_react2['default'].createElement(
+                    'div',
+                    { key: 'params', className: classFor('params'), style: styleFor('params') },
+                    _react2['default'].createElement(_paramsParametersPanel2['default'], {
+                        pydio: pydio,
+                        role: observableUser ? observableUser.getRole() : observableRole,
+                        roleType: this.state.roleType
+                    })
+                ));
+            }
 
             var loadingMessage = null;
             if (this.state.loadingMessage) {
@@ -24438,7 +24171,7 @@ exports['default'] = Editor;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./acl/WorkspacesAcls":169,"./info/GroupInfo":170,"./info/RoleInfo":171,"./info/UserInfo":172,"./model/Role":181,"./model/User":182,"./panel/SharesList":183,"./panel/WorkspacesList":184,"./user/UserRolesPicker":193,"material-ui":"material-ui","pydio":"pydio","pydio/model/repository":"pydio/model/repository","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],164:[function(require,module,exports){
+},{"./acl/WorkspacesAcls":169,"./info/GroupInfo":170,"./info/RoleInfo":171,"./info/UserInfo":172,"./model/Role":181,"./model/User":182,"./panel/SharesList":183,"./params/ParametersPanel":186,"material-ui":"material-ui","pydio":"pydio","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],164:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25144,7 +24877,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":195,"./PoliciesLoader":166,"material-ui":"material-ui","react":"react"}],168:[function(require,module,exports){
+},{"../util/MessagesMixin":191,"./PoliciesLoader":166,"material-ui":"material-ui","react":"react"}],168:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25303,7 +25036,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Role":181,"../util/MessagesMixin":195,"./PermissionMaskEditor":165,"./RightsSelector":167,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api"}],169:[function(require,module,exports){
+},{"../model/Role":181,"../util/MessagesMixin":191,"./PermissionMaskEditor":165,"./RightsSelector":167,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api"}],169:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25899,7 +25632,7 @@ UserInfo.PropTypes = {
 exports['default'] = UserInfo;
 module.exports = exports['default'];
 
-},{"../model/User":182,"../user/UserRolesPicker":193,"material-ui":"material-ui","pydio":"pydio","react":"react"}],173:[function(require,module,exports){
+},{"../model/User":182,"../user/UserRolesPicker":189,"material-ui":"material-ui","pydio":"pydio","react":"react"}],173:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27490,6 +27223,20 @@ var Role = (function (_Observable) {
         }
 
         /**
+         *
+         * @param acl {IdmACL}
+         */
+    }, {
+        key: 'deleteParameter',
+        value: function deleteParameter(acl) {
+            this.acls = this.acls.filter(function (a) {
+                return a !== acl;
+            });
+            this.dirty = true;
+            this.notify('update');
+        }
+
+        /**
          * Get a parameter value
          * @param aclKey
          * @param scope
@@ -27507,6 +27254,38 @@ var Role = (function (_Observable) {
                 value = _this6.getAclValue(_this6.parentAcls[role.Uuid], aclKey, scope, value);
             });
             return this.getAclValue(this.acls, aclKey, scope, value);
+        }
+
+        /**
+         *
+         * @return {IdmACL[]}
+         */
+    }, {
+        key: 'listParametersAndActions',
+        value: function listParametersAndActions() {
+            var _this7 = this;
+
+            var filterParam = function filterParam(a) {
+                return a.Action.Name && (a.Action.Name.indexOf("parameter:") === 0 || a.Action.Name.indexOf("action:") === 0);
+            };
+
+            var acls = this.acls || [];
+            acls = acls.filter(filterParam);
+            this.parentRoles.forEach(function (role) {
+                var inherited = _this7.parentAcls[role.Uuid] || [];
+                inherited = inherited.filter(filterParam).filter(function (a) {
+                    return !acls.filter(function (f) {
+                        return f.Action.Name === a.Action.Name;
+                    }).length; // add only if not already set in main role
+                }).map(function (a) {
+                    var copy = _pydioHttpRestApi.IdmACL.constructFromObject(JSON.parse(JSON.stringify(a)));
+                    copy.INHERITED = true;
+                    return copy;
+                });
+                acls = [].concat(_toConsumableArray(acls), _toConsumableArray(inherited));
+            });
+
+            return acls;
         }
     }, {
         key: 'getAclValue',
@@ -27531,7 +27310,7 @@ var Role = (function (_Observable) {
     }, {
         key: 'getAclString',
         value: function getAclString(workspace, nodeUuid) {
-            var _this7 = this;
+            var _this8 = this;
 
             var inherited = false;
             var wsId = undefined,
@@ -27548,7 +27327,7 @@ var Role = (function (_Observable) {
             var rights = undefined;
             var parentRights = undefined;
             this.parentRoles.forEach(function (role) {
-                var parentRight = _this7._aclStringForAcls(_this7.parentAcls[role.Uuid], wsId, nodeId);
+                var parentRight = _this8._aclStringForAcls(_this8.parentAcls[role.Uuid], wsId, nodeId);
                 if (parentRight !== undefined) {
                     parentRights = parentRight;
                 }
@@ -27606,9 +27385,8 @@ var Role = (function (_Observable) {
     }, {
         key: 'updateAcl',
         value: function updateAcl(workspace, nodeUuid, value) {
-            var _this8 = this;
+            var _this9 = this;
 
-            console.log(workspace, value);
             var nodeIds = [];
             if (nodeUuid) {
                 nodeIds = [nodeUuid];
@@ -27634,13 +27412,12 @@ var Role = (function (_Observable) {
                         if (workspace) {
                             acl.WorkspaceID = workspace.UUID;
                         }
-                        acl.RoleID = _this8.idmRole.Uuid;
+                        acl.RoleID = _this9.idmRole.Uuid;
                         acl.Action = _pydioHttpRestApi.IdmACLAction.constructFromObject({ Name: r, Value: "1" });
-                        _this8.acls.push(acl);
+                        _this9.acls.push(acl);
                     });
                 });
             }
-            console.log(this.acls);
             this.dirty = true;
             this.notify('update');
         }
@@ -27652,13 +27429,13 @@ var Role = (function (_Observable) {
     }, {
         key: 'buildProxy',
         value: function buildProxy(object) {
-            var _this9 = this;
+            var _this10 = this;
 
             return new Proxy(object, {
                 set: function set(target, p, value) {
                     target[p] = value;
-                    _this9.dirty = true;
-                    _this9.notify('update');
+                    _this10.dirty = true;
+                    _this10.notify('update');
                     return true;
                 },
                 get: function get(target, p) {
@@ -27666,7 +27443,7 @@ var Role = (function (_Observable) {
                     if (out instanceof Array) {
                         return out;
                     } else if (out instanceof Object) {
-                        return _this9.buildProxy(out);
+                        return _this10.buildProxy(out);
                     } else {
                         return out;
                     }
@@ -28004,7 +27781,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":195,"material-ui":"material-ui","pydio":"pydio","react":"react"}],184:[function(require,module,exports){
+},{"../util/MessagesMixin":191,"material-ui":"material-ui","pydio":"pydio","react":"react"}],184:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28033,265 +27810,9 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _parametersWorkspaceCard = require('../parameters/WorkspaceCard');
+var _react = require("react");
 
-var _parametersWorkspaceCard2 = _interopRequireDefault(_parametersWorkspaceCard);
-
-var _aclWorkspaceAcl = require('../acl/WorkspaceAcl');
-
-var _aclWorkspaceAcl2 = _interopRequireDefault(_aclWorkspaceAcl);
-
-var _parametersParamsMixins = require('../parameters/ParamsMixins');
-
-var _parametersParamsMixins2 = _interopRequireDefault(_parametersParamsMixins);
-
-exports['default'] = React.createClass({
-    displayName: 'WorkspacesList',
-
-    propTypes: {
-        listType: React.PropTypes.oneOf(['acl', 'parameters']),
-        roleType: React.PropTypes.oneOf(['user', 'group', 'role']),
-        roleParent: React.PropTypes.object,
-        roleWrite: React.PropTypes.object,
-        roleRead: React.PropTypes.object,
-        roleScope: React.PropTypes.object,
-        globalData: React.PropTypes.object,
-        filterCards: React.PropTypes.func,
-        titleOnly: React.PropTypes.bool,
-        showModal: React.PropTypes.func,
-        hideModal: React.PropTypes.func,
-        displayFormPanel: React.PropTypes.bool,
-        showGlobalScopes: React.PropTypes.object,
-        globalScopesFilterType: React.PropTypes.string,
-        initialEditCard: React.PropTypes.string,
-        Controller: React.PropTypes.object,
-        advancedAcl: React.PropTypes.bool
-    },
-
-    getDefaultProps: function getDefaultProps() {
-        return { listType: 'parameters' };
-    },
-
-    getInitialState: function getInitialState() {
-        return {
-            activeCard: this.props.initialEditCard ? this.props.initialEditCard : null
-        };
-    },
-
-    componentWillReceiveProps: function componentWillReceiveProps(newProps) {
-        if (newProps.initialEditCard) {
-            this.setState({ activeCard: newProps.initialEditCard ? newProps.initialEditCard : null });
-        }
-    },
-
-    toggleEditMode: function toggleEditMode(wsId) {
-        if (this.state.activeCard == wsId) {
-            this.setState({ activeCard: null });
-        } else {
-            this.setState({ activeCard: wsId });
-        }
-    },
-
-    render: function render() {
-        var filterFunc = this.props.filterCards;
-        var filter = function filter(wsId, role) {
-            if (!filterFunc) return true;else return filterFunc(wsId, role);
-        };
-        var globalData = this.props.globalData || {};
-        var pluginsFilter;
-
-        var globalPluginsFilter = function globalPluginsFilter(pluginName) {
-            if (!globalData.PLUGINS_SCOPES) {
-                return true;
-            }
-            var isGlobal = false;
-            if (globalData.PLUGINS_SCOPES.GLOBAL_TYPES) {
-                globalData.PLUGINS_SCOPES.GLOBAL_TYPES.map(function (value) {
-                    if (pluginName.indexOf(value + '.') === 0 || pluginName == 'core.' + value) {
-                        isGlobal = true;
-                    }
-                });
-                if (isGlobal) return false;
-            }
-            if (globalData.PLUGINS_SCOPES.GLOBAL_PLUGINS) {
-                globalData.PLUGINS_SCOPES.GLOBAL_PLUGINS.map(function (p) {
-                    if (pluginName == p) isGlobal = true;
-                });
-                if (isGlobal) return false;
-            }
-            return true;
-        };
-
-        if (!this.props.showGlobalScopes) {
-            // FILTER OUT GLOBAL PLUGINS & CHECK ACTIVE ACCESS & META PLUGINS
-            pluginsFilter = function (scopeId, pluginName, paramName) {
-                if (!globalPluginsFilter(pluginName)) {
-                    return false;
-                }
-                var parts = pluginName.split('.');
-                var pType = parts[0];
-                var pName = parts[1];
-                if (globalData.REPOSITORIES_DETAILS && globalData.REPOSITORIES_DETAILS[scopeId]) {
-                    var driver = globalData.REPOSITORIES_DETAILS[scopeId]['driver'];
-                    if (pType == 'access' && pName != driver) {
-                        // Not the correct access driver
-                        return false;
-                    }
-                    var metas = globalData.REPOSITORIES_DETAILS[scopeId]['meta'];
-                    if (['metastore', 'meta', 'index'].indexOf(pType) !== -1 && metas.indexOf(pluginName) === -1) {
-                        // Meta not active on this workspace, ignore.
-                        return false;
-                    }
-                }
-                // Last step could check dependencies on all other plugins....
-                return true;
-            };
-        } else {
-            if (this.props.globalScopesFilterType == 'workspace') {
-                // FILTER OUT JUST GLOBAL PLUGINS
-                pluginsFilter = function (scopeId, pluginName, paramName) {
-                    return globalPluginsFilter(pluginName);
-                };
-            } else if (this.props.globalScopesFilterType == 'global') {
-                pluginsFilter = function (scopeId, pluginName, paramName) {
-                    return !globalPluginsFilter(pluginName);
-                };
-            } else if (this.props.globalScopesFilterType == 'global-noscope') {
-                var scopeParams = this.props.roleData.SCOPE_PARAMS;
-                pluginsFilter = function (scopeId, pluginName, paramName) {
-                    if (globalPluginsFilter(pluginName)) return false;
-                    if (paramName) {
-                        for (var key in scopeParams) {
-                            if (!scopeParams.hasOwnProperty(key)) continue;
-                            var parts = scopeParams[key].name.split('/');
-                            if (pluginName == parts[1] && paramName == parts[2]) return false;
-                        }
-                    }
-                    return true;
-                };
-            }
-        }
-
-        var workspaces = [],
-            wsLabels,
-            uniqueScope = false;
-        if (this.props.showGlobalScopes) {
-            wsLabels = this.props.showGlobalScopes;
-            if (Object.keys(this.props.showGlobalScopes).length == 1) {
-                uniqueScope = true;
-            }
-        } else {
-            wsLabels = this.props.globalData ? this.props.globalData.REPOSITORIES : {};
-        }
-        for (var wsId in wsLabels) {
-            if (!wsLabels.hasOwnProperty(wsId)) continue;
-            if (!filter(wsId, this.props.roleRead)) continue;
-            if (this.props.displayFormPanel) {
-
-                // get parameters
-                var params = [];
-                var values = {};
-                var nameToPlugin = {};
-                _parametersParamsMixins2['default'].browseParams(this.props.roleRead ? this.props.roleRead.PARAMETERS : {}, this.props.roleParent ? this.props.roleParent.PARAMETERS : {}, wsId, (function (pluginName, paramName, paramValue, paramAttributes, inherited, type) {
-                    this.push(paramAttributes);
-                    values[paramName] = paramValue;
-                    nameToPlugin[paramName] = pluginName;
-                }).bind(params), pluginsFilter, 'parameter', true, true);
-
-                var changeParameter = (function (paramName, newValue, oldValue) {
-                    var additionalFormData = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
-
-                    if (newValue == oldValue) return;
-                    this.props.Controller.updateParameter('parameter', 'update', wsId, nameToPlugin[paramName], paramName, newValue, additionalFormData);
-                }).bind(this);
-
-                var fp = React.createElement(PydioForm.FormPanel, {
-                    key: 'form',
-                    parameters: params,
-                    onParameterChange: changeParameter,
-                    values: values,
-                    binary_context: this.props.Controller.getBinaryContext(),
-                    depth: -2
-                });
-                workspaces.push(fp);
-            } else {
-                if (this.props.listType == 'parameters') {
-                    workspaces.push(React.createElement(_parametersWorkspaceCard2['default'], {
-                        key: wsId,
-                        id: wsId,
-                        label: wsLabels[wsId],
-                        titleOnly: this.props.titleOnly,
-                        role: this.props.roleRead,
-                        roleParent: this.props.roleParent,
-                        roleType: this.props.roleType,
-                        toggleEdit: this.toggleEditMode,
-                        editMode: this.state.activeCard == wsId,
-                        editOnly: this.props.editOnly,
-                        pluginsFilter: pluginsFilter,
-                        showModal: this.props.showModal,
-                        hideModal: this.props.hideModal,
-                        noParamsListEdit: this.props.noParamsListEdit,
-                        uniqueScope: uniqueScope,
-                        Controller: this.props.Controller
-                    }));
-                } else {
-                    workspaces.push(React.createElement(_aclWorkspaceAcl2['default'], {
-                        key: wsId,
-                        id: wsId,
-                        label: wsLabels[wsId],
-                        titleOnly: this.props.titleOnly,
-                        role: this.props.roleWrite,
-                        roleParent: this.props.roleParent,
-                        advancedAcl: this.props.advancedAcl,
-                        supportsFolderBrowsing: !globalData.REPOSITORIES_DETAILS[wsId].scope,
-                        pluginsFilter: pluginsFilter,
-                        showModal: this.props.showModal,
-                        hideModal: this.props.hideModal,
-                        uniqueScope: uniqueScope,
-                        Controller: this.props.Controller
-                    }));
-                }
-            }
-        }
-        return React.createElement(
-            'div',
-            { className: this.props.displayFormPanel ? "" : "material-list" },
-            workspaces
-        );
-    }
-
-});
-module.exports = exports['default'];
-
-},{"../acl/WorkspaceAcl":168,"../parameters/ParamsMixins":190,"../parameters/WorkspaceCard":191}],185:[function(require,module,exports){
-(function (global){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+var _react2 = _interopRequireDefault(_react);
 
 var _utilEditorCache = require('../util/EditorCache');
 
@@ -28301,31 +27822,26 @@ var _ParametersPicker = require('./ParametersPicker');
 
 var _ParametersPicker2 = _interopRequireDefault(_ParametersPicker);
 
-var React = require('react');
+var _pydio = require("pydio");
 
-var _require = require('material-ui');
+var _pydio2 = _interopRequireDefault(_pydio);
 
-var TextField = _require.TextField;
-var FlatButton = _require.FlatButton;
-
-var Pydio = require('pydio');
-
-var _Pydio$requireLib = Pydio.requireLib('boot');
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
-exports['default'] = React.createClass({
+exports['default'] = _react2['default'].createClass({
     displayName: 'ParameterCreate',
 
     mixins: [ActionDialogMixin, CancelButtonProviderMixin],
 
     propTypes: {
-        workspaceScope: React.PropTypes.string,
-        showModal: React.PropTypes.func,
-        hideModal: React.PropTypes.func,
-        pluginsFilter: React.PropTypes.func,
-        roleType: React.PropTypes.oneOf(['user', 'group', 'role']),
-        createParameter: React.PropTypes.func
+        workspaceScope: _react2['default'].PropTypes.string,
+        showModal: _react2['default'].PropTypes.func,
+        hideModal: _react2['default'].PropTypes.func,
+        pluginsFilter: _react2['default'].PropTypes.func,
+        roleType: _react2['default'].PropTypes.oneOf(['user', 'group', 'role']),
+        createParameter: _react2['default'].PropTypes.func
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -28341,7 +27857,9 @@ exports['default'] = React.createClass({
             step: 1,
             workspaceScope: this.props.workspaceScope,
             pluginName: null,
-            paramName: null
+            paramName: null,
+            actions: {},
+            parameters: {}
         };
     },
 
@@ -28356,79 +27874,36 @@ exports['default'] = React.createClass({
 
     render: function render() {
 
-        // This is passed via state, context is not working,
-        // so we have to get the messages from the global.
         var getMessage = function getMessage(id) {
             var namespace = arguments.length <= 1 || arguments[1] === undefined ? 'pydio_role' : arguments[1];
-
-            return global.pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
+            return pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
         };
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var actions = _props.actions;
+        var parameters = _props.parameters;
 
-        var title, content, actions;
-        var params = _utilEditorCache2['default'].CACHE['PARAMETERS'];
-        if (!params) {
-            return React.createElement(
-                'div',
-                null,
-                'Oops: parameters cache is not loaded!'
-            );
-        }
-        var scopeId = this.props.workspaceScope;
-        var pluginsFilter = this.props.pluginsFilter || function () {
-            return true;
-        };
-
-        var allParams = {};
-        var currentRoleType = this.props.roleType;
-        params.forEach(function (data, pluginName) {
-            if (data.size && pluginsFilter(scopeId, pluginName)) {
-                var pluginParams = [];
-                data.forEach(function (aParam) {
-                    aParam._type = 'parameter';
-                    if (aParam.scope && aParam.scope.indexOf(currentRoleType) !== -1) {
-                        //console.log('ignoring ' + aParam.label + '? Scope is ' + aParam.scope);
-                        return;
-                    }
-                    pluginParams.push(aParam);
-                });
-                if (pluginParams.length) {
-                    allParams[pluginName] = { name: pluginName, params: pluginParams };
-                }
-            }
-        });
-
-        var theActions = _utilEditorCache2['default'].CACHE['ACTIONS'];
-        var allActions = {};
-        theActions.forEach(function (value, pluginName) {
-            if (value.size && pluginsFilter(scopeId, pluginName)) {
-                var pluginActions = [];
-                value.forEach(function (actionObject, actionName) {
-                    pluginActions.push({ _type: 'action', name: actionName, label: actionObject.label ? actionObject.label : actionName });
-                });
-                allActions[pluginName] = { name: pluginName, actions: pluginActions };
-            }
-        });
-
-        return React.createElement(
+        return _react2['default'].createElement(
             'div',
             { className: 'picker-list' },
-            React.createElement(
+            _react2['default'].createElement(
                 'div',
                 { className: 'color-dialog-title' },
-                React.createElement(
+                _react2['default'].createElement(
                     'h3',
                     null,
                     getMessage('14')
                 ),
-                React.createElement(
+                _react2['default'].createElement(
                     'div',
                     { className: 'legend' },
                     getMessage('15')
                 )
             ),
-            React.createElement(_ParametersPicker2['default'], {
-                allActions: allActions,
-                allParameters: allParams,
+            _react2['default'].createElement(_ParametersPicker2['default'], {
+                pydio: pydio,
+                allActions: actions,
+                allParameters: parameters,
                 onSelection: this.setSelection,
                 getMessage: getMessage
             })
@@ -28438,8 +27913,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/EditorCache":194,"./ParametersPicker":188,"material-ui":"material-ui","pydio":"pydio","react":"react"}],186:[function(require,module,exports){
+},{"../util/EditorCache":190,"./ParametersPicker":187,"pydio":"pydio","react":"react"}],185:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28466,23 +27940,47 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
 var _utilMessagesMixin = require('../util/MessagesMixin');
 
-exports['default'] = React.createClass({
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _modelRole = require('../model/Role');
+
+var _materialUi = require('material-ui');
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var PydioForm = _pydio2['default'].requireLib("form");
+
+exports['default'] = _react2['default'].createClass({
     displayName: 'ParameterEntry',
 
     mixins: [_utilMessagesMixin.RoleMessagesConsumerMixin],
 
     propTypes: {
-        type: React.PropTypes.string,
-        id: React.PropTypes.string,
-        name: React.PropTypes.string,
-        value: React.PropTypes.any,
-        label: React.PropTypes.string,
-        attributes: React.PropTypes.object,
-        pluginName: React.PropTypes.string,
-        inherited: React.PropTypes.bool,
-        Controller: React.PropTypes.object
+        acl: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.IdmACL),
+        role: _react2['default'].PropTypes.instanceOf(_modelRole.Role),
+
+        actions: _react2['default'].PropTypes.object,
+        parameters: _react2['default'].PropTypes.object,
+
+        inherited: _react2['default'].PropTypes.bool
     },
 
     getInitialState: function getInitialState() {
@@ -28492,16 +27990,43 @@ exports['default'] = React.createClass({
     onChangeParameter: function onChangeParameter(newValue, oldValue) {
         var additionalFormData = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
-        if (newValue == oldValue) return;
-        this.props.Controller.updateParameter(this.props.type, 'update', this.props.id, this.props.pluginName, this.props.name, newValue, additionalFormData);
+        if (newValue === oldValue) return;
+        var _props = this.props;
+        var role = _props.role;
+        var acl = _props.acl;
+
+        var aclKey = acl.Action.Name;
+        role.setParameter(aclKey, newValue, acl.WorkspaceID);
     },
 
     deleteParameter: function deleteParameter() {
-        this.props.Controller.updateParameter(this.props.type, 'delete', this.props.id, this.props.pluginName, this.props.name);
+        var _props2 = this.props;
+        var role = _props2.role;
+        var acl = _props2.acl;
+
+        role.deleteParameter(acl);
     },
 
     overrideParameter: function overrideParameter() {
-        this.props.Controller.updateParameter(this.props.type, 'add', this.props.id, this.props.pluginName, this.props.name);
+        var _props3 = this.props;
+        var role = _props3.role;
+        var acl = _props3.acl;
+
+        var aclKey = acl.Action.Name;
+
+        var _aclKey$split = aclKey.split(":");
+
+        var _aclKey$split2 = _slicedToArray(_aclKey$split, 3);
+
+        var type = _aclKey$split2[0];
+        var pluginId = _aclKey$split2[1];
+        var name = _aclKey$split2[2];
+
+        var value = "";
+        if (type === "action") {
+            value = false;
+        }
+        role.setParameter(aclKey, value, acl.WorkspaceID);
     },
 
     onInputEditMode: function onInputEditMode(editMode) {
@@ -28509,239 +28034,385 @@ exports['default'] = React.createClass({
     },
 
     toggleEditMode: function toggleEditMode() {
-        if (this.refs.formElement) this.refs.formElement.toggleEditMode();
+        if (this.refs.formElement) {
+            this.refs.formElement.toggleEditMode();
+        }
     },
 
     toggleActionStatus: function toggleActionStatus(event, status) {
-        //if(status){
-        this.props.Controller.updateParameter(this.props.type, 'add', this.props.id, this.props.pluginName, this.props.name, status);
-        //}else{
-        //    this.props.Controller.updateParameter(this.props.type, 'delete', this.props.id, this.props.pluginName, this.props.name);
-        //}
+        var _props4 = this.props;
+        var role = _props4.role;
+        var acl = _props4.acl;
+
+        role.setParameter(acl.Action.Name, status, acl.WorkspaceID);
     },
 
     render: function render() {
-        var props = {
-            ref: "formElement",
-            attributes: this.props.attributes,
-            name: this.props.name,
-            value: this.props.value,
-            onChange: this.onChangeParameter,
-            disabled: this.props.inherited,
-            binary_context: this.props.Controller.getBinaryContext(),
-            onChangeEditMode: this.onInputEditMode,
-            displayContext: 'grid'
-        };
-        var value;
-        var type = this.props.type;
-        if (type == 'parameter') {
-            value = PydioForm.createFormElement(props);
+        var _props5 = this.props;
+        var acl = _props5.acl;
+        var actions = _props5.actions;
+        var parameters = _props5.parameters;
+        var pydio = _props5.pydio;
+
+        var _acl$Action$Name$split = acl.Action.Name.split(":");
+
+        var _acl$Action$Name$split2 = _slicedToArray(_acl$Action$Name$split, 3);
+
+        var type = _acl$Action$Name$split2[0];
+        var pluginId = _acl$Action$Name$split2[1];
+        var name = _acl$Action$Name$split2[2];
+
+        var value = JSON.parse(acl.Action.Value);
+        var inherited = acl.INHERITED;
+        var label = name;
+        var paramData = undefined;
+        if (type === 'parameter' && parameters[pluginId]) {
+            var filters = parameters[pluginId].filter(function (p) {
+                return p.parameter === name;
+            });
+            if (filters.length) {
+                paramData = filters[0];
+            }
+        } else if (type === 'action' && actions[pluginId]) {
+            var filters = actions[pluginId].filter(function (p) {
+                return p.action === name;
+            });
+            if (filters.length) {
+                paramData = filters[0];
+            }
+        }
+        var element = undefined;
+        if (type === 'parameter') {
+            var attributes = { type: 'string', label: label, name: name };
+            if (paramData) {
+                attributes = PydioForm.Manager.parameterNodeToHash(paramData.xmlNode);
+            }
+            label = attributes.label;
+            element = PydioForm.createFormElement({
+                ref: "formElement",
+                attributes: attributes,
+                name: name,
+                value: value,
+                onChange: this.onChangeParameter,
+                disabled: inherited,
+                onChangeEditMode: this.onInputEditMode,
+                displayContext: 'grid'
+            });
         } else {
-            value = React.createElement(
+            if (paramData) {
+                label = _pydioUtilXml2['default'].XPathGetSingleNodeText(paramData.xmlNode, "gui/@text") || label;
+                if (pydio.MessageHash[label]) {
+                    label = pydio.MessageHash[label];
+                }
+            }
+            element = _react2['default'].createElement(
                 'div',
                 { className: 'role-action-toggle' },
-                React.createElement(ReactMUI.Toggle, {
+                _react2['default'].createElement(_materialUi.Toggle, {
                     name: this.props.name,
-                    onToggle: this.toggleActionStatus,
-                    defaultToggled: !!this.props.value
-                }),
-                React.createElement(
-                    'span',
-                    { className: 'role-action-toggle-label' },
-                    ' ',
-                    this.context.getMessage(this.props.value ? '2' : '3')
-                )
+                    onToggle: this.toggleActionStatus.bind(this),
+                    toggled: !!value,
+                    label: this.context.getMessage(value ? '2' : '3'),
+                    labelPosition: "right"
+                })
             );
         }
 
-        var actions;
-        if (type == 'parameter') {
-            if (!this.state.editMode) {
-                actions = React.createElement(ReactMUI.IconButton, { iconClassName: 'icon-remove', tooltip: this.context.getMessage('4'), onClick: this.deleteParameter });
-                if (this.props.inherited) {
-                    actions = React.createElement(ReactMUI.IconButton, { iconClassName: 'icon-copy', tooltip: this.context.getMessage('5'), onClick: this.overrideParameter });
-                }
+        var actionButtons = undefined;
+        var buttonStyle = { style: { opacity: 0.2 }, hoveredStyle: { opacity: 1 } };
+        if (type === 'parameter') {
+            if (this.state.editMode) {
+                actionButtons = _react2['default'].createElement(_materialUi.IconButton, _extends({
+                    iconClassName: 'mdi mdi-content-save',
+                    tooltip: this.context.getMessage('6'),
+                    onClick: this.toggleEditMode
+                }, buttonStyle));
             } else {
-                actions = React.createElement(ReactMUI.IconButton, { iconClassName: 'icon-save', tooltip: this.context.getMessage('6'), onClick: this.toggleEditMode });
+                actionButtons = _react2['default'].createElement(_materialUi.IconButton, _extends({
+                    iconClassName: 'mdi mdi-close',
+                    tooltip: this.context.getMessage('4'),
+                    onClick: this.deleteParameter
+                }, buttonStyle));
+                if (inherited) {
+                    actionButtons = _react2['default'].createElement(_materialUi.IconButton, _extends({
+                        iconClassName: 'mdi mdi-content-copy',
+                        tooltip: this.context.getMessage('5'),
+                        onClick: this.overrideParameter
+                    }, buttonStyle));
+                }
             }
-        } else if (!this.props.inherited) {
-            actions = React.createElement(ReactMUI.IconButton, { iconClassName: 'icon-remove', tooltip: this.context.getMessage('4'), onClick: this.deleteParameter });
+        } else if (!inherited) {
+            actionButtons = _react2['default'].createElement(_materialUi.IconButton, _extends({
+                iconClassName: 'mdi mdi-close',
+                tooltip: this.context.getMessage('4'),
+                onClick: this.deleteParameter
+            }, buttonStyle));
+        } else {
+            actionButtons = _react2['default'].createElement('div', { style: { width: 48, height: 48 } });
         }
-        return React.createElement(
+        return _react2['default'].createElement(
             'tr',
-            { className: (this.props.inherited ? 'inherited' : '') + (this.state.editMode ? ' edit-mode' : '') },
-            React.createElement(
+            { className: (inherited ? 'inherited' : '') + (this.state.editMode ? ' edit-mode' : ''), style: _extends({}, this.props.style) },
+            _react2['default'].createElement(
                 'td',
-                { className: 'paramName' },
-                React.createElement(
-                    'span',
-                    { className: 'label' },
-                    this.props.inherited ? '[' + this.context.getPydioRoleMessage('38') + ']' : '',
-                    ' ',
-                    this.props.label
-                )
+                { style: { width: '40%', fontWeight: 500 } },
+                inherited ? '[' + this.context.getPydioRoleMessage('38') + ']' : '',
+                ' ',
+                label
             ),
-            React.createElement(
+            _react2['default'].createElement(
                 'td',
-                { className: 'paramValue' },
-                value
+                { style: { wordBreak: 'break-all' } },
+                element
             ),
-            React.createElement(
+            _react2['default'].createElement(
                 'td',
-                { className: 'paramActions' },
-                actions
+                { style: { width: 50 } },
+                actionButtons
             )
         );
     }
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":195}],187:[function(require,module,exports){
-(function (global){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
+},{"../model/Role":181,"../util/MessagesMixin":191,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],186:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _ParamsMixins = require('./ParamsMixins');
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _ParamsMixins2 = _interopRequireDefault(_ParamsMixins);
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _utilMessagesMixin = require('../util/MessagesMixin');
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 var _ParameterEntry = require('./ParameterEntry');
 
 var _ParameterEntry2 = _interopRequireDefault(_ParameterEntry);
 
-exports['default'] = React.createClass({
-    displayName: 'ParametersList',
+var _materialUi = require('material-ui');
 
-    mixins: [_ParamsMixins2['default'], _utilMessagesMixin.RoleMessagesConsumerMixin],
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
-    propTypes: {
-        id: React.PropTypes.string,
-        role: React.PropTypes.object,
-        roleParent: React.PropTypes.object,
-        pluginsFilter: React.PropTypes.func,
-        paramsFilter: React.PropTypes.func,
-        showInherited: React.PropTypes.bool,
-        Controller: React.PropTypes.object
-    },
+var ParametersPanel = (function (_React$Component) {
+    _inherits(ParametersPanel, _React$Component);
 
-    getInitialState: function getInitialState() {
-        return { showInherited: this.props.showInherited !== undefined ? this.props.showInherited : true };
-    },
+    function ParametersPanel(props) {
+        var _this = this;
 
-    componentWillReceiveProps: function componentWillReceiveProps(newProps) {
-        if (newProps.showInherited !== undefined) {
-            this.setState({ showInherited: newProps.showInherited });
+        _classCallCheck(this, ParametersPanel);
+
+        _get(Object.getPrototypeOf(ParametersPanel.prototype), 'constructor', this).call(this, props);
+        this.state = { actions: {}, parameters: {}, workspaces: {} };
+        var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
+        var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
+        request.Queries = [_pydioHttpRestApi.IdmWorkspaceSingleQuery.constructFromObject({
+            scope: 'ADMIN'
+        })];
+        api.searchWorkspaces(request).then(function (collection) {
+            var wss = collection.Workspaces || [];
+            var workspaces = {};
+            wss.forEach(function (ws) {
+                workspaces[ws.UUID] = ws;
+            });
+            _this.setState({ workspaces: workspaces });
+        });
+    }
+
+    _createClass(ParametersPanel, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this2 = this;
+
+            var loader = AdminComponents.PluginsLoader.getInstance(this.props.pydio);
+            loader.allPluginsActionsAndParameters().then(function (plugins) {
+                _this2.setState({ actions: plugins.ACTIONS, parameters: plugins.PARAMETERS });
+            });
         }
-    },
+    }, {
+        key: 'onCreateParameter',
+        value: function onCreateParameter(scope, type, pluginName, paramName, attributes) {
+            var role = this.props.role;
 
-    toggleInherited: function toggleInherited() {
-        this.setState({ showInherited: !this.state.showInherited });
-    },
+            var aclKey = type + ':' + pluginName + ':' + paramName;
+            var value = undefined;
+            if (type === 'action') {
+                value = false;
+            } else {
+                value = attributes && attributes["default"] ? attributes["default"] : "";
+            }
+            role.setParameter(aclKey, value, scope);
+        }
+    }, {
+        key: 'addParameter',
+        value: function addParameter(scope) {
+            var _this3 = this;
 
-    render: function render() {
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var roleType = _props.roleType;
+            var _state = this.state;
+            var actions = _state.actions;
+            var parameters = _state.parameters;
 
-        var roleParent = this.props.roleParent;
-        var showInherited = this.state.showInherited;
-        var controller = this.props.Controller;
-        var wsId = this.props.id;
-        var oThis = this;
-        var render = function render(pluginName, paramName, paramValue, paramAttributes, inherited, type) {
-            if (inherited && !showInherited) {
+            pydio.UI.openComponentInModal('AdminPeople', 'ParameterCreate', {
+                pydio: pydio,
+                actions: actions,
+                parameters: parameters,
+                workspaceScope: scope,
+                createParameter: function createParameter(type, pluginName, paramName, attributes) {
+                    _this3.onCreateParameter(scope, type, pluginName, paramName, attributes);
+                },
+                roleType: roleType
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var _props2 = this.props;
+            var role = _props2.role;
+            var pydio = _props2.pydio;
+
+            if (!role) {
                 return null;
             }
-            var label = paramAttributes['label'] || paramName;
-            if (global.pydio && global.pydio.MessageHash && global.pydio.MessageHash[label]) {
-                label = global.pydio.MessageHash[label];
-            }
-            if (type == 'action') {
-                paramAttributes['type'] = 'boolean';
-                label = oThis.context.getMessage('7').replace('%s', label);
-            }
-            return React.createElement(_ParameterEntry2['default'], {
-                id: wsId,
-                type: type,
-                key: pluginName + "-" + paramName,
-                name: paramName,
-                label: label,
-                value: paramValue,
-                attributes: paramAttributes,
-                inherited: inherited,
-                pluginName: pluginName,
-                Controller: controller
+            var workspaces = this.state.workspaces;
+
+            var params = role.listParametersAndActions();
+            var scopes = {
+                PYDIO_REPO_SCOPE_ALL: {},
+                PYDIO_REPO_SCOPE_SHARED: {}
+            };
+
+            params.forEach(function (a) {
+                if (!scopes[a.WorkspaceID]) {
+                    scopes[a.WorkspaceID] = {};
+                }
+
+                var _a$Action$Name$split = a.Action.Name.split(':');
+
+                var _a$Action$Name$split2 = _slicedToArray(_a$Action$Name$split, 3);
+
+                var type = _a$Action$Name$split2[0];
+                var pluginId = _a$Action$Name$split2[1];
+                var paramName = _a$Action$Name$split2[2];
+
+                scopes[a.WorkspaceID][paramName] = a;
             });
-        };
+            var wsItems = [_react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Add for...", value: 1 }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "All workspaces", onTouchTap: function () {
+                    _this4.addParameter('PYDIO_REPO_SCOPE_ALL');
+                } }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Shared Cells", onTouchTap: function () {
+                    _this4.addParameter('PYDIO_REPO_SCOPE_SHARED');
+                } }), _react2['default'].createElement(_materialUi.Divider, null)].concat(Object.keys(workspaces).map(function (ws) {
+                return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: workspaces[ws].Label, onTouchTap: function () {
+                        _this4.addParameter(ws);
+                    } });
+            }));
 
-        var parameters = this.browseParams(this.props.role.PARAMETERS, this.props.roleParent.PARAMETERS, this.props.id, render, this.props.pluginsFilter, 'parameter', true, true);
-
-        var actions = this.browseParams(this.props.role.ACTIONS, this.props.roleParent.ACTIONS, this.props.id, render, this.props.pluginsFilter, 'action', true, true);
-
-        if (!parameters[0].length && !actions[0].length && !this.state.showInherited) {
-            return React.createElement(
-                'table',
-                { className: 'parameters-list', style: { width: '100%' } },
-                React.createElement(
-                    'tbody',
-                    null,
-                    React.createElement(
-                        'tr',
-                        { colSpan: 3 },
-                        React.createElement(
-                            'td',
-                            { className: 'empty-entry' },
-                            this.context.getMessage('1')
+            return _react2['default'].createElement(
+                'div',
+                null,
+                _react2['default'].createElement(
+                    'h3',
+                    { className: 'paper-right-title', style: { display: 'flex' } },
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { flex: 1 } },
+                        'Parameters and Actions'
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { width: 160 } },
+                        _react2['default'].createElement(
+                            _materialUi.SelectField,
+                            { fullWidth: true, value: 1 },
+                            wsItems
                         )
                     )
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '0 20px' } },
+                    Object.keys(scopes).map(function (s) {
+                        var scopeLabel = undefined;
+                        var odd = false;
+                        if (s === 'PYDIO_REPO_SCOPE_ALL') {
+                            scopeLabel = 'All Workspaces';
+                        } else if (s === 'PYDIO_REPO_SCOPE_SHARED') {
+                            scopeLabel = 'Shared Cells Only';
+                        } else if (workspaces[s]) {
+                            scopeLabel = 'Workspace ' + workspaces[s].Label;
+                        } else {
+                            scopeLabel = 'Workspace ' + s;
+                        }
+                        var entries = undefined;
+                        if (Object.keys(scopes[s]).length) {
+                            entries = Object.keys(scopes[s]).map(function (param) {
+                                var style = { backgroundColor: odd ? '#FAFAFA' : 'white' };
+                                odd = !odd;
+                                return _react2['default'].createElement(_ParameterEntry2['default'], _extends({ pydio: pydio, acl: scopes[s][param], role: role }, _this4.state, { style: style }));
+                            });
+                        } else {
+                            entries = _react2['default'].createElement(
+                                'tr',
+                                null,
+                                _react2['default'].createElement(
+                                    'td',
+                                    { colSpan: 3, style: { padding: '14px 0' } },
+                                    'No parameters or actions'
+                                )
+                            );
+                        }
+                        return _react2['default'].createElement(
+                            'table',
+                            { style: { width: '100%', marginBottom: 20 } },
+                            _react2['default'].createElement(
+                                'tr',
+                                { style: { borderBottom: '1px solid #616161' } },
+                                _react2['default'].createElement(
+                                    'td',
+                                    { colSpan: 2, style: { fontSize: 15, paddingTop: 10 } },
+                                    scopeLabel
+                                ),
+                                _react2['default'].createElement(
+                                    'td',
+                                    { style: { width: 50 } },
+                                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onTouchTap: function () {
+                                            _this4.addParameter(s);
+                                        } })
+                                )
+                            ),
+                            entries
+                        );
+                    })
                 )
             );
         }
+    }]);
 
-        return React.createElement(
-            'table',
-            { className: 'parameters-list', style: { width: '100%' } },
-            React.createElement(
-                'tbody',
-                null,
-                parameters[0],
-                actions[0],
-                parameters[1],
-                actions[1]
-            )
-        );
-    }
+    return ParametersPanel;
+})(_react2['default'].Component);
 
-});
+exports['default'] = ParametersPanel;
 module.exports = exports['default'];
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/MessagesMixin":195,"./ParameterEntry":186,"./ParamsMixins":190}],188:[function(require,module,exports){
-(function (global){
+},{"./ParameterEntry":185,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],187:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28762,25 +28433,41 @@ module.exports = exports['default'];
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
-var React = require('react');
-var LangUtils = require('pydio/util/lang');
 
-var ParametersPicker = React.createClass({
-    displayName: 'ParametersPicker',
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydioUtilLang = require("pydio/util/lang");
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _pydioUtilXml = require('pydio/util/xml');
+
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _materialUi = require('material-ui');
+
+var ParametersPicker = _react2["default"].createClass({
+    displayName: "ParametersPicker",
 
     propTypes: {
-        allParameters: React.PropTypes.object.isRequired,
-        allActions: React.PropTypes.object.isRequired,
-        onSelection: React.PropTypes.func.isRequired,
-        getMessage: React.PropTypes.func,
-        actionsPrefix: React.PropTypes.string,
-        parametersPrefix: React.PropTypes.string,
-        initialSelection: React.PropTypes.object
+        allParameters: _react2["default"].PropTypes.object.isRequired,
+        allActions: _react2["default"].PropTypes.object.isRequired,
+        onSelection: _react2["default"].PropTypes.func.isRequired,
+        getMessage: _react2["default"].PropTypes.func,
+        actionsPrefix: _react2["default"].PropTypes.string,
+        parametersPrefix: _react2["default"].PropTypes.string,
+        initialSelection: _react2["default"].PropTypes.object
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -28790,7 +28477,7 @@ var ParametersPicker = React.createClass({
     getInitialState: function getInitialState() {
         var s = { filter: null };
         if (this.props.initialSelection) {
-            s = LangUtils.mergeObjectsRecursive({ filter: this.props.initialSelection.paramName }, this.props.initialSelection);
+            s = _pydioUtilLang2["default"].mergeObjectsRecursive({ filter: this.props.initialSelection.paramName }, this.props.initialSelection);
         }
         return s;
     },
@@ -28805,31 +28492,38 @@ var ParametersPicker = React.createClass({
     },
 
     render: function render() {
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var allParameters = _props.allParameters;
+        var allActions = _props.allActions;
 
         var term = this.state.filter;
-
         var selection = this.state.paramName;
         var selectedPlugin = this.state.pluginName;
         var selectionType = this.state.type;
 
         var filter = function filter(name) {
-            if (!term) return true;
+            if (!term) {
+                return true;
+            }
             return name.toLowerCase().indexOf(term) !== -1;
         };
 
         var highlight = function highlight(name) {
-            if (!term) return name;
+            if (!term) {
+                return name;
+            }
             var pos = name.toLowerCase().indexOf(term);
             var start = name.substr(0, pos);
             var middle = name.substr(pos, term.length);
             var end = name.substr(pos + term.length);
-            return React.createElement(
-                'span',
+            return _react2["default"].createElement(
+                "span",
                 null,
                 start,
-                React.createElement(
-                    'span',
-                    { className: 'highlight' },
+                _react2["default"].createElement(
+                    "span",
+                    { className: "highlight" },
                     middle
                 ),
                 end
@@ -28837,7 +28531,26 @@ var ParametersPicker = React.createClass({
         };
 
         var entries = [];
-        var allData = LangUtils.objectValues(LangUtils.mergeObjectsRecursive(this.props.allParameters, this.props.allActions));
+        var merge = {};
+        Object.keys(allParameters).forEach(function (pName) {
+            var _merge$pName$params;
+
+            if (!merge[pName]) {
+                merge[pName] = { name: pName, label: pName, actions: [], params: [] };
+            }
+            (_merge$pName$params = merge[pName].params).push.apply(_merge$pName$params, _toConsumableArray(allParameters[pName]));
+        });
+        Object.keys(allActions).forEach(function (pName) {
+            var _merge$pName$actions;
+
+            if (!merge[pName]) {
+                merge[pName] = { name: pName, label: pName, actions: [], params: [] };
+            }
+            (_merge$pName$actions = merge[pName].actions).push.apply(_merge$pName$actions, _toConsumableArray(allActions[pName]));
+        });
+
+        var allData = _pydioUtilLang2["default"].objectValues(merge);
+
         allData.map((function (plugin) {
             var params = [];
             var pluginMatch = false;
@@ -28847,66 +28560,73 @@ var ParametersPicker = React.createClass({
                 if (filter(pluginLabel)) {
                     pluginLabel = highlight(pluginLabel);
                 } else if (filter(plugin.name)) {
-                    pluginLabel = React.createElement(
-                        'span',
+                    pluginLabel = _react2["default"].createElement(
+                        "span",
                         null,
                         pluginLabel,
-                        ' (',
+                        " (",
                         highlight(plugin.name),
-                        ')'
+                        ")"
                     );
                 }
             }
 
-            LangUtils.objectValues(plugin.params).concat(LangUtils.objectValues(plugin.actions)).map((function (param) {
-                var label = param.label || param.name;
+            plugin.params.concat(plugin.actions).map((function (param) {
+                var name = param.action || param.parameter;
+                var label = param.label || name;
                 var prefix = '';
-                if (param._type == 'action') {
-                    if (global.pydio.MessageHash[label]) label = global.pydio.MessageHash[label];
+                if (param.action) {
+                    label = _pydioUtilXml2["default"].XPathGetSingleNodeText(param.xmlNode, "gui/@text") || label;
                     prefix = this.props.actionsPrefix;
-                } else if (this.props.parametersPrefix) {
-                    prefix = this.props.parametersPrefix;
+                } else {
+                    label = param.xmlNode.getAttribute("label") || label;
+                    if (this.props.parametersPrefix) {
+                        prefix = this.props.parametersPrefix;
+                    }
+                }
+                if (pydio.MessageHash[label]) {
+                    label = pydio.MessageHash[label];
                 }
                 var filterLabel = filter(label);
-                var filterName = filter(param.name);
+                var filterName = filter(name);
                 if (filterLabel || filterName || pluginMatch) {
                     var click = (function () {
-                        this.select(plugin.name, param._type, param.name, param);
+                        this.select(plugin.name, param.action ? 'action' : 'parameter', name, param);
                     }).bind(this);
-                    var selected = (selectedPlugin === '*' || selectedPlugin === plugin.name) && param._type == selectionType && selection == param.name;
+                    var selected = (selectedPlugin === '*' || selectedPlugin === plugin.name) && param[selectionType] && selection === name;
                     var highlighted = label;
                     if (filterLabel) {
                         highlighted = highlight(label);
                     } else if (filterName) {
-                        highlighted = React.createElement(
-                            'span',
+                        highlighted = _react2["default"].createElement(
+                            "span",
                             null,
                             label,
-                            ' (',
-                            highlight(param.name),
-                            ') '
+                            " (",
+                            highlight(name),
+                            ") "
                         );
                     }
-                    params.push(React.createElement(
-                        'li',
+                    params.push(_react2["default"].createElement(
+                        "li",
                         {
                             onClick: click,
                             className: (selected ? "selected " : "") + "parameters-param",
-                            key: plugin.name + '-' + param._type + '-' + param.name },
+                            key: plugin.name + '-' + (param.action ? 'action' : 'parameter') + '-' + name },
                         prefix,
-                        ' ',
+                        " ",
                         highlighted
                     ));
                 }
             }).bind(this));
 
             if (params.length) {
-                entries.push(React.createElement(
-                    'li',
-                    { className: 'parameters-plugin', key: plugin.name },
+                entries.push(_react2["default"].createElement(
+                    "li",
+                    { className: "parameters-plugin", key: plugin.name },
                     pluginLabel,
-                    React.createElement(
-                        'ul',
+                    _react2["default"].createElement(
+                        "ul",
                         null,
                         params
                     )
@@ -28914,20 +28634,20 @@ var ParametersPicker = React.createClass({
             }
         }).bind(this));
 
-        return React.createElement(
-            'div',
+        return _react2["default"].createElement(
+            "div",
             null,
-            React.createElement(
-                'div',
-                { className: 'picker-search-container' },
-                React.createElement(ReactMUI.TextField, { floatingLabelText: this.props.getMessage('13'), onChange: this.filter })
+            _react2["default"].createElement(
+                "div",
+                { className: "picker-search-container" },
+                _react2["default"].createElement(_materialUi.TextField, { floatingLabelText: this.props.getMessage('13'), onChange: this.filter })
             ),
-            React.createElement(
-                'div',
-                { className: 'parameters-tree-scroller' },
-                React.createElement(
-                    'ul',
-                    { className: 'parameters-tree' },
+            _react2["default"].createElement(
+                "div",
+                { className: "parameters-tree-scroller" },
+                _react2["default"].createElement(
+                    "ul",
+                    { className: "parameters-tree" },
                     entries
                 )
             )
@@ -28936,387 +28656,10 @@ var ParametersPicker = React.createClass({
 
 });
 
-exports['default'] = ParametersPicker;
-module.exports = exports['default'];
+exports["default"] = ParametersPicker;
+module.exports = exports["default"];
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"pydio/util/lang":"pydio/util/lang","react":"react"}],189:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _ParamsMixins = require('./ParamsMixins');
-
-var _ParamsMixins2 = _interopRequireDefault(_ParamsMixins);
-
-var _utilMessagesMixin = require('../util/MessagesMixin');
-
-exports['default'] = React.createClass({
-    displayName: 'ParametersSummary',
-
-    mixins: [_ParamsMixins2['default'], _utilMessagesMixin.RoleMessagesConsumerMixin],
-
-    render: function render() {
-        var render = function render(pluginName, paramName, paramValue, paramAttributes, inherited, type) {
-            if (type == 'action') {
-                if (paramAttributes['label'] && pydio.MessageHash[paramAttributes['label']]) {
-                    return pydio.MessageHash[paramAttributes['label']];
-                } else {
-                    return paramName;
-                }
-            } else {
-                var displayValue = paramValue === '__PYDIO_VALUE_SET__' ? '***********' : paramValue;
-                return paramAttributes['label'] + ' ' + displayValue;
-            }
-        };
-        var parameters = this.browseParams(this.props.role.PARAMETERS, this.props.roleParent.PARAMETERS, this.props.id, render, this.props.pluginsFilter, 'parameter', false, true);
-        var actions = this.browseParams(this.props.role.ACTIONS, this.props.roleParent.ACTIONS, this.props.id, render, this.props.pluginsFilter, 'action', false, true);
-        var strings = [];
-        parameters = parameters[0].concat(parameters[1]);
-        actions = actions[0].concat(actions[1]);
-        if (parameters.length) {
-            strings.push(this.context.getPydioRoleMessage('6') + ': ' + parameters.join(','));
-        }
-        if (actions.length) {
-            strings.push(this.context.getPydioRoleMessage('46') + ': ' + actions.join(','));
-        }
-        return React.createElement(
-            'span',
-            { className: 'summary-parameters summary' + (strings.length ? '' : '-empty') },
-            strings.length ? strings.join(' - ') : this.context.getMessage('1')
-        );
-    }
-});
-module.exports = exports['default'];
-
-},{"../util/MessagesMixin":195,"./ParamsMixins":190}],190:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _utilEditorCache = require('../util/EditorCache');
-
-var _utilEditorCache2 = _interopRequireDefault(_utilEditorCache);
-
-exports['default'] = {
-
-    browseParams: function browseParams(roleData, parentData, wsId, render, filter) {
-        var type = arguments.length <= 5 || arguments[5] === undefined ? 'parameter' : arguments[5];
-        var includeGlobal = arguments.length <= 6 || arguments[6] === undefined ? false : arguments[6];
-        var splitInherited = arguments.length <= 7 || arguments[7] === undefined ? false : arguments[7];
-
-        var parameters = [];
-        var inheritedParams = [];
-        if (!roleData) {
-            if (splitInherited) return [parameters, []];else return parameters;
-        }
-        var params = roleData[wsId] || {};
-        var child = roleData[wsId] || {};
-        if (includeGlobal && wsId.indexOf('PYDIO_PUBLIC_BASEURI_') == -1) {
-            var global = roleData["PYDIO_REPO_SCOPE_ALL"] || {};
-            params = LangUtils.mergeObjectsRecursive(global, params);
-        }
-        for (var pluginName in params) {
-            if (!params.hasOwnProperty(pluginName)) continue;
-            if (filter && filter(wsId, pluginName, null) === false) continue;
-            for (var paramName in params[pluginName]) {
-                if (!params[pluginName].hasOwnProperty(paramName)) continue;
-                if (filter && filter(wsId, pluginName, paramName) === false) continue;
-                var paramAttributes = { label: paramName };
-                var paramValue = params[pluginName][paramName];
-                var inherited = true;
-                try {
-                    var attributes = _utilEditorCache2['default'].CACHE[type == 'parameter' ? 'PARAMETERS' : 'ACTIONS'].get(pluginName).get(paramName);
-                    if (attributes) paramAttributes = attributes;
-                } catch (e) {}
-                try {
-                    var inChild = child[pluginName][paramName] !== undefined;
-                    if (inChild) {
-                        inherited = false;
-                    }
-                } catch (e) {}
-                if (!inherited) {
-                    // Check in parentData
-                    var inParent = inChild = false;
-                    try {
-                        inParent = parentData[wsId][pluginName][paramName] !== undefined;
-                        if (inParent) {
-                            var inParentValue = parentData[wsId][pluginName][paramName];
-                            var inChildValue = roleData[wsId][pluginName][paramName];
-                            if (inChildValue == inParentValue) {
-                                inherited = true;
-                            }
-                        }
-                    } catch (e) {}
-                }
-                if (inherited) {
-                    // Ignore specific unique scopes
-                    if (paramAttributes.scope && (paramAttributes.scope == "role" || paramAttributes.scope == "group")) continue;
-                    inheritedParams.push(render(pluginName, paramName, params[pluginName][paramName], paramAttributes, inherited, type));
-                } else {
-                    parameters.push(render(pluginName, paramName, params[pluginName][paramName], paramAttributes, inherited, type));
-                }
-            }
-        }
-        if (splitInherited) return [parameters, inheritedParams];else return parameters.concat(inheritedParams);
-    }
-
-};
-module.exports = exports['default'];
-
-},{"../util/EditorCache":194}],191:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _utilMessagesMixin = require('../util/MessagesMixin');
-
-var _ParameterCreate = require('./ParameterCreate');
-
-var _ParameterCreate2 = _interopRequireDefault(_ParameterCreate);
-
-var _ParametersList = require('./ParametersList');
-
-var _ParametersList2 = _interopRequireDefault(_ParametersList);
-
-var _ParametersSummary = require('./ParametersSummary');
-
-var _ParametersSummary2 = _interopRequireDefault(_ParametersSummary);
-
-var _materialUi = require('material-ui');
-
-var React = require('react');
-
-var _require$requireLib = require('pydio').requireLib('boot');
-
-var PydioContextConsumer = _require$requireLib.PydioContextConsumer;
-
-var WorkspaceCard = React.createClass({
-    displayName: 'WorkspaceCard',
-
-    mixins: [_utilMessagesMixin.RoleMessagesConsumerMixin],
-
-    propTypes: {
-        id: React.PropTypes.string,
-        label: React.PropTypes.string,
-        role: React.PropTypes.object,
-        roleParent: React.PropTypes.object,
-        roleType: React.PropTypes.oneOf(['user', 'group', 'role']),
-        pluginsFilter: React.PropTypes.func,
-        paramsFilter: React.PropTypes.func,
-        toggleEdit: React.PropTypes.func,
-        editMode: React.PropTypes.bool,
-        titleOnly: React.PropTypes.bool,
-        editOnly: React.PropTypes.bool,
-        noParamsListEdit: React.PropTypes.bool,
-        uniqueScope: React.PropTypes.bool,
-        showModal: React.PropTypes.func,
-        hideModal: React.PropTypes.func,
-        Controller: React.PropTypes.object
-    },
-
-    toggleEdit: function toggleEdit() {
-        this.props.toggleEdit(this.props.id);
-    },
-
-    toggleInherited: function toggleInherited() {
-        if (this.refs.parameters_list) {
-            this.refs.parameters_list.toggleInherited();
-        }
-    },
-
-    onCreateParameter: function onCreateParameter(type, pluginName, paramName, attributes) {
-        var controller = this.props.Controller;
-        var value;
-        if (type == 'parameter') {
-            if (attributes['default']) value = attributes['default'];else if (attributes['type'] == 'boolean') value = false;
-        } else if (type == 'action') {
-            value = false;
-        }
-        controller.updateParameter(type, 'add', this.props.id, pluginName, paramName, value);
-    },
-
-    addParameter: function addParameter() {
-        this.props.pydio.UI.openComponentInModal('AdminPeople', 'ParameterCreate', {
-            pluginsFilter: this.props.pluginsFilter,
-            workspaceScope: this.props.id,
-            createParameter: this.onCreateParameter,
-            roleType: this.props.roleType
-        });
-    },
-
-    render: function render() {
-        var wsId = this.props.id;
-        if (this.props.editMode) {
-
-            var rights, editButtons, scopeTitle, closeButton;
-            if (!this.props.noParamsListEdit) {
-                editButtons = React.createElement(
-                    'div',
-                    { style: { float: 'right' } },
-                    React.createElement(ReactMUI.IconButton, { tooltip: this.context.getMessage('16'), iconClassName: 'icon-filter', onClick: this.toggleInherited }),
-                    React.createElement(ReactMUI.IconButton, { tooltip: this.context.getMessage('17'), primary: true, iconClassName: 'icon-plus', onClick: this.addParameter })
-                );
-            }
-            if (!this.props.uniqueScope) {
-                scopeTitle = React.createElement(
-                    'div',
-                    null,
-                    React.createElement(
-                        'h4',
-                        null,
-                        this.props.label
-                    ),
-                    React.createElement('hr', null)
-                );
-            }
-            if (!this.props.editOnly) {
-                closeButton = React.createElement(
-                    'div',
-                    null,
-                    React.createElement('hr', null),
-                    React.createElement(
-                        'div',
-                        { style: { textAlign: 'right', padding: '10px 16px' } },
-                        React.createElement(_materialUi.FlatButton, { onTouchTap: this.toggleEdit, primary: true, label: this.context.getRootMessage('86') })
-                    )
-                );
-            }
-            var content = React.createElement(
-                ReactMUI.Paper,
-                { zDepth: this.props.uniqueScope ? 0 : 1, className: '' },
-                scopeTitle,
-                React.createElement(
-                    'div',
-                    { className: 'card-content' },
-                    rights,
-                    React.createElement(
-                        'div',
-                        null,
-                        editButtons,
-                        React.createElement(
-                            'h5',
-                            { style: { float: 'left' } },
-                            this.context.getMessage('18')
-                        )
-                    ),
-                    React.createElement(
-                        'div',
-                        { style: { clear: 'both' } },
-                        React.createElement(_ParametersList2['default'], {
-                            Controller: this.props.Controller,
-                            ref: 'parameters_list',
-                            id: wsId,
-                            role: this.props.role,
-                            roleParent: this.props.roleParent,
-                            pluginsFilter: this.props.pluginsFilter,
-                            paramsFilter: this.props.paramsFilter
-                        })
-                    )
-                ),
-                closeButton,
-                React.createElement('hr', null)
-            );
-            return React.createElement(PydioComponents.ListEntry, {
-                className: "workspace-card-edit" + (this.props.uniqueScope ? ' unique-scope' : '') + (this.props.editOnly ? ' edit-only' : ''),
-                firstLine: content,
-                onClick: function () {}
-            });
-        } else {
-
-            var secondLine, action;
-            if (!this.props.titleOnly) {
-                secondLine = React.createElement(_ParametersSummary2['default'], { id: wsId, role: this.props.role, roleParent: this.props.roleParent, pluginsFilter: this.props.pluginsFilter });
-            }
-            return React.createElement(PydioComponents.ListEntry, {
-                className: 'ws-card',
-                firstLine: this.props.label,
-                secondLine: secondLine,
-                actions: action,
-                onClick: this.toggleEdit
-            });
-        }
-    }
-
-});
-
-exports['default'] = WorkspaceCard = PydioContextConsumer(WorkspaceCard);
-exports['default'] = WorkspaceCard;
-module.exports = exports['default'];
-
-},{"../util/MessagesMixin":195,"./ParameterCreate":185,"./ParametersList":187,"./ParametersSummary":189,"material-ui":"material-ui","pydio":"pydio","react":"react"}],192:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml","react":"react"}],188:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -29442,7 +28785,7 @@ exports['default'] = React.createClass({
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../model/User":182,"material-ui":"material-ui","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],193:[function(require,module,exports){
+},{"../model/User":182,"material-ui":"material-ui","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],189:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29628,7 +28971,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":195,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],194:[function(require,module,exports){
+},{"../util/MessagesMixin":191,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],190:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29659,7 +29002,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{}],195:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29726,7 +29069,7 @@ var RoleMessagesProviderMixin = {
 exports.RoleMessagesConsumerMixin = RoleMessagesConsumerMixin;
 exports.RoleMessagesProviderMixin = RoleMessagesProviderMixin;
 
-},{}],196:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29869,7 +29212,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
 exports['default'] = CreateRoleOrGroupForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],197:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],193:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30032,7 +29375,7 @@ var CreateUserForm = _react2['default'].createClass({
 exports['default'] = CreateUserForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],198:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],194:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30097,30 +29440,25 @@ var _editorUserUserRolesPicker = require('./editor/user/UserRolesPicker');
 
 var _editorUserUserRolesPicker2 = _interopRequireDefault(_editorUserUserRolesPicker);
 
-var _editorPanelWorkspacesList = require('./editor/panel/WorkspacesList');
-
-var _editorPanelWorkspacesList2 = _interopRequireDefault(_editorPanelWorkspacesList);
-
 var _editorPanelSharesList = require('./editor/panel/SharesList');
 
 var _editorPanelSharesList2 = _interopRequireDefault(_editorPanelSharesList);
 
 var _editorUtilMessagesMixin = require('./editor/util/MessagesMixin');
 
-var _editorParametersParameterCreate = require('./editor/parameters/ParameterCreate');
+var _editorParamsParameterCreate = require('./editor/params/ParameterCreate');
 
-var _editorParametersParameterCreate2 = _interopRequireDefault(_editorParametersParameterCreate);
+var _editorParamsParameterCreate2 = _interopRequireDefault(_editorParamsParameterCreate);
 
 window.AdminPeople = {
   RoleEditor: _editorEditor2['default'],
   RoleMessagesConsumerMixin: _editorUtilMessagesMixin.RoleMessagesConsumerMixin,
   UserPasswordDialog: _editorUserUserPasswordDialog2['default'],
   UserRolesPicker: _editorUserUserRolesPicker2['default'],
-  WorkspacesList: _editorPanelWorkspacesList2['default'],
   SharesList: _editorPanelSharesList2['default'],
   CreateUserForm: _formsCreateUserForm2['default'],
   CreateRoleOrGroupForm: _formsCreateRoleOrGroupForm2['default'],
-  ParameterCreate: _editorParametersParameterCreate2['default'],
+  ParameterCreate: _editorParamsParameterCreate2['default'],
   Callbacks: _boardCallbacks2['default'],
 
   Dashboard: _boardDashboard2['default'],
@@ -30129,7 +29467,7 @@ window.AdminPeople = {
   DirectoriesBoard: _boardDirectoriesBoard2['default']
 };
 
-},{"./board/Callbacks":157,"./board/Dashboard":158,"./board/DirectoriesBoard":159,"./board/PoliciesBoard":160,"./board/RolesDashboard":161,"./editor/Editor":163,"./editor/panel/SharesList":183,"./editor/panel/WorkspacesList":184,"./editor/parameters/ParameterCreate":185,"./editor/user/UserPasswordDialog":192,"./editor/user/UserRolesPicker":193,"./editor/util/MessagesMixin":195,"./forms/CreateRoleOrGroupForm":196,"./forms/CreateUserForm":197}],199:[function(require,module,exports){
+},{"./board/Callbacks":157,"./board/Dashboard":158,"./board/DirectoriesBoard":159,"./board/PoliciesBoard":160,"./board/RolesDashboard":161,"./editor/Editor":163,"./editor/panel/SharesList":183,"./editor/params/ParameterCreate":184,"./editor/user/UserPasswordDialog":188,"./editor/user/UserRolesPicker":189,"./editor/util/MessagesMixin":191,"./forms/CreateRoleOrGroupForm":192,"./forms/CreateUserForm":193}],195:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30374,7 +29712,7 @@ var Policy = (function (_React$Component) {
 exports['default'] = Policy;
 module.exports = exports['default'];
 
-},{"./Rule":200,"./editor/InlineLabel":205,"material-ui":"material-ui","react":"react","uuid4":155}],200:[function(require,module,exports){
+},{"./Rule":196,"./editor/InlineLabel":201,"material-ui":"material-ui","react":"react","uuid4":155}],196:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30529,7 +29867,7 @@ var Rule = (function (_React$Component) {
 exports['default'] = Rule;
 module.exports = exports['default'];
 
-},{"./editor/RuleEditor":208,"material-ui":"material-ui","react":"react"}],201:[function(require,module,exports){
+},{"./editor/RuleEditor":204,"material-ui":"material-ui","react":"react"}],197:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30633,7 +29971,7 @@ var Actions = (function (_React$Component) {
 exports['default'] = Actions;
 module.exports = exports['default'];
 
-},{"./ChipValues":202,"material-ui":"material-ui","react":"react"}],202:[function(require,module,exports){
+},{"./ChipValues":198,"material-ui":"material-ui","react":"react"}],198:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30776,7 +30114,7 @@ var ChipValues = (function (_React$Component) {
 exports['default'] = ChipValues;
 module.exports = exports['default'];
 
-},{"./ValuesOrRegexp":210,"material-ui":"material-ui","react":"react"}],203:[function(require,module,exports){
+},{"./ValuesOrRegexp":206,"material-ui":"material-ui","react":"react"}],199:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30983,7 +30321,7 @@ var Conditions = (function (_React$Component) {
 exports['default'] = Conditions;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],204:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],200:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31089,7 +30427,7 @@ var Effect = (function (_React$Component) {
 exports['default'] = Effect;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],205:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],201:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31243,7 +30581,7 @@ var InlineLabel = (function (_React$Component) {
 exports['default'] = InlineLabel;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],206:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],202:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31335,7 +30673,7 @@ var Label = (function (_React$Component) {
 exports['default'] = Label;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],207:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],203:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31431,7 +30769,7 @@ var Resources = (function (_React$Component) {
 exports['default'] = Resources;
 module.exports = exports['default'];
 
-},{"./ChipValues":202,"material-ui":"material-ui","react":"react"}],208:[function(require,module,exports){
+},{"./ChipValues":198,"material-ui":"material-ui","react":"react"}],204:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31616,7 +30954,7 @@ var RuleEditor = (function (_React$Component) {
 exports['default'] = RuleEditor;
 module.exports = exports['default'];
 
-},{"./Actions":201,"./Conditions":203,"./Effect":204,"./Label":206,"./Resources":207,"./Subjects":209,"material-ui":"material-ui","pydio":"pydio","react":"react"}],209:[function(require,module,exports){
+},{"./Actions":197,"./Conditions":199,"./Effect":200,"./Label":202,"./Resources":203,"./Subjects":205,"material-ui":"material-ui","pydio":"pydio","react":"react"}],205:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31712,7 +31050,7 @@ var Subjects = (function (_React$Component) {
 exports['default'] = Subjects;
 module.exports = exports['default'];
 
-},{"./ChipValues":202,"material-ui":"material-ui","react":"react"}],210:[function(require,module,exports){
+},{"./ChipValues":198,"material-ui":"material-ui","react":"react"}],206:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31859,4 +31197,4 @@ var ValuesOrRegexp = (function (_React$Component) {
 exports['default'] = ValuesOrRegexp;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}]},{},[198]);
+},{"material-ui":"material-ui","react":"react"}]},{},[194]);

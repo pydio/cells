@@ -58,6 +58,20 @@ let AutocompleteBox = React.createClass({
             displayText = labels[displayText];
         }
 
+        if((this.isDisplayGrid() && !this.state.editMode) || this.props.disabled){
+            let value = this.state.value;
+            if(choices.get(value)) {
+                value = choices.get(value);
+            }
+            return (
+                <div
+                    onClick={this.props.disabled?function(){}:this.toggleEditMode}
+                    className={value?'':'paramValue-empty'}>
+                    {!value?'Empty':value} &nbsp;&nbsp;<span className="icon-caret-down"></span>
+                </div>
+            );
+        }
+
         return (
             <div className="pydioform_autocomplete" style={{position:'relative'}}>
                 {!dataSource.length &&

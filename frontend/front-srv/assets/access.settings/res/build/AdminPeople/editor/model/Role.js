@@ -251,6 +251,20 @@ var Role = (function (_Observable) {
         }
 
         /**
+         *
+         * @param acl {IdmACL}
+         */
+    }, {
+        key: 'deleteParameter',
+        value: function deleteParameter(acl) {
+            this.acls = this.acls.filter(function (a) {
+                return a !== acl;
+            });
+            this.dirty = true;
+            this.notify('update');
+        }
+
+        /**
          * Get a parameter value
          * @param aclKey
          * @param scope
@@ -268,6 +282,38 @@ var Role = (function (_Observable) {
                 value = _this6.getAclValue(_this6.parentAcls[role.Uuid], aclKey, scope, value);
             });
             return this.getAclValue(this.acls, aclKey, scope, value);
+        }
+
+        /**
+         *
+         * @return {IdmACL[]}
+         */
+    }, {
+        key: 'listParametersAndActions',
+        value: function listParametersAndActions() {
+            var _this7 = this;
+
+            var filterParam = function filterParam(a) {
+                return a.Action.Name && (a.Action.Name.indexOf("parameter:") === 0 || a.Action.Name.indexOf("action:") === 0);
+            };
+
+            var acls = this.acls || [];
+            acls = acls.filter(filterParam);
+            this.parentRoles.forEach(function (role) {
+                var inherited = _this7.parentAcls[role.Uuid] || [];
+                inherited = inherited.filter(filterParam).filter(function (a) {
+                    return !acls.filter(function (f) {
+                        return f.Action.Name === a.Action.Name;
+                    }).length; // add only if not already set in main role
+                }).map(function (a) {
+                    var copy = _pydioHttpRestApi.IdmACL.constructFromObject(JSON.parse(JSON.stringify(a)));
+                    copy.INHERITED = true;
+                    return copy;
+                });
+                acls = [].concat(_toConsumableArray(acls), _toConsumableArray(inherited));
+            });
+
+            return acls;
         }
     }, {
         key: 'getAclValue',
@@ -292,7 +338,7 @@ var Role = (function (_Observable) {
     }, {
         key: 'getAclString',
         value: function getAclString(workspace, nodeUuid) {
-            var _this7 = this;
+            var _this8 = this;
 
             var inherited = false;
             var wsId = undefined,
@@ -309,7 +355,7 @@ var Role = (function (_Observable) {
             var rights = undefined;
             var parentRights = undefined;
             this.parentRoles.forEach(function (role) {
-                var parentRight = _this7._aclStringForAcls(_this7.parentAcls[role.Uuid], wsId, nodeId);
+                var parentRight = _this8._aclStringForAcls(_this8.parentAcls[role.Uuid], wsId, nodeId);
                 if (parentRight !== undefined) {
                     parentRights = parentRight;
                 }
@@ -367,9 +413,8 @@ var Role = (function (_Observable) {
     }, {
         key: 'updateAcl',
         value: function updateAcl(workspace, nodeUuid, value) {
-            var _this8 = this;
+            var _this9 = this;
 
-            console.log(workspace, value);
             var nodeIds = [];
             if (nodeUuid) {
                 nodeIds = [nodeUuid];
@@ -395,13 +440,12 @@ var Role = (function (_Observable) {
                         if (workspace) {
                             acl.WorkspaceID = workspace.UUID;
                         }
-                        acl.RoleID = _this8.idmRole.Uuid;
+                        acl.RoleID = _this9.idmRole.Uuid;
                         acl.Action = _pydioHttpRestApi.IdmACLAction.constructFromObject({ Name: r, Value: "1" });
-                        _this8.acls.push(acl);
+                        _this9.acls.push(acl);
                     });
                 });
             }
-            console.log(this.acls);
             this.dirty = true;
             this.notify('update');
         }
@@ -413,13 +457,13 @@ var Role = (function (_Observable) {
     }, {
         key: 'buildProxy',
         value: function buildProxy(object) {
-            var _this9 = this;
+            var _this10 = this;
 
             return new Proxy(object, {
                 set: function set(target, p, value) {
                     target[p] = value;
-                    _this9.dirty = true;
-                    _this9.notify('update');
+                    _this10.dirty = true;
+                    _this10.notify('update');
                     return true;
                 },
                 get: function get(target, p) {
@@ -427,7 +471,7 @@ var Role = (function (_Observable) {
                     if (out instanceof Array) {
                         return out;
                     } else if (out instanceof Object) {
-                        return _this9.buildProxy(out);
+                        return _this10.buildProxy(out);
                     } else {
                         return out;
                     }

@@ -179,6 +179,16 @@ class Role extends Observable{
     }
 
     /**
+     *
+     * @param acl {IdmACL}
+     */
+    deleteParameter(acl){
+        this.acls = this.acls.filter((a) => a !== acl);
+        this.dirty = true;
+        this.notify('update');
+    }
+
+    /**
      * Get a parameter value
      * @param aclKey
      * @param scope
@@ -191,6 +201,32 @@ class Role extends Observable{
         });
         return this.getAclValue(this.acls, aclKey, scope, value);
 
+    }
+
+    /**
+     *
+     * @return {IdmACL[]}
+     */
+    listParametersAndActions(){
+        const filterParam = a => {
+            return a.Action.Name && (a.Action.Name.indexOf("parameter:") === 0 || a.Action.Name.indexOf("action:") === 0)
+        };
+
+        let acls = this.acls || [];
+        acls = acls.filter(filterParam);
+        this.parentRoles.forEach(role => {
+            let inherited = this.parentAcls[role.Uuid] || [];
+            inherited = inherited.filter(filterParam).filter(a => {
+                return !acls.filter(f=> f.Action.Name === a.Action.Name).length; // add only if not already set in main role
+            }).map(a => {
+                let copy = IdmACL.constructFromObject(JSON.parse(JSON.stringify(a)));
+                copy.INHERITED = true;
+                return copy;
+            });
+            acls = [...acls, ...inherited];
+        });
+
+        return acls;
     }
 
     getAclValue(aclArray, aclKey, scope, previousValue){
@@ -289,7 +325,6 @@ class Role extends Observable{
      * @param value string
      */
     updateAcl(workspace, nodeUuid, value){
-        console.log(workspace, value);
         let nodeIds = [];
         if(nodeUuid){
             nodeIds = [nodeUuid];
@@ -330,7 +365,6 @@ class Role extends Observable{
                 })
             });
         }
-        console.log(this.acls);
         this.dirty = true;
         this.notify('update');
     }

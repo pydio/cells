@@ -53,6 +53,7 @@ export default class Manager{
                 for(let k=0; k<paramNodes.length;k++){
                     const paramNode = paramNodes[k];
                     helperCache[plugin]['parameters'][paramNode.getAttribute('name')] = true;
+
                 }
             }
             Manager.HELPERS_CACHE = helperCache;

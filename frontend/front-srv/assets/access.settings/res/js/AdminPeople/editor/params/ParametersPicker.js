@@ -18,8 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react')
-const LangUtils = require('pydio/util/lang')
+import React from "react";
+import LangUtils from "pydio/util/lang";
+import XMLUtils from 'pydio/util/xml';
+import {TextField} from 'material-ui';
 
 const ParametersPicker = React.createClass({
 
@@ -33,11 +35,11 @@ const ParametersPicker = React.createClass({
         initialSelection:React.PropTypes.object
     },
 
-    getDefaultProps: function(){
+    getDefaultProps(){
         return {actionsPrefix:'[a] ',parametersPrefix:''};
     },
 
-    getInitialState: function(){
+    getInitialState(){
         let s = {filter: null};
         if(this.props.initialSelection){
             s = LangUtils.mergeObjectsRecursive({filter:this.props.initialSelection.paramName}, this.props.initialSelection);
@@ -45,43 +47,63 @@ const ParametersPicker = React.createClass({
         return s;
     },
 
-    filter: function(event){
+    filter(event){
         this.setState({filter:event.target.value.toLowerCase()});
     },
 
-    select:function(plugin, type, param, attributes){
+    select(plugin, type, param, attributes){
         this.props.onSelection(plugin, type, param, attributes);
         this.setState({pluginName:plugin, type:type, paramName:param});
     },
 
-    render: function(){
+    render(){
 
-        var term = this.state.filter;
+        const {pydio, allParameters, allActions} = this.props;
+        const term = this.state.filter;
+        const selection = this.state.paramName;
+        const selectedPlugin = this.state.pluginName;
+        const selectionType = this.state.type;
 
-        var selection = this.state.paramName;
-        var selectedPlugin = this.state.pluginName;
-        var selectionType = this.state.type;
-
-        var filter = function(name){
-            if(!term) return true;
+        const filter = name => {
+            if(!term) {
+                return true;
+            }
             return (name.toLowerCase().indexOf(term) !== -1);
         };
 
-        var highlight = function(name){
-            if(!term) return name;
-            var pos = name.toLowerCase().indexOf(term);
-            var start = name.substr(0, pos);
-            var middle = name.substr(pos, term.length);
-            var end = name.substr(pos + term.length);
+        const highlight = name => {
+            if(!term) {
+                return name;
+            }
+            const pos = name.toLowerCase().indexOf(term);
+            const start = name.substr(0, pos);
+            const middle = name.substr(pos, term.length);
+            const end = name.substr(pos + term.length);
             return <span>{start}<span className="highlight">{middle}</span>{end}</span>;
         };
 
-        var entries = [];
-        var allData = LangUtils.objectValues(LangUtils.mergeObjectsRecursive(this.props.allParameters, this.props.allActions));
+        let entries = [];
+        let merge = {};
+        Object.keys(allParameters).forEach(pName => {
+            if(!merge[pName]) {
+                merge[pName] = {name:pName, label:pName, actions:[], params:[]};
+            }
+            merge[pName].params.push(...allParameters[pName]);
+        });
+        Object.keys(allActions).forEach(pName => {
+            if(!merge[pName]) {
+                merge[pName] = {name:pName, label:pName, actions:[], params:[]};
+            }
+            merge[pName].actions.push(...allActions[pName]);
+        });
+
+
+        const allData = LangUtils.objectValues(merge);
+
         allData.map(function(plugin){
-            var params = [];
-            var pluginMatch = false;
-            var pluginLabel = plugin.label || plugin.name;
+            let params = [];
+            let pluginMatch = false;
+            let pluginLabel = plugin.label || plugin.name;
             if(filter(pluginLabel) || filter(plugin.name)){
                 pluginMatch = true;
                 if(filter(pluginLabel)) {
@@ -92,31 +114,38 @@ const ParametersPicker = React.createClass({
             }
 
 
-            LangUtils.objectValues(plugin.params).concat(LangUtils.objectValues(plugin.actions)).map(function(param){
-                var label = param.label || param.name;
-                var prefix = '';
-                if(param._type == 'action'){
-                    if(global.pydio.MessageHash[label]) label = global.pydio.MessageHash[label];
+            plugin.params.concat(plugin.actions).map(function(param){
+                const name = param.action || param.parameter;
+                let label = param.label || name;
+                let prefix = '';
+                if(param.action){
+                    label = XMLUtils.XPathGetSingleNodeText(param.xmlNode, "gui/@text") || label;
                     prefix = this.props.actionsPrefix;
-                }else if(this.props.parametersPrefix){
-                    prefix = this.props.parametersPrefix;
+                }else {
+                    label = param.xmlNode.getAttribute("label") || label;
+                    if(this.props.parametersPrefix){
+                        prefix = this.props.parametersPrefix;
+                    }
                 }
-                var filterLabel = filter(label);
-                var filterName = filter(param.name);
+                if(pydio.MessageHash[label]) {
+                    label = pydio.MessageHash[label];
+                }
+                const filterLabel = filter(label);
+                const filterName = filter(name);
                 if(filterLabel || filterName || pluginMatch){
-                    var click = function(){this.select(plugin.name, param._type, param.name, param);}.bind(this);
-                    var selected = ((selectedPlugin === '*' || selectedPlugin === plugin.name) && param._type == selectionType && selection == param.name);
-                    var highlighted = label;
+                    const click = function(){this.select(plugin.name, param.action?'action':'parameter', name, param);}.bind(this);
+                    const selected = ((selectedPlugin === '*' || selectedPlugin === plugin.name) && param[selectionType] && selection === name);
+                    let highlighted = label;
                     if(filterLabel){
                         highlighted = highlight(label);
                     }else if(filterName){
-                        highlighted = <span>{label} ({highlight(param.name)}) </span>;
+                        highlighted = <span>{label} ({highlight(name)}) </span>;
                     }
                     params.push(
                         <li
                             onClick={click}
                             className={(selected ? "selected ": "") + "parameters-param"}
-                            key={plugin.name + '-'+ param._type + '-' + param.name}>{prefix} {highlighted}</li>);
+                            key={plugin.name + '-'+ (param.action?'action':'parameter') + '-' + name}>{prefix} {highlighted}</li>);
                 }
             }.bind(this));
 
@@ -128,7 +157,7 @@ const ParametersPicker = React.createClass({
         return (
             <div>
                 <div className="picker-search-container">
-                    <ReactMUI.TextField floatingLabelText={this.props.getMessage('13')} onChange={this.filter}/>
+                    <TextField floatingLabelText={this.props.getMessage('13')} onChange={this.filter}/>
                 </div>
                 <div className="parameters-tree-scroller">
                     <ul className="parameters-tree">

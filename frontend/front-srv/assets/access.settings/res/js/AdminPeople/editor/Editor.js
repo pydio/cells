@@ -20,27 +20,25 @@
 
 
 import Pydio from 'pydio'
-const {FormPanel} = Pydio.requireLib('form');
 const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} = Pydio.requireLib('components');
 
 import Role from './model/Role'
 import User from './model/User'
 
 
-import UserRolesPicker from './user/UserRolesPicker'
-import WorkspacesList from './panel/WorkspacesList'
-import WorkspacesAcls from './acl/WorkspacesAcls'
 import SharesList from './panel/SharesList'
+import WorkspacesAcls from './acl/WorkspacesAcls'
 import React from "react";
 import LangUtils from "pydio/util/lang";
 import PathUtils from "pydio/util/path";
-import Repository from "pydio/model/repository";
 import {requireLib} from "pydio";
 import {FlatButton, IconButton, IconMenu, MenuItem, RaisedButton, Snackbar} from "material-ui";
 
 import RoleInfo from './info/RoleInfo'
 import UserInfo from './info/UserInfo'
 import GroupInfo from './info/GroupInfo'
+
+import ParametersPanel from './params/ParametersPanel'
 
 class Editor extends React.Component{
 
@@ -166,120 +164,6 @@ class Editor extends React.Component{
         this.setState({snackOpen:false});
     }
 
-    controllerUpdateParameter(type, crudAction, scope, pluginName, paramName, paramValue, additionalFormData=null){
-        let role = this.state.roleWrite;
-        let metaData = this.state.parametersMetaData || {PARAMETERS:{},ACTIONS:{}};
-        const key = (type == 'parameter' ? 'PARAMETERS' : 'ACTIONS');
-        if(crudAction == 'add' || crudAction == 'update'){
-            if(!role[key]) role[key] = {};
-            if(!role[key][scope]) role[key][scope] = {};
-            if(!role[key][scope][pluginName]) role[key][scope][pluginName] = {};
-            role[key][scope][pluginName][paramName] = (crudAction == 'add'?(paramValue !== undefined?paramValue:''):paramValue);
-            if(additionalFormData){
-                additionalFormData['ajxp_form_element'] = paramName;
-                if(!metaData[key][scope]) metaData[key][scope] = {};
-                if(!metaData[key][scope][pluginName]) metaData[key][scope][pluginName] = {};
-                metaData[key][scope][pluginName][paramName] = additionalFormData;
-                //this.setState({parametersMetaData:metaData});
-            }
-            this.updateRoleWrite(role);
-        }else  if(crudAction == 'delete'){
-            try{
-                let parent = role[key][scope][pluginName];
-                if(parent){
-                    delete parent[paramName];
-                    this.updateRoleWrite(role);
-                }
-            }catch(e){}
-        }
-        if(additionalFormData && additionalFormData['type']){
-            // Trigger save now for uploaded images
-            this.setState({parametersMetaData:metaData}, function(){
-                this.saveRoleChanges(true);
-            }.bind(this));
-        }
-    }
-
-    controllerUpdateAcl(scope, acl){
-        var role = this.state.roleWrite;
-        if(role.ACL){
-            role.ACL[scope] = acl;
-            this.updateRoleWrite(role);
-        }
-    }
-
-    controllerUpdateMask(mask){
-        let role = this.state.roleWrite;
-        if(role['NODES']){
-            role['NODES'] = mask;
-            this.updateRoleWrite(role);
-        }
-    }
-
-    controllerUpdateUserProfile(profile){
-        var role = this.state.roleWrite;
-        if(!role.USER) role.USER = this.state.roleData.USER;
-        role.USER.PROFILE = profile;
-        this.updateRoleWrite(role);
-    }
-
-    controllerOrderUserRoles(roles){
-
-        const {roleId, roleData} = this.state;
-        const currentUserId = roleId.replace("PYDIO_USR_/", "");
-        let stateRoles = [];
-        roleData.USER.ROLES.map(function(r){
-            const crtDetail = roleData.USER.ROLES_DETAILS[r] || {label:r};
-            if(crtDetail.groupRole || crtDetail.userRole) {
-                stateRoles.push(r);
-            }
-        });
-        stateRoles = stateRoles.concat(roles);
-        roleData.USER.ROLES = stateRoles;
-        PydioApi.getClient().request({
-            get_action:"edit",
-            sub_action:"user_reorder_roles",
-            user_id:currentUserId,
-            roles:JSON.stringify(roles)
-        }, function(transport){
-            this.loadRoleData();
-        }.bind(this));
-    }
-
-    controllerUpdateUserRoles(roles){
-
-        var currentUserId = this.state.roleId.replace("PYDIO_USR_/", "");
-        var previousRoles = this.state.roleData.USER.ROLES || [];
-        var remove = previousRoles.slice(0), add = roles.slice(0);
-        for(var i=0; i< previousRoles.length; i++){
-            add = LangUtils.arrayWithout(add, add.indexOf(previousRoles[i]));
-        }
-        for(i=0; i< roles.length; i++){
-            remove = LangUtils.arrayWithout(remove, remove.indexOf(roles[i]));
-        }
-        if(!add.length && !remove.length) return;
-
-        let stateRoles = [];
-        const crtDetails = this.state.roleData.USER.ROLES_DETAILS;
-        this.state.roleData.USER.ROLES.map(function(r){
-            const crtDetail = crtDetails[r] || {label:r};
-            if(crtDetail.groupRole || crtDetail.userRole) {
-                stateRoles.push(r);
-            }
-        });
-        stateRoles = stateRoles.concat(roles);
-        this.state.roleData.USER.ROLES = stateRoles;
-
-        var jsonData = {users:[currentUserId], roles:{add:add,remove:remove}};
-        PydioApi.getClient().request({
-            get_action:"edit",
-            sub_action:"users_bulk_update_roles",
-            json_data:JSON.stringify(jsonData)
-        }, function(transport){
-            this.loadRoleData();
-        }.bind(this));
-
-    }
 
     controllerGetBinaryContext(){
         /*
@@ -294,31 +178,10 @@ class Editor extends React.Component{
         return "";
     }
 
-    getController(){
-        if(!this._controller){
-            const controller = {};
-            controller.updateParameter = this.controllerUpdateParameter.bind(this);
-            controller.updateAcl = this.controllerUpdateAcl.bind(this);
-            controller.updateMask = this.controllerUpdateMask.bind(this);
-            controller.updateUserProfile = this.controllerUpdateUserProfile.bind(this);
-            controller.updateUserRoles = this.controllerUpdateUserRoles.bind(this);
-            controller.orderUserRoles = this.controllerOrderUserRoles.bind(this);
-            controller.getBinaryContext = this.controllerGetBinaryContext.bind(this);
-            this._controller = controller;
-        }
-        return this._controller;
-    }
-
     render(){
-        //const {advancedAcl, pydio} = this.props;
-        // TODO TMP - to be reverted for tests
-        const {pydio} = this.props;
-        const advancedAcl = true;
+        const {advancedAcl, pydio} = this.props;
 
         const {observableRole, observableUser, pluginsRegistry, currentPane, modal} = this.state;
-
-        const filterPages = (wsId, role) => Repository.isInternal(wsId);
-        const filterNoPages = (wsId, role) => !Repository.isInternal(wsId) && wsId !== "pydiogateway";
 
         let title = 'TITLE';
         let infoTitle = "";
@@ -368,14 +231,12 @@ class Editor extends React.Component{
 
         const leftNav = [
             <PaperEditorNavHeader key="1" label={this.getMessage('ws.28', 'ajxp_admin')}/>,
-            <PaperEditorNavEntry key="info" keyName="info" onClick={this.setSelectedPane.bind(this)} label={infoMenuTitle} selectedKey={this.state.currentPane}/>,
+            <PaperEditorNavEntry key="info" keyName="info" onClick={this.setSelectedPane.bind(this)} label={infoMenuTitle} selectedKey={currentPane}/>,
             <PaperEditorNavHeader key="2" label={this.getMessage('34')}/>,
-            <PaperEditorNavEntry key="workspaces" keyName="workspaces" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('35')} selectedKey={this.state.currentPane}/>,
-            <PaperEditorNavEntry key="pages" keyName="pages" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('36')} selectedKey={this.state.currentPane}/>,
+            <PaperEditorNavEntry key="workspaces" keyName="workspaces" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('35')} selectedKey={currentPane}/>,
+            <PaperEditorNavEntry key="pages" keyName="pages" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('36')} selectedKey={currentPane}/>,
             <PaperEditorNavHeader key="3" label={this.getMessage('37')}/>,
-            <PaperEditorNavEntry key="add-info" keyName="add-info" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('38')} selectedKey={this.state.currentPane}/>,
-            <PaperEditorNavEntry key="glob-params" keyName="global-params" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('39')} selectedKey={this.state.currentPane}/>,
-            <PaperEditorNavEntry key="ws-params" keyName="ws-params" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('40')} selectedKey={this.state.currentPane}/>
+            <PaperEditorNavEntry key="params" keyName="params" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('38')} selectedKey={currentPane}/>,
         ];
 
         let panes = [];
@@ -385,152 +246,45 @@ class Editor extends React.Component{
             <div key="info" className={'avatar-provider ' + classFor('info')} style={styleFor('info')}>
                 {infoTitle && !this.state.loadingMessage ? <h3 className="paper-right-title">{infoTitle}</h3> : null}
                 {otherForm}
-                <WorkspacesList
-                    key="global-scope"
-                    roleRead={this.state.roleScope}
-                    roleParent={this.state.roleParent}
-                    roleType={this.state.roleType}
-                    Controller={this.getController()}
-                    showModal={this.showModal.bind(this)}
-                    hideModal={this.hideModal.bind(this)}
-                    globalData={{}}
-                    showGlobalScopes={{PYDIO_REPO_SCOPE_ALL:this.getPydioRoleMessage('12d')}}
-                    globalScopesFilterType="global"
-                    initialEditCard="PYDIO_REPO_SCOPE_ALL"
-                    noParamsListEdit={true}
-                    editOnly={true}
-                    displayFormPanel={true}
-                />
             </div>
         );
 
-        panes.push(
-            <div key="workspaces" className={classFor('workspaces')} style={styleFor('workspaces')}>
-                <h3 className="paper-right-title">
-                    {this.getRootMessage('250')}
-                    <div className="section-legend">{this.getMessage('43')}</div>
-                    <div className="read-write-header">
-                        <span>read</span>
-                        <span>write</span>
-                        <span>deny</span>
-                    </div>
-                    <br/>
-                </h3>
-                <WorkspacesAcls
-                    key="workspaces-list"
-                    role={observableUser ? observableUser.getRole() : observableRole}
-                    roleType={this.state.roleType}
-                    advancedAcl={advancedAcl}
-                    showModal={this.showModal.bind(this)}
-                    hideModal={this.hideModal.bind(this)}
-                />
-            </div>
-        );
+        if(currentPane === 'workspaces') {
+            panes.push(
+                <div key="workspaces" className={classFor('workspaces')} style={styleFor('workspaces')}>
+                    <h3 className="paper-right-title">
+                        {this.getRootMessage('250')}
+                        <div className="section-legend">{this.getMessage('43')}</div>
+                        <div className="read-write-header">
+                            <span>read</span>
+                            <span>write</span>
+                            <span>deny</span>
+                        </div>
+                        <br/>
+                    </h3>
+                    <WorkspacesAcls
+                        key="workspaces-list"
+                        role={observableUser ? observableUser.getRole() : observableRole}
+                        roleType={this.state.roleType}
+                        advancedAcl={advancedAcl}
+                        showModal={this.showModal.bind(this)}
+                        hideModal={this.hideModal.bind(this)}
+                    />
+                </div>
+            );
+        } else if(currentPane === 'params') {
+            panes.push(
+                <div key="params" className={classFor('params')} style={styleFor('params')}>
+                    <ParametersPanel
+                        pydio={pydio}
+                        role={observableUser ? observableUser.getRole() : observableRole}
+                        roleType={this.state.roleType}
+                    />
+                </div>
+            );
+        }
 
 
-        /*
-
-
-        panes.push(
-            <div key="add-info" className={classFor('add-info')} style={styleFor('add-info')}>
-                <h3 className="paper-right-title">{this.getMessage('41')}
-                    <div className="section-legend">{this.getMessage('42')}</div>
-                </h3>
-                <WorkspacesList {...this.state}
-                                key="global-all"
-                                showModal={this.showModal.bind(this)}
-                                hideModal={this.hideModal.bind(this)}
-                                globalData={this.state.roleData.ALL}
-                                showGlobalScopes={{PYDIO_REPO_SCOPE_ALL:this.getPydioRoleMessage('12d')}}
-                                globalScopesFilterType="global-noscope"
-                                initialEditCard="PYDIO_REPO_SCOPE_ALL"
-                                editOnly={true}
-                                roleType={this.state.roleType}
-                />
-            </div>
-        );
-        panes.push(
-            <div key="workspaces" className={classFor('workspaces')} style={styleFor('workspaces')}>
-                <h3 className="paper-right-title">
-                    {this.getRootMessage('250')}
-                    <div className="section-legend">{this.getMessage('43')}</div>
-                    <div className="read-write-header">
-                        <span>read</span>
-                        <span>write</span>
-                        <span>deny</span>
-                    </div>
-                    <br/>
-                </h3>
-                <WorkspacesList {...this.state}
-                                key="workspaces-list"
-                                listType="acl"
-                                roleType={this.state.roleType}
-                                advancedAcl={advancedAcl}
-                                showModal={this.showModal.bind(this)}
-                                hideModal={this.hideModal.bind(this)}
-                                globalData={this.state.roleData.ALL}
-                                filterCards={filterNoPages}/>
-            </div>
-        );
-
-        panes.push(
-            <div key="pages" className={classFor('pages')} style={styleFor('pages')}>
-                <h3 className="paper-right-title">{this.getMessage('44')}
-                    <div className="section-legend">{this.getMessage('45')}</div>
-                    <div className="read-write-header">
-                        <span>{this.getMessage('react.5a', 'ajxp_admin')}</span>
-                        <span>{this.getMessage('react.5b', 'ajxp_admin')}</span>
-                        <span>{this.getMessage('react.5', 'ajxp_admin')}</span>
-                    </div>
-                    <br/>
-                </h3>
-                <WorkspacesList {...this.state}
-                                key="workspaces-pages"
-                                listType="acl"
-                                roleType={this.state.roleType}
-                                showModal={this.showModal.bind(this)}
-                                hideModal={this.hideModal.bind(this)}
-                                globalData={this.state.roleData.ALL}
-                                filterCards={filterPages}/>
-            </div>
-        );
-        panes.push(
-            <div key="global-params" className={classFor('global-params')} style={styleFor('global-params')}>
-                <h3 className="paper-right-title">{this.getMessage('46')}
-                    <div className="section-legend">{this.getMessage('47')}</div>
-                </h3>
-                <WorkspacesList {...this.state}
-                                key="workspaces-global"
-                                roleType={this.state.roleType}
-                                showModal={this.showModal.bind(this)}
-                                hideModal={this.hideModal.bind(this)}
-                                globalData={this.state.roleData.ALL}
-                                showGlobalScopes={this.state.roleData.ALL?{
-                                    PYDIO_REPO_SCOPE_ALL:this.getPydioRoleMessage('12d'),
-                                    PYDIO_REPO_SCOPE_SHARED:this.getPydioRoleMessage('12e')
-                                }:{}}
-                                globalScopesFilterType="workspace"
-                />
-            </div>
-        );
-        panes.push(
-            <div key="ws-param" className={classFor('ws-param')} style={styleFor('ws-params')}>
-                <h3 className="paper-right-title">
-                    {this.getMessage('40')}
-                    <div className="section-legend">{this.getMessage('48')}</div>
-                </h3>
-                <WorkspacesList {...this.state}
-                                key="workspaces-list"
-                                listType="parameters"
-                                roleType={this.state.roleType}
-                                showModal={this.showModal.bind(this)}
-                                hideModal={this.hideModal.bind(this)}
-                                globalData={this.state.roleData.ALL}
-                                filterCards={filterNoPages}/>
-            </div>
-        );
-
-        */
 
         let loadingMessage = null;
         if(this.state.loadingMessage){

@@ -120,6 +120,10 @@ class PluginsLoader {
 
     }
 
+    /**
+     *
+     * @return {*|Promise|PromiseLike<T>|Promise<T>}
+     */
     allPluginsActionsAndParameters(){
         return this.loadPlugins().then((plugins) => {
             const xmlActions = XMLUtils.XPathSelectNodes(plugins, "//action");

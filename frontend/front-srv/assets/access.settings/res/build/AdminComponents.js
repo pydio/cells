@@ -21065,6 +21065,11 @@ var PluginsLoader = (function () {
                 });
             });
         }
+
+        /**
+         *
+         * @return {*|Promise|PromiseLike<T>|Promise<T>}
+         */
     }, {
         key: 'allPluginsActionsAndParameters',
         value: function allPluginsActionsAndParameters() {

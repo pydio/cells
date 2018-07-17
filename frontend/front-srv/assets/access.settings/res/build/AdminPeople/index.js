@@ -62,30 +62,25 @@ var _editorUserUserRolesPicker = require('./editor/user/UserRolesPicker');
 
 var _editorUserUserRolesPicker2 = _interopRequireDefault(_editorUserUserRolesPicker);
 
-var _editorPanelWorkspacesList = require('./editor/panel/WorkspacesList');
-
-var _editorPanelWorkspacesList2 = _interopRequireDefault(_editorPanelWorkspacesList);
-
 var _editorPanelSharesList = require('./editor/panel/SharesList');
 
 var _editorPanelSharesList2 = _interopRequireDefault(_editorPanelSharesList);
 
 var _editorUtilMessagesMixin = require('./editor/util/MessagesMixin');
 
-var _editorParametersParameterCreate = require('./editor/parameters/ParameterCreate');
+var _editorParamsParameterCreate = require('./editor/params/ParameterCreate');
 
-var _editorParametersParameterCreate2 = _interopRequireDefault(_editorParametersParameterCreate);
+var _editorParamsParameterCreate2 = _interopRequireDefault(_editorParamsParameterCreate);
 
 window.AdminPeople = {
   RoleEditor: _editorEditor2['default'],
   RoleMessagesConsumerMixin: _editorUtilMessagesMixin.RoleMessagesConsumerMixin,
   UserPasswordDialog: _editorUserUserPasswordDialog2['default'],
   UserRolesPicker: _editorUserUserRolesPicker2['default'],
-  WorkspacesList: _editorPanelWorkspacesList2['default'],
   SharesList: _editorPanelSharesList2['default'],
   CreateUserForm: _formsCreateUserForm2['default'],
   CreateRoleOrGroupForm: _formsCreateRoleOrGroupForm2['default'],
-  ParameterCreate: _editorParametersParameterCreate2['default'],
+  ParameterCreate: _editorParamsParameterCreate2['default'],
   Callbacks: _boardCallbacks2['default'],
 
   Dashboard: _boardDashboard2['default'],
