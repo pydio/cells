@@ -310,7 +310,7 @@ func FindUserNameInContext(ctx context.Context) (string, claim.Claims) {
 	var userName string
 	var claims claim.Claims
 	if ctx.Value(claim.ContextKey) != nil {
-		claims := ctx.Value(claim.ContextKey).(claim.Claims)
+		claims = ctx.Value(claim.ContextKey).(claim.Claims)
 		userName = claims.Name
 	} else if ctx.Value(common.PYDIO_CONTEXT_USER_KEY) != nil {
 		userName = ctx.Value(common.PYDIO_CONTEXT_USER_KEY).(string)
