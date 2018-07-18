@@ -65,8 +65,17 @@ export default class SettingsNodeProvider{
 
         if(node.getPath().indexOf(USERS_ROOT) === 0) {
             const basePath = node.getPath().substring(USERS_ROOT.length);
-            PydioApi.getRestClient().getIdmApi().listUsersGroups(basePath, recursive).then(collection => {
+            let offset = 0, limit = 50;
+            const pData = node.getMetadata().get('paginationData');
+            let newPage = 1;
+            if(pData && pData.has('new_page')){
+                // recompute offset limit;
+                newPage = pData.get('new_page');
+                offset = (newPage - 1) * limit;
+            }
+            PydioApi.getRestClient().getIdmApi().listUsersGroups(basePath, recursive, offset, limit).then(collection => {
                 let childrenNodes = [];
+                let count = 0;
                 if(collection.Groups){
                     collection.Groups.map(group => {
                         const label = (group.Attributes && group.Attributes['displayName']) ? group.Attributes['displayName'] : group.GroupLabel;
@@ -77,6 +86,7 @@ export default class SettingsNodeProvider{
                     })
                 }
                 if(collection.Users){
+                    count = collection.Users.length;
                     collection.Users.map(user => {
                         const label = (user.Attributes && user.Attributes['displayName']) ? user.Attributes['displayName'] : user.Login;
                         const uNode = new AjxpNode(USERS_ROOT + user.Login, true, label);
@@ -85,10 +95,20 @@ export default class SettingsNodeProvider{
                         childrenNodes.push(uNode)
                     })
                 }
+                if(collection.Total > count) {
+                    const paginationData = new Map();
+                    paginationData.set('total', Math.ceil(collection.Total / limit));
+                    paginationData.set('current', newPage || 1);
+                    node.getMetadata().set('paginationData', paginationData);
+                }
+                node.setChildren(childrenNodes);
+                /*
                 childrenNodes.map(child => {
                     node.addChild(child);
                 });
+                */
                 if(nodeCallback !== null){
+                    node.replaceBy(node);
                     nodeCallback(node);
                 }
             });

@@ -69,7 +69,7 @@ class IdmApi {
         request.Operation = ServiceOperationType.constructFromObject('AND');
         request.Queries = [];
         const query = new IdmUserSingleQuery();
-        query.GroupPath = baseGroup;
+        query.GroupPath = baseGroup || '/';
         query.Recursive = recursive;
         query.NodeType = IdmNodeType.constructFromObject('USER');
         request.Queries.push(query);
@@ -118,6 +118,19 @@ class IdmApi {
      */
     listUsersGroups(baseGroup='/', recursive = false, offset = 0, limit = -1){
 
+        const p1 = this.listGroups(baseGroup, '', recursive, 0, 1000);
+        const p2 = this.listUsers(baseGroup, '', recursive, offset, limit);
+        return Promise.all([p1, p2]).then(result => {
+            const [resGroups, resUsers] = result;
+            return {
+                Groups: resGroups.Groups || [],
+                Users: resUsers.Users || [],
+                Total: resUsers.Total,
+                Offset: offset,
+                Limit: limit
+            }
+        });
+        /*
         const api = new UserServiceApi(this.client);
         const request = new RestSearchUserRequest();
         request.Operation = ServiceOperationType.constructFromObject('AND');
@@ -143,6 +156,7 @@ class IdmApi {
         }
 
         return api.searchUsers(request);
+        */
 
     }
 
@@ -199,7 +213,7 @@ class IdmApi {
         request.Operation = ServiceOperationType.constructFromObject('AND');
         request.Queries = [];
         const query = new IdmUserSingleQuery();
-        query.GroupPath = baseGroup;
+        query.GroupPath = baseGroup || '/';
         query.Recursive = recursive;
         query.NodeType = IdmNodeType.constructFromObject('GROUP');
         request.Queries.push(query);
