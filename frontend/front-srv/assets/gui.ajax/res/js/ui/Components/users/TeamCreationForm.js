@@ -19,8 +19,9 @@
  */
 
 const {Component, PropTypes} = require('react')
-const {TextField, FlatButton, Divider} = require('material-ui')
+const {TextField, FlatButton} = require('material-ui')
 const {PydioContextConsumer} = require('pydio').requireLib('boot')
+import PydioApi from 'pydio/http/api'
 
 /**
  * Simple form for creating a team
@@ -38,7 +39,7 @@ class TeamCreationForm extends Component{
 
     submitCreationForm(){
         const value = this.state.value;
-        TeamCreationForm.updateTeamUsers({id: value}, 'create', [], this.props.onTeamCreated);
+        PydioApi.getRestClient().getIdmApi().saveSelectionAsTeam(value, [], this.props.onTeamCreated);
     }
 
     render(){
@@ -72,31 +73,6 @@ TeamCreationForm.propTypes = {
      * Request modal close
      */
     onCancel        : PropTypes.func.isRequired
-};
-
-TeamCreationForm.updateTeamUsers = function(team, operation, users, callback){
-    const teamId = team.id.replace('/USER_TEAM/', '');
-    const clearUserCache = function(uId){
-        MetaCacheService.getInstance().deleteKey('user_public_data-rich', uId);
-    };
-    if(operation === 'add'){
-        users.forEach((user) => {
-            const userId = user.getId ? user.getId() : user.id;
-            PydioUsers.Client.addUserToTeam(teamId, userId, callback);
-            clearUserCache(userId);
-        });
-    }else if(operation === 'delete'){
-        users.forEach((user) => {
-            const userId = user.getId ? user.getId() : user.id;
-            PydioUsers.Client.removeUserFromTeam(teamId, userId, callback);
-            clearUserCache(userId);
-        });
-    }else if(operation === 'create'){
-        PydioUsers.Client.saveSelectionAsTeam(teamId, users, callback);
-        users.forEach((user) => {
-            clearUserCache(user.getId ? user.getId() : user.id);
-        })
-    }
 };
 
 TeamCreationForm = PydioContextConsumer(TeamCreationForm);

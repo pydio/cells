@@ -17,7 +17,9 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import PydioApi from 'pydio/http/api';
+import LangUtils from 'pydio/util/lang';
+const IdmApi = PydioApi.getRestClient().getIdmApi();
 
 class Loaders{
 
@@ -46,89 +48,161 @@ class Loaders{
 
     }
 
-    static listUsers(params, callback, parent = null){
-        let baseParams = {get_action:'user_list_authorized_users',format:'json'};
-        baseParams = {...baseParams, ...params};
-        let cb = callback;
-        if(parent){
-            if(parent.range){
-                baseParams['range'] = parent.range;
-            }
-            cb = (children) => {
-                callback(children.map(function(c){ c._parent = parent; return c; }));
-            };
+    static computePagination(result){
+        let count;
+        if(result.Users) {
+            count = result.Users.length;
+        } else if(result.Groups) {
+            count = result.Groups.length;
+        } else if(result.Teams) {
+            count = result.Teams.length;
         }
-        PydioApi.getClient().request(baseParams, function(transport){
-            cb(transport.responseJSON);
-            const cRange = transport.responseObject.headers.get('Content-Range');
-            const aRange = transport.responseObject.headers.get('Accept-Range');
-            if(cRange && aRange && parent){
-                const [type, interval] = aRange.split(' ');
-                const [range, max] = cRange.split('/');
-                const [start, end] = range.split('-');
-                parent.pagination = {
-                    start: parseInt(start),
-                    end: parseInt(end),
-                    max: parseInt(max),
-                    interval: parseInt(interval)
-                };
+        if(result.Total > count){
+            return {
+                start: result.Offset,
+                end: result.Offset + result.Limit,
+                max: result.Total,
+                interval: result.Limit
             }
-        });
+        }else {
+            return null;
+        }
     }
 
     static loadTeams(entry, callback){
-        const wrapped = (children) => {
-            children.map(function(child){
-                child.icon = 'mdi mdi-account-multiple-outline';
-                child.itemsLoader = Loaders.loadTeamUsers;
-                child.actions = {
-                    type    :'team',
-                    /*create  :'573',*/
-                    remove  :'574',
-                    multiple: true
+        let offset = 0, limit = 50;
+        if(entry.range){
+            let [start, end] = entry.range.split('-');
+            offset = parseInt(start);
+            end = parseInt(end);
+            limit = end - offset;
+        }
+        IdmApi.listTeams('', offset, limit).then(collection => {
+            entry.pagination = Loaders.computePagination(collection);
+            const items = collection.Teams.map(team => {
+                return {
+                    _parent: entry,
+                    id: team.Uuid,
+                    label: team.Label,
+                    icon : 'mdi mdi-account-multiple-outline',
+                    itemsLoader : Loaders.loadTeamUsers,
+                    actions : {
+                        type    :'team',
+                        remove  :'574',
+                        multiple: true
+                    },
+                    _notSelectable: true,
+                    IdmRole: team
                 };
-                child._notSelectable=true;
             });
-            callback(children);
-        };
-        Loaders.listUsers({filter_value:8}, wrapped, entry);
+            callback(items);
+        });
     }
 
     static loadGroups(entry, callback){
-        const wrapped = (children) => {
-            children.map(function(child){
-                child.icon = 'mdi mdi-account-multiple';
-                child.childrenLoader = entry.childrenLoader ? Loaders.loadGroups : null;
-                child.itemsLoader = entry.itemsLoader ? Loaders.loadGroupUsers : null;
-                if(entry.currentParams && entry.currentParams.alpha_pages){
-                    child.currentParams = {...entry.currentParams};
+        let path = '/', filter = '';
+        if(entry.IdmUser){
+            path = LangUtils.trimRight(entry.IdmUser.GroupPath, '/') + '/' + entry.IdmUser.GroupLabel;
+        }
+        if(entry.currentParams && entry.currentParams.has_search){
+            filter = entry.currentParams.value;
+        }
+
+        IdmApi.listGroups(path, filter, false, 0, 1000).then(groups => {
+            const items = groups.Groups.map(idmUser => {
+                return {
+                    _parent: entry,
+                    id: idmUser.Uuid,
+                    label: idmUser.GroupLabel,
+                    type:'group',
+                    icon: 'mdi mdi-account-multiple',
+                    childrenLoader:entry.childrenLoader ? Loaders.loadGroups : null,
+                    itemsLoader: entry.itemsLoader ? Loaders.loadGroupUsers : null,
+                    currentParams: (entry.currentParams && entry.currentParams.alpha_pages) ? {...entry.currentParams} : {},
+                    IdmUser: idmUser
                 }
             });
-            callback(children);
-        };
-        const path = entry.id.replace('PYDIO_GRP_', '');
-        let params = {filter_value:4, group_path:path};
-        if(entry.currentParams && !entry.currentParams.alpha_pages){
-            params = {...params, ...entry.currentParams};
-        }
-        Loaders.listUsers(params, wrapped, entry);
+            callback(items);
+        });
     }
 
     static loadExternalUsers(entry, callback){
-        Loaders.listUsers({filter_value:2}, callback, entry);
+        let filter = '', offset = 0, limit = 50;
+        if(entry.currentParams && entry.currentParams.alpha_pages){
+            filter = entry.currentParams.value;
+        }
+        if(entry.range){
+            let [start, end] = entry.range.split('-');
+            offset = parseInt(start);
+            end = parseInt(end);
+            limit = end - offset;
+        }
+        IdmApi.listUsers('/', filter, true, offset, limit, 'shared').then(users => {
+            entry.pagination = Loaders.computePagination(users);
+            const items = users.Users.map((idmUser) => {
+                return {
+                    _parent: entry,
+                    id: idmUser.Login,
+                    label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.Login,
+                    type:'user',
+                    external:true,
+                    IdmUser: idmUser
+                }
+            });
+            callback(items);
+        });
     }
 
     static loadGroupUsers(entry, callback){
-        const path = entry.id.replace('PYDIO_GRP_', '');
-        let params = {filter_value:1, group_path:path};
-        if(entry.currentParams){
-            params = {...params, ...entry.currentParams};
+        let path = '/', filter = '', offset = 0, limit = 50;
+        if(entry.IdmUser){
+            path = LangUtils.trimRight(entry.IdmUser.GroupPath, '/') + '/' + entry.IdmUser.GroupLabel;
         }
-        Loaders.listUsers(params, callback, entry);
+        if(entry.currentParams && (entry.currentParams.alpha_pages || entry.currentParams.has_search)){
+            filter = entry.currentParams.value;
+        }
+        if(entry.range){
+            let [start, end] = entry.range.split('-');
+            offset = parseInt(start);
+            end = parseInt(end);
+            limit = end - offset;
+        }
+        IdmApi.listUsers(path, filter, false, offset, limit, '!shared').then(users => {
+            entry.pagination = Loaders.computePagination(users);
+            const items = users.Users.map((idmUser) => {
+                return {
+                    _parent: entry,
+                    id: idmUser.Login,
+                    label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.Login,
+                    type:'user',
+                    IdmUser: idmUser
+                }
+            });
+            callback(items);
+        }) ;
     }
 
     static loadTeamUsers(entry, callback){
-        Loaders.listUsers({filter_value:3, group_path:entry.id}, callback, entry);
+        let offset = 0, limit = 50;
+        if(entry.range){
+            let [start, end] = entry.range.split('-');
+            offset = parseInt(start);
+            end = parseInt(end);
+            limit = end - offset;
+        }
+        IdmApi.listUsersWithRole(entry.IdmRole.Uuid, offset, limit).then(users => {
+            entry.pagination = Loaders.computePagination(users);
+            const items = users.Users.map((idmUser) => {
+                return {
+                    _parent: entry,
+                    id: idmUser.Login,
+                    label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.Login,
+                    type:'user',
+                    IdmUser: idmUser
+                }
+            });
+            callback(items);
+        }) ;
     }
 
 }

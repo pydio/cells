@@ -27,6 +27,7 @@ const {FontIcon, Popover, Paper, Avatar, CardTitle, Divider} = require('material
 const {muiThemeable} = require('material-ui/styles');
 const MetaCacheService = require('pydio/http/meta-cache-service');
 const {UsersApi} = require('pydio/http/users-api');
+import PydioApi from "pydio/http/api";
 
 /**
  * Generic component for display a user and her avatar (first letters or photo)
@@ -74,13 +75,32 @@ class UserAvatar extends React.Component{
                 pydio.observeOnce('user_logged', this._userLoggedObs);
             }
             this.setState({
-                user:  userObject,//{ label: userObject.getLabel() },
-                graph: userObject.getGraph(),
+                user:  userObject,
                 avatar: userObject.getAvatar(),
                 local: userObject.isLocal()
             })
         });
-
+        if(richCard) {
+            PydioApi.getRestClient().getIdmApi().loadUserGraph(userId).then(response => {
+                const graph = {cells:{}, teams:[]};
+                if(response.SharedCells){
+                    response.SharedCells.forEach(workspace => {
+                        graph.cells[workspace.Uuid] = workspace.Label;
+                    });
+                }
+                if(response.BelongsToTeams){
+                    response.BelongsToTeams.forEach(role => {
+                        graph.teams.push({
+                            id: role.Uuid,
+                            label: role.Label,
+                            type: 'team',
+                            IdmRole: role
+                        });
+                    });
+                }
+                this.setState({graph});
+            });
+        }
     }
 
     render(){

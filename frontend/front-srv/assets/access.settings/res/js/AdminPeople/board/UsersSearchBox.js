@@ -70,14 +70,14 @@ class UsersSearchBox extends React.Component{
         Promise.all([p1, p2]).then(result => {
             const groups = result[0];
             const users = result[1];
-            groups.map(group => {
+            groups.Groups.map(group => {
                 const label = (group.Attributes && group.Attributes['displayName']) ? group.Attributes['displayName'] : group.GroupLabel;
                 const gNode = new Node('/idm/users' + LangUtils.trimRight(group.GroupPath, '/') + '/' + group.GroupLabel, false, label);
                 gNode.getMetadata().set('IdmUser', group);
                 gNode.getMetadata().set('ajxp_mime', 'group');
                 dm.getRootNode().addChild(gNode);
             });
-            users.map(user => {
+            users.Users.map(user => {
                 const label = (user.Attributes && user.Attributes['displayName']) ? user.Attributes['displayName'] : user.Login;
                 const uNode = new Node('/idm/users' + user.Login, true, label);
                 uNode.getMetadata().set('IdmUser', user);

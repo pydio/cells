@@ -178,119 +178,9 @@ class User extends Observable{
 
 class UsersApi{
 
-    static authorizedUsersStartingWith(token, callback, usersOnly=false, existingOnly=false){
-
-        let params = {
-            get_action:'user_list_authorized_users',
-            value:token,
-            format:'json'
-        };
-        if(usersOnly){
-            params['users_only'] = 'true';
-        }
-        if(existingOnly){
-            params['existing_only'] = 'true';
-        }
-        PydioApi.getClient().request(params, function(transport){
-            let suggestions = [];
-            const data = transport.responseJSON;
-            if (data){
-                data.map(function(entry){
-                    const {id, label, type, group, avatar, temporary, external, uuid} = entry;
-                    let u = new User(id, label, type, group, avatar, temporary, external, label);
-                    if(uuid) {
-                        u._uuid = uuid;
-                    }
-                    if(entry.IdmUser){
-                        u.IdmUser = IdmUser.constructFromObject(entry.IdmUser, null)
-                    } else if (entry.IdmRole){
-                        u.IdmRole = IdmRole.constructFromObject(entry.IdmRole, null);
-                    }
-                    suggestions.push(u);
-                });
-            }
-            callback(suggestions);
-        });
-
-    }
-
-    static createUserFromPost(postValues, callback){
-        postValues['get_action'] = 'user_create_user';
-        PydioApi.getClient().request(postValues, function(transport){
-            callback(postValues, transport.responseJSON);
-            const u = transport.responseJSON.user;
-            const cache = MetaCacheService.getInstance();
-            if(u && cache.hasKey('user_public_data', u.id)){
-                cache.deleteKey('user_public_data', u.id);
-            }
-
-        }.bind(this));
-    }
-
-    static deleteUser(userId, callback){
-        PydioApi.getClient().request({
-            get_action:'user_delete_user',
-            user_id:userId
-        }, function(transport){
-            callback();
-        });
-    }
 
     static saveSelectionSupported(){
         return global.pydio.getController().actions.get('user_team_create') !== undefined;
-    }
-
-    static deleteTeam(teamId, callback){
-        teamId = teamId.replace('/USER_TEAM/', '');
-        PydioApi.getClient().request({
-            get_action:'user_team_delete',
-            team_id:teamId
-        }, function(transport){
-            callback(transport.responseJSON);
-        });
-    }
-
-    static saveSelectionAsTeam(teamName, userIds, callback){
-        PydioApi.getClient().request({
-            get_action:'user_team_create',
-            team_label:teamName,
-            'user_ids[]':userIds
-        }, function(transport){
-            callback(transport.responseJSON);
-        });
-    }
-
-    static addUserToTeam(teamId, userId, callback){
-        teamId = teamId.replace('/USER_TEAM/', '');
-        PydioApi.getClient().request({
-            get_action:'user_team_add_user',
-            team_id:teamId,
-            user_id:userId
-        }, function(transport){
-            callback(transport.responseJSON);
-        });
-    }
-
-    static removeUserFromTeam(teamId, userId, callback){
-        teamId = teamId.replace('/USER_TEAM/', '');
-        PydioApi.getClient().request({
-            get_action:'user_team_delete_user',
-            team_id:teamId,
-            user_id:userId
-        }, function(transport){
-            callback(transport.responseJSON);
-        });
-    }
-
-    static updateTeamLabel(teamId, newLabel,callback){
-        teamId = teamId.replace('/USER_TEAM/', '');
-        PydioApi.getClient().request({
-            get_action:'user_team_update_label',
-            team_id:teamId,
-            team_label:newLabel
-        }, function(transport){
-            callback(transport.responseJSON);
-        });
     }
 
     /**
@@ -302,6 +192,19 @@ class UsersApi{
     static loadPublicData(userObject, loadGraph, callback){
 
         const userId = userObject.getId();
+        userObject.setLabel(userId);
+        if(userObject.IdmUser){
+            if(userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["avatar"]){
+                userObject.setAvatar(UsersApi.buildUserAvatarUrl(userId, userObject.IdmUser.Attributes["avatar"]));
+            } else {
+                UsersApi.avatarFromExternalProvider(userObject, callback);
+            }
+            if(userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"]) {
+                userObject.setLabel(userObject.IdmUser.Attributes["displayName"]);
+            }
+        }
+        callback(userObject);
+        /*
         PydioApi.getClient().request({
             get_action:'user_public_data',
             user_id:userId,
@@ -331,7 +234,7 @@ class UsersApi{
             }
 
         }.bind(this));
-
+        */
     }
 
     static loadLocalData(userObject, callback){
@@ -367,8 +270,8 @@ class UsersApi{
      */
     static avatarFromExternalProvider(userObject, callback){
 
-        if (UsersApi.avatarsCache[userObject.getId] !== undefined){
-            userObject.setAvatar(UsersApi.avatarsCache[userObject.getId]);
+        if (UsersApi.avatarsCache[userObject.getId()] !== undefined){
+            userObject.setAvatar(UsersApi.avatarsCache[userObject.getId()]);
             callback(userObject);
             return;
         }
@@ -468,15 +371,6 @@ class UsersApi{
                 });
             }
         });
-    }
-
-    static listUserVisibleTeams(userId) {
-        const api = new RoleServiceApi(PydioApi.getRestClient());
-        let request = new RestSearchRoleRequest();
-        let query = new IdmRoleSingleQuery();
-        query.IsTeam = true;
-        request.Queries = [query];
-        return api.searchRoles(request);
     }
 
 }

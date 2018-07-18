@@ -116,14 +116,14 @@ var UsersSearchBox = (function (_React$Component) {
             Promise.all([p1, p2]).then(function (result) {
                 var groups = result[0];
                 var users = result[1];
-                groups.map(function (group) {
+                groups.Groups.map(function (group) {
                     var label = group.Attributes && group.Attributes['displayName'] ? group.Attributes['displayName'] : group.GroupLabel;
                     var gNode = new _pydioModelNode2['default']('/idm/users' + _pydioUtilLang2['default'].trimRight(group.GroupPath, '/') + '/' + group.GroupLabel, false, label);
                     gNode.getMetadata().set('IdmUser', group);
                     gNode.getMetadata().set('ajxp_mime', 'group');
                     dm.getRootNode().addChild(gNode);
                 });
-                users.map(function (user) {
+                users.Users.map(function (user) {
                     var label = user.Attributes && user.Attributes['displayName'] ? user.Attributes['displayName'] : user.Login;
                     var uNode = new _pydioModelNode2['default']('/idm/users' + user.Login, true, label);
                     uNode.getMetadata().set('IdmUser', user);

@@ -18,8 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import PydioApi from 'pydio/http/api'
 import AddressBook from './addressbook/AddressBook'
-import {TextField, AutoComplete, RefreshIndicator, Popover} from 'material-ui'
+import {TextField, AutoComplete, MenuItem, RefreshIndicator, Popover, FontIcon} from 'material-ui'
 import FuncUtils from 'pydio/util/func'
 import UserCreationForm from './UserCreationForm'
 
@@ -72,7 +73,7 @@ const UsersLoader = React.createClass({
         className       : React.PropTypes.string
     },
 
-    getInitialState:function(){
+    getInitialState(){
         return {
             dataSource  : [],
             loading     : false,
@@ -86,10 +87,28 @@ const UsersLoader = React.createClass({
      * @param {string} input Currently searched text
      * @param {Function} callback Called with the values
      */
-    suggestionLoader:function(input, callback){
+    suggestionLoader(input, callback){
         const excludes = this.props.excludes;
-        const disallowTemporary = this.props.existingOnly && !this.props.freeValueAllowed;
+        //const disallowTemporary = this.props.existingOnly && !this.props.freeValueAllowed;
         this.setState({loading:this.state.loading + 1});
+        const api = PydioApi.getRestClient().getIdmApi();
+        const uPromise = api.listUsers('/', input, true, 0, 20);
+        const gPromise = api.listGroups('/', input, true, 0, 20);
+        const tPromise = api.listTeams(input, 0, 20);
+        Promise.all([uPromise, gPromise, tPromise]).then(results => {
+            this.setState({loading:this.state.loading - 1});
+            let [users, groups, teams] = results;
+            users = users.Users;
+            groups = groups.Groups;
+            teams = teams.Teams;
+            if(excludes && excludes.length){
+                users = users.filter(user => excludes.indexOf(user.Login) === -1 );
+                groups = groups.filter(group => excludes.indexOf(group.GroupLabel) === -1);
+                teams = teams.filter(team => excludes.indexOf(team.Label === -1));
+            }
+            callback([...groups.map(u => {return {IdmUser:u}}), ...teams.map(u => {return {IdmRole:u}}), ...users.map(u => {return {IdmUser:u}})]);
+        });
+        /*
         PydioUsers.Client.authorizedUsersStartingWith(input, function(users){
             this.setState({loading:this.state.loading - 1});
             if(disallowTemporary){
@@ -104,6 +123,7 @@ const UsersLoader = React.createClass({
             }
             callback(users);
         }.bind(this), this.props.usersOnly, this.props.existingOnly);
+        */
 
     },
 
@@ -111,7 +131,7 @@ const UsersLoader = React.createClass({
      * Called when the field is updated
      * @param value
      */
-    textFieldUpdate: function(value){
+    textFieldUpdate(value){
 
         this.setState({searchText: value});
         if(this.state.minChars && value && value.length < this.state.minChars ){
@@ -121,7 +141,7 @@ const UsersLoader = React.createClass({
 
     },
 
-    getPendingSearchText: function(){
+    getPendingSearchText(){
         return this.state.searchText || false;
     },
 
@@ -130,26 +150,49 @@ const UsersLoader = React.createClass({
      * @param value {string}
      * @param timeout {int}
      */
-    loadBuffered: function(value, timeout){
+    loadBuffered(value, timeout){
 
         if(!value && this._emptyValueList){
             this.setState({dataSource: this._emptyValueList});
             return;
         }
+        const {existingOnly, freeValueAllowed} = this.props;
         FuncUtils.bufferCallback('remote_users_search', timeout, function(){
             this.setState({loading: true});
             this.suggestionLoader(value, function(users){
-                let crtValueFound = false;
-                const values = users.map(function(userObject){
-                    let component = (<MaterialUI.MenuItem>{this.props.renderSuggestion(userObject)}</MaterialUI.MenuItem>);
+                let valueExists = false;
+                let values = users.map(function(userObject){
+                    // Todo readapt renderSuggestion(s) calls
+                    //let component = (<MenuItem>{this.props.renderSuggestion(userObject)}</MenuItem>);
+                    let identifier, icon, label;
+                    if(userObject.IdmUser && userObject.IdmUser.IsGroup){
+                        identifier = userObject.IdmUser.GroupLabel;
+                        label = userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"] ? userObject.IdmUser.Attributes["displayName"] : identifier;
+                        icon = "mdi mdi-folder";
+                    } else if(userObject.IdmUser) {
+                        identifier = userObject.IdmUser.Login;
+                        label = userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"] ? userObject.IdmUser.Attributes["displayName"] : identifier;
+                        icon = "mdi mdi-account";
+                    } else {
+                        identifier = userObject.IdmRole.Uuid;
+                        label = userObject.IdmRole.Label;
+                        icon = "mdi mdi-folder";
+                    }
+
+                    valueExists |= (label === value);
+                    let component = (<MenuItem primaryText={label}/>);
                     return {
                         userObject  : userObject,
-                        text        : userObject.getExtendedLabel(),
+                        text        : identifier,
                         value       : component
                     };
                 }.bind(this));
                 if(!value){
                     this._emptyValueList = values;
+                }
+                // Append temporary create user
+                if(value && !valueExists && (!existingOnly || freeValueAllowed)){
+                    values = [{text:value, value:<MenuItem primaryText={value + (freeValueAllowed ? '' : ' (create user)')}/>}, ...values];
                 }
                 this.setState({dataSource: values, loading: false});
             }.bind(this));
@@ -162,8 +205,9 @@ const UsersLoader = React.createClass({
      * @param value
      * @param index
      */
-    onCompleterRequest: function(value, index){
+    onCompleterRequest(value, index){
 
+        const {freeValueAllowed} = this.props;
         if(index === -1){
             this.state.dataSource.map(function(entry){
                 if(entry.text === value){
@@ -171,22 +215,18 @@ const UsersLoader = React.createClass({
                 }
             });
             if(value && !value.userObject && this.props.freeValueAllowed){
-                const fake = new PydioUsers.User(value, value, 'user', null, null, true);
-                this.props.onValueSelected(fake);
+                this.props.onValueSelected({FreeValue: value.text});
                 this.setState({searchText: '', dataSource:[]});
                 return;
             }
         }
-        if(value && value.userObject){
-            const object = value.userObject;
-            if(object.getTemporary()){
-                if(this.props.freeValueAllowed){
-                    this.props.onValueSelected(object);
-                }else{
-                    this.setState({createUser: object.getLabel()});
-                }
-            }else{
-                this.props.onValueSelected(object);
+        if(value){
+            if(value.userObject){
+                this.props.onValueSelected(value.userObject);
+            } else if (freeValueAllowed) {
+                this.props.onValueSelected({FreeValue: value.text});
+            } else {
+                this.setState({createUser: value.text});
             }
             this.setState({searchText: '', dataSource:[]});
         }
@@ -197,7 +237,7 @@ const UsersLoader = React.createClass({
      * Triggers onValueSelected props callback
      * @param {Pydio.User} newUser
      */
-    onUserCreated: function(newUser){
+    onUserCreated(newUser){
         this.props.onValueSelected(newUser);
         this.setState({createUser:null});
     },
@@ -205,7 +245,7 @@ const UsersLoader = React.createClass({
     /**
      * Close user creation form
      */
-    onCreationCancelled:function(){
+    onCreationCancelled(){
         this.setState({createUser:null});
     },
 
@@ -213,7 +253,7 @@ const UsersLoader = React.createClass({
      * Open address book inside a Popover
      * @param event
      */
-    openAddressBook:function(event){
+    openAddressBook(event){
         this.setState({
             addressBookOpen: true,
             addressBookAnchor: event.currentTarget
@@ -223,7 +263,7 @@ const UsersLoader = React.createClass({
     /**
      * Close address book popover
      */
-    closeAddressBook: function(){
+    closeAddressBook(){
         this.setState({addressBookOpen: false});
     },
 
@@ -231,11 +271,11 @@ const UsersLoader = React.createClass({
      * Triggered when user clicks on an entry from adress book.
      * @param item
      */
-    onAddressBookItemSelected: function(item){
+    onAddressBookItemSelected(item){
         this.props.onValueSelected(item);
     },
 
-    render: function(){
+    render(){
 
         const {dataSource, createUser} = this.state;
         const containerStyle = {position:'relative', overflow: 'visible'};
@@ -244,7 +284,7 @@ const UsersLoader = React.createClass({
             <div style={containerStyle} ref={(el)=>{this._popoverAnchor = el;}}>
                 {!createUser &&
                     <AutoComplete
-                        filter={MaterialUI.AutoComplete.noFilter}
+                        filter={AutoComplete.noFilter}
                         dataSource={dataSource}
                         searchText={this.state.searchText}
                         onUpdateInput={this.textFieldUpdate}

@@ -32,6 +32,7 @@ import {muiThemeable, colors} from 'material-ui/styles'
 import ActionsPanel from '../avatar/ActionsPanel'
 import UserCreationForm from '../UserCreationForm'
 const {PydioContextConsumer} = Pydio.requireLib('boot');
+import PydioApi from 'pydio/http/api';
 
 /**
  * High level component to browse users, groups and teams, either in a large format (mode='book') or a more compact
@@ -92,7 +93,7 @@ let AddressBook = React.createClass({
         popoverIconButtonStyle      : React.PropTypes.object
     },
 
-    getDefaultProps: function(){
+    getDefaultProps(){
         return {
             mode            : 'book',
             usersOnly       : false,
@@ -102,7 +103,7 @@ let AddressBook = React.createClass({
         };
     },
 
-    getInitialState: function(){
+    getInitialState(){
 
         const {pydio, mode, usersOnly, usersFrom, teamsOnly, disableSearch} = this.props;
         const getMessage = (id) => {return this.props.getMessage(id, '')};
@@ -216,13 +217,13 @@ let AddressBook = React.createClass({
         };
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
         this.state.selectedItem && this.onFolderClicked(this.state.selectedItem);
     },
 
-    onFolderClicked: function(item, callback = undefined){
+    onFolderClicked(item, callback = undefined){
         // Special case for teams
-        if(this.props.mode === 'selector' && item.type === 'group' && item.id.indexOf('/USER_TEAM/') === 0){
+        if(this.props.mode === 'selector' && item.IdmRole && item.IdmRole.IsTeam){
             this.onUserListItemClicked(item);
             return;
         }
@@ -235,7 +236,7 @@ let AddressBook = React.createClass({
         });
     },
 
-    onUserListItemClicked: function(item){
+    onUserListItemClicked(item){
         if(this.props.onItemSelected){
             const uObject = new PydioUsers.User(
                 item.id,
@@ -259,58 +260,70 @@ let AddressBook = React.createClass({
         }
     },
 
-    onCreateAction: function(item){
+    onCreateAction(item){
         this.setState({createDialogItem:item});
     },
 
-    closeCreateDialogAndReload: function(){
+    closeCreateDialogAndReload(){
         this.setState({createDialogItem:null});
         this.reloadCurrentNode();
     },
 
-    onCardUpdateAction: function(item){
+    onCardUpdateAction(item){
         if(item._parent && item._parent === this.state.selectedItem){
             this.reloadCurrentNode();
         }
     },
 
-    onDeleteAction: function(parentItem, selection, skipConfirm = false){
+    onDeleteAction(parentItem, selection, skipConfirm = false){
         if(!skipConfirm && !confirm(this.props.getMessage(278))){
             return;
         }
         switch(parentItem.actions.type){
             case 'users':
-                selection.forEach(function(user){
-                    if(this.state.rightPaneItem === user) this.setState({rightPaneItem: null});
-                    PydioUsers.Client.deleteUser(user.id, this.reloadCurrentNode.bind(this));
-                }.bind(this));
+                Promise.all(selection.map((user) => {
+                    if(this.state.rightPaneItem === user) {
+                        this.setState({rightPaneItem: null});
+                    }
+                    return PydioApi.getRestClient().getIdmApi().deleteIdmUser(user.IdmUser);
+                })).then(() => {
+                    this.reloadCurrentNode();
+                });
                 break;
             case 'teams':
-                selection.forEach(function(team){
-                    if(this.state.rightPaneItem === team) this.setState({rightPaneItem: null});
-                    PydioUsers.Client.deleteTeam(team.id.replace('/USER_TEAM/', ''), this.reloadCurrentNode.bind(this));
-                }.bind(this));
+                Promise.all(selection.map((team)=>{
+                    if(this.state.rightPaneItem === team) {
+                        this.setState({rightPaneItem: null});
+                    }
+                    return PydioApi.getRestClient().getIdmApi().deleteRole(team.IdmRole.Uuid);
+                })).then(() => {
+                    this.reloadCurrentNode();
+                });
                 break;
             case 'team':
-                TeamCreationForm.updateTeamUsers(parentItem, 'delete', selection, this.reloadCurrentNode.bind(this));
+                Promise.all(selection.map((user) => {
+                    return PydioApi.getRestClient().getIdmApi().removeUserFromTeam(parentItem.IdmRole.Uuid, user.IdmUser.Login);
+                })).then(()=>{
+                    this.reloadCurrentNode();
+                });
                 break;
             default:
                 break;
         }
     },
 
-    openPopover:function(event){
+    openPopover(event){
         this.setState({
             popoverOpen: true,
             popoverAnchor: event.currentTarget
         });
     },
 
-    closePopover: function(){
+    closePopover(){
         this.setState({popoverOpen: false});
     },
 
-    reloadCurrentNode: function(){
+    reloadCurrentNode(){
         this.state.selectedItem.leafLoaded = false;
         this.state.selectedItem.collectionsLoaded = false;
         this.onFolderClicked(this.state.selectedItem, () => {
@@ -327,7 +340,7 @@ let AddressBook = React.createClass({
         });
     },
 
-    reloadCurrentAtPage: function(letterOrRange){
+    reloadCurrentAtPage(letterOrRange){
         this.state.selectedItem.leafLoaded = false;
         this.state.selectedItem.collectionsLoaded = false;
         if(letterOrRange === -1) {
@@ -341,7 +354,7 @@ let AddressBook = React.createClass({
         this.onFolderClicked(this.state.selectedItem);
     },
 
-    reloadCurrentWithSearch: function(value){
+    reloadCurrentWithSearch(value){
         if(!value){
             this.reloadCurrentAtPage(-1);
             return;
@@ -352,7 +365,7 @@ let AddressBook = React.createClass({
         this.onFolderClicked(this.state.selectedItem);
     },
 
-    render: function(){
+    render(){
 
         const {mode, getMessage, bookColumn} = this.props;
 
@@ -440,7 +453,7 @@ let AddressBook = React.createClass({
             }else if(selectedItem.id === 'ext'){
                 emptyStatePrimary = getMessage(585, '');
                 emptyStateSecondary = getMessage(586, '');
-            }else if(selectedItem.id.indexOf('PYDIO_GRP_/') === 0){
+            }else if((selectedItem.IdmUser && selectedItem.IdmUser.IsGroup) || selectedItem.id === 'PYDIO_GRP_/'){
                 otherProps = {
                     showSubheaders: true,
                     paginatorType: !(selectedItem.currentParams && selectedItem.currentParams.has_search) && 'alpha',
@@ -451,7 +464,7 @@ let AddressBook = React.createClass({
                 };
             }
 
-            if((mode === 'book' || bookColumn ) && selectedItem.type === 'group' && selectedItem.id.indexOf('/USER_TEAM/') === 0){
+            if((mode === 'book' || bookColumn ) && selectedItem.IdmRole && selectedItem.IdmRole.IsTeam){
                 topActionsPanel =
                     (<ActionsPanel
                         {...this.props}
@@ -469,7 +482,7 @@ let AddressBook = React.createClass({
                         style={{backgroundColor: 'transparent', borderTop:0, borderBottom:0}}
                     />);
                 onEditLabel = (item, newLabel) => {
-                    PydioUsers.Client.updateTeamLabel(item.id.replace('/USER_TEAM/', ''), newLabel, () => {
+                    PydioApi.getRestClient().getIdmApi().updateTeamLabel(item.IdmRole.Uuid, newLabel, () => {
                         const parent = selectedItem._parent;
                         this.setState({selectedItem: parent}, () => {
                             this.reloadCurrentNode();
@@ -573,7 +586,9 @@ let AddressBook = React.createClass({
                 />;
             }else if(createDialogItem.actions.type === 'team'){
                 const selectUser = (item) => {
-                    TeamCreationForm.updateTeamUsers(createDialogItem, 'add', [item], this.reloadCurrentNode.bind(this));
+                    PydioApi.getRestClient().getIdmApi().addUserToTeam(createDialogItem.IdmRole.Uuid, item.IdmUser.Login).then(()=>{
+                        this.reloadCurrentNode();
+                    });
                 };
                 dialogTitle = null;
                 dialogContent = <AddressBook

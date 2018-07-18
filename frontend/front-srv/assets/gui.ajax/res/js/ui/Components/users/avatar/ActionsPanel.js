@@ -21,7 +21,7 @@
 import AddressBook from '../addressbook/AddressBook'
 import ResourcePoliciesPanel from '../../policies/ResourcePoliciesPanel'
 const React = require('react');
-const {UsersApi} = require('pydio/http/users-api');
+const PydioApi = require('pydio/http/api');
 const ResourcesManager = require('pydio/http/resources-manager');
 const {IconButton, Popover} = require('material-ui');
 const {muiThemeable} = require('material-ui/styles');
@@ -40,14 +40,14 @@ class ActionsPanel extends React.Component{
 
     onTeamSelected(item){
         this.setState({showPicker: false});
-        if(item.getType() === 'group' && item.getId().indexOf('/USER_TEAM/') === 0){
-            UsersApi.addUserToTeam(item.getId().replace('/USER_TEAM/', ''), this.props.userId, this.props.reloadAction);
+        if(item.IdmRole && item.IdmRole.IsTeam){
+            PydioApi.getRestClient().getIdmApi().addUserToTeam(item.IdmRole.Uuid, this.props.userId, this.props.reloadAction);
         }
     }
     
     onUserSelected(item){
         this.setState({showPicker: false});
-        UsersApi.addUserToTeam(this.props.team.id, item.getId(), this.props.reloadAction);
+        PydioApi.getRestClient().getIdmApi().addUserToTeam(this.props.team.id, item.IdmUser.Login, this.props.reloadAction);
     }
 
     openPicker(event){
@@ -108,7 +108,7 @@ class ActionsPanel extends React.Component{
         }
         if(team){
             resourceType = 'team';
-            resourceId = team.id.replace('/USER_TEAM/', '');
+            resourceId = team.id;
             actions.push({key:'users', label:getMessage(599), icon:'account-multiple-plus', callback:this.openPicker.bind(this)});
         }else{
             resourceType = 'user';
@@ -152,8 +152,8 @@ class ActionsPanel extends React.Component{
                             pydio={this.props.pydio}
                             loaderStyle={{width: 320, height: 420}}
                             onItemSelected={this.props.team ? this.onUserSelected.bind(this) : this.onTeamSelected.bind(this)}
-                            teamsOnly={this.props.team ? false: true}
-                            usersOnly={this.props.team ? true: false}
+                            teamsOnly={!this.props.team}
+                            usersOnly={!!this.props.team}
                         />
                     </div>
                 </Popover>

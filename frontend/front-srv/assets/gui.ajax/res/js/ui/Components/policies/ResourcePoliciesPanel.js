@@ -24,7 +24,8 @@ import {muiThemeable} from 'material-ui/styles'
 import Policies from 'pydio/http/policies'
 import {UsersApi} from 'pydio/http/users-api'
 import {ServiceResourcePolicy} from 'pydio/http/rest-api'
-import {Pydio} from 'pydio';
+import Pydio from 'pydio';
+import PydioApi from 'pydio/http/api'
 import UsersCompleter from '../users/UsersCompleter'
 
 class ResourcePoliciesPanel extends React.Component{
@@ -55,21 +56,21 @@ class ResourcePoliciesPanel extends React.Component{
 
     reload(){
         const {resourceType, resourceId} = this.props;
-        const {user} = global.pydio;
+        const {user} = pydio;
         let proms = [
             Policies.loadPolicies(resourceType, resourceId),
             user.getIdmUser()
         ];
         if(resourceType !== 'team') {
-            proms.push(UsersApi.listUserVisibleTeams(user.id));
+            proms.push(PydioApi.getRestClient().getIdmApi().listTeams());
         }
         Promise.all(proms).then(result => {
             const policies = result[0];
             const resourceUuid = policies[0].Resource;
             const idmUser = result[1];
             let teams = [];
-            if(resourceType !== 'team' && result[2] && result[2].Roles){
-                teams = result[2].Roles;
+            if(resourceType !== 'team' && result[2]){
+                teams = result[2].Teams;
 
             }
             this.setState({
@@ -226,21 +227,26 @@ class ResourcePoliciesPanel extends React.Component{
 
     /**
      *
-     * @param userObject
+     * @param userOrRole {{IdmUser,IdmRole}}
      */
-    pickUser(userObject){
-        const id = userObject.getId();
-        let subject;
-        if(userObject.type === 'group') {
-            if (id.indexOf('/USER_TEAM/') === 0){
-                subject = 'role:' + id.replace('/USER_TEAM/', '');
+    pickUser(userOrRole){
+        let subject, label;
+        if(userOrRole.IdmUser){
+            const {IdmUser} = userOrRole;
+            const attributes = IdmUser.Attributes || {};
+            if(IdmUser.IsGroup){
+                subject = 'role:' + IdmUser.Uuid;
+                label = attributes['displayName'] || IdmUser.GroupLabel;
             } else {
-                subject = 'role:' + id;
+                subject = 'user:' + IdmUser.Login;
+                label = attributes['displayName'] || IdmUser.Login;
             }
         } else {
-            subject = 'user:' + id;
+            const {IdmRole} = userOrRole;
+            subject = 'role:' + IdmRole.Uuid;
+            label = IdmRole.Label;
         }
-        this.setState({pickedUser: subject, pickedLabel: userObject.getLabel()});
+        this.setState({pickedUser: subject, pickedLabel: label});
     }
 
     /**

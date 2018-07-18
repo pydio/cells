@@ -70,6 +70,9 @@ export default class Manager{
     static parameterNodeToHash(paramNode){
         const paramsAtts = paramNode.attributes;
         let paramsObject = {};
+        if(paramNode.parentNode && paramNode.parentNode.parentNode){
+            paramsObject["pluginId"] = paramNode.parentNode.parentNode.getAttribute("id");
+        }
         let collectCdata = false;
         const {MessageHash} = global.pydio;
         for(let i=0; i<paramsAtts.length; i++){

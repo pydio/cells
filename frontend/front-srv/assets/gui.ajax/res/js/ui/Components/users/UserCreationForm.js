@@ -20,6 +20,7 @@
 
 import React from 'react'
 import Pydio from 'pydio'
+import PydioApi from 'pydio/http/api'
 import {Paper, FlatButton, Divider, TextField} from 'material-ui'
 import {User, UsersApi} from 'pydio/http/users-api'
 const {Manager, FormPanel} = Pydio.requireLib('form');
@@ -33,6 +34,7 @@ class UserCreationForm extends React.Component{
         const {MessageHash} = pydio;
         let prefix = pydio.getPluginConfigs('action.share').get('SHARED_USERS_TMP_PREFIX');
         basicParameters.push({
+            IdmUserField    : 'Login',
             description     : MessageHash['533'],
             readonly        : editMode,
             expose          : "true",
@@ -43,6 +45,7 @@ class UserCreationForm extends React.Component{
             mandatory       : true,
             "default"       : prefix ? prefix : ''
         },{
+            IdmUserField    : 'Password',
             description     : MessageHash['534'],
             editable        : "true",
             expose          : "true",
@@ -99,31 +102,26 @@ class UserCreationForm extends React.Component{
         const {pydio, newUserName, editMode, userData} = this.props;
         let userPrefix = pydio.getPluginConfigs('action.share').get('SHARED_USERS_TMP_PREFIX');
         if(!userPrefix || newUserName.startsWith(userPrefix)) userPrefix = '';
-        const idKey = editMode ? 'existing_user_id' : 'new_user_id';
         let values = {
             new_password:'',
             send_email:true
         };
-        if(editMode){
-            values['existing_user_id'] = this.props.newUserName;
-            if(userData){
-                values['lang'] = userData.lang;
-                if(userData.IdmUser){
-                    if(userData.IdmUser.Attributes['displayName']){
-                        values[userPrefix + 'displayName'] = userData.IdmUser.Attributes['displayName'];
-                    }
-                    if(userData.IdmUser.Attributes['email']){
-                        values[userPrefix + 'email'] = userData.IdmUser.Attributes['email'];
-                    }
-                } else {
-                    if(userData.displayName){
-                        values[userPrefix + 'displayName'] = userData.displayName;
-                    }
-                    if(userData.email){
-                        values[userPrefix + 'email'] = userData.email;
-                    }
+        if(editMode && userData && userData.IdmUser){
+            const {IdmUser} = userData;
+            this.getParameters().forEach(param => {
+                const {name, IdmUserField, scope, pluginId} = param;
+                let value;
+                if(IdmUserField){
+                    value = IdmUser[IdmUserField];
+                } else if(scope === 'user' && IdmUser.Attributes) {
+                    value = IdmUser.Attributes[name];
+                } else if(pluginId && IdmUser.Attributes["parameter:" + pluginId + ":" + name]) {
+                    value = JSON.parse(IdmUser.Attributes["parameter:" + pluginId + ":" + name]);
                 }
-            }
+                if(value !== undefined){
+                    values[name] = value;
+                }
+            });
         }else{
             values['new_user_id'] = userPrefix + newUserName;
             values['lang'] = pydio.currentLanguage;
@@ -141,14 +139,14 @@ class UserCreationForm extends React.Component{
 
     submitCreationForm(){
 
-        const prefix = 'NEW_';
-        const values = this.getValuesForPost(prefix);
-        UsersApi.createUserFromPost(values, function(values, jsonResponse){
-            if(jsonResponse.user && jsonResponse.user.IdmUser){
-                this.props.onUserCreated(User.fromIdmUser(jsonResponse.user.IdmUser));
-            }
-        }.bind(this));
-
+        let existingUser;
+        const {editMode, userData} = this.props;
+        if(editMode){
+            existingUser = userData.IdmUser;
+        }
+        PydioApi.getRestClient().getIdmApi().putExternalUser(this.state.values, this.getParameters(), existingUser).then((idmUser)=>{
+            this.props.onUserCreated(User.fromIdmUser(idmUser));
+        });
     }
 
     cancelCreationForm(){

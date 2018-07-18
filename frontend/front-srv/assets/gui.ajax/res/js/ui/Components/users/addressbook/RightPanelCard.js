@@ -35,7 +35,7 @@ class RightPanelCard extends React.Component{
         const item = this.props.item || {};
         if(item.type === 'user'){
             content = <UserCard {...this.props}/>
-        }else if(item.type === 'group' && item.id.indexOf('/USER_TEAM/') === 0){
+        }else if(item.IdmRole && item.IdmRole.IsTeam){
             content = <TeamCard {...this.props}/>
         }
 

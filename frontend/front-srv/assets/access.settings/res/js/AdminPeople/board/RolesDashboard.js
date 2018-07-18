@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
-import {Paper, IconButton, TextField, FlatButton} from 'material-ui'
+import {Paper, IconButton, TextField, FlatButton, IconMenu, FontIcon, MenuItem} from 'material-ui'
 import Editor from '../editor/Editor'
 import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
@@ -32,13 +32,15 @@ let RolesDashboard = React.createClass({
     getInitialState(){
         return {
             roles: [],
-            loading: false
+            loading: false,
+            showTechnical: false,
         };
     },
 
     load(){
+        const {showTechnical} = this.state;
         this.setState({loading: true});
-        PydioApi.getRestClient().getIdmApi().listRoles().then(roles => {
+        PydioApi.getRestClient().getIdmApi().listRoles(showTechnical, 0, 1000).then(roles => {
             this.setState({roles: roles, loading: false});
         }).catch(e => {
             this.setState({loading: false});
@@ -131,10 +133,20 @@ let RolesDashboard = React.createClass({
 
     render(){
 
-        const {searchRoleString} = this.state;
+        const {searchRoleString, showTechnical} = this.state;
 
         const buttons = [
             <FlatButton primary={true} label={this.context.getMessage("user.6")} onClick={this.createRoleAction.bind(this)}/>,
+            <IconMenu
+                iconButtonElement={<IconButton iconClassName={"mdi mdi-filter-variant"}/>}
+                anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+                targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                desktop={true}
+                onChange={()=> {this.setState({showTechnical:!showTechnical}, ()=>{this.load();})}}
+            >
+                <MenuItem primaryText={"Hide technical roles"} value={"hide"} rightIcon={showTechnical ? null : <FontIcon className={"mdi mdi-check"}/>}/>
+                <MenuItem primaryText={"Show technical roles"} value={"show"} rightIcon={showTechnical ? <FontIcon className={"mdi mdi-check"}/> : null}/>
+            </IconMenu>
         ];
 
         const centerContent = (

@@ -21,7 +21,7 @@
 const {Component} = require('react');
 import UsersList from '../addressbook/UsersList'
 const {Divider} = require('material-ui');
-const {UsersApi} = require('pydio/http/users-api');
+const PydioApi = require('pydio/http/api');
 const {PydioContextConsumer} = require('pydio').requireLib('boot');
 
 
@@ -37,7 +37,7 @@ class GraphPanel extends Component{
         let elements = [];
         if(graph.teams && graph.teams.length){
             const onDeleteAction = function(parentItem, team){
-                UsersApi.removeUserFromTeam(team[0].id, this.props.userId, (response) => {
+                PydioApi.getRestClient().getIdmApi().removeUserFromTeam(team[0].id, this.props.userId, (response) => {
                     if(response.message) {
                         pydio.UI.displayMessage('SUCCESS', response.message);
                     }

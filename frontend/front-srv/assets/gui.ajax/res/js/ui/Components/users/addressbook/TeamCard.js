@@ -23,6 +23,7 @@ const {TextField, FlatButton, CardTitle, Divider} = require('material-ui')
 import UsersList from './UsersList'
 import Loaders from './Loaders'
 import ActionsPanel from '../avatar/ActionsPanel'
+import PydioApi from 'pydio/http/api';
 const {PydioContextConsumer} = require('pydio').requireLib('boot')
 
 /**
@@ -59,7 +60,7 @@ class TeamCard extends React.Component{
     }
     updateLabel(){
         if(this.state.label !== this.props.item.label){
-            PydioUsers.Client.updateTeamLabel(this.props.item.id.replace('/USER_TEAM/', ''), this.state.label, () => {
+            PydioApi.getRestClient().getIdmApi().updateTeamLabel(this.props.item.IdmRole.Uuid, this.state.label, () => {
                 this.props.onUpdateAction(this.props.item);
             });
         }

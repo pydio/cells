@@ -54,15 +54,18 @@ var RolesDashboard = _react2['default'].createClass({
     getInitialState: function getInitialState() {
         return {
             roles: [],
-            loading: false
+            loading: false,
+            showTechnical: false
         };
     },
 
     load: function load() {
         var _this = this;
 
+        var showTechnical = this.state.showTechnical;
+
         this.setState({ loading: true });
-        _pydioHttpApi2['default'].getRestClient().getIdmApi().listRoles().then(function (roles) {
+        _pydioHttpApi2['default'].getRestClient().getIdmApi().listRoles(showTechnical, 0, 1000).then(function (roles) {
             _this.setState({ roles: roles, loading: false });
         })['catch'](function (e) {
             _this.setState({ loading: false });
@@ -166,9 +169,26 @@ var RolesDashboard = _react2['default'].createClass({
     render: function render() {
         var _this4 = this;
 
-        var searchRoleString = this.state.searchRoleString;
+        var _state = this.state;
+        var searchRoleString = _state.searchRoleString;
+        var showTechnical = _state.showTechnical;
 
-        var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.6"), onClick: this.createRoleAction.bind(this) })];
+        var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.6"), onClick: this.createRoleAction.bind(this) }), _react2['default'].createElement(
+            _materialUi.IconMenu,
+            {
+                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-filter-variant" }),
+                anchorOrigin: { horizontal: 'right', vertical: 'top' },
+                targetOrigin: { horizontal: 'right', vertical: 'top' },
+                desktop: true,
+                onChange: function () {
+                    _this4.setState({ showTechnical: !showTechnical }, function () {
+                        _this4.load();
+                    });
+                }
+            },
+            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Hide technical roles", value: "hide", rightIcon: showTechnical ? null : _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) }),
+            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Show technical roles", value: "show", rightIcon: showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
+        )];
 
         var centerContent = _react2['default'].createElement(
             'div',
