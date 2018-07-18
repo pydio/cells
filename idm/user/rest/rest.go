@@ -43,6 +43,13 @@ import (
 	"github.com/pydio/cells/common/utils"
 )
 
+var profilesLevel = map[string]int{
+	common.PYDIO_PROFILE_ANON:     0,
+	common.PYDIO_PROFILE_SHARED:   1,
+	common.PYDIO_PROFILE_STANDARD: 2,
+	common.PYDIO_PROFILE_ADMIN:    3,
+}
+
 type UserHandler struct {
 	resources.ResourceProviderHandler
 }
@@ -182,6 +189,10 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 
+	if len(response.Users) > 0 {
+		paramsAclsToAttributes(ctx, response.Users)
+	}
+
 	rsp.WriteEntity(response)
 }
 
@@ -263,6 +274,8 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			update = existing
 		}
 	}
+	var existingAcls []*idm.ACL
+	ctxLogin, ctxClaims := utils.FindUserNameInContext(ctx)
 	if update != nil {
 		// Check User Policies
 		if !s.MatchPolicies(ctx, update.Uuid, update.Policies, service2.ResourcePolicyAction_WRITE) {
@@ -289,19 +302,66 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			return
 		}
 		// Check user own password change
-		ctxLogin, _ := utils.FindUserNameInContext(ctx)
 		if inputUser.Password != "" && ctxLogin == inputUser.Login {
 			if _, err := cli.BindUser(ctx, &idm.BindUserRequest{UserName: inputUser.Login, Password: inputUser.OldPassword}); err != nil {
 				service.RestError401(req, rsp, err)
 				return
 			}
 		}
-		// TODO: Check ability to edit profile
+		// Load current ACLs for personal role
+		for _, r := range update.Roles {
+			if r.UserRole {
+				existingAcls = utils.GetACLsForRoles(ctx, []*idm.Role{r}, &idm.ACLAction{Name: "parameter:*"})
+			}
+		}
 	}
 
 	if inputUser.IsGroup {
+		if ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to create groups"))
+			return
+		}
 		inputUser.GroupPath = strings.TrimSuffix(inputUser.GroupPath, "/") + "/" + inputUser.GroupLabel
+	} else {
+		// Add a default profile
+		if _, ok := inputUser.Attributes["profile"]; !ok {
+			inputUser.Attributes["profile"] = common.PYDIO_PROFILE_SHARED
+		}
+		// Check profile is not higher than current user profile
+		if profilesLevel[inputUser.Attributes["profile"]] > profilesLevel[ctxClaims.Profile] {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to set a profile (%s) higher than your current profile (%s)", inputUser.Attributes["profile"], ctxClaims.Profile))
+			return
+		}
 	}
+
+	var acls []*idm.ACL
+	var deleteAclActions []string
+	var sendEmail bool
+	cleanAttributes := map[string]string{}
+	for k, v := range inputUser.Attributes {
+		if k == "send_email" {
+			sendEmail = v == "true"
+			continue
+		}
+		if strings.HasPrefix(k, "parameter:") {
+			if !allowedAclKey(k) {
+				continue
+			}
+			var acl = &idm.ACL{
+				Action:      &idm.ACLAction{Name: k, Value: v},
+				WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+			}
+			for _, existing := range existingAcls {
+				if existing.Action != nil && existing.Action.Name == k {
+					deleteAclActions = append(deleteAclActions, existing.Action.Name)
+				}
+			}
+			acls = append(acls, acl)
+			continue
+		}
+		cleanAttributes[k] = v
+	}
+	inputUser.Attributes = cleanAttributes
 
 	response, er := cli.CreateUser(ctx, &idm.CreateUserRequest{
 		User: &inputUser,
@@ -349,6 +409,30 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 
 	u := response.User
 
+	if len(acls) > 0 {
+		aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+		if len(deleteAclActions) > 0 {
+			delQuery := &service2.Query{Operation: service2.OperationType_OR}
+			for _, action := range deleteAclActions {
+				q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+					RoleIDs:      []string{u.Uuid},
+					Actions:      []*idm.ACLAction{{Name: action}},
+					WorkspaceIDs: []string{"PYDIO_REPO_SCOPE_ALL"},
+				})
+				delQuery.SubQueries = append(delQuery.SubQueries, q)
+			}
+			if _, e := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: delQuery}); e != nil {
+				log.Logger(ctx).Error("Could not delete existing ACLs", zap.Error(e))
+			}
+		}
+		for _, acl := range acls {
+			acl.RoleID = u.Uuid
+			if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl}); e != nil {
+				log.Logger(ctx).Error("Could not store ACL", acl.Zap(), zap.Error(e))
+			}
+		}
+	}
+
 	// Reload user fully
 	q, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: u.Uuid})
 	streamer, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
@@ -372,6 +456,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		if !resp.User.IsGroup {
 			u.Roles = utils.GetRolesForUser(ctx, u, false)
 			u.PoliciesContextEditable = s.IsContextEditable(ctx, u.Uuid, u.Policies)
+			paramsAclsToAttributes(ctx, []*idm.User{u})
 		} else if len(u.Roles) == 0 {
 			u.Roles = append(u.Roles, &idm.Role{Uuid: u.Uuid, GroupRole: true})
 			u.Roles = utils.GetRolesForUser(ctx, u, true)
@@ -379,6 +464,10 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		break
 	}
 	rsp.WriteEntity(u)
+
+	if sendEmail {
+		// Now send email to user!
+	}
 
 }
 
@@ -544,4 +633,46 @@ func (s *UserHandler) userById(ctx context.Context, userId string, cli idm.UserS
 
 	return
 
+}
+
+// paramsAclsToAttributes adds some acl-based parameters inside user attributes
+func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
+	var roles []*idm.Role
+	for _, user := range users {
+		var role *idm.Role
+		for _, r := range user.Roles {
+			if r.UserRole {
+				role = r
+				break
+			}
+		}
+		if role != nil {
+			if user.Attributes == nil {
+				user.Attributes = map[string]string{}
+			}
+			roles = append(roles, role)
+		}
+	}
+	if len(roles) == 0 {
+		return
+	}
+	for _, acl := range utils.GetACLsForRoles(ctx, roles, &idm.ACLAction{Name: "parameter:*"}) {
+		for _, user := range users {
+			if allowedAclKey(acl.Action.Name) && user.Uuid == acl.RoleID {
+				user.Attributes[acl.Action.Name] = acl.Action.Value
+			}
+		}
+	}
+
+}
+
+// TODO : EXTRACT THIS FROM PLUGINS REGISTRY
+func allowedAclKey(k string) bool {
+	allowedAclKeysAsAttributes := []string{"parameter:core.conf:lang", "parameter:core.conf:country"}
+	for _, v := range allowedAclKeysAsAttributes {
+		if v == k {
+			return true
+		}
+	}
+	return false
 }
