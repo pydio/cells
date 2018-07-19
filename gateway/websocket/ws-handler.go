@@ -190,7 +190,7 @@ func (w *WebsocketHandler) BroadcastIDMChangeEvent(ctx context.Context, event *i
 		var checkRoleId string
 		var checkUserId string
 		var checkWorkspaceId string
-		if event.Acl != nil && event.Acl.RoleID != "" {
+		if event.Acl != nil && event.Acl.RoleID != "" && !strings.HasPrefix(event.Acl.Action.Name, "parameter:") && !strings.HasPrefix(event.Acl.Action.Name, "action:") {
 			checkRoleId = event.Acl.RoleID
 		} else if event.Role != nil {
 			checkRoleId = event.Role.Uuid
