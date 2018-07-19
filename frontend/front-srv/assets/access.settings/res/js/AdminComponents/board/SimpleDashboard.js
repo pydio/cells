@@ -33,7 +33,7 @@ let Dashboard = React.createClass({
     },
 
     componentDidMount: function(){
-        PydioApi.getClient().loadFile('plugins/access.settings/res/i18n/kb.json', (transport) => {
+        PydioApi.getClient().loadFile('plug/access.settings/res/i18n/kb.json', (transport) => {
             const data = transport.responseJSON;
             this.setState({kb: data});
         });
@@ -192,7 +192,7 @@ let Dashboard = React.createClass({
                 <CardMedia
                     overlay={<CardTitle title={message('ent.title')} subtitle={message('ent.subtitle')}/>}
                 >
-                    <div style={{height:230, backgroundImage:'url(plugins/access.settings/res/images/dashboard.png)', backgroundSize:'cover',borderRadius:3}}/>
+                    <div style={{height:230, backgroundImage:'url(plug/access.settings/res/images/dashboard.png)', backgroundSize:'cover',borderRadius:3}}/>
                 </CardMedia>
                 <List>
                     <ListItem leftIcon={<FontIcon style={{color:accent2Color}} className="mdi mdi-certificate"/>} primaryText={message('ent.features')} secondaryText={message('ent.features.legend')} />

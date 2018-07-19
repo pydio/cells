@@ -4,13 +4,18 @@ import (
 	"html/template"
 	"net/http"
 
+	"context"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/frontend"
 )
 
-type Handler struct {
-	tpl *template.Template
+type IndexHandler struct {
+	tpl              *template.Template
+	frontendDetected bool
 }
 
 type TplConf struct {
@@ -23,13 +28,13 @@ type TplConf struct {
 	StartParameters  map[string]interface{}
 }
 
-func NewHandler() *Handler {
-	h := &Handler{}
+func NewIndexHandler() *IndexHandler {
+	h := &IndexHandler{}
 	h.tpl, _ = template.New("index").Parse(page)
 	return h
 }
 
-func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
@@ -52,5 +57,27 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 	w.WriteHeader(200)
-	h.tpl.Execute(w, tplConf)
+
+	var tpl *template.Template
+	if !h.detectFrontendService() {
+		tpl, _ = template.New("loading").Parse(loading)
+	} else {
+		tpl = h.tpl
+	}
+	tpl.Execute(w, tplConf)
+
+}
+
+func (h *IndexHandler) detectFrontendService() bool {
+
+	if h.frontendDetected {
+		return true
+	}
+	if s, e := defaults.Registry().GetService(common.SERVICE_REST_NAMESPACE_ + common.SERVICE_FRONTEND); e == nil && len(s) > 0 {
+		h.frontendDetected = true
+		return true
+	}
+	log.Logger(context.Background()).Error("Frontend Service Not Detected")
+	return false
+
 }

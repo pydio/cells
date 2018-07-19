@@ -42,10 +42,15 @@ func NewSessionWrapper(h http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		session, err := GetSessionStore().Get(r, "pydio")
+		sessionName := "pydio"
+		if h, ok := r.Header["X-Pydio-Minisite"]; ok {
+			sessionName = sessionName + "-" + strings.Join(h, "")
+		}
+		session, err := GetSessionStore().Get(r, sessionName)
 		if err != nil {
 			log.Logger(r.Context()).Error("Cannot retrieve session", zap.Error(err))
 		}
+		//log.Logger(r.Context()).Info("Loading session name", zap.String("s", sessionName), zap.Any("jwt", session.Values["jwt"]))
 
 		if value, ok := session.Values["jwt"]; ok {
 			ctx := r.Context()
@@ -58,7 +63,7 @@ func NewSessionWrapper(h http.Handler) http.Handler {
 					session.Save(r, w)
 				}
 			} else {
-				log.Logger(ctx).Info("Found token in session")
+				log.Logger(ctx).Debug("Found token in session " + sessionName)
 				// Update context
 				r = r.WithContext(ctx)
 			}

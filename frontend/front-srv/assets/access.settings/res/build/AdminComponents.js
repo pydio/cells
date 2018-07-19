@@ -17654,7 +17654,7 @@ var Dashboard = React.createClass({
     componentDidMount: function componentDidMount() {
         var _this = this;
 
-        PydioApi.getClient().loadFile('plugins/access.settings/res/i18n/kb.json', function (transport) {
+        PydioApi.getClient().loadFile('plug/access.settings/res/i18n/kb.json', function (transport) {
             var data = transport.responseJSON;
             _this.setState({ kb: data });
         });
@@ -17869,7 +17869,7 @@ var Dashboard = React.createClass({
                 {
                     overlay: React.createElement(CardTitle, { title: message('ent.title'), subtitle: message('ent.subtitle') })
                 },
-                React.createElement('div', { style: { height: 230, backgroundImage: 'url(plugins/access.settings/res/images/dashboard.png)', backgroundSize: 'cover', borderRadius: 3 } })
+                React.createElement('div', { style: { height: 230, backgroundImage: 'url(plug/access.settings/res/images/dashboard.png)', backgroundSize: 'cover', borderRadius: 3 } })
             ),
             React.createElement(
                 List,
@@ -19725,7 +19725,7 @@ var WelcomePanel = (function (_Component) {
                 React.createElement(
                     'div',
                     { className: 'screencast' },
-                    React.createElement('img', { src: 'plugins/access.ajxp_admin/images/screencast.gif' })
+                    React.createElement('img', { src: 'plug/access.ajxp_admin/images/screencast.gif' })
                 ),
                 React.createElement(
                     'h4',

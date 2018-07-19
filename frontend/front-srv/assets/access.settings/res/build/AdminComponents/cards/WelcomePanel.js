@@ -61,7 +61,7 @@ var WelcomePanel = (function (_Component) {
                 React.createElement(
                     'div',
                     { className: 'screencast' },
-                    React.createElement('img', { src: 'plugins/access.ajxp_admin/images/screencast.gif' })
+                    React.createElement('img', { src: 'plug/access.ajxp_admin/images/screencast.gif' })
                 ),
                 React.createElement(
                     'h4',

@@ -58,9 +58,13 @@ class JwtApiClient extends ApiClient{
      * @return {Promise}
      */
     jwtEndpoint(request) {
+        let headers = null;
+        if(this.pydio.Parameters.has('MINISITE_SESSION')) {
+            headers = {"X-Pydio-Minisite":this.pydio.Parameters.get('MINISITE_SESSION')};
+        }
         return super.callApi(
             '/frontend/session', 'POST',
-            null, null, null, null,
+            null, null, headers, null,
             request, [], ['application/json'], ['application/json'],
             RestFrontSessionResponse
         );
@@ -78,11 +82,14 @@ class JwtApiClient extends ApiClient{
         };
     }
 
+    /**
+     * Call session endpoint for destroying session
+     */
     sessionLogout(){
         const api = new FrontendServiceApi(this);
         const request = new RestFrontSessionRequest();
         request.Logout = true;
-        api.frontSession(request).then(response => {
+        this.jwtEndpoint(request).then(response => {
             PydioApi.JWT_DATA = null;
             this.pydio.loadXmlRegistry();
         });
@@ -92,14 +99,21 @@ class JwtApiClient extends ApiClient{
      *
      * @param login string
      * @param password string
+     * @param reloadRegistry bool
      * @return {Promise<any>}
      */
-    jwtFromCredentials(login, password) {
+    jwtFromCredentials(login, password, reloadRegistry = true) {
         const request = RestFrontSessionRequest.constructFromObject({Login:login, Password: password});
         return this.jwtEndpoint(request).then(response => {
             if(response.data && response.data.JWT){
                 JwtApiClient.storeJwtLocally(response.data);
-                this.pydio.loadXmlRegistry();
+                if(reloadRegistry){
+                    let targetRepository = null;
+                    if (this.pydio.Parameters.has('START_REPOSITORY')) {
+                        targetRepository = this.pydio.Parameters.get("START_REPOSITORY");
+                    }
+                    this.pydio.loadXmlRegistry(null, null, targetRepository);
+                }
             } else {
                 PydioApi.JWT_DATA = null;
             }

@@ -92,11 +92,15 @@ var (
 	}
 	proxy /plug/   {{.FrontPlugins.Host}} {
 		transparent
-		without /plug/
 	}
 	proxy /dav/ {{.DAV.Host}} {
 		transparent
 		without /dav/
+	}
+
+	proxy /public/ {{.FrontPlugins.Host}}/public {
+		transparent
+		without /public/
 	}
 
 	{{if .Collabora}}
@@ -140,6 +144,7 @@ var (
 		if {path} not_starts_with "/loleaflet/"
 		if {path} not_starts_with "/hosting/discovery"
 		if {path} not_starts_with "/lool/"
+		if {path} not_starts_with "/public/"
 		to {path} {path}/ /index.html
 	}
 
@@ -157,7 +162,6 @@ http://{{.HttpRedirectSource.Host}} {
 }
 {{end}}
 `
-
 	DefaultCaddyfile = filepath.Join(ApplicationDataDir(), "Caddyfile")
 )
 

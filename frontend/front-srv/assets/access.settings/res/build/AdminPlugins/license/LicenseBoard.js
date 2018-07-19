@@ -64,7 +64,7 @@ var AboutPanel = (function (_React$Component) {
             var setContent = (function () {
                 var c = 'Loading...';
                 if (this.state.content) {
-                    c = '<u>Pydio Enterprise Distribution</u> is covered by an <a href="plugins/boot.enterprise/EULA.txt" target="_blank">End-User License Agreement</a> that you have agreed when installing the software.<br/>' + this.state.content;
+                    c = '<u>Pydio Enterprise Distribution</u> is covered by an <a href="plug/boot.enterprise/EULA.txt" target="_blank">End-User License Agreement</a> that you have agreed when installing the software.<br/>' + this.state.content;
                 }
                 return { __html: c };
             }).bind(this);

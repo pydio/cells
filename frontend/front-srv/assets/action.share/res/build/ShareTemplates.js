@@ -317,10 +317,10 @@ var ConfigLogo = (function (_React$Component) {
                 logo = pydio.Parameters.get('ajxpResourcesFolder') + '/themes/common/images/PydioLogo250.png';
             }
             if (logo) {
-                if (logo.indexOf('plugins/') === 0) {
+                if (logo.indexOf('plug/') === 0) {
                     url = logo;
                 } else {
-                    url = pydio.Parameters.get('ajxpServerAccess') + "&get_action=get_global_binary_param&binary_id=" + logo;
+                    url = pydio.Parameters.get('ENDPOINT_REST_API') + "/frontend/binaries/GLOBAL/" + logo;
                 }
             }
             return React.createElement('img', { src: url, style: this.props.style });

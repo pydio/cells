@@ -169,15 +169,25 @@ class Pydio extends Observable{
 
         }else{
 
-            this.loadXmlRegistry(false, null, starterFunc);
+            if(this.Parameters.has("PRELOG_USER") && !this.user) {
+                const login = this.Parameters.get("PRELOG_USER");
+                const pwd = login + "#$!Az1";
+                PydioApi.getRestClient().jwtFromCredentials(login, pwd, false).then(()=> {
+                    this.loadXmlRegistry(null, starterFunc);
+                }).catch(e => {
+                    this.loadXmlRegistry(null, starterFunc);
+                })
+            } else {
+                this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
+            }
 
         }
 
         this.observe("server_message", (xml) => {
             const reload = XMLUtils.XPathSelectSingleNode(xml, "tree/require_registry_reload");
             if(reload){
-                if(reload.getAttribute("repositoryId") != this.repositoryId){
-                    this.loadXmlRegistry(false, null, null, reload.getAttribute("repositoryId"));
+                if(reload.getAttribute("repositoryId") !== this.repositoryId){
+                    this.loadXmlRegistry(null, null, reload.getAttribute("repositoryId"));
                     this.repositoryId = null;
                 }
             }
@@ -192,7 +202,7 @@ class Pydio extends Observable{
      * @param completeFunc
      * @param targetRepositoryId
      */
-    loadXmlRegistry (sync, xPath = null, completeFunc = null, targetRepositoryId = null){
+    loadXmlRegistry (xPath = null, completeFunc = null, targetRepositoryId = null){
         this.Registry.load(xPath, completeFunc, targetRepositoryId);
     }
 
@@ -264,7 +274,7 @@ class Pydio extends Observable{
                 active:this.user.getActiveRepository()
             });
         });
-        this.loadXmlRegistry(false, "user/repositories");
+        this.loadXmlRegistry("user/repositories");
     }
 
     /**

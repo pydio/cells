@@ -64,16 +64,20 @@ export default class Registry{
         }
         this._globalLoading = true;
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
-            let url = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/state/';
+            const {user, Parameters} = this._pydioObject;
+            let url = Parameters.get('ENDPOINT_REST_API') + '/frontend/state/';
             let headers = {};
             if(jwt){
                 headers = {Authorization: 'Bearer ' + jwt};
-                if (pydio.user) {
-                    url += '?ws=' + (repositoryId ? repositoryId : pydio.user.getActiveRepository())
+                if (user || repositoryId) {
+                    url += '?ws=' + (repositoryId ? repositoryId : user.getActiveRepository())
                 }
             }
-            if (pydio.user && pydio.user.getPreference('lang')){
-                const lang = pydio.user.getPreference('lang', true);
+            if(Parameters.has('MINISITE_SESSION')) {
+                headers["X-Pydio-Minisite"] = Parameters.get('MINISITE_SESSION')
+            }
+            if (user && user.getPreference('lang')){
+                const lang = user.getPreference('lang', true);
                 if (url.indexOf('?') > 0) {
                     url += '&lang=' + lang;
                 } else {

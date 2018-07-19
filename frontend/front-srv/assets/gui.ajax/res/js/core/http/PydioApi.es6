@@ -472,18 +472,6 @@ class PydioApi{
 
     }
 
-    buildUserAvatarUrl(userId, avatarId = null){
-
-        if(avatarId){
-            return this._pydioObject.Parameters.get('ajxpServerAccess')
-                + "&get_action=get_binary_param&binary_id="
-                + avatarId + "&user_id=" + userId;
-        }else{
-            return null;
-        }
-
-    }
-
     applyCheckHook(node, hookName, hookArg, completeCallback, additionalParams){
         let params = {
             get_action : "apply_check_hook",

@@ -18,7 +18,7 @@ class WelcomePanel extends Component{
             >
                 {this.props.closeButton}
                 <div className="screencast">
-                    <img src="plugins/access.ajxp_admin/images/screencast.gif"/>
+                    <img src="plug/access.ajxp_admin/images/screencast.gif"/>
                 </div>
                 <h4>{this.props.getMessage("home.44")}</h4>
                 <div className="getting-started-content" dangerouslySetInnerHTML={{__html:this.props.getMessage('home.getting_started')}}></div>

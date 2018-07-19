@@ -136,9 +136,13 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		service.RestError500(req, rsp, e)
 		return
 	}
+	sessionName := "pydio"
+	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
+		sessionName = sessionName + "-" + h
+	}
 
 	if loginRequest.Logout {
-		if session, err := frontend.GetSessionStore().Get(req.Request, "pydio"); err == nil {
+		if session, err := frontend.GetSessionStore().Get(req.Request, sessionName); err == nil {
 			if _, ok := session.Values["jwt"]; ok {
 				delete(session.Values, "jwt")
 				session.Options.MaxAge = 0
@@ -151,7 +155,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 
 	if loginRequest.Login == "" && loginRequest.Password == "" {
 
-		if session, err := frontend.GetSessionStore().Get(req.Request, "pydio"); err == nil {
+		if session, err := frontend.GetSessionStore().Get(req.Request, sessionName); err == nil {
 			if val, ok := session.Values["jwt"]; ok {
 				expiry := session.Values["expiry"].(int64)
 				expTime := time.Unix(expiry, 0)
@@ -208,7 +212,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		ExpireTime: int32(expiry),
 	}
 
-	if session, err := frontend.GetSessionStore().Get(req.Request, "pydio"); err == nil {
+	if session, err := frontend.GetSessionStore().Get(req.Request, sessionName); err == nil {
 		log.Logger(req.Request.Context()).Debug("Saving token in session")
 		session.Values["nonce"] = nonce
 		session.Values["jwt"] = token

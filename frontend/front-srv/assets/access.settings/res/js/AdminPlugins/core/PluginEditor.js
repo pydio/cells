@@ -206,7 +206,7 @@ const PluginEditor = React.createClass({
         let doc = this.state.documentation;
         if(doc && this.props.docAsAdditionalPane){
             doc = doc.firstChild.nodeValue.replace('<p><ul', '<ul').replace('</ul></p>', '</ul>').replace('<p></p>', '');
-            doc = doc.replace('<img src="', '<img style="width:90%;" src="plugins/' + this.props.pluginId + '/');
+            doc = doc.replace('<img src="', '<img style="width:90%;" src="plug/' + this.props.pluginId + '/');
             const readDoc = () => {
                 return {__html:doc};
             };

@@ -29,6 +29,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"time"
+
+	"github.com/gorilla/mux"
 	"github.com/pydio/cells/assets"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -64,13 +67,22 @@ func init() {
 			port := cfg.Int("port", 9025)
 
 			return service.RunnerFunc(func() error {
+					router := mux.NewRouter()
 					httpFs := frontend.GetPluginsFS()
-					http.Handle("/", http.FileServer(httpFs))
-
-					h := index.NewHandler()
-					http.Handle("/gui", h)
-
-					http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+					fs := http.FileServer(httpFs)
+					router.Handle("/index.json", fs)
+					router.PathPrefix("/plug/").Handler(http.StripPrefix("/plug/", fs))
+					router.Handle("/gui", index.NewIndexHandler())
+					router.Handle("/public/{link}", index.NewPublicHandler())
+					http.Handle("/", router)
+					srv := &http.Server{
+						Handler: router,
+						Addr:    fmt.Sprintf(":%d", port),
+						// Good practice: enforce timeouts for servers you create!
+						WriteTimeout: 15 * time.Second,
+						ReadTimeout:  15 * time.Second,
+					}
+					srv.ListenAndServe()
 
 					return nil
 				}), service.CheckerFunc(func() error {
