@@ -13,6 +13,7 @@
 
 
 import ApiClient from "../ApiClient";
+import RestFrontBinaryRequest from '../model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from '../model/RestFrontBinaryResponse';
 import RestFrontBootConfResponse from '../model/RestFrontBootConfResponse';
 import RestFrontLogMessage from '../model/RestFrontLogMessage';
@@ -225,6 +226,70 @@ export default class FrontendServiceApi {
      */
     frontPlugins(lang) {
       return this.frontPluginsWithHttpInfo(lang)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Upload frontend binaries (avatars / logos / bg images)
+     * @param {String} binaryType 
+     * @param {String} uuid 
+     * @param {module:model/RestFrontBinaryRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBinaryResponse} and HTTP response
+     */
+    frontPutBinaryWithHttpInfo(binaryType, uuid, body) {
+      let postBody = body;
+
+      // verify the required parameter 'binaryType' is set
+      if (binaryType === undefined || binaryType === null) {
+        throw new Error("Missing the required parameter 'binaryType' when calling frontPutBinary");
+      }
+
+      // verify the required parameter 'uuid' is set
+      if (uuid === undefined || uuid === null) {
+        throw new Error("Missing the required parameter 'uuid' when calling frontPutBinary");
+      }
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling frontPutBinary");
+      }
+
+
+      let pathParams = {
+        'BinaryType': binaryType,
+        'Uuid': uuid
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestFrontBinaryResponse;
+
+      return this.apiClient.callApi(
+        '/frontend/binaries/{BinaryType}/{Uuid}', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Upload frontend binaries (avatars / logos / bg images)
+     * @param {String} binaryType 
+     * @param {String} uuid 
+     * @param {module:model/RestFrontBinaryRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBinaryResponse}
+     */
+    frontPutBinary(binaryType, uuid, body) {
+      return this.frontPutBinaryWithHttpInfo(binaryType, uuid, body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

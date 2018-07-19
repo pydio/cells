@@ -66,7 +66,7 @@ class UserAvatar extends React.Component{
         if (userType === "group" || userType === "team") {
             return;
         }
-        UsersApi.getUserPromise(userId, richCard).then((userObject) => {
+        UsersApi.getUserPromise(userId).then((userObject) => {
             if(userObject.isLocal()){
                 this._userLoggedObs = () => {
                     this._userLoggedObs = null;

@@ -18,7 +18,6 @@ import (
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
-	"go.uber.org/zap"
 )
 
 type User struct {
@@ -267,7 +266,6 @@ func (u *User) publishPreferences(status RequestStatus, pool *PluginsPool) (pref
 		} else {
 			plugin := pool.Plugins[exposed.PluginId]
 			pref := plugin.PluginConfig(status, &exposed.Cglobal_param)
-			fmt.Println("Exposing preference", zap.String("p", exposed.Attrname), zap.String("t", exposed.Attrtype))
 			if exposed.Attrtype == "string" || exposed.Attrtype == "select" || exposed.Attrtype == "autocomplete" {
 				preferencesNodes = append(preferencesNodes, &Cpref{
 					Attrname:     exposed.Attrname,

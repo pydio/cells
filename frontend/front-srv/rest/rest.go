@@ -30,8 +30,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
+	"context"
+
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -42,7 +42,7 @@ import (
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/frontend"
-	service2 "github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -140,7 +140,6 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	if loginRequest.Logout {
 		if session, err := frontend.GetSessionStore().Get(req.Request, "pydio"); err == nil {
 			if _, ok := session.Values["jwt"]; ok {
-				log.Logger(req.Request.Context()).Info("Clearing session")
 				delete(session.Values, "jwt")
 				session.Options.MaxAge = 0
 				session.Save(req.Request, rsp.ResponseWriter)
@@ -159,7 +158,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 				ref := time.Now()
 				if refresh, refOk := session.Values["refresh_token"]; refOk && (expTime.Before(ref) || expTime.Equal(ref)) {
 					// Refresh token
-					log.Logger(req.Request.Context()).Info("Refreshing Token Now", zap.Any("refresh", refresh), zap.Any("nonce", session.Values["nonce"]))
+					log.Logger(req.Request.Context()).Debug("Refreshing Token Now", zap.Any("refresh", refresh), zap.Any("nonce", session.Values["nonce"]))
 					refreshResponse, err := GrantTypeAccess(session.Values["nonce"].(string), refresh.(string), "", "")
 					if err != nil {
 						service.RestError401(req, rsp, err)
@@ -210,7 +209,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 
 	if session, err := frontend.GetSessionStore().Get(req.Request, "pydio"); err == nil {
-		log.Logger(req.Request.Context()).Info("Saving token in session")
+		log.Logger(req.Request.Context()).Debug("Saving token in session")
 		session.Values["nonce"] = nonce
 		session.Values["jwt"] = token
 		session.Values["refresh_token"] = refreshToken
@@ -264,68 +263,156 @@ func (a *FrontendHandler) FrontLog(req *restful.Request, rsp *restful.Response) 
 	}()
 }
 
+// FrontServeBinary triggers a download of a stored binary
 func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Response) {
 
 	binaryType := req.PathParameter("BinaryType")
 	binaryUuid := req.PathParameter("Uuid")
 	ctx := req.Request.Context()
 
+	router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
+	var readNode *tree.Node
+	var extension string
+
 	if binaryType == "USER" {
 
-		var user *idm.User
-		cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
-		subQ, _ := ptypes.MarshalAny(&idm.UserSingleQuery{
-			Login: binaryUuid,
-		})
-		stream, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
-			Query: &service2.Query{
-				SubQueries: []*any.Any{subQ},
-			},
-		})
-		if err != nil {
-			return
-		}
-		defer stream.Close()
-		for {
-			rsp, e := stream.Recv()
-			if e != nil {
-				break
-			}
-			if rsp == nil {
-				continue
-			}
-			user = rsp.User
-			break
-		}
-		if user == nil {
-			service.RestError404(req, rsp, fmt.Errorf("cannot find user"))
+		user, e := utils.SearchUniqueUser(ctx, binaryUuid, "")
+		if e != nil {
+			service.RestError404(req, rsp, e)
 			return
 		}
 		if avatarId, ok := user.Attributes["avatar"]; ok {
 
-			router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
-			node := &tree.Node{
+			readNode = &tree.Node{
 				Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/users_binaries." + user.Login + "-" + avatarId,
 			}
-			info, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
+			extension = strings.Split(avatarId, ".")[1]
+		}
+	} else if binaryType == "GLOBAL" {
+
+		readNode = &tree.Node{
+			Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/global_binaries." + binaryUuid,
+		}
+		if strings.Contains(binaryUuid, ".") {
+			extension = strings.Split(binaryUuid, ".")[1]
+		}
+
+	}
+
+	if readNode != nil {
+		// If anonymous GET, add system user in context before querying object service
+		if ctxUser, _ := utils.FindUserNameInContext(ctx); ctxUser == "" {
+			ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+		}
+		info, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: readNode})
+		if e != nil {
+			service.RestError404(req, rsp, e)
+			return
+		}
+		reader, e := router.GetObject(ctx, readNode, &views.GetRequestData{Length: info.Node.Size})
+		if e == nil {
+			defer reader.Close()
+			rsp.Header().Set("Content-Type", "image/"+extension)
+			rsp.Header().Set("Content-Length", fmt.Sprintf("%d", info.Node.Size))
+			_, e := io.Copy(rsp.ResponseWriter, reader)
 			if e != nil {
-				service.RestError404(req, rsp, e)
-				return
-			}
-			reader, e := router.GetObject(ctx, node, &views.GetRequestData{Length: info.Node.Size})
-			if e == nil {
-				defer reader.Close()
-				rsp.Header().Set("Content-Type", "image/"+strings.Split(avatarId, ".")[1])
-				rsp.Header().Set("Content-Length", fmt.Sprintf("%d", info.Node.Size))
-				_, e := io.Copy(rsp.ResponseWriter, reader)
-				if e != nil {
-					service.RestError500(req, rsp, e)
-				}
-			} else {
 				service.RestError500(req, rsp, e)
 			}
+		} else {
+			service.RestError500(req, rsp, e)
 		}
 	}
+
+}
+
+// FrontServeBinary receives an upload of a stored binary
+func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Response) {
+
+	binaryType := req.PathParameter("BinaryType")
+	binaryUuid := req.PathParameter("Uuid")
+	ctx := req.Request.Context()
+
+	if e := req.Request.ParseForm(); e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+	f1, f2, e1 := req.Request.FormFile("userfile")
+	if e1 != nil {
+		service.RestError500(req, rsp, e1)
+		return
+	}
+	cType := strings.Split(f2.Header.Get("Content-Type"), "/")
+	extension := cType[1]
+	binaryId := uuid.New()[0:12] + "." + extension
+	ctxUser, ctxClaims := utils.FindUserNameInContext(ctx)
+
+	log.Logger(ctx).Debug("Upload Binary", zap.String("type", binaryType), zap.Any("header", f2))
+	router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
+
+	defer f1.Close()
+
+	if binaryType == "USER" {
+		// USER binaries can only be edited by context user or by admin
+		if ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN && ctxUser != binaryUuid {
+			service.RestError401(req, rsp, fmt.Errorf("you are not allowed to edit this binary"))
+			return
+		}
+
+		user, e := utils.SearchUniqueUser(ctx, binaryUuid, "")
+		if e != nil {
+			service.RestError404(req, rsp, e)
+			return
+		}
+
+		node := &tree.Node{
+			Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/users_binaries." + binaryUuid + "-" + binaryId,
+		}
+		_, e = router.PutObject(ctx, node, f1, &views.PutRequestData{
+			Size: f2.Size,
+		})
+		if e != nil {
+			service.RestError500(req, rsp, e)
+			return
+		}
+
+		if user.Attributes == nil {
+			user.Attributes = map[string]string{}
+		}
+		user.Attributes["avatar"] = binaryId
+		cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		_, e = cli.CreateUser(ctx, &idm.CreateUserRequest{User: user})
+		if e != nil {
+			service.RestError404(req, rsp, e)
+			return
+		}
+	} else if binaryType == "GLOBAL" {
+
+		// GLOBAL binaries are only editable by admins
+		if ctxClaims.Profile != common.PYDIO_PROFILE_ADMIN {
+			service.RestError401(req, rsp, fmt.Errorf("you are not allowed to edit this binary"))
+			return
+		}
+
+		router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
+		node := &tree.Node{
+			Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/global_binaries." + binaryId,
+		}
+		_, e := router.PutObject(ctx, node, f1, &views.PutRequestData{
+			Size: f2.Size,
+		})
+		if e != nil {
+			service.RestError500(req, rsp, e)
+			return
+		}
+
+	} else {
+
+		service.RestError500(req, rsp, fmt.Errorf("unsupported Binary Type (must be USER or GLOBAL)"))
+		return
+
+	}
+
+	rsp.WriteAsJson(map[string]string{"binary": binaryId})
 
 }
 

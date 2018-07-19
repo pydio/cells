@@ -13,8 +13,8 @@
         <param name="displayName" scope="user" description="CONF_MESSAGE[Full name displayed to others]" label="CONF_MESSAGE[Name]" type="string" expose="true" editable="true"/>
         <param name="avatar" scope="user" description="CONF_MESSAGE[Image displayed next to the user name]" label="CONF_MESSAGE[Avatar]" type="image" expose="true"
                editable="true"
-               uploadAction="store_binary_temp"
-               loadAction="get_binary_param"
+               uploadAction="/frontend/binaries/USER/{BINARY}"
+               loadAction="/frontend/binaries/USER/{BINARY}"
                defaultImage="plug/core.conf/default_avatar.png"
                 />
         <param name="email" scope="user" description="CONF_MESSAGE[Address used for notifications]" label="CONF_MESSAGE[Email]" type="string" expose="true" editable="true"/>

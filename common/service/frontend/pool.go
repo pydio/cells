@@ -212,12 +212,12 @@ func (p *PluginsPool) pluginsForStatus(ctx context.Context, status RequestStatus
 	filtered := make(map[string]Plugin)
 	for id, p := range p.Plugins {
 		if !p.PluginEnabled(status) {
-			log.Logger(ctx).Info("Filtering out plugin " + id + " (disabled)")
+			log.Logger(ctx).Debug("Filtering out plugin " + id + " (disabled)")
 			continue
 		}
 		parts := strings.Split(id, ".")
 		if parts[0] == "access" && parts[1] != activeAccessType {
-			log.Logger(ctx).Info("Filtering out plugin " + id + " (wrong access)")
+			log.Logger(ctx).Debug("Filtering out plugin " + id + " (wrong access)")
 			continue
 		}
 		filtered[id] = p
@@ -239,7 +239,7 @@ func (p *PluginsPool) pluginsForStatus(ctx context.Context, status RequestStatus
 		if foundOne {
 			filteredDeps[id] = plugin
 		} else {
-			log.Logger(ctx).Info("Filtering out plugin " + id + " (missing dependencies)")
+			log.Logger(ctx).Debug("Filtering out plugin " + id + " (missing dependencies)")
 		}
 	}
 	sorted := p.sort(filteredDeps)

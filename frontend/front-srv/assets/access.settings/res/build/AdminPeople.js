@@ -25482,6 +25482,13 @@ var UserInfo = (function (_React$Component) {
     }
 
     _createClass(UserInfo, [{
+        key: 'getBinaryContext',
+        value: function getBinaryContext() {
+            var user = this.props.user;
+
+            return "user_id=" + user.getIdmUser().Login;
+        }
+    }, {
         key: 'getPydioRoleMessage',
         value: function getPydioRoleMessage(messageId) {
             var pydio = this.props.pydio;
@@ -25633,7 +25640,8 @@ var UserInfo = (function (_React$Component) {
                     parameters: params,
                     onParameterChange: this.onParameterChange.bind(this),
                     values: values,
-                    depth: -2
+                    depth: -2,
+                    binary_context: this.getBinaryContext()
                 }),
                 rolesPicker
             );

@@ -100,8 +100,8 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 			rootPath := "/" + strings.TrimPrefix(s.Options().Name, common.SERVICE_REST_NAMESPACE_)
 
 			ws := new(restful.WebService)
-			ws.Consumes(restful.MIME_JSON)
-			ws.Produces(restful.MIME_JSON)
+			ws.Consumes(restful.MIME_JSON, "application/x-www-form-urlencoded", "multipart/form-data")
+			ws.Produces(restful.MIME_JSON, restful.MIME_OCTET, restful.MIME_XML)
 			ws.Path(rootPath)
 
 			h := handler()

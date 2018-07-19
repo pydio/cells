@@ -58,18 +58,18 @@
         <global_param name="GUI_THEME" group="CONF_MESSAGE[Main Options]" type="select" choices="material|Material" label="CONF_MESSAGE[Theme]" description="CONF_MESSAGE[Theme used for display]" mandatory="true" default="material"/>
         <global_param name="ENABLE_WELCOME_TOUR" group="CONF_MESSAGE[Main Options]" type="boolean" expose="true" label="CONF_MESSAGE[Enable Welcome Tour]" description="CONF_MESSAGE[Enable the small tour triggered at first visit]" default="true"/>
         <global_param name="CUSTOM_ICON_BINARY" group="CONF_MESSAGE[Login Screen]" type="image" label="CONF_MESSAGE[Custom Icon]" description="CONF_MESSAGE[URI to a custom image to be used as start up logo]"
-                    editable="true"
-                    uploadAction="store_binary_temp"
-                    loadAction="get_global_binary_param"
-                    defaultImage="plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png"
-                    mandatory="false"
-                    expose="true"
+                      editable="true"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png"
+                      mandatory="false"
+                      expose="true"
                 />
         <global_param name="CUSTOM_ICON" group="CONF_MESSAGE[Login Screen]" type="string" label="CONF_MESSAGE[Icon Path (Legacy)]" description="CONF_MESSAGE[URI to a custom image to be used as start up logo]" default="plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png" mandatory="false" expose="true"/>
         <global_param name="CUSTOM_DASH_LOGO" group="CONF_MESSAGE[Login Screen]"  label="CONF_MESSAGE[User Home Logo]" description="CONF_MESSAGE[Replace the logo displayed in the welcome page]"  type="image"
                       editable="true"
-                      uploadAction="store_binary_temp"
-                      loadAction="get_global_binary_param"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       defaultImage="plug/gui.ajax/res/themes/common/images/PydioLogo250.png"
                       expose="true"
                 />
@@ -78,8 +78,8 @@
 
         <global_param name="WELCOME_PAGE_BACKGROUND_1" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (1)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
-                      uploadAction="store_binary_temp"
-                      loadAction="get_global_binary_param"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/01.jpg"
                       expose="true"
                 />
@@ -90,8 +90,8 @@
 
         <global_param name="WELCOME_PAGE_BACKGROUND_2" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (2)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
-                      uploadAction="store_binary_temp"
-                      loadAction="get_global_binary_param"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/02.jpg"
                       expose="true"
                 />
@@ -102,8 +102,8 @@
 
         <global_param name="WELCOME_PAGE_BACKGROUND_3" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (3)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
-                      uploadAction="store_binary_temp"
-                      loadAction="get_global_binary_param"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/03.jpg"
                       expose="true"
                 />
@@ -114,8 +114,8 @@
 
         <global_param name="WELCOME_PAGE_BACKGROUND_4" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (4)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
-                      uploadAction="store_binary_temp"
-                      loadAction="get_global_binary_param"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/04.jpg"
                       expose="true"
                 />
@@ -126,8 +126,8 @@
 
         <global_param name="WELCOME_PAGE_BACKGROUND_5" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (5)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
-                      uploadAction="store_binary_temp"
-                      loadAction="get_global_binary_param"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/05.jpg"
                       expose="true"
                 />
@@ -138,8 +138,8 @@
 
         <global_param name="WELCOME_PAGE_BACKGROUND_6" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (6)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
-                      uploadAction="store_binary_temp"
-                      loadAction="get_global_binary_param"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/06.jpg"
                       expose="true"
                 />
@@ -150,8 +150,8 @@
 
         <global_param name="WELCOME_PAGE_BACKGROUND_LOWRES" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Low-Resolution Background]" description="CONF_MESSAGE[Make sure to use a smaller resolution image, otherwise mobile loading is very slow.]" mandatory="false"
                       editable="true"
-                      uploadAction="store_binary_temp"
-                      loadAction="get_global_binary_param"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/03-mobile.jpg"
                       expose="true"
                 />
@@ -163,8 +163,8 @@
 
         <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_1" group="CONF_MESSAGE[Minisite]" type="image" label="CONF_MESSAGE[Custom Background (1)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
-                      uploadAction="store_binary_temp"
-                      loadAction="get_global_binary_param"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/02.jpg"
                       expose="true"
                 />
@@ -174,8 +174,8 @@
                       mandatory="false" expose="true" default="background-repeat:repeat;background-size:100%;background-position:50% 50%;"/>
         <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_2" group="CONF_MESSAGE[Minisite]" type="image" label="CONF_MESSAGE[Custom Background (2)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
-                      uploadAction="store_binary_temp"
-                      loadAction="get_global_binary_param"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/03.jpg"
                       expose="true"
                 />
@@ -184,8 +184,8 @@
                       label="CONF_MESSAGE[Background Attributes (2)]" description="CONF_MESSAGE[Attributes of the image used as a background]" mandatory="false" expose="true"  default="background-repeat:repeat;background-size:100%;background-position:50% 50%;"/>
         <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_3" group="CONF_MESSAGE[Minisite]" type="image" label="CONF_MESSAGE[Custom Background (3)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
-                      uploadAction="store_binary_temp"
-                      loadAction="get_global_binary_param"
+                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
+                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/05.jpg"
                       expose="true"
                 />

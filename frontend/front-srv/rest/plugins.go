@@ -83,14 +83,16 @@ func init() {
 
 	frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
 
-	service.NewService(
+	s := service.NewService(
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),
 		service.Tag(common.SERVICE_TAG_FRONTEND),
 		service.Description("REST service for serving specific requests directly to frontend"),
 		service.PluginBoxes(BasePluginsBox),
-		service.WithWebSession(),
 		service.WithWeb(func() service.WebHandler {
 			return NewFrontendHandler()
 		}),
 	)
+	// Make sure to have the WebSession wrapper happen before the policies
+	s.Init(service.WithWebSession())
+
 }

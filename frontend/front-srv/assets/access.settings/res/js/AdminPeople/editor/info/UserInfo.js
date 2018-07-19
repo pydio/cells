@@ -18,6 +18,11 @@ class UserInfo extends React.Component {
 
     }
 
+    getBinaryContext(){
+        const {user} = this.props;
+        return "user_id="+user.getIdmUser().Login;
+    }
+
     getPydioRoleMessage(messageId){
         const {pydio} = this.props;
         return pydio.MessageHash['role_editor.' + messageId] || messageId;
@@ -132,6 +137,7 @@ class UserInfo extends React.Component {
                     onParameterChange={this.onParameterChange.bind(this)}
                     values={values}
                     depth={-2}
+                    binary_context={this.getBinaryContext()}
                 />
                 {rolesPicker}
             </div>

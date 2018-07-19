@@ -1268,6 +1268,43 @@ var SwaggerJson = `{
         "tags": [
           "FrontendService"
         ]
+      },
+      "post": {
+        "summary": "Upload frontend binaries (avatars / logos / bg images)",
+        "operationId": "FrontPutBinary",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontBinaryResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "BinaryType",
+            "in": "path",
+            "required": true,
+            "type": "restFrontBinaryType"
+          },
+          {
+            "name": "Uuid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restFrontBinaryRequest"
+            }
+          }
+        ],
+        "tags": [
+          "FrontendService"
+        ]
       }
     },
     "/frontend/bootconf": {
@@ -6049,6 +6086,17 @@ var SwaggerJson = `{
         "Success": {
           "type": "boolean",
           "format": "boolean"
+        }
+      }
+    },
+    "restFrontBinaryRequest": {
+      "type": "object",
+      "properties": {
+        "BinaryType": {
+          "$ref": "#/definitions/restFrontBinaryType"
+        },
+        "Uuid": {
+          "type": "string"
         }
       }
     },

@@ -20,9 +20,11 @@
 
 import FormMixin from '../mixins/FormMixin'
 import FileDropzone from './FileDropzone'
-const React = require('react')
-const PydioApi = require('pydio/http/api')
-const {NativeFileDropProvider} = require('pydio').requireLib('hoc');
+import React from 'react';
+import PydioApi from 'pydio/http/api';
+import Pydio from 'pydio'
+import LangUtils from 'pydio/util/lang'
+const {NativeFileDropProvider} = Pydio.requireLib('hoc');
 
 // Just enable the drop mechanism, but do nothing, it is managed by the FileDropzone
 const BinaryDropZone = NativeFileDropProvider(FileDropzone, (items, files, props) => {});
@@ -43,8 +45,8 @@ export default React.createClass({
     componentWillReceiveProps(newProps){
         let imgSrc;
         if(newProps.value && !this.state.reset){
-            if((!this.state.value || this.state.value != newProps.value)){
-                imgSrc = this.getBinaryUrl(newProps.value, (this.state.temporaryBinary && this.state.temporaryBinary==newProps.value));
+            if((!this.state.value || this.state.value !== newProps.value)){
+                imgSrc = this.getBinaryUrl(newProps.value, (this.state.temporaryBinary && this.state.temporaryBinary===newProps.value));
             }
         }else if(newProps.attributes['defaultImage']){
             if(this.state.value){
@@ -68,32 +70,33 @@ export default React.createClass({
         return {imageSrc:imgSrc, originalBinary:originalBinary};
     },
 
-    getBinaryUrl: function(binaryId, isTemporary=false){
-        let url = global.pydio.Parameters.get('ajxpServerAccess') + "&get_action=" +this.props.attributes['loadAction'];
-        if(!isTemporary) {
-            url += "&binary_id=" + binaryId;
-        } else {
-            url += "&tmp_file=" + binaryId;
+    getBinaryUrl(binaryId){
+        const pydio = PydioApi.getClient().getPydioObject();
+        let url = pydio.Parameters.get('ENDPOINT_REST_API') + this.props.attributes['loadAction'];
+        let bId = binaryId;
+        if(this.props.binary_context && this.props.binary_context.indexOf('user_id=') === 0){
+            bId = this.props.binary_context.replace('user_id=', '');
         }
-        if(this.props.binary_context){
-            url += "&" + this.props.binary_context;
-        }
+        url = url.replace('{BINARY}', bId);
         return url;
     },
 
-    getUploadUrl: function(paramsOnly){
-        let params = "get_action=" +this.props.attributes['uploadAction'];
-        if(this.props.binary_context){
-            params += "&" + this.props.binary_context;
+    getUploadUrl(){
+        const pydio = PydioApi.getClient().getPydioObject();
+        let url = pydio.Parameters.get('ENDPOINT_REST_API') + this.props.attributes['uploadAction'];
+        let bId = '';
+        if(this.props.binary_context && this.props.binary_context.indexOf('user_id=') === 0){
+            bId = this.props.binary_context.replace('user_id=', '');
+        } else if (this.props.value) {
+            bId = this.props.value
+        } else {
+            bId = LangUtils.computeStringSlug(this.props.attributes["name"] + ".png");
         }
-        if(paramsOnly){
-            return params;
-        }else{
-            return global.pydio.Parameters.get('ajxpServerAccess') + "&" + params;
-        }
+        url = url.replace('{BINARY}', bId);
+        return url;
     },
 
-    uploadComplete:function(newBinaryName){
+    uploadComplete(newBinaryName){
         const prevValue = this.state.value;
         this.setState({
             temporaryBinary:newBinaryName,
@@ -108,24 +111,24 @@ export default React.createClass({
         }
     },
 
-    htmlUpload: function(){
-        global.formManagerHiddenIFrameSubmission = function(result){
-            result = result.trim();
-            this.uploadComplete(result);
-            global.formManagerHiddenIFrameSubmission = null;
+    htmlUpload(){
+        window.formManagerHiddenIFrameSubmission = function(result){
+            this.uploadComplete(result.trim());
+            window.formManagerHiddenIFrameSubmission = null;
         }.bind(this);
         this.refs.uploadForm.submit();
     },
 
-    onDrop: function(files, event, dropzone){
+    onDrop(files, event, dropzone){
+        console.log('uploading now');
         if(PydioApi.supportsUpload()){
             this.setState({loading:true});
-            PydioApi.getClient().uploadFile(files[0], "userfile", this.getUploadUrl(true),
+            PydioApi.getClient().uploadFile(files[0], "userfile", '',
                 function(transport){
-                    // complete
-                    let result = transport.responseText.trim().replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?>|<\/\w+>/gi, '');
-                    result = result.replace('parent.formManagerHiddenIFrameSubmission("', '').replace('");', '');
-                    this.uploadComplete(result);
+                    const result = JSON.parse(transport.responseText);
+                    if(result && result.binary){
+                        this.uploadComplete(result.binary);
+                    }
                     this.setState({loading:false});
                 }.bind(this), function(transport){
                     // error
@@ -133,26 +136,26 @@ export default React.createClass({
                 }.bind(this), function(computableEvent){
                     // progress
                     // console.log(computableEvent);
-                })
+                }, this.getUploadUrl())
         }else{
             this.htmlUpload();
         }
     },
 
-    clearImage:function(){
+    clearImage(){
         if(global.confirm('Do you want to remove the current image?')){
             const prevValue = this.state.value;
             this.setState({
-                value:'ajxp-remove-original',
+                value:null,
                 reset:true
             }, function(){
-                this.props.onChange('ajxp-remove-original', prevValue, {type:'binary'});
+                this.props.onChange('', prevValue, {type:'binary'});
             }.bind(this));
 
         }
     },
 
-    render: function(){
+    render(){
         const coverImageStyle = {
             backgroundImage:"url("+this.state.imageSrc+")",
             backgroundPosition:"50% 50%",

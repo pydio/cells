@@ -892,6 +892,13 @@ service FrontendService {
             get: "/frontend/binaries/{BinaryType}/{Uuid}"
         };
     }
+    // Upload frontend binaries (avatars / logos / bg images)
+    rpc FrontPutBinary(FrontBinaryRequest) returns (FrontBinaryResponse) {
+        option (google.api.http) =  {
+            post: "/frontend/binaries/{BinaryType}/{Uuid}"
+            body:"*"
+        };
+    }
 
 }
 

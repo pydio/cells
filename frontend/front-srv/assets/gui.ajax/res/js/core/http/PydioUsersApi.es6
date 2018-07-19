@@ -178,18 +178,26 @@ class User extends Observable{
 
 class UsersApi{
 
-
+    /**
+     *
+     * @return {boolean}
+     */
     static saveSelectionSupported(){
-        return global.pydio.getController().actions.get('user_team_create') !== undefined;
+        const pydio = PydioApi.getClient().getPydioObject();
+        if(pydio){
+            return pydio.getController().actions.get('user_team_create') !== undefined;
+        }else {
+            return false;
+        }
+
     }
 
     /**
      *
      * @param userObject {User}
-     * @param loadGraph Object
      * @param callback Function
      */
-    static loadPublicData(userObject, loadGraph, callback){
+    static loadPublicData(userObject, callback){
 
         const userId = userObject.getId();
         userObject.setLabel(userId);
@@ -204,37 +212,6 @@ class UsersApi{
             }
         }
         callback(userObject);
-        /*
-        PydioApi.getClient().request({
-            get_action:'user_public_data',
-            user_id:userId,
-            graph: loadGraph
-        }, function(transport){
-            const data = transport.responseJSON;
-            if(!data || data.error){
-                userObject.setLabel(userId);
-                callback(userObject);
-                return;
-            }
-            const {user, graph} = data;
-            Object.keys(user).map(k => {
-                userObject[k] = user[k];
-            });
-            let avatarUrl;
-            const avatarId = user.avatar || null;
-            const label = user.label || userId;
-            userObject.setGraph(graph);
-            userObject.setLabel(label);
-            if (user.avatar) {
-                avatarUrl = UsersApi.buildUserAvatarUrl(userId, avatarId);
-                userObject.setAvatar(avatarUrl);
-                callback(userObject);
-            } else {
-                UsersApi.avatarFromExternalProvider(userObject, callback);
-            }
-
-        }.bind(this));
-        */
     }
 
     static loadLocalData(userObject, callback){
@@ -336,12 +313,12 @@ class UsersApi{
         return cache;
     }
 
-    static getUserPromise(userId, withGraph = false){
-        const namespace = withGraph ? 'user_public_data-graph' :'user_public_data';
+    static getUserPromise(userId){
+        const namespace = 'user_public_data';
         const cache = UsersApi.getPublicDataCache();
         const pydio = PydioApi.getClient().getPydioObject();
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             if(pydio && pydio.user && pydio.user.id === userId){
                 let userObject = new User(userId);
                 UsersApi.loadLocalData(userObject, (result) => {
@@ -364,7 +341,7 @@ class UsersApi{
                 userObject.setLoading();
                 cache.setKey(namespace, userId, userObject);
 
-                UsersApi.loadPublicData(userObject, withGraph, (result) => {
+                UsersApi.loadPublicData(userObject, (result) => {
                     result.setLoaded();
                     cache.setKey(namespace, userId, result);
                     resolve(result);
