@@ -62,7 +62,7 @@ func Install(ctx context.Context, c *install.InstallConfig, publisher func(event
 	}
 	publisher(&InstallProgressEvent{Message: "Configuration of gateway services", Progress: 80})
 
-	if err := createConfigurationFiles(c); err != nil {
+	if err := actionFrontendsAdd(c); err != nil {
 		log.Logger(ctx).Error("Error while creating logs directory", zap.Error(err))
 		return err
 	}

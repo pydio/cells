@@ -66,7 +66,7 @@ func restoreProgress(in chan float64, done chan bool, publisher func(event *Inst
 	}
 }
 
-func actionFrontendsAdd(c *install.InstallConfig, publisher func(event *InstallProgressEvent)) (string, error) {
+func actionFrontendsAdd(c *install.InstallConfig) error {
 
 	conf := &frontendsConfig{
 		Hosts:    c.GetFrontendHosts(),
@@ -80,21 +80,17 @@ func actionFrontendsAdd(c *install.InstallConfig, publisher func(event *InstallP
 		config.Set(sEnc, "defaults", "root")
 	}
 
+	// TODO REMOVE
 	config.Set(conf.Hosts, "defaults", "fronts")
 	config.Set(conf.Hosts, "services", "pydio.frontends", "allowed")
 
 	config.Save("cli", "Install / Setting Frontend settings")
 
-	return "", nil
-}
-
-func createConfigurationFiles(c *install.InstallConfig) error {
-
 	// Creating log dir
 	logsFolder := filepath.Join(config.ApplicationDataDir(), "logs")
-	os.MkdirAll(logsFolder, 0755)
+	e := os.MkdirAll(logsFolder, 0755)
 
-	return nil
+	return e
 }
 
 func checkPhpFpm(installConfig *install.InstallConfig) *install.CheckResult {
