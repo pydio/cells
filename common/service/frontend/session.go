@@ -44,7 +44,7 @@ func GetSessionStore() sessions.Store {
 		}
 		urlVal := config.Get("defaults", "url").String("")
 		if parsed, e := url.Parse(urlVal); e == nil {
-			sessionStore.Options.Domain = parsed.Host
+			sessionStore.Options.Domain = strings.Split(parsed.Host, ":")[0]
 		}
 	}
 	return sessionStore
