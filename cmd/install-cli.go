@@ -22,7 +22,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -31,7 +30,6 @@ import (
 
 	p "github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
-	"github.com/pydio/go-phpfpm-detect/fpm"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
@@ -183,9 +181,6 @@ var installCliCmd = &cobra.Command{
 
 		fmt.Println("")
 		fmt.Println("\033[1m## Frontend Configuration\033[0m")
-		if e := promptFPM(installConfig); e != nil {
-			log.Fatal(e.Error())
-		}
 		if e := promptFrontendAdmin(installConfig); e != nil {
 			log.Fatal(e.Error())
 		}
@@ -272,54 +267,6 @@ func promptDB(c *install.InstallConfig) error {
 	}
 	fmt.Println(p.IconGood + " Successfully connected to the database")
 	return nil
-}
-
-func promptFPM(c *install.InstallConfig) error {
-
-	if len(c.CheckResults) > 0 && c.CheckResults[0].Name == "PHP" && c.CheckResults[0].JsonResult != "" {
-		type fpmResult struct {
-			Error string
-			Fpm   struct {
-				ListenAddress string
-				ListenNetwork string
-				PhpVersion    string
-				PhpExtensions []string
-			}
-		}
-		var res *fpmResult
-		if e := json.Unmarshal([]byte(c.CheckResults[0].JsonResult), &res); e == nil {
-			if !c.CheckResults[0].Success {
-				fmt.Println(p.IconBad + " Could not detect PHP version: " + res.Error)
-			} else {
-				fmt.Println(p.IconGood + " Php version detected: " + res.Fpm.PhpVersion)
-			}
-			fpmPrompt := p.Prompt{Label: "PHP-FPM Listen Address was detected at " + res.Fpm.ListenAddress + ". Is it correct", IsConfirm: true}
-			if _, err := fpmPrompt.Run(); err == nil {
-				return nil
-			}
-		}
-	}
-	fpmPrompt := p.Prompt{Label: "Please enter the address where Php-FPM is listening (use host:port or /path/to/socket)", Default: "localhost:9000"}
-	res, er := fpmPrompt.Run()
-	if er != nil {
-		return er
-	}
-	if len(res) > 0 {
-		c.FpmAddress = res
-		var network string
-		if strings.Contains(c.FpmAddress, ":") {
-			network = "tcp"
-		} else {
-			network = "unix"
-		}
-		if err := fpm.DetectByDirectConnection(&fpm.PhpFpmConfig{ListenAddress: c.FpmAddress, ListenNetwork: network}); err == nil {
-			fmt.Println(p.IconGood + " Php-Fpm successfully connected")
-		} else {
-			fmt.Println(p.IconBad + " Could not connect: " + err.Error())
-		}
-	}
-	return nil
-
 }
 
 func promptFrontendAdmin(c *install.InstallConfig) error {

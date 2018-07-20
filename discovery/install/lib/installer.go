@@ -47,34 +47,26 @@ func Install(ctx context.Context, c *install.InstallConfig, publisher func(event
 		log.Logger(ctx).Error("Error while adding database", zap.Error(err))
 		return err
 	}
-	publisher(&InstallProgressEvent{Message: "Created main database", Progress: 10})
+	publisher(&InstallProgressEvent{Message: "Created main database", Progress: 30})
 
 	if err := actionDatasourceAdd(c); err != nil {
 		log.Logger(ctx).Error("Error while adding datasource", zap.Error(err))
 		return err
 	}
-	publisher(&InstallProgressEvent{Message: "Created default datasources", Progress: 20})
+	publisher(&InstallProgressEvent{Message: "Created default datasources", Progress: 60})
 
 	c.ExternalFrontPlugins = fmt.Sprintf("%d", utils.GetAvailablePort())
 	if err := actionConfigsSet(c); err != nil {
 		log.Logger(ctx).Error("Error while getting ports", zap.Error(err))
 		return err
 	}
-	publisher(&InstallProgressEvent{Message: "Configuration of gateway services", Progress: 30})
-
-	publisher(&InstallProgressEvent{Message: "Deploying interface assets: this may take some time...", Progress: 40})
-	if msg, err := actionFrontendsAdd(c, publisher); err != nil {
-		log.Logger(ctx).Error("Error while deploying interface assets", zap.Error(err))
-		return err
-	} else {
-		publisher(&InstallProgressEvent{Message: "Interface assets: " + msg, Progress: 90})
-	}
+	publisher(&InstallProgressEvent{Message: "Configuration of gateway services", Progress: 80})
 
 	if err := createConfigurationFiles(c); err != nil {
-		log.Logger(ctx).Error("Error while creating configuration files", zap.Error(err))
+		log.Logger(ctx).Error("Error while creating logs directory", zap.Error(err))
 		return err
 	}
-	publisher(&InstallProgressEvent{Message: "Created interface config files", Progress: 99})
+	publisher(&InstallProgressEvent{Message: "Creation of logs directory", Progress: 99})
 
 	return nil
 

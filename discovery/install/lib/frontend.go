@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -119,57 +118,9 @@ func actionFrontendsAdd(c *install.InstallConfig, publisher func(event *InstallP
 
 func createConfigurationFiles(c *install.InstallConfig) error {
 
-	root, err := assets.GetAssets("../../../assets/src/pydio")
-	if err != nil {
-		root = filepath.Join(config.ApplicationDataDir(), "static", "pydio")
-	}
-
 	// Creating log dir
 	logsFolder := filepath.Join(config.ApplicationDataDir(), "logs")
 	os.MkdirAll(logsFolder, 0755)
-
-	var fpmAddress string
-	if c.GetFpmAddress() != "" {
-		fpmAddress = c.GetFpmAddress()
-	} else if phpConfs, e := fpm.DetectFpmInfos(); e == nil {
-		fpmAddress = phpConfs.ListenAddress
-	} else {
-		fpmAddress = "127.0.0.1:9000" // Use default value
-	}
-
-	config.Set(root, "defaults", "frontRoot")
-	config.Set(fpmAddress, "defaults", "fpm")
-	config.Save("cli", "Install / Create configuration files for frontend")
-
-	u, _ := url.Parse(config.Get("defaults", "url").String(""))
-
-	wsUrl := &url.URL{}
-	if u.Scheme == "https" {
-		wsUrl.Scheme = "wss"
-	} else {
-		wsUrl.Scheme = "ws"
-	}
-	wsUrl.Host = u.Host
-
-	conf := &config.FrontBootstrapConf{
-		DexID:        c.GetExternalDexID(),
-		DexSecret:    c.GetExternalDexSecret(),
-		ProxyUrl:     u,
-		WebSocketUrl: wsUrl,
-	}
-	tls := config.Get("cert", "proxy", "ssl").Bool(false)
-	if tls {
-		if self := config.Get("cert", "proxy", "self").Bool(false); self {
-			conf.DisableSslVerify = "true"
-		}
-	}
-
-	e := config.FrontWriteBootstrap(root, conf)
-	if e != nil {
-		return e
-	}
-	config.FrontTouchAdditionalFiles(root)
-	config.FrontClearCache(root)
 
 	return nil
 }

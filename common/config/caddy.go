@@ -57,12 +57,6 @@ type CaddyTemplateConf struct {
 	// Collabora definition from plugins
 	Collabora *url.URL
 
-	// FPM connection, either an URL or a socket file path
-	Fpm string
-
-	// Root of the PHP Frontend
-	Root string
-
 	// Dedicated log file for caddy errors to ease debugging
 	Logs string
 	// Caddy compliant TLS string, either "self_signed" or paths to "cert key"
@@ -255,18 +249,6 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 		c.Collabora = p
 	} else {
 		c.Collabora = nil
-	}
-
-	if fpm := Get("defaults", "fpm").String(""); fpm == "" {
-		return c, fmt.Errorf("missing fpm configuration")
-	} else {
-		c.Fpm = fpm
-	}
-
-	if root := Get("defaults", "frontRoot").String(""); root == "" {
-		return c, fmt.Errorf("missing frontRoot configuration")
-	} else {
-		c.Root = root
 	}
 
 	return c, nil

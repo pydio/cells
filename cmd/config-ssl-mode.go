@@ -67,30 +67,9 @@ Three modes are currently supported :
 			cmd.Println("Error while saving config: " + e.Error())
 		}
 
-		var frontWrite error
-		if fConf, e := config.FrontBootstrapFromConfig(extUrl.String()); e == nil {
-			root := config.Get("defaults", "frontRoot").String("")
-			if root != "" {
-				frontWrite = config.FrontWriteBootstrap(root, fConf)
-				config.FrontClearCache(root)
-			} else {
-				frontWrite = fmt.Errorf("cannot find root for frontend")
-			}
-		} else {
-			frontWrite = e
-		}
-
-		if frontWrite == nil {
-			cmd.Println("*************************************************************")
-			cmd.Println(" Please restart now. Frontend config has been updated  ")
-			cmd.Println("**************************************************************")
-		} else {
-			cmd.Println("*************************************************************")
-			cmd.Println(" Please restart now.")
-			cmd.Println(" WARNING: Frontend Config was not updated, update it manually!")
-			cmd.Println(" Error was  ", frontWrite.Error())
-			cmd.Println("**************************************************************")
-		}
+		cmd.Println("*************************************************************")
+		cmd.Println(" Config has been updated, please restart now!")
+		cmd.Println("**************************************************************")
 
 	},
 }
