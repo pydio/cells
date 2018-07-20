@@ -97,6 +97,16 @@ var (
 		without /public/
 	}
 
+	proxy /login {{.FrontPlugins.Host}}/gui {
+		transparent
+		without /login
+	}
+
+	redir 302 {
+	  if {path} is /
+	  / /login
+	}
+
 	{{if .Collabora}}
 	proxy /wopi/ {{.WOPI.Host}} {
 		transparent
@@ -122,11 +132,6 @@ var (
 	}
 	{{end}}
 
-	status 403 {
-		/data
-		/core
-		/conf
-	}
 	rewrite {
 		if {path} not_starts_with "/a/"
 		if {path} not_starts_with "/auth/"
@@ -139,12 +144,7 @@ var (
 		if {path} not_starts_with "/hosting/discovery"
 		if {path} not_starts_with "/lool/"
 		if {path} not_starts_with "/public/"
-		to {path} {path}/ /index.html
-	}
-
-	proxy /index.html {{.FrontPlugins.Host}}/gui {
-		transparent
-		without /index.html
+		to {path} {path}/ /login
 	}
 
 	{{if .TLS}}tls {{.TLS}}{{end}}
