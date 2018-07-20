@@ -313,6 +313,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 			service.RestError404(req, rsp, e)
 			return
 		}
+		ctx = context.WithValue(context.Background(), common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
 		reader, e := router.GetObject(ctx, readNode, &views.GetRequestData{Length: info.Node.Size})
 		if e == nil {
 			defer reader.Close()

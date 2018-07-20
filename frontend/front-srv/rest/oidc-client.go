@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"strings"
 
+	"crypto/tls"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/idm/auth"
@@ -16,6 +18,7 @@ import (
 func GrantTypeAccess(nonce string, refreshToken string, login string, pwd string) (map[string]interface{}, error) {
 
 	fullURL := config.Get("defaults", "urlInternal").String("") + "/auth/dex/token"
+	selfSigned := config.Get("cert", "proxy", "ssl").Bool(false) && config.Get("cert", "proxy", "self").Bool(false)
 
 	data := url.Values{}
 	if refreshToken != "" {
@@ -54,7 +57,16 @@ func GrantTypeAccess(nonce string, refreshToken string, login string, pwd string
 	httpReq.Header.Add("Cache-Control", "no-cache")
 	httpReq.Header.Add("Authorization", basic)
 
-	res, err := http.DefaultClient.Do(httpReq)
+	var client *http.Client
+	if selfSigned {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client = &http.Client{Transport: tr}
+	} else {
+		client = http.DefaultClient
+	}
+	res, err := client.Do(httpReq)
 	if err != nil {
 		return nil, err
 	}

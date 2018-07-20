@@ -11,6 +11,8 @@ import (
 
 	"strings"
 
+	"net/url"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/config"
@@ -32,6 +34,18 @@ func GetSessionStore() sessions.Store {
 			key, _ = base64.StdEncoding.DecodeString(val)
 		}
 		sessionStore = sessions.NewCookieStore([]byte(val))
+		sessionStore.Options = &sessions.Options{
+			Path:     "/a/frontend",
+			MaxAge:   60 * 24,
+			HttpOnly: true,
+		}
+		if config.Get("cert", "proxy", "ssl").Bool(false) {
+			sessionStore.Options.Secure = true
+		}
+		urlVal := config.Get("defaults", "url").String("")
+		if parsed, e := url.Parse(urlVal); e == nil {
+			sessionStore.Options.Domain = parsed.Host
+		}
 	}
 	return sessionStore
 }
