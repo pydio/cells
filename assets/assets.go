@@ -38,9 +38,6 @@ import (
 var (
 	// PydioInstallBox holds the root of the pydio install static files
 	PydioInstallBox = packr.NewBox("./src/install")
-
-	// PydioFrontBox holds the root of the pydio front static files
-	PydioFrontBox = packr.NewBox("./src/pydio")
 )
 
 // GetAssets returns the location of the assets if they physically exist
@@ -110,20 +107,10 @@ func RestoreAssets(dir string, box packr.Box, pg chan float64, excludes ...strin
 			return err, index, totalSize
 		}
 
-		// Special permission for pydio front data dir
-		writeAll := false
-		if box.Path == PydioFrontBox.Path && strings.HasPrefix(n, "data") {
-			writeAll = true
-			//perm = os.FileMode(0777)
-		}
-
 		if info.IsDir() {
 			if err := os.MkdirAll(_filePath(dir, n), os.FileMode(0755)); err != nil {
 				f.Close()
 				return err, index, totalSize
-			}
-			if writeAll {
-				os.Chmod(_filePath(dir, n), os.FileMode(0777))
 			}
 			index++
 			updatePg(index)
@@ -134,9 +121,6 @@ func RestoreAssets(dir string, box packr.Box, pg chan float64, excludes ...strin
 			f.Close()
 			return err, index, totalSize
 		}
-		if writeAll {
-			os.Chmod(_filePath(dir, filepath.Dir(n)), os.FileMode(0777))
-		}
 		target, err := os.OpenFile(_filePath(dir, n), os.O_CREATE|os.O_WRONLY, os.FileMode(0755))
 		if err != nil {
 			f.Close()
@@ -145,9 +129,6 @@ func RestoreAssets(dir string, box packr.Box, pg chan float64, excludes ...strin
 		written, err := io.Copy(target, f)
 		target.Close()
 		f.Close()
-		if writeAll {
-			os.Chmod(_filePath(dir, n), os.FileMode(0777))
-		}
 		if err != nil {
 			return err, index, totalSize
 		}
