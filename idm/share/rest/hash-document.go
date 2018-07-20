@@ -38,38 +38,12 @@ import (
 
 const PasswordComplexitySuffix = "#$!Az1"
 
-type TargetUserEntry struct {
-	Display       string `json:"display"`
-	DownloadCount int32  `json:"download_count"`
-}
-
-// HashDocument is a Json Marshallable representation of a document, compatible with legacy.
-type HashDocument struct {
-	ShareType             string                      `json:"SHARE_TYPE"`
-	ExpireTime            int64                       `json:"EXPIRE_TIME"`
-	ShortFormUrl          string                      `json:"SHORT_FORM_URL"`
-	RepositoryId          string                      `json:"REPOSITORY"`
-	ParentRepositoryId    string                      `json:"PARENT_REPOSITORY_ID"`
-	DownloadDisabled      bool                        `json:"DOWNLOAD_DISABLED"`
-	ApplicationBase       string                      `json:"PYDIO_APPLICATION_BASE"`
-	TemplateName          string                      `json:"PYDIO_TEMPLATE_NAME"`
-	DownloadLimit         int64                       `json:"DOWNLOAD_LIMIT"`
-	DownloadCount         int64                       `json:"DOWNLOAD_COUNT"`
-	PreLogUser            string                      `json:"PRELOG_USER"`
-	PresetLogin           string                      `json:"PRESET_LOGIN"`
-	Target                string                      `json:"TARGET"`
-	TargetUsers           map[string]*TargetUserEntry `json:"TARGET_USERS"`
-	RestrictToTargetUsers bool                        `json:"RESTRICT_TO_TARGET_USERS"`
-	OwnerId               string                      `json:"OWNER_ID"`
-	PreUserUuid           string                      `json:"USER_UUID"`
-}
-
 func StoreHashDocument(ctx context.Context, link *rest.ShareLink, updateHash ...string) error {
 
 	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 
 	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	hashDoc := &HashDocument{
+	hashDoc := &docstore.ShareDocument{
 		OwnerId:       claims.Name,
 		TemplateName:  link.ViewTemplateName,
 		RepositoryId:  link.Uuid,
@@ -86,9 +60,9 @@ func StoreHashDocument(ctx context.Context, link *rest.ShareLink, updateHash ...
 	hashDoc.PreUserUuid = link.Uuid
 
 	if link.TargetUsers != nil && len(link.TargetUsers) > 0 {
-		hashDoc.TargetUsers = make(map[string]*TargetUserEntry)
+		hashDoc.TargetUsers = make(map[string]*docstore.TargetUserEntry)
 		for id, t := range link.TargetUsers {
-			hashDoc.TargetUsers[id] = &TargetUserEntry{Display: t.Display, DownloadCount: t.DownloadCount}
+			hashDoc.TargetUsers[id] = &docstore.TargetUserEntry{Display: t.Display, DownloadCount: t.DownloadCount}
 		}
 		hashDoc.RestrictToTargetUsers = link.RestrictToTargetUsers
 	}
@@ -149,7 +123,7 @@ func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls [
 		return errors.NotFound(common.SERVICE_DOCSTORE, "Cannot find link associated to this workspace")
 	}
 	shareLink.LinkHash = linkDoc.ID
-	var linkData *HashDocument
+	var linkData *docstore.ShareDocument
 	if err := json.Unmarshal([]byte(linkDoc.Data), &linkData); err == nil {
 		shareLink.ViewTemplateName = linkData.TemplateName
 		shareLink.AccessEnd = linkData.ExpireTime

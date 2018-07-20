@@ -372,20 +372,25 @@ func AccessListFromUser(ctx context.Context, userNameOrUuid string, isUuid bool)
 }
 
 // SearchUniqueUser provides a shortcurt to search user services for one specific user
-func SearchUniqueUser(ctx context.Context, login string, uuid string, attributes ...string) (user *idm.User, err error) {
+func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ...*idm.UserSingleQuery) (user *idm.User, err error) {
 	userCli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
-	var searchRequest *any.Any
+	var searchRequests []*any.Any
 	if uuid != "" {
-		searchRequest, _ = ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: uuid})
+		searchRequest, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Uuid: uuid})
+		searchRequests = append(searchRequests, searchRequest)
 	} else if login != "" {
-		searchRequest, _ = ptypes.MarshalAny(&idm.UserSingleQuery{Login: login})
-	} else if len(attributes) == 2 {
-		searchRequest, _ = ptypes.MarshalAny(&idm.UserSingleQuery{AttributeName: attributes[0], AttributeValue: attributes[1]})
-	} else {
-		return nil, fmt.Errorf("please provide at one of login, uuid or attributes")
+		searchRequest, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: login})
+		searchRequests = append(searchRequests, searchRequest)
+	}
+	for _, q := range queries {
+		searchRequest, _ := ptypes.MarshalAny(q)
+		searchRequests = append(searchRequests, searchRequest)
+	}
+	if len(searchRequests) == 0 {
+		return nil, fmt.Errorf("please provide at one of login, uuid or queries")
 	}
 	streamer, err := userCli.SearchUser(ctx, &idm.SearchUserRequest{
-		Query: &service.Query{SubQueries: []*any.Any{searchRequest}},
+		Query: &service.Query{SubQueries: searchRequests, Operation: service.OperationType_AND},
 	})
 	if err != nil {
 		return

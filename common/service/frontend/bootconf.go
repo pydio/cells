@@ -29,7 +29,7 @@ type BootConf struct {
 	ENDPOINT_S3_GATEWAY          string
 	ENDPOINT_WEBSOCKET           string
 	FRONTEND_URL                 string
-	PUBLIC_BASE_URI              string
+	PUBLIC_BASEURI               string
 	ZipEnabled                   bool              `json:"zipEnabled"`
 	MultipleFilesDownloadEnabled bool              `json:"multipleFilesDownloadEnabled"`
 	CustomWording                CustomWording     `json:"customWording"`
@@ -63,7 +63,7 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 		ENDPOINT_S3_GATEWAY:          url + "/io",
 		ENDPOINT_WEBSOCKET:           wsUrl + "/ws/event",
 		FRONTEND_URL:                 url,
-		PUBLIC_BASE_URI:              "/public",
+		PUBLIC_BASEURI:               "/public",
 		ZipEnabled:                   true,
 		MultipleFilesDownloadEnabled: true,
 		UsersEditable:                true,

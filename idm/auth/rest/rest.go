@@ -110,7 +110,7 @@ func (a *TokenHandler) ResetPasswordToken(req *restful.Request, resp *restful.Re
 	u, e := utils.SearchUniqueUser(ctx, userLogin, "")
 	if e != nil {
 		// Search by email
-		u, e = utils.SearchUniqueUser(ctx, "", "", "email", userLogin)
+		u, e = utils.SearchUniqueUser(ctx, "", "", &idm.UserSingleQuery{AttributeName: "email", AttributeValue: userLogin})
 		if e != nil || u.Attributes["email"] == "" {
 			response.Success = false
 			response.Message = "Cannot find corresponding email address"

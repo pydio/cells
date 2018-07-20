@@ -96,12 +96,19 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
     },
 
     onDateChange: function onDateChange(event, value) {
-        var today = new Date();
-        var date1 = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
-        var date2 = Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
-        var ms = Math.abs(date1 - date2);
-        var integerVal = Math.floor(ms / 1000 / 60 / 60 / 24); //floor should be unnecessary, but just in case
+        var linkModel = this.props.linkModel;
+
+        var link = linkModel.getLink();
+        link.AccessEnd = Math.floor(value / 1000) + '';
+        linkModel.updateLink(link);
+        /*
+        const today = new Date();
+        const date1 = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+        const date2 = Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
+        const ms = Math.abs(date1-date2);
+        const integerVal = Math.floor(ms/1000/60/60/24); //floor should be unnecessary, but just in case
         this.updateDaysExpirationField(event, integerVal);
+        */
     },
 
     resetPassword: function resetPassword() {
@@ -222,12 +229,9 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
             dlLimitValue = Math.min(dlLimitValue, parseInt(auth.max_downloads));
         }
 
-        if (expirationDateValue) {
-            if (expirationDateValue < 0) {
-                dateExpired = true;
-            }
-            expDate = new Date();
-            expDate.setDate(today.getDate() + parseInt(expirationDateValue));
+        if (expirationDateValue && parseInt(expirationDateValue) > 0) {
+            expDate = new Date(parseInt(expirationDateValue) * 1000);
+            dateExpired = expDate <= new Date();
             calIcon = _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: globStyles.leftIcon.color }, style: { marginLeft: -8, marginRight: 8 }, iconClassName: 'mdi mdi-close-circle', onTouchTap: this.resetExpiration.bind(this) });
         }
         if (dlLimitValue) {

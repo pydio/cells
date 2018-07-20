@@ -59,8 +59,8 @@ class JwtApiClient extends ApiClient{
      */
     jwtEndpoint(request) {
         let headers = null;
-        if(this.pydio.Parameters.has('MINISITE_SESSION')) {
-            headers = {"X-Pydio-Minisite":this.pydio.Parameters.get('MINISITE_SESSION')};
+        if(this.pydio.Parameters.has('MINISITE')) {
+            headers = {"X-Pydio-Minisite":this.pydio.Parameters.get('MINISITE')};
         }
         return super.callApi(
             '/frontend/session', 'POST',

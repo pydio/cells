@@ -38,7 +38,8 @@ export default function(PydioComponent, filterFunction = null ){
         const storeInstance = UploaderModel.Store.getInstance();
 
         storeInstance.handleDropEventResults(items, files, ctxNode, null, filterFunction);
-        if(!storeInstance.getAutoStart() || window.ajxpMinisite){
+
+        if(!storeInstance.getAutoStart() || pydio.Parameters.get('MINISITE')){
             pydio.getController().fireAction('upload');
         }
     });

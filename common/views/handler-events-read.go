@@ -22,6 +22,7 @@ package views
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 
 	"github.com/micro/go-micro/client"
@@ -29,7 +30,11 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/docstore"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/utils"
 )
 
 type HandlerEventRead struct {
@@ -90,7 +95,76 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 				}))
 			}()
 		}
+		go h.IncrementLinkDownload(ctx)
 	}
 	return reader, e
 
+}
+
+func (h *HandlerEventRead) IncrementLinkDownload(ctx context.Context) {
+	userLogin, claims := utils.FindUserNameInContext(ctx)
+	// TODO - Have the 'hidden' info directly in claims => could it be a profile instead ?
+	if claims.Profile != common.PYDIO_PROFILE_SHARED {
+		return
+	}
+	bgContext := context.Background()
+	user, e := utils.SearchUniqueUser(bgContext, userLogin, "", &idm.UserSingleQuery{AttributeName: "hidden", AttributeValue: "true"})
+	if e != nil || user == nil {
+		return
+	}
+	// This is a unique hidden user - search corresponding link and update download number
+	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	var doc *docstore.Document
+
+	// SEARCH WITH PRESET_LOGIN
+	stream, e := store.ListDocuments(bgContext, &docstore.ListDocumentsRequest{StoreID: "share", Query: &docstore.DocumentQuery{
+		MetaQuery: "+SHARE_TYPE:minisite +PRESET_LOGIN:" + userLogin + "",
+	}})
+	if e != nil {
+		return
+	}
+	defer stream.Close()
+	for {
+		r, e := stream.Recv()
+		if e != nil {
+			break
+		}
+		doc = r.Document
+		break
+	}
+
+	if doc == nil {
+		// SEARCH WITH PRELOG_USER
+		stream2, e := store.ListDocuments(bgContext, &docstore.ListDocumentsRequest{StoreID: "share", Query: &docstore.DocumentQuery{
+			MetaQuery: "+SHARE_TYPE:minisite +PRELOG_USER:" + userLogin + "",
+		}})
+		if e != nil {
+			return
+		}
+		defer stream2.Close()
+		for {
+			r, e := stream2.Recv()
+			if e != nil {
+				break
+			}
+			doc = r.Document
+			break
+		}
+	}
+
+	if doc != nil {
+		var linkData *docstore.ShareDocument
+		if e2 := json.Unmarshal([]byte(doc.Data), &linkData); e2 == nil && linkData.DownloadLimit > 0 {
+			log.Logger(ctx).Debug("Loaded link width DownloadLimit "+doc.ID, zap.Any("link", linkData))
+			linkData.DownloadCount++
+			newData, _ := json.Marshal(linkData)
+			doc.Data = string(newData)
+			_, e3 := store.PutDocument(bgContext, &docstore.PutDocumentRequest{StoreID: "share", DocumentID: doc.ID, Document: doc})
+			if e3 == nil {
+				log.Logger(ctx).Debug("Updated share download count " + doc.ID)
+			} else {
+				log.Logger(ctx).Error("Docstore error while trying to increment link downloads count", zap.Error(e3))
+			}
+		}
+	}
 }

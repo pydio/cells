@@ -43,7 +43,7 @@ let PublicLinkSecureOptions = React.createClass({
         return {};
     },
 
-    updateDLExpirationField: function(event){
+    updateDLExpirationField(event){
         let newValue = event.currentTarget.value;
         if(parseInt(newValue) < 0) {
             newValue = - parseInt(newValue);
@@ -54,7 +54,7 @@ let PublicLinkSecureOptions = React.createClass({
         linkModel.updateLink(link);
     },
 
-    updateDaysExpirationField: function(event, newValue){
+    updateDaysExpirationField(event, newValue){
         if(!newValue){
             newValue = event.currentTarget.getValue();
         }
@@ -64,23 +64,29 @@ let PublicLinkSecureOptions = React.createClass({
         linkModel.updateLink(link);
     },
 
-    onDateChange: function(event, value){
+    onDateChange(event, value){
+        const {linkModel} = this.props;
+        let link = linkModel.getLink();
+        link.AccessEnd = Math.floor(value/1000) + '';
+        linkModel.updateLink(link);
+        /*
         const today = new Date();
         const date1 = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
         const date2 = Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
         const ms = Math.abs(date1-date2);
         const integerVal = Math.floor(ms/1000/60/60/24); //floor should be unnecessary, but just in case
         this.updateDaysExpirationField(event, integerVal);
+        */
     },
 
-    resetPassword: function(){
+    resetPassword(){
         const {linkModel} = this.props;
         linkModel.setUpdatePassword('');
         linkModel.getLink().PasswordRequired = false;
         linkModel.notifyDirty();
     },
 
-    updatePassword: function(newValue, oldValue){
+    updatePassword(newValue, oldValue){
         const {linkModel} = this.props;
         const valid = this.refs.pwd.isValid();
         if (valid) {
@@ -92,7 +98,7 @@ let PublicLinkSecureOptions = React.createClass({
         }
     },
 
-    resetDownloads: function(){
+    resetDownloads(){
         if(window.confirm(this.props.getMessage('106'))){
             const {linkModel} = this.props;
             linkModel.getLink().CurrentDownloads = "0";
@@ -100,13 +106,13 @@ let PublicLinkSecureOptions = React.createClass({
         }
     },
 
-    resetExpiration: function () {
+    resetExpiration () {
         const {linkModel} = this.props;
         linkModel.getLink().AccessEnd = "0";
         linkModel.notifyDirty();
     },
 
-    renderPasswordContainer: function(){
+    renderPasswordContainer(){
         const {linkModel} = this.props;
         const link = linkModel.getLink();
         let passwordField, resetPassword;
@@ -157,7 +163,7 @@ let PublicLinkSecureOptions = React.createClass({
         }
     },
 
-    formatDate : function(dateObject){
+    formatDate (dateObject){
         const dateFormatDay = this.props.getMessage('date_format', '').split(' ').shift();
         return dateFormatDay
             .replace('Y', dateObject.getFullYear())
@@ -165,7 +171,7 @@ let PublicLinkSecureOptions = React.createClass({
             .replace('d', dateObject.getDate());
     },
 
-    render: function(){
+    render(){
 
         const {linkModel} = this.props;
         const link = linkModel.getLink();
@@ -188,12 +194,9 @@ let PublicLinkSecureOptions = React.createClass({
             dlLimitValue = Math.min(dlLimitValue, parseInt(auth.max_downloads));
         }
 
-        if(expirationDateValue){
-            if(expirationDateValue < 0){
-                dateExpired = true;
-            }
-            expDate = new Date();
-            expDate.setDate(today.getDate() + parseInt(expirationDateValue));
+        if(expirationDateValue && parseInt(expirationDateValue) > 0){
+            expDate = new Date(parseInt(expirationDateValue) * 1000);
+            dateExpired = (expDate <= new Date());
             calIcon = <IconButton iconStyle={{color:globStyles.leftIcon.color}} style={{marginLeft: -8, marginRight: 8}} iconClassName="mdi mdi-close-circle" onTouchTap={this.resetExpiration.bind(this)}/>;
         }
         if(dlLimitValue){

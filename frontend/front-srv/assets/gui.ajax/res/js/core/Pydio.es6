@@ -173,7 +173,7 @@ class Pydio extends Observable{
                 const login = this.Parameters.get("PRELOG_USER");
                 const pwd = login + "#$!Az1";
                 PydioApi.getRestClient().jwtFromCredentials(login, pwd, false).then(()=> {
-                    this.loadXmlRegistry(null, starterFunc);
+                    this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
                 }).catch(e => {
                     this.loadXmlRegistry(null, starterFunc);
                 })

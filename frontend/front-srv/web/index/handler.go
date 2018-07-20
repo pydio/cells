@@ -24,6 +24,7 @@ type TplConf struct {
 	ResourcesFolder  string
 	Theme            string
 	Version          string
+	ErrorMessage     string
 	Debug            bool
 	StartParameters  map[string]interface{}
 }

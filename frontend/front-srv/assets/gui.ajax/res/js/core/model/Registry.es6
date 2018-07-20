@@ -73,8 +73,8 @@ export default class Registry{
                     url += '?ws=' + (repositoryId ? repositoryId : user.getActiveRepository())
                 }
             }
-            if(Parameters.has('MINISITE_SESSION')) {
-                headers["X-Pydio-Minisite"] = Parameters.get('MINISITE_SESSION')
+            if(Parameters.has('MINISITE')) {
+                headers["X-Pydio-Minisite"] = Parameters.get('MINISITE')
             }
             if (user && user.getPreference('lang')){
                 const lang = user.getPreference('lang', true);

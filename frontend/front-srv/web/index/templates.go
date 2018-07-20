@@ -72,7 +72,24 @@ var public = `<!DOCTYPE html>
 			startParameters = {{.StartParameters}};
 			window.pydioBootstrap = new PydioBootstrap(startParameters);
 		</script>
-		<div class="vertical_fit vertical_layout" id="{{.StartParameters.MAIN_ELEMENT}}"></div>
+		<div class="vertical_fit vertical_layout" id="{{.StartParameters.MAIN_ELEMENT}}">
+			<div style="position: absolute;display:flex;top: 0;bottom: 0;left: 0;right: 0;align-items: center;justify-content: center;">Loading link...</div>
+		</div>
+	</body>
+</html>
+`
+
+var errorTpl = `<!DOCTYPE html>
+<html xmlns:ajxp>
+	<head>
+		<title>{{.ApplicationTitle}}</title>
+		{{if .Rebase}}<base href="{{.Rebase}}"/>{{end}}
+		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/build/pydio.{{.Theme}}.min.css?v={{.Version}}">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	</head>
+	<body style="position: absolute;display:flex;top: 0;bottom: 0;left: 0;right: 0;align-items: center;justify-content: center;" class="react-mui-context">
+		<div>{{.ErrorMessage}}</div>
 	</body>
 </html>
 `
