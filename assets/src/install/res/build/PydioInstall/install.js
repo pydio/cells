@@ -326,7 +326,7 @@ var InstallForm = function (_React$Component) {
                         });
                     };
                     break;
-                case 4 + stepOffset:
+                case 3 + stepOffset:
                     nextAction = function nextAction() {
                         _this6.handleNext();handleSubmit();
                     };
@@ -351,7 +351,7 @@ var InstallForm = function (_React$Component) {
                         style: { marginRight: 5 }
                     }),
                     _react2.default.createElement(_materialUi.RaisedButton, {
-                        label: stepIndex === 4 + stepOffset ? 'Install Now' : 'Next',
+                        label: stepIndex === 3 + stepOffset ? 'Install Now' : 'Next',
                         primary: true,
                         onClick: nextAction,
                         disabled: nextDisabled || invalid
@@ -371,8 +371,7 @@ var InstallForm = function (_React$Component) {
                 installError = _props2.installError,
                 initialChecks = _props2.initialChecks,
                 licenseRequired = _props2.licenseRequired,
-                licenseString = _props2.licenseString,
-                fpmAddress = _props2.fpmAddress;
+                licenseString = _props2.licenseString;
             var _state = this.state,
                 stepIndex = _state.stepIndex,
                 licenseAgreed = _state.licenseAgreed,
@@ -383,7 +382,6 @@ var InstallForm = function (_React$Component) {
                 willReloadIn = _state.willReloadIn,
                 agreementText = _state.agreementText,
                 dbCheckError = _state.dbCheckError,
-                performingCheck = _state.performingCheck,
                 licCheckFailed = _state.licCheckFailed;
             var phpCheck = this.state.phpCheck;
 
@@ -670,114 +668,6 @@ var InstallForm = function (_React$Component) {
                 _react2.default.createElement(
                     _materialUi.StepLabel,
                     { style: stepIndex >= 2 + stepOffset ? stepperStyles.label : {} },
-                    'PHP-FPM Detection'
-                ),
-                _react2.default.createElement(
-                    _materialUi.StepContent,
-                    { style: stepperStyles.content },
-                    _react2.default.createElement(
-                        'div',
-                        { style: stepperStyles.contentScroller },
-                        _react2.default.createElement(
-                            'h3',
-                            null,
-                            'PHP Fpm Detection'
-                        ),
-                        'PHP-FPM is required to serve the web interface of Pydio Cells. It was not automatically detected on your system. On most systems you can easily install php-fpm using ',
-                        _react2.default.createElement(
-                            'code',
-                            null,
-                            'apt install php-fpm'
-                        ),
-                        ' or ',
-                        _react2.default.createElement(
-                            'code',
-                            null,
-                            'yum install php-fpm'
-                        ),
-                        ' on Linux, or ',
-                        _react2.default.createElement(
-                            'code',
-                            null,
-                            'brew install php72'
-                        ),
-                        ' on Mac OSX.',
-                        _react2.default.createElement('br', null),
-                        _react2.default.createElement('br', null),
-                        'You can run detection again after having installed php and started the associated daemon. Skip this if you do not want to use the web interface on this machine.',
-                        !phpOk && phpResult && phpResult.error && _react2.default.createElement(
-                            'div',
-                            { style: { color: '#E53935', paddingTop: 10, paddingBottom: 10, fontWeight: 500 } },
-                            phpResult.error
-                        ),
-                        (!(phpResult && phpResult.fpm && phpResult.fpm.ListenAddress) || fpmAddress) && _react2.default.createElement(
-                            'div',
-                            null,
-                            _react2.default.createElement(
-                                'div',
-                                null,
-                                'If you have installed php-fpm on a specific port or a specific unix socket, please enter its address below. It can be an url like "localhost:9000" or pointer to a local socket like "/run/php/php-fpm.sock".'
-                            ),
-                            _react2.default.createElement(_reduxForm.Field, { name: 'fpmAddress', component: renderTextField, floatingLabel: 'Php-FPM Listen address', label: 'Use Listen address as defined in php-fpm configuration' })
-                        ),
-                        phpResult && phpResult.fpm && _react2.default.createElement(
-                            'div',
-                            { style: _extends({}, flexContainer, { paddingRight: 20, paddingTop: 10, fontSize: 14 }) },
-                            _react2.default.createElement(
-                                'div',
-                                { style: { display: 'flex', alignItems: 'center', height: 40 } },
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1 } },
-                                    'Php-fpm service'
-                                ),
-                                _react2.default.createElement(
-                                    'div',
-                                    null,
-                                    phpResult.fpm.ListenAddress ? phpResult.fpm.ListenAddress : "Not Detected"
-                                )
-                            ),
-                            _react2.default.createElement(
-                                'div',
-                                { style: { display: 'flex', alignItems: 'center', height: 40 } },
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1 } },
-                                    'PHP version'
-                                ),
-                                _react2.default.createElement(
-                                    'div',
-                                    null,
-                                    phpResult.fpm.PhpVersion ? phpResult.fpm.PhpVersion : "Not Detected"
-                                )
-                            ),
-                            _react2.default.createElement(
-                                'div',
-                                { style: { display: 'flex', alignItems: 'center', height: 40 } },
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { flex: 1 } },
-                                    'PHP extensions detected'
-                                ),
-                                phpResult.fpm.PhpExtensions ? phpResult.fpm.PhpExtensions.join(", ") : "Not Detected"
-                            )
-                        ),
-                        _react2.default.createElement(
-                            'div',
-                            { style: { textAlign: 'center', paddingTop: 20 } },
-                            _react2.default.createElement(_materialUi.RaisedButton, { 'default': true, label: performingCheck === 'PHP' ? "Checking..." : "Run Detection", onClick: this.checkPhpConfig.bind(this) })
-                        )
-                    ),
-                    this.renderStepActions(2 + stepOffset)
-                )
-            ));
-
-            steps.push(_react2.default.createElement(
-                _materialUi.Step,
-                { key: steps.length - 1, style: stepperStyles.step },
-                _react2.default.createElement(
-                    _materialUi.StepLabel,
-                    { style: stepIndex >= 3 + stepOffset ? stepperStyles.label : {} },
                     'Admin User'
                 ),
                 _react2.default.createElement(
@@ -809,7 +699,7 @@ var InstallForm = function (_React$Component) {
                 { key: steps.length - 1, style: stepperStyles.step },
                 _react2.default.createElement(
                     _materialUi.StepLabel,
-                    { style: stepIndex >= 4 + stepOffset ? stepperStyles.label : {} },
+                    { style: stepIndex >= 3 + stepOffset ? stepperStyles.label : {} },
                     'Advanced Settings'
                 ),
                 _react2.default.createElement(
@@ -919,7 +809,7 @@ var InstallForm = function (_React$Component) {
                 { key: steps.length - 1, style: stepperStyles.step },
                 _react2.default.createElement(
                     _materialUi.StepLabel,
-                    { style: stepIndex >= 5 + stepOffset ? stepperStyles.label : {} },
+                    { style: stepIndex >= 4 + stepOffset ? stepperStyles.label : {} },
                     'Apply Installation'
                 ),
                 _react2.default.createElement(

@@ -226,7 +226,7 @@ class InstallForm extends React.Component {
                     })
                 };
                 break;
-            case 4 + stepOffset :
+            case 3 + stepOffset :
                 nextAction = () => {this.handleNext(); handleSubmit()};
                 break;
             default:
@@ -248,7 +248,7 @@ class InstallForm extends React.Component {
                         />
                     )}
                     <RaisedButton
-                        label={stepIndex === 4 + stepOffset? 'Install Now' : 'Next'}
+                        label={stepIndex === 3 + stepOffset? 'Install Now' : 'Next'}
                         primary={true}
                         onClick={nextAction}
                         disabled={nextDisabled || invalid}
@@ -260,8 +260,8 @@ class InstallForm extends React.Component {
 
     render() {
 
-        const {dbConnectionType, handleSubmit, installPerformed, installError, initialChecks, licenseRequired, licenseString, fpmAddress} = this.props;
-        const {stepIndex, licenseAgreed, showAdvanced, installEvents, installProgress, serverRestarted, willReloadIn, agreementText, dbCheckError, performingCheck, licCheckFailed} = this.state;
+        const {dbConnectionType, handleSubmit, installPerformed, installError, initialChecks, licenseRequired, licenseString} = this.props;
+        const {stepIndex, licenseAgreed, showAdvanced, installEvents, installProgress, serverRestarted, willReloadIn, agreementText, dbCheckError, licCheckFailed} = this.state;
         let {phpCheck} = this.state;
         let phpOk, phpResult;
         if (!phpCheck && initialChecks && initialChecks[0]) {
@@ -444,42 +444,7 @@ class InstallForm extends React.Component {
 
         steps.push(
             <Step key={steps.length-1} style={stepperStyles.step}>
-                <StepLabel style={stepIndex >= 2 + stepOffset ? stepperStyles.label : {}}>PHP-FPM Detection</StepLabel>
-                <StepContent style={stepperStyles.content}>
-                    <div style={stepperStyles.contentScroller}>
-                        <h3>PHP Fpm Detection</h3>
-                        PHP-FPM is required to serve the web interface of Pydio Cells. It was not automatically detected on your system. On most systems you can easily
-                        install php-fpm using <code>apt install php-fpm</code> or <code>yum install php-fpm</code> on Linux, or <code>brew install php72</code> on Mac OSX.
-                        <br/><br/>
-                        You can run detection again after having installed php and started the associated daemon. Skip this if you do not want to use the web interface on this machine.
-                        {!phpOk && phpResult && phpResult.error &&
-                        <div style={{color: '#E53935', paddingTop: 10, paddingBottom: 10, fontWeight: 500}}>{phpResult.error}</div>
-                        }
-                        {(!(phpResult && phpResult.fpm && phpResult.fpm.ListenAddress) || fpmAddress) &&
-                        <div>
-                            <div>If you have installed php-fpm on a specific port or a specific unix socket, please enter its address below. It can be an url like "localhost:9000" or pointer to a local socket like "/run/php/php-fpm.sock".</div>
-                            <Field name="fpmAddress" component={renderTextField} floatingLabel="Php-FPM Listen address" label="Use Listen address as defined in php-fpm configuration" />
-                        </div>
-                        }
-                        {phpResult && phpResult.fpm &&
-                        <div style={{...flexContainer, paddingRight: 20, paddingTop: 10, fontSize: 14}}>
-                            <div style={{display:'flex', alignItems:'center', height: 40}}><div style={{flex: 1}}>Php-fpm service</div><div>{phpResult.fpm.ListenAddress ? phpResult.fpm.ListenAddress : "Not Detected"}</div></div>
-                            <div style={{display:'flex', alignItems:'center', height: 40}}><div style={{flex: 1}}>PHP version</div><div>{phpResult.fpm.PhpVersion ? phpResult.fpm.PhpVersion : "Not Detected"}</div></div>
-                            <div style={{display:'flex', alignItems:'center', height: 40}}><div style={{flex: 1}}>PHP extensions detected</div>{phpResult.fpm.PhpExtensions ? phpResult.fpm.PhpExtensions.join(", "): "Not Detected"}</div>
-                        </div>
-                        }
-                        <div style={{textAlign:'center', paddingTop: 20}}>
-                            <RaisedButton default={true} label={performingCheck ==='PHP' ? "Checking..." : "Run Detection"} onClick={this.checkPhpConfig.bind(this)}/>
-                        </div>
-                    </div>
-                    {this.renderStepActions(2 + stepOffset)}
-                </StepContent>
-            </Step>
-        );
-
-        steps.push(
-            <Step key={steps.length-1} style={stepperStyles.step}>
-                <StepLabel style={stepIndex >= 3 + stepOffset ? stepperStyles.label : {}}>Admin User</StepLabel>
+                <StepLabel style={stepIndex >= 2 + stepOffset ? stepperStyles.label : {}}>Admin User</StepLabel>
                 <StepContent style={stepperStyles.content}>
                     <div style={stepperStyles.contentScroller}>
                         <h3>Admin user credentials</h3>
@@ -498,7 +463,7 @@ class InstallForm extends React.Component {
 
         steps.push(
             <Step key={steps.length-1} style={stepperStyles.step}>
-                <StepLabel style={stepIndex >= 4 + stepOffset ? stepperStyles.label : {}}>Advanced Settings</StepLabel>
+                <StepLabel style={stepIndex >= 3 + stepOffset ? stepperStyles.label : {}}>Advanced Settings</StepLabel>
                 <StepContent style={stepperStyles.content}>
                     <div style={stepperStyles.contentScroller}>
                         <h3>Advanced Settings</h3>
@@ -547,7 +512,7 @@ class InstallForm extends React.Component {
         const eventsLength = installEvents.length - 1;
         steps.push(
             <Step key={steps.length-1} style={stepperStyles.step}>
-                <StepLabel style={stepIndex >= 5 + stepOffset ? stepperStyles.label : {}}>Apply Installation</StepLabel>
+                <StepLabel style={stepIndex >= 4 + stepOffset ? stepperStyles.label : {}}>Apply Installation</StepLabel>
                 <StepContent style={stepperStyles.content}>
                     <div style={stepperStyles.contentScroller}>
                         <h3>Please wait while installing Pydio ...</h3>
