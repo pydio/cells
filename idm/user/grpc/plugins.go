@@ -30,12 +30,15 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/errors"
 
+	"time"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/service/defaults"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/idm/user"
 )
@@ -104,6 +107,17 @@ func InitDefaults(ctx context.Context) error {
 			if err2 := dao.AddPolicies(false, newUser.Uuid, builder.Policies()); err2 != nil {
 				return err2
 			}
+			// Create user role
+			service.Retry(func() error {
+				roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+				_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
+					Uuid:     newUser.Uuid,
+					Label:    newUser.Login + " role",
+					UserRole: true,
+					Policies: builder.Policies(),
+				}})
+				return e
+			}, 8*time.Second, 50*time.Second)
 		}
 	}
 
@@ -126,6 +140,17 @@ func InitDefaults(ctx context.Context) error {
 		if err2 := dao.AddPolicies(false, newAnon.Uuid, builder.Policies()); err2 != nil {
 			return err2
 		}
+		// Create user role
+		service.Retry(func() error {
+			roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
+			_, e := roleClient.CreateRole(ctx, &idm.CreateRoleRequest{Role: &idm.Role{
+				Uuid:     newAnon.Uuid,
+				Label:    newAnon.Login + " role",
+				UserRole: true,
+				Policies: builder.Policies(),
+			}})
+			return e
+		}, 8*time.Second, 50*time.Second)
 	}
 
 	return nil
