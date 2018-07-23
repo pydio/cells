@@ -173,9 +173,12 @@ var Loaders = (function () {
             end = parseInt(end);
             limit = end - offset;
         }
+        var pydio = _pydioHttpApi2['default'].getClient().getPydioObject();
         IdmApi.listUsers('/', filter, true, offset, limit, 'shared').then(function (users) {
             entry.pagination = Loaders.computePagination(users);
-            var items = users.Users.map(function (idmUser) {
+            var items = users.Users.filter(function (idmUser) {
+                return idmUser.Login !== pydio.user.id;
+            }).map(function (idmUser) {
                 return {
                     _parent: entry,
                     id: idmUser.Login,
@@ -211,9 +214,12 @@ var Loaders = (function () {
             end = parseInt(end);
             limit = end - offset;
         }
+        var pydio = _pydioHttpApi2['default'].getClient().getPydioObject();
         IdmApi.listUsers(path, filter, false, offset, limit, '!shared').then(function (users) {
             entry.pagination = Loaders.computePagination(users);
-            var items = users.Users.map(function (idmUser) {
+            var items = users.Users.filter(function (idmUser) {
+                return idmUser.Login !== pydio.user.id;
+            }).map(function (idmUser) {
                 return {
                     _parent: entry,
                     id: idmUser.Login,

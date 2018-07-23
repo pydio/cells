@@ -137,9 +137,10 @@ class Loaders{
             end = parseInt(end);
             limit = end - offset;
         }
+        const pydio = PydioApi.getClient().getPydioObject();
         IdmApi.listUsers('/', filter, true, offset, limit, 'shared').then(users => {
             entry.pagination = Loaders.computePagination(users);
-            const items = users.Users.map((idmUser) => {
+            const items = users.Users.filter(idmUser => idmUser.Login !== pydio.user.id).map((idmUser) => {
                 return {
                     _parent: entry,
                     id: idmUser.Login,
@@ -168,9 +169,10 @@ class Loaders{
             end = parseInt(end);
             limit = end - offset;
         }
+        const pydio = PydioApi.getClient().getPydioObject();
         IdmApi.listUsers(path, filter, false, offset, limit, '!shared').then(users => {
             entry.pagination = Loaders.computePagination(users);
-            const items = users.Users.map((idmUser) => {
+            const items = users.Users.filter(idmUser => idmUser.Login !== pydio.user.id).map((idmUser) => {
                 return {
                     _parent: entry,
                     id: idmUser.Login,
