@@ -18,12 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react');
-const PydioApi = require('pydio/http/api');
-const BootUI = require('pydio/http/resources-manager').requireLib('boot');
-const {ActionDialogMixin, SubmitButtonProviderMixin, Loader} = BootUI;
-import AboutCellsCard from './AboutCellsCard'
+import React from "react";
+import Pydio from "pydio";
 import {Card, CardTitle, CardText, Divider, FlatButton, FontIcon, CardActions} from 'material-ui'
+const {ActionDialogMixin, SubmitButtonProviderMixin, Loader} = Pydio.requireLib('boot');
+import Markdown from "react-markdown";
 
 const SplashDialog = React.createClass({
 
@@ -32,7 +31,7 @@ const SplashDialog = React.createClass({
         SubmitButtonProviderMixin
     ],
 
-    getDefaultProps: function(){
+    getDefaultProps(){
         return {
             dialogTitle: '',
             dialogSize:'lg',
@@ -57,30 +56,28 @@ const SplashDialog = React.createClass({
         open("https://github.com/pydio/cells/issues");
     },
 
-    getInitialState: function(){
+    getInitialState(){
         return {aboutContent: null};
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
 
-        PydioApi.getClient().request({
-            get_action:'display_doc',
-            doc_file:'CREDITS'
-        }, function(transport){
-            this.setState({
-                aboutContent: transport.responseText
+        let url = pydio.Parameters.get('FRONTEND_URL') + '/plug/gui.ajax/credits.md';
+        window.fetch(url, {
+            method:'GET',
+            credentials:'same-origin',
+        }).then((response) => {
+            response.text().then((data) => {
+                this.setState({aboutContent: data});
             });
-        }.bind(this));
+        });
 
     },
 
-    render: function(){
+    render(){
         let credit;
         if (this.state.aboutContent) {
-            let ct = () => {
-                return {__html: this.state.aboutContent}
-            };
-            credit = <div dangerouslySetInnerHTML={ct()}/>;
+            credit = <Markdown source={this.state.aboutContent}/>;
         } else {
             credit = <Loader style={{minHeight: 200}}/>;
         }

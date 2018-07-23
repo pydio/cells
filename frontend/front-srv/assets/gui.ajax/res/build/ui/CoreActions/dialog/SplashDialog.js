@@ -18,27 +18,34 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var _AboutCellsCard = require('./AboutCellsCard');
+var _react = require("react");
 
-var _AboutCellsCard2 = _interopRequireDefault(_AboutCellsCard);
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require("pydio");
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
-var React = require('react');
-var PydioApi = require('pydio/http/api');
-var BootUI = require('pydio/http/resources-manager').requireLib('boot');
-var ActionDialogMixin = BootUI.ActionDialogMixin;
-var SubmitButtonProviderMixin = BootUI.SubmitButtonProviderMixin;
-var Loader = BootUI.Loader;
+var _reactMarkdown = require("react-markdown");
 
-var SplashDialog = React.createClass({
-    displayName: 'SplashDialog',
+var _reactMarkdown2 = _interopRequireDefault(_reactMarkdown);
+
+var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
+
+var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
+var SubmitButtonProviderMixin = _Pydio$requireLib.SubmitButtonProviderMixin;
+var Loader = _Pydio$requireLib.Loader;
+
+var SplashDialog = _react2["default"].createClass({
+    displayName: "SplashDialog",
 
     mixins: [ActionDialogMixin, SubmitButtonProviderMixin],
 
@@ -72,53 +79,50 @@ var SplashDialog = React.createClass({
     },
 
     componentDidMount: function componentDidMount() {
+        var _this = this;
 
-        PydioApi.getClient().request({
-            get_action: 'display_doc',
-            doc_file: 'CREDITS'
-        }, (function (transport) {
-            this.setState({
-                aboutContent: transport.responseText
+        var url = pydio.Parameters.get('FRONTEND_URL') + '/plug/gui.ajax/credits.md';
+        window.fetch(url, {
+            method: 'GET',
+            credentials: 'same-origin'
+        }).then(function (response) {
+            response.text().then(function (data) {
+                _this.setState({ aboutContent: data });
             });
-        }).bind(this));
+        });
     },
 
     render: function render() {
-        var _this = this;
-
         var credit = undefined;
         if (this.state.aboutContent) {
-            var ct = function ct() {
-                return { __html: _this.state.aboutContent };
-            };
-            credit = React.createElement('div', { dangerouslySetInnerHTML: ct() });
+            credit = _react2["default"].createElement(_reactMarkdown2["default"], { source: this.state.aboutContent });
         } else {
-            credit = React.createElement(Loader, { style: { minHeight: 200 } });
+            credit = _react2["default"].createElement(Loader, { style: { minHeight: 200 } });
         }
-        credit = React.createElement(
+        credit = _react2["default"].createElement(
             _materialUi.Card,
             { style: { margin: 10 } },
-            React.createElement(_materialUi.CardTitle, {
+            _react2["default"].createElement(_materialUi.CardTitle, {
                 title: pydio.Parameters.get('backend')['PackageLabel'],
-                subtitle: 'Details about version, licensing and how to get help'
+                subtitle: "Details about version, licensing and how to get help"
             }),
-            React.createElement(_materialUi.Divider, null),
-            React.createElement(
+            _react2["default"].createElement(_materialUi.Divider, null),
+            _react2["default"].createElement(
                 _materialUi.CardActions,
                 null,
-                React.createElement(_materialUi.FlatButton, { primary: true, icon: React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-book-variant' }), label: 'Docs', onTouchTap: this.openDocs }),
-                React.createElement(_materialUi.FlatButton, { primary: true, icon: React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-slack' }), label: 'Forums', onTouchTap: this.openForum }),
-                React.createElement(_materialUi.FlatButton, { primary: true, icon: React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-github-box' }), label: 'Issues', onTouchTap: this.openGithub })
+                _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-book-variant" }), label: "Docs", onTouchTap: this.openDocs }),
+                _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-slack" }), label: "Forums", onTouchTap: this.openForum }),
+                _react2["default"].createElement(_materialUi.FlatButton, { primary: true, icon: _react2["default"].createElement(_materialUi.FontIcon, { className: "mdi mdi-github-box" }), label: "Issues", onTouchTap: this.openGithub })
             ),
-            React.createElement(_materialUi.Divider, null),
-            React.createElement(
+            _react2["default"].createElement(_materialUi.Divider, null),
+            _react2["default"].createElement(
                 _materialUi.CardText,
                 null,
                 credit
             )
         );
-        return React.createElement(
-            'div',
+        return _react2["default"].createElement(
+            "div",
             { style: { height: '100%', backgroundColor: '#CFD8DC' } },
             credit
         );
@@ -126,5 +130,5 @@ var SplashDialog = React.createClass({
 
 });
 
-exports['default'] = SplashDialog;
-module.exports = exports['default'];
+exports["default"] = SplashDialog;
+module.exports = exports["default"];
