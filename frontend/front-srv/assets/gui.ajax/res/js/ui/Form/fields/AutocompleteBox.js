@@ -90,7 +90,12 @@ let AutocompleteBox = React.createClass({
                         onNewRequest={this.handleNewRequest}
                         dataSource={dataSource}
                         floatingLabelText={this.props.attributes['label']}
-                        filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
+                        filter={(searchText, key) => {
+                            if(!key || !searchText) {
+                                return false;
+                            }
+                            return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0
+                        }}
                         openOnFocus={true}
                         menuProps={{maxHeight: 200}}
                     />

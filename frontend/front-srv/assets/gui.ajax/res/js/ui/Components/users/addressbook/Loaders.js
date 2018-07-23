@@ -144,6 +144,7 @@ class Loaders{
                     _parent: entry,
                     id: idmUser.Login,
                     label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.Login,
+                    avatar: idmUser.Attributes && idmUser.Attributes["avatar"] ? idmUser.Attributes["avatar"] : undefined,
                     type:'user',
                     external:true,
                     IdmUser: idmUser
@@ -174,6 +175,7 @@ class Loaders{
                     _parent: entry,
                     id: idmUser.Login,
                     label: idmUser.Attributes && idmUser.Attributes["displayName"] ? idmUser.Attributes["displayName"] : idmUser.Login,
+                    avatar: idmUser.Attributes && idmUser.Attributes["avatar"] ? idmUser.Attributes["avatar"] : undefined,
                     type:'user',
                     IdmUser: idmUser
                 }

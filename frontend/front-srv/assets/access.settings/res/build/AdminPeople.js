@@ -22353,7 +22353,7 @@ var Dashboard = _react2['default'].createClass({
         var pydio = this.props.pydio;
 
         if (idmUser.Attributes && idmUser.Attributes['avatar']) {
-            var imgSrc = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/binaries/USER/' + idmUser.Login;
+            var imgSrc = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/binaries/USER/' + idmUser.Login + '?' + idmUser.Attributes['avatar'];
             return _react2['default'].createElement('div', { style: {
                     width: 33,
                     height: 33,
@@ -25486,7 +25486,7 @@ var UserInfo = (function (_React$Component) {
         value: function getBinaryContext() {
             var user = this.props.user;
 
-            return "user_id=" + user.getIdmUser().Login;
+            return "user_id=" + user.getIdmUser().Login + (user.getIdmUser().Attributes && user.getIdmUser().Attributes['avatar'] ? '?' + user.getIdmUser().Attributes['avatar'] : '');
         }
     }, {
         key: 'getPydioRoleMessage',
@@ -25507,8 +25507,7 @@ var UserInfo = (function (_React$Component) {
             var idmUser = user.getIdmUser();
             var role = user.getRole();
             // do something
-            console.log(paramName, newValue);
-            if (paramName === 'displayName' || paramName === 'email' || paramName === 'profile') {
+            if (paramName === 'displayName' || paramName === 'email' || paramName === 'profile' || paramName === 'avatar') {
                 idmUser.Attributes[paramName] = newValue;
             } else if (params.length && params[0].aclKey) {
                 role.setParameter(params[0].aclKey, newValue);

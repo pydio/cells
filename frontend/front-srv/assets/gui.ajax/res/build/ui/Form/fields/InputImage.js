@@ -71,14 +71,9 @@ exports['default'] = _react2['default'].createClass({
 
     componentWillReceiveProps: function componentWillReceiveProps(newProps) {
         var imgSrc = undefined;
-        if (newProps.value && !this.state.reset) {
-            if (!this.state.value || this.state.value !== newProps.value) {
-                imgSrc = this.getBinaryUrl(newProps.value, this.state.temporaryBinary && this.state.temporaryBinary === newProps.value);
-            }
+        if ((newProps.value || newProps.binary_context && newProps.binary_context !== this.props.binary_context) && !this.state.reset) {
+            imgSrc = this.getBinaryUrl(newProps, this.state.temporaryBinary && this.state.temporaryBinary === newProps.value);
         } else if (newProps.attributes['defaultImage']) {
-            if (this.state.value) {
-                //this.setState({ value:'ajxp-remove-original' });
-            }
             imgSrc = newProps.attributes['defaultImage'];
         }
         if (imgSrc) {
@@ -90,7 +85,7 @@ exports['default'] = _react2['default'].createClass({
         var imgSrc = undefined,
             originalBinary = undefined;
         if (this.props.value) {
-            imgSrc = this.getBinaryUrl(this.props.value);
+            imgSrc = this.getBinaryUrl(this.props);
             originalBinary = this.props.value;
         } else if (this.props.attributes['defaultImage']) {
             imgSrc = this.props.attributes['defaultImage'];
@@ -98,12 +93,12 @@ exports['default'] = _react2['default'].createClass({
         return { imageSrc: imgSrc, originalBinary: originalBinary };
     },
 
-    getBinaryUrl: function getBinaryUrl(binaryId) {
+    getBinaryUrl: function getBinaryUrl(props) {
         var pydio = _pydioHttpApi2['default'].getClient().getPydioObject();
-        var url = pydio.Parameters.get('ENDPOINT_REST_API') + this.props.attributes['loadAction'];
-        var bId = binaryId;
-        if (this.props.binary_context && this.props.binary_context.indexOf('user_id=') === 0) {
-            bId = this.props.binary_context.replace('user_id=', '');
+        var url = pydio.Parameters.get('ENDPOINT_REST_API') + props.attributes['loadAction'];
+        var bId = props.value;
+        if (props.binary_context && props.binary_context.indexOf('user_id=') === 0) {
+            bId = props.binary_context.replace('user_id=', '');
         }
         url = url.replace('{BINARY}', bId);
         return url;

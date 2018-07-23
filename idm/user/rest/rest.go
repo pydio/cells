@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/service/frontend"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
 	"github.com/pydio/cells/common/utils"
@@ -384,6 +385,11 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 				Uuid:     response.User.Uuid,
 				UserRole: true,
 				Label:    "User " + response.User.Login,
+				Policies: []*service2.ResourcePolicy{
+					{Subject: "profile:standard", Action: service2.ResourcePolicyAction_READ, Effect: service2.ResourcePolicy_allow},
+					{Subject: "user:" + response.User.Login, Action: service2.ResourcePolicyAction_WRITE, Effect: service2.ResourcePolicy_allow},
+					{Subject: "profile:admin", Action: service2.ResourcePolicyAction_WRITE, Effect: service2.ResourcePolicy_allow},
+				},
 			}
 		}
 		roleCli := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
@@ -666,13 +672,30 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 
 }
 
-// TODO : EXTRACT THIS FROM PLUGINS REGISTRY
 func allowedAclKey(k string) bool {
-	allowedAclKeysAsAttributes := []string{"parameter:core.conf:lang", "parameter:core.conf:country"}
-	for _, v := range allowedAclKeysAsAttributes {
-		if v == k {
+	pool, e := frontend.GetPluginsPool()
+	if e != nil {
+		log.Logger(context.Background()).Error("Cannot read plugins pool", zap.Error(e))
+	}
+	// Find params that contain user scope but not only that scope
+	params := pool.ExposedParametersByScope("user", true)
+	for _, param := range params {
+		if param.Attrscope == "user" {
+			continue
+		}
+		if k == "parameter:"+param.PluginId+":"+param.Attrname {
 			return true
 		}
 	}
 	return false
+
+	/*
+		allowedAclKeysAsAttributes := []string{"parameter:core.conf:lang", "parameter:core.conf:country"}
+		for _, v := range allowedAclKeysAsAttributes {
+			if v == k {
+				return true
+			}
+		}
+		return false
+	*/
 }

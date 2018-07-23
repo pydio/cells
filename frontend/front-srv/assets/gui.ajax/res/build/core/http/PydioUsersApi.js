@@ -233,7 +233,7 @@ var UsersApi = (function () {
 
         var avatarUrl = UsersApi.buildUserAvatarUrl(pydio.user.id, pydio.user.getPreference('avatar'));
         if (avatarUrl) {
-            userObject.setAvatar(avatarUrl);
+            userObject.setAvatar(avatarUrl + '?' + pydio.user.getPreference('avatar'));
             callback(userObject);
         } else if (pydio.user.preferences.has('external_avatar_loaded')) {
             callback(userObject);
@@ -319,7 +319,14 @@ var UsersApi = (function () {
         return cache;
     };
 
-    UsersApi.getUserPromise = function getUserPromise(userId) {
+    /**
+     *
+     * @param userId string
+     * @param idmUser {IdmUser}
+     * @return {Promise<any>}
+     */
+
+    UsersApi.getUserPromise = function getUserPromise(userId, idmUser) {
         var namespace = 'user_public_data';
         var cache = UsersApi.getPublicDataCache();
         var pydio = _PydioApi2['default'].getClient().getPydioObject();
@@ -346,6 +353,7 @@ var UsersApi = (function () {
                 })();
             } else {
                 var userObject = new User(userId);
+                userObject.IdmUser = idmUser;
                 userObject.setLoading();
                 cache.setKey(namespace, userId, userObject);
 

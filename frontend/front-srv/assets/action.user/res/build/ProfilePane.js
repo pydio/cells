@@ -28,6 +28,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
 var _PasswordPopover = require('./PasswordPopover');
 
 var _PasswordPopover2 = _interopRequireDefault(_PasswordPopover);
@@ -36,24 +40,30 @@ var _EmailPanel = require('./EmailPanel');
 
 var _EmailPanel2 = _interopRequireDefault(_EmailPanel);
 
-var React = require('react');
-var LangUtils = require('pydio/util/lang');
+var _pydioUtilLang = require("pydio/util/lang");
 
-var _require = require('material-ui');
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var FlatButton = _require.FlatButton;
-var Divider = _require.Divider;
+var _materialUi = require("material-ui");
 
-var Pydio = require('pydio');
+var _pydio = require("pydio");
 
-var _Pydio$requireLib = Pydio.requireLib('form');
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('form');
 
 var Manager = _Pydio$requireLib.Manager;
 var FormPanel = _Pydio$requireLib.FormPanel;
 
 var FORM_CSS = ' \n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group:first-of-type {\n  margin-top: 220px;\n  overflow-y: hidden;\n}\n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  height: 200px;\n  background-color: #eceff1;\n}\n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .image-label,\n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .form-legend {\n  display: none;\n}\n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .file-dropzone {\n  border-radius: 50%;\n  width: 160px !important;\n  height: 160px !important;\n  margin: 20px auto;\n}\n.react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group div.form-entry-image .binary-remove-button {\n  position: absolute;\n  bottom: 5px;\n  right: 0;\n}\n\n';
 
-var ProfilePane = React.createClass({
+var ProfilePane = _react2['default'].createClass({
     displayName: 'ProfilePane',
 
     getInitialState: function getInitialState() {
@@ -72,7 +82,7 @@ var ProfilePane = React.createClass({
             definitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and not(contains(@name, 'NOTIFICATIONS_EMAIL'))]"),
             mailDefinitions: Manager.parseParameters(pydio.getXmlRegistry(), "user/preferences/pref[@exposed='true']|//param[contains(@scope,'user') and @expose='true' and contains(@name, 'NOTIFICATIONS_EMAIL')]"),
             values: objValues,
-            originalValues: LangUtils.deepCopy(objValues),
+            originalValues: _pydioUtilLang2['default'].deepCopy(objValues),
             dirty: false
         };
     },
@@ -80,11 +90,13 @@ var ProfilePane = React.createClass({
     onFormChange: function onFormChange(newValues, dirty, removeValues) {
         var _this = this;
 
+        var values = this.state.values;
+
         this.setState({ dirty: dirty, values: newValues }, function () {
             if (_this._updater) {
                 _this._updater(_this.getButtons());
             }
-            if (_this.props.saveOnChange) {
+            if (_this.props.saveOnChange || newValues['avatar'] !== values['avatar']) {
                 _this.saveForm();
             }
         });
@@ -93,21 +105,23 @@ var ProfilePane = React.createClass({
     getButtons: function getButtons() {
         var updater = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 
-        if (updater) this._updater = updater;
+        if (updater) {
+            this._updater = updater;
+        }
         var button = undefined,
             revert = undefined;
         if (this.state.dirty) {
-            revert = React.createElement(FlatButton, { label: this.props.pydio.MessageHash[628], onTouchTap: this.revert });
-            button = React.createElement(FlatButton, { label: this.props.pydio.MessageHash[53], secondary: true, onTouchTap: this.saveForm });
+            revert = _react2['default'].createElement(_materialUi.FlatButton, { label: this.props.pydio.MessageHash[628], onTouchTap: this.revert });
+            button = _react2['default'].createElement(_materialUi.FlatButton, { label: this.props.pydio.MessageHash[53], secondary: true, onTouchTap: this.saveForm });
         } else {
-            button = React.createElement(FlatButton, { label: this.props.pydio.MessageHash[86], onTouchTap: this.props.onDismiss });
+            button = _react2['default'].createElement(_materialUi.FlatButton, { label: this.props.pydio.MessageHash[86], onTouchTap: this.props.onDismiss });
         }
         if (this.props.pydio.Controller.getActionByName('pass_change')) {
-            return [React.createElement(
+            return [_react2['default'].createElement(
                 'div',
                 { style: { display: 'flex', width: '100%' } },
-                React.createElement(_PasswordPopover2['default'], this.props),
-                React.createElement('span', { style: { flex: 1 } }),
+                _react2['default'].createElement(_PasswordPopover2['default'], this.props),
+                _react2['default'].createElement('span', { style: { flex: 1 } }),
                 revert,
                 button
             )];
@@ -124,7 +138,7 @@ var ProfilePane = React.createClass({
         var func = function func() {
             pydio.Controller.fireAction(actionName);
         };
-        return React.createElement(ReactMUI.RaisedButton, { label: pydio.MessageHash[messageId], onClick: func });
+        return _react2['default'].createElement(ReactMUI.RaisedButton, { label: pydio.MessageHash[messageId], onClick: func });
     },
 
     revert: function revert() {
@@ -141,6 +155,8 @@ var ProfilePane = React.createClass({
     },
 
     saveForm: function saveForm() {
+        var _this3 = this;
+
         if (!this.state.dirty) {
             this.setState({ dirty: false });
             return;
@@ -150,24 +166,32 @@ var ProfilePane = React.createClass({
         var definitions = _state.definitions;
         var values = _state.values;
 
-        var postValues = Manager.getValuesForPOST(definitions, values, 'PREFERENCES_');
-        postValues['get_action'] = 'custom_data_edit';
-        PydioApi.getClient().request(postValues, (function (transport) {
-            var _this3 = this;
-
-            PydioApi.getClient().parseXmlMessage(transport.responseXML);
-            pydio.observeOnce('user_logged', function (userObject) {
-                if (values.avatar && userObject.getPreference('avatar') !== values.avatar) {
-                    _this3.setState({ values: _extends({}, values, { avatar: userObject.getPreference('avatar') }) });
+        console.log(definitions, values);
+        pydio.user.getIdmUser().then(function (idmUser) {
+            if (!idmUser.Attributes) {
+                idmUser.Attributes = {};
+            }
+            definitions.forEach(function (d) {
+                if (values[d.name] === undefined) {
+                    return;
+                }
+                if (d.scope === "user") {
+                    idmUser.Attributes[d.name] = values[d.name];
+                } else {
+                    idmUser.Attributes["parameter:" + d.pluginId + ":" + d.name] = JSON.stringify(values[d.name]);
                 }
             });
-            pydio.refreshUserData();
-            this.setState({ dirty: false }, function () {
-                if (_this3._updater) {
-                    _this3._updater(_this3.getButtons());
-                }
+            var api = new _pydioHttpRestApi.UserServiceApi(_pydioHttpApi2['default'].getRestClient());
+            return api.putUser(idmUser.Login, idmUser).then(function (response) {
+                // Do something now
+                pydio.refreshUserData();
+                _this3.setState({ dirty: false }, function () {
+                    if (_this3._updater) {
+                        _this3._updater(_this3.getButtons());
+                    }
+                });
             });
-        }).bind(this));
+        });
     },
 
     render: function render() {
@@ -175,7 +199,9 @@ var ProfilePane = React.createClass({
         var pydio = _props.pydio;
         var miniDisplay = _props.miniDisplay;
 
-        if (!pydio.user) return null;
+        if (!pydio.user) {
+            return null;
+        }
         var _state2 = this.state;
         var definitions = _state2.definitions;
         var values = _state2.values;
@@ -185,18 +211,18 @@ var ProfilePane = React.createClass({
                 return ['avatar'].indexOf(o.name) !== -1;
             });
         }
-        return React.createElement(
+        return _react2['default'].createElement(
             'div',
             null,
-            React.createElement(FormPanel, {
+            _react2['default'].createElement(FormPanel, {
                 className: 'current-user-edit',
                 parameters: definitions,
                 values: values,
                 depth: -1,
-                binary_context: "user_id=" + pydio.user.id,
+                binary_context: "user_id=" + pydio.user.id + (values['avatar'] ? "?" + values['avatar'] : ''),
                 onChange: this.onFormChange
             }),
-            React.createElement('style', { type: 'text/css', dangerouslySetInnerHTML: { __html: FORM_CSS } })
+            _react2['default'].createElement('style', { type: 'text/css', dangerouslySetInnerHTML: { __html: FORM_CSS } })
         );
     }
 

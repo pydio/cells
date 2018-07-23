@@ -18,13 +18,16 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react')
-const LangUtils = require('pydio/util/lang')
-const {FlatButton, Divider} = require('material-ui')
-const Pydio = require('pydio')
-const {Manager, FormPanel} = Pydio.requireLib('form')
+import React from "react";
 import PasswordPopover from './PasswordPopover'
 import EmailPanel from './EmailPanel'
+import LangUtils from "pydio/util/lang";
+import {Divider, FlatButton} from "material-ui";
+import Pydio from "pydio";
+import PydioApi from 'pydio/http/api';
+import {UserServiceApi} from 'pydio/http/rest-api';
+
+const {Manager, FormPanel} = Pydio.requireLib('form');
 
 const FORM_CSS = ` 
 .react-mui-context .current-user-edit.pydio-form-panel > .pydio-form-group:first-of-type {
@@ -59,7 +62,7 @@ const FORM_CSS = `
 
 let ProfilePane = React.createClass({
 
-    getInitialState: function(){
+    getInitialState(){
         let objValues = {}, mailValues = {};
         let pydio = this.props.pydio;
         if(pydio.user){
@@ -79,19 +82,22 @@ let ProfilePane = React.createClass({
         };
     },
 
-    onFormChange: function(newValues, dirty, removeValues){
+    onFormChange(newValues, dirty, removeValues){
+        const {values} = this.state;
         this.setState({dirty: dirty, values: newValues}, () => {
             if(this._updater) {
                 this._updater(this.getButtons());
             }
-            if(this.props.saveOnChange) {
+            if(this.props.saveOnChange || newValues['avatar'] !== values['avatar']) {
                 this.saveForm();
             }
         });
     },
 
-    getButtons: function(updater = null){
-        if(updater) this._updater = updater;
+    getButtons(updater = null){
+        if(updater) {
+            this._updater = updater;
+        }
         let button, revert;
         if(this.state.dirty){
             revert = <FlatButton label={this.props.pydio.MessageHash[628]} onTouchTap={this.revert}/>;
@@ -113,12 +119,12 @@ let ProfilePane = React.createClass({
         }
     },
 
-    getButton: function(actionName, messageId){
+    getButton(actionName, messageId){
         let pydio = this.props.pydio;
         if(!pydio.Controller.getActionByName(actionName)){
             return null;
         }
-        let func = function(){
+        let func = () => {
             pydio.Controller.fireAction(actionName);
         };
         return (
@@ -126,7 +132,7 @@ let ProfilePane = React.createClass({
         );
     },
 
-    revert: function(){
+    revert(){
         this.setState({
             values: {...this.state.originalValues},
             dirty: false
@@ -137,34 +143,47 @@ let ProfilePane = React.createClass({
         });
     },
 
-    saveForm: function(){
+    saveForm(){
         if(!this.state.dirty){
             this.setState({dirty: false});
             return;
         }
-        let pydio = this.props.pydio;
+        let {pydio} = this.props;
         let {definitions, values} = this.state;
-        let postValues = Manager.getValuesForPOST(definitions, values, 'PREFERENCES_');
-        postValues['get_action'] = 'custom_data_edit';
-        PydioApi.getClient().request(postValues, function(transport){
-            PydioApi.getClient().parseXmlMessage(transport.responseXML);
-            pydio.observeOnce('user_logged', (userObject) => {
-                if(values.avatar && userObject.getPreference('avatar') !== values.avatar){
-                    this.setState({values: {...values, avatar:userObject.getPreference('avatar')}});
+        console.log(definitions, values);
+        pydio.user.getIdmUser().then(idmUser => {
+            if(!idmUser.Attributes) {
+                idmUser.Attributes = {};
+            }
+            definitions.forEach(d => {
+                if (values[d.name] === undefined) {
+                    return;
+                }
+                if (d.scope === "user") {
+                    idmUser.Attributes[d.name] = values[d.name];
+                } else {
+                    idmUser.Attributes["parameter:" + d.pluginId + ":" + d.name] = JSON.stringify(values[d.name]);
                 }
             });
-            pydio.refreshUserData();
-            this.setState({dirty: false}, () => {
-                if(this._updater) {
-                    this._updater(this.getButtons());
-                }
+            const api = new UserServiceApi(PydioApi.getRestClient());
+            return api.putUser(idmUser.Login, idmUser).then(response => {
+                // Do something now
+                pydio.refreshUserData();
+                this.setState({dirty: false}, () => {
+                    if(this._updater) {
+                        this._updater(this.getButtons());
+                    }
+                });
             });
-        }.bind(this));
+
+        });
     },
 
-    render: function(){
+    render(){
         const {pydio, miniDisplay} = this.props;
-        if(!pydio.user) return null;
+        if(!pydio.user) {
+            return null;
+        }
         let {definitions, values} = this.state;
         if(miniDisplay){
             definitions = definitions.filter((o) => {return ['avatar'].indexOf(o.name) !== -1});
@@ -176,7 +195,7 @@ let ProfilePane = React.createClass({
                     parameters={definitions}
                     values={values}
                     depth={-1}
-                    binary_context={"user_id="+pydio.user.id}
+                    binary_context={"user_id="+pydio.user.id + (values['avatar'] ? "?" + values['avatar'] : '')}
                     onChange={this.onFormChange}
                 />
                 <style type="text/css" dangerouslySetInnerHTML={{__html: FORM_CSS}}></style>

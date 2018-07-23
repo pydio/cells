@@ -227,7 +227,7 @@ class UsersApi{
 
         const avatarUrl = UsersApi.buildUserAvatarUrl(pydio.user.id, pydio.user.getPreference('avatar'));
         if (avatarUrl) {
-            userObject.setAvatar(avatarUrl);
+            userObject.setAvatar(avatarUrl + '?' + pydio.user.getPreference('avatar'));
             callback(userObject);
         } else if (pydio.user.preferences.has('external_avatar_loaded')){
             callback(userObject);
@@ -313,7 +313,13 @@ class UsersApi{
         return cache;
     }
 
-    static getUserPromise(userId){
+    /**
+     *
+     * @param userId string
+     * @param idmUser {IdmUser}
+     * @return {Promise<any>}
+     */
+    static getUserPromise(userId, idmUser){
         const namespace = 'user_public_data';
         const cache = UsersApi.getPublicDataCache();
         const pydio = PydioApi.getClient().getPydioObject();
@@ -338,6 +344,7 @@ class UsersApi{
                 }
             } else {
                 let userObject = new User(userId);
+                userObject.IdmUser = idmUser;
                 userObject.setLoading();
                 cache.setKey(namespace, userId, userObject);
 

@@ -113,6 +113,9 @@ var AutocompleteBox = React.createClass({
                 dataSource: dataSource,
                 floatingLabelText: this.props.attributes['label'],
                 filter: function (searchText, key) {
+                    if (!key || !searchText) {
+                        return false;
+                    }
                     return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
                 },
                 openOnFocus: true,

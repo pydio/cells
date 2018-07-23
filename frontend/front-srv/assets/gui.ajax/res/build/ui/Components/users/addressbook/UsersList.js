@@ -119,7 +119,6 @@ var UsersList = (function (_React$Component) {
             usersSubHeader = [{ subheader: paginatorType ? _react2['default'].createElement(_AlphaPaginator2['default'], _extends({}, this.props, { style: { lineHeight: '20px', padding: '14px 0' } })) : getMessage('249') }];
         }
         var items = [].concat(foldersSubHeader, folders, usersSubHeader, leafs);
-        console.log(items);
         var total = items.length;
         var elements = [];
         var toggleSelect = function toggleSelect() {
@@ -242,6 +241,7 @@ var UsersList = (function (_React$Component) {
                 userLabel: item.label,
                 avatar: item.avatar,
                 icon: item.icon,
+                idmUser: item.IdmUser,
                 avatarOnly: true,
                 useDefaultAvatar: true
             });

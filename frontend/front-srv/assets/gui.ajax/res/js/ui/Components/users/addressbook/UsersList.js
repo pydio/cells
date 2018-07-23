@@ -65,7 +65,6 @@ class UsersList extends React.Component{
             usersSubHeader = [{subheader: paginatorType ? <AlphaPaginator {...this.props} style={{lineHeight: '20px',padding: '14px 0'}} /> : getMessage('249')}];
         }
         const items = [...foldersSubHeader, ...folders, ...usersSubHeader, ...leafs];
-        console.log(items);
         const total = items.length;
         let elements = [];
         const toggleSelect = () => {this.setState({select:!this.state.select, selection:[]})};
@@ -165,6 +164,7 @@ class UsersList extends React.Component{
                     userLabel={item.label}
                     avatar={item.avatar}
                     icon={item.icon}
+                    idmUser={item.IdmUser}
                     avatarOnly={true}
                     useDefaultAvatar={true}
                 />

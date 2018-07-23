@@ -20,7 +20,7 @@ class UserInfo extends React.Component {
 
     getBinaryContext(){
         const {user} = this.props;
-        return "user_id="+user.getIdmUser().Login;
+        return "user_id="+user.getIdmUser().Login + (user.getIdmUser().Attributes && user.getIdmUser().Attributes['avatar'] ? '?'+user.getIdmUser().Attributes['avatar'] : '');
     }
 
     getPydioRoleMessage(messageId){
@@ -35,8 +35,7 @@ class UserInfo extends React.Component {
         const idmUser = user.getIdmUser();
         const role = user.getRole();
         // do something
-        console.log(paramName, newValue);
-        if(paramName === 'displayName' || paramName === 'email' || paramName === 'profile'){
+        if(paramName === 'displayName' || paramName === 'email' || paramName === 'profile' || paramName === 'avatar'){
             idmUser.Attributes[paramName] = newValue;
         } else if (params.length && params[0].aclKey) {
             role.setParameter(params[0].aclKey, newValue);

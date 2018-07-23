@@ -83,31 +83,6 @@ let PasswordForm = React.createClass({
                 }
             })
         });
-
-        /*
-        PydioApi.getClient().request({
-            get_action:'pass_change',
-            old_pass: oldPass,
-            new_pass: newPass,
-            pass_seed: '-1'
-        }, function(transport){
-
-            if(transport.responseText === 'PASS_ERROR'){
-
-                this.setState({error: this.getMessage(240)});
-                callback(false);
-
-            }else if(transport.responseText === 'SUCCESS'){
-
-                this.props.pydio.displayMessage('SUCCESS', this.getMessage(197) + logoutString);
-                callback(true);
-                if(logoutString) {
-                    this.props.pydio.getController().fireAction('logout');
-                }
-            }
-
-        }.bind(this));
-        */
     },
 
     render(){

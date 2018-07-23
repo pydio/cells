@@ -45,13 +45,13 @@ class UserAvatar extends React.Component{
     }
 
     componentDidMount(){
-        this.loadPublicData(this.props.userId);
+        this.loadPublicData(this.props.userId, this.props.idmUser);
     }
 
     componentWillReceiveProps(nextProps){
         if(!this.props.userId || this.props.userId !== nextProps.userId){
             this.setState({label: nextProps.userId});
-            this.loadPublicData(nextProps.userId);
+            this.loadPublicData(nextProps.userId, nextProps.idmUser);
         }
     }
 
@@ -61,12 +61,17 @@ class UserAvatar extends React.Component{
         }
     }
 
-    loadPublicData(userId) {
+    /**
+     *
+     * @param userId string
+     * @param idmUser {IdmUser}
+     */
+    loadPublicData(userId, idmUser) {
         const {userType, richCard, pydio}  = this.props;
         if (userType === "group" || userType === "team") {
             return;
         }
-        UsersApi.getUserPromise(userId).then((userObject) => {
+        UsersApi.getUserPromise(userId, idmUser).then((userObject) => {
             if(userObject.isLocal()){
                 this._userLoggedObs = () => {
                     this._userLoggedObs = null;
@@ -182,7 +187,7 @@ class UserAvatar extends React.Component{
             avatarStyle = {marginTop: 20};
             const localReload = () => {
                 MetaCacheService.getInstance().deleteKey('user_public_data-graph', this.props.userId);
-                this.loadPublicData(this.props.userId);
+                this.loadPublicData(this.props.userId, this.props.idmUser);
             };
             reloadAction = () => {
                 localReload();

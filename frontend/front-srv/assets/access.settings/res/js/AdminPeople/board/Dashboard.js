@@ -61,7 +61,7 @@ let Dashboard = React.createClass({
         const idmUser = node.getMetadata().get('IdmUser');
         const {pydio} = this.props;
         if(idmUser.Attributes && idmUser.Attributes['avatar']){
-            const imgSrc = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/binaries/USER/' + idmUser.Login;
+            const imgSrc = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/binaries/USER/' + idmUser.Login + '?' + idmUser.Attributes['avatar'];
             return <div style={{
                 width:          33,
                 height:         33,

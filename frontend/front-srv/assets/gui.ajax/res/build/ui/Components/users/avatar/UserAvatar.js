@@ -87,13 +87,13 @@ var UserAvatar = (function (_React$Component) {
     }
 
     UserAvatar.prototype.componentDidMount = function componentDidMount() {
-        this.loadPublicData(this.props.userId);
+        this.loadPublicData(this.props.userId, this.props.idmUser);
     };
 
     UserAvatar.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
         if (!this.props.userId || this.props.userId !== nextProps.userId) {
             this.setState({ label: nextProps.userId });
-            this.loadPublicData(nextProps.userId);
+            this.loadPublicData(nextProps.userId, nextProps.idmUser);
         }
     };
 
@@ -103,7 +103,13 @@ var UserAvatar = (function (_React$Component) {
         }
     };
 
-    UserAvatar.prototype.loadPublicData = function loadPublicData(userId) {
+    /**
+     *
+     * @param userId string
+     * @param idmUser {IdmUser}
+     */
+
+    UserAvatar.prototype.loadPublicData = function loadPublicData(userId, idmUser) {
         var _this = this;
 
         var _props = this.props;
@@ -114,7 +120,7 @@ var UserAvatar = (function (_React$Component) {
         if (userType === "group" || userType === "team") {
             return;
         }
-        UsersApi.getUserPromise(userId, richCard).then(function (userObject) {
+        UsersApi.getUserPromise(userId, idmUser).then(function (userObject) {
             if (userObject.isLocal()) {
                 _this._userLoggedObs = function () {
                     _this._userLoggedObs = null;
@@ -263,7 +269,7 @@ var UserAvatar = (function (_React$Component) {
                 avatarStyle = { marginTop: 20 };
                 var localReload = function localReload() {
                     MetaCacheService.getInstance().deleteKey('user_public_data-graph', _this2.props.userId);
-                    _this2.loadPublicData(_this2.props.userId);
+                    _this2.loadPublicData(_this2.props.userId, _this2.props.idmUser);
                 };
                 reloadAction = function () {
                     localReload();

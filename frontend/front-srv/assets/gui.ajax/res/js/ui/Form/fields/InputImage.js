@@ -44,14 +44,9 @@ export default React.createClass({
 
     componentWillReceiveProps(newProps){
         let imgSrc;
-        if(newProps.value && !this.state.reset){
-            if((!this.state.value || this.state.value !== newProps.value)){
-                imgSrc = this.getBinaryUrl(newProps.value, (this.state.temporaryBinary && this.state.temporaryBinary===newProps.value));
-            }
+        if((newProps.value || (newProps.binary_context && newProps.binary_context !== this.props.binary_context)) && !this.state.reset){
+            imgSrc = this.getBinaryUrl(newProps, (this.state.temporaryBinary && this.state.temporaryBinary===newProps.value));
         }else if(newProps.attributes['defaultImage']){
-            if(this.state.value){
-                //this.setState({ value:'ajxp-remove-original' });
-            }
             imgSrc = newProps.attributes['defaultImage'];
         }
         if(imgSrc){
@@ -62,7 +57,7 @@ export default React.createClass({
     getInitialState(){
         let imgSrc, originalBinary;
         if(this.props.value){
-            imgSrc = this.getBinaryUrl(this.props.value);
+            imgSrc = this.getBinaryUrl(this.props);
             originalBinary = this.props.value;
         }else if(this.props.attributes['defaultImage']){
             imgSrc = this.props.attributes['defaultImage'];
@@ -70,12 +65,12 @@ export default React.createClass({
         return {imageSrc:imgSrc, originalBinary:originalBinary};
     },
 
-    getBinaryUrl(binaryId){
+    getBinaryUrl(props){
         const pydio = PydioApi.getClient().getPydioObject();
-        let url = pydio.Parameters.get('ENDPOINT_REST_API') + this.props.attributes['loadAction'];
-        let bId = binaryId;
-        if(this.props.binary_context && this.props.binary_context.indexOf('user_id=') === 0){
-            bId = this.props.binary_context.replace('user_id=', '');
+        let url = pydio.Parameters.get('ENDPOINT_REST_API') + props.attributes['loadAction'];
+        let bId = props.value;
+        if(props.binary_context && props.binary_context.indexOf('user_id=') === 0){
+            bId = props.binary_context.replace('user_id=', '');
         }
         url = url.replace('{BINARY}', bId);
         return url;
