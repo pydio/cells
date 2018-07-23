@@ -34,7 +34,7 @@ var page = `<!DOCTYPE html>
 {{else}}
 		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/pydio.boot.min.js?v={{.Version}}"></script>
 {{end}}
-		<link rel="icon" type="image/x-png" href="index.php?get_action=serve_favicon">
+		<link rel="icon" type="image/x-png" href="{{.ResourcesFolder}}/themes/common/images/favicon.png">
 	</head>
 	<body style="overflow: hidden;" class="react-mui-context">
 		<script type="text/javascript">
@@ -64,7 +64,7 @@ var public = `<!DOCTYPE html>
 {{else}}
 		<script language="javascript" type="text/javascript" src="{{.ResourcesFolder}}/build/pydio.boot.min.js?v={{.Version}}"></script>
 {{end}}
-		<link rel="icon" type="image/x-png" href="index.php?get_action=serve_favicon">
+		<link rel="icon" type="image/x-png" href="{{.ResourcesFolder}}/themes/common/images/favicon.png">
 	</head>
 	<body style="overflow: hidden;" class="react-mui-context">
 		<script type="text/javascript">
@@ -87,6 +87,7 @@ var errorTpl = `<!DOCTYPE html>
 		<link rel="stylesheet" type="text/css" href="{{.ResourcesFolder}}/build/pydio.{{.Theme}}.min.css?v={{.Version}}">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+		<link rel="icon" type="image/x-png" href="{{.ResourcesFolder}}/themes/common/images/favicon.png">
 	</head>
 	<body style="position: absolute;display:flex;top: 0;bottom: 0;left: 0;right: 0;align-items: center;justify-content: center;" class="react-mui-context">
 		<div>{{.ErrorMessage}}</div>
