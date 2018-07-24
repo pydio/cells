@@ -155,8 +155,13 @@ var ParametersPanel = (function (_React$Component) {
                     { className: 'paper-right-title', style: { display: 'flex' } },
                     _react2['default'].createElement(
                         'span',
-                        { style: { flex: 1 } },
-                        'Parameters and Actions'
+                        { style: { flex: 1, paddingRight: 20 } },
+                        pydio.MessageHash['pydio_role.46'],
+                        _react2['default'].createElement(
+                            'div',
+                            { className: "section-legend" },
+                            pydio.MessageHash['pydio_role.47']
+                        )
                     ),
                     _react2['default'].createElement(
                         'div',
@@ -206,7 +211,7 @@ var ParametersPanel = (function (_React$Component) {
                             { style: { width: '100%', marginBottom: 20 } },
                             _react2['default'].createElement(
                                 'tr',
-                                { style: { borderBottom: '1px solid #616161' } },
+                                { style: { borderBottom: '1px solid #e0e0e0' } },
                                 _react2['default'].createElement(
                                     'td',
                                     { colSpan: 2, style: { fontSize: 15, paddingTop: 10 } },

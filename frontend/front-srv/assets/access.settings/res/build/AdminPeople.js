@@ -23293,7 +23293,7 @@ exports['default'] = PoliciesBoard = (0, _materialUiStyles.muiThemeable)()(Polic
 exports['default'] = PoliciesBoard;
 module.exports = exports['default'];
 
-},{"../policies/Policy":196,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":155}],161:[function(require,module,exports){
+},{"../policies/Policy":195,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":155}],161:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25020,7 +25020,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":192,"./PoliciesLoader":167,"material-ui":"material-ui","react":"react"}],169:[function(require,module,exports){
+},{"../util/MessagesMixin":191,"./PoliciesLoader":167,"material-ui":"material-ui","react":"react"}],169:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25179,7 +25179,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Role":182,"../util/MessagesMixin":192,"./PermissionMaskEditor":166,"./RightsSelector":168,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api"}],170:[function(require,module,exports){
+},{"../model/Role":182,"../util/MessagesMixin":191,"./PermissionMaskEditor":166,"./RightsSelector":168,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api"}],170:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27931,7 +27931,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":192,"material-ui":"material-ui","pydio":"pydio","react":"react"}],185:[function(require,module,exports){
+},{"../util/MessagesMixin":191,"material-ui":"material-ui","pydio":"pydio","react":"react"}],185:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27952,21 +27952,17 @@ module.exports = exports['default'];
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
-
-var _utilEditorCache = require('../util/EditorCache');
-
-var _utilEditorCache2 = _interopRequireDefault(_utilEditorCache);
 
 var _ParametersPicker = require('./ParametersPicker');
 
@@ -27976,22 +27972,25 @@ var _pydio = require("pydio");
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
+var _materialUiStyles = require('material-ui/styles');
+
+var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
 
 var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
-exports['default'] = _react2['default'].createClass({
-    displayName: 'ParameterCreate',
+
+var ParameterCreate = _react2["default"].createClass({
+    displayName: "ParameterCreate",
 
     mixins: [ActionDialogMixin, CancelButtonProviderMixin],
 
     propTypes: {
-        workspaceScope: _react2['default'].PropTypes.string,
-        showModal: _react2['default'].PropTypes.func,
-        hideModal: _react2['default'].PropTypes.func,
-        pluginsFilter: _react2['default'].PropTypes.func,
-        roleType: _react2['default'].PropTypes.oneOf(['user', 'group', 'role']),
-        createParameter: _react2['default'].PropTypes.func
+        workspaceScope: _react2["default"].PropTypes.string,
+        showModal: _react2["default"].PropTypes.func,
+        hideModal: _react2["default"].PropTypes.func,
+        pluginsFilter: _react2["default"].PropTypes.func,
+        roleType: _react2["default"].PropTypes.oneOf(['user', 'group', 'role']),
+        createParameter: _react2["default"].PropTypes.func
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -28032,25 +28031,28 @@ exports['default'] = _react2['default'].createClass({
         var pydio = _props.pydio;
         var actions = _props.actions;
         var parameters = _props.parameters;
+        var muiTheme = _props.muiTheme;
 
-        return _react2['default'].createElement(
-            'div',
-            { className: 'picker-list' },
-            _react2['default'].createElement(
-                'div',
-                { className: 'color-dialog-title' },
-                _react2['default'].createElement(
-                    'h3',
-                    null,
+        var bgColor = muiTheme.palette.primary1Color;
+
+        return _react2["default"].createElement(
+            "div",
+            { className: "picker-list" },
+            _react2["default"].createElement(
+                "div",
+                { style: { backgroundColor: bgColor, color: 'white', padding: '0 24px 24px' } },
+                _react2["default"].createElement(
+                    "h3",
+                    { style: { color: 'white' } },
                     getMessage('14')
                 ),
-                _react2['default'].createElement(
-                    'div',
-                    { className: 'legend' },
+                _react2["default"].createElement(
+                    "div",
+                    { className: "legend" },
                     getMessage('15')
                 )
             ),
-            _react2['default'].createElement(_ParametersPicker2['default'], {
+            _react2["default"].createElement(_ParametersPicker2["default"], {
                 pydio: pydio,
                 allActions: actions,
                 allParameters: parameters,
@@ -28061,9 +28063,12 @@ exports['default'] = _react2['default'].createClass({
     }
 
 });
-module.exports = exports['default'];
 
-},{"../util/EditorCache":191,"./ParametersPicker":188,"pydio":"pydio","react":"react"}],186:[function(require,module,exports){
+exports["default"] = ParameterCreate = (0, _materialUiStyles.muiThemeable)()(ParameterCreate);
+exports["default"] = ParameterCreate;
+module.exports = exports["default"];
+
+},{"./ParametersPicker":188,"material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],186:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28237,6 +28242,9 @@ exports['default'] = _react2['default'].createClass({
             if (paramData) {
                 attributes = PydioForm.Manager.parameterNodeToHash(paramData.xmlNode);
             }
+            if (attributes['scope'] === 'user') {
+                return null;
+            }
             label = attributes.label;
             element = PydioForm.createFormElement({
                 ref: "formElement",
@@ -28325,7 +28333,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Role":182,"../util/MessagesMixin":192,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],187:[function(require,module,exports){
+},{"../model/Role":182,"../util/MessagesMixin":191,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],187:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -28483,8 +28491,13 @@ var ParametersPanel = (function (_React$Component) {
                     { className: 'paper-right-title', style: { display: 'flex' } },
                     _react2['default'].createElement(
                         'span',
-                        { style: { flex: 1 } },
-                        'Parameters and Actions'
+                        { style: { flex: 1, paddingRight: 20 } },
+                        pydio.MessageHash['pydio_role.46'],
+                        _react2['default'].createElement(
+                            'div',
+                            { className: "section-legend" },
+                            pydio.MessageHash['pydio_role.47']
+                        )
                     ),
                     _react2['default'].createElement(
                         'div',
@@ -28534,7 +28547,7 @@ var ParametersPanel = (function (_React$Component) {
                             { style: { width: '100%', marginBottom: 20 } },
                             _react2['default'].createElement(
                                 'tr',
-                                { style: { borderBottom: '1px solid #616161' } },
+                                { style: { borderBottom: '1px solid #e0e0e0' } },
                                 _react2['default'].createElement(
                                     'td',
                                     { colSpan: 2, style: { fontSize: 15, paddingTop: 10 } },
@@ -28639,6 +28652,14 @@ var ParametersPicker = _react2["default"].createClass({
     select: function select(plugin, type, param, attributes) {
         this.props.onSelection(plugin, type, param, attributes);
         this.setState({ pluginName: plugin, type: type, paramName: param });
+    },
+
+    componentDidMount: function componentDidMount() {
+        var _this = this;
+
+        setTimeout(function () {
+            _this.refs.input.focus();
+        }, 150);
     },
 
     render: function render() {
@@ -28789,8 +28810,8 @@ var ParametersPicker = _react2["default"].createClass({
             null,
             _react2["default"].createElement(
                 "div",
-                { className: "picker-search-container" },
-                _react2["default"].createElement(_materialUi.TextField, { floatingLabelText: this.props.getMessage('13'), onChange: this.filter })
+                { style: { padding: '0 24px', borderBottom: '1px solid #e0e0e0' } },
+                _react2["default"].createElement(_materialUi.TextField, { ref: "input", floatingLabelText: this.props.getMessage('13'), onChange: this.filter, fullWidth: true, underlineShow: false })
             ),
             _react2["default"].createElement(
                 "div",
@@ -29121,38 +29142,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":192,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],191:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = {
-  CACHE: null
-};
-module.exports = exports["default"];
-
-},{}],192:[function(require,module,exports){
+},{"../util/MessagesMixin":191,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],191:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29219,7 +29209,7 @@ var RoleMessagesProviderMixin = {
 exports.RoleMessagesConsumerMixin = RoleMessagesConsumerMixin;
 exports.RoleMessagesProviderMixin = RoleMessagesProviderMixin;
 
-},{}],193:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29362,7 +29352,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
 exports['default'] = CreateRoleOrGroupForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],194:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],193:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29525,7 +29515,7 @@ var CreateUserForm = _react2['default'].createClass({
 exports['default'] = CreateUserForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],195:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],194:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29617,7 +29607,7 @@ window.AdminPeople = {
   DirectoriesBoard: _boardDirectoriesBoard2['default']
 };
 
-},{"./board/Callbacks":157,"./board/Dashboard":158,"./board/DirectoriesBoard":159,"./board/PoliciesBoard":160,"./board/RolesDashboard":161,"./editor/Editor":163,"./editor/panel/SharesList":184,"./editor/params/ParameterCreate":185,"./editor/user/UserPasswordDialog":189,"./editor/user/UserRolesPicker":190,"./editor/util/MessagesMixin":192,"./forms/CreateRoleOrGroupForm":193,"./forms/CreateUserForm":194}],196:[function(require,module,exports){
+},{"./board/Callbacks":157,"./board/Dashboard":158,"./board/DirectoriesBoard":159,"./board/PoliciesBoard":160,"./board/RolesDashboard":161,"./editor/Editor":163,"./editor/panel/SharesList":184,"./editor/params/ParameterCreate":185,"./editor/user/UserPasswordDialog":189,"./editor/user/UserRolesPicker":190,"./editor/util/MessagesMixin":191,"./forms/CreateRoleOrGroupForm":192,"./forms/CreateUserForm":193}],195:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29862,7 +29852,7 @@ var Policy = (function (_React$Component) {
 exports['default'] = Policy;
 module.exports = exports['default'];
 
-},{"./Rule":197,"./editor/InlineLabel":202,"material-ui":"material-ui","react":"react","uuid4":155}],197:[function(require,module,exports){
+},{"./Rule":196,"./editor/InlineLabel":201,"material-ui":"material-ui","react":"react","uuid4":155}],196:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30017,7 +30007,7 @@ var Rule = (function (_React$Component) {
 exports['default'] = Rule;
 module.exports = exports['default'];
 
-},{"./editor/RuleEditor":205,"material-ui":"material-ui","react":"react"}],198:[function(require,module,exports){
+},{"./editor/RuleEditor":204,"material-ui":"material-ui","react":"react"}],197:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30121,7 +30111,7 @@ var Actions = (function (_React$Component) {
 exports['default'] = Actions;
 module.exports = exports['default'];
 
-},{"./ChipValues":199,"material-ui":"material-ui","react":"react"}],199:[function(require,module,exports){
+},{"./ChipValues":198,"material-ui":"material-ui","react":"react"}],198:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30264,7 +30254,7 @@ var ChipValues = (function (_React$Component) {
 exports['default'] = ChipValues;
 module.exports = exports['default'];
 
-},{"./ValuesOrRegexp":207,"material-ui":"material-ui","react":"react"}],200:[function(require,module,exports){
+},{"./ValuesOrRegexp":206,"material-ui":"material-ui","react":"react"}],199:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30471,7 +30461,7 @@ var Conditions = (function (_React$Component) {
 exports['default'] = Conditions;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],201:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],200:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30577,7 +30567,7 @@ var Effect = (function (_React$Component) {
 exports['default'] = Effect;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],202:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],201:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30731,7 +30721,7 @@ var InlineLabel = (function (_React$Component) {
 exports['default'] = InlineLabel;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],203:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],202:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30823,7 +30813,7 @@ var Label = (function (_React$Component) {
 exports['default'] = Label;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],204:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],203:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30919,7 +30909,7 @@ var Resources = (function (_React$Component) {
 exports['default'] = Resources;
 module.exports = exports['default'];
 
-},{"./ChipValues":199,"material-ui":"material-ui","react":"react"}],205:[function(require,module,exports){
+},{"./ChipValues":198,"material-ui":"material-ui","react":"react"}],204:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31104,7 +31094,7 @@ var RuleEditor = (function (_React$Component) {
 exports['default'] = RuleEditor;
 module.exports = exports['default'];
 
-},{"./Actions":198,"./Conditions":200,"./Effect":201,"./Label":203,"./Resources":204,"./Subjects":206,"material-ui":"material-ui","pydio":"pydio","react":"react"}],206:[function(require,module,exports){
+},{"./Actions":197,"./Conditions":199,"./Effect":200,"./Label":202,"./Resources":203,"./Subjects":205,"material-ui":"material-ui","pydio":"pydio","react":"react"}],205:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31200,7 +31190,7 @@ var Subjects = (function (_React$Component) {
 exports['default'] = Subjects;
 module.exports = exports['default'];
 
-},{"./ChipValues":199,"material-ui":"material-ui","react":"react"}],207:[function(require,module,exports){
+},{"./ChipValues":198,"material-ui":"material-ui","react":"react"}],206:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31347,4 +31337,4 @@ var ValuesOrRegexp = (function (_React$Component) {
 exports['default'] = ValuesOrRegexp;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}]},{},[195]);
+},{"material-ui":"material-ui","react":"react"}]},{},[194]);

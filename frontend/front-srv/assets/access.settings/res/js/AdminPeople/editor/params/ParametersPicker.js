@@ -56,6 +56,12 @@ const ParametersPicker = React.createClass({
         this.setState({pluginName:plugin, type:type, paramName:param});
     },
 
+    componentDidMount(){
+        setTimeout( () => {
+            this.refs.input.focus();
+        }, 150);
+    },
+
     render(){
 
         const {pydio, allParameters, allActions} = this.props;
@@ -156,8 +162,8 @@ const ParametersPicker = React.createClass({
 
         return (
             <div>
-                <div className="picker-search-container">
-                    <TextField floatingLabelText={this.props.getMessage('13')} onChange={this.filter}/>
+                <div style={{padding: '0 24px', borderBottom: '1px solid #e0e0e0'}}>
+                    <TextField ref={"input"} floatingLabelText={this.props.getMessage('13')} onChange={this.filter} fullWidth={true} underlineShow={false}/>
                 </div>
                 <div className="parameters-tree-scroller">
                     <ul className="parameters-tree">

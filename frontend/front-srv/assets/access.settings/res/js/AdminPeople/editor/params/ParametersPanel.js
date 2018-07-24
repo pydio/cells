@@ -88,7 +88,10 @@ export default class ParametersPanel extends React.Component {
         return (
             <div>
                 <h3 className="paper-right-title" style={{display: 'flex'}}>
-                    <span style={{flex: 1}}>Parameters and Actions</span>
+                    <span style={{flex: 1, paddingRight: 20}}>
+                        {pydio.MessageHash['pydio_role.46']}
+                        <div className={"section-legend"}>{pydio.MessageHash['pydio_role.47']}</div>
+                    </span>
                     <div style={{width: 160}}><SelectField fullWidth={true} value={1}>{wsItems}</SelectField></div>
                 </h3>
                 <div style={{padding: '0 20px'}}>
@@ -116,7 +119,7 @@ export default class ParametersPanel extends React.Component {
                         }
                         return (
                             <table style={{width:'100%', marginBottom: 20}}>
-                                <tr style={{borderBottom: '1px solid #616161'}}>
+                                <tr style={{borderBottom: '1px solid #e0e0e0'}}>
                                     <td colSpan={2} style={{fontSize: 15, paddingTop: 10}}>{scopeLabel}</td>
                                     <td style={{width: 50}}><IconButton iconClassName={"mdi mdi-plus"} onTouchTap={()=>{this.addParameter(s)}}/></td>
                                 </tr>

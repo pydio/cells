@@ -18,21 +18,17 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
-
-var _utilEditorCache = require('../util/EditorCache');
-
-var _utilEditorCache2 = _interopRequireDefault(_utilEditorCache);
 
 var _ParametersPicker = require('./ParametersPicker');
 
@@ -42,22 +38,25 @@ var _pydio = require("pydio");
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
+var _materialUiStyles = require('material-ui/styles');
+
+var _Pydio$requireLib = _pydio2["default"].requireLib('boot');
 
 var ActionDialogMixin = _Pydio$requireLib.ActionDialogMixin;
 var CancelButtonProviderMixin = _Pydio$requireLib.CancelButtonProviderMixin;
-exports['default'] = _react2['default'].createClass({
-    displayName: 'ParameterCreate',
+
+var ParameterCreate = _react2["default"].createClass({
+    displayName: "ParameterCreate",
 
     mixins: [ActionDialogMixin, CancelButtonProviderMixin],
 
     propTypes: {
-        workspaceScope: _react2['default'].PropTypes.string,
-        showModal: _react2['default'].PropTypes.func,
-        hideModal: _react2['default'].PropTypes.func,
-        pluginsFilter: _react2['default'].PropTypes.func,
-        roleType: _react2['default'].PropTypes.oneOf(['user', 'group', 'role']),
-        createParameter: _react2['default'].PropTypes.func
+        workspaceScope: _react2["default"].PropTypes.string,
+        showModal: _react2["default"].PropTypes.func,
+        hideModal: _react2["default"].PropTypes.func,
+        pluginsFilter: _react2["default"].PropTypes.func,
+        roleType: _react2["default"].PropTypes.oneOf(['user', 'group', 'role']),
+        createParameter: _react2["default"].PropTypes.func
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -98,25 +97,28 @@ exports['default'] = _react2['default'].createClass({
         var pydio = _props.pydio;
         var actions = _props.actions;
         var parameters = _props.parameters;
+        var muiTheme = _props.muiTheme;
 
-        return _react2['default'].createElement(
-            'div',
-            { className: 'picker-list' },
-            _react2['default'].createElement(
-                'div',
-                { className: 'color-dialog-title' },
-                _react2['default'].createElement(
-                    'h3',
-                    null,
+        var bgColor = muiTheme.palette.primary1Color;
+
+        return _react2["default"].createElement(
+            "div",
+            { className: "picker-list" },
+            _react2["default"].createElement(
+                "div",
+                { style: { backgroundColor: bgColor, color: 'white', padding: '0 24px 24px' } },
+                _react2["default"].createElement(
+                    "h3",
+                    { style: { color: 'white' } },
                     getMessage('14')
                 ),
-                _react2['default'].createElement(
-                    'div',
-                    { className: 'legend' },
+                _react2["default"].createElement(
+                    "div",
+                    { className: "legend" },
                     getMessage('15')
                 )
             ),
-            _react2['default'].createElement(_ParametersPicker2['default'], {
+            _react2["default"].createElement(_ParametersPicker2["default"], {
                 pydio: pydio,
                 allActions: actions,
                 allParameters: parameters,
@@ -127,4 +129,7 @@ exports['default'] = _react2['default'].createClass({
     }
 
 });
-module.exports = exports['default'];
+
+exports["default"] = ParameterCreate = (0, _materialUiStyles.muiThemeable)()(ParameterCreate);
+exports["default"] = ParameterCreate;
+module.exports = exports["default"];

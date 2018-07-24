@@ -19,12 +19,12 @@
  */
 
 import React from "react";
-import EditorCache from '../util/EditorCache'
 import ParametersPicker from './ParametersPicker'
 import Pydio from "pydio";
+import {muiThemeable} from 'material-ui/styles'
 const {ActionDialogMixin, CancelButtonProviderMixin} = Pydio.requireLib('boot');
 
-export default React.createClass({
+let ParameterCreate = React.createClass({
 
     mixins: [
         ActionDialogMixin, CancelButtonProviderMixin
@@ -70,12 +70,13 @@ export default React.createClass({
     render(){
 
         const getMessage = (id, namespace = 'pydio_role') => pydio.MessageHash[namespace + (namespace ? '.' : '') + id] || id;
-        const {pydio, actions, parameters} = this.props;
+        const {pydio, actions, parameters, muiTheme} = this.props;
+        const bgColor = muiTheme.palette.primary1Color;
 
         return (
             <div className="picker-list">
-                <div className="color-dialog-title">
-                    <h3>{getMessage('14')}</h3>
+                <div style={{backgroundColor: bgColor, color: 'white', padding:'0 24px 24px'}}>
+                    <h3 style={{color:'white'}}>{getMessage('14')}</h3>
                     <div className="legend">{getMessage('15')}</div>
                 </div>
                 <ParametersPicker
@@ -92,3 +93,5 @@ export default React.createClass({
 
 });
 
+ParameterCreate = muiThemeable()(ParameterCreate);
+export {ParameterCreate as default}

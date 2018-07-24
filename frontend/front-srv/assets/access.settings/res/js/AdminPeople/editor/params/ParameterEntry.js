@@ -108,6 +108,9 @@ export default React.createClass({
             if(paramData){
                 attributes = PydioForm.Manager.parameterNodeToHash(paramData.xmlNode);
             }
+            if(attributes['scope'] === 'user') {
+                return null;
+            }
             label = attributes.label;
             element = PydioForm.createFormElement({
                 ref:"formElement",

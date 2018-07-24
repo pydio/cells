@@ -76,6 +76,14 @@ var ParametersPicker = _react2["default"].createClass({
         this.setState({ pluginName: plugin, type: type, paramName: param });
     },
 
+    componentDidMount: function componentDidMount() {
+        var _this = this;
+
+        setTimeout(function () {
+            _this.refs.input.focus();
+        }, 150);
+    },
+
     render: function render() {
         var _props = this.props;
         var pydio = _props.pydio;
@@ -224,8 +232,8 @@ var ParametersPicker = _react2["default"].createClass({
             null,
             _react2["default"].createElement(
                 "div",
-                { className: "picker-search-container" },
-                _react2["default"].createElement(_materialUi.TextField, { floatingLabelText: this.props.getMessage('13'), onChange: this.filter })
+                { style: { padding: '0 24px', borderBottom: '1px solid #e0e0e0' } },
+                _react2["default"].createElement(_materialUi.TextField, { ref: "input", floatingLabelText: this.props.getMessage('13'), onChange: this.filter, fullWidth: true, underlineShow: false })
             ),
             _react2["default"].createElement(
                 "div",
