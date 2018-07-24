@@ -18,10 +18,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _WorkspaceAcl = require('./WorkspaceAcl');

@@ -22579,6 +22579,12 @@ var Dashboard = _react2['default'].createClass({
             }
         };
 
+        var _state = this.state;
+        var searchResultData = _state.searchResultData;
+        var filterValue = _state.filterValue;
+        var currentNode = _state.currentNode;
+        var dataModel = _state.dataModel;
+
         var importButton = _react2['default'].createElement(_materialUi.IconButton, _extends({}, fontIconStyle, { iconClassName: 'mdi mdi-file-excel', primary: false, tooltipPosition: "bottom-left", tooltip: this.context.getMessage('171', 'settings'), onTouchTap: this.openUsersImporter }));
         if (!_pydioHttpResourcesManager2['default'].moduleIsAvailable('EnterprisePeople')) {
             var disabled = { style: _extends({}, fontIconStyle.style), iconStyle: _extends({}, fontIconStyle.iconStyle) };
@@ -22588,7 +22594,7 @@ var Dashboard = _react2['default'].createClass({
 
         var searchBox = _react2['default'].createElement(_UsersSearchBox2['default'], {
             displayResults: this.displaySearchResults,
-            displayResultsState: this.state.searchResultData,
+            displayResultsState: searchResultData,
             hideResults: this.hideSearchResults,
             style: { margin: '-18px 20px 0' },
             parameters: { get_action: 'admin_search_users', dir: this.props.dataModel.getContextNode().getPath() },
@@ -22608,20 +22614,21 @@ var Dashboard = _react2['default'].createClass({
         var groupPanelStyle = {
             flex: 'none'
         };
-        if (this.state.searchResultData !== false) {
+        if (searchResultData !== false) {
             groupPanelStyle = {
                 flex: 'none',
                 width: 0
             };
         }
 
+        var iconColor = filterValue === 1 ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color;
         var filterIcon = _react2['default'].createElement(
             _materialUi.IconMenu,
             {
-                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { style: { marginRight: -16, marginLeft: 8 }, iconStyle: { color: 'rgba(0, 0, 0, 0.4)' }, iconClassName: "mdi mdi-filter-variant" }),
+                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { style: { marginRight: -16, marginLeft: 8 }, iconStyle: { color: iconColor }, iconClassName: "mdi mdi-filter-variant" }),
                 anchorOrigin: { horizontal: 'right', vertical: 'top' },
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
-                value: this.state.filterValue,
+                value: filterValue,
                 onChange: function (e, val) {
                     _this2.setState({ filterValue: val });
                 }
@@ -22671,8 +22678,8 @@ var Dashboard = _react2['default'].createClass({
                     _react2['default'].createElement(PydioComponents.SimpleList, {
                         ref: 'mainlist',
                         pydio: this.props.pydio,
-                        node: this.state.currentNode,
-                        dataModel: this.state.dataModel,
+                        node: currentNode,
+                        dataModel: dataModel,
                         openEditor: this.openRoleEditor,
                         clearSelectionOnReload: false,
                         entryRenderIcon: this.renderListUserAvatar,
@@ -22680,7 +22687,7 @@ var Dashboard = _react2['default'].createClass({
                         entryRenderSecondLine: this.renderListEntrySecondLine,
                         entryEnableSelector: this.renderListEntrySelector,
                         entryRenderActions: this.renderNodeActions,
-                        searchResultData: this.state.searchResultData,
+                        searchResultData: searchResultData,
                         elementHeight: PydioComponents.SimpleList.HEIGHT_TWO_LINES,
                         hideToolbar: false,
                         toolbarStyle: { backgroundColor: 'white', borderBottom: '1px solid #e4e4e4' },
@@ -24358,10 +24365,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _WorkspaceAcl = require('./WorkspaceAcl');
@@ -24424,7 +24427,7 @@ var PagesAcls = (function (_React$Component) {
 exports['default'] = PagesAcls;
 module.exports = exports['default'];
 
-},{"./WorkspaceAcl":169,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],166:[function(require,module,exports){
+},{"./WorkspaceAcl":169,"pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],166:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

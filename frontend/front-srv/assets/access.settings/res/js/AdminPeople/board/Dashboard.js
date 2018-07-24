@@ -261,6 +261,8 @@ let Dashboard = React.createClass({
             }
         };
 
+        const {searchResultData, filterValue, currentNode, dataModel} = this.state;
+
         let importButton = <IconButton {...fontIconStyle} iconClassName="mdi mdi-file-excel" primary={false} tooltipPosition={"bottom-left"} tooltip={this.context.getMessage('171', 'settings')} onTouchTap={this.openUsersImporter}/>;
         if(!ResourcesManager.moduleIsAvailable('EnterprisePeople')){
             let disabled = {style:{...fontIconStyle.style}, iconStyle:{...fontIconStyle.iconStyle}};
@@ -271,7 +273,7 @@ let Dashboard = React.createClass({
         const searchBox = (
             <UsersSearchBox
                 displayResults={this.displaySearchResults}
-                displayResultsState={this.state.searchResultData}
+                displayResultsState={searchResultData}
                 hideResults={this.hideSearchResults}
                 style={{margin: '-18px 20px 0'}}
                 parameters={{get_action:'admin_search_users',dir:this.props.dataModel.getContextNode().getPath()}}
@@ -295,19 +297,20 @@ let Dashboard = React.createClass({
         let groupPanelStyle = {
             flex:'none'
         };
-        if (this.state.searchResultData !== false){
+        if (searchResultData !== false){
             groupPanelStyle = {
                 flex:'none',
                 width: 0
             };
         }
 
+        const iconColor = (filterValue === 1 ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color);
         const filterIcon = (
             <IconMenu
-                iconButtonElement={<IconButton style={{marginRight:-16, marginLeft: 8}} iconStyle={{color:'rgba(0, 0, 0, 0.4)'}} iconClassName={"mdi mdi-filter-variant"}/>}
+                iconButtonElement={<IconButton style={{marginRight:-16, marginLeft: 8}} iconStyle={{color:iconColor}} iconClassName={"mdi mdi-filter-variant"}/>}
                 anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                value={this.state.filterValue}
+                value={filterValue}
                 onChange={(e,val)=>{this.setState({filterValue:val})}}
             >
                 <MenuItem value={1} primaryText="Internal Users" />
@@ -345,8 +348,8 @@ let Dashboard = React.createClass({
                         <PydioComponents.SimpleList
                             ref="mainlist"
                             pydio={this.props.pydio}
-                            node={this.state.currentNode}
-                            dataModel={this.state.dataModel}
+                            node={currentNode}
+                            dataModel={dataModel}
                             openEditor={this.openRoleEditor}
                             clearSelectionOnReload={false}
                             entryRenderIcon={this.renderListUserAvatar}
@@ -354,7 +357,7 @@ let Dashboard = React.createClass({
                             entryRenderSecondLine={this.renderListEntrySecondLine}
                             entryEnableSelector={this.renderListEntrySelector}
                             entryRenderActions={this.renderNodeActions}
-                            searchResultData={this.state.searchResultData}
+                            searchResultData={searchResultData}
                             elementHeight={PydioComponents.SimpleList.HEIGHT_TWO_LINES}
                             hideToolbar={false}
                             toolbarStyle={{backgroundColor: 'white', borderBottom: '1px solid #e4e4e4'}}
