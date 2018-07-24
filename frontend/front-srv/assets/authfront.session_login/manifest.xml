@@ -26,11 +26,10 @@
                 <rightsContext noUser="false" userLogged="hidden" guestLogged="show" read="false" write="false" adminOnly=""/>
                 <processing>
                     <clientCallback module="AuthfrontCoreActions.Callbacks.loginPassword"/>
-                    <serverCallback methodName="switchAction"/>
                 </processing>
             </action>
             <action name="logout" expireDefault="true">
-                <gui text="164" title="169" iconClass="mdi mdi-logout"
+                <gui text="164" title="169" iconClass="mdi mdi-logout" weight="400"
                      accessKey="" hasAccessKey="false">
                     <context selection="false" dir="" recycle="false"
                              contextMenu="false" actionBar="true" actionBarGroup="zlogin,minisite">
@@ -39,22 +38,6 @@
                 <rightsContext noUser="false" userLogged="only" guestLogged="hidden" read="false" write="false" adminOnly=""/>
                 <processing>
                     <clientCallback module="AuthfrontCoreActions.Callbacks.sessionLogout"/>
-                    <serverCallback methodName="switchAction"></serverCallback>
-                </processing>
-            </action>
-            <action name="back">
-                <processing>
-                    <serverCallback methodName="switchAction"/>
-                </processing>
-            </action>
-            <action name="get_seed">
-                <processing>
-                    <serverCallback methodName="switchAction"/>
-                </processing>
-            </action>
-            <action name="get_captcha">
-                <processing>
-                    <serverCallback methodName="switchAction"/>
                 </processing>
             </action>
         </actions>
