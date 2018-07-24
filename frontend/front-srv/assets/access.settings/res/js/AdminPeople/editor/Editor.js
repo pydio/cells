@@ -28,8 +28,8 @@ import User from './model/User'
 
 import SharesList from './panel/SharesList'
 import WorkspacesAcls from './acl/WorkspacesAcls'
+import PagesAcls from './acl/PagesAcls'
 import React from "react";
-import LangUtils from "pydio/util/lang";
 import PathUtils from "pydio/util/path";
 import {requireLib} from "pydio";
 import {FlatButton, IconButton, IconMenu, MenuItem, RaisedButton, Snackbar} from "material-ui";
@@ -154,8 +154,6 @@ class Editor extends React.Component{
         this.setState({modal:null});
     }
 
-
-
     logAction(message){
         this.setState({snackbar:message, snackOpen:true});
     }
@@ -164,19 +162,6 @@ class Editor extends React.Component{
         this.setState({snackOpen:false});
     }
 
-
-    controllerGetBinaryContext(){
-        /*
-        if(this.state.roleType == "user"){
-            return "user_id="+this.state.roleId.replace("PYDIO_USR_/", "");
-        }else if(this.state.roleType == "group"){
-            return "group_id="+this.state.roleId.replace("PYDIO_GRP_/", "");
-        }else{
-            return "role_id="+this.state.roleId;
-        }
-        */
-        return "";
-    }
 
     render(){
         const {advancedAcl, pydio} = this.props;
@@ -187,10 +172,12 @@ class Editor extends React.Component{
         let infoTitle = "";
         let infoMenuTitle = this.getMessage('24'); // user information
         let otherForm;
+        let pagesShowSettings = false;
 
         if(this.state.roleType === 'user') {
 
             title = observableUser.getIdmUser().Login;
+            pagesShowSettings = observableUser.getIdmUser().Attributes['profile'] === 'admin';
             otherForm = <UserInfo user={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
 
         }else if(this.state.roleType === 'group'){
@@ -204,6 +191,7 @@ class Editor extends React.Component{
 
             infoTitle = this.getMessage('28'); // role information
             infoMenuTitle = this.getMessage('29');
+            pagesShowSettings = true;
             otherForm = <RoleInfo role={observableRole} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
 
         }
@@ -272,6 +260,31 @@ class Editor extends React.Component{
                     />
                 </div>
             );
+        } else if (currentPane === 'pages') {
+            panes.push(
+                <div key="pages" className={classFor('pages')} style={styleFor('pages')}>
+                    <h3 className="paper-right-title">
+                        {this.getMessage('44')}
+                        <div className="section-legend">{this.getMessage('45')}</div>
+                        <div className="read-write-header">
+                            <span>read</span>
+                            <span>write</span>
+                            <span>deny</span>
+                        </div>
+                        <br/>
+                    </h3>
+                    <PagesAcls
+                        key="pages-list"
+                        role={observableUser ? observableUser.getRole() : observableRole}
+                        roleType={this.state.roleType}
+                        advancedAcl={advancedAcl}
+                        showModal={this.showModal.bind(this)}
+                        hideModal={this.hideModal.bind(this)}
+                        showSettings={pagesShowSettings}
+                    />
+                </div>
+            );
+
         } else if(currentPane === 'params') {
             panes.push(
                 <div key="params" className={classFor('params')} style={styleFor('params')}>

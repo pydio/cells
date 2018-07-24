@@ -59,7 +59,7 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 	p.Messages = make(map[string]I18nMessages)
 	for _, lang := range p.AvailableLanguages() {
 		p.Messages[lang] = p.I18nMessages(lang)
-		log.Logger(context.Background()).Info("Loading messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
+		log.Logger(context.Background()).Debug("Loading messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
 	}
 
 	return nil
@@ -377,10 +377,6 @@ func (p *PluginsPool) sort(plugins map[string]Plugin) []Plugin {
 				output = append(output, plu)
 			}
 		}
-	}
-
-	for _, pl := range output {
-		log.Logger(context.Background()).Info(pl.GetId())
 	}
 	return output
 }

@@ -54,13 +54,13 @@ var _aclWorkspacesAcls = require('./acl/WorkspacesAcls');
 
 var _aclWorkspacesAcls2 = _interopRequireDefault(_aclWorkspacesAcls);
 
+var _aclPagesAcls = require('./acl/PagesAcls');
+
+var _aclPagesAcls2 = _interopRequireDefault(_aclPagesAcls);
+
 var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
-
-var _pydioUtilLang = require("pydio/util/lang");
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
 var _pydioUtilPath = require("pydio/util/path");
 
@@ -248,20 +248,6 @@ var Editor = (function (_React$Component) {
             this.setState({ snackOpen: false });
         }
     }, {
-        key: 'controllerGetBinaryContext',
-        value: function controllerGetBinaryContext() {
-            /*
-            if(this.state.roleType == "user"){
-                return "user_id="+this.state.roleId.replace("PYDIO_USR_/", "");
-            }else if(this.state.roleType == "group"){
-                return "group_id="+this.state.roleId.replace("PYDIO_GRP_/", "");
-            }else{
-                return "role_id="+this.state.roleId;
-            }
-            */
-            return "";
-        }
-    }, {
         key: 'render',
         value: function render() {
             var _this5 = this;
@@ -280,10 +266,12 @@ var Editor = (function (_React$Component) {
             var infoTitle = "";
             var infoMenuTitle = this.getMessage('24'); // user information
             var otherForm = undefined;
+            var pagesShowSettings = false;
 
             if (this.state.roleType === 'user') {
 
                 title = observableUser.getIdmUser().Login;
+                pagesShowSettings = observableUser.getIdmUser().Attributes['profile'] === 'admin';
                 otherForm = _react2['default'].createElement(_infoUserInfo2['default'], { user: observableUser, pydio: pydio, pluginsRegistry: pluginsRegistry });
             } else if (this.state.roleType === 'group') {
 
@@ -295,6 +283,7 @@ var Editor = (function (_React$Component) {
 
                 infoTitle = this.getMessage('28'); // role information
                 infoMenuTitle = this.getMessage('29');
+                pagesShowSettings = true;
                 otherForm = _react2['default'].createElement(_infoRoleInfo2['default'], { role: observableRole, pydio: pydio, pluginsRegistry: pluginsRegistry });
             }
 
@@ -390,6 +379,50 @@ var Editor = (function (_React$Component) {
                         advancedAcl: advancedAcl,
                         showModal: this.showModal.bind(this),
                         hideModal: this.hideModal.bind(this)
+                    })
+                ));
+            } else if (currentPane === 'pages') {
+                panes.push(_react2['default'].createElement(
+                    'div',
+                    { key: 'pages', className: classFor('pages'), style: styleFor('pages') },
+                    _react2['default'].createElement(
+                        'h3',
+                        { className: 'paper-right-title' },
+                        this.getMessage('44'),
+                        _react2['default'].createElement(
+                            'div',
+                            { className: 'section-legend' },
+                            this.getMessage('45')
+                        ),
+                        _react2['default'].createElement(
+                            'div',
+                            { className: 'read-write-header' },
+                            _react2['default'].createElement(
+                                'span',
+                                null,
+                                'read'
+                            ),
+                            _react2['default'].createElement(
+                                'span',
+                                null,
+                                'write'
+                            ),
+                            _react2['default'].createElement(
+                                'span',
+                                null,
+                                'deny'
+                            )
+                        ),
+                        _react2['default'].createElement('br', null)
+                    ),
+                    _react2['default'].createElement(_aclPagesAcls2['default'], {
+                        key: 'pages-list',
+                        role: observableUser ? observableUser.getRole() : observableRole,
+                        roleType: this.state.roleType,
+                        advancedAcl: advancedAcl,
+                        showModal: this.showModal.bind(this),
+                        hideModal: this.hideModal.bind(this),
+                        showSettings: pagesShowSettings
                     })
                 ));
             } else if (currentPane === 'params') {
