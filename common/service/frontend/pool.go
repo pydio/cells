@@ -10,8 +10,8 @@ import (
 	"io"
 	"path"
 
-	"github.com/gyuho/goraph"
 	"github.com/jinzhu/copier"
+	"github.com/philopon/go-toposort"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"go.uber.org/zap"
@@ -362,31 +362,25 @@ func (p *PluginsPool) editableMimes() (mimes []string) {
 }
 
 func (p *PluginsPool) sort(plugins map[string]Plugin) []Plugin {
-	output := []Plugin{}
-	graph := goraph.NewGraph()
+	var output []Plugin
+	graph := toposort.NewGraph(len(plugins))
 	for id, p := range plugins {
-		plugNode := goraph.NewNode(id)
-		if node, err := graph.GetNode(plugNode); err == nil && node != nil {
-			plugNode = node
-		} else {
-			graph.AddNode(plugNode)
-		}
+		graph.AddNode(id)
 		for _, dep := range p.ListDependencies() {
-			depNode := goraph.NewNode(dep)
-			if dNode, err := graph.GetNode(depNode); err == nil && dNode != nil {
-				depNode = dNode
-			} else {
-				graph.AddNode(depNode)
-			}
-			graph.AddEdge(depNode, plugNode, 1)
+			graph.AddEdge(id, dep)
 		}
 	}
-	if sorted, ok := goraph.TopologicalSort(graph); ok {
-		for _, nodeID := range sorted {
-			if plu, ok1 := plugins[nodeID.String()]; ok1 {
+	if result, ok := graph.Toposort(); ok {
+		for i := len(result) - 1; i >= 0; i-- {
+			plugId := result[i]
+			if plu, ok1 := plugins[plugId]; ok1 {
 				output = append(output, plu)
 			}
 		}
+	}
+
+	for _, pl := range output {
+		log.Logger(context.Background()).Info(pl.GetId())
 	}
 	return output
 }

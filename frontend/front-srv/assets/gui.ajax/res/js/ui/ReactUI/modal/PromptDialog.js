@@ -67,7 +67,7 @@ export default React.createClass({
         SubmitButtonProviderMixin
     ],
 
-    getDefaultProps: function(){
+    getDefaultProps(){
         return {
             dialogTitle: '',
             dialogIsModal: true,
@@ -81,7 +81,19 @@ export default React.createClass({
         this.props.submitValue(this.refs.input.getValue());
         this.dismiss();
     },
-    render: function(){
+
+    /**
+     * Focus on input at mount time
+     */
+    componentDidMount(){
+        setTimeout(()=> {
+            try{
+                this.refs.input.focus();
+            }catch (e){}
+        }, 150);
+    },
+
+    render(){
         return (
             <div style={{width:'100%'}}>
                 <div className="dialogLegend">{MessageHash[this.props.legendId]}</div>

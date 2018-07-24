@@ -3507,6 +3507,12 @@
 			"revisionTime": "2017-09-05T21:21:22Z"
 		},
 		{
+			"checksumSHA1": "xu9jD9+X17GL8ZlMipeoYjgaHEo=",
+			"path": "github.com/philopon/go-toposort",
+			"revision": "9be86dbd762f98b5b9a4eca110a3f40ef31d0375",
+			"revisionTime": "2017-06-20T08:54:41Z"
+		},
+		{
 			"checksumSHA1": "ljd3FhYRJ91cLZz3wsH9BQQ2JbA=",
 			"path": "github.com/pkg/errors",
 			"revision": "816c9085562cd7ee03e7f8188a1cfd942858cded",

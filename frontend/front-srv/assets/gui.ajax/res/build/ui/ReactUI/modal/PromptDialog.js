@@ -46,74 +46,88 @@ var _require = require('material-ui');
 
 var TextField = _require.TextField;
 exports['default'] = React.createClass({
-  displayName: 'PromptDialog',
+    displayName: 'PromptDialog',
 
-  propTypes: {
-    /**
-     * Message ID used for the dialog title
-     */
-    dialogTitleId: React.PropTypes.string,
-    /**
-     * Message ID used for dialog legend
-     */
-    legendId: React.PropTypes.string,
-    /**
-     * MessageID used for the field Floating Label Text
-     */
-    fieldLabelId: React.PropTypes.string,
-    /**
-     * Either text or password
-     */
-    fieldType: React.PropTypes.oneOf(['text', 'password']),
-    /**
-     * Callback used at submit time
-     */
-    submitValue: React.PropTypes.func.isRequired,
-    /**
-     * Preset value displayed in the text field
-     */
-    defaultValue: React.PropTypes.string,
-    /**
-     * Select a part of the default value [NOT IMPLEMENTED]
-     */
-    defaultInputSelection: React.PropTypes.string
-  },
+    propTypes: {
+        /**
+         * Message ID used for the dialog title
+         */
+        dialogTitleId: React.PropTypes.string,
+        /**
+         * Message ID used for dialog legend
+         */
+        legendId: React.PropTypes.string,
+        /**
+         * MessageID used for the field Floating Label Text
+         */
+        fieldLabelId: React.PropTypes.string,
+        /**
+         * Either text or password
+         */
+        fieldType: React.PropTypes.oneOf(['text', 'password']),
+        /**
+         * Callback used at submit time
+         */
+        submitValue: React.PropTypes.func.isRequired,
+        /**
+         * Preset value displayed in the text field
+         */
+        defaultValue: React.PropTypes.string,
+        /**
+         * Select a part of the default value [NOT IMPLEMENTED]
+         */
+        defaultInputSelection: React.PropTypes.string
+    },
 
-  mixins: [_ActionDialogMixin2['default'], _CancelButtonProviderMixin2['default'], _SubmitButtonProviderMixin2['default']],
+    mixins: [_ActionDialogMixin2['default'], _CancelButtonProviderMixin2['default'], _SubmitButtonProviderMixin2['default']],
 
-  getDefaultProps: function getDefaultProps() {
-    return {
-      dialogTitle: '',
-      dialogIsModal: true,
-      fieldType: 'text'
-    };
-  },
-  /**
-   * Trigger props callback and dismiss modal
-   */
-  submit: function submit() {
-    this.props.submitValue(this.refs.input.getValue());
-    this.dismiss();
-  },
-  render: function render() {
-    return React.createElement(
-      'div',
-      { style: { width: '100%' } },
-      React.createElement(
-        'div',
-        { className: 'dialogLegend' },
-        MessageHash[this.props.legendId]
-      ),
-      React.createElement(TextField, {
-        floatingLabelText: MessageHash[this.props.fieldLabelId],
-        ref: 'input',
-        onKeyDown: this.submitOnEnterKey,
-        defaultValue: this.props.defaultValue,
-        type: this.props.fieldType,
-        fullWidth: true
-      })
-    );
-  }
+    getDefaultProps: function getDefaultProps() {
+        return {
+            dialogTitle: '',
+            dialogIsModal: true,
+            fieldType: 'text'
+        };
+    },
+    /**
+     * Trigger props callback and dismiss modal
+     */
+    submit: function submit() {
+        this.props.submitValue(this.refs.input.getValue());
+        this.dismiss();
+    },
+
+    /**
+     * Focus on input at mount time
+     */
+    componentDidMount: function componentDidMount() {
+        var _this = this;
+
+        setTimeout(function () {
+            try {
+                _this.refs.input.focus();
+            } catch (e) {}
+        }, 150);
+    },
+
+    render: function render() {
+        return React.createElement(
+            'div',
+            { style: { width: '100%' } },
+            React.createElement(
+                'div',
+                { className: 'dialogLegend' },
+                MessageHash[this.props.legendId]
+            ),
+            React.createElement(TextField, {
+                floatingLabelText: MessageHash[this.props.fieldLabelId],
+                ref: 'input',
+                onKeyDown: this.submitOnEnterKey,
+                defaultValue: this.props.defaultValue,
+                type: this.props.fieldType,
+                fullWidth: true
+            })
+        );
+    }
 
 });
 module.exports = exports['default'];
