@@ -22,20 +22,4 @@
             <js className="PydioMailer" file="plug/core.mailer/js/build/PydioMailer.js" depends="React,PydioComponents,PydioForm"/>
         </resources>
     </client_settings>
-    <registry_contributions>
-        <actions>
-            <action name="send_mail">
-                <rightsContext adminOnly="false" noUser="false" read="false" userLogged="hidden" write="false"/>
-                <processing>
-                    <serverCallback methodName="sendMailAction" restParams="/" developerComment="Trigger an email to a user or external email, sent by currently logged user">
-                        <input_param name="from" type="string" description="From email"/>
-                        <input_param name="emails" type="string" description="A list of emails or user names"/>
-                        <input_param name="subject" type="string" description="Subject of the message"/>
-                        <input_param name="message" type="string" description="Body of the message"/>
-                        <input_param name="link" type="string" description="URL of an image to be used in the message body."/>
-                    </serverCallback>
-                </processing>
-            </action>
-        </actions>
-    </registry_contributions>
 </plugin>

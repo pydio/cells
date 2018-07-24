@@ -15,11 +15,6 @@
             <extension mime="bz2" font="archive" icon="archive.png" messageId="61"/>
         </extensions>
         <actions>
-            <action name="compression">
-                <processing>
-                    <serverCallback methodName="receiveAction"/>
-                </processing>
-            </action>
             <action name="compress_ui">
                 <gui text="313" title="314" iconClass="mdi mdi-zip-box" accessKey="" hasAccessKey="false" weight="100">
                     <context selection="true" dir="" recycle="hidden"
@@ -42,7 +37,6 @@
                 </gui>
                 <processing>
                     <clientCallback module="CompressionActions.Callbacks.extract"/>
-                    <serverCallback methodName="receiveAction" pluginId="action.compression" />
                 </processing>
             </action>
         </actions>

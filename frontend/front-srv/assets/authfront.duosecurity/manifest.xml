@@ -39,11 +39,6 @@
                     <clientCallback module="DuoSecurityActions.Callbacks.duoPrompt"/>
                 </processing>
             </action>
-            <action name="duo_post_verification_code">
-                <processing>
-                    <serverCallback methodName="postVerificationCode"/>
-                </processing>
-            </action>
         </actions>
     </registry_contributions>
 </plugin>

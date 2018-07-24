@@ -56,28 +56,6 @@
                     <clientCallback module="ShareActions.Callbacks.editShare"/>
                 </processing>
             </action>
-            <action name="share">
-                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
-                <processing>
-                    <serverCallback methodName="switchAction" restParams="/simple_share_type/file+" developerComment="Main action for sharing a file or a folder">
-                        <input_param description="Path of the resource to share" name="nodes" type="PYDIO_NODE[]" mandatory="true"/>
-                        <input_param description="Simple type for sharing via the REST api, always links, public or private" name="simple_share_type" type="public|private" mandatory="false"/>
-                        <input_param description="Specific type of sharing" name="sub_action" type="delegate_repo|create_minisite|public_link" mandatory="true"/>
-                        <input_param description="For editing the data of an existing workspace/minisite" name="repository_id" type="string" mandatory="false"/>
-                        <input_param description="For a workspace, directly set a watch on this for the current user" name="self_watch_folder" type="boolean"/>
-                        <input_param description="For a minisite, will determine whether it will be public (true) or private (false), creating a temporary user in the first case." name="create_guest_user" type="boolean"/>
-                        <input_param description="For a workspace/private minisite, define zero or more ACL for users" name="user_[n]" type="string"/>
-                        <input_param description="For a workspace/private minisite, read right for user N" name="right_read_[n]" type="boolean"/>
-                        <input_param description="For a workspace/private minisite, write right for user N" name="right_write_[n]" type="boolean"/>
-                        <input_param description="For a workspace/private minisite, watch status for user N" name="right_watch_[n]" type="boolean"/>
-                        <input_param description="For a public link, set a maximum number of downloads authorized" name="downloadlimit" type="integer"/>
-                        <input_param description="For a public link, set a maximum number of authorized days" name="expiration" type="integer"/>
-                        <input_param description="For a public link, set a password" name="password" type="string"/>
-                        <input_param description="For a minisite on file or folder, force a custom link handle" name="custom_handle" type="string"/>
-                        <input_param description="Additional plugins data that can be stored in the shared resource" name="PLUGINS_DATA" type="FORM_DATA"/>
-                    </serverCallback>
-                    </processing>
-            </action>
             <action name="open_user_shares">
                 <gui text="share_center.98" title="share_center.98" iconClass="mdi mdi-share-variant" accessKey="folder_access_key">
                     <context selection="false" dir="" recycle="false" actionBar="true" actionBarGroup="user" contextMenu="false" infoPanel="false"/>

@@ -10,18 +10,12 @@
 
     <registry_contributions>
         <actions>
-            <action name="user_access_point" skipSecureToken="true">
-                <processing>
-                    <serverCallback methodName="processUserAccessPoint"/>
-                </processing>
-            </action>
             <action name="reset-password-ask">
                 <gui iconClass="icon-terminal" text="gui.user.1" title="gui.user.2">
                     <context dir="true" recycle="true" selection="false"/>
                 </gui>
                 <processing>
                     <clientCallback module="AuthfrontCoreActions.ResetPasswordRequire.open"/>
-                    <serverCallback methodName="processUserAccessPoint"/>
                 </processing>
             </action>
             <action name="reset-password">
@@ -30,7 +24,6 @@
                 </gui>
                 <processing>
                     <clientCallback module="AuthfrontCoreActions.ResetPasswordDialog.open"/>
-                    <serverCallback methodName="processUserAccessPoint"/>
                 </processing>
             </action>
         </actions>

@@ -196,35 +196,6 @@
 	</server_settings>
 	<registry_contributions>
 		<actions>
-			<action name="get_boot_gui" skipSecureToken="true">
-				<processing>
-					<serverCallback methodName="getBootGui"/>
-				</processing>
-			</action>
-			<action name="get_boot_conf" skipSecureToken="true">
-				<processing>
-					<serverCallback methodName="getBootConf"/>
-				</processing>
-			</action>
-            <action name="get_i18n_messages">
-                <processing>
-                    <serverCallback methodName="switchAction" restParams="/" developerComment="Load the list of translation strings">
-                        <output type="json" description="A JSON table of all strings contributed by all plugins."/>
-                    </serverCallback>
-                </processing>
-            </action>
-            <action name="serve_favicon" skipSecureToken="true">
-                <processing>
-                    <serverCallback methodName="switchAction" restParams="/" developerComment="Return site favicon"/>
-                </processing>
-            </action>
-            <action name="display_doc">
-                <processing>
-                    <serverCallback methodName="switchAction" restParams="/doc_file" developerComment="Load a doc file">
-                        <input_param name="doc_file" type="string" description="Text file base name (without extension) located inside the doc folder."/>
-                    </serverCallback>
-                </processing>
-            </action>
             <action name="up_dir">
                 <gui text="148" title="24" iconClass="icon-chevron-left" hasAccessKey="true"
                      accessKey="parent_access_key">
@@ -272,12 +243,6 @@
                 </gui>
                 <processing>
                     <clientCallback module="PydioCoreActions.Navigation.splash"/>
-                </processing>
-            </action>
-            <action name="packages_upgrade_script">
-                <processing>
-                    <serverCallback methodName="packagesUpgradeScript" restParams="/"
-                                    developerComment="Apply necessary upgrade after an external code update, typically when handled via Linux packages"/>
                 </processing>
             </action>
         </actions>

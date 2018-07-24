@@ -64,14 +64,6 @@
 						pydio.updateContextData(path);
 					}
 					]]></clientCallback>
-                    <serverCallback methodName="listAction" restParams="/dir+" developerComment="List the content of the config. Depending on the path, will return users, workspaces, roles, etc..">
-                        <input_param name="dir" type="path" description="Path to config data to list. See URIs in webapp to guess the correct path."/>
-                    </serverCallback>
-                </processing>
-            </action>
-            <action name="stat">
-                <processing>
-                    <serverCallback methodName="listAction" developerComment="To comply with GUI client, always returns true."/>
                 </processing>
             </action>
             <action name="edit" fileDefault="true">
@@ -85,7 +77,6 @@
                     var editorData = window.actionArguments[0];
                     pydio.UI.openCurrentSelectionInEditor(editorData);
                 ]]></clientCallback>
-                    <serverCallback methodName="editAction" restParams="/sub_action" developerComment="Shortcut for various actions, calling edit with subaction parameter."/>
                 </processing>
             </action>
             <action name="delete">
@@ -95,11 +86,6 @@
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
                 <processing>
                     <clientCallback module="AdminPeople.Callbacks.deleteAction"/>
-                    <serverCallback methodName="deleteAction" restParams="/data_type/data_id+" developerComment="Generic delete action for config driver, used to delete users, workspaces, roles, etc.">
-                        <input_param description="Type of the data to delete. Can be : user, group, role, repository" name="data_type" type="String"/>
-                        <input_param description="Id of the data to delete. For groups, full group path." name="data_id"
-                                     type="string"/>
-                    </serverCallback>
                 </processing>
             </action>
 
@@ -123,68 +109,6 @@
                     <clientCallback module="AdminPeople.Callbacks.applyDND"/>
                 </processing>
             </action>
-            <action name="save_user_preference">
-                <processing>
-                    <serverCallback methodName="usersAction" developerComment="Sets a user preference value. Rest can only take one value, but CLI or http GET can pass many preferences, using _1, _2, _3, etc." restParams="/user_id/pref_name_0/pref_value_0">
-                        <input_param description="User login" name="user_id" type="string"/>
-                        <input_param description="Preference name" name="pref_name_0" type="string"/>
-                        <input_param description="Preference value" name="pref_value_0" type="string"/>
-                    </serverCallback>
-                </processing>
-            </action>
-            <action name="user_update_right">
-                <processing>
-                    <serverCallback methodName="usersAction" restParams="/repository_id/user_id/right" checkParams="true" developerComment="Update a user access right on a given workspace.">
-                        <input_param name="user_id" type="string" mandatory="true" description="ID of the user"/>
-                        <input_param name="repository_id" type="PYDIO_REPOSITORY" mandatory="true" description="Repository ID"/>
-                        <input_param name="right" type="string" mandatory="true" description="Must be r (read), w (write) or n (none)"/>
-                    </serverCallback>
-                </processing>
-            </action>
-            <action name="people-create-resource">
-                <processing><serverCallback methodName="usersAction"/></processing>
-            </action>
-            <action name="people-delete-resource">
-                <processing><serverCallback methodName="usersAction"/></processing>
-            </action>
-            <action name="people-patch-resource">
-                <processing><serverCallback methodName="usersAction"/></processing>
-            </action>
-
-            <!-- ROLES ACTIONS -->
-            <action name="create_role">
-                <gui text="settings.75" title="settings.75" iconClass="icon-th" accessKey="settings.role_access" hasAccessKey="true">
-                    <context selection="false" dir="false" recycle="hidden" allowedMimes="roles_zone"  behaviour="hidden"
-                             actionBar="true" contextMenu="false" infoPanel="false"
-                             actionBarGroup="put" inZip="false">
-                    </context>
-                </gui>
-                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly="true"/>
-                <processing>
-                    <serverCallback methodName="rolesAction" developerComment="Create an empty role" restParams="/role_id">
-                        <input_param description="Role identifier" name="role_id" type="string"/>
-                    </serverCallback>
-                </processing>
-            </action>
-            <action name="role_update_right">
-                <processing>
-                    <serverCallback methodName="rolesAction" restParams="/repository_id/role_id/right" checkParams="true" developerComment="Update a role access right on a given workspace.">
-                        <input_param name="role_id" type="PYDIO_ROLE" mandatory="true" description="ID of the role"/>
-                        <input_param name="repository_id" type="PYDIO_REPOSITORY" mandatory="true" description="Repository ID"/>
-                        <input_param name="right" type="string" mandatory="true" description="Must be r (read), w (write) or n (none)"/>
-                    </serverCallback>
-                </processing>
-            </action>
-            <action name="edit_role">
-                <processing>
-                    <serverCallback methodName="rolesAction"/>
-                </processing>
-            </action>
-            <action name="post_json_role">
-                <processing>
-                    <serverCallback methodName="rolesAction"/>
-                </processing>
-            </action>
 
             <!-- PLUGINS ACTIONS -->
             <action name="clear_plugins_cache">
@@ -193,40 +117,6 @@
                 </gui>
                 <processing>
                     <clientCallback module="PydioCoreActions.Callbacks.clearPluginsCache"/>
-                    <serverCallback methodName="pluginsAction"/>
-                </processing>
-            </action>
-            <action name="get_plugin_manifest">
-                <processing>
-                    <serverCallback methodName="pluginsAction" restParams="/plugin_id" developerComment="Send a plugin Manifest file.">
-                        <input_param description="Plugin identifier (like type.name)" name="plugin_id" type="string"/>
-                        <output type="XML" description="Manifest content"/>
-                    </serverCallback>
-                </processing>
-            </action>
-            <action name="run_plugin_action">
-                <processing>
-                    <serverCallback methodName="pluginsAction" restParams="/action_plugin_id/action_plugin_method" developerComment="Execute a class method on a plugin. Used for example for testing a DB connexion.">
-                        <input_param name="action_plugin_id" type="string" description="A plugin id, in the form type.name"/>
-                        <input_param name="action_plugin_method" type="string" description="A plugin method"/>
-                        <input_param name="form_data" type="FORM_DATA"
-                                     description="A set of parameters complying to the standard form parser"/>
-                    </serverCallback>
-                </processing>
-            </action>
-            <action name="list_all_plugins_actions">
-                <processing>
-                    <serverCallback methodName="pluginsAction" restParams="/" developerComment="Returns a structured JSON object of all plugins and all their available actions"/>
-                </processing>
-            </action>
-            <action name="list_all_plugins_parameters">
-                <processing>
-                    <serverCallback methodName="pluginsAction" restParams="/" developerComment="Returns a structured JSON object of all plugins and all their available parameter"/>
-                </processing>
-            </action>
-            <action name="parameters_to_form_definitions">
-                <processing>
-                    <serverCallback methodName="pluginsAction" restParams="/" developerComment="Takes in input a list of plugin parameters and builds the corresponding XML to create a standard form."/>
                 </processing>
             </action>
 
