@@ -97,6 +97,10 @@ var (
 		without /public/
 	}
 
+	proxy /user/reset-password/ {{.FrontPlugins.Host}} {
+		transparent
+	}
+
 	proxy /login {{.FrontPlugins.Host}}/gui {
 		transparent
 		without /login
@@ -144,6 +148,7 @@ var (
 		if {path} not_starts_with "/hosting/discovery"
 		if {path} not_starts_with "/lool/"
 		if {path} not_starts_with "/public/"
+		if {path} not_starts_with "/user/reset-password"
 		to {path} {path}/ /login
 	}
 

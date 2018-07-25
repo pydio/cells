@@ -184,6 +184,9 @@ func (a *TokenHandler) ResetPassword(req *restful.Request, resp *restful.Respons
 		DocumentID: token,
 	})
 	if e != nil || docResp.Document == nil || docResp.Document.Data == "" {
+		if e == nil {
+			e = fmt.Errorf("Oops, something wrong happened - Please relaunch reset password process")
+		}
 		service.RestError500(req, resp, e)
 		return
 	}

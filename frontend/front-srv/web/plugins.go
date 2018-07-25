@@ -56,7 +56,9 @@ func init() {
 					fs := http.FileServer(httpFs)
 					router.Handle("/index.json", fs)
 					router.PathPrefix("/plug/").Handler(http.StripPrefix("/plug/", fs))
-					router.Handle("/gui", index.NewIndexHandler())
+					indexHandler := index.NewIndexHandler()
+					router.Handle("/gui", indexHandler)
+					router.Handle("/user/reset-password/{resetPasswordKey}", indexHandler)
 					router.Handle("/public/{link}", index.NewPublicHandler())
 					http.Handle("/", router)
 					srv := &http.Server{
