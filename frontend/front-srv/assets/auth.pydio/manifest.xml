@@ -10,7 +10,6 @@
             <i18n namespace="sql_auth" remote="plug/auth.pydio/i18n"/>
         </resources>
     </client_settings>
-	<server_settings></server_settings>
 
 	<registry_contributions>
         <actions>
