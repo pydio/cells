@@ -81,7 +81,7 @@ var Manager = (function () {
     Manager.parameterNodeToHash = function parameterNodeToHash(paramNode) {
         var paramsAtts = paramNode.attributes;
         var paramsObject = {};
-        if (paramNode.parentNode && paramNode.parentNode.parentNode) {
+        if (paramNode.parentNode && paramNode.parentNode.parentNode && paramNode.parentNode.parentNode.getAttribute) {
             paramsObject["pluginId"] = paramNode.parentNode.parentNode.getAttribute("id");
         }
         var collectCdata = false;

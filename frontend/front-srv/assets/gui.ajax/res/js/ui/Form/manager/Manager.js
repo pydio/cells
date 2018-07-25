@@ -70,7 +70,7 @@ export default class Manager{
     static parameterNodeToHash(paramNode){
         const paramsAtts = paramNode.attributes;
         let paramsObject = {};
-        if(paramNode.parentNode && paramNode.parentNode.parentNode){
+        if(paramNode.parentNode && paramNode.parentNode.parentNode && paramNode.parentNode.parentNode.getAttribute){
             paramsObject["pluginId"] = paramNode.parentNode.parentNode.getAttribute("id");
         }
         let collectCdata = false;

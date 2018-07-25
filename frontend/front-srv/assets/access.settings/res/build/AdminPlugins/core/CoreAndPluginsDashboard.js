@@ -73,7 +73,11 @@ var CoreAndPluginsDashboard = (function (_React$Component) {
                 type = basename;
                 pluginId = "core." + basename;
             }
-            var pluginsList = _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, { filterType: type, title: this.props.rootNode.getLabel() }));
+            var pluginsList = _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, {
+                displaySmall: true,
+                filterType: type,
+                title: this.props.rootNode.getLabel()
+            }));
             return _react2['default'].createElement(_PluginEditor2['default'], {
                 pydio: this.props.pydio,
                 pluginId: pluginId,

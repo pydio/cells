@@ -106,6 +106,7 @@ var AuthenticationPluginsDashboard = React.createClass({
             title: this.context.getMessage('plugtype.title.authfront', ''),
             dataModel: this.props.dataModel,
             filterType: "authfront",
+            displaySmall: true,
             openRightPane: this.props.openRightPane,
             closeRightPane: this.props.closeRightPane
         });
@@ -197,7 +198,11 @@ var CoreAndPluginsDashboard = (function (_React$Component) {
                 type = basename;
                 pluginId = "core." + basename;
             }
-            var pluginsList = _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, { filterType: type, title: this.props.rootNode.getLabel() }));
+            var pluginsList = _react2['default'].createElement(_PluginsList2['default'], _extends({}, this.props, {
+                displaySmall: true,
+                filterType: type,
+                title: this.props.rootNode.getLabel()
+            }));
             return _react2['default'].createElement(_PluginEditor2['default'], {
                 pydio: this.props.pydio,
                 pluginId: pluginId,
@@ -750,21 +755,42 @@ var PluginsList = React.createClass({
     render: function render() {
         var _this4 = this;
 
-        var columns = [{ name: 'enabled', label: 'Enabled', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
-                return React.createElement(_materialUi.Toggle, {
-                    toggled: row.xmlNode.getAttribute("enabled") !== "false",
-                    onToggle: function (e, v) {
-                        return _this4.togglePluginEnable(row.xmlNode, v);
-                    },
-                    onClick: function (e) {
-                        return e.stopPropagation();
-                    }
-                });
-            } }, { name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'id', label: 'Id', style: { width: '15%' }, headerStyle: { width: '15%' } }, { name: 'description', label: 'Description' }, { name: 'action', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
-                return React.createElement(_materialUi.IconButton, { iconStyle: { color: 'rgba(0,0,0,0.33)', fontSize: 21 }, iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
-                        return _this4.openTableRows([row]);
-                    } });
-            } }];
+        var displaySmall = this.props.displaySmall;
+
+        var columns = undefined;
+        if (displaySmall) {
+            columns = [{ name: 'enabled', label: 'Enabled', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+                    return React.createElement(_materialUi.Toggle, {
+                        toggled: row.xmlNode.getAttribute("enabled") !== "false",
+                        onToggle: function (e, v) {
+                            return _this4.togglePluginEnable(row.xmlNode, v);
+                        },
+                        onClick: function (e) {
+                            return e.stopPropagation();
+                        }
+                    });
+                } }, { name: 'label', label: 'Label', style: { fontSize: 15 } }, { name: 'action', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+                    return React.createElement(_materialUi.IconButton, { iconStyle: { color: 'rgba(0,0,0,0.33)', fontSize: 21 }, iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
+                            return _this4.openTableRows([row]);
+                        } });
+                } }];
+        } else {
+            columns = [{ name: 'enabled', label: 'Enabled', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+                    return React.createElement(_materialUi.Toggle, {
+                        toggled: row.xmlNode.getAttribute("enabled") !== "false",
+                        onToggle: function (e, v) {
+                            return _this4.togglePluginEnable(row.xmlNode, v);
+                        },
+                        onClick: function (e) {
+                            return e.stopPropagation();
+                        }
+                    });
+                } }, { name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'id', label: 'Id', style: { width: '15%' }, headerStyle: { width: '15%' } }, { name: 'description', label: 'Description' }, { name: 'action', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+                    return React.createElement(_materialUi.IconButton, { iconStyle: { color: 'rgba(0,0,0,0.33)', fontSize: 21 }, iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
+                            return _this4.openTableRows([row]);
+                        } });
+                } }];
+        }
 
         var data = this.computeTableData();
 

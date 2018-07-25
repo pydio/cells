@@ -45,6 +45,7 @@ var AuthenticationPluginsDashboard = React.createClass({
             title: this.context.getMessage('plugtype.title.authfront', ''),
             dataModel: this.props.dataModel,
             filterType: "authfront",
+            displaySmall: true,
             openRightPane: this.props.openRightPane,
             closeRightPane: this.props.closeRightPane
         });

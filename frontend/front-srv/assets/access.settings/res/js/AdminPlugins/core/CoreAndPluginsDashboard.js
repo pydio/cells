@@ -34,7 +34,12 @@ class CoreAndPluginsDashboard extends React.Component{
             type = basename;
             pluginId = "core." + basename;
         }
-        const pluginsList = <PluginsList {...this.props}  filterType={type} title={this.props.rootNode.getLabel()}/>;
+        const pluginsList = <PluginsList
+            {...this.props}
+            displaySmall={true}
+            filterType={type}
+            title={this.props.rootNode.getLabel()}
+        />;
         return (
             <PluginEditor
                 pydio={this.props.pydio}
