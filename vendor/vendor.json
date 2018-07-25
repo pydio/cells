@@ -3307,6 +3307,12 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
+			"checksumSHA1": "Byaa390AhImHSUlSXz14tOCRBHo=",
+			"path": "github.com/mssola/user_agent",
+			"revision": "d7bd3b07ee86d981b0fb75b59ea68e09c51fa1b6",
+			"revisionTime": "2018-06-08T08:16:48Z"
+		},
+		{
 			"checksumSHA1": "aOt94aJhrodtylXqUFxflaguKbE=",
 			"origin": "github.com/mholt/caddy/vendor/github.com/naoina/go-stringutil",
 			"path": "github.com/naoina/go-stringutil",
