@@ -60,6 +60,24 @@ class Editor extends React.Component{
         })
     }
 
+    componentWillReceiveProps(newProps){
+        const {node, idmRole} = this.props;
+        if(newProps.node !== node || newProps.idmRole !== idmRole){
+            if(newProps.node){
+                this.setState(this.nodeToState(newProps.node));
+            } else if(newProps.idmRole) {
+                this.setState({
+                    idmRole : newProps.idmRole,
+                    roleType: "role",
+                    currentPane:'info'
+                }, () => {
+                    this.loadRoleData(true);
+                });
+            }
+        }
+    }
+
+
     nodeToState(node){
         const mime = node.getAjxpMime();
         const scope = mime === "group" ? "group" : "user";
@@ -76,9 +94,7 @@ class Editor extends React.Component{
             roleType:scope,
             dirty:false,
             currentPane:'info',
-
             localModalContent:{},
-            loadingMessage:this.getMessage('home.6', 'ajxp_admin'),
         };
     }
 
@@ -123,18 +139,6 @@ class Editor extends React.Component{
         this.setState({currentPane:key});
     }
 
-    componentWillReceiveProps(newProps){
-        /*
-        var oldN = this.props.node ? this.props.node.getPath() : 'EMPTY';
-        var newN = newProps.node ? newProps.node.getPath(): 'EMPTY';
-        if(newN != oldN){
-            this.setState(this.nodeToState(newProps.node), function(){
-                this.loadRoleData(true);
-            }.bind(this));
-        }
-        */
-    }
-
     componentDidMount(){
         this.loadRoleData(true);
         if(this.props.registerCloseCallback){
@@ -168,8 +172,7 @@ class Editor extends React.Component{
 
         const {observableRole, observableUser, pluginsRegistry, currentPane, modal} = this.state;
 
-        let title = 'TITLE';
-        let infoTitle = "";
+        let title = '', infoTitle = '';
         let infoMenuTitle = this.getMessage('24'); // user information
         let otherForm;
         let pagesShowSettings = false;
@@ -189,6 +192,7 @@ class Editor extends React.Component{
 
         }else if(this.state.roleType === 'role'){
 
+            title = observableRole ? observableRole.getIdmRole().Label : '...';
             infoTitle = this.getMessage('28'); // role information
             infoMenuTitle = this.getMessage('29');
             pagesShowSettings = true;

@@ -116,9 +116,32 @@ var Editor = (function (_React$Component) {
     }
 
     _createClass(Editor, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(newProps) {
+            var _this2 = this;
+
+            var _props = this.props;
+            var node = _props.node;
+            var idmRole = _props.idmRole;
+
+            if (newProps.node !== node || newProps.idmRole !== idmRole) {
+                if (newProps.node) {
+                    this.setState(this.nodeToState(newProps.node));
+                } else if (newProps.idmRole) {
+                    this.setState({
+                        idmRole: newProps.idmRole,
+                        roleType: "role",
+                        currentPane: 'info'
+                    }, function () {
+                        _this2.loadRoleData(true);
+                    });
+                }
+            }
+        }
+    }, {
         key: 'nodeToState',
         value: function nodeToState(node) {
-            var _this2 = this;
+            var _this3 = this;
 
             var mime = node.getAjxpMime();
             var scope = mime === "group" ? "group" : "user";
@@ -127,7 +150,7 @@ var Editor = (function (_React$Component) {
             var idmUser = node.getMetadata().get("IdmUser");
             observableUser = new _modelUser2['default'](idmUser);
             observableUser.observe('update', function () {
-                _this2.forceUpdate();
+                _this3.forceUpdate();
             });
             observableUser.load();
 
@@ -137,15 +160,13 @@ var Editor = (function (_React$Component) {
                 roleType: scope,
                 dirty: false,
                 currentPane: 'info',
-
-                localModalContent: {},
-                loadingMessage: this.getMessage('home.6', 'ajxp_admin')
+                localModalContent: {}
             };
         }
     }, {
         key: 'loadRoleData',
         value: function loadRoleData(showLoader) {
-            var _this3 = this;
+            var _this4 = this;
 
             if (showLoader) {
                 this.setState({ loadingMessage: this.getMessage('home.6', 'ajxp_admin') });
@@ -154,9 +175,9 @@ var Editor = (function (_React$Component) {
 
             var role = new _modelRole2['default'](idmRole);
             role.load().then(function () {
-                _this3.setState({ loadingMessage: null, observableRole: role });
+                _this4.setState({ loadingMessage: null, observableRole: role });
                 role.observe('update', function () {
-                    _this3.forceUpdate();
+                    _this4.forceUpdate();
                 });
             });
         }
@@ -201,27 +222,14 @@ var Editor = (function (_React$Component) {
             this.setState({ currentPane: key });
         }
     }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(newProps) {
-            /*
-            var oldN = this.props.node ? this.props.node.getPath() : 'EMPTY';
-            var newN = newProps.node ? newProps.node.getPath(): 'EMPTY';
-            if(newN != oldN){
-                this.setState(this.nodeToState(newProps.node), function(){
-                    this.loadRoleData(true);
-                }.bind(this));
-            }
-            */
-        }
-    }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
-            var _this4 = this;
+            var _this5 = this;
 
             this.loadRoleData(true);
             if (this.props.registerCloseCallback) {
                 this.props.registerCloseCallback(function () {
-                    if (_this4.state && _this4.state.dirty && !global.confirm(_this4.getPydioRoleMessage('19'))) {
+                    if (_this5.state && _this5.state.dirty && !global.confirm(_this5.getPydioRoleMessage('19'))) {
                         return false;
                     }
                 });
@@ -250,11 +258,11 @@ var Editor = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this5 = this;
+            var _this6 = this;
 
-            var _props = this.props;
-            var advancedAcl = _props.advancedAcl;
-            var pydio = _props.pydio;
+            var _props2 = this.props;
+            var advancedAcl = _props2.advancedAcl;
+            var pydio = _props2.pydio;
             var _state = this.state;
             var observableRole = _state.observableRole;
             var observableUser = _state.observableUser;
@@ -262,8 +270,8 @@ var Editor = (function (_React$Component) {
             var currentPane = _state.currentPane;
             var modal = _state.modal;
 
-            var title = 'TITLE';
-            var infoTitle = "";
+            var title = '',
+                infoTitle = '';
             var infoMenuTitle = this.getMessage('24'); // user information
             var otherForm = undefined;
             var pagesShowSettings = false;
@@ -281,6 +289,7 @@ var Editor = (function (_React$Component) {
                 otherForm = _react2['default'].createElement(_infoGroupInfo2['default'], { group: observableUser, pydio: pydio, pluginsRegistry: pluginsRegistry });
             } else if (this.state.roleType === 'role') {
 
+                title = observableRole ? observableRole.getIdmRole().Label : '...';
                 infoTitle = this.getMessage('28'); // role information
                 infoMenuTitle = this.getMessage('29');
                 pagesShowSettings = true;
@@ -314,7 +323,7 @@ var Editor = (function (_React$Component) {
                 _react2['default'].createElement(_materialUi.FlatButton, { key: 'undo', disabled: saveDisabled, secondary: true, label: this.getMessage('plugins.6', 'ajxp_admin'), onTouchTap: revert }),
                 _react2['default'].createElement(_materialUi.FlatButton, { key: 'save', disabled: saveDisabled, secondary: true, label: this.getRootMessage('53'), onTouchTap: save }),
                 _react2['default'].createElement(_materialUi.RaisedButton, { key: 'close', label: this.getMessage('33'), onTouchTap: function () {
-                        _this5.props.onRequestTabClose();
+                        _this6.props.onRequestTabClose();
                     } })
             );
 
