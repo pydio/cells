@@ -93,6 +93,7 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 		User:          user,
 		NoClaims:      !user.Logged,
 		Lang:          lang,
+		Request:       req.Request,
 	}
 	registry := pool.RegistryForStatus(ctx, status)
 	rsp.WriteAsXml(registry)

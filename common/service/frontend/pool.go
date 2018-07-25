@@ -211,6 +211,10 @@ func (p *PluginsPool) pluginsForStatus(ctx context.Context, status RequestStatus
 	// Filter Accesses
 	filtered := make(map[string]Plugin)
 	for id, p := range p.Plugins {
+		if err := ApplyPluginModifiers(ctx, status, p); err != nil {
+			log.Logger(ctx).Error("Filtering out plugin "+id+" (error while applying filter)", zap.Error(err))
+			continue
+		}
 		if !p.PluginEnabled(status) {
 			log.Logger(ctx).Debug("Filtering out plugin " + id + " (disabled)")
 			continue

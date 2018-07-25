@@ -1,6 +1,8 @@
 package frontend
 
 import (
+	"net/http"
+
 	"github.com/pydio/cells/common/config"
 )
 
@@ -13,4 +15,6 @@ type RequestStatus struct {
 	User     *User
 	NoClaims bool
 	Lang     string
+
+	Request *http.Request
 }

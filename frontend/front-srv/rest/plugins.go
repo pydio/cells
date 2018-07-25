@@ -50,7 +50,6 @@ var BasePluginsBox = frontend.PluginBox{
 		"editor.libreoffice",
 		"gui.ajax",
 		"gui.mobile",
-		"gui.user",
 		"index.pydio",
 		"meta.user",
 		"action.avatar",
@@ -82,6 +81,7 @@ var BasePluginsBox = frontend.PluginBox{
 func init() {
 
 	frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
+	frontend.RegisterPluginModifier(modifiers.MobileRegModifier)
 
 	s := service.NewService(
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),

@@ -12,7 +12,6 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/frontend"
-	"go.uber.org/zap"
 )
 
 type IndexHandler struct {
@@ -61,7 +60,6 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
-	log.Logger(r.Context()).Info("vars", zap.Any("v", vars), zap.String("uri", r.RequestURI))
 	if reset, ok := vars["resetPasswordKey"]; ok {
 		tplConf.StartParameters["USER_GUI_ACTION"] = "reset-password"
 		tplConf.StartParameters["USER_ACTION_KEY"] = reset
