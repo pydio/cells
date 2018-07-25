@@ -32,6 +32,9 @@ type DAO interface {
 	GetInfo(value string) (string, error)
 	DeleteToken(t string) error
 	ListTokens(offset int, count int) (chan *auth.Token, error)
+	PutFailedConnection(c *auth.ConnectionAttempt) error
+	ListFailedConnections(ip string, offset, count int) []*auth.ConnectionAttempt
+	ClearFailedConnections(ip string) error
 }
 
 type DexDAO interface {

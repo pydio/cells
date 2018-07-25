@@ -29,6 +29,8 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/time/rate"
+
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -48,7 +50,7 @@ func NewAuthTokenRevokerHandler(dexConfig auth.Config) (proto.AuthTokenRevokerHa
 	if e != nil {
 		return nil, e
 	}
-	dao, err := auth.NewBoltStore("tokens", path.Join(dataDir, "auth-revoked-token.db"))
+	dao, err := auth.NewBoltStore("tokens", "failed", path.Join(dataDir, "auth-revoked-token.db"))
 	if err != nil {
 		return nil, err
 	}
@@ -135,6 +137,66 @@ func (h *TokenRevokerHandler) PruneTokens(ctx context.Context, in *proto.PruneTo
 	} else {
 		log.Logger(ctx).Info("Cannot get dexDAO")
 	}
+
+	return nil
+}
+
+// Store a failed connection
+func (h *TokenRevokerHandler) StoreFailedConnection(ctx context.Context, attempt *proto.ConnectionAttempt, connectionAttempt *proto.ConnectionAttempt) error {
+
+	connectionAttempt = attempt
+	if attempt.IsSuccess {
+		// Clear stacked attempts
+		return h.dao.ClearFailedConnections(attempt.IP)
+	} else {
+		return h.dao.PutFailedConnection(attempt)
+	}
+
+}
+
+// Check if a connection is banned
+func (h *TokenRevokerHandler) IsBanned(ctx context.Context, attempt *proto.ConnectionAttempt, response *proto.BannedResponse) error {
+
+	const duration = 5 * time.Second
+	const maxPerDuration = 10
+	const banTime = 10 * time.Minute
+
+	// Load all connection Attempts for this ip - check if they exceed the authorized rate limit
+	attempts := h.dao.ListFailedConnections(attempt.IP, 0, -1)
+	if len(attempts) == 0 {
+		return nil
+	}
+	limiter := rate.NewLimiter(rate.Every(duration), maxPerDuration)
+	var banned bool
+	attempts = append(attempts, attempt)
+	// Feed the limiter with previous attempts and last attempt
+	for _, a := range attempts {
+		aTime := time.Unix(a.ConnectionTime, 0)
+		if aTime.Add(banTime).Before(time.Now()) {
+			// Ignore events happened before banTime
+			continue
+		}
+		banned = !limiter.AllowN(aTime, 1)
+		if banned {
+			break
+		}
+	}
+	if banned {
+		// Store this failed attempt now
+		h.dao.PutFailedConnection(attempt)
+		response.IsBanned = true
+		response.Connection = &proto.BannedConnection{
+			IP:        attempt.IP,
+			BanExpire: time.Now().Add(banTime).Unix(),
+			History:   attempts,
+		}
+	}
+
+	return nil
+}
+
+// List banned IPs
+func (h *TokenRevokerHandler) BanList(ctx context.Context, request *proto.BanListRequest, response *proto.BanListResponse) error {
 
 	return nil
 }

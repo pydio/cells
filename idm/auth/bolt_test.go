@@ -24,6 +24,8 @@ import (
 	"os"
 	"testing"
 
+	"time"
+
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/smartystreets/goconvey/convey"
 )
@@ -36,7 +38,8 @@ var (
 
 func TestBoltStore(t *testing.T) {
 
-	const bucketName = "tokens"
+	const bucketTokens = "tokens"
+	const bucketConnections = "connections"
 	defer os.Remove(dbFile)
 
 	entries := map[string]string{
@@ -49,7 +52,7 @@ func TestBoltStore(t *testing.T) {
 
 	convey.Convey("Test Create and Open bolt db", t, func() {
 		//t.Log("Test Create and Open bolt db")
-		store, err = NewBoltStore(bucketName, dbFile)
+		store, err = NewBoltStore(bucketTokens, bucketConnections, dbFile)
 		convey.So(err, convey.ShouldBeNil)
 		convey.So(store, convey.ShouldNotBeNil)
 	})
@@ -57,7 +60,7 @@ func TestBoltStore(t *testing.T) {
 	convey.Convey("Test Open wrong file", t, func() {
 		//t.Log("Test Open wrong file")
 		df := os.TempDir() + "/watever-non-existing-folder/toto.db"
-		_, err := NewBoltStore(bucketName, df)
+		_, err := NewBoltStore(bucketTokens, bucketConnections, df)
 		convey.So(err, convey.ShouldNotBeNil)
 	})
 
@@ -109,5 +112,35 @@ func TestBoltStore(t *testing.T) {
 		convey.So(err, convey.ShouldBeNil)
 	})
 
-	defer os.Remove(dbFile)
+	convey.Convey("Test Connections Attempts", t, func() {
+		a := &auth.ConnectionAttempt{
+			IP:             "192.168.0.123",
+			ConnectionTime: time.Now().Unix(),
+			IsSuccess:      false,
+		}
+		e := store.PutFailedConnection(a)
+		convey.So(e, convey.ShouldBeNil)
+
+		a2 := &auth.ConnectionAttempt{
+			IP:             "192.168.0.124",
+			ConnectionTime: time.Now().Unix(),
+			IsSuccess:      true,
+		}
+		store.PutFailedConnection(a2)
+
+		attempts := store.ListFailedConnections("192.168.0.123", 0, 100)
+		convey.So(attempts, convey.ShouldHaveLength, 1)
+		convey.So(attempts[0].IP, convey.ShouldEqual, "192.168.0.123")
+		convey.So(attempts[0].IsSuccess, convey.ShouldBeFalse)
+
+		allAttempts := store.ListFailedConnections("", 0, 100)
+		convey.So(allAttempts, convey.ShouldHaveLength, 2)
+
+		e = store.ClearFailedConnections("192.168.0.123")
+		convey.So(e, convey.ShouldBeNil)
+
+		attempts = store.ListFailedConnections("192.168.0.123", 0, 100)
+		convey.So(attempts, convey.ShouldHaveLength, 0)
+
+	})
 }

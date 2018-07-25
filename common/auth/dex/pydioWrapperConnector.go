@@ -33,9 +33,16 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 
+	"time"
+
+	"strconv"
+
+	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
@@ -86,8 +93,22 @@ var (
 // Login binds a user by name / password, trying on various connectors.
 func (p *pydioWrapperConnector) Login(ctx context.Context, s connector.Scopes, username, password string) (identity connector.Identity, validPassword bool, err error) {
 
-	listConnector, err := p.getConnectorList(p.logger)
+	md, _ := metadata.FromContext(ctx)
+	var cli auth.AuthTokenRevokerClient
+	var connectionAttempt *auth.ConnectionAttempt
+	if address, ok := md[servicecontext.HttpMetaRemoteAddress]; ok {
+		connectionAttempt = &auth.ConnectionAttempt{IP: address, ConnectionTime: time.Now().Unix()}
+		cli = auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())
+		if resp, e := cli.IsBanned(ctx, connectionAttempt); e == nil {
+			if resp.IsBanned {
+				log.Auditer(ctx).Error("IP Address is banned: "+address, log.GetAuditId(common.AUDIT_LOGIN_FAILED), zap.String(common.KEY_USERNAME, username))
+				log.Logger(ctx).Error("IP address is banned", zap.String("ip", address))
+				return connector.Identity{}, false, fmt.Errorf("ip address is banned, please retry later")
+			}
+		}
+	}
 
+	listConnector, err := p.getConnectorList(p.logger)
 	for _, pydioConnector := range listConnector {
 
 		if _, ok, err := pydioConnector.Connector.Login(ctx, s, username, password); !ok || err != nil {
@@ -98,12 +119,27 @@ func (p *pydioWrapperConnector) Login(ctx context.Context, s connector.Scopes, u
 		log.Logger(ctx).Debug("Login request success on sub-connector", zap.String(common.KEY_USERNAME, username), zap.String(common.KEY_CONNECTOR, pydioConnector.Name))
 		log.Auditer(ctx).Info(fmt.Sprintf("User %s logged in via %s sub-connector", username, pydioConnector.Name), log.GetAuditId(common.AUDIT_LOGIN_SUCCEED), zap.String(common.KEY_USERNAME, username), zap.String(common.KEY_CONNECTOR, pydioConnector.Name))
 
+		if cli != nil {
+			connectionAttempt.IsSuccess = true
+			if _, e := cli.StoreFailedConnection(ctx, connectionAttempt); e != nil {
+				log.Logger(ctx).Error("Could not store attempts", zap.Error(e))
+			}
+		}
 		return p.IdentityFromUserName(ctx, connector.Identity{Username: username, AuthSource: pydioConnector.Name})
 	}
 
+	if cli != nil {
+		connectionAttempt.IsSuccess = false
+		if _, e := cli.StoreFailedConnection(ctx, connectionAttempt); e != nil {
+			log.Logger(ctx).Error("Could not store attempts", zap.Error(e))
+		}
+	}
+	if e := p.FailedConnectionForUser(ctx, username); e != nil {
+		log.Logger(ctx).Error("Could not store failedConnection number for user", zap.Error(e))
+	}
 	log.Auditer(ctx).Error("Login attempt failed for "+username, log.GetAuditId(common.AUDIT_LOGIN_FAILED), zap.String(common.KEY_USERNAME, username))
 	log.Logger(ctx).Error("login attempt failed", zap.String(common.KEY_USERNAME, username))
-	return connector.Identity{}, false, nil
+	return connector.Identity{}, false, fmt.Errorf("cannot find username or password")
 }
 
 // Refresh reloads user info and checks pydio internal services for possible revokations.
@@ -139,10 +175,56 @@ func (p *pydioWrapperConnector) IdentityFromUserName(ctx context.Context, input 
 		if !p.CheckConnectionPolicyForUser(ctx, resp.User) {
 			return connector.Identity{}, false, errors.Unauthorized(common.SERVICE_USER, "User "+input.Username+" is not authorized to log in")
 		}
+		// Login is fully successfull, reset failedConnections and store back user
+		if resp.User.Attributes != nil {
+			if _, ok := resp.User.Attributes["failedConnections"]; ok {
+				delete(resp.User.Attributes, "failedConnections")
+				userClient.CreateUser(ctx, &idm.CreateUserRequest{User: resp.User})
+			}
+		}
 		return ConvertUserApiToIdentity(resp.User, input.AuthSource), true, nil
 	}
 	return connector.Identity{}, false, errors.NotFound(common.SERVICE_USER, "User "+input.Username+" not found")
 
+}
+
+func (p *pydioWrapperConnector) FailedConnectionForUser(ctx context.Context, username string) error {
+
+	const maxFailedLogins = 10
+
+	if u, e := utils.SearchUniqueUser(ctx, username, ""); e == nil && u != nil {
+		var failedInt int64
+		if u.Attributes == nil {
+			u.Attributes = make(map[string]string)
+		}
+		if failed, ok := u.Attributes["failedConnections"]; ok {
+			failedInt, _ = strconv.ParseInt(failed, 10, 32)
+		}
+		failedInt++
+		u.Attributes["failedConnections"] = fmt.Sprintf("%d", failedInt)
+		if failedInt >= maxFailedLogins {
+			// Set lock via attributes
+			var locks []string
+			if l, ok := u.Attributes["locks"]; ok {
+				var existingLocks []string
+				if e := json.Unmarshal([]byte(l), &existingLocks); e == nil {
+					for _, lock := range existingLocks {
+						if lock != "logout" {
+							locks = append(locks, lock)
+						}
+					}
+				}
+			}
+			locks = append(locks, "logout")
+			data, _ := json.Marshal(locks)
+			u.Attributes["locks"] = string(data)
+			log.Logger(ctx).Error("Setting lock on user as there were too many failed connections", u.ZapLogin())
+		}
+		userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+		_, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: u})
+		return e
+	}
+	return nil
 }
 
 // CheckConnectionPolicyForUser retrieves all subjects linked to current context and user.
@@ -164,7 +246,7 @@ func (p *pydioWrapperConnector) CheckConnectionPolicyForUser(ctx context.Context
 		}
 	}
 	if hasLock {
-		e := fmt.Errorf("user " + user.Login + " has logout attribute")
+		e := fmt.Errorf("user " + user.Login + " is locked out attribute")
 		log.Auditer(ctx).Error(
 			e.Error(),
 			log.GetAuditId(common.AUDIT_LOGIN_POLICY_DENIAL),

@@ -832,11 +832,10 @@ func (s *Server) handleCredentialGrant(w http.ResponseWriter, r *http.Request, c
 
 	// Try to login with username/password
 	//p, err := s.storage.GetPassword(username)
-	ldap, err := s.getConnector("pydio")
-
-	passwordConnector, ok := ldap.Connector.(connector.PasswordConnector)
+	pydioConnector, err := s.getConnector("pydio")
+	passwordConnector, ok := pydioConnector.Connector.(connector.PasswordConnector)
 	if !ok {
-		s.renderError(w, http.StatusBadRequest, "Requested resource does not exist.")
+		s.tokenErrHelper(w, errInvalidRequest, "Requested resource does not exist.", http.StatusBadRequest)
 		return
 	}
 
@@ -844,12 +843,13 @@ func (s *Server) handleCredentialGrant(w http.ResponseWriter, r *http.Request, c
 	identity, ok, err := passwordConnector.Login(r.Context(), ldapScopes, username, password)
 
 	if err != nil {
-		s.logger.Info("Failed to login user: ", err)
-		//s.renderError(w, http.StatusInternalServerError, "Login error.")
+		s.logger.Info("Failed to login user", err)
+		s.tokenErrHelper(w, errAccessDenied, err.Error(), http.StatusForbidden)
 		return
 	}
 	if !ok {
-		s.logger.Errorf("Server template error: %v", err)
+		s.logger.Errorf("Failed Login: %v", err)
+		s.tokenErrHelper(w, errAccessDenied, "cannot find username or password", http.StatusForbidden)
 		return
 	}
 

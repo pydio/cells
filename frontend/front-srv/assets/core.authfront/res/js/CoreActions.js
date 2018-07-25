@@ -66,26 +66,14 @@ let LoginDialogMixin = {
         restClient.jwtFromCredentials(login, this.refs.password.getValue()).then(r => {
             this.dismiss();
         }).catch(e => {
-            this.setState({errorId: e.message});
-        });
-        /*
-        client.request(params, function(responseObject){
-            let success = client.parseXmlMessage(responseObject.responseXML);
-            if(success){
-                this.dismiss();
-            }else{
-                let errorId = PydioApi.getClient().LAST_ERROR_ID;
-                if(errorId == '285' && passwordOnly){
-                    errorId = '553';
-                }
-                this.setState({errorId: errorId});
-                if(responseObject.responseXML && XMLUtils.XPathGetSingleNodeText(responseObject.responseXML.documentElement, "logging_result/@value") === '-4'){
-                    this.setState({displayCaptcha: true});
-                }
-
+            if (e.response && e.response.text) {
+                this.setState({errorId: e.response.text});
+            } else if(e.message){
+                this.setState({errorId: e.message});
+            } else {
+                this.setState({errorId: 'Login failed!'})
             }
-        }.bind(this));
-        */
+        });
     }
 };
 
@@ -157,7 +145,7 @@ let LoginPasswordDialog = React.createClass({
 
         let errorMessage;
         if(this.state.errorId){
-            errorMessage = <div className="ajxp_login_error">{pydio.MessageHash[this.state.errorId]}</div>;
+            errorMessage = <div className="ajxp_login_error">{this.state.errorId}</div>;
         }
         let captcha;
         if(this.state.displayCaptcha){

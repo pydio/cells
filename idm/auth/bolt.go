@@ -24,6 +24,10 @@ import (
 	"context"
 	"time"
 
+	"encoding/json"
+
+	"encoding/binary"
+
 	"github.com/boltdb/bolt"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/auth"
@@ -31,14 +35,16 @@ import (
 )
 
 type BoltStore struct {
-	db         *bolt.DB
-	bucketName []byte
+	db                *bolt.DB
+	tokenBucket       []byte
+	connectionsBucket []byte
 }
 
-func NewBoltStore(bucket string, filename string) (*BoltStore, error) {
+func NewBoltStore(tokenBucket string, connectionsBucket string, filename string) (*BoltStore, error) {
 
 	bs := &BoltStore{
-		bucketName: []byte(bucket),
+		tokenBucket:       []byte(tokenBucket),
+		connectionsBucket: []byte(connectionsBucket),
 	}
 
 	options := bolt.DefaultOptions
@@ -49,7 +55,11 @@ func NewBoltStore(bucket string, filename string) (*BoltStore, error) {
 	}
 
 	er := db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(bs.bucketName))
+		_, err := tx.CreateBucketIfNotExists([]byte(bs.tokenBucket))
+		if err != nil {
+			return err
+		}
+		_, err = tx.CreateBucketIfNotExists([]byte(bs.connectionsBucket))
 		if err != nil {
 			return err
 		}
@@ -72,7 +82,7 @@ func (b *BoltStore) Close() error {
 func (b *BoltStore) PutToken(t *auth.Token) error {
 
 	return b.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(b.bucketName)
+		bucket := tx.Bucket(b.tokenBucket)
 		return bucket.Put([]byte(t.Value), []byte(t.AdditionalInfo))
 	})
 }
@@ -80,7 +90,7 @@ func (b *BoltStore) PutToken(t *auth.Token) error {
 func (b *BoltStore) GetInfo(value string) (string, error) {
 	sc := make(chan string, 1)
 	e := b.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(b.bucketName)
+		bucket := tx.Bucket(b.tokenBucket)
 		infoBytes := bucket.Get([]byte(value))
 		sc <- string(infoBytes)
 		return nil
@@ -94,7 +104,7 @@ func (b *BoltStore) GetInfo(value string) (string, error) {
 
 func (b *BoltStore) DeleteToken(t string) error {
 	return b.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(b.bucketName)
+		bucket := tx.Bucket(b.tokenBucket)
 		err := bucket.Delete([]byte(t))
 		if err != nil {
 			log.Logger(context.Background()).Error("Error on Token Deletion: ", zap.Error(err))
@@ -107,7 +117,7 @@ func (b *BoltStore) ListTokens(offset int, count int) (chan *auth.Token, error) 
 	tc := make(chan *auth.Token, count)
 
 	e := b.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(b.bucketName)
+		bucket := tx.Bucket(b.tokenBucket)
 		c := bucket.Cursor()
 		k, v := c.First()
 
@@ -130,4 +140,66 @@ func (b *BoltStore) ListTokens(offset int, count int) (chan *auth.Token, error) 
 	}
 
 	return tc, e
+}
+
+func (b *BoltStore) PutFailedConnection(c *auth.ConnectionAttempt) error {
+	return b.db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(b.connectionsBucket)
+		ipBucket, e := bucket.CreateBucketIfNotExists([]byte(c.IP))
+		if e != nil {
+			return e
+		}
+		id, _ := ipBucket.NextSequence()
+		b := make([]byte, 8)
+		binary.BigEndian.PutUint64(b, uint64(id))
+		data, _ := json.Marshal(c)
+		return ipBucket.Put(b, data)
+	})
+}
+
+func (b *BoltStore) ListFailedConnections(ip string, offset, count int) []*auth.ConnectionAttempt {
+	var attempts []*auth.ConnectionAttempt
+
+	if ip != "" {
+		b.db.View(func(tx *bolt.Tx) error {
+			bucket := tx.Bucket(b.connectionsBucket)
+			ipBucket := bucket.Bucket([]byte(ip))
+			if ipBucket != nil {
+				c := ipBucket.Cursor()
+				for k, v := c.First(); k != nil && v != nil; k, v = c.Next() {
+					var data auth.ConnectionAttempt
+					if e := json.Unmarshal(v, &data); e == nil {
+						attempts = append(attempts, &data)
+					}
+				}
+			}
+			return nil
+		})
+	} else {
+		b.db.View(func(tx *bolt.Tx) error {
+			bucket := tx.Bucket(b.connectionsBucket)
+			bc := bucket.Cursor()
+			for bk, _ := bc.First(); bk != nil; bk, _ = bc.Next() {
+				ipBucket := bucket.Bucket(bk)
+				c := ipBucket.Cursor()
+				for k, v := c.First(); k != nil && v != nil; k, v = c.Next() {
+					var data auth.ConnectionAttempt
+					if e := json.Unmarshal(v, &data); e == nil {
+						attempts = append(attempts, &data)
+					}
+				}
+			}
+			return nil
+		})
+	}
+
+	return attempts
+}
+
+func (b *BoltStore) ClearFailedConnections(ip string) error {
+	return b.db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(b.connectionsBucket)
+		bucket.DeleteBucket([]byte(ip)) // Ignore error if bucket does not exists
+		return nil
+	})
 }

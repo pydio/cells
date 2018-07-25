@@ -91,25 +91,14 @@ var LoginDialogMixin = {
         restClient.jwtFromCredentials(login, this.refs.password.getValue()).then(function (r) {
             _this.dismiss();
         })['catch'](function (e) {
-            _this.setState({ errorId: e.message });
+            if (e.response && e.response.text) {
+                _this.setState({ errorId: e.response.text });
+            } else if (e.message) {
+                _this.setState({ errorId: e.message });
+            } else {
+                _this.setState({ errorId: 'Login failed!' });
+            }
         });
-        /*
-        client.request(params, function(responseObject){
-            let success = client.parseXmlMessage(responseObject.responseXML);
-            if(success){
-                this.dismiss();
-            }else{
-                let errorId = PydioApi.getClient().LAST_ERROR_ID;
-                if(errorId == '285' && passwordOnly){
-                    errorId = '553';
-                }
-                this.setState({errorId: errorId});
-                if(responseObject.responseXML && XMLUtils.XPathGetSingleNodeText(responseObject.responseXML.documentElement, "logging_result/@value") === '-4'){
-                    this.setState({displayCaptcha: true});
-                }
-             }
-        }.bind(this));
-        */
     }
 };
 
@@ -192,7 +181,7 @@ var LoginPasswordDialog = React.createClass({
             errorMessage = React.createElement(
                 'div',
                 { className: 'ajxp_login_error' },
-                pydio.MessageHash[this.state.errorId]
+                this.state.errorId
             );
         }
         var captcha = undefined;
