@@ -6,6 +6,27 @@
     <client_settings>
         <resources>
             <js className="AuthfrontCoreActions" file="plug/core.authfront/res/build/AuthfrontCoreActions.js"/>
+            <i18n namespace="gui.user" remote="plug/core.authfront/res/i18n"/>
         </resources>
     </client_settings>
+    <registry_contributions>
+        <actions>
+            <action name="reset-password-ask">
+                <gui iconClass="icon-terminal" text="gui.user.1" title="gui.user.2">
+                    <context dir="true" recycle="true" selection="false"/>
+                </gui>
+                <processing>
+                    <clientCallback module="AuthfrontCoreActions.ResetPasswordRequire.open"/>
+                </processing>
+            </action>
+            <action name="reset-password">
+                <gui iconClass="icon-terminal" text="gui.user.1" title="gui.user.2">
+                    <context dir="true" recycle="true" selection="false"/>
+                </gui>
+                <processing>
+                    <clientCallback module="AuthfrontCoreActions.ResetPasswordDialog.open"/>
+                </processing>
+            </action>
+        </actions>
+    </registry_contributions>
 </plugin>
