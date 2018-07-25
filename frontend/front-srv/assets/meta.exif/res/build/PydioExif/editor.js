@@ -113,7 +113,7 @@ var Editor = (function (_Component) {
                 Object.keys(data).map(function (key) {
                     return _react2['default'].createElement(
                         _materialUi.Card,
-                        { style: { width: "calc(50% - 20px)", margin: 10, overflow: "auto" } },
+                        { style: { margin: 10, overflow: "auto" } },
                         _react2['default'].createElement(
                             _materialUi.CardTitle,
                             { key: key + '-head' },

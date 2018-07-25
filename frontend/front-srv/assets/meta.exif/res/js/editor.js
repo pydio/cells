@@ -83,7 +83,7 @@ class Editor extends Component {
                 style={{display: "flex", justifyContent: "space-around", flexFlow: "row wrap"}}
             >
                 {Object.keys(data).map(key =>
-                    <Card style={{width: "calc(50% - 20px)", margin: 10, overflow: "auto"}}>
+                    <Card style={{margin: 10, overflow: "auto"}}>
                         <CardTitle key={key+'-head'}>{key}</CardTitle>
 
                         <CardText>
