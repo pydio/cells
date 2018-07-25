@@ -160,16 +160,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 					},
 				},
 				{
-					Key:         "core.conf",
-					Label:       "ajxp_admin.menu.12",
-					Description: "plugtype.desc.conf",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-database",
-						Component: "AdminPlugins.PluginEditor",
-						Props:     "{\"pluginId\":\"core.conf\"}",
-					},
-				},
-				{
 					Key:         "uploader",
 					Label:       "ajxp_admin.menu.9",
 					Description: "ajxp_admin.menu.10",

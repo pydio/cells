@@ -23,21 +23,5 @@
         <param name="DEFAULT_START_REPOSITORY" scope="role,user,group" description="CONF_MESSAGE[Default start repository]" label="CONF_MESSAGE[Default Workspace]" type="select" default="homepage" choices="PYDIO_AVAILABLE_REPOSITORIES" expose="true" editable="true"/>
         <param name="USER_LOCK_ACTION" scope="role,group" description="CONF_MESSAGE[If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else]" label="CONF_MESSAGE[Users Lock Action]" type="string" default=""/>
         <param name="USER_SHARED_USERS_LIMIT" scope="user" description="CONF_MESSAGE[Maximum number of shared users per user]" label="CONF_MESSAGE[Shared users limit]" type="integer" expose="false" editable="false"/>
-
-        <global_param name="ENDPOINT_REST_API" type="string" label="CONF_MESSAGE[REST Endpoints]" description="CONF_MESSAGE[Pydio RESTful API url, including http and port]" mandatory="true" default="" expose="true"/>
-        <global_param name="ENDPOINT_FRONT_PLUGINS" type="string" label="CONF_MESSAGE[Http Endpoints]" description="CONF_MESSAGE[Url possibly serving additional plugins]" mandatory="false" default="" expose="false"/>
-        <global_param name="ENDPOINT_S3_GATEWAY" type="string" label="CONF_MESSAGE[S3 Endpoint]" description="CONF_MESSAGE[Main Gateway for accessing S3]" mandatory="true" default="" expose="true"/>
-        <global_param name="ENDPOINT_WEBSOCKET" type="string" label="CONF_MESSAGE[WebSocket Endpoint]" description="CONF_MESSAGE[WebSocket access for realtime UI]" mandatory="true" default="" expose="true"/>
-        <global_param name="ENDPOINT_DEX" type="string" label="CONF_MESSAGE[DEX Endpoint]" description="CONF_MESSAGE[Authentication Endpoint for OpenIDConnect protocol]" mandatory="true" default=""/>
-        <global_param name="ENDPOINT_DEX_CLIENTID" type="string" label="CONF_MESSAGE[DEX Client ID]" description="CONF_MESSAGE[Application identifier for OpenIDConnect]" mandatory="true" default="pydio-frontend"/>
-        <global_param name="ENDPOINT_DEX_CLIENTSECRET" type="string" label="CONF_MESSAGE[DEX Client Secret]" description="CONF_MESSAGE[Application secret for OpenIDConnect]" mandatory="true"/>
-        <global_param name="SKIP_SSL_VERIFY" type="boolean" label="CONF_MESSAGE[Skip Ssl Verification]"
-                      description="CONF_MESSAGE[This is NOT recommended, but can be useful for staging environments with self-signed certificates]"/>
-        <global_param name="IO_HOST_SIGNATURE_HEADER" type="string" label="CONF_MESSAGE[Replace Host header for S3 signature]" description="CONF_MESSAGE[When behind a proxy, you may have to make sure the Host header used to compute signature correspond to the internal value.]" mandatory="false" default=""/>
-        <global_param name="DEFAULT_LANGUAGE" type="select" choices="PYDIO_AVAILABLE_LANGUAGES" label="CONF_MESSAGE[Default Language]" description="CONF_MESSAGE[Default language when a user does not have set his/her own.]" mandatory="true" default="en"/>
-
-        <global_param name="FRONTEND_URL" group="CONF_MESSAGE[Frontend]" type="string" label="CONF_MESSAGE[Server URL]" description="CONF_MESSAGE[Server URL used to build share links and notifications. It will be detected if empty.]" mandatory="false" expose="true"/>
-        <global_param name="PUBLIC_BASEURI" group="CONF_MESSAGE[Frontend]" type="string" label="CONF_MESSAGE[Public Base URI]" description="CONF_MESSAGE[URI where to serve the public links]" mandatory="true" default="/public" expose="true"/>
-        <global_param type="plugin_instance:conf" name="UNIQUE_INSTANCE_CONFIG" group="CONF_MESSAGE[Frontend]" label="CONF_MESSAGE[Instance]" description="CONF_MESSAGE[Choose the configuration plugin]" mandatory="true" default="boot.conf"/>
     </server_settings>
 </plugin>
