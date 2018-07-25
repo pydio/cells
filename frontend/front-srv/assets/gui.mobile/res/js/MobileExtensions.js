@@ -18,9 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const {Component} = require('react')
-const SmartBanner = require('smart-app-banner');
-const {PydioContextConsumer} = require('pydio').requireLib('boot')
+import {Component} from "react";
+import SmartBanner from "smart-app-banner";
+const {PydioContextConsumer} = require('pydio').requireLib('boot');
 
 class MobileExtensions extends Component{
 
@@ -36,9 +36,36 @@ class MobileExtensions extends Component{
         }
 
         */
+        const {pydio} = this.props;
+        const configs = pydio.getPluginConfigs("gui.mobile");
+        if(configs.get('IOS_APP_ID') && configs.get('IOS_APP_ICON')){
+            const meta = document.createElement('meta');
+            meta.setAttribute("name", "apple-itunes-app");
+            meta.setAttribute("content", "app-id=" + configs.get('IOS_APP_ID'));
+            meta.setAttribute("id", "apple-itunes-app-element");
+            const link = document.createElement('link');
+            link.setAttribute("rel", "apple-touch-icon");
+            link.setAttribute("href", configs.get('IOS_APP_ICON'));
+            link.setAttribute("id", "apple-touch-icon-element");
+            document.head.appendChild(meta);
+            document.head.appendChild(link);
+        }
+        if(configs.get('ANDROID_APP_ID') && configs.get('ANDROID_APP_ICON')) {
+            const meta = document.createElement('meta');
+            meta.setAttribute("name", "google-play-app");
+            meta.setAttribute("content", "app-id=" + configs.get('ANDROID_APP_ID'));
+            meta.setAttribute("id", "android-app-element");
+            const link = document.createElement('link');
+            link.setAttribute("rel", "android-touch-icon");
+            link.setAttribute("href", configs.get('ANDROID_APP_ICON'));
+            link.setAttribute("id", "android-touch-icon-element");
+            document.head.appendChild(meta);
+            document.head.appendChild(link);
+        }
 
-        this.props.pydio.UI.MOBILE_EXTENSIONS = true;
-        this.props.pydio.UI.pydioSmartBanner = new SmartBanner({
+
+        pydio.UI.MOBILE_EXTENSIONS = true;
+        pydio.UI.pydioSmartBanner = new SmartBanner({
             daysHidden: 15,   // days to hide banner after close button is clicked (defaults to 15)
             daysReminder: 90, // days to hide banner after "VIEW" button is clicked (defaults to 90)
             appStoreLanguage: 'us', // language code for the App Store (defaults to user's browser language)
@@ -58,6 +85,15 @@ class MobileExtensions extends Component{
             //, force: 'android' // Uncomment for platform emulation
         });
 
+    }
+
+    componentWillUnmount(){
+        ["apple-itunes-app-element", "apple-touch-icon-element", "android-app-element", "android-touch-icon-element"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.parentNode.removeChild(el);
+            }
+        });
     }
 
     render(){
