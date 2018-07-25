@@ -153,22 +153,6 @@ class InstallForm extends React.Component {
         })
     }
 
-    checkPhpConfig() {
-        const request = new InstallPerformCheckRequest();
-        request.Name = "PHP";
-        request.Config = InstallInstallConfig.constructFromObject({fpmAddress:this.props.fpmAddress});
-        this.setState({performingCheck: 'PHP'});
-        api.performInstallCheck(request).then(res => {
-            const checkResult = res.Result;
-            this.setState({phpCheck: checkResult});
-        }).catch(reason => {
-            const checkResult = InstallCheckResult.constructFromObject({Name: "PHP", Success:false, JsonResult: JSON.stringify({error: reason.message})});
-            this.setState({phpCheck: checkResult});
-        }).finally(() => {
-            this.setState({performingCheck: null});
-        })
-    }
-
     checkLicenseConfig(callback) {
         const request = new InstallPerformCheckRequest();
         request.Name = "LICENSE";
@@ -262,15 +246,6 @@ class InstallForm extends React.Component {
 
         const {dbConnectionType, handleSubmit, installPerformed, installError, initialChecks, licenseRequired, licenseString} = this.props;
         const {stepIndex, licenseAgreed, showAdvanced, installEvents, installProgress, serverRestarted, willReloadIn, agreementText, dbCheckError, licCheckFailed} = this.state;
-        let {phpCheck} = this.state;
-        let phpOk, phpResult;
-        if (!phpCheck && initialChecks && initialChecks[0]) {
-            phpCheck = initialChecks[0];
-        }
-        if(phpCheck){
-            phpOk = phpCheck.Success;
-            phpResult = JSON.parse(phpCheck.JsonResult);
-        }
 
         const flexContainer = {
             display: 'flex',
@@ -447,10 +422,19 @@ class InstallForm extends React.Component {
                 <StepLabel style={stepIndex >= 2 + stepOffset ? stepperStyles.label : {}}>Admin User</StepLabel>
                 <StepContent style={stepperStyles.content}>
                     <div style={stepperStyles.contentScroller}>
-                        <h3>Admin user credentials</h3>
+                        <h3>Admin user and frontend defaults</h3>
                         Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation.
 
                         <div style={flexContainer}>
+                            <Field name="frontendApplicationTitle" component={renderTextField} floatingLabel="Application Title" label="Main title of your installation." />
+                            <Field name="frontendDefaultLanguage" component={renderSelectField} label="Default Language (set by default for all users).">
+                                <MenuItem value={"en"} primaryText={"English"}/>
+                                <MenuItem value={"fr"} primaryText={"Français"}/>
+                                <MenuItem value={"de"} primaryText={"Deutsch"}/>
+                                <MenuItem value={"es"} primaryText={"Español"}/>
+                                <MenuItem value={"it"} primaryText={"Italiano"}/>
+                                <MenuItem value={"pt"} primaryText={"Português"}/>
+                            </Field>
                             <Field name="frontendLogin" component={renderTextField} floatingLabel="Login of the admin user" label="Skip this if an admin is already created in the database." />
                             <Field name="frontendPassword" component={renderPassField} floatingLabel="Password of the admin user" label="Skip this if an admin is already created in the database." />
                             <Field name="frontendRepeatPassword" component={renderPassField} floatingLabel="Please confirm password" label="Skip this if an admin is already created in the database." />

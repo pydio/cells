@@ -71,7 +71,8 @@ var InstallInstallConfig = (function () {
         this.frontendLogin = undefined;
         this.frontendPassword = undefined;
         this.frontendRepeatPassword = undefined;
-        this.fpmAddress = undefined;
+        this.frontendApplicationTitle = undefined;
+        this.frontendDefaultLanguage = undefined;
         this.licenseRequired = undefined;
         this.licenseString = undefined;
         this.CheckResults = undefined;
@@ -173,8 +174,11 @@ var InstallInstallConfig = (function () {
             if (data.hasOwnProperty('frontendRepeatPassword')) {
                 obj['frontendRepeatPassword'] = _ApiClient2['default'].convertToType(data['frontendRepeatPassword'], 'String');
             }
-            if (data.hasOwnProperty('fpmAddress')) {
-                obj['fpmAddress'] = _ApiClient2['default'].convertToType(data['fpmAddress'], 'String');
+            if (data.hasOwnProperty('frontendApplicationTitle')) {
+                obj['frontendApplicationTitle'] = _ApiClient2['default'].convertToType(data['frontendApplicationTitle'], 'String');
+            }
+            if (data.hasOwnProperty('frontendDefaultLanguage')) {
+                obj['frontendDefaultLanguage'] = _ApiClient2['default'].convertToType(data['frontendDefaultLanguage'], 'String');
             }
             if (data.hasOwnProperty('licenseRequired')) {
                 obj['licenseRequired'] = _ApiClient2['default'].convertToType(data['licenseRequired'], 'Boolean');
@@ -307,7 +311,11 @@ module.exports = exports['default'];
 */
 
 /**
-* @member {String} fpmAddress
+* @member {String} frontendApplicationTitle
+*/
+
+/**
+* @member {String} frontendDefaultLanguage
 */
 
 /**

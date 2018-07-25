@@ -96,9 +96,6 @@ func PerformCheck(ctx context.Context, name string, c *install.InstallConfig) *i
 		data, _ := json.Marshal(map[string]string{"message": "successfully connected to database"})
 		result.JsonResult = string(data)
 		break
-	case "PHP":
-		result = checkPhpFpm(c)
-		break
 	default:
 		result.Success = false
 		data, _ := json.Marshal(map[string]string{"error": "unsupported check type " + name})

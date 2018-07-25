@@ -260,28 +260,9 @@ var InstallForm = function (_React$Component) {
             });
         }
     }, {
-        key: 'checkPhpConfig',
-        value: function checkPhpConfig() {
-            var _this4 = this;
-
-            var request = new _InstallPerformCheckRequest2.default();
-            request.Name = "PHP";
-            request.Config = _InstallInstallConfig2.default.constructFromObject({ fpmAddress: this.props.fpmAddress });
-            this.setState({ performingCheck: 'PHP' });
-            api.performInstallCheck(request).then(function (res) {
-                var checkResult = res.Result;
-                _this4.setState({ phpCheck: checkResult });
-            }).catch(function (reason) {
-                var checkResult = _InstallCheckResult2.default.constructFromObject({ Name: "PHP", Success: false, JsonResult: JSON.stringify({ error: reason.message }) });
-                _this4.setState({ phpCheck: checkResult });
-            }).finally(function () {
-                _this4.setState({ performingCheck: null });
-            });
-        }
-    }, {
         key: 'checkLicenseConfig',
         value: function checkLicenseConfig(callback) {
-            var _this5 = this;
+            var _this4 = this;
 
             var request = new _InstallPerformCheckRequest2.default();
             request.Name = "LICENSE";
@@ -294,13 +275,13 @@ var InstallForm = function (_React$Component) {
                 var checkResult = _InstallCheckResult2.default.constructFromObject({ Name: "LICENSE", Success: false, JsonResult: JSON.stringify({ error: reason.message }) });
                 callback(checkResult);
             }).finally(function () {
-                _this5.setState({ performingCheck: null });
+                _this4.setState({ performingCheck: null });
             });
         }
     }, {
         key: 'renderStepActions',
         value: function renderStepActions(step) {
-            var _this6 = this;
+            var _this5 = this;
 
             var nextDisabled = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
             var leftAction = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
@@ -316,19 +297,19 @@ var InstallForm = function (_React$Component) {
             switch (stepIndex) {
                 case 1 + stepOffset:
                     nextAction = function nextAction() {
-                        _this6.checkDbConfig(function (checkResult) {
+                        _this5.checkDbConfig(function (checkResult) {
                             if (checkResult.Success) {
-                                _this6.handleNext();
-                                _this6.setState({ dbCheckError: null });
+                                _this5.handleNext();
+                                _this5.setState({ dbCheckError: null });
                             } else {
-                                _this6.setState({ dbCheckError: JSON.parse(checkResult.JsonResult).error });
+                                _this5.setState({ dbCheckError: JSON.parse(checkResult.JsonResult).error });
                             }
                         });
                     };
                     break;
                 case 3 + stepOffset:
                     nextAction = function nextAction() {
-                        _this6.handleNext();handleSubmit();
+                        _this5.handleNext();handleSubmit();
                     };
                     break;
                 default:
@@ -362,7 +343,7 @@ var InstallForm = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this7 = this;
+            var _this6 = this;
 
             var _props2 = this.props,
                 dbConnectionType = _props2.dbConnectionType,
@@ -383,17 +364,7 @@ var InstallForm = function (_React$Component) {
                 agreementText = _state.agreementText,
                 dbCheckError = _state.dbCheckError,
                 licCheckFailed = _state.licCheckFailed;
-            var phpCheck = this.state.phpCheck;
 
-            var phpOk = void 0,
-                phpResult = void 0;
-            if (!phpCheck && initialChecks && initialChecks[0]) {
-                phpCheck = initialChecks[0];
-            }
-            if (phpCheck) {
-                phpOk = phpCheck.Success;
-                phpResult = JSON.parse(phpCheck.JsonResult);
-            }
 
             var flexContainer = {
                 display: 'flex',
@@ -433,7 +404,7 @@ var InstallForm = function (_React$Component) {
                     'div',
                     null,
                     _react2.default.createElement(_materialUi.Checkbox, { checked: licenseAgreed, label: "I agree with these terms", style: { width: 300 }, onCheck: function onCheck() {
-                            _this7.setState({ licenseAgreed: !licenseAgreed });
+                            _this6.setState({ licenseAgreed: !licenseAgreed });
                         } })
                 );
             }
@@ -445,18 +416,18 @@ var InstallForm = function (_React$Component) {
                     initialChecks.map(function (c) {
                         if (c.Name === "LICENSE" && c.Success) {
                             licCheckPassed = JSON.parse(c.JsonResult);
-                            nextAction = _this7.handleNext.bind(_this7);
+                            nextAction = _this6.handleNext.bind(_this6);
                         }
                     });
                 }
                 if (!nextAction) {
                     nextAction = function nextAction() {
-                        _this7.checkLicenseConfig(function (result) {
+                        _this6.checkLicenseConfig(function (result) {
                             if (result.Success) {
-                                _this7.setState({ licCheckFailed: false });
-                                _this7.handleNext();
+                                _this6.setState({ licCheckFailed: false });
+                                _this6.handleNext();
                             } else {
-                                _this7.setState({ licCheckFailed: true });
+                                _this6.setState({ licCheckFailed: true });
                             }
                         });
                     };
@@ -679,12 +650,23 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             'h3',
                             null,
-                            'Admin user credentials'
+                            'Admin user and frontend defaults'
                         ),
                         'Provide credentials for the administrative user. Leave fields empty if you are deploying on top of an existing installation.',
                         _react2.default.createElement(
                             'div',
                             { style: flexContainer },
+                            _react2.default.createElement(_reduxForm.Field, { name: 'frontendApplicationTitle', component: renderTextField, floatingLabel: 'Application Title', label: 'Main title of your installation.' }),
+                            _react2.default.createElement(
+                                _reduxForm.Field,
+                                { name: 'frontendDefaultLanguage', component: renderSelectField, label: 'Default Language (set by default for all users).' },
+                                _react2.default.createElement(_materialUi.MenuItem, { value: "en", primaryText: "English" }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: "fr", primaryText: "Français" }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: "de", primaryText: "Deutsch" }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: "es", primaryText: "Español" }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: "it", primaryText: "Italiano" }),
+                                _react2.default.createElement(_materialUi.MenuItem, { value: "pt", primaryText: "Português" })
+                            ),
                             _react2.default.createElement(_reduxForm.Field, { name: 'frontendLogin', component: renderTextField, floatingLabel: 'Login of the admin user', label: 'Skip this if an admin is already created in the database.' }),
                             _react2.default.createElement(_reduxForm.Field, { name: 'frontendPassword', component: renderPassField, floatingLabel: 'Password of the admin user', label: 'Skip this if an admin is already created in the database.' }),
                             _react2.default.createElement(_reduxForm.Field, { name: 'frontendRepeatPassword', component: renderPassField, floatingLabel: 'Please confirm password', label: 'Skip this if an admin is already created in the database.' })
@@ -717,7 +699,7 @@ var InstallForm = function (_React$Component) {
                         _react2.default.createElement(
                             'div',
                             { style: { display: 'flex', alignItems: 'center', height: 40, cursor: 'pointer' }, onClick: function onClick() {
-                                    _this7.setState({ showAdvanced: !showAdvanced });
+                                    _this6.setState({ showAdvanced: !showAdvanced });
                                 } },
                             _react2.default.createElement(
                                 'div',

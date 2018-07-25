@@ -90,46 +90,6 @@ var (
 			},
 		},
 
-		{
-			Uuid:          "frontend-restricted-accesses",
-			Name:          "PolicyGroup.FrontendAccess.Title",
-			Description:   "PolicyGroup.FrontendAccess.Description",
-			ResourceGroup: idm.PolicyResourceGroup_rest,
-			Policies: []*idm.Policy{
-				// This policies must be refined with trusted frontends IPs
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
-					ID:          "anon-default-policy",
-					Description: "PolicyGroup.FrontendAccess.Rule1",
-					Subjects:    []string{"profile:anon"},
-					Resources: []string{
-						"rest:/config/frontend<.+>",
-						"rest:/docstore/share/<.+>",
-						"rest:/docstore/keystore/<.+>",
-					},
-					Actions: []string{"GET", "POST"},
-					Effect:  ladon.AllowAccess,
-					Conditions: ladon.Conditions{
-						servicecontext.HttpMetaRemoteAddress: &ladon.StringMatchCondition{
-							Matches: "localhost|127.0.0.1|::1",
-						},
-					},
-				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
-					ID:          "anon-frontend-logs",
-					Description: "PolicyGroup.FrontendAccess.Rule2",
-					Subjects:    []string{"profile:anon"},
-					Resources:   []string{"rest:/frontend/frontlogs"},
-					Actions:     []string{"PUT"},
-					Effect:      ladon.AllowAccess,
-					Conditions: ladon.Conditions{
-						servicecontext.HttpMetaRemoteAddress: &ladon.StringMatchCondition{
-							Matches: "localhost|127.0.0.1|::1",
-						},
-					},
-				}),
-			},
-		},
-
 		// Default Accesses to REST endpoints for logged user and for admin user
 		{
 			Uuid:          "rest-apis-default-accesses",

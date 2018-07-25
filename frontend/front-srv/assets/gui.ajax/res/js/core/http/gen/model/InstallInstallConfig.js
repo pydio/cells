@@ -141,8 +141,11 @@ export default class InstallInstallConfig {
             if (data.hasOwnProperty('frontendRepeatPassword')) {
                 obj['frontendRepeatPassword'] = ApiClient.convertToType(data['frontendRepeatPassword'], 'String');
             }
-            if (data.hasOwnProperty('fpmAddress')) {
-                obj['fpmAddress'] = ApiClient.convertToType(data['fpmAddress'], 'String');
+            if (data.hasOwnProperty('frontendApplicationTitle')) {
+                obj['frontendApplicationTitle'] = ApiClient.convertToType(data['frontendApplicationTitle'], 'String');
+            }
+            if (data.hasOwnProperty('frontendDefaultLanguage')) {
+                obj['frontendDefaultLanguage'] = ApiClient.convertToType(data['frontendDefaultLanguage'], 'String');
             }
             if (data.hasOwnProperty('licenseRequired')) {
                 obj['licenseRequired'] = ApiClient.convertToType(data['licenseRequired'], 'Boolean');
@@ -270,9 +273,13 @@ export default class InstallInstallConfig {
     */
     frontendRepeatPassword = undefined;
     /**
-    * @member {String} fpmAddress
+    * @member {String} frontendApplicationTitle
     */
-    fpmAddress = undefined;
+    frontendApplicationTitle = undefined;
+    /**
+    * @member {String} frontendDefaultLanguage
+    */
+    frontendDefaultLanguage = undefined;
     /**
     * @member {Boolean} licenseRequired
     */

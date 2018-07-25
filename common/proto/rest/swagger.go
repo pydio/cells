@@ -4877,7 +4877,10 @@ var SwaggerJson = `{
         "frontendRepeatPassword": {
           "type": "string"
         },
-        "fpmAddress": {
+        "frontendApplicationTitle": {
+          "type": "string"
+        },
+        "frontendDefaultLanguage": {
           "type": "string"
         },
         "licenseRequired": {

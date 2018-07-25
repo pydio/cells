@@ -56,14 +56,13 @@ func GenerateDefaultConfig() *install.InstallConfig {
 	c.ExternalDex = fmt.Sprintf("%d", utils.GetAvailablePort())
 	c.ExternalDexID = "cells-front"
 	c.ExternalDexSecret = utils.Randkey(24)
-	c.FrontendHosts = "localhost,127.0.0.1,::1"
+	c.FrontendApplicationTitle = "Pydio Cells"
+	c.FrontendDefaultLanguage = "en"
 	c.FrontendLogin = "admin"
 	c.FrontendPassword = ""
 	c.FrontendRepeatPassword = ""
 	c.InternalUrl = config.Get("internalUrl").String("")
-	c.CheckResults = []*install.CheckResult{
-		checkPhpFpm(c),
-	}
+	c.CheckResults = []*install.CheckResult{}
 
 	return c
 }

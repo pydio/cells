@@ -2281,13 +2281,6 @@
             "modifiers": [],
             "params": [],
             "returns": null
-          },
-          {
-            "name": "controllerGetBinaryContext",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
           }
         ],
         "props": {
@@ -2349,6 +2342,13 @@
             "required": false
           }
         }
+      }
+    ],
+    "AdminPeople/editor/acl/PagesAcls.js": [
+      {
+        "description": "",
+        "displayName": "PagesAcls",
+        "methods": []
       }
     ],
     "AdminPeople/editor/acl/PermissionMaskEditor.js": [
@@ -2686,6 +2686,13 @@
         "description": "",
         "displayName": "UserInfo",
         "methods": [
+          {
+            "name": "getBinaryContext",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
           {
             "name": "getPydioRoleMessage",
             "docblock": null,
@@ -6899,6 +6906,15 @@
       }
     ]
   },
+  "core.authfront": {
+    "CoreActions.js": [
+      {
+        "description": "",
+        "displayName": "DarkThemeContainer",
+        "methods": []
+      }
+    ]
+  },
   "editor.browser": {
     "PydioBrowserActions.js": [
       {
@@ -8353,11 +8369,6 @@
             "modifiers": [],
             "params": [
               {
-                "name": "sync",
-                "description": "Boolean Whether to send synchronously or not.",
-                "type": null
-              },
-              {
                 "name": "xPath",
                 "description": "String An XPath to load only a subpart of the registry",
                 "type": null
@@ -9049,6 +9060,44 @@
             "returns": null
           },
           {
+            "name": "loadUser",
+            "docblock": "@param userLogin\n@return {Promise<IdmUser>}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "userLogin",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
+          },
+          {
+            "name": "loadRole",
+            "docblock": "@param roleUuid\n@return {Promise<IdmRole>}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "roleUuid",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
+          },
+          {
             "name": "listUsers",
             "docblock": "@param baseGroup string\n@param filterString string\n@param recursive boolean\n@param offset integer\n@param limit integer\n@param profile string filter by profile\n@return Promise<IdmUser[]>",
             "modifiers": [],
@@ -9123,6 +9172,33 @@
             "description": null
           },
           {
+            "name": "listUsersWithRole",
+            "docblock": "@param roleId string\n@param offset integer\n@param limit integer\n@return Promise<RestUsersCollection>",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "roleId",
+                "description": "string",
+                "type": null
+              },
+              {
+                "name": "offset",
+                "description": "integer",
+                "type": null
+              },
+              {
+                "name": "limit",
+                "description": "integer",
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": "Promise<RestUsersCollection>",
+              "type": null
+            },
+            "description": null
+          },
+          {
             "name": "listGroups",
             "docblock": "@param baseGroup string\n@param filterString string\n@param recursive boolean\n@param offset integer\n@param limit integer\n@return {Promise<IdmUser[]>}",
             "modifiers": [],
@@ -9163,43 +9239,61 @@
           },
           {
             "name": "listRoles",
-            "docblock": null,
+            "docblock": "@param showTechnicalRoles boolean\n@param offset int\n@param limit int\n@return {Promise<any>}",
             "modifiers": [],
             "params": [
               {
                 "name": "showTechnicalRoles",
+                "description": "boolean",
                 "type": null
               },
               {
                 "name": "offset",
+                "description": "int",
                 "type": null
               },
               {
                 "name": "limit",
+                "description": "int",
                 "type": null
               }
             ],
-            "returns": null
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
           },
           {
             "name": "listTeams",
-            "docblock": null,
+            "docblock": "@param filterString\n@param offset\n@param limit\n@return {Promise<any>}",
             "modifiers": [],
             "params": [
               {
                 "name": "filterString",
+                "description": null,
                 "type": null
               },
               {
                 "name": "offset",
+                "description": null,
                 "type": null
               },
               {
                 "name": "limit",
+                "description": null,
                 "type": null
               }
             ],
-            "returns": null
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
           },
           {
             "name": "createGroup",
@@ -9253,6 +9347,45 @@
               {
                 "name": "profile",
                 "description": "string",
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
+          },
+          {
+            "name": "putExternalUser",
+            "docblock": "@param data {*}\n@param parametersDef []\n@param existingUser {IdmUser}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "data",
+                "description": "{*}",
+                "type": null
+              },
+              {
+                "name": "parametersDef"
+              },
+              {
+                "name": "existingUser"
+              }
+            ],
+            "returns": null,
+            "description": null
+          },
+          {
+            "name": "loadUserGraph",
+            "docblock": "@param userLogin\n@return {Promise<RestRelationResponse>}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "userLogin",
+                "description": null,
                 "type": null
               }
             ],
@@ -9339,6 +9472,165 @@
               }
             },
             "description": "Delete a role by Id"
+          },
+          {
+            "name": "saveSelectionAsTeam",
+            "docblock": "@param teamName string\n@param userIds array\n@param callback optional callback\n@return {Promise<T>}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "teamName",
+                "description": "string",
+                "type": null
+              },
+              {
+                "name": "userIds",
+                "description": "array",
+                "type": null
+              },
+              {
+                "name": "callback",
+                "description": "optional callback",
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
+          },
+          {
+            "name": "addUserToTeam",
+            "docblock": "@param teamId\n@param userLogin\n@param callback\n@return {Promise<[any , any]>}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "teamId",
+                "description": null,
+                "type": null
+              },
+              {
+                "name": "userLogin",
+                "description": null,
+                "type": null
+              },
+              {
+                "name": "callback",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
+          },
+          {
+            "name": "removeUserFromTeam",
+            "docblock": "@param teamId\n@param userLogin\n@param callback\n@return {Promise<[any , any]>}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "teamId",
+                "description": null,
+                "type": null
+              },
+              {
+                "name": "userLogin",
+                "description": null,
+                "type": null
+              },
+              {
+                "name": "callback",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
+          },
+          {
+            "name": "updateTeamLabel",
+            "docblock": "@param teamId\n@param newLabel\n@param callback\n@return {Promise<IdmRole>}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "teamId",
+                "description": null,
+                "type": null
+              },
+              {
+                "name": "newLabel",
+                "description": null,
+                "type": null
+              },
+              {
+                "name": "callback",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
+          },
+          {
+            "name": "policiesForUniqueUser",
+            "docblock": "@param currentUser\n@return {Promise<Array>}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "currentUser",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
+          },
+          {
+            "name": "policiesForExternalUser",
+            "docblock": "@param currentUser\n@param newUserLogin\n@return {Promise<Array>}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "currentUser",
+                "description": null,
+                "type": null
+              },
+              {
+                "name": "newUserLogin",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
           }
         ]
       }
@@ -9903,22 +10195,6 @@
             "returns": null
           },
           {
-            "name": "buildUserAvatarUrl",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "userId",
-                "type": null
-              },
-              {
-                "name": "avatarId",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
             "name": "applyCheckHook",
             "docblock": null,
             "modifiers": [],
@@ -10282,185 +10558,23 @@
         "displayName": "UsersApi",
         "methods": [
           {
-            "name": "authorizedUsersStartingWith",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "token",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
-              },
-              {
-                "name": "usersOnly",
-                "type": null
-              },
-              {
-                "name": "existingOnly",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "createUserFromPost",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "postValues",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "deleteUser",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "userId",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
             "name": "saveSelectionSupported",
-            "docblock": null,
+            "docblock": "@return {boolean}",
             "modifiers": [
               "static"
             ],
             "params": [],
-            "returns": null
-          },
-          {
-            "name": "deleteTeam",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "teamId",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "boolean"
               }
-            ],
-            "returns": null
-          },
-          {
-            "name": "saveSelectionAsTeam",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "teamName",
-                "type": null
-              },
-              {
-                "name": "userIds",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "addUserToTeam",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "teamId",
-                "type": null
-              },
-              {
-                "name": "userId",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "removeUserFromTeam",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "teamId",
-                "type": null
-              },
-              {
-                "name": "userId",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "updateTeamLabel",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "teamId",
-                "type": null
-              },
-              {
-                "name": "newLabel",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
-              }
-            ],
-            "returns": null
+            },
+            "description": null
           },
           {
             "name": "loadPublicData",
-            "docblock": "@param userObject {User}\n@param loadGraph Object\n@param callback Function",
+            "docblock": "@param userObject {User}\n@param callback Function",
             "modifiers": [
               "static"
             ],
@@ -10468,11 +10582,6 @@
               {
                 "name": "userObject",
                 "description": "{User}",
-                "type": null
-              },
-              {
-                "name": "loadGraph",
-                "description": "Object",
                 "type": null
               },
               {
@@ -10560,35 +10669,29 @@
           },
           {
             "name": "getUserPromise",
-            "docblock": null,
+            "docblock": "@param userId string\n@param idmUser {IdmUser}\n@return {Promise<any>}",
             "modifiers": [
               "static"
             ],
             "params": [
               {
                 "name": "userId",
+                "description": "string",
                 "type": null
               },
               {
-                "name": "withGraph",
+                "name": "idmUser",
+                "description": "{IdmUser}",
                 "type": null
               }
             ],
-            "returns": null
-          },
-          {
-            "name": "listUserVisibleTeams",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "userId",
-                "type": null
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
               }
-            ],
-            "returns": null
+            },
+            "description": null
           }
         ]
       }
@@ -11156,14 +11259,15 @@
           },
           {
             "name": "sessionLogout",
-            "docblock": null,
+            "docblock": "Call session endpoint for destroying session",
             "modifiers": [],
             "params": [],
-            "returns": null
+            "returns": null,
+            "description": "Call session endpoint for destroying session"
           },
           {
             "name": "jwtFromCredentials",
-            "docblock": "@param login string\n@param password string\n@return {Promise<any>}",
+            "docblock": "@param login string\n@param password string\n@param reloadRegistry bool\n@return {Promise<any>}",
             "modifiers": [],
             "params": [
               {
@@ -11174,6 +11278,11 @@
               {
                 "name": "password",
                 "description": "string",
+                "type": null
+              },
+              {
+                "name": "reloadRegistry",
+                "description": "bool",
                 "type": null
               }
             ],
@@ -14191,6 +14300,76 @@
               }
             },
             "description": "Serve list of I18n messages"
+          },
+          {
+            "name": "frontPutBinaryWithHttpInfo",
+            "docblock": "Upload frontend binaries (avatars / logos / bg images)\n@param {String} binaryType \n@param {String} uuid \n@param {module:model/RestFrontBinaryRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBinaryResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "binaryType",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestFrontBinaryRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBinaryResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Upload frontend binaries (avatars / logos / bg images)"
+          },
+          {
+            "name": "frontPutBinary",
+            "docblock": "Upload frontend binaries (avatars / logos / bg images)\n@param {String} binaryType \n@param {String} uuid \n@param {module:model/RestFrontBinaryRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBinaryResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "binaryType",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestFrontBinaryRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBinaryResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Upload frontend binaries (avatars / logos / bg images)"
           },
           {
             "name": "frontServeBinaryWithHttpInfo",
@@ -22936,6 +23115,52 @@
               }
             },
             "description": "Constructs a <code>RestExternalDirectoryResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestFrontBinaryRequest.js": [
+      {
+        "description": "The RestFrontBinaryRequest model module.\n@module model/RestFrontBinaryRequest\n@version 1.0",
+        "displayName": "RestFrontBinaryRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestFrontBinaryRequest</code>.\n@alias module:model/RestFrontBinaryRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestFrontBinaryRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestFrontBinaryRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontBinaryRequest} obj Optional instance to populate.\n@return {module:model/RestFrontBinaryRequest} The populated <code>RestFrontBinaryRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestFrontBinaryRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestFrontBinaryRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestFrontBinaryRequest"
+              }
+            },
+            "description": "Constructs a <code>RestFrontBinaryRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -34631,32 +34856,6 @@
             "modifiers": [],
             "params": [],
             "returns": null
-          },
-          {
-            "name": "updateTeamUsers",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "team",
-                "type": null
-              },
-              {
-                "name": "operation",
-                "type": null
-              },
-              {
-                "name": "users",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
-              }
-            ],
-            "returns": null
           }
         ],
         "props": {
@@ -35948,15 +36147,22 @@
         "methods": [
           {
             "name": "loadPublicData",
-            "docblock": null,
+            "docblock": "@param userId string\n@param idmUser {IdmUser}",
             "modifiers": [],
             "params": [
               {
                 "name": "userId",
+                "description": "string",
+                "type": null
+              },
+              {
+                "name": "idmUser",
+                "description": "{IdmUser}",
                 "type": null
               }
             ],
-            "returns": null
+            "returns": null,
+            "description": null
           }
         ],
         "props": {
@@ -36848,35 +37054,6 @@
         }
       }
     ],
-    "CoreActions/dialog/AboutCellsCard.js": [
-      {
-        "description": "",
-        "displayName": "AboutCellsCard",
-        "methods": [
-          {
-            "name": "openDocs",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "openForum",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "openGithub",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
     "CoreActions/dialog/PasswordDialog.js": [
       {
         "description": "",
@@ -37310,11 +37487,7 @@
             "modifiers": [],
             "params": [
               {
-                "name": "binaryId",
-                "type": null
-              },
-              {
-                "name": "isTemporary",
+                "name": "props",
                 "type": null
               }
             ],
@@ -37324,12 +37497,7 @@
             "name": "getUploadUrl",
             "docblock": null,
             "modifiers": [],
-            "params": [
-              {
-                "name": "paramsOnly",
-                "type": null
-              }
-            ],
+            "params": [],
             "returns": null
           },
           {

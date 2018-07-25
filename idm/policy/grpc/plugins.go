@@ -24,13 +24,11 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/micro/go-micro"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service"
@@ -64,30 +62,11 @@ func init() {
 
 func InitDefaults(ctx context.Context) error {
 
-	cfg := config.Default()
-	var ctxString string
-	if allowed := cfg.Get("services", "pydio.frontends", "allowed").String(""); allowed != "" {
-		// Replace "," with "|"
-		ctxString = strings.Join(strings.Split(allowed, ","), "|")
-	}
-
 	dao := servicecontext.GetDAO(ctx).(policy.DAO)
 	if dao == nil {
 		return fmt.Errorf("cannot find DAO for policies initialization")
 	}
 	for _, policyGroup := range policy.DefaultPolicyGroups {
-
-		if policyGroup.Uuid == "frontend-restricted-accesses" && ctxString != "" {
-			for _, pol := range policyGroup.Policies {
-				pol.Conditions = map[string]*idm.PolicyCondition{
-					servicecontext.HttpMetaRemoteAddress: &idm.PolicyCondition{
-						Type:        "StringMatchCondition",
-						JsonOptions: fmt.Sprintf("{\"matches\":\"%s\"}", ctxString),
-					},
-				}
-			}
-		}
-
 		if _, er := dao.StorePolicyGroup(ctx, policyGroup); er != nil {
 			log.Logger(ctx).Error("Could not store default policy!", zap.Any("policy", policyGroup), zap.Error(er))
 		}

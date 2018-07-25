@@ -288,11 +288,15 @@ func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string
 	} else if f2, e2 := p.fs.Open(path.Join(libPath, defaultLang+".json")); e2 == nil {
 		f = f2
 	}
+	appTitle := config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("")
 	if f != nil {
 		content, _ := ioutil.ReadAll(f)
 		var data map[string]string
 		if e1 := json.Unmarshal(content, &data); e1 == nil {
 			for k, v := range data {
+				if appTitle != "" && strings.Contains(v, "APPLICATION_TITLE") {
+					v = strings.Replace(v, "APPLICATION_TITLE", appTitle, -1)
+				}
 				if ns == "" {
 					msg[k] = v
 				} else {

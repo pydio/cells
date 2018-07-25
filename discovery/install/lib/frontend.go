@@ -22,18 +22,13 @@ package lib
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"math"
 	"os"
 	"path/filepath"
-	"strings"
-
-	"github.com/hashicorp/go-version"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/install"
-	"github.com/pydio/go-phpfpm-detect/fpm"
 )
 
 // Frontends
@@ -80,101 +75,19 @@ func actionFrontendsAdd(c *install.InstallConfig) error {
 		config.Set(sEnc, "defaults", "root")
 	}
 
-	// TODO REMOVE
-	config.Set(conf.Hosts, "defaults", "fronts")
-	config.Set(conf.Hosts, "services", "pydio.frontends", "allowed")
+	if c.FrontendApplicationTitle != "" {
+		config.Set(c.FrontendApplicationTitle, "frontend", "plugin", "core.pydio", "APPLICATION_TITLE")
+	}
 
-	config.Save("cli", "Install / Setting Frontend settings")
+	if c.FrontendDefaultLanguage != "" {
+		config.Set(c.FrontendDefaultLanguage, "frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE")
+	}
+
+	config.Save("cli", "Set default admin user and frontend configs")
 
 	// Creating log dir
 	logsFolder := filepath.Join(config.ApplicationDataDir(), "logs")
 	e := os.MkdirAll(logsFolder, 0755)
 
 	return e
-}
-
-func checkPhpFpm(installConfig *install.InstallConfig) *install.CheckResult {
-
-	requiredPhpVersion, _ := version.NewVersion("7.0")
-	requiredPhpExtensions := []string{"dom", "curl", "intl", "gd"}
-
-	var checkError error
-	var configs *fpm.PhpFpmConfig
-	var e error
-	if installConfig.FpmAddress != "" {
-		configs = &fpm.PhpFpmConfig{
-			ListenAddress: installConfig.FpmAddress,
-		}
-		if strings.Contains(installConfig.FpmAddress, ":") {
-			configs.ListenNetwork = "tcp"
-		} else {
-			configs.ListenNetwork = "unix"
-		}
-		e = fpm.DetectByDirectConnection(configs)
-	} else {
-		configs, e = fpm.DetectFpmInfos()
-	}
-
-	if e != nil {
-		checkError = e
-	} else {
-		folder := filepath.Join(config.ApplicationDataDir(), "static", "pydio", "phptest")
-		os.MkdirAll(folder, 0777)
-		fpm.DetectPhpInfos(configs, folder)
-		os.Remove(folder)
-		detectedVersion, e := version.NewVersion(configs.PhpVersion)
-		if e != nil {
-			checkError = fmt.Errorf("Could not get php Version: (got %s, expecting version %s or higher)", configs.PhpVersion, requiredPhpVersion.String())
-			configs.PhpExtensions = []string{}
-		} else if detectedVersion.LessThan(requiredPhpVersion) {
-			checkError = fmt.Errorf("Detected FPM but wrong PHP version: %s (expecting version %s or higher)", configs.PhpVersion, requiredPhpVersion.String())
-			configs.PhpExtensions = []string{}
-		} else {
-			var missingExt []string
-			var okExt []string
-			for _, ext := range requiredPhpExtensions {
-				found := false
-				for _, detected := range configs.PhpExtensions {
-					if detected == ext {
-						found = true
-						break
-					}
-				}
-				if !found {
-					missingExt = append(missingExt, ext)
-				} else {
-					okExt = append(okExt, ext)
-				}
-			}
-			if len(missingExt) > 0 {
-				checkError = fmt.Errorf("Detected FPM but there are some missing extensions : %s", strings.Join(missingExt, ","))
-			}
-			configs.PhpExtensions = okExt
-		}
-	}
-
-	var checkResult *install.CheckResult
-	var jsonData = make(map[string]interface{})
-	if configs != nil {
-		jsonData["fpm"] = configs
-	}
-	if checkError != nil {
-		jsonData["error"] = checkError.Error()
-		data, _ := json.Marshal(jsonData)
-		checkResult = &install.CheckResult{
-			Name:       "PHP",
-			Success:    false,
-			JsonResult: string(data),
-		}
-	} else {
-		data, _ := json.Marshal(jsonData)
-		checkResult = &install.CheckResult{
-			Name:       "PHP",
-			Success:    true,
-			JsonResult: string(data),
-		}
-	}
-
-	return checkResult
-
 }
