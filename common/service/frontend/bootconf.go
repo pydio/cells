@@ -59,6 +59,8 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 	url := config.Get("defaults", "url").String("")
 	wsUrl := strings.Replace(strings.Replace(url, "https", "wss", -1), "http", "ws", -1)
 
+	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en")
+
 	b := &BootConf{
 		AjxpResourcesFolder:          "plug/gui.ajax/res",
 		AjxpServerAccess:             "index.php",
@@ -72,7 +74,7 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 		UsersEditable:                true,
 		UsersEnabled:                 true,
 		LoggedUser:                   false,
-		CurrentLanguage:              "en",
+		CurrentLanguage:              lang,
 		Session_timeout:              1440,
 		Client_timeout:               1440,
 		Client_timeout_warning:       3,
@@ -93,7 +95,7 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 			"it":    "Italiano",
 			"pt-br": "Portuguese",
 		},
-		I18nMessages: pool.I18nMessages("en").Messages,
+		I18nMessages: pool.I18nMessages(lang).Messages,
 		Backend: BackendConf{
 			PackageType:   common.PackageType,
 			PackageLabel:  common.PackageLabel,

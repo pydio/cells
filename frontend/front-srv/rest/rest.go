@@ -70,18 +70,15 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 		return
 	}
 	ctx := req.Request.Context()
-	wsId := req.QueryParameter("ws")
-	lang := req.QueryParameter("lang")
-	if lang == "" {
-		lang = "en"
-	}
 
 	user := &frontend.User{}
 	if e := user.Load(ctx); e != nil {
 		service.RestError500(req, rsp, e)
 		return
 	}
-	user.LoadActiveWorkspace(wsId)
+	user.LoadActiveWorkspace(req.QueryParameter("ws"))
+	lang := user.LoadActiveLanguage(req.QueryParameter("lang"))
+
 	cfg := config.Default()
 	rolesConfigs := user.FlattenedRolesConfigs()
 

@@ -9,8 +9,6 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 
-	"fmt"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
@@ -91,10 +89,18 @@ func (u *User) LoadActiveWorkspace(parameter string) {
 		u.ActiveAccessType = ws.AccessType
 		return
 	}
+	// Check by slug
+	for _, ws := range u.Workspaces {
+		if ws.Slug == parameter {
+			u.ActiveWorkspace = ws.UUID
+			u.ActiveAccessType = ws.AccessType
+			return
+		}
+	}
 	// Load default repository from preferences, or start on home page
 	var defaultStart = "homepage"
 	configs := u.FlattenedRolesConfigs().Get("parameters").(*config.Map)
-	fmt.Println(configs)
+
 	if c := configs.Get("core.conf"); c != nil {
 		if p := c.(*config.Map).Get("DEFAULT_START_REPOSITORY"); p != nil {
 			if v := p.(*config.Map).String("PYDIO_REPO_SCOPE_ALL"); v != "" {
@@ -104,7 +110,6 @@ func (u *User) LoadActiveWorkspace(parameter string) {
 			}
 		}
 	}
-	fmt.Println("Default start", defaultStart)
 
 	if ws, ok := u.Workspaces[defaultStart]; ok {
 		u.ActiveWorkspace = defaultStart
@@ -118,6 +123,22 @@ func (u *User) LoadActiveWorkspace(parameter string) {
 		return
 	}
 
+}
+
+func (u *User) LoadActiveLanguage(parameter string) string {
+	if parameter != "" {
+		return parameter
+	}
+	lang := "en"
+	configs := u.FlattenedRolesConfigs().Get("parameters").(*config.Map)
+	if c := configs.Get("core.conf"); c != nil {
+		if p := c.(*config.Map).Get("lang"); p != nil {
+			if v := p.(*config.Map).String("PYDIO_REPO_SCOPE_ALL"); v != "" {
+				lang = v
+			}
+		}
+	}
+	return lang
 }
 
 func (u *User) FlattenedRolesConfigs() *config.Map {
