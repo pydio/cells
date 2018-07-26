@@ -11,7 +11,6 @@
         </resources>
     </client_settings>
 	<dependencies>
-		<!-- Stream Wrapper Access -->
-		<activePlugin pluginName="access.gateway"/>
+		<activePlugin pluginName="access.gateway|access.homepage|access.settings"/>
 	</dependencies>
 </editor>

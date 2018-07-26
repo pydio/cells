@@ -94,8 +94,10 @@ exports['default'] = function (PydioComponent, pydio) {
 
         Wrapped.prototype.render = function render() {
 
-            var customPalette = pydio.Parameters.get('palette') || {};
-
+            var customPalette = {};
+            if (pydio.Parameters.has('other') && pydio.Parameters.get('other')['vanity']) {
+                customPalette = pydio.Parameters.get('other')['vanity']['palette'] || {};
+            }
             var themeCusto = {
                 palette: _extends({
                     primary1Color: '#134e6c',

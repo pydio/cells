@@ -3,9 +3,12 @@ package frontend
 import (
 	"strings"
 
-	"github.com/pborman/uuid"
+	"context"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
 )
 
 type BackendConf struct {
@@ -30,25 +33,25 @@ type BootConf struct {
 	ENDPOINT_WEBSOCKET           string
 	FRONTEND_URL                 string
 	PUBLIC_BASEURI               string
-	ZipEnabled                   bool              `json:"zipEnabled"`
-	MultipleFilesDownloadEnabled bool              `json:"multipleFilesDownloadEnabled"`
-	CustomWording                CustomWording     `json:"customWording"`
-	UsersEnabled                 bool              `json:"usersEnabled"`
-	LoggedUser                   bool              `json:"loggedUser"`
-	CurrentLanguage              string            `json:"currentLanguage"`
-	Session_timeout              int               `json:"session_timeout"`
-	Client_timeout               int               `json:"client_timeout"`
-	Client_timeout_warning       int               `json:"client_timeout_warning"`
-	AvailableLanguages           map[string]string `json:"availableLanguages"`
-	UsersEditable                bool              `json:"usersEditable"`
-	AjxpVersion                  string            `json:"ajxpVersion"`
-	AjxpVersionDate              string            `json:"ajxpVersionDate"`
-	I18nMessages                 map[string]string `json:"i18nMessages"`
-	SECURE_TOKEN                 string
-	Streaming_supported          bool        `json:"streaming_supported"`
-	Theme                        string      `json:"theme"`
-	AjxpImagesCommon             bool        `json:"ajxpImagesCommon"`
-	Backend                      BackendConf `json:"backend"`
+	ZipEnabled                   bool                   `json:"zipEnabled"`
+	MultipleFilesDownloadEnabled bool                   `json:"multipleFilesDownloadEnabled"`
+	CustomWording                CustomWording          `json:"customWording"`
+	UsersEnabled                 bool                   `json:"usersEnabled"`
+	LoggedUser                   bool                   `json:"loggedUser"`
+	CurrentLanguage              string                 `json:"currentLanguage"`
+	Session_timeout              int                    `json:"session_timeout"`
+	Client_timeout               int                    `json:"client_timeout"`
+	Client_timeout_warning       int                    `json:"client_timeout_warning"`
+	AvailableLanguages           map[string]string      `json:"availableLanguages"`
+	UsersEditable                bool                   `json:"usersEditable"`
+	AjxpVersion                  string                 `json:"ajxpVersion"`
+	AjxpVersionDate              string                 `json:"ajxpVersionDate"`
+	I18nMessages                 map[string]string      `json:"i18nMessages"`
+	Streaming_supported          bool                   `json:"streaming_supported"`
+	Theme                        string                 `json:"theme"`
+	AjxpImagesCommon             bool                   `json:"ajxpImagesCommon"`
+	Backend                      BackendConf            `json:"backend"`
+	Other                        map[string]interface{} `json:"other,omitempty"`
 }
 
 func ComputeBootConf(pool *PluginsPool) *BootConf {
@@ -75,7 +78,6 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 		Client_timeout_warning:       3,
 		AjxpVersion:                  common.Version().String(),
 		AjxpVersionDate:              common.BuildStamp,
-		SECURE_TOKEN:                 uuid.New(),
 		Streaming_supported:          true,
 		Theme:                        "material",
 		AjxpImagesCommon:             true,
@@ -101,6 +103,11 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 			License:       "agplv3",
 		},
 	}
+
+	if e := ApplyBootConfModifiers(b); e != nil {
+		log.Logger(context.Background()).Error("Error while applying BootConf modifiers", zap.Error(e))
+	}
+
 	return b
 
 }

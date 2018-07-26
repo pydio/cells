@@ -9,9 +9,14 @@ type RegistryModifier func(ctx context.Context, status RequestStatus, registry *
 // based on the current status
 type PluginModifier func(ctx context.Context, status RequestStatus, plugin Plugin) error
 
+// PluginModifier is a func type for dynamically filtering the content of a plugin (e.g enabled/disabled),
+// based on the current status
+type BootConfModifier func(bootConf *BootConf) error
+
 var (
-	pluginsModifier []PluginModifier
-	modifiers       []RegistryModifier
+	pluginsModifier   []PluginModifier
+	bootConfModifiers []BootConfModifier
+	modifiers         []RegistryModifier
 )
 
 // RegisterRegModifier appends a RegistryModifier to the list
@@ -41,6 +46,24 @@ func ApplyPluginModifiers(ctx context.Context, status RequestStatus, plugin Plug
 
 	for _, m := range pluginsModifier {
 		if e := m(ctx, status, plugin); e != nil {
+			return e
+		}
+	}
+
+	return nil
+
+}
+
+// RegisterPluginModifier appends a BootConfModifier to the list
+func RegisterBootConfModifier(modifier BootConfModifier) {
+	bootConfModifiers = append(bootConfModifiers, modifier)
+}
+
+// ApplyPluginModifiers is called to apply all registered modifiers on the boot configuration
+func ApplyBootConfModifiers(bootConf *BootConf) error {
+
+	for _, m := range bootConfModifiers {
+		if e := m(bootConf); e != nil {
 			return e
 		}
 	}

@@ -66,8 +66,10 @@ export default function(PydioComponent, pydio){
 
         render(){
 
-            const customPalette = pydio.Parameters.get('palette') || {};
-
+            let customPalette = {};
+            if (pydio.Parameters.has('other') && pydio.Parameters.get('other')['vanity']) {
+                customPalette = pydio.Parameters.get('other')['vanity']['palette'] || {};
+            }
             let themeCusto = {
                 palette: {
                     primary1Color       : '#134e6c',
