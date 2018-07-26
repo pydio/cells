@@ -72,7 +72,7 @@ var PluginsLoader = (function () {
                     var headers = { Authorization: 'Bearer ' + jwt };
                     var lang = 'en';
                     if (_this.pydio.user && _this.pydio.user.getPreference('lang')) {
-                        lang = _this.pydio.user.getPreference('lang', true);
+                        lang = _this.pydio.user.getPreference('lang');
                     }
                     var url = _this.pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/plugins/' + lang;
                     window.fetch(url, {

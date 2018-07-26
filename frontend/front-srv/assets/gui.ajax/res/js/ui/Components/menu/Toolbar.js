@@ -98,7 +98,7 @@ export default React.createClass({
                 let menuItems, popoverContent, menuTitle , menuIcon;
                 let actionName = action.options.name;
 
-                menuTitle = action.options.text;
+                menuTitle = pydio.MessageHash[action.options.text_id] || action.options.text;
                 menuIcon  = action.options.icon_class;
 
                 if(barName === 'MORE_ACTION') {

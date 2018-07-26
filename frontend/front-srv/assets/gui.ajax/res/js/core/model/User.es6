@@ -343,28 +343,28 @@ export default class User{
         let i,j;
 		for(i=0; i<userNodes.length;i++)
 		{
-			if(userNodes[i].nodeName == "active_repo")
+			if(userNodes[i].nodeName === "active_repo")
 			{
 				activeNode = userNodes[i];
 			}
-			else if(userNodes[i].nodeName == "repositories")
+			else if(userNodes[i].nodeName === "repositories")
 			{
 				for(j=0;j<userNodes[i].childNodes.length;j++)
 				{
 					const repoChild = userNodes[i].childNodes[j];
-					if(repoChild.nodeName == "repo") {	
+					if(repoChild.nodeName === "repo") {
 						const repository = new Repository(repoChild.getAttribute("id"), repoChild);
 						repositories.set(repoChild.getAttribute("id"), repository);
 					}
 				}
 				this.setRepositoriesList(repositories);
 			}
-			else if(userNodes[i].nodeName == "preferences")
+			else if(userNodes[i].nodeName === "preferences")
 			{
 				for(j=0;j<userNodes[i].childNodes.length;j++)
 				{
 					const prefChild = userNodes[i].childNodes[j];
-					if(prefChild.nodeName == "pref") {
+					if(prefChild.nodeName === "pref") {
 						let value = prefChild.getAttribute("value");
 						if(!value && prefChild.firstChild){
 							// Retrieve value from CDATA
@@ -374,10 +374,12 @@ export default class User{
 					}
 				}					
 			}
-			else if(userNodes[i].nodeName == "special_rights")
+			else if(userNodes[i].nodeName === "special_rights")
 			{
 				const attr = userNodes[i].getAttribute("is_admin");
-				if(attr && attr === "1") this.isAdmin = true;
+				if(attr && attr === "1") {
+				    this.isAdmin = true;
+                }
                 if(userNodes[i].getAttribute("lock")){
                     this.lock = userNodes[i].getAttribute("lock");
                 }

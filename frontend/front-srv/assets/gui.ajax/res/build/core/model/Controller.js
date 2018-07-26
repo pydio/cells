@@ -207,8 +207,8 @@ var Controller = (function (_Observable) {
 
     Controller.prototype.setUser = function setUser(oUser) {
         this.oUser = oUser;
-        if (oUser != null && oUser.id != 'guest' && oUser.getPreference('lang') != null && oUser.getPreference('lang') != "" && oUser.getPreference('lang') != this._pydioObject.currentLanguage && !oUser.lock) {
-            this._pydioObject.loadI18NMessages(oUser.getPreference('lang'));
+        if (oUser != null && oUser.id !== 'guest' && oUser.getPreference('lang') != null && oUser.getPreference('lang') !== "" && oUser.getPreference('lang') !== this._pydioObject.currentLanguage && !oUser.lock) {
+            this._pydioObject.loadI18NMessages(oUser.getPreference('lang'), false);
         }
     };
 

@@ -113,7 +113,7 @@ var Registry = (function () {
                 headers["X-Pydio-Minisite"] = Parameters.get('MINISITE');
             }
             if (user && user.getPreference('lang')) {
-                var lang = user.getPreference('lang', true);
+                var lang = user.getPreference('lang');
                 if (url.indexOf('?') > 0) {
                     url += '&lang=' + lang;
                 } else {
@@ -174,7 +174,6 @@ var Registry = (function () {
      */
 
     Registry.prototype.parseUser = function parseUser() {
-        console.log(this._registry);
         var user = null,
             userNode = undefined;
         if (this._registry) {

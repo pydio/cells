@@ -57,13 +57,16 @@ class Pydio extends Observable{
         }
         this.user = null;
         this.MessageHash = {};
-        if(window.MessageHash) this.MessageHash = window.MessageHash;
+        if(window.MessageHash) {
+            this.MessageHash = window.MessageHash;
+        }
         this.ApiClient = PydioApi.getClient();
         this.ApiClient.setPydioObject(this);
         this.ActivityMonitor = new ActivityMonitor(this);
         this.Registry = new Registry(this);
         this._rootNode = new AjxpNode("/", "Root");
-        this._dataModel = this._contextHolder = new PydioDataModel(false);
+        this._contextHolder = new PydioDataModel(false);
+        this._dataModel = this._contextHolder;
         this._dataModel.setAjxpNodeProvider(new EmptyNodeProvider());
         this._dataModel.setRootNode(this._rootNode);
         // Must happen AFTER datamodel initization.
@@ -73,7 +76,19 @@ class Pydio extends Observable{
             this.WebSocketClient.currentRepo = this.repositoryId;
             this.WebSocketClient.open();
         }
-
+        if(!this.Parameters.has('START_REPOSITORY')){
+            const loadUriParts = LangUtils.trim(window.location.href.replace(parameters.get('FRONTEND_URL'), ''), '/').split('/');
+            if(loadUriParts.length){
+                let [loadWs, ...other] = loadUriParts;
+                if(loadWs.indexOf('ws-') === 0){
+                    loadWs = loadWs.substr(3);
+                }
+                this.Parameters.set('START_REPOSITORY', loadWs);
+                if (other.length){
+                    this.Parameters.set('START_FOLDER', '/' + other.join('/'));
+                }
+            }
+        }
     }
 
     fire(eventName, data){
@@ -83,6 +98,7 @@ class Pydio extends Observable{
     /**
      *
      * @param {User|null} userObject
+     * @param skipEvent bool
      */
     updateUser(userObject, skipEvent = false){
         this.user = userObject;
@@ -122,7 +138,9 @@ class Pydio extends Observable{
                 const repId = this.user.getActiveRepository();
                 const repList = this.user.getRepositoriesList();
                 const repositoryObject = repList.get(repId);
-                if(repositoryObject) repositoryObject.loadResources();
+                if(repositoryObject) {
+                    repositoryObject.loadResources();
+                }
             }
             if(this.UI.guiLoaded) {
                 this.UI.refreshTemplateParts();
@@ -197,7 +215,6 @@ class Pydio extends Observable{
     /**
      * Loads the XML Registry, an image of the application in its current state
      * sent by the server.
-     * @param sync Boolean Whether to send synchronously or not.
      * @param xPath String An XPath to load only a subpart of the registry
      * @param completeFunc
      * @param targetRepositoryId
@@ -219,17 +236,17 @@ class Pydio extends Observable{
      */
     loadActiveRepository (){
 
-        let repositoryObject = new Repository(null);
         if(this.user === null){
+            const repositoryObject = new Repository(null);
             this.loadRepository(repositoryObject);
             this.fire("repository_list_refreshed", {list:false,active:false});
             this.Controller.fireAction("login");
             return;
         }
 
-        const repId         = this.user.getActiveRepository();
-        const repList       = this.user.getRepositoriesList();
-        repositoryObject    = repList.get(repId);
+        const repId             = this.user.getActiveRepository();
+        const repList           = this.user.getRepositoriesList();
+        const repositoryObject  = repList.get(repId);
 
         if(!repositoryObject){
             if(this.user.lock){
@@ -245,12 +262,15 @@ class Pydio extends Observable{
             return;
         }
 
-        if(this.user.getPreference("pending_folder") && this.user.getPreference("pending_folder") != "-1"){
+        if(this.user.getPreference("pending_folder") && this.user.getPreference("pending_folder") !== "-1"){
 
             this._initLoadRep = this.user.getPreference("pending_folder");
             this.user.setPreference("pending_folder", "-1");
             this.user.savePreference("pending_folder");
 
+        } else if(this.user && this.Parameters.has('START_FOLDER')) {
+            this._initLoadRep = this.Parameters.get('START_FOLDER');
+            this.Parameters.delete('START_FOLDER');
         }
 
         this.loadRepository(repositoryObject);
@@ -264,7 +284,7 @@ class Pydio extends Observable{
     reloadRepositoriesList (){
         if(!this.user) return;
         this.observeOnce("registry_part_loaded", (data) => {
-            if(data != "user/repositories") return;
+            if(data !== "user/repositories") return;
             this.updateUser(this.Registry.parseUser());
             if(this.user.getRepositoriesList().size === 0){
                 this.loadXmlRegistry();// User maybe locket out Reload full registry now!
@@ -283,11 +303,14 @@ class Pydio extends Observable{
      */
     loadRepository(repository){
 
-        if(this.repositoryId != null && this.repositoryId == repository.getId()){
+        if(this.repositoryId != null && this.repositoryId === repository.getId()){
             Logger.debug('Repository already loaded, do nothing');
+            return;
         }
         this._contextHolder.setSelectedNodes([]);
-        if(repository == null) return;
+        if(repository === null) {
+            return;
+        }
 
         repository.loadResources();
         const repositoryId = repository.getId();
@@ -295,17 +318,18 @@ class Pydio extends Observable{
 
         const providerDef = repository.getNodeProviderDef();
         let rootNode;
-        if(providerDef != null){
-            let provider = eval('new '+providerDef.name+'()');
-            if(providerDef.options){
+        if (providerDef == null) {
+            rootNode = new AjxpNode("/", false, repository.getLabel(), newIcon);
+            // Default
+            this._contextHolder.setAjxpNodeProvider(new EmptyNodeProvider());
+        } else {
+            const providerClass = window[providerDef.name];
+            const provider = new providerClass();
+            if (providerDef.options) {
                 provider.initProvider(providerDef.options);
             }
             this._contextHolder.setAjxpNodeProvider(provider);
             rootNode = new AjxpNode("/", false, repository.getLabel(), newIcon, provider);
-        }else{
-            rootNode = new AjxpNode("/", false, repository.getLabel(), newIcon);
-            // Default
-            this._contextHolder.setAjxpNodeProvider(new EmptyNodeProvider());
         }
 
         const initLoadRep = (this._initLoadRep && this._initLoadRep !== '/') ? this._initLoadRep.valueOf() : null;
@@ -395,34 +419,6 @@ class Pydio extends Observable{
     triggerRepositoryChange(repositoryId, callback){
         this.fire("trigger_repository_switch");
         this.Registry.load(null, null, repositoryId)
-
-        /*
-        //this._repositoryCurrentlySwitching = true;
-        const onComplete = (transport) => {
-            let loaded = false;
-            if(transport.responseXML){
-                this.ApiClient.parseXmlMessage(transport.responseXML);
-                if(transport.responseXML.documentElement.nodeName === 'pydio_registry'){
-                    loaded = true;
-                    this.Registry.loadXML(transport.responseXML.documentElement);
-                    this.repositoryId = repositoryId;
-                }
-            }
-            if(!loaded){
-                this.loadXmlRegistry(false,  null, null, repositoryId);
-                this.repositoryId = null;
-            }
-
-            if (typeof callback === "function") callback();
-            this._repositoryCurrentlySwitching = false;
-        };
-
-        const root = this._contextHolder.getRootNode();
-        if(root){
-            root.clear();
-        }
-        this.ApiClient.switchRepository(repositoryId, onComplete);
-        */
     }
 
     getPluginConfigs (pluginQuery){
@@ -440,9 +436,9 @@ class Pydio extends Observable{
     /**
      * Reload all messages from server and trigger updateI18nTags
      * @param newLanguage String
-     * @param callback Function
+     * @param reloadRegistry bool
      */
-    loadI18NMessages(newLanguage, callback = null){
+    loadI18NMessages(newLanguage, reloadRegistry = true){
         this.ApiClient.switchLanguage(newLanguage, function(data){
             if(data){
                 this.MessageHash = data;
@@ -456,10 +452,12 @@ class Pydio extends Observable{
                 }
                 this.notify("language", newLanguage);
                 this.Controller.refreshGuiActionsI18n();
-                this.loadXmlRegistry();
+                if(reloadRegistry){
+                    this.loadXmlRegistry();
+                }
+                this.UI.refreshTemplateParts();
                 this.fireContextRefresh();
                 this.currentLanguage = newLanguage;
-                if(callback) callback();
             }
 
         }.bind(this));

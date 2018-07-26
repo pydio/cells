@@ -36,7 +36,7 @@ class PluginsLoader {
                 const headers = {Authorization: 'Bearer ' + jwt};
                 let lang = 'en';
                 if (this.pydio.user && this.pydio.user.getPreference('lang')){
-                    lang = this.pydio.user.getPreference('lang', true);
+                    lang = this.pydio.user.getPreference('lang');
                 }
                 const url = this.pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/plugins/' + lang;
                 window.fetch(url, {

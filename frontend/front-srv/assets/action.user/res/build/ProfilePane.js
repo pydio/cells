@@ -166,7 +166,6 @@ var ProfilePane = _react2['default'].createClass({
         var definitions = _state.definitions;
         var values = _state.values;
 
-        console.log(definitions, values);
         pydio.user.getIdmUser().then(function (idmUser) {
             if (!idmUser.Attributes) {
                 idmUser.Attributes = {};
@@ -181,6 +180,9 @@ var ProfilePane = _react2['default'].createClass({
                     idmUser.Attributes["parameter:" + d.pluginId + ":" + d.name] = JSON.stringify(values[d.name]);
                 }
             });
+            if (values['lang'] && values['lang'] !== pydio.currentLanguage) {
+                pydio.user.setPreference('lang', values['lang']);
+            }
             var api = new _pydioHttpRestApi.UserServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.putUser(idmUser.Login, idmUser).then(function (response) {
                 // Do something now

@@ -77,7 +77,7 @@ export default class Registry{
                 headers["X-Pydio-Minisite"] = Parameters.get('MINISITE')
             }
             if (user && user.getPreference('lang')){
-                const lang = user.getPreference('lang', true);
+                const lang = user.getPreference('lang');
                 if (url.indexOf('?') > 0) {
                     url += '&lang=' + lang;
                 } else {
@@ -138,7 +138,6 @@ export default class Registry{
      * Translate the XML answer to a new User object
      */
     parseUser(){
-        console.log(this._registry);
         let user = null, userNode;
         if(this._registry){
             userNode = XMLUtils.XPathSelectSingleNode(this._registry, "user");

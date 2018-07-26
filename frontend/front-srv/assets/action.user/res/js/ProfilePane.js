@@ -150,7 +150,7 @@ let ProfilePane = React.createClass({
         }
         let {pydio} = this.props;
         let {definitions, values} = this.state;
-        console.log(definitions, values);
+
         pydio.user.getIdmUser().then(idmUser => {
             if(!idmUser.Attributes) {
                 idmUser.Attributes = {};
@@ -165,6 +165,9 @@ let ProfilePane = React.createClass({
                     idmUser.Attributes["parameter:" + d.pluginId + ":" + d.name] = JSON.stringify(values[d.name]);
                 }
             });
+            if(values['lang'] && values['lang'] !== pydio.currentLanguage) {
+                pydio.user.setPreference('lang', values['lang']);
+            }
             const api = new UserServiceApi(PydioApi.getRestClient());
             return api.putUser(idmUser.Login, idmUser).then(response => {
                 // Do something now

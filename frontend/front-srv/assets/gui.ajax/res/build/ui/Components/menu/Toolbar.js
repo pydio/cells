@@ -137,7 +137,7 @@ exports['default'] = _react2['default'].createClass({
                     menuIcon = undefined;
                 var actionName = action.options.name;
 
-                menuTitle = action.options.text;
+                menuTitle = pydio.MessageHash[action.options.text_id] || action.options.text;
                 menuIcon = action.options.icon_class;
 
                 if (barName === 'MORE_ACTION') {

@@ -177,13 +177,13 @@ export default class Controller extends Observable{
 	setUser(oUser)
 	{	
 		this.oUser = oUser;
-		if(oUser != null && oUser.id != 'guest' && oUser.getPreference('lang') != null
-			&& oUser.getPreference('lang') != ""
-			&& oUser.getPreference('lang') != this._pydioObject.currentLanguage
+		if(oUser != null && oUser.id !== 'guest' && oUser.getPreference('lang') != null
+			&& oUser.getPreference('lang') !== ""
+			&& oUser.getPreference('lang') !== this._pydioObject.currentLanguage
             && !oUser.lock
             )
 		{
-            this._pydioObject.loadI18NMessages(oUser.getPreference('lang'));
+            this._pydioObject.loadI18NMessages(oUser.getPreference('lang'), false);
 		}
 	}
 			

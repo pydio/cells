@@ -402,21 +402,21 @@ var User = (function () {
     var i = undefined,
         j = undefined;
     for (i = 0; i < userNodes.length; i++) {
-      if (userNodes[i].nodeName == "active_repo") {
+      if (userNodes[i].nodeName === "active_repo") {
         activeNode = userNodes[i];
-      } else if (userNodes[i].nodeName == "repositories") {
+      } else if (userNodes[i].nodeName === "repositories") {
         for (j = 0; j < userNodes[i].childNodes.length; j++) {
           var repoChild = userNodes[i].childNodes[j];
-          if (repoChild.nodeName == "repo") {
+          if (repoChild.nodeName === "repo") {
             var repository = new _Repository2['default'](repoChild.getAttribute("id"), repoChild);
             repositories.set(repoChild.getAttribute("id"), repository);
           }
         }
         this.setRepositoriesList(repositories);
-      } else if (userNodes[i].nodeName == "preferences") {
+      } else if (userNodes[i].nodeName === "preferences") {
         for (j = 0; j < userNodes[i].childNodes.length; j++) {
           var prefChild = userNodes[i].childNodes[j];
-          if (prefChild.nodeName == "pref") {
+          if (prefChild.nodeName === "pref") {
             var value = prefChild.getAttribute("value");
             if (!value && prefChild.firstChild) {
               // Retrieve value from CDATA
@@ -425,9 +425,11 @@ var User = (function () {
             this.setPreference(prefChild.getAttribute("name"), value);
           }
         }
-      } else if (userNodes[i].nodeName == "special_rights") {
+      } else if (userNodes[i].nodeName === "special_rights") {
         var attr = userNodes[i].getAttribute("is_admin");
-        if (attr && attr === "1") this.isAdmin = true;
+        if (attr && attr === "1") {
+          this.isAdmin = true;
+        }
         if (userNodes[i].getAttribute("lock")) {
           this.lock = userNodes[i].getAttribute("lock");
         }
