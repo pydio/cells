@@ -684,6 +684,10 @@ var SimpleList = React.createClass({
             }
             this.updateElementHeightResponsive();
         }
+        this.props.dataModel.observe('root_node_changed', function (rootNode) {
+            console.log('root node changed', rootNode, _this3.props.node);
+            _this3.rootNodeChangedFlag = true;
+        });
         this.props.dataModel.observe('selection_changed', (function () {
             var _this4 = this;
 
@@ -729,10 +733,11 @@ var SimpleList = React.createClass({
     },
 
     componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
-        if (prevProps.node && this.props.node && prevProps.node.getPath() === this.props.node.getPath()) {
+        if (!this.rootNodeChangedFlag && prevProps.node && this.props.node && prevProps.node.getPath() === this.props.node.getPath()) {
             return;
         }
         this._loadNodeIfNotLoaded();
+        this.rootNodeChangedFlag = false;
     },
 
     onScroll: function onScroll(scrollTop) {

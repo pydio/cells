@@ -629,6 +629,10 @@ let SimpleList = React.createClass({
             }
             this.updateElementHeightResponsive();
         }
+        this.props.dataModel.observe('root_node_changed', (rootNode) => {
+            console.log('root node changed', rootNode, this.props.node);
+            this.rootNodeChangedFlag = true;
+        });
         this.props.dataModel.observe('selection_changed', function(){
             if(!this.isMounted()) return;
             let selection = new Map();
@@ -672,10 +676,11 @@ let SimpleList = React.createClass({
     },
 
     componentDidUpdate: function(prevProps, prevState){
-        if(prevProps.node && this.props.node && prevProps.node.getPath() === this.props.node.getPath()){
+        if(!this.rootNodeChangedFlag && prevProps.node && this.props.node && prevProps.node.getPath() === this.props.node.getPath()){
             return;
         }
         this._loadNodeIfNotLoaded();
+        this.rootNodeChangedFlag = false;
     },
 
     onScroll:function(scrollTop){
