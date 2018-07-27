@@ -43,7 +43,7 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ResourcesFolder:  "plug/gui.ajax/res",
 		Theme:            "material",
 		Version:          common.Version().String(),
-		Debug:            true,
+		Debug:            config.Get("frontend", "debug").Bool(false),
 	}
 
 	// Load link data

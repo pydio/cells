@@ -50,7 +50,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ResourcesFolder:  "plug/gui.ajax/res",
 		Theme:            "material",
 		Version:          common.Version().String(),
-		Debug:            true,
+		Debug:            config.Get("frontend", "debug").Bool(false),
 		StartParameters: map[string]interface{}{
 			"BOOTER_URL":          "/frontend/bootconf",
 			"MAIN_ELEMENT":        "ajxp_desktop",
