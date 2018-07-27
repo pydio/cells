@@ -78,10 +78,10 @@ export default class Manager{
         for(let i=0; i<paramsAtts.length; i++){
             const attName = paramsAtts.item(i).nodeName;
             let value = paramsAtts.item(i).value;
-            if( (attName == "label" || attName == "description" || attName == "group" || attName.indexOf("group_switch_") === 0) && MessageHash[value] ){
+            if( (attName === "label" || attName === "description" || attName === "group" || attName.indexOf("group_switch_") === 0) && MessageHash[value] ){
                 value = MessageHash[value];
             }
-            if( attName == "cdatavalue" ){
+            if( attName === "cdatavalue" ){
                 collectCdata = true;
                 continue;
             }
@@ -90,14 +90,14 @@ export default class Manager{
         if(collectCdata){
             paramsObject['value'] = paramNode.firstChild.value;
         }
-        if(paramsObject['type'] == 'boolean'){
+        if(paramsObject['type'] === 'boolean'){
             if(paramsObject['value'] !== undefined) {
-                paramsObject['value'] = (paramsObject['value'] == "true");
+                paramsObject['value'] = (paramsObject['value'] === "true");
             }
             if(paramsObject['default'] !== undefined) {
-                paramsObject['default'] = (paramsObject['default'] == "true");
+                paramsObject['default'] = (paramsObject['default'] === "true");
             }
-        }else if(paramsObject['type'] == 'integer'){
+        }else if(paramsObject['type'] === 'integer'){
             if(paramsObject['value'] !== undefined) {
                 paramsObject['value'] = parseInt(paramsObject['value']);
             }

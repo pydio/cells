@@ -81,8 +81,13 @@ var PluginEditor = _react2['default'].createClass({
             var values = result[1];
 
             var xmlData = _pydioUtilXml2['default'].XPathSelectSingleNode(xml, '/plugins/*[@id="' + plugId + '"]');
-            console.log(xmlData);
             var params = PydioForm.Manager.parseParameters(xmlData, "server_settings/global_param");
+            // Set Defaults
+            params.forEach(function (param) {
+                if (values[param.name] === undefined && param['default']) {
+                    values[param.name] = param['default'];
+                }
+            });
 
             var documentation = _pydioUtilXml2['default'].XPathSelectSingleNode(xmlData, "//plugin_doc");
             var enabledAlways = false;
