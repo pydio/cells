@@ -8309,7 +8309,7 @@
           },
           {
             "name": "updateUser",
-            "docblock": "@param {User|null} userObject",
+            "docblock": "@param {User|null} userObject\n@param skipEvent bool",
             "modifiers": [],
             "params": [
               {
@@ -8324,7 +8324,9 @@
                 }
               },
               {
-                "name": "skipEvent"
+                "name": "skipEvent",
+                "description": "bool",
+                "type": null
               }
             ],
             "returns": null,
@@ -8365,7 +8367,7 @@
           },
           {
             "name": "loadXmlRegistry",
-            "docblock": "Loads the XML Registry, an image of the application in its current state\nsent by the server.\n@param sync Boolean Whether to send synchronously or not.\n@param xPath String An XPath to load only a subpart of the registry\n@param completeFunc\n@param targetRepositoryId",
+            "docblock": "Loads the XML Registry, an image of the application in its current state\nsent by the server.\n@param xPath String An XPath to load only a subpart of the registry\n@param completeFunc\n@param targetRepositoryId",
             "modifiers": [],
             "params": [
               {
@@ -8487,7 +8489,7 @@
           },
           {
             "name": "loadI18NMessages",
-            "docblock": "Reload all messages from server and trigger updateI18nTags\n@param newLanguage String\n@param callback Function",
+            "docblock": "Reload all messages from server and trigger updateI18nTags\n@param newLanguage String\n@param reloadRegistry bool",
             "modifiers": [],
             "params": [
               {
@@ -8496,8 +8498,8 @@
                 "type": null
               },
               {
-                "name": "callback",
-                "description": "Function",
+                "name": "reloadRegistry",
+                "description": "bool",
                 "type": null
               }
             ],
