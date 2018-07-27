@@ -119,9 +119,16 @@ export default class SettingsNodeProvider{
         client.callApi('/frontend/settings-menu', 'GET', '',
             [], [], [], null, null, ['application/json'], ['application/json'],
             null).then(r => {
+                // Check if a specific section path was required by navigation
+                const parts = LangUtils.trim(node.getPath(), '/').split('/').filter(k => k !== "");
+                let sectionPath;
+                if(parts.length === 1) {
+                    sectionPath = node.getPath();
+                }
+
                 const data = r.response.body;
                 let childrenNodes = [];
-                if(data.__metadata__) {
+                if(data.__metadata__ && !sectionPath) {
                     for (let k in data.__metadata__) {
                         if (data.__metadata__.hasOwnProperty(k)) {
                             node.getMetadata().set(k, data.__metadata__[k]);
@@ -132,10 +139,21 @@ export default class SettingsNodeProvider{
                 if(data.Sections) {
                     data.Sections.map(section => {
                         const childNode = SettingsNodeProvider.parseSection('/', section, childCallback);
-                        if(childCallback){
-                            childCallback(childNode);
+                        if(sectionPath && childNode.getPath() === sectionPath) {
+                            // We are looking for this section, return this as the parent node
+                            node.setChildren(childNode.getChildren());
+                            node.replaceBy(childNode);
+                            if (nodeCallback) {
+                                nodeCallback(node);
+                            }
+                            return
                         }
-                        childrenNodes.push(childNode);
+                        if(!sectionPath) {
+                            if(childCallback){
+                                childCallback(childNode);
+                            }
+                            childrenNodes.push(childNode);
+                        }
                     })
                 }
                 childrenNodes.map(child => {
