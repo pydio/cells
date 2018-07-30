@@ -1307,6 +1307,12 @@
 			"revisionTime": "2018-03-13T15:00:56Z"
 		},
 		{
+			"checksumSHA1": "fnfP/j9KGqVN0xmZsIxTie3XUwI=",
+			"path": "github.com/golang/gddo/httputil/header",
+			"revision": "a475e0307621ec6832db210443de8f9ff6ff3148",
+			"revisionTime": "2018-07-28T00:54:04Z"
+		},
+		{
 			"checksumSHA1": "eG45Hg4ZnB4b1KuqsMknc5eAx4A=",
 			"path": "github.com/golang/protobuf/jsonpb",
 			"revision": "e09c5db296004fbe3f74490e84dcd62c3c5ddb1b",
