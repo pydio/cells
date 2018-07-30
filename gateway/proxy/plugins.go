@@ -24,15 +24,19 @@ package proxy
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service"
+	"github.com/mholt/caddy/caddytls"
 
 	_ "github.com/micro/go-plugins/client/grpc"
 	_ "github.com/micro/go-plugins/server/grpc"
+
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/service"
 )
 
 func init() {
@@ -56,6 +60,23 @@ func init() {
 			if e != nil {
 				return nil, nil, nil, e
 			}
+
+			// TODO enhance this
+			certEmail := config.Get("cert", "proxy", "email").String("")
+			if certEmail != "" {
+				caddytls.Agreed = true
+				useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
+				if useStagingCA {
+					caddytls.DefaultCAUrl = "https://acme-v01.api.letsencrypt.org/directory"
+				} else {
+					caddytls.DefaultCAUrl = "https://acme-staging.api.letsencrypt.org/directory"
+				}
+
+				caddydir := filepath.Join(config.ApplicationDataDir(), "cert")
+				os.MkdirAll(caddydir, 0770)
+				os.Setenv("CADDYPATH", caddydir)
+			}
+
 			// now load inside caddy
 			caddyfile, err := caddy.LoadCaddyfile("http")
 			if err != nil {

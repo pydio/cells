@@ -38,8 +38,9 @@ var SslModeCmd = &cobra.Command{
 	Long: `
 This command lets you enable/disabled SSL on application main access point.
 
-Three modes are currently supported :
+Four modes are currently supported :
 - TLS mode : provide the paths to certificate and key (as you would on an apache server)
+- Let's Encrypt: certificate is automagically generated during installation process, and later managed (e.g. renewed) by the embedded Caddy server
 - Self-Signed : a self-signed certificate will be generated at each application start
 - Disabled : application will be served on HTTP
 
@@ -78,11 +79,14 @@ func promptSslMode() (enabled bool, e error) {
 
 	certFile := config.Get("cert", "proxy", "certFile").String("")
 	keyFile := config.Get("cert", "proxy", "keyFile").String("")
+	certEmail := config.Get("cert", "proxy", "email").String("")
+	useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
 
 	selector := promptui.Select{
 		Label: "Choose SSL activation mode",
 		Items: []string{
 			"Provide paths to certificate/key files",
+			"Use Let's Encrypt to automagically generate certificate during installation process",
 			"Generate a self-signed certificate (for staging environments only!)",
 			"Disable SSL (not recommended)",
 		},
@@ -108,11 +112,37 @@ func promptSslMode() (enabled bool, e error) {
 		config.Set(false, "cert", "proxy", "self")
 		config.Set(certFile, "cert", "proxy", "certFile")
 		config.Set(keyFile, "cert", "proxy", "keyFile")
+		config.Set("", "cert", "proxy", "email")
 	case 1:
+		mailPrompt := promptui.Prompt{Label: "Please enter the mail address to use with which to generate the certificate", Default: certEmail}
+		// useStagingPrompt := promptui.Prompt{Label: "Use staging Certificate Authority URL?\033[1m Enable this option to test your setup avoiding the risk of hitting rate limits if you are not sure. You will then have to redo the installation process with production CA after validation of your setup.\033[0m[Y/N] ", Default: ""}
+		useStagingPrompt := promptui.Prompt{Label: "Use staging Certificate Authority URL? [Y/N] ", Default: "N"}
+
+		if certEmail, e = mailPrompt.Run(); e != nil {
+			return
+		}
+
+		val, e1 := useStagingPrompt.Run()
+		if e1 != nil {
+			e = e1
+			return
+		}
+
+		if val == "Y" || val == "y" {
+			useStagingCA = true
+		}
+
+		// TODO add check before storing the entered config
+		enabled = true
+		config.Set(true, "cert", "proxy", "ssl")
+		config.Set(false, "cert", "proxy", "self")
+		config.Set(certEmail, "cert", "proxy", "email")
+		config.Set(useStagingCA, "cert", "proxy", "useStagingCA")
+	case 2:
 		enabled = true
 		config.Set(true, "cert", "proxy", "ssl")
 		config.Set(true, "cert", "proxy", "self")
-	case 2:
+	case 3:
 		config.Set(false, "cert", "proxy", "ssl")
 	}
 

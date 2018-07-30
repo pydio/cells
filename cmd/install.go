@@ -165,6 +165,7 @@ Services will all start automatically after the install process is finished.
 
 		config.Save("cli", "Install / Setting default Port")
 
+		// Manage TLS settings
 		var tls string
 		if config.Get("cert", "proxy", "ssl").Bool(false) {
 			if config.Get("cert", "proxy", "self").Bool(false) {
