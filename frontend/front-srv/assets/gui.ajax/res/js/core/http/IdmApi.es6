@@ -256,32 +256,47 @@ class IdmApi {
         if(limit > -1){
             request.Limit = limit + '';
         }
-        if(!showTechnicalRoles){
-            request.Queries = [];
-            {
-                const q = new IdmRoleSingleQuery();
-                q.IsGroupRole = true;
-                q.not = true;
-                request.Queries.push(q);
-            }
-            {
-                const q = new IdmRoleSingleQuery();
-                q.IsUserRole = true;
-                q.not = true;
-                request.Queries.push(q);
-            }
-            {
-                const q = new IdmRoleSingleQuery();
-                q.IsTeam = true;
-                q.not = true;
-                request.Queries.push(q);
-            }
-            request.Operation = ServiceOperationType.constructFromObject('AND');
-        }
+        if (showTechnicalRoles) {
 
-        return api.searchRoles(request).then(coll => {
+            return api.searchRoles(request).then(coll => {
+                return coll.Roles || [];
+            });
+
+        }
+        // Exclude tech roles but still load ROOT_GROUP role
+        request.Queries = [];
+        {
+            const q = new IdmRoleSingleQuery();
+            q.IsGroupRole = true;
+            q.not = true;
+            request.Queries.push(q);
+        }
+        {
+            const q = new IdmRoleSingleQuery();
+            q.IsUserRole = true;
+            q.not = true;
+            request.Queries.push(q);
+        }
+        {
+            const q = new IdmRoleSingleQuery();
+            q.IsTeam = true;
+            q.not = true;
+            request.Queries.push(q);
+        }
+        request.Operation = ServiceOperationType.constructFromObject('AND');
+
+        const p1 = api.searchRoles(request).then(coll => {
             return coll.Roles || [];
         });
+        const p2 = this.loadRole('ROOT_GROUP');
+        return Promise.all([p1, p2]).then(result => {
+            let roles = result[0];
+            if (result[1] !== null) {
+                roles = [result[1], ...roles];
+            }
+            return roles;
+        });
+
 
     }
 
