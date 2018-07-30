@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/lpar/gzipped"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
@@ -53,7 +54,7 @@ func init() {
 			return service.RunnerFunc(func() error {
 					router := mux.NewRouter()
 					httpFs := frontend.GetPluginsFS()
-					fs := http.FileServer(httpFs)
+					fs := gzipped.FileServer(httpFs)
 					router.Handle("/index.json", fs)
 					router.PathPrefix("/plug/").Handler(http.StripPrefix("/plug/", fs))
 					indexHandler := index.NewIndexHandler()

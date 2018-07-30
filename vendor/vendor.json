@@ -2431,6 +2431,12 @@
 			"revisionTime": "2018-03-19T19:41:35Z"
 		},
 		{
+			"checksumSHA1": "XwsEm25icZpVOG3HNfIoEDHJEA4=",
+			"path": "github.com/lpar/gzipped",
+			"revision": "ac6fab0f5299981cc9201a331456c75cf2be8e9e",
+			"revisionTime": "2018-06-18T15:27:31Z"
+		},
+		{
 			"checksumSHA1": "Plb8XkKi94lIr95zMnLCPdbAgcs=",
 			"origin": "github.com/mholt/caddy/vendor/github.com/lucas-clemente/aes12",
 			"path": "github.com/lucas-clemente/aes12",
