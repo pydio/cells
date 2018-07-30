@@ -328,31 +328,44 @@ var IdmApi = (function () {
         if (limit > -1) {
             request.Limit = limit + '';
         }
-        if (!showTechnicalRoles) {
-            request.Queries = [];
-            {
-                var q = new _genModelIdmRoleSingleQuery2["default"]();
-                q.IsGroupRole = true;
-                q.not = true;
-                request.Queries.push(q);
-            }
-            {
-                var q = new _genModelIdmRoleSingleQuery2["default"]();
-                q.IsUserRole = true;
-                q.not = true;
-                request.Queries.push(q);
-            }
-            {
-                var q = new _genModelIdmRoleSingleQuery2["default"]();
-                q.IsTeam = true;
-                q.not = true;
-                request.Queries.push(q);
-            }
-            request.Operation = _genModelServiceOperationType2["default"].constructFromObject('AND');
-        }
+        if (showTechnicalRoles) {
 
-        return api.searchRoles(request).then(function (coll) {
+            return api.searchRoles(request).then(function (coll) {
+                return coll.Roles || [];
+            });
+        }
+        // Exclude tech roles but still load ROOT_GROUP role
+        request.Queries = [];
+        {
+            var q = new _genModelIdmRoleSingleQuery2["default"]();
+            q.IsGroupRole = true;
+            q.not = true;
+            request.Queries.push(q);
+        }
+        {
+            var q = new _genModelIdmRoleSingleQuery2["default"]();
+            q.IsUserRole = true;
+            q.not = true;
+            request.Queries.push(q);
+        }
+        {
+            var q = new _genModelIdmRoleSingleQuery2["default"]();
+            q.IsTeam = true;
+            q.not = true;
+            request.Queries.push(q);
+        }
+        request.Operation = _genModelServiceOperationType2["default"].constructFromObject('AND');
+
+        var p1 = api.searchRoles(request).then(function (coll) {
             return coll.Roles || [];
+        });
+        var p2 = this.loadRole('ROOT_GROUP');
+        return Promise.all([p1, p2]).then(function (result) {
+            var roles = result[0];
+            if (result[1] !== null) {
+                roles = [result[1]].concat(roles);
+            }
+            return roles;
         });
     };
 
