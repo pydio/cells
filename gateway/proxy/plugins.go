@@ -24,8 +24,6 @@ package proxy
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
@@ -41,10 +39,10 @@ import (
 
 func init() {
 
-	caddydir := filepath.Join(config.ApplicationDataDir(), "cert")
-	os.MkdirAll(caddydir, 0770)
-	fmt.Println("Setting CADDYPATH ENV Variable", caddydir)
-	os.Setenv("CADDYPATH", caddydir)
+	// caddydir := filepath.Join(config.ApplicationDataDir(), "cert")
+	// os.MkdirAll(caddydir, 0770)
+	// fmt.Println("Setting CADDYPATH ENV Variable", caddydir)
+	// os.Setenv("CADDYPATH", caddydir)
 
 	service.NewService(
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_GATEWAY_PROXY),
@@ -70,7 +68,6 @@ func init() {
 			certEmail := config.Get("cert", "proxy", "email").String("")
 			if certEmail != "" {
 				fmt.Println("#### Configuring  LE cert auto gen")
-
 				caddytls.Agreed = true
 				useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
 				if useStagingCA {
