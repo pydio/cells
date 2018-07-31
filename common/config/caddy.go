@@ -162,6 +162,7 @@ http://{{.HttpRedirectSource.Host}} {
 {{end}}
 `
 	DefaultCaddyfile = filepath.Join(ApplicationDataDir(), "Caddyfile")
+	DefaultCaUrl     = "https://acme-v01.api.letsencrypt.org/directory"
 )
 
 func init() {

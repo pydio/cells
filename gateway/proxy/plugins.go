@@ -59,16 +59,10 @@ func init() {
 				return nil, nil, nil, e
 			}
 
-			// TODO enhance this
 			certEmail := config.Get("cert", "proxy", "email").String("")
 			if certEmail != "" {
 				caddytls.Agreed = true
-				useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
-				if useStagingCA {
-					caddytls.DefaultCAUrl = "https://acme-staging.api.letsencrypt.org/directory"
-				} else {
-					caddytls.DefaultCAUrl = "https://acme-v01.api.letsencrypt.org/directory"
-				}
+				caddytls.DefaultCAUrl = config.Get("cert", "proxy", "caUrl").String("")
 			}
 
 			// now load inside caddy

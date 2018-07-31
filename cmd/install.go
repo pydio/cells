@@ -105,17 +105,14 @@ Services will all start automatically after the install process is finished.
 
 		if niBindUrl != "" && niExtUrl != "" {
 
+			internal, _ = url.Parse("http://" + niBindUrl)
+			external, _ = url.Parse("http://" + niExtUrl)
+			config.Set(internal.String(), "defaults", "urlInternal")
+			config.Set(external.String(), "defaults", "url")
+
 			if niDisableSsl {
-				internal, _ = url.Parse("http://" + niBindUrl)
-				external, _ = url.Parse("http://" + niExtUrl)
-				config.Set(internal.String(), "defaults", "urlInternal")
-				config.Set(external.String(), "defaults", "url")
 				config.Save("cli", "Install / Non-Interactive / Without SSL")
 			} else {
-				internal, _ = url.Parse("https://" + niBindUrl)
-				external, _ = url.Parse("https://" + niExtUrl)
-				config.Set(internal.String(), "defaults", "urlInternal")
-				config.Set(external.String(), "defaults", "url")
 				config.Set(true, "cert", "proxy", "ssl")
 				config.Set(true, "cert", "proxy", "self")
 				config.Save("cli", "Install / Non-Interactive / With SSL")
@@ -172,14 +169,9 @@ Services will all start automatically after the install process is finished.
 				tls = "tls self_signed"
 			} else if config.Get("cert", "proxy", "email").String("") != "" {
 				tls = fmt.Sprintf("tls %s", config.Get("cert", "proxy", "email").String(""))
-				fmt.Println("Configuring LE, tls string: ", tls)
 				caddytls.Agreed = true
-				useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
-				if useStagingCA {
-					caddytls.DefaultCAUrl = "https://acme-staging.api.letsencrypt.org/directory"
-				} else {
-					caddytls.DefaultCAUrl = "https://acme-v01.api.letsencrypt.org/directory"
-				}
+				caddytls.DefaultCAUrl = config.Get("cert", "proxy", "caUrl").String("")
+				// useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
 			} else {
 				cert := config.Get("cert", "proxy", "certFile").String("")
 				key := config.Get("cert", "proxy", "keyFile").String("")
