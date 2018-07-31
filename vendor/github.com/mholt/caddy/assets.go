@@ -19,6 +19,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 )
 
 // AssetsPath returns the path to the folder
@@ -27,6 +28,9 @@ import (
 // is used. Otherwise, the path is the result
 // of evaluating "$HOME/.caddy".
 func AssetsPath() string {
+	fmt.Println("##### In Assets Path, corresponding stack:")
+	debug.PrintStack()
+
 	if caddyPath := os.Getenv("CADDYPATH"); caddyPath != "" {
 		fmt.Println("Got a CADDYPATH variable", caddyPath)
 		return caddyPath
