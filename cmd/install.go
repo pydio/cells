@@ -171,7 +171,7 @@ Services will all start automatically after the install process is finished.
 			if config.Get("cert", "proxy", "self").Bool(false) {
 				tls = "tls self_signed"
 			} else if config.Get("cert", "proxy", "email").String("") != "" {
-				tls = fmt.Sprintf("tls %s", config.Get("cert", "proxy", "email"))
+				tls = fmt.Sprintf("tls %s", config.Get("cert", "proxy", "email").String(""))
 				fmt.Println("Configuring LE, tls string: ", tls)
 				caddytls.Agreed = true
 				useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
