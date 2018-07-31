@@ -41,6 +41,11 @@ import (
 
 func init() {
 
+	caddydir := filepath.Join(config.ApplicationDataDir(), "cert")
+	os.MkdirAll(caddydir, 0770)
+	fmt.Println("Setting CADDYPATH ENV Variable", caddydir)
+	os.Setenv("CADDYPATH", caddydir)
+
 	service.NewService(
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_GATEWAY_PROXY),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
@@ -50,11 +55,6 @@ func init() {
 			caddy.AppName = common.PackageLabel
 			caddy.AppVersion = common.Version().String()
 			httpserver.HTTP2 = false
-
-			caddydir := filepath.Join(config.ApplicationDataDir(), "cert")
-			os.MkdirAll(caddydir, 0770)
-			fmt.Println("Setting CADDYPATH ENV Variable", caddydir)
-			os.Setenv("CADDYPATH", caddydir)
 
 			conf, e := config.LoadCaddyConf()
 			if e != nil {
