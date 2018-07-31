@@ -99,7 +99,6 @@ Services will all start automatically after the install process is finished.
 		fmt.Println(common.PackageLabel + " will be configured to run on this machine. Make sure to prepare the following data")
 		fmt.Println(" - IPs and ports for binding the webserver to outside world")
 		fmt.Println(" - MySQL 5.6+ (or MariaDB equivalent) server access")
-		fmt.Println(" - PHP-FPM 7+ for running frontend")
 		fmt.Println("Pick your installation mode when you are ready.")
 		fmt.Println("")
 
@@ -180,10 +179,6 @@ Services will all start automatically after the install process is finished.
 		}
 
 		// Creating temporary caddy file
-		// TODO remove this
-		fmt.Println("Initiating temporary caddy file")
-		fmt.Println("Current CADDYPATH", os.Getenv("CADDYPATH"))
-
 		if err := config.InitCaddyFile(caddyfile, struct {
 			URL   *url.URL
 			Root  string
