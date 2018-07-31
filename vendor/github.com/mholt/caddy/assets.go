@@ -15,6 +15,7 @@
 package caddy
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -27,8 +28,10 @@ import (
 // of evaluating "$HOME/.caddy".
 func AssetsPath() string {
 	if caddyPath := os.Getenv("CADDYPATH"); caddyPath != "" {
+		fmt.Println("Got a CADDYPATH variable", caddyPath)
 		return caddyPath
 	}
+	fmt.Println("No CADDYPATH variable found, using default")
 	return filepath.Join(userHomeDir(), ".caddy")
 }
 

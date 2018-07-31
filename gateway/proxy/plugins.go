@@ -76,6 +76,7 @@ func init() {
 
 				caddydir := filepath.Join(config.ApplicationDataDir(), "cert")
 				os.MkdirAll(caddydir, 0770)
+				fmt.Println("Setting CADDYPATH ENV Variable", caddydir)
 				os.Setenv("CADDYPATH", caddydir)
 			}
 
