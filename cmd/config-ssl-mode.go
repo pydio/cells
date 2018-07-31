@@ -112,7 +112,6 @@ func promptSslMode() (enabled bool, e error) {
 		config.Set(false, "cert", "proxy", "self")
 		config.Set(certFile, "cert", "proxy", "certFile")
 		config.Set(keyFile, "cert", "proxy", "keyFile")
-		config.Set("", "cert", "proxy", "email")
 	case 1:
 		mailPrompt := promptui.Prompt{Label: "Please enter the mail address to use with which to generate the certificate", Default: certEmail}
 		// useStagingPrompt := promptui.Prompt{Label: "Use staging Certificate Authority URL?\033[1m Enable this option to test your setup avoiding the risk of hitting rate limits if you are not sure. You will then have to redo the installation process with production CA after validation of your setup.\033[0m[Y/N] ", Default: ""}

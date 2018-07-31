@@ -180,6 +180,10 @@ Services will all start automatically after the install process is finished.
 		}
 
 		// Creating temporary caddy file
+		// TODO remove this
+		fmt.Println("Initiating temporary caddy file")
+		fmt.Println("Current CADDYPATH", os.Getenv("CADDYPATH"))
+
 		if err := config.InitCaddyFile(caddyfile, struct {
 			URL   *url.URL
 			Root  string

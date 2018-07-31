@@ -64,6 +64,8 @@ func init() {
 			// TODO enhance this
 			certEmail := config.Get("cert", "proxy", "email").String("")
 			if certEmail != "" {
+				fmt.Println("#### Configuring  LE cert auto gen")
+
 				caddytls.Agreed = true
 				useStagingCA := config.Get("cert", "proxy", "useStagingCA").Bool(false)
 				if useStagingCA {
