@@ -62,7 +62,9 @@ func init() {
 			certEmail := config.Get("cert", "proxy", "email").String("")
 			if certEmail != "" {
 				caddytls.Agreed = true
-				caddytls.DefaultCAUrl = config.Get("cert", "proxy", "caUrl").String("")
+				caUrl := config.Get("cert", "proxy", "caUrl").String("")
+				fmt.Println("### Configuring LE SSL, CA URL:", caUrl)
+				caddytls.DefaultCAUrl = caUrl
 			}
 
 			// now load inside caddy
