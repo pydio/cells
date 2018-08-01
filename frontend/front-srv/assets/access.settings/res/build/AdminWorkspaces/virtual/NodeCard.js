@@ -89,6 +89,7 @@ var NodeCard = (function (_React$Component) {
             var dataSources = _props.dataSources;
             var node = _props.node;
             var readonly = _props.readonly;
+            var oneLiner = _props.oneLiner;
 
             var ds = {};
             if (dataSources) {
@@ -102,38 +103,56 @@ var NodeCard = (function (_React$Component) {
                 User: { Name: '' }
             };
 
-            var titleComponent = _react2['default'].createElement(
-                'div',
-                { style: { display: 'flex', alignItems: 'baseline' } },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { flex: 1 } },
-                    node.getName()
-                ),
-                !readonly && _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }),
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onClick: this.remove.bind(this), tooltip: "Delete", disabled: node.getName() === 'cells' || node.getName() === 'my-files' })
-                )
-            );
+            var codeMirrorField = _react2['default'].createElement(AdminComponents.CodeMirrorField, {
+                mode: 'javascript',
+                globalScope: globalScope,
+                value: this.state.value,
+                onChange: this.onChange.bind(this),
+                readOnly: readonly
+            });
 
-            return _react2['default'].createElement(
-                'div',
-                { style: { marginBottom: 10 } },
-                _react2['default'].createElement(AdminComponents.SubHeader, { title: titleComponent }),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    { zDepth: 1, style: { margin: '0 20px' } },
-                    _react2['default'].createElement(AdminComponents.CodeMirrorField, {
-                        mode: 'javascript',
-                        globalScope: globalScope,
-                        value: this.state.value,
-                        onChange: this.onChange.bind(this),
-                        readOnly: readonly
-                    })
-                )
-            );
+            if (oneLiner) {
+                return _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        codeMirrorField
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" })
+                    )
+                );
+            } else {
+                var titleComponent = _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'baseline' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        node.getName()
+                    ),
+                    !readonly && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }),
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onClick: this.remove.bind(this), tooltip: "Delete", disabled: node.getName() === 'cells' || node.getName() === 'my-files' })
+                    )
+                );
+                return _react2['default'].createElement(
+                    'div',
+                    { style: { marginBottom: 10 } },
+                    _react2['default'].createElement(AdminComponents.SubHeader, { title: titleComponent }),
+                    _react2['default'].createElement(
+                        _materialUi.Paper,
+                        { zDepth: 1, style: { margin: '0 20px' } },
+                        codeMirrorField
+                    )
+                );
+            }
         }
     }]);
 

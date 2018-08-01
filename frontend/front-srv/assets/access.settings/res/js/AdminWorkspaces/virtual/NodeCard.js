@@ -55,7 +55,7 @@ class NodeCard extends React.Component{
 
     render(){
 
-        const {dataSources, node, readonly} = this.props;
+        const {dataSources, node, readonly, oneLiner} = this.props;
         let ds = {};
         if(dataSources){
             dataSources.map((d) => {
@@ -68,32 +68,43 @@ class NodeCard extends React.Component{
             User:{Name:''}
         };
 
-        const titleComponent = (
-            <div style={{display:'flex', alignItems:'baseline'}}>
-                <div style={{flex: 1}}>{node.getName()}</div>
-                {!readonly &&
-                    <div>
-                        <IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!this.state.dirty} tooltip={"Save"}/>
-                        <IconButton iconClassName={"mdi mdi-delete"}  onClick={this.remove.bind(this)} tooltip={"Delete"} disabled={node.getName() === 'cells' || node.getName() === 'my-files'}/>
-                    </div>
-                }
-            </div>
+        const codeMirrorField = (
+            <AdminComponents.CodeMirrorField
+                mode="javascript"
+                globalScope={globalScope}
+                value={this.state.value}
+                onChange={this.onChange.bind(this)}
+                readOnly={readonly}
+            />
         );
 
-        return (
-            <div style={{marginBottom: 10}}>
-                <AdminComponents.SubHeader title={titleComponent}/>
-                <Paper zDepth={1} style={{margin:'0 20px'}}>
-                    <AdminComponents.CodeMirrorField
-                        mode="javascript"
-                        globalScope={globalScope}
-                        value={this.state.value}
-                        onChange={this.onChange.bind(this)}
-                        readOnly={readonly}
-                    />
-                </Paper>
-            </div>
-        );
+        if(oneLiner) {
+            return (
+                <div style={{display:'flex'}}>
+                    <div style={{flex: 1}}>{codeMirrorField}</div>
+                    <div><IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!this.state.dirty} tooltip={"Save"}/></div>
+                </div>
+            );
+        } else {
+            const titleComponent = (
+                <div style={{display:'flex', alignItems:'baseline'}}>
+                    <div style={{flex: 1}}>{node.getName()}</div>
+                    {!readonly &&
+                        <div>
+                            <IconButton iconClassName={"mdi mdi-content-save"} onClick={this.save.bind(this)} disabled={!this.state.dirty} tooltip={"Save"}/>
+                            <IconButton iconClassName={"mdi mdi-delete"}  onClick={this.remove.bind(this)} tooltip={"Delete"} disabled={node.getName() === 'cells' || node.getName() === 'my-files'}/>
+                        </div>
+                    }
+                </div>
+            );
+            return (
+                <div style={{marginBottom: 10}}>
+                    <AdminComponents.SubHeader title={titleComponent}/>
+                    <Paper zDepth={1} style={{margin:'0 20px'}}>{codeMirrorField}</Paper>
+                </div>
+            );
+        }
+
     }
 
 }

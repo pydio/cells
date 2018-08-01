@@ -6,11 +6,9 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -26,228 +24,22 @@ var _modelWs = require('../model/Ws');
 
 var _modelWs2 = _interopRequireDefault(_modelWs);
 
-var _lodashDebounce = require('lodash.debounce');
+var _WsAutoComplete = require('./WsAutoComplete');
 
-var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
+var _WsAutoComplete2 = _interopRequireDefault(_WsAutoComplete);
 
-var _pydioHttpRestApi = require("pydio/http/rest-api");
-
-var AutocompleteTree = (function (_React$Component) {
-    _inherits(AutocompleteTree, _React$Component);
-
-    function AutocompleteTree(props) {
-        _classCallCheck(this, AutocompleteTree);
-
-        _get(Object.getPrototypeOf(AutocompleteTree.prototype), 'constructor', this).call(this, props);
-        this.debounced = (0, _lodashDebounce2['default'])(this.loadValues.bind(this), 300);
-        this.state = { searchText: props.value, value: props.value };
-        console.log(this.state);
-    }
-
-    _createClass(AutocompleteTree, [{
-        key: 'handleUpdateInput',
-        value: function handleUpdateInput(searchText) {
-            this.debounced();
-            this.setState({ searchText: searchText });
-        }
-    }, {
-        key: 'handleNewRequest',
-        value: function handleNewRequest(chosenValue) {
-            var key = undefined;
-            var chosenNode = undefined;
-            var nodes = this.state.nodes;
-
-            if (chosenValue.key === undefined) {
-                if (chosenValue === '') {
-                    this.props.onChange('');
-                }
-                key = chosenValue;
-                var ok = false;
-                nodes.map(function (node) {
-                    if (node.Path === key) {
-                        chosenNode = node;
-                        ok = true;
-                    }
-                });
-                if (!ok) {
-                    nodes.map(function (node) {
-                        if (node.Path.indexOf(key) === 0) {
-                            key = node.Path;
-                            chosenNode = node;
-                            ok = true;
-                        }
-                    });
-                }
-                if (!ok) {
-                    return;
-                }
-            } else {
-                key = chosenValue.key;
-                chosenNode = chosenValue.node;
-            }
-            this.setState({ value: key });
-            this.props.onChange(key, chosenNode);
-            this.loadValues(key);
-        }
-    }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.lastSearch = null;
-            var value = "";
-            if (this.props.value) {
-                value = this.props.value;
-            }
-            this.loadValues(value);
-        }
-    }, {
-        key: 'loadValues',
-        value: function loadValues() {
-            var _this = this;
-
-            var value = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
-            var searchText = this.state.searchText;
-
-            var basePath = value;
-            if (!value && searchText) {
-                var last = searchText.lastIndexOf('/');
-                basePath = searchText.substr(0, last);
-            }
-            if (this.lastSearch !== null && this.lastSearch === basePath) {
-                return;
-            }
-            this.lastSearch = basePath;
-
-            var api = new _pydioHttpRestApi.AdminTreeServiceApi(PydioApi.getRestClient());
-            var listRequest = new _pydioHttpRestApi.TreeListNodesRequest();
-            var treeNode = new _pydioHttpRestApi.TreeNode();
-            treeNode.Path = basePath;
-            listRequest.Node = treeNode;
-            this.setState({ loading: true });
-            api.listAdminTree(listRequest).then(function (nodesColl) {
-                _this.setState({ nodes: nodesColl.Children || [], loading: false });
-            })['catch'](function () {
-                _this.setState({ loading: false });
-            });
-        }
-    }, {
-        key: 'renderNode',
-        value: function renderNode(node) {
-            var label = _react2['default'].createElement(
-                'span',
-                null,
-                node.Path
-            );
-            var icon = "mdi mdi-folder";
-            var categ = "folder";
-            if (!node.Uuid.startsWith("DATASOURCE:")) {
-                icon = "mdi mdi-database";
-                categ = "templatePath";
-            }
-            return {
-                key: node.Path,
-                text: node.Path,
-                node: node,
-                categ: categ,
-                value: _react2['default'].createElement(
-                    _materialUi.MenuItem,
-                    null,
-                    _react2['default'].createElement(_materialUi.FontIcon, { className: icon, color: '#616161', style: { float: 'left', marginRight: 8 } }),
-                    ' ',
-                    label
-                )
-            };
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this2 = this;
-
-            var _props = this.props;
-            var onDelete = _props.onDelete;
-            var skipTemplates = _props.skipTemplates;
-            var label = _props.label;
-            var _state = this.state;
-            var nodes = _state.nodes;
-            var loading = _state.loading;
-
-            var dataSource = [];
-            if (nodes) {
-                (function () {
-                    var categs = {};
-                    nodes.forEach(function (node) {
-                        var data = _this2.renderNode(node);
-                        if (!categs[data.categ]) {
-                            categs[data.categ] = [];
-                        }
-                        categs[data.categ].push(data);
-                    });
-                    if (Object.keys(categs).length > 1) {
-                        dataSource.push({ key: "h1", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "DataSources and folders", style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
-                        dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[0]]));
-                        if (!skipTemplates) {
-                            dataSource.push({ key: "h2", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Preset Template Paths", style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
-                            dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[1]]));
-                        }
-                    } else if (Object.keys(categs).length === 1) {
-                        dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[0]]));
-                    }
-                })();
-            }
-
-            var displayText = this.state.value;
-
-            return _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 1, style: { display: 'flex', alignItems: 'baseline', padding: 10, paddingTop: 0, marginTop: 10 } },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { position: 'relative', flex: 1, marginTop: -5 } },
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { position: 'absolute', right: 0, top: 30, width: 30 } },
-                        _react2['default'].createElement(_materialUi.RefreshIndicator, {
-                            size: 30,
-                            left: 0,
-                            top: 0,
-                            status: loading ? "loading" : "hide"
-                        })
-                    ),
-                    _react2['default'].createElement(_materialUi.AutoComplete, {
-                        fullWidth: true,
-                        searchText: displayText,
-                        onUpdateInput: this.handleUpdateInput.bind(this),
-                        onNewRequest: this.handleNewRequest.bind(this),
-                        dataSource: dataSource,
-                        floatingLabelText: label || 'Select a folder or a predefined template path',
-                        floatingLabelStyle: { whiteSpace: 'nowrap' },
-                        floatingLabelFixed: true,
-                        filter: function (searchText, key) {
-                            return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
-                        },
-                        openOnFocus: true,
-                        menuProps: { maxHeight: 200 }
-                    })
-                ),
-                onDelete && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onTouchTap: onDelete })
-            );
-        }
-    }]);
-
-    return AutocompleteTree;
-})(_react2['default'].Component);
-
-var WsEditor = (function (_React$Component2) {
-    _inherits(WsEditor, _React$Component2);
+var WsEditor = (function (_React$Component) {
+    _inherits(WsEditor, _React$Component);
 
     function WsEditor(props) {
-        var _this3 = this;
+        var _this = this;
 
         _classCallCheck(this, WsEditor);
 
         _get(Object.getPrototypeOf(WsEditor.prototype), 'constructor', this).call(this, props);
         var workspace = new _modelWs2['default'](props.workspace);
         workspace.observe('update', function () {
-            _this3.forceUpdate();
+            _this.forceUpdate();
         });
         this.state = {
             workspace: workspace.getModel(),
@@ -259,27 +51,27 @@ var WsEditor = (function (_React$Component2) {
     _createClass(WsEditor, [{
         key: 'revert',
         value: function revert() {
-            var _this4 = this;
+            var _this2 = this;
 
             var container = this.state.container;
 
             container.revert();
             this.setState({ workspace: container.getModel() }, function () {
-                _this4.forceUpdate();
+                _this2.forceUpdate();
             });
         }
     }, {
         key: 'save',
         value: function save() {
-            var _this5 = this;
+            var _this3 = this;
 
             var container = this.state.container;
             var reloadList = this.props.reloadList;
 
             container.save().then(function () {
                 reloadList();
-                _this5.setState({ workspace: container.getModel() }, function () {
-                    _this5.forceUpdate();
+                _this3.setState({ workspace: container.getModel() }, function () {
+                    _this3.forceUpdate();
                 });
             });
         }
@@ -287,9 +79,9 @@ var WsEditor = (function (_React$Component2) {
         key: 'remove',
         value: function remove() {
             var container = this.state.container;
-            var _props2 = this.props;
-            var closeEditor = _props2.closeEditor;
-            var reloadList = _props2.reloadList;
+            var _props = this.props;
+            var closeEditor = _props.closeEditor;
+            var reloadList = _props.reloadList;
 
             if (confirm('Are you sure?')) {
                 container.remove().then(function () {
@@ -301,22 +93,22 @@ var WsEditor = (function (_React$Component2) {
     }, {
         key: 'render',
         value: function render() {
-            var _this6 = this;
+            var _this4 = this;
 
             var closeEditor = this.props.closeEditor;
-            var _state2 = this.state;
-            var workspace = _state2.workspace;
-            var container = _state2.container;
-            var newFolderKey = _state2.newFolderKey;
+            var _state = this.state;
+            var workspace = _state.workspace;
+            var container = _state.container;
+            var newFolderKey = _state.newFolderKey;
 
             var buttons = [];
             if (!container.create) {
                 buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "Revert", secondary: true, disabled: !container.isDirty(), onTouchTap: function () {
-                        _this6.revert();
+                        _this4.revert();
                     } }));
             }
             buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "Save", secondary: true, disabled: !(container.isDirty() && container.isValid()), onTouchTap: function () {
-                    _this6.save();
+                    _this4.save();
                 } }));
             buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: "Close", onTouchTap: closeEditor }));
 
@@ -329,7 +121,7 @@ var WsEditor = (function (_React$Component2) {
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: "Delete Workspace", onTouchTap: function () {
-                            _this6.remove();
+                            _this4.remove();
                         } })
                 );
             }
@@ -368,12 +160,12 @@ var WsEditor = (function (_React$Component2) {
                 if (_modelWs2['default'].rootIsTemplatePath(roots[k])) {
                     label = "Template Path";
                 }
-                return _react2['default'].createElement(AutocompleteTree, {
+                return _react2['default'].createElement(_WsAutoComplete2['default'], {
                     key: roots[k].Uuid,
                     label: label,
                     value: roots[k].Path,
                     onDelete: function () {
-                        delete roots[k];_this6.forceUpdate();
+                        delete roots[k];_this4.forceUpdate();
                     },
                     onChange: function (key, node) {
                         delete roots[k];
@@ -385,12 +177,12 @@ var WsEditor = (function (_React$Component2) {
                 });
             });
             if (!container.hasTemplatePath()) {
-                completers.push(_react2['default'].createElement(AutocompleteTree, {
+                completers.push(_react2['default'].createElement(_WsAutoComplete2['default'], {
                     key: newFolderKey,
                     value: "",
                     onChange: function (k, node) {
                         if (node) {
-                            roots[node.Uuid] = node;_this6.setState({ newFolderKey: Math.random() });
+                            roots[node.Uuid] = node;_this4.setState({ newFolderKey: Math.random() });
                         }
                     },
                     skipTemplates: container.hasFolderRoots()
