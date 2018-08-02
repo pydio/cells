@@ -29,6 +29,7 @@ import (
 	"github.com/micro/go-micro"
 	"go.uber.org/zap"
 
+	"github.com/ory/ladon"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -52,6 +53,10 @@ func init() {
 			{
 				TargetVersion: service.ValidVersion("1.0.1"),
 				Up:            Upgrade101,
+			},
+			{
+				TargetVersion: service.ValidVersion("1.0.3"),
+				Up:            Upgrade103,
 			},
 		}),
 		service.WithMicro(func(m micro.Service) error {
@@ -123,6 +128,35 @@ func Upgrade101(ctx context.Context) error {
 					p.Resources = append(p.Resources, "rest:/docstore/keystore<.+>", "rest:/changes", "rest:/changes<.+>")
 				}
 			}
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("Could not update policy group "+group.Uuid, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updating policy group " + group.Uuid)
+			}
+		}
+	}
+	return nil
+}
+
+func Upgrade103(ctx context.Context) error {
+	dao := servicecontext.GetDAO(ctx).(policy.DAO)
+	if dao == nil {
+		return fmt.Errorf("cannot find DAO for policies initialization")
+	}
+	groups, e := dao.ListPolicyGroups(ctx)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.Uuid == "rest-apis-default-accesses" {
+			group.Policies = append(group.Policies, policy.LadonToProtoPolicy(&ladon.DefaultPolicy{
+				ID:          "shares-default-policy",
+				Description: "PolicyGroup.LoggedUsers.Rule3",
+				Subjects:    []string{"profile:standard", "profile:shared"},
+				Resources:   []string{"rest:/docstore/share/<.+>"},
+				Actions:     []string{"GET", "PUT"},
+				Effect:      ladon.AllowAccess,
+			}))
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
 				log.Logger(ctx).Error("Could not update policy group "+group.Uuid, zap.Error(er))
 			} else {

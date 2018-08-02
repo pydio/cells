@@ -160,6 +160,16 @@ var (
 					Actions: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 					Effect:  ladon.AllowAccess,
 				}),
+				LadonToProtoPolicy(&ladon.DefaultPolicy{
+					ID:          "shares-default-policy",
+					Description: "PolicyGroup.LoggedUsers.Rule3",
+					Subjects:    []string{"profile:standard", "profile:shared"},
+					Resources: []string{
+						"rest:/docstore/share/<.+>",
+					},
+					Actions: []string{"GET", "PUT"},
+					Effect:  ladon.AllowAccess,
+				}),
 			},
 		},
 

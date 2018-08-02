@@ -43,6 +43,13 @@ import (
 	"github.com/pydio/cells/common/utils"
 )
 
+var profilesLevel = map[string]int{
+	common.PYDIO_PROFILE_ANON:     0,
+	common.PYDIO_PROFILE_SHARED:   1,
+	common.PYDIO_PROFILE_STANDARD: 2,
+	common.PYDIO_PROFILE_ADMIN:    3,
+}
+
 type UserHandler struct {
 	resources.ResourceProviderHandler
 }
@@ -284,6 +291,15 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 				log.GetAuditId(common.AUDIT_USER_UPDATE),
 			)
 			service.RestError403(req, rsp, err)
+			return
+		}
+	}
+
+	// Check profile is not higher than current user profile
+	if !inputUser.IsGroup {
+		_, ctxClaims := utils.FindUserNameInContext(ctx)
+		if profilesLevel[inputUser.Attributes["profile"]] > profilesLevel[ctxClaims.Profile] {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to set a profile (%s) higher than your current profile (%s)", inputUser.Attributes["profile"], ctxClaims.Profile))
 			return
 		}
 	}
