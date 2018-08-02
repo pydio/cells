@@ -80,9 +80,7 @@ func (m MappingRule) RemoveLdapEscape(strs []string) []string {
 		str := []string{}
 		for _, s := range strs {
 			replacer := strings.NewReplacer(`\=`, "=", `\+`, "=", `\<`, "<", `\>`, ">", `\#`, "#", `\;`, ";")
-			replacer2 := strings.NewReplacer(`\,`, "[U0001]")
-			replacer3 := strings.NewReplacer("[U0001]", `\,`, ",", `\,`)
-			str = append(str, replacer3.Replace(replacer2.Replace(replacer.Replace(s))))
+			str = append(str, replacer.Replace(s))
 		}
 		return str
 	}
