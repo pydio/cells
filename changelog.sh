@@ -22,8 +22,8 @@ LATEST_TAG=${TAGS[0]}
 PREVIOUS_TAG=${TAGS[1]}
 
 # If you want to specify your own two tags to compare, uncomment and enter them below
-# LATEST_TAG=HEAD
-# PREVIOUS_TAG=v1.0.0
+LATEST_TAG=HEAD
+PREVIOUS_TAG=v1.0.2
 
 
 # Get a log of commits that occured between two tags
