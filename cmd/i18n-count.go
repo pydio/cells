@@ -157,14 +157,20 @@ func printResult(cmd *cobra.Command) {
 	for _, projectCounter := range counters {
 		i++
 		cmd.Printf("#%d - Project at %s:\n", i, projectCounter.ppath)
+
+		var total2 singleCounter
+
 		for k, sc := range projectCounter.singleCounters {
-			cmd.Printf("\t - %s: %d strings in %d messages\n", k, sc.stringNb, sc.msgNb)
+			cmd.Printf("\t - %s: %d words in %d messages\n", k, sc.stringNb, sc.msgNb)
 			total.msgNb += sc.msgNb
+			total2.msgNb += sc.msgNb
 			total.stringNb += sc.stringNb
+			total2.stringNb += sc.stringNb
 		}
+		cmd.Printf("  Sub Total: %d words in %d messages\n", total2.stringNb, total2.msgNb)
 		cmd.Println()
 	}
-	cmd.Printf("Total: scanned %d projects, found %d strings in %d messages\n", i, total.stringNb, total.msgNb)
+	cmd.Printf("Total: scanned %d projects, found %d words in %d messages\n", i, total.stringNb, total.msgNb)
 }
 
 func countGoStrings(cmd *cobra.Command, projectId, fpath string) error {
