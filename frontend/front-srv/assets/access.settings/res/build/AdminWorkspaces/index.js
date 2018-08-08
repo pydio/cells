@@ -30,17 +30,9 @@ var _boardWsDashboard = require('./board/WsDashboard');
 
 var _boardWsDashboard2 = _interopRequireDefault(_boardWsDashboard);
 
-var _modelWorkspace = require('./model/Workspace');
-
-var _modelWorkspace2 = _interopRequireDefault(_modelWorkspace);
-
 var _panelSharesList = require('./panel/SharesList');
 
 var _panelSharesList2 = _interopRequireDefault(_panelSharesList);
-
-var _editorTplFieldsChooser = require('./editor/TplFieldsChooser');
-
-var _editorTplFieldsChooser2 = _interopRequireDefault(_editorTplFieldsChooser);
 
 var _metaMetaList = require('./meta/MetaList');
 
@@ -49,10 +41,6 @@ var _metaMetaList2 = _interopRequireDefault(_metaMetaList);
 var _panelWorkspaceSummary = require('./panel/WorkspaceSummary');
 
 var _panelWorkspaceSummary2 = _interopRequireDefault(_panelWorkspaceSummary);
-
-var _editorWorkspaceEditor = require('./editor/WorkspaceEditor');
-
-var _editorWorkspaceEditor2 = _interopRequireDefault(_editorWorkspaceEditor);
 
 var _boardVirtualNodes = require('./board/VirtualNodes');
 
@@ -66,16 +54,38 @@ var _boardMetadataBoard = require('./board/MetadataBoard');
 
 var _boardMetadataBoard2 = _interopRequireDefault(_boardMetadataBoard);
 
+var _editorDataSourceEditor = require('./editor/DataSourceEditor');
+
+var _editorDataSourceEditor2 = _interopRequireDefault(_editorDataSourceEditor);
+
+var _modelWs = require('./model/Ws');
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
+var _editorWsAutoComplete = require('./editor/WsAutoComplete');
+
+var _editorWsAutoComplete2 = _interopRequireDefault(_editorWsAutoComplete);
+
+var _virtualNodeCard = require('./virtual/NodeCard');
+
+var _virtualNodeCard2 = _interopRequireDefault(_virtualNodeCard);
+
+var _modelVirtualNode = require('./model/VirtualNode');
+
+var _modelVirtualNode2 = _interopRequireDefault(_modelVirtualNode);
+
 window.AdminWorkspaces = {
   MetaSourceForm: _metaMetaSourceForm2['default'],
-  Workspace: _modelWorkspace2['default'],
   SharesList: _panelSharesList2['default'],
-  TplFieldsChooser: _editorTplFieldsChooser2['default'],
   MetaList: _metaMetaList2['default'],
   WorkspaceSummary: _panelWorkspaceSummary2['default'],
-  WorkspaceEditor: _editorWorkspaceEditor2['default'],
   VirtualNodes: _boardVirtualNodes2['default'],
   WsDashboard: _boardWsDashboard2['default'],
   DataSourcesBoard: _boardDataSourcesBoard2['default'],
-  MetadataBoard: _boardMetadataBoard2['default']
+  MetadataBoard: _boardMetadataBoard2['default'],
+  DataSourceEditor: _editorDataSourceEditor2['default'],
+  WsAutoComplete: _editorWsAutoComplete2['default'],
+  TemplatePathEditor: _virtualNodeCard2['default'],
+  TemplatePath: _modelVirtualNode2['default'],
+  Workspace: _modelWs2['default']
 };

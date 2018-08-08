@@ -80,7 +80,7 @@ organized by tags (broker, data, idm, etc.)
 
 Use the --tags/-t flag to limit display to one specific tag, use lowercase for tags.
 
-$ pydio list -t=broker
+$ ./cells list -t=broker
 
 - pydio.grpc.activity   [X]
 - pydio.grpc.chat       [X]

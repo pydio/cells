@@ -5,8 +5,6 @@ module.exports = (grunt, options) => {
         'compress:boot',
         'compress:bundle',
         'compress:css',
-        'compress:woffs',
-        'compress:woffs2'
     ])
 
 };

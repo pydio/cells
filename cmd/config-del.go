@@ -22,12 +22,10 @@ package cmd
 
 import (
 	"errors"
-
-	"github.com/spf13/cobra"
-
+	"fmt"
 	"os"
 
-	"fmt"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common/config"
 )

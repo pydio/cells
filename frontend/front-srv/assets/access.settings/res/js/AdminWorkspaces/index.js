@@ -20,26 +20,30 @@
 
 import MetaSourceForm from './meta/MetaSourceForm'
 import WsDashboard from './board/WsDashboard'
-import Workspace from './model/Workspace'
 import SharesList from './panel/SharesList'
-import TplFieldsChooser from './editor/TplFieldsChooser'
 import MetaList from './meta/MetaList'
 import WorkspaceSummary from './panel/WorkspaceSummary'
-import WorkspaceEditor from './editor/WorkspaceEditor'
 import VirtualNodes from './board/VirtualNodes'
 import DataSourcesBoard from './board/DataSourcesBoard'
 import MetadataBoard from './board/MetadataBoard'
+import DataSourceEditor from './editor/DataSourceEditor'
+import Workspace from './model/Ws'
+import WsAutoComplete from './editor/WsAutoComplete'
+import NodeCard from './virtual/NodeCard'
+import VirtualNode from './model/VirtualNode'
 
 window.AdminWorkspaces = {
     MetaSourceForm,
-    Workspace,
     SharesList,
-    TplFieldsChooser,
     MetaList,
     WorkspaceSummary,
-    WorkspaceEditor,
     VirtualNodes,
     WsDashboard,
     DataSourcesBoard,
-    MetadataBoard
+    MetadataBoard,
+    DataSourceEditor,
+    WsAutoComplete,
+    TemplatePathEditor: NodeCard,
+    TemplatePath:VirtualNode,
+    Workspace,
 };

@@ -22490,7 +22490,7 @@ DataSourcesBoard.propTypes = {
 exports['default'] = DataSourcesBoard;
 module.exports = exports['default'];
 
-},{"../editor/DataSourceEditor":162,"../editor/VersionPolicyEditor":169,"../editor/VersionPolicyPeriods":170,"../model/DataSource":177,"./EncryptionKeys":157,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid4":154}],157:[function(require,module,exports){
+},{"../editor/DataSourceEditor":162,"../editor/VersionPolicyEditor":168,"../editor/VersionPolicyPeriods":169,"../model/DataSource":176,"./EncryptionKeys":157,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid4":154}],157:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -23019,7 +23019,7 @@ var MetadataBoard = (function (_React$Component) {
 exports['default'] = MetadataBoard;
 module.exports = exports['default'];
 
-},{"../editor/MetaNamespace":167,"../model/Metadata":178,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],159:[function(require,module,exports){
+},{"../editor/MetaNamespace":166,"../model/Metadata":177,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],159:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23221,7 +23221,7 @@ var VirtualNodes = (function (_React$Component) {
 exports['default'] = VirtualNodes;
 module.exports = exports['default'];
 
-},{"../model/DataSource":177,"../model/VirtualNode":179,"../virtual/NodeCard":185,"material-ui":"material-ui","react":"react"}],160:[function(require,module,exports){
+},{"../model/DataSource":176,"../model/VirtualNode":178,"../virtual/NodeCard":184,"material-ui":"material-ui","react":"react"}],160:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23353,7 +23353,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Ws":181,"pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],161:[function(require,module,exports){
+},{"../model/Ws":180,"pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],161:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23631,7 +23631,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../editor/DataSourceEditor":162,"../editor/WorkspaceCreator":171,"../editor/WsEditor":173,"../model/Workspace":180,"./WorkspaceList":160,"material-ui":"material-ui","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],162:[function(require,module,exports){
+},{"../editor/DataSourceEditor":162,"../editor/WorkspaceCreator":170,"../editor/WsEditor":172,"../model/Workspace":179,"./WorkspaceList":160,"material-ui":"material-ui","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],162:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -24090,7 +24090,7 @@ DataSourceEditor.contextTypes = {
 exports['default'] = DataSourceEditor;
 module.exports = exports['default'];
 
-},{"../model/DataSource":177,"./DataSourceLocalSelector":163,"material-ui":"material-ui","react":"react"}],163:[function(require,module,exports){
+},{"../model/DataSource":176,"./DataSourceLocalSelector":163,"material-ui":"material-ui","react":"react"}],163:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -24460,93 +24460,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _metaMetaList = require('../meta/MetaList');
-
-var _metaMetaList2 = _interopRequireDefault(_metaMetaList);
-
-var _modelWorkspace = require('../model/Workspace');
-
-var _modelWorkspace2 = _interopRequireDefault(_modelWorkspace);
-
-exports['default'] = _react2['default'].createClass({
-    displayName: 'FeaturesList',
-
-    mixins: [AdminComponents.MessagesConsumerMixin],
-
-    propTypes: {
-        onSelectionChange: _react2['default'].PropTypes.func.isRequired,
-        metaSourceProvider: _react2['default'].PropTypes.object.isRequired,
-        driverLabel: _react2['default'].PropTypes.string,
-        driverDescription: _react2['default'].PropTypes.string,
-        currentSelection: _react2['default'].PropTypes.string,
-        model: _react2['default'].PropTypes.instanceOf(_modelWorkspace2['default']),
-        tplFieldsComponent: _react2['default'].PropTypes.object
-    },
-
-    setEditState: function setEditState(key) {
-        this.props.onSelectionChange(key);
-    },
-
-    closeCurrent: function closeCurrent(event) {
-        event.stopPropagation();
-        this.setEditState('activity');
-    },
-
-    render: function render() {
-
-        var firstSections = [];
-        var driverTabLabel = this.context.getMessage('ws.9');
-        return _react2['default'].createElement(
-            'div',
-            null,
-            _react2['default'].createElement(PydioComponents.PaperEditorNavHeader, { key: 'parameters-k', label: this.context.getMessage('ws.29') }),
-            _react2['default'].createElement(PydioComponents.PaperEditorNavEntry, { keyName: 'general', key: 'general', selectedKey: this.props.currentSelection, label: this.context.getMessage('ws.30'), onClick: this.setEditState }),
-            _react2['default'].createElement(
-                PydioComponents.PaperEditorNavEntry,
-                { keyName: 'driver', key: 'driver', selectedKey: this.props.currentSelection, onClick: this.setEditState },
-                driverTabLabel
-            ),
-            firstSections,
-            this.props.tplFieldsComponent
-        );
-    }
-
-});
-module.exports = exports['default'];
-
-},{"../meta/MetaList":175,"../model/Workspace":180,"react":"react"}],165:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
 var _materialUi = require('material-ui');
 
 var _modelWorkspace = require('../model/Workspace');
@@ -24734,7 +24647,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Workspace":180,"material-ui":"material-ui","react":"react"}],166:[function(require,module,exports){
+},{"../model/Workspace":179,"material-ui":"material-ui","react":"react"}],165:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25150,7 +25063,7 @@ FeaturesStepper.contextTypes = {
 exports['default'] = FeaturesStepper;
 module.exports = exports['default'];
 
-},{"../model/Workspace":180,"material-ui":"material-ui","react":"react"}],167:[function(require,module,exports){
+},{"../model/Workspace":179,"material-ui":"material-ui","react":"react"}],166:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25538,7 +25451,7 @@ MetaNamespace.PropTypes = {
 exports['default'] = MetaNamespace;
 module.exports = exports['default'];
 
-},{"../model/Metadata":178,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],168:[function(require,module,exports){
+},{"../model/Metadata":177,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],167:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25604,7 +25517,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui"}],169:[function(require,module,exports){
+},{"material-ui":"material-ui"}],168:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25871,7 +25784,7 @@ VersionPolicyEditor.contextTypes = {
 exports['default'] = VersionPolicyEditor;
 module.exports = exports['default'];
 
-},{"./VersionPolicyPeriods":170,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],170:[function(require,module,exports){
+},{"./VersionPolicyPeriods":169,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],169:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25988,7 +25901,7 @@ var VersionPolicyPeriods = (function (_React$Component) {
 exports['default'] = VersionPolicyPeriods;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],171:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],170:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26250,399 +26163,14 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Workspace":180,"./FeaturesListWizard":165,"./FeaturesStepper":166,"./TplFieldsChooser":168,"react":"react"}],172:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
+},{"../model/Workspace":179,"./FeaturesListWizard":164,"./FeaturesStepper":165,"./TplFieldsChooser":167,"react":"react"}],171:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var _modelWorkspace = require('../model/Workspace');
-
-var _modelWorkspace2 = _interopRequireDefault(_modelWorkspace);
-
-var _panelSharesList = require('../panel/SharesList');
-
-var _panelSharesList2 = _interopRequireDefault(_panelSharesList);
-
-var _TplFieldsChooser = require('./TplFieldsChooser');
-
-var _TplFieldsChooser2 = _interopRequireDefault(_TplFieldsChooser);
-
-var _FeaturesList = require('./FeaturesList');
-
-var _FeaturesList2 = _interopRequireDefault(_FeaturesList);
-
-var WorkspaceEditor = (function (_React$Component) {
-    _inherits(WorkspaceEditor, _React$Component);
-
-    function WorkspaceEditor(props, context) {
-        _classCallCheck(this, WorkspaceEditor);
-
-        _get(Object.getPrototypeOf(WorkspaceEditor.prototype), 'constructor', this).call(this, props, context);
-        this.state = {
-            dirty: false,
-            model: new _modelWorkspace2['default'](this.getWsId(), this.props.node.getAjxpMime() == "repository_editable"),
-            edit: this.props.initialEditSection || 'general',
-            saveData: {},
-            saveMetaSourceData: { "delete": {}, "add": {}, "edit": {} }
-        };
-    }
-
-    _createClass(WorkspaceEditor, [{
-        key: 'getWsId',
-        value: function getWsId() {
-            return PathUtils.getBasename(this.props.node.getPath());
-        }
-    }, {
-        key: 'getMetaSourceLabel',
-        value: function getMetaSourceLabel(metaKey) {
-            return this.state.model.getMetaSourceLabel(metaKey);
-        }
-    }, {
-        key: 'getMetaSourceDescription',
-        value: function getMetaSourceDescription(metaKey) {
-            return this.state.model.getMetaSourceDescription(metaKey);
-        }
-    }, {
-        key: 'clearMetaSourceDiff',
-        value: function clearMetaSourceDiff() {
-            this.setState({ saveMetaSourceData: { "delete": {}, "add": {}, "edit": {} } });
-        }
-    }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            if (!this.state.model.loaded) this.loadModel();
-        }
-    }, {
-        key: 'componentDidUpdate',
-        value: function componentDidUpdate() {
-            if (!this.state.model.loaded) this.loadModel();
-        }
-    }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(newProps) {
-            if (this.props.node.getPath() != newProps.node.getPath()) {
-                var initState = {
-                    dirty: false,
-                    model: new _modelWorkspace2['default'](PathUtils.getBasename(newProps.node.getPath()), newProps.node.getAjxpMime() == "repository_editable"),
-                    edit: this.props.initialEditSection || 'general',
-                    saveData: {},
-                    saveMetaSourceData: { "delete": {}, "add": {}, "edit": {} }
-                };
-                this.setState(initState);
-            }
-        }
-    }, {
-        key: 'isDirty',
-        value: function isDirty() {
-            return this.state.dirty;
-        }
-    }, {
-        key: 'loadModel',
-        value: function loadModel() {
-            this.state.model.load((function (model) {
-                if (model.isTemplate() && this.state.edit == 'activity') {
-                    this.setState({ edit: 'tpl_children' });
-                }
-                this.setState({
-                    model: model
-                });
-                if (this.props.registerCloseCallback) {
-                    this.props.registerCloseCallback((function () {
-                        if (this.isDirty() && !confirm(pydio.MessageHash["role_editor.19"])) {
-                            return false;
-                        }
-                    }).bind(this));
-                }
-            }).bind(this));
-        }
-    }, {
-        key: 'editMeta',
-        value: function editMeta(metaKey) {
-            this.setState({ edit: metaKey });
-        }
-    }, {
-        key: 'onFormChange',
-        value: function onFormChange(values) {
-            var saveData = this.state.saveData || {};
-            var saveMS = this.state.saveMetaSourceData;
-            var metaKey = this.state.edit;
-            if (this.refs.form) {
-                if (metaKey == 'driver' || metaKey == 'general') {
-                    saveData[metaKey + '_POST'] = this.refs.form.getValuesForPOST(values);
-                } else {
-                    saveMS['edit'][metaKey] = values;
-                    if (saveMS['delete'][metaKey]) delete saveMS['delete'][metaKey];
-                }
-            }
-            saveData[metaKey] = values;
-            this.setState({
-                dirty: true,
-                saveData: saveData
-            });
-        }
-    }, {
-        key: 'updateValidStatus',
-        value: function updateValidStatus(newStatus) {
-            var validRecord = this.state.valid || {};
-            validRecord[this.state.edit] = newStatus;
-            this.setState({ valid: validRecord });
-        }
-    }, {
-        key: 'onMaskChange',
-        value: function onMaskChange(maskValues) {
-            var saveData = this.state.saveData || {};
-            saveData['permission-mask'] = maskValues;
-            this.setState({ saveData: saveData, dirty: true });
-        }
-    }, {
-        key: 'saveWorkspace',
-        value: function saveWorkspace() {
-            var dPost = this.state.saveData['driver_POST'] || {};
-            var gPost = this.state.saveData['general_POST'] || {};
-            this.props.saveWorkspace(this.state.model, LangUtils.mergeObjectsRecursive(gPost, dPost), LangUtils.mergeObjectsRecursive(this.state.saveData, { META_SOURCES: this.state.saveMetaSourceData }));
-            this.setState({ dirty: false, valid: {} });
-        }
-    }, {
-        key: 'deleteWorkspace',
-        value: function deleteWorkspace() {
-            this.props.deleteWorkspace(this.getWsId());
-        }
-    }, {
-        key: 'reset',
-        value: function reset() {
-            this.state.model.resetFromXml();
-            this.setState({
-                dirty: false,
-                saveData: null,
-                edit: 'activity',
-                valid: {}
-            });
-        }
-    }, {
-        key: 'toggleTemplateField',
-        value: function toggleTemplateField(name, value, oldSelectedFields) {
-            var values = this.state.saveData ? this.state.saveData[this.state.edit] ? this.state.saveData[this.state.edit] : null : null;
-            if (!values) {
-                values = this.refs.form.getValues();
-            }
-            var selectedFields = {};
-            oldSelectedFields.map(function (f) {
-                selectedFields[f] = '';
-            });
-            values = LangUtils.mergeObjectsRecursive(selectedFields, values);
-            if (value) {
-                this.state.model.options.set(name, '');
-                values[name] = '';
-            } else if (this.state.model.options.has(name)) {
-                this.state.model.options['delete'](name);
-                if (values[name] !== undefined) {
-                    delete values[name];
-                }
-            }
-            this.onFormChange(values);
-            this.setState({
-                model: this.state.model
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-
-            var editor, rightFill, tplFieldsComponent, h1, readonlyPanel;
-            var workspaceLabel = this.context.getMessage('home.6'),
-                driverLabel,
-                driverDescription,
-                featuresList = _react2['default'].createElement('div', { className: 'workspace-editor-left' });
-            if (this.state.model.loaded) {
-
-                switch (this.state.edit) {
-
-                    case 'shares':
-
-                        rightFill = true;
-                        editor = _react2['default'].createElement(_panelSharesList2['default'], { model: this.state.model });
-
-                        break;
-
-                    default:
-
-                        var formDefs = [],
-                            formValues = {},
-                            templateAllFormDefs = [];
-                        editor = this.state.model.buildEditor(this.state.edit, formDefs, formValues, this.state.saveData, templateAllFormDefs);
-
-                        if (!formDefs.length) {
-                            editor = _react2['default'].createElement(
-                                'div',
-                                null,
-                                this.context.getMessage('ws.68')
-                            );
-                            break;
-                        }
-
-                        editor = _react2['default'].createElement(PydioForm.FormPanel, {
-                            ref: 'form',
-                            parameters: formDefs,
-                            values: formValues,
-                            className: 'full-width',
-                            onChange: this.onFormChange.bind(this),
-                            onValidStatusChange: this.updateValidStatus.bind(this),
-                            depth: -2,
-                            disabled: !this.state.model.isEditable()
-                        });
-
-                        if (!this.state.model.isEditable()) {
-                            readonlyPanel = _react2['default'].createElement(
-                                'div',
-                                { className: 'workspace-readonly-label' },
-                                this.context.getMessage('ws.48')
-                            );
-                        }
-
-                        if (this.state.edit == 'driver' && this.state.model.isTemplate()) {
-                            var selectedFields = formDefs.map(function (p) {
-                                return p.name;
-                            });
-                            tplFieldsComponent = _react2['default'].createElement(_TplFieldsChooser2['default'], {
-                                driverName: this.state.model.getDriverLabel(),
-                                driverFields: templateAllFormDefs,
-                                selectedFields: selectedFields,
-                                onToggleField: this.toggleTemplateField.bind(this),
-                                style: { padding: '0 16px' }
-                            });
-                        } else if (this.state.edit == 'general') {
-                            if (this.state.model.isTemplate()) {
-                                h1 = _react2['default'].createElement(
-                                    'h1',
-                                    { className: 'workspace-general-h1' },
-                                    this.context.getMessage('ws.21')
-                                );
-                            } else {
-                                h1 = _react2['default'].createElement(
-                                    'h1',
-                                    { className: 'workspace-general-h1' },
-                                    this.context.getMessage('ws.22')
-                                );
-                            }
-                        }
-
-                        break;
-                }
-
-                driverLabel = this.state.model.getDriverLabel();
-                driverDescription = this.state.model.getDriverDescription();
-                workspaceLabel = this.state.model.getOption('display');
-
-                featuresList = _react2['default'].createElement(_FeaturesList2['default'], {
-                    onSelectionChange: this.editMeta.bind(this),
-                    currentSelection: this.state.edit,
-                    model: this.state.model,
-                    driverLabel: driverLabel,
-                    driverDescription: driverDescription,
-                    metaSourceProvider: this,
-                    tplFieldsComponent: tplFieldsComponent
-                });
-            }
-
-            var currentValid = true;
-            if (this.state.valid) {
-                LangUtils.objectValues(this.state.valid).map(function (v) {
-                    currentValid = currentValid && v;
-                });
-            }
-
-            var titleActionBarButtons = [];
-            if (this.state.model && this.state.model.isEditable()) {
-                titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'delete', label: this.context.getMessage('ws.23'), secondary: true, onTouchTap: this.deleteWorkspace.bind(this) }));
-                titleActionBarButtons.push(_react2['default'].createElement('div', { style: { display: 'inline', borderRight: '1px solid #757575', margin: '0 2px' }, key: 'separator' }));
-            }
-            titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'reset', label: this.context.getMessage('plugins.6'), onTouchTap: this.reset.bind(this), secondary: true, disabled: !this.state.dirty }));
-            titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'save', label: this.context.getMessage('53', ''), onTouchTap: this.saveWorkspace.bind(this), secondary: true, disabled: !this.state.dirty || !currentValid }));
-            titleActionBarButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { key: 'close', label: this.context.getMessage('86', ''), onTouchTap: this.props.closeEditor }));
-
-            return _react2['default'].createElement(
-                PydioComponents.PaperEditorLayout,
-                {
-                    title: workspaceLabel,
-                    titleActionBar: titleActionBarButtons,
-                    leftNav: featuresList,
-                    className: 'workspace-editor',
-                    contentFill: rightFill
-                },
-                readonlyPanel,
-                h1,
-                editor
-            );
-        }
-    }]);
-
-    return WorkspaceEditor;
-})(_react2['default'].Component);
-
-;
-
-WorkspaceEditor.contextTypes = {
-    messages: _react2['default'].PropTypes.object,
-    getMessage: _react2['default'].PropTypes.func
-};
-
-WorkspaceEditor.propTypes = {
-    node: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-    closeEditor: _react2['default'].PropTypes.func.isRequired,
-    metaSourceProvider: _react2['default'].PropTypes.object,
-    initialEditSection: _react2['default'].PropTypes.string,
-    saveWorkspace: _react2['default'].PropTypes.func,
-    deleteWorkspace: _react2['default'].PropTypes.func,
-    registerCloseCallback: _react2['default'].PropTypes.func
-};
-
-exports['default'] = WorkspaceEditor;
-module.exports = exports['default'];
-
-},{"../model/Workspace":180,"../panel/SharesList":182,"./FeaturesList":164,"./TplFieldsChooser":168,"material-ui":"material-ui","react":"react"}],173:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -26662,29 +26190,25 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _modelWs = require('../model/Ws');
-
-var _modelWs2 = _interopRequireDefault(_modelWs);
-
 var _lodashDebounce = require('lodash.debounce');
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
 var _pydioHttpRestApi = require("pydio/http/rest-api");
 
-var AutocompleteTree = (function (_React$Component) {
-    _inherits(AutocompleteTree, _React$Component);
+var WsAutoComplete = (function (_React$Component) {
+    _inherits(WsAutoComplete, _React$Component);
 
-    function AutocompleteTree(props) {
-        _classCallCheck(this, AutocompleteTree);
+    function WsAutoComplete(props) {
+        _classCallCheck(this, WsAutoComplete);
 
-        _get(Object.getPrototypeOf(AutocompleteTree.prototype), 'constructor', this).call(this, props);
+        _get(Object.getPrototypeOf(WsAutoComplete.prototype), 'constructor', this).call(this, props);
         this.debounced = (0, _lodashDebounce2['default'])(this.loadValues.bind(this), 300);
         this.state = { searchText: props.value, value: props.value };
         console.log(this.state);
     }
 
-    _createClass(AutocompleteTree, [{
+    _createClass(WsAutoComplete, [{
         key: 'handleUpdateInput',
         value: function handleUpdateInput(searchText) {
             this.debounced();
@@ -26806,6 +26330,7 @@ var AutocompleteTree = (function (_React$Component) {
             var onDelete = _props.onDelete;
             var skipTemplates = _props.skipTemplates;
             var label = _props.label;
+            var zDepth = _props.zDepth;
             var _state = this.state;
             var nodes = _state.nodes;
             var loading = _state.loading;
@@ -26835,10 +26360,14 @@ var AutocompleteTree = (function (_React$Component) {
             }
 
             var displayText = this.state.value;
+            var depth = 1;
+            if (zDepth !== undefined) {
+                depth = zDepth;
+            }
 
             return _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: { display: 'flex', alignItems: 'baseline', padding: 10, paddingTop: 0, marginTop: 10 } },
+                { zDepth: depth, style: _extends({ display: 'flex', alignItems: 'baseline', padding: 10, paddingTop: 0, marginTop: 10 }, this.props.style) },
                 _react2['default'].createElement(
                     'div',
                     { style: { position: 'relative', flex: 1, marginTop: -5 } },
@@ -26873,21 +26402,55 @@ var AutocompleteTree = (function (_React$Component) {
         }
     }]);
 
-    return AutocompleteTree;
+    return WsAutoComplete;
 })(_react2['default'].Component);
 
-var WsEditor = (function (_React$Component2) {
-    _inherits(WsEditor, _React$Component2);
+exports['default'] = WsAutoComplete;
+module.exports = exports['default'];
+
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],172:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require('material-ui');
+
+var _modelWs = require('../model/Ws');
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
+var _WsAutoComplete = require('./WsAutoComplete');
+
+var _WsAutoComplete2 = _interopRequireDefault(_WsAutoComplete);
+
+var WsEditor = (function (_React$Component) {
+    _inherits(WsEditor, _React$Component);
 
     function WsEditor(props) {
-        var _this3 = this;
+        var _this = this;
 
         _classCallCheck(this, WsEditor);
 
         _get(Object.getPrototypeOf(WsEditor.prototype), 'constructor', this).call(this, props);
         var workspace = new _modelWs2['default'](props.workspace);
         workspace.observe('update', function () {
-            _this3.forceUpdate();
+            _this.forceUpdate();
         });
         this.state = {
             workspace: workspace.getModel(),
@@ -26899,27 +26462,27 @@ var WsEditor = (function (_React$Component2) {
     _createClass(WsEditor, [{
         key: 'revert',
         value: function revert() {
-            var _this4 = this;
+            var _this2 = this;
 
             var container = this.state.container;
 
             container.revert();
             this.setState({ workspace: container.getModel() }, function () {
-                _this4.forceUpdate();
+                _this2.forceUpdate();
             });
         }
     }, {
         key: 'save',
         value: function save() {
-            var _this5 = this;
+            var _this3 = this;
 
             var container = this.state.container;
             var reloadList = this.props.reloadList;
 
             container.save().then(function () {
                 reloadList();
-                _this5.setState({ workspace: container.getModel() }, function () {
-                    _this5.forceUpdate();
+                _this3.setState({ workspace: container.getModel() }, function () {
+                    _this3.forceUpdate();
                 });
             });
         }
@@ -26927,9 +26490,9 @@ var WsEditor = (function (_React$Component2) {
         key: 'remove',
         value: function remove() {
             var container = this.state.container;
-            var _props2 = this.props;
-            var closeEditor = _props2.closeEditor;
-            var reloadList = _props2.reloadList;
+            var _props = this.props;
+            var closeEditor = _props.closeEditor;
+            var reloadList = _props.reloadList;
 
             if (confirm('Are you sure?')) {
                 container.remove().then(function () {
@@ -26941,22 +26504,22 @@ var WsEditor = (function (_React$Component2) {
     }, {
         key: 'render',
         value: function render() {
-            var _this6 = this;
+            var _this4 = this;
 
             var closeEditor = this.props.closeEditor;
-            var _state2 = this.state;
-            var workspace = _state2.workspace;
-            var container = _state2.container;
-            var newFolderKey = _state2.newFolderKey;
+            var _state = this.state;
+            var workspace = _state.workspace;
+            var container = _state.container;
+            var newFolderKey = _state.newFolderKey;
 
             var buttons = [];
             if (!container.create) {
                 buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "Revert", secondary: true, disabled: !container.isDirty(), onTouchTap: function () {
-                        _this6.revert();
+                        _this4.revert();
                     } }));
             }
             buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "Save", secondary: true, disabled: !(container.isDirty() && container.isValid()), onTouchTap: function () {
-                    _this6.save();
+                    _this4.save();
                 } }));
             buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: "Close", onTouchTap: closeEditor }));
 
@@ -26969,7 +26532,7 @@ var WsEditor = (function (_React$Component2) {
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: "Delete Workspace", onTouchTap: function () {
-                            _this6.remove();
+                            _this4.remove();
                         } })
                 );
             }
@@ -27008,12 +26571,12 @@ var WsEditor = (function (_React$Component2) {
                 if (_modelWs2['default'].rootIsTemplatePath(roots[k])) {
                     label = "Template Path";
                 }
-                return _react2['default'].createElement(AutocompleteTree, {
+                return _react2['default'].createElement(_WsAutoComplete2['default'], {
                     key: roots[k].Uuid,
                     label: label,
                     value: roots[k].Path,
                     onDelete: function () {
-                        delete roots[k];_this6.forceUpdate();
+                        delete roots[k];_this4.forceUpdate();
                     },
                     onChange: function (key, node) {
                         delete roots[k];
@@ -27025,12 +26588,12 @@ var WsEditor = (function (_React$Component2) {
                 });
             });
             if (!container.hasTemplatePath()) {
-                completers.push(_react2['default'].createElement(AutocompleteTree, {
+                completers.push(_react2['default'].createElement(_WsAutoComplete2['default'], {
                     key: newFolderKey,
                     value: "",
                     onChange: function (k, node) {
                         if (node) {
-                            roots[node.Uuid] = node;_this6.setState({ newFolderKey: Math.random() });
+                            roots[node.Uuid] = node;_this4.setState({ newFolderKey: Math.random() });
                         }
                     },
                     skipTemplates: container.hasFolderRoots()
@@ -27126,7 +26689,7 @@ var WsEditor = (function (_React$Component2) {
 exports['default'] = WsEditor;
 module.exports = exports['default'];
 
-},{"../model/Ws":181,"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],174:[function(require,module,exports){
+},{"../model/Ws":180,"./WsAutoComplete":171,"material-ui":"material-ui","react":"react"}],173:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27159,17 +26722,9 @@ var _boardWsDashboard = require('./board/WsDashboard');
 
 var _boardWsDashboard2 = _interopRequireDefault(_boardWsDashboard);
 
-var _modelWorkspace = require('./model/Workspace');
-
-var _modelWorkspace2 = _interopRequireDefault(_modelWorkspace);
-
 var _panelSharesList = require('./panel/SharesList');
 
 var _panelSharesList2 = _interopRequireDefault(_panelSharesList);
-
-var _editorTplFieldsChooser = require('./editor/TplFieldsChooser');
-
-var _editorTplFieldsChooser2 = _interopRequireDefault(_editorTplFieldsChooser);
 
 var _metaMetaList = require('./meta/MetaList');
 
@@ -27178,10 +26733,6 @@ var _metaMetaList2 = _interopRequireDefault(_metaMetaList);
 var _panelWorkspaceSummary = require('./panel/WorkspaceSummary');
 
 var _panelWorkspaceSummary2 = _interopRequireDefault(_panelWorkspaceSummary);
-
-var _editorWorkspaceEditor = require('./editor/WorkspaceEditor');
-
-var _editorWorkspaceEditor2 = _interopRequireDefault(_editorWorkspaceEditor);
 
 var _boardVirtualNodes = require('./board/VirtualNodes');
 
@@ -27195,21 +26746,43 @@ var _boardMetadataBoard = require('./board/MetadataBoard');
 
 var _boardMetadataBoard2 = _interopRequireDefault(_boardMetadataBoard);
 
+var _editorDataSourceEditor = require('./editor/DataSourceEditor');
+
+var _editorDataSourceEditor2 = _interopRequireDefault(_editorDataSourceEditor);
+
+var _modelWs = require('./model/Ws');
+
+var _modelWs2 = _interopRequireDefault(_modelWs);
+
+var _editorWsAutoComplete = require('./editor/WsAutoComplete');
+
+var _editorWsAutoComplete2 = _interopRequireDefault(_editorWsAutoComplete);
+
+var _virtualNodeCard = require('./virtual/NodeCard');
+
+var _virtualNodeCard2 = _interopRequireDefault(_virtualNodeCard);
+
+var _modelVirtualNode = require('./model/VirtualNode');
+
+var _modelVirtualNode2 = _interopRequireDefault(_modelVirtualNode);
+
 window.AdminWorkspaces = {
   MetaSourceForm: _metaMetaSourceForm2['default'],
-  Workspace: _modelWorkspace2['default'],
   SharesList: _panelSharesList2['default'],
-  TplFieldsChooser: _editorTplFieldsChooser2['default'],
   MetaList: _metaMetaList2['default'],
   WorkspaceSummary: _panelWorkspaceSummary2['default'],
-  WorkspaceEditor: _editorWorkspaceEditor2['default'],
   VirtualNodes: _boardVirtualNodes2['default'],
   WsDashboard: _boardWsDashboard2['default'],
   DataSourcesBoard: _boardDataSourcesBoard2['default'],
-  MetadataBoard: _boardMetadataBoard2['default']
+  MetadataBoard: _boardMetadataBoard2['default'],
+  DataSourceEditor: _editorDataSourceEditor2['default'],
+  WsAutoComplete: _editorWsAutoComplete2['default'],
+  TemplatePathEditor: _virtualNodeCard2['default'],
+  TemplatePath: _modelVirtualNode2['default'],
+  Workspace: _modelWs2['default']
 };
 
-},{"./board/DataSourcesBoard":156,"./board/MetadataBoard":158,"./board/VirtualNodes":159,"./board/WsDashboard":161,"./editor/TplFieldsChooser":168,"./editor/WorkspaceEditor":172,"./meta/MetaList":175,"./meta/MetaSourceForm":176,"./model/Workspace":180,"./panel/SharesList":182,"./panel/WorkspaceSummary":183}],175:[function(require,module,exports){
+},{"./board/DataSourcesBoard":156,"./board/MetadataBoard":158,"./board/VirtualNodes":159,"./board/WsDashboard":161,"./editor/DataSourceEditor":162,"./editor/WsAutoComplete":171,"./meta/MetaList":174,"./meta/MetaSourceForm":175,"./model/VirtualNode":178,"./model/Ws":180,"./panel/SharesList":181,"./panel/WorkspaceSummary":182,"./virtual/NodeCard":184}],174:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27315,7 +26888,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],176:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],175:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27430,7 +27003,7 @@ var MetaSourceForm = React.createClass({
 exports['default'] = MetaSourceForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],177:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],176:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27517,6 +27090,9 @@ var DataSource = (function (_Observable) {
         this.internalInvalid = false;
         if (model) {
             this.model = model;
+            if (!model.StorageConfiguration) {
+                model.StorageConfiguration = {};
+            }
             this.snapshot = JSON.parse(JSON.stringify(model));
         } else {
             this.model = new _pydioHttpRestApi.ObjectDataSource();
@@ -27670,7 +27246,7 @@ var DataSource = (function (_Observable) {
 exports['default'] = DataSource;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],178:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],177:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27766,7 +27342,7 @@ Metadata.MetaTypes = {
 exports['default'] = Metadata;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],179:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],178:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27919,7 +27495,7 @@ var VirtualNode = (function (_Observable) {
 exports['default'] = VirtualNode;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],180:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],179:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28369,7 +27945,7 @@ var Workspace = (function (_Observable) {
 exports['default'] = Workspace;
 module.exports = exports['default'];
 
-},{"pydio/model/repository":"pydio/model/repository"}],181:[function(require,module,exports){
+},{"pydio/model/repository":"pydio/model/repository"}],180:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -28592,7 +28168,7 @@ var Workspace = (function (_Observable) {
 exports['default'] = Workspace;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],182:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],181:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28705,7 +28281,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Workspace":180,"material-ui":"material-ui","react":"react"}],183:[function(require,module,exports){
+},{"../model/Workspace":179,"material-ui":"material-ui","react":"react"}],182:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28837,7 +28413,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Workspace":180,"./WorkspaceSummaryCard":184}],184:[function(require,module,exports){
+},{"../model/Workspace":179,"./WorkspaceSummaryCard":183}],183:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28882,7 +28458,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{}],185:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28974,6 +28550,7 @@ var NodeCard = (function (_React$Component) {
             var dataSources = _props.dataSources;
             var node = _props.node;
             var readonly = _props.readonly;
+            var oneLiner = _props.oneLiner;
 
             var ds = {};
             if (dataSources) {
@@ -28987,38 +28564,56 @@ var NodeCard = (function (_React$Component) {
                 User: { Name: '' }
             };
 
-            var titleComponent = _react2['default'].createElement(
-                'div',
-                { style: { display: 'flex', alignItems: 'baseline' } },
-                _react2['default'].createElement(
-                    'div',
-                    { style: { flex: 1 } },
-                    node.getName()
-                ),
-                !readonly && _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }),
-                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onClick: this.remove.bind(this), tooltip: "Delete", disabled: node.getName() === 'cells' || node.getName() === 'my-files' })
-                )
-            );
+            var codeMirrorField = _react2['default'].createElement(AdminComponents.CodeMirrorField, {
+                mode: 'javascript',
+                globalScope: globalScope,
+                value: this.state.value,
+                onChange: this.onChange.bind(this),
+                readOnly: readonly
+            });
 
-            return _react2['default'].createElement(
-                'div',
-                { style: { marginBottom: 10 } },
-                _react2['default'].createElement(AdminComponents.SubHeader, { title: titleComponent }),
-                _react2['default'].createElement(
-                    _materialUi.Paper,
-                    { zDepth: 1, style: { margin: '0 20px' } },
-                    _react2['default'].createElement(AdminComponents.CodeMirrorField, {
-                        mode: 'javascript',
-                        globalScope: globalScope,
-                        value: this.state.value,
-                        onChange: this.onChange.bind(this),
-                        readOnly: readonly
-                    })
-                )
-            );
+            if (oneLiner) {
+                return _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        codeMirrorField
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" })
+                    )
+                );
+            } else {
+                var titleComponent = _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'baseline' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1 } },
+                        node.getName()
+                    ),
+                    !readonly && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", onClick: this.save.bind(this), disabled: !this.state.dirty, tooltip: "Save" }),
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onClick: this.remove.bind(this), tooltip: "Delete", disabled: node.getName() === 'cells' || node.getName() === 'my-files' })
+                    )
+                );
+                return _react2['default'].createElement(
+                    'div',
+                    { style: { marginBottom: 10 } },
+                    _react2['default'].createElement(AdminComponents.SubHeader, { title: titleComponent }),
+                    _react2['default'].createElement(
+                        _materialUi.Paper,
+                        { zDepth: 1, style: { margin: '0 20px' } },
+                        codeMirrorField
+                    )
+                );
+            }
         }
     }]);
 
@@ -29028,4 +28623,4 @@ var NodeCard = (function (_React$Component) {
 exports['default'] = NodeCard;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}]},{},[174]);
+},{"material-ui":"material-ui","react":"react"}]},{},[173]);

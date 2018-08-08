@@ -55,6 +55,9 @@ class DataSource extends Observable {
         this.internalInvalid = false;
         if (model) {
             this.model = model;
+            if(!model.StorageConfiguration){
+                model.StorageConfiguration = {};
+            }
             this.snapshot = JSON.parse(JSON.stringify(model));
         } else {
             this.model = new ObjectDataSource();
