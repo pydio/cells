@@ -66,7 +66,7 @@ type Tags struct {
 	Tags     map[string]*Tags
 }
 
-// listCmd represents the list command
+// servicesListCmd lists available services and their statuses.
 var servicesListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all available services and their statuses",
@@ -80,7 +80,7 @@ organized by tags (broker, data, idm, etc.)
 
 Use the --tags/-t flag to limit display to one specific tag, use lowercase for tags.
 
-$ ./cells list -t=broker
+$ ` + os.Args[0] + ` list -t=broker
 
 - pydio.grpc.activity   [X]
 - pydio.grpc.chat       [X]

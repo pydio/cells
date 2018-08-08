@@ -56,7 +56,7 @@ var (
 	counters     map[string]*projectCounter
 )
 
-// i18nCount evaluate the number of Strings that compose the label corpus of Pydio Cells.
+// i18nCount evaluates the number of Strings that compose the label corpus of Pydio Cells.
 var i18nCount = &cobra.Command{
 	Use:   "count",
 	Short: "Count all Strings that are internationalised in the Pydio Cells code.",
@@ -77,7 +77,7 @@ sent to the front end resides in the i18n/conf sub folder.
 
 Use the --project-paths/-p flag to give path to at least one project root folder.
 
-$./cells i18n count -p $GOPATH/src/github.com/pydio/cells-enterprise -p $GOPATH/src/github.com/pydio/cells
+$` + os.Args[0] + ` i18n count -p $GOPATH/src/github.com/pydio/cells-enterprise -p $GOPATH/src/github.com/pydio/cells
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -86,8 +86,6 @@ $./cells i18n count -p $GOPATH/src/github.com/pydio/cells-enterprise -p $GOPATH/
 			cmd.Help()
 			return
 		}
-
-		fmt.Printf("## Project Path length: %d\n", len(projectPaths))
 
 		counters = make(map[string]*projectCounter, len(projectPaths))
 

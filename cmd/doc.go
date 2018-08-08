@@ -30,11 +30,11 @@ import (
 
 var docPath string
 
-// versionCmd represents the versioning command
+// docCmd represents the documentation command.
 var docCmd = &cobra.Command{
 	Use:   "doc",
 	Short: "Generate MD documentation for this command",
-	Long: `Generate Markdown documentation for this command.
+	Long: `Generate Markdown documentation for the Pydio Cells command line tool.
 Provide a target folder where to put the generated files.
 This command also generates yaml files for pydio.com documentation format.
 `,
