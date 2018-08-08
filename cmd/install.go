@@ -47,18 +47,20 @@ import (
 
 const (
 	caddyfile = `
-		{{.URL}} {
-			root "{{.Root}}"
-			proxy /install localhost:{{.Micro}}
-			{{.TLS}}
-		}
-	`
+		 {{.URL}} {
+			 root "{{.Root}}"
+			 proxy /install localhost:{{.Micro}}
+			 {{.TLS}}
+		 }
+	 `
 )
 
 var (
-	niBindUrl    string
-	niExtUrl     string
-	niDisableSsl bool
+	niBindUrl        string
+	niExtUrl         string
+	niDisableSsl     bool
+	niLeEmailContact string
+	niLeAcceptEula   bool
 )
 
 // installCmd represents the install command
@@ -66,32 +68,34 @@ var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Pydio Cells Installer",
 	Long: `This command launch the installation process of Pydio Cells.
-
-It will ask for the Bind Host to hook the webserver on a network interface IP, and you can set different hosts for accessing
-the machine from outside world (if it is behind a proxy or inside a container with ports mapping for example).
-You can launch this installer in non-interactive mode by providing --bind and --external. This will launch the browser-based
-installer with SSL active using self_signed setup by default.
-
-For example
-- Bind Host : 0.0.0.0:8080
-- External Host : share.mydomain.tld
-Or
-- Bind Host : share.mydomain.tld
-- External Host : share.mydomain.tld
-Or
-- Bind Host : IP:1515       # internal port
-- External Host : IP:8080   # external port mapped by docker
-Or
-- Bind Host : IP:8080
-- External Host : IP:8080
-
-It will open a browser to gather necessary information and configuration for Pydio Cells. if you don't have a browser access,
-you can launch the command line installation using the install-cli command:
-
-$ ` + os.Args[0] + ` install-cli
-
-Services will all start automatically after the install process is finished.
-	`,
+ 
+ It will ask for the Bind Host to hook the webserver on a network interface IP, and you can set different hosts for accessing
+ the machine from outside world (if it is behind a proxy or inside a container with ports mapping for example).
+ You can launch this installer in non-interactive mode by providing --bind and --external. This will launch the browser-based
+ installer with SSL active using self_signed setup by default.
+ You might also use Let's Encrypt automatic certificate generation by providing a contact email and accepting Let's Encrypt EULA, for instance:
+ $ ` + os.Args[0] + ` install --bind share.mydomain.tld:443 --external share.mydomain.tld --le_email admin@mydomain.tld --le_agree true
+ 
+ For example
+ - Bind Host : 0.0.0.0:8080
+ - External Host : share.mydomain.tld
+ Or
+ - Bind Host : share.mydomain.tld
+ - External Host : share.mydomain.tld
+ Or
+ - Bind Host : IP:1515       # internal port
+ - External Host : IP:8080   # external port mapped by docker
+ Or
+ - Bind Host : IP:8080
+ - External Host : IP:8080
+ 
+ It will open a browser to gather necessary information and configuration for Pydio Cells. if you don't have a browser access,
+ you can launch the command line installation using the install-cli command:
+ 
+ $ ` + os.Args[0] + ` install-cli
+ 
+ Services will all start automatically after the install process is finished.
+	 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var internal, external *url.URL
@@ -112,6 +116,15 @@ Services will all start automatically after the install process is finished.
 
 			if niDisableSsl {
 				config.Save("cli", "Install / Non-Interactive / Without SSL")
+			} else if niLeEmailContact != "" {
+				// TODO add an option to provide specific CA URL
+				if !niLeAcceptEula {
+					cmd.Print("fatal: you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
+					os.Exit(1)
+				}
+				config.Set(true, "cert", "proxy", "ssl")
+				config.Set(niLeEmailContact, "cert", "proxy", "email")
+				config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
 			} else {
 				config.Set(true, "cert", "proxy", "ssl")
 				config.Set(true, "cert", "proxy", "self")
@@ -305,6 +318,8 @@ func init() {
 	flags.StringVar(&niBindUrl, "bind", "", "[Non interactive mode] internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
 	flags.StringVar(&niExtUrl, "external", "", "[Non interactive mode] external URL:PORT exposed to outside")
 	flags.BoolVar(&niDisableSsl, "no_ssl", false, "[Non interactive mode] do not enable self signed automatically")
+	flags.StringVar(&niLeEmailContact, "le_email", "", "[Non interactive mode] contact e-mail for Let's Encrypt provided certificate")
+	flags.BoolVar(&niLeAcceptEula, "le_agree", false, "[Non interactive mode] accept Let's Encrypt EULA")
 
 	RootCmd.AddCommand(installCmd)
 }
