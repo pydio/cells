@@ -123,8 +123,13 @@ var installCmd = &cobra.Command{
 					os.Exit(1)
 				}
 				config.Set(true, "cert", "proxy", "ssl")
+				config.Set(false, "cert", "proxy", "self")
 				config.Set(niLeEmailContact, "cert", "proxy", "email")
 				config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
+
+				// Overwrite with https
+				internal, _ = url.Parse("https://" + niBindUrl)
+				external, _ = url.Parse("https://" + niExtUrl)
 			} else {
 				config.Set(true, "cert", "proxy", "ssl")
 				config.Set(true, "cert", "proxy", "self")
