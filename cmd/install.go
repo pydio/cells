@@ -153,7 +153,7 @@ var installCmd = &cobra.Command{
 						cmd.Help()
 						log.Fatal(err.Error())
 					}
-					cmd.Printf("About to launch browser install, install URLs:\ninternal: %s\nexternal: %s\n")
+					cmd.Printf("About to launch browser install, install URLs:\ninternal: %s\nexternal: %s\n", internal, external)
 
 				} else {
 					// Launch install cli then
