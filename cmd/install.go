@@ -127,6 +127,8 @@ var installCmd = &cobra.Command{
 				config.Set(niLeEmailContact, "cert", "proxy", "email")
 				config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
 
+				config.Save("cli", "Install / Non-Interactive / With Let's Encrypt automatic cert generation")
+
 				// Overwrite with https
 				internal, _ = url.Parse("https://" + niBindUrl)
 				external, _ = url.Parse("https://" + niExtUrl)
@@ -151,6 +153,8 @@ var installCmd = &cobra.Command{
 						cmd.Help()
 						log.Fatal(err.Error())
 					}
+					cmd.Printf("About to launch browser install, install URLs:\ninternal: %s\nexternal: %s\n")
+
 				} else {
 					// Launch install cli then
 					installCliCmd.Run(cmd, args)
