@@ -98,45 +98,55 @@ var installCmd = &cobra.Command{
 	 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		cmd.Println("")
+		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m")
+		cmd.Println(common.PackageLabel + " will be configured to run on this machine. Make sure to prepare the following data")
+		cmd.Println(" - IPs and ports for binding the webserver to outside world")
+		cmd.Println(" - MySQL 5.6+ (or MariaDB equivalent) server access")
+		cmd.Println("Pick your installation mode when you are ready.")
+		cmd.Println("")
+
 		var internal, external *url.URL
-		fmt.Println("")
-		fmt.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m")
-		fmt.Println(common.PackageLabel + " will be configured to run on this machine. Make sure to prepare the following data")
-		fmt.Println(" - IPs and ports for binding the webserver to outside world")
-		fmt.Println(" - MySQL 5.6+ (or MariaDB equivalent) server access")
-		fmt.Println("Pick your installation mode when you are ready.")
-		fmt.Println("")
 
 		if niBindUrl != "" && niExtUrl != "" {
 
-			internal, _ = url.Parse("http://" + niBindUrl)
-			external, _ = url.Parse("http://" + niExtUrl)
-			config.Set(internal.String(), "defaults", "urlInternal")
-			config.Set(external.String(), "defaults", "url")
+			var saveMsg, prefix string
 
 			if niDisableSsl {
-				config.Save("cli", "Install / Non-Interactive / Without SSL")
-			} else if niLeEmailContact != "" {
-				// TODO add an option to provide specific CA URL
-				if !niLeAcceptEula {
-					cmd.Print("fatal: you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
-					os.Exit(1)
-				}
-				config.Set(true, "cert", "proxy", "ssl")
-				config.Set(false, "cert", "proxy", "self")
-				config.Set(niLeEmailContact, "cert", "proxy", "email")
-				config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
-
-				config.Save("cli", "Install / Non-Interactive / With Let's Encrypt automatic cert generation")
-
-				// Overwrite with https
-				internal, _ = url.Parse("https://" + niBindUrl)
-				external, _ = url.Parse("https://" + niExtUrl)
+				prefix = "http://"
+				saveMsg = "Install / Non-Interactive / Without SSL"
 			} else {
+
+				saveMsg = "Install / Non-Interactive / "
+				prefix = "https://"
 				config.Set(true, "cert", "proxy", "ssl")
-				config.Set(true, "cert", "proxy", "self")
-				config.Save("cli", "Install / Non-Interactive / With SSL")
+
+				if niLeEmailContact != "" {
+
+					// TODO add an option to provide specific CA URL
+					if !niLeAcceptEula {
+						cmd.Print("fatal: you must accept Let's Encrypt EULA by setting the corresponding flag in order to use this mode")
+						os.Exit(1)
+					}
+
+					saveMsg += "With Let's Encrypt automatic cert generation"
+					config.Set(false, "cert", "proxy", "self")
+					config.Set(niLeEmailContact, "cert", "proxy", "email")
+					config.Set(config.DefaultCaUrl, "cert", "proxy", "caUrl")
+
+				} else {
+					config.Set(true, "cert", "proxy", "self")
+					saveMsg += "With self signed certificate"
+				}
 			}
+
+			internal, _ = url.Parse(prefix + niBindUrl)
+			config.Set(internal.String(), "defaults", "urlInternal")
+
+			external, _ = url.Parse(prefix + niExtUrl)
+			config.Set(external.String(), "defaults", "url")
+
+			config.Save("cli", saveMsg)
 
 		} else {
 
