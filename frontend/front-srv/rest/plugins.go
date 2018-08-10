@@ -23,6 +23,7 @@ package rest
 
 import (
 	"github.com/gobuffalo/packr"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"

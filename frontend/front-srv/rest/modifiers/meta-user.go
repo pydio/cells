@@ -2,7 +2,6 @@ package modifiers
 
 import (
 	"context"
-
 	"encoding/json"
 
 	"github.com/pydio/cells/common"
@@ -11,7 +10,7 @@ import (
 	"github.com/pydio/cells/common/service/frontend"
 )
 
-// MetaUserRegModifier adds/updates some registry contributions for rendering metadatas
+// MetaUserRegModifier adds/updates some registry contributions for rendering metadata.
 func MetaUserRegModifier(ctx context.Context, status frontend.RequestStatus, registry *frontend.Cpydio_registry) error {
 
 	client := idm.NewUserMetaServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_META, defaults.NewClient())

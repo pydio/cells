@@ -1,6 +1,7 @@
 package index
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -44,6 +45,8 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	url := config.Get("defaults", "url").String("")
+	fmt.Printf("#### In serve http, default base URL is: %s \n", url)
+
 	tplConf := &TplConf{
 		ApplicationTitle: "Pydio",
 		Rebase:           url,

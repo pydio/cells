@@ -5,11 +5,12 @@ import (
 	"strings"
 
 	"github.com/mssola/user_agent"
+
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service/frontend"
 )
 
-// MobileRegModifier will Enable / Disable gui.mobile depending on User-Agent
+// MobileRegModifier enables or disable gui.mobile depending on User-Agent request Header.
 func MobileRegModifier(ctx context.Context, status frontend.RequestStatus, plugin frontend.Plugin) error {
 
 	if plugin.GetId() != "gui.mobile" {
