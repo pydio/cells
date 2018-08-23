@@ -30,7 +30,9 @@ import (
 )
 
 var (
-	// DefaultPolicyGroups provides some sample policies to Admin Users
+	// DefaultPolicyGroups provides some sample policies to Admin Users.
+	// Note that Name and Description fields are generally i18nized
+	// that is why we rather declare here the corresponding message IDs.
 	DefaultPolicyGroups = []*idm.PolicyGroup{
 		{
 			Uuid:          "public-access",
@@ -164,11 +166,9 @@ var (
 					ID:          "shares-default-policy",
 					Description: "PolicyGroup.LoggedUsers.Rule3",
 					Subjects:    []string{"profile:standard", "profile:shared"},
-					Resources: []string{
-						"rest:/docstore/share/<.+>",
-					},
-					Actions: []string{"GET", "PUT"},
-					Effect:  ladon.AllowAccess,
+					Resources:   []string{"rest:/docstore/share/<.+>"},
+					Actions:     []string{"GET", "PUT"},
+					Effect:      ladon.AllowAccess,
 				}),
 			},
 		},

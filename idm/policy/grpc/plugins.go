@@ -67,6 +67,7 @@ func init() {
 	)
 }
 
+// InitDefaults is called once at first launch to create default policy groups.
 func InitDefaults(ctx context.Context) error {
 
 	cfg := config.Default()
@@ -94,13 +95,14 @@ func InitDefaults(ctx context.Context) error {
 		}
 
 		if _, er := dao.StorePolicyGroup(ctx, policyGroup); er != nil {
-			log.Logger(ctx).Error("Could not store default policy!", zap.Any("policy", policyGroup), zap.Error(er))
+			log.Logger(ctx).Error("could not store default policy group "+policyGroup.Uuid, zap.Any("policy", policyGroup), zap.Error(er))
 		}
 	}
-	log.Logger(ctx).Info("Successfully inserted default policies")
+	log.Logger(ctx).Info("Inserted default policies")
 	return nil
 }
 
+// Upgrade101 adapts policy dbs. It is called once at service launch when Cells version become >= 1.0.1.
 func Upgrade101(ctx context.Context) error {
 	dao := servicecontext.GetDAO(ctx).(policy.DAO)
 	if dao == nil {
@@ -118,9 +120,9 @@ func Upgrade101(ctx context.Context) error {
 				}
 			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("Could not update policy group "+group.Uuid, zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updating policy group " + group.Uuid)
+				log.Logger(ctx).Info("Updated policy group " + group.Uuid)
 			}
 		} else if group.Uuid == "rest-apis-default-accesses" {
 			for _, p := range group.Policies {
@@ -129,15 +131,17 @@ func Upgrade101(ctx context.Context) error {
 				}
 			}
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("Could not update policy group "+group.Uuid, zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updating policy group " + group.Uuid)
+				log.Logger(ctx).Info("Updated policy group " + group.Uuid)
 			}
 		}
 	}
+	log.Logger(ctx).Info("Upgraded policy model to v1.0.1")
 	return nil
 }
 
+// Upgrade103 adapts policy dbs. It is called once at service launch when Cells version become >= 1.0.3 .
 func Upgrade103(ctx context.Context) error {
 	dao := servicecontext.GetDAO(ctx).(policy.DAO)
 	if dao == nil {
@@ -158,11 +162,12 @@ func Upgrade103(ctx context.Context) error {
 				Effect:      ladon.AllowAccess,
 			}))
 			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
-				log.Logger(ctx).Error("Could not update policy group "+group.Uuid, zap.Error(er))
+				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
 			} else {
-				log.Logger(ctx).Info("Updating policy group " + group.Uuid)
+				log.Logger(ctx).Info("Updated policy group " + group.Uuid)
 			}
 		}
 	}
+	log.Logger(ctx).Info("Upgraded policy model to v1.0.3")
 	return nil
 }

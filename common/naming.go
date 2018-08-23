@@ -152,7 +152,7 @@ var (
 
 	// The 3 below vars are initialized by the go linker directly
 	// in the resulting binary when doing 'make main'
-	version       = "0.1.0"
+	version       = "1.0.4"
 	BuildStamp    string
 	BuildRevision string
 
