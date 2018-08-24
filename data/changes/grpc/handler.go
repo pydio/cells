@@ -41,11 +41,12 @@ import (
 	"github.com/pydio/cells/data/changes"
 )
 
-// Handler to GRPC interface to changes API
+// Handler to GRPC interface for the changes API
 type Handler struct {
 	batcher *changes.BatchInsert
 }
 
+// NewHandler encapsulates a DAO that can batch-processes up to 20 inserts by second.
 func NewHandler(ctx context.Context) *Handler {
 	dao := servicecontext.GetDAO(ctx).(changes.DAO)
 	return &Handler{
@@ -199,10 +200,10 @@ func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, res
 // Put a change in the service storage
 func (h Handler) Put(ctx context.Context, stream tree.SyncChanges_PutStream) error {
 
-	log.Logger(ctx).Debug("Put")
+	log.Logger(ctx).Debug("About to put a change in the service storage")
 
 	if servicecontext.GetDAO(ctx) == nil {
-		return fmt.Errorf("no DAO found, wrong initialization")
+		return fmt.Errorf("no DAO found, cannot use %s service", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHANGES)
 	}
 	dao := servicecontext.GetDAO(ctx).(changes.DAO)
 
@@ -219,7 +220,7 @@ func (h Handler) Put(ctx context.Context, stream tree.SyncChanges_PutStream) err
 		log.Logger(ctx).Debug("Put", zap.Any("change", change))
 
 		if err := dao.Put(change); err != nil {
-			log.Logger(ctx).Error("Put", zap.Error(err))
+			log.Logger(ctx).Error("cannot put change", zap.Error(err))
 		}
 	}
 }
@@ -227,7 +228,7 @@ func (h Handler) Put(ctx context.Context, stream tree.SyncChanges_PutStream) err
 // Search a change in the service storage
 func (h Handler) Search(ctx context.Context, req *tree.SearchSyncChangeRequest, stream tree.SyncChanges_SearchStream) error {
 
-	log.Logger(ctx).Debug("Search")
+	log.Logger(ctx).Debug("About to search change", zap.Any("Query", req))
 
 	defer stream.Close()
 
@@ -256,7 +257,7 @@ func (h Handler) Search(ctx context.Context, req *tree.SearchSyncChangeRequest, 
 // Archive change in the service storage
 func (h Handler) Archive(ctx context.Context, req *service.Query, resp *service.StatusResponse) error {
 
-	log.Logger(ctx).Debug("Archive")
+	log.Logger(ctx).Debug("About to archive", zap.Any("Query", req))
 
 	if servicecontext.GetDAO(ctx) == nil {
 		return fmt.Errorf("no DAO found, wrong initialization")
@@ -265,28 +266,33 @@ func (h Handler) Archive(ctx context.Context, req *service.Query, resp *service.
 
 	subqueries := req.GetSubQueries()
 	if len(subqueries) != 1 {
-		return fmt.Errorf("Can only treate one query with a seq id")
+		return fmt.Errorf("wrong query format: can only handle one ChangesArchiveQuery subquery")
 	}
 
 	query := &service.ChangesArchiveQuery{}
 
 	if err := ptypes.UnmarshalAny(subqueries[0], query); err != nil {
+		log.Logger(ctx).Error("could not unmarshal ChangesArchiveQuery subquery", zap.Any("Subquery", subqueries[0]))
 		return err
 	}
 
 	first, err := dao.FirstSeq()
 	if err != nil {
+		log.Logger(ctx).Error("unable to retrieve first sequence", zap.Error(err))
 		return err
 	}
 
 	last, err := dao.LastSeq()
 	if err != nil {
+		log.Logger(ctx).Error("unable to retrieve last sequence", zap.Error(err))
 		return err
 	}
-	log.Logger(ctx).Debug(fmt.Sprintf("Archiving from seq %d > %d", last-query.RemainingRows, first))
 
-	if seq := last - query.RemainingRows; seq >= first {
-		if err := dao.Archive(seq); err != nil {
+	// 	if seq := last - query.RemainingRows; seq >= first {
+	// Workaround the fact that we are using unsigned integers
+	if last >= first+query.RemainingRows {
+		log.Logger(ctx).Debug(fmt.Sprintf("Archiving from seq %d > %d", last-query.RemainingRows, first))
+		if err := dao.Archive(last - query.RemainingRows); err != nil {
 			return err
 		}
 	}

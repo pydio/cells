@@ -22,13 +22,16 @@ package archive
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/registry"
 	service "github.com/pydio/cells/common/service/proto"
@@ -69,6 +72,8 @@ func (a *ArchiveAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 	c := service.NewArchiverClient(registry.GetClient(common.SERVICE_CHANGES))
 
+	log.Logger(ctx).Debug(fmt.Sprintf("Launching archive action with param RemainingRows=%d", a.RemainingRows))
+
 	query, err := ptypes.MarshalAny(&service.ChangesArchiveQuery{RemainingRows: a.RemainingRows})
 	if err != nil {
 		return input.WithError(err), err
@@ -80,6 +85,7 @@ func (a *ArchiveAction) Run(ctx context.Context, channels *actions.RunnableChann
 
 	resp, err := c.Archive(ctx, req)
 	if err != nil {
+		log.Logger(ctx).Debug("could not archive", zap.Any("ArchiveRequest", req), zap.Error(err))
 		return input.WithError(err), err
 	}
 

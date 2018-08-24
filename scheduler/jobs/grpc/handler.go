@@ -180,6 +180,7 @@ func (j *JobsHandler) PutTaskStream(ctx context.Context, streamer proto.JobServi
 			break
 		}
 		if err != nil {
+			log.Logger(ctx).Debug("received an error in PutTaskStream", zap.Error(err))
 			return err
 		}
 
