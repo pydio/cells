@@ -53,6 +53,7 @@ var (
 		// Order by (node_id,seq) so that events are grouped by node id
 		"select":            `SELECT seq, node_id, type, source, target FROM data_changes WHERE seq > ? and (source LIKE ? or target LIKE ?) ORDER BY node_id,seq`,
 		"selectFromArchive": `SELECT seq, node_id, type, source, target FROM data_changes_archive WHERE seq > ? and (source LIKE ? or target LIKE ?) ORDER BY node_id,seq`,
+		"countChanges":      `SELECT COUNT(*) FROM data_changes`,
 		"firstSeq":          `SELECT MIN(seq) FROM data_changes`,
 		"lastSeq":           `SELECT MAX(seq) FROM data_changes`,
 		"nodeById":          `SELECT node_id FROM data_changes WHERE node_id = ? LIMIT 0,1`,
@@ -97,8 +98,8 @@ func (s *sqlimpl) Init(options config.Map) error {
 }
 
 // Put SyncChange in database
-func (h *sqlimpl) Put(c *tree.SyncChange) error {
-	_, err := h.GetStmt("insert").Exec(
+func (s *sqlimpl) Put(c *tree.SyncChange) error {
+	_, err := s.GetStmt("insert").Exec(
 		c.NodeId,
 		c.Type.String(),
 		c.Source,
@@ -113,8 +114,8 @@ func (h *sqlimpl) Put(c *tree.SyncChange) error {
 }
 
 // Put a slice of changes at once
-func (h *sqlimpl) BulkPut(changes []*tree.SyncChange) error {
-	stmt := h.GetStmt("bulkInsert", len(changes))
+func (s *sqlimpl) BulkPut(changes []*tree.SyncChange) error {
+	stmt := s.GetStmt("bulkInsert", len(changes))
 	var values []interface{}
 	for _, change := range changes {
 		values = append(values, change.NodeId, change.Type.String(), change.Source, change.Target)
@@ -123,9 +124,10 @@ func (h *sqlimpl) BulkPut(changes []*tree.SyncChange) error {
 	return err
 }
 
-func (h *sqlimpl) HasNodeById(id string) (bool, error) {
+// HasNodeById checks wether a node with this ID exists.
+func (s *sqlimpl) HasNodeById(id string) (bool, error) {
 
-	row := h.GetStmt("nodeById").QueryRow(id)
+	row := s.GetStmt("nodeById").QueryRow(id)
 	var nodeID string
 	if err := row.Scan(&nodeID); err != nil {
 		return false, err
@@ -134,7 +136,7 @@ func (h *sqlimpl) HasNodeById(id string) (bool, error) {
 }
 
 // Get the list of SyncChange
-func (h *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) {
+func (s *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) {
 	res := make(chan *tree.SyncChange)
 
 	go func() {
@@ -143,9 +145,9 @@ func (h *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) 
 		p := fmt.Sprintf("%s%%", prefix)
 
 		// Checking if we need to retrieve from archive
-		if first, err := h.FirstSeq(); err != nil || first > seq {
+		if first, err := s.FirstSeq(); err != nil || first > seq {
 
-			rarch, err := h.GetStmt("selectFromArchive").Query(seq, p, p)
+			rarch, err := s.GetStmt("selectFromArchive").Query(seq, p, p)
 			if err != nil {
 				return
 			}
@@ -178,7 +180,7 @@ func (h *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) 
 			}
 		}
 
-		r, err := h.GetStmt("select").Query(seq, p, p)
+		r, err := s.GetStmt("select").Query(seq, p, p)
 		if err != nil {
 			return
 		}
@@ -213,26 +215,58 @@ func (h *sqlimpl) Get(seq uint64, prefix string) (chan *tree.SyncChange, error) 
 	return res, nil
 }
 
-// FirstSeq returns the first sequence id in the data changes table (without archive)
-func (h *sqlimpl) FirstSeq() (uint64, error) {
+// FirstSeq returns the first sequence id in the data changes table (without archive) or 0 if the table is empty.
+func (s *sqlimpl) FirstSeq() (uint64, error) {
+
 	var last uint64
-	row := h.GetStmt("firstSeq").QueryRow()
+	row := s.GetStmt("firstSeq").QueryRow()
 	err := row.Scan(&last)
+	if err != nil {
+		// address empty db corner case only on error
+		// rather than checking if the table is empty at each iteration
+		rowtmp := s.GetStmt("countChanges").QueryRow()
+		var count uint64
+		err2 := rowtmp.Scan(&count)
+		if err2 != nil {
+			fmt.Println("Error: unable to count changes, " + err2.Error())
+			return last, err // return root cause
+		}
+		if count == 0 {
+			// empty db
+			return 0, nil
+		}
+		fmt.Println("Error: unable to retrieve first sequence id. " + err.Error())
+	}
 	return last, err
 }
 
-// LastSeq returns the last sequence id in the data changes table
-func (h *sqlimpl) LastSeq() (uint64, error) {
+// LastSeq returns the last sequence id in the data changes table or 0 if the table is empty.
+func (s *sqlimpl) LastSeq() (uint64, error) {
 	var last uint64
-	row := h.GetStmt("lastSeq").QueryRow()
+	row := s.GetStmt("lastSeq").QueryRow()
 	err := row.Scan(&last)
+	if err != nil {
+		rowtmp := s.GetStmt("countChanges").QueryRow()
+		var count uint64
+		err2 := rowtmp.Scan(&count)
+		if err2 != nil {
+			fmt.Println("Error: unable to count changes, " + err2.Error())
+			return last, err // return root cause
+		}
+		if count == 0 {
+			// empty db
+			return 0, nil
+		}
+		fmt.Println("Error: unable to retrieve last sequence id. " + err.Error())
+	}
+
 	return last, err
 }
 
 // Archive places all rows before the sequence id in an archive table and delete them from the main table
-func (h *sqlimpl) Archive(seq uint64) error {
+func (s *sqlimpl) Archive(seq uint64) error {
 
-	db := h.DB()
+	db := s.DB()
 
 	// Starting a transaction
 	tx, err := db.BeginTx(context.Background(), nil)
@@ -249,8 +283,8 @@ func (h *sqlimpl) Archive(seq uint64) error {
 		}
 	}()
 
-	archive := h.GetStmt("archive")
-	delete := h.GetStmt("delete")
+	archive := s.GetStmt("archive")
+	delete := s.GetStmt("delete")
 
 	if stmt := tx.Stmt(archive); stmt != nil {
 		defer stmt.Close()
