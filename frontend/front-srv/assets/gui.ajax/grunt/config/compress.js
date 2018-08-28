@@ -40,10 +40,10 @@ module.exports = {
             level:gzipLevel,
         },
         expand: true,
-        cwd: 'res/themes/material/css/',
-        src: ['*.css'],
-        dest: 'res/themes/material/css/',
-        ext: '.css.gz'
+        cwd: 'res/build/',
+        src: ['*.material.min.css'],
+        dest: 'res/build/',
+        ext: '.material.min.css.gz'
 
     },
 };

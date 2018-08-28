@@ -5986,10 +5986,10 @@
         "methods": []
       }
     ],
-    "AdminWorkspaces/editor/WsEditor.js": [
+    "AdminWorkspaces/editor/WsAutoComplete.js": [
       {
         "description": "",
-        "displayName": "AutocompleteTree",
+        "displayName": "WsAutoComplete",
         "methods": [
           {
             "name": "handleUpdateInput",
@@ -6040,7 +6040,9 @@
             "returns": null
           }
         ]
-      },
+      }
+    ],
+    "AdminWorkspaces/editor/WsEditor.js": [
       {
         "description": "",
         "displayName": "WsEditor",
