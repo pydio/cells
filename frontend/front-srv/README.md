@@ -1,16 +1,15 @@
-# FrontLog Service
+# Frontend-related Services
 
-A super simple REST service logging every request to the standard input. Used by the PHP Frontend to log operations and errors using the application official format.
+This folder contains services required to serve the web interface. It is composed of the following services : 
 
-The REST service conforms to the following:
+## pydio.api.front-plugins
+This is a simple HTTP server for accessing to the basic resources like
+the interface index, serving the front plugins contents, and handling some specific URLs.
 
-```protobuf
-service FrontLogService {
-    rpc Log(FrontLogMessage) returns (FrontLogResponse) {
-        option (google.api.http) =  {
-            put: "/frontlogs"
-            body: "*"
-        };
-    }
-}
-```
+See web/plugins.go
+
+## pydio.grpc.frontend
+Provides a couple of frontend-specific REST APIs that are used only by the frontend clients. 
+It has the particularity to implement a Web Session mechanism (using a CookieStore).
+
+See rest/plugins.go
