@@ -50,7 +50,7 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	linkData, e := h.loadLink(r.Context(), link)
 	if e != nil {
 		w.WriteHeader(404)
-		tplConf.ErrorMessage = "Cannot find this link! Please contact the person who sent you the link."
+		tplConf.ErrorMessage = "Cannot find this link! Please contact the person who sent it to you."
 		h.error.Execute(w, tplConf)
 		return
 	}
@@ -59,7 +59,7 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check expiration time
 	if linkData.ExpireTime > 0 && time.Now().After(time.Unix(linkData.ExpireTime, 0)) {
 		w.WriteHeader(404)
-		tplConf.ErrorMessage = "This link has expired. Please contact the person who sent you the link."
+		tplConf.ErrorMessage = "This link has expired. Please contact the person who sent it to you."
 		h.error.Execute(w, tplConf)
 		return
 	}
@@ -112,10 +112,11 @@ func (h *PublicHandler) loadLink(ctx context.Context, linkUuid string) (*docstor
 		return nil, fmt.Errorf("cannot find document")
 	}
 	var linkData *docstore.ShareDocument
-	if err := json.Unmarshal([]byte(linkDoc.Data), &linkData); err == nil {
-		return linkData, nil
-	} else {
+
+	err := json.Unmarshal([]byte(linkDoc.Data), &linkData)
+	if err != nil {
 		return nil, err
 	}
+	return linkData, nil
 
 }

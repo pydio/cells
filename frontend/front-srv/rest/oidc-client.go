@@ -1,14 +1,13 @@
 package rest
 
 import (
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"crypto/tls"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"

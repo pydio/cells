@@ -27,12 +27,14 @@ import (
 
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service"
+	"github.com/mholt/caddy/caddytls"
 
 	_ "github.com/micro/go-plugins/client/grpc"
 	_ "github.com/micro/go-plugins/server/grpc"
+
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/service"
 )
 
 func init() {
@@ -40,7 +42,7 @@ func init() {
 	service.NewService(
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_GATEWAY_PROXY),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
-		service.Description("Main Http proxy for exposing a unique address to the world"),
+		service.Description("Main HTTP proxy for exposing a unique address to the world"),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 
 			caddy.AppName = common.PackageLabel
@@ -56,6 +58,15 @@ func init() {
 			if e != nil {
 				return nil, nil, nil, e
 			}
+
+			certEmail := config.Get("cert", "proxy", "email").String("")
+			if certEmail != "" {
+				caddytls.Agreed = true
+				caURL := config.Get("cert", "proxy", "caUrl").String("")
+				fmt.Println("### Configuring LE SSL, CA URL:", caURL)
+				caddytls.DefaultCAUrl = caURL
+			}
+
 			// now load inside caddy
 			caddyfile, err := caddy.LoadCaddyfile("http")
 			if err != nil {

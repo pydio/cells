@@ -162,6 +162,7 @@ http://{{.HttpRedirectSource.Host}} {
 {{end}}
 `
 	DefaultCaddyfile = filepath.Join(ApplicationDataDir(), "Caddyfile")
+	DefaultCaUrl     = "https://acme-v01.api.letsencrypt.org/directory"
 )
 
 func init() {
@@ -187,6 +188,8 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 	if tls {
 		if self := Get("cert", "proxy", "self").Bool(false); self {
 			c.TLS = "self_signed"
+		} else if certEmail := Get("cert", "proxy", "email").String(""); certEmail != "" {
+			c.TLS = certEmail
 		} else {
 			cert := Get("cert", "proxy", "certFile").String("")
 			key := Get("cert", "proxy", "keyFile").String("")

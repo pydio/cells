@@ -21,40 +21,18 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
-
-	"github.com/pydio/cells/common/utils"
 )
 
-var docPath string
-
-// docCmd represents the documentation command.
-var docCmd = &cobra.Command{
-	Use:   "doc",
-	Short: "Generate MD documentation for this command",
-	Long: `Generate Markdown documentation for the Pydio Cells command line tool.
-Provide a target folder where to put the generated files.
-This command also generates yaml files for pydio.com documentation format.
-`,
+// i18n subcommands implement utilitary methods to help with internationalisation.
+var i18n = &cobra.Command{
+	Use:   "i18n",
+	Short: "Internationalisation Utils",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		if docPath == "" {
-			log.Fatal("Please provide a path to store output files")
-		} else {
-
-			err := utils.GenMarkdownTree(RootCmd, docPath)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-
+		cmd.Help()
 	},
 }
 
 func init() {
-	docCmd.Flags().StringVarP(&docPath, "path", "p", "", "Target folder where to put the files")
-
-	RootCmd.AddCommand(docCmd)
+	RootCmd.AddCommand(i18n)
 }

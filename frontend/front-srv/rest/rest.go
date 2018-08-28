@@ -265,7 +265,7 @@ func (a *FrontendHandler) FrontLog(req *restful.Request, rsp *restful.Response) 
 	}()
 }
 
-// FrontServeBinary triggers a download of a stored binary
+// FrontServeBinary triggers the download of a stored binary.
 func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Response) {
 
 	binaryType := req.PathParameter("BinaryType")
@@ -328,7 +328,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 
 }
 
-// FrontServeBinary receives an upload of a stored binary
+// FrontPutBinary receives an upload to store a binary.
 func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Response) {
 
 	binaryType := req.PathParameter("BinaryType")

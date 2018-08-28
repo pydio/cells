@@ -30,7 +30,7 @@ import (
 	"github.com/pydio/cells/common/registry"
 )
 
-// enableCmd represents the enable command
+// servicesDepsCmd shows dependencies between services.
 var servicesDepsCmd = &cobra.Command{
 	Use:   "deps",
 	Short: "Show dependencies between services",

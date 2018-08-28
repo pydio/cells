@@ -22,18 +22,16 @@ package cmd
 
 import (
 	"errors"
-
-	"github.com/spf13/cobra"
-
-	"os"
-
 	"fmt"
 	"log"
+	"os"
+
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common/config"
 )
 
-// updateCmd represents the update command
+// updateCmd updates a configuration parameter both in the pydio.json file and in the database.
 var updateCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Store a configuration",
