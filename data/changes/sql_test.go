@@ -21,8 +21,7 @@
 package changes
 
 import (
-	"context"
-	"fmt"
+	"log"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -31,87 +30,138 @@ import (
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/context"
 	commonsql "github.com/pydio/cells/common/sql"
 )
 
-var (
-	ctx     context.Context
-	mockDAO DAO
-)
-
-func TestMain(m *testing.M) {
+// Rather use this than TestMain to insure we have a new empty test DB for each high level test.
+func initialiseMockDao() DAO {
 
 	// Instantiate and initialise the mock DAO
-	sqlDao := commonsql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "")
-	mockDAO = NewDAO(sqlDao).(DAO)
+	// sqlDao := commonsql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "")
+	sqlDao := commonsql.NewDAO("sqlite3", "file::memory:", "")
+	mockDAO := NewDAO(sqlDao).(DAO)
 	options := config.NewMap()
 	options.Set("database", mockDAO)
 	options.Set("exclusive", true)
 	options.Set("prepare", true)
 	err := mockDAO.Init(*options)
 	if err != nil {
-		fmt.Print("could not start test ", err)
-		return
+		log.Fatal("could not start test: ", err)
+		return nil
 	}
 
-	ctx = servicecontext.WithDAO(context.Background(), mockDAO)
-
-	m.Run()
+	return mockDAO
 }
 
-func TestMysql(t *testing.T) {
+func TestSqlDaoBasics(t *testing.T) {
 
-	Convey("Test create a change", t, func() {
-		err := mockDAO.Put(&tree.SyncChange{
-			NodeId: "test",
-			Type:   tree.SyncChange_create,
-			Source: "test1",
-			Target: "test2",
+	Convey("Given a new empty DB", t, func() {
+
+		mockDAO := initialiseMockDao()
+
+		Convey("First and last seq id should be 0", func() {
+			first, err := mockDAO.FirstSeq()
+			So(err, ShouldBeNil)
+			So(first, ShouldEqual, 0)
+
+			last, err := mockDAO.LastSeq()
+			So(err, ShouldBeNil)
+			So(last, ShouldEqual, 0)
 		})
-		So(err, ShouldBeNil)
-	})
 
-	Convey("Test create a second change", t, func() {
-		err := mockDAO.Put(&tree.SyncChange{
-			NodeId: "othertest",
-			Type:   tree.SyncChange_create,
-			Source: "othertest",
-			Target: "othertest2",
+		Convey("Insert a single change", func() {
+			err := mockDAO.Put(&tree.SyncChange{
+				NodeId: "test",
+				Type:   tree.SyncChange_create,
+				Source: "test1",
+				Target: "test2",
+			})
+			So(err, ShouldBeNil)
+
+			Convey("First and last seq id should be 1", func() {
+				first, err := mockDAO.FirstSeq()
+				So(err, ShouldBeNil)
+				So(first, ShouldEqual, 1)
+
+				last, err := mockDAO.LastSeq()
+				So(err, ShouldBeNil)
+				So(last, ShouldEqual, 1)
+			})
+
+			Convey("Insert another one", func() {
+				err = mockDAO.Put(&tree.SyncChange{
+					NodeId: "test2",
+					Type:   tree.SyncChange_create,
+					Source: "test12",
+					Target: "test22",
+				})
+				So(err, ShouldBeNil)
+
+				Convey("First remains untouched and last increments", func() {
+					first, err := mockDAO.FirstSeq()
+					So(err, ShouldBeNil)
+					So(first, ShouldEqual, 1)
+
+					last, err := mockDAO.LastSeq()
+					So(err, ShouldBeNil)
+					So(last, ShouldEqual, 2)
+				})
+			})
 		})
-		So(err, ShouldBeNil)
 	})
 
-	Convey("Search all results", t, func() {
-		res, err := mockDAO.Get(0, "")
-		So(err, ShouldBeNil)
+	Convey("Given a new empty DB", t, func() {
+		mockDAO := initialiseMockDao()
 
-		count := 0
-		for range res {
-			count++
-		}
-		So(count, ShouldEqual, 2)
-	})
+		Convey("Create 2 changes", func() {
+			err := mockDAO.Put(&tree.SyncChange{
+				NodeId: "test",
+				Type:   tree.SyncChange_create,
+				Source: "test1",
+				Target: "test2",
+			})
+			So(err, ShouldBeNil)
 
-	Convey("Search with seq start", t, func() {
-		res, err := mockDAO.Get(1, "")
-		So(err, ShouldBeNil)
+			err = mockDAO.Put(&tree.SyncChange{
+				NodeId: "othertest",
+				Type:   tree.SyncChange_create,
+				Source: "othertest",
+				Target: "othertest2",
+			})
+			So(err, ShouldBeNil)
 
-		count := 0
-		for range res {
-			count++
-		}
-		So(count, ShouldEqual, 1)
-	})
+			Convey("Search all results", func() {
+				res, err := mockDAO.Get(0, "")
+				So(err, ShouldBeNil)
 
-	Convey("Search with path prefix", t, func() {
-		res, err := mockDAO.Get(0, "test")
-		So(err, ShouldBeNil)
+				count := 0
+				for range res {
+					count++
+				}
+				So(count, ShouldEqual, 2)
+			})
 
-		count := 0
-		for range res {
-			count++
-		}
-		So(count, ShouldEqual, 1)
+			Convey("Search with seq start", func() {
+				res, err := mockDAO.Get(1, "")
+				So(err, ShouldBeNil)
+
+				count := 0
+				for range res {
+					count++
+				}
+				So(count, ShouldEqual, 1)
+			})
+
+			Convey("Search with path prefix", func() {
+				res, err := mockDAO.Get(0, "test")
+				So(err, ShouldBeNil)
+
+				count := 0
+				for range res {
+					count++
+				}
+				So(count, ShouldEqual, 1)
+			})
+		})
 	})
 }

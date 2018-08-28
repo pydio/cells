@@ -78,147 +78,157 @@ func (s *streamEventCounter) Send(event *tree.SyncChange) error {
 
 func TestStreamOptimizer(t *testing.T) {
 
-	Convey("Simply test mock", t, func() {
-		var changes mockChanger = []*tree.SyncChange{
-			{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_create, Source: "NULL", Target: "/test/alpha"},
-			{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
-			{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_content, Source: "/test/alpha2", Target: "/test/alpha2"},
-		}
+	Convey("In a clean context", t, func() {
 
-		sender := newStreamEventCounter(false)
-		err := NewOptimizer(ctx, changes).Output(ctx, sender)
-		So(err, ShouldBeNil)
-		So(sender.counter, ShouldEqual, 1)
-		So(sender.mockEvents[0].GetType(), ShouldEqual, tree.SyncChange_create)
-		So(sender.mockEvents[0].GetTarget(), ShouldEqual, "/test/alpha2")
+		ctx := context.Background()
 
+		Convey("Simply test mock", func() {
+			var changes mockChanger = []*tree.SyncChange{
+				{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_create, Source: "NULL", Target: "/test/alpha"},
+				{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
+				{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_content, Source: "/test/alpha2", Target: "/test/alpha2"},
+			}
+
+			sender := newStreamEventCounter(false)
+			err := NewOptimizer(ctx, changes).Output(ctx, sender)
+			So(err, ShouldBeNil)
+			So(sender.counter, ShouldEqual, 1)
+			So(sender.mockEvents[0].GetType(), ShouldEqual, tree.SyncChange_create)
+			So(sender.mockEvents[0].GetTarget(), ShouldEqual, "/test/alpha2")
+
+		})
+
+		Convey("Test create / delete cancelation", func() {
+			var changes mockChanger = []*tree.SyncChange{
+				{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_create, Source: "NULL", Target: "/test/alpha"},
+				{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_delete, Source: "/test/alpha", Target: "NULL"},
+			}
+
+			sender := newStreamEventCounter(false)
+			err := NewOptimizer(ctx, changes).Output(ctx, sender)
+			So(err, ShouldBeNil)
+			So(sender.counter, ShouldEqual, 0)
+		})
+
+		Convey("Test flatten strategies", func() {
+
+			Convey("Various moves then delete", func() {
+				var changes mockChanger = []*tree.SyncChange{
+					{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
+					{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha2", Target: "/test/alpha3"},
+					{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_delete, Source: "/test/alpha3", Target: "NULL"},
+				}
+
+				sender := newStreamEventCounter(false)
+				err := NewOptimizer(ctx, changes).Output(ctx, sender)
+				So(err, ShouldBeNil)
+				So(sender.counter, ShouldEqual, 1)
+				So(sender.mockEvents[0].GetSource(), ShouldEqual, "/test/alpha")
+
+			})
+
+			Convey("Various moves", func() {
+				var changes mockChanger = []*tree.SyncChange{
+					{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
+					{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha2", Target: "/test/alpha3"},
+					{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha3", Target: "/test/alpha4"},
+				}
+
+				sender := newStreamEventCounter(false)
+				err := NewOptimizer(ctx, changes).Output(ctx, sender)
+				So(err, ShouldBeNil)
+				So(sender.counter, ShouldEqual, 1)
+				So(sender.mockEvents[0].GetSource(), ShouldEqual, "/test/alpha")
+				So(sender.mockEvents[0].GetTarget(), ShouldEqual, "/test/alpha4")
+			})
+
+			Convey("Round trip moves", func() {
+				var changes mockChanger = []*tree.SyncChange{
+					{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
+					{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha2", Target: "/test/alpha3"},
+					{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha3", Target: "/test/alpha4"},
+					{Seq: 4, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha4", Target: "/test/alpha"},
+				}
+
+				sender := newStreamEventCounter(false)
+				err := NewOptimizer(ctx, changes).Output(ctx, sender)
+				So(err, ShouldBeNil)
+				So(sender.counter, ShouldEqual, 0)
+			})
+
+			Convey("Move, update, move ", func() {
+				var changes mockChanger = []*tree.SyncChange{
+					{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
+					{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_content, Source: "NULL", Target: "/test/alpha2"},
+					{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha2", Target: "/test/alpha4"},
+				}
+
+				sender := newStreamEventCounter(false)
+				err := NewOptimizer(ctx, changes).Output(ctx, sender)
+				So(err, ShouldBeNil)
+				So(sender.counter, ShouldEqual, 2)
+				So(sender.mockEvents[0].GetType(), ShouldEqual, tree.SyncChange_content)
+				So(sender.mockEvents[1].GetType(), ShouldEqual, tree.SyncChange_path)
+				So(sender.mockEvents[0].GetTarget(), ShouldEqual, "/test/alpha")
+
+			})
+
+			Convey("Move, update, move, update ", func() {
+				var changes mockChanger = []*tree.SyncChange{
+					{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
+					{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_content, Source: "NULL", Target: "/test/alpha2"},
+					{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha2", Target: "/test/alpha4"},
+					{Seq: 4, NodeId: "alpha", Type: tree.SyncChange_content, Source: "NULL", Target: "/test/alpha4"},
+				}
+
+				sender := newStreamEventCounter(false)
+				err := NewOptimizer(ctx, changes).Output(ctx, sender)
+				So(err, ShouldBeNil)
+				So(sender.counter, ShouldEqual, 2)
+				So(sender.mockEvents[0].GetType(), ShouldEqual, tree.SyncChange_path)
+				So(sender.mockEvents[1].GetType(), ShouldEqual, tree.SyncChange_content)
+				So(sender.mockEvents[1].GetTarget(), ShouldEqual, "/test/alpha4")
+
+			})
+
+			Convey("Create, update, move ", func() {
+				var changes mockChanger = []*tree.SyncChange{
+					{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_create, Source: "NULL", Target: "/test/alpha"},
+					{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_content, Source: "NULL", Target: "/test/alpha"},
+					{Seq: 8, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha4"},
+				}
+
+				sender := newStreamEventCounter(false)
+				err := NewOptimizer(ctx, changes).Output(ctx, sender)
+				So(err, ShouldBeNil)
+				So(sender.counter, ShouldEqual, 1)
+				So(sender.mockEvents[0].GetSource(), ShouldEqual, "NULL")
+				So(sender.mockEvents[0].GetType(), ShouldEqual, tree.SyncChange_create)
+				So(sender.mockEvents[0].GetSeq(), ShouldEqual, uint64(8))
+			})
+
+			Convey("Create, move, update", func() {
+				var changes mockChanger = []*tree.SyncChange{
+					{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_create, Source: "NULL", Target: "/test/alpha"},
+					{Seq: 8, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha4"},
+					{Seq: 13, NodeId: "alpha", Type: tree.SyncChange_content, Source: "NULL", Target: "/test/alpha4"},
+				}
+
+				sender := newStreamEventCounter(false)
+				err := NewOptimizer(ctx, changes).Output(ctx, sender)
+				So(err, ShouldBeNil)
+				So(sender.counter, ShouldEqual, 1)
+				So(sender.mockEvents[0].GetType(), ShouldEqual, tree.SyncChange_create)
+				So(sender.mockEvents[0].GetSeq(), ShouldEqual, uint64(13))
+			})
+		})
 	})
-
-	Convey("Test create / delete cancelation", t, func() {
-		var changes mockChanger = []*tree.SyncChange{
-			{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_create, Source: "NULL", Target: "/test/alpha"},
-			{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_delete, Source: "/test/alpha", Target: "NULL"},
-		}
-
-		sender := newStreamEventCounter(false)
-		err := NewOptimizer(ctx, changes).Output(ctx, sender)
-		So(err, ShouldBeNil)
-		So(sender.counter, ShouldEqual, 0)
-	})
-
-	Convey("Test flatten: various moves then delete", t, func() {
-		var changes mockChanger = []*tree.SyncChange{
-			{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
-			{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha2", Target: "/test/alpha3"},
-			{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_delete, Source: "/test/alpha3", Target: "NULL"},
-		}
-
-		sender := newStreamEventCounter(false)
-		err := NewOptimizer(ctx, changes).Output(ctx, sender)
-		So(err, ShouldBeNil)
-		So(sender.counter, ShouldEqual, 1)
-		So(sender.mockEvents[0].GetSource(), ShouldEqual, "/test/alpha")
-
-	})
-
-	Convey("Test flatten: various moves", t, func() {
-		var changes mockChanger = []*tree.SyncChange{
-			{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
-			{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha2", Target: "/test/alpha3"},
-			{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha3", Target: "/test/alpha4"},
-		}
-
-		sender := newStreamEventCounter(false)
-		err := NewOptimizer(ctx, changes).Output(ctx, sender)
-		So(err, ShouldBeNil)
-		So(sender.counter, ShouldEqual, 1)
-		So(sender.mockEvents[0].GetSource(), ShouldEqual, "/test/alpha")
-		So(sender.mockEvents[0].GetTarget(), ShouldEqual, "/test/alpha4")
-	})
-
-	Convey("Test flatten: round trip moves", t, func() {
-		var changes mockChanger = []*tree.SyncChange{
-			{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
-			{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha2", Target: "/test/alpha3"},
-			{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha3", Target: "/test/alpha4"},
-			{Seq: 4, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha4", Target: "/test/alpha"},
-		}
-
-		sender := newStreamEventCounter(false)
-		err := NewOptimizer(ctx, changes).Output(ctx, sender)
-		So(err, ShouldBeNil)
-		So(sender.counter, ShouldEqual, 0)
-	})
-
-	Convey("Test flatten: move update move ", t, func() {
-		var changes mockChanger = []*tree.SyncChange{
-			{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
-			{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_content, Source: "NULL", Target: "/test/alpha2"},
-			{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha2", Target: "/test/alpha4"},
-		}
-
-		sender := newStreamEventCounter(false)
-		err := NewOptimizer(ctx, changes).Output(ctx, sender)
-		So(err, ShouldBeNil)
-		So(sender.counter, ShouldEqual, 2)
-		So(sender.mockEvents[0].GetType(), ShouldEqual, tree.SyncChange_content)
-		So(sender.mockEvents[1].GetType(), ShouldEqual, tree.SyncChange_path)
-		So(sender.mockEvents[0].GetTarget(), ShouldEqual, "/test/alpha")
-
-	})
-
-	Convey("Test flatten: move update move update ", t, func() {
-		var changes mockChanger = []*tree.SyncChange{
-			{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha2"},
-			{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_content, Source: "NULL", Target: "/test/alpha2"},
-			{Seq: 3, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha2", Target: "/test/alpha4"},
-			{Seq: 4, NodeId: "alpha", Type: tree.SyncChange_content, Source: "NULL", Target: "/test/alpha4"},
-		}
-
-		sender := newStreamEventCounter(false)
-		err := NewOptimizer(ctx, changes).Output(ctx, sender)
-		So(err, ShouldBeNil)
-		So(sender.counter, ShouldEqual, 2)
-		So(sender.mockEvents[0].GetType(), ShouldEqual, tree.SyncChange_path)
-		So(sender.mockEvents[1].GetType(), ShouldEqual, tree.SyncChange_content)
-		So(sender.mockEvents[1].GetTarget(), ShouldEqual, "/test/alpha4")
-
-	})
-
-	Convey("Test flatten: create update move ", t, func() {
-		var changes mockChanger = []*tree.SyncChange{
-			{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_create, Source: "NULL", Target: "/test/alpha"},
-			{Seq: 2, NodeId: "alpha", Type: tree.SyncChange_content, Source: "NULL", Target: "/test/alpha"},
-			{Seq: 8, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha4"},
-		}
-
-		sender := newStreamEventCounter(false)
-		err := NewOptimizer(ctx, changes).Output(ctx, sender)
-		So(err, ShouldBeNil)
-		So(sender.counter, ShouldEqual, 1)
-		So(sender.mockEvents[0].GetSource(), ShouldEqual, "NULL")
-		So(sender.mockEvents[0].GetType(), ShouldEqual, tree.SyncChange_create)
-		So(sender.mockEvents[0].GetSeq(), ShouldEqual, uint64(8))
-	})
-
-	Convey("Test flatten: create move update", t, func() {
-		var changes mockChanger = []*tree.SyncChange{
-			{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_create, Source: "NULL", Target: "/test/alpha"},
-			{Seq: 8, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha4"},
-			{Seq: 13, NodeId: "alpha", Type: tree.SyncChange_content, Source: "NULL", Target: "/test/alpha4"},
-		}
-
-		sender := newStreamEventCounter(false)
-		err := NewOptimizer(ctx, changes).Output(ctx, sender)
-		So(err, ShouldBeNil)
-		So(sender.counter, ShouldEqual, 1)
-		So(sender.mockEvents[0].GetType(), ShouldEqual, tree.SyncChange_create)
-		So(sender.mockEvents[0].GetSeq(), ShouldEqual, uint64(13))
-	})
-
 }
 
 func TestConcurrency(t *testing.T) {
+
+	ctx := context.Background()
+
 	Convey("Test order:", t, func() {
 		var changes mockChanger = []*tree.SyncChange{
 			{Seq: 1, NodeId: "alpha", Type: tree.SyncChange_path, Source: "/test/alpha", Target: "/test/alpha4"},

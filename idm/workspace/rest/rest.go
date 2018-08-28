@@ -238,6 +238,7 @@ func (h *WorkspaceHandler) SearchWorkspaces(req *restful.Request, rsp *restful.R
 			log.Logger(ctx).Error("Could not load default rights workspace", zap.Error(er))
 		}
 		collection.Workspaces = append(collection.Workspaces, resp.Workspace)
+		collection.Total++
 	}
 	rsp.WriteEntity(collection)
 

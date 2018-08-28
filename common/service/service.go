@@ -137,7 +137,7 @@ func NewService(opts ...ServiceOption) Service {
 	ctx = servicecontext.WithServiceName(ctx, s.opts.Name)
 
 	if s.IsGRPC() {
-		ctx = servicecontext.WithServiceColor(ctx, 31)
+		ctx = servicecontext.WithServiceColor(ctx, 35)
 	} else if s.IsREST() {
 		ctx = servicecontext.WithServiceColor(ctx, 32)
 
@@ -217,7 +217,7 @@ func NewService(opts ...ServiceOption) Service {
 			case "boltdb":
 				d = s.Options().DAO(boltdb.NewDAO(driver, dsn, prefix))
 			default:
-				return fmt.Errorf("Wrong type of driver")
+				return fmt.Errorf("unsupported driver type: %s", driver)
 			}
 
 			if d == nil {
@@ -426,7 +426,7 @@ func (s *service) Stop() {
 	}
 }
 
-// IsRunning provides a quikc way to check that a service is running
+// IsRunning provides a quick way to check that a service is running.
 func (s *service) IsRunning() bool {
 	ctx := s.getContext()
 

@@ -48,7 +48,7 @@
     "other": "Default REST accesses for a logged user"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "Default REST accesses for a logged user"
+    "other": "REST accesses for incrementing shares downloads"
   },
 
   "PolicyGroup.OIDC.Title": {

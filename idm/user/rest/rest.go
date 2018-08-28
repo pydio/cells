@@ -333,6 +333,16 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to set a profile (%s) higher than your current profile (%s)", inputUser.Attributes["profile"], ctxClaims.Profile))
 			return
 		}
+
+		// TODO remove: conflicting code when merging from master branch.
+		// // Check profile is not higher than current user profile
+		// if !inputUser.IsGroup {
+		// 	_, ctxClaims := utils.FindUserNameInContext(ctx)
+		// 	if profilesLevel[inputUser.Attributes["profile"]] > profilesLevel[ctxClaims.Profile] {
+		// 		service.RestError403(req, rsp, fmt.Errorf("you are not allowed to set a profile (%s) higher than your current profile (%s)", inputUser.Attributes["profile"], ctxClaims.Profile))
+		// 		return
+		// 	}
+		// }
 	}
 
 	var acls []*idm.ACL
