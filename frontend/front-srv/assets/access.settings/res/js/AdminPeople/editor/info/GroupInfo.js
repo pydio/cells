@@ -27,8 +27,6 @@ class GroupInfo extends React.Component {
         const params = parameters.filter(p => p.name === paramName);
         const idmUser = group.getIdmUser();
         const role = group.getRole();
-        // do something
-        console.log(paramName, newValue);
         if(paramName === 'displayName' || paramName === 'email' || paramName === 'profile'){
             idmUser.Attributes[paramName] = newValue;
         } else if (params.length && params[0].aclKey) {

@@ -25718,6 +25718,7 @@ var UserInfo = (function (_React$Component) {
 
                     var attributes = idmUser.Attributes || {};
                     values = _extends({}, values, {
+                        avatar: attributes['avatar'],
                         displayName: attributes['displayName'],
                         email: attributes['email'],
                         profile: attributes['profile'],

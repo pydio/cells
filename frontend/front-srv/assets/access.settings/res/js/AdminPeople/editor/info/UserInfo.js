@@ -95,6 +95,7 @@ class UserInfo extends React.Component {
             const attributes = idmUser.Attributes || {};
             values = {
                 ...values,
+                avatar: attributes['avatar'],
                 displayName: attributes['displayName'],
                 email: attributes['email'],
                 profile: attributes['profile'],
