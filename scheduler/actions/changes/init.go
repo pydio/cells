@@ -18,32 +18,18 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package changes implements backward-compatible Change api as defined in older version of Pydio
-package changes
+// Package archive provides implementation of actions to work with archive files.
+package archive
 
 import (
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/scheduler/actions"
 )
 
-// DAO extends sql.DAO for the changes service
-type DAO interface {
-	dao.DAO
+func init() {
 
-	Put(*tree.SyncChange) error
-	BulkPut([]*tree.SyncChange) error
-	Get(uint64, string) (chan *tree.SyncChange, error)
-	FirstSeq() (uint64, error)
-	LastSeq() (uint64, error)
-	HasNodeById(id string) (bool, error)
-	Archive(uint64) error
-}
+	manager := actions.GetActionsManager()
 
-func NewDAO(o dao.DAO) dao.DAO {
-	switch v := o.(type) {
-	case sql.DAO:
-		return &sqlimpl{DAO: v}
-	}
-	return nil
+	manager.Register(archiveActionName, func() actions.ConcreteAction {
+		return &ArchiveAction{}
+	})
 }

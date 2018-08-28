@@ -22,37 +22,40 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/hashicorp/go-version"
 	"go.uber.org/zap"
-
-	"strings"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 )
 
+// Migration defines a target version and functions to upgrade and/or downgrade.
 type Migration struct {
 	TargetVersion *version.Version
 	Up            func(ctx context.Context) error
 	Down          func(ctx context.Context) error
 }
 
-// Create a version.NewVersion ignoring the error
+// ValidVersion creates a version.NewVersion ignoring the error.
 func ValidVersion(v string) *version.Version {
 	obj, _ := version.NewVersion(v)
 	return obj
 }
 
+// FirstRun returns version "zero".
 func FirstRun() *version.Version {
 	obj, _ := version.NewVersion("0.0.0")
 	return obj
 }
 
+// Latest retrieves current common Cells version.
 func Latest() *version.Version {
 	return common.Version()
 }
@@ -65,51 +68,53 @@ func LastKnownVersion(serviceName string) (v *version.Version, e error) {
 		return nil, e
 	}
 	versionFile := filepath.Join(serviceDir, "version")
-	if data, err := ioutil.ReadFile(versionFile); err != nil {
+
+	data, err := ioutil.ReadFile(versionFile)
+	if err != nil {
 		if os.IsNotExist(err) {
 			fake, _ := version.NewVersion("0.0.0")
 			return fake, nil
-		} else {
-			return nil, err
 		}
-	} else {
-		return version.NewVersion(strings.TrimSpace(string(data)))
+		return nil, err
 	}
+	return version.NewVersion(strings.TrimSpace(string(data)))
 
 }
 
 // UpdateVersion writes the version string to file
 func UpdateVersion(serviceName string, v *version.Version) error {
 
-	if dir, err := config.ServiceDataDir(serviceName); err == nil {
-		versionFile := filepath.Join(dir, "version")
-		return ioutil.WriteFile(versionFile, []byte(v.String()), 0755)
-	} else {
+	dir, err := config.ServiceDataDir(serviceName)
+	if err == nil {
 		return err
 	}
-
+	versionFile := filepath.Join(dir, "version")
+	return ioutil.WriteFile(versionFile, []byte(v.String()), 0755)
 }
 
+// UpdateServiceVersion applies migration(s) if necessary and stores new current version for future use.
 func UpdateServiceVersion(s Service) error {
 	options := s.Options()
 	newVersion, _ := version.NewVersion(options.Version)
-	if lastVersion, e := LastKnownVersion(options.Name); e == nil {
 
-		writeVersion, err := ApplyMigrations(options.Context, lastVersion, newVersion, options.Migrations)
-		if writeVersion != nil {
-			if e := UpdateVersion(options.Name, writeVersion); e != nil {
-				log.Logger(options.Context).Error("could not write version file", zap.Error(e))
-			}
-		}
-		return err
-	} else {
+	lastVersion, e := LastKnownVersion(options.Name)
+	if e != nil {
 		return e
 	}
+
+	writeVersion, err := ApplyMigrations(options.Context, lastVersion, newVersion, options.Migrations)
+	if writeVersion != nil {
+		if e := UpdateVersion(options.Name, writeVersion); e != nil {
+			log.Logger(options.Context).Error("could not write version file", zap.Error(e))
+		}
+	}
+	return err
 
 }
 
 // ApplyMigrations browse migrations upward on downward and apply them sequentially. It returns a version to be
-// saved as the current valid version of the service, or nil if no changes were necessary
+// saved as the current valid version of the service, or nil if no changes were necessary. In specific case where
+// current version is 0.0.0 (first run), it only applies first run migration (if any) and returns target version.
 func ApplyMigrations(ctx context.Context, current *version.Version, target *version.Version, migrations []*Migration) (*version.Version, error) {
 
 	if target.Equal(current) {
@@ -119,6 +124,27 @@ func ApplyMigrations(ctx context.Context, current *version.Version, target *vers
 	if migrations == nil {
 		return target, nil
 	}
+
+	// corner case of the fresh install, returns the current target version to be stored
+	if current.Equal(FirstRun()) {
+		m := migrations[0]
+
+		// Double check to insure we really only perform FirstRun initialisation
+		if !m.TargetVersion.Equal(FirstRun()) {
+			// no first run init, doing nothing
+			return target, nil
+		}
+
+		log.Logger(ctx).Debug(fmt.Sprintf("About to initialise service at version %s", target.String()))
+		err := m.Up(ctx)
+		if err != nil {
+			log.Logger(ctx).Error(fmt.Sprintf("could not initialise service at version %s", target.String()), zap.Error(err))
+			return current, err
+		}
+		return target, nil
+	}
+
+	log.Logger(ctx).Debug(fmt.Sprintf("About to perform migration from %s to %s", current.String(), target.String()))
 
 	if target.GreaterThan(current) {
 

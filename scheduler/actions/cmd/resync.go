@@ -25,8 +25,10 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/common/service/defaults"
@@ -82,6 +84,7 @@ func (c *ResyncAction) Run(ctx context.Context, channels *actions.RunnableChanne
 		Task:   c.CrtTask,
 	})
 	if e != nil {
+		log.Logger(ctx).Debug("unable to trigger resync for "+c.ServiceName, zap.Error(e))
 		return input.WithError(e), e
 	}
 	output := input

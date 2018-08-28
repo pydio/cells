@@ -18,32 +18,43 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// Package changes implements backward-compatible Change api as defined in older version of Pydio
-package changes
+package archive
 
 import (
-	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/sql"
+	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/pydio/cells/common/proto/jobs"
 )
 
-// DAO extends sql.DAO for the changes service
-type DAO interface {
-	dao.DAO
+func TestArchiveAction(t *testing.T) {
 
-	Put(*tree.SyncChange) error
-	BulkPut([]*tree.SyncChange) error
-	Get(uint64, string) (chan *tree.SyncChange, error)
-	FirstSeq() (uint64, error)
-	LastSeq() (uint64, error)
-	HasNodeById(id string) (bool, error)
-	Archive(uint64) error
-}
+	Convey("Given a new ArchiveAction", t, func() {
+		action := &ArchiveAction{}
 
-func NewDAO(o dao.DAO) dao.DAO {
-	switch v := o.(type) {
-	case sql.DAO:
-		return &sqlimpl{DAO: v}
-	}
-	return nil
+		Convey("Name is correctly set", func() {
+			So(action.GetName(), ShouldEqual, archiveActionName)
+		})
+
+		Convey("Perform init without parameters", func() {
+
+			job := &jobs.Job{}
+			e := action.Init(job, nil, &jobs.Action{})
+			So(e, ShouldBeNil)
+		})
+
+		Convey("Perform init with remainingRows count", func() {
+
+			job := &jobs.Job{}
+			e := action.Init(job, nil, &jobs.Action{
+				Parameters: map[string]string{
+					"remainingRows": "1000",
+				},
+			})
+			So(e, ShouldBeNil)
+			So(action.RemainingRows, ShouldEqual, 1000)
+		})
+	})
+
 }

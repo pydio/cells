@@ -48,7 +48,7 @@
     "other": "Accès par défaut pour les utilisateurs loggés"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "Désactivation de l'accès pour /policy"
+    "other": "Accès pour incrémenter les téléchargements des liens partagés"
   },
 
   "PolicyGroup.OIDC.Title": {

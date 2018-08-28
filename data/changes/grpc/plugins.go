@@ -33,6 +33,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
+	serviceproto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/data/changes"
 )
 
@@ -50,6 +51,7 @@ func init() {
 		service.WithStorage(changes.NewDAO, "data_changes"),
 		service.WithMicro(func(m micro.Service) error {
 			h := NewHandler(m.Options().Context)
+			serviceproto.RegisterArchiverHandler(m.Options().Server, h)
 			tree.RegisterSyncChangesHandler(m.Options().Server, h)
 			sync.RegisterSyncEndpointHandler(m.Options().Server, h)
 

@@ -22,6 +22,7 @@ package policy
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/packr"
@@ -94,31 +95,45 @@ func (s *sqlimpl) Init(options config.Map) error {
 
 }
 
+// StorePolicyGroup first upserts policies (and fail fast) before upserting the passed policy group
+// and recreating corresponding relations.
 func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) (*idm.PolicyGroup, error) {
 
 	if group.Uuid == "" {
 		group.Uuid = uuid.NewUUID().String()
 	} else {
 		// First clear relations
-		s.GetStmt("deleteRelPolicies").Exec(group.Uuid)
+		_, err := s.GetStmt("deleteRelPolicies").Exec(group.Uuid)
+		if err != nil {
+			log.Logger(ctx).Error(fmt.Sprintf("could not delete relation for policy group %s", group.Uuid), zap.Error(err))
+			return group, err
+		}
 	}
 
 	// Insert or update Policies first
 	for _, policy := range group.Policies {
-		var upsertErr error
 		if policy.Id == "" { // must be a new policy
 			policy.Id = uuid.NewUUID().String()
-			upsertErr = s.Manager.Create(ProtoToLadonPolicy(policy))
-		} else { // maybe new or update
-			if p, _ := s.Manager.Get(policy.Id); p != nil {
-				upsertErr = s.Manager.Update(ProtoToLadonPolicy(policy))
-			} else {
-				upsertErr = s.Manager.Create(ProtoToLadonPolicy(policy))
+			err := s.Manager.Create(ProtoToLadonPolicy(policy))
+			if err != nil {
+				log.Logger(ctx).Error(fmt.Sprintf("cannot create new ladon policy with description: %s", policy.Description), zap.Error(err))
+				return group, err
 			}
-		}
-		if upsertErr != nil {
-			log.Logger(ctx).Error("Ladon Upsert Error", zap.Error(upsertErr))
-			return group, upsertErr
+		} else { // maybe new or update
+			p, err := s.Manager.Get(policy.Id)
+			if err != nil && err.Error() != "sql: no rows in result set" {
+				log.Logger(ctx).Error(fmt.Sprintf("unable to retrieve policy with id %s", policy.Id), zap.Error(err))
+				return group, err
+			}
+			if p != nil {
+				err = s.Manager.Update(ProtoToLadonPolicy(policy))
+			} else {
+				err = s.Manager.Create(ProtoToLadonPolicy(policy))
+			}
+			if err != nil {
+				log.Logger(ctx).Error(fmt.Sprintf("cannot upsert policy with id %s", policy.Id), zap.Error(err))
+				return group, err
+			}
 		}
 	}
 
@@ -129,13 +144,13 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 		group.Name, group.Description, group.OwnerUuid, group.ResourceGroup, now, // UPDATE
 	)
 	if err != nil {
-		log.Logger(ctx).Error("Policy GroupUpsert Error", zap.Error(err))
+		log.Logger(ctx).Error("cannot upsert policy group "+group.Uuid, zap.Error(err))
 	}
 
 	// Now recreate relations
 	for _, policy := range group.Policies {
 		if _, err := s.GetStmt("insertRelPolicy").Exec(group.Uuid, policy.Id); err != nil {
-			log.Logger(ctx).Error("Error while inserting relation", zap.Error(err))
+			log.Logger(ctx).Error(fmt.Sprintf("cannot insert relation between group %s and policy %s", group.Uuid, policy.Id), zap.Error(err))
 		}
 	}
 
@@ -143,6 +158,7 @@ func (s *sqlimpl) StorePolicyGroup(ctx context.Context, group *idm.PolicyGroup) 
 
 }
 
+// ListPolicyGroups searches the db and returns an array of PolicyGroup.
 func (s *sqlimpl) ListPolicyGroups(ctx context.Context) (groups []*idm.PolicyGroup, e error) {
 
 	res, err := s.GetStmt("listJoined").Query()
@@ -179,6 +195,7 @@ func (s *sqlimpl) ListPolicyGroups(ctx context.Context) (groups []*idm.PolicyGro
 	return
 }
 
+// DeletePolicyGroup deletes a policy group and all related policies.
 func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup) error {
 
 	var policies []string
@@ -201,7 +218,7 @@ func (s *sqlimpl) DeletePolicyGroup(ctx context.Context, group *idm.PolicyGroup)
 
 	for _, policyId := range policies {
 		if err := s.Delete(policyId); err != nil {
-			log.Logger(ctx).Error("Cannot delete policy", zap.String("policyId", policyId), zap.Error(err))
+			log.Logger(ctx).Error("cannot delete policy "+policyId, zap.String("policyId", policyId), zap.Error(err))
 		}
 	}
 
