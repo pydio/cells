@@ -28,6 +28,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"path"
+
+	"github.com/pydio/cells/common/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -53,6 +56,7 @@ func newProjectCounter(projectPath string) *projectCounter {
 
 var (
 	projectPaths []string
+	convertJS    bool
 	counters     map[string]*projectCounter
 )
 
@@ -97,33 +101,57 @@ $` + os.Args[0] + ` i18n count -p $GOPATH/src/github.com/pydio/cells-enterprise 
 
 			// TODO enhance filtering out skipped folders
 			vendorDir := "vendor"
+			nodeModules := "node_modules"
 
 			err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 				if err != nil {
-					fmt.Printf("prevent panic by handling failure accessing a path %q: %v\n", dir, err)
-					return err
+					fmt.Printf("ignore file %q: %v\n", dir, err)
+					return nil
 				}
 				if info.IsDir() {
 					// skipped folder
-					if info.Name() == vendorDir {
+					if info.Name() == vendorDir || info.Name() == nodeModules {
 						fmt.Printf("skipped folder: %+v \n", path)
 						return filepath.SkipDir
 					}
 
 					// go-i18n folders
 					if strings.HasSuffix(path, "/lang/box") {
-						// fmt.Printf("found go-i18n folder at %q\n", path)
-						return countGoStrings(cmd, dir, path+"/en-us.all.json")
+						fmt.Printf("found go-i18n folder at %q\n", path)
+						return countGoStrings(cmd, dir, "go", path+"/en-us.all.json")
 					}
 
 					// react i18n folders
 					if strings.HasSuffix(path, "/i18n") {
-						return countJsStrings(cmd, dir, "react", path+"/en.json")
+						if convertJS {
+							convertJsLib(cmd, path)
+						} else {
+							countJsStrings(cmd, dir, "react", path+"/en.json")
+							countGoStrings(cmd, dir, "react", path+"/en-us.all.json")
+						}
+						return nil
 					}
 
 					// manifest i18n folders
 					if strings.HasSuffix(path, "/i18n/conf") {
-						return countJsStrings(cmd, dir, "manifest", path+"/en.json")
+						if convertJS {
+							convertJsLib(cmd, path)
+						} else {
+							countJsStrings(cmd, dir, "manifest", path+"/en.json")
+							countGoStrings(cmd, dir, "manifest", path+"/en-us.all.json")
+						}
+						return nil
+					}
+
+					// sub-i18n folders
+					if strings.Contains(path, "/i18n/") {
+						if convertJS {
+							convertJsLib(cmd, path)
+						} else {
+							countJsStrings(cmd, dir, "react", path+"/en.json")
+							countGoStrings(cmd, dir, "react", path+"/en-us.all.json")
+						}
+						return nil
 					}
 				}
 
@@ -142,6 +170,7 @@ $` + os.Args[0] + ` i18n count -p $GOPATH/src/github.com/pydio/cells-enterprise 
 
 func init() {
 	i18nCount.Flags().StringArrayVarP(&projectPaths, "project-paths", "p", []string{}, "Root path of the project to analyse")
+	i18nCount.Flags().BoolVarP(&convertJS, "convert-js", "c", false, "Convert legacy JS files to new standard goi18n format")
 
 	i18n.AddCommand(i18nCount)
 }
@@ -171,7 +200,7 @@ func printResult(cmd *cobra.Command) {
 	cmd.Printf("Total: scanned %d projects, found %d words in %d messages\n", i, total.stringNb, total.msgNb)
 }
 
-func countGoStrings(cmd *cobra.Command, projectId, fpath string) error {
+func countGoStrings(cmd *cobra.Command, projectId, counterType, fpath string) error {
 	if _, err := os.Stat(fpath); err != nil {
 		if os.IsNotExist(err) {
 			cmd.Printf("Warning: missing default version of i18n json file at %s\n", fpath) // file does not exist
@@ -185,10 +214,10 @@ func countGoStrings(cmd *cobra.Command, projectId, fpath string) error {
 	jfile, _ := ioutil.ReadFile(fpath)
 	err := json.Unmarshal([]byte(string(jfile)), &values)
 
-	counters[projectId].singleCounters["go"].msgNb += len(values)
+	counters[projectId].singleCounters[counterType].msgNb += len(values)
 	for _, msgMap := range values {
 		token := strings.Split(msgMap["other"], " ")
-		counters[projectId].singleCounters["go"].stringNb += len(token)
+		counters[projectId].singleCounters[counterType].stringNb += len(token)
 	}
 	return err
 }
@@ -214,4 +243,50 @@ func countJsStrings(cmd *cobra.Command, projectId, ftype, fpath string) error {
 		counters[projectId].singleCounters[ftype].stringNb += len(token)
 	}
 	return err
+}
+
+func convertJsLib(cmd *cobra.Command, dirPath string) error {
+
+	// TMP FOR TESTS
+	// if !strings.Contains(dirPath, "core.pydio") {
+	//	return nil
+	//}
+
+	cmd.Println("Converting JS Library for " + dirPath)
+
+	type translation struct {
+		Other string `json:"other"`
+	}
+
+	for oldN, newN := range utils.LanguagesLegacyNames {
+
+		fPath := path.Join(dirPath, oldN+".json")
+		tPath := path.Join(dirPath, newN+".all.json")
+
+		if _, e := os.Stat(fPath); e == nil {
+			// Convert this lib to new format
+			content, _ := ioutil.ReadFile(fPath)
+			var s map[string]string
+			e := json.Unmarshal(content, &s)
+			if e != nil {
+				cmd.Println("Could not parse file " + fPath)
+				continue
+			}
+			newFormat := make(map[string]translation, len(s))
+			for key, value := range s {
+				newFormat[key] = translation{Other: value}
+			}
+			data, _ := json.MarshalIndent(newFormat, "", "  ")
+			if e := ioutil.WriteFile(tPath, data, 0644); e != nil {
+				cmd.Println("Could not write file " + tPath)
+			} else {
+				e2 := os.Remove(fPath)
+				if e2 != nil {
+					cmd.Println("Could not remove file " + fPath)
+				}
+			}
+		}
+	}
+
+	return nil
 }

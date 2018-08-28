@@ -1,0 +1,134 @@
+{
+  "Action to trigger when clicking on Forgot Password": {
+    "other": "Action à effectuer lors du clic sur 'Mot de passe oublié'"
+  },
+  "Activate the users management system to protect your Pydio installation.": {
+    "other": "Activer le système de gestion d'utilisateurs pour protéger votre installation Pydio."
+  },
+  "Add a Forgot Password link at the bottom of the login form": {
+    "other": "Ajoute un lien 'Mot de passe oublié' au bas du formulaire de connexion"
+  },
+  "Authentication": {
+    "other": "Authentification"
+  },
+  "Both": {
+    "other": "Les deux"
+  },
+  "Cache master users": {
+    "other": "Cacher les utilisateurs (non recommandé)"
+  },
+  "Case Sensitive": {
+    "other": "Sensible à la casse"
+  },
+  "Choose the configuration plugin": {
+    "other": "Choisissez le plugin de configuration"
+  },
+  "Create a local copy (at login time) of master users inside slave base": {
+    "other": "Cacher une copie locale au login."
+  },
+  "Disable Brute Force Check (Captcha)": {
+    "other": "Désactiver la détection d'attaque 'brute force' (captcha)"
+  },
+  "Disable the check of failed login attempts, will disable the Captcha display": {
+    "other": "Désactive le compte des identifications échouées depuis une IP donnée."
+  },
+  "Enable Forgot Password": {
+    "other": "Activer 'Mot de passe oublié'"
+  },
+  "Enable Users": {
+    "other": "Activer les utilisateurs"
+  },
+  "Enable the 'guest' user, who does not need to log in.": {
+    "other": "Activer l'utilisateur 'Invité', qui n'a pas besoin de se connecter."
+  },
+  "Forgot Password Action": {
+    "other": "Action 'Mot de passe oublié'"
+  },
+  "Generic Auth Features": {
+    "other": "Configuration génériques pour les authentifications"
+  },
+  "Guest Browsing": {
+    "other": "Autoriser l'utilisateur 'Invité'"
+  },
+  "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)": {
+    "other": "En mode Maître / Esclave, utilisez cette option pour limiter la liste des utilisateurs à un seul driver (laissez vide si vous voulez voir tous les utilisateurs)"
+  },
+  "Instance Type": {
+    "other": "Type d'instance"
+  },
+  "Login Form": {
+    "other": "Formulaire de connexion"
+  },
+  "Main Instance": {
+    "other": "Instance principale"
+  },
+  "Master Authentifiaction Label": {
+    "other": "Libellé d'authentification Maître"
+  },
+  "Master Only": {
+    "other": "Maître seulement"
+  },
+  "Master/Slave": {
+    "other": "Maître/Esclave"
+  },
+  "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup.": {
+    "other": "Maître / Esclave supposera que le Maître est en lecture seule, et que l'Esclave est une alternative locale pour les fonctionnalités de partage. 'Choix de l'utilisateur' permettra à l'utilisateur de choisir manuellement sa méthode de connexion au démarrage."
+  },
+  "Minimum number of characters required for passwords in the application": {
+    "other": "Longueur minimale (en caractères) des mots de passe pour l'application"
+  },
+  "Mode": {
+    "other": "Mode"
+  },
+  "Multiple Instances Mode": {
+    "other": "Mode Instances multiples"
+  },
+  "Options applied to all auth drivers": {
+    "other": "Options appliquées à tous les drivers d'autentification"
+  },
+  "Password length": {
+    "other": "Longueur du mot de passe"
+  },
+  "Raise the security of the login form by disabling autocompletion and remember me feature": {
+    "other": "Augmente la sécurité du formulaire de connexion en désactivant l'auto-complexion et la fonctionnalité 'Mémoriser'"
+  },
+  "Secondary Instance (optional)": {
+    "other": "Instance secondaire (optionnel)"
+  },
+  "Secondary Instance Driver": {
+    "other": "Driver d'authentification secondaire"
+  },
+  "Secure Login Form": {
+    "other": "Sécuriser le formulaire de connexion"
+  },
+  "Separator": {
+    "other": "Séparateur"
+  },
+  "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins.": {
+    "other": "Stocker les identifiants de l'utilisateur dans la session après la connexion, peut-être requis lors de l'utilisation de plugins d'authentification et d'accès spécifiques."
+  },
+  "Slave Authentifiaction Label": {
+    "other": "Libellé d'authentification Esclave"
+  },
+  "Slave Only": {
+    "other": "Esclave seulement"
+  },
+  "Store Credentials in Session": {
+    "other": "Stocker les identifiants dans la session"
+  },
+  "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
+    "other": "Requis pour différencier les données des utilisateurs en provenance de différentes sources. Attention, utilisez des caractères compatibles avec le nom de répertoire (:: ne marche pas !)."
+  },
+  "User Choice": {
+    "other": "Choix de l'utilisateur"
+  },
+  "Users Listing": {
+    "other": "Liste d'utilisateurs"
+  },
+  "Whether the users identifiers should be case sensitive or not": {
+    "other": "Définit si les identifiants des utilisateurs doivent-être sensibles à la casse. Attention les drivers basés sur SQL vont toujours désactiver cette valeur."
+  },
+  "Will be shown to the user at login": {
+    "other": "Sera affiché à l'utilisateur à la connexion"
+  }
+}

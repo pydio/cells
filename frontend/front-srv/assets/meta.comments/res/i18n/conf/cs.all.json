@@ -1,0 +1,14 @@
+{
+  "Comment limit": {
+    "other": "Comment limit"
+  },
+  "Comments Feed": {
+    "other": "Kanál komentářů"
+  },
+  "Display a chat-like feed on all nodes": {
+    "other": "Zobrazit kanál podobný chatu na všech uzlech"
+  },
+  "Maximum number of characters for each comment": {
+    "other": "Maximum number of characters for each comment"
+  }
+}

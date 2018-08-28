@@ -1,0 +1,539 @@
+{
+  "1": {
+    "other": "Datos de Configuración"
+  },
+  "10": {
+    "other": "Meta Fuentes"
+  },
+  "100": {
+    "other": "Opciones comunes de los plugins '%s'"
+  },
+  "101": {
+    "other": "Nombre"
+  },
+  "102": {
+    "other": "Identificador"
+  },
+  "103": {
+    "other": "Descripción"
+  },
+  "104": {
+    "other": "Habilitado"
+  },
+  "105": {
+    "other": "Comprobaciones automáticas"
+  },
+  "106": {
+    "other": "Identificador único"
+  },
+  "107": {
+    "other": "Configuraciones del plugin"
+  },
+  "108": {
+    "other": "Documentación"
+  },
+  "109": {
+    "other": "Configuraciones globales"
+  },
+  "11": {
+    "other": "Añadir una Fuente"
+  },
+  "110": {
+    "other": "Carpetas y Usuarios"
+  },
+  "111": {
+    "other": "Registro y otros datos"
+  },
+  "112": {
+    "other": "\u003cb\u003eAplicar este rol por defecto\u003c/b\u003e para todos los usuarios nuevos."
+  },
+  "113": {
+    "other": "El estado del rol ha sido modificado correctamente"
+  },
+  "114": {
+    "other": "Aplicar a "
+  },
+  "115": {
+    "other": "Esquema"
+  },
+  "116": {
+    "other": "Etiqueta de la plantilla"
+  },
+  "117": {
+    "other": "Controlador de la plantilla"
+  },
+  "118": {
+    "other": "Nuevo grupo"
+  },
+  "119": {
+    "other": "Fijar grupo de usuario"
+  },
+  "12": {
+    "other": "Meta Plugin"
+  },
+  "120": {
+    "other": "Házte Pro"
+  },
+  "121": {
+    "other": "Consigue soporte profesional"
+  },
+  "122": {
+    "other": "Todas las Configuraciones"
+  },
+  "123": {
+    "other": "Otros Plugins"
+  },
+  "124": {
+    "other": "Fuentes"
+  },
+  "125": {
+    "other": "Alias"
+  },
+  "126": {
+    "other": "¿Está seguro que quiere eliminar el/los elemento(s)?"
+  },
+  "127": {
+    "other": "Atención, por favor no use caracteres especiales, el usuario se creará con el id '%s'"
+  },
+  "128": {
+    "other": "Grupo eliminado correctamente"
+  },
+  "129": {
+    "other": "Actualizar Plugins"
+  },
+  "13": {
+    "other": "¿Seguro que desea eliminar esta fuente?"
+  },
+  "130": {
+    "other": "Limpia el almacenamiento de los plugins, puede ser necesario para ver plugins nuevos."
+  },
+  "131": {
+    "other": "¡Los archivos de los plugins se borraron correctamente!"
+  },
+  "132": {
+    "other": "Actualizado, aunque está usando el modo SKIP_CACHE (ver bootstrap_context.php)"
+  },
+  "133": {
+    "other": "Parámetros del Núcleo de la Aplicación"
+  },
+  "134": {
+    "other": "Activa/Desactiva plugins adicionales, comprueba si están funcionando correctamente y configura parámetros globales de los plugins."
+  },
+  "135": {
+    "other": "Activa/Desactiva plugins del núcleo (autentificación, configuración, correo, etc), comprueba si están funcionando correctamente. La configuración de estos plugins se hace usando Opciones Principales"
+  },
+  "136": {
+    "other": "Configuración global del núcleo de la aplicación y de cada plugin. Activar/desactivar plugins."
+  },
+  "137": {
+    "other": "Administración diaria de la aplicación: quién tiene acceso a qué, crear roles, etc."
+  },
+  "138": {
+    "other": "Crear y borrar workspaces, añadir funciones usando meta fuentes."
+  },
+  "139": {
+    "other": "Adminstra usuarios y grupos"
+  },
+  "14": {
+    "other": "Verdadero"
+  },
+  "140": {
+    "other": "Define perfiles que se pueden aplicar a la vez a varios usuarios."
+  },
+  "141": {
+    "other": "Tareas de administrador para monitorizar el estado de la aplicación."
+  },
+  "142": {
+    "other": "Monitoriza todas las actividades que suceden en el servidor"
+  },
+  "143": {
+    "other": "Leer el diagnóstico de inicio"
+  },
+  "144": {
+    "other": "Recursos de Desarrollador"
+  },
+  "145": {
+    "other": "Documentación generada para desarrolladores"
+  },
+  "146": {
+    "other": "API de Acciones"
+  },
+  "147": {
+    "other": "Muestra todas las acciones proporcionadas por los plugins y visualiza sus parámetros de entrada"
+  },
+  "148": {
+    "other": "Definición de Hooks"
+  },
+  "149": {
+    "other": "Muestra todos los hooks activados en la aplicación, su documentación, dónde son activados y que plugins los escuchan."
+  },
+  "15": {
+    "other": "Falso"
+  },
+  "150": {
+    "other": "Seleccionar repositorio"
+  },
+  "151": {
+    "other": "Grupo Root"
+  },
+  "152": {
+    "other": "Rol del Grupo Root"
+  },
+  "153": {
+    "other": "Se aplica a toda la jerarquía de usuarios"
+  },
+  "154": {
+    "other": "Plantilla de Repositorio"
+  },
+  "155": {
+    "other": "Controladores de Acceso"
+  },
+  "156": {
+    "other": "Estándar"
+  },
+  "157": {
+    "other": "Administrador"
+  },
+  "158": {
+    "other": "Compartido"
+  },
+  "159": {
+    "other": "Invitado"
+  },
+  "16": {
+    "other": "Fecha de archivo"
+  },
+  "160": {
+    "other": "El grupo se ha creado correctamente"
+  },
+  "161": {
+    "other": "Estás intentando mover tu usuario a un grupo y perderás los permisos de super-administrador. Por favor entra con otro usuario si realmente quieres hacer esto. Cancelando."
+  },
+  "162": {
+    "other": "No tienes permisos para actualizar al usuario %s"
+  },
+  "163": {
+    "other": "Roles reordenados para el usuario %s"
+  },
+  "164": {
+    "other": "Roles correctamente actualizados"
+  },
+  "165": {
+    "other": "Preferencias de usuario correctamente salvadas"
+  },
+  "166": {
+    "other": "Bloqueo correcto (%1) del usuario (%2)"
+  },
+  "167": {
+    "other": "Usuario desbloqueado correctamente (%s)"
+  },
+  "168": {
+    "other": "%1 usuarios movidos al grupo %2"
+  },
+  "169": {
+    "other": "No se movio ningún usuario, ¡algo ha ido mal!"
+  },
+  "17": {
+    "other": "Fecha"
+  },
+  "170": {
+    "other": "Activar %1 (%2)"
+  },
+  "171": {
+    "other": "Importar Usuarios (sólo Enterprise)"
+  },
+  "172": {
+    "other": "Services"
+  },
+  "173": {
+    "other": "Pydio Backend Services and their running status"
+  },
+  "18": {
+    "other": "I.P."
+  },
+  "19": {
+    "other": "Nivel"
+  },
+  "2": {
+    "other": "Usuarios y Grupos"
+  },
+  "20": {
+    "other": "Usuario"
+  },
+  "21": {
+    "other": "Acción"
+  },
+  "22": {
+    "other": "Parámetros"
+  },
+  "22a": {
+    "other": "Más Parámetros"
+  },
+  "23": {
+    "other": "Nombre de prueba"
+  },
+  "24": {
+    "other": "Datos de prueba"
+  },
+  "25": {
+    "other": "Acceso a Carpetas"
+  },
+  "26": {
+    "other": "Modificar contraseña"
+  },
+  "27": {
+    "other": "Administrar privilegios"
+  },
+  "28": {
+    "other": "¿El usuario tiene privilegios de administrador?"
+  },
+  "29": {
+    "other": "Leer"
+  },
+  "2b": {
+    "other": "Data Management"
+  },
+  "3": {
+    "other": "Carpetas"
+  },
+  "30": {
+    "other": "Escribir"
+  },
+  "32": {
+    "other": "Controlador de Acceso"
+  },
+  "33": {
+    "other": "Cargando..."
+  },
+  "34": {
+    "other": "¿Seguro que desea eliminar este usuario? ¡Esta operación no es reversible!"
+  },
+  "35": {
+    "other": "¿Seguro que desea eliminar esta carpeta? ¡Esta operación no es reversible!"
+  },
+  "36": {
+    "other": "¡Faltan campos obligatorios!"
+  },
+  "37": {
+    "other": "¡Atención, las contraseñas no coinciden!"
+  },
+  "38": {
+    "other": "¡Por favor rellene el campo de usuario!"
+  },
+  "39": {
+    "other": "¡Por favor rellene los dos campos de contraseña!"
+  },
+  "3b": {
+    "other": "DataSources"
+  },
+  "3c": {
+    "other": "Template Paths"
+  },
+  "4": {
+    "other": "Registros"
+  },
+  "40": {
+    "other": "¡Por favor marque la casilla para confirmar!"
+  },
+  "41": {
+    "other": "Opciones de Controlador"
+  },
+  "42": {
+    "other": "¡Por favor elija un Controlador!"
+  },
+  "43": {
+    "other": "El usuario ya existe, ¡por favor elija otro usuario!"
+  },
+  "44": {
+    "other": "Usuario creado correctamente"
+  },
+  "45": {
+    "other": "Cambiado el privilegio de administrador del usuario "
+  },
+  "46": {
+    "other": "Cambiados los privilegios del usuario "
+  },
+  "47": {
+    "other": "Salvados los datos del usuario "
+  },
+  "48": {
+    "other": "Contraseña cambiada correctamente para el usuario "
+  },
+  "49": {
+    "other": "La contraseña no se puede actualizar"
+  },
+  "5": {
+    "other": "PHP"
+  },
+  "50": {
+    "other": "Error: ya existe una carpeta con ese nombre"
+  },
+  "51": {
+    "other": "No puede escribirse en el directorio CONF"
+  },
+  "52": {
+    "other": "¡Carpeta creada correctamente! Ahora puede añadir metadatos para completar la información, añadir índices automáticos, etc"
+  },
+  "53": {
+    "other": "Error editando la carpeta"
+  },
+  "54": {
+    "other": "Carpeta editada correctamente"
+  },
+  "55": {
+    "other": "Atención, en este momento solo puede añadir una instacia de cada plugin."
+  },
+  "56": {
+    "other": "Meta Fuente añadida satisfactoriamente"
+  },
+  "57": {
+    "other": "Meta Fuente borrada correctamente"
+  },
+  "58": {
+    "other": "Meta Fuente editada correctamente"
+  },
+  "59": {
+    "other": "Carpeta borrada correctamente"
+  },
+  "6": {
+    "other": "Nombre de Usuario"
+  },
+  "60": {
+    "other": "Usuario borrado correctamente"
+  },
+  "61": {
+    "other": "¡Argumentos erróneos!"
+  },
+  "62": {
+    "other": "Sumario de Privilegios"
+  },
+  "63": {
+    "other": "Todos"
+  },
+  "64": {
+    "other": "Cambiados los privilegios del rol "
+  },
+  "65": {
+    "other": "El rol ya existe, ¡elija otro nombre!"
+  },
+  "66": {
+    "other": "Rol creado correctamente"
+  },
+  "67": {
+    "other": "No puede encontrarse el rol "
+  },
+  "68": {
+    "other": "Rol borrado correctamente"
+  },
+  "69": {
+    "other": "Roles"
+  },
+  "7": {
+    "other": "Es Administrador"
+  },
+  "70": {
+    "other": "Roles de usuario"
+  },
+  "71": {
+    "other": "Roles disponibles"
+  },
+  "72": {
+    "other": "Arrastre y suelte roles para asignarlos al usuario"
+  },
+  "73": {
+    "other": "Rol añadido al usuario "
+  },
+  "74": {
+    "other": "Rol borrado del usuario "
+  },
+  "75": {
+    "other": "Nuevo Rol"
+  },
+  "76": {
+    "other": "ID de rol"
+  },
+  "77": {
+    "other": "Control de Acceso"
+  },
+  "78": {
+    "other": "Datos Personales"
+  },
+  "79": {
+    "other": "Carpeta"
+  },
+  "8": {
+    "other": "Etiqueta de Carpeta"
+  },
+  "80": {
+    "other": "Ajustes detallado de este usuario (pulse en una carpeta si quiere configurarla para que ésta se abra por defecto cuando el usuario inicie sesión)"
+  },
+  "81": {
+    "other": "Datos específicos de carpeta"
+  },
+  "82": {
+    "other": "Editar usuarios por lotes"
+  },
+  "83": {
+    "other": "Arrastre y suelte roles para aplicarlos a todos los usuarios seleccionados (los derechos de usuario se omitirán)"
+  },
+  "84": {
+    "other": "Roles de usuario"
+  },
+  "85": {
+    "other": "Filtrado manual de acciones"
+  },
+  "86": {
+    "other": "Lista de acciones (separadas por coma) que serán deshabilitadas en este rol sin importar los derechos de acceso."
+  },
+  "87": {
+    "other": "Acciones para este rol actualizadas correctamente"
+  },
+  "88": {
+    "other": "Esta carpeta está definida en el archivo de configuración, no puede editar sus meta fuentes desde el interface gráfico."
+  },
+  "89": {
+    "other": "Datos específicos del usuario"
+  },
+  "9": {
+    "other": "Tipo de Acceso"
+  },
+  "90": {
+    "other": "Repositorio"
+  },
+  "91": {
+    "other": "Plantilla"
+  },
+  "92": {
+    "other": "Crear una nueva plantilla"
+  },
+  "93": {
+    "other": "Editar"
+  },
+  "94": {
+    "other": "Editar por lotes"
+  },
+  "95": {
+    "other": "Elija una etiqueta y un controlador para acceder a los datos (compruebe todos las secciones para campos obligatorios, puede posicionar el cursor del ratón sobre la etiqueta para obtener más información)."
+  },
+  "96": {
+    "other": "Cuando seleccione una etiqueta y un controlador, active los campos que quiera que se rellenen automáticamente en la plantilla. Los otros campos serán preguntados al usuario. Puede activar algunos campos y dejarlos vacíos si quiere que queden ocultos para el usuario."
+  },
+  "97": {
+    "other": "Opciones del plugin actualizadas correctamente"
+  },
+  "98": {
+    "other": "Configuraciones del núcleo"
+  },
+  "99": {
+    "other": "Plugins"
+  },
+  "group_access": {
+    "other": "g"
+  },
+  "repository_access_key": {
+    "other": "N"
+  },
+  "role_access": {
+    "other": "o"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "Disable Address Book": {
+    "other": "Deshabilitar Libreta de Direcciones"
+  },
+  "Do not display address book in user account panel.": {
+    "other": "No mostrar la libreta de direcciones en el panel de usuario."
+  },
+  "User Dashboard": {
+    "other": "Panel de Usuario"
+  },
+  "User home dashboard, can be displayed before accessing to workspaces": {
+    "other": "Panel principal de usuario, se puede mostrar antes de acceder a los workspaces"
+  }
+}

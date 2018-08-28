@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "Metapodatki"
+  },
+  "10": {
+    "other": "Existing or new tag"
+  },
+  "11": {
+    "other": "No metadata set, click to add any"
+  },
+  "12": {
+    "other": "Multiple Selection:"
+  },
+  "13": {
+    "other": "check the fields that you want to update, value will be applied to all selected files"
+  },
+  "14": {
+    "other": "Edit meta"
+  },
+  "15": {
+    "other": "Save meta"
+  },
+  "2": {
+    "other": "Brez oznake"
+  },
+  "3": {
+    "other": "Odstrani oceno"
+  },
+  "4": {
+    "other": "Nepomembno"
+  },
+  "5": {
+    "other": "Opravilo"
+  },
+  "6": {
+    "other": "Osebno"
+  },
+  "7": {
+    "other": "Služba"
+  },
+  "8": {
+    "other": "Pomembno"
+  },
+  "9": {
+    "other": "No value"
+  }
+}

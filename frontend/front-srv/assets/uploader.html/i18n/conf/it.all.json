@@ -1,0 +1,38 @@
+{
+  "Always Override": {
+    "other": "Sovrascrivi Sempre"
+  },
+  "Auto Close": {
+    "other": "Auto-Chiudi"
+  },
+  "Auto Rename File": {
+    "other": "Auto Rinomina File"
+  },
+  "Auto Start": {
+    "other": "Auto-Avvia"
+  },
+  "Auto-switching HTML5 or IFrame uploader.": {
+    "other": "Cambio automatico tra uploader HTML5 e IFrame."
+  },
+  "Default Behaviour": {
+    "other": "Comportamento"
+  },
+  "Default value for automatically closing the dialog after upload or not": {
+    "other": "Valore di default per la chiusura automatica o meno della finestra di dialogo al termine del caricamento"
+  },
+  "Default value for automatically starting upload or not": {
+    "other": "Valore di default per l'avvio automatico o meno del caricamento"
+  },
+  "Existing Files": {
+    "other": "File Esistenti"
+  },
+  "HTML Uploader": {
+    "other": "Standard"
+  },
+  "Inform the user or not if the file already exists (default behaviour, the user will be able to change this preference)": {
+    "other": "Informa o meno l'utente se il file esiste già (comportamento di default. L'utente ha la facoltà di cambiare questa preferenza)"
+  },
+  "Prompt user": {
+    "other": "Chiedi all'Utente"
+  }
+}

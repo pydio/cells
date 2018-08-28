@@ -1,0 +1,74 @@
+{
+  "Additional info": {
+    "other": "Info Addizionali"
+  },
+  "Color labels": {
+    "other": "Colore etichette"
+  },
+  "Column visibility": {
+    "other": "Visibilità Colonna"
+  },
+  "Created by...": {
+    "other": "Creato da..."
+  },
+  "Depending on the field type. Currently used for selection only": {
+    "other": "In base al tipo di campo. Attualmente utilizzato solo per la selezione."
+  },
+  "Field ID": {
+    "other": "Campo ID"
+  },
+  "Field Type": {
+    "other": "Tipo Campo"
+  },
+  "Hidden": {
+    "other": "Nascosto"
+  },
+  "Hidden file used inside folders to save meta data": {
+    "other": "File nascosto usato nella cartella per salvare dati meta"
+  },
+  "Id of fiels, use standard characters here.": {
+    "other": "ID del campo. Utilizzare caratteri standard."
+  },
+  "Label": {
+    "other": "Etichetta"
+  },
+  "Label of the field, human friendly": {
+    "other": "Etichetta del campo, human-friendly"
+  },
+  "Last updated by...": {
+    "other": "Ultima modifica di..."
+  },
+  "Long text": {
+    "other": "Testo Lungo"
+  },
+  "Meta File": {
+    "other": "File Meta"
+  },
+  "Selection (set choices in Additional Info)": {
+    "other": "Selezione (imposta le voci in 'Info Addizionali')"
+  },
+  "Set default visibility.": {
+    "other": "Imposta visibilità principale."
+  },
+  "Short text": {
+    "other": "Testo Breve"
+  },
+  "Simple metadata implementation stored in a hidden file.": {
+    "other": "Semplice implementazione di metadata salvata in un file nascosto."
+  },
+  "Stars Rating": {
+    "other": "Votazione Stelle"
+  },
+  "Tags (extensible sets of values)": {
+    "other": "Tags (extensible sets of values)"
+  },
+  "Text Metadata": {
+    "other": "Testo Metadata"
+  },
+  "Type of field": {
+    "other": "Tipo del campo"
+  },
+  "Visible": {
+    "other": "Visibile"
+  }
+}

@@ -1,9 +1,0 @@
-{
-    "DB Storage": "Almacenamiento en Base de Datos",
-    "Stores the Authentication data in an SQL database.": "Almacena los datos de autentificación en una base de datos SQL.",
-    "Connexion": "Conexión",
-    "The Database Connexion": "Conexión a la Base de Datos",
-    "DB Auth Storage": "Autentificación en Base de Datos",
-    "SQL Tables": "Tablas SQL",
-    "Install SQL Tables": "Instalar Tablas SQL"
-}

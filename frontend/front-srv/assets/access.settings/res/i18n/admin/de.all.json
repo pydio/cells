@@ -1,0 +1,833 @@
+{
+  "home.1": {
+    "other": "Schnellzugriff"
+  },
+  "home.10": {
+    "other": "IP-Adresse"
+  },
+  "home.11": {
+    "other": "Datei-Aktion"
+  },
+  "home.12": {
+    "other": "Legende"
+  },
+  "home.13": {
+    "other": "Zeitspanne"
+  },
+  "home.14": {
+    "other": "Letzter Tag"
+  },
+  "home.15": {
+    "other": "Letzte Woche"
+  },
+  "home.16": {
+    "other": "Letzter Monat"
+  },
+  "home.17": {
+    "other": "Datei-Aktion (nur bei Typ Datei-Aktion)"
+  },
+  "home.18": {
+    "other": "Aktualisierungsintervall (Sekunden)"
+  },
+  "home.19": {
+    "other": "Kleines Diagramm"
+  },
+  "home.2": {
+    "other": "Datumsauswahl"
+  },
+  "home.20": {
+    "other": "Großes Diagramm"
+  },
+  "home.21": {
+    "other": "Kennzahl"
+  },
+  "home.22": {
+    "other": "Hochgeladene Dateien"
+  },
+  "home.23": {
+    "other": "Heruntergeladene Dateien"
+  },
+  "home.24": {
+    "other": "Freigegebene Dateien"
+  },
+  "home.25": {
+    "other": "Verbindungen"
+  },
+  "home.26": {
+    "other": "Täglich"
+  },
+  "home.27": {
+    "other": "Wöchentlich"
+  },
+  "home.28": {
+    "other": "Monatlich"
+  },
+  "home.29": {
+    "other": "Abtastfrequenz"
+  },
+  "home.3": {
+    "other": "Durch­blät­tern"
+  },
+  "home.30": {
+    "other": "Titel"
+  },
+  "home.31": {
+    "other": "Keine Ereignisse gefunden."
+  },
+  "home.32": {
+    "other": "Letzte Ereignisse"
+  },
+  "home.33": {
+    "other": "Alle"
+  },
+  "home.34": {
+    "other": "Fehler"
+  },
+  "home.35": {
+    "other": "Server-Status"
+  },
+  "home.36": {
+    "other": "Ausgelastet"
+  },
+  "home.37": {
+    "other": "Im Leerlauf"
+  },
+  "home.38": {
+    "other": "Belegt"
+  },
+  "home.39": {
+    "other": "Verfügbar"
+  },
+  "home.4": {
+    "other": "Start"
+  },
+  "home.40": {
+    "other": "CPU-Last"
+  },
+  "home.41": {
+    "other": "Speicherverbrauch"
+  },
+  "home.42": {
+    "other": "Last"
+  },
+  "home.43": {
+    "other": "Verknüpfung hinzufügen..."
+  },
+  "home.44": {
+    "other": "Erste Schritte"
+  },
+  "home.45": {
+    "other": "Alles klar, nicht mehr anzeigen!"
+  },
+  "home.48": {
+    "other": "Entfernen"
+  },
+  "home.49": {
+    "other": "Widgets hinzufügen/entfernen"
+  },
+  "home.5": {
+    "other": "Ende"
+  },
+  "home.50": {
+    "other": "Widget hinzufügen..."
+  },
+  "home.51": {
+    "other": "Dadurch wird Ihr Layout verloren gehen. Möchten Sie fortfahren?"
+  },
+  "home.52": {
+    "other": "Widget hinzufügen"
+  },
+  "home.53": {
+    "other": "Dashboard konfigurieren"
+  },
+  "home.54": {
+    "other": "Bestehende Widgets können durch einen Klick auf ENTFERNEN ausgeblendet werden. "
+  },
+  "home.55": {
+    "other": "Wählen Sie unterhalb einen Typ aus, um ein neues Widget hinzuzufügen."
+  },
+  "home.56": {
+    "other": "Layout zurücksetzen"
+  },
+  "home.57": {
+    "other": "Verbindungen heute"
+  },
+  "home.58": {
+    "other": "Downloads heute"
+  },
+  "home.59": {
+    "other": "Uploads diese Woche"
+  },
+  "home.6": {
+    "other": "Wird geladen..."
+  },
+  "home.60": {
+    "other": "Freigegebene Dateien heute"
+  },
+  "home.61": {
+    "other": "Aktivster Benutzer heute"
+  },
+  "home.62": {
+    "other": "Aktivste IP letzte Woche"
+  },
+  "home.63": {
+    "other": "Meist heruntergeladen letzte Woche"
+  },
+  "home.64": {
+    "other": "Meist angesehen letzte Woche"
+  },
+  "home.65": {
+    "other": "Datei-Aktivitäten"
+  },
+  "home.66": {
+    "other": "Web-Verbindungen"
+  },
+  "home.67": {
+    "other": "Willkommen auf dem Administrations-Dashboard. Als Gruppen-Administrator können Sie nur Benutzer und Arbeitsumgebungen Ihrer Gruppe verwalten. Bitte melden Sie sich als Super-Administrator an, um alle Einstellungen zu sehen (Super-Administratoren können aus einer beliebigen Gruppe sein)."
+  },
+  "home.68": {
+    "other": "Zu den Arbeitsumgebungen"
+  },
+  "home.69": {
+    "other": "Auf Arbeitsumgebung einschränken"
+  },
+  "home.7": {
+    "other": "Am aktivsten"
+  },
+  "home.70": {
+    "other": "Leer lassen für alle Arbeitsumgebungen oder auf eine bestimmte einschränken"
+  },
+  "home.71": {
+    "other": "Datei-Filter"
+  },
+  "home.72": {
+    "other": "Verwenden Sie z.B. *.ext um nach der Dateiendung ext zu filtern oder prefix* für alle Dateinamen, die mit prefix beginnen."
+  },
+  "home.73": {
+    "other": "Wählen Sie hier die zu überwachende Funktion aus, wenn bei Typ 'Datei-Aktion' konfiguriert ist."
+  },
+  "home.74": {
+    "other": "Alle Ereignisse anzeigen"
+  },
+  "home.75": {
+    "other": "To-do-Liste"
+  },
+  "home.76": {
+    "other": "Aufgabe hinzufügen"
+  },
+  "home.77": {
+    "other": "Beispiel-Aufgabe"
+  },
+  "home.78": {
+    "other": "erledigt"
+  },
+  "home.79": {
+    "other": "The widget has been added to your dashboard"
+  },
+  "home.8": {
+    "other": "Typ"
+  },
+  "home.9": {
+    "other": "Benutzer"
+  },
+  "home.getting_started": {
+    "other": "Willkommen auf dem Administrations-Dashboard. Über das Menü auf der linken Seite können Sie alle Einstellungen sowie Benutzer und Arbeitsumgebungen verwalten.\n                        Personalisieren Sie dieses Dashboard um Pydio noch effizienter zu verwalten.\n                        Klicken Sie dafür auf den orangen Button rechts unten um Widgets hinzuzufügen oder zu entfernen.\n                        Die Widgets können anschließend mit gedrückter linker Maustaste verschoben werden.\u003cbr/\u003e\n                        In Konfigurations-Masken erhalten Sie weitere Hilfe, indem Sie auf das \u003cspan class='icon-question-sign'\u003e\u003c/span\u003e-Symbol klicken.\n    "
+  },
+  "logs.1": {
+    "other": "Protokolle"
+  },
+  "logs.10": {
+    "other": "Export and download"
+  },
+  "logs.11": {
+    "other": "Export..."
+  },
+  "logs.2": {
+    "other": "Tag"
+  },
+  "logs.3": {
+    "other": "Filter"
+  },
+  "logs.4": {
+    "other": "Für Details auf die Zeile klicken"
+  },
+  "logs.5": {
+    "other": "Ereignis-Details"
+  },
+  "logs.6": {
+    "other": "Export logs"
+  },
+  "logs.7": {
+    "other": "Export from"
+  },
+  "logs.8": {
+    "other": "To"
+  },
+  "logs.9": {
+    "other": "File will be export as CSV format with semi-colmuns (;) separators and fields enclosed in double-quotes (\")."
+  },
+  "menu.0": {
+    "other": "Dashboard"
+  },
+  "menu.1": {
+    "other": "Ereignisse"
+  },
+  "menu.10": {
+    "other": "Erweiterungen zum hochladen von Dateien"
+  },
+  "menu.11": {
+    "other": "--- Authentifizierung"
+  },
+  "menu.11b": {
+    "other": "Authentifizierung"
+  },
+  "menu.12": {
+    "other": "--- Konfiguration"
+  },
+  "menu.13": {
+    "other": "--- Protokollierung"
+  },
+  "menu.14": {
+    "other": "Ereignis-Benachrichtigung"
+  },
+  "menu.15": {
+    "other": "Wie Benutzer über Ereignisse in der Anwendung informiert werden sollen."
+  },
+  "menu.16": {
+    "other": "Nachrichten-Warteschl."
+  },
+  "menu.17": {
+    "other": "Sofortnachrichten in der Anwendung"
+  },
+  "menu.18": {
+    "other": "Alle Erweiterungen"
+  },
+  "menu.19": {
+    "other": "Verfügbare Erweiterungen"
+  },
+  "menu.2": {
+    "other": "Server-Protokolle"
+  },
+  "menu.20": {
+    "other": "Endanwender-Funktionen"
+  },
+  "menu.21": {
+    "other": "Endanwender-Funktionen"
+  },
+  "menu.22": {
+    "other": "Welcome Page"
+  },
+  "menu.23": {
+    "other": "Landing page for user after login. Configure displayed elements and links."
+  },
+  "menu.3": {
+    "other": "Erscheinungsbild"
+  },
+  "menu.4": {
+    "other": "Thema, Logos, Darstellungsoptionen"
+  },
+  "menu.5": {
+    "other": "Freigaben"
+  },
+  "menu.6": {
+    "other": "Einstellungen für die Freigabe von Ordnern und Dateien"
+  },
+  "menu.7": {
+    "other": "Editoren"
+  },
+  "menu.8": {
+    "other": "Editoren aktivieren oder deaktivieren und deren Einstellungen ändern"
+  },
+  "menu.9": {
+    "other": "Uploader"
+  },
+  "perfs.booster.description": {
+    "other": "Überprüft, ob Pydio-Boost gestartet ist und WebSocket-Unterstützung anbietet"
+  },
+  "perfs.booster.error": {
+    "other": "Fehler in Pydio-Booster. Öffnen Sie den entsprechenden Bereich für mehr Details."
+  },
+  "perfs.booster.help": {
+    "other": "Pydio-Booster ist eine zusätzliche Anwendung die WebSocket-Unterstützung und Upload/Download-Accelatoren für Pydio anbietet."
+  },
+  "perfs.booster.title": {
+    "other": "Pydio-Booster"
+  },
+  "perfs.cache.description": {
+    "other": "Prüft, ob Pydio einen Cache nutzt"
+  },
+  "perfs.cache.error": {
+    "other": "Es ist kein Pydio-Cache aktiviert."
+  },
+  "perfs.cache.help": {
+    "other": "Pydio kann an externe Cache-Server wie Redis oder Memcache angebunden werden oder die Daten im Speicher halten. Dies verbessert die Geschwindigkeit des Systems deutlich."
+  },
+  "perfs.cache.title": {
+    "other": "Pydio-Cache"
+  },
+  "perfs.cli.description": {
+    "other": "Zeitaufwändige Aufgaben werden über die PHP-Kommandozeile ausgeführt."
+  },
+  "perfs.cli.error": {
+    "other": "Warnung, die Kommandozeile ist nicht aktiviert!"
+  },
+  "perfs.cli.help": {
+    "other": "Aktivieren Sie die PHP-Kommandozeile in den Grundeinstellungen. Dies verbessert die Geschwindigkeit deutlich, da zeitaufwändige Aufgaben im Hintergrund ausgeführt werden können."
+  },
+  "perfs.cli.title": {
+    "other": "PHP-Kommandozeile"
+  },
+  "perfs.debug.description": {
+    "other": "Prüft, ob der Test-Modus auf diesem Server deaktiviert ist"
+  },
+  "perfs.debug.error": {
+    "other": "Warnung, eines der folgenden Flags ist aktiviert: PYDIO_SERVER_DEBUG, PYDIO_CLIENT_DEBUG oder PYDIO_SKIP_CACHE"
+  },
+  "perfs.debug.help": {
+    "other": "Stellen Sie sicher, dass der Test-Modus deaktiviert ist. Die Änderung wird in der Datei conf/booststrap_context.php (oder /etc/pydio/bootstrap_context.php) durchgeführt."
+  },
+  "perfs.debug.title": {
+    "other": "Test-Modus"
+  },
+  "perfs.desc": {
+    "other": "Überprüfe die Systemeinstellungen auf mögliche Verbesserungen."
+  },
+  "perfs.load.description": {
+    "other": "Erkennt wenn der Server ausgelastet ist (nur Linux)"
+  },
+  "perfs.load.error": {
+    "other": "Der Server hat möglicherweise zu wenig Leistung. Eine Erweiterung des Systems könnte Abhilfe schaffen."
+  },
+  "perfs.load.help": {
+    "other": "Wenn der Server stark ausgelastet ist deutet dies auf zu wenig Leistung (CPU oder RAM) hin."
+  },
+  "perfs.load.title": {
+    "other": "Server-Last"
+  },
+  "perfs.mailer.description": {
+    "other": "Prüft, ob E-Mails über eine Warteschlange versendet werden"
+  },
+  "perfs.mailer.error": {
+    "other": "Es wird keine E-Mail-Warteschlange verwendet, um Nachrichten im Hintergrund zu versenden."
+  },
+  "perfs.mailer.help": {
+    "other": "Mit der E-Mail-Warteschlange werden Nachrichten in eine Warteschlange gespeichert (Datenbank) und im Hintergrund versendet."
+  },
+  "perfs.mailer.title": {
+    "other": "E-Mail-Warteschlange"
+  },
+  "perfs.more": {
+    "other": "Weitere Infos"
+  },
+  "perfs.opcache.description": {
+    "other": "Prüft, ob eine PHP-Erweiterung für Opcode-Cache aktiviert ist"
+  },
+  "perfs.opcache.error": {
+    "other": "Keine der folgenden PHP-Erweiterungen erkannt: APC, APCu, Opcache oder XCache."
+  },
+  "perfs.opcache.help": {
+    "other": "Pydio ist ein umfangreiches Framework, welches viele Daten im Speicher halten muss. Stellen Sie sicher, dass eine Opcode-Cache-Erweiterung wie APC/u, Opcache oder XCache aktiviert ist."
+  },
+  "perfs.opcache.title": {
+    "other": "Opcode-Cache-Erweiterung"
+  },
+  "perfs.score": {
+    "other": "Leistungsbewertung"
+  },
+  "perfs.tests": {
+    "other": "Leistungsbewertung"
+  },
+  "perfs.title": {
+    "other": "Systemeinstellungen"
+  },
+  "perfs.widget": {
+    "other": "Widget zu Dashboard hinzufügen"
+  },
+  "plugins.1": {
+    "other": "Allgemein"
+  },
+  "plugins.2": {
+    "other": "Hauptinstanz"
+  },
+  "plugins.3": {
+    "other": "Zweite Instanz"
+  },
+  "plugins.4": {
+    "other": "Mit Editor-Erweiterungen ist es möglich, bestimmte Dateitypen anzusehen oder zu bearbeiten.\n                    Jede Erweiterung kann mehrere Dateitypen unterstützen. Die Editoren werden im 'Öffnen mit...'-Dialog angezeigt."
+  },
+  "plugins.5": {
+    "other": "Speichern"
+  },
+  "plugins.6": {
+    "other": "Zurücksetzen"
+  },
+  "react.1": {
+    "other": "Zurück"
+  },
+  "react.10": {
+    "other": "Vererbt"
+  },
+  "react.11": {
+    "other": "Leere Berechtigungen"
+  },
+  "react.12": {
+    "other": "Leere Berechtigungen"
+  },
+  "react.13": {
+    "other": "Alle Berechtigungen anzeigen"
+  },
+  "react.14": {
+    "other": "Baumstruktur anzeigen"
+  },
+  "react.2": {
+    "other": "Massenoperationen"
+  },
+  "react.3": {
+    "other": "Suchergebnisse für '%s'"
+  },
+  "react.4": {
+    "other": "Suchergebnisse schließen"
+  },
+  "react.5": {
+    "other": "Verweigern"
+  },
+  "react.5a": {
+    "other": "Lesen"
+  },
+  "react.5b": {
+    "other": "Schreiben"
+  },
+  "react.6": {
+    "other": "Kinder"
+  },
+  "react.7": {
+    "other": "Regel erstellen"
+  },
+  "react.8": {
+    "other": "Sie sind dabei, die Rechteverwaltung auf untergeordnete Elemente zu erweitern.\n                        Damit wird dieser Ordner standardmäßig schreibgeschützt sein und Sie haben die Möglichkeit, Berechtigungen\n                        für Unterordner zu vergeben. Wählen Sie aus, ob Sie die aktuellen Berechtigungen auf die Unterordner übernehmen\n                        möchten, oder ob Sie mit leeren Berechtigungen beginnen möchten. Durch letzteres sind die Ordner vorerst\n                        nicht zugreifbar."
+  },
+  "react.9": {
+    "other": "Sie sind dabei, die Rechteverwaltung für Unterordner zu deaktivieren.\n                        Alle Unterordner erben die Berechtigungen dieses Ordners. Ihre aktuellen Einstellungen\n                        gehen damit verloren. Möchten Sie fortfahren?"
+  },
+  "scheduler.1": {
+    "other": "Nutzen Sie die Aufgabenplanung, um wiederkehrende Aufgaben zu konfigurieren. Mit Pydio-Booster sollte dies automatisch funktionieren. Verwenden Sie andernfalls einen CRON-Job um die Aufgabenplanung minütlich zu starten. Diese kümmert sich dann automatisch um die Ausführung der einzelnen Aufgaben."
+  },
+  "scheduler.2": {
+    "other": "Die Kommandozeile ist in den %1 nicht aktiviert. Aufgaben können nicht gestartet werden."
+  },
+  "scheduler.3": {
+    "other": "globalen Einstellungen"
+  },
+  "user.1": {
+    "other": "+ Benutzer"
+  },
+  "user.10": {
+    "other": "Hat Zugriff auf %i Arbeitsumgebungen"
+  },
+  "user.11": {
+    "other": "%i Rollen"
+  },
+  "user.12": {
+    "other": "Gruppen-Pfad"
+  },
+  "user.13": {
+    "other": "Freigaben-Benutzer"
+  },
+  "user.14": {
+    "other": "Neue Rolle erstellen"
+  },
+  "user.15": {
+    "other": "Neue Gruppe erstellen"
+  },
+  "user.16": {
+    "other": "Gruppen-Identifier"
+  },
+  "user.17": {
+    "other": "Gruppen-Titel"
+  },
+  "user.18": {
+    "other": "Rollen-Identifier"
+  },
+  "user.19": {
+    "other": "Neuen Benutzer erstellen"
+  },
+  "user.2": {
+    "other": "+ Gruppe"
+  },
+  "user.20": {
+    "other": "Der Benutzer wird in der Gruppe '%s' erstellt"
+  },
+  "user.21": {
+    "other": "Benutzername"
+  },
+  "user.22": {
+    "other": "Passwort"
+  },
+  "user.23": {
+    "other": "Passwort-Bestätigung"
+  },
+  "user.24": {
+    "other": "Haupt-Gruppe"
+  },
+  "user.25": {
+    "other": "Haupt-Gruppen-Rolle"
+  },
+  "user.26": {
+    "other": "%s-Gruppen-Rolle"
+  },
+  "user.27": {
+    "other": "Persönliche Rolle"
+  },
+  "user.3": {
+    "other": "Gruppen"
+  },
+  "user.4": {
+    "other": "Rollen"
+  },
+  "user.5": {
+    "other": "Benutzer \u0026 Gruppen"
+  },
+  "user.6": {
+    "other": "+ Rolle"
+  },
+  "user.7": {
+    "other": "Suchen..."
+  },
+  "user.8": {
+    "other": "Ändern Sie Einstellungen in dieser Gruppe, um sie auf alle Benutzer und Gruppen zu übernehmen."
+  },
+  "user.9": {
+    "other": "Zuletzt verbunden"
+  },
+  "ws.1": {
+    "other": "Vorlagen verwalten"
+  },
+  "ws.10": {
+    "other": "Vorlage auswählen"
+  },
+  "ws.11": {
+    "other": "Vorlage oder Treiber auswählen"
+  },
+  "ws.12": {
+    "other": "Vorlage %s"
+  },
+  "ws.13": {
+    "other": "Vorlagen-Einstellungen"
+  },
+  "ws.14": {
+    "other": "Allgemeine Einstellungen"
+  },
+  "ws.15": {
+    "other": "Arbeitsumgebungs-Einstellungen"
+  },
+  "ws.16": {
+    "other": "Speicher auswählen"
+  },
+  "ws.17": {
+    "other": "Speicher auswählen"
+  },
+  "ws.18": {
+    "other": "Lade Treiber"
+  },
+  "ws.19": {
+    "other": "Änderungen übernehmen"
+  },
+  "ws.2": {
+    "other": "Vorlagen schließen"
+  },
+  "ws.20": {
+    "other": "Erstellen"
+  },
+  "ws.21": {
+    "other": "Allgemeine Vorlagen-Einstellungen"
+  },
+  "ws.22": {
+    "other": "Allgemeine Arbeitsumgebungs-Einstellungen"
+  },
+  "ws.23": {
+    "other": "Löschen"
+  },
+  "ws.24": {
+    "other": "Untergeordnete Arbeitsumgebungen"
+  },
+  "ws.25": {
+    "other": "Freigaben"
+  },
+  "ws.26": {
+    "other": "Verzeichnisrechte"
+  },
+  "ws.27": {
+    "other": "Zusatzfunktionen"
+  },
+  "ws.28": {
+    "other": "Zusammenfassung"
+  },
+  "ws.29": {
+    "other": "Parameter"
+  },
+  "ws.3": {
+    "other": "+ Arbeitsumgebung"
+  },
+  "ws.30": {
+    "other": "Allgemeine Einstellungen"
+  },
+  "ws.31": {
+    "other": "Funktion entfernen"
+  },
+  "ws.32": {
+    "other": "Funktion hinzufügen..."
+  },
+  "ws.33": {
+    "other": "Letzte Aktivität"
+  },
+  "ws.34": {
+    "other": "Letzte Ereignisse"
+  },
+  "ws.35": {
+    "other": "Zugreifbar für %i Benutzer"
+  },
+  "ws.36": {
+    "other": "+ %i Dateien oder Ordner freigegeben"
+  },
+  "ws.37": {
+    "other": "Arbeitsumgebungen, die auf dieser Vorlage basieren"
+  },
+  "ws.38": {
+    "other": "In dieser Arbeitsumgebung freigegebene Elemente"
+  },
+  "ws.39": {
+    "other": "Eigentümer"
+  },
+  "ws.4": {
+    "other": "+ Vorlage"
+  },
+  "ws.40": {
+    "other": "Art der Freigabe"
+  },
+  "ws.41": {
+    "other": "Pfad"
+  },
+  "ws.42": {
+    "other": "Berechtigungen auf Ordner-Basis"
+  },
+  "ws.43": {
+    "other": "Legen Sie hier die Standardrechte für diesen Ordner fest.\n                                Haken Sie bei einem Ordner 'Kinder' an, um die Rechteverwaltung auf untergeordnete Elemente zu erweitern.\n                                Damit ist dieser Ordner standardmäßig schreibgeschützt und Sie haben die Möglichkeit, Berechtigungen\n                                für Unterordner zu vergeben."
+  },
+  "ws.44": {
+    "other": "Dieser Ordner ist frei definiert. Wenn der zugrundeliegende Ordner angepasst wird muss auch diese Definition\n                                entsprechend geändert werden. Weiterhin werden diese Berechtigungen durch die Standardrechte\n                                der Arbeitsumgebung eingeschränkt. (siehe Region 'Allgemeine Einstellungen')."
+  },
+  "ws.45": {
+    "other": "Der Pfad zu dieser Arbeitsumgebung enthält die Parameter 'PYDIO_USER' oder 'PYDIO_GROUP_*' und ist daher abhängig \n                                vom angemeldeten Benutzer. Aus diesem Grund können die Unterordner zur Rechtevergabe nicht ermittelt werden.\n                                Unabhängig davon ist es aber möglich, generische Pfade frei zu definieren."
+  },
+  "ws.46": {
+    "other": "Funktion hinzufügen"
+  },
+  "ws.47": {
+    "other": "Funktion auswählen"
+  },
+  "ws.48": {
+    "other": "Dieses Element kann nicht bearbeitet werden, da es in der Datei conf/bootstrap_repositories.php konfiguriert ist."
+  },
+  "ws.49": {
+    "other": ""
+  },
+  "ws.4b": {
+    "other": "+ versioning policy"
+  },
+  "ws.5": {
+    "other": "Identifier"
+  },
+  "ws.50": {
+    "other": "Indexierung"
+  },
+  "ws.51": {
+    "other": "Diese Arbeitsumgebung nutzt Indexierung (%s). Die Verarbeitung wird idr. direkt beim hinzufügen oder entfernen von Elementen durchgeführt.\n                    Änderungen auf Dateisystem-Ebene werden nicht automatisch erkannt. Die Indexierung kann dafür jedoch über den Button unterhalb sofort gestartet werden.\n                    Alternativ ist es auch möglich, eine Aufgabe zu erstellen, um die Indexierung in regelmäßigen Abständen automatisch durchzuführen."
+  },
+  "ws.52": {
+    "other": "Achtung: Der Inhalt dieser Arbeitsumgebung ist abhängig vom angemeldeten Benutzer. Die Indexierung wird für jeden Benutzer ausgeführt."
+  },
+  "ws.53": {
+    "other": "Indexierung sofort starten"
+  },
+  "ws.54": {
+    "other": "Täglich um 03:00 Uhr ausführen"
+  },
+  "ws.55": {
+    "other": "Automatische Bereinigung"
+  },
+  "ws.56": {
+    "other": "Diese Arbeitsumgebung nutzt die automatische Bereinigung, um Dokumente zu entfernen, die seit %s Tagen unverändert sind. Erstellen Sie eine Aufgabe\n                    um diese Arbeitsumgebung regelmäßig zu bereinigen. Verwenden Sie den folgenden Button, um die Aufgabe automatisch zu erstellen."
+  },
+  "ws.57": {
+    "other": "Achtung: Der Inhalt dieser Arbeitsumgebung ist abhängig vom angemeldeten Benutzer. Die Bereinigung wird für jeden Benutzer ausgeführt."
+  },
+  "ws.58": {
+    "other": "Sofort bereinigen"
+  },
+  "ws.59": {
+    "other": "Täglich um 04:00 Uhr ausführen"
+  },
+  "ws.6": {
+    "other": "Neue Arbeitsumgebung erstellen"
+  },
+  "ws.60": {
+    "other": "Arbeitsumgebungs-Ereignisse"
+  },
+  "ws.61": {
+    "other": "Benutzer können im Info-Bereich alle Ereignisse der aktuellen Arbeitsumgebung sehen. Sie haben hier die Möglichkeit diese Liste\n                            zu löschen (z.B. für den Livegang nach einer Testphase)."
+  },
+  "ws.62": {
+    "other": "Ereignisse löschen"
+  },
+  "ws.63": {
+    "other": "Dadurch werden alle Ereignisse dieser Arbeitsumgebung gelöscht. Möchten Sie fortfahren?"
+  },
+  "ws.64": {
+    "other": "%s Ereignisse gelöscht"
+  },
+  "ws.65": {
+    "other": "Arbeitsumgebung warten"
+  },
+  "ws.66": {
+    "other": "Laufende Aufgaben"
+  },
+  "ws.67": {
+    "other": "Keine laufenden Aufgaben"
+  },
+  "ws.68": {
+    "other": "Keine Parameter"
+  },
+  "ws.69": {
+    "other": "Template-based workspace"
+  },
+  "ws.7": {
+    "other": "Neue Vorlage erstellen"
+  },
+  "ws.70": {
+    "other": "Driver-based workspace"
+  },
+  "ws.71": {
+    "other": "Complete the steps below"
+  },
+  "ws.72": {
+    "other": "Fill in the form on the right"
+  },
+  "ws.73": {
+    "other": "Pick value before continuing"
+  },
+  "ws.74": {
+    "other": "Use the form on the right to create a new DataSource."
+  },
+  "ws.75": {
+    "other": "A DataSource defines where your data is stored."
+  },
+  "ws.76": {
+    "other": "Pydio will aggregate all your datasources into one master tree, on which you can assign rights using workspaces."
+  },
+  "ws.8": {
+    "other": "Bestehende Vorlage"
+  },
+  "ws.9": {
+    "other": "Datasource Nodes"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "Active dual-form authentication": {
+    "other": "Active dual-form authentication"
+  },
+  "Api Host": {
+    "other": "Api Host"
+  },
+  "Application Key": {
+    "other": "Application Key"
+  },
+  "Dual-form Authentication": {
+    "other": "Dual-form Authentication"
+  },
+  "Dual-form authentication using the DuoSecurity web service": {
+    "other": "Dual-form authentication using the DuoSecurity web service"
+  },
+  "Dual-level Authentication": {
+    "other": "Dual-level Authentication"
+  },
+  "Duo Authentication Active": {
+    "other": "Duo Authentication Active"
+  },
+  "DuoSecurity Application Key (generate your own)": {
+    "other": "DuoSecurity Application Key (generate your own)"
+  },
+  "DuoSecurity Config": {
+    "other": "DuoSecurity Config"
+  },
+  "DuoSecurity Host": {
+    "other": "DuoSecurity Host"
+  },
+  "DuoSecurity Integration Key": {
+    "other": "DuoSecurity Integration Key"
+  },
+  "DuoSecurity Secret Key": {
+    "other": "DuoSecurity Secret Key"
+  },
+  "Enable/disable automatically based on the protocol used": {
+    "other": "Enable/disable automatically based on the protocol used"
+  },
+  "Integration Key": {
+    "other": "Integration Key"
+  },
+  "Order": {
+    "other": "Order"
+  },
+  "Order this plugin with other auth frontends": {
+    "other": "Order this plugin with other auth frontends"
+  },
+  "Protocol Type": {
+    "other": "Protocol Type"
+  },
+  "REST Only": {
+    "other": "REST Only"
+  },
+  "Request Signature (leave empty)": {
+    "other": "Request Signature (leave empty)"
+  },
+  "Secret Key": {
+    "other": "Secret Key"
+  },
+  "Session-based or Rest": {
+    "other": "Session-based or Rest"
+  },
+  "Sessions Only": {
+    "other": "Sessions Only"
+  },
+  "Used internally": {
+    "other": "Used internally"
+  }
+}

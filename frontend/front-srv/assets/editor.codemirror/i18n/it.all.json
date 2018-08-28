@@ -1,0 +1,35 @@
+{
+  "1": {
+    "other": "Editor Sorgente"
+  },
+  "10": {
+    "other": "Dimenzione Indentazione"
+  },
+  "2": {
+    "other": "Evidenziatore Sintassi CodeMirror"
+  },
+  "3": {
+    "other": "Wrapping"
+  },
+  "3b": {
+    "other": "Cambia wrapping linee"
+  },
+  "4": {
+    "other": "Numeri"
+  },
+  "5": {
+    "other": "Cambia numerazione linee"
+  },
+  "6": {
+    "other": "Salta alla linea"
+  },
+  "7": {
+    "other": "Annulla"
+  },
+  "8": {
+    "other": "Ripeti"
+  },
+  "9": {
+    "other": "Ricerca Testo"
+  }
+}

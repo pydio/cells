@@ -1,0 +1,104 @@
+{
+  "tour.create-menu": {
+    "other": "Ajoutez des fichiers ou des répertoires au workspace courant"
+  },
+  "tour.create-menu.title": {
+    "other": "Ajouter des fichiers"
+  },
+  "tour.display-bar": {
+    "other": "Cette barre d'outil vous permet de changer les options d'affichage, de tri des données, etc."
+  },
+  "tour.display-bar.title": {
+    "other": "Options d'affichage"
+  },
+  "tour.globsearch.1": {
+    "other": "Utilisez ce moteur de recherche pour trouver des fichiers dans tous les workspaces. Seuls les 5 premiers résultats  sont affichés, entrez dans un workspace pour affiner votre recherche et avoir plus de résultats."
+  },
+  "tour.globsearch.2": {
+    "other": "Quand il n'y a pas de recherche, ici s'affiche l'historique récent des fichiers et dossiers que vous avez accédé."
+  },
+  "tour.globsearch.title": {
+    "other": "Recherche"
+  },
+  "tour.infopanel.1": {
+    "other": "Vous trouverez ici différentes informations concernant la sélection courante: infos sur le fichier, statut de partage, méta-données, etc."
+  },
+  "tour.infopanel.2": {
+    "other": "Vous pouvez fermer le panneau en appuyant sur le bouton Info dans la barre d'outil"
+  },
+  "tour.infopanel.file": {
+    "other": "Fichier"
+  },
+  "tour.infopanel.folder": {
+    "other": "Dossier"
+  },
+  "tour.infopanel.search": {
+    "other": "Recherche"
+  },
+  "tour.infopanel.title": {
+    "other": "Panneau d'informations"
+  },
+  "tour.locale.back": {
+    "other": "Retour"
+  },
+  "tour.locale.close": {
+    "other": "Fermer"
+  },
+  "tour.locale.last": {
+    "other": "Terminer"
+  },
+  "tour.locale.next": {
+    "other": "Suivant"
+  },
+  "tour.locale.skip": {
+    "other": "Ignorer"
+  },
+  "tour.openworkspace": {
+    "other": "A la première connexion, vos historique est probablement vide. Effectuez une recherche ou entrez maintenant dans un workspace ou une cellule pour y ajouter des fichiers."
+  },
+  "tour.openworkspace.title": {
+    "other": "Ouvrir un workspace"
+  },
+  "tour.uwidget.addressbook": {
+    "other": "Annuaire de tous les utilisateurs accédant à la plateforme. Créez vos propres utilisateurs et constituez des équipes pour partager facilement des fichiers avec plusieurs personnes."
+  },
+  "tour.uwidget.alerts": {
+    "other": "Les alertes vous informent lorsqu'un utilisateur accède à une ressource partagée. Vous pouvez les recevoir directement par email."
+  },
+  "tour.uwidget.home": {
+    "other": "Retour à la page d'accueil"
+  },
+  "tour.uwidget.menu": {
+    "other": "Accéder à d'autres options : gestion de votre profil et options de sécurité, accès à tous vos partages, déconnexion."
+  },
+  "tour.uwidget.title": {
+    "other": "Cartouche Utilisateur"
+  },
+  "tour.welcomemodal.skip": {
+    "other": "Ignorer"
+  },
+  "tour.welcomemodal.start": {
+    "other": "Démarrer le tour"
+  },
+  "tour.welcomemodal.subtitle": {
+    "other": "Glissez ici votre meilleur photo pour votre profil! Cette petite visite va vous introduire brièvement l'interface web."
+  },
+  "tour.welcomemodal.title": {
+    "other": "Bienvenue sur APPLICATION_TITLE"
+  },
+  "tour.widget-cards": {
+    "other": "Vous pouvez ajouter ou retirer des widgets. Vous pouvez aussi les ré-ordonner pas glisser-déposer."
+  },
+  "tour.widget-cards.title": {
+    "other": "Widgets"
+  },
+  "tour.workspaces.1": {
+    "other": "Les workspaces regroupent les fichiers pour vous permettre d'organiser vos données. Ils peuvent être accessible seulement par vous ou partagés par plusieurs utilisateurs. "
+  },
+  "tour.workspaces.2": {
+    "other": "Les cellules sont des espaces de collaboration partagés entre utilisateurs. Créez vos propres cellules autour d'un répertoire, d'une équipe, ou de n'importe quel autre sujet."
+  },
+  "tour.workspaces.title": {
+    "other": "Workspaces \u0026 Cellules"
+  }
+}

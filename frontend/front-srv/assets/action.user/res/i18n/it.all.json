@@ -1,0 +1,233 @@
+{
+  "1": {
+    "other": "Rubrica"
+  },
+  "10": {
+    "other": "Workspaces associati"
+  },
+  "11": {
+    "other": "Se sicuro di voler cancellare gli elementi selezionati?"
+  },
+  "12": {
+    "other": "Non hai il permesso di cancellare questi file."
+  },
+  "13": {
+    "other": "File pubblico cancellato correttamente."
+  },
+  "14": {
+    "other": "Integrità"
+  },
+  "15": {
+    "other": "Ok"
+  },
+  "16": {
+    "other": "Corrotto"
+  },
+  "17": {
+    "other": "Download URL"
+  },
+  "18": {
+    "other": "Copia URL"
+  },
+  "19": {
+    "other": "Copia l'URL per inviarlo tramite email."
+  },
+  "2": {
+    "other": "Cartelle condivise"
+  },
+  "20": {
+    "other": "Downloads"
+  },
+  "21": {
+    "other": "Si"
+  },
+  "22": {
+    "other": "No"
+  },
+  "23": {
+    "other": "%s file cancellati correttamente."
+  },
+  "24": {
+    "other": "Niente da cancellare."
+  },
+  "25": {
+    "other": "Elimina Scaduti"
+  },
+  "26": {
+    "other": "Elimina i file condivisi scaduti."
+  },
+  "27": {
+    "other": "Proprietario"
+  },
+  "28": {
+    "other": "File condivisi per il download diretto, sia protetti da password che non."
+  },
+  "29": {
+    "other": "Delega workspaces creati dagli utenti."
+  },
+  "3": {
+    "other": "File condivisi"
+  },
+  "30": {
+    "other": "Utenti creati per accedere ai workspaces delegati."
+  },
+  "31": {
+    "other": "Descrizione"
+  },
+  "32": {
+    "other": "Reset"
+  },
+  "33": {
+    "other": "Reset contatore download"
+  },
+  "34": {
+    "other": "Mie Condivisioni"
+  },
+  "35": {
+    "other": "Tutti gli elementi condivisi (file e cartelle)"
+  },
+  "36": {
+    "other": "Parametri"
+  },
+  "37": {
+    "other": "Il mio profilo e le impostazioni dell'applicativo"
+  },
+  "38": {
+    "other": "Notifiche"
+  },
+  "39": {
+    "other": "Seleziona un workspace"
+  },
+  "4": {
+    "other": "Percorso File"
+  },
+  "40": {
+    "other": "Benvenuto, %s"
+  },
+  "41": {
+    "other": "Usa questo workspace come principale"
+  },
+  "42": {
+    "other": "Entra"
+  },
+  "43": {
+    "other": "Il Mio Profilo"
+  },
+  "43t": {
+    "other": "Tutti miei dati personali"
+  },
+  "44": {
+    "other": "Il Mio Account"
+  },
+  "45": {
+    "other": "Dati personali"
+  },
+  "46": {
+    "other": "Rubrica"
+  },
+  "47": {
+    "other": "Utenti e teams che hai creato"
+  },
+  "48": {
+    "other": "I Miei Utenti"
+  },
+  "49": {
+    "other": "Utenti esterni da te creati"
+  },
+  "5": {
+    "other": "Repository"
+  },
+  "50": {
+    "other": "I Miei Teams"
+  },
+  "51": {
+    "other": "Teams di utenti, usati come scorciatoia durante la condivisione"
+  },
+  "52": {
+    "other": "Sei sicuro di voler cancellare questo team? Questa operazione non cancellerà gli utenti associati.."
+  },
+  "53": {
+    "other": "Torna ai miei workspace"
+  },
+  "54": {
+    "other": "Aggiorna Membri"
+  },
+  "55": {
+    "other": "Aggiungi/Rimuovi utenti da questo team"
+  },
+  "56": {
+    "other": "Aggiungi un utente per linea; inizia a scrivere nella textarea per vedere la lista di auto-completamento comparire."
+  },
+  "57": {
+    "other": "Crea un Team"
+  },
+  "58": {
+    "other": "I team sono usati come collegamento rapido per condividere una cartella con un gruppo predefinito di utenti"
+  },
+  "59": {
+    "other": "Nome Team"
+  },
+  "6": {
+    "other": "Password"
+  },
+  "60": {
+    "other": "Utenti Team"
+  },
+  "61": {
+    "other": "Email Preferences"
+  },
+  "62": {
+    "other": "Send emails every X minutes"
+  },
+  "63": {
+    "other": "Send emails every Y hours"
+  },
+  "64": {
+    "other": "Choose the hour of the day"
+  },
+  "65": {
+    "other": "Choose the first hour of the day"
+  },
+  "66": {
+    "other": "Choose the second hour of the day"
+  },
+  "67": {
+    "other": "Pick a day of the week"
+  },
+  "68": {
+    "other": "Monday"
+  },
+  "69": {
+    "other": "Tuesday"
+  },
+  "7": {
+    "other": "Scadenza"
+  },
+  "70": {
+    "other": "Wednesday"
+  },
+  "71": {
+    "other": "Thursday"
+  },
+  "72": {
+    "other": "Friday"
+  },
+  "73": {
+    "other": "Saturday"
+  },
+  "74": {
+    "other": "Sunday"
+  },
+  "8": {
+    "other": "Elementi"
+  },
+  "9": {
+    "other": "Utenti associati"
+  },
+  "desc": {
+    "other": "Modifica le impostazioni dell'account, della rubrica, degli elementi condivisi ecc."
+  },
+  "title": {
+    "other": "Bacheca"
+  }
+}

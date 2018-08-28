@@ -1,0 +1,26 @@
+{
+  "1": {
+    "other": "Restaurar Contraseña"
+  },
+  "2": {
+    "other": "Configurar tu contraseña"
+  },
+  "3": {
+    "other": "Por favor introduce tu usuario, se enviará un enlace a tu correo."
+  },
+  "4": {
+    "other": "Tu identificador"
+  },
+  "5": {
+    "other": "Se ha enviado un enlace al correo de tu cuenta. Pulsa en el enlace del correo para volver a crear la contraseña."
+  },
+  "6": {
+    "other": "Gracias, ¡ahora puedes iniciar sesión!"
+  },
+  "7": {
+    "other": "Se ha enviado una solicitud de restauración de contraseña a tu correo asociado a la cuenta. Si no has sido tu quien la ha solicitado, ignora este correo. Si lo solicistaste pulsa en el siguiente enlace para cambiar la contraseña:"
+  },
+  "8": {
+    "other": "Usar el formulario para restaurar la contraseña. Introduce tu usuario y la nueva contraseña dos veces."
+  }
+}

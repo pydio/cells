@@ -1,0 +1,104 @@
+{
+  "cont.btn.fb": {
+    "other": "Facebook"
+  },
+  "cont.btn.github": {
+    "other": "Github Star"
+  },
+  "cont.btn.tw": {
+    "other": "Twitter"
+  },
+  "cont.intro": {
+    "other": "Le code est disponible au public sur Github. Si vous voulez fixer un bug, aidez les autres dans le forum ou soumettre une nouvelle fonctionnalité, impliquez vous dans la communauté!\n                            Ou simplement répandez la bonne parole sur les réseaux sociaux!"
+  },
+  "cont.subtitle": {
+    "other": "Pydio Cells est un logiciel gratuit et open source. Contribuez!"
+  },
+  "cont.title": {
+    "other": "Faites vivre le projet!"
+  },
+  "cont.topic.pr": {
+    "other": "Soumettre une modification via les Pull Requests github"
+  },
+  "cont.topic.report": {
+    "other": "J'ai trouvé un bug! Direction le forum."
+  },
+  "cont.topic.report.2": {
+    "other": "Mon bug est sûr: ouvrir une Issue Github."
+  },
+  "cont.topic.translate": {
+    "other": "Comment créer ou completer une traduction?"
+  },
+  "ent.advanced": {
+    "other": "Une console d'admin unique"
+  },
+  "ent.advanced.legend": {
+    "other": "Surveillance en temps réel et rapports, imports/exports de données, etc."
+  },
+  "ent.btn.contact": {
+    "other": "Contactez un commercial"
+  },
+  "ent.btn.more": {
+    "other": "En savoir plus"
+  },
+  "ent.features": {
+    "other": "Des fonctionnalités orientées entreprises"
+  },
+  "ent.features.legend": {
+    "other": "Connecteurs AD/LDAP, Logs auditables, mise en page EasyTransfer..."
+  },
+  "ent.subtitle": {
+    "other": "PLUS DE FONCTIONS - PRÊT POUR LA RGPD - BRANDING AVANCE"
+  },
+  "ent.support": {
+    "other": "Support et Maintenance"
+  },
+  "ent.support.legend": {
+    "other": "L'équipe de développeurs officielle de Pydio à votre service"
+  },
+  "ent.title": {
+    "other": "Découvrez Pydio Cells Enterprise"
+  },
+  "kb.btn.alldocs": {
+    "other": "Toute la doc"
+  },
+  "kb.btn.forum": {
+    "other": "Aller au Forum"
+  },
+  "kb.intro": {
+    "other": "Notre site fournit de nombreuses documentations. Veuillez toujours chercher une solution à votre problème avant de poster dans le forum ;-)"
+  },
+  "kb.subtitle": {
+    "other": "Nos F.A.Q et tutos les plus courants"
+  },
+  "kb.title": {
+    "other": "Trouver de l'aide"
+  },
+  "welc.btn.advanced": {
+    "other": "Fonctionnalités avancées"
+  },
+  "welc.btn.parameters": {
+    "other": "Gestion des paramètres"
+  },
+  "welc.btn.start": {
+    "other": "Démarrage rapide"
+  },
+  "welc.btn.users": {
+    "other": "Gestion des utilisateurs"
+  },
+  "welc.btn.ws": {
+    "other": "A propos des workspaces"
+  },
+  "welc.guide": {
+    "other": "Si vous ne savez pas où commencer, le Guide Administrateur est sans doute un bon endroit pour débuter:"
+  },
+  "welc.intro": {
+    "other": "C'est votre tableau de bord pour administrer Pydio Cells. Naviguez dans le menu à gauche pour créer des \u003ca class=\"doc-link\" data-path=\"/data/workspaces\"\u003eworkspaces\u003c/a\u003e and des \u003ca class=\"doc-link\" data-path=\"/idm/users\"\u003eutilisateurs\u003c/a\u003e,\n                            surveiller les \u003ca class=\"doc-link\" data-path=\"/admin/logs\"\u003eévénements\u003c/a\u003e sur les fichiers, et gérer les \u003ca class=\"doc-link\" data-path=\"/parameters/core\"\u003econfigurations\u003c/a\u003e et les \u003ca class=\"doc-link\" data-path=\"/plugins/manager\"\u003eplugins\u003c/a\u003e."
+  },
+  "welc.subtitle": {
+    "other": "Administrez et surveillez l'activité de la plateforme"
+  },
+  "welc.title": {
+    "other": "Bienvenue sur la console Community"
+  }
+}

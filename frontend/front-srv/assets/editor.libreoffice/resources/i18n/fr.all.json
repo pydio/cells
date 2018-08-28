@@ -1,0 +1,59 @@
+{
+  "1": {
+    "other": "Document Libre Office"
+  },
+  "10": {
+    "other": "Créer un document"
+  },
+  "11": {
+    "other": "Format du document"
+  },
+  "12": {
+    "other": "Vous pouvez aussi \u003ca\u003ecréer un document vide\u003c/a\u003e"
+  },
+  "13": {
+    "other": "Document sans titre"
+  },
+  "14": {
+    "other": "Le document a été créé, vous pouvez maintenant l'éditer"
+  },
+  "15": {
+    "other": "Format de document inconnu"
+  },
+  "2": {
+    "other": "Document Libre Office"
+  },
+  "ext.doc": {
+    "other": "Microsoft Word 97/2000/XP/2003"
+  },
+  "ext.docx": {
+    "other": "Microsoft Word 2007/2010/2013 XML"
+  },
+  "ext.odg": {
+    "other": "ODF Drawing"
+  },
+  "ext.odp": {
+    "other": "ODF Presentation"
+  },
+  "ext.ods": {
+    "other": "ODF Spreadsheet"
+  },
+  "ext.odt": {
+    "other": "ODF Text Document"
+  },
+  "ext.ppt": {
+    "other": "Microsoft PowerPoint 97/2000/XP/2003"
+  },
+  "ext.pptx": {
+    "other": "Microsoft PowerPoint 2007/2010/2013 XML"
+  },
+  "ext.rtf": {
+    "other": "Rich Text"
+  },
+  "ext.xls": {
+    "other": "Microsoft Excel 97/2000/XP/2003"
+  },
+  "ext.xlsx": {
+    "other": "Microsoft Excel 2007/2010/2013 XML"
+  }
+}

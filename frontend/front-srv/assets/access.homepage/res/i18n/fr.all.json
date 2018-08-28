@@ -1,0 +1,176 @@
+{
+  "40": {
+    "other": "Bienvenue, %s ! "
+  },
+  "41": {
+    "other": "Utiliser ce dépôt par défaut"
+  },
+  "42": {
+    "other": "Entrer"
+  },
+  "43": {
+    "other": "Mon profil"
+  },
+  "43t": {
+    "other": "Toutes mes données personnelles"
+  },
+  "44": {
+    "other": "Mon compte"
+  },
+  "45": {
+    "other": "Données personnelles"
+  },
+  "46": {
+    "other": "Carnet d'adresses"
+  },
+  "47": {
+    "other": "Utilisateurs et équipes que vous avez créé"
+  },
+  "48": {
+    "other": "Mes utilisateurs"
+  },
+  "49": {
+    "other": "Utilisateurs externes que vous avez créés"
+  },
+  "50": {
+    "other": "Mes équipes"
+  },
+  "51": {
+    "other": "Groupes d'utilisateurs, utilisés comme raccourcis lors d'un partage"
+  },
+  "52": {
+    "other": "Voulez-vous vraiment supprimer cette équipe ? Aucun utilisateur ne sera supprimé."
+  },
+  "53": {
+    "other": "Démarrage"
+  },
+  "54": {
+    "other": "Suivez les guides vidéos pour bien débuter avec APPLICATION_TITLE"
+  },
+  "55": {
+    "other": "Avez-vous besoin d'aide \u003ca\u003epour débuter\u003c/a\u003e?"
+  },
+  "56": {
+    "other": "Nouveau sur APPLICATION_TITLE? Quelques guides vidéos pour vous!"
+  },
+  "57": {
+    "other": "Télécharger APPLICATION_TITLE pour..."
+  },
+  "58": {
+    "other": "Android"
+  },
+  "59": {
+    "other": "iPhone / iPad"
+  },
+  "60": {
+    "other": "Mac OS"
+  },
+  "61": {
+    "other": "Windows"
+  },
+  "62": {
+    "other": "\u003ch2\u003e[Tuto] Qu’est-ce qu’un workspace?\u003c/h2\u003e\n            Cette vidéo explique pourquoi APPLICATION_TITLE est basé sur des Workspaces\n            \u003cul\u003e\n                \u003cli\u003eQu'est ce qu'un workspace dans APPLICATION_TITLE?\u003c/li\u003e\n                \u003cli\u003eQu’est-ce qu’un Workspace d’un point de vue technique?\u003c/li\u003e\n                \u003cli\u003eEn quoi permettent-ils d’organiser vos données?\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "63": {
+    "other": "\u003ch2\u003e[Tuto] Comment uploader des fichiers dans pydio ?\u003c/h2\u003e\n            Pour débuter, découvrez comment uploader des fichiers dans APPLICATION_TITLE:\n            \u003cul\u003e\n                \u003cli\u003eFaire Cliquer-Glisser des fichiers vers APPLICATION_TITLE\u003c/li\u003e\n                \u003cli\u003eCréer un nouveau dossier\u003c/li\u003e\n                \u003cli\u003eRenommer des fichiers et des dossiers\u003c/li\u003e\n                \u003cli\u003eTélécharger des fichiers sur votre Desktop\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "64": {
+    "other": "\u003ch2\u003e[Tuto] Rechercher, consulter et gérer vos fichiers\u003c/h2\u003e\n            Cette vidéo vous montre différentes astuces pour gérer efficacement vos fichiers avec APPLICATION_TITLE\n            \u003cul\u003e\n                \u003cli\u003eBarre de recherche Cross-Workspaces\u003c/li\u003e\n                \u003cli\u003eModes d’affichage du contenu\u003c/li\u003e\n                \u003cli\u003eRaccourcis-claviers\u003c/li\u003e\n                \u003cli\u003eOptions de tri des fichiers\u003c/li\u003e\n                \u003cli\u003eMeta-données, Favoris\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "65": {
+    "other": "Découvrir plus de vidéos sur le canal APPLICATION_TITLE!"
+  },
+  "66": {
+    "other": "\u003ch2\u003e[Tuto] Utiliser APPLICATION_TITLE sur un appareil iOS\u003c/h2\u003e\n                     Cette vidéo décrit l'utilisation de l'application APPLICATION_TITLE disponible sur l'App Store. Le processus est similaire sur Android.\n\u003cul\u003e\u003cli\u003eConfigurer la connexion\u003c/li\u003e\n\u003cli\u003eNaviguer dans les fichiers\u003c/li\u003e\n\u003cli\u003eGarder des fichiers en cache, et interagir avec d'autres applications\u003c/li\u003e\n\u003cli\u003eProtéger l'application avec un code PIN\u003c/li\u003e\n\u003cli\u003eUtiliser les favoris et le moteur de recherche\u003c/li\u003e\u003c/ul\u003e"
+  },
+  "67": {
+    "other": "Vous n'êtes pas %s, %logout."
+  },
+  "68": {
+    "other": "Télécharger l'appli de synchro (Windows)"
+  },
+  "69": {
+    "other": "Télécharger l'appli de synchro (Mac)"
+  },
+  "70": {
+    "other": "Application pour smartphones iOS"
+  },
+  "71": {
+    "other": "Application pour smartphones Android"
+  },
+  "72": {
+    "other": "QRCode du serveur"
+  },
+  "73": {
+    "other": "Connexion aux applications mobiles"
+  },
+  "74": {
+    "other": "Scannez ce code avec votre mobile pour configurer l'application."
+  },
+  "75": {
+    "other": "Chercher dans tous les fichiers..."
+  },
+  "76": {
+    "other": "Utilisez le menu en haut à droite pour acceder au %1."
+  },
+  "77": {
+    "other": "panneau d'administration"
+  },
+  "78": {
+    "other": "Sélectionnez un workspace"
+  },
+  "79": {
+    "other": "\u003ch2\u003e[Tuto] Partager des fichiers et des dossiers avec pydio\u003c/h2\u003e\n            Ce tutoriel vous montre comment partager des fichiers et des dossiers, aussi bien en interne qu’en externe:\n            \u003cul\u003e\n                \u003cli\u003eCréer des liens de partage publics\u003c/li\u003e\n                \u003cli\u003ePartager des fichiers et des dossiers en interne\u003c/li\u003e\n                \u003cli\u003ePartager un dossier en tant que Workspace\u003c/li\u003e\n                \u003cli\u003eOptions de présentation d’un dossier partagé\u003c/li\u003e\n                \u003cli\u003eCréer un dossier d’upload vierge\u003c/li\u003e\n                \u003cli\u003eGérer les accès utilisateurs et les droits\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "80": {
+    "other": "\u003ch2\u003e[Tuto] Partage avancé : fonctionnalités de sécurité\u003c/h2\u003e\n            Cette vidéo vous présente différentes fonctionnalités permettant de sécuriser vos partages avec APPLICATION_TITLE:\n            \u003cul\u003e\n                \u003cli\u003eProtection par mot de passe\u003c/li\u003e\n                \u003cli\u003eDate d’expiration du lien de partage\u003c/li\u003e\n                \u003cli\u003eLimitation du nombre de téléchargements\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "81": {
+    "other": "\u003ch2\u003e[Tuto] Personnalisation des liens de partage\u003c/h2\u003e\n            Découvrez comment personnaliser l’URL de vos liens de partage pour les rendre plus user-friendly.\n            "
+  },
+  "82": {
+    "other": "\u003ch2\u003e[Tuto] Gestions des permissions liées aux liens de partage\u003c/h2\u003e\n            Cette vidéo vous montre comment gérer les permissions liées à vos partages publics:\n            \u003cul\u003e\n                \u003cli\u003ePrévisualisation\u003c/li\u003e\n                \u003cli\u003eTéléchargement\u003c/li\u003e\n                \u003cli\u003eUpload / Edition\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "83": {
+    "other": "\u003ch2\u003e[Tuto] Langues\u003c/h2\u003e\n            APPLICATION_TITLE est disponibles dans 28 langues. Cette vidéo vous montre comment changer la langue dans APPLICATION_TITLE.\n            "
+  },
+  "84": {
+    "other": "\u003ch2\u003e[Tuto] Alertes\u003c/h2\u003e\n            Découvrez comment paramétrer des alertes sur certains fichiers, afin de suivre leur modification ou leur consultation.\n            "
+  },
+  "85": {
+    "other": "\u003ch2\u003e[Tuto] Edition Collaborative\u003c/h2\u003e\n            Cette vidéo vous montre comment collaborer sur des documents bureautiques, grâce à l’intégration de la suite Office Collabora Online\n            \u003cul\u003e\n                \u003cli\u003eTravaillez en ligne sur des documents textes, présentations, tableurs\u003c/li\u003e\n                \u003cli\u003eCollaboration en temps réel multi-utilisateurs\u003c/li\u003e\n                \u003cli\u003eCréer de nouveaux documents directement depuis votre navigateur\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "86": {
+    "other": "Voir la vidéo"
+  },
+  "87": {
+    "other": "Mon activité récente"
+  },
+  "88": {
+    "other": "Glissez un fichier depuis votre bureau"
+  },
+  "89": {
+    "other": "Fichier sélectionné"
+  },
+  "90": {
+    "other": "Choisir un workspace de destination"
+  },
+  "91": {
+    "other": "Vos fichiers hors-ligne avec l'application de synchro"
+  },
+  "92": {
+    "other": "Applications Download"
+  },
+  "93": {
+    "other": "Quick Upload"
+  },
+  "94": {
+    "other": "Video Tutorial"
+  },
+  "desc": {
+    "other": "Accueil"
+  },
+  "title": {
+    "other": "Page d'accueil"
+  }
+}

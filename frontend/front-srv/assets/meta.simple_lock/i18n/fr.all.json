@@ -1,0 +1,17 @@
+{
+  "1": {
+    "other": "Bloquer"
+  },
+  "2": {
+    "other": "Bloquer l'item sélectionné"
+  },
+  "3": {
+    "other": "Débloquer"
+  },
+  "4": {
+    "other": "Enlever le blocage"
+  },
+  "5": {
+    "other": "Ce fichier est bloqué par un autre utilisateur, il est certainement en cours d'édition, vous ne pouvez pas le modifier !"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "1": {
+    "other": "API Keys"
+  },
+  "2": {
+    "other": "Manage API keys created by client devices like phone, sync clients, etc..."
+  },
+  "3": {
+    "other": "Generate a key"
+  },
+  "4": {
+    "other": "Generate an API key pair"
+  },
+  "5": {
+    "other": "Revoke all accesses"
+  },
+  "6": {
+    "other": "Invalidate existing API keys"
+  },
+  "7": {
+    "other": "Are you sure you want to revoke this/these key(s)?"
+  },
+  "8": {
+    "other": "Key(s) removed successfully!"
+  },
+  "9": {
+    "other": "Devices connected to your account"
+  }
+}

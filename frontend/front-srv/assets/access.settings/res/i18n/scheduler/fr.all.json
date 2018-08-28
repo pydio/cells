@@ -1,0 +1,158 @@
+{
+  "1": {
+    "other": "Action"
+  },
+  "10": {
+    "other": "Editer la tâche"
+  },
+  "11": {
+    "other": "Editer les paramètres et la planification de la tâche"
+  },
+  "12": {
+    "other": "Libellé"
+  },
+  "12d": {
+    "other": "Libellé de la tâche"
+  },
+  "13": {
+    "other": "Statut"
+  },
+  "14": {
+    "other": "Dernière exécution"
+  },
+  "15": {
+    "other": "Démarrer"
+  },
+  "15d": {
+    "other": "Exécuter la tâche sélectionnée"
+  },
+  "16": {
+    "other": "Lancer la tâche"
+  },
+  "16d": {
+    "other": "Déclencher le planificateur de tâches et exécuter les tâches planifiées"
+  },
+  "17": {
+    "other": "Utilisateur(s)"
+  },
+  "17d": {
+    "other": "Entrer une liste d'utilisateurs séparés par des virgules, ou un joker (*) pour lancer la tâche sur chaque utilisateur."
+  },
+  "18": {
+    "other": "Planificateur"
+  },
+  "18d": {
+    "other": "Actions du planificateur (type cron)"
+  },
+  "18e": {
+    "other": "Planificateur (inactif)"
+  },
+  "19": {
+    "other": "Supprimer la tâche"
+  },
+  "19d": {
+    "other": "Déplanifier et supprimer la tâche sélectionnée"
+  },
+  "1d": {
+    "other": "Action que cette tâche doit effectuer"
+  },
+  "2": {
+    "other": "Planification"
+  },
+  "20": {
+    "other": "Expression Cron"
+  },
+  "20d": {
+    "other": "Générer l'expression Cron"
+  },
+  "21": {
+    "other": "Ajoutez la ligne suivante dans votre CRONTAB, en remplaçant le mot de passe par le votre, et la planification (ici configurée pour un déclenchement toutes les 5 minutes)."
+  },
+  "22": {
+    "other": "Planificateur permettant l'exécution récurrente de tâches. Nécessite l'activation de la ligne de commande et un système type CRONTAB."
+  },
+  "23": {
+    "other": "Contexte d'execution"
+  },
+  "24": {
+    "other": "Paramètres"
+  },
+  "25": {
+    "other": "Arrêter  le jobs"
+  },
+  "26": {
+    "other": "Arrêter les jobs en cours"
+  },
+  "27": {
+    "other": "Plannifié"
+  },
+  "28": {
+    "other": "Tâche ajoutée/éditée"
+  },
+  "29": {
+    "other": "Cette tâche a actuellement des occurences en cours, veuillez patienter."
+  },
+  "2d": {
+    "other": "Expression de type Crontab au format suivant : minutes heures jours joursDeSemaine mois. Vous pouvez utiliser des jokers (*), des pas (,) et des intervalles (-)."
+  },
+  "3": {
+    "other": "Prochaine exécution"
+  },
+  "30": {
+    "other": "Tâche supprimée avec succès"
+  },
+  "31": {
+    "other": "Démarrage..."
+  },
+  "32": {
+    "other": "Lancement "
+  },
+  "33": {
+    "other": "Rien à faire"
+  },
+  "34": {
+    "other": "Lancement de la tâche"
+  },
+  "35": {
+    "other": "JOB EN COURS"
+  },
+  "36": {
+    "other": "JOB EN ERREUR"
+  },
+  "37": {
+    "other": "Démarré le "
+  },
+  "4": {
+    "other": "ID du dépôt"
+  },
+  "4d": {
+    "other": "Id du dépôt cible"
+  },
+  "4s": {
+    "other": "Dépôt"
+  },
+  "5": {
+    "other": "Paramètres"
+  },
+  "5d": {
+    "other": "Entrez autant de paramètres que nécessaires pour cette action"
+  },
+  "6": {
+    "other": "Clef"
+  },
+  "6d": {
+    "other": "Nom du paramètre"
+  },
+  "7": {
+    "other": "Valeur"
+  },
+  "7d": {
+    "other": "Valeur associée"
+  },
+  "8": {
+    "other": "Nouvelle tâche"
+  },
+  "9": {
+    "other": "Planifier une tâche qui sera exécutée régulièrement"
+  }
+}

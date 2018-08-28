@@ -1,0 +1,71 @@
+{
+  "1": {
+    "other": "%s fichiers en attente"
+  },
+  "10": {
+    "other": ""
+  },
+  "11": {
+    "other": "Démarrer"
+  },
+  "12": {
+    "other": "Vider"
+  },
+  "13": {
+    "other": "Répertoire créé"
+  },
+  "14": {
+    "other": "En cours"
+  },
+  "15": {
+    "other": "En attente"
+  },
+  "16": {
+    "other": "Terminés"
+  },
+  "17": {
+    "other": "Montrer/cacher les fichiers transferés"
+  },
+  "18": {
+    "other": "Si un fichier avec le même nom existe:"
+  },
+  "19": {
+    "other": "Interrompre et me demander"
+  },
+  "2": {
+    "other": "Chargement de %s fichiers"
+  },
+  "20": {
+    "other": "Renommer automatiquement"
+  },
+  "21": {
+    "other": "Remplacer le fichier existant"
+  },
+  "22": {
+    "other": "Options"
+  },
+  "23": {
+    "other": "Erreurs"
+  },
+  "3": {
+    "other": "Vous n'êtes pas autorisé à transférer ce fichier ici"
+  },
+  "4": {
+    "other": "Fichier"
+  },
+  "5": {
+    "other": "Répertoire"
+  },
+  "6": {
+    "other": "Impossible d'annuler la création d'un dossier"
+  },
+  "7": {
+    "other": "Transfert des fichiers vers le serveur..."
+  },
+  "8": {
+    "other": "Il semble que votre navigateur ne supporte pas le chargement de dossiers. Vous devriez utiliser l'application de synchronisation."
+  },
+  "9": {
+    "other": ""
+  }
+}

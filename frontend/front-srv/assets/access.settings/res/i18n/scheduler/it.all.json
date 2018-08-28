@@ -1,0 +1,158 @@
+{
+  "1": {
+    "other": "Azione"
+  },
+  "10": {
+    "other": "Modifica Azione"
+  },
+  "11": {
+    "other": "Modifica i parametri dell'azione schedulata"
+  },
+  "12": {
+    "other": "Etichetta"
+  },
+  "12d": {
+    "other": "Etichetta (nome) dell'azione"
+  },
+  "13": {
+    "other": "Status"
+  },
+  "14": {
+    "other": "Ultima Esecuzione"
+  },
+  "15": {
+    "other": "Avvia tutte le Azioni"
+  },
+  "15d": {
+    "other": "Avvia tutte le azioni adesso"
+  },
+  "16": {
+    "other": "Avvia azione"
+  },
+  "16d": {
+    "other": "Avvia lo schedulatore ed esegui le azioni programmate"
+  },
+  "17": {
+    "other": "Utente(i)"
+  },
+  "17d": {
+    "other": "Inserisci un elenco di utenti, separati dalla virgola, o il  wildcard * per eseguire l'azione per ogni utente."
+  },
+  "18": {
+    "other": "Schedulatore"
+  },
+  "18d": {
+    "other": "Azioni in stile 'Cron'"
+  },
+  "18e": {
+    "other": "Schedulatore (disabled)"
+  },
+  "19": {
+    "other": "Cancella Azione"
+  },
+  "19d": {
+    "other": "De-Schedula e rimuovi l'azione selezionata"
+  },
+  "1d": {
+    "other": "Azione da eseguire"
+  },
+  "2": {
+    "other": "Schedula"
+  },
+  "20": {
+    "other": "Espressione Cron"
+  },
+  "20d": {
+    "other": "Genera espressione Crontab"
+  },
+  "21": {
+    "other": "Aggiungi la linea al CRONTAB, sostituendo il valore reale della tua password, e la schedulazione che preferisci (adesso è configurato per essere eseguito ogni 5 minuti)."
+  },
+  "22": {
+    "other": "Schedulatore generico per eseguire azioni su basi regolari. Richiede l'attivazione della CLI e del CRONTAB (o equivalente)."
+  },
+  "23": {
+    "other": "Execution Context"
+  },
+  "24": {
+    "other": "Parameters"
+  },
+  "25": {
+    "other": "Stop Job"
+  },
+  "26": {
+    "other": "Stop running job"
+  },
+  "27": {
+    "other": "Scheduled"
+  },
+  "28": {
+    "other": "Successfully added/edited task"
+  },
+  "29": {
+    "other": "This task has currently jobs running, please wait that they are finished"
+  },
+  "2d": {
+    "other": "Espressione del tipo 'Crontab' nel seguente formato : minuti ore giorni giornisettimana mesi. Si possono usare wildcards, steps e ranges."
+  },
+  "3": {
+    "other": "Prossima esecuzione"
+  },
+  "30": {
+    "other": "Successfully removed task"
+  },
+  "31": {
+    "other": "Starting..."
+  },
+  "32": {
+    "other": "Launching "
+  },
+  "33": {
+    "other": "Nothing to do"
+  },
+  "34": {
+    "other": "Launching task now"
+  },
+  "35": {
+    "other": "JOB RUNNING"
+  },
+  "36": {
+    "other": "JOB ERROR"
+  },
+  "37": {
+    "other": "Started on "
+  },
+  "4": {
+    "other": "ID Repository"
+  },
+  "4d": {
+    "other": "ID del workspace"
+  },
+  "4s": {
+    "other": "Repository"
+  },
+  "5": {
+    "other": "Parametri"
+  },
+  "5d": {
+    "other": "Parametri replicabili dell'azione"
+  },
+  "6": {
+    "other": "Nome Parametro"
+  },
+  "6d": {
+    "other": "Nome parametro specifico per l'azione"
+  },
+  "7": {
+    "other": "Valore Parametro"
+  },
+  "7d": {
+    "other": "Valore parametro specifico per l'azione"
+  },
+  "8": {
+    "other": "Nuova Azione"
+  },
+  "9": {
+    "other": "Schedula l'azione per essere eseguita su base regolare"
+  }
+}

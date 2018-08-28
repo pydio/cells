@@ -1,0 +1,68 @@
+{
+  "1": {
+    "other": "Aggiorna"
+  },
+  "10": {
+    "other": "Questa è una procedura di test. Controlla i logs per vedere tutte le azioni svolte e se tutto va a buon fine, premi 'Avvia importazione reale'"
+  },
+  "11": {
+    "other": "Migra meta.serial"
+  },
+  "12": {
+    "other": "I vecchi plugin  meta.serial sono stati rimossi e divisi in metastore.serial e meta.user"
+  },
+  "13": {
+    "other": "Simula migrazione"
+  },
+  "14": {
+    "other": "Avvia migrazione reale"
+  },
+  "15": {
+    "other": "Are you sure that you want to perform the upgrade?"
+  },
+  "16": {
+    "other": "The following packages will be downloaded and installed."
+  },
+  "17": {
+    "other": "Checking for available upgrades..."
+  },
+  "18": {
+    "other": "No necessary upgrade detected: click to perform a new check."
+  },
+  "19": {
+    "other": "Click to check for new upgrade"
+  },
+  "2": {
+    "other": "Aggiorna versione automaticamente"
+  },
+  "20": {
+    "other": "Check now"
+  },
+  "21": {
+    "other": "Currently in development mode."
+  },
+  "22": {
+    "other": "Current version is %1 (%2)."
+  },
+  "3": {
+    "other": "Clicca sul pulsante per avvia la procedura di aggiornamento automatico. Verifica che la directory dell'applicazione sia scrivibile prima di lanciare il processo di aggiornamento."
+  },
+  "4": {
+    "other": "Avvia Aggiornamento"
+  },
+  "5": {
+    "other": "Da 3.2.4"
+  },
+  "6": {
+    "other": "Importa le configurazioni da 3.2.4"
+  },
+  "7": {
+    "other": "Simula l'importazione del dati"
+  },
+  "8": {
+    "other": "Inserisci il percorso assoluto (dalla root del server) della precedente locazione, quindi avvia la simulazione"
+  },
+  "9": {
+    "other": "Avvia importazione reale"
+  }
+}

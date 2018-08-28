@@ -1,0 +1,32 @@
+{
+  "1.android": {
+    "other": "Für den Zugriff auf %s steht ein Nativer Android Client zu Verfügung."
+  },
+  "1.ios": {
+    "other": "Für den Zugriff auf %s steht ein Nativer iOs Client zu Verfügung."
+  },
+  "2.android": {
+    "other": "Ich habe den Client bereits. Öffne ihn und füge diesen Server zu meinen Remote Servern hinzu."
+  },
+  "2.ios": {
+    "other": "Ich habe den Client bereits. Öffne ihn und füge diesen Server zu meinen Remote Servern hinzu."
+  },
+  "3.android": {
+    "other": "Ich habe den Client nicht. Jetzt im Play Store öffnen!"
+  },
+  "3.ios": {
+    "other": "Ich habe den Client nicht. Jetzt im App Store öffnen!"
+  },
+  "4.android": {
+    "other": "Ich habe kein Interesse, lass mich die Webversion von %s benutzen."
+  },
+  "4.ios": {
+    "other": "Ich habe kein Interesse, lass mich die Webversion von %s benutzen."
+  },
+  "Mobile": {
+    "other": "Mobile Browser"
+  },
+  "Template extending gui.ajax for small screen terminals.": {
+    "other": "Erweitert die Ansicht im Browser um eine Vorlage für mobile Geräte mit kleiner Auflösung."
+  }
+}

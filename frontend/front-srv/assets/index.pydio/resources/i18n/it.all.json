@@ -1,0 +1,41 @@
+{
+  "1": {
+    "other": "Indicizza Contenuto"
+  },
+  "10": {
+    "other": "Indicizzazione sottocartelle in background"
+  },
+  "11": {
+    "other": "Workspace seems to be currently indexing, please wait 3 minutes and retry your search."
+  },
+  "12": {
+    "other": "Workspace is not indexed, try launching indexation manually!"
+  },
+  "13": {
+    "other": "Content"
+  },
+  "2": {
+    "other": "Indicizza il contenuto della cartella"
+  },
+  "3": {
+    "other": "Esegui l'indicizzazione in background"
+  },
+  "4": {
+    "other": "L'indice sembra essere bloccato! Un altro processo di indicizzazione è probabilmente in esecuzione. Se non è così, rimuovi il file '.ajxp_lock' posto in 'cache/indexes'."
+  },
+  "5": {
+    "other": "Indicizzazione ultimata"
+  },
+  "6": {
+    "other": "Il workspace è già in indicizzazione. Riprovare più tardi. Per forzare la re-indicizzazione, rimuovere manualmente il file '.ajxp_lock' posto in in 'data/cache/indexes'."
+  },
+  "7": {
+    "other": "Prima è necessario indicizzare questo workspace! Ripeti la ricerca tra un po'"
+  },
+  "8": {
+    "other": "Indicizzazione %s in background"
+  },
+  "9": {
+    "other": "Impossibile trovare l'indice per il workspace corrente! È necessario attivare l'indicizzazione dei dati prima!"
+  }
+}

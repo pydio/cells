@@ -1,0 +1,44 @@
+{
+  "Android App URL": {
+    "other": "URL do APPLICATION_TITLE App para Android"
+  },
+  "Enable Getting Started": {
+    "other": "Habilitar Primeiros passos"
+  },
+  "Enable addition tabulation to access getting started videos": {
+    "other": "Habilitar tabulação adicional para acessar vídeos de primeiros passos"
+  },
+  "Mac PydioSync URL": {
+    "other": "URL do APPLICATION_TITLE Sync para Mac"
+  },
+  "Open workspace by simple click": {
+    "other": "Abrir área de trabalho com clique único"
+  },
+  "Open workspace by simple click instead of double click.": {
+    "other": "Abrir área de trabalho com clique único em vez de clique duplo."
+  },
+  "URL of the Android application": {
+    "other": "URL do APPLICATION_TITLE App para Android"
+  },
+  "URL of the iOS application": {
+    "other": "URL do APPLICATION_TITLE App para iOS"
+  },
+  "URL of the mac sync application": {
+    "other": "URL do APPLICATION_TITLE Sync para Mac"
+  },
+  "URL of the windows sync application": {
+    "other": "URL do APPLICATION_TITLE Sync para Windows"
+  },
+  "Welcome Page": {
+    "other": "Página de Boas-vindas"
+  },
+  "Welcome Page displaying a list of workspaces": {
+    "other": "Página de Boas-vindas exibindo a lista de áreas de trabalho"
+  },
+  "Windows PydioSync URL": {
+    "other": "URL do APPLICATION_TITLE Sync para Windows"
+  },
+  "iOS App URL": {
+    "other": "URL do APPLICATION_TITLE App para iOS"
+  }
+}

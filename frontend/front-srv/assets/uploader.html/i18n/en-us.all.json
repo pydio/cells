@@ -1,0 +1,71 @@
+{
+  "1": {
+    "other": "%s files queued for upload"
+  },
+  "10": {
+    "other": ""
+  },
+  "11": {
+    "other": "Start"
+  },
+  "12": {
+    "other": "Clear list"
+  },
+  "13": {
+    "other": "Folder created"
+  },
+  "14": {
+    "other": "Processing"
+  },
+  "15": {
+    "other": "Pending"
+  },
+  "16": {
+    "other": "Processed"
+  },
+  "17": {
+    "other": "Show/hide processed files"
+  },
+  "18": {
+    "other": "If a file with the same name exists:"
+  },
+  "19": {
+    "other": "Stop upload and alert me"
+  },
+  "2": {
+    "other": "Uploading %s files"
+  },
+  "20": {
+    "other": "Rename file automatically"
+  },
+  "21": {
+    "other": "Overwrite existing file silently"
+  },
+  "22": {
+    "other": "Options"
+  },
+  "23": {
+    "other": "Errors"
+  },
+  "3": {
+    "other": "You are not allowed to upload this file here"
+  },
+  "4": {
+    "other": "Pick File"
+  },
+  "5": {
+    "other": "Pick Folder"
+  },
+  "6": {
+    "other": "Cannot abort folder creation"
+  },
+  "7": {
+    "other": "Uploading files to server..."
+  },
+  "8": {
+    "other": "It seems that your browser does not support dropping folders"
+  },
+  "9": {
+    "other": ""
+  }
+}

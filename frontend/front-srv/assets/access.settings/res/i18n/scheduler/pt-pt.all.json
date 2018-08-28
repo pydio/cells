@@ -1,0 +1,158 @@
+{
+  "1": {
+    "other": "Acção"
+  },
+  "10": {
+    "other": "Editar tarefa"
+  },
+  "11": {
+    "other": "Editar parâmetros de agenda da tarefa"
+  },
+  "12": {
+    "other": "Etiqueta"
+  },
+  "12d": {
+    "other": "Etiqueta Legível por Humanos desta Tarefa"
+  },
+  "13": {
+    "other": "Estado"
+  },
+  "14": {
+    "other": "Ultima Execução"
+  },
+  "15": {
+    "other": "Correr todas as tarefas"
+  },
+  "15d": {
+    "other": "Correr tarefa(s) seleccionada(s) agora"
+  },
+  "16": {
+    "other": "Correr Tarefa"
+  },
+  "16d": {
+    "other": "Correr Agenda e executar todas as tarefas agendadas"
+  },
+  "17": {
+    "other": "Utilizador(es)"
+  },
+  "17d": {
+    "other": "Introduza uma lista de utilizadores separados por virgulas, ou um Wildcard * Tarefa recursiva para todos os utilizadores."
+  },
+  "18": {
+    "other": "Agenda"
+  },
+  "18d": {
+    "other": "Agenda Cronológica de acções"
+  },
+  "18e": {
+    "other": "Agenda (disabled)"
+  },
+  "19": {
+    "other": "Apagar Tarefa"
+  },
+  "19d": {
+    "other": "Remover entrada da agenda e remover as tarefas seleccionadas"
+  },
+  "1d": {
+    "other": "Acção a ser executada pela tarefa"
+  },
+  "2": {
+    "other": "Agenda"
+  },
+  "20": {
+    "other": "Expressão Cronológica"
+  },
+  "20d": {
+    "other": "Gerar uma expressão Cronológica"
+  },
+  "21": {
+    "other": "Adicionar a seguinte linha à sua Tabela Cronológica, substituindo o valor da sua palavra-chave real e agendando o que pretende (configurado aqui para correr a cada cinco minutos)."
+  },
+  "22": {
+    "other": "Agendamento Genérico para correr tarefas de forma regular. Requer a activação de CLI e de uma Tabela Cronológica ou de um sistema semelhante."
+  },
+  "23": {
+    "other": "Execution Context"
+  },
+  "24": {
+    "other": "Parameters"
+  },
+  "25": {
+    "other": "Stop Job"
+  },
+  "26": {
+    "other": "Stop running job"
+  },
+  "27": {
+    "other": "Scheduled"
+  },
+  "28": {
+    "other": "Successfully added/edited task"
+  },
+  "29": {
+    "other": "This task has currently jobs running, please wait that they are finished"
+  },
+  "2d": {
+    "other": "Expressão cronológica utilizando o seguinte formato : minutos horas dias diasSemanas meses. Pode utilizar Wildcards, passos e intervalos."
+  },
+  "3": {
+    "other": "Próxima Execução"
+  },
+  "30": {
+    "other": "Successfully removed task"
+  },
+  "31": {
+    "other": "Starting..."
+  },
+  "32": {
+    "other": "Launching "
+  },
+  "33": {
+    "other": "Nothing to do"
+  },
+  "34": {
+    "other": "Launching task now"
+  },
+  "35": {
+    "other": "JOB RUNNING"
+  },
+  "36": {
+    "other": "JOB ERROR"
+  },
+  "37": {
+    "other": "Started on "
+  },
+  "4": {
+    "other": "ID do Repositório"
+  },
+  "4d": {
+    "other": "ID da Área de Trabalho alvo"
+  },
+  "4s": {
+    "other": "Repositório"
+  },
+  "5": {
+    "other": "Parâmetros"
+  },
+  "5d": {
+    "other": "Replicar parâmetros das acções"
+  },
+  "6": {
+    "other": "Nome do parâmetro"
+  },
+  "6d": {
+    "other": "Acção especifica de um nome de parâmetro"
+  },
+  "7": {
+    "other": "Valor do Parâmetro"
+  },
+  "7d": {
+    "other": "Acção especifica de um valor de um parâmetro"
+  },
+  "8": {
+    "other": "Nova Tarefa"
+  },
+  "9": {
+    "other": "Agenda uma tarefa a ser executada de forma regular"
+  }
+}

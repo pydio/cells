@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "Notificaciones"
+  },
+  "10": {
+    "other": "Actividad de la carpeta"
+  },
+  "11": {
+    "other": "Actividad del archivo"
+  },
+  "12": {
+    "other": "Dependiendo de su navegador, esto va a pedir un permiso específico. Para desactivar, ir a través de las preferencias del navegador y excepciones. Si ya ha activado esta función, probablemente no pasará nada."
+  },
+  "13": {
+    "other": "Su navegador parece no soportar de momento las notificaciones de escritorio."
+  },
+  "14": {
+    "other": "Sin alertas"
+  },
+  "15": {
+    "other": "Las notificaciones de archivos apareceran aquí"
+  },
+  "2": {
+    "other": "Fuente de Notificaciones"
+  },
+  "3": {
+    "other": "Alertas"
+  },
+  "4": {
+    "other": "Notificaciones"
+  },
+  "5": {
+    "other": "Todos los eventos"
+  },
+  "6": {
+    "other": "Ir a ..."
+  },
+  "7": {
+    "other": "Omitir"
+  },
+  "8": {
+    "other": "No hay alertas"
+  },
+  "9": {
+    "other": "Actividad del repositorio"
+  }
+}

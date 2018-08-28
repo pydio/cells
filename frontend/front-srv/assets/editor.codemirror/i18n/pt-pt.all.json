@@ -1,0 +1,35 @@
+{
+  "1": {
+    "other": "Editor de Código-Fonte"
+  },
+  "10": {
+    "other": "Tamanho de Recuo"
+  },
+  "2": {
+    "other": "Marcador de CodeMirror Syntax"
+  },
+  "3": {
+    "other": "Invólucro"
+  },
+  "3b": {
+    "other": "Activar invólucro de linhas"
+  },
+  "4": {
+    "other": "Números"
+  },
+  "5": {
+    "other": "Activar números de linha"
+  },
+  "6": {
+    "other": "Saltar para linha"
+  },
+  "7": {
+    "other": "Desfazer"
+  },
+  "8": {
+    "other": "Refazer"
+  },
+  "9": {
+    "other": "Procurar Texto"
+  }
+}

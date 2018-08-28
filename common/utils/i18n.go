@@ -22,14 +22,54 @@ package utils
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 
 	"github.com/emicklei/go-restful"
-	"gopkg.in/square/go-jose.v2/json"
 
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
+)
+
+var (
+	AvailableLanguages = map[string]string{
+		"en-us": "English",
+		"fr":    "Français",
+		"de":    "Deutsch",
+		"es-es": "Español",
+		"it":    "Italiano",
+		"pt-br": "Portuguese",
+	}
+
+	LanguagesLegacyNames = map[string]string{
+		"en":    "en-us",
+		"fr":    "fr",
+		"es":    "es-es",
+		"it":    "it",
+		"pt":    "pt-pt",
+		"pt-br": "pt-br",
+		"de":    "de",
+		// Archived languages, partially supported
+		"ru":    "ru",
+		"ca":    "ca",
+		"cs":    "cs",
+		"da":    "da",
+		"et":    "et",
+		"fi":    "fi",
+		"he":    "he",
+		"hu":    "hu",
+		"ja":    "ja",
+		"ko":    "ko",
+		"nl":    "nl",
+		"nn":    "nn-no",
+		"pl":    "pl",
+		"si":    "sl",
+		"sv":    "sv-se",
+		"tr":    "tr",
+		"zh-cn": "zh-cn",
+		"zh-tw": "zh-tw",
+	}
 )
 
 // GetDefaultLanguage reads default language from config

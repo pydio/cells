@@ -1,0 +1,17 @@
+{
+  "1": {
+    "other": "Blocca"
+  },
+  "2": {
+    "other": "Blocca l'elemento selezionato"
+  },
+  "3": {
+    "other": "Sblocca"
+  },
+  "4": {
+    "other": "Rimuovi il blocco"
+  },
+  "5": {
+    "other": "Il file è bloccato da un altro utente. Probabilmente lo sta editando perciò non sei autorizzato a modificarlo."
+  }
+}

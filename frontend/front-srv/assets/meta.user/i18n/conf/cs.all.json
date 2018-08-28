@@ -1,0 +1,92 @@
+{
+  "Additional info": {
+    "other": "Další informace"
+  },
+  "Color labels": {
+    "other": "Color labels"
+  },
+  "Column visibility": {
+    "other": "Viditelnost sloupce"
+  },
+  "Columns visibility": {
+    "other": "Viditelnost sloupců"
+  },
+  "Comma separated list of fields, use standard characters here.": {
+    "other": "Čárkou oddělený seznam značek, používejte standartní znaky."
+  },
+  "Comma separated list of labels, be sure to define as many as fields!": {
+    "other": "Čárkou oddělený seznam popisků, definujte stejný počet jako metaznaček!"
+  },
+  "Created by...": {
+    "other": "Created by..."
+  },
+  "Depending on the field type. Currently used for selection only": {
+    "other": "V závislosti na typu pole. Momentálně použité pouze pro výběr"
+  },
+  "Field ID": {
+    "other": "ID pole"
+  },
+  "Field Type": {
+    "other": "Typ pole"
+  },
+  "Hidden": {
+    "other": "Hidden"
+  },
+  "Hidden file used inside folders to save meta data": {
+    "other": "Skrytý soubor uvnitř adresáře pro ukládání metadat"
+  },
+  "Id of fiels, use standard characters here.": {
+    "other": "ID polí, použijte standartní znaky."
+  },
+  "Label": {
+    "other": "Popisek"
+  },
+  "Label of the field, human friendly": {
+    "other": "Popisek pole, čitelné lidmi"
+  },
+  "Last updated by...": {
+    "other": "Last updated by..."
+  },
+  "Long text": {
+    "other": "Long text"
+  },
+  "Meta Fields": {
+    "other": "Metaznačky"
+  },
+  "Meta File": {
+    "other": "Metasoubor"
+  },
+  "Meta Labels": {
+    "other": "Metapopisky"
+  },
+  "Selection (set choices in Additional Info)": {
+    "other": "Selection (set choices in Additional Info)"
+  },
+  "Set default visibility for each columns. Either by columns, using commas, or one value that will be applied to all columns. Value can be 'visible' or 'hidden'.": {
+    "other": "Nastavit výchozí viditelnost pro každý sloupec. Buď podle sloupců, oddělené čárkou nebo jedna hodnota, která bude výchozí pro všechny sloupce. Hodnota může být 'visible' nebo 'hidden'."
+  },
+  "Set default visibility.": {
+    "other": "Nastavit výchozí viditelnost."
+  },
+  "Short text": {
+    "other": "Short text"
+  },
+  "Simple metadata implementation stored in a hidden file.": {
+    "other": "Jednoduchá implementace metadat uložená ve skrytém souboru."
+  },
+  "Stars Rating": {
+    "other": "Stars Rating"
+  },
+  "Tags (extensible sets of values)": {
+    "other": "Tags (extensible sets of values)"
+  },
+  "Text Metadata": {
+    "other": "Textová metadata"
+  },
+  "Type of field": {
+    "other": "Popis typu pole"
+  },
+  "Visible": {
+    "other": "Visible"
+  }
+}

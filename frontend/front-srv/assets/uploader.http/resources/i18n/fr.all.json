@@ -1,0 +1,68 @@
+{
+  "1": {
+    "other": "Téléchargement distant"
+  },
+  "10": {
+    "other": "Téléchargement sur APPLICATION_TITLE"
+  },
+  "10a": {
+    "other": "Téléchargement vers %s"
+  },
+  "10b": {
+    "other": "Téléchargement vers %s"
+  },
+  "10c": {
+    "other": "Téléchargement vers %s"
+  },
+  "10d": {
+    "other": "téléchargement Pydio (%s)"
+  },
+  "11": {
+    "other": "Glissez l'un des liens suivants dans votre barre de favoris : "
+  },
+  "12": {
+    "other": "Déclencher le téléchargement de fichier distant."
+  },
+  "13": {
+    "other": "Depuis votre ordinateur"
+  },
+  "14": {
+    "other": "Depuis un autre serveur"
+  },
+  "15": {
+    "other": "Ou créez un favori manuellement et insérez-y le code suivant : "
+  },
+  "16": {
+    "other": "Glissez moi sur votre barre de favori!"
+  },
+  "17": {
+    "other": "Télécharger le fichier"
+  },
+  "18": {
+    "other": "Fichier partiel"
+  },
+  "2": {
+    "other": "Télécharger des fichiers depuis un autre serveur"
+  },
+  "3": {
+    "other": "m"
+  },
+  "4": {
+    "other": "Entrez au moins une URL de fichiers que vous voulez télécharger depuis un serveur HTTP externe vers le dossier courant. Cette action sera effectuée en arrière-plan et vous pourrez continuer à utiliser APPLICATION_TITLE pendant ce temps."
+  },
+  "5": {
+    "other": "URL"
+  },
+  "6": {
+    "other": "Téléchargement"
+  },
+  "7": {
+    "other": "sur le serveur"
+  },
+  "8": {
+    "other": "Fichier téléchargé, rechargement du client!"
+  },
+  "9": {
+    "other": "Générer le favori"
+  }
+}

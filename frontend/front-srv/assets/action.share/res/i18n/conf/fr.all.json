@@ -1,0 +1,233 @@
+{
+  "Allow users to generate public links on files": {
+    "other": "Autoriser la création de liens publics sur les fichiers"
+  },
+  "Allow users to generate public links on folders": {
+    "other": "Autoriser la création de liens publics sur les répertoires"
+  },
+  "Allow users to manually choose a hash for the generated links": {
+    "other": "Autoriser les utilisateurs à personnaliser les liens publics"
+  },
+  "Authorizations": {
+    "other": "Autorisations"
+  },
+  "Autocomplete minimum chars": {
+    "other": "Nombre de caractères requis pour activer l'auto-complétion"
+  },
+  "Autocompletion results limit": {
+    "other": "Limitation des résultats de l'auto-complétion"
+  },
+  "Avoid labels duplication": {
+    "other": "Prévenir la duplication des intitulés"
+  },
+  "Background Attributes(1)": {
+    "other": "Attributs de l'arrière-plan(1)"
+  },
+  "Background Attributes(2)": {
+    "other": "Attributs de l'arrière-plan(2)"
+  },
+  "Background Attributes(3)": {
+    "other": "Attributs de l'arrière-plan(3)"
+  },
+  "Background Color": {
+    "other": "Couleur d'arrière-plan"
+  },
+  "Create QRCode": {
+    "other": "Créer un QRCode"
+  },
+  "Create and display QRCode for shared link": {
+    "other": "Créer et afficher un QRCode pour le lien de partage"
+  },
+  "Custom Background (1)": {
+    "other": "Arrière-plan personnalisé (1)"
+  },
+  "Custom Background (2)": {
+    "other": "Arrière-plan personnalisé (2)"
+  },
+  "Custom Background (3)": {
+    "other": "Arrière-plan personnalisé (3)"
+  },
+  "Disable Folder Sharing": {
+    "other": "Désactiver le partage de répertoire"
+  },
+  "Disallow users to create shared folders if a workspace already exists with the same label": {
+    "other": "Empêcher la création, par les utilisateurs, de répertoires partagés si des dépôts existent déjà avec le même intitulé"
+  },
+  "Do not allow users to create public links, only private links (password-protected)": {
+    "other": "Do not allow users to create public links, only private links (password-protected)"
+  },
+  "Download Button": {
+    "other": "Bouton de téléchargement"
+  },
+  "Download text": {
+    "other": "Texte de téléchargement"
+  },
+  "Download text w/ Pass": {
+    "other": "Texte de téléchargement avec mot de passe"
+  },
+  "Enable folder sharing": {
+    "other": "Activer le partage de répertoire"
+  },
+  "Enable folder sharing (workspace and minisite)": {
+    "other": "Activer le partage de répertoire (dépôt et minisite)"
+  },
+  "Enable internal file sharing (sharing with users existing or temporary users)": {
+    "other": "Autoriser le partage de fichier entre utilisateurs"
+  },
+  "Enable internal folder sharing (sharing with users existing or temporary users)": {
+    "other": "Autoriser le partage de répertoire entre utilisateurs"
+  },
+  "Enable public link generation for files": {
+    "other": "Activer les liens publics pour les fichiers"
+  },
+  "Enable public links for files": {
+    "other": "Liens publics pour les fichiers"
+  },
+  "File location": {
+    "other": "Emplacement du fichier"
+  },
+  "Files: enable internal sharing": {
+    "other": "Fichiers: autoriser le partage interne"
+  },
+  "Files: enable public links": {
+    "other": "Fichiers: autoriser les liens publics"
+  },
+  "Folder Sharing": {
+    "other": "Partage de dossier"
+  },
+  "Folders: enable internal sharing": {
+    "other": "Répertoire: autoriser le partage interne"
+  },
+  "Folders: enable public links": {
+    "other": "Répertoires: autoriser les liens publics"
+  },
+  "Force External Mailer": {
+    "other": "Forcer un programme externe pour les mails"
+  },
+  "Fork Events Forwarding": {
+    "other": "Fork Events Forwarding"
+  },
+  "Hash minimum length": {
+    "other": "Longueur minimale du hash"
+  },
+  "Hash user-editable": {
+    "other": "Personnalisation du lien"
+  },
+  "Hidden file containing shared metadata": {
+    "other": "Nom du fichier caché contenant les métadonnées de partage"
+  },
+  "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
+    "other": "En cas de problème de performances lors de modifications dans des arbres profonds, activer cette options. Attention, ceci va déclencher de nombreux process PHP sur le serveur."
+  },
+  "Image used as a background": {
+    "other": "Image utilisée comme arrière-plan"
+  },
+  "Image used as a button for downloading the file": {
+    "other": "Image utilisée en tant que bouton permettant de télécharger le fichier"
+  },
+  "Internal Sharing": {
+    "other": "Partage interne"
+  },
+  "Limit the number of results returned by the auto-completion feature when sharing a folder with other users": {
+    "other": "Limiter le nombre de résultats retournés par l'auto-complétion lors du partage d'un répertoire avec d'autres utilisateurs"
+  },
+  "Link Generation": {
+    "other": "Génération du lien"
+  },
+  "Mandatory prefix for users created temporary users login": {
+    "other": "Préfixe obligatoire pour les utilisateurs créés de manière temporaire (par les utilisateurs)"
+  },
+  "Maximum download limit for file, 0 = unlimited": {
+    "other": "Nombre de téléchargements maximum pour le fichier, 0 = illimité"
+  },
+  "Maximum file download limit": {
+    "other": "Nombre de téléchargements maximum"
+  },
+  "Maximum file expiration limit": {
+    "other": "Durée maximale du fichier avant son expiration"
+  },
+  "Maximum share expiration limit for file, 0 = unlimited": {
+    "other": "Durée maximale du partage avant son expiration, 0 = illimitée"
+  },
+  "Metadata File": {
+    "other": "Fichier de métadonnées"
+  },
+  "Metadata Files": {
+    "other": "Fichiers de métadonnées"
+  },
+  "Minimum length of the generated hash": {
+    "other": "Longueur minimale du hash généré"
+  },
+  "Minimum number of characters to start getting results by auto-completion when sharing a folder with other users": {
+    "other": "Nombre de caractères requis pour activer l'auto-complétion lors du partage d'un répertoire avec d'autres utilisateurs"
+  },
+  "Minisite": {
+    "other": "Minisite"
+  },
+  "Minisite Logo": {
+    "other": "Logo du minisite"
+  },
+  "Minisites and Workspaces": {
+    "other": "Minisites et Workspaces"
+  },
+  "Minisites only": {
+    "other": "Minisites seulement"
+  },
+  "Page Background Images": {
+    "other": "Images d'arrière-plan"
+  },
+  "Page Title": {
+    "other": "Titre de la page"
+  },
+  "Set password mandatory": {
+    "other": "Set password mandatory"
+  },
+  "Share Center actions and hooks": {
+    "other": "Centre de partage et hooks"
+  },
+  "Share page background color.": {
+    "other": "Couleur d'arrière plan de la page du partage."
+  },
+  "Share page text color.": {
+    "other": "Couleur du texte de la page du partage."
+  },
+  "Share page text shadow color.": {
+    "other": "Ombre du texte de la page du partage."
+  },
+  "Shared users configurations": {
+    "other": "Configuration des utilisateurs partagés"
+  },
+  "Sharing Features": {
+    "other": "Fonctions de partage"
+  },
+  "Text Color": {
+    "other": "Couleur du texte"
+  },
+  "Text Shadow": {
+    "other": "Ombre du texte "
+  },
+  "Tmp users prefix": {
+    "other": "Préfixe utilisateurs temporaires"
+  },
+  "Top-right logo displayed on minisite page": {
+    "other": "Logo affiché en haut à droite du minisite"
+  },
+  "Use Rewrite Rule": {
+    "other": "Utiliser les règles de ré-écriture"
+  },
+  "Use external mailer for invitations": {
+    "other": "Utiliser un programme externe pour envoyer les invitations par mail"
+  },
+  "Use web server RewriteEngine mechanism to generate prettier URLs": {
+    "other": "Utiliser la fonctionnalité RewriteEngine du serveur web pour générer des URL plus jolies"
+  },
+  "Weblink Page": {
+    "other": "Page de Weblink"
+  },
+  "Where to store the metadata file : LOCAL means a hidden file will be created in each folder, GLOBAL means that one file will be created in DATA_PATH/plugins/action.share folder.": {
+    "other": "Où stocker le fichier de métadonnées : 'LOCAL' signifie qu'un fichier caché sera créé dans chaque répertoire, 'GLOBAL' signifie qu'un seul fichier sera créé dans le répertoire DATA_PATH/plugins/action.share ."
+  },
+  "Workspaces only": {
+    "other": "Workspaces seulement"
+  }
+}

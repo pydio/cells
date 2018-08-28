@@ -1,0 +1,539 @@
+{
+  "1": {
+    "other": "Configurazioni"
+  },
+  "10": {
+    "other": "Meta Attributi"
+  },
+  "100": {
+    "other": "Opzioni '%s' comuni ai plugins"
+  },
+  "101": {
+    "other": "Nome"
+  },
+  "102": {
+    "other": "Identificatore"
+  },
+  "103": {
+    "other": "Descrizione"
+  },
+  "104": {
+    "other": "Abilitato"
+  },
+  "105": {
+    "other": "Controlli automatici"
+  },
+  "106": {
+    "other": "Identificatore Univoco"
+  },
+  "107": {
+    "other": "Configuazioni Plugin"
+  },
+  "108": {
+    "other": "Documentazione"
+  },
+  "109": {
+    "other": "Configurazioni Globali"
+  },
+  "11": {
+    "other": "Aggiungi attributo"
+  },
+  "110": {
+    "other": "Workspaces \u0026 Utenti"
+  },
+  "111": {
+    "other": "Logs \u0026 Altri Dati"
+  },
+  "112": {
+    "other": "\u003cb\u003eApplica questo ruolo di default\u003c/b\u003e per tutti i nuovi utenti."
+  },
+  "113": {
+    "other": "Status del ruolo correttamente aggiornato"
+  },
+  "114": {
+    "other": "Applicato a"
+  },
+  "115": {
+    "other": "Schema"
+  },
+  "116": {
+    "other": "Nome Template"
+  },
+  "117": {
+    "other": "Template Driver"
+  },
+  "118": {
+    "other": "Nuovo Gruppo"
+  },
+  "119": {
+    "other": "Imposta gruppi di utenti"
+  },
+  "12": {
+    "other": "Meta Plugin"
+  },
+  "120": {
+    "other": "Passa a Pro"
+  },
+  "121": {
+    "other": "Ottieni supporto professionale per la tua installazione"
+  },
+  "122": {
+    "other": "Tutte le Configurazioni"
+  },
+  "123": {
+    "other": "Altri plugins"
+  },
+  "124": {
+    "other": "Sorgente"
+  },
+  "125": {
+    "other": "Alias"
+  },
+  "126": {
+    "other": "Sei sicuro di voler eliminare gli elementi selezionati(s)?"
+  },
+  "127": {
+    "other": "ATTENZIONE: non utilizzare caratteri speciali. L'utente verrebbe creato con la login '%s'"
+  },
+  "128": {
+    "other": "Gruppo cancellato correttamenteSuccessfully deleted group"
+  },
+  "129": {
+    "other": "Aggiorna cache plugin"
+  },
+  "13": {
+    "other": "Sicuro di voler cancellare questo attributo?"
+  },
+  "130": {
+    "other": "Elimina la cache dei plugin. Può essere necessario per vedere apparire nella lista nuovi plugin."
+  },
+  "131": {
+    "other": "I file cache dei plugin sono stati cancellati con successo!"
+  },
+  "132": {
+    "other": "Cache pulita, ma sei in modalità SKIP_CACHE (si veda 'bootstrap_context.php')."
+  },
+  "133": {
+    "other": "Parametri core applicazione"
+  },
+  "134": {
+    "other": "Abilita/Disabilita plugin addizionali, verifica che funzionino correttamente, imposta parametri globali per i plugin."
+  },
+  "135": {
+    "other": "Abilita/Disabilita plugin core (auth, conf, mail, ecc), verifica che funzionino correttamente. Le configurazioni di questi plugin sono generalmente fatte nella sezione 'Opzioni Principali'."
+  },
+  "136": {
+    "other": "Configurazioni globali del core dell'applicazione e per ogni plugin. Abilita/Disabilita plugin"
+  },
+  "137": {
+    "other": "Amministrazione giorno-per-giorno dell'applicazione: chi accede a cosa, creazione ruoli ecc."
+  },
+  "138": {
+    "other": "Creazione e cancellazione workspace, aggiunta funzionalità utilizzando sorgenti meta."
+  },
+  "139": {
+    "other": "Gestione utenti e gruppi"
+  },
+  "14": {
+    "other": "Vero"
+  },
+  "140": {
+    "other": "Definizione profili che possono essere applicati, in una sola operazione, ad un intero insieme di utenti."
+  },
+  "141": {
+    "other": "Strumenti Amministrativi per monitorare lo stato dell'applicazione."
+  },
+  "142": {
+    "other": "Monitora tutte le attività svolte sul server"
+  },
+  "143": {
+    "other": "Leggi la diagnostica di avvio"
+  },
+  "144": {
+    "other": "Risorse Sviluppatore"
+  },
+  "145": {
+    "other": "Documentazione generata per sviluppatori"
+  },
+  "146": {
+    "other": "API Azioni"
+  },
+  "147": {
+    "other": "Lista di tutte le azioni rese possibili dai plugin e visualizza i loro parametri d'ingresso"
+  },
+  "148": {
+    "other": "Definizione Trigger"
+  },
+  "149": {
+    "other": "Lista di tutti i trigger innescati nell'applicazione, la loro documentazione, dove sono innescati e quale plugin è in loro ascolto."
+  },
+  "15": {
+    "other": "Falso"
+  },
+  "150": {
+    "other": "Seleziona un repository"
+  },
+  "151": {
+    "other": "Gruppo Principale"
+  },
+  "152": {
+    "other": "Ruolo Gruppo Principale"
+  },
+  "153": {
+    "other": "Applica a tutta la gerarchia degli utenti"
+  },
+  "154": {
+    "other": "Repository Templates"
+  },
+  "155": {
+    "other": "Driver Accesso"
+  },
+  "156": {
+    "other": "Standard"
+  },
+  "157": {
+    "other": "Amministratore"
+  },
+  "158": {
+    "other": "Condiviso"
+  },
+  "159": {
+    "other": "Ospite"
+  },
+  "16": {
+    "other": "Data Fle"
+  },
+  "160": {
+    "other": "Gruppo creato con successo"
+  },
+  "161": {
+    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
+  },
+  "162": {
+    "other": "You are not authorized to update user %s"
+  },
+  "163": {
+    "other": "Roles reordered for user %s"
+  },
+  "164": {
+    "other": "Successfully updated roles"
+  },
+  "165": {
+    "other": "Successfully saved user preferences"
+  },
+  "166": {
+    "other": "Successfully set lock (%1) on user (%2)"
+  },
+  "167": {
+    "other": "Successfully unlocked user (%s)"
+  },
+  "168": {
+    "other": "%1 users were moved to group %2"
+  },
+  "169": {
+    "other": "No users were moved, there must have been something wrong!"
+  },
+  "17": {
+    "other": "Data"
+  },
+  "170": {
+    "other": "Enable %1 (%2)"
+  },
+  "171": {
+    "other": "Import Users (Enterprise only)"
+  },
+  "172": {
+    "other": "Services"
+  },
+  "173": {
+    "other": "Pydio Backend Services and their running status"
+  },
+  "18": {
+    "other": "I.P."
+  },
+  "19": {
+    "other": "Livello"
+  },
+  "2": {
+    "other": "Utenti \u0026 Gruppi"
+  },
+  "20": {
+    "other": "Utente"
+  },
+  "21": {
+    "other": "Azione"
+  },
+  "22": {
+    "other": "Parametri"
+  },
+  "22a": {
+    "other": "Parametri"
+  },
+  "23": {
+    "other": "Nome Test"
+  },
+  "24": {
+    "other": "Data Test"
+  },
+  "25": {
+    "other": "Accesso Workspaces"
+  },
+  "26": {
+    "other": "Modifica Password"
+  },
+  "27": {
+    "other": "Privilegi Admin"
+  },
+  "28": {
+    "other": "L'utente ha i privilegi di admin?"
+  },
+  "29": {
+    "other": "Lettura"
+  },
+  "2b": {
+    "other": "Data Management"
+  },
+  "3": {
+    "other": "Workspaces"
+  },
+  "30": {
+    "other": "Scrittura"
+  },
+  "32": {
+    "other": "Driver di Accesso"
+  },
+  "33": {
+    "other": "Caricamento..."
+  },
+  "34": {
+    "other": "Sicuro di voler cancellare questo utente? Questa operazione non è reversibile!"
+  },
+  "35": {
+    "other": "Sicuro di voler cancellare questo workspace? Questa operazione non è reversibile!"
+  },
+  "36": {
+    "other": "Hai omesso alcuni campi obbligatori!"
+  },
+  "37": {
+    "other": "ATTENZIONE: le due password differiscono!"
+  },
+  "38": {
+    "other": "Riempi il campo login!"
+  },
+  "39": {
+    "other": "Riempi il campo password!"
+  },
+  "3b": {
+    "other": "DataSources"
+  },
+  "3c": {
+    "other": "Template Paths"
+  },
+  "4": {
+    "other": "Logs"
+  },
+  "40": {
+    "other": "Spunta l'opzione per confermare!"
+  },
+  "41": {
+    "other": "Opzioni Driver"
+  },
+  "42": {
+    "other": "Scegli un driver!"
+  },
+  "43": {
+    "other": "L'utente esiste già! Scegli un altro nome"
+  },
+  "44": {
+    "other": "Utente creato correttamente"
+  },
+  "45": {
+    "other": "Privilegi di Amministratore cambiati per l'utente "
+  },
+  "46": {
+    "other": "Permessi cambiati per l'utente "
+  },
+  "47": {
+    "other": "Salvati i dati dell'utente "
+  },
+  "48": {
+    "other": "Password cambiata per l'utente "
+  },
+  "49": {
+    "other": "Impossibile aggiornare la password"
+  },
+  "5": {
+    "other": "PHP"
+  },
+  "50": {
+    "other": "ERRORE: un workspace con lo stesso nome esiste già"
+  },
+  "51": {
+    "other": "Impossibile scrivere nella directory 'conf'"
+  },
+  "52": {
+    "other": "Workspace creato correttamente! Ora puoi aggiungere alcuni 'Attributi Metadata' per arricchire i dati contenuti, aggiungere l'indicizzazione automatica, ecc"
+  },
+  "53": {
+    "other": "Errore durante la modifica del workspace"
+  },
+  "54": {
+    "other": "Workspace aggiornato correttamente"
+  },
+  "55": {
+    "other": "ATTENZIONE: nello stesso momento puoi aggiungere una sola istanza dei Plugin Metadata."
+  },
+  "56": {
+    "other": "Meta attributo aggiunto correttamente"
+  },
+  "57": {
+    "other": "Meta attributo rimosso correttamente"
+  },
+  "58": {
+    "other": "Meta attributo modificato correttamente"
+  },
+  "59": {
+    "other": "Workspace rimosso correttamente"
+  },
+  "6": {
+    "other": "Nome Utente"
+  },
+  "60": {
+    "other": "Utente cancellato correttamente"
+  },
+  "61": {
+    "other": "Argomenti errati!"
+  },
+  "62": {
+    "other": "Sommario Privilegi"
+  },
+  "63": {
+    "other": "Tutti"
+  },
+  "64": {
+    "other": "Privilegi aggiornati per il ruolo "
+  },
+  "65": {
+    "other": "Il ruolo esiste già. Scegliere un altro nome!"
+  },
+  "66": {
+    "other": "Ruolo creato correttamente"
+  },
+  "67": {
+    "other": "Impossibile trovare il ruolo "
+  },
+  "68": {
+    "other": "Ruolo cancellato correttamente"
+  },
+  "69": {
+    "other": "Ruoli"
+  },
+  "7": {
+    "other": "Amministratore"
+  },
+  "70": {
+    "other": "Ruoli Utente"
+  },
+  "71": {
+    "other": "Ruoli disponibili"
+  },
+  "72": {
+    "other": "Puoi usare il Drag'n'drop per assegnare i ruoli agli utenti"
+  },
+  "73": {
+    "other": "Ruolo assegnato all'utente "
+  },
+  "74": {
+    "other": "Ruolo rimosso dall'utente "
+  },
+  "75": {
+    "other": "Nuovo Ruolo"
+  },
+  "76": {
+    "other": "Id Ruolo"
+  },
+  "77": {
+    "other": "Controllo Accesso"
+  },
+  "78": {
+    "other": "Dati personali"
+  },
+  "79": {
+    "other": "Workspace"
+  },
+  "8": {
+    "other": "Nome Workspace"
+  },
+  "80": {
+    "other": "Regole di accesso avanzate per l'utente (clicca su un workspace se se vuoi che l'utente vi entri automaticamente al login)"
+  },
+  "81": {
+    "other": "Dati workspaces specifici"
+  },
+  "82": {
+    "other": "Batch-edit users"
+  },
+  "83": {
+    "other": "Puoi usare il Drag'n'drop per assegnare i ruoli agli utenti selezionali (gli utenti condivisi verranno ignorati)"
+  },
+  "84": {
+    "other": "Ruoli Utente"
+  },
+  "85": {
+    "other": "Filtro Manuale Accessi"
+  },
+  "86": {
+    "other": "lista delle azioni, separate dalla virgola, che saranno disabilitate all'utente (i permessi quì non c'entrano)."
+  },
+  "87": {
+    "other": "Azioni correttamente aggiornate per il ruolo indicato"
+  },
+  "88": {
+    "other": "Questo workspace è specificato nel file di configurazione PHP e non può essere modificato attraverso la GUI."
+  },
+  "89": {
+    "other": "Dati utente specifici"
+  },
+  "9": {
+    "other": "Tipo Accesso"
+  },
+  "90": {
+    "other": "Nuovo Workspace"
+  },
+  "91": {
+    "other": "Nuovo Template"
+  },
+  "92": {
+    "other": "Crea un nuovo template"
+  },
+  "93": {
+    "other": "Modifica"
+  },
+  "94": {
+    "other": "Batch Edit"
+  },
+  "95": {
+    "other": "Scegli un nome ed un driver per accedere ai dati (controlla tutti i campi del modulo; se sei in dubbio, sposta il mouse sopra il nome del campo ed otterrai più informazioni)."
+  },
+  "96": {
+    "other": "Dopo aver indicato un nome ed un driver, abilita i campi che desideri siano precompilati nel template. Gli altri campi saranno compilabili dall'utente. Puoi abilitare dei campi e lasciarli vuoti, se desideri che vengano nascosti all'utente."
+  },
+  "97": {
+    "other": "Opzioni del plugin correttamente aggiornate"
+  },
+  "98": {
+    "other": "Application Core"
+  },
+  "99": {
+    "other": "Feature plugins"
+  },
+  "group_access": {
+    "other": "g"
+  },
+  "repository_access_key": {
+    "other": "N"
+  },
+  "role_access": {
+    "other": "o"
+  }
+}

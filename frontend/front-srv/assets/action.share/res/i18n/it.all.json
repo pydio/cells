@@ -1,0 +1,893 @@
+{
+  "1": {
+    "other": "%s Download Pubblico"
+  },
+  "10": {
+    "other": "Cartella condivisa"
+  },
+  "100": {
+    "other": "File Condivisi"
+  },
+  "101": {
+    "other": "Tutti i file condivisi con link pubblici"
+  },
+  "102": {
+    "other": "Cartelle condivise"
+  },
+  "103": {
+    "other": "Tutte le cartelle condivise come workspace o minisiti."
+  },
+  "104": {
+    "other": "Visualizzati i primi link, ce ne sono altri %s"
+  },
+  "105": {
+    "other": "Visualizzati i primi link, ce n'è un altro"
+  },
+  "106": {
+    "other": "Vuoi resettare il contatore di download?"
+  },
+  "107": {
+    "other": "Il limite di Download deve essere compreso tra 1 e %s"
+  },
+  "108": {
+    "other": "Usa un lettore QRCode per scansionare l'immagine "
+  },
+  "109": {
+    "other": "Utente Minisito"
+  },
+  "11": {
+    "other": "Expiration"
+  },
+  "110": {
+    "other": "Condividi questo"
+  },
+  "110b": {
+    "other": "Condividi"
+  },
+  "111": {
+    "other": "Condividi questa pagina con altre persone"
+  },
+  "112": {
+    "other": "Condividi questa pagina"
+  },
+  "113": {
+    "other": "Come Nuovo Workspace"
+  },
+  "114": {
+    "other": "Condividi questa cartella con utenti interni"
+  },
+  "115": {
+    "other": "Come Web link"
+  },
+  "116": {
+    "other": "Pubblica il contenuto della cartella come Minisito"
+  },
+  "117": {
+    "other": "Come Minisito Privato"
+  },
+  "118": {
+    "other": "Minisito protetto da password"
+  },
+  "119": {
+    "other": "Link Download"
+  },
+  "12": {
+    "other": "Password"
+  },
+  "120": {
+    "other": "Semplice pagina di download"
+  },
+  "121": {
+    "other": "Web link"
+  },
+  "122": {
+    "other": "Crea un URL pubblico"
+  },
+  "123": {
+    "other": "Selezione come Minisito"
+  },
+  "124": {
+    "other": "Pubblica la selezione corrente"
+  },
+  "125": {
+    "other": "Modifica Condivisione"
+  },
+  "126": {
+    "other": "Modifica/Termina una condivisione configurata"
+  },
+  "127": {
+    "other": "Migra legacy"
+  },
+  "128": {
+    "other": "Migra condivisioni legacy"
+  },
+  "129": {
+    "other": "Copia URL"
+  },
+  "13": {
+    "other": "Si"
+  },
+  "130": {
+    "other": "Copia URL negli Appunti"
+  },
+  "131": {
+    "other": "Nessun file o cartella condiviso, al momento."
+  },
+  "132": {
+    "other": "Workspace"
+  },
+  "133": {
+    "other": "Come link pubblico"
+  },
+  "134": {
+    "other": "Come workspace"
+  },
+  "135": {
+    "other": "La cartella apparirà come un minisito"
+  },
+  "136": {
+    "other": "Il contenuto della cartella apparirà come un nuovo workspace per gli utenti dell'applicazione"
+  },
+  "137": {
+    "other": "Condividi i file selezionati con un link pubblico"
+  },
+  "138": {
+    "other": "Hai condiviso questa cartella con un link pubblico (minisito)"
+  },
+  "138b": {
+    "other": "Hai condiviso questa cartella con link pubblico, ma è attualmente inattivo (scaduto)."
+  },
+  "139": {
+    "other": "Hai condiviso questa cartella come workspace con gli utenti dell'applicazione"
+  },
+  "139b": {
+    "other": "Hai condiviso questa cartella come workspace con gli utenti del sistema, ma è attualmente inattivo (scaduto)."
+  },
+  "14": {
+    "other": "No"
+  },
+  "140": {
+    "other": "Hai condiviso questo file con un link pubblico"
+  },
+  "140b": {
+    "other": "hai condiviso questa cartella attraverso link pubblico, ma è attualmente inattivo (scaduto)."
+  },
+  "141": {
+    "other": "Cambia parametri"
+  },
+  "142": {
+    "other": "Nascondi parametri"
+  },
+  "143": {
+    "other": "Usa \u003ckbd\u003eCtrl\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003eper copiare il link"
+  },
+  "144": {
+    "other": "Usa \u003ckbd\u003e\u0026#8984;\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e per copiare il link"
+  },
+  "145": {
+    "other": "Descrizione"
+  },
+  "146": {
+    "other": "Sarà mostrata agli utenti condivisi"
+  },
+  "147": {
+    "other": "Sicurezza"
+  },
+  "148": {
+    "other": "(Opzionale)"
+  },
+  "149": {
+    "other": "Lascia 0 per 'senza limite'"
+  },
+  "15": {
+    "other": "File scaricato %s volte"
+  },
+  "150": {
+    "other": "Privilegi di accesso"
+  },
+  "151": {
+    "other": "Layout"
+  },
+  "152": {
+    "other": "Aggiorna"
+  },
+  "153": {
+    "other": "Standard (lista di file con l'intestazione dell'applicazione)"
+  },
+  "154": {
+    "other": "Film Strip (ottima per gallerie d'imagini)"
+  },
+  "155": {
+    "other": "Embedded (intestazione più piccola, indicato per widgets)"
+  },
+  "156": {
+    "other": "Link %s pubblicato correttamente"
+  },
+  "157": {
+    "other": "Questa cartella è attualmente condivisa. Se la cancelli, le condivisioni associate verranno disabilitate."
+  },
+  "158": {
+    "other": "Questo file è attualmente condiviso. Se lo cancelli, le condivisioni associate verranno disabilitate. "
+  },
+  "159": {
+    "other": "Proprietario"
+  },
+  "16": {
+    "other": "reset"
+  },
+  "160": {
+    "other": "Non ti è permesso cancellare questo elemento condiviso"
+  },
+  "161": {
+    "other": "Link Deprecato"
+  },
+  "162": {
+    "other": "Ci sono uno o più vecchi link di condivisione, relativi a questo file. Sostituiscili con un nuovo link, fermando questa condivisione e ricreandone una nuova. Copia l'hash di condivisione (l'ultima parte del link, per es. http://yourpydio.com/data/public/\u003cem style='color:red;'\u003e206a51\u003c/em\u003e.php) ed inseriscilo nella nuova finestra di condivione per assicurarti che resti valido dopo la condivisione."
+  },
+  "163": {
+    "other": "Trascina File (per i minisite con upload)"
+  },
+  "164": {
+    "other": "Non permesso: lo script è stato modificato!"
+  },
+  "165": {
+    "other": "Spiacenti, questo link è scaduto!"
+  },
+  "166": {
+    "other": "Impossibile trovare il link specificato!"
+  },
+  "167": {
+    "other": "Il Link è scaduto!"
+  },
+  "168": {
+    "other": "Il numero di download autorizzati è stato raggiunto. Clicca per resettare il contatore e riattivare il link."
+  },
+  "169": {
+    "other": "La data di scadenza è stata raggiunta. Cambia i parametri, aggiungendo una nuova data, se desideri riattivare il link."
+  },
+  "17": {
+    "other": "Reset del contatore di download"
+  },
+  "170": {
+    "other": "Il link è reso sicuro tramite password."
+  },
+  "171": {
+    "other": "Gestione Link"
+  },
+  "172": {
+    "other": "Spiacenti, il link è già in uso. Sceglierne un altro."
+  },
+  "173": {
+    "other": "Se desideri un link personalizzato e più duraturo (come https://.../my-share-link), puoi utilizzare questo campo. Un gestore link verrà generato automaticamente in caso contrario."
+  },
+  "174": {
+    "other": "Disabilita Password"
+  },
+  "175": {
+    "other": "Imposta una password ed assicurati che sia abbastanza lunga!"
+  },
+  "176": {
+    "other": "(Obbligatorio)"
+  },
+  "177": {
+    "other": "Vedi parametri"
+  },
+  "178": {
+    "other": "abilitato"
+  },
+  "179": {
+    "other": "Reimposta"
+  },
+  "18": {
+    "other": "Cartella condivisa come nuovo Workspace"
+  },
+  "180": {
+    "other": "Svuota lista"
+  },
+  "181": {
+    "other": "Modifica"
+  },
+  "182": {
+    "other": "Usa il campo quì sopra per trovare un utente interno o della tua rubrica personale. Se vuoi creare un nuovo utente, digita semplicemente il nuovo identificativo e premi 'Invio'."
+  },
+  "183": {
+    "other": "Notifica al cambiamento del contenuto"
+  },
+  "184": {
+    "other": "Avvisami dell'accesso o della modifica del contenuto"
+  },
+  "185": {
+    "other": "Avvisami dell'accesso del contenuto"
+  },
+  "186": {
+    "other": "Avvisami della modifica del contenuto"
+  },
+  "187": {
+    "other": "Non avvisarmi"
+  },
+  "188": {
+    "other": "Ricezione avvisi quando un utente accede o modifica il contenuto di questa condivisione."
+  },
+  "189": {
+    "other": "Abilita Link Pubblico"
+  },
+  "19": {
+    "other": "Opzioni di condivisione del workspace modificare con successo"
+  },
+  "190": {
+    "other": "Questo file non è attualmente accessibile dal pubbico. Abilitando il link pubblico verrà creato un accesso unico (url) che potrai inviare a chiunque. Se vuoi condividere con utenti Pydio esistenti, usa la tab \"Utenti\"."
+  },
+  "191": {
+    "other": "Copia link negli appunti"
+  },
+  "192": {
+    "other": "Link copiato negli appunti"
+  },
+  "193": {
+    "other": "Personalizza Link"
+  },
+  "194": {
+    "other": "Per avere un link più leggibile, puoi personalizzarne l'ultima parte."
+  },
+  "195": {
+    "other": "ATTENZIONE: Non c'è alcun visualizzatore interno per questo file, ad eccezione dell'apertura in un altra tab del browser. Questo può avviare il download automatico quando un utente clicca sul link."
+  },
+  "196": {
+    "other": "Accesso Sicuro"
+  },
+  "197": {
+    "other": "Usa questo campo per inviare un commento (opzionale)"
+  },
+  "198": {
+    "other": "Puoi selezionare l'aspetto del link, per come verrà mostrato nel browser."
+  },
+  "199": {
+    "other": "Visibilità Condivisione"
+  },
+  "2": {
+    "other": "Clicca sull'immagine per scaricare \u003cb\u003e%s\u003c/b\u003e sul tuo PC"
+  },
+  "20": {
+    "other": "Ooops! Il file che hai richiesto non può essere trovato! Probabilmente è stato cancellato o non è più condiviso con te."
+  },
+  "200": {
+    "other": "Visibile agli altri utenti"
+  },
+  "201": {
+    "other": "Gli altri utenti che hanno accesso al workspace corrente possono aggiornare i parametri del link, ma non possono cancellarlo. Solo tu puoi terminare la condivisione o cambiarne la visibilità."
+  },
+  "202": {
+    "other": "Gli altri utenti che hanno accesso al workspace corrente possono aggiornare i parametri del link. Non sei il proprietario della condivisione quindi non puoi cancellarla o cambiarne la visibilità."
+  },
+  "203": {
+    "other": "Trasferisci Prioprietà"
+  },
+  "203b": {
+    "other": "Trasferisci"
+  },
+  "204": {
+    "other": "Se la condivisione è accessibile pubblicamente e vuoi che un altro utente gestisca la condivisione, puoi trasferirne la proprietà a quell'utente."
+  },
+  "205": {
+    "other": "Trasferisci a ... (identificativo utente)"
+  },
+  "206": {
+    "other": "Le condivisioni sono 'private' di default: solo tu puoi vederle. Se vuoi che altri utenti possano accedere al workspace corrente per vedere e modificare la condivisione, cambia la sua visibilità."
+  },
+  "207": {
+    "other": "Utenti Remoti"
+  },
+  "208": {
+    "other": "Condividi con utenti di altre piattaforme di filesharing (compatibili con le Federated Sharing API)."
+  },
+  "209": {
+    "other": "Indirizzo Remoto"
+  },
+  "21": {
+    "other": "Scade dopo (giorni): "
+  },
+  "210": {
+    "other": "Identificativo Utente"
+  },
+  "211": {
+    "other": "pendente"
+  },
+  "212": {
+    "other": "accettato"
+  },
+  "213": {
+    "other": "rifiutato"
+  },
+  "214": {
+    "other": "non inviato"
+  },
+  "215": {
+    "other": "Per abilitare un link pubblico su un file o una cartella, devi prima impostare una password."
+  },
+  "216": {
+    "other": "Elemento decondiviso correttamente"
+  },
+  "217": {
+    "other": "Utenti Locali"
+  },
+  "218": {
+    "other": "Notifiche"
+  },
+  "219": {
+    "other": "Errore durante il caricamento della condivisione. L'errore è (%s)."
+  },
+  "21b": {
+    "other": "Expired on"
+  },
+  "22": {
+    "other": "Downloads Concessi: "
+  },
+  "220": {
+    "other": "Non sei autorizzato per la creazione di utenti"
+  },
+  "221": {
+    "other": "Non sei autorizzato per la condivisione con utenti diversi da quelli esterni creati da te"
+  },
+  "222": {
+    "other": "L'utente %s esiste già. Scegli un altro identificatore."
+  },
+  "223": {
+    "other": "Il link personalizzato è troppo corto. Usa almeno %s caratteri"
+  },
+  "224": {
+    "other": "Non sei autorizzato per gestione di questa condivisione. Chiedi al proprietario di effettuare le modifiche o di trasferirti la proprietà."
+  },
+  "225": {
+    "other": "Non sei autorizzato per la creazione di link pubblici ai file"
+  },
+  "226": {
+    "other": "Non sei autorizzato per la creazione di link pubblici alle cartelle"
+  },
+  "227": {
+    "other": "Non sei autorizzato per la condivisione interna di file"
+  },
+  "228": {
+    "other": "Non sei autorizzato per la condivisione interna delle cartelle"
+  },
+  "229": {
+    "other": "Insert a preview of the file by pasting this code inside an HTML page."
+  },
+  "22b": {
+    "other": "No more downloads"
+  },
+  "23": {
+    "other": "Password Opzionale: "
+  },
+  "230": {
+    "other": "Please save before sending an invitation"
+  },
+  "231": {
+    "other": "Click to start downloading"
+  },
+  "232": {
+    "other": "No entries found for share, did you maybe delete some users?"
+  },
+  "233": {
+    "other": "Reset this share"
+  },
+  "234": {
+    "other": "It has been added to your %s workspace."
+  },
+  "235": {
+    "other": "Generate unique links to identify users"
+  },
+  "236": {
+    "other": "Restrict access only to identified users"
+  },
+  "237": {
+    "other": "Use a random key instead of email in link"
+  },
+  "238": {
+    "other": "Share Types"
+  },
+  "24": {
+    "other": "Imposta una scadenza e definisci una password per accedere al file, poi clicca su \u003cspan class=\"icon-plus-sign\"\u003e\u003c/span\u003e per generare il link. Puoi generare più di un link, per inviarne uno per ciascuna persona."
+  },
+  "240": {
+    "other": "Group by..."
+  },
+  "241": {
+    "other": "Shares List"
+  },
+  "242": {
+    "other": "Load More Results"
+  },
+  "243": {
+    "other": "Public Links"
+  },
+  "244": {
+    "other": "Shared Folders"
+  },
+  "245": {
+    "other": "%s personal invitation(s) sent"
+  },
+  "246": {
+    "other": "Open cell"
+  },
+  "247": {
+    "other": "Edit cell"
+  },
+  "248": {
+    "other": "Delete cell"
+  },
+  "249": {
+    "other": "Contents"
+  },
+  "25": {
+    "other": "Nessun limite"
+  },
+  "250": {
+    "other": "Cells"
+  },
+  "251": {
+    "other": "Link"
+  },
+  "252": {
+    "other": "Access"
+  },
+  "253": {
+    "other": "Visibility"
+  },
+  "254": {
+    "other": "Shared in cells"
+  },
+  "255": {
+    "other": "Are you sure you want to delete all cells and links on this item?"
+  },
+  "256": {
+    "other": "Shares for %s"
+  },
+  "257": {
+    "other": "Created on %s"
+  },
+  "258": {
+    "other": "Edit cell users"
+  },
+  "259": {
+    "other": "Remove from this cell"
+  },
+  "26": {
+    "other": "Scegli utenti o gruppi ed imposta i loro privilegi. Solo 'Scrittura' creerà un workspace per il solo upload."
+  },
+  "260": {
+    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
+  },
+  "261": {
+    "other": "Pick users or groups who will have access to this cell"
+  },
+  "262": {
+    "other": "Share this folder with other users by creating a new cell"
+  },
+  "263": {
+    "other": "Add to Cell..."
+  },
+  "264": {
+    "other": "+ New Cell"
+  },
+  "265": {
+    "other": "Link Label"
+  },
+  "266": {
+    "other": "Link Description"
+  },
+  "267": {
+    "other": "Cell Label"
+  },
+  "268": {
+    "other": "Cell Description"
+  },
+  "269": {
+    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
+  },
+  "27": {
+    "other": "Condividi file"
+  },
+  "270": {
+    "other": "users"
+  },
+  "271": {
+    "other": "groups"
+  },
+  "272": {
+    "other": "teams"
+  },
+  "273": {
+    "other": "nobody"
+  },
+  "274": {
+    "other": " and "
+  },
+  "275": {
+    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
+  },
+  "276": {
+    "other": "Title of your cell"
+  },
+  "277": {
+    "other": "Optionally add a description"
+  },
+  "278": {
+    "other": "Choose who you will share data with"
+  },
+  "279": {
+    "other": "Create cell now!"
+  },
+  "28": {
+    "other": "Condividi cartella"
+  },
+  "280": {
+    "other": "Cell has its own folder"
+  },
+  "281": {
+    "other": "Cell will be created in a new folder"
+  },
+  "282": {
+    "other": "Add an existing folder..."
+  },
+  "283": {
+    "other": "Select a node in the tree..."
+  },
+  "284": {
+    "other": "Visible in %s cells"
+  },
+  "29": {
+    "other": "WebLink"
+  },
+  "3": {
+    "other": "Password errata"
+  },
+  "30": {
+    "other": "Accesso Utente"
+  },
+  "31": {
+    "other": "Lettura"
+  },
+  "32": {
+    "other": "Scrittura"
+  },
+  "33": {
+    "other": "Osservazione"
+  },
+  "34": {
+    "other": "Utente esistente o nuovo"
+  },
+  "35": {
+    "other": "Etichetta Workspace"
+  },
+  "36": {
+    "other": "Imposta un'etichetta ed una breve descrizione"
+  },
+  "37": {
+    "other": "Conferma"
+  },
+  "38": {
+    "other": "'Osserva' il contenuto della cartella"
+  },
+  "39": {
+    "other": "'Osserva' le attività su questo file"
+  },
+  "4": {
+    "other": "Inserisci la password richiesta e clicca sull'immagine per scaricare \u003cb\u003e%s\u003c/b\u003e sul tuo PC"
+  },
+  "40": {
+    "other": "Inviti"
+  },
+  "41": {
+    "other": "Spedisci invici per email agli utenti con i queli condividi questo elemento."
+  },
+  "42": {
+    "other": "Un utente di %s sta condividendo un file con te"
+  },
+  "43": {
+    "other": "Un utente di %s sta condividendo una cartella con te"
+  },
+  "44": {
+    "other": "%s Condividi"
+  },
+  "45": {
+    "other": "Invita"
+  },
+  "46": {
+    "other": "Apri il workspace %s1 direttamente su %s2"
+  },
+  "46_file": {
+    "other": "Apri %s1"
+  },
+  "46_mini": {
+    "other": "Apri %s1"
+  },
+  "47": {
+    "other": "Status di osservazione aggiornato correttamente"
+  },
+  "48": {
+    "other": "Non hai l'autorizzazione per accedere a questi dati"
+  },
+  "49": {
+    "other": "create user"
+  },
+  "5": {
+    "other": "password"
+  },
+  "50": {
+    "other": "Elemento condiviso"
+  },
+  "51": {
+    "other": "Scaricato"
+  },
+  "52": {
+    "other": "Configurazione"
+  },
+  "53": {
+    "other": "nessuno"
+  },
+  "54": {
+    "other": "Con..."
+  },
+  "55": {
+    "other": "Condiviso..."
+  },
+  "56": {
+    "other": "Configura la condivisione..."
+  },
+  "57": {
+    "other": "volte"
+  },
+  "58": {
+    "other": "Spunta almeno un'opzione!"
+  },
+  "59": {
+    "other": "Pagina Download"
+  },
+  "6": {
+    "other": "Termina Condivisione"
+  },
+  "60": {
+    "other": "Link Download Diretto"
+  },
+  "61": {
+    "other": "Codice HTML Incorporato"
+  },
+  "62": {
+    "other": "Indirizzo Minisito"
+  },
+  "63": {
+    "other": "Nuovo workspace"
+  },
+  "64": {
+    "other": "Sia per utenti interni che esterni, la cartella apparità nell'elenco workspace."
+  },
+  "65": {
+    "other": "Minisito Pubblico (nessuna autenticazione richiesta)"
+  },
+  "66": {
+    "other": "Per utenti esterni; la cartella apparirà ad un nuovo indirizzo pubblico come semplice lista di file."
+  },
+  "67": {
+    "other": "Minisito Privato (autenticazione richiesta)"
+  },
+  "68": {
+    "other": "Sia per utenti interni che esterni, la cartella apparirà ad un nuovo indirizzo pubblico come semplice lista di file, ma con la richiesta preventiva di autenticazione"
+  },
+  "69": {
+    "other": "Configura Minisito"
+  },
+  "69r": {
+    "other": "Parametri Link"
+  },
+  "7": {
+    "other": "Terminare la condivisione non comprende la rimozione fisica del file. Se si desidera modificare i parametri di condivisione, condividi nuovamente il file."
+  },
+  "70": {
+    "other": "Usa le checkboxes per assegnare permessi a questa cartella. Se si spunta solo 'Upload', la cartella sarà vuota e consentità agli utenti solo l'upload dei file."
+  },
+  "70r": {
+    "other": "Etichette e Permessi assegnati agli utenti che accedono al link"
+  },
+  "71": {
+    "other": "Permessi"
+  },
+  "72": {
+    "other": "Sfoglia \u0026 Anteprima"
+  },
+  "73": {
+    "other": "Download"
+  },
+  "74": {
+    "other": "Upload file"
+  },
+  "74b": {
+    "other": "Edit"
+  },
+  "75": {
+    "other": "Usare un numero positivo sia per la Scadenza che per il limite di Download."
+  },
+  "76": {
+    "other": "Abilitare i Cookies per accedere a questa applicazione"
+  },
+  "77": {
+    "other": "Abilitare JavScript per accedere a questa applicazione"
+  },
+  "78": {
+    "other": "ATTENZIONE: dovresti utilizzare solo caratteri alfanumerici standard per i nomi utente. '%CURRENT%' verrà sostituito con '%NEW%'"
+  },
+  "79": {
+    "other": "invita"
+  },
+  "8": {
+    "other": "File condiviso"
+  },
+  "80": {
+    "other": "Spedisci link via email ad un gruppo di utenti o di indirizzi"
+  },
+  "80b": {
+    "other": "Invita, tramite email, gli utenti selezionati a visualizzare questo workspace"
+  },
+  "81": {
+    "other": "termina osservazione"
+  },
+  "82": {
+    "other": "osserva"
+  },
+  "83": {
+    "other": "Modifica lo stato di osservazione, per ricevere o meno notifiche quando il file viene scaricato"
+  },
+  "83b": {
+    "other": "Modifica lo stato di osservazione, per ricevere o meno notifiche quando il workspace viene consultato"
+  },
+  "84": {
+    "other": "password"
+  },
+  "85": {
+    "other": "Una password di protezione è stata settata su questo link"
+  },
+  "86": {
+    "other": "scade"
+  },
+  "87": {
+    "other": "Questo link scadrà automaticamente il..."
+  },
+  "88": {
+    "other": "downloads"
+  },
+  "89": {
+    "other": "Numero di download (autorizzati e non). Clicca per resettare il contatore."
+  },
+  "9": {
+    "other": "Usa questo pulsante per terminare la condivisione"
+  },
+  "90": {
+    "other": "Link URL"
+  },
+  "91": {
+    "other": "Tags (INVIO per salvare)"
+  },
+  "92": {
+    "other": "Nuovo link"
+  },
+  "93": {
+    "other": "Links esistenti"
+  },
+  "94": {
+    "other": "Codice QR"
+  },
+  "95": {
+    "other": "codice QR"
+  },
+  "96": {
+    "other": "termina condivisione"
+  },
+  "97": {
+    "other": "Termina la condivisione di questa cartella con gli altri utenti"
+  },
+  "98": {
+    "other": "Mie Condivisioni"
+  },
+  "99": {
+    "other": "Tutti gli elementi condivisi"
+  }
+}

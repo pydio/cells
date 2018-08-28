@@ -1,0 +1,68 @@
+{
+  "1": {
+    "other": "Transferência Remota"
+  },
+  "10": {
+    "other": "Transferir para o APPLICATION_TITLE"
+  },
+  "10a": {
+    "other": "Transferir para %s"
+  },
+  "10b": {
+    "other": "Transferir para %s"
+  },
+  "10c": {
+    "other": "Transferir Para %s"
+  },
+  "10d": {
+    "other": "Transferência AjXp (%s)"
+  },
+  "11": {
+    "other": "Arraste um dos seguintes URLs para a sua lista de marcadores : "
+  },
+  "12": {
+    "other": "Activar transferência de ficheiros remota"
+  },
+  "13": {
+    "other": "Do computador"
+  },
+  "14": {
+    "other": "De um Servidor Remoto"
+  },
+  "15": {
+    "other": "Ou crie um marcador manualmente e utilize o código seguinte como URL : "
+  },
+  "16": {
+    "other": "Arrasta-me para a sua lista de marcadores!"
+  },
+  "17": {
+    "other": "Transferir Ficheiro"
+  },
+  "18": {
+    "other": "Ficheiro Parcial"
+  },
+  "2": {
+    "other": "Transferir ficheiro(s) de um servidor remoto"
+  },
+  "3": {
+    "other": "m"
+  },
+  "4": {
+    "other": "Introduza pelo menos um URL a apontar para o ficheiro que pretende transferir directamente de um servidor remoto HTTP para a pasta actual. Esta acção irá ser processada em segundo plano, pelo que poderá continuar a utilizar o AjaxPlorer enquanto a transferência é efectuada."
+  },
+  "5": {
+    "other": "URL"
+  },
+  "6": {
+    "other": "A transferir"
+  },
+  "7": {
+    "other": "para o servidor"
+  },
+  "8": {
+    "other": "Ficheiro transferido com sucesso, a recarregar o cliente!"
+  },
+  "9": {
+    "other": "Gerar Marcador"
+  }
+}

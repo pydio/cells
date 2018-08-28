@@ -1,0 +1,80 @@
+{
+  "Analyzer used by Zend to parse the queries. Warning, the UTF8 analyzers require the php mbstring extension.": {
+    "other": "Legt fest, wie die Daten auswertet werden. Achtung: Bei UTF8 ist die PHP-Erweiterung 'mbstring' nötig."
+  },
+  "Auto-Wildcard": {
+    "other": "Auto-Wildcard"
+  },
+  "Automatically append a * after the user query to make the search broader": {
+    "other": "Den Suchbegriff des Benutzers immer mit einem * beenden."
+  },
+  "For the sake of performances, it is not recommanded to use wildcard as a very first character of a query string. Lucene recommends asking the user minimum 3 characters before wildcard. Still, you can set it to 0 if necessary for your usecases.": {
+    "other": "Für eine hohe Geschwindigkeit sollten Wildcards erst ab dem dritten Zeichen möglich sein."
+  },
+  "Full path on the server to the 'pdftotext' binary": {
+    "other": "Absoluter Pfad zur ausführbaren Binärdatei 'pdftotext'"
+  },
+  "Full path on the server to the 'unoconv' binary": {
+    "other": "Absoluter Pfad zur ausführbaren Binärdatei 'unoconv'"
+  },
+  "HTML files": {
+    "other": "HTML-Dateien"
+  },
+  "Hide 'My Shares'": {
+    "other": "Arbeitsumgebung 'Freigegebene Dateien' verstecken"
+  },
+  "Hide My Shares section in the Orbit theme GUI.": {
+    "other": "Versteckt die Arbeitsumgebung 'Freigegebene Dateien' im Orbit-Design."
+  },
+  "If your repository path is defined dynamically by specific keywords like PYDIO_USER, or your own, mention them here.": {
+    "other": "Wenn der Ordner zur Arbeitsumgebung dynamisch generiert wird müssen die Parameter hier angegeben werden. (z.B. PYDIO_USER, oder eigene)"
+  },
+  "Index Content": {
+    "other": "Inhalt indexieren"
+  },
+  "Index Meta Fields": {
+    "other": "Metafelder indexieren"
+  },
+  "List of extensions to consider as HTML file and parse content": {
+    "other": "Liste von Dateiendungen, die bei der Analyse als HTML-Datei behandelt werden"
+  },
+  "List of extensions to consider as Text file and parse content": {
+    "other": "Liste von Dateiendungen, die bei der Analyse als Text-Datei behandelt werden"
+  },
+  "Lucene Search Engine": {
+    "other": "Lucene"
+  },
+  "Parse Content Until": {
+    "other": "Maximale Dateigrösse"
+  },
+  "Parses the file when possible and index its content (see plugin global options)": {
+    "other": "Falls möglich den Inhalt der Dateien analysieren und indexieren (siehe globale Einstellungen)"
+  },
+  "PdftoText Path": {
+    "other": "PdftoText-Pfad"
+  },
+  "Query Analyzer": {
+    "other": "Daten auswerten als"
+  },
+  "Repository keywords": {
+    "other": "Parameter der Arbeitsumgebung"
+  },
+  "Skip content parsing and indexation for files bigger than this size (must be in Bytes)": {
+    "other": "Keine Analyse des Inhalts wenn die Datei größer ist als die hier angegebene Größe in Byte."
+  },
+  "Text files": {
+    "other": "Text-Dateien"
+  },
+  "Unoconv Path": {
+    "other": "Unoconv-Pfad"
+  },
+  "Which additionnal fields to index and search": {
+    "other": "Welche Metafelder werden indexiert"
+  },
+  "Wildcard limitation": {
+    "other": "Wildcard ab"
+  },
+  "Zend_Search_Lucene implementation to index all files and search a whole repository quickly.": {
+    "other": "Zend_Search_Lucene Implementierung um alle Dateien zu indexieren und die Arbeitsumgebung schnell zu durchsuchen."
+  }
+}

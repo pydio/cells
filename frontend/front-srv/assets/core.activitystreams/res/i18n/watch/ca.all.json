@@ -1,0 +1,53 @@
+{
+  "1": {
+    "other": "Monitoritzar..."
+  },
+  "10": {
+    "other": "Algú obri l'arxiu"
+  },
+  "10b": {
+    "other": "Algú explori la carpeta"
+  },
+  "11": {
+    "other": "Modificació"
+  },
+  "12": {
+    "other": "Algú modifiqui l'arxiu"
+  },
+  "12b": {
+    "other": "Algú modifiqui un arxiu dins d'aquesta carpeta"
+  },
+  "13": {
+    "other": "Ambdos"
+  },
+  "14": {
+    "other": "Algú obri o escrigui a l'arxiu"
+  },
+  "14b": {
+    "other": "Algú explori o modifiqui el contingut de la carpeta"
+  },
+  "2": {
+    "other": "Notificar quan s'hi accedeix a aquesta carpeta"
+  },
+  "3": {
+    "other": "Aturar monitorització"
+  },
+  "4": {
+    "other": "Aturar monitorització d'accessos a aquesta carpeta"
+  },
+  "5": {
+    "other": "Monitoritzar..."
+  },
+  "6": {
+    "other": "Monitoritzar canvis a aquest arxiu"
+  },
+  "7": {
+    "other": "Aturar monitorització"
+  },
+  "8": {
+    "other": "Aturar monitorització de canvis a aquest arxiu"
+  },
+  "9": {
+    "other": "Consulta"
+  }
+}

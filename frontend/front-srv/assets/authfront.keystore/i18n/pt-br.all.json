@@ -1,0 +1,29 @@
+{
+  "1": {
+    "other": "Chaves de API"
+  },
+  "2": {
+    "other": "Gerencie chaves de API criadas por dispositivos clientes como celular, cliente de sincronização, etc..."
+  },
+  "3": {
+    "other": "Gerar uma chave"
+  },
+  "4": {
+    "other": "Gerar um par de chaves de API"
+  },
+  "5": {
+    "other": "Revogar todos os acessos"
+  },
+  "6": {
+    "other": "Invalidar chaves de API existentes"
+  },
+  "7": {
+    "other": "Tem certeza que deseja revogar esta(s) chave(s)?"
+  },
+  "8": {
+    "other": "Chaves(s) removidas com sucesso!"
+  },
+  "9": {
+    "other": "Dispositivos conectados em sua conta"
+  }
+}

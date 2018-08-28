@@ -1,0 +1,11 @@
+{
+  "Git-based Versioning": {
+    "other": "Versionamento Git-based"
+  },
+  "Keep tracks of all files modifications using a local Git repository": {
+    "other": "Tieni traccia di tutte le modifiche ai file, utilizzando un repository GIT locale"
+  },
+  "Keep tracks of all files modifications using a local Git workspace": {
+    "other": "Tieni traccia di tutte le modifiche ai file, utilizzando un workspace GIT locale"
+  }
+}

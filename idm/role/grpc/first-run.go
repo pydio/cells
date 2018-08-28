@@ -75,7 +75,7 @@ func InitRoles(ctx context.Context) error {
 
 	<-time.After(3 * time.Second)
 
-	lang := config.Default().Get("defaults", "language").String("en")
+	lang := config.Default().Get("defaults", "language").String("en-us")
 	langJ, _ := json.Marshal(lang)
 
 	insertRoles := []*insertRole{

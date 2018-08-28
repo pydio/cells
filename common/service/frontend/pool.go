@@ -4,17 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"strings"
-
 	"io"
+	"io/ioutil"
 	"path"
+	"strings"
 
 	"github.com/jinzhu/copier"
 	"github.com/philopon/go-toposort"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/common/utils"
 )
 
 type PluginsPool struct {
@@ -57,9 +58,9 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 	}
 
 	p.Messages = make(map[string]I18nMessages)
-	for _, lang := range p.AvailableLanguages() {
+	for lang, _ := range utils.AvailableLanguages {
 		p.Messages[lang] = p.I18nMessages(lang)
-		log.Logger(context.Background()).Debug("Loading messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
+		log.Logger(context.Background()).Info("Loading messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
 	}
 
 	return nil
@@ -75,7 +76,7 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 	registry.Cclient_configs = &Cclient_configs{}
 	registry.Cuser = status.User.Publish(status, p)
 
-	messages := p.Messages["en"]
+	messages := p.Messages["en-us"]
 	if status.Lang != "" {
 		if msg, ok := p.Messages[status.Lang]; ok {
 			messages = msg
@@ -146,7 +147,7 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 func (p *PluginsPool) AllPluginsManifests(ctx context.Context, lang string) *Cplugins {
 
 	all := new(Cplugins)
-	messages := p.Messages["en"]
+	messages := p.Messages["en-us"]
 	if lang != "" {
 		if msg, ok := p.Messages[lang]; ok {
 			messages = msg
@@ -251,14 +252,19 @@ func (p *PluginsPool) pluginsForStatus(ctx context.Context, status RequestStatus
 	return sorted
 }
 
-func (p *PluginsPool) AvailableLanguages() []string {
-	return []string{"en", "es", "de", "fr", "it", "pt-br"}
-}
-
 func (p *PluginsPool) I18nMessages(lang string) I18nMessages {
+
+	if legacy, b := utils.LanguagesLegacyNames[lang]; b {
+		lang = legacy
+	}
+
+	if data, ok := p.Messages[lang]; ok {
+		// Already parsed !
+		return data
+	}
 	msg := make(map[string]string)
 	conf := make(map[string]string)
-	defaultLang := "en"
+	defaultLang := "en-us"
 	for _, plugin := range p.Plugins {
 		c := plugin.GetClientSettings()
 		if c != nil && c.Cresources != nil && len(c.Cresources.Ci18n) > 0 {
@@ -281,19 +287,23 @@ func (p *PluginsPool) I18nMessages(lang string) I18nMessages {
 }
 
 func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string, libPath string) map[string]string {
+	type Translation struct {
+		Other string `json:"other"`
+	}
 	msg := map[string]string{}
 	var f io.ReadCloser
-	if f1, e1 := p.fs.Open(path.Join(libPath, lang+".json")); e1 == nil {
+	if f1, e1 := p.fs.Open(path.Join(libPath, lang+".all.json")); e1 == nil {
 		f = f1
-	} else if f2, e2 := p.fs.Open(path.Join(libPath, defaultLang+".json")); e2 == nil {
+	} else if f2, e2 := p.fs.Open(path.Join(libPath, defaultLang+".all.json")); e2 == nil {
 		f = f2
 	}
 	appTitle := config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("")
 	if f != nil {
 		content, _ := ioutil.ReadAll(f)
-		var data map[string]string
+		var data map[string]Translation
 		if e1 := json.Unmarshal(content, &data); e1 == nil {
-			for k, v := range data {
+			for k, trans := range data {
+				v := trans.Other
 				if appTitle != "" && strings.Contains(v, "APPLICATION_TITLE") {
 					v = strings.Replace(v, "APPLICATION_TITLE", appTitle, -1)
 				}
@@ -303,6 +313,8 @@ func (p *PluginsPool) parseI18nFolder(ns string, lang string, defaultLang string
 					msg[ns+"."+k] = v
 				}
 			}
+		} else {
+			log.Logger(context.Background()).Error("Cannot parse language file: ", zap.String("lib", libPath), zap.String("lang", lang), zap.Error(e1))
 		}
 		f.Close()
 	}

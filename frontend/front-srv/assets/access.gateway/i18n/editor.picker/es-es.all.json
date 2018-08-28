@@ -1,0 +1,17 @@
+{
+  "1": {
+    "other": "Elegir otro..."
+  },
+  "2": {
+    "other": "Elegir otro editor"
+  },
+  "3": {
+    "other": "Elija otro editor para abrir este archivo"
+  },
+  "4": {
+    "other": "Atención, estos editores no parecen soportar este tipo de archivos, ¡su comportamiento puede ser impredecible!"
+  },
+  "5": {
+    "other": "Borrar las asociaciones existentes"
+  }
+}

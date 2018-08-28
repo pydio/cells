@@ -1,0 +1,26 @@
+{
+  "1": {
+    "other": "Nueva ventana"
+  },
+  "2": {
+    "other": "Navegador en nueva ventana"
+  },
+  "3": {
+    "other": "Abriendo el archivo en una ventana externa, espere por favor, esta ventana se cerrará automáticamente."
+  },
+  "4": {
+    "other": "Nuevo marcador URL"
+  },
+  "5": {
+    "other": "De manera alternativa, puede \u003ca\u003ecrear un nuevo marcador a una URL\u003c/a\u003e"
+  },
+  "6": {
+    "other": "Introduzca una URL empezando por http/https"
+  },
+  "7": {
+    "other": "Marcador URL"
+  },
+  "8": {
+    "other": "Introduzca una etiqueta para este marcador"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "1": {
+    "other": "Interne Benutzer"
+  },
+  "10": {
+    "other": "Erhalten Sie Hilfe durch unseren Support und verwalten Sie Ihre Lizenzen. Verbinden Sie sich mir Ihrem Zugang."
+  },
+  "11": {
+    "other": "Verbinden"
+  },
+  "12": {
+    "other": "Testversion"
+  },
+  "13": {
+    "other": "Ihre Lizenz ist aktuell ungültig. Einige Funktionen von Pydio, wie z.B. das Administrations-Dashboard, wurden deaktiviert. Bitte wenden Sie sich an unseren Support um eine neue Lizenz zu erhalten oder wechseln Sie zurück auf die Community-Version."
+  },
+  "14": {
+    "other": "Abgelaufen"
+  },
+  "15": {
+    "other": "Zu viele Benutzer"
+  },
+  "16": {
+    "other": "There seems to be an issue with your license validity. This can be linked to either a wrong license string (see Enterprise License page), or an expired license (contact our support via pydio.com), or an exceeding number of users. In that latter case, you can either delete users via the People Page, or if you are connecting to an external users directory, please narrow the filter used to collect users from this directory."
+  },
+  "2": {
+    "other": "Freigabenbenutzer"
+  },
+  "3": {
+    "other": "Ungenutzte Zugänge"
+  },
+  "4": {
+    "other": "Lizenz-Status"
+  },
+  "5": {
+    "other": "Gültig"
+  },
+  "6": {
+    "other": "Ungültig"
+  },
+  "7": {
+    "other": "Läuft bald ab"
+  },
+  "8": {
+    "other": "Verwendung: %1 interner Benutzer, %2 Freigabenbenutzer (Maximal erlaubt sind %3 Benutzer)."
+  },
+  "9": {
+    "other": "Ihr Pydio.com-Zugang"
+  },
+  "desc": {
+    "other": "Lizenz-Daten für die Pydio-Zertifizierte Edition"
+  },
+  "menu": {
+    "other": "Pydio Enterprise-Lizenz"
+  },
+  "title": {
+    "other": "Pydio Enterprise-Lizenz"
+  }
+}

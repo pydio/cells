@@ -1,0 +1,161 @@
+{
+  "1": {
+    "other": "Modifica Ruoli"
+  },
+  "10": {
+    "other": "Usa questo menu per selezionare le azioni che desideri interdire agli utenti di questo ruolo. Puoi scegliere se disabilitare l'azione per tutti i repository o solo per il workspace indicato."
+  },
+  "11": {
+    "other": "Identificatore Plugin"
+  },
+  "12": {
+    "other": "Seleziona un plugin..."
+  },
+  "12a": {
+    "other": "Seleziona un'azione..."
+  },
+  "12b": {
+    "other": "Seleziona un parametro..."
+  },
+  "12c": {
+    "other": "Seleziona uno o tutti i workspace..."
+  },
+  "12d": {
+    "other": "Tutti Workspace"
+  },
+  "12e": {
+    "other": "Workspace Condivisi"
+  },
+  "13": {
+    "other": "Nome Azione"
+  },
+  "14": {
+    "other": "Ambito Repository"
+  },
+  "15": {
+    "other": "Aggiungi Azione"
+  },
+  "16": {
+    "other": "Usa questo menu per selezionare i parametri che vuoi perfezionare per gli utenti di questo ruolo. Possono essere applicati a tutti i workspace o ad uno solo, tenendo in considerazione il contesto in cui opera il plugin."
+  },
+  "17": {
+    "other": "Nome Parametro"
+  },
+  "18": {
+    "other": "Aggiungi parametro"
+  },
+  "19": {
+    "other": "Ci sono modifiche non salvate. Sicuro di voler uscire?"
+  },
+  "2": {
+    "other": "Modifica Ruolo"
+  },
+  "20": {
+    "other": "Ruolo aggiornato correttamente"
+  },
+  "21": {
+    "other": "ID Utente"
+  },
+  "22": {
+    "other": "Profilo Speciale"
+  },
+  "23": {
+    "other": "Repository Principale"
+  },
+  "24": {
+    "other": "Ruoli (usa Ctrl/Cmd per selezione multipla)"
+  },
+  "25": {
+    "other": "Cambia Password"
+  },
+  "26": {
+    "other": "Blocca Utente"
+  },
+  "27": {
+    "other": "Riattiva Utente"
+  },
+  "28": {
+    "other": "Forza cambio"
+  },
+  "28b": {
+    "other": "Cancel password change"
+  },
+  "29": {
+    "other": "Inserisci la nuova password per questo utente"
+  },
+  "3": {
+    "other": "Info Account"
+  },
+  "30": {
+    "other": "Conferma"
+  },
+  "31": {
+    "other": "ID Ruolo"
+  },
+  "32": {
+    "other": "Etichetta Ruolo"
+  },
+  "33": {
+    "other": "Applica automaticamente agli utenti con profilo..."
+  },
+  "34": {
+    "other": "ID Gruppo"
+  },
+  "35": {
+    "other": "Etichetta Gruppo"
+  },
+  "36": {
+    "other": "bloccato"
+  },
+  "37": {
+    "other": "Negato"
+  },
+  "38": {
+    "other": "ereditato"
+  },
+  "39": {
+    "other": "Disabilita"
+  },
+  "4": {
+    "other": "ACL"
+  },
+  "40": {
+    "other": "Abilita"
+  },
+  "41": {
+    "other": "Rimuovi"
+  },
+  "42": {
+    "other": "Dati ruolo personalizzati"
+  },
+  "43": {
+    "other": "Selezionane uno o più"
+  },
+  "44": {
+    "other": "Plugins Parameters Fine-tuning"
+  },
+  "45": {
+    "other": "Access Control List"
+  },
+  "46": {
+    "other": "Disabled Actions"
+  },
+  "47": {
+    "other": "Search Roles"
+  },
+  "5": {
+    "other": "Azioni"
+  },
+  "6": {
+    "other": "Parametri"
+  },
+  "7": {
+    "other": "Dati Interni"
+  },
+  "8": {
+    "other": "Informazioni Personali"
+  },
+  "9": {
+    "other": "Seleziona i workspaces ai quali gli utenti con questo ruolo avranno accesso. Usa il 'Nega' per sovrascrivere un valore impostato in un ruolo precedente, oppure per negare definitivamente l'accesso a questo workspace, anche per i ruoli ereditati."
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "1": {
+    "other": "Receber notificações de..."
+  },
+  "10": {
+    "other": "Alguém está abrindo o arquivo"
+  },
+  "10b": {
+    "other": "Alguém está explorando o diretório"
+  },
+  "11": {
+    "other": "Alterações"
+  },
+  "12": {
+    "other": "Alguém está modificando o arquivo"
+  },
+  "12b": {
+    "other": "Alguém está modificando um arquivo dentro deste diretório"
+  },
+  "13": {
+    "other": "Ambos"
+  },
+  "14": {
+    "other": "Alguém está abrindo ou escrevendo no arquivo"
+  },
+  "14b": {
+    "other": "Alguém está explorando ou modificando o conteúdo deste diretório"
+  },
+  "2": {
+    "other": "Ser notificado sempre que este diretório for acessado"
+  },
+  "3": {
+    "other": "Desativar notificações"
+  },
+  "4": {
+    "other": "Desativar notificações de acesso para este diretório"
+  },
+  "5": {
+    "other": "Receber notificações de..."
+  },
+  "6": {
+    "other": "Ser notificado sempre que este arquivo for alterado"
+  },
+  "7": {
+    "other": "Desativar Notificações"
+  },
+  "8": {
+    "other": "Desativar notificações de alterações para este arquivo"
+  },
+  "9": {
+    "other": "Consultas"
+  }
+}

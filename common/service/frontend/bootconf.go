@@ -1,14 +1,15 @@
 package frontend
 
 import (
+	"context"
 	"strings"
 
-	"context"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
+	"github.com/pydio/cells/common/utils"
 )
 
 type BackendConf struct {
@@ -59,7 +60,7 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 	url := config.Get("defaults", "url").String("")
 	wsUrl := strings.Replace(strings.Replace(url, "https", "wss", -1), "http", "ws", -1)
 
-	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en")
+	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en-us")
 
 	b := &BootConf{
 		AjxpResourcesFolder:          "plug/gui.ajax/res",
@@ -87,15 +88,8 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 			Title: "Pydio",
 			Icon:  "",
 		},
-		AvailableLanguages: map[string]string{
-			"en":    "English",
-			"es":    "Español",
-			"de":    "Deutsch",
-			"fr":    "Français",
-			"it":    "Italiano",
-			"pt-br": "Portuguese",
-		},
-		I18nMessages: pool.I18nMessages(lang).Messages,
+		AvailableLanguages: utils.AvailableLanguages,
+		I18nMessages:       pool.I18nMessages(lang).Messages,
 		Backend: BackendConf{
 			PackageType:   common.PackageType,
 			PackageLabel:  common.PackageLabel,

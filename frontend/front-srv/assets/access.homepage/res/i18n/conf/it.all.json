@@ -1,0 +1,56 @@
+{
+  "Android App URL": {
+    "other": "URL per App Android"
+  },
+  "Display Server QRCode": {
+    "other": "Display Server QRCode"
+  },
+  "Enable Getting Started": {
+    "other": "Abilita 'Getting Started'"
+  },
+  "Enable Global Search": {
+    "other": "Enable Global Search"
+  },
+  "Enable addition tabulation to access getting started videos": {
+    "other": "Abilita tabulazione addizionale per accedere ai video 'getting started'"
+  },
+  "Enable cross-workspaces search form on home page": {
+    "other": "Enable cross-workspaces search form on home page"
+  },
+  "Let users connect easily to the latest mobile applications by displaying a QRCode": {
+    "other": "Let users connect easily to the latest mobile applications by displaying a QRCode"
+  },
+  "Mac PydioSync URL": {
+    "other": "URL PydioSync Mac"
+  },
+  "Open workspace by simple click": {
+    "other": "Apri un workspace con un semplice click"
+  },
+  "Open workspace by simple click instead of double click.": {
+    "other": "Apri un workspace con un solo click invece di due."
+  },
+  "URL of the Android application": {
+    "other": "URL per App Android (leave empty if you want to hide the block)"
+  },
+  "URL of the iOS application": {
+    "other": "URL per App iOS (leave empty if you want to hide the block)"
+  },
+  "URL of the mac sync application": {
+    "other": "URL all'applicazione Mac per sincronizzazzione (leave empty if you want to hide the block)"
+  },
+  "URL of the windows sync application": {
+    "other": "URL all'applicazione Windows per sincronizzazzione (leave empty if you want to hide the block)"
+  },
+  "Welcome Page": {
+    "other": "Pagina di Benvenuto"
+  },
+  "Welcome Page displaying a list of workspaces": {
+    "other": "Pagina di benvenuto che visualizza la lista dei workspace"
+  },
+  "Windows PydioSync URL": {
+    "other": "URL PydioSync Windows"
+  },
+  "iOS App URL": {
+    "other": "URL per App iOS"
+  }
+}

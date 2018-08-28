@@ -1,0 +1,29 @@
+{
+  "1": {
+    "other": "Email successfully sent to %s user(s)"
+  },
+  "2": {
+    "other": "No address found to send the email!"
+  },
+  "3": {
+    "other": "No mailer configured to send emails, contact your administrator"
+  },
+  "4": {
+    "other": "From"
+  },
+  "5": {
+    "other": "To"
+  },
+  "6": {
+    "other": "Subject"
+  },
+  "7": {
+    "other": "Message"
+  },
+  "8": {
+    "other": "Pick a user or type an address"
+  },
+  "9": {
+    "other": "Notifications Digest"
+  }
+}

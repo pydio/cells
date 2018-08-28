@@ -1,0 +1,104 @@
+{
+  "cont.btn.fb": {
+    "other": "Síguenos"
+  },
+  "cont.btn.github": {
+    "other": "Github Star"
+  },
+  "cont.btn.tw": {
+    "other": "Twitter"
+  },
+  "cont.intro": {
+    "other": "El código está disponible públicamente en Github. ¿Quiere arreglar un bug, ayudar a otros en el foro o añadir funciones nuevas? ¡Involúcrese!\n                            ¡O muestre su amor por Pydio en las redes sociales!"
+  },
+  "cont.subtitle": {
+    "other": "Pydio Cells es software libre y código abierto. ¡Contribuya!"
+  },
+  "cont.title": {
+    "other": "¡Devuelva el favor!"
+  },
+  "cont.topic.pr": {
+    "other": "He implementado una función nueva: GitHub Pull Requests"
+  },
+  "cont.topic.report": {
+    "other": "¡Creo que he encontrado un bug! Abra un hilo en el foro."
+  },
+  "cont.topic.report.2": {
+    "other": "Mi bug se ha confirmado: abra un GitHub Issue."
+  },
+  "cont.topic.translate": {
+    "other": "¿Cómo crear o completar una traducción?"
+  },
+  "ent.advanced": {
+    "other": "Panel de Administrador Avanzado"
+  },
+  "ent.advanced.legend": {
+    "other": "Panel de administración único para monitorizar la plataforma en tiempo real."
+  },
+  "ent.btn.contact": {
+    "other": "Contacto de Ventas"
+  },
+  "ent.btn.more": {
+    "other": "Saber más"
+  },
+  "ent.features": {
+    "other": "Funcionalidad dirigida a la Empresa"
+  },
+  "ent.features.legend": {
+    "other": "Funcionalidad para Empresas: AD/LDAP Connectors, EasyTransfer y mucho más..."
+  },
+  "ent.subtitle": {
+    "other": "MÁS FUNCIONALIDADES - GDPR-READY - BRANDING EXTENDIDO"
+  },
+  "ent.support": {
+    "other": "Soporte y Mantenimiento"
+  },
+  "ent.support.legend": {
+    "other": "Consiga ayuda directamente del equipo desarrollador"
+  },
+  "ent.title": {
+    "other": "Descubra Pydio Cells Enterprise"
+  },
+  "kb.btn.alldocs": {
+    "other": "Toda la documentación"
+  },
+  "kb.btn.forum": {
+    "other": "Ir al Foro"
+  },
+  "kb.intro": {
+    "other": "Además del foro nuestra web tiene muchos documentos para ayudarle. Asegúrese de mirar en la documentación antes de crear un hilo en el foro ;-)"
+  },
+  "kb.subtitle": {
+    "other": "Nuestro F.A.Q. y tutorial, a.k.a RTFM"
+  },
+  "kb.title": {
+    "other": "Consiga ayuda"
+  },
+  "welc.btn.advanced": {
+    "other": "Temas Avanzados"
+  },
+  "welc.btn.parameters": {
+    "other": "Sobre Parámetros"
+  },
+  "welc.btn.start": {
+    "other": "Comenzando"
+  },
+  "welc.btn.users": {
+    "other": "Sobre Gestión de Usuario"
+  },
+  "welc.btn.ws": {
+    "other": "Sobre Workspaces"
+  },
+  "welc.guide": {
+    "other": "Si no sabe por dónde empezar, la Administrator Guide es un buen sitio:"
+  },
+  "welc.intro": {
+    "other": "Este es su panel para gestionar Pydio. Usando el menu de la izquierda puede crear \u003ca class=\"doc-link\" data-path=\"/data/workspaces\"\u003eworkspaces\u003c/a\u003e y \u003ca class=\"doc-link\" data-path=\"/idm/users\"\u003eusuarios\u003c/a\u003e,\n                            compruebe todos los \u003ca class=\"doc-link\" data-path=\"/admin/logs\"\u003eeventos\u003c/a\u003e que ocurren en la plataforma y gestione la \u003ca class=\"doc-link\" data-path=\"/parameters/core\"\u003econfiguración\u003c/a\u003e y los \u003ca class=\"doc-link\" data-path=\"/plugins/manager\"\u003eplugins\u003c/a\u003e."
+  },
+  "welc.subtitle": {
+    "other": "El lugar para administrar y monitorizar la actividad de su plataforma"
+  },
+  "welc.title": {
+    "other": "Bienvenido al Panel de Pydio Cells"
+  }
+}

@@ -1,0 +1,233 @@
+{
+  "Allow users to generate public links on files": {
+    "other": "Allow users to generate public links on files"
+  },
+  "Allow users to generate public links on folders": {
+    "other": "Allow users to generate public links on folders"
+  },
+  "Allow users to manually choose a hash for the generated links": {
+    "other": "Allow users to manually choose a hash for the generated links"
+  },
+  "Authorizations": {
+    "other": "Authorizations"
+  },
+  "Autocomplete minimum chars": {
+    "other": "Caratteri Minimi Autocompletamento"
+  },
+  "Autocompletion results limit": {
+    "other": "Limite Risultati Autocompletamento"
+  },
+  "Avoid labels duplication": {
+    "other": "Previeni Duplicazione Etichette"
+  },
+  "Background Attributes(1)": {
+    "other": "Attributi Sfondo(1)"
+  },
+  "Background Attributes(2)": {
+    "other": "Attributi Sfondo(2)"
+  },
+  "Background Attributes(3)": {
+    "other": "Attributi Sfondo(3)"
+  },
+  "Background Color": {
+    "other": "Colore Sfondo"
+  },
+  "Create QRCode": {
+    "other": "Crea QRCode"
+  },
+  "Create and display QRCode for shared link": {
+    "other": "Crea e visualizza QRCode per i link condivisi"
+  },
+  "Custom Background (1)": {
+    "other": "Sfondo Personalizzato (1)"
+  },
+  "Custom Background (2)": {
+    "other": "Sfondo Personalizzato (2)"
+  },
+  "Custom Background (3)": {
+    "other": "Sfondo Personalizzato (3)"
+  },
+  "Disable Folder Sharing": {
+    "other": "Disable Folder Sharing"
+  },
+  "Disallow users to create shared folders if a workspace already exists with the same label": {
+    "other": "Non consentire agli utenti di creare cartelle condivise se esiste già un workspace con la stessa etichetta (nome)"
+  },
+  "Do not allow users to create public links, only private links (password-protected)": {
+    "other": "Non permette agli utenti di creare link pubblici, ma solo link privati (protetti da password)"
+  },
+  "Download Button": {
+    "other": "Pulsante Download"
+  },
+  "Download text": {
+    "other": "Testo Download"
+  },
+  "Download text w/ Pass": {
+    "other": "Testo Download w/ Pass"
+  },
+  "Enable folder sharing": {
+    "other": "Abilita Condivisione Cartelle"
+  },
+  "Enable folder sharing (workspace and minisite)": {
+    "other": "Abilita la condivisione cartelle (workspace e minisito)"
+  },
+  "Enable internal file sharing (sharing with users existing or temporary users)": {
+    "other": "Enable internal file sharing (sharing with users existing or temporary users)"
+  },
+  "Enable internal folder sharing (sharing with users existing or temporary users)": {
+    "other": "Enable internal folder sharing (sharing with users existing or temporary users)"
+  },
+  "Enable public link generation for files": {
+    "other": "Enable public link generation for files"
+  },
+  "Enable public links for files": {
+    "other": "Enable public links for files"
+  },
+  "File location": {
+    "other": "Ubicazione File"
+  },
+  "Files: enable internal sharing": {
+    "other": "Files: enable internal sharing"
+  },
+  "Files: enable public links": {
+    "other": "Files: enable public links"
+  },
+  "Folder Sharing": {
+    "other": "Condivisione Cartella"
+  },
+  "Folders: enable internal sharing": {
+    "other": "Folders: enable internal sharing"
+  },
+  "Folders: enable public links": {
+    "other": "Folders: enable public links"
+  },
+  "Force External Mailer": {
+    "other": "Forza Mailer Esterno"
+  },
+  "Fork Events Forwarding": {
+    "other": "Fork Events Forwarding"
+  },
+  "Hash minimum length": {
+    "other": "Lunghezza Minima Hash"
+  },
+  "Hash user-editable": {
+    "other": "Hash user-editable"
+  },
+  "Hidden file containing shared metadata": {
+    "other": "File nascosto che contiene i Metadati condivisi"
+  },
+  "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
+    "other": "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server."
+  },
+  "Image used as a background": {
+    "other": "Immagine usata come sfondo"
+  },
+  "Image used as a button for downloading the file": {
+    "other": "Immagine usata come pulsante per il download dei file"
+  },
+  "Internal Sharing": {
+    "other": "Internal Sharing"
+  },
+  "Limit the number of results returned by the auto-completion feature when sharing a folder with other users": {
+    "other": "Limita il numero di risultati restituiti dall'auto-completamento quando si condivide una cartella con altri utenti"
+  },
+  "Link Generation": {
+    "other": "Generazione Link"
+  },
+  "Mandatory prefix for users created temporary users login": {
+    "other": "Prefisso obbligatorio per la creazione di utenti temporanei"
+  },
+  "Maximum download limit for file, 0 = unlimited": {
+    "other": "Limite massimo download per file; 0 = senza limite"
+  },
+  "Maximum file download limit": {
+    "other": "Limite massimo download"
+  },
+  "Maximum file expiration limit": {
+    "other": "Limite massimo scadenza"
+  },
+  "Maximum share expiration limit for file, 0 = unlimited": {
+    "other": "Limite massimo scadenza per file condivisi; 0 = senza limite"
+  },
+  "Metadata File": {
+    "other": "File Metadati"
+  },
+  "Metadata Files": {
+    "other": "File Metadati"
+  },
+  "Minimum length of the generated hash": {
+    "other": "Lunghezza minima dell'hash generato"
+  },
+  "Minimum number of characters to start getting results by auto-completion when sharing a folder with other users": {
+    "other": "Numero minimo di caratteri per avviare l'auto-completamento del nomi utente durante la condivisione di una cartella"
+  },
+  "Minisite": {
+    "other": "Minisito"
+  },
+  "Minisite Logo": {
+    "other": "Logo Minisito"
+  },
+  "Minisites and Workspaces": {
+    "other": "Minisites and Workspaces"
+  },
+  "Minisites only": {
+    "other": "Minisites only"
+  },
+  "Page Background Images": {
+    "other": "Immagini di sfondo della pagina"
+  },
+  "Page Title": {
+    "other": "Titolo Pagina"
+  },
+  "Set password mandatory": {
+    "other": "Impostazione password obbligatoria"
+  },
+  "Share Center actions and hooks": {
+    "other": "Centro Condivisione: azioni e riferimenti"
+  },
+  "Share page background color.": {
+    "other": "Colore di sfondo della pagina di Condivisione."
+  },
+  "Share page text color.": {
+    "other": "Colore del testo della pagina di Condivisione."
+  },
+  "Share page text shadow color.": {
+    "other": "Colore dell'Ombreggiatura testo della pagina di Condivisione."
+  },
+  "Shared users configurations": {
+    "other": "Configurazioni Utenti Condivise"
+  },
+  "Sharing Features": {
+    "other": "Opzioni Condivisione"
+  },
+  "Text Color": {
+    "other": "Colore Testo"
+  },
+  "Text Shadow": {
+    "other": "Ombreggiatura Testo"
+  },
+  "Tmp users prefix": {
+    "other": "Prefisso Utenti Temp"
+  },
+  "Top-right logo displayed on minisite page": {
+    "other": "Logo visualizzato in alto a destra nella pagina del minisito"
+  },
+  "Use Rewrite Rule": {
+    "other": "Usa Regola Rewrite"
+  },
+  "Use external mailer for invitations": {
+    "other": "Utilizza mailer esterno per gli inviti"
+  },
+  "Use web server RewriteEngine mechanism to generate prettier URLs": {
+    "other": "Usa il meccanismo RewriteEngine del web server, per generare gli URLs"
+  },
+  "Weblink Page": {
+    "other": "Pagina Weblink"
+  },
+  "Where to store the metadata file : LOCAL means a hidden file will be created in each folder, GLOBAL means that one file will be created in DATA_PATH/plugins/action.share folder.": {
+    "other": "Dove immagazinare il file metadati: LOCAL significa che un file nascosto verrà creato in ogni cartella; GLOBAL significa che un file verrà creato nella cartella DATA_PATH/plugins/action.share."
+  },
+  "Workspaces only": {
+    "other": "Workspaces only"
+  }
+}

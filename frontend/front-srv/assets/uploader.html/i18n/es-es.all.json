@@ -1,0 +1,68 @@
+{
+  "1": {
+    "other": "%s están en cola para subir"
+  },
+  "10": {
+    "other": ""
+  },
+  "11": {
+    "other": "Empezar"
+  },
+  "12": {
+    "other": "Limpiar"
+  },
+  "13": {
+    "other": "Carpeta creada"
+  },
+  "14": {
+    "other": "Procesando"
+  },
+  "15": {
+    "other": "Pendiente"
+  },
+  "16": {
+    "other": "Procesado"
+  },
+  "17": {
+    "other": "Mostrar archivos procesados"
+  },
+  "18": {
+    "other": "Si existe un archivo con el mismo nombre:"
+  },
+  "19": {
+    "other": "Parar subida y notificarme"
+  },
+  "2": {
+    "other": "Subiendo %s archivos"
+  },
+  "20": {
+    "other": "Renombar archivo"
+  },
+  "21": {
+    "other": "Sobreescribir"
+  },
+  "23": {
+    "other": "Errors"
+  },
+  "3": {
+    "other": "No tienes permisos para subir este archivo aquí"
+  },
+  "4": {
+    "other": "Selecciona Archivo"
+  },
+  "5": {
+    "other": "Selecciona Carpeta"
+  },
+  "6": {
+    "other": "No se puede cancelar la creación de la carpeta"
+  },
+  "7": {
+    "other": "Subiendo archivos al servidor..."
+  },
+  "8": {
+    "other": "Parece que tu navegador no permite soltar carpetas"
+  },
+  "9": {
+    "other": ""
+  }
+}

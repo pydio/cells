@@ -1,0 +1,29 @@
+{
+  "API Keystore": {
+    "other": "API Keystore"
+  },
+  "Enable/disable automatically based on the protocol used": {
+    "other": "Activa/Desactiva automáticamente en base al protocolo usado"
+  },
+  "Order": {
+    "other": "Orden"
+  },
+  "Order this plugin with other auth frontends": {
+    "other": "Ordena este plugin con otro frontend de autenticación"
+  },
+  "Protocol Type": {
+    "other": "Tipo de Protocolo"
+  },
+  "REST Only": {
+    "other": "Sólo REST"
+  },
+  "Session-based or Rest": {
+    "other": "Sesión o REST"
+  },
+  "Sessions Only": {
+    "other": "Sólo Sesiones"
+  },
+  "Store API keys/token to simplify REST connection": {
+    "other": "Almacenar clave API/token para simplificar la conexión REST"
+  }
+}

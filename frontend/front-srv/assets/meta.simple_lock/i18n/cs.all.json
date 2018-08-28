@@ -1,0 +1,17 @@
+{
+  "1": {
+    "other": "Zamknout"
+  },
+  "2": {
+    "other": "Zamknout vybrané položky"
+  },
+  "3": {
+    "other": "Odemknout"
+  },
+  "4": {
+    "other": "Odstranit zámek"
+  },
+  "5": {
+    "other": "Tentou soubor je zamčen jiným uživatelem, pravděpodobně je právě upravován, nemáte oprávnění jej v tomto okamžiku upravovat."
+  }
+}

@@ -1,0 +1,539 @@
+{
+  "1": {
+    "other": "Dados de Configuração"
+  },
+  "10": {
+    "other": "Origens Meta"
+  },
+  "100": {
+    "other": "Opções compartilhadas '%s' dos plugins"
+  },
+  "101": {
+    "other": "Nome"
+  },
+  "102": {
+    "other": "Login"
+  },
+  "103": {
+    "other": "Descrição"
+  },
+  "104": {
+    "other": "Habilitado"
+  },
+  "105": {
+    "other": "Verificações Automáticas"
+  },
+  "106": {
+    "other": "Login único"
+  },
+  "107": {
+    "other": "Configurações de Plugins"
+  },
+  "108": {
+    "other": "Documentação"
+  },
+  "109": {
+    "other": "Parâmetros de Aplicação"
+  },
+  "11": {
+    "other": "Adicionar uma origem"
+  },
+  "110": {
+    "other": "Áreas de Trabalho \u0026 Usuários"
+  },
+  "111": {
+    "other": "Logs \u0026 Outros Dados"
+  },
+  "112": {
+    "other": "\u003cb\u003eAplicar este papel por padrão\u003c/b\u003e a todos os novos usuários."
+  },
+  "113": {
+    "other": "Estado dos Papéis atualizado com sucesso"
+  },
+  "114": {
+    "other": "Aplica-se a"
+  },
+  "115": {
+    "other": "Esquema"
+  },
+  "116": {
+    "other": "Etiqueta do Modelo"
+  },
+  "117": {
+    "other": "Etiqueta do Controlador"
+  },
+  "118": {
+    "other": "Novo Grupo"
+  },
+  "119": {
+    "other": "Definir grupo do usuário"
+  },
+  "12": {
+    "other": "Plugin Meta"
+  },
+  "120": {
+    "other": "Go Pro"
+  },
+  "121": {
+    "other": "Obter suporte profissional para sua instalação"
+  },
+  "122": {
+    "other": "Todas as Configurações"
+  },
+  "123": {
+    "other": "Outros plugins"
+  },
+  "124": {
+    "other": "Origem"
+  },
+  "125": {
+    "other": "Alias"
+  },
+  "126": {
+    "other": "Tem certeza de que deseja apagar o(s) elemento(s) selecionado(s)?"
+  },
+  "127": {
+    "other": "AVISO: favor não utilizar caracteres especiais, usuário deve ser criado com o login '%s'"
+  },
+  "128": {
+    "other": "Grupo apagado com sucesso"
+  },
+  "129": {
+    "other": "Apagar cache de plugins"
+  },
+  "13": {
+    "other": "Tem certeza de que deseja apagar esta origem?"
+  },
+  "130": {
+    "other": "Apage o cache de plugins para listar novo plugins."
+  },
+  "131": {
+    "other": "Arquivos de cache de plugins apagados com sucesso!"
+  },
+  "132": {
+    "other": "Cache apagado, mas o modo SKIP_CACHE está habilitado (ver bootstrap_context.php)."
+  },
+  "133": {
+    "other": "Parâmetros de aplicação Core"
+  },
+  "134": {
+    "other": "Habilite/desabilite plugins de recursos adicional, verifique se estão funcionando corretamente, configure parametros globais dos plugins."
+  },
+  "135": {
+    "other": "Habilite/desabilite plugins core (auth, conf, mail, etc), verifique se estão funcionando corretamente. Configuração destes plugins são geralmente feitas em Opções Principais"
+  },
+  "136": {
+    "other": "Configurações globais do core e de cada plugin. Habilite/desabilite plugins"
+  },
+  "137": {
+    "other": "Dia-a-dia da administração da aplicação: quem acessa o que, criação de papéis, etc."
+  },
+  "138": {
+    "other": "Criar e Apagar áreas de trabalho, adicionar recursos utilizando origens meta."
+  },
+  "139": {
+    "other": "Gerenciar usuários e grupos"
+  },
+  "14": {
+    "other": "Verdadeiro"
+  },
+  "140": {
+    "other": "Definir perfis que podem ser aplicados de uma só vez em múltiplos usuários."
+  },
+  "141": {
+    "other": "Tarefas administrativas para monitorar o estado da aplicação."
+  },
+  "142": {
+    "other": "Monitore todas as atividades do servidor"
+  },
+  "143": {
+    "other": "Leia o diagnóstico inicial"
+  },
+  "144": {
+    "other": "Recursos para Desenvolvedores"
+  },
+  "145": {
+    "other": "Documentação gerada para desenvolvedores"
+  },
+  "146": {
+    "other": "API de ações"
+  },
+  "147": {
+    "other": "Lista de todas as ações de todos os plugins e visualização dos parêmetros de entrada"
+  },
+  "148": {
+    "other": "Definições Hooks"
+  },
+  "149": {
+    "other": "Lista de todos os hooks desencadeados na aplicação, sua documentação, onde são acionados e quais plugins os escutam."
+  },
+  "15": {
+    "other": "Falso"
+  },
+  "150": {
+    "other": "Selecione um repositório"
+  },
+  "151": {
+    "other": "Grupo Raiz"
+  },
+  "152": {
+    "other": "Papel Grupo Raiz"
+  },
+  "153": {
+    "other": "Aplica-se a toda a hierarquia de usuários"
+  },
+  "154": {
+    "other": "Repositório de Modelos"
+  },
+  "155": {
+    "other": "Controladores de Acesso"
+  },
+  "156": {
+    "other": "Padrão"
+  },
+  "157": {
+    "other": "Administrador"
+  },
+  "158": {
+    "other": "Compartilhado"
+  },
+  "159": {
+    "other": "Convidado"
+  },
+  "16": {
+    "other": "Data do Arquivo"
+  },
+  "160": {
+    "other": "Grupo criado com sucesso"
+  },
+  "161": {
+    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
+  },
+  "162": {
+    "other": "You are not authorized to update user %s"
+  },
+  "163": {
+    "other": "Roles reordered for user %s"
+  },
+  "164": {
+    "other": "Successfully updated roles"
+  },
+  "165": {
+    "other": "Successfully saved user preferences"
+  },
+  "166": {
+    "other": "Successfully set lock (%1) on user (%2)"
+  },
+  "167": {
+    "other": "Successfully unlocked user (%s)"
+  },
+  "168": {
+    "other": "%1 users were moved to group %2"
+  },
+  "169": {
+    "other": "No users were moved, there must have been something wrong!"
+  },
+  "17": {
+    "other": "Data"
+  },
+  "170": {
+    "other": "Enable %1 (%2)"
+  },
+  "171": {
+    "other": "Import Users (Enterprise only)"
+  },
+  "172": {
+    "other": "Services"
+  },
+  "173": {
+    "other": "Pydio Backend Services and their running status"
+  },
+  "18": {
+    "other": "I.P."
+  },
+  "19": {
+    "other": "Nível"
+  },
+  "2": {
+    "other": "Usuários"
+  },
+  "20": {
+    "other": "Usuário"
+  },
+  "21": {
+    "other": "Ação"
+  },
+  "22": {
+    "other": "Parâmetros"
+  },
+  "22a": {
+    "other": "Mais informações"
+  },
+  "23": {
+    "other": "Item testado"
+  },
+  "24": {
+    "other": "Valor do item"
+  },
+  "25": {
+    "other": "Acesso à Área de Trabalho"
+  },
+  "26": {
+    "other": "Alterar Senha"
+  },
+  "27": {
+    "other": "Direitos de Administrador"
+  },
+  "28": {
+    "other": "O Usuário tem permissões de administrador?"
+  },
+  "29": {
+    "other": "Ler"
+  },
+  "2b": {
+    "other": "Data Management"
+  },
+  "3": {
+    "other": "Áreas de Trabalho"
+  },
+  "30": {
+    "other": "Escrever"
+  },
+  "32": {
+    "other": "Controlador de Acesso"
+  },
+  "33": {
+    "other": "Carregando..."
+  },
+  "34": {
+    "other": "Tem certeza de que deseja apagar este usuário? Esta operação não é reversível!"
+  },
+  "35": {
+    "other": "Tem certeza de que deseja apagar esta Área de Trabalho? Esta operação não é reversível!"
+  },
+  "36": {
+    "other": "Campos obrigatórios não preenchidos!"
+  },
+  "37": {
+    "other": "AVISO: A confirmação difere da senha inserida!"
+  },
+  "38": {
+    "other": "Por favor preencha o campo de login!"
+  },
+  "39": {
+    "other": "Por favor preencha ambos os campos da senha!"
+  },
+  "3b": {
+    "other": "DataSources"
+  },
+  "3c": {
+    "other": "Template Paths"
+  },
+  "4": {
+    "other": "Logs"
+  },
+  "40": {
+    "other": "Por favor marque a caixa para confirmar!"
+  },
+  "41": {
+    "other": "Opções do Controlador"
+  },
+  "42": {
+    "other": "Por favor escolha um controlador!"
+  },
+  "43": {
+    "other": "O usuário já existe, por favor escolha outro Login!"
+  },
+  "44": {
+    "other": "Usuário criado com sucesso"
+  },
+  "45": {
+    "other": "Alterados os direitos de administrador para o usuário "
+  },
+  "46": {
+    "other": "Alterados os direitos para o usuário "
+  },
+  "47": {
+    "other": "Dados do usuário salvos "
+  },
+  "48": {
+    "other": "A senha foi mudada com sucesso para o usuário "
+  },
+  "49": {
+    "other": "Não foi possível alterar a senha"
+  },
+  "5": {
+    "other": "PHP"
+  },
+  "50": {
+    "other": "Erro: uma Área de Trabalho com o mesmo nome já existe"
+  },
+  "51": {
+    "other": "O diretório 'conf' não possui permissões de escrita"
+  },
+  "52": {
+    "other": "Área de Trabalho criada com sucesso! Pode agora adicionar algumas 'Origens de Metadados' para melhorar os conteúdos, adicionar Indexação automática, etc"
+  },
+  "53": {
+    "other": "Erro ao tentar editar Área de Trabalho"
+  },
+  "54": {
+    "other": "Área de Trabalho editada com sucesso"
+  },
+  "55": {
+    "other": "AVISO: No momento apenas uma instância de cada plugin meta pode ser adicionado."
+  },
+  "56": {
+    "other": "Adicionada origem meta com sucesso"
+  },
+  "57": {
+    "other": "Apagada origem meta com sucesso"
+  },
+  "58": {
+    "other": "Origem meta editada com sucesso"
+  },
+  "59": {
+    "other": "Área de Trabalho apagada com Sucesso"
+  },
+  "6": {
+    "other": "Nome"
+  },
+  "60": {
+    "other": "Usuário apagado com sucesso"
+  },
+  "61": {
+    "other": "Argumentos errados!"
+  },
+  "62": {
+    "other": "Resumo de Permissões"
+  },
+  "63": {
+    "other": "Todas"
+  },
+  "64": {
+    "other": "Alteradas as permissões para o papel "
+  },
+  "65": {
+    "other": "O nome do papel já existe, escolha outro nome!"
+  },
+  "66": {
+    "other": "Papel criado com sucesso"
+  },
+  "67": {
+    "other": "Impossível encontrar o papel "
+  },
+  "68": {
+    "other": "Papel apagado com Sucesso"
+  },
+  "69": {
+    "other": "Papéis"
+  },
+  "7": {
+    "other": "É Administrador"
+  },
+  "70": {
+    "other": "Papéis de Usuário"
+  },
+  "71": {
+    "other": "Papéis Disponíveis"
+  },
+  "72": {
+    "other": "Arraste os papéis para os atribuir a um usuário"
+  },
+  "73": {
+    "other": "Papel adicionado ao Usuário "
+  },
+  "74": {
+    "other": "Papel removido ao usuário "
+  },
+  "75": {
+    "other": "Novo papel"
+  },
+  "76": {
+    "other": "ID de Papel"
+  },
+  "77": {
+    "other": "Controle de Acesso"
+  },
+  "78": {
+    "other": "Dados Pessoais"
+  },
+  "79": {
+    "other": "Área de Trabalho"
+  },
+  "8": {
+    "other": "Etiqueta de Área de Trabalho"
+  },
+  "80": {
+    "other": "Ajustar acesso para este usuário (Clique na etiqueta de Área de Trabalho da qual deseja que seja a que é mostrada sempre que o usuário iniciar sessão)"
+  },
+  "81": {
+    "other": "Dados específicos da Área de Trabalho"
+  },
+  "82": {
+    "other": "Editar usuários em simultâneo"
+  },
+  "83": {
+    "other": "Arraste os papéis para os aplicar a todos os usuários (Usuários compartilhados serão ignorados)"
+  },
+  "84": {
+    "other": "Papéis de Usuário"
+  },
+  "85": {
+    "other": "Filtro de Ações Manual"
+  },
+  "86": {
+    "other": "Lista e ações separadas por virgulas que serão desativadas para este papel, não importa o tipo de permissão de acesso."
+  },
+  "87": {
+    "other": "Atualizadas as permissões com sucesso para este papel"
+  },
+  "88": {
+    "other": "Esta Área de Trabalho é definida no arquivo 'config', não pode editar as fontes meta da mesma usando a interface gráfica."
+  },
+  "89": {
+    "other": "Dados específicos de Usuário"
+  },
+  "9": {
+    "other": "Tipo de Acesso"
+  },
+  "90": {
+    "other": "Nova Área de Trabalho"
+  },
+  "91": {
+    "other": "Novo Modelo"
+  },
+  "92": {
+    "other": "Criar um novo modelo"
+  },
+  "93": {
+    "other": "Editar"
+  },
+  "94": {
+    "other": "Editar vários"
+  },
+  "95": {
+    "other": "Escolha uma etiqueta e um controlador para acessar aos dados (selecione todas as secções de campos obrigatórios, pode passar com o mouse sobre as etiquetas das mesmas para obter mais informações)."
+  },
+  "96": {
+    "other": "Uma vez que uma etiqueta e um controlador estejam seleccionados, habilite os campos que pretende preencher no modelo usando as caixas de selecção. Os outros campos serão deixados para o usuário. Pode ativar alguns campos e deixa-los vazios, caso pretenda ocultar os mesmos dos usuários."
+  },
+  "97": {
+    "other": "Opções do Plugin atualizadas com sucesso"
+  },
+  "98": {
+    "other": "Configurações do Core"
+  },
+  "99": {
+    "other": "Plugins de recursos"
+  },
+  "group_access": {
+    "other": "G"
+  },
+  "repository_access_key": {
+    "other": "A"
+  },
+  "role_access": {
+    "other": "p"
+  }
+}

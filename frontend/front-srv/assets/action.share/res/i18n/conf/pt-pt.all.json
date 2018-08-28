@@ -1,0 +1,233 @@
+{
+  "Allow users to generate public links on files": {
+    "other": "Allow users to generate public links on files"
+  },
+  "Allow users to generate public links on folders": {
+    "other": "Allow users to generate public links on folders"
+  },
+  "Allow users to manually choose a hash for the generated links": {
+    "other": "Allow users to manually choose a hash for the generated links"
+  },
+  "Authorizations": {
+    "other": "Authorizations"
+  },
+  "Autocomplete minimum chars": {
+    "other": "Autocomplete minimum chars"
+  },
+  "Autocompletion results limit": {
+    "other": "Autocompletion results limit"
+  },
+  "Avoid labels duplication": {
+    "other": "Avoid labels duplication"
+  },
+  "Background Attributes(1)": {
+    "other": "Background Attributes(1)"
+  },
+  "Background Attributes(2)": {
+    "other": "Background Attributes(2)"
+  },
+  "Background Attributes(3)": {
+    "other": "Background Attributes(3)"
+  },
+  "Background Color": {
+    "other": "Background Color"
+  },
+  "Create QRCode": {
+    "other": "Create QRCode"
+  },
+  "Create and display QRCode for shared link": {
+    "other": "Create and display QRCode for shared link"
+  },
+  "Custom Background (1)": {
+    "other": "Custom Background (1)"
+  },
+  "Custom Background (2)": {
+    "other": "Custom Background (2)"
+  },
+  "Custom Background (3)": {
+    "other": "Custom Background (3)"
+  },
+  "Disable Folder Sharing": {
+    "other": "Disable Folder Sharing"
+  },
+  "Disallow users to create shared folders if a workspace already exists with the same label": {
+    "other": "Disallow users to create shared folders if a workspace already exists with the same label"
+  },
+  "Do not allow users to create public links, only private links (password-protected)": {
+    "other": "Do not allow users to create public links, only private links (password-protected)"
+  },
+  "Download Button": {
+    "other": "Download Button"
+  },
+  "Download text": {
+    "other": "Download text"
+  },
+  "Download text w/ Pass": {
+    "other": "Download text w/ Pass"
+  },
+  "Enable folder sharing": {
+    "other": "Enable folder sharing"
+  },
+  "Enable folder sharing (workspace and minisite)": {
+    "other": "Enable folder sharing (workspace and minisite)"
+  },
+  "Enable internal file sharing (sharing with users existing or temporary users)": {
+    "other": "Enable internal file sharing (sharing with users existing or temporary users)"
+  },
+  "Enable internal folder sharing (sharing with users existing or temporary users)": {
+    "other": "Enable internal folder sharing (sharing with users existing or temporary users)"
+  },
+  "Enable public link generation for files": {
+    "other": "Enable public link generation for files"
+  },
+  "Enable public links for files": {
+    "other": "Enable public links for files"
+  },
+  "File location": {
+    "other": "Localização do ficheiro"
+  },
+  "Files: enable internal sharing": {
+    "other": "Files: enable internal sharing"
+  },
+  "Files: enable public links": {
+    "other": "Files: enable public links"
+  },
+  "Folder Sharing": {
+    "other": "Folder Sharing"
+  },
+  "Folders: enable internal sharing": {
+    "other": "Folders: enable internal sharing"
+  },
+  "Folders: enable public links": {
+    "other": "Folders: enable public links"
+  },
+  "Force External Mailer": {
+    "other": "Force External Mailer"
+  },
+  "Fork Events Forwarding": {
+    "other": "Fork Events Forwarding"
+  },
+  "Hash minimum length": {
+    "other": "Hash minimum length"
+  },
+  "Hash user-editable": {
+    "other": "Hash user-editable"
+  },
+  "Hidden file containing shared metadata": {
+    "other": "Ficheiro oculto que contém informação de Metadata partilhada"
+  },
+  "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
+    "other": "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server."
+  },
+  "Image used as a background": {
+    "other": "Image used as a background"
+  },
+  "Image used as a button for downloading the file": {
+    "other": "Image used as a button for downloading the file"
+  },
+  "Internal Sharing": {
+    "other": "Internal Sharing"
+  },
+  "Limit the number of results returned by the auto-completion feature when sharing a folder with other users": {
+    "other": "Limit the number of results returned by the auto-completion feature when sharing a folder with other users"
+  },
+  "Link Generation": {
+    "other": "Link Generation"
+  },
+  "Mandatory prefix for users created temporary users login": {
+    "other": "Mandatory prefix for users created temporary users login"
+  },
+  "Maximum download limit for file, 0 = unlimited": {
+    "other": "Maximum download limit for file, 0 = unlimited"
+  },
+  "Maximum file download limit": {
+    "other": "Maximum file download limit"
+  },
+  "Maximum file expiration limit": {
+    "other": "Maximum file expiration limit"
+  },
+  "Maximum share expiration limit for file, 0 = unlimited": {
+    "other": "Maximum share expiration limit for file, 0 = unlimited"
+  },
+  "Metadata File": {
+    "other": "Ficheiro de Metadata"
+  },
+  "Metadata Files": {
+    "other": "Metadata Files"
+  },
+  "Minimum length of the generated hash": {
+    "other": "Minimum length of the generated hash"
+  },
+  "Minimum number of characters to start getting results by auto-completion when sharing a folder with other users": {
+    "other": "Minimum number of characters to start getting results by auto-completion when sharing a folder with other users"
+  },
+  "Minisite": {
+    "other": "Minisite"
+  },
+  "Minisite Logo": {
+    "other": "Minisite Logo"
+  },
+  "Minisites and Workspaces": {
+    "other": "Minisites and Workspaces"
+  },
+  "Minisites only": {
+    "other": "Minisites only"
+  },
+  "Page Background Images": {
+    "other": "Page Background Images"
+  },
+  "Page Title": {
+    "other": "Page Title"
+  },
+  "Set password mandatory": {
+    "other": "Set password mandatory"
+  },
+  "Share Center actions and hooks": {
+    "other": "Centro de partilha de acções e ganchos(hooks)"
+  },
+  "Share page background color.": {
+    "other": "Share page background color."
+  },
+  "Share page text color.": {
+    "other": "Share page text color."
+  },
+  "Share page text shadow color.": {
+    "other": "Share page text shadow color."
+  },
+  "Shared users configurations": {
+    "other": "Shared users configurations"
+  },
+  "Sharing Features": {
+    "other": "Funções de Partilha"
+  },
+  "Text Color": {
+    "other": "Text Color"
+  },
+  "Text Shadow": {
+    "other": "Text Shadow"
+  },
+  "Tmp users prefix": {
+    "other": "Tmp users prefix"
+  },
+  "Top-right logo displayed on minisite page": {
+    "other": "Top-right logo displayed on minisite page"
+  },
+  "Use Rewrite Rule": {
+    "other": "Use Rewrite Rule"
+  },
+  "Use external mailer for invitations": {
+    "other": "Use external mailer for invitations"
+  },
+  "Use web server RewriteEngine mechanism to generate prettier URLs": {
+    "other": "Use web server RewriteEngine mechanism to generate prettier URLs"
+  },
+  "Weblink Page": {
+    "other": "Weblink Page"
+  },
+  "Where to store the metadata file : LOCAL means a hidden file will be created in each folder, GLOBAL means that one file will be created in DATA_PATH/plugins/action.share folder.": {
+    "other": "Onde guardar o ficheiro de Metadata : LOCAL significa que será criado um ficheiro oculto em cada pasta, GLOBAL significa que será criado um ficheiro na pasta 'DATA_PATH/plugins/action.share'."
+  },
+  "Workspaces only": {
+    "other": "Workspaces only"
+  }
+}

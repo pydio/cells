@@ -1,0 +1,53 @@
+{
+  "1": {
+    "other": "Surveiller..."
+  },
+  "10": {
+    "other": "Un utilisateur ouvre le fichier"
+  },
+  "10b": {
+    "other": "Un utilisateur explore ce répertoire"
+  },
+  "11": {
+    "other": "Modification"
+  },
+  "12": {
+    "other": "Un utilisateur modifie le ficher"
+  },
+  "12b": {
+    "other": "Un utilisateur modifie un ficher de ce répertoire"
+  },
+  "13": {
+    "other": "Les deux"
+  },
+  "14": {
+    "other": "Un utilisateur ouvre ou modifie le contenu du fichier"
+  },
+  "14b": {
+    "other": "Un utilisateur liste ou modifie le contenu du répertoire"
+  },
+  "2": {
+    "other": "Être alerté lors de l'accès à ce dossier"
+  },
+  "3": {
+    "other": "Arrêter la surveillance"
+  },
+  "4": {
+    "other": "Ne plus surveiller l'accès à ce dossier"
+  },
+  "5": {
+    "other": "Surveiller..."
+  },
+  "6": {
+    "other": "Surveiller les modifications de ce fichier"
+  },
+  "7": {
+    "other": "Ne plus surveiller"
+  },
+  "8": {
+    "other": "Ne plus surveiller les modifications de ce fichier"
+  },
+  "9": {
+    "other": "Consultation"
+  }
+}

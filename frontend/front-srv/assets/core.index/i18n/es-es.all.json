@@ -1,0 +1,32 @@
+{
+  "1": {
+    "other": "Indexar contenido"
+  },
+  "10": {
+    "other": "Indexando subdirectorios en segundo plano"
+  },
+  "2": {
+    "other": "Indexar el contenido de la carpeta"
+  },
+  "3": {
+    "other": "Ejecutando indexación en segundo plano"
+  },
+  "4": {
+    "other": "El índice parece estar bloqueado, puede que un proceso de indexación se esté realizando en este momento. En caso contrario borre el archivo .ajxp_lock localizado en la carpeta cache/indexes."
+  },
+  "5": {
+    "other": "Indexación finalizada"
+  },
+  "6": {
+    "other": "Atención, la carpeta actual está indexándose, inténtelo más tarde."
+  },
+  "7": {
+    "other": "Primera indexación de esta carpeta, por favor espere y reintente más tarde su búsqueda"
+  },
+  "8": {
+    "other": "Indexando %s en segundo plano"
+  },
+  "9": {
+    "other": "¡No se puede encontrar el índice de la carpeta actual! ¡Debería ejecutar la indexación de los datos primero!"
+  }
+}

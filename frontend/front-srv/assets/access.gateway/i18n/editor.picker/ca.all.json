@@ -1,0 +1,17 @@
+{
+  "1": {
+    "other": "Triar-ne un altre..."
+  },
+  "2": {
+    "other": "Triar un altre editor"
+  },
+  "3": {
+    "other": "Triar un altre editor per obrir aquest fitxer"
+  },
+  "4": {
+    "other": "Alerta, aquests editors do tenen el fitxer declarat com a suportat, el seu comportament pot ser impredictible!"
+  },
+  "5": {
+    "other": "Netejar les associacions"
+  }
+}

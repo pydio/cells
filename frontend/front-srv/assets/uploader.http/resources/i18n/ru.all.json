@@ -1,0 +1,68 @@
+{
+  "1": {
+    "other": "Remote DL"
+  },
+  "10": {
+    "other": "Загрузить в APPLICATION_TITLE"
+  },
+  "10a": {
+    "other": "Загрузить в  %s"
+  },
+  "10b": {
+    "other": "DL to %s"
+  },
+  "10c": {
+    "other": "DL to %s"
+  },
+  "10d": {
+    "other": "AjXp Download (%s)"
+  },
+  "11": {
+    "other": "Перетащите одну из ссылок в ваши закладки : "
+  },
+  "12": {
+    "other": "Trigger remote file download"
+  },
+  "13": {
+    "other": "С компьютера"
+  },
+  "14": {
+    "other": "С другого сервера"
+  },
+  "15": {
+    "other": "Или создайте закладки вручную, использовав приведённый код как ссылку (URL) : "
+  },
+  "16": {
+    "other": "Перетащи меня в закладки!"
+  },
+  "17": {
+    "other": "Загрузить файл"
+  },
+  "18": {
+    "other": "Partial file"
+  },
+  "2": {
+    "other": "Загрузить фал(ы) с другого сервера"
+  },
+  "3": {
+    "other": "m"
+  },
+  "4": {
+    "other": "Enter at least one URL pointing to a file that you want to download directly from an external HTTP server to the current folder. This action will be sent to the background and you will be able to continue using APPLICATION_TITLE during the download."
+  },
+  "5": {
+    "other": "URL"
+  },
+  "6": {
+    "other": "Downloading"
+  },
+  "7": {
+    "other": "на сервер"
+  },
+  "8": {
+    "other": "File downloaded, reloading the client!"
+  },
+  "9": {
+    "other": "Сгенерировать закладки"
+  }
+}

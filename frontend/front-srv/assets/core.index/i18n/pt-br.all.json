@@ -1,0 +1,32 @@
+{
+  "1": {
+    "other": "Indexar conteúdo"
+  },
+  "10": {
+    "other": "Sub-diretórios sendo indexados em segundo plano"
+  },
+  "2": {
+    "other": "Indexar conteúdo desta pasta"
+  },
+  "3": {
+    "other": "Executar Indexação em segundo plano"
+  },
+  "4": {
+    "other": "O Índice parece estar bloqueado, um processo de indexação pode estar sendo executado. Caso não, favor remover o arquivo '.ajxp_lock' localizado em 'cache/indexes'."
+  },
+  "5": {
+    "other": "Indexação completada"
+  },
+  "6": {
+    "other": "A Área de Trabalho está sendo indexada, favor tentar novamente mais tarde. Para forçar uma re-indexação, remova o arquivo '.ajxp_lock' localizado em 'data/cache/indexes'."
+  },
+  "7": {
+    "other": "Indexando pela primeira vez esta Área de Trabalho, por favor aguarde e tente efetuar novamente a sua pesquisa"
+  },
+  "8": {
+    "other": "A indexação de %s está sendo executada em segundo plano"
+  },
+  "9": {
+    "other": "Não foi possível encontrar um índice para a Área de Trabalho atual! Solicite uma indexação dos arquivos primeiro!"
+  }
+}

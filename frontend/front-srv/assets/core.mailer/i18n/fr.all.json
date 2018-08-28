@@ -1,0 +1,29 @@
+{
+  "1": {
+    "other": "Le courriel a été envoyé avec succès à %s utilisateur(s)"
+  },
+  "2": {
+    "other": "Impossible de trouver une adresse pour envoyer le courriel !"
+  },
+  "3": {
+    "other": "Aucun programme d'envoi de courriel n'a été trouvé, contactez votre administrateur"
+  },
+  "4": {
+    "other": "De"
+  },
+  "5": {
+    "other": "A"
+  },
+  "6": {
+    "other": "Sujet"
+  },
+  "7": {
+    "other": "Message"
+  },
+  "8": {
+    "other": "Utilisateur ou courriel"
+  },
+  "9": {
+    "other": "Résumé des notifications"
+  }
+}

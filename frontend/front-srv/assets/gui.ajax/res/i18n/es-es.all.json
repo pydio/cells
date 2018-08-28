@@ -1,0 +1,104 @@
+{
+  "tour.create-menu": {
+    "other": "Empiece a añadir nuevos archivos o carpetas al workpsace actual."
+  },
+  "tour.create-menu.title": {
+    "other": "Añadir archivos"
+  },
+  "tour.display-bar": {
+    "other": "Esta barra de herramientas le permite cambiar la visualización: cambiar a vista de miniaturas o de detalles, organizar archivos por nombre, fecha, etc."
+  },
+  "tour.display-bar.title": {
+    "other": "Opciones de Visualización"
+  },
+  "tour.globsearch.1": {
+    "other": "Use este campo de búsqueda para encontrar archivos o carpetas en cualquier workspace. Sólo se muestran los 5 primeros resultados, entre en el workspace para mostrar más resultados y opciones de búsqueda."
+  },
+  "tour.globsearch.2": {
+    "other": "Si no realiza una búsqueda, se muestra un historial reciente de archivos y carpetas accedidas recientemente."
+  },
+  "tour.globsearch.title": {
+    "other": "Búsqueda Global"
+  },
+  "tour.infopanel.1": {
+    "other": "Aquí encontrará información sobre la selección actual: información de archivo, estado del intercambio, metadatos definidos por el usuario, etc."
+  },
+  "tour.infopanel.2": {
+    "other": "Puede cerrar este panel usando el botón de información en la barra de visualización"
+  },
+  "tour.infopanel.file": {
+    "other": "Archivo"
+  },
+  "tour.infopanel.folder": {
+    "other": "Carpeta"
+  },
+  "tour.infopanel.search": {
+    "other": "Buscar"
+  },
+  "tour.infopanel.title": {
+    "other": "Panel de Información"
+  },
+  "tour.locale.back": {
+    "other": "Atrás"
+  },
+  "tour.locale.close": {
+    "other": "Cerrar"
+  },
+  "tour.locale.last": {
+    "other": "Finalizar"
+  },
+  "tour.locale.next": {
+    "other": "Siguiente"
+  },
+  "tour.locale.skip": {
+    "other": "Saltar"
+  },
+  "tour.openworkspace": {
+    "other": "Al ser su primera conexión su historial estará probablemente vacío. Entre en un workspace o un Cell para añadir archivos."
+  },
+  "tour.openworkspace.title": {
+    "other": "Abrir un workspace"
+  },
+  "tour.uwidget.addressbook": {
+    "other": "Directorio de todos los usuarios con acceso a la plataforma. Cree sus propios usuarios y equipos que para compartir recursos"
+  },
+  "tour.uwidget.alerts": {
+    "other": "El panel de alertas le informará cuando un usuario con quien ha compartido algún recurso acceda al mismo. Puede enviarle directamente un correo."
+  },
+  "tour.uwidget.home": {
+    "other": "Vuelva al panel de bienvenida con este botón"
+  },
+  "tour.uwidget.menu": {
+    "other": "Acceder a otras opciones: gestionar su perfil y opciones de seguridad, explorar recursos compartidos, salir de la plataforma."
+  },
+  "tour.uwidget.title": {
+    "other": "Cuadro de Usuario"
+  },
+  "tour.welcomemodal.skip": {
+    "other": "Salta"
+  },
+  "tour.welcomemodal.start": {
+    "other": "Empezar la visita"
+  },
+  "tour.welcomemodal.subtitle": {
+    "other": "¡Arrastre y suelte su mejor foto para su perfil! Le haremos una visita rápida para guiarle por la interfaz web."
+  },
+  "tour.welcomemodal.title": {
+    "other": "Bienvenido a APPLICATION_TITLE"
+  },
+  "tour.widget-cards": {
+    "other": "Puede añadir o quitar widgets aquí. También puede reordenarlos simplemente arrastrándolos."
+  },
+  "tour.widget-cards.title": {
+    "other": "Widgets"
+  },
+  "tour.workspaces.1": {
+    "other": "Los Workspaces son las carpetas superiores que le ayudarán a organizar sus datos. Puede tener acceso exclusivo o compartirlas con muchas gente."
+  },
+  "tour.workspaces.2": {
+    "other": "Otros usuarios pueden compartir sus carpetas con usted: también apareceran como Cells aquí."
+  },
+  "tour.workspaces.title": {
+    "other": "Workspaces \u0026 Cells"
+  }
+}

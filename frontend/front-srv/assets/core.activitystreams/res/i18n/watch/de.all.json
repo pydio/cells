@@ -1,0 +1,53 @@
+{
+  "1": {
+    "other": "Beobachten auf..."
+  },
+  "10": {
+    "other": "Benachrichtigen, wenn die Datei geöffnet wird"
+  },
+  "10b": {
+    "other": "Benachrichtigen, wenn Dateien des Ordners geöffnet werden"
+  },
+  "11": {
+    "other": "Veränderungen"
+  },
+  "12": {
+    "other": "Benachrichtigen, wenn die Datei bearbeitet wird"
+  },
+  "12b": {
+    "other": "Benachrichtigen, wenn Dateien des Ordners bearbeitet werden"
+  },
+  "13": {
+    "other": "Beides"
+  },
+  "14": {
+    "other": "Benachrichtigen, wenn die Datei bearbeitet oder geöffnet wird"
+  },
+  "14b": {
+    "other": "Benachrichtigen, wenn Dateien des Ordners bearbeitet oder geöffnet werden"
+  },
+  "2": {
+    "other": "Benachrichtigen, wenn auf dieses Element zugegriffen wird"
+  },
+  "3": {
+    "other": "Nicht mehr beobachten"
+  },
+  "4": {
+    "other": "Ordner nicht mehr auf Änderungen beobachten"
+  },
+  "5": {
+    "other": "Beobachten auf..."
+  },
+  "6": {
+    "other": "Diese Datei auf Änderungen beobachten"
+  },
+  "7": {
+    "other": "Nicht mehr beobachten"
+  },
+  "8": {
+    "other": "Datei nicht mehr auf Änderungen beobachten"
+  },
+  "9": {
+    "other": "Zugriffe"
+  }
+}

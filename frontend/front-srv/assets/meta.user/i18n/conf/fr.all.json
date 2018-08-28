@@ -1,0 +1,92 @@
+{
+  "Additional info": {
+    "other": "Info. complémentaires"
+  },
+  "Color labels": {
+    "other": "Etiquettes de couleur"
+  },
+  "Column visibility": {
+    "other": "Visibilité de la colonne"
+  },
+  "Columns visibility": {
+    "other": "Visibilité des colonnes"
+  },
+  "Comma separated list of fields, use standard characters here.": {
+    "other": "Liste des champs, séparés par des virgules. N'utilisez que des caractères standards."
+  },
+  "Comma separated list of labels, be sure to define as many as fields!": {
+    "other": "Liste des libellés séparés par des virgules, à associer aux champs. Attention à utiliser le même nombre."
+  },
+  "Created by...": {
+    "other": "Créé par..."
+  },
+  "Depending on the field type. Currently used for selection only": {
+    "other": "Dépend du type du champ. Actuellement utilisé uniquement pour les sélections"
+  },
+  "Field ID": {
+    "other": "ID du champ"
+  },
+  "Field Type": {
+    "other": "Type de champ"
+  },
+  "Hidden": {
+    "other": "Cachée"
+  },
+  "Hidden file used inside folders to save meta data": {
+    "other": "Nom du fichier caché dans les répertoires dans lequel stocker les méta-données"
+  },
+  "Id of fiels, use standard characters here.": {
+    "other": "Id des champs. N'utilisez que des caractères standards."
+  },
+  "Label": {
+    "other": "Label"
+  },
+  "Label of the field, human friendly": {
+    "other": "Label du champ, lisible par un humain"
+  },
+  "Last updated by...": {
+    "other": "Mis à jour par..."
+  },
+  "Long text": {
+    "other": "Texte long"
+  },
+  "Meta Fields": {
+    "other": "Champs méta"
+  },
+  "Meta File": {
+    "other": "Fichier méta"
+  },
+  "Meta Labels": {
+    "other": "Libellés méta"
+  },
+  "Selection (set choices in Additional Info)": {
+    "other": "Sélection (définir les valeurs dans 'Info. complémentaires')"
+  },
+  "Set default visibility for each columns. Either by columns, using commas, or one value that will be applied to all columns. Value can be 'visible' or 'hidden'.": {
+    "other": "Visibilité par défaut de chaque colonne. Soit par colonnes, en utilisant des virgules, ou une seule valeur qui sera appliquée à l'ensemble des colonnes. Utiliser 'visible' ou 'hidden'."
+  },
+  "Set default visibility.": {
+    "other": "Définir la visibilité par défaut."
+  },
+  "Short text": {
+    "other": "Texte court"
+  },
+  "Simple metadata implementation stored in a hidden file.": {
+    "other": "Métadonnées simples stockées dans un fichier caché."
+  },
+  "Stars Rating": {
+    "other": "Vote par étoiles"
+  },
+  "Tags (extensible sets of values)": {
+    "other": "Tags (ensemble de valeurs extensibles)"
+  },
+  "Text Metadata": {
+    "other": "Métadonnées texte"
+  },
+  "Type of field": {
+    "other": "Type de champ"
+  },
+  "Visible": {
+    "other": "Visible"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "Application Tab": {
+    "other": "Pestaña de Aplicación"
+  },
+  "Browser Tab": {
+    "other": "Pestaña del Navegador"
+  },
+  "Choose where the documents are opened": {
+    "other": "Elegir donde se abrirán los documentos"
+  },
+  "Choose where the http links are opened": {
+    "other": "Elegir donde se abrir los enlaces http"
+  },
+  "External Window": {
+    "other": "Ventana Externa"
+  },
+  "Open documents in...": {
+    "other": "Abrir documentos en..."
+  },
+  "Open file in a new browser window, thus using native browser capabilities.": {
+    "other": "Abrir archivo en una nueva ventana del navegador, se usa las capacidades nativa del navegador."
+  },
+  "Open link in...": {
+    "other": "Abrir enlace en..."
+  }
+}

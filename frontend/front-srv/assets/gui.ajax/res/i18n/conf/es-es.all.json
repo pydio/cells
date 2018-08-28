@@ -1,0 +1,272 @@
+{
+  "Additional JS frameworks": {
+    "other": "Framework JS adicional"
+  },
+  "Additional JS frameworks description": {
+    "other": "Lista separada por comas de rutas a archivos JS, los cuales serán cargados ANTES de que se cargue el framework de Pydio. Se prefiere el uso de plugins de declaración de recursos. La carga de archivos JS debe ser usado para casos concretos únicamente."
+  },
+  "An additionnal message displayed in the start up screen": {
+    "other": "Mensaje adicional que se muestra en la pantalla de inicio"
+  },
+  "Analytics Domain": {
+    "other": "Analytics Domain"
+  },
+  "Analytics Events": {
+    "other": "Analytics Events"
+  },
+  "Analytics ID": {
+    "other": "Analytics ID"
+  },
+  "Append a title to the image logo": {
+    "other": "Añadir título al logo"
+  },
+  "Application Title": {
+    "other": "Título de la Aplicación"
+  },
+  "Attributes of the image used as a background": {
+    "other": "Atributos de la imagen de fondo"
+  },
+  "Background Attributes (1)": {
+    "other": "Atributos del fondo (1)"
+  },
+  "Background Attributes (2)": {
+    "other": "Atributos del fondo (2)"
+  },
+  "Background Attributes (3)": {
+    "other": "Atributos del fondo (3)"
+  },
+  "Background Attributes (4)": {
+    "other": "Atributos del fondo (4)"
+  },
+  "Background Attributes (5)": {
+    "other": "Atributos del fondo (5)"
+  },
+  "Background Attributes (6)": {
+    "other": "Atributos del fondo (6)"
+  },
+  "Background Attributes (Low Resolution)": {
+    "other": "Atributos del Fondo (Baja Resolución)"
+  },
+  "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
+    "other": "Interfaz para navegador. Contiene la configuación para el tema, mensajes de bienvenida personalizados, etc."
+  },
+  "Center in Page (no-repeat)": {
+    "other": "Centrado (sin repetir)"
+  },
+  "Client Plugin": {
+    "other": "Plugin Cliente"
+  },
+  "Client Session Config": {
+    "other": "Configuración de Sesión del Cliente"
+  },
+  "Client Timeout": {
+    "other": "Tiempo de Expiración"
+  },
+  "Custom Background (1)": {
+    "other": "Fondo personalizado (1)"
+  },
+  "Custom Background (2)": {
+    "other": "Fondo personalizado (2)"
+  },
+  "Custom Background (3)": {
+    "other": "Fondo personalizado (3)"
+  },
+  "Custom Background (4)": {
+    "other": "Fondo personalizado (4)"
+  },
+  "Custom Background (5)": {
+    "other": "Fondo personalizado (5)"
+  },
+  "Custom Background (6)": {
+    "other": "Fondo personalizado (6)"
+  },
+  "Custom Icon": {
+    "other": "Icono Personalizado"
+  },
+  "Detected Encoding": {
+    "other": "Codificación Detectada"
+  },
+  "Detected Server Path": {
+    "other": "Ruta de Servidor Detectada"
+  },
+  "Display Branding Tool": {
+    "other": "Muestra la Herramienta de Estilo"
+  },
+  "Enable Welcome Tour": {
+    "other": "Enable Welcome Tour"
+  },
+  "Enable the small tour triggered at first visit": {
+    "other": "Enable the small tour triggered at first visit"
+  },
+  "Fetch Window (no repeat)": {
+    "other": "No repetir"
+  },
+  "Fetch Window (repeat vertically)": {
+    "other": "Repetir verticalmente"
+  },
+  "Font sized used for the title in the start up screen": {
+    "other": "Tamaño de la fuente usado para el título de la pantalla de inicio"
+  },
+  "Google Analytics": {
+    "other": "Google Analytics"
+  },
+  "Google Analytics Analytics Domain": {
+    "other": "Google Analytics Analytics Domain"
+  },
+  "Google Analytics Analytics Events": {
+    "other": "Google Analytics Analytics Events"
+  },
+  "Google Analytics Analytics ID": {
+    "other": "Google Analytics Analytics ID"
+  },
+  "Height of the custom icon (with the px mention)": {
+    "other": "Altura del icono (en px)"
+  },
+  "Icon Height": {
+    "other": "Altura Icono"
+  },
+  "Icon Only": {
+    "other": "Sólo Icono"
+  },
+  "Icon Path (Legacy)": {
+    "other": "Ruta de Icono (Antiguo)"
+  },
+  "Icon Width": {
+    "other": "Anchura Icono"
+  },
+  "Id of your GA account, something like UE-XXXX-YY": {
+    "other": "ID de tu cuenta GA, algo como UE-XXXX-YY"
+  },
+  "Image used as a background": {
+    "other": "Imagen de fondo"
+  },
+  "Login Screen": {
+    "other": "Página de Identificación"
+  },
+  "Logo": {
+    "other": "Logo"
+  },
+  "Logo Height": {
+    "other": "Altura Logo"
+  },
+  "Logo Left": {
+    "other": "Ajuste Izquierda Logo"
+  },
+  "Logo Top": {
+    "other": "Ajuste Alto Logo"
+  },
+  "Logo Width": {
+    "other": "Anchura Logo"
+  },
+  "Low-Resolution Background": {
+    "other": "Fondo Baja-Resolución"
+  },
+  "Main Options": {
+    "other": "Opciones Principales"
+  },
+  "Make sure to use a smaller resolution image, otherwise mobile loading is very slow.": {
+    "other": "Asegurate de que la imagen de fondo tiene baja resolución para evitar carga lenta en móviles."
+  },
+  "Manually set a left offset": {
+    "other": "Ajusta la posición izquierda del logo"
+  },
+  "Manually set a logo height": {
+    "other": "Configura la altura del logo"
+  },
+  "Manually set a logo width": {
+    "other": "Configura el ancho del logo"
+  },
+  "Manually set a top offset": {
+    "other": "Ajusta la posición superior del logo"
+  },
+  "Minisite": {
+    "other": "Minisite"
+  },
+  "Minisite Logo": {
+    "other": "Logo de Minisite"
+  },
+  "Number of MINUTES before the session expiration for issuing an alert to the user": {
+    "other": "Número de MINUTOS antes de que la sesión expiré para avisar al usuario."
+  },
+  "Override default styles and colors with the options defined in the branding tool. Make sure to reload the interface if you toggle this option.": {
+    "other": "Sobreescribe los estilos y colores por defecto por los definidos en la herramienta de estilo. Recargar la interfaz después de activar esta opción."
+  },
+  "Page Background Images": {
+    "other": "Imágenes de Fondo de la Página"
+  },
+  "Replace the logo displayed in the welcome page": {
+    "other": "Reemplaza el logo de la página de bienvenida"
+  },
+  "Replace the top left logo in the top toolbar": {
+    "other": "Reemplaza el logo de la esquina superior izquierda"
+  },
+  "Set the domain for your analytics reports (not mandatory!)": {
+    "other": "Configura el dominio para Analytics (no es necesario)"
+  },
+  "Set the domain for yuor analytics reports (not mandatory!)": {
+    "other": "Configura el dominio para Analytics (no es necesario)"
+  },
+  "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
+    "other": "Configura los parámetros de algunas aplicaciones. Si activas Emails, usa el botón Test para comprobar la configuración de PHP."
+  },
+  "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option.": {
+    "other": "Muestra la paleta para cambiar los colores de la interfaz y logos. Recargar la interfaz después de activar esta opción."
+  },
+  "Skip the title, only display an image": {
+    "other": "No muestra título, solo una imagen"
+  },
+  "Start Up Screen": {
+    "other": "Pantalla de Inicio"
+  },
+  "The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.": {
+    "other": "La duración de la sesión del cliente en SEGUNDOS. Por defecto, se copia la duración de sesión del servidor. En la mayoría de instalaciones PHP, es 1440 (24 minutos). Puedes configurarla como 0, esto hará la sesión del cliente infinita manteniendo la sesión PHP activa. Esto último no es recomendado por razones de seguridad."
+  },
+  "Theme": {
+    "other": "Tema"
+  },
+  "Theme used for display": {
+    "other": "Tema para mostrar"
+  },
+  "Tile (repeat both directions)": {
+    "other": "Mosáico"
+  },
+  "Title": {
+    "other": "Título"
+  },
+  "Title Font Size": {
+    "other": "Tamaño Fuente del Título"
+  },
+  "Top Toolbar": {
+    "other": "Barra Superior"
+  },
+  "Top-right logo displayed on minisite page": {
+    "other": "El logo mostrado en el minisite"
+  },
+  "URI to a custom image to be used as start up logo": {
+    "other": "URI de la imagen personalizada usada como logo en el inicio"
+  },
+  "Use Events Logging, experimental only implemented on download action in Pydio": {
+    "other": "Usa el registro de eventos, experimental, sólo implementado en descargas"
+  },
+  "Use configured branding": {
+    "other": "Usa el estilo configurado"
+  },
+  "User Home Logo": {
+    "other": "Logo Carpeta Personal"
+  },
+  "Warning Before": {
+    "other": "Aviso de Expiración"
+  },
+  "Web Session": {
+    "other": "Sesión Web"
+  },
+  "Welcome Message": {
+    "other": "Mensaje Bienvenida"
+  },
+  "Welcome Page": {
+    "other": "Página de Bienvenida"
+  },
+  "Width of the custom image (by default 35px)": {
+    "other": "Anchura de la imagen personalizada (por defecto 35px)"
+  }
+}

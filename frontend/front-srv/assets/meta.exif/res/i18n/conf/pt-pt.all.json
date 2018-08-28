@@ -1,0 +1,20 @@
+{
+  "Associated list of labels, be sure to define as many as fields!": {
+    "other": "Lista de associação de etiquetas, certifique-se de que define todos os campos!"
+  },
+  "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'.": {
+    "other": "Lista separada por virgulas, utilize a sintaxe 'EXIF_SECTION.ExifName'."
+  },
+  "Exif Metadata": {
+    "other": "Exif Metadata"
+  },
+  "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif": {
+    "other": "Extrai a Metadata EXIF de uma imagem JPG. Usado em conjunto com o editor.exif"
+  },
+  "Info Panel Fields": {
+    "other": "Informação de campos no painel"
+  },
+  "Info Panel Labels": {
+    "other": "Informação de Etiquetas de Painel"
+  }
+}

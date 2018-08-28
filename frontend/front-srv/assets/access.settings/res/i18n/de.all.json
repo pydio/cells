@@ -1,0 +1,539 @@
+{
+  "1": {
+    "other": "Konfigurationsdaten"
+  },
+  "10": {
+    "other": "Meta-Quelle"
+  },
+  "100": {
+    "other": "Allgemeine '%s' Erweiterungs-Einstellungen"
+  },
+  "101": {
+    "other": "Name"
+  },
+  "102": {
+    "other": "Bezeichnung"
+  },
+  "103": {
+    "other": "Beschreibung"
+  },
+  "104": {
+    "other": "Aktiv"
+  },
+  "105": {
+    "other": "Testergebnis"
+  },
+  "106": {
+    "other": "Einmalige ID"
+  },
+  "107": {
+    "other": "Erweiterungs-Konfigurationen"
+  },
+  "108": {
+    "other": "Dokumentation"
+  },
+  "109": {
+    "other": "Einstellungen"
+  },
+  "11": {
+    "other": "Quelle hinzufügen"
+  },
+  "110": {
+    "other": "Arbeitsumgebungen \u0026 Benutzer"
+  },
+  "111": {
+    "other": "Logs \u0026 Andere Daten"
+  },
+  "112": {
+    "other": "\u003cb\u003eDiese Rolle als Standard\u003c/b\u003e für alle Benutzer festlegen"
+  },
+  "113": {
+    "other": "Der Status der Rolle wurde erfogreich geändert"
+  },
+  "114": {
+    "other": "Standard"
+  },
+  "115": {
+    "other": "Schema"
+  },
+  "116": {
+    "other": "Vorlagen-Bezeichnung"
+  },
+  "117": {
+    "other": "Vorlagen-Treiber"
+  },
+  "118": {
+    "other": "Neue Gruppe"
+  },
+  "119": {
+    "other": "Benutzergruppe setzen"
+  },
+  "12": {
+    "other": "Meta-Erweiterung"
+  },
+  "120": {
+    "other": "Go Pro"
+  },
+  "121": {
+    "other": "Holen Sie sich professionelle Unterstützung für Ihr System"
+  },
+  "122": {
+    "other": "Alle Einstellungen"
+  },
+  "123": {
+    "other": "Kernfunktionalität"
+  },
+  "124": {
+    "other": "Quelle"
+  },
+  "125": {
+    "other": "Alias"
+  },
+  "126": {
+    "other": "Sind Sie sicher, dass Sie die ausgewählten Elemente löschen möchten?"
+  },
+  "127": {
+    "other": "Achtung, bitte verwenden Sie keine Sonderzeichen. Benutzer würde mit Login-ID '%s' erstellt werden."
+  },
+  "128": {
+    "other": "Gruppe erfolgreich gelöscht"
+  },
+  "129": {
+    "other": "Zwischenspeicher für Erweiterungen leeren"
+  },
+  "13": {
+    "other": "Möchten Sie die Quelle wirklich löschen?"
+  },
+  "130": {
+    "other": "Dies kann notwendig sein, damit neue Erweiterungen in der Liste erscheinen."
+  },
+  "131": {
+    "other": "Zwischenspeicher für Erweiterungen erfolgreich geleert!"
+  },
+  "132": {
+    "other": "Zwischenspeicher wurde geleert, aber Pydio läuft im SKIP_CACHE Modus (siehe bootstrap_context.php)."
+  },
+  "133": {
+    "other": "Grundeinstellungen der Anwendung"
+  },
+  "134": {
+    "other": "Zusätzliche Funktionen aktivieren und prüfen, ob diese korrekt funktionieren."
+  },
+  "135": {
+    "other": "Erweiterungen für Kernfunktionalität aktivieren. Die Erweiterungen werden in den Grundeinstellungen konfiguriert."
+  },
+  "136": {
+    "other": "Einstellungen der Anwendung, sowie aller Erweiterungen ändern"
+  },
+  "137": {
+    "other": "Zugriffsrechte und Benutzer verwalten"
+  },
+  "138": {
+    "other": "Arbeitsumgebungen erstellen und Funktionen und Metadaten festlegen."
+  },
+  "139": {
+    "other": "Benutzer und Gruppen verwalten"
+  },
+  "14": {
+    "other": "Wahr"
+  },
+  "140": {
+    "other": "Legt Profile fest, die auf eine Vielzahl von Benutzern anwendbar sind."
+  },
+  "141": {
+    "other": "Überwachung des Anwendungs-Status für administrative Aufgaben."
+  },
+  "142": {
+    "other": "Protokoll mit allen Anwendungs-Ereignissen auf dem Server"
+  },
+  "143": {
+    "other": "Informationen aus der Start-Diagnose"
+  },
+  "144": {
+    "other": "Informationen für Entwickler"
+  },
+  "145": {
+    "other": "Dokumentation für Entwickler"
+  },
+  "146": {
+    "other": "Aktions-API"
+  },
+  "147": {
+    "other": "Liste aller Aktionen der Erweiterungen und die zugehörigen Eingabeparameter"
+  },
+  "148": {
+    "other": "Hook-Definition"
+  },
+  "149": {
+    "other": "Liste aller Hooks mit Informationen, wo und von welchen Erweiterungen diese aufgerufen werden."
+  },
+  "15": {
+    "other": "Falsch"
+  },
+  "150": {
+    "other": "Eine Arbeitsumgebung auswählen"
+  },
+  "151": {
+    "other": "Haupt-Gruppe"
+  },
+  "152": {
+    "other": "Rolle der Haupt-Gruppe"
+  },
+  "153": {
+    "other": "Wird auf alle Benutzer in der Hierarchie angewendet"
+  },
+  "154": {
+    "other": "Vorlagen für Arbeitsumgebungen"
+  },
+  "155": {
+    "other": "Treiber"
+  },
+  "156": {
+    "other": "Standard"
+  },
+  "157": {
+    "other": "Administrator"
+  },
+  "158": {
+    "other": "Freigabebenutzer"
+  },
+  "159": {
+    "other": "Gast"
+  },
+  "16": {
+    "other": "Datum"
+  },
+  "160": {
+    "other": "Die Gruppe wurde erfolgreich erstellt"
+  },
+  "161": {
+    "other": "Sie sind dabei, Ihren Benutzer in eine Gruppe zu verschieben. Dadurch verlieren Sie die Super-Administrator-Berechtigungen. Bitte melden Sie sich mit einem anderen Benutzer an, um diese Aktion durchzuführen."
+  },
+  "162": {
+    "other": "Sie sind nicht dazu berechtigt, den Benutzer %s zu ändern."
+  },
+  "163": {
+    "other": "Rollen des Benutzers %s wurden neu sortiert"
+  },
+  "164": {
+    "other": "Die Rollen wurden erfolgreich aktualisiert"
+  },
+  "165": {
+    "other": "Die Benutzereinstellungen wurden erfolgreich gespeichert"
+  },
+  "166": {
+    "other": "Der Benutzer %2 wurde erfolgreich gesperrt (%1)."
+  },
+  "167": {
+    "other": "Der Benutzer %s wurde erfolgreich entsperrt"
+  },
+  "168": {
+    "other": "%1 Benutzer wurden in die Gruppe %2 verschoben"
+  },
+  "169": {
+    "other": "Durch einen Fehler wurden keine Benutzer verschoben."
+  },
+  "17": {
+    "other": "Datum"
+  },
+  "170": {
+    "other": "Aktiviere %1 (%2)"
+  },
+  "171": {
+    "other": "Benutzer importieren (nur Enterprise)"
+  },
+  "172": {
+    "other": "Services"
+  },
+  "173": {
+    "other": "Pydio Backend Services and their running status"
+  },
+  "18": {
+    "other": "IP"
+  },
+  "19": {
+    "other": "Ebene"
+  },
+  "2": {
+    "other": "Benutzer \u0026 Gruppen"
+  },
+  "20": {
+    "other": "Benutzer"
+  },
+  "21": {
+    "other": "Aktion"
+  },
+  "22": {
+    "other": "Param."
+  },
+  "22a": {
+    "other": "Mehr..."
+  },
+  "23": {
+    "other": "Test"
+  },
+  "24": {
+    "other": "Ergebnis"
+  },
+  "25": {
+    "other": "Arbeitsumgebung-Zugriffe"
+  },
+  "26": {
+    "other": "Passwort ändern"
+  },
+  "27": {
+    "other": "Adminrechte"
+  },
+  "28": {
+    "other": "Benutzer hat Adminrechte?"
+  },
+  "29": {
+    "other": "Lesen"
+  },
+  "2b": {
+    "other": "Data Management"
+  },
+  "3": {
+    "other": "Arbeitsumgebungen"
+  },
+  "30": {
+    "other": "Schreiben"
+  },
+  "32": {
+    "other": "Treiber"
+  },
+  "33": {
+    "other": "Lade..."
+  },
+  "34": {
+    "other": "Soll der Benutzer wirklich gelöscht werden? Dies kann nicht rückgängig gemacht werden!"
+  },
+  "35": {
+    "other": "Soll diese Arbeitsumgebung wirklich gelöscht werden? Dies kann nicht rückgängig gemacht werden!"
+  },
+  "36": {
+    "other": "Bitte alle Pflichtfelder ausfüllen!"
+  },
+  "37": {
+    "other": "Achtung, Passwörter stimmen nicht überein!"
+  },
+  "38": {
+    "other": "Bitte das Feld für den Benutzernamen ausfüllen!"
+  },
+  "39": {
+    "other": "Bitte beide Passwortfelder ausfüllen!"
+  },
+  "3b": {
+    "other": "DataSources"
+  },
+  "3c": {
+    "other": "Template Paths"
+  },
+  "4": {
+    "other": "Protokolle"
+  },
+  "40": {
+    "other": "Bitte zum Zustimmen einen Haken setzen!"
+  },
+  "41": {
+    "other": "Treiberoptionen"
+  },
+  "42": {
+    "other": "Bitte einen Treiber wählen!"
+  },
+  "43": {
+    "other": "Benutzer bereits vorhanden. Bitte wähle einen anderen Anmeldenamen."
+  },
+  "44": {
+    "other": "Benutzer erfolgreich erstellt"
+  },
+  "45": {
+    "other": "Geänderte Adminrechte von Benutzer "
+  },
+  "46": {
+    "other": "Rechte geändert von Benutzer "
+  },
+  "47": {
+    "other": "Daten gespeichert von Benutzer "
+  },
+  "48": {
+    "other": "Passwort erfolgreich geändert für Benutzer "
+  },
+  "49": {
+    "other": "Passwort kann nicht geändert werden"
+  },
+  "5": {
+    "other": "PHP"
+  },
+  "50": {
+    "other": "Fehler: Eine Arbeitsumgebung mit gleichem Namen ist bereits vorhanden"
+  },
+  "51": {
+    "other": "Der Konfigurations-Ordner (conf) ist schreibgeschützt"
+  },
+  "52": {
+    "other": "Arbeitsumgebung erfolgreich erstellt"
+  },
+  "53": {
+    "other": "Fehler beim Ändern der Arbeitsumgebung"
+  },
+  "54": {
+    "other": "Arbeitsumgebung erfolgreich geändert"
+  },
+  "55": {
+    "other": "Achtung, zur Zeit kann nur eine Instanz von jeder Meta-Erweiterung hinzugefügt werden."
+  },
+  "56": {
+    "other": "Meta Quelle erfolgreich hinzugefügt"
+  },
+  "57": {
+    "other": "Meta Quelle erfolgreich gelöscht"
+  },
+  "58": {
+    "other": "Meta Quelle erfolgreich geändert"
+  },
+  "59": {
+    "other": "Arbeitsumgebung erfolgreich gelöscht"
+  },
+  "6": {
+    "other": "Name"
+  },
+  "60": {
+    "other": "Benutzer erfolgreich entfernt"
+  },
+  "61": {
+    "other": "Fehlerhafte Parameter!"
+  },
+  "62": {
+    "other": "Rechte"
+  },
+  "63": {
+    "other": "Alle"
+  },
+  "64": {
+    "other": "Rechte der Rolle ändern "
+  },
+  "65": {
+    "other": "Die Rolle ist bereits vorhanden, bitte einen anderen Namen wählen!"
+  },
+  "66": {
+    "other": "Rolle erfolgreich erstellt"
+  },
+  "67": {
+    "other": "Rolle wurde nicht gefunden: "
+  },
+  "68": {
+    "other": "Rolle erfolgreich entfernt"
+  },
+  "69": {
+    "other": "Benutzerrollen"
+  },
+  "7": {
+    "other": "Ist Admin"
+  },
+  "70": {
+    "other": "Benutzerrollen"
+  },
+  "71": {
+    "other": "Verfügbare Rollen"
+  },
+  "72": {
+    "other": "Drag'n'Drop der Rollen um diese einem Benutzer zuzuweisen"
+  },
+  "73": {
+    "other": "Rolle dem Benutzer hinzugefügt "
+  },
+  "74": {
+    "other": "Rolle vom Benutzer entfernt "
+  },
+  "75": {
+    "other": "Neue Rolle"
+  },
+  "76": {
+    "other": "Rollen ID"
+  },
+  "77": {
+    "other": "Zugriffssteuerung"
+  },
+  "78": {
+    "other": "Persönliche Daten"
+  },
+  "79": {
+    "other": "Arbeitsumgebung"
+  },
+  "8": {
+    "other": "Bezeichnung"
+  },
+  "80": {
+    "other": "Detaillierter Zugriff für diesen Benutzer (auf eine Arbeitsumgebung klicken, um diese bei der Benutzeranmeldung standardmäßig öffnen zu lassen)"
+  },
+  "81": {
+    "other": "Typische Arbeitsumgebung-Inhalte"
+  },
+  "82": {
+    "other": "Benutzer-Batch editieren"
+  },
+  "83": {
+    "other": "Drag'n'Drop der Rollen um diese allen ausgewählten Benutzern zuzuweisen (Freigaben-Benutzer werden übersprungen)"
+  },
+  "84": {
+    "other": "Benutzerrollen"
+  },
+  "85": {
+    "other": "Aktionen manuell filtern"
+  },
+  "86": {
+    "other": "Eine Liste mit komma-getrennten Aktionen, die für diese Rolle deaktiviert sind, ohne Einfluss auf die Zugriffsrechte"
+  },
+  "87": {
+    "other": "Aktionen für diese Rolle erfolgreich aktualisiert"
+  },
+  "88": {
+    "other": "Diese Arbeitsumgebung ist in einer Config-Datei definiert. Die Erweiterungen können daher über die Oberfläche nicht geändert werden."
+  },
+  "89": {
+    "other": "Spezielle Benutzerdaten"
+  },
+  "9": {
+    "other": "Zugriffstyp"
+  },
+  "90": {
+    "other": "Neue Arbeitsumgebung"
+  },
+  "91": {
+    "other": "Vorlagen"
+  },
+  "92": {
+    "other": "Neue Vorlage erstellen"
+  },
+  "93": {
+    "other": "Bearbeiten"
+  },
+  "94": {
+    "other": "Mehrere Bearbeiten"
+  },
+  "95": {
+    "other": "Bitte konfigurieren Sie eine Bezeichnung und den Treiber für den Datenzugriff. Alle Pflichtfelder in den einzelnen Regionen müssen befüllt werden."
+  },
+  "96": {
+    "other": "Wenn eine Bezeichnung vergeben und der Treiber ausgewählt wurde, dann aktivieren Sie die Felder, die in der Vorlage ausgefüllt sein sollen mit Hilfe der Checkboxen. Die übrigen Felder kann der Benutzer ändern. Wenn ein Feld aktiviert und leer gelassen wird, dann wird das Feld vor dem Benutzer versteckt."
+  },
+  "97": {
+    "other": "Einstellungen der Erweiterung erfolgreich aktualisiert"
+  },
+  "98": {
+    "other": "Grundeinstellungen"
+  },
+  "99": {
+    "other": "Erweiterungen"
+  },
+  "group_access": {
+    "other": "G"
+  },
+  "repository_access_key": {
+    "other": "N"
+  },
+  "role_access": {
+    "other": "o"
+  }
+}

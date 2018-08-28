@@ -1,0 +1,20 @@
+{
+  "Associated list of labels, be sure to define as many as fields!": {
+    "other": "Durch Komma getrennte Liste mit den Titeln der einzelnen Exif-Felder. Zu jedem Exif-Feld muss es einen Titel geben!"
+  },
+  "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'.": {
+    "other": "Durch Komma getrennte Liste mit Exif-Feldnamen. Verwendete Syntax: 'EXIF_SECTION.ExifName'."
+  },
+  "Exif Metadata": {
+    "other": "Exif-Metadaten"
+  },
+  "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif": {
+    "other": "Extrahiert die EXIF-Metadaten aus JPG-Bildern. In Verbindung mit editor.exif verwendet."
+  },
+  "Info Panel Fields": {
+    "other": "Exif-Felder im Info-Bereich"
+  },
+  "Info Panel Labels": {
+    "other": "Titel der Felder im Info-Bereich"
+  }
+}

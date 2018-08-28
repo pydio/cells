@@ -1,0 +1,17 @@
+{
+  "1": {
+    "other": "Anderer Editor..."
+  },
+  "2": {
+    "other": "Die Datei in einem anderen Editor öffnen"
+  },
+  "3": {
+    "other": "Einen anderen Editor zum Öffnen dieser Datei wählen"
+  },
+  "4": {
+    "other": "Achtung, einige Editoren unterstützen diesen Dateityp nicht. Das Verhalten dieser Editoren ist nicht vorhersehbar."
+  },
+  "5": {
+    "other": "Zuordnung löschen"
+  }
+}

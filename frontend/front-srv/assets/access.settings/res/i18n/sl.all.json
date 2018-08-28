@@ -1,0 +1,539 @@
+{
+  "1": {
+    "other": "Podatki o nastavitvah"
+  },
+  "10": {
+    "other": "Metaviri"
+  },
+  "100": {
+    "other": "Common '%s' plugins options"
+  },
+  "101": {
+    "other": "Name"
+  },
+  "102": {
+    "other": "Identifier"
+  },
+  "103": {
+    "other": "Description"
+  },
+  "104": {
+    "other": "Active"
+  },
+  "105": {
+    "other": "Automatic checks"
+  },
+  "106": {
+    "other": "Unique Identifier"
+  },
+  "107": {
+    "other": "Plugin Configurations"
+  },
+  "108": {
+    "other": "Documentation"
+  },
+  "109": {
+    "other": "Global Configurations"
+  },
+  "11": {
+    "other": "Dodaj vir"
+  },
+  "110": {
+    "other": "Repositories \u0026 Users"
+  },
+  "111": {
+    "other": "Logs \u0026 Other Data"
+  },
+  "112": {
+    "other": "\u003cb\u003eApply this role by default\u003c/b\u003e to all new users."
+  },
+  "113": {
+    "other": "Role status was successfully modified"
+  },
+  "114": {
+    "other": "Default"
+  },
+  "115": {
+    "other": "Scheme"
+  },
+  "116": {
+    "other": "Template Label"
+  },
+  "117": {
+    "other": "Template Driver"
+  },
+  "118": {
+    "other": "New group"
+  },
+  "119": {
+    "other": "Set user group"
+  },
+  "12": {
+    "other": "Metavtičnik"
+  },
+  "120": {
+    "other": "Go Pro"
+  },
+  "121": {
+    "other": "Get professional support for your install"
+  },
+  "122": {
+    "other": "All Settings"
+  },
+  "123": {
+    "other": "Other plugins"
+  },
+  "124": {
+    "other": "Source"
+  },
+  "125": {
+    "other": "Alias"
+  },
+  "126": {
+    "other": "Are you sure that you want to delete the selected element(s)?"
+  },
+  "127": {
+    "other": "Warning, please do not use special characters, user would be created with login id '%s'"
+  },
+  "128": {
+    "other": "Successfully deleted group"
+  },
+  "129": {
+    "other": "Refresh plugins cache"
+  },
+  "13": {
+    "other": "Ali res želite izbrisati ta vir?"
+  },
+  "130": {
+    "other": "Clear plugins cache, can be necessary to see new plugins appear in the list."
+  },
+  "131": {
+    "other": "Plugins cache files were deleted succesfully!"
+  },
+  "132": {
+    "other": "Cache cleared, but you are currently running in SKIP_CACHE mode (see bootstrap_context.php)."
+  },
+  "133": {
+    "other": "Core application parameters"
+  },
+  "134": {
+    "other": "Enable/disable additional feature-oriented plugins, check if they are correctly working, set up global parameters of the plugins."
+  },
+  "135": {
+    "other": "Enable/disable core plugins (auth, conf, mail, etc), check if they are correctly working. Configuration of these plugins are generally done through the Main Options"
+  },
+  "136": {
+    "other": "Global configurations of the application core and of each plugin. Enable/disable plugins"
+  },
+  "137": {
+    "other": "Day-to-day administration of the application : who accesses to what, create roles, etc."
+  },
+  "138": {
+    "other": "Create and delete workspaces, add features to them using meta sources."
+  },
+  "139": {
+    "other": "Manage users and groups"
+  },
+  "14": {
+    "other": "Da"
+  },
+  "140": {
+    "other": "Define profiles that can be applied at once to whole bunch of users."
+  },
+  "141": {
+    "other": "Administrator tasks to monitor the application state."
+  },
+  "142": {
+    "other": "Monitor all activities happening on the server"
+  },
+  "143": {
+    "other": "Read the start-up diagnostic"
+  },
+  "144": {
+    "other": "Developer Resources"
+  },
+  "145": {
+    "other": "Generated documentations for developers"
+  },
+  "146": {
+    "other": "Actions API"
+  },
+  "147": {
+    "other": "List all actions contributed by all plugins and visualize their input parameters"
+  },
+  "148": {
+    "other": "Hooks Definitions"
+  },
+  "149": {
+    "other": "List all hooks triggered in the application, their documentation, where there are triggered and which plugin listen to them."
+  },
+  "15": {
+    "other": "Ne"
+  },
+  "150": {
+    "other": "Select a repository"
+  },
+  "151": {
+    "other": "Root Group"
+  },
+  "152": {
+    "other": "Root Group Role"
+  },
+  "153": {
+    "other": "Applies to the whole hierarchy of users"
+  },
+  "154": {
+    "other": "Repository Templates"
+  },
+  "155": {
+    "other": "Access Drivers"
+  },
+  "156": {
+    "other": "Standard"
+  },
+  "157": {
+    "other": "Administrator"
+  },
+  "158": {
+    "other": "Shared"
+  },
+  "159": {
+    "other": "Guest"
+  },
+  "16": {
+    "other": "Datum datoteke"
+  },
+  "160": {
+    "other": "Group was successfully created"
+  },
+  "161": {
+    "other": "You are attempting to move yourself inside a group, and you will loose super-admininistrative rights. Please login as another user if you really want to do that. Aborting."
+  },
+  "162": {
+    "other": "You are not authorized to update user %s"
+  },
+  "163": {
+    "other": "Roles reordered for user %s"
+  },
+  "164": {
+    "other": "Successfully updated roles"
+  },
+  "165": {
+    "other": "Successfully saved user preferences"
+  },
+  "166": {
+    "other": "Successfully set lock (%1) on user (%2)"
+  },
+  "167": {
+    "other": "Successfully unlocked user (%s)"
+  },
+  "168": {
+    "other": "%1 users were moved to group %2"
+  },
+  "169": {
+    "other": "No users were moved, there must have been something wrong!"
+  },
+  "17": {
+    "other": "Datum"
+  },
+  "170": {
+    "other": "Enable %1 (%2)"
+  },
+  "171": {
+    "other": "Import Users (Enterprise only)"
+  },
+  "172": {
+    "other": "Services"
+  },
+  "173": {
+    "other": "Pydio Backend Services and their running status"
+  },
+  "18": {
+    "other": "IP-naslov"
+  },
+  "19": {
+    "other": "Raven"
+  },
+  "2": {
+    "other": "Uporabniki"
+  },
+  "20": {
+    "other": "Uporabnik"
+  },
+  "21": {
+    "other": "Ukrep"
+  },
+  "22": {
+    "other": "Parametri"
+  },
+  "22a": {
+    "other": "Parametri"
+  },
+  "23": {
+    "other": "Preizkus"
+  },
+  "24": {
+    "other": "Izid"
+  },
+  "25": {
+    "other": "Dostop do zbirke"
+  },
+  "26": {
+    "other": "Spremenite geslo"
+  },
+  "27": {
+    "other": "Skrbniške pravice"
+  },
+  "28": {
+    "other": "Dodelim skrbniške pravice?"
+  },
+  "29": {
+    "other": "Branje"
+  },
+  "2b": {
+    "other": "Data Management"
+  },
+  "3": {
+    "other": "Zbirke"
+  },
+  "30": {
+    "other": "Pisanje"
+  },
+  "32": {
+    "other": "Gonilnik zbirke"
+  },
+  "33": {
+    "other": "Nalaganje..."
+  },
+  "34": {
+    "other": "Ali res želite izbrisati ta uporabniški račun? Ta operacija ni reverzibilna!"
+  },
+  "35": {
+    "other": "Ali res želite izbrisati to zbirko? Ta operacija ni reverzibilna!"
+  },
+  "36": {
+    "other": "Obvezna polja niso izpolnjena!"
+  },
+  "37": {
+    "other": "Opozorilo, geslo se razlikuje od potrditve!"
+  },
+  "38": {
+    "other": "Prosim izpolnite polje \u0026quot;Uporabnik\u0026quot;!"
+  },
+  "39": {
+    "other": "Prosim izpolnite polje \u0026quot;Geslo\u0026quot;!"
+  },
+  "3b": {
+    "other": "DataSources"
+  },
+  "3c": {
+    "other": "Template Paths"
+  },
+  "4": {
+    "other": "Dnevniki"
+  },
+  "40": {
+    "other": "Prosim, označite polje za potrditev!"
+  },
+  "41": {
+    "other": "Možnosti gonilnika"
+  },
+  "42": {
+    "other": "Prosim izberite gonilnik!"
+  },
+  "43": {
+    "other": "Uporabnik že obstaja, prosim izberite drugo ime!"
+  },
+  "44": {
+    "other": "Uporabnik uspešno ustvarjen"
+  },
+  "45": {
+    "other": "Skrbniška dovoljenja uspešno spremenjena uporaniku "
+  },
+  "46": {
+    "other": "Dovoljenja uspešno spremenjena uporaniku "
+  },
+  "47": {
+    "other": "Podatki uspešno shranjeni pri uporabniku "
+  },
+  "48": {
+    "other": "Geslo uspešno spremenjeno pri uporabniku "
+  },
+  "49": {
+    "other": "Gesla ni mogoče posodobiti"
+  },
+  "5": {
+    "other": "PHP"
+  },
+  "50": {
+    "other": "Napaka: zbirka s tem imenom že obstaja"
+  },
+  "51": {
+    "other": "Mapa conf ni zapisljiva"
+  },
+  "52": {
+    "other": "Zbirka uspešno ustvarjena"
+  },
+  "53": {
+    "other": "Napaka pri urejanju zbirke"
+  },
+  "54": {
+    "other": "Urejanje zbirke uspešno"
+  },
+  "55": {
+    "other": "Opozorilo, trenutno ni možno dodajanje več metavtičnikov naenkrat."
+  },
+  "56": {
+    "other": "Metavir uspešno dodan"
+  },
+  "57": {
+    "other": "Metavir uspešno odstranjen"
+  },
+  "58": {
+    "other": "Urejanje metavira uspešno"
+  },
+  "59": {
+    "other": "Metavir uspešno izbrisan"
+  },
+  "6": {
+    "other": "Uporabniško ime"
+  },
+  "60": {
+    "other": "Uporabnik uspešno izbrisan"
+  },
+  "61": {
+    "other": "Napačne utemeljitve!"
+  },
+  "62": {
+    "other": "Povzetek pravic"
+  },
+  "63": {
+    "other": "Vse"
+  },
+  "64": {
+    "other": "Spremenjene pravice pri vlogi "
+  },
+  "65": {
+    "other": "Vloga že obstaja, izberite drugo ime!"
+  },
+  "66": {
+    "other": "Vloga uspešno ustvarjena"
+  },
+  "67": {
+    "other": "Ni mogoče najti vloge "
+  },
+  "68": {
+    "other": "Vloga uspešno izbrisana"
+  },
+  "69": {
+    "other": "Vloge"
+  },
+  "7": {
+    "other": "Je skrbnik"
+  },
+  "70": {
+    "other": "Dodeljene vloge"
+  },
+  "71": {
+    "other": "Razpoložljive vloge"
+  },
+  "72": {
+    "other": "Povleci in spusti vlogo, da se dodeli uporabniku"
+  },
+  "73": {
+    "other": "Vloga dodeljena uporabniku "
+  },
+  "74": {
+    "other": "Vloga odvzeta uporabniku "
+  },
+  "75": {
+    "other": "Nova vloga"
+  },
+  "76": {
+    "other": "ID vloge"
+  },
+  "77": {
+    "other": "Nadzor dostopa"
+  },
+  "78": {
+    "other": "Osebni podatki"
+  },
+  "79": {
+    "other": "Zbirka"
+  },
+  "8": {
+    "other": "Ime zbirke"
+  },
+  "80": {
+    "other": "Fino nastavljanje pravic uporabnika  (Click on a repository label if you wish to make it the default workspace when user logs in)"
+  },
+  "81": {
+    "other": "Posebne nastavitve zbirk"
+  },
+  "82": {
+    "other": "Serijsko urejanje"
+  },
+  "83": {
+    "other": "Povleci in spusti vloge za dodelitev uporabnikom (uporabniki skupne rabe se preskočijo)"
+  },
+  "84": {
+    "other": "Uporabnikove vloge"
+  },
+  "85": {
+    "other": "Filter ročnih ukrepov"
+  },
+  "86": {
+    "other": "seznam z vejico ločenih dejanj ki bodo onemogočeni za to vlogo, neglede na pravice dostopa."
+  },
+  "87": {
+    "other": "Dovoljena dejanja za to vlogo so bila uspešno posodobljena"
+  },
+  "88": {
+    "other": "Ta zbirka je opredeljeno v config datoteki, urejanje metavirov ni mogoče preko GUV."
+  },
+  "89": {
+    "other": "Posebne nastavitve uporabnika"
+  },
+  "9": {
+    "other": "Vrsta dostopa"
+  },
+  "90": {
+    "other": "Repository"
+  },
+  "91": {
+    "other": "Template"
+  },
+  "92": {
+    "other": "Create a new template"
+  },
+  "93": {
+    "other": "Edit"
+  },
+  "94": {
+    "other": "Batch Edit"
+  },
+  "95": {
+    "other": "Choose a label and a driver to access the data (check all sections for mandatory fields, you can hover the options labels with your mouse to get more info)."
+  },
+  "96": {
+    "other": "Once a label and driver selected, enable the fields you want to be prefilled in the template using the checkboxes. The other fields will be left to the user. You can enable some fields and leave them empty, if you still want to hide them from the user."
+  },
+  "97": {
+    "other": "Plugin options successfully updated"
+  },
+  "98": {
+    "other": "Core Configs"
+  },
+  "99": {
+    "other": "Plugins"
+  },
+  "group_access": {
+    "other": "g"
+  },
+  "repository_access_key": {
+    "other": "N"
+  },
+  "role_access": {
+    "other": "v"
+  }
+}

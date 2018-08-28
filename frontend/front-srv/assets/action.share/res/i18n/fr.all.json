@@ -1,0 +1,893 @@
+{
+  "1": {
+    "other": "Téléchargement public %s"
+  },
+  "10": {
+    "other": "Répertoire partagé"
+  },
+  "100": {
+    "other": "Fichiers partagés"
+  },
+  "101": {
+    "other": "Tous les fichiers partagés en tant que liens publics"
+  },
+  "102": {
+    "other": "Répertoires partagés"
+  },
+  "103": {
+    "other": "Tous les répertoires partagés comme dépôts ou minisites."
+  },
+  "104": {
+    "other": "Affichage du premier lien, il y en a %s autres"
+  },
+  "105": {
+    "other": "Affichage du premier lien, il y en a un autre"
+  },
+  "106": {
+    "other": "Voulez vous remettre à zéro le compteur ?"
+  },
+  "107": {
+    "other": "Le nombre de téléchargements doit être compris entre 1 et %s"
+  },
+  "108": {
+    "other": "Utilisez un lecteur de QRCode pour scanner l'image "
+  },
+  "109": {
+    "other": "Utilisateur minisite"
+  },
+  "11": {
+    "other": "Expiration"
+  },
+  "110": {
+    "other": "Partager.."
+  },
+  "110b": {
+    "other": "Partage"
+  },
+  "111": {
+    "other": "Partager cette page avec d'autres personnes"
+  },
+  "112": {
+    "other": "Partager cette page"
+  },
+  "113": {
+    "other": "En tant que nouveau dépôt"
+  },
+  "114": {
+    "other": "Partager ce répertoire avec des utilisateurs internes"
+  },
+  "115": {
+    "other": "En tant que lien"
+  },
+  "116": {
+    "other": "Publier le contenu du répertoire en tant que minisite"
+  },
+  "117": {
+    "other": "En tant que minisite protégé"
+  },
+  "118": {
+    "other": "Minisite protégé par mot de passe"
+  },
+  "119": {
+    "other": "Lien de téléchargement"
+  },
+  "12": {
+    "other": "Mot de passe"
+  },
+  "120": {
+    "other": "Page de téléchargement simple"
+  },
+  "121": {
+    "other": "Lien public"
+  },
+  "122": {
+    "other": "Créer une URL publique"
+  },
+  "123": {
+    "other": "Sélection comme minisite"
+  },
+  "124": {
+    "other": "Publier la sélection courante"
+  },
+  "125": {
+    "other": "Editer le partage"
+  },
+  "126": {
+    "other": "Editer / stopper un partage existant"
+  },
+  "127": {
+    "other": "Migrer les anciens"
+  },
+  "128": {
+    "other": "Migrer les anciens partages"
+  },
+  "129": {
+    "other": "Copier l'URL"
+  },
+  "13": {
+    "other": "Oui"
+  },
+  "130": {
+    "other": "Copier l'URL vers votre presse-papier"
+  },
+  "131": {
+    "other": "Pas de fichiers ou de dossiers partagés pour le moment."
+  },
+  "132": {
+    "other": "Dépôt"
+  },
+  "133": {
+    "other": "En tant que lien public"
+  },
+  "134": {
+    "other": "En tant que dépôt"
+  },
+  "135": {
+    "other": "Le répertoire apparaîtra comme un minisite dans le navigateur"
+  },
+  "136": {
+    "other": "Le contenu du répertoire apparîtra comme un nouveau dépôt pour les utilisateurs de l'application"
+  },
+  "137": {
+    "other": "Partager le fichier sélectionné via un lien public"
+  },
+  "138": {
+    "other": "Vous avez partagé ce dossier via un lien public (minisite)."
+  },
+  "138b": {
+    "other": "Vous avez partagé ce dossier via un lien public, mais il est actuellement inactif (expiré)."
+  },
+  "139": {
+    "other": "Vous avez partagé ce dossier, comme un dépôt, avec des utilisateurs de l'application."
+  },
+  "139b": {
+    "other": "Vous avez partagé ce dossier comme un dépôt, , mais il est actuellement inactif (expiré)."
+  },
+  "14": {
+    "other": "Non"
+  },
+  "140": {
+    "other": "Vous avez partagé ce fichier via un lien public."
+  },
+  "140b": {
+    "other": "Vous avez partagé ce fichier via un lien public, mais il est actuellement inactif (expiré)."
+  },
+  "141": {
+    "other": "Changer les paramètres"
+  },
+  "142": {
+    "other": "Cacher les paramètres"
+  },
+  "143": {
+    "other": "Utilisez \u003ckbd\u003eCtrl\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e pour copier le lien"
+  },
+  "144": {
+    "other": "Utilisez \u003ckbd\u003e\u0026#8984;\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e pour copier le lien"
+  },
+  "145": {
+    "other": "Description"
+  },
+  "146": {
+    "other": "Sera affichée aux utilisateurs"
+  },
+  "147": {
+    "other": "Sécurité"
+  },
+  "148": {
+    "other": "(optionel)"
+  },
+  "149": {
+    "other": "Laisser 0 pour illimité"
+  },
+  "15": {
+    "other": "Fichier téléchargé %s fois"
+  },
+  "150": {
+    "other": "Droits d'accès"
+  },
+  "151": {
+    "other": "Mise en page"
+  },
+  "152": {
+    "other": "Mettre à jour"
+  },
+  "153": {
+    "other": "Standard (liste de fichiers avec entête de l'application)"
+  },
+  "154": {
+    "other": "Pellicule (bien pour les galeries photos)"
+  },
+  "155": {
+    "other": "Minimal (entête réduit, pour un widget)"
+  },
+  "156": {
+    "other": "Le lien %s a été publié"
+  },
+  "157": {
+    "other": "Ce répertoire est actuellement partagé. Si vous le supprimez, le partage associé sera désactivé."
+  },
+  "158": {
+    "other": "Ce fichier est actuellement partagé. Si vous le supprimez, le partage associé sera désactivé."
+  },
+  "159": {
+    "other": "Propriétaire"
+  },
+  "16": {
+    "other": "Remise à zéro"
+  },
+  "160": {
+    "other": "Vous n'êtes pas autorisé à supprimer cet élément partagé"
+  },
+  "161": {
+    "other": "Lien obsolète"
+  },
+  "162": {
+    "other": "Ce partage a été généré par une ancienne version de l'application. Veuillez le remplacer en le stoppant puis en le recréant. Vous pouvez copier le 'hash' (la dernière partie du lien, soit par exemple http://votrepydio.com/data/public/\u003cem style='color:red;'\u003e206a51\u003c/em\u003e.php) et l'utiliser pour regénérer un nouveau partage qui aura donc toujours la même addresse."
+  },
+  "163": {
+    "other": "Déposer vos fichiers ici (pour les minisites permetant l'envois)"
+  },
+  "164": {
+    "other": "Accès refusé: le script a été modifié!"
+  },
+  "165": {
+    "other": "Désolé, ce lien a expiré!"
+  },
+  "166": {
+    "other": "Impossible de trouver le lien!"
+  },
+  "167": {
+    "other": "Le lien est expiré!"
+  },
+  "168": {
+    "other": "Le nombre de téléchargements autorisés a été atteint. Cliquer pour remettre à zéro et réactiver le lien."
+  },
+  "169": {
+    "other": "La date d'expiration est passée. Changez les paramètres du lien pour le réactiver."
+  },
+  "17": {
+    "other": "Cliquez pour remettre à zéro le compteur de téléchargement"
+  },
+  "170": {
+    "other": "Ce lien est sécurisé par un mot de passe."
+  },
+  "171": {
+    "other": "Lien Personnalisé"
+  },
+  "172": {
+    "other": "Désolé ce lien est déjà utilisé, veuillez en choisir un autre."
+  },
+  "173": {
+    "other": "Si vous voulez créer un lien durable, vous pouvez utiliser ce champ pour fixer la dernière partie du lien (e.g. https://.../mon-joli-lien). Laisser vide pour générer automatiquement."
+  },
+  "174": {
+    "other": "Remettre à zéro"
+  },
+  "175": {
+    "other": "Veuillez mettre un mot de passe et vous assurer qu'il est assez long!"
+  },
+  "176": {
+    "other": "(Obligatoire)"
+  },
+  "177": {
+    "other": "Voir les paramètres"
+  },
+  "178": {
+    "other": "activé"
+  },
+  "179": {
+    "other": "Annuler"
+  },
+  "18": {
+    "other": "Le répertoire a été partagé comme un nouveau dépôt"
+  },
+  "180": {
+    "other": "Vider la liste"
+  },
+  "181": {
+    "other": "Modification"
+  },
+  "182": {
+    "other": "Sélectionnez un utilisateur dans l'annuaire centralisé ou dans votre carnet d'adresse. Pour créer un nouvel utilisateur, tapez le nouvel identifiant et sélectionnez Créer l'utilisateur."
+  },
+  "183": {
+    "other": "Notifier lors des changements"
+  },
+  "184": {
+    "other": "Me notifier lors de changements ou d'accès"
+  },
+  "185": {
+    "other": "Me notifier si le contenu est accédé"
+  },
+  "186": {
+    "other": "Me notifier lors de changements du contenu"
+  },
+  "187": {
+    "other": "Ne pas recevoir de notifications"
+  },
+  "188": {
+    "other": "Recevoir des alertes lorsque un utilisateur accède ou modifie le contenu du partage."
+  },
+  "189": {
+    "other": "Activer le lien public"
+  },
+  "19": {
+    "other": "Les options de partage ont été modifiées avec succès"
+  },
+  "190": {
+    "other": "Ce fichier n'est pas accessible publiquement. Cochez pour créer un lien unique à envoyer à plusieurs personnes. Si vous voulez partager avec des utilisateurs de la plateforme, utilisez l'onglet 'Utilisateurs'."
+  },
+  "191": {
+    "other": "Copier le lien dans le presse-papiers"
+  },
+  "192": {
+    "other": "Le lien a été copié!"
+  },
+  "193": {
+    "other": "Personnaliser le lien."
+  },
+  "194": {
+    "other": "Vous pouvez modifier la dernière partie du lien."
+  },
+  "195": {
+    "other": "Attention, il n'y a pas de visualisateur intégré pour ce type de fichier. L'ouverture du lien risque de déclencher un téléchargement automatique pour l'utilisateur."
+  },
+  "196": {
+    "other": "Sécuriser l'accès"
+  },
+  "197": {
+    "other": "Utilisez ce champs pour passer un commentaire"
+  },
+  "198": {
+    "other": "Modifier l'apparence du lien public dans le navigateur."
+  },
+  "199": {
+    "other": "Visibilité du Partage"
+  },
+  "2": {
+    "other": "Cliquez sur l'image pour télécharger \u003cb\u003e%s\u003c/b\u003e sur votre disque dur"
+  },
+  "20": {
+    "other": "Désolé, le fichier que vous avez demandé ne peut pas être trouvé ! Peut-être a-t-il été supprimé, ou il n'est plus partagé avec vous."
+  },
+  "200": {
+    "other": "Visible par les autres utilisateurs"
+  },
+  "201": {
+    "other": "Les utilisateurs qui accèdent au même workspace peuvent modifier les paramètres, mais il ne peuvent pas supprimer le partage. Vous seul pouvez supprimer le partage."
+  },
+  "202": {
+    "other": "Les utilisateurs qui accèdent au même workspace peuvent modifier les paramètres. Vous n'êtes pas le propriétaire du partage donc vous ne pouvez pas le supprimer."
+  },
+  "203": {
+    "other": "Transférer la propriété"
+  },
+  "203b": {
+    "other": "Transférer"
+  },
+  "204": {
+    "other": "Si vous souhaitez qu'un autre utilisateur soit le propriétaire de ce partage, utilisez le champ ci-dessous."
+  },
+  "205": {
+    "other": "Transférer à ... (identifiant utilisateur)"
+  },
+  "206": {
+    "other": "Par défaut les partages sont privés : vous seul pouvez les voir. Vous pouvez les rendre visible aux autres utilisateurs de la plateforme qui accèdent au workspace courant."
+  },
+  "207": {
+    "other": "Utilisateurs Distants"
+  },
+  "208": {
+    "other": "Partagez avec des utilisateurs d'autres plateformes de partage de fichiers (compatibles avec l'API Federated Sharing)."
+  },
+  "209": {
+    "other": "Adresse de la plateforme"
+  },
+  "21": {
+    "other": "Expirera le"
+  },
+  "210": {
+    "other": "Identifiant"
+  },
+  "211": {
+    "other": "en attente"
+  },
+  "212": {
+    "other": "accepté"
+  },
+  "213": {
+    "other": "rejeté"
+  },
+  "214": {
+    "other": "pas envoyé"
+  },
+  "215": {
+    "other": "Pour activer un lien public sur un fichier ou un répertoire, vous devez lui assigner un mot de passe."
+  },
+  "216": {
+    "other": "Le partage a été désactivé avec succès."
+  },
+  "217": {
+    "other": "Utilisateurs Locaux"
+  },
+  "218": {
+    "other": "Notification"
+  },
+  "219": {
+    "other": "Erreur lors du chargement du partage (%s)."
+  },
+  "21b": {
+    "other": "Expiré le"
+  },
+  "22": {
+    "other": "Téléchargements autorisés"
+  },
+  "220": {
+    "other": "Vous n'êtes pas autorisé à créer des utilisateurs."
+  },
+  "221": {
+    "other": "Vous n'êtes pas autorisé à partager avec des utilisateurs internes, seulement vos propres utilisateurs partagés."
+  },
+  "222": {
+    "other": "L'utilisateur %s existe déjà, veuillez choisir un autre identifiant."
+  },
+  "223": {
+    "other": "Le lien personnalisé est trop court, veuillez utiliser au moins %s caractères."
+  },
+  "224": {
+    "other": "Vous n'êtes pas autorisé à gérer ce partage, veuillez demander au propriétaire du partage."
+  },
+  "225": {
+    "other": "Vous n'êtes pas autorisé à créer des liens publics sur les fichiers"
+  },
+  "226": {
+    "other": "Vous n'êtes pas autorisé à créer des liens publics sur les répertoires"
+  },
+  "227": {
+    "other": "Vous n'êtes pas autorisé à partager des fichiers en interne"
+  },
+  "228": {
+    "other": "Vous n'êtes pas autorisé à partager des répertoires en interne"
+  },
+  "229": {
+    "other": "Collez ce code dans une page HTML pour insérer une prévisualisation du fichier."
+  },
+  "22b": {
+    "other": "Plus de téléchargements possibles"
+  },
+  "23": {
+    "other": "Mot de passe"
+  },
+  "230": {
+    "other": "Veuillez sauver ce partage avant de pouvoir envoyer une invitation."
+  },
+  "231": {
+    "other": "Cliquez pour télécharger"
+  },
+  "232": {
+    "other": "Pas d'entrées pour ce partage, peut-être avez-vous supprimé des utilisateurs?"
+  },
+  "233": {
+    "other": "Réinitialiser le partage"
+  },
+  "234": {
+    "other": "Le fichier a été ajouté à votre dépôt %s."
+  },
+  "235": {
+    "other": "Génerer des liens uniques pour chaque utilisateur"
+  },
+  "236": {
+    "other": "Restreindre l'accès à ces seuls liens"
+  },
+  "237": {
+    "other": "Utiliser une clé aléatoire plutôt que l'email dans le lien"
+  },
+  "238": {
+    "other": "Types de partages"
+  },
+  "24": {
+    "other": "Définissez des limites d'expiration ou un mot de passe pour accèder au partage"
+  },
+  "240": {
+    "other": "Grouper par..."
+  },
+  "241": {
+    "other": "Liste des partages"
+  },
+  "242": {
+    "other": "Charger plus de résultats"
+  },
+  "243": {
+    "other": "Liens Publics"
+  },
+  "244": {
+    "other": "Dossiers Partagés"
+  },
+  "245": {
+    "other": "%s invitation(s) personelle(s) envoyée(s)"
+  },
+  "246": {
+    "other": "Ouvrir"
+  },
+  "247": {
+    "other": "Editer la cellule"
+  },
+  "248": {
+    "other": "Supprimer la cellule"
+  },
+  "249": {
+    "other": "Contenus"
+  },
+  "25": {
+    "other": "Pas de limite"
+  },
+  "250": {
+    "other": "Cellules"
+  },
+  "251": {
+    "other": "Lien"
+  },
+  "252": {
+    "other": "Accès"
+  },
+  "253": {
+    "other": "Visibilité"
+  },
+  "254": {
+    "other": "Partagé dans les cellules"
+  },
+  "255": {
+    "other": "Etes-vous sûr de vouloir supprimer les cellules et les liens sur cet élément?"
+  },
+  "256": {
+    "other": "Partages pour %s"
+  },
+  "257": {
+    "other": "Créé le %s"
+  },
+  "258": {
+    "other": "Editer les utilisateurs"
+  },
+  "259": {
+    "other": "Retirer de la cellule"
+  },
+  "26": {
+    "other": "Choisir les utilisateurs et groupes et leurs droits d'accès. Sélectionnez uniquement \"Ecrire\" pour faire un dépôt d'envoi uniquement."
+  },
+  "260": {
+    "other": "Le répertoire est partagé dans les cellules suivantes. Vous pouvez éditer les utilisateurs ou en créer une nouvelle."
+  },
+  "261": {
+    "other": "Choisissez les utilisateurs qui auront accès à la cellule"
+  },
+  "262": {
+    "other": "Partager ce répertoire avec d'autres utilisateurs en créant une cellule"
+  },
+  "263": {
+    "other": "Ajouter à ..."
+  },
+  "264": {
+    "other": "+ Cellule"
+  },
+  "265": {
+    "other": "Libellé du lien"
+  },
+  "266": {
+    "other": "Description du lien"
+  },
+  "267": {
+    "other": "Libellé de la cellule"
+  },
+  "268": {
+    "other": "Description de la cellule"
+  },
+  "269": {
+    "other": "Vous allez créer une cellule partagée avec %USERS. Choisissez des répertoires existants ou laissez Pydio en créer un pour vous!"
+  },
+  "27": {
+    "other": "Partage de fichier"
+  },
+  "270": {
+    "other": "utilisateurs"
+  },
+  "271": {
+    "other": "groupes"
+  },
+  "272": {
+    "other": "équipes"
+  },
+  "273": {
+    "other": "personne"
+  },
+  "274": {
+    "other": " et "
+  },
+  "275": {
+    "other": "Créez des cellules pour collaborer avec d'autre utilisateurs. Commencez par décrire l'objet de cette cellule."
+  },
+  "276": {
+    "other": "Titre de la cellule"
+  },
+  "277": {
+    "other": "Ajoutez une description (optionnel)"
+  },
+  "278": {
+    "other": "Choisissez avec qui vous voulez partager vos données"
+  },
+  "279": {
+    "other": "Créer maintenant!"
+  },
+  "28": {
+    "other": "Partage de répertoire"
+  },
+  "280": {
+    "other": "La cellule a son propre répertoire"
+  },
+  "281": {
+    "other": "La cellule sera créée dans un nouveau répertoire"
+  },
+  "282": {
+    "other": "Ajouter un répertoire existant..."
+  },
+  "283": {
+    "other": "Sélectionnez un noeud de l'arbre..."
+  },
+  "284": {
+    "other": "Visible dans %s cellules"
+  },
+  "29": {
+    "other": "Lien public"
+  },
+  "3": {
+    "other": "Mauvais mot de passe"
+  },
+  "30": {
+    "other": "Partager avec..."
+  },
+  "31": {
+    "other": "Lire"
+  },
+  "32": {
+    "other": "Ecrire"
+  },
+  "33": {
+    "other": "Surveiller"
+  },
+  "34": {
+    "other": "Utilisateur existant ou nouveau"
+  },
+  "35": {
+    "other": "Libellé"
+  },
+  "36": {
+    "other": "Définissez un libellé et une description succinte."
+  },
+  "37": {
+    "other": "Confirmer"
+  },
+  "38": {
+    "other": "Surveiller le contenu de ce répertoire"
+  },
+  "39": {
+    "other": "Surveiller l'activité de ce fichier"
+  },
+  "4": {
+    "other": "Saisissez le mot de passe fourni puis cliquez sur l'image pour télécharger \u003cb\u003e%s\u003c/b\u003e sur votre disque dur"
+  },
+  "40": {
+    "other": "Invitations"
+  },
+  "41": {
+    "other": "Envoyer des invitations par courriel aux utilisateurs avec qui vous partagez ce fichier"
+  },
+  "42": {
+    "other": "Un utilisateur de %s a partagé un fichier avec vous"
+  },
+  "43": {
+    "other": "Un utilisateur de %s a partagé un dossier avec vous"
+  },
+  "44": {
+    "other": "Partage %s"
+  },
+  "45": {
+    "other": "Invitation"
+  },
+  "46": {
+    "other": "Ouvrir le dépôt %s1 directement dans %s2"
+  },
+  "46_file": {
+    "other": "Ouvrir le fichier %s1"
+  },
+  "46_mini": {
+    "other": "Ouvrir le minisite %s1"
+  },
+  "47": {
+    "other": "Le statut de surveillance a été changé"
+  },
+  "48": {
+    "other": "Vous n'êtes pas autorisé à accéder à cette donnée."
+  },
+  "49": {
+    "other": "créer l'utilisateur"
+  },
+  "5": {
+    "other": "mot de passe"
+  },
+  "50": {
+    "other": "Partagé"
+  },
+  "51": {
+    "other": "Téléchargé"
+  },
+  "52": {
+    "other": "Configuration"
+  },
+  "53": {
+    "other": "aucun"
+  },
+  "54": {
+    "other": "Partagé avec"
+  },
+  "55": {
+    "other": "Partagé..."
+  },
+  "56": {
+    "other": "Configurer le partage..."
+  },
+  "57": {
+    "other": "fois"
+  },
+  "58": {
+    "other": "Veuillez sélectionner au moins un droit!"
+  },
+  "59": {
+    "other": "Page de téléchargement"
+  },
+  "6": {
+    "other": "Ne plus partager"
+  },
+  "60": {
+    "other": "Lien de téléchargement direct"
+  },
+  "61": {
+    "other": "Code HTML à insérer"
+  },
+  "62": {
+    "other": "Adresse du minisite"
+  },
+  "63": {
+    "other": "Nouveau dépôt"
+  },
+  "64": {
+    "other": "Pour les utilisateurs internes comme externes, le répertoire apparaîtra comme un nouveau dépôt partagé dans la liste des dépôts."
+  },
+  "65": {
+    "other": "Minisite public (sans authentification)"
+  },
+  "66": {
+    "other": "Pour des utilisateurs publics, le répertoire apparaîtra comme une simple liste de fichiers."
+  },
+  "67": {
+    "other": "Minisite privé (authentification requise)"
+  },
+  "68": {
+    "other": "Pour les utilisateurs internes et externes, le répertoire apparaîtra à une nouvelle adresse comme une simple liste de fichiers, mais nécessitera une authentification."
+  },
+  "69": {
+    "other": "Configurer le minisite"
+  },
+  "69r": {
+    "other": "Paramètres du lien"
+  },
+  "7": {
+    "other": "L'arrêt du partage ne supprimera pas le fichier. Si vous voulez modifier les paramètres, re-partager le fichier."
+  },
+  "70": {
+    "other": "Utiliser les cases à cocher pour donner des droits aux utilisateurs publics sur ce dossier. Si vous cochez uniquement 'Envoi', le dossier sera une boîte de réception vide dans laquelle les utilisteurs pourront déposer des fichiers."
+  },
+  "70r": {
+    "other": "Libellés et permissions accordées aux utilisateurs accédant à ce lien"
+  },
+  "71": {
+    "other": "Permissions"
+  },
+  "72": {
+    "other": "Prévisualiser"
+  },
+  "73": {
+    "other": "Télécharger"
+  },
+  "74": {
+    "other": "Envoyer"
+  },
+  "74b": {
+    "other": "Editer"
+  },
+  "75": {
+    "other": "Veuillez utiliser des entiers positifs pour les champs Expiration et Nombre de téléchargements !"
+  },
+  "76": {
+    "other": "Merci d'activer les cookies pour accéder à cette application"
+  },
+  "77": {
+    "other": "Merci d'activer JavaScript pour accéder à cette application"
+  },
+  "78": {
+    "other": "Attention, vous ne devez utiliser que des caractères alphanumériques standards pour les noms d'utilisateur. L'identifiant '%CURRENT%' sera remplacé par '%NEW%'"
+  },
+  "79": {
+    "other": "inviter"
+  },
+  "8": {
+    "other": "Fichier partagé"
+  },
+  "80": {
+    "other": "Envoyer une invitation à des utilisateurs ou des adresses courriel externes."
+  },
+  "80b": {
+    "other": "Inviter, par courriel, les utilisateurs sélectionnés à visiter ce dépôt"
+  },
+  "81": {
+    "other": "ne pas surveiller"
+  },
+  "82": {
+    "other": "surveiller"
+  },
+  "83": {
+    "other": "Choisir de recevoir ou non des alertes lorsque le fichier est téléchargé"
+  },
+  "83b": {
+    "other": "Changer le statut de surveillance pour recevoir ou non une alerte lorsque le dépôt est consulté."
+  },
+  "84": {
+    "other": "mot de passe"
+  },
+  "85": {
+    "other": "Une protection par mot de passe est présente sur ce lien"
+  },
+  "86": {
+    "other": "expire"
+  },
+  "87": {
+    "other": "Le lien expirera à la date suivante..."
+  },
+  "88": {
+    "other": "téléchargements"
+  },
+  "89": {
+    "other": "Nombre de téléchargements / nombre autorisés. Cliquer pour remettre à zéro."
+  },
+  "9": {
+    "other": "Utiliser ce bouton pour ne plus partager ce répertoire"
+  },
+  "90": {
+    "other": "URL du lien"
+  },
+  "91": {
+    "other": "Tags (Entrez pour sauver)"
+  },
+  "92": {
+    "other": "Créer le lien"
+  },
+  "93": {
+    "other": "Liens existants"
+  },
+  "94": {
+    "other": "QRCode"
+  },
+  "95": {
+    "other": "QRcode"
+  },
+  "96": {
+    "other": "arrêter le partage"
+  },
+  "97": {
+    "other": "Arrêter le partage de ce répertoire avec d'autres utilisateurs."
+  },
+  "98": {
+    "other": "Mes partages"
+  },
+  "99": {
+    "other": "Tous les éléments partagés"
+  }
+}

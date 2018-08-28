@@ -1,0 +1,161 @@
+{
+  "1": {
+    "other": "Rollenverwaltung"
+  },
+  "10": {
+    "other": "Verwenden Sie die untenstehende Auswahl, um Benutzern dieser Rolle bestimmte Aktionen zu verbieten. Die Einstellungen können für eine oder alle Arbeitsumgebungen gelten."
+  },
+  "11": {
+    "other": "Erweiterung"
+  },
+  "12": {
+    "other": "Wählen Sie eine Erweiterung..."
+  },
+  "12a": {
+    "other": "Wählen Sie eine Aktion..."
+  },
+  "12b": {
+    "other": "Wählen Sie einen Parameter..."
+  },
+  "12c": {
+    "other": "Wählen Sie eine oder alle Arbeitsumgebungen..."
+  },
+  "12d": {
+    "other": "Alle Arbeitsumgebungen"
+  },
+  "12e": {
+    "other": "Geteilte Arbeitsumgebungen"
+  },
+  "13": {
+    "other": "Aktion"
+  },
+  "14": {
+    "other": "Geltungsbereich"
+  },
+  "15": {
+    "other": "Aktion hinzufügen"
+  },
+  "16": {
+    "other": "Verwenden Sie die untenstehende Auswahl, um für Benutzer dieser Rolle Parameter zu definieren. Die Einstellungen können, abhängig vom Kontext der Erweiterung, auf eine oder alle Arbeitsumgebungen angewendet werden."
+  },
+  "17": {
+    "other": "Parameter"
+  },
+  "18": {
+    "other": "Parameter hinzufügen"
+  },
+  "19": {
+    "other": "Sie haben ungespeicherte Änderungen. Möchten Sie das Fenster wirklich schliessen?"
+  },
+  "2": {
+    "other": "Rollenverwaltung"
+  },
+  "20": {
+    "other": "Rolle erfolgreich aktualisiert"
+  },
+  "21": {
+    "other": "Benutzername"
+  },
+  "22": {
+    "other": "Profilart"
+  },
+  "23": {
+    "other": "Standard-Arbeitsumgebung"
+  },
+  "24": {
+    "other": "Rollen (drücke Ctrl/Cmd um mehrere zu markieren)"
+  },
+  "25": {
+    "other": "Passwort ändern"
+  },
+  "26": {
+    "other": "Benutzer sperren"
+  },
+  "27": {
+    "other": "Benutzer aktivieren"
+  },
+  "28": {
+    "other": "Passwortänderung erzwingen"
+  },
+  "28b": {
+    "other": "Passwortänderung abbrechen"
+  },
+  "29": {
+    "other": "Geben Sie ein neues Passwort für den Benutzer ein"
+  },
+  "3": {
+    "other": "Daten"
+  },
+  "30": {
+    "other": "Wiederholen"
+  },
+  "31": {
+    "other": "Rollen-ID"
+  },
+  "32": {
+    "other": "Rollenname"
+  },
+  "33": {
+    "other": "Automatisch anwenden für Benutzer mit dem Profil..."
+  },
+  "34": {
+    "other": "Gruppen-ID"
+  },
+  "35": {
+    "other": "Gruppenname"
+  },
+  "36": {
+    "other": "gesperrt"
+  },
+  "37": {
+    "other": "Verweigern"
+  },
+  "38": {
+    "other": "Vererbt"
+  },
+  "39": {
+    "other": "Ausschalten"
+  },
+  "4": {
+    "other": "Zugriffssteuerungsliste"
+  },
+  "40": {
+    "other": "Einschalten"
+  },
+  "41": {
+    "other": "Entfernen"
+  },
+  "42": {
+    "other": "Rollen-Daten"
+  },
+  "43": {
+    "other": "Bitte auswählen"
+  },
+  "44": {
+    "other": "Fein-Einstellungen für Erweiterungs-Parameter"
+  },
+  "45": {
+    "other": "Zugriffssteuerungsliste"
+  },
+  "46": {
+    "other": "Ausgeschaltete Aktionen"
+  },
+  "47": {
+    "other": "Search Roles"
+  },
+  "5": {
+    "other": "Aktionen"
+  },
+  "6": {
+    "other": "Parameter"
+  },
+  "7": {
+    "other": "Interne Daten"
+  },
+  "8": {
+    "other": "Persönliche Informationen"
+  },
+  "9": {
+    "other": "Wählen Sie die Arbeitsumgebungen, auf welche diese Rolle Zugriff erhält. Wenn Sie 'Verweigern' wählen, wird der Zugriff verweigert, auch wenn der Zugriff in anderen Rollen gesetzt oder vererbt wurde."
+  }
+}

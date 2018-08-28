@@ -1,0 +1,29 @@
+{
+  "1": {
+    "other": "API-Schlüssel"
+  },
+  "2": {
+    "other": "Verwaltet API-Schlüssel für verschiedene Geräte wie Telefone, Sync-Clients, etc..."
+  },
+  "3": {
+    "other": "Einen Schlüssel generieren"
+  },
+  "4": {
+    "other": "Schlüsselpaar generieren"
+  },
+  "5": {
+    "other": "Alle Schlüssel widerrufen"
+  },
+  "6": {
+    "other": "Bestehende Schlüssel ungültig markieren"
+  },
+  "7": {
+    "other": "Sind Sie sicher, dass diese Schlüssel widerrufen werden sollen?"
+  },
+  "8": {
+    "other": "Schlüssel erfolgreich ungültig markiert!"
+  },
+  "9": {
+    "other": "Meine verbundenen Geräte"
+  }
+}

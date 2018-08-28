@@ -1,0 +1,80 @@
+{
+  "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path.": {
+    "other": "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path."
+  },
+  "Create": {
+    "other": "Création"
+  },
+  "Create folder if it does not exists": {
+    "other": "Créer le répertoire s'il n'existe pas, notamment utile avec PYDIO_USER."
+  },
+  "Data template": {
+    "other": "Données modèles"
+  },
+  "Delegates all download operations to nginx using the X-Accel-Redirect header. Warning, you have to add some configuration in nginx, like X-Accel-Mapping": {
+    "other": "Déléguer l'ensemble des opérations de téléchargement à nginx en utilisant l'entête X-SendFile. Attention, il faut ajouter une configuration à nginx, par exemple X-Accel-Mapping"
+  },
+  "Delegates all download operations to the webserver using the X-SendFile header. Warning, this is an external module to install for Apache. Module is active by default in Lighttpd. Warning, you have to manually add the folders where files will be downloaded in the module configuration (XSendFilePath directive)": {
+    "other": "Déléguer l'ensemble des opérations de téléchargement au serveur web en utilisant l'entête X-SendFile. Attention, il s'agit d'un module externe pour Apache. Le module est actif par défaut pour Lighthttpd. Attention, il faut définir, dans la configuration du module, les dossiers où les fichiers seront téléchargés (Directive XSendFilePath)."
+  },
+  "Directly write the zip file to an output stream which is connected to the user's browser.": {
+    "other": "Ecrire directement l'archive Zip dans le flux de sortie, sans passer par un fichier temporaire."
+  },
+  "File Creation Mask": {
+    "other": "Masque de création"
+  },
+  "File System (Standard)": {
+    "other": "Fichiers locaux (Standard)"
+  },
+  "Option to purge documents after a given number of days (even if shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
+    "other": "Option pour purger les documents après un nombre de jours défini (même en cas de partage). Nécessite la mise en place manuelle d'une tâche 'CRON'. Laisser à 0 pour ne pas utiliser."
+  },
+  "Option to purge documents after a given number of days (if not shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
+    "other": "Option pour purger les documents après un nombre de jours défini (s'ils ne sont pas partagés). Nécessite la mise en place manuelle d'une tâche 'CRON'. Laisser à 0 pour ne pas utiliser."
+  },
+  "Option to purge documents after a given number of days. This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
+    "other": "Purger tous les documents après un certain nombre de jours. Nécessite la mise en place manuelle d'une tâche CRON. Laisser à 0 pour ne pas utiliser."
+  },
+  "Optionnaly apply a chmod operation. Value must be numeric, like 0777, 0644, etc.": {
+    "other": "Optionnelemen définir les droits d'accès. Valeur numérique, de type 0777, 0644, ..."
+  },
+  "Path": {
+    "other": "Chemin"
+  },
+  "Path to a directory on the filesystem whose content will be copied to the repository the first time it is loaded.": {
+    "other": "Chemin vers un répertoire sur le système de fichier dont le contenu va être copié dans le dépôt à la première utilisation."
+  },
+  "Purge Days": {
+    "other": "Purge après... (jours)"
+  },
+  "Purge Days (Hard limit)": {
+    "other": "Purge après (limite stricte)"
+  },
+  "Purge Days (Soft limit)": {
+    "other": "Purge après (limite douce)"
+  },
+  "Real Size Probing": {
+    "other": "Taille réelle"
+  },
+  "The most standard access to a filesystem located on the server.": {
+    "other": "Driver le plus courant : accès à un répertoire local situé sur le serveur où est installé Pydio"
+  },
+  "Use POSIX": {
+    "other": "Utiliser POSIX"
+  },
+  "Use php POSIX extension to read files permissions. Only works on *nix systems.": {
+    "other": "Utiliser l'extension PHP POSIX pour lire les permissions de fichiers. Uniquement pour les systèmes *nix."
+  },
+  "Use system command line to get the filesize instead of php built-in function (fixes the 2Go limitation)": {
+    "other": "Pour contourner la limitation à 2Go, utilise un appel système pour récupérer la taille des fichiers."
+  },
+  "X-Accel-Redirect Active": {
+    "other": "Activer X-Accel-Redirect"
+  },
+  "X-SendFile Active": {
+    "other": "X-Sendfile Actif"
+  },
+  "Zip downloading files on the fly": {
+    "other": "Télécharger les zips à la construction"
+  }
+}

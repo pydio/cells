@@ -1,0 +1,29 @@
+{
+  "API Keystore": {
+    "other": "API-Keystore"
+  },
+  "Enable/disable automatically based on the protocol used": {
+    "other": "Erweiterung abhängig vom verwendeten Protokoll aktivieren oder deaktivieren"
+  },
+  "Order": {
+    "other": "Reihenfolge der Erweiterung"
+  },
+  "Order this plugin with other auth frontends": {
+    "other": "Diese Erweiterung unter den anderen aktiven Authentifizierungs-Erweiterungen einordnen"
+  },
+  "Protocol Type": {
+    "other": "Aktivieren für"
+  },
+  "REST Only": {
+    "other": "REST-API"
+  },
+  "Session-based or Rest": {
+    "other": "Web-Sitzungen und REST-API"
+  },
+  "Sessions Only": {
+    "other": "Web-Sitzungen"
+  },
+  "Store API keys/token to simplify REST connection": {
+    "other": "Speichert den API-Key und Token um REST-Verbindungen zu vereinfachen"
+  }
+}

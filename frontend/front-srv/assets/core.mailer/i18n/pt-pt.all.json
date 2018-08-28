@@ -1,0 +1,29 @@
+{
+  "1": {
+    "other": "E-mail enviado com sucesso para %s "
+  },
+  "2": {
+    "other": "Endereço de e-mail do destinatário não existente!"
+  },
+  "3": {
+    "other": "Não existe um serviço de e-mails configurado, por favor contacte o seu administrador"
+  },
+  "4": {
+    "other": "From"
+  },
+  "5": {
+    "other": "To"
+  },
+  "6": {
+    "other": "Subject"
+  },
+  "7": {
+    "other": "Message"
+  },
+  "8": {
+    "other": "User or email"
+  },
+  "9": {
+    "other": "Notifications Digest"
+  }
+}

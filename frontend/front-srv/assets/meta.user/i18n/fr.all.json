@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "Meta-données"
+  },
+  "10": {
+    "other": "Tag existant ou nouveau"
+  },
+  "11": {
+    "other": "Aucune métadonnées, cliquez pour en ajouter"
+  },
+  "12": {
+    "other": "Sélection multiple:"
+  },
+  "13": {
+    "other": "cochez les champs que vous souhaitez mettre à jour, la nouvelle valeur sera appliquée à tous les éléments sélectionnés."
+  },
+  "14": {
+    "other": "Editer les meta"
+  },
+  "15": {
+    "other": "Sauver"
+  },
+  "2": {
+    "other": "Pas de libellés"
+  },
+  "3": {
+    "other": "Retirer la notation"
+  },
+  "4": {
+    "other": "Faible"
+  },
+  "5": {
+    "other": "A faire"
+  },
+  "6": {
+    "other": "Personnel"
+  },
+  "7": {
+    "other": "Travail"
+  },
+  "8": {
+    "other": "Important"
+  },
+  "9": {
+    "other": "Pas de valeurs"
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "Address used for notifications": {
+    "other": "Adreça utilitzada per a les notificacions"
+  },
+  "All roles": {
+    "other": "Tots els rols"
+  },
+  "Allow Group Listing": {
+    "other": "Permetre el llistat de grups"
+  },
+  "Allow Role Listing": {
+    "other": "Permetre el llistat de rols"
+  },
+  "Allow the users to create a new user when sharing a folder": {
+    "other": "Permetre als usuaris crear un nou usuari en compartir una carpeta"
+  },
+  "Allow the users to pick an existing user when sharing a folder": {
+    "other": "Permetre als usuaris triar un usuari existent en compartir una carpeta"
+  },
+  "Allow to search users from other groups through auto completer (can be handy if previous option is set to false) and share workspaces with them": {
+    "other": "Permetre cercar usuaris d'altres grups a través d'autocompletar (pot ser útil si l'opció anterior s'estableix en False) i compartir repositoris amb ells"
+  },
+  "Always Override": {
+    "other": "Always Override"
+  },
+  "Always override other roles, included group roles.": {
+    "other": "Always override other roles, included group roles."
+  },
+  "Avatar": {
+    "other": "Avatar"
+  },
+  "Choose the configuration plugin": {
+    "other": "Seleccionar el connector de configuració"
+  },
+  "Configuration Store Instance": {
+    "other": "Instància d'emmagatzematge de la configuració"
+  },
+  "Configurations Management": {
+    "other": "Gestió de configuracions"
+  },
+  "Core SQL Connexion": {
+    "other": "Conexió SQL Principal"
+  },
+  "Country": {
+    "other": "País"
+  },
+  "Create external users": {
+    "other": "Crear usuaris externs"
+  },
+  "Default Workspace": {
+    "other": "Workspace per defecte"
+  },
+  "Default start repository": {
+    "other": "Workspace d'inici per defecte"
+  },
+  "Display roles and/or groups": {
+    "other": "Mostra rols i / o grups"
+  },
+  "Do not display real login in parenthesis": {
+    "other": "No mostrar el nom d'inici de sessió real entre parèntesis"
+  },
+  "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP.": {
+    "other": "Do not load groups and users list if no regexp is entered. Avoid sending large search on LDAP."
+  },
+  "Email": {
+    "other": "Correu electrònic"
+  },
+  "Excluded Roles": {
+    "other": "Rols exclosos"
+  },
+  "External Users Creation": {
+    "other": "Creació d'usuaris externs"
+  },
+  "External users parameters": {
+    "other": "Paràmetres d'usuaris externs"
+  },
+  "Full name displayed to others": {
+    "other": "Mostrar el nom complet als altres"
+  },
+  "Generic Conf Features": {
+    "other": "Configuracions genèriques"
+  },
+  "Hide real login": {
+    "other": "Amaga nom d'inici de sessió real"
+  },
+  "If previous option is set to True, directly display a full list of users from all groups": {
+    "other": "Si l'opció anterior s'estableix en True, mostrar directament una llista completa dels usuaris de tots els grups"
+  },
+  "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else": {
+    "other": "Si s'estableix, aquesta acció s'activa automàticament en l'inici de sessió dels usuaris. Pot ser tancar la sessió (per bloquejar als usuaris), canviar contrasenya (per forçar el canvi de contrasenya), o qualsevol altra cosa"
+  },
+  "If the 'guest' user is enabled, remember her preferences accross sessions.": {
+    "other": "Si l'usuari 'Convidat' està habilitat, recordar les seves preferències a través de sessions."
+  },
+  "Image displayed next to the user name": {
+    "other": "Imatge mostrada al costat del nom d'usuari"
+  },
+  "Included Roles": {
+    "other": "Rols inclosos"
+  },
+  "Instance": {
+    "other": "Instància"
+  },
+  "Internal / External Users": {
+    "other": "Usuaris interns / externs"
+  },
+  "Language": {
+    "other": "Idioma"
+  },
+  "Let user create repositories": {
+    "other": "Permetre a l'usuari crear repositoris"
+  },
+  "Let user create repositories from templates": {
+    "other": "Permetre a l'usuari crear repositoris usant plantilles"
+  },
+  "List Roles By": {
+    "other": "Listar rols per"
+  },
+  "List existing from all groups": {
+    "other": "Llistar existents de tots els grups"
+  },
+  "List of parameters to be edited when creating a new shared user.": {
+    "other": "Llista de paràmetres a editar en crear un nou usuari compartit."
+  },
+  "Make regexp mandatory": {
+    "other": "Make regexp mandatory"
+  },
+  "Maximum number of shared users per user": {
+    "other": "Nombre màxim d'usuaris compartits per usuari"
+  },
+  "Maximum number of users displayed in the users autocompleter": {
+    "other": "Nombre màxim d'usuaris mostrats a la llista auto emplenable d'usuaris"
+  },
+  "Minimum number of characters to trigger the auto completion feature": {
+    "other": "Nombre mínim de caràcters per activar la funció d'autocompletar"
+  },
+  "Name": {
+    "other": "Nom"
+  },
+  "Preferences Saving": {
+    "other": "Preferències de desament"
+  },
+  "Remember guest preferences": {
+    "other": "Recordar preferències de convidat"
+  },
+  "Role Label": {
+    "other": "Etiqueta de rol"
+  },
+  "Role/Group Listing": {
+    "other": "Llistat de rols / grups"
+  },
+  "Roles / Groups Directory Listing": {
+    "other": "Llistat de rols / directori de grups"
+  },
+  "SQL Connexion": {
+    "other": "Connexió SQL"
+  },
+  "See existing users": {
+    "other": "Veure usuaris existents"
+  },
+  "Sets how the application core data (users,roles,etc) is stored.": {
+    "other": "Estableix com s'emmagatzemen les dades bàsiques d'aplicació (usuaris, rols, etc.)"
+  },
+  "Share with existing users from all groups": {
+    "other": "Compartir amb els usuaris existents de tots els grups"
+  },
+  "Shared users limit": {
+    "other": "Límit d'usuaris compartits"
+  },
+  "Simple SQL Connexion definition that can be used by other sql-based plugins": {
+    "other": "Definició de connexió SQL simple que pot ser utilitzada per altres plugins basats en SQL"
+  },
+  "Skip user history": {
+    "other": "Treure preferències d'interfície"
+  },
+  "Some roles should be disappered in the list.  list separated by ',' or start with 'preg:' for regex.": {
+    "other": "Rols ocults a la llista. Llista separada per ',' o començar amb 'preg:' per expressions regulars regex."
+  },
+  "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex.": {
+    "other": "Rols que han de mostrar-se en la llista. Llista separada per ',' o començar amb 'preg:' per expressions regulars regex."
+  },
+  "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
+    "other": "Utilitzeu aquesta opció per evitar la càrrega automàtica de l'estat de la interfície (darrera carpeta, pestanyes obertes, etc)"
+  },
+  "User Language": {
+    "other": "Idioma de l'usuari"
+  },
+  "User roles only": {
+    "other": "Només rols d'usuari"
+  },
+  "Users Directory Listing": {
+    "other": "Llistat del directori d'usuaris"
+  },
+  "Users Lock Action": {
+    "other": "Acció de bloqueig d'usuaris"
+  },
+  "Users completer limit": {
+    "other": "Límit del emplenador d'usuaris"
+  },
+  "Users completer min chars": {
+    "other": "Nombre mínim de caràcters del completador d'usuaris"
+  },
+  "Users only (do not list groups nor roles)": {
+    "other": "Només usuaris (no llistar grups i rols)"
+  },
+  "Whether users can create their own repositories, based on predefined templates.": {
+    "other": "Si els usuaris poden crear els seus propis repositoris, fer-ho basant-se en plantilles predefinides."
+  },
+  "Worskpace creation delegation": {
+    "other": "Delegació de la creació de repositoris"
+  },
+  "role prefix": {
+    "other": "Prefix del rols"
+  }
+}

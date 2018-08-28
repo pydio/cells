@@ -1,0 +1,74 @@
+{
+  "Additional info": {
+    "other": "Información Adicional"
+  },
+  "Color labels": {
+    "other": "Color de Etiquetas"
+  },
+  "Column visibility": {
+    "other": "Visibilidad de las Columnas"
+  },
+  "Created by...": {
+    "other": "Creado por..."
+  },
+  "Depending on the field type. Currently used for selection only": {
+    "other": "Depende del tipo de campo. Actualmente usado sólo para selección."
+  },
+  "Field ID": {
+    "other": "ID del Campo"
+  },
+  "Field Type": {
+    "other": "Tipo del Campo"
+  },
+  "Hidden": {
+    "other": "Oculto"
+  },
+  "Hidden file used inside folders to save meta data": {
+    "other": "Archivo oculto usado en la carpeta para guardar los metadatos"
+  },
+  "Id of fiels, use standard characters here.": {
+    "other": "ID de los campos, usa carácteres estándar."
+  },
+  "Label": {
+    "other": "Etiqueta"
+  },
+  "Label of the field, human friendly": {
+    "other": "Etiqueta del campo, formato amigable"
+  },
+  "Last updated by...": {
+    "other": "Actualizado por..."
+  },
+  "Long text": {
+    "other": "Texo largo"
+  },
+  "Meta File": {
+    "other": "Meta Archivo"
+  },
+  "Selection (set choices in Additional Info)": {
+    "other": "Selección (configura opciones en Información Adicional)"
+  },
+  "Set default visibility.": {
+    "other": "Visibilidad predeterminada."
+  },
+  "Short text": {
+    "other": "Texto corto"
+  },
+  "Simple metadata implementation stored in a hidden file.": {
+    "other": "Implementación de metadatos almacenados en archivos ocultos."
+  },
+  "Stars Rating": {
+    "other": "Estrellas"
+  },
+  "Tags (extensible sets of values)": {
+    "other": "Tags (conjunto extensible de valores)"
+  },
+  "Text Metadata": {
+    "other": "Metadatos de Texto"
+  },
+  "Type of field": {
+    "other": "Tipo del Campo"
+  },
+  "Visible": {
+    "other": "Visible"
+  }
+}

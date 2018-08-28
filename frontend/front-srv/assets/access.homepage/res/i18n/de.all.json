@@ -1,0 +1,179 @@
+{
+  "39": {
+    "other": "Arbeitsumgebung auswählen"
+  },
+  "40": {
+    "other": "Willkommen, %s"
+  },
+  "41": {
+    "other": "Standardmässig öffnen"
+  },
+  "42": {
+    "other": "Öffnen"
+  },
+  "43": {
+    "other": "Mein Profil"
+  },
+  "43t": {
+    "other": "Alle meine persönlichen Dateien"
+  },
+  "44": {
+    "other": "Mein Benutzerkonto"
+  },
+  "45": {
+    "other": "Persönliche Daten"
+  },
+  "46": {
+    "other": "Adressbuch"
+  },
+  "47": {
+    "other": "Von Ihnen erstellte Benutzer"
+  },
+  "48": {
+    "other": "Meine Benutzer"
+  },
+  "49": {
+    "other": "Freigaben-Benutzer, die Sie erstellt haben"
+  },
+  "50": {
+    "other": "Meine Teams"
+  },
+  "51": {
+    "other": "Um Inhalte schnell an einen bestimmten Personenkreis freizugeben."
+  },
+  "52": {
+    "other": "Möchten Sie dieses Team wirklich löschen? Es werden dabei keine Benutzer gelöscht."
+  },
+  "53": {
+    "other": "Erste Schritte"
+  },
+  "54": {
+    "other": "Machen Sie Ihre ersten Schritte mit APPLICATION_TITLE mit folgenden Video-Kurzanleitungen"
+  },
+  "55": {
+    "other": "Unterstützung für die \u003ca\u003eersten Schritte?\u003c/a\u003e"
+  },
+  "56": {
+    "other": "Ihre ersten Schritte mit APPLICATION_TITLE? Hier finden Sie einige Videos dazu."
+  },
+  "57": {
+    "other": "APPLICATION_TITLE herunterladen für..."
+  },
+  "58": {
+    "other": "Android"
+  },
+  "59": {
+    "other": "iPhone/iPad"
+  },
+  "60": {
+    "other": "Mac OS"
+  },
+  "61": {
+    "other": "Windows"
+  },
+  "62": {
+    "other": "\u003ch2\u003eWhat is a workspace?\u003c/h2\u003e\n            This video explains what Workspaces are in APPLICATION_TITLE\n            \u003cul\u003e\n                \u003cli\u003eWhy are Workspaces central in APPLICATION_TITLE?\u003c/li\u003e\n                \u003cli\u003eWhat are Workspaces from a technical perspective?\u003c/li\u003e\n                \u003cli\u003eHow do they allow you to organise your data?\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "63": {
+    "other": "\u003ch2\u003eUpload files to APPLICATION_TITLE\u003c/h2\u003e\n            Get started with APPLICATION_TITLE and see how to upload files\n            \u003cul\u003e\n                \u003cli\u003eDrag and drop files into APPLICATION_TITLE\u003c/li\u003e\n                \u003cli\u003eCreate a new folder\u003c/li\u003e\n                \u003cli\u003eRename files and folders\u003c/li\u003e\n                \u003cli\u003eDownload files to your Computer\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "64": {
+    "other": "\u003ch2\u003eSearch, browse and manage your files\u003c/h2\u003e\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            \u003cul\u003e\n                \u003cli\u003eCross-workspaces search bar\u003c/li\u003e\n                \u003cli\u003eContent display modes, Keyboard shortcuts\u003c/li\u003e\n                \u003cli\u003eSort Files\u003c/li\u003e\n                \u003cli\u003eMeta Data, Bookmarks\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "65": {
+    "other": "Mehr über APPLICATION_TITLE im YouTube-Kanal erfahren!"
+  },
+  "66": {
+    "other": "\u003ch2\u003eAPPLICATION_TITLE auf iOS-Geräten verwenden\u003c/h2\u003e\n                            Das folgende Video erklärt die Verwendung der APPLICATION_TITLE App (verfügbar im App Store). Die Nutzung auf Android ist ähnlich.\n\u003cul\u003e\u003cli\u003eSerververbindung einrichten\u003c/li\u003e\n\u003cli\u003eDateinavigation\u003c/li\u003e\n\u003cli\u003eDateien offline speichern\u003c/li\u003e\n\u003cli\u003eApp mit einem PIN-Code schützen\u003c/li\u003e\n\u003cli\u003eVerwenden von Lesezeichen und der Suchfunktion\u003c/li\u003e\u003c/ul\u003e"
+  },
+  "67": {
+    "other": "Sie sind nicht %s? %logout"
+  },
+  "68": {
+    "other": "Sync-Client für Windows herunterladen"
+  },
+  "69": {
+    "other": "Sync-Client für Mac OSX herunterladen"
+  },
+  "70": {
+    "other": "App für iOS-Geräte"
+  },
+  "71": {
+    "other": "App für Android-Geräte"
+  },
+  "72": {
+    "other": "Server-QRCode"
+  },
+  "73": {
+    "other": "App schnell verbinden"
+  },
+  "74": {
+    "other": "QRCode scannen um eine Verbindung zum Server zu konfigurieren"
+  },
+  "75": {
+    "other": "Alle Dateien durchsuchen..."
+  },
+  "76": {
+    "other": "Über das Menü oben rechts können Sie auf die %1 zugreifen"
+  },
+  "77": {
+    "other": "Einstellungen"
+  },
+  "78": {
+    "other": "Wählen Sie eine Ziel-Arbeitsumgebung"
+  },
+  "79": {
+    "other": "\u003ch2\u003eSharing files and folders\u003c/h2\u003e\n            This tutorial shows you how to share files and folders, internally or externally\n            \u003cul\u003e\n                \u003cli\u003eCreating share links for external people\u003c/li\u003e\n                \u003cli\u003eSharing files and folders with internal collaborators\u003c/li\u003e\n                \u003cli\u003eSharing a folder as a workspace\u003c/li\u003e\n                \u003cli\u003eLayout options of shared folders\u003c/li\u003e\n                \u003cli\u003eCreating a blind drop folder\u003c/li\u003e\n                \u003cli\u003eManaging users and share rights\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "80": {
+    "other": "\u003ch2\u003eSharing : security features\u003c/h2\u003e\n            This video goes through the various share settings that help you secure your shares\n            \u003cul\u003e\n                \u003cli\u003ePassword protection\u003c/li\u003e\n                \u003cli\u003eExpiration date\u003c/li\u003e\n                \u003cli\u003eLimit the number of downloads\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "81": {
+    "other": "\u003ch2\u003eCustomize your share links\u003c/h2\u003e\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
+  },
+  "82": {
+    "other": "\u003ch2\u003eShared links custom rights\u003c/h2\u003e\n            This video shows you how to manage the permissions attached to your shares\n            \u003cul\u003e\n                \u003cli\u003ePreview\u003c/li\u003e\n                \u003cli\u003eDownload\u003c/li\u003e\n                \u003cli\u003eUpload / Edit\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "83": {
+    "other": "\u003ch2\u003eLanguage\u003c/h2\u003e\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+  },
+  "84": {
+    "other": "\u003ch2\u003eAlerts\u003c/h2\u003e\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+  },
+  "85": {
+    "other": "\u003ch2\u003eCollaborative edition\u003c/h2\u003e\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            \u003cul\u003e\n                \u003cli\u003eWork on text docs, presentations, spreadsheets\u003c/li\u003e\n                \u003cli\u003eEdit docs collaboratively in real time\u003c/li\u003e\n                \u003cli\u003eCreate new documents directly from your browser\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "86": {
+    "other": "Video abspielen"
+  },
+  "87": {
+    "other": "Historie"
+  },
+  "88": {
+    "other": "Dateien vom Desktop hierher ziehen"
+  },
+  "89": {
+    "other": "Zum Hochladen ausgeählte Datei"
+  },
+  "90": {
+    "other": "Ziel-Arbeitsumgebung auswählen"
+  },
+  "91": {
+    "other": "Dateien mit dem Sync-Client offline synchronisieren"
+  },
+  "92": {
+    "other": "Programme herunterladen"
+  },
+  "93": {
+    "other": "Dateien hochladen"
+  },
+  "94": {
+    "other": "Video-Tutorial"
+  },
+  "desc": {
+    "other": "Willkommen-Seite"
+  },
+  "title": {
+    "other": "Home"
+  }
+}

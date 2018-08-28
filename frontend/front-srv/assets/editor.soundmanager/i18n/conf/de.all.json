@@ -1,0 +1,8 @@
+{
+  "Sound Player": {
+    "other": "Audio-Manager"
+  },
+  "Uses HTML5 or Flash to play a sound": {
+    "other": "HTML5 oder Flash für das Abspieln von Musik benutzen. Benötigt 'editor.audio'."
+  }
+}

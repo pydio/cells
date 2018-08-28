@@ -1,0 +1,80 @@
+{
+  "Analyzer used by Zend to parse the queries. Warning, the UTF8 analyzers require the php mbstring extension.": {
+    "other": "Analyzeur utilisé par zend pour analyser les requêtes. Attention, les analysuers UTF8 requierent l'extension php mbstring."
+  },
+  "Auto-Wildcard": {
+    "other": "Auto-Joker"
+  },
+  "Automatically append a * after the user query to make the search broader": {
+    "other": "Ajoute * automatiquement à la fin de la recherche de le l'utilisateur pour élargir les résultats."
+  },
+  "For the sake of performances, it is not recommanded to use wildcard as a very first character of a query string. Lucene recommends asking the user minimum 3 characters before wildcard. Still, you can set it to 0 if necessary for your usecases.": {
+    "other": "Pour des raisons de performances, il n'est pas recommandé d'utiliser un joker en premier caractère d'une requête. Lucene recommande de demander, à l'utilisateur, au minimum, 3 caractères avant le joker. Toutefois, vous pouvez le définir à 0 si requis pour votre utilisation."
+  },
+  "Full path on the server to the 'pdftotext' binary": {
+    "other": "Chemin complet, sur le serveur, d'accès au programme 'pdftotext'"
+  },
+  "Full path on the server to the 'unoconv' binary": {
+    "other": "Chemin complet, sur le serveur, d'accès au programme 'unoconv'"
+  },
+  "HTML files": {
+    "other": "Fichiers HTML"
+  },
+  "Hide 'My Shares'": {
+    "other": "Cacher le panneau 'Mes Partages'"
+  },
+  "Hide My Shares section in the Orbit theme GUI.": {
+    "other": "Cacher le panneau 'Mes Partages' dans la colonne gauche du thème Orbit."
+  },
+  "If your repository path is defined dynamically by specific keywords like PYDIO_USER, or your own, mention them here.": {
+    "other": "Si le chemin de votre dépôt contient des mot-clés tel PYDIO_USER, les mentionner ici."
+  },
+  "Index Content": {
+    "other": "Indexer le contenu"
+  },
+  "Index Meta Fields": {
+    "other": "Champs métadonnées"
+  },
+  "List of extensions to consider as HTML file and parse content": {
+    "other": "Liste d'extensions considérées comme des fichiers HTML."
+  },
+  "List of extensions to consider as Text file and parse content": {
+    "other": "Liste d'extensions considérées comme des fichiers texte."
+  },
+  "Lucene Search Engine": {
+    "other": "Moteur de recherche Lucene"
+  },
+  "Parse Content Until": {
+    "other": "Analyser le contenu jusqu'à"
+  },
+  "Parses the file when possible and index its content (see plugin global options)": {
+    "other": "Indexe, si possible, le contenu des documents (voir les options du plugin)"
+  },
+  "PdftoText Path": {
+    "other": "Chemin de PdftoText"
+  },
+  "Query Analyzer": {
+    "other": "Analyseur de requêtes"
+  },
+  "Repository keywords": {
+    "other": "Mot-clés dépôt"
+  },
+  "Skip content parsing and indexation for files bigger than this size (must be in Bytes)": {
+    "other": "Ne pas analyser et indexer les fichiers dont la taille est plus grande que (en octets)"
+  },
+  "Text files": {
+    "other": "Fichiers texte"
+  },
+  "Unoconv Path": {
+    "other": "Chemin de Unoconv"
+  },
+  "Which additionnal fields to index and search": {
+    "other": "Liste de champs additionnels à indexer et rechercher"
+  },
+  "Wildcard limitation": {
+    "other": "Limitation des jokers"
+  },
+  "Zend_Search_Lucene implementation to index all files and search a whole repository quickly.": {
+    "other": "Intégration de la librairie Zend_Search_Lucene pour l'indexation des fichiers et la recherche rapide dans l'intégralité d'un dépôt."
+  }
+}

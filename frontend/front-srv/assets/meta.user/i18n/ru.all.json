@@ -1,0 +1,47 @@
+{
+  "1": {
+    "other": "Метаданные"
+  },
+  "10": {
+    "other": "Existing or new tag"
+  },
+  "11": {
+    "other": "No metadata set, click to add any"
+  },
+  "12": {
+    "other": "Multiple Selection:"
+  },
+  "13": {
+    "other": "check the fields that you want to update, value will be applied to all selected files"
+  },
+  "14": {
+    "other": "Edit meta"
+  },
+  "15": {
+    "other": "Save meta"
+  },
+  "2": {
+    "other": "Нет метки"
+  },
+  "3": {
+    "other": "Удалить рейтинг"
+  },
+  "4": {
+    "other": "Неважно"
+  },
+  "5": {
+    "other": "Сделать"
+  },
+  "6": {
+    "other": "Персональное"
+  },
+  "7": {
+    "other": "Работа"
+  },
+  "8": {
+    "other": "Важно"
+  },
+  "9": {
+    "other": "Нет значений"
+  }
+}

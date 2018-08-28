@@ -1,0 +1,833 @@
+{
+  "home.1": {
+    "other": "Acceso Rápido"
+  },
+  "home.10": {
+    "other": "Dirección IP"
+  },
+  "home.11": {
+    "other": "Acción en Archivo"
+  },
+  "home.12": {
+    "other": "Leyenda"
+  },
+  "home.13": {
+    "other": "Rango de Fechas"
+  },
+  "home.14": {
+    "other": "Último Día"
+  },
+  "home.15": {
+    "other": "Última Semana"
+  },
+  "home.16": {
+    "other": "Último Mes"
+  },
+  "home.17": {
+    "other": "Acción en Archivo (si el tipo es acción)"
+  },
+  "home.18": {
+    "other": "Intervalo de Actualización (segundos)"
+  },
+  "home.19": {
+    "other": "Widget Gráfico Pequeño"
+  },
+  "home.2": {
+    "other": "Selector de Fecha"
+  },
+  "home.20": {
+    "other": "Gráfico Grande"
+  },
+  "home.21": {
+    "other": "Gráfico"
+  },
+  "home.22": {
+    "other": "Subidas"
+  },
+  "home.23": {
+    "other": "Descargas"
+  },
+  "home.24": {
+    "other": "Archivos Compartidos"
+  },
+  "home.25": {
+    "other": "Conexiones"
+  },
+  "home.26": {
+    "other": "Diario"
+  },
+  "home.27": {
+    "other": "Semanal"
+  },
+  "home.28": {
+    "other": "Mensual"
+  },
+  "home.29": {
+    "other": "Frecuencia de Muestreo"
+  },
+  "home.3": {
+    "other": "Cursores de Páginas"
+  },
+  "home.30": {
+    "other": "Título"
+  },
+  "home.31": {
+    "other": "Eventos no encontrados."
+  },
+  "home.32": {
+    "other": "Eventos Recientes"
+  },
+  "home.33": {
+    "other": "Todo"
+  },
+  "home.34": {
+    "other": "Errores"
+  },
+  "home.35": {
+    "other": "Estado del Servidor"
+  },
+  "home.36": {
+    "other": "Ocupado"
+  },
+  "home.37": {
+    "other": "En espera"
+  },
+  "home.38": {
+    "other": "Espacio Usado"
+  },
+  "home.39": {
+    "other": "Espacio Libre"
+  },
+  "home.4": {
+    "other": "Fecha de Inicio"
+  },
+  "home.40": {
+    "other": "Uso de CPU"
+  },
+  "home.41": {
+    "other": "Uso de Disco"
+  },
+  "home.42": {
+    "other": "Carga del Servidor"
+  },
+  "home.43": {
+    "other": "Añadir atajo ..."
+  },
+  "home.44": {
+    "other": "Comenzando"
+  },
+  "home.45": {
+    "other": "Lo tengo, ¡no mostrar otra vez!"
+  },
+  "home.48": {
+    "other": "Eliminar"
+  },
+  "home.49": {
+    "other": "Añadir/eliminar Widgets"
+  },
+  "home.5": {
+    "other": "Fecha de Fin"
+  },
+  "home.50": {
+    "other": "Añadir un widget..."
+  },
+  "home.51": {
+    "other": "¿Está seguro? Se perderá la distribución actual."
+  },
+  "home.52": {
+    "other": "Crear Widget"
+  },
+  "home.53": {
+    "other": "Constructor del Panel"
+  },
+  "home.54": {
+    "other": "Personalice el panel, oculte los widgets pulsando en ELIMINAR. "
+  },
+  "home.55": {
+    "other": "Añada sus propios widgets, seleccione un tipo abajo, configúrelo y pulse Crear."
+  },
+  "home.56": {
+    "other": "Resetar Distribución"
+  },
+  "home.57": {
+    "other": "conexiones hoy"
+  },
+  "home.58": {
+    "other": "descargas hoy"
+  },
+  "home.59": {
+    "other": "subidas esta semana"
+  },
+  "home.6": {
+    "other": "Cargando..."
+  },
+  "home.60": {
+    "other": "archivos compartidos hoy"
+  },
+  "home.61": {
+    "other": "usuarios más activos hoy"
+  },
+  "home.62": {
+    "other": "IP más activa la última semana"
+  },
+  "home.63": {
+    "other": "más descargado la última semana"
+  },
+  "home.64": {
+    "other": "más visto la última semana"
+  },
+  "home.65": {
+    "other": "Actividad Archivos"
+  },
+  "home.66": {
+    "other": "Conexiones Web"
+  },
+  "home.67": {
+    "other": "Bienvenido al panel de administración. Como administrador del grupo, sólo está autorizado a gestionar los usuarios y workspaces de su grupo. Si quiere gestionar la configuración global de la aplicación entre como super administrador (el super administrador tiene que estar fuera de cualquier grupo)."
+  },
+  "home.68": {
+    "other": "Volver a Workspaces"
+  },
+  "home.69": {
+    "other": "Filtrar por Workspace"
+  },
+  "home.7": {
+    "other": "Widget más Activo"
+  },
+  "home.70": {
+    "other": "Dejar en blanco para todos los workspaces o seleccionar un workspace."
+  },
+  "home.71": {
+    "other": "Filtro Nombre de Archivo"
+  },
+  "home.72": {
+    "other": "Use *.ext para filtrar por extension, o prefix* para seleccionar sólo archivos con el prefijo."
+  },
+  "home.73": {
+    "other": "Si el tipo es una Acción en Archivo, seleccione la acción a monitorizar."
+  },
+  "home.74": {
+    "other": "Seleccionar toda actividad"
+  },
+  "home.75": {
+    "other": "Tareas Pendientes"
+  },
+  "home.76": {
+    "other": "Añada sus propias tareas"
+  },
+  "home.77": {
+    "other": "Tarea Ejemplo"
+  },
+  "home.78": {
+    "other": "hecho"
+  },
+  "home.79": {
+    "other": "El widget se ha añadido al panel"
+  },
+  "home.8": {
+    "other": "Tipo..."
+  },
+  "home.9": {
+    "other": "Usuarios"
+  },
+  "home.getting_started": {
+    "other": "Bienvenido al Panel de Administración. Este es tu centro de mandos para controlar todos los aspectos de la aplicación. Explora el navegador\n                        a la izquierda para gestionar usuarios, workspaces y parámetros de la aplicación. Puede personalizar este panel\n                        con gráficos para hacer más eficiente la gestión. Abra el Constructor del Panel pulsando\n                        en el botón naranja de abajo a la derecha y adaña o elimine sus widgets. Puede reorganizar\n                        las insignias simplemente pulsando y arrastrándolas.\u003cbr/\u003e\n                        Si necesita ayuda para rellenar los formularios, cuando vea el símbolo \u003cspan class='icon-question-sign'\u003e\u003c/span\u003e,\n                        púlselo para abrir Pydio Companion.\n    "
+  },
+  "logs.1": {
+    "other": "Registro del Servidor"
+  },
+  "logs.10": {
+    "other": "Exportar y descargar"
+  },
+  "logs.11": {
+    "other": "Exportar..."
+  },
+  "logs.2": {
+    "other": "Seleccione un día"
+  },
+  "logs.3": {
+    "other": "Filtrar Registros"
+  },
+  "logs.4": {
+    "other": "Pulse en la columna para detalles"
+  },
+  "logs.5": {
+    "other": "Detalle del Evento"
+  },
+  "logs.6": {
+    "other": "Exportar registro"
+  },
+  "logs.7": {
+    "other": "Exportar desde"
+  },
+  "logs.8": {
+    "other": "A"
+  },
+  "logs.9": {
+    "other": "El archivo se exportará en formato CSV con semi-columnas separadas por (;) y campos entre comillas (\")."
+  },
+  "menu.0": {
+    "other": "Panel"
+  },
+  "menu.1": {
+    "other": "Actividad"
+  },
+  "menu.10": {
+    "other": "Extensiones para enviar archivos desde la interfaz Web"
+  },
+  "menu.11": {
+    "other": "--- Autenticación"
+  },
+  "menu.11b": {
+    "other": "Autenticación"
+  },
+  "menu.12": {
+    "other": "--- Backends Configuración"
+  },
+  "menu.13": {
+    "other": "--- Registros"
+  },
+  "menu.14": {
+    "other": "Notificaciones"
+  },
+  "menu.15": {
+    "other": "Cómo reciben los usuarios notificaciones de varias partes de la aplicación."
+  },
+  "menu.16": {
+    "other": "Pydio Booster"
+  },
+  "menu.17": {
+    "other": "Mesajería instantánea y acelerador externo"
+  },
+  "menu.18": {
+    "other": "Todos los Plugins"
+  },
+  "menu.19": {
+    "other": "Plugins Disponibles"
+  },
+  "menu.2": {
+    "other": "Registros"
+  },
+  "menu.20": {
+    "other": "Funciones de Usuario"
+  },
+  "menu.21": {
+    "other": "Parámetros de Usuario"
+  },
+  "menu.22": {
+    "other": "Página de Bienvenida"
+  },
+  "menu.23": {
+    "other": "Página de usuario después del login. Configure los elementos y enlaces mostrados."
+  },
+  "menu.3": {
+    "other": "Apariencia"
+  },
+  "menu.4": {
+    "other": "Tema, logos, apariencia"
+  },
+  "menu.5": {
+    "other": "Funciones de Intercambio"
+  },
+  "menu.6": {
+    "other": "Opciones para todos los archivos y carpetas compartidas"
+  },
+  "menu.7": {
+    "other": "Editores"
+  },
+  "menu.8": {
+    "other": "Activar/desactivar editores y gestionar parámetros"
+  },
+  "menu.9": {
+    "other": "Uploaders"
+  },
+  "perfs.booster.description": {
+    "other": "Comprueba que Pydio Booster está funcionando y hay comunicación via WebSocket"
+  },
+  "perfs.booster.error": {
+    "other": "Error en Pydio Booster Error, ver panel dedicado"
+  },
+  "perfs.booster.help": {
+    "other": "Pydio Booster proporciona una herramienta adicional para añadir soporte WebSocket y aceleradores de subida y descarga en Pydio."
+  },
+  "perfs.booster.title": {
+    "other": "Pydio Booster"
+  },
+  "perfs.cache.description": {
+    "other": "Comprueba que Pydio está configurado para usar la capa de cache"
+  },
+  "perfs.cache.error": {
+    "other": "Parece que no ha activado el servicio de cache."
+  },
+  "perfs.cache.help": {
+    "other": "Pydio puede conectarse a un servidor cache externo como Redis o Memcache o usar in-memory cache para mejorar el rendimiento de navegación."
+  },
+  "perfs.cache.title": {
+    "other": "Pydio Cache"
+  },
+  "perfs.cli.description": {
+    "other": "Ejecute tareas usando la línea de comandos."
+  },
+  "perfs.cli.error": {
+    "other": "Atención, ¡la línea de comandos no está activada!"
+  },
+  "perfs.cli.help": {
+    "other": "Active la línea de comandos en los parámetros principales. Esto mejora enórmemente el rendimiento para los usuarios, las tareas pesadas se delegan a otros procesos"
+  },
+  "perfs.cli.title": {
+    "other": "Línea de Comandos PHP"
+  },
+  "perfs.debug.description": {
+    "other": "Comprueba si los modos debug están desactivados en este servidor"
+  },
+  "perfs.debug.error": {
+    "other": "Atención, ¡PYDIO_SERVER_DEBUG, PYDIO_CLIENT_DEBUG o PYDIO_SKIP_CACHE está ajustado como True!"
+  },
+  "perfs.debug.help": {
+    "other": "Asegúrese de desactivar los modos debug en el servidor. Edite manualmente el archivo conf/bootstrap_context.php (o /etc/pydio/bootstrap_context.php)."
+  },
+  "perfs.debug.title": {
+    "other": "Modos Debug"
+  },
+  "perfs.desc": {
+    "other": "Analizando su configuración para posibles mejoras."
+  },
+  "perfs.load.description": {
+    "other": "Detecta alta carga en el servidor (sólo Linux)"
+  },
+  "perfs.load.error": {
+    "other": "Posiblemente deba añadir más CPU o RAM a su servidor."
+  },
+  "perfs.load.help": {
+    "other": "Una carga alta del servidor puede indicar que a su servidor le falta CPU o RAM para su uso de Pydio."
+  },
+  "perfs.load.title": {
+    "other": "Carga del Servidor"
+  },
+  "perfs.mailer.description": {
+    "other": "Comprueba que el gestor de correo está usando la funcionalidad de Cola"
+  },
+  "perfs.mailer.error": {
+    "other": "El gestor de correos no está configurado para aplazar el envío de correos."
+  },
+  "perfs.mailer.help": {
+    "other": "El uso de colas de correo permite que no se envíen los correos directamente durante cada acción o petición, los almacena en una base de datos y se procesa la cola de forma independiente."
+  },
+  "perfs.mailer.title": {
+    "other": "Cola de Correo"
+  },
+  "perfs.more": {
+    "other": "Más información"
+  },
+  "perfs.opcache.description": {
+    "other": "Comprueba que PHP Opcode cache está activo"
+  },
+  "perfs.opcache.error": {
+    "other": "Could not detect any php extension from APC, APCu, Opcache or XCache."
+  },
+  "perfs.opcache.help": {
+    "other": "Pydio es una plataforma PHP que requiere cargar muchos archivos en memoria. Asegúrese que tiene activado PHP Opcache como APC/u, Opcache o XCache."
+  },
+  "perfs.opcache.title": {
+    "other": "Extensión Opcode Cache"
+  },
+  "perfs.score": {
+    "other": "Puntuación Rendimiento"
+  },
+  "perfs.tests": {
+    "other": "Tests de Rendimiento"
+  },
+  "perfs.title": {
+    "other": "Rendimiento del Sistema"
+  },
+  "perfs.widget": {
+    "other": "Añadir widget al panel"
+  },
+  "plugins.1": {
+    "other": "Opciones Generales"
+  },
+  "plugins.2": {
+    "other": "Controlador Maestro"
+  },
+  "plugins.3": {
+    "other": "Controlador Secundario"
+  },
+  "plugins.4": {
+    "other": "Los plugins de edición son visores/editores asociados a un tipo de archivo en la aplicación.\n                    Estos plugins son gestionados especificamente en la interfaz (extensiones) y pueden declarar el mimetype que soportan.\n                    Se puede ordenar la prioridad de los plugins para la acción 'abrir con...'."
+  },
+  "plugins.5": {
+    "other": "Guardar Cambios"
+  },
+  "plugins.6": {
+    "other": "Revertir"
+  },
+  "react.1": {
+    "other": "directorio anterior"
+  },
+  "react.10": {
+    "other": "Heredar Permisos"
+  },
+  "react.11": {
+    "other": "Vaciar Permisos"
+  },
+  "react.12": {
+    "other": "Limpar Permisos"
+  },
+  "react.13": {
+    "other": "Mostrar permisos completos"
+  },
+  "react.14": {
+    "other": "Mostrar árbol"
+  },
+  "react.2": {
+    "other": "acciones en bloque"
+  },
+  "react.3": {
+    "other": "Buscar resultado para '%s'"
+  },
+  "react.4": {
+    "other": "Cerrar Resultados"
+  },
+  "react.5": {
+    "other": "denegar"
+  },
+  "react.5a": {
+    "other": "leer"
+  },
+  "react.5b": {
+    "other": "escribir"
+  },
+  "react.6": {
+    "other": "hijo"
+  },
+  "react.7": {
+    "other": "Crear regla"
+  },
+  "react.8": {
+    "other": "Empezará a gestionar los permisos a bajo nivel. Este directorio será leido\n                        por defecto y podrá gestionar los permisos selectivamente en los directorios hijos. Elija\n                        si desea copiar los permisos actuales a los hijos o limpiar sus permisos, esto último los haría\n                        inaccesibles por defecto."
+  },
+  "react.9": {
+    "other": "Está a punto de dehabilitar los permisos de gestión en el sub-nivel:\n                        todos los hijos heredarán los permisos de este directorio y su configuración actual\n                        para los hijos se perderá. ¿Está seguro?"
+  },
+  "scheduler.1": {
+    "other": "El Planificador se usa para lanzar tareas automáticamente de forma regular. Requiere lanzar un comando regularmente: si usa Pydio Booster, este lo lanzará por usted. En otro caso, use CRON para lanzar el comando cada minuto."
+  },
+  "scheduler.2": {
+    "other": "La línea de comandos no está habilitada en %1, el planificador no puede lanzar los trabajos."
+  },
+  "scheduler.3": {
+    "other": "configuración global"
+  },
+  "user.1": {
+    "other": "+ Usuario"
+  },
+  "user.10": {
+    "other": "Acceder a %i workspaces"
+  },
+  "user.11": {
+    "other": "%i roles"
+  },
+  "user.12": {
+    "other": "Ruta Grupo"
+  },
+  "user.13": {
+    "other": "compartido"
+  },
+  "user.14": {
+    "other": "Crear nuevo rol"
+  },
+  "user.15": {
+    "other": "Crear nuevo grupo"
+  },
+  "user.16": {
+    "other": "Identificador de Grupo"
+  },
+  "user.17": {
+    "other": "Etiqueta de Grupo"
+  },
+  "user.18": {
+    "other": "Identificador de Rol"
+  },
+  "user.19": {
+    "other": "Crear un nuevo usuario"
+  },
+  "user.2": {
+    "other": "+ Grupo"
+  },
+  "user.20": {
+    "other": "El usuario se creará en el grupo %s"
+  },
+  "user.21": {
+    "other": "Login usuario"
+  },
+  "user.22": {
+    "other": "Contraseña usuario"
+  },
+  "user.23": {
+    "other": "Confirmar contraseña"
+  },
+  "user.24": {
+    "other": "Grupo Raiz"
+  },
+  "user.25": {
+    "other": "Rol del Grupo Raiz"
+  },
+  "user.26": {
+    "other": "%s Rol del Grupo"
+  },
+  "user.27": {
+    "other": "Rol Personal del Usuario"
+  },
+  "user.3": {
+    "other": "Grupos"
+  },
+  "user.4": {
+    "other": "Roles"
+  },
+  "user.5": {
+    "other": "Grupos y Usuarios"
+  },
+  "user.6": {
+    "other": "+ Rol"
+  },
+  "user.7": {
+    "other": "Buscar usuarios y grupos"
+  },
+  "user.8": {
+    "other": "Ajuste los parámetros de este grupo para aplicarlos a todos los grupos y usuarios."
+  },
+  "user.9": {
+    "other": "Última conexión"
+  },
+  "ws.1": {
+    "other": "Gestionar Plantillas"
+  },
+  "ws.10": {
+    "other": "Seleccionar plantilla"
+  },
+  "ws.11": {
+    "other": "Workspace basado en ..."
+  },
+  "ws.12": {
+    "other": "Plantilla %s"
+  },
+  "ws.13": {
+    "other": "Opciones de Plantilla"
+  },
+  "ws.14": {
+    "other": "Ajustar Opciones Genéricas"
+  },
+  "ws.15": {
+    "other": "Opciones de Workspace"
+  },
+  "ws.16": {
+    "other": "Elegir Controlador de Almacenamiento"
+  },
+  "ws.17": {
+    "other": "Seleccionar Tipo de Almacenamiento"
+  },
+  "ws.18": {
+    "other": "Cargando controladores"
+  },
+  "ws.19": {
+    "other": "Guardar para añadir funciones"
+  },
+  "ws.2": {
+    "other": "Cerrar Plantillas"
+  },
+  "ws.20": {
+    "other": "Crear"
+  },
+  "ws.21": {
+    "other": "Opciones Generales de Plantilla"
+  },
+  "ws.22": {
+    "other": "Opciones Generales de Workspace"
+  },
+  "ws.23": {
+    "other": "Borrar workspace"
+  },
+  "ws.24": {
+    "other": "Workspaces Hijos"
+  },
+  "ws.25": {
+    "other": "Intercambios"
+  },
+  "ws.26": {
+    "other": "Permisos de Carpetas"
+  },
+  "ws.27": {
+    "other": "Funciones Adicionales"
+  },
+  "ws.28": {
+    "other": "Resumen"
+  },
+  "ws.29": {
+    "other": "Parámetros"
+  },
+  "ws.3": {
+    "other": "+ workspace"
+  },
+  "ws.30": {
+    "other": "Opciones Generales"
+  },
+  "ws.31": {
+    "other": "Eliminar Funcion"
+  },
+  "ws.32": {
+    "other": "Añadir una función..."
+  },
+  "ws.33": {
+    "other": "Actividad Reciente"
+  },
+  "ws.34": {
+    "other": "Últimos eventos en este workspace"
+  },
+  "ws.35": {
+    "other": "Accesible a %i usuarios"
+  },
+  "ws.36": {
+    "other": "+ %i archivos o carpetas compartidas"
+  },
+  "ws.37": {
+    "other": "Workspaces usando esta plantilla"
+  },
+  "ws.38": {
+    "other": "Elementos Compartidos en este workspace"
+  },
+  "ws.39": {
+    "other": "Propietario"
+  },
+  "ws.4": {
+    "other": "+ Plantilla"
+  },
+  "ws.40": {
+    "other": "Tipo de Intercambio"
+  },
+  "ws.41": {
+    "other": "Ruta"
+  },
+  "ws.42": {
+    "other": "Permisos de la Carpeta"
+  },
+  "ws.43": {
+    "other": "Especifique aquí los permisos de acceso por defecto para las carpetas del workspace.\n                                Para activar la gestión de permisos en subniveles, seleccione 'HIJOS' en la carpeta seleccionada.\n                                Esto hará la carpeta actual de sólo lectura por defecto y podrá seleccionar permisos de acceso\n                                selectivamente en las subcarpetas."
+  },
+  "ws.44": {
+    "other": "Asegúrese que esta es la unica máscara: si modificar las carpetas reales directamente, tendrá\n                                que editar esta máscara en concordancia. Además, estos permisos pueden estar limitados por 'Permisos por Defecto'\n                                seleccionados para este workspace (ver pestaña General)."
+  },
+  "ws.45": {
+    "other": "Dado que se está usando 'PYDIO_USER' o 'PYDIO_GROUP_*', el contenido de\n                                este workspace variará dependiendo del usuario autenticado. Por esta razón, no puede navegar\n                                directamente por las carpetas y asignarles permisos, pero puede definir rutas genéricas que se usarán como máscaras."
+  },
+  "ws.46": {
+    "other": "Añadir funcionalidad"
+  },
+  "ws.47": {
+    "other": "Seleccionar funcionalidad"
+  },
+  "ws.48": {
+    "other": "Atención, este workspace/plantilla no es editable ya que está definido directamente en el archivo conf/bootstrap_repositories.php."
+  },
+  "ws.49": {
+    "other": ""
+  },
+  "ws.4b": {
+    "other": "+ versioning policy"
+  },
+  "ws.5": {
+    "other": "Slug"
+  },
+  "ws.50": {
+    "other": "Indexación"
+  },
+  "ws.51": {
+    "other": "Este workspace tiene un indexador (%s). Normalmente, la indexación se realiza \"on-the-fly\" cuando se añaden o borran archivos\n                    en las interfaces de la aplicación. Sin embargo, si se hacen modificaciones directamente a nivel de almacenamiento, puede tener\n                    que lanzar la indexación manualmente. Use los botones de abajo para indexar ahora o para programar una tarea en el planificador\n                    para indexar regularmente."
+  },
+  "ws.52": {
+    "other": "Como este workspace tiene contenido específico por usuario, la indexación se lanza para cada usuario."
+  },
+  "ws.53": {
+    "other": "Lanzando indexación ahora"
+  },
+  "ws.54": {
+    "other": "Planificar cada día a las 3AM"
+  },
+  "ws.55": {
+    "other": "Purga Automática"
+  },
+  "ws.56": {
+    "other": "Este workspace tiene configurado \"purgar\", para eliminar documentos automáticamente que no se han usado desde hace %s días. Asegúrese que añade una tarea\n                    en el planificador para procesar regularmente este workspace y buscar documentos expirados. Puede usar los botones de abajo para crear esta tarea automáticamente\n                    o purgar directamente."
+  },
+  "ws.57": {
+    "other": "Como este workspace tiene contenido específico por usuario, la purga se lanza para cada usuario."
+  },
+  "ws.58": {
+    "other": "Purgar ahora"
+  },
+  "ws.59": {
+    "other": "Planificar cada día a las 4AM"
+  },
+  "ws.6": {
+    "other": "Nuevo Workspace"
+  },
+  "ws.60": {
+    "other": "Actividad del Workspace"
+  },
+  "ws.61": {
+    "other": "La actividad del workspace se muestra a los usuarios en el panel de la derecha. Puede limpiar toda la actividad\n                            para este workspace, esto puede ser útil por ejemplo para pasar a producción después de estar en pruebas\n                            y haber hecho algunos tests en este workspace."
+  },
+  "ws.62": {
+    "other": "Limpiar Actividad"
+  },
+  "ws.63": {
+    "other": "Atención, esto limpiará toda la actividad de este workspace mostrada a los usuarios. ¿Está seguro?"
+  },
+  "ws.64": {
+    "other": "Limpiados %s eventos"
+  },
+  "ws.65": {
+    "other": "Manteniemiento del Workspace"
+  },
+  "ws.66": {
+    "other": "Lanzando Tareas"
+  },
+  "ws.67": {
+    "other": "No hay tareas"
+  },
+  "ws.68": {
+    "other": "Sin parámetros"
+  },
+  "ws.69": {
+    "other": "Workspace basado en plantilla"
+  },
+  "ws.7": {
+    "other": "Nueva Plantilla"
+  },
+  "ws.70": {
+    "other": "Workspace basado en controlador"
+  },
+  "ws.71": {
+    "other": "Completar los pasos anteriores"
+  },
+  "ws.72": {
+    "other": "Rellenar formulario a la derecha"
+  },
+  "ws.73": {
+    "other": "Seleccione valor antes de continuar"
+  },
+  "ws.74": {
+    "other": "Use the form on the right to create a new DataSource. "
+  },
+  "ws.75": {
+    "other": "A DataSource defines where your data is stored."
+  },
+  "ws.76": {
+    "other": "Pydio will aggregate all your datasources into one master tree, on which you can assign rights using workspaces."
+  },
+  "ws.8": {
+    "other": "Plantilla Existente"
+  },
+  "ws.9": {
+    "other": "Datasource Nodes"
+  }
+}

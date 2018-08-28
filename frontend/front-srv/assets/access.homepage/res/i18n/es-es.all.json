@@ -1,0 +1,179 @@
+{
+  "39": {
+    "other": "Seleccione un repositorio"
+  },
+  "40": {
+    "other": "Bienvenido/a, %s"
+  },
+  "41": {
+    "other": "Usar este repositorio por defecto"
+  },
+  "42": {
+    "other": "Entrar"
+  },
+  "43": {
+    "other": "Mi perfil"
+  },
+  "43t": {
+    "other": "Todos mis datos personales"
+  },
+  "44": {
+    "other": "Mi cuenta"
+  },
+  "45": {
+    "other": "Datos personales"
+  },
+  "46": {
+    "other": "Libreta de direcciones"
+  },
+  "47": {
+    "other": "Usuarios y equipos que ha creado"
+  },
+  "48": {
+    "other": "Mis usuarios"
+  },
+  "49": {
+    "other": "Usuarios externos que ha creado"
+  },
+  "50": {
+    "other": "Mis equipos"
+  },
+  "51": {
+    "other": "Equipos de usuarios, usados como accesos directos al compartir"
+  },
+  "52": {
+    "other": "¿Está seguro de que desea eliminar este equipo? Esta acción no eliminará ningún usuario."
+  },
+  "53": {
+    "other": "Empezando"
+  },
+  "54": {
+    "other": "Comience con APPLICATION_TITLE siguiendo estos videos How-to"
+  },
+  "55": {
+    "other": "¿Necesita ayuda para \u003ca\u003eempezar?\u003c/a\u003e"
+  },
+  "56": {
+    "other": "¿Primeros pasos con APPLICATION_TITLE? ¡Aquí tiene algunos videos!"
+  },
+  "57": {
+    "other": "Descargar APPLICATION_TITLE para..."
+  },
+  "58": {
+    "other": "Android"
+  },
+  "59": {
+    "other": "iPhone/iPad"
+  },
+  "60": {
+    "other": "Mac OS (Beta)"
+  },
+  "61": {
+    "other": "Windows (Beta)"
+  },
+  "62": {
+    "other": "\u003ch2\u003e¿Qué es un Workspace?\u003c/h2\u003e\n            Este vídeo explica que son los Workspaces en APPLICATION_TITLE\n            \u003cul\u003e\n                \u003cli\u003e¿Por qué APPLICATION_TITLE se centra en los Workspaces?\u003c/li\u003e\n                \u003cli\u003e¿Qué son los Workspaces desde una perspectiva técnica?\u003c/li\u003e\n                \u003cli\u003e¿Cómo te permiten organizar tus datos?\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "63": {
+    "other": "\u003ch2\u003eSubir archivos a APPLICATION_TITLE\u003c/h2\u003e\n            Cómo subir archivos a APPLICATION_TITLE\n            \u003cul\u003e\n                \u003cli\u003eArrastra y suelta archivos en APPLICATION_TITLE\u003c/li\u003e\n                \u003cli\u003eCrear un nuevo directorio\u003c/li\u003e\n                \u003cli\u003eRenombrar archivos y directorios\u003c/li\u003e\n                \u003cli\u003eDescargar archivos en tu ordenador\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "64": {
+    "other": "\u003ch2\u003eBusca, explora y gestiona tus archivos\u003c/h2\u003e\n            Este vídeo muestra varios consejos para gestionar tus archivos en APPLICATION_TITLE\n            \u003cul\u003e\n                \u003cli\u003eBarra de búsqueda para todos los Workspaces\u003c/li\u003e\n                \u003cli\u003eModos de visualización de contenidos, Atajos de teclado\u003c/li\u003e\n                \u003cli\u003eOrdenar archivos\u003c/li\u003e\n                \u003cli\u003eMetadatos, Favoritos\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "65": {
+    "other": "¡Descubre más en el canal de APPLICATION_TITLE!"
+  },
+  "66": {
+    "other": "\u003ch2\u003eUsar APPLICATION_TITLE en dispositivos iOS\u003c/h2\u003e\n            Este video muestra como usar la aplicación APPLICATION_TITLE (disponible en el App Store). El proceso es bastante similar en Android.\n\t\t\t\u003cul\u003e\n\t\t\t\t\u003cli\u003eConfigurar la conexión del servidor\u003c/li\u003e\n\t\t\t\t\u003cli\u003eNavegar a través de los archivos\u003c/li\u003e\n\t\t\t\t\u003cli\u003eMantener los archivos fuera de línea y la interacción con aplicaciones externas\u003c/li\u003e\n\t\t\t\t\u003cli\u003eProtegiendo la aplicación mediante un código PIN\u003c/li\u003e\n\t\t\t\t\u003cli\u003eUsando marcadores y el motor de búsqueda\u003c/li\u003e\u003c/ul\u003e"
+  },
+  "67": {
+    "other": "¿No eres %s? %logout"
+  },
+  "68": {
+    "other": "Descargar el Cliente de Sincronización para Windows"
+  },
+  "69": {
+    "other": "Descargar el Cliente de Sincronización para Mac"
+  },
+  "70": {
+    "other": "Descargar la aplicación nativa para dispositivos iOS"
+  },
+  "71": {
+    "other": "Descargar la aplicación nativa para dispositivos Android"
+  },
+  "72": {
+    "other": "QRCode del Servidor"
+  },
+  "73": {
+    "other": "Conecta fácilmente a tu aplicación móvil"
+  },
+  "74": {
+    "other": "Escanéa este QRCode con tu aplicación móvil para configurar fácilmente la conexión"
+  },
+  "75": {
+    "other": "Buscar todos los archivos..."
+  },
+  "76": {
+    "other": "Acceder al %1 a través de el menú superior derecho"
+  },
+  "77": {
+    "other": "panel de administrador"
+  },
+  "78": {
+    "other": "Seleccionar un workspace"
+  },
+  "79": {
+    "other": "\u003ch2\u003eCompartiendo archivos y carpetas\u003c/h2\u003e\n            Este tutorial muestra como compartir archivos y carpetas interna o externamente\n            \u003cul\u003e\n                \u003cli\u003eCreando enlaces para compartir externamente\u003c/li\u003e\n                \u003cli\u003eCompartiendo archivos y directorios con colaboradores internos\u003c/li\u003e\n                \u003cli\u003eCompartiendo un directorio como Workspace\u003c/li\u003e\n                \u003cli\u003eOpciones de disposición para directorios compartidos\u003c/li\u003e\n                \u003cli\u003eCreando un directorio «blind drop»\u003c/li\u003e\n                \u003cli\u003eGestionando usuarios y permisos de archivos compartidos\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "80": {
+    "other": "\u003ch2\u003eCompartiendo: seguridad\u003c/h2\u003e\n            Este video muestra opciones para compartir que ayudaran a hacer más seguros tus intercambios\n            \u003cul\u003e\n                \u003cli\u003eProtección con contraseña\u003c/li\u003e\n                \u003cli\u003eTiempo de expiración\u003c/li\u003e\n                \u003cli\u003eLimitar el número de descargas\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "81": {
+    "other": "\u003ch2\u003ePersonaliza tus enlaces\u003c/h2\u003e\n            Aprende como personalizar la URL de tus enlaces de intercambio para hacerlos más amigables\n            "
+  },
+  "82": {
+    "other": "\u003ch2\u003eShared links custom rights\u003c/h2\u003e\n            Este vídeo muestra como gestionar los permisos de tus archivos compartidos\n            \u003cul\u003e\n                \u003cli\u003ePrevisualizar\u003c/li\u003e\n                \u003cli\u003eDescargar\u003c/li\u003e\n                \u003cli\u003eSubir / Editar\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "83": {
+    "other": "\u003ch2\u003eIdioma\u003c/h2\u003e\n            APPLICATION_TITLE está disponible en 28 idiomas. Este vídeo muestra como cambiar el idioma de APPLICATION_TITLE\n            "
+  },
+  "84": {
+    "other": "\u003ch2\u003eAlertas\u003c/h2\u003e\n            Aprende como configurar alertas en un archivo para ver cuando se modifica o se consulta.\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+  },
+  "85": {
+    "other": "\u003ch2\u003eEdición Colaborativa\u003c/h2\u003e\n            Este vídeo muestra como colaborar en documentos Office gracias a Collabora Online Office Suite\n            \u003cul\u003e\n                \u003cli\u003eTrabaja con documentos de texto, presentaciónes y tablas\u003c/li\u003e\n                \u003cli\u003eEdita documentos de forma colaborativa en tiempo real\u003c/li\u003e\n                \u003cli\u003eCrear documentos nuevos desde tu navegador\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+  },
+  "86": {
+    "other": "Reproducir vídeo"
+  },
+  "87": {
+    "other": "Historia Reciente"
+  },
+  "88": {
+    "other": "Suelta un archivo aquí desde tu escritorio"
+  },
+  "89": {
+    "other": "Seleccionado archivo para subir"
+  },
+  "90": {
+    "other": "Seleccionar workspace de destino"
+  },
+  "91": {
+    "other": "Archivos offline con Desktop Sync Client"
+  },
+  "92": {
+    "other": "Applications Download"
+  },
+  "93": {
+    "other": "Quick Upload"
+  },
+  "94": {
+    "other": "Video Tutorial"
+  },
+  "desc": {
+    "other": "Página de bienvenida"
+  },
+  "title": {
+    "other": "Inicio"
+  }
+}

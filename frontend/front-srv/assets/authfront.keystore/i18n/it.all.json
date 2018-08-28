@@ -1,0 +1,29 @@
+{
+  "1": {
+    "other": "Chiavi API"
+  },
+  "2": {
+    "other": "Gestisci le chiavi API create dai dispositivi client, come telefoni, client di sincronizzazione ecc..."
+  },
+  "3": {
+    "other": "Genera una chiave"
+  },
+  "4": {
+    "other": "Genera una coppia di chiavi API"
+  },
+  "5": {
+    "other": "Revoca tutti gli accessi"
+  },
+  "6": {
+    "other": "Invalida le chiavi API esistenti"
+  },
+  "7": {
+    "other": "Sicuro di voler revocare questa/e chiave/i?"
+  },
+  "8": {
+    "other": "Chiave/i rimossa/e correttamente!"
+  },
+  "9": {
+    "other": "Dispositivi connessi al tuo account"
+  }
+}

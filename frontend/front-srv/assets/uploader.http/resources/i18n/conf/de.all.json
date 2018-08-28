@@ -1,0 +1,8 @@
+{
+  "Async downloader to load a file from another source": {
+    "other": "Datei asynchron von einem entfernten HTTP-Server laden"
+  },
+  "Remote Download": {
+    "other": "HTTP-Server"
+  }
+}
