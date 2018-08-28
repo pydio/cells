@@ -60,7 +60,7 @@ func (p *PluginsPool) Load(fs *UnionHttpFs) error {
 	p.Messages = make(map[string]I18nMessages)
 	for lang, _ := range utils.AvailableLanguages {
 		p.Messages[lang] = p.I18nMessages(lang)
-		log.Logger(context.Background()).Info("Loading messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
+		log.Logger(context.Background()).Debug("Loading messages for "+lang, zap.Int("m", len(p.Messages[lang].Messages)), zap.Int("conf", len(p.Messages[lang].ConfMessages)))
 	}
 
 	return nil
