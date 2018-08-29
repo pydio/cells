@@ -85,7 +85,7 @@ func LastKnownVersion(serviceName string) (v *version.Version, e error) {
 func UpdateVersion(serviceName string, v *version.Version) error {
 
 	dir, err := config.ServiceDataDir(serviceName)
-	if err == nil {
+	if err != nil {
 		return err
 	}
 	versionFile := filepath.Join(dir, "version")
