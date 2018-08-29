@@ -289,7 +289,12 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 			val = false
 		}
 		if c != nil {
-			val = c.Bool(val.(bool))
+			if c.String("") != "" {
+				// May have been stored as a string
+				val, _ = strconv.ParseBool(c.String("false"))
+			} else {
+				val = c.Bool(val.(bool))
+			}
 		}
 		if aclParam != nil {
 			for _, scope := range status.WsScopes {
@@ -305,7 +310,12 @@ func (plugin *Cplugin) PluginConfig(status RequestStatus, param *Cglobal_param) 
 			val = 0
 		}
 		if c != nil {
-			val = c.Int(0)
+			if c.String("") != "" {
+				// May have been stored as a string
+				val, _ = strconv.ParseInt(c.String(""), 10, 32)
+			} else {
+				val = c.Int(0)
+			}
 		}
 		if aclParam != nil {
 			for _, scope := range status.WsScopes {
