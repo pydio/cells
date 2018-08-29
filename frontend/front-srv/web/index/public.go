@@ -97,6 +97,7 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	tplConf.StartParameters = startParameters
 
+	w.Header().Set("Content-Type", "text/html; charset=utf8")
 	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 		out := gzip.NewWriter(w)
 		defer out.Close()

@@ -48,7 +48,7 @@ var (
 // Detect datasources created during install and create workspaces on them
 func FirstRun(ctx context.Context) error {
 
-	<-time.After(5 * time.Second)
+	<-time.After(15 * time.Second)
 
 	var hasPersonal bool
 	// List datasources from configs
