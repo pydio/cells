@@ -93,6 +93,9 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 		Request:       req.Request,
 	}
 	registry := pool.RegistryForStatus(ctx, status)
+	//	compress, _ := restful.NewCompressingResponseWriter(rsp.ResponseWriter, restful.ENCODING_GZIP)
+	//	defer compress.Close()
+	//	rsp.ResponseWriter = compress
 	rsp.WriteAsXml(registry)
 }
 
@@ -316,7 +319,8 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 		if e == nil {
 			defer reader.Close()
 			rsp.Header().Set("Content-Type", "image/"+extension)
-			rsp.Header().Set("Content-Length", fmt.Sprintf("%d", info.Node.Size))
+			// Do not set Content-Length here, as it will collide with GZIP encoding
+			//rsp.Header().Set("Content-Length", fmt.Sprintf("%d", info.Node.Size))
 			_, e := io.Copy(rsp.ResponseWriter, reader)
 			if e != nil {
 				service.RestError500(req, rsp, e)

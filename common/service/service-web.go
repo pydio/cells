@@ -150,6 +150,8 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 			}
 
 			wc := restful.NewContainer()
+			// Enable globally gzip,deflate encoding globally
+			wc.EnableContentEncoding(true)
 			wc.Add(ws)
 
 			var e error
