@@ -1,11 +1,13 @@
 package index
 
 import (
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -94,6 +96,15 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		startParameters["PASSWORD_AUTH_ONLY"] = true
 	}
 	tplConf.StartParameters = startParameters
+
+	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+		out := gzip.NewWriter(w)
+		defer out.Close()
+		w.Header().Set("Content-Encoding", "gzip")
+		w.WriteHeader(200)
+		h.tpl.Execute(out, tplConf)
+		return
+	}
 
 	w.WriteHeader(200)
 	h.tpl.Execute(w, tplConf)

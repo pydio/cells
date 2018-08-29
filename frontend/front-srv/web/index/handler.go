@@ -1,12 +1,14 @@
 package index
 
 import (
+	"compress/gzip"
+	"context"
 	"html/template"
 	"net/http"
-
-	"context"
+	"strings"
 
 	"github.com/gorilla/mux"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -16,6 +18,7 @@ import (
 
 type IndexHandler struct {
 	tpl              *template.Template
+	loadingTpl       *template.Template
 	frontendDetected bool
 }
 
@@ -33,6 +36,7 @@ type TplConf struct {
 func NewIndexHandler() *IndexHandler {
 	h := &IndexHandler{}
 	h.tpl, _ = template.New("index").Parse(page)
+	h.loadingTpl, _ = template.New("loading").Parse(loading)
 	return h
 }
 
@@ -65,15 +69,24 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		tplConf.StartParameters["USER_ACTION_KEY"] = reset
 	}
 
-	w.WriteHeader(200)
-
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	var tpl *template.Template
 	if !h.detectFrontendService() {
-		tpl, _ = template.New("loading").Parse(loading)
+		tpl = h.loadingTpl
 	} else {
 		tpl = h.tpl
 	}
-	tpl.Execute(w, tplConf)
+
+	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+		out := gzip.NewWriter(w)
+		defer out.Close()
+		w.Header().Set("Content-Encoding", "gzip")
+		w.WriteHeader(200)
+		tpl.Execute(out, tplConf)
+	} else {
+		w.WriteHeader(200)
+		tpl.Execute(w, tplConf)
+	}
 
 }
 
