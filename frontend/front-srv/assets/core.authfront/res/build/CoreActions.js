@@ -119,13 +119,6 @@ var LoginPasswordDialog = React.createClass({
         return { rememberChecked: false };
     },
 
-    componentWillReceiveProps: function componentWillReceiveProps() {
-        this.setState({ displayCaptcha: false });
-        _pydioHttpApi2['default'].getClient().request({ get_action: "get_seed" }, (function (transport) {
-            if (transport.responseJSON) this.setState({ displayCaptcha: true });
-        }).bind(this));
-    },
-
     submit: function submit() {
         var client = _pydioHttpApi2['default'].getRestClient();
         this.postLoginData(client);
@@ -267,7 +260,7 @@ var LoginPasswordDialog = React.createClass({
         return React.createElement(
             DarkThemeContainer,
             null,
-            React.createElement('div', { style: logoStyle }),
+            logoUrl && React.createElement('div', { style: logoStyle }),
             React.createElement(
                 'div',
                 { className: 'dialogLegend', style: { fontSize: 22, paddingBottom: 12, lineHeight: '28px' } },

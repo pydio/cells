@@ -17,7 +17,9 @@
             />
             <js
                 className="PydioForm"
-                file="plug/gui.ajax/res/build/PydioForm.js"
+                file="plug/gui.ajax/res/build/PydioForm.min.js"
+                fallbackFile="plug/gui.ajax/res/build/PydioForm.js"
+                fallbackCondition="pydio.Parameters.get('debugMode')"
                 expose="form"
             />
             <js
@@ -52,6 +54,7 @@
                 depends="React,PydioComponents,PydioHOCs"
                 expose="workspaces"
             />
+            <css file="plug/gui.ajax/res/build/pydio.material.min.css" autoload="true"/>
         </resources>
     </client_settings>
 	<server_settings>

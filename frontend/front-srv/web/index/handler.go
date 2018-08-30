@@ -9,6 +9,8 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"encoding/xml"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -47,7 +49,35 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
+	// Try to precompute registry
+	ctx := r.Context()
+	user := &frontend.User{}
+	cfg := config.Default()
+	rolesConfigs := user.FlattenedRolesConfigs()
+	status := frontend.RequestStatus{
+		Config:        cfg,
+		AclParameters: rolesConfigs.Get("parameters").(*config.Map),
+		AclActions:    rolesConfigs.Get("actions").(*config.Map),
+		WsScopes:      user.GetActiveScopes(),
+		User:          user,
+		NoClaims:      !user.Logged,
+		Lang:          "en",
+		Request:       r,
+	}
+	registry := pool.RegistryForStatus(ctx, status)
+
 	url := config.Get("defaults", "url").String("")
+	startParameters := map[string]interface{}{
+		"BOOTER_URL":          "/frontend/bootconf",
+		"MAIN_ELEMENT":        "ajxp_desktop",
+		"REBASE":              url,
+		"PRELOADED_BOOT_CONF": frontend.ComputeBootConf(pool),
+	}
+
+	if regXml, e := xml.Marshal(registry); e == nil {
+		startParameters["PRELOADED_REGISTRY"] = string(regXml)
+	}
+
 	tplConf := &TplConf{
 		ApplicationTitle: "Pydio",
 		Rebase:           url,
@@ -55,12 +85,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Theme:            "material",
 		Version:          common.Version().String(),
 		Debug:            config.Get("frontend", "debug").Bool(false),
-		StartParameters: map[string]interface{}{
-			"BOOTER_URL":          "/frontend/bootconf",
-			"MAIN_ELEMENT":        "ajxp_desktop",
-			"REBASE":              url,
-			"PRELOADED_BOOT_CONF": frontend.ComputeBootConf(pool),
-		},
+		StartParameters:  startParameters,
 	}
 
 	vars := mux.Vars(r)

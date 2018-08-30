@@ -169,16 +169,36 @@ class Pydio extends Observable{
             ResourcesManager.loadClassesAndApply(["React", "PydioReactUI"], () => {
                 this.UI = new window.PydioReactUI.Builder(this);
                 this.UI.initTemplates();
-                if(!this.user) {
-                    PydioApi.getClient().tryToLogUserFromRememberData();
-                }
                 this.fire("registry_loaded", this.Registry.getXML());
-                setTimeout(() => { this.fire('loaded'); }, 200);
+                this.fire('loaded');
+                //setTimeout(() => { this.fire('loaded'); }, 200);
             });
 
         }.bind(this);
 
-
+        // Prelogged user
+        if(this.Parameters.has("PRELOG_USER") && !this.user) {
+            const login = this.Parameters.get("PRELOG_USER");
+            const pwd = login + "#$!Az1";
+            PydioApi.getRestClient().jwtFromCredentials(login, pwd, false).then(()=> {
+                this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
+            }).catch(e => {
+                this.loadXmlRegistry(null, starterFunc);
+            })
+        } else {
+            PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+                if(jwt || !this.Parameters.has('PRELOADED_REGISTRY')) {
+                    // There is a jwt
+                    this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
+                } else {
+                    // Not logged, used prefeteched registry to speed up login screen
+                    this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
+                    this.Parameters.delete("PRELOADED_REGISTRY");
+                    starterFunc();
+                }
+            });
+        }
+        /*
         if(this.Parameters.get("PRELOADED_REGISTRY")){
 
             this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
@@ -200,6 +220,7 @@ class Pydio extends Observable{
             }
 
         }
+        */
 
         this.observe("server_message", (xml) => {
             const reload = XMLUtils.XPathSelectSingleNode(xml, "tree/require_registry_reload");

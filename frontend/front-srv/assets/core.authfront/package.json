@@ -10,6 +10,7 @@
     "grunt": "^1.0.1",
     "grunt-babel": "~5.0.3",
     "grunt-browserify": "~4.0.1",
-    "grunt-contrib-watch": "^1.0.0"
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-contrib-compress": "^1.4.3"
   }
 }

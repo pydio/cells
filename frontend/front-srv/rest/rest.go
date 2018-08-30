@@ -93,9 +93,6 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 		Request:       req.Request,
 	}
 	registry := pool.RegistryForStatus(ctx, status)
-	//	compress, _ := restful.NewCompressingResponseWriter(rsp.ResponseWriter, restful.ENCODING_GZIP)
-	//	defer compress.Close()
-	//	rsp.ResponseWriter = compress
 	rsp.WriteAsXml(registry)
 }
 

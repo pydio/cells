@@ -239,35 +239,53 @@ var Pydio = (function (_Observable) {
             ResourcesManager.loadClassesAndApply(["React", "PydioReactUI"], function () {
                 _this3.UI = new window.PydioReactUI.Builder(_this3);
                 _this3.UI.initTemplates();
-                if (!_this3.user) {
-                    _httpPydioApi2['default'].getClient().tryToLogUserFromRememberData();
-                }
                 _this3.fire("registry_loaded", _this3.Registry.getXML());
-                setTimeout(function () {
-                    _this3.fire('loaded');
-                }, 200);
+                _this3.fire('loaded');
+                //setTimeout(() => { this.fire('loaded'); }, 200);
             });
         }).bind(this);
 
-        if (this.Parameters.get("PRELOADED_REGISTRY")) {
-
-            this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
-            this.Parameters['delete']("PRELOADED_REGISTRY");
-            starterFunc();
+        // Prelogged user
+        if (this.Parameters.has("PRELOG_USER") && !this.user) {
+            var login = this.Parameters.get("PRELOG_USER");
+            var pwd = login + "#$!Az1";
+            _httpPydioApi2['default'].getRestClient().jwtFromCredentials(login, pwd, false).then(function () {
+                _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
+            })['catch'](function (e) {
+                _this2.loadXmlRegistry(null, starterFunc);
+            });
         } else {
-
-            if (this.Parameters.has("PRELOG_USER") && !this.user) {
-                var login = this.Parameters.get("PRELOG_USER");
-                var pwd = login + "#$!Az1";
-                _httpPydioApi2['default'].getRestClient().jwtFromCredentials(login, pwd, false).then(function () {
+            _httpPydioApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
+                if (jwt || !_this2.Parameters.has('PRELOADED_REGISTRY')) {
+                    // There is a jwt
                     _this2.loadXmlRegistry(null, starterFunc, _this2.Parameters.get("START_REPOSITORY"));
-                })['catch'](function (e) {
-                    _this2.loadXmlRegistry(null, starterFunc);
-                });
+                } else {
+                    // Not logged, used prefeteched registry to speed up login screen
+                    _this2.Registry.loadFromString(_this2.Parameters.get("PRELOADED_REGISTRY"));
+                    _this2.Parameters['delete']("PRELOADED_REGISTRY");
+                    starterFunc();
+                }
+            });
+        }
+        /*
+        if(this.Parameters.get("PRELOADED_REGISTRY")){
+             this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
+            this.Parameters.delete("PRELOADED_REGISTRY");
+            starterFunc();
+         }else{
+             if(this.Parameters.has("PRELOG_USER") && !this.user) {
+                const login = this.Parameters.get("PRELOG_USER");
+                const pwd = login + "#$!Az1";
+                PydioApi.getRestClient().jwtFromCredentials(login, pwd, false).then(()=> {
+                    this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
+                }).catch(e => {
+                    this.loadXmlRegistry(null, starterFunc);
+                })
             } else {
                 this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
             }
-        }
+         }
+        */
 
         this.observe("server_message", function (xml) {
             var reload = _utilXMLUtils2['default'].XPathSelectSingleNode(xml, "tree/require_registry_reload");

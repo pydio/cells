@@ -337,7 +337,7 @@ let AsyncModal = React.createClass({
             dialogBody = {...dialogBody, ...blurStyles.dialogBody};
             dialogTitle = {...dialogTitle, ...blurStyles.dialogTitle};
             className = className ? className + ' dialogRootBlur' : 'dialogRootBlur';
-            dialogRoot = {...dialogRoot, backgroundImage:'url()', backgroundPosition:'center center', backgroundSize:'cover'}
+            dialogRoot = {...dialogRoot, backgroundImage:'', backgroundPosition:'center center', backgroundSize:'cover'}
 
             modalContent = <span><CSSBlurBackground/>{modalContent}</span>
 

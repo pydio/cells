@@ -97,13 +97,6 @@ let LoginPasswordDialog = React.createClass({
         return {rememberChecked: false};
     },
 
-    componentWillReceiveProps(){
-        this.setState({displayCaptcha: false});
-        PydioApi.getClient().request({get_action:"get_seed"}, function(transport){
-            if(transport.responseJSON)  this.setState({displayCaptcha: true});
-        }.bind(this));
-    },
-
     submit(){
         let client = PydioApi.getRestClient();
         this.postLoginData(client);
@@ -210,7 +203,7 @@ let LoginPasswordDialog = React.createClass({
 
         return (
             <DarkThemeContainer>
-                <div style={logoStyle}></div>
+                {logoUrl && <div style={logoStyle}></div>}
                 <div className="dialogLegend" style={{fontSize: 22, paddingBottom: 12, lineHeight: '28px'}}>
                     {pydio.MessageHash[passwordOnly ? 552 : 180]}
                     {languageMenu}
