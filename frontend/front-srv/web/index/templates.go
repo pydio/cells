@@ -41,7 +41,9 @@ var page = `<!DOCTYPE html>
 			startParameters = {{.StartParameters}};
 			window.pydioBootstrap = new PydioBootstrap(startParameters);
 		</script>
-		<div id="{{.StartParameters.MAIN_ELEMENT}}"></div>
+		<div id="{{.StartParameters.MAIN_ELEMENT}}">
+			<div style="position: absolute;display:flex;top: 0;bottom: 0;left: 0;right: 0;align-items: center;justify-content: center; font-family: Roboto, sans-serif;">Loading...</div>
+		</div>
 	</body>
 </html>
 `
