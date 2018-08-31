@@ -68,6 +68,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-compress');
-    grunt.registerTask('default', ['babel', 'browserify']);
+    grunt.registerTask('default', ['babel', 'browserify', 'compress']);
 
 };

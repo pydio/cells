@@ -40,6 +40,19 @@ module.exports = function(grunt) {
                 flatten:true
             }
         },
+        compress: {
+            options: {
+                mode: 'gzip',
+                level:9,
+            },
+            js: {
+                expand: true,
+                cwd: 'res/build/',
+                src: ['PydioVideo.js'],
+                dest: 'res/build/',
+                ext: '.js.gz'
+            },
+        },
         watch: {
             js: {
                 files: [
@@ -56,6 +69,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.registerTask('default', ['babel', 'browserify:ui', 'copy']);
+    grunt.loadNpmTasks('grunt-contrib-compress');
+    grunt.registerTask('default', ['babel', 'browserify:ui', 'compress', 'copy']);
 
 };

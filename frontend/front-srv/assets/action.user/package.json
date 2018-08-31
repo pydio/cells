@@ -11,6 +11,7 @@
     "grunt-browserify": "^5.0.0",
     "grunt-contrib-watch": "~0.6.1",
     "assemble-less": "~0.7.0",
+    "grunt-contrib-compress": "^1.4.3",
     "less-plugin-autoprefix": "~1.5.1"
   }
 }

@@ -32,6 +32,19 @@ module.exports = function(grunt) {
                 }
             }
         },
+        compress: {
+            options: {
+                mode: 'gzip',
+                level:9,
+            },
+            js: {
+                expand: true,
+                cwd: 'js/build/',
+                src: ['ReactMeta.js'],
+                dest: 'js/build/',
+                ext: '.js.gz'
+            },
+        },
         watch: {
             js: {
                 files: [
@@ -47,6 +60,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.registerTask('default', ['babel', 'browserify']);
+    grunt.loadNpmTasks('grunt-contrib-compress');
+    grunt.registerTask('default', ['babel', 'browserify', 'compress']);
 
 };

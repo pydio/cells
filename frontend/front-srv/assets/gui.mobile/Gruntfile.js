@@ -40,6 +40,19 @@ module.exports = function(grunt) {
                 }
             }
         },
+        compress: {
+            options: {
+                mode: 'gzip',
+                level:9,
+            },
+            js: {
+                expand: true,
+                cwd: 'res/build/',
+                src: ['mobile-build.js'],
+                dest: 'res/build/',
+                ext: '.js.gz'
+            },
+        },
         watch: {
             js: {
                 files: [
@@ -56,10 +69,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-browserify');
+    grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.registerTask('default', [
         'copy',
         'babel',
-        'browserify'
+        'browserify',
+        'compress'
     ]);
 
 };

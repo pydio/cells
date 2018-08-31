@@ -13,6 +13,7 @@
     "grunt-browserify": "~4.0.1",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-watch": "^1.0.0",
+    "grunt-contrib-compress": "^1.4.3",
     "lodash": "*",
     "react": "15.4.2",
     "react-dom": "15.4.2",

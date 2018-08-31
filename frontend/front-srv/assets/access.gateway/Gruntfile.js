@@ -31,6 +31,19 @@ module.exports = function(grunt) {
                 }
             }
         },
+        compress: {
+            options: {
+                mode: 'gzip',
+                level:9,
+            },
+            js: {
+                expand: true,
+                cwd: 'res/build/',
+                src: ['FSActions.js'],
+                dest: 'res/build/',
+                ext: '.js.gz'
+            },
+        },
         watch: {
             js: {
                 files: [
@@ -46,6 +59,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.registerTask('default', ['babel', 'browserify']);
+    grunt.loadNpmTasks('grunt-contrib-compress');
+    grunt.registerTask('default', ['babel', 'browserify', 'compress']);
 
 };

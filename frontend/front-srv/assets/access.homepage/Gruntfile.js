@@ -43,6 +43,26 @@ module.exports = function(grunt) {
                 }
             }
         },
+        compress: {
+            options: {
+                mode: 'gzip',
+                level:9,
+            },
+            js: {
+                expand: true,
+                cwd: 'res/build/',
+                src: ['WelcomeComponents.js'],
+                dest: 'res/build/',
+                ext: '.js.gz'
+            },
+            css: {
+                expand: true,
+                cwd: 'res',
+                src: ['home.css'],
+                dest: 'res',
+                ext: '.css.gz'
+            },
+        },
         watch: {
             js: {
                 files: [
@@ -66,6 +86,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('assemble-less');
-    grunt.registerTask('default', ['babel', 'browserify']);
+    grunt.loadNpmTasks('grunt-contrib-compress');
+    grunt.registerTask('default', ['babel', 'browserify', 'compress']);
 
 };

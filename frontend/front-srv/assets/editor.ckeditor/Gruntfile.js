@@ -32,6 +32,19 @@ module.exports = function(grunt) {
                 }
             }
         },
+        compress: {
+            options: {
+                mode: 'gzip',
+                level:9,
+            },
+            js: {
+                expand: true,
+                cwd: 'res/build/',
+                src: ['PydioCKEditor.js'],
+                dest: 'res/build/',
+                ext: '.js.gz'
+            },
+        },
         copy: {
             ckeditor: {
                 expand: true,
@@ -57,6 +70,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.registerTask('default', ['babel', 'browserify:ui', 'copy']);
+    grunt.loadNpmTasks('grunt-contrib-compress');
+    grunt.registerTask('default', ['babel', 'browserify:ui', 'copy', 'compress']);
 
 };
