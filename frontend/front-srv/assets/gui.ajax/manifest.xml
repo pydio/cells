@@ -151,19 +151,6 @@
                       label="CONF_MESSAGE[Background Attributes (6)]" description="CONF_MESSAGE[Attributes of the image used as a background]"
                       mandatory="false" expose="true" default="background-repeat:repeat;background-size:140%;background-position:50% 50%;"/>
 
-        <global_param name="WELCOME_PAGE_BACKGROUND_LOWRES" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Low-Resolution Background]" description="CONF_MESSAGE[Make sure to use a smaller resolution image, otherwise mobile loading is very slow.]" mandatory="false"
-                      editable="true"
-                      uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
-                      loadAction="/frontend/binaries/GLOBAL/{BINARY}"
-                      defaultImage="plug/gui.ajax/res/themes/common/images/hires-photos/03-mobile.jpg"
-                      expose="true"
-                />
-
-        <global_param name="WELCOME_PAGE_BACKGROUND_ATTRIBUTES_LOWRES" group="CONF_MESSAGE[Page Background Images]" type="select"
-                      choices="background-repeat:no-repeat;background-position:50% 50%;|CONF_MESSAGE[Center in Page (no-repeat)],background-repeat:repeat;background-size:140%;background-position:50% 50%;|CONF_MESSAGE[Fetch Window (repeat vertically)],background-repeat:no-repeat;background-size:100%; background-position:center center;|CONF_MESSAGE[Fetch Window (no repeat)],background-repeat:repeat;|CONF_MESSAGE[Tile (repeat both directions)]"
-                      label="CONF_MESSAGE[Background Attributes (Low Resolution)]" description="CONF_MESSAGE[Attributes of the image used as a background]"
-                      mandatory="false" expose="true" default="background-repeat:repeat;background-size:140%;background-position:50% 50%;"/>
-
         <global_param name="CUSTOM_SHAREPAGE_BACKGROUND_1" group="CONF_MESSAGE[Minisite]" type="image" label="CONF_MESSAGE[Custom Background (1)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
                       uploadAction="/frontend/binaries/GLOBAL/{BINARY}"

@@ -22,7 +22,7 @@
 import Builder from './Builder'
 import TemplateBuilder from './TemplateBuilder'
 import AsyncComponent from './AsyncComponent'
-import BackgroundImage from './BackgroundImage'
+import withProgressiveBg from './withProgressiveBg'
 
 import AsyncModal from './modal/AsyncModal'
 import ActionDialogMixin from './modal/ActionDialogMixin'
@@ -75,7 +75,7 @@ export {
     MessageBar,
     NetworkLoader,
     HiddenDownloadForm,
-    BackgroundImage,
+    withProgressiveBg,
 
     PydioContextProvider,
     PydioContextConsumer,

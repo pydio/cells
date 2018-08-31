@@ -46,7 +46,7 @@ var ClipboardTextField = _Pydio$requireLib2.ClipboardTextField;
 
 var _Pydio$requireLib3 = _pydio2['default'].requireLib('boot');
 
-var BackgroundImage = _Pydio$requireLib3.BackgroundImage;
+var withProgressiveBg = _Pydio$requireLib3.withProgressiveBg;
 
 var _Pydio$requireLib4 = _pydio2['default'].requireLib('hoc');
 
@@ -177,16 +177,9 @@ var DLTemplate = React.createClass({
     render: function render() {
         var _this2 = this;
 
-        var style = {};
-        if (this.props.imageBackgroundFromConfigs) {
-            if (PydioReactUI.BackgroundImage.SESSION_IMAGE) {
-                style = PydioReactUI.BackgroundImage.SESSION_IMAGE;
-            } else {
-                style = PydioReactUI.BackgroundImage.getImageBackgroundFromConfig(this.props.imageBackgroundFromConfigs);
-                PydioReactUI.BackgroundImage.SESSION_IMAGE = style;
-            }
-        }
-        style = _extends({}, style, {
+        var bgStyle = this.props.bgStyle;
+
+        var style = _extends({}, bgStyle, {
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
@@ -295,6 +288,8 @@ var DLTemplate = React.createClass({
 
 });
 
+DLTemplate = withProgressiveBg(DLTemplate);
+
 var ConfigLogo = (function (_React$Component) {
     _inherits(ConfigLogo, _React$Component);
 
@@ -380,24 +375,15 @@ var StandardLayout = React.createClass({
             }
         };
 
-        var style = {};
-        if (this.props.imageBackgroundFromConfigs) {
-            if (BackgroundImage.SESSION_IMAGE) {
-                style = BackgroundImage.SESSION_IMAGE;
-            } else {
-                style = BackgroundImage.getImageBackgroundFromConfig(this.props.imageBackgroundFromConfigs);
-                BackgroundImage.SESSION_IMAGE = style;
-            }
-        }
-
         var _props = this.props;
         var minisiteMode = _props.minisiteMode;
         var showSearchForm = _props.showSearchForm;
         var uniqueNode = _props.uniqueNode;
         var skipDisplayToolbar = _props.skipDisplayToolbar;
+        var bgStyle = _props.bgStyle;
 
         if (!this.props.pydio.user) {
-            return React.createElement('div', { className: 'vertical_fit vertical_layout', style: style });
+            return React.createElement('div', { className: 'vertical_fit vertical_layout', style: bgStyle });
         }
 
         return React.createElement(
@@ -443,6 +429,7 @@ var StandardLayout = React.createClass({
 
 });
 
+StandardLayout = withProgressiveBg(StandardLayout);
 StandardLayout = dropProvider(StandardLayout);
 
 var FolderMinisite = React.createClass({
@@ -474,7 +461,9 @@ var FileMinisite = React.createClass({
         var node = nextProps.node;
         var dispatch = nextProps.dispatch;
 
-        if (!node) return;
+        if (!node) {
+            return;
+        }
 
         pydio.UI.registerEditorOpener(this);
 

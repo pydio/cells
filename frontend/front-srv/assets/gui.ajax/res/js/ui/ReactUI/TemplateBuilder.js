@@ -18,15 +18,16 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import {compose} from 'redux';
-
+// import {compose} from 'redux';
+import React from 'react'
 import AsyncComponent from './AsyncComponent'
-import BackgroundImage from './BackgroundImage'
+import XMLUtils from 'pydio/util/xml'
+import withProgressiveBg from './withProgressiveBg'
 
 // Animations
-const originStyles = {opacity: 0}
-const targetStyles = {opacity: 1}
-const enterAnimation = {stiffness: 350, damping: 28}
+//const originStyles = {opacity: 0}
+//const targetStyles = {opacity: 1}
+//const enterAnimation = {stiffness: 350, damping: 28}
 
 let Template = ({style, id, pydio, children}) => {
     const userIsActive = ()=>{pydio.notify('user_activity')};
@@ -50,27 +51,20 @@ class TemplateBuilder extends React.Component {
 
     render() {
 
-        let pydio = this.props.pydio;
-        let containerId = this.props.containerId;
+        let {pydio, containerId, bgStyle} = this.props;
 
         let components = [];
         let style = {
             display: "flex",
             flex: 1
         };
-
-        if(this.props.imageBackgroundFromConfigs){
-            if(BackgroundImage.SESSION_IMAGE){
-                style = BackgroundImage.SESSION_IMAGE;
-            }else{
-                style = BackgroundImage.getImageBackgroundFromConfig(this.props.imageBackgroundFromConfigs);
-                BackgroundImage.SESSION_IMAGE = style;
-            }
+        if(bgStyle){
+            style = bgStyle
         }
 
         let parts = XMLUtils.XPathSelectNodes(pydio.getXmlRegistry(), "client_configs/template_part[@component]");
         parts.map(function(node){
-            if(node.getAttribute("theme") && node.getAttribute("theme") != pydio.Parameters.get("theme")){
+            if(node.getAttribute("theme") && node.getAttribute("theme") !== pydio.Parameters.get("theme")){
                 return;
             }
             if(containerId !== node.getAttribute("ajxpId")){
@@ -106,8 +100,8 @@ class TemplateBuilder extends React.Component {
 TemplateBuilder.propTypes = {
     pydio: React.PropTypes.instanceOf(Pydio),
     containerId:React.PropTypes.string
-}
+};
 
-
+TemplateBuilder = withProgressiveBg(TemplateBuilder);
 
 export default TemplateBuilder

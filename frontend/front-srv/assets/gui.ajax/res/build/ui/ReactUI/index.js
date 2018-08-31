@@ -37,9 +37,9 @@ var _AsyncComponent = require('./AsyncComponent');
 
 var _AsyncComponent2 = _interopRequireDefault(_AsyncComponent);
 
-var _BackgroundImage = require('./BackgroundImage');
+var _withProgressiveBg = require('./withProgressiveBg');
 
-var _BackgroundImage2 = _interopRequireDefault(_BackgroundImage);
+var _withProgressiveBg2 = _interopRequireDefault(_withProgressiveBg);
 
 var _modalAsyncModal = require('./modal/AsyncModal');
 
@@ -151,7 +151,7 @@ exports.Router = _routerRouter2['default'];
 exports.MessageBar = _modalMessageBar2['default'];
 exports.NetworkLoader = _modalNetworkLoader2['default'];
 exports.HiddenDownloadForm = _HiddenDownloadForm2['default'];
-exports.BackgroundImage = _BackgroundImage2['default'];
+exports.withProgressiveBg = _withProgressiveBg2['default'];
 exports.PydioContextProvider = _PydioContextProvider2['default'];
 exports.PydioContextConsumer = _PydioContextConsumer2['default'];
 exports.CompatMigrationDialog = _compatCompatMigrationDialog2['default'];

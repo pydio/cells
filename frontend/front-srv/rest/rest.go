@@ -22,7 +22,6 @@ package rest
 
 import (
 	"fmt"
-	"io"
 	"strings"
 	"time"
 
@@ -31,6 +30,8 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"context"
+
+	"strconv"
 
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
@@ -306,25 +307,35 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 		if ctxUser, _ := utils.FindUserNameInContext(ctx); ctxUser == "" {
 			ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
 		}
-		info, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: readNode})
-		if e != nil {
-			service.RestError404(req, rsp, e)
-			return
+		if req.QueryParameter("dim") != "" {
+			if dim, e := strconv.ParseInt(req.QueryParameter("dim"), 10, 32); e == nil {
+				if e := readBinary(ctx, router, readNode, rsp.ResponseWriter, rsp.Header(), extension, int(dim)); e != nil {
+					service.RestError500(req, rsp, e)
+				}
+				return
+			}
 		}
-		ctx = context.WithValue(context.Background(), common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
-		reader, e := router.GetObject(ctx, readNode, &views.GetRequestData{Length: info.Node.Size})
-		if e == nil {
-			defer reader.Close()
-			rsp.Header().Set("Content-Type", "image/"+extension)
-			// Do not set Content-Length here, as it will collide with GZIP encoding
-			//rsp.Header().Set("Content-Length", fmt.Sprintf("%d", info.Node.Size))
-			_, e := io.Copy(rsp.ResponseWriter, reader)
+		readBinary(ctx, router, readNode, rsp.ResponseWriter, rsp.Header(), extension)
+		/*
+			info, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: readNode})
 			if e != nil {
+				service.RestError404(req, rsp, e)
+				return
+			}
+			ctx = context.WithValue(context.Background(), common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+			reader, e := router.GetObject(ctx, readNode, &views.GetRequestData{Length: info.Node.Size})
+			if e == nil {
+				defer reader.Close()
+				// Do not set Content-Length here, as it will collide with GZIP encoding
+				//rsp.Header().Set("Content-Length", fmt.Sprintf("%d", info.Node.Size))
+				_, e := io.Copy(rsp.ResponseWriter, reader)
+				if e != nil {
+					service.RestError500(req, rsp, e)
+				}
+			} else {
 				service.RestError500(req, rsp, e)
 			}
-		} else {
-			service.RestError500(req, rsp, e)
-		}
+		*/
 	}
 
 }
@@ -371,6 +382,19 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		node := &tree.Node{
 			Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/users_binaries." + binaryUuid + "-" + binaryId,
 		}
+
+		if user.Attributes != nil {
+			if av, ok := user.Attributes["avatar"]; ok {
+				// There is an existing avatar, remove it
+				oldNode := &tree.Node{
+					Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/users_binaries." + binaryUuid + "-" + av,
+				}
+				if _, e = router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: oldNode}); e != nil {
+					log.Logger(ctx).Error("Error while deleting existing binary", node.Zap(), zap.Error(e))
+				}
+			}
+		}
+
 		_, e = router.PutObject(ctx, node, f1, &views.PutRequestData{
 			Size: f2.Size,
 		})
@@ -401,6 +425,10 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 		node := &tree.Node{
 			Path: common.PYDIO_DOCSTORE_BINARIES_NAMESPACE + "/global_binaries." + binaryId,
 		}
+		if _, e := router.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: node}); e != nil {
+			log.Logger(ctx).Error("Error while deleting existing binary", node.Zap(), zap.Error(e))
+		}
+
 		_, e := router.PutObject(ctx, node, f1, &views.PutRequestData{
 			Size: f2.Size,
 		})

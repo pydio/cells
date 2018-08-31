@@ -22353,7 +22353,7 @@ var Dashboard = _react2['default'].createClass({
         var pydio = this.props.pydio;
 
         if (idmUser.Attributes && idmUser.Attributes['avatar']) {
-            var imgSrc = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/binaries/USER/' + idmUser.Login + '?' + idmUser.Attributes['avatar'];
+            var imgSrc = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/binaries/USER/' + idmUser.Login + '?' + idmUser.Attributes['avatar'] + '&dim=33';
             return _react2['default'].createElement('div', { style: {
                     width: 33,
                     height: 33,
@@ -25340,8 +25340,6 @@ var GroupInfo = (function (_React$Component) {
             });
             var idmUser = group.getIdmUser();
             var role = group.getRole();
-            // do something
-            console.log(paramName, newValue);
             if (paramName === 'displayName' || paramName === 'email' || paramName === 'profile') {
                 idmUser.Attributes[paramName] = newValue;
             } else if (params.length && params[0].aclKey) {

@@ -7,7 +7,7 @@ import {compose} from 'redux';
 
 const { Breadcrumb, SearchForm, MainFilesList, Editor, EditionPanel } = Pydio.requireLib('workspaces');
 const { ContextMenu, ButtonMenu, Toolbar, ListPaginator, ClipboardTextField } = Pydio.requireLib('components');
-const { BackgroundImage } = Pydio.requireLib('boot');
+const { withProgressiveBg } = Pydio.requireLib('boot');
 const { EditorActions, dropProvider } = Pydio.requireLib('hoc');
 
 const withUniqueNode = (attachListener) => (Component) => {
@@ -52,7 +52,7 @@ const withUniqueNode = (attachListener) => (Component) => {
 
 const UniqueNodeTemplateMixin = {
 
-    detectFirstNode: function(attachListener = false){
+    detectFirstNode(attachListener = false){
         let dm = this.props.pydio.getContextHolder();
         if(!dm.getSelectedNodes().length) {
             let first = dm.getRootNode().getFirstChildIfExists();
@@ -76,13 +76,13 @@ const UniqueNodeTemplateMixin = {
         }
     }
 
-}
+};
 
-const DLTemplate = React.createClass({
+let DLTemplate = React.createClass({
 
     mixins:[UniqueNodeTemplateMixin],
 
-    triggerDL: function(){
+    triggerDL(){
 
         this.setState({downloadStarted: true});
         setTimeout(function(){
@@ -94,7 +94,7 @@ const DLTemplate = React.createClass({
 
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
         this.detectFirstNode();
         let pydio = this.props.pydio;
         if(pydio.user && pydio.user.activeRepository){
@@ -106,25 +106,17 @@ const DLTemplate = React.createClass({
                 let repositoryList = e.list;
                 let repositoryId = e.active;
                 if(repositoryList && repositoryList.has(repositoryId)){
-                    var repoObject = repositoryList.get(repositoryId);
+                    const repoObject = repositoryList.get(repositoryId);
                     this.setState({repoObject: repoObject});
                 }
             }.bind(this));
         }
     },
 
-    render: function(){
+    render(){
 
-        let style = {};
-        if(this.props.imageBackgroundFromConfigs){
-            if(PydioReactUI.BackgroundImage.SESSION_IMAGE){
-                style = PydioReactUI.BackgroundImage.SESSION_IMAGE;
-            }else{
-                style = PydioReactUI.BackgroundImage.getImageBackgroundFromConfig(this.props.imageBackgroundFromConfigs);
-                PydioReactUI.BackgroundImage.SESSION_IMAGE = style;
-            }
-        }
-        style = {...style,
+        const {bgStyle} = this.props;
+        const style = {...bgStyle,
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
@@ -197,6 +189,7 @@ const DLTemplate = React.createClass({
 
 });
 
+DLTemplate = withProgressiveBg(DLTemplate);
 
 class ConfigLogo extends React.Component{
 
@@ -229,11 +222,11 @@ let StandardLayout = React.createClass({
         showSearchForm: React.PropTypes.bool
     },
 
-    getChildContext: function() {
+    getChildContext() {
         const messages = this.props.pydio.MessageHash;
         return {
             messages: messages,
-            getMessage: function(messageId){
+            getMessage(messageId){
                 try{
                     return messages[messageId] || messageId;
                 }catch(e){
@@ -243,11 +236,11 @@ let StandardLayout = React.createClass({
         };
     },
 
-    getDefaultProps: function(){
+    getDefaultProps(){
         return {minisiteMode: 'standard', uniqueNode:true};
     },
 
-    render: function(){
+    render(){
 
         const styles = {
             appBarStyle : {
@@ -268,22 +261,12 @@ let StandardLayout = React.createClass({
                 height: 30,
                 lineHeight: '30px'
             }
-        }
+        };
 
-        let style = {};
-        if(this.props.imageBackgroundFromConfigs){
-            if(BackgroundImage.SESSION_IMAGE){
-                style = BackgroundImage.SESSION_IMAGE;
-            }else{
-                style = BackgroundImage.getImageBackgroundFromConfig(this.props.imageBackgroundFromConfigs);
-                BackgroundImage.SESSION_IMAGE = style;
-            }
-        }
-
-        const {minisiteMode, showSearchForm, uniqueNode, skipDisplayToolbar} = this.props;
+        const {minisiteMode, showSearchForm, uniqueNode, skipDisplayToolbar, bgStyle} = this.props;
 
         if(!this.props.pydio.user){
-            return <div className="vertical_fit vertical_layout" style={style}/>;
+            return <div className="vertical_fit vertical_layout" style={bgStyle}/>;
         }
 
         return (
@@ -326,11 +309,12 @@ let StandardLayout = React.createClass({
 
 });
 
+StandardLayout = withProgressiveBg(StandardLayout);
 StandardLayout = dropProvider(StandardLayout);
 
 const FolderMinisite = React.createClass({
 
-    render: function(){
+    render(){
 
         return (
             <StandardLayout {...this.props} uniqueNode={false} showSearchForm={this.props.pydio.getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')}>
@@ -349,9 +333,11 @@ const FileMinisite = React.createClass({
 
     componentWillReceiveProps(nextProps) {
 
-        const {pydio, node, dispatch} = nextProps
+        const {pydio, node, dispatch} = nextProps;
 
-        if (!node) return
+        if (!node) {
+            return;
+        }
 
         pydio.UI.registerEditorOpener(this);
 
@@ -359,17 +345,17 @@ const FileMinisite = React.createClass({
         const editors = pydio.Registry.findEditorsForMime(selectedMime, false);
         if (editors.length && editors[0].openable) {
 
-            const editorData = editors[0]
+            const editorData = editors[0];
 
             pydio.Registry.loadEditorResources(
                 editorData.resourcesManager,
                 () => {
-                    let EditorClass = null
+                    let EditorClass = null;
 
                     if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
                         this.setState({
                             error: "Cannot find editor component (" + editorData.editorClass + ")!"
-                        })
+                        });
                         return
                     }
 
@@ -384,7 +370,7 @@ const FileMinisite = React.createClass({
                         node,
                         editorData,
                         registry: pydio.Registry
-                    })).id
+                    })).id;
 
                     dispatch(EditorActions.editorSetActiveTab(tabId))
                 }
@@ -403,7 +389,7 @@ const FileMinisite = React.createClass({
                 if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
                     this.setState({
                         error: "Cannot find editor component (" + editorData.editorClass + ")!"
-                    })
+                    });
                     return
                 }
 
@@ -427,7 +413,7 @@ const FileMinisite = React.createClass({
         pydio.UI.unregisterEditorOpener(this);
     },
 
-    render: function(){
+    render(){
 
         return (
             <StandardLayout {...this.props} uniqueNode={true} skipDisplayToolbar={true}>
@@ -444,7 +430,7 @@ const FileMinisite = React.createClass({
 
 const DropZoneMinisite = React.createClass({
 
-    render: function(){
+    render(){
 
         return (
             <StandardLayout {...this.props}>
@@ -473,19 +459,19 @@ class FilmStripMinisite extends React.Component{
 
     componentWillReceiveProps(nextProps) {
 
-        const {pydio, node, dispatch} = nextProps
+        const {pydio, node, dispatch} = nextProps;
 
         if(this.props.node){
             dispatch(EditorActions.tabDelete(this.props.node.getLabel()));
         }
 
-        if (!node || !node.isLeaf()) return
+        if (!node || !node.isLeaf()) return;
 
         const selectedMime = PathUtils.getAjxpMimeType(node);
         const editors = pydio.Registry.findEditorsForMime(selectedMime, false);
         if (editors.length && editors[0].openable) {
 
-            const editorData = editors[0]
+            const editorData = editors[0];
 
             pydio.Registry.loadEditorResources(
                 editorData.resourcesManager,
@@ -495,7 +481,7 @@ class FilmStripMinisite extends React.Component{
                     if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
                         this.setState({
                             error: "Cannot find editor component (" + editorData.editorClass + ")!"
-                        })
+                        });
                         return
                     }
 
@@ -510,7 +496,7 @@ class FilmStripMinisite extends React.Component{
                         node,
                         editorData,
                         registry: pydio.Registry
-                    })).id
+                    })).id;
 
                     dispatch(EditorActions.editorSetActiveTab(tabId))
                 }
@@ -529,7 +515,7 @@ class FilmStripMinisite extends React.Component{
                 if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
                     this.setState({
                         error: "Cannot find editor component (" + editorData.editorClass + ")!"
-                    })
+                    });
                     return
                 }
 

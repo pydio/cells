@@ -86,6 +86,7 @@ var (
 	}
 	proxy /plug/   {{.FrontPlugins.Host}} {
 		transparent
+		header_downstream Cache-Control "public, max-age=31536000"
 	}
 	proxy /dav/ {{.DAV.Host}} {
 		transparent

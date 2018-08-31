@@ -95,7 +95,7 @@ var Dashboard = _react2['default'].createClass({
         var pydio = this.props.pydio;
 
         if (idmUser.Attributes && idmUser.Attributes['avatar']) {
-            var imgSrc = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/binaries/USER/' + idmUser.Login + '?' + idmUser.Attributes['avatar'];
+            var imgSrc = pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/binaries/USER/' + idmUser.Login + '?' + idmUser.Attributes['avatar'] + '&dim=33';
             return _react2['default'].createElement('div', { style: {
                     width: 33,
                     height: 33,

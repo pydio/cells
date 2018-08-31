@@ -384,7 +384,7 @@ var UserAvatar = (function (_React$Component) {
 
         if (avatar) {
             avatarIcon = React.createElement(FontIcon, { style: {
-                    backgroundImage: "url(" + avatar + ")",
+                    backgroundImage: "url(" + avatar + "?dim=" + avatarSize + ")",
                     backgroundSize: 'cover',
                     margin: 0,
                     width: '100%',

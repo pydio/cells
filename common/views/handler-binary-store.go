@@ -135,19 +135,37 @@ func (a *BinaryStoreHandler) UpdateNode(ctx context.Context, in *tree.UpdateNode
 }
 
 func (a *BinaryStoreHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, opts ...client.CallOption) (*tree.DeleteNodeResponse, error) {
+	var dsKey string
+	var source LoadedSource
 	if a.isStorePath(in.Node.Path) {
 		if !a.AllowPut {
 			return nil, errors.Forbidden(VIEWS_LIBRARY_NAME, "Forbidden store")
 		}
-		source, er := a.clientsPool.GetDataSourceInfo(a.StoreName)
-		if er == nil {
+		var er error
+		if source, er = a.clientsPool.GetDataSourceInfo(a.StoreName); er == nil {
 			ctx = WithBranchInfo(ctx, "in", BranchInfo{LoadedSource: source, Binary: true})
 			clone := in.Node.Clone()
-			clone.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, path.Base(in.Node.Path))
+			dsKey = path.Base(in.Node.Path)
+			clone.SetMeta(common.META_NAMESPACE_DATASOURCE_PATH, dsKey)
 			in.Node = clone
 		}
 	}
-	return a.next.DeleteNode(ctx, in, opts...)
+	r, e := a.next.DeleteNode(ctx, in, opts...)
+	if dsKey != "" && e == nil {
+		// delete alternate versions if they exists
+		s3client := source.Client
+		if meta, mOk := MinioMetaFromContext(ctx); mOk {
+			s3client.PrepareMetadata(meta)
+			defer s3client.ClearMetadata()
+		}
+		log.Logger(ctx).Info("Deleting binary alternate version ", zap.String("v", dsKey))
+		if res, e := s3client.ListObjects(source.ObjectsBucket, dsKey, "", "/", -1); e == nil {
+			for _, info := range res.Contents {
+				s3client.RemoveObject(dsKey, info.Key)
+			}
+		}
+	}
+	return r, e
 }
 
 func (a *BinaryStoreHandler) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {

@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+// import {compose} from 'redux';
 'use strict';
 
 exports.__esModule = true;
@@ -30,20 +31,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _redux = require('redux');
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 var _AsyncComponent = require('./AsyncComponent');
 
 var _AsyncComponent2 = _interopRequireDefault(_AsyncComponent);
 
-var _BackgroundImage = require('./BackgroundImage');
+var _pydioUtilXml = require('pydio/util/xml');
 
-var _BackgroundImage2 = _interopRequireDefault(_BackgroundImage);
+var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
+
+var _withProgressiveBg = require('./withProgressiveBg');
+
+var _withProgressiveBg2 = _interopRequireDefault(_withProgressiveBg);
 
 // Animations
-var originStyles = { opacity: 0 };
-var targetStyles = { opacity: 1 };
-var enterAnimation = { stiffness: 350, damping: 28 };
+//const originStyles = {opacity: 0}
+//const targetStyles = {opacity: 1}
+//const enterAnimation = {stiffness: 350, damping: 28}
 
 var Template = function Template(_ref) {
     var style = _ref.style;
@@ -54,7 +61,7 @@ var Template = function Template(_ref) {
     var userIsActive = function userIsActive() {
         pydio.notify('user_activity');
     };
-    return React.createElement(
+    return _react2['default'].createElement(
         'div',
         {
             style: style,
@@ -82,28 +89,23 @@ var TemplateBuilder = (function (_React$Component) {
     }
 
     TemplateBuilder.prototype.render = function render() {
-
-        var pydio = this.props.pydio;
-        var containerId = this.props.containerId;
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var containerId = _props.containerId;
+        var bgStyle = _props.bgStyle;
 
         var components = [];
         var style = {
             display: "flex",
             flex: 1
         };
-
-        if (this.props.imageBackgroundFromConfigs) {
-            if (_BackgroundImage2['default'].SESSION_IMAGE) {
-                style = _BackgroundImage2['default'].SESSION_IMAGE;
-            } else {
-                style = _BackgroundImage2['default'].getImageBackgroundFromConfig(this.props.imageBackgroundFromConfigs);
-                _BackgroundImage2['default'].SESSION_IMAGE = style;
-            }
+        if (bgStyle) {
+            style = bgStyle;
         }
 
-        var parts = XMLUtils.XPathSelectNodes(pydio.getXmlRegistry(), "client_configs/template_part[@component]");
+        var parts = _pydioUtilXml2['default'].XPathSelectNodes(pydio.getXmlRegistry(), "client_configs/template_part[@component]");
         parts.map((function (node) {
-            if (node.getAttribute("theme") && node.getAttribute("theme") != pydio.Parameters.get("theme")) {
+            if (node.getAttribute("theme") && node.getAttribute("theme") !== pydio.Parameters.get("theme")) {
                 return;
             }
             if (containerId !== node.getAttribute("ajxpId")) {
@@ -119,7 +121,7 @@ var TemplateBuilder = (function (_React$Component) {
             }
             props['pydio'] = pydio;
 
-            components.push(React.createElement(_AsyncComponent2['default'], _extends({
+            components.push(_react2['default'].createElement(_AsyncComponent2['default'], _extends({
                 key: namespace,
                 namespace: namespace,
                 componentName: componentName,
@@ -128,7 +130,7 @@ var TemplateBuilder = (function (_React$Component) {
             }, props)));
         }).bind(this));
 
-        return React.createElement(
+        return _react2['default'].createElement(
             Template,
             { style: style, id: this.props.containerId, pydio: pydio },
             components
@@ -136,12 +138,14 @@ var TemplateBuilder = (function (_React$Component) {
     };
 
     return TemplateBuilder;
-})(React.Component);
+})(_react2['default'].Component);
 
 TemplateBuilder.propTypes = {
-    pydio: React.PropTypes.instanceOf(Pydio),
-    containerId: React.PropTypes.string
+    pydio: _react2['default'].PropTypes.instanceOf(Pydio),
+    containerId: _react2['default'].PropTypes.string
 };
+
+TemplateBuilder = _withProgressiveBg2['default'](TemplateBuilder);
 
 exports['default'] = TemplateBuilder;
 module.exports = exports['default'];

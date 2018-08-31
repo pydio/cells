@@ -287,7 +287,7 @@ class UserAvatar extends React.Component{
 
         if(avatar){
             avatarIcon = <FontIcon style={{
-                backgroundImage:"url("+avatar+")",
+                backgroundImage:"url("+avatar+"?dim="+ avatarSize +")",
                 backgroundSize:'cover',
                 margin:0,
                 width:'100%',

@@ -38665,16 +38665,15 @@
         "props": {
           "pydio": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.instanceOf(Pydio)"
+              "name": "instanceOf",
+              "value": "Pydio"
             },
             "required": false,
             "description": ""
           },
           "containerId": {
             "type": {
-              "name": "custom",
-              "raw": "React.PropTypes.string"
+              "name": "string"
             },
             "required": false,
             "description": ""
