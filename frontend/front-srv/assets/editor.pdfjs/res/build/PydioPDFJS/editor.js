@@ -40,6 +40,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioUtilDom = require('pydio/util/dom');
+
+var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -72,9 +76,10 @@ var Viewer = (function (_Component) {
 
             var pydio = props.pydio;
             var node = props.node;
+            var loadThumbnail = props.loadThumbnail;
 
             var url = undefined;
-            var base = DOMUtils.getUrlFromBase();
+            var base = _pydioUtilDom2['default'].getUrlFromBase();
 
             if (base) {
                 url = base;
@@ -94,10 +99,15 @@ var Viewer = (function (_Component) {
                     url = url.substr(0, url.lastIndexOf('/'));
                 }
             }
-
+            var viewerFile = 'viewer.html';
+            if (loadThumbnail) {
+                viewerFile = 'viewer-thumb.html';
+            } else if (pydio.Parameters.has('MINISITE')) {
+                viewerFile = 'viewer-minisite.html';
+            }
             _pydioHttpApi2['default'].getClient().buildPresignedGetUrl(node).then(function (pdfurl) {
                 _this.setState({
-                    url: 'plug/editor.pdfjs/pdfjs/web/viewer.html?file=' + encodeURIComponent(pdfurl)
+                    url: 'plug/editor.pdfjs/pdfjs/web/' + viewerFile + '?file=' + encodeURIComponent(pdfurl)
                 });
             });
         }

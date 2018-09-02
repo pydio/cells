@@ -20,6 +20,7 @@
 
 
 import PydioApi from 'pydio/http/api'
+import DOMUtils from 'pydio/util/dom'
 import React, {Component} from 'react'
 
 class Viewer extends Component {
@@ -34,7 +35,7 @@ class Viewer extends Component {
     }
 
     loadNode(props) {
-        const {pydio, node} = props;
+        const {pydio, node, loadThumbnail} = props;
 
         let url;
         let base = DOMUtils.getUrlFromBase();
@@ -57,10 +58,15 @@ class Viewer extends Component {
                 url = url.substr(0, url.lastIndexOf('/'));
             }
         }
-
+        let viewerFile = 'viewer.html';
+        if(loadThumbnail){
+            viewerFile = 'viewer-thumb.html';
+        } else if(pydio.Parameters.has('MINISITE')){
+            viewerFile = 'viewer-minisite.html';
+        }
         PydioApi.getClient().buildPresignedGetUrl(node).then(pdfurl => {
             this.setState({
-                url: 'plug/editor.pdfjs/pdfjs/web/viewer.html?file=' + encodeURIComponent(pdfurl)
+                url: 'plug/editor.pdfjs/pdfjs/web/' + viewerFile + '?file=' + encodeURIComponent(pdfurl)
             })
         })
 
