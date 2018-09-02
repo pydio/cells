@@ -388,7 +388,7 @@ var StandardLayout = React.createClass({
 
         return React.createElement(
             'div',
-            { className: 'vertical_fit vertical_layout', style: style },
+            { className: 'vertical_fit vertical_layout', style: bgStyle },
             React.createElement(
                 MaterialUI.Paper,
                 { zDepth: 1, rounded: false, style: styles.appBarStyle },
