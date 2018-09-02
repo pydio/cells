@@ -270,7 +270,7 @@ let StandardLayout = React.createClass({
         }
 
         return (
-            <div className="vertical_fit vertical_layout" style={style}>
+            <div className="vertical_fit vertical_layout" style={bgStyle}>
                 <MaterialUI.Paper zDepth={1} rounded={false} style={styles.appBarStyle}>
                     {minisiteMode === 'embed' &&
                         <ConfigLogo pydio={this.props.pydio} style={{height:50}}/>
