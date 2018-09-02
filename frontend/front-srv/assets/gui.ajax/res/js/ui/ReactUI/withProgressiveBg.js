@@ -27,22 +27,6 @@ class BackgroundImage{
         const configs = XMLUtils.XPathSelectNodes(registry, "plugins/*[@id='"+plugin+"']/plugin_configs/property[contains(@name, '"+paramPrefix+"')]");
         const defaults = XMLUtils.XPathSelectNodes(registry, "plugins/*[@id='"+plugin+"']/server_settings/global_param[contains(@name, '"+paramPrefix+"')]");
 
-        /*
-        const windowWidth = DOMUtils.getViewportWidth();
-        const isRetina = matchMedia("(-webkit-min-device-pixel-ratio: 2), (min-device-pixel-ratio: 2), (min-resolution: 192dpi)").matches;
-        let resize = 0;
-        if(blur){
-            resize = 40;
-        } else if(windowWidth <= 600) {
-            resize = 800;
-            if(isRetina) {
-                resize = 1200;
-            }
-        } else if(windowWidth <= 1200 && !isRetina) {
-            resize = 1200;
-        }
-        */
-
         bgrounds = {};
         configs.map(function(c){
             bgrounds[c.getAttribute("name")] = c.firstChild.nodeValue.replace(/"/g, '');
@@ -138,7 +122,7 @@ export default function(PydioComponent) {
         render(){
 
             const {background, loaded} = this.state;
-            const {containerId} = this.props;
+            const {pydio} = this.props;
             let bgStyle = {};
             if(background){
                 let url, blur;
@@ -149,16 +133,18 @@ export default function(PydioComponent) {
                     } else {
                         url = background.orig;
                     }
-                } else {
+                } else if (!pydio.user) { // if user is logged, do not load small version of background
                     url = background.resize(40);
                     blur = {filter: 'blur(50px)'};
                 }
-                bgStyle = {
-                    backgroundImage:"url('"+url+"')",
-                    backgroundSize:"cover",
-                    backgroundPosition:"center center",
-                    ...blur
-                };
+                if(url){
+                    bgStyle = {
+                        backgroundImage:"url('"+url+"')",
+                        backgroundSize:"cover",
+                        backgroundPosition:"center center",
+                        ...blur
+                    };
+                }
             }
             return <PydioComponent {...this.props} bgStyle={bgStyle}/>
 

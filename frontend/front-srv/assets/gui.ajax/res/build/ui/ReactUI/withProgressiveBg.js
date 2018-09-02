@@ -55,22 +55,6 @@ var BackgroundImage = (function () {
         var configs = _pydioUtilXml2['default'].XPathSelectNodes(registry, "plugins/*[@id='" + plugin + "']/plugin_configs/property[contains(@name, '" + paramPrefix + "')]");
         var defaults = _pydioUtilXml2['default'].XPathSelectNodes(registry, "plugins/*[@id='" + plugin + "']/server_settings/global_param[contains(@name, '" + paramPrefix + "')]");
 
-        /*
-        const windowWidth = DOMUtils.getViewportWidth();
-        const isRetina = matchMedia("(-webkit-min-device-pixel-ratio: 2), (min-device-pixel-ratio: 2), (min-resolution: 192dpi)").matches;
-        let resize = 0;
-        if(blur){
-            resize = 40;
-        } else if(windowWidth <= 600) {
-            resize = 800;
-            if(isRetina) {
-                resize = 1200;
-            }
-        } else if(windowWidth <= 1200 && !isRetina) {
-            resize = 1200;
-        }
-        */
-
         bgrounds = {};
         configs.map(function (c) {
             bgrounds[c.getAttribute("name")] = c.firstChild.nodeValue.replace(/"/g, '');
@@ -180,6 +164,7 @@ exports['default'] = function (PydioComponent) {
             var _state = this.state;
             var background = _state.background;
             var loaded = _state.loaded;
+            var pydio = this.props.pydio;
 
             var bgStyle = {};
             if (background) {
@@ -192,15 +177,18 @@ exports['default'] = function (PydioComponent) {
                     } else {
                         url = background.orig;
                     }
-                } else {
+                } else if (!pydio.user) {
+                    // if user is logged, do not load small version of background
                     url = background.resize(40);
                     _blur = { filter: 'blur(50px)' };
                 }
-                bgStyle = _extends({
-                    backgroundImage: "url('" + url + "')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center center"
-                }, _blur);
+                if (url) {
+                    bgStyle = _extends({
+                        backgroundImage: "url('" + url + "')",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center center"
+                    }, _blur);
+                }
             }
             return React.createElement(PydioComponent, _extends({}, this.props, { bgStyle: bgStyle }));
         };
