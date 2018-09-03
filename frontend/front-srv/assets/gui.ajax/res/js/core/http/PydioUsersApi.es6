@@ -32,6 +32,7 @@ class User extends Observable{
     _avatar;
     _temporary;
     _external;
+    _public;
     _extendedLabel;
     _graph;
     _loading;
@@ -45,7 +46,7 @@ class User extends Observable{
     _avatarUrl;
     _avatarUrlLoaded;
 
-    constructor(id, label, type, group, avatar, temporary, external, extendedLabel){
+    constructor(id, label = '', type = 'user', group = '', avatar = '', temporary = false, external = false, extendedLabel = null){
         super();
         this._id = id;
         this._label = label;
@@ -60,21 +61,30 @@ class User extends Observable{
     }
 
     /**
+     *
+     * @param idmUser {IdmUser}
+     */
+    setIdmUser(idmUser){
+        this.IdmUser = idmUser;
+        this._uuid = idmUser.Uuid;
+
+        const attributes = idmUser.Attributes || {};
+        this._label = attributes['displayName'] || idmUser.Login;
+        this._type = 'user';
+        this._group = '';
+        this._avatar = attributes['avatar'];
+        this._temporary = false;
+        this._external = attributes['profile'] === 'shared';
+        this._public = attributes['hidden'] === 'true';
+    }
+
+    /**
      * @param idmUser {IdmUser}
      * @return {User}
      */
     static fromIdmUser(idmUser){
-        let u = new User(
-            idmUser.Login,
-            idmUser.Attributes['displayName'] || idmUser.Login,
-            'user',
-            '',
-            idmUser.Attributes['avatar'],
-            false,
-            idmUser.Attributes['profile'] === 'shared',
-        );
-        u._uuid = idmUser.Uuid;
-        u.IdmUser = idmUser;
+        const u = new User(idmUser.Login);
+        u.setIdmUser(idmUser);
         return u;
     }
 
@@ -180,6 +190,9 @@ class User extends Observable{
     isNotFound(){
         return this._notFound;
     }
+    isPublic(){
+        return this._public;
+    }
 }
 
 
@@ -225,14 +238,11 @@ class UsersApi{
                     errorCallback(new Error('Cannot find user'));
                     return;
                 }
-                userObject.IdmUser = user;
-                if(userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["avatar"]){
-                    userObject.setAvatar(UsersApi.buildUserAvatarUrl(userId, userObject.IdmUser.Attributes["avatar"]));
+                userObject.setIdmUser(user);
+                if(userObject.getAvatar() && userObject.getAvatar()){
+                    userObject.setAvatar(UsersApi.buildUserAvatarUrl(userId, userObject.getAvatar()));
                 } else {
                     UsersApi.avatarFromExternalProvider(userObject, callback);
-                }
-                if(userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"]) {
-                    userObject.setLabel(userObject.IdmUser.Attributes["displayName"]);
                 }
                 callback(userObject);
             }).catch(e => {

@@ -194,9 +194,11 @@ var UserAvatar = (function (_React$Component) {
 
         var userTypeLabel = undefined;
         var userNotFound = loadError;
+        var userIsPublic = false;
         if (user) {
             label = user.getLabel();
             userNotFound = user.isNotFound();
+            userIsPublic = user.isPublic();
         } else if (!label) {
             label = this.props.userLabel || this.props.userId;
         }
@@ -233,7 +235,20 @@ var UserAvatar = (function (_React$Component) {
                     break;
                 default:
                     iconClassName = 'mdi mdi-account';
-                    userTypeLabel = user ? user.getExternal() ? '589' : '590' : '288';
+                    if (user) {
+                        if (user.getExternal()) {
+                            userTypeLabel = '589';
+                            if (user.isPublic()) {
+                                userTypeLabel = '589';
+                                label = pydio.MessageHash["public_link_user"];
+                                iconClassName = 'mdi mdi-link';
+                            }
+                        } else {
+                            userTypeLabel = '590';
+                        }
+                    } else {
+                        userTypeLabel = '288';
+                    }
                     break;
             }
             if (icon) {
@@ -291,7 +306,7 @@ var UserAvatar = (function (_React$Component) {
                     }
                 };
             })();
-        } else if (!local && !userNotFound && this.props.richOnHover) {
+        } else if (!local && !userNotFound && !userIsPublic && this.props.richOnHover) {
             (function () {
 
                 onMouseOut = function () {
@@ -339,7 +354,7 @@ var UserAvatar = (function (_React$Component) {
                     )
                 );
             })();
-        } else if (!local && !userNotFound && this.props.richOnClick) {
+        } else if (!local && !userNotFound && !userIsPublic && this.props.richOnClick) {
             (function () {
 
                 onMouseOut = function () {

@@ -52,7 +52,15 @@ var _md52 = _interopRequireDefault(_md5);
 var User = (function (_Observable) {
     _inherits(User, _Observable);
 
-    function User(id, label, type, group, avatar, temporary, external, extendedLabel) {
+    function User(id) {
+        var label = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+        var type = arguments.length <= 2 || arguments[2] === undefined ? 'user' : arguments[2];
+        var group = arguments.length <= 3 || arguments[3] === undefined ? '' : arguments[3];
+        var avatar = arguments.length <= 4 || arguments[4] === undefined ? '' : arguments[4];
+        var temporary = arguments.length <= 5 || arguments[5] === undefined ? false : arguments[5];
+        var external = arguments.length <= 6 || arguments[6] === undefined ? false : arguments[6];
+        var extendedLabel = arguments.length <= 7 || arguments[7] === undefined ? null : arguments[7];
+
         _classCallCheck(this, User);
 
         _Observable.call(this);
@@ -69,14 +77,32 @@ var User = (function (_Observable) {
     }
 
     /**
+     *
+     * @param idmUser {IdmUser}
+     */
+
+    User.prototype.setIdmUser = function setIdmUser(idmUser) {
+        this.IdmUser = idmUser;
+        this._uuid = idmUser.Uuid;
+
+        var attributes = idmUser.Attributes || {};
+        this._label = attributes['displayName'] || idmUser.Login;
+        this._type = 'user';
+        this._group = '';
+        this._avatar = attributes['avatar'];
+        this._temporary = false;
+        this._external = attributes['profile'] === 'shared';
+        this._public = attributes['hidden'] === 'true';
+    };
+
+    /**
      * @param idmUser {IdmUser}
      * @return {User}
      */
 
     User.fromIdmUser = function fromIdmUser(idmUser) {
-        var u = new User(idmUser.Login, idmUser.Attributes['displayName'] || idmUser.Login, 'user', '', idmUser.Attributes['avatar'], false, idmUser.Attributes['profile'] === 'shared');
-        u._uuid = idmUser.Uuid;
-        u.IdmUser = idmUser;
+        var u = new User(idmUser.Login);
+        u.setIdmUser(idmUser);
         return u;
     };
 
@@ -183,6 +209,10 @@ var User = (function (_Observable) {
         return this._notFound;
     };
 
+    User.prototype.isPublic = function isPublic() {
+        return this._public;
+    };
+
     return User;
 })(_langObservable2['default']);
 
@@ -232,14 +262,11 @@ var UsersApi = (function () {
                     errorCallback(new Error('Cannot find user'));
                     return;
                 }
-                userObject.IdmUser = user;
-                if (userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["avatar"]) {
-                    userObject.setAvatar(UsersApi.buildUserAvatarUrl(userId, userObject.IdmUser.Attributes["avatar"]));
+                userObject.setIdmUser(user);
+                if (userObject.getAvatar() && userObject.getAvatar()) {
+                    userObject.setAvatar(UsersApi.buildUserAvatarUrl(userId, userObject.getAvatar()));
                 } else {
                     UsersApi.avatarFromExternalProvider(userObject, callback);
-                }
-                if (userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"]) {
-                    userObject.setLabel(userObject.IdmUser.Attributes["displayName"]);
                 }
                 callback(userObject);
             })['catch'](function (e) {

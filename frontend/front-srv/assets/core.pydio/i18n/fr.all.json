@@ -2173,5 +2173,8 @@
   },
   "view_access_key": {
     "other": "u"
+  },
+  "public_link_user" : {
+    "other": "Accès public"
   }
 }

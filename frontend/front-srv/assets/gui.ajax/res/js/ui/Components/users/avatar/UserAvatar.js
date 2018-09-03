@@ -122,9 +122,11 @@ class UserAvatar extends React.Component{
         let {label} = this.state;
         let userTypeLabel;
         let userNotFound = loadError;
+        let userIsPublic = false;
         if(user) {
             label = user.getLabel();
             userNotFound = user.isNotFound();
+            userIsPublic = user.isPublic();
         }else if(!label){
             label = this.props.userLabel || this.props.userId;
         }
@@ -159,7 +161,20 @@ class UserAvatar extends React.Component{
                     break;
                 default:
                     iconClassName = 'mdi mdi-account';
-                    userTypeLabel = (user ?  (user.getExternal() ? '589' : '590') : '288');
+                    if(user){
+                        if(user.getExternal()){
+                            userTypeLabel = '589';
+                            if(user.isPublic()){
+                                userTypeLabel = '589';
+                                label = pydio.MessageHash["public_link_user"];
+                                iconClassName = 'mdi mdi-link';
+                            }
+                        } else {
+                            userTypeLabel = '590';
+                        }
+                    }else {
+                        userTypeLabel = '288';
+                    }
                     break;
             }
             if(icon) {
@@ -208,7 +223,7 @@ class UserAvatar extends React.Component{
                     this.props.onEditAction();
                 }
             }
-        } else if(!local && !userNotFound && this.props.richOnHover){
+        } else if(!local && !userNotFound && !userIsPublic && this.props.richOnHover){
 
             onMouseOut = () => {
                 if(!this.lockedBySubPopover){
@@ -249,7 +264,7 @@ class UserAvatar extends React.Component{
                 </Popover>
             );
 
-        } else if(!local && !userNotFound && this.props.richOnClick){
+        } else if(!local && !userNotFound && !userIsPublic && this.props.richOnClick){
 
             onMouseOut = () => {
                 if(!this.lockedBySubPopover){

@@ -66,11 +66,11 @@ const Confirm = React.createClass({
         mode        : React.PropTypes.oneOf(['new_share','reject_accepted'])
     },
 
-    componentDidMount: function () {
+    componentDidMount () {
         this.refs.dialog.show()
     },
 
-    render: function () {
+    render () {
         let messages = this.props.pydio.MessageHash,
             messageTitle = messages[545],
             messageBody = messages[546],
@@ -117,7 +117,7 @@ let WorkspaceEntry =React.createClass({
         onOutLink       : React.PropTypes.func
     },
 
-    getInitialState:function(){
+    getInitialState(){
         return {
             openAlert:false,
             openFoldersTree: false,
@@ -125,11 +125,11 @@ let WorkspaceEntry =React.createClass({
         };
     },
 
-    getLetterBadge:function(){
+    getLetterBadge(){
         return {__html:this.props.workspace.getHtmlBadge(true)};
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
         if(this.props.showFoldersTree){
             this._monitorFolder = function(){
                 this.setState({currentContextNode: this.props.pydio.getContextHolder().getContextNode()});
@@ -138,13 +138,13 @@ let WorkspaceEntry =React.createClass({
         }
     },
 
-    componentWillUnmount: function(){
+    componentWillUnmount(){
         if(this._monitorFolder){
             this.props.pydio.getContextHolder().stopObserving("context_changed", this._monitorFolder);
         }
     },
 
-    handleAccept: function () {
+    handleAccept () {
         PydioApi.getClient().request({
             'get_action': 'accept_invitation',
             'remote_share_id': this.props.workspace.getShareId()
@@ -160,7 +160,7 @@ let WorkspaceEntry =React.createClass({
         }.bind(this));
     },
 
-    handleDecline: function () {
+    handleDecline () {
         PydioApi.getClient().request({
             'get_action': 'reject_invitation',
             'remote_share_id': this.props.workspace.getShareId()
@@ -179,7 +179,7 @@ let WorkspaceEntry =React.createClass({
         }.bind(this));
     },
 
-    handleOpenAlert: function (mode = 'new_share', event) {
+    handleOpenAlert (mode = 'new_share', event) {
         event.stopPropagation();
         this.wrapper = document.body.appendChild(document.createElement('div'));
         this.wrapper.style.zIndex = 11;
@@ -197,12 +197,12 @@ let WorkspaceEntry =React.createClass({
             />, this.wrapper);
     },
 
-    handleCloseAlert: function() {
+    handleCloseAlert() {
         ReactDOM.unmountComponentAtNode(this.wrapper);
         this.wrapper.remove();
     },
 
-    handleRemoveTplBasedWorkspace: function(event){
+    handleRemoveTplBasedWorkspace(event){
         event.stopPropagation();
         if(!global.confirm(this.props.pydio.MessageHash['424'])){
             return;
@@ -212,7 +212,7 @@ let WorkspaceEntry =React.createClass({
         });
     },
 
-    onClick:function() {
+    onClick() {
         if(this.props.workspace.getId() === this.props.pydio.user.activeRepository && this.props.showFoldersTree){
             this.props.pydio.goTo('/');
         }else{
@@ -222,12 +222,12 @@ let WorkspaceEntry =React.createClass({
         }
     },
 
-    toggleFoldersPanelOpen: function(ev){
+    toggleFoldersPanelOpen(ev){
         ev.stopPropagation();
         this.setState({openFoldersTree: !this.state.openFoldersTree});
     },
 
-    getItemStyle: function(node){
+    getItemStyle(node){
         const isContext = this.props.pydio.getContextHolder().getContextNode() === node;
         const accent2 = this.props.muiTheme.palette.accent2Color;
         if(isContext){
@@ -324,12 +324,12 @@ let WorkspaceEntry =React.createClass({
         }
 
         if(this.state && this.state.loading){
-            additionalAction = <span className="workspace-additional-action" style={{padding:5}}><CircularProgress size={20} thickness={3}/></span>
+            additionalAction = <CircularProgress size={20} thickness={3} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
         }
 
         if(showFoldersTree){
             let fTCName = this.state.openFoldersTree ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right";
-            treeToggle = <span style={{marginLeft:-20}} className={fTCName} onClick={this.toggleFoldersPanelOpen}></span>;
+            treeToggle = <span style={{opacity: 1}} className={'workspace-additional-action ' + fTCName} onClick={this.toggleFoldersPanelOpen}></span>;
         }
 
         let menuNode;
@@ -346,21 +346,24 @@ let WorkspaceEntry =React.createClass({
         }
 
         const {popoverOpen, popoverAnchor, popoverTop, popoverHeight} = this.state;
+        let title = workspace.getLabel();
+        if(workspace.getDescription()){
+            title += ' - ' + workspace.getDescription();
+        }
 
         let wsBlock = (
             <ContextMenuWrapper
                 node={menuNode}
                 className={currentClass}
                 onClick={onClick}
-                title={workspace.getDescription()}
                 onMouseOver={onHover}
                 onMouseOut={onOut}
                 style={style}
             >
-                <span className="workspace-label-container">
-                    <span className="workspace-label">{treeToggle}{workspace.getLabel()}{chatIcon}</span>
-                    <span className="workspace-description">{workspace.getDescription()}</span>
-                </span>
+                <span className="workspace-label" title={title}>{workspace.getLabel()}</span>
+                {chatIcon}
+                {treeToggle}
+                <span style={{flex: 1}}></span>
                 {additionalAction}
                 <Popover
                     open={popoverOpen}
