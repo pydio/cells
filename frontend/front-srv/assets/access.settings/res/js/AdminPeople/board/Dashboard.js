@@ -276,8 +276,6 @@ let Dashboard = React.createClass({
                 displayResultsState={searchResultData}
                 hideResults={this.hideSearchResults}
                 style={{margin: '-18px 20px 0'}}
-                parameters={{get_action:'admin_search_users',dir:this.props.dataModel.getContextNode().getPath()}}
-                queryParameterName="query"
                 limit={50}
                 textLabel={this.context.getMessage('user.7')}
             />

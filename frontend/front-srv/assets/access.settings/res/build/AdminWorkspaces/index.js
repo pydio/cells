@@ -76,7 +76,6 @@ var _modelVirtualNode2 = _interopRequireDefault(_modelVirtualNode);
 
 window.AdminWorkspaces = {
   MetaSourceForm: _metaMetaSourceForm2['default'],
-  SharesList: _panelSharesList2['default'],
   MetaList: _metaMetaList2['default'],
   WorkspaceSummary: _panelWorkspaceSummary2['default'],
   VirtualNodes: _boardVirtualNodes2['default'],

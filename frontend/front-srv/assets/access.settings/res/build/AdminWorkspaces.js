@@ -22895,7 +22895,6 @@ var MetadataBoard = (function (_React$Component) {
             if (confirm('Are you sure you want to delete this metadata?')) {
                 _modelMetadata2['default'].deleteNS(row).then(function () {
                     _this2.load();
-                    _pydioHttpApi2['default'].getClient().request({ get_action: 'meta_user_clear_cache' });
                 });
             }
         }
@@ -23474,17 +23473,18 @@ exports['default'] = _react2['default'].createClass({
         if (editorNode) {
             editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
         }
+        var pydio = this.props.pydio;
+
         var editorData = {
             COMPONENT: editor,
             PROPS: {
                 ref: "editor",
+                pydio: pydio,
                 workspace: workspace,
                 closeEditor: this.closeWorkspace,
                 reloadList: function reloadList() {
                     _this2.refs['workspacesList'].reload();
-                },
-                deleteWorkspace: this.deleteWorkspace,
-                saveWorkspace: this.updateWorkspace
+                }
             }
         };
         this.props.openRightPane(editorData);
@@ -23500,12 +23500,14 @@ exports['default'] = _react2['default'].createClass({
     showWorkspaceCreator: function showWorkspaceCreator(type) {
         var _this3 = this;
 
+        var pydio = this.props.pydio;
+
         var editorData = {
             COMPONENT: _editorWsEditor2['default'],
             PROPS: {
                 ref: "editor",
                 type: type,
-                save: this.createWorkspace,
+                pydio: pydio,
                 closeEditor: this.closeWorkspace,
                 reloadList: function reloadList() {
                     _this3.refs['workspacesList'].reload();
@@ -23513,74 +23515,6 @@ exports['default'] = _react2['default'].createClass({
             }
         };
         this.props.openRightPane(editorData);
-    },
-
-    deleteWorkspace: function deleteWorkspace(workspaceId) {
-        if (window.confirm(this.context.getMessage('35', 'settings'))) {
-            this.closeWorkspace();
-            PydioApi.getClient().request({
-                get_action: 'delete',
-                data_type: 'repository',
-                data_id: workspaceId
-            }, (function (transport) {
-                this.refs.workspacesList.reload();
-            }).bind(this));
-        }
-    },
-
-    /**
-     *
-     * @param workspaceModel Workspace
-     * @param postData Object
-     * @param editorData Object
-     */
-    updateWorkspace: function updateWorkspace(workspaceModel, postData, editorData) {
-        var workspaceId = workspaceModel.wsId;
-        if (workspaceModel.isTemplate()) {
-            var formDefs = [],
-                formValues = {},
-                templateAllFormDefs = [];
-            if (!editorData["general"]) {
-                workspaceModel.buildEditor("general", formDefs, formValues, {}, templateAllFormDefs);
-                var generalPostValues = PydioForm.Manager.getValuesForPOST(formDefs, formValues);
-                postData = LangUtils.objectMerge(postData, generalPostValues);
-            }
-            if (!editorData["driver"]) {
-                workspaceModel.buildEditor("driver", formDefs, formValues, {}, templateAllFormDefs);
-                var driverPostValues = PydioForm.Manager.getValuesForPOST(formDefs, formValues);
-                postData = LangUtils.objectMerge(postData, driverPostValues);
-            }
-        }
-
-        if (editorData['permission-mask']) {
-            postData['permission_mask'] = JSON.stringify(editorData['permission-mask']);
-        }
-        var mainSave = (function () {
-            PydioApi.getClient().request(LangUtils.objectMerge({
-                get_action: 'edit',
-                sub_action: 'edit_repository_data',
-                repository_id: workspaceId
-            }, postData), (function (transport) {
-                this.refs['workspacesList'].reload();
-            }).bind(this));
-        }).bind(this);
-
-        var metaSources = editorData['META_SOURCES'];
-        if (Object.keys(metaSources["delete"]).length || Object.keys(metaSources["add"]).length || Object.keys(metaSources["edit"]).length) {
-            PydioApi.getClient().request(LangUtils.objectMerge({
-                get_action: 'edit',
-                sub_action: 'meta_source_edit',
-                repository_id: workspaceId,
-                bulk_data: JSON.stringify(metaSources)
-            }), (function (transport) {
-                if (this.refs['editor']) {
-                    this.refs['editor'].clearMetaSourceDiff();
-                }
-                mainSave();
-            }).bind(this));
-        } else {
-            mainSave();
-        }
     },
 
     reloadWorkspaceList: function reloadWorkspaceList() {
@@ -26493,8 +26427,9 @@ var WsEditor = (function (_React$Component) {
             var _props = this.props;
             var closeEditor = _props.closeEditor;
             var reloadList = _props.reloadList;
+            var pydio = _props.pydio;
 
-            if (confirm('Are you sure?')) {
+            if (confirm(pydio.MessageHash['settings.35'])) {
                 container.remove().then(function () {
                     reloadList();
                     closeEditor();
@@ -26768,7 +26703,6 @@ var _modelVirtualNode2 = _interopRequireDefault(_modelVirtualNode);
 
 window.AdminWorkspaces = {
   MetaSourceForm: _metaMetaSourceForm2['default'],
-  SharesList: _panelSharesList2['default'],
   MetaList: _metaMetaList2['default'],
   WorkspaceSummary: _panelWorkspaceSummary2['default'],
   VirtualNodes: _boardVirtualNodes2['default'],

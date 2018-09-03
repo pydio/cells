@@ -89,23 +89,6 @@ let PoliciesBoard = React.createClass({
         return result;
     },
 
-    /**
-     * @return Promise
-     */
-    getOrUpdateJwt(){
-        return new Promise((resolve, reject) => {
-            const now = Math.floor(Date.now() / 1000);
-            if(!PydioApi.JWT_DATA || PydioApi.JWT_DATA['expirationTime'] <= now) {
-                PydioApi.getClient().request({get_action:'jwt', client_time:now}, (t) => {
-                    PydioApi.JWT_DATA = t.responseJSON;
-                    resolve(PydioApi.JWT_DATA['jwt']);
-                });
-            } else {
-                resolve(PydioApi.JWT_DATA['jwt']);
-            }
-        });
-    },
-
     listPolicies(){
 
         this.setState({loading: true});

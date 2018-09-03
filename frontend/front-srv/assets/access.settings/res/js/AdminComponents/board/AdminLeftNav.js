@@ -34,41 +34,26 @@ let AdminLeftNav = React.createClass({
         dataModel       : React.PropTypes.instanceOf(PydioDataModel)
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
         MenuItemListener.getInstance().observe("item_changed", function(){
             this.forceUpdate();
         }.bind(this));
     },
 
-    componentWillUnmount: function(){
+    componentWillUnmount(){
         MenuItemListener.getInstance().stopObserving("item_changed");
     },
 
-    checkForUpdates: function(){
+    checkForUpdates(){
         const {pydio, rootNode} = this.props;
-        if(pydio.Controller.getActionByName("get_upgrade_path")){
-            PydioApi.getClient().request({get_action:'get_upgrade_path'}, function(transp){
-                const response = transp.responseJSON;
-                const fakeNode = new AjxpNode("/admin/action.updater");
-                const child = fakeNode.findInArbo(rootNode);
-                if(child){
-                    let length = 0;
-                    if(response && response.packages.length) {
-                        length = response.packages.length;
-                    }
-                    child.getMetadata().set('flag', length);
-                    MenuItemListener.getInstance().notify("item_changed");
-                }
-            }.bind(this));
-        }
     },
 
-    onMenuChange: function(event, node){
+    onMenuChange(event, node){
         this.props.dataModel.setSelectedNodes([]);
         this.props.dataModel.setContextNode(node);
     },
 
-    render: function(){
+    render(){
 
         const {pydio, rootNode, muiTheme, open} = this.props;
 

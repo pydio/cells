@@ -34,11 +34,9 @@ import PluginsLoader from './util/PluginsLoader'
 
 import GraphBadge from './cards/GraphBadge'
 import GraphCard from './cards/GraphCard'
-import MostActiveBadge from './cards/MostActiveBadge'
 import QuickLinks from './cards/QuickLinks'
 import RecentLogs from './cards/RecentLogs'
 import ServicesStatus from './cards/ServicesStatus'
-import ServerStatus from './cards/ServerStatus'
 import ToDoList from './cards/ToDoList'
 import WelcomePanel from './cards/WelcomePanel'
 
@@ -60,10 +58,8 @@ window.AdminComponents = {
 
     GraphCard,
     GraphBadge,
-    MostActiveBadge,
     QuickLinks,
     RecentLogs,
-    ServerStatus,
     ServicesStatus,
     ToDoList,
     WelcomePanel

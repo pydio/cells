@@ -34,7 +34,6 @@ export {
     QRCodeCard,
     QuickSendCard,
     WorkspacePickerDialog,
-    RecentAccessCard,
     VideoCard,
     WorkspacesListCard,
     HomeDashboard,

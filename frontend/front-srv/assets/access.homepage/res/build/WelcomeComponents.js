@@ -8222,7 +8222,6 @@ exports.DlAppsCard = _appsDlAppsCard2['default'];
 exports.QRCodeCard = _appsQRCodeCard2['default'];
 exports.QuickSendCard = _quicksendQuickSendCard2['default'];
 exports.WorkspacePickerDialog = _quicksendWorkspacePickerDialog2['default'];
-exports.RecentAccessCard = _recentRecentAccessCard2['default'];
 exports.VideoCard = _videosVideoCard2['default'];
 exports.WorkspacesListCard = _workspacesWorkspacesListCard2['default'];
 exports.HomeDashboard = _boardHomeDashboard2['default'];

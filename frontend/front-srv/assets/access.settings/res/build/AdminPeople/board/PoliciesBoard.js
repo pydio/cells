@@ -116,23 +116,6 @@ var PoliciesBoard = _react2['default'].createClass({
         return result;
     },
 
-    /**
-     * @return Promise
-     */
-    getOrUpdateJwt: function getOrUpdateJwt() {
-        return new Promise(function (resolve, reject) {
-            var now = Math.floor(Date.now() / 1000);
-            if (!_pydioHttpApi2['default'].JWT_DATA || _pydioHttpApi2['default'].JWT_DATA['expirationTime'] <= now) {
-                _pydioHttpApi2['default'].getClient().request({ get_action: 'jwt', client_time: now }, function (t) {
-                    _pydioHttpApi2['default'].JWT_DATA = t.responseJSON;
-                    resolve(_pydioHttpApi2['default'].JWT_DATA['jwt']);
-                });
-            } else {
-                resolve(_pydioHttpApi2['default'].JWT_DATA['jwt']);
-            }
-        });
-    },
-
     listPolicies: function listPolicies() {
         var _this = this;
 

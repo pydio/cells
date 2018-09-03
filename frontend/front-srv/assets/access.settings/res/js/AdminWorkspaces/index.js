@@ -34,7 +34,6 @@ import VirtualNode from './model/VirtualNode'
 
 window.AdminWorkspaces = {
     MetaSourceForm,
-    SharesList,
     MetaList,
     WorkspaceSummary,
     VirtualNodes,

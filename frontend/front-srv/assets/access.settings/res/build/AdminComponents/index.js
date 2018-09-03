@@ -76,10 +76,6 @@ var _cardsGraphCard = require('./cards/GraphCard');
 
 var _cardsGraphCard2 = _interopRequireDefault(_cardsGraphCard);
 
-var _cardsMostActiveBadge = require('./cards/MostActiveBadge');
-
-var _cardsMostActiveBadge2 = _interopRequireDefault(_cardsMostActiveBadge);
-
 var _cardsQuickLinks = require('./cards/QuickLinks');
 
 var _cardsQuickLinks2 = _interopRequireDefault(_cardsQuickLinks);
@@ -91,10 +87,6 @@ var _cardsRecentLogs2 = _interopRequireDefault(_cardsRecentLogs);
 var _cardsServicesStatus = require('./cards/ServicesStatus');
 
 var _cardsServicesStatus2 = _interopRequireDefault(_cardsServicesStatus);
-
-var _cardsServerStatus = require('./cards/ServerStatus');
-
-var _cardsServerStatus2 = _interopRequireDefault(_cardsServerStatus);
 
 var _cardsToDoList = require('./cards/ToDoList');
 
@@ -122,10 +114,8 @@ window.AdminComponents = {
 
     GraphCard: _cardsGraphCard2['default'],
     GraphBadge: _cardsGraphBadge2['default'],
-    MostActiveBadge: _cardsMostActiveBadge2['default'],
     QuickLinks: _cardsQuickLinks2['default'],
     RecentLogs: _cardsRecentLogs2['default'],
-    ServerStatus: _cardsServerStatus2['default'],
     ServicesStatus: _cardsServicesStatus2['default'],
     ToDoList: _cardsToDoList2['default'],
     WelcomePanel: _cardsWelcomePanel2['default']

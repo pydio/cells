@@ -82,15 +82,15 @@ export default React.createClass({
         if(editorNode){
             editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
         }
+        const {pydio} = this.props;
         const editorData = {
             COMPONENT:editor,
             PROPS:{
                 ref:"editor",
+                pydio: pydio,
                 workspace:workspace,
                 closeEditor:this.closeWorkspace,
-                reloadList:()=>{this.refs['workspacesList'].reload();},
-                deleteWorkspace:this.deleteWorkspace,
-                saveWorkspace:this.updateWorkspace
+                reloadList:()=>{this.refs['workspacesList'].reload();}
             }
         };
         this.props.openRightPane(editorData);
@@ -104,85 +104,19 @@ export default React.createClass({
     },
 
     showWorkspaceCreator(type){
+        const {pydio} = this.props;
         const editorData = {
             COMPONENT:WsEditor,
             PROPS:{
                 ref:"editor",
                 type:type,
-                save:this.createWorkspace,
+                pydio: pydio,
                 closeEditor:this.closeWorkspace,
                 reloadList:()=>{this.refs['workspacesList'].reload();}
             }
         };
         this.props.openRightPane(editorData);
 
-    },
-
-
-    deleteWorkspace(workspaceId){
-        if(window.confirm(this.context.getMessage('35', 'settings'))){
-            this.closeWorkspace();
-            PydioApi.getClient().request({
-                get_action:'delete',
-                data_type:'repository',
-                data_id:workspaceId
-            }, function(transport){
-                this.refs.workspacesList.reload();
-            }.bind(this));
-        }
-    },
-
-    /**
-     *
-     * @param workspaceModel Workspace
-     * @param postData Object
-     * @param editorData Object
-     */
-    updateWorkspace(workspaceModel, postData, editorData){
-        let workspaceId = workspaceModel.wsId;
-        if(workspaceModel.isTemplate()){
-            let formDefs=[], formValues={}, templateAllFormDefs = [];
-            if(!editorData["general"]){
-                workspaceModel.buildEditor("general", formDefs, formValues, {}, templateAllFormDefs);
-                const generalPostValues = PydioForm.Manager.getValuesForPOST(formDefs, formValues);
-                postData = LangUtils.objectMerge(postData, generalPostValues);
-            }
-            if(!editorData["driver"]){
-                workspaceModel.buildEditor("driver", formDefs, formValues, {}, templateAllFormDefs);
-                const driverPostValues = PydioForm.Manager.getValuesForPOST(formDefs, formValues);
-                postData = LangUtils.objectMerge(postData, driverPostValues);
-            }
-        }
-
-        if(editorData['permission-mask']){
-            postData['permission_mask'] = JSON.stringify(editorData['permission-mask']);
-        }
-        const mainSave = function(){
-            PydioApi.getClient().request(LangUtils.objectMerge({
-                get_action:'edit',
-                sub_action:'edit_repository_data',
-                repository_id:workspaceId
-            }, postData), function(transport){
-                this.refs['workspacesList'].reload();
-            }.bind(this));
-        }.bind(this);
-
-        const metaSources = editorData['META_SOURCES'];
-        if(Object.keys(metaSources["delete"]).length || Object.keys(metaSources["add"]).length || Object.keys(metaSources["edit"]).length){
-            PydioApi.getClient().request(LangUtils.objectMerge({
-                get_action:'edit',
-                sub_action:'meta_source_edit',
-                repository_id:workspaceId,
-                bulk_data:JSON.stringify(metaSources)
-            }), function(transport){
-                if(this.refs['editor']){
-                    this.refs['editor'].clearMetaSourceDiff();
-                }
-                mainSave();
-            }.bind(this));
-        }else{
-            mainSave();
-        }
     },
 
     reloadWorkspaceList(){

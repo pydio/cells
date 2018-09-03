@@ -92,7 +92,6 @@ var MetadataBoard = (function (_React$Component) {
             if (confirm('Are you sure you want to delete this metadata?')) {
                 _modelMetadata2['default'].deleteNS(row).then(function () {
                     _this2.load();
-                    _pydioHttpApi2['default'].getClient().request({ get_action: 'meta_user_clear_cache' });
                 });
             }
         }

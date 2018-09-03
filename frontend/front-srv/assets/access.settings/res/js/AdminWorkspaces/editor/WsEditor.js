@@ -35,8 +35,8 @@ class WsEditor extends React.Component {
 
     remove(){
         const {container} = this.state;
-        const {closeEditor, reloadList} = this.props;
-        if (confirm('Are you sure?')){
+        const {closeEditor, reloadList, pydio} = this.props;
+        if (confirm(pydio.MessageHash['settings.35'])){
             container.remove().then(() => {
                 reloadList();
                 closeEditor();
