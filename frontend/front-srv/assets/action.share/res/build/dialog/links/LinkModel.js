@@ -235,6 +235,8 @@ var LinkModel = (function (_Observable) {
                 } else {
                     request.UpdatePassword = this.updatePassword;
                 }
+            } else {
+                request.PasswordEnabled = this.link.PasswordRequired;
             }
             if (_mainShareHelper2['default'].getAuthorizations(pydio).password_mandatory && !request.PasswordEnabled) {
                 throw new Error('You cannot disable passowrd on this link');

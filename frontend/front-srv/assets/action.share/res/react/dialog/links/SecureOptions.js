@@ -19,10 +19,11 @@
  */
 import React from 'react';
 import ShareContextConsumer from '../ShareContextConsumer'
-import {FlatButton, IconButton, FontIcon, TextField, DatePicker} from 'material-ui'
+import {FlatButton, IconButton, FontIcon, TextField, DatePicker, Popover} from 'material-ui'
 import Pydio from 'pydio'
 import LinkModel from './LinkModel'
 import ShareHelper from '../main/ShareHelper'
+import PassUtils from 'pydio/util/pass'
 const {ValidPassword} = Pydio.requireLib('form');
 
 const globStyles = {
@@ -65,24 +66,28 @@ let PublicLinkSecureOptions = React.createClass({
     },
 
     onDateChange(event, value){
-        const {linkModel} = this.props;
-        let link = linkModel.getLink();
-        link.AccessEnd = Math.floor(value/1000) + '';
-        linkModel.updateLink(link);
-        /*
-        const today = new Date();
-        const date1 = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
         const date2 = Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
-        const ms = Math.abs(date1-date2);
-        const integerVal = Math.floor(ms/1000/60/60/24); //floor should be unnecessary, but just in case
-        this.updateDaysExpirationField(event, integerVal);
-        */
+        this.updateDaysExpirationField(event, Math.floor(date2/1000) + "");
     },
 
     resetPassword(){
         const {linkModel} = this.props;
         linkModel.setUpdatePassword('');
         linkModel.getLink().PasswordRequired = false;
+        linkModel.notifyDirty();
+    },
+
+    setUpdatingPassword(newValue){
+        PassUtils.checkPasswordStrength(newValue, (ok, msg) =>{
+            this.setState({updatingPassword: newValue, updatingPasswordValid: ok});
+        })
+    },
+
+    changePassword(){
+        const {linkModel} = this.props;
+        const {updatingPassword} = this.state;
+        linkModel.setUpdatePassword(updatingPassword);
+        this.setState({pwPop: false, updatingPassword: "", updatingPasswordValid: false});
         linkModel.notifyDirty();
     },
 
@@ -115,7 +120,7 @@ let PublicLinkSecureOptions = React.createClass({
     renderPasswordContainer(){
         const {linkModel} = this.props;
         const link = linkModel.getLink();
-        let passwordField, resetPassword;
+        let passwordField, resetPassword, updatePassword;
         if(link.PasswordRequired){
             resetPassword = (
                 <FlatButton
@@ -124,6 +129,37 @@ let PublicLinkSecureOptions = React.createClass({
                     onTouchTap={this.resetPassword}
                     label={this.props.getMessage('174')}
                 />
+            );
+            updatePassword = (
+                <div>
+                    <FlatButton
+                        disabled={this.props.isReadonly() || !linkModel.isEditable()}
+                        secondary={true}
+                        onTouchTap={(e)=> {this.setState({pwPop:true, pwAnchor:e.currentTarget})}}
+                        label={this.props.getMessage('181')}
+                    />
+                    <Popover
+                        open={this.state.pwPop}
+                        anchorEl={this.state.pwAnchor}
+                        anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
+                        targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                        onRequestClose={() => {this.setState({pwPop: false})}}
+                    >
+                        <div style={{width: 280, padding: 8}}>
+                            <ValidPassword
+                                name={"update"}
+                                ref={"pwdUpdate"}
+                                attributes={{label:this.props.getMessage('23')}}
+                                value={this.state.updatingPassword ? this.state.updatingPassword : ""}
+                                onChange={(v) => {this.setUpdatingPassword(v)}}
+                            />
+                            <div style={{paddingTop:36, textAlign:'right'}}>
+                                <FlatButton label={"OK"} onTouchTap={()=>{this.changePassword()}} disabled={!this.state.updatingPassword || !this.state.updatingPasswordValid}/>
+                                <FlatButton label={"Cancel"} onTouchTap={()=>{this.setState({pwPop:false,updatingPassword:''})}}/>
+                            </div>
+                        </div>
+                    </Popover>
+                </div>
             );
             passwordField = (
                 <TextField
@@ -148,12 +184,12 @@ let PublicLinkSecureOptions = React.createClass({
             return (
                 <div className="password-container" style={{display:'flex', alignItems:'baseline'}}>
                     <FontIcon className="mdi mdi-file-lock" style={globStyles.leftIcon}/>
-                    <div style={{width:resetPassword ? '50%' : '100%', display:'inline-block'}}>
+                    <div style={{width:resetPassword ? '40%' : '100%', display:'inline-block'}}>
                         {passwordField}
                     </div>
                     {resetPassword &&
-                    <div style={{width: '50%', display: 'inline-block'}}>
-                        {resetPassword}
+                        <div style={{width: '60%', display: 'flex'}}>
+                            {resetPassword} {updatePassword}
                     </div>
                     }
                 </div>
@@ -179,7 +215,7 @@ let PublicLinkSecureOptions = React.createClass({
         const passContainer = this.renderPasswordContainer();
         const crtLinkDLAllowed = linkModel.hasPermission('Download');
         let dlLimitValue = parseInt(link.MaxDownloads);
-        const expirationDateValue = link.AccessEnd;
+        const expirationDateValue = parseInt(link.AccessEnd);
 
         let calIcon = <FontIcon className="mdi mdi-calendar-clock" style={globStyles.leftIcon}/>;
         let expDate, maxDate, dlCounterString, dateExpired = false, dlExpired = false;
@@ -194,9 +230,12 @@ let PublicLinkSecureOptions = React.createClass({
             dlLimitValue = Math.min(dlLimitValue, parseInt(auth.max_downloads));
         }
 
-        if(expirationDateValue && parseInt(expirationDateValue) > 0){
-            expDate = new Date(parseInt(expirationDateValue) * 1000);
-            dateExpired = (expDate <= new Date());
+        if(expirationDateValue){
+            if(expirationDateValue < 0){
+                dateExpired = true;
+            }
+            expDate = new Date(expirationDateValue * 1000);
+            //expDate.setDate(today.getDate() + parseInt(expirationDateValue));
             calIcon = <IconButton iconStyle={{color:globStyles.leftIcon.color}} style={{marginLeft: -8, marginRight: 8}} iconClassName="mdi mdi-close-circle" onTouchTap={this.resetExpiration.bind(this)}/>;
         }
         if(dlLimitValue){

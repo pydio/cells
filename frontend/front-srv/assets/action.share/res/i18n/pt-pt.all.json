@@ -261,7 +261,7 @@
     "other": "If you want a durable and pretty link (like https://.../my-share-link), you can use this field. Link handle will be generated if left empty."
   },
   "174": {
-    "other": "Reset Password"
+    "other": "Reset"
   },
   "175": {
     "other": "Please set a password and make sure it's long enough!"

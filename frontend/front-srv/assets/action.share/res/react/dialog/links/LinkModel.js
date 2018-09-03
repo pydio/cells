@@ -180,6 +180,8 @@ class LinkModel extends Observable {
             } else {
                 request.UpdatePassword = this.updatePassword;
             }
+        } else {
+            request.PasswordEnabled = this.link.PasswordRequired;
         }
         if (ShareHelper.getAuthorizations(pydio).password_mandatory && !request.PasswordEnabled){
             throw new Error('You cannot disable passowrd on this link');
