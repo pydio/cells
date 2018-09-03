@@ -147,7 +147,7 @@ var Editor = (function (_PureComponent) {
 })(_react.PureComponent);
 
 var getSelectionFilter = function getSelectionFilter(node) {
-    return node.getMetadata().get('is_image') === '1';
+    return node.getMetadata().get('is_image');
 };
 var getSelection = function getSelection(node) {
     return new Promise(function (resolve, reject) {
@@ -168,21 +168,26 @@ var getSelection = function getSelection(node) {
 };
 
 var mapStateToProps = function mapStateToProps(state, props) {
+    var node = props.node;
+    var editorData = props.editorData;
+
+    if (!node) return props;
+
     var tabs = state.tabs;
 
     var tab = tabs.filter(function (_ref3) {
-        var editorData = _ref3.editorData;
-        var node = _ref3.node;
-        return (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath();
+        var currentEditorData = _ref3.editorData;
+        var currentNode = _ref3.node;
+        return (!currentEditorData || currentEditorData.id === editorData.id) && currentNode.getPath() === node.getPath();
     })[0] || {};
 
     if (!tab) return props;
 
-    var node = tab.node;
-    var resolution = tab.resolution;
+    var tabNode = tab.node;
+    var tabResolution = tab.resolution;
 
     return _extends({
-        orientation: resolution === 'hi' ? node.getMetadata().get("image_exif_orientation") : null
+        orientation: tabResolution === 'hi' ? tabNode.getMetadata().get("image_exif_orientation") : null
     }, props);
 };
 

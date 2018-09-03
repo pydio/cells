@@ -94,12 +94,13 @@ class Editor extends PureComponent {
     }
 }
 
-const getSelectionFilter = (node) => node.getMetadata().get('is_image') === '1'
+const getSelectionFilter = (node) => node.getMetadata().get('is_image')
 const getSelection = (node) => new Promise((resolve, reject) => {
     let selection = [];
 
     node.getParent().getChildren().forEach((child) => selection.push(child));
     selection = selection.filter(getSelectionFilter)
+
 
     resolve({
         selection,
@@ -108,15 +109,20 @@ const getSelection = (node) => new Promise((resolve, reject) => {
 });
 
 const mapStateToProps = (state, props) => {
+    const {node, editorData} = props;
+
+    if (!node) return props;
+
     const {tabs} = state;
-    const tab = tabs.filter(({editorData, node}) => (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath())[0] || {}
+
+    const tab = tabs.filter(({editorData: currentEditorData, node: currentNode}) => (!currentEditorData || currentEditorData.id === editorData.id) && currentNode.getPath() === node.getPath())[0] || {}
 
     if (!tab) return props;
 
-    const {node, resolution} = tab;
+    const {node: tabNode, resolution: tabResolution} = tab;
 
     return {
-        orientation: resolution === 'hi' ? node.getMetadata().get("image_exif_orientation") : null,
+        orientation: tabResolution === 'hi' ? tabNode.getMetadata().get("image_exif_orientation") : null,
         ...props
     }
 };
