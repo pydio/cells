@@ -242,6 +242,7 @@ var UsersList = (function (_React$Component) {
                 avatar: item.avatar,
                 icon: item.icon,
                 idmUser: item.IdmUser,
+                userType: item.type || 'group',
                 avatarOnly: true,
                 useDefaultAvatar: true
             });

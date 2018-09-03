@@ -113,6 +113,7 @@ var Loaders = (function () {
                     _parent: entry,
                     id: team.Uuid,
                     label: team.Label,
+                    type: 'team',
                     icon: 'mdi mdi-account-multiple-outline',
                     itemsLoader: Loaders.loadTeamUsers,
                     actions: {

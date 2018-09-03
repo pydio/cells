@@ -83,41 +83,48 @@ class UserAvatar extends React.Component{
                 user:  userObject,
                 avatar: userObject.getAvatar(),
                 local: userObject.isLocal()
-            })
-        });
-        if(richCard) {
-            PydioApi.getRestClient().getIdmApi().loadUserGraph(userId).then(response => {
-                const graph = {cells:{}, teams:[]};
-                if(response.SharedCells){
-                    response.SharedCells.forEach(workspace => {
-                        graph.cells[workspace.Uuid] = workspace.Label;
-                    });
-                }
-                if(response.BelongsToTeams){
-                    response.BelongsToTeams.forEach(role => {
-                        graph.teams.push({
-                            id: role.Uuid,
-                            label: role.Label,
-                            type: 'team',
-                            IdmRole: role
-                        });
-                    });
-                }
-                this.setState({graph});
             });
-        }
+            // Load graph
+            if(richCard && !userObject.isNotFound()) {
+                PydioApi.getRestClient().getIdmApi().loadUserGraph(userId).then(response => {
+                    const graph = {cells:{}, teams:[]};
+                    if(response.SharedCells){
+                        response.SharedCells.forEach(workspace => {
+                            graph.cells[workspace.Uuid] = workspace.Label;
+                        });
+                    }
+                    if(response.BelongsToTeams){
+                        response.BelongsToTeams.forEach(role => {
+                            graph.teams.push({
+                                id: role.Uuid,
+                                label: role.Label,
+                                type: 'team',
+                                IdmRole: role
+                            });
+                        });
+                    }
+                    this.setState({graph});
+                });
+            }
+
+        }).catch(e => {
+            // User may have been deleted
+            this.setState({loadError: true});
+        });
     }
 
     render(){
 
-        const {user, avatar, graph, local} = this.state;
+        const {user, avatar, graph, local, loadError} = this.state;
         let {pydio, userId, userType, icon, style, labelStyle, avatarLetters, avatarStyle, avatarSize, className,
             labelClassName, displayLabel, displayLocalLabel, displayAvatar, useDefaultAvatar, richCard, cardSize, muiTheme, noActionsPanel} = this.props;
 
         let {label} = this.state;
         let userTypeLabel;
+        let userNotFound = loadError;
         if(user) {
             label = user.getLabel();
+            userNotFound = user.isNotFound();
         }else if(!label){
             label = this.props.userLabel || this.props.userId;
         }
@@ -201,7 +208,7 @@ class UserAvatar extends React.Component{
                     this.props.onEditAction();
                 }
             }
-        } else if(!local && this.props.richOnHover){
+        } else if(!local && !userNotFound && this.props.richOnHover){
 
             onMouseOut = () => {
                 if(!this.lockedBySubPopover){
@@ -242,7 +249,7 @@ class UserAvatar extends React.Component{
                 </Popover>
             );
 
-        } else if(!local && this.props.richOnClick){
+        } else if(!local && !userNotFound && this.props.richOnClick){
 
             onMouseOut = () => {
                 if(!this.lockedBySubPopover){
@@ -312,6 +319,8 @@ class UserAvatar extends React.Component{
 
         if(richCard){
             avatarComponent = <div style={{textAlign:'center'}}>{avatarComponent}</div>
+        } else if(userNotFound){
+            labelStyle = {...labelStyle, textDecoration:'line-through'};
         }
 
         return (

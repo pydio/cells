@@ -133,28 +133,32 @@ var UserAvatar = (function (_React$Component) {
                 avatar: userObject.getAvatar(),
                 local: userObject.isLocal()
             });
-        });
-        if (richCard) {
-            _pydioHttpApi2['default'].getRestClient().getIdmApi().loadUserGraph(userId).then(function (response) {
-                var graph = { cells: {}, teams: [] };
-                if (response.SharedCells) {
-                    response.SharedCells.forEach(function (workspace) {
-                        graph.cells[workspace.Uuid] = workspace.Label;
-                    });
-                }
-                if (response.BelongsToTeams) {
-                    response.BelongsToTeams.forEach(function (role) {
-                        graph.teams.push({
-                            id: role.Uuid,
-                            label: role.Label,
-                            type: 'team',
-                            IdmRole: role
+            // Load graph
+            if (richCard && !userObject.isNotFound()) {
+                _pydioHttpApi2['default'].getRestClient().getIdmApi().loadUserGraph(userId).then(function (response) {
+                    var graph = { cells: {}, teams: [] };
+                    if (response.SharedCells) {
+                        response.SharedCells.forEach(function (workspace) {
+                            graph.cells[workspace.Uuid] = workspace.Label;
                         });
-                    });
-                }
-                _this.setState({ graph: graph });
-            });
-        }
+                    }
+                    if (response.BelongsToTeams) {
+                        response.BelongsToTeams.forEach(function (role) {
+                            graph.teams.push({
+                                id: role.Uuid,
+                                label: role.Label,
+                                type: 'team',
+                                IdmRole: role
+                            });
+                        });
+                    }
+                    _this.setState({ graph: graph });
+                });
+            }
+        })['catch'](function (e) {
+            // User may have been deleted
+            _this.setState({ loadError: true });
+        });
     };
 
     UserAvatar.prototype.render = function render() {
@@ -165,6 +169,7 @@ var UserAvatar = (function (_React$Component) {
         var avatar = _state.avatar;
         var graph = _state.graph;
         var local = _state.local;
+        var loadError = _state.loadError;
         var _props2 = this.props;
         var pydio = _props2.pydio;
         var userId = _props2.userId;
@@ -188,8 +193,10 @@ var UserAvatar = (function (_React$Component) {
         var label = this.state.label;
 
         var userTypeLabel = undefined;
+        var userNotFound = loadError;
         if (user) {
             label = user.getLabel();
+            userNotFound = user.isNotFound();
         } else if (!label) {
             label = this.props.userLabel || this.props.userId;
         }
@@ -284,7 +291,7 @@ var UserAvatar = (function (_React$Component) {
                     }
                 };
             })();
-        } else if (!local && this.props.richOnHover) {
+        } else if (!local && !userNotFound && this.props.richOnHover) {
             (function () {
 
                 onMouseOut = function () {
@@ -332,7 +339,7 @@ var UserAvatar = (function (_React$Component) {
                     )
                 );
             })();
-        } else if (!local && this.props.richOnClick) {
+        } else if (!local && !userNotFound && this.props.richOnClick) {
             (function () {
 
                 onMouseOut = function () {
@@ -415,6 +422,8 @@ var UserAvatar = (function (_React$Component) {
                 { style: { textAlign: 'center' } },
                 avatarComponent
             );
+        } else if (userNotFound) {
+            labelStyle = _extends({}, labelStyle, { textDecoration: 'line-through' });
         }
 
         return React.createElement(

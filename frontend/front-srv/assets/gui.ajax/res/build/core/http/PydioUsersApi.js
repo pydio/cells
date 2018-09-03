@@ -175,6 +175,14 @@ var User = (function (_Observable) {
         return this._local;
     };
 
+    User.prototype.setNotFound = function setNotFound() {
+        this._notFound = true;
+    };
+
+    User.prototype.isNotFound = function isNotFound() {
+        return this._notFound;
+    };
+
     return User;
 })(_langObservable2['default']);
 
@@ -201,9 +209,10 @@ var UsersApi = (function () {
      *
      * @param userObject {User}
      * @param callback Function
+     * @param errorCallback Function
      */
 
-    UsersApi.loadPublicData = function loadPublicData(userObject, callback) {
+    UsersApi.loadPublicData = function loadPublicData(userObject, callback, errorCallback) {
 
         var userId = userObject.getId();
         userObject.setLabel(userId);
@@ -216,8 +225,27 @@ var UsersApi = (function () {
             if (userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"]) {
                 userObject.setLabel(userObject.IdmUser.Attributes["displayName"]);
             }
+            callback(userObject);
+        } else {
+            _PydioApi2['default'].getRestClient().getIdmApi().loadUser(userId).then(function (user) {
+                if (!user) {
+                    errorCallback(new Error('Cannot find user'));
+                    return;
+                }
+                userObject.IdmUser = user;
+                if (userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["avatar"]) {
+                    userObject.setAvatar(UsersApi.buildUserAvatarUrl(userId, userObject.IdmUser.Attributes["avatar"]));
+                } else {
+                    UsersApi.avatarFromExternalProvider(userObject, callback);
+                }
+                if (userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"]) {
+                    userObject.setLabel(userObject.IdmUser.Attributes["displayName"]);
+                }
+                callback(userObject);
+            })['catch'](function (e) {
+                errorCallback(e);
+            });
         }
-        callback(userObject);
     };
 
     UsersApi.loadLocalData = function loadLocalData(userObject, callback) {
@@ -331,7 +359,7 @@ var UsersApi = (function () {
         var cache = UsersApi.getPublicDataCache();
         var pydio = _PydioApi2['default'].getClient().getPydioObject();
 
-        return new Promise(function (resolve) {
+        return new Promise(function (resolve, reject) {
             if (pydio && pydio.user && pydio.user.id === userId) {
                 var userObject = new User(userId);
                 UsersApi.loadLocalData(userObject, function (result) {
@@ -352,16 +380,27 @@ var UsersApi = (function () {
                     }
                 })();
             } else {
-                var userObject = new User(userId);
-                userObject.IdmUser = idmUser;
-                userObject.setLoading();
-                cache.setKey(namespace, userId, userObject);
+                (function () {
+                    var userObject = undefined;
+                    if (idmUser) {
+                        userObject = User.fromIdmUser(idmUser);
+                    } else {
+                        userObject = new User(userId);
+                    }
+                    userObject.setLoading();
+                    cache.setKey(namespace, userId, userObject);
 
-                UsersApi.loadPublicData(userObject, function (result) {
-                    result.setLoaded();
-                    cache.setKey(namespace, userId, result);
-                    resolve(result);
-                });
+                    UsersApi.loadPublicData(userObject, function (result) {
+                        result.setLoaded();
+                        cache.setKey(namespace, userId, result);
+                        resolve(result);
+                    }, function (error) {
+                        userObject.setLoaded();
+                        userObject.setNotFound();
+                        cache.setKey(namespace, userId, userObject);
+                        reject(error);
+                    });
+                })();
             }
         });
     };

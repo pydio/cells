@@ -37,6 +37,7 @@ class User extends Observable{
     _loading;
     _local;
     _uuid;
+    _notFound;
 
     IdmUser;
     IdmRole;
@@ -173,6 +174,12 @@ class User extends Observable{
     isLocal(){
         return this._local;
     }
+    setNotFound(){
+        this._notFound = true;
+    }
+    isNotFound(){
+        return this._notFound;
+    }
 }
 
 
@@ -196,8 +203,9 @@ class UsersApi{
      *
      * @param userObject {User}
      * @param callback Function
+     * @param errorCallback Function
      */
-    static loadPublicData(userObject, callback){
+    static loadPublicData(userObject, callback, errorCallback){
 
         const userId = userObject.getId();
         userObject.setLabel(userId);
@@ -210,8 +218,27 @@ class UsersApi{
             if(userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"]) {
                 userObject.setLabel(userObject.IdmUser.Attributes["displayName"]);
             }
+            callback(userObject);
+        } else {
+            PydioApi.getRestClient().getIdmApi().loadUser(userId).then(user => {
+                if(!user){
+                    errorCallback(new Error('Cannot find user'));
+                    return;
+                }
+                userObject.IdmUser = user;
+                if(userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["avatar"]){
+                    userObject.setAvatar(UsersApi.buildUserAvatarUrl(userId, userObject.IdmUser.Attributes["avatar"]));
+                } else {
+                    UsersApi.avatarFromExternalProvider(userObject, callback);
+                }
+                if(userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"]) {
+                    userObject.setLabel(userObject.IdmUser.Attributes["displayName"]);
+                }
+                callback(userObject);
+            }).catch(e => {
+                errorCallback(e);
+            })
         }
-        callback(userObject);
     }
 
     static loadLocalData(userObject, callback){
@@ -324,7 +351,7 @@ class UsersApi{
         const cache = UsersApi.getPublicDataCache();
         const pydio = PydioApi.getClient().getPydioObject();
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             if(pydio && pydio.user && pydio.user.id === userId){
                 let userObject = new User(userId);
                 UsersApi.loadLocalData(userObject, (result) => {
@@ -343,8 +370,12 @@ class UsersApi{
                     resolve(obj);
                 }
             } else {
-                let userObject = new User(userId);
-                userObject.IdmUser = idmUser;
+                let userObject;
+                if(idmUser){
+                    userObject = User.fromIdmUser(idmUser);
+                } else {
+                    userObject = new User(userId);
+                }
                 userObject.setLoading();
                 cache.setKey(namespace, userId, userObject);
 
@@ -352,6 +383,11 @@ class UsersApi{
                     result.setLoaded();
                     cache.setKey(namespace, userId, result);
                     resolve(result);
+                }, (error) => {
+                    userObject.setLoaded();
+                    userObject.setNotFound();
+                    cache.setKey(namespace, userId, userObject);
+                    reject(error);
                 });
             }
         });
