@@ -56,7 +56,7 @@ func (e *MicroEventsSubscriber) Handle(ctx context.Context, msg *tree.NodeChange
 
 	dao := servicecontext.GetDAO(ctx).(activity.DAO)
 
-	author := "anonymous"
+	author := common.PYDIO_SYSTEM_USERNAME
 	meta, ok := metadata.FromContext(ctx)
 	if ok {
 		user, exists := meta[common.PYDIO_CONTEXT_USER_KEY]
