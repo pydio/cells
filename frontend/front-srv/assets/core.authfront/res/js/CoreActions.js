@@ -46,8 +46,9 @@ let LoginDialogMixin = {
         }else{
             login = this.refs.login.getValue();
         }
+        /*
+        // old params
         let params = {
-            get_action  : 'login',
             userid      : login,
             password    : this.refs.password.getValue(),
             login_seed  : -1
@@ -63,6 +64,7 @@ let LoginDialogMixin = {
                 m.enrichSubmitParameters(this.props, this.state, this.refs, params);
             }.bind(this));
         }
+        */
         restClient.jwtFromCredentials(login, this.refs.password.getValue()).then(r => {
             this.dismiss();
         }).catch(e => {
@@ -140,15 +142,6 @@ let LoginPasswordDialog = React.createClass({
         if(this.state.errorId){
             errorMessage = <div className="ajxp_login_error">{this.state.errorId}</div>;
         }
-        let captcha;
-        if(this.state.displayCaptcha){
-            captcha = (
-                <div className="captcha_container">
-                    <TextField style={{width:170, marginTop: -20}} hintText={pydio.MessageHash[390]} ref="captcha_input" onKeyDown={this.submitOnEnterKey}/>
-                    <img src={this.state.globalParameters.get('ajxpServerAccess') + '&get_action=get_captcha&sid='+Math.random()}/>
-                </div>
-            );
-        }
         let forgotLink;
         if(forgotPasswordLink){
             forgotLink = (
@@ -209,7 +202,6 @@ let LoginPasswordDialog = React.createClass({
                     {languageMenu}
                 </div>
                 {errorMessage}
-                {captcha}
                 {additionalComponentsTop}
                 <form autoComplete={secureLoginForm?"off":"on"}>
                     {!passwordOnly && <TextField
@@ -318,119 +310,10 @@ class MultiAuthModifier extends PydioReactUI.AbstractDialogModifier{
 
 }
 
-
-let WebFTPDialog = React.createClass({
-
-    mixins: [
-        PydioReactUI.ActionDialogMixin,
-        PydioReactUI.SubmitButtonProviderMixin,
-        LoginDialogMixin
-    ],
-
-    getDefaultProps () {
-        return {
-            dialogTitle: pydio.MessageHash[163],
-            dialogIsModal: true
-        };
-    },
-
-    submit(){
-
-        let client = PydioApi.getClient();
-        client.request({
-            get_action      :'set_ftp_data',
-            FTP_HOST        :this.refs.FTP_HOST.getValue(),
-            FTP_PORT        :this.refs.FTP_PORT.getValue(),
-            PATH            :this.refs.PATH.getValue(),
-            CHARSET         :this.refs.CHARSET.getValue(),
-            FTP_SECURE      :this.refs.FTP_SECURE.isToggled()?'TRUE':'FALSE',
-            FTP_DIRECT      :this.refs.FTP_DIRECT.isToggled()?'TRUE':'FALSE',
-        }, function(){
-
-            this.postLoginData(client);
-
-        }.bind(this));
-
-    },
-
-    render(){
-
-        let messages = pydio.MessageHash;
-        let tFieldStyle={width:'100%'};
-        let errorMessage;
-        if(this.state.errorId){
-            errorMessage = <div class="ajxp_login_error">{pydio.MessageHash[this.state.errorId]}</div>;
-        }
-        let captcha;
-        if(this.state.displayCaptcha){
-            captcha = (
-                <div className="captcha_container">
-                    <img src={this.state.globalParameters.get('ajxpServerAccess') + '&get_action=get_captcha&sid='+Math.random()}/>
-                    <TextField floatingLabelText={pydio.MessageHash[390]} ref="captcha_input"/>
-                </div>
-            );
-        }
-
-        return (
-            <div>
-                {captcha}
-                <table cellPadding={5} border="0" style={{width:370}}>
-                    <tr>
-                        <td colspan="2">
-                            <div class="dialogLegend">{messages['ftp_auth.1']}</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style={{padding:'0 5px'}}>
-                            <TextField fullWidth={true} style={tFieldStyle} ref="FTP_HOST" floatingLabelText={messages['ftp_auth.2']}/>
-                        </td>
-                        <td style={{padding:'0 5px'}}>
-                            <TextField fullWidth={true} ref="FTP_PORT" style={tFieldStyle} defaultValue="21" floatingLabelText={messages['ftp_auth.8']}/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style={{padding:'0 5px'}}>
-                            <TextField fullWidth={true} style={tFieldStyle} ref="login" floatingLabelText={messages['181']}/>
-                        </td>
-                        <td style={{padding:'0 5px'}}>
-                            <TextField fullWidth={true} style={tFieldStyle} ref="password" type="password" floatingLabelText={messages['182']}/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style={{padding:'15px 5px 0'}}>
-                            <div class="dialogLegend">{messages['ftp_auth.3']}</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style={{padding:'0 5px'}}>
-                            <TextField fullWidth={true} style={tFieldStyle} ref="PATH" defaultValue="/" floatingLabelText={messages['ftp_auth.4']}/>
-                        </td>
-                        <td style={{padding:'0 5px'}}>
-                            <Toggle ref="FTP_SECURE" label={messages['ftp_auth.5']} labelPosition="right"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style={{padding:'0 5px'}}>
-                            <TextField fullWidth={true} style={tFieldStyle} ref="CHARSET" floatingLabelText={messages['ftp_auth.6']}/>
-                        </td>
-                        <td style={{padding:'0 5px'}}>
-                            <Toggle ref="FTP_DIRECT" label={messages['ftp_auth.7']} labelPosition="right"/>
-                        </td>
-                    </tr>
-                </table>
-                {errorMessage}
-            </div>
-        );
-
-    }
-
-});
-
 class Callbacks{
 
     static sessionLogout(){
 
-        PydioApi.clearRememberData();
         PydioApi.getRestClient().sessionLogout();
 
     }
@@ -438,12 +321,6 @@ class Callbacks{
     static loginPassword(props = {}) {
 
         pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', {...props, blur: true});
-
-    }
-
-    static webFTP(){
-
-        pydio.UI.openComponentInModal('AuthfrontCoreActions', 'WebFTPDialog');
 
     }
 
@@ -627,4 +504,4 @@ const ResetPasswordDialog = React.createClass({
 
 });
 
-export {Callbacks, LoginPasswordDialog, ResetPasswordRequire, ResetPasswordDialog, WebFTPDialog, MultiAuthModifier}
+export {Callbacks, LoginPasswordDialog, ResetPasswordRequire, ResetPasswordDialog, MultiAuthModifier}

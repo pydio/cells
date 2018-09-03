@@ -204,7 +204,7 @@ var ActivityMonitor = (function (_Observable) {
      */
 
     ActivityMonitor.prototype.serverPoller = function serverPoller() {
-        PydioApi.getClient().request({ get_action: 'ping' }, null, null, { method: 'get', discrete: true });
+        PydioApi.getClient().request({ get_action: 'ping' }, null, null, { method: 'get', discrete: true }); // Todo : do we keep activity poller ?
     };
 
     /**

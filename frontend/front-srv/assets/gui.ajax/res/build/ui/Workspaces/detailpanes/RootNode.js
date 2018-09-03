@@ -48,7 +48,7 @@ exports['default'] = _react2['default'].createClass({
     },
 
     componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-        if (nextProps.pydio.user && nextProps.pydio.user.activeRepository != this.state.repoKey) {
+        if (nextProps.pydio.user && nextProps.pydio.user.activeRepository !== this.state.repoKey) {
             this.loadData(nextProps);
         }
     },
@@ -70,17 +70,7 @@ exports['default'] = _react2['default'].createClass({
         } else {
             FuncUtils.bufferCallback("ajxp_load_repo_info_timer", 700, function () {
                 if (!oThis.isMounted()) return;
-                PydioApi.getClient().request({ get_action: 'load_repository_info' }, function (transport) {
-                    if (transport.responseJSON) {
-                        var data = transport.responseJSON;
-                        if (!data['core.users']['groups']) {
-                            data['core.users']['groups'] = 0;
-                        }
-                    }
-                    cacheService.registerMetaStream('workspace.info', 'MANUAL_TRIGGER');
-                    cacheService.setKey('workspace.info', repoKey, data);
-                    render(data);
-                }, null, { discrete: true });
+                // Todo: load info about workspace
             });
         }
     },

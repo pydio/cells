@@ -168,10 +168,10 @@ var PydioApi = (function () {
         var additionalParameters = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
         var agent = navigator.userAgent || '';
-        var agentIsMobile = agent.indexOf('iPhone') != -1 || agent.indexOf('iPod') != -1 || agent.indexOf('iPad') != -1 || agent.indexOf('iOs') != -1;
+        var agentIsMobile = agent.indexOf('iPhone') !== -1 || agent.indexOf('iPod') !== -1 || agent.indexOf('iPad') !== -1 || agent.indexOf('iOs') !== -1;
         var hiddenForm = this._pydioObject && this._pydioObject.UI && this._pydioObject.UI.hasHiddenDownloadForm();
 
-        if (userSelection.getSelectedNodes().length == 1 && Object.keys(additionalParameters).length === 0) {
+        if (userSelection.getSelectedNodes().length === 1 && Object.keys(additionalParameters).length === 0) {
             this.buildPresignedGetUrl(userSelection.getUniqueNode(), function (url) {
                 if (agentIsMobile || !hiddenForm) {
                     document.location.href = url;
@@ -614,13 +614,6 @@ var PydioApi = (function () {
                 var errorId = false;
                 switch (result) {
                     case '1':
-                        try {
-                            if (child.getAttribute('remember_login') && child.getAttribute('remember_pass')) {
-                                PydioApi.storeRememberData();
-                            }
-                        } catch (e) {
-                            Logger.error('Error after login, could prevent registry loading!', e);
-                        }
                         this._pydioObject.loadXmlRegistry();
                         break;
                     case '0':
@@ -737,56 +730,6 @@ var PydioApi = (function () {
             params = Object.assign(params, additionalParameters);
         }
         this.request(params, callback);
-    };
-
-    PydioApi.storeRememberData = function storeRememberData() {
-        if (!CookiesManager.supported()) {
-            return false;
-        }
-        var cManager = new CookiesManager({
-            expires: 3600 * 24 * 10,
-            path: '/',
-            secure: true
-        });
-        cManager.putCookie('remember', 'true');
-    };
-
-    PydioApi.clearRememberData = function clearRememberData() {
-        if (!CookiesManager.supported()) {
-            return false;
-        }
-        var cManager = new CookiesManager({
-            path: '/',
-            secure: true
-        });
-        return cManager.removeCookie('remember');
-    };
-
-    PydioApi.hasRememberData = function hasRememberData() {
-        if (!CookiesManager.supported()) {
-            return false;
-        }
-        var cManager = new CookiesManager({
-            path: '/',
-            secure: true
-        });
-        return cManager.getCookie('remember') === 'true';
-    };
-
-    PydioApi.prototype.tryToLogUserFromRememberData = function tryToLogUserFromRememberData() {
-        if (!CookiesManager.supported()) {
-            return false;
-        }
-        if (PydioApi.hasRememberData()) {
-            this.request({
-                get_action: 'login',
-                userid: 'notify',
-                password: 'notify',
-                cookie_login: 'true'
-            }, (function (transport) {
-                this.parseXmlMessage(transport.responseXML);
-            }).bind(this), null, { async: false });
-        }
     };
 
     return PydioApi;

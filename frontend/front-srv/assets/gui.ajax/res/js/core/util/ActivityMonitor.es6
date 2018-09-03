@@ -176,7 +176,7 @@ export default class ActivityMonitor extends Observable{
      * Pings the server
      */
     serverPoller(){
-        PydioApi.getClient().request({get_action:'ping'}, null, null, {method: 'get', discrete:true});
+        PydioApi.getClient().request({get_action:'ping'}, null, null, {method: 'get', discrete:true}); // Todo : do we keep activity poller ?
     }
 
     /**

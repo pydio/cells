@@ -35,10 +35,7 @@ var _dialogPasswordDialog2 = _interopRequireDefault(_dialogPasswordDialog);
 var Callbacks = {
     switchLanguage: require('./callbacks/switchLanguage'),
     changePass: require('./callbacks/changePass'),
-    launchIndexation: require('./callbacks/launchIndexation'),
     toggleBookmark: require('./callbacks/toggleBookmark'),
-    clearPluginsCache: require('./callbacks/clearPluginsCache'),
-    dismissUserAlert: require('./callbacks/dismissUserAlert'),
     activateDesktopNotifications: require('./callbacks/activateDesktopNotifications')
 };
 

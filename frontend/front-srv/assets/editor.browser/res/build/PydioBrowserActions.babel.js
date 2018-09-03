@@ -22,7 +22,15 @@
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _pydioUtilLang = require('pydio/util/lang');
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _pydioHttpRestApi = require("pydio/http/rest-api");
 
 var React = require('react');
 
@@ -70,13 +78,21 @@ var CreateLinkDialog = React.createClass({
 
         var name = this.refs.name.getValue();
         var url = this.refs.url.getValue();
-        if (!name || !url) return;
-        PydioApi.getClient().request({
-            get_action: 'mkfile',
-            dir: this.props.pydio.getContextHolder().getContextNode().getPath(),
-            filename: name + '.url',
-            content: url
-        }, function () {
+        if (!name || !url) {
+            return;
+        }
+        var pydio = this.props.pydio;
+
+        var api = new _pydioHttpRestApi.TreeServiceApi(PydioApi.getRestClient());
+        var request = new _pydioHttpRestApi.RestCreateNodesRequest();
+        var slug = pydio.user.getActiveRepositoryObject().getSlug();
+        var path = slug + _pydioUtilLang2['default'].trimRight(pydio.getContextNode().getPath(), '/') + '/' + name + '.url';
+        var node = new _pydioHttpRestApi.TreeNode();
+        node.Path = path;
+        node.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('LEAF');
+        node.MetaStore = { "Contents": JSON.stringify(url) };
+        request.Nodes = [node];
+        api.createNodes(request).then(function (collection) {
             _this.dismiss();
         });
     },

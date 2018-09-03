@@ -1,73 +1,5 @@
 {
   "access.gateway": {
-    "dialog/MultiDownloadDialog.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "removeNode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "nodePath",
-                "type": null
-              },
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "performChunking",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "actionName": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "selection": {
-            "type": {
-              "name": "instanceOf",
-              "value": "PydioDataModel"
-            },
-            "required": false,
-            "description": ""
-          },
-          "buildChunks": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "dialogTitleId": {
-            "defaultValue": {
-              "value": "88",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogIsModal": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          }
-        }
-      }
-    ],
     "dialog/OtherEditorPickerDialog.js": [
       {
         "description": "",
@@ -781,100 +713,6 @@
         }
       }
     ],
-    "AdminComponents/cards/MostActiveBadge.js": [
-      {
-        "description": "",
-        "displayName": "MostActiveBadge",
-        "methods": [
-          {
-            "name": "loadStatus",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "type": {
-            "type": {
-              "name": "enum",
-              "value": [
-                {
-                  "value": "'user'",
-                  "computed": false
-                },
-                {
-                  "value": "'ip'",
-                  "computed": false
-                },
-                {
-                  "value": "'action'",
-                  "computed": false
-                }
-              ]
-            },
-            "required": false,
-            "description": ""
-          },
-          "figure": {
-            "type": {
-              "name": "number"
-            },
-            "required": false,
-            "description": ""
-          },
-          "range": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "legend": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "className": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "actionName": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "workspaceFilter": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "filenameFilter": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
     "AdminComponents/cards/QuickLinks.js": [
       {
         "description": "",
@@ -948,28 +786,6 @@
                 "type": null
               }
             ],
-            "returns": null
-          },
-          {
-            "name": "triggerReload",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminComponents/cards/ServerStatus.js": [
-      {
-        "description": "",
-        "displayName": "ServerStatus",
-        "methods": [
-          {
-            "name": "loadStatus",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
             "returns": null
           },
           {
@@ -1884,17 +1700,6 @@
               }
             ],
             "returns": null
-          },
-          {
-            "name": "getOrUpdateJwt",
-            "docblock": "@return Promise",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "Promise",
-              "type": null
-            },
-            "description": null
           },
           {
             "name": "listPolicies",
@@ -5513,42 +5318,6 @@
             "returns": null
           },
           {
-            "name": "deleteWorkspace",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "workspaceId",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "updateWorkspace",
-            "docblock": "@param workspaceModel Workspace\n@param postData Object\n@param editorData Object",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "workspaceModel",
-                "description": "Workspace",
-                "type": null
-              },
-              {
-                "name": "postData",
-                "description": "Object",
-                "type": null
-              },
-              {
-                "name": "editorData",
-                "description": "Object",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": null
-          },
-          {
             "name": "reloadWorkspaceList",
             "docblock": null,
             "modifiers": [],
@@ -6184,30 +5953,6 @@
         }
       }
     ],
-    "AdminWorkspaces/panel/SharesList.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "clearBrokenLinks",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "model": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Workspace"
-            },
-            "required": true,
-            "description": ""
-          }
-        }
-      }
-    ],
     "AdminWorkspaces/virtual/NodeCard.js": [
       {
         "description": "",
@@ -6641,74 +6386,6 @@
           },
           {
             "name": "saveForm",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "WebdavPane.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "getMessage",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "id",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onToggleChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "savePassword",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "loadPrefs",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "renderPasswordField",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "renderUrls",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -7828,13 +7505,6 @@
                 "type": null
               }
             ],
-            "returns": null
-          },
-          {
-            "name": "getSessionId",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
             "returns": null
           }
         ],
@@ -10286,40 +9956,6 @@
                 "type": null
               }
             ],
-            "returns": null
-          },
-          {
-            "name": "storeRememberData",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "clearRememberData",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "hasRememberData",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "tryToLogUserFromRememberData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
             "returns": null
           }
         ],
@@ -40700,18 +40336,6 @@
             "returns": null
           },
           {
-            "name": "handleRemoveTplBasedWorkspace",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
             "name": "onClick",
             "docblock": null,
             "modifiers": [],
@@ -41534,116 +41158,6 @@
         "description": "",
         "displayName": "ActivityStreamsPanel",
         "methods": []
-      }
-    ],
-    "recent/RecentAccessCard.js": [
-      {
-        "description": "Show a list of recently accessed files or folders.\nThis list is stored by the server in the user preferences, and served by the feed plugin",
-        "methods": [
-          {
-            "name": "getCorrectNode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "goTo",
-            "docblock": "@param node AjxpNode",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "description": "AjxpNode",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": null
-          },
-          {
-            "name": "renderIcon",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "renderLabel",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "data",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "renderAction",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "data",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "renderFirstLine",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "renderSecondLine",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "colored": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          }
-        }
       }
     ],
     "videos/VideoCard.js": [

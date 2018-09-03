@@ -88,7 +88,11 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 			}
 			output.Children = append(output.Children, r.Node)
 		} else {
-			_, e := router.PutObject(ctx, n, strings.NewReader(" "), &views.PutRequestData{Size: 1})
+			contents := " " // Use simple space for empty files
+			if n.GetStringMeta("Contents") != "" {
+				contents = n.GetStringMeta("Contents")
+			}
+			_, e := router.PutObject(ctx, n, strings.NewReader(contents), &views.PutRequestData{Size: int64(len(contents))})
 			if e != nil {
 				service.RestError500(req, resp, e)
 				return

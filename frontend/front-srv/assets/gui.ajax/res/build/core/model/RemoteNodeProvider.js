@@ -111,7 +111,7 @@ var RemoteNodeProvider = (function () {
         var optionalParameters = arguments.length <= 5 || arguments[5] === undefined ? null : arguments[5];
 
         var params = {
-            get_action: 'ls',
+            get_action: 'ls', // TODO : HANDLE PAGINATION IN NEW NODE PROVIDER
             options: 'al'
         };
         if (recursive) {
@@ -171,59 +171,9 @@ var RemoteNodeProvider = (function () {
     RemoteNodeProvider.prototype.loadLeafNodeSync = function loadLeafNodeSync(node, nodeCallback) {
         var aSync = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
         var additionalParameters = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
-
-        var params = _extends({
-            get_action: 'ls',
-            options: 'al',
-            dir: _utilPathUtils2['default'].getDirname(node.getPath()),
-            file: _utilPathUtils2['default'].getBasename(node.getPath())
-        }, additionalParameters);
-        if (this.properties) {
-            params = _extends({}, params, this.properties);
-        }
-        var complete = (function (transport) {
-            try {
-                if (node.isRoot()) {
-                    this.parseNodes(node, transport, nodeCallback, null, true);
-                } else {
-                    this.parseNodes(node, transport, null, nodeCallback, true);
-                }
-            } catch (e) {
-                _langLogger2['default'].error('Loading error :' + e.message);
-            }
-        }).bind(this);
-        _httpPydioApi2['default'].getClient().request(params, complete, null, { async: aSync });
     };
 
-    RemoteNodeProvider.prototype.refreshNodeAndReplace = function refreshNodeAndReplace(node, onComplete) {
-
-        var params = {
-            get_action: 'ls',
-            options: 'al',
-            dir: _utilPathUtils2['default'].getDirname(node.getPath()),
-            file: _utilPathUtils2['default'].getBasename(node.getPath())
-        };
-
-        if (this.properties) {
-            params = _extends({}, params, this.properties);
-        }
-
-        var nodeCallback = function nodeCallback(newNode) {
-            node.replaceBy(newNode, "override");
-            if (onComplete) onComplete(node);
-        };
-        _httpPydioApi2['default'].getClient().request(params, (function (transport) {
-            try {
-                if (node.isRoot()) {
-                    this.parseNodes(node, transport, nodeCallback, null, true);
-                } else {
-                    this.parseNodes(node, transport, null, nodeCallback, true);
-                }
-            } catch (e) {
-                _langLogger2['default'].error(e);
-            }
-        }).bind(this));
-    };
+    RemoteNodeProvider.prototype.refreshNodeAndReplace = function refreshNodeAndReplace(node, onComplete) {};
 
     /**
      * Parse the answer and create AjxpNodes

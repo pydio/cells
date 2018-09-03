@@ -75,19 +75,6 @@ class Viewer extends React.Component {
         }, "video/" + node.getAjxpMime());
     }
 
-    // Util functions
-    getSessionId() {
-        const {pydio} = this.props
-
-        return new Promise((resolve, reject) => {
-            pydio.ApiClient.request({
-                get_action: 'get_sess_id'
-            }, function(transport) {
-                resolve(transport.responseText)
-            })
-        });
-    }
-
     // Plugin Main Editor rendering
     render() {
         const {url} = this.state || {}

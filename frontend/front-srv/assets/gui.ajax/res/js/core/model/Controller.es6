@@ -433,7 +433,7 @@ export default class Controller extends Observable{
 		if(fileName == null) fileNames = this._dataModel.getFileNames();
 		else fileNames = [fileName];
         // Check that dest is not the direct parent of source, ie current rep!
-        if(destDir == this._dataModel.getContextNode().getPath()){
+        if(destDir === this._dataModel.getContextNode().getPath()){
             this._pydioObject.displayMessage('ERROR', MessageHash[203]);
             return;
         }

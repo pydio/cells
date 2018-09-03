@@ -120,10 +120,10 @@ class PydioApi{
     downloadSelection(userSelection, dlActionName='download', additionalParameters = {}){
 
         const agent = navigator.userAgent || '';
-        const agentIsMobile = (agent.indexOf('iPhone')!=-1||agent.indexOf('iPod')!=-1||agent.indexOf('iPad')!=-1||agent.indexOf('iOs')!=-1);
+        const agentIsMobile = (agent.indexOf('iPhone')!==-1||agent.indexOf('iPod')!==-1||agent.indexOf('iPad')!==-1||agent.indexOf('iOs')!==-1);
         const hiddenForm = this._pydioObject && this._pydioObject.UI && this._pydioObject.UI.hasHiddenDownloadForm();
 
-        if (userSelection.getSelectedNodes().length == 1 && Object.keys(additionalParameters).length === 0) {
+        if (userSelection.getSelectedNodes().length === 1 && Object.keys(additionalParameters).length === 0) {
             this.buildPresignedGetUrl(userSelection.getUniqueNode(), (url) => {
                 if(agentIsMobile || !hiddenForm){
                     document.location.href = url;
@@ -559,13 +559,6 @@ class PydioApi{
                 let errorId = false;
                 switch(result){
                     case '1':
-                        try{
-                            if(child.getAttribute('remember_login') && child.getAttribute('remember_pass')){
-                                PydioApi.storeRememberData();
-                            }
-                        }catch(e){
-                            Logger.error('Error after login, could prevent registry loading!', e);
-                        }
                         this._pydioObject.loadXmlRegistry();
                         break;
                     case '0':
@@ -678,56 +671,6 @@ class PydioApi{
         }
         this.request(params, callback);
 
-    }
-
-    static storeRememberData(){
-        if(!CookiesManager.supported()) {
-            return false;
-        }
-        let cManager = new CookiesManager({
-            expires: 3600*24*10,
-            path:'/',
-            secure: true
-        });
-        cManager.putCookie('remember', 'true');
-    }
-
-    static clearRememberData(){
-        if(!CookiesManager.supported()) {
-            return false;
-        }
-        let cManager = new CookiesManager({
-            path:'/',
-            secure: true
-        });
-        return cManager.removeCookie('remember');
-    }
-
-    static hasRememberData(){
-        if(!CookiesManager.supported()) {
-            return false;
-        }
-        let cManager = new CookiesManager({
-            path:'/',
-            secure: true
-        });
-        return (cManager.getCookie('remember') === 'true');
-    }
-
-    tryToLogUserFromRememberData(){
-        if(!CookiesManager.supported()) {
-            return false;
-        }
-        if(PydioApi.hasRememberData()){
-            this.request({
-                get_action:'login',
-                userid:'notify',
-                password:'notify',
-                cookie_login:'true'
-            }, function(transport){
-                this.parseXmlMessage(transport.responseXML);
-            }.bind(this), null, {async:false});
-        }
     }
 
 }

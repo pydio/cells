@@ -22,6 +22,9 @@ const React = require('react');
 const {TextField} = require('material-ui');
 const {ActionDialogMixin, CancelButtonProviderMixin, SubmitButtonProviderMixin} = require('pydio').requireLib('boot')
 const PydioApi = require('pydio/http/api');
+import LangUtils from 'pydio/util/lang';
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from "pydio/http/rest-api";
+
 
 class Callbacks{
     static createLink(){
@@ -37,23 +40,31 @@ const CreateLinkDialog = React.createClass({
         SubmitButtonProviderMixin
     ],
 
-    getDefaultProps: function(){
+    getDefaultProps(){
         return {
             dialogSize: 'sm',
             dialogTitleId: 'openbrowser.4'
         }
     },
 
-    submit: function(){
+    submit(){
         const name = this.refs.name.getValue();
         const url = this.refs.url.getValue();
-        if(!name || !url) return;
-        PydioApi.getClient().request({
-            get_action: 'mkfile',
-            dir       : this.props.pydio.getContextHolder().getContextNode().getPath(),
-            filename  : name + '.url',
-            content   : url
-        }, () => {
+        if(!name || !url) {
+            return;
+        }
+        const {pydio} = this.props;
+
+        const api = new TreeServiceApi(PydioApi.getRestClient());
+        const request = new RestCreateNodesRequest();
+        const slug = pydio.user.getActiveRepositoryObject().getSlug();
+        const path = slug + LangUtils.trimRight(pydio.getContextNode().getPath(), '/') + '/' + name + '.url';
+        const node = new TreeNode();
+        node.Path = path;
+        node.Type = TreeNodeType.constructFromObject('LEAF');
+        node.MetaStore = {"Contents": JSON.stringify(url)};
+        request.Nodes = [node];
+        api.createNodes(request).then(collection => {
             this.dismiss();
         });
     },

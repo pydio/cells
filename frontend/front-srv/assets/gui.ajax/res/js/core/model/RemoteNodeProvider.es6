@@ -73,7 +73,7 @@ export default class RemoteNodeProvider{
      */
     loadNode (node, nodeCallback=null, childCallback=null, recursive=false, depth=-1, optionalParameters=null){
         let params = {
-            get_action:'ls',
+            get_action:'ls', // TODO : HANDLE PAGINATION IN NEW NODE PROVIDER
             options:'al'
         };
         if(recursive){
@@ -129,63 +129,9 @@ export default class RemoteNodeProvider{
      * @param aSync bool
      * @param additionalParameters object
      */
-    loadLeafNodeSync (node, nodeCallback, aSync=false, additionalParameters={}){
-        let params = {
-            get_action  :'ls',
-            options     :'al',
-            dir         : PathUtils.getDirname(node.getPath()),
-            file        : PathUtils.getBasename(node.getPath()),
-            ...additionalParameters
-        };
-        if(this.properties){
-            params = {...params, ...this.properties};
-        }
-        const complete = function (transport){
-            try{
-                if(node.isRoot()){
-                    this.parseNodes(node, transport, nodeCallback, null, true);
-                }else{
-                    this.parseNodes(node, transport, null, nodeCallback, true);
-                }
-            }catch(e){
-                Logger.error('Loading error :'+e.message);
-            }
-        }.bind(this);
-        PydioApi.getClient().request(params,  complete, null, {async: aSync});
-    }
+    loadLeafNodeSync (node, nodeCallback, aSync=false, additionalParameters={}){}
 
-    refreshNodeAndReplace (node, onComplete){
-
-        let params = {
-            get_action  :'ls',
-            options     :'al',
-            dir         : PathUtils.getDirname(node.getPath()),
-            file        : PathUtils.getBasename(node.getPath())
-        };
-
-        if(this.properties){
-            params = {...params, ...this.properties};
-        }
-
-        const nodeCallback = function(newNode){
-            node.replaceBy(newNode, "override");
-            if(onComplete) onComplete(node);
-        };
-        PydioApi.getClient().request(
-            params,
-            function (transport){
-                try{
-                    if(node.isRoot()){
-                        this.parseNodes(node, transport, nodeCallback, null, true);
-                    }else{
-                        this.parseNodes(node, transport, null, nodeCallback, true);
-                    }
-                }catch(e){
-                    Logger.error(e);
-                }
-            }.bind(this)
-        );
-    }
+    refreshNodeAndReplace (node, onComplete){}
 
     /**
      * Parse the answer and create AjxpNodes

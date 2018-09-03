@@ -70,8 +70,6 @@ var AutocompleteTree = React.createClass({
     },
 
     loadValues: function loadValues() {
-        var _this = this;
-
         var value = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
 
         var basePath = value;
@@ -83,12 +81,7 @@ var AutocompleteTree = React.createClass({
             return;
         }
         this.lastSearch = basePath;
-        PydioApi.getClient().request({
-            get_action: this.props.attributes["choices"],
-            path: basePath
-        }, function (t) {
-            _this.setState({ nodes: t.responseJSON });
-        });
+        // TODO : load values from service
     },
 
     render: function render() {
