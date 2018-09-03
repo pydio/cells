@@ -33,6 +33,7 @@ import (
 
 	"strconv"
 
+	"github.com/micro/go-micro/metadata"
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -266,6 +267,22 @@ func (a *FrontendHandler) FrontLog(req *restful.Request, rsp *restful.Response) 
 	}()
 }
 
+// Strip Cookies Metadata from context to avoid s3 too-long-header error
+func ctxWithoutCookies(ctx context.Context) context.Context {
+
+	if meta, ok := metadata.FromContext(ctx); ok {
+		newMeta := map[string]string{}
+		for k, v := range meta {
+			if k != "CookiesString" {
+				newMeta[k] = v
+			}
+		}
+		return metadata.NewContext(ctx, newMeta)
+	} else {
+		return ctx
+	}
+}
+
 // FrontServeBinary triggers the download of a stored binary.
 func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Response) {
 
@@ -307,6 +324,7 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 		if ctxUser, _ := utils.FindUserNameInContext(ctx); ctxUser == "" {
 			ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
 		}
+		ctx = ctxWithoutCookies(ctx)
 		if req.QueryParameter("dim") != "" {
 			if dim, e := strconv.ParseInt(req.QueryParameter("dim"), 10, 32); e == nil {
 				if e := readBinary(ctx, router, readNode, rsp.ResponseWriter, rsp.Header(), extension, int(dim)); e != nil {
@@ -316,26 +334,6 @@ func (a *FrontendHandler) FrontServeBinary(req *restful.Request, rsp *restful.Re
 			}
 		}
 		readBinary(ctx, router, readNode, rsp.ResponseWriter, rsp.Header(), extension)
-		/*
-			info, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: readNode})
-			if e != nil {
-				service.RestError404(req, rsp, e)
-				return
-			}
-			ctx = context.WithValue(context.Background(), common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
-			reader, e := router.GetObject(ctx, readNode, &views.GetRequestData{Length: info.Node.Size})
-			if e == nil {
-				defer reader.Close()
-				// Do not set Content-Length here, as it will collide with GZIP encoding
-				//rsp.Header().Set("Content-Length", fmt.Sprintf("%d", info.Node.Size))
-				_, e := io.Copy(rsp.ResponseWriter, reader)
-				if e != nil {
-					service.RestError500(req, rsp, e)
-				}
-			} else {
-				service.RestError500(req, rsp, e)
-			}
-		*/
 	}
 
 }
@@ -363,6 +361,7 @@ func (a *FrontendHandler) FrontPutBinary(req *restful.Request, rsp *restful.Resp
 
 	log.Logger(ctx).Debug("Upload Binary", zap.String("type", binaryType), zap.Any("header", f2))
 	router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false})
+	ctx = ctxWithoutCookies(ctx)
 
 	defer f1.Close()
 
