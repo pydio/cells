@@ -175,7 +175,7 @@ func newServer(ctx context.Context, c Config, rotationStrategy rotationStrategy)
 	static, theme, tmpls, err := loadWebConfig(web)
 	if err != nil {
 		//return nil, fmt.Errorf("server: failed to load web static: %v", err)
-		fmt.Println("Warning, could not find static directory for web resoures " + web.dir + " - Only API and GRPC accesses will be available")
+		// fmt.Println("Warning, could not find static directory for web resoures " + web.dir + " - Only API and GRPC accesses will be available")
 		tmpls = &templates{}
 	}
 
@@ -245,7 +245,7 @@ func newServer(ctx context.Context, c Config, rotationStrategy rotationStrategy)
 	handleFunc("/callback", s.handleConnectorCallback)
 	handleFunc("/approval", s.handleApproval)
 	handleFunc("/healthz", s.handleHealth)
-	if static != nil{
+	if static != nil {
 		handlePrefix("/static", static)
 	}
 	if theme != nil {

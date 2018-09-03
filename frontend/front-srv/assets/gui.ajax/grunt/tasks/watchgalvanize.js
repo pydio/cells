@@ -3,6 +3,7 @@ module.exports = function(grunt, options){
     grunt.registerTask('compilelibsimple', 'Process lib through babel, browserify and uglify', function(n){
         grunt.task.run('babel:lib');
         grunt.task.run(['env:build', 'browserify:lib', 'env:dev']);
+        grunt.task.run(['uglify:lib', 'compress:mins']);
     });
 
     const fs = require('fs');
