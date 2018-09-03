@@ -42,10 +42,6 @@ var _quicksendWorkspacePickerDialog = require('./quicksend/WorkspacePickerDialog
 
 var _quicksendWorkspacePickerDialog2 = _interopRequireDefault(_quicksendWorkspacePickerDialog);
 
-var _recentRecentAccessCard = require('./recent/RecentAccessCard');
-
-var _recentRecentAccessCard2 = _interopRequireDefault(_recentRecentAccessCard);
-
 var _videosVideoCard = require('./videos/VideoCard');
 
 var _videosVideoCard2 = _interopRequireDefault(_videosVideoCard);
