@@ -19,19 +19,6 @@
             }
         }
         
-        static clearExpired(){
-            var conn = new Connexion();
-            conn.addParameter("get_action", "sharelist-clearExpired");
-            var dm = window.actionManager.getDataModel();
-            conn.onComplete = function(transport){
-                PydioApi.getClient().parseXmlMessage(transport.responseXML);
-                if(window.actionManager){
-                    dm.requireContextChange(dm.getRootNode(), true);
-                }
-            };
-            conn.sendAsync();
-        }
-        
         static editFromList(){
             var dataModel;
             if(window.actionArguments && window.actionArguments.length){
