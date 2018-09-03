@@ -1952,6 +1952,7 @@ div.menu.desktop a span.ajxp_icon_span {
 }
 #info_panel {
   position: absolute;
+  z-index: 0;
   width: 270px;
   top: 110px;
   bottom: 0;
