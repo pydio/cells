@@ -377,16 +377,12 @@ var WorkspaceEntry = React.createClass({
         }
 
         if (this.state && this.state.loading) {
-            additionalAction = React.createElement(
-                'span',
-                { className: 'workspace-additional-action', style: { padding: 5 } },
-                React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 3 })
-            );
+            additionalAction = React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 3, style: { marginTop: 2, marginRight: 6, opacity: .5 } });
         }
 
         if (showFoldersTree) {
             var fTCName = this.state.openFoldersTree ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right";
-            treeToggle = React.createElement('span', { style: { marginLeft: -20 }, className: fTCName, onClick: this.toggleFoldersPanelOpen });
+            treeToggle = React.createElement('span', { style: { opacity: 1 }, className: 'workspace-additional-action ' + fTCName, onClick: this.toggleFoldersPanelOpen });
         }
 
         var menuNode = undefined;
@@ -408,33 +404,29 @@ var WorkspaceEntry = React.createClass({
         var popoverTop = _state.popoverTop;
         var popoverHeight = _state.popoverHeight;
 
+        var title = workspace.getLabel();
+        if (workspace.getDescription()) {
+            title += ' - ' + workspace.getDescription();
+        }
+
         var wsBlock = React.createElement(
             ContextMenuWrapper,
             {
                 node: menuNode,
                 className: currentClass,
                 onClick: onClick,
-                title: workspace.getDescription(),
                 onMouseOver: onHover,
                 onMouseOut: onOut,
                 style: style
             },
             React.createElement(
                 'span',
-                { className: 'workspace-label-container' },
-                React.createElement(
-                    'span',
-                    { className: 'workspace-label' },
-                    treeToggle,
-                    workspace.getLabel(),
-                    chatIcon
-                ),
-                React.createElement(
-                    'span',
-                    { className: 'workspace-description' },
-                    workspace.getDescription()
-                )
+                { className: 'workspace-label', title: title },
+                workspace.getLabel()
             ),
+            chatIcon,
+            treeToggle,
+            React.createElement('span', { style: { flex: 1 } }),
             additionalAction,
             React.createElement(
                 _materialUi.Popover,

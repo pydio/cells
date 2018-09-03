@@ -60,7 +60,7 @@
 
     .workspace-entry{
       .nav-list-entry();
-      padding: 10px 20px;
+      padding: 10px 8px 10px 20px ;
       .workspace-badge{
         display:none;
       }
@@ -83,13 +83,14 @@
       }
       .workspace-additional-action {
         font-size: 22px;
-        position: absolute;
         right: 8px;
         margin-top: -3px;
+        margin-bottom: -3px;
         border-radius: 50%;
         transition: @bezier_transition;
         height: 30px;
         width: 30px;
+        min-width: 30px;
         line-height: 30px;
         text-align: center;
         padding: 0;

@@ -32,11 +32,13 @@ class User extends Observable{
     _avatar;
     _temporary;
     _external;
+    _public;
     _extendedLabel;
     _graph;
     _loading;
     _local;
     _uuid;
+    _notFound;
 
     IdmUser;
     IdmRole;
@@ -44,7 +46,7 @@ class User extends Observable{
     _avatarUrl;
     _avatarUrlLoaded;
 
-    constructor(id, label, type, group, avatar, temporary, external, extendedLabel){
+    constructor(id, label = '', type = 'user', group = '', avatar = '', temporary = false, external = false, extendedLabel = null){
         super();
         this._id = id;
         this._label = label;
@@ -59,21 +61,30 @@ class User extends Observable{
     }
 
     /**
+     *
+     * @param idmUser {IdmUser}
+     */
+    setIdmUser(idmUser){
+        this.IdmUser = idmUser;
+        this._uuid = idmUser.Uuid;
+
+        const attributes = idmUser.Attributes || {};
+        this._label = attributes['displayName'] || idmUser.Login;
+        this._type = 'user';
+        this._group = '';
+        this._avatar = attributes['avatar'];
+        this._temporary = false;
+        this._external = attributes['profile'] === 'shared';
+        this._public = attributes['hidden'] === 'true';
+    }
+
+    /**
      * @param idmUser {IdmUser}
      * @return {User}
      */
     static fromIdmUser(idmUser){
-        let u = new User(
-            idmUser.Login,
-            idmUser.Attributes['displayName'] || idmUser.Login,
-            'user',
-            '',
-            idmUser.Attributes['avatar'],
-            false,
-            idmUser.Attributes['profile'] === 'shared',
-        );
-        u._uuid = idmUser.Uuid;
-        u.IdmUser = idmUser;
+        const u = new User(idmUser.Login);
+        u.setIdmUser(idmUser);
         return u;
     }
 
@@ -173,6 +184,15 @@ class User extends Observable{
     isLocal(){
         return this._local;
     }
+    setNotFound(){
+        this._notFound = true;
+    }
+    isNotFound(){
+        return this._notFound;
+    }
+    isPublic(){
+        return this._public;
+    }
 }
 
 
@@ -196,8 +216,9 @@ class UsersApi{
      *
      * @param userObject {User}
      * @param callback Function
+     * @param errorCallback Function
      */
-    static loadPublicData(userObject, callback){
+    static loadPublicData(userObject, callback, errorCallback){
 
         const userId = userObject.getId();
         userObject.setLabel(userId);
@@ -210,8 +231,24 @@ class UsersApi{
             if(userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"]) {
                 userObject.setLabel(userObject.IdmUser.Attributes["displayName"]);
             }
+            callback(userObject);
+        } else {
+            PydioApi.getRestClient().getIdmApi().loadUser(userId).then(user => {
+                if(!user){
+                    errorCallback(new Error('Cannot find user'));
+                    return;
+                }
+                userObject.setIdmUser(user);
+                if(userObject.getAvatar() && userObject.getAvatar()){
+                    userObject.setAvatar(UsersApi.buildUserAvatarUrl(userId, userObject.getAvatar()));
+                } else {
+                    UsersApi.avatarFromExternalProvider(userObject, callback);
+                }
+                callback(userObject);
+            }).catch(e => {
+                errorCallback(e);
+            })
         }
-        callback(userObject);
     }
 
     static loadLocalData(userObject, callback){
@@ -324,7 +361,7 @@ class UsersApi{
         const cache = UsersApi.getPublicDataCache();
         const pydio = PydioApi.getClient().getPydioObject();
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             if(pydio && pydio.user && pydio.user.id === userId){
                 let userObject = new User(userId);
                 UsersApi.loadLocalData(userObject, (result) => {
@@ -343,8 +380,12 @@ class UsersApi{
                     resolve(obj);
                 }
             } else {
-                let userObject = new User(userId);
-                userObject.IdmUser = idmUser;
+                let userObject;
+                if(idmUser){
+                    userObject = User.fromIdmUser(idmUser);
+                } else {
+                    userObject = new User(userId);
+                }
                 userObject.setLoading();
                 cache.setKey(namespace, userId, userObject);
 
@@ -352,6 +393,11 @@ class UsersApi{
                     result.setLoaded();
                     cache.setKey(namespace, userId, result);
                     resolve(result);
+                }, (error) => {
+                    userObject.setLoaded();
+                    userObject.setNotFound();
+                    cache.setKey(namespace, userId, userObject);
+                    reject(error);
                 });
             }
         });
