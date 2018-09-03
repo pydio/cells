@@ -38,10 +38,6 @@ var _ModalAddressBook = require('./ModalAddressBook');
 
 var _ModalAddressBook2 = _interopRequireDefault(_ModalAddressBook);
 
-var _WebdavPane = require('./WebdavPane');
-
-var _WebdavPane2 = _interopRequireDefault(_WebdavPane);
-
 var _WelcomeModal = require('./WelcomeModal');
 
 var _WelcomeModal2 = _interopRequireDefault(_WelcomeModal);
@@ -55,6 +51,5 @@ var Callbacks = (0, _Callbacks2['default'])(window.pydio);
 exports.Callbacks = Callbacks;
 exports.ModalDashboard = _ModalDashboard2['default'];
 exports.ModalAddressBook = _ModalAddressBook2['default'];
-exports.WebDAVPane = _WebdavPane2['default'];
 exports.WelcomeModal = _WelcomeModal2['default'];
 exports.PasswordForm = _PasswordForm2['default'];
