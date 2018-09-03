@@ -10372,6 +10372,20 @@
             "returns": null
           },
           {
+            "name": "setIdmUser",
+            "docblock": "@param idmUser {IdmUser}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "idmUser",
+                "description": "{IdmUser}",
+                "type": null
+              }
+            ],
+            "returns": null,
+            "description": null
+          },
+          {
             "name": "fromIdmUser",
             "docblock": "@param idmUser {IdmUser}\n@return {User}",
             "modifiers": [
@@ -10553,6 +10567,27 @@
             "modifiers": [],
             "params": [],
             "returns": null
+          },
+          {
+            "name": "setNotFound",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "isNotFound",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "isPublic",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ],
         "require": "const PydioUsersApi = require('pydio/http/users-api')"
@@ -10578,7 +10613,7 @@
           },
           {
             "name": "loadPublicData",
-            "docblock": "@param userObject {User}\n@param callback Function",
+            "docblock": "@param userObject {User}\n@param callback Function\n@param errorCallback Function",
             "modifiers": [
               "static"
             ],
@@ -10590,6 +10625,11 @@
               },
               {
                 "name": "callback",
+                "description": "Function",
+                "type": null
+              },
+              {
+                "name": "errorCallback",
                 "description": "Function",
                 "type": null
               }
@@ -42680,6 +42720,25 @@
           },
           {
             "name": "resetPassword",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "setUpdatingPassword",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "changePassword",
             "docblock": null,
             "modifiers": [],
             "params": [],
