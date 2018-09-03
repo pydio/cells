@@ -26,10 +26,6 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _dialogMultiDownloadDialog = require('./dialog/MultiDownloadDialog');
-
-var _dialogMultiDownloadDialog2 = _interopRequireDefault(_dialogMultiDownloadDialog);
-
 var _dialogOtherEditorPickerDialog = require('./dialog/OtherEditorPickerDialog');
 
 var _dialogOtherEditorPickerDialog2 = _interopRequireDefault(_dialogOtherEditorPickerDialog);

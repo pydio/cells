@@ -18,10 +18,14 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react')
-const PydioDataModel = require('pydio/model/data-model');
-const {MenuItem, SelectField, TextField, Paper, RaisedButton, IconButton, FlatButton} = require('material-ui');
-const {FoldersTree} = require('pydio').requireLib('components');
+import React from "react";
+import LangUtils from 'pydio/util/lang';
+import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from "pydio/http/rest-api";
+import PydioDataModel from "pydio/model/data-model";
+import {IconButton, MenuItem, Paper, SelectField, TextField} from "material-ui";
+import Pydio from 'pydio';
+
+const {FoldersTree} = Pydio.requireLib('components');
 
 const TreeDialog = React.createClass({
 
@@ -36,7 +40,7 @@ const TreeDialog = React.createClass({
         PydioReactUI.SubmitButtonProviderMixin
     ],
 
-    getDefaultProps: function(){
+    getDefaultProps(){
         return {
             dialogTitle: 'Copy/Move',
             dialogIsModal: true,
@@ -49,7 +53,7 @@ const TreeDialog = React.createClass({
         this.dismiss();
     },
 
-    getInitialState: function(){
+    getInitialState(){
         const dm = this.getCurrentDataModel();
         const root = dm.getRootNode();
         root.load();
@@ -75,53 +79,60 @@ const TreeDialog = React.createClass({
         }
         const dm = PydioDataModel.RemoteDataModelFactory(repoId ? {tmp_repository_id:repoId} : {}, repoLabel);
         const root = dm.getRootNode();
-        if(repoId) root.getMetadata().set('repository_id', repoId);
+        if(repoId) {
+            root.getMetadata().set('repository_id', repoId);
+        }
         return dm;
     },
 
-    onNodeSelected: function(n){
+    onNodeSelected(n){
         n.load();
         this.setState({
             selectedNode: n
         })
     },
 
-    createNewFolder: function(){
+    createNewFolder(){
+        const {pydio} = this.props;
         let parent = this.state.selectedNode;
         let nodeName = this.refs.newfolder_input.getValue();
-        let oThis = this;
-        const additional = (this.state.wsId !== '__CURRENT__') ? {tmp_repository_id:this.state.wsId} : {};
+        let slug = pydio.user.getActiveRepositoryObject().getSlug();
+        if(this.state.wsId !== '__CURRENT__') {
+            const repo = pydio.user.getRepositoriesList().get(this.state.wsId);
+            slug = repo.getSlug();
+        }
+        const api = new TreeServiceApi(PydioApi.getRestClient());
+        const request = new RestCreateNodesRequest();
 
-        PydioApi.getClient().request({
-            get_action:'mkdir',
-            dir: parent.getPath(),
-            dirname:nodeName,
-            ...additional
-        }, function(){
-            let fullpath = parent.getPath() + '/' + nodeName;
-            parent.observeOnce('loaded', function(){
+        const path = slug + LangUtils.trimRight(parent.getPath(), '/') + '/' + nodeName;
+        const node = new TreeNode();
+        node.Path = path;
+        node.Type = TreeNodeType.constructFromObject('COLLECTION');
+        request.Nodes = [node];
+        api.createNodes(request).then(collection => {
+            const fullpath = parent.getPath() + '/' + nodeName;
+            parent.observeOnce('loaded', () => {
                 let n = parent.getChildren().get(fullpath);
-                if(n) oThis.setState({selectedNode:n});
+                if(n) {
+                    this.setState({selectedNode:n});
+                }
             });
-            global.setTimeout(function(){
-                parent.reload();
-            }, 500);
-            oThis.setState({newFolderFormOpen: false});
+            setTimeout(() => parent.reload(), 1500);
+            this.setState({newFolderFormOpen: false});
         });
-
     },
 
-    handleRepositoryChange: function(event, index, value){
+    handleRepositoryChange(event, index, value){
         const dm = this.getCurrentDataModel(value);
         const root = dm.getRootNode();
         root.load();
         this.setState({dataModel:dm, selectedNode: root, wsId: value});
     },
 
-    render: function(){
-        let openNewFolderForm = function(){
+    render(){
+        let openNewFolderForm = () => {
             this.setState({newFolderFormOpen: !this.state.newFolderFormOpen});
-        }.bind(this)
+        };
 
         let user = this.props.pydio.user;
         let wsSelector ;

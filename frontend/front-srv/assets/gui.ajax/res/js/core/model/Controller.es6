@@ -415,45 +415,7 @@ export default class Controller extends Observable{
 		}
 		return false;
 	}
-	
-	/**
-	 * Complex function called when drag'n'dropping. Basic checks of who is child of who.
-	 * @param fileName String The dragged element 
-	 * @param destDir String The drop target node path
-	 * @param destNodeName String The drop target node name
-	 * @param copy Boolean Copy or Move
-	 */
-	applyDragMove(fileName, destDir, destNodeName, copy)
-	{
-		if((!copy && (!this.defaultActions.has('dragndrop') || this.getDefaultAction('dragndrop').deny)) ||
-			(copy && (!this.defaultActions.has('ctrldragndrop')||this.getDefaultAction('ctrldragndrop').deny))){
-			return;
-		}
-        let fileNames;
-		if(fileName == null) fileNames = this._dataModel.getFileNames();
-		else fileNames = [fileName];
-        // Check that dest is not the direct parent of source, ie current rep!
-        if(destDir === this._dataModel.getContextNode().getPath()){
-            this._pydioObject.displayMessage('ERROR', MessageHash[203]);
-            return;
-        }
-        // Check that dest is not child of source it self
-        for(let i=0; i<fileNames.length;i++){
-            if(destDir.lastIndexOf(fileNames[i],0) === 0){
-                this._pydioObject.displayMessage('ERROR', MessageHash[202]);
-                return;
-            }
-        }
-        let params = {};
-        params['get_action'] = this.defaultActions.get(copy?'ctrldragndrop':'dragndrop');
-        params['nodes[]'] = fileNames;
-        params['dest'] = destDir;
-        params['dir'] = this._dataModel.getContextNode().getPath();
-        PydioApi.getClient().request(params, function(transport){
-            this.parseXmlMessage(transport.responseXML);
-        }.bind(PydioApi.getClient()));
-	}
-	
+
 	/**
 	 * Get the action defined as default for a given default string
 	 * @param defaultName String
