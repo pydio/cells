@@ -182,37 +182,19 @@ var WorkspaceEntry = React.createClass({
     },
 
     handleAccept: function handleAccept() {
-        PydioApi.getClient().request({
-            'get_action': 'accept_invitation',
-            'remote_share_id': this.props.workspace.getShareId()
-        }, (function () {
-            // Switching status to decline
-            this.props.workspace.setAccessStatus('accepted');
-
-            this.handleCloseAlert();
-            this.onClick();
-        }).bind(this), (function () {
-            this.handleCloseAlert();
-        }).bind(this));
+        this.props.workspace.setAccessStatus('accepted');
+        this.handleCloseAlert();
+        this.onClick();
     },
 
     handleDecline: function handleDecline() {
-        PydioApi.getClient().request({
-            'get_action': 'reject_invitation',
-            'remote_share_id': this.props.workspace.getShareId()
-        }, (function () {
-            // Switching status to decline
-            this.props.workspace.setAccessStatus('declined');
-
-            this.props.pydio.fire("repository_list_refreshed", {
-                list: this.props.pydio.user.getRepositoriesList(),
-                active: this.props.pydio.user.getActiveRepository()
-            });
-
-            this.handleCloseAlert();
-        }).bind(this), (function () {
-            this.handleCloseAlert();
-        }).bind(this));
+        // Switching status to decline
+        this.props.workspace.setAccessStatus('declined');
+        this.props.pydio.fire("repository_list_refreshed", {
+            list: this.props.pydio.user.getRepositoriesList(),
+            active: this.props.pydio.user.getActiveRepository()
+        });
+        this.handleCloseAlert();
     },
 
     handleOpenAlert: function handleOpenAlert(mode, event) {

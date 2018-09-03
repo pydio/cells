@@ -8328,7 +8328,7 @@
     ],
     "core/PydioBootstrap.es6": [
       {
-        "description": "Main BootLoader.\nDefaults params for constructor should be {} and content.php?get_action=get_boot_conf",
+        "description": "Main BootLoader.",
         "displayName": "PydioBootstrap",
         "methods": [
           {
@@ -9909,30 +9909,6 @@
             ],
             "returns": null,
             "description": "Standard parser for server XML answers"
-          },
-          {
-            "name": "submitForm",
-            "docblock": "Submits a form using Connexion class.\n@param formName String The id of the form\n@param post Boolean Whether to POST or GET\n@param completeCallback Function Callback to be called on complete",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "formName",
-                "description": "String The id of the form",
-                "type": null
-              },
-              {
-                "name": "post",
-                "description": "Boolean Whether to POST or GET",
-                "type": null
-              },
-              {
-                "name": "completeCallback",
-                "description": "Function Callback to be called on complete",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Submits a form using Connexion class."
           },
           {
             "name": "postSelectionWithAction",
@@ -28263,30 +28239,6 @@
             "description": "COMPATIBILITY METHD"
           },
           {
-            "name": "submitForm",
-            "docblock": "Submits a form using Connexion class.\n@param formName String The id of the form\n@param post Boolean Whether to POST or GET\n@param completeCallback Function Callback to be called on complete",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "formName",
-                "description": "String The id of the form",
-                "type": null
-              },
-              {
-                "name": "post",
-                "description": "Boolean Whether to POST or GET",
-                "type": null
-              },
-              {
-                "name": "completeCallback",
-                "description": "Function Callback to be called on complete",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Submits a form using Connexion class."
-          },
-          {
             "name": "setUser",
             "docblock": "Stores the currently logged user object\n@param oUser User User instance",
             "modifiers": [],
@@ -28436,35 +28388,6 @@
             ],
             "returns": null,
             "description": "Triggers an action by its access key."
-          },
-          {
-            "name": "applyDragMove",
-            "docblock": "Complex function called when drag'n'dropping. Basic checks of who is child of who.\n@param fileName String The dragged element \n@param destDir String The drop target node path\n@param destNodeName String The drop target node name\n@param copy Boolean Copy or Move",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "fileName",
-                "description": "String The dragged element",
-                "type": null
-              },
-              {
-                "name": "destDir",
-                "description": "String The drop target node path",
-                "type": null
-              },
-              {
-                "name": "destNodeName",
-                "description": "String The drop target node name",
-                "type": null
-              },
-              {
-                "name": "copy",
-                "description": "Boolean Copy or Move",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Complex function called when drag'n'dropping. Basic checks of who is child of who."
           },
           {
             "name": "getDefaultAction",
@@ -30068,7 +29991,7 @@
           },
           {
             "name": "parseAjxpNode",
-            "docblock": "Parses XML Node and create AjxpNode\n@param xmlNode XMLNode\n@returns AjxpNode",
+            "docblock": "Parses XML Node and create AjxpNode\n@param xmlNode XMLNode",
             "modifiers": [],
             "params": [
               {
@@ -30077,10 +30000,7 @@
                 "type": null
               }
             ],
-            "returns": {
-              "description": "AjxpNode",
-              "type": null
-            },
+            "returns": null,
             "description": "Parses XML Node and create AjxpNode"
           }
         ],
@@ -38355,99 +38275,6 @@
             "description": ""
           }
         }
-      }
-    ],
-    "ReactUI/compat/CompatMigrationDialog.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "performUpgrade",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "getButtons",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "updater",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "dialogTitle": {
-            "defaultValue": {
-              "value": "'Migration Required'",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogIsModal": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogScrollBody": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          }
-        },
-        "require": "const {CompatMigrationDialog} = require('pydio').requireLib('boot')"
-      }
-    ],
-    "ReactUI/compat/CompatModal.js": [
-      {
-        "description": "",
-        "displayName": "CompatModal",
-        "methods": [
-          {
-            "name": "open",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "namespace",
-                "type": null
-              },
-              {
-                "name": "component",
-                "type": null
-              },
-              {
-                "name": "props",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "handleLoad",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "handleClose",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "require": "const {CompatModal} = require('pydio').requireLib('boot')"
       }
     ],
     "ReactUI/modal/AsyncModal.js": [

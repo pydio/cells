@@ -124,40 +124,15 @@ class PydioApi{
         const hiddenForm = this._pydioObject && this._pydioObject.UI && this._pydioObject.UI.hasHiddenDownloadForm();
 
         if (userSelection.getSelectedNodes().length === 1 && Object.keys(additionalParameters).length === 0) {
-            this.buildPresignedGetUrl(userSelection.getUniqueNode(), (url) => {
+            this.buildPresignedGetUrl(userSelection.getUniqueNode()).then(url => {
                 if(agentIsMobile || !hiddenForm){
                     document.location.href = url;
                 } else {
                     this._pydioObject.UI.sendDownloadToHiddenForm(userSelection, {presignedUrl: url});
                 }
             });
-            return;
-        }
-
-        const ajxpServerAccess = this._pydioObject.Parameters.get("ajxpServerAccess");
-        if(agentIsMobile || !hiddenForm){
-            let downloadUrl = ajxpServerAccess + '&get_action=' + dlActionName;
-            if(additionalParameters){
-                for(let param in additionalParameters){
-                    if(additionalParameters.hasOwnProperty(param)) downloadUrl += "&" + param + "=" + additionalParameters[param];
-                }
-            }
-            if(userSelection){
-                downloadUrl = userSelection.updateFormOrUrl(null,downloadUrl);
-            }
-            document.location.href=downloadUrl;
-        }else{
-
-            let parameters = {...additionalParameters, secure_token:this._pydioObject.Parameters.get("SECURE_TOKEN"), get_action: dlActionName};
-            const minisite_session = PydioApi.detectMinisiteSession(ajxpServerAccess);
-            if(minisite_session){
-                parameters['minisite_session'] = minisite_session;
-            }
-            try{
-                pydio.UI.sendDownloadToHiddenForm(userSelection, parameters);
-            }catch(e){
-                if(window.console) window.console.error("Error while submitting hidden form for download", e);
-            }
+        } else {
+            throw new Error('Multiple selection download is not supported yet.');
         }
 
     }
@@ -614,47 +589,6 @@ class PydioApi{
             this._pydioObject.getContextHolder().multipleNodesReload(reloadNodes);
         }
         return !error;
-    }
-
-    /**
-     * Submits a form using Connexion class.
-     * @param formName String The id of the form
-     * @param post Boolean Whether to POST or GET
-     * @param completeCallback Function Callback to be called on complete
-     */
-    submitForm(formName, post = true, completeCallback = null)
-    {
-        let params = {};
-        // TODO: UI IMPLEMENTATION
-        $(formName).getElements().each(function(fElement){
-            let fValue = fElement.getValue();
-            if(fElement.name == 'get_action' && fValue.substr(0,4) == 'http'){
-                fValue = PathUtils.getBasename(fValue);
-            }
-            if(fElement.type == 'radio' && !fElement.checked) {
-                return;
-            }
-            if(params[fElement.name] && fElement.name.endsWith('[]')){
-                let existing = params[fElement.name];
-                if(typeof(existing) == 'string') {
-                    existing = [existing];
-                }
-                existing.push(fValue);
-                params[fElement.name] = existing;
-            }else{
-                params[fElement.name] = fValue;
-            }
-        });
-        if(this._pydioObject.getContextNode()){
-            params['dir'] = this._pydioObject.getContextNode().getPath();
-        }
-        let onComplete;
-        if(completeCallback){
-            onComplete = completeCallback;
-        }else{
-            onComplete = function(transport){this.parseXmlMessage(transport.responseXML);}.bind(this) ;
-        }
-        this.request(params, onComplete, null, {method:post?'post':'get'});
     }
 
     postSelectionWithAction(actionName, callback=null, selectionModel=null, additionalParameters=null){

@@ -239,7 +239,6 @@
 		<client_configs uuidAttr="name">
             <template name="main_material" element="ajxp_desktop" position="top" theme="material" namespace="PydioReactUI" component="TemplateBuilder" props='{"imageBackgroundFromConfigs":"gui.ajax/WELCOME_PAGE_BACKGROUND_", "containerId":"orbit_content"}'/>
             <template name="material_modal" element="body" position="bottom" theme="material" namespace="PydioReactUI" component="Modal" props='{"containerId":"pydio_modal"}'/>
-            <template name="compat_modal" element="body" position="bottom" theme="compat" namespace="PydioReactUI" component="CompatModal" props='{"containerId":"pydio_modal"}'/>
             <template name="material_snack" element="body" position="bottom" namespace="PydioReactUI" component="MessageBar" props='{"containerId":"pydio_message_bar"}'/>
             <template name="material_router" element="ajxp_desktop" position="bottom" namespace="PydioReactUI" component="Router" props='{"containerId":"pydio_router"}'/>
             <template name="network_loader" element="body" position="bottom" namespace="PydioReactUI" component="NetworkLoader" props='{}'/>

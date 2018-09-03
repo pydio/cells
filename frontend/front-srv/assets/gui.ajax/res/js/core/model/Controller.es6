@@ -158,18 +158,6 @@ export default class Controller extends Observable{
         return PydioApi.getClient().parseXmlMessage(xmlDoc);
     }
 
-    /**
-     * Submits a form using Connexion class.
-     * @param formName String The id of the form
-     * @param post Boolean Whether to POST or GET
-     * @param completeCallback Function Callback to be called on complete
-     */
-    submitForm(formName, post, completeCallback){
-        Logger.debug("Controller.submitForm() is deprecated, use PydioApi instead");
-        return PydioApi.getClient().submitForm(formName, post, completeCallback);
-    }
-
-
 	/**
 	 * Stores the currently logged user object
 	 * @param oUser User User instance

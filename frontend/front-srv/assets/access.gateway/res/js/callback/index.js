@@ -35,7 +35,6 @@ const Callbacks = {
     downloadAll             : require('./downloadAll')(pydio),
     emptyRecycle            : require('./emptyRecycle')(pydio),
     restore                 : require('./restore')(pydio),
-    compressUI              : require('./compressUI')(pydio),
     openInEditor            : require('./openInEditor')(pydio),
     ajxpLink                : require('./ajxpLink')(pydio),
     openOtherEditorPicker   : require('./openOtherEditorPicker')(pydio),
