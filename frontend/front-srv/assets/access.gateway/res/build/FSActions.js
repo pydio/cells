@@ -453,49 +453,6 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-exports['default'] = function (pydio) {
-
-    return function () {
-
-        var userSelection = pydio.getUserSelection();
-        pydio.UI.openComponentInModal('FSActions', 'MultiDownloadDialog', {
-            buildChunks: true,
-            actionName: 'download_chunk',
-            chunkAction: 'prepare_chunk_dl',
-            selection: userSelection
-        });
-    };
-};
-
-module.exports = exports['default'];
-
-},{}],9:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _pydioHttpApi = require('pydio/http/api');
@@ -522,7 +479,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node"}],10:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node"}],9:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -570,7 +527,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],11:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api"}],10:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -612,7 +569,6 @@ var Callbacks = {
     download: require('./download')(pydio),
     downloadFolder: require('./downloadFolder')(pydio),
     downloadAll: require('./downloadAll')(pydio),
-    downloadChunked: require('./downloadChunked')(pydio),
     emptyRecycle: require('./emptyRecycle')(pydio),
     restore: require('./restore')(pydio),
     compressUI: require('./compressUI')(pydio),
@@ -626,7 +582,7 @@ exports['default'] = Callbacks;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ajxpLink":1,"./applyCopyOrMove":2,"./compressUI":3,"./copy":4,"./deleteAction":5,"./download":6,"./downloadAll":7,"./downloadChunked":8,"./downloadFolder":9,"./emptyRecycle":10,"./lock":12,"./ls":13,"./mkdir":14,"./mkfile":15,"./move":16,"./openInEditor":17,"./openOtherEditorPicker":18,"./rename":19,"./restore":20,"./upload":21}],12:[function(require,module,exports){
+},{"./ajxpLink":1,"./applyCopyOrMove":2,"./compressUI":3,"./copy":4,"./deleteAction":5,"./download":6,"./downloadAll":7,"./downloadFolder":8,"./emptyRecycle":9,"./lock":11,"./ls":12,"./mkdir":13,"./mkfile":14,"./move":15,"./openInEditor":16,"./openOtherEditorPicker":17,"./rename":18,"./restore":19,"./upload":20}],11:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -683,7 +639,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],13:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],12:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -719,7 +675,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -787,7 +743,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang"}],15:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang"}],14:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -854,7 +810,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang"}],16:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang"}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -938,7 +894,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"./applyCopyOrMove":2,"pydio":"pydio"}],17:[function(require,module,exports){
+},{"./applyCopyOrMove":2,"pydio":"pydio"}],16:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -975,7 +931,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1014,7 +970,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1087,7 +1043,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/util/path":"pydio/util/path"}],20:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/util/path":"pydio/util/path"}],19:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1137,7 +1093,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],21:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api"}],20:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1174,7 +1130,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],22:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1315,7 +1271,7 @@ var MultiDownloadDialog = React.createClass({
 exports['default'] = MultiDownloadDialog;
 module.exports = exports['default'];
 
-},{"react":"react"}],23:[function(require,module,exports){
+},{"react":"react"}],22:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1486,7 +1442,7 @@ var OtherEditorPickerDialog = React.createClass({
 exports['default'] = OtherEditorPickerDialog;
 module.exports = exports['default'];
 
-},{"../callback/openInEditor":17,"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],24:[function(require,module,exports){
+},{"../callback/openInEditor":16,"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],23:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -1727,7 +1683,7 @@ exports['default'] = TreeDialog;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","react":"react"}],25:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","react":"react"}],24:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1820,7 +1776,7 @@ var UploadDialog = React.createClass({
 exports['default'] = UploadDialog;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","react":"react"}],26:[function(require,module,exports){
+},{"pydio":"pydio","react":"react"}],25:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1875,12 +1831,11 @@ var _listenerIndex2 = _interopRequireDefault(_listenerIndex);
 
 exports.Callbacks = _callbackIndex2['default'];
 exports.Listeners = _listenerIndex2['default'];
-exports.MultiDownloadDialog = _dialogMultiDownloadDialog2['default'];
 exports.UploadDialog = _dialogUploadDialog2['default'];
 exports.OtherEditorPickerDialog = _dialogOtherEditorPickerDialog2['default'];
 exports.TreeDialog = _dialogTreeDialog2['default'];
 
-},{"./callback/index":11,"./dialog/MultiDownloadDialog":22,"./dialog/OtherEditorPickerDialog":23,"./dialog/TreeDialog":24,"./dialog/UploadDialog":25,"./listener/index":31}],27:[function(require,module,exports){
+},{"./callback/index":10,"./dialog/MultiDownloadDialog":21,"./dialog/OtherEditorPickerDialog":22,"./dialog/TreeDialog":23,"./dialog/UploadDialog":24,"./listener/index":30}],26:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1919,7 +1874,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],28:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1972,7 +1927,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2012,7 +1967,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],30:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2059,7 +2014,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],31:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -2101,7 +2056,7 @@ exports['default'] = Listeners;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./compressUiSelectionChange":27,"./copyContextChange":28,"./downloadAllInit":29,"./downloadSelectionChange":30,"./lockSelectionChange":32,"./openWithDynamicBuilder":33}],32:[function(require,module,exports){
+},{"./compressUiSelectionChange":26,"./copyContextChange":27,"./downloadAllInit":28,"./downloadSelectionChange":29,"./lockSelectionChange":31,"./openWithDynamicBuilder":32}],31:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2151,7 +2106,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2259,5 +2214,5 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"../callback/openOtherEditorPicker":18,"pydio/util/path":"pydio/util/path"}]},{},[26])(26)
+},{"../callback/openOtherEditorPicker":17,"pydio/util/path":"pydio/util/path"}]},{},[25])(25)
 });

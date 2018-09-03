@@ -30,7 +30,6 @@ export {
     Callbacks,
     Listeners,
 
-    MultiDownloadDialog,
     UploadDialog,
     OtherEditorPickerDialog,
     TreeDialog

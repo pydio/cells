@@ -33,7 +33,6 @@ const Callbacks = {
     download                : require('./download')(pydio),
     downloadFolder          : require('./downloadFolder')(pydio),
     downloadAll             : require('./downloadAll')(pydio),
-    downloadChunked         : require('./downloadChunked')(pydio),
     emptyRecycle            : require('./emptyRecycle')(pydio),
     restore                 : require('./restore')(pydio),
     compressUI              : require('./compressUI')(pydio),
