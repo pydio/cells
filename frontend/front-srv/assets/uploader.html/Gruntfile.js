@@ -33,7 +33,7 @@ module.exports = function(grunt) {
                 files: [
                     "js/react/**/*"
                 ],
-                tasks: ['babel'],
+                tasks: ['babel', 'compress'],
                 options: {
                     spawn: false
                 }
