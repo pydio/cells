@@ -37,7 +37,7 @@ import (
 
 var (
 	// PydioInstallBox holds the root of the pydio install static files
-	PydioInstallBox = packr.NewBox("./src/install")
+	PydioInstallBox = packr.NewBox("./src")
 )
 
 // GetAssets returns the location of the assets if they physically exist

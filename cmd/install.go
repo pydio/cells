@@ -35,7 +35,6 @@ import (
 	"github.com/micro/go-web"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/assets"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -43,6 +42,7 @@ import (
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/discovery/install/assets"
 )
 
 const (
@@ -68,14 +68,14 @@ var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Pydio Cells Installer",
 	Long: `This command launch the installation process of Pydio Cells.
- 
+
  It will ask for the Bind Host to hook the webserver on a network interface IP, and you can set different hosts for accessing
  the machine from outside world (if it is behind a proxy or inside a container with ports mapping for example).
  You can launch this installer in non-interactive mode by providing --bind and --external. This will launch the browser-based
  installer with SSL active using self_signed setup by default.
  You might also use Let's Encrypt automatic certificate generation by providing a contact email and accepting Let's Encrypt EULA, for instance:
  $ ` + os.Args[0] + ` install --bind share.mydomain.tld:443 --external share.mydomain.tld --le_email admin@mydomain.tld --le_agree true
- 
+
  For example
  - Bind Host : 0.0.0.0:8080
  - External Host : share.mydomain.tld
@@ -88,12 +88,12 @@ var installCmd = &cobra.Command{
  Or
  - Bind Host : IP:8080
  - External Host : IP:8080
- 
+
  It will open a browser to gather necessary information and configuration for Pydio Cells. if you don't have a browser access,
  you can launch the command line installation using the install-cli command:
- 
+
  $ ` + os.Args[0] + ` install-cli
- 
+
  Services will all start automatically after the install process is finished.
 	 `,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -175,9 +175,9 @@ var installCmd = &cobra.Command{
 		}
 
 		// Installing the JS data
-		dir, err := assets.GetAssets("../assets/src/install")
+		dir, err := assets.GetAssets("../discovery/install/assets/src")
 		if err != nil {
-			dir = filepath.Join(config.ApplicationDataDir(), "static", "install")
+			dir := filepath.Join(config.ApplicationDataDir(), "static", "install")
 
 			if err, _, _ := assets.RestoreAssets(dir, assets.PydioInstallBox, nil); err != nil {
 				cmd.Println("Could not restore install package", err)
