@@ -21,11 +21,8 @@
 import React from 'react'
 import {FlatButton, IconButton, Paper} from 'material-ui'
 import XMLUtils from 'pydio/util/xml'
-import Workspace from '../model/Workspace'
 import WsEditor from '../editor/WsEditor'
-import WorkspaceCreator from '../editor/WorkspaceCreator'
 import WorkspaceList from './WorkspaceList'
-import DataSourceEditor from '../editor/DataSourceEditor'
 const PydioDataModel = require('pydio/model/data-model');
 const AjxpNode = require('pydio/model/node');
 

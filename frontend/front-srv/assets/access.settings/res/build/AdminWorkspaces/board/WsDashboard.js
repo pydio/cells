@@ -36,25 +36,13 @@ var _pydioUtilXml = require('pydio/util/xml');
 
 var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
 
-var _modelWorkspace = require('../model/Workspace');
-
-var _modelWorkspace2 = _interopRequireDefault(_modelWorkspace);
-
 var _editorWsEditor = require('../editor/WsEditor');
 
 var _editorWsEditor2 = _interopRequireDefault(_editorWsEditor);
 
-var _editorWorkspaceCreator = require('../editor/WorkspaceCreator');
-
-var _editorWorkspaceCreator2 = _interopRequireDefault(_editorWorkspaceCreator);
-
 var _WorkspaceList = require('./WorkspaceList');
 
 var _WorkspaceList2 = _interopRequireDefault(_WorkspaceList);
-
-var _editorDataSourceEditor = require('../editor/DataSourceEditor');
-
-var _editorDataSourceEditor2 = _interopRequireDefault(_editorDataSourceEditor);
 
 var PydioDataModel = require('pydio/model/data-model');
 var AjxpNode = require('pydio/model/node');

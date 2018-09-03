@@ -30,17 +30,9 @@ var _boardWsDashboard = require('./board/WsDashboard');
 
 var _boardWsDashboard2 = _interopRequireDefault(_boardWsDashboard);
 
-var _panelSharesList = require('./panel/SharesList');
-
-var _panelSharesList2 = _interopRequireDefault(_panelSharesList);
-
 var _metaMetaList = require('./meta/MetaList');
 
 var _metaMetaList2 = _interopRequireDefault(_metaMetaList);
-
-var _panelWorkspaceSummary = require('./panel/WorkspaceSummary');
-
-var _panelWorkspaceSummary2 = _interopRequireDefault(_panelWorkspaceSummary);
 
 var _boardVirtualNodes = require('./board/VirtualNodes');
 
@@ -77,7 +69,6 @@ var _modelVirtualNode2 = _interopRequireDefault(_modelVirtualNode);
 window.AdminWorkspaces = {
   MetaSourceForm: _metaMetaSourceForm2['default'],
   MetaList: _metaMetaList2['default'],
-  WorkspaceSummary: _panelWorkspaceSummary2['default'],
   VirtualNodes: _boardVirtualNodes2['default'],
   WsDashboard: _boardWsDashboard2['default'],
   DataSourcesBoard: _boardDataSourcesBoard2['default'],
