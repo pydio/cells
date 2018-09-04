@@ -447,17 +447,16 @@ class PydioApi{
 
     }
 
+    /**
+     *
+     * @param node
+     * @param hookName
+     * @param hookArg
+     * @param completeCallback
+     * @param additionalParams
+     */
     applyCheckHook(node, hookName, hookArg, completeCallback, additionalParams){
-        let params = {
-            get_action : "apply_check_hook",
-            file       : node.getPath(),
-            hook_name  : hookName,
-            hook_arg   : hookArg
-        };
-        if(additionalParams){
-            params = LangUtils.objectMerge(params, additionalParams);
-        }
-        this.request(params, completeCallback, null, {async:false});
+        completeCallback();
     }
 
     /**
@@ -589,22 +588,6 @@ class PydioApi{
             this._pydioObject.getContextHolder().multipleNodesReload(reloadNodes);
         }
         return !error;
-    }
-
-    postSelectionWithAction(actionName, callback=null, selectionModel=null, additionalParameters=null){
-        if(!selectionModel){
-            selectionModel = this._pydioObject.getContextHolder();
-        }
-        let params = {
-            get_action:actionName,
-            dir: selectionModel.getContextNode().getPath()
-        };
-        params['nodes[]'] = selectionModel.getFileNames();
-        if(additionalParameters){
-            params = Object.assign(params, additionalParameters);
-        }
-        this.request(params, callback);
-
     }
 
 }

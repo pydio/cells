@@ -19,6 +19,7 @@
  */
 import XMLUtils from 'pydio/util/xml'
 import PydioApi from 'pydio/http/api'
+import {MailerServiceApi, MailerMail, MailerUser} from 'pydio/http/rest-api'
 
 class ShareHelper {
 
@@ -120,20 +121,22 @@ class ShareHelper {
      */
     static sendCellInvitation(node, cellModel, targetUsers, callback = ()=>{} ){
         const {templateId, templateData} = ShareHelper.prepareEmail(node, null, cellModel);
-        let users = Object.keys(targetUsers).map(k => {
+        const mail = new MailerMail();
+        const api = new MailerServiceApi(PydioApi.getRestClient());
+        mail.To = Object.keys(targetUsers).map(k => {
             const u = targetUsers[k];
-            return u.IdmUser ? u.IdmUser.Login : u.id
+            const to = new MailerUser();
+            if(u.IdmUser){
+                to.Uuid = u.IdmUser.Login;
+            } else {
+                to.Uuid = u.id;
+            }
+            return to;
         });
-        const params = {
-            get_action:'send_mail',
-            'emails[]' : users,
-            template_id: templateId,
-            template_data: JSON.stringify(templateData)
-        };
-        const client = PydioApi.getClient();
-        client.request(params, (transport) => {
-            const res = client.parseXmlMessage(transport.responseXML);
-            callback(res);
+        mail.TemplateId = templateId;
+        mail.TemplateData = templateData;
+        api.send(mail).then(() => {
+            callback();
         });
     }
 
