@@ -37,7 +37,9 @@
         _handleChangeURL: function _handleChangeURL(id) {
             return (function (e, newValue) {
 
-                if (this.state.submitting) return;
+                if (this.state.submitting) {
+                    return;
+                }
 
                 if (newValue === "") {
                     this._handleDeleteURL(id)();
@@ -55,7 +57,9 @@
 
         _handleDeleteURL: function _handleDeleteURL(id) {
             return (function () {
-                if (this.state.submitting) return;
+                if (this.state.submitting) {
+                    return;
+                }
 
                 var urls = this.state.urls;
 
@@ -75,15 +79,21 @@
 
         _handleAddURL: function _handleAddURL(e) {
 
-            if (this.state.submitting) return;
+            if (this.state.submitting) {
+                return;
+            }
 
-            if (e.type == "keydown" && e.keyCode !== 13) return;
+            if (e.type === "keydown" && e.keyCode !== 13) {
+                return;
+            }
 
             var _state = this.state;
             var currentURL = _state.currentURL;
             var urls = _state.urls;
 
-            if (currentURL === "") return;
+            if (currentURL === "") {
+                return;
+            }
 
             urls.push(currentURL);
 
@@ -104,10 +114,7 @@
 
             this.setState({
                 urls: urls.filter(function (item, id) {
-                    PydioApi.getClient().request({ get_action: 'external_download', file: item, dir: dir }, function (t) {
-                        PydioApi.getClient().parseXmlMessage(t.responseXML);
-                    });
-
+                    pydio.UI.displayMessage('ERROR', 'This feature is not implemented yet!');
                     return false;
                 })
             });
@@ -115,7 +122,6 @@
 
         render: function render() {
 
-            var options = undefined;
             var messages = global.pydio.MessageHash;
 
             var style = {

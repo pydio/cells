@@ -20,9 +20,9 @@
 
 (function(global){
 
-    var Uploader = React.createClass({
+    const Uploader = React.createClass({
 
-        getInitialState: function () {
+        getInitialState () {
             return {
                 dir: pydio.getContextNode().getPath(),
                 submitting: false,
@@ -31,32 +31,36 @@
             }
         },
 
-        _handleChangeURL: function(id) {
+        _handleChangeURL(id) {
             return function(e, newValue) {
 
-                if (this.state.submitting) return
+                if (this.state.submitting) {
+                    return;
+                }
 
                 if (newValue === "") {
                     this._handleDeleteURL(id)();
                     return
                 }
 
-                const {urls} = this.state
+                const {urls} = this.state;
 
-                urls[id] = newValue
+                urls[id] = newValue;
                 this.setState({
                     urls: urls
                 })
             }.bind(this)
         },
 
-        _handleDeleteURL: function(id) {
+        _handleDeleteURL(id) {
             return function() {
-                if (this.state.submitting) return
+                if (this.state.submitting) {
+                    return;
+                }
 
-                const {urls} = this.state
+                const {urls} = this.state;
 
-                urls.splice(id, 1)
+                urls.splice(id, 1);
 
                 this.setState({
                     urls: urls
@@ -64,23 +68,29 @@
             }.bind(this)
         },
 
-        _handleChangeCurrentURL: function(e, value) {
+        _handleChangeCurrentURL(e, value) {
             this.setState({
                 currentURL: value
             });
         },
 
-        _handleAddURL: function(e) {
+        _handleAddURL(e) {
 
-            if (this.state.submitting) return
+            if (this.state.submitting) {
+                return
+            }
 
-            if (e.type == "keydown" && e.keyCode !== 13) return
+            if (e.type === "keydown" && e.keyCode !== 13) {
+                return
+            }
 
-            const {currentURL, urls} = this.state
+            const {currentURL, urls} = this.state;
 
-            if (currentURL === "") return
+            if (currentURL === "") {
+                return
+            }
 
-            urls.push(currentURL)
+            urls.push(currentURL);
 
             this.setState({
                 currentURL: "",
@@ -88,34 +98,30 @@
             })
         },
 
-        _handleSubmit: function(e) {
+        _handleSubmit(e) {
 
-            e.preventDefault()
-            e.stopPropagation()
+            e.preventDefault();
+            e.stopPropagation();
 
-            const {dir, urls} = this.state
+            const {dir, urls} = this.state;
 
             this.setState({
                 urls: urls.filter(function(item, id) {
-                    PydioApi.getClient().request({get_action:'external_download', file:item, dir:dir}, function(t){
-                        PydioApi.getClient().parseXmlMessage(t.responseXML);
-                    });
-
+                    pydio.UI.displayMessage('ERROR', 'This feature is not implemented yet!');
                     return false;
                 })
             })
         },
 
-        render: function(){
+        render(){
 
-            let options;
             let messages = global.pydio.MessageHash;
 
             const style = {
                 marginLeft: 24
             };
 
-            let urls = this.state.urls
+            let urls = this.state.urls;
 
             let items = urls.map(function(item, id) {
                 return (
@@ -153,7 +159,7 @@
         }
     });
 
-    var ns = global.HTTPUploaderView || {};
+    const ns = global.HTTPUploaderView || {};
     ns.Uploader = Uploader;
     global.HTTPUploaderView = ns;
 
