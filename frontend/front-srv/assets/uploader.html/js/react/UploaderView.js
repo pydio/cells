@@ -7,7 +7,10 @@
         },
 
         getInitialState: function() {
-            return {};
+            return {
+                showOptions: false,
+                configs: UploaderModel.Configs.getInstance()
+            };
         },
 
         onDrop: function(files){
@@ -28,11 +31,13 @@
             e.preventDefault();
             UploaderModel.Store.getInstance().clearAll();
         },
-        toggleOptions: function(e){
+        toggleOptions: function(e) {
             if (e.preventDefault) e.preventDefault();
-            let crtOptions = this.state && this.state.options ? this.state.options : false;
+
+            const {showOptions = false, currentTarget} = this.state;
+
             this.setState({
-                options: !crtOptions,
+                showOptions: !showOptions,
                 optionsAnchorEl: e.currentTarget,
             });
         },
@@ -52,15 +57,13 @@
             let optionsEl;
             let messages = global.pydio.MessageHash;
             const connectDropTarget = this.props.connectDropTarget || (c => {return c});
-            const {options} = this.state;
+            const {configs, showOptions} = this.state;
 
-            let dismiss = function(e){
+            let dismiss = function(e) {
                 this.toggleOptions(e);
-                if(UploaderModel.Configs.getInstance().getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send', true)){
-                    UploaderModel.Store.getInstance().processNext();
-                }
             }.bind(this);
-            optionsEl = <UploadOptionsPane open={options} anchorEl={this.state.optionsAnchorEl} onDismiss={dismiss}/>
+
+            optionsEl = <UploadOptionsPane configs={configs} open={showOptions} anchorEl={this.state.optionsAnchorEl} onDismiss={dismiss}/>
 
             let folderButton, startButton;
             let e = global.document.createElement('input');
@@ -69,7 +72,7 @@
                 folderButton = <ReactMUI.RaisedButton style={{marginRight: 10}} label={messages['html_uploader.5']} onClick={this.openFolderPicker}/>;
             }
             e = null;
-            let configs = UploaderModel.Configs.getInstance();
+
             if(!configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send', true)){
                 startButton = <ReactMUI.FlatButton style={{marginRight: 10}} label={messages['html_uploader.11']} onClick={this.start} secondary={true}/>
             }
@@ -99,14 +102,16 @@
                         onFolderPicked={this.onFolderPicked}
                         style={{width:'100%', height: 300}}
                     >
-                        <TransfersList onDismiss={this.props.onDismiss}/>
+                        <TransfersList
+                            autoStart={configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send')}
+                            onDismiss={this.props.onDismiss}
+                        />
                     </PydioForm.FileDropZone>
+
                     {optionsEl}
                 </div>
             );
-
         }
-
     });
 
     DropUploader = Pydio.requireLib('hoc').dropProvider(DropUploader);
@@ -199,6 +204,7 @@
     const TransfersList = React.createClass({
 
         propTypes: {
+            autoStart: React.PropTypes.bool,
             onDismiss: React.PropTypes.func
         },
 
@@ -215,6 +221,16 @@
                 }
             }.bind(this));
             this.setState({items: store.getItems()});
+        },
+
+        componentWillReceiveProps(nextProps) {
+
+            const {autoStart} = nextProps;
+            const {items} = this.state;
+
+            if (autoStart && items["pending"].length) {
+                UploaderModel.Store.getInstance().processNext();
+            }
         },
 
         componentWillUnmount: function(){
@@ -270,49 +286,47 @@
             onDismiss: React.PropTypes.func.isRequired
         },
 
-        getInitialState: function(){
-            let configs = UploaderModel.Configs.getInstance();
-            return {
-                configs: configs
-            };
-        },
-
         updateField: function(fName, event){
+
+            const {configs} = this.props;
+
             if(fName === 'autostart'){
-                let toggleStart = this.state.configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send', true);
+                let toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send', true);
                 toggleStart = !toggleStart;
-                this.state.configs.updateOption('upload_auto_send', toggleStart, true);
+                configs.updateOption('upload_auto_send', toggleStart, true);
             }else if(fName === 'autoclose'){
-                let toggleStart = this.state.configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close', true);
+                let toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close', true);
                 toggleStart = !toggleStart;
-                this.state.configs.updateOption('upload_auto_close', toggleStart, true);
+                configs.updateOption('upload_auto_close', toggleStart, true);
             }else if(fName === 'existing'){
-                this.state.configs.updateOption('upload_existing', event.target.getSelectedValue());
+                configs.updateOption('upload_existing', event.target.getSelectedValue());
             }else if(fName === 'show_processed'){
-                let toggleShowProcessed = this.state.configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
+                let toggleShowProcessed = configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
                 toggleShowProcessed = !toggleShowProcessed;
-                this.state.configs.updateOption('upload_show_processed', toggleShowProcessed, true);
+                configs.updateOption('upload_show_processed', toggleShowProcessed, true);
             }
             this.setState({random: Math.random()});
         },
 
         radioChange: function(e, newValue){
-            this.state.configs.updateOption('upload_existing', newValue);
+            configs.updateOption('upload_existing', newValue);
             this.setState({random: Math.random()});
         },
 
         render: function(){
 
+            const {configs} = this.props;
+
             let maxUploadMessage
             if(!global.pydio.getPluginConfigs('mq').get('UPLOAD_ACTIVE')){
-                let maxUpload = this.state.configs.getOption('UPLOAD_MAX_SIZE');
+                let maxUpload = configs.getOption('UPLOAD_MAX_SIZE');
                 maxUploadMessage = global.pydio.MessageHash[282] + ': ' + PathUtils.roundFileSize(maxUpload, '');
                 maxUploadMessage = <div className="option-row">{maxUploadMessage}</div>;
             }
-            let toggleStart = this.state.configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
-            let toggleClose = this.state.configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close');
-            let toggleShowProcessed = this.state.configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
-            let overwriteType = this.state.configs.getOption('DEFAULT_EXISTING', 'upload_existing');
+            let toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
+            let toggleClose = configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close');
+            let toggleShowProcessed = configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
+            let overwriteType = configs.getOption('DEFAULT_EXISTING', 'upload_existing');
 
             return (
                 <MaterialUI.Popover
@@ -320,7 +334,9 @@
                   anchorEl={this.props.anchorEl}
                   anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}
                   targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                  onRequestClose={this.props.onDismiss}
+                  onRequestClose={(e) => {
+                      this.props.onDismiss(e)
+                  }}
                 >
                     <MaterialUI.List style={{width: 260}}>
                         <MaterialUI.ListItem primaryText={global.pydio.MessageHash[337]} rightToggle={<MaterialUI.Toggle toggled={toggleStart} defaultToggled={toggleStart} onToggle={this.updateField.bind(this, 'autostart')} />} />

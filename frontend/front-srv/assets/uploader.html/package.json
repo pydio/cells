@@ -1,7 +1,7 @@
 {
   "name": "uploader.html",
   "description": "XHR based Uploader",
-  "source_path":"js/react",
+  "source_path": "js/react",
   "main": "index.js",
   "author": "Abstrium SAS",
   "license": "agpl",
