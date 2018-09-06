@@ -50,6 +50,8 @@ It has these top-level messages:
 	MetaNamespaceRequest
 	GetBulkMetaRequest
 	BulkMetaResponse
+	HeadNodeRequest
+	HeadNodeResponse
 	CreateNodesRequest
 	SetBulkMetaRequest
 	DeleteBulkMetaRequest
@@ -75,6 +77,8 @@ It has these top-level messages:
 	FrontMessagesResponse
 	FrontSessionRequest
 	FrontSessionResponse
+	FrontEnrollAuthRequest
+	FrontEnrollAuthResponse
 	FrontBinaryRequest
 	FrontBinaryResponse
 	UserStateRequest

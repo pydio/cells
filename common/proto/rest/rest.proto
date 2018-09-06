@@ -528,6 +528,12 @@ service TreeService {
         };
     }
 
+    // Return node meta without the node content itself
+    rpc HeadNode(HeadNodeRequest) returns (HeadNodeResponse) {
+        option(google.api.http) = {
+            get: "/tree/stat/{Node}"
+        };
+    }
 }
 
 
@@ -883,6 +889,13 @@ service FrontendService {
     rpc FrontSession(FrontSessionRequest) returns (FrontSessionResponse) {
         option (google.api.http) = {
             post: "/frontend/session"
+            body: "*"
+        };
+    }
+    // Generic endpoint that can be implemented by 2FA systems for enrollment
+    rpc FrontEnrollAuth(FrontEnrollAuthRequest) returns (FrontEnrollAuthResponse){
+        option (google.api.http) = {
+            post: "/frontend/enroll"
             body: "*"
         };
     }

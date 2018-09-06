@@ -36,6 +36,14 @@ message BulkMetaResponse{
     repeated tree.Node Nodes = 1;
 }
 
+message HeadNodeRequest {
+    string Node = 1;
+}
+
+message HeadNodeResponse {
+    tree.Node Node = 1;
+}
+
 message CreateNodesRequest {
     repeated tree.Node Nodes = 1;
     bool Recursive = 2;

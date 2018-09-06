@@ -22597,8 +22597,6 @@ var Dashboard = _react2['default'].createClass({
             displayResultsState: searchResultData,
             hideResults: this.hideSearchResults,
             style: { margin: '-18px 20px 0' },
-            parameters: { get_action: 'admin_search_users', dir: this.props.dataModel.getContextNode().getPath() },
-            queryParameterName: 'query',
             limit: 50,
             textLabel: this.context.getMessage('user.7')
         });
@@ -23033,23 +23031,6 @@ var PoliciesBoard = _react2['default'].createClass({
         });
 
         return result;
-    },
-
-    /**
-     * @return Promise
-     */
-    getOrUpdateJwt: function getOrUpdateJwt() {
-        return new Promise(function (resolve, reject) {
-            var now = Math.floor(Date.now() / 1000);
-            if (!_pydioHttpApi2['default'].JWT_DATA || _pydioHttpApi2['default'].JWT_DATA['expirationTime'] <= now) {
-                _pydioHttpApi2['default'].getClient().request({ get_action: 'jwt', client_time: now }, function (t) {
-                    _pydioHttpApi2['default'].JWT_DATA = t.responseJSON;
-                    resolve(_pydioHttpApi2['default'].JWT_DATA['jwt']);
-                });
-            } else {
-                resolve(_pydioHttpApi2['default'].JWT_DATA['jwt']);
-            }
-        });
     },
 
     listPolicies: function listPolicies() {
@@ -23715,10 +23696,6 @@ var UsersSearchBox = (function (_React$Component) {
 })(_react2['default'].Component);
 
 UsersSearchBox.PropTypes = {
-    // Required
-    parameters: _react2['default'].PropTypes.object.isRequired,
-    queryParameterName: _react2['default'].PropTypes.string.isRequired,
-    // Other
     textLabel: _react2['default'].PropTypes.string,
     displayResults: _react2['default'].PropTypes.func,
     hideResults: _react2['default'].PropTypes.func,

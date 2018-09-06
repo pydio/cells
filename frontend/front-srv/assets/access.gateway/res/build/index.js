@@ -26,10 +26,6 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _dialogMultiDownloadDialog = require('./dialog/MultiDownloadDialog');
-
-var _dialogMultiDownloadDialog2 = _interopRequireDefault(_dialogMultiDownloadDialog);
-
 var _dialogOtherEditorPickerDialog = require('./dialog/OtherEditorPickerDialog');
 
 var _dialogOtherEditorPickerDialog2 = _interopRequireDefault(_dialogOtherEditorPickerDialog);
@@ -52,7 +48,6 @@ var _listenerIndex2 = _interopRequireDefault(_listenerIndex);
 
 exports.Callbacks = _callbackIndex2['default'];
 exports.Listeners = _listenerIndex2['default'];
-exports.MultiDownloadDialog = _dialogMultiDownloadDialog2['default'];
 exports.UploadDialog = _dialogUploadDialog2['default'];
 exports.OtherEditorPickerDialog = _dialogOtherEditorPickerDialog2['default'];
 exports.TreeDialog = _dialogTreeDialog2['default'];

@@ -18,7 +18,6 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import MultiDownloadDialog from './dialog/MultiDownloadDialog'
 import OtherEditorPickerDialog from './dialog/OtherEditorPickerDialog'
 import TreeDialog from './dialog/TreeDialog'
 import UploadDialog from './dialog/UploadDialog'
@@ -30,7 +29,6 @@ export {
     Callbacks,
     Listeners,
 
-    MultiDownloadDialog,
     UploadDialog,
     OtherEditorPickerDialog,
     TreeDialog

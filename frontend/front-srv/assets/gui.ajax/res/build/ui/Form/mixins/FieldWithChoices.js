@@ -52,56 +52,27 @@ exports['default'] = function (PydioComponent) {
             }
 
             var output = new Map();
-            if (choices.indexOf('json_list:') === 0) {
-                list_action = choices.replace('json_list:', '');
-                output.set('0', pydio.MessageHash['ajxp_admin.home.6']);
-                parsed = false;
-                PydioApi.getClient().request({ get_action: list_action }, (function (transport) {
-                    var _this = this;
-
-                    var list = transport.responseJSON.LIST;
-                    var newOutput = new Map();
-                    if (transport.responseJSON.HAS_GROUPS) {
-                        for (var key in list) {
-                            if (list.hasOwnProperty(key)) {
-                                // TODO: HANDLE OPTIONS GROUPS
-                                for (var index = 0; index < list[key].length; index++) {
-                                    newOutput.set(list[key][index].action, list[key][index].action);
-                                }
-                            }
-                        }
-                    } else {
-                        for (var key in list) {
-                            if (list.hasOwnProperty(key)) {
-                                newOutput.set(key, list[key]);
-                            }
-                        }
-                    }
-                    this.setState({ choices: newOutput }, function () {
-                        if (_this.onChoicesLoaded) _this.onChoicesLoaded(newOutput);
-                    });
-                }).bind(this));
-            } else if (choices.indexOf('json_file:') === 0) {
+            if (choices.indexOf('json_file:') === 0) {
                 parsed = false;
                 list_action = choices.replace('json_file:', '');
                 output.set('0', pydio.MessageHash['ajxp_admin.home.6']);
                 PydioApi.getClient().loadFile(list_action, (function (transport) {
-                    var _this2 = this;
+                    var _this = this;
 
                     var newOutput = new Map();
                     transport.responseJSON.map(function (entry) {
                         newOutput.set(entry.key, entry.label);
                     });
                     this.setState({ choices: newOutput }, function () {
-                        if (_this2.onChoicesLoaded) _this2.onChoicesLoaded(newOutput);
+                        if (_this.onChoicesLoaded) _this.onChoicesLoaded(newOutput);
                     });
                 }).bind(this));
-            } else if (choices == "PYDIO_AVAILABLE_LANGUAGES") {
+            } else if (choices === "PYDIO_AVAILABLE_LANGUAGES") {
                 pydio.listLanguagesWithCallback(function (key, label) {
                     output.set(key, label);
                 });
                 if (this.onChoicesLoaded) this.onChoicesLoaded(output);
-            } else if (choices == "PYDIO_AVAILABLE_REPOSITORIES") {
+            } else if (choices === "PYDIO_AVAILABLE_REPOSITORIES") {
                 if (pydio.user) {
                     pydio.user.repositories.forEach(function (repository) {
                         output.set(repository.getId(), repository.getLabel());

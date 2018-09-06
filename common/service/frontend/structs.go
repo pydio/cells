@@ -407,6 +407,7 @@ type Cregistry_contributions struct {
 	XMLName         xml.Name         `xml:"registry_contributions,omitempty" json:"registry_contributions,omitempty"`
 	Cactions        *Cactions        `xml:"actions,omitempty" json:"actions,omitempty"`
 	Cclient_configs *Cclient_configs `xml:"client_configs,omitempty" json:"client_configs,omitempty"`
+	Cextensions     *Cextensions     `xml:"extensions,omitempty" json:"extensions,omitempty"`
 }
 
 type Crepo struct {

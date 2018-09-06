@@ -173,10 +173,6 @@ var UsersSearchBox = (function (_React$Component) {
 })(_react2['default'].Component);
 
 UsersSearchBox.PropTypes = {
-    // Required
-    parameters: _react2['default'].PropTypes.object.isRequired,
-    queryParameterName: _react2['default'].PropTypes.string.isRequired,
-    // Other
     textLabel: _react2['default'].PropTypes.string,
     displayResults: _react2['default'].PropTypes.func,
     hideResults: _react2['default'].PropTypes.func,

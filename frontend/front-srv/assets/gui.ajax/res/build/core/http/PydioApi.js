@@ -21,8 +21,6 @@
 
 exports.__esModule = true;
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -168,44 +166,19 @@ var PydioApi = (function () {
         var additionalParameters = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
         var agent = navigator.userAgent || '';
-        var agentIsMobile = agent.indexOf('iPhone') != -1 || agent.indexOf('iPod') != -1 || agent.indexOf('iPad') != -1 || agent.indexOf('iOs') != -1;
+        var agentIsMobile = agent.indexOf('iPhone') !== -1 || agent.indexOf('iPod') !== -1 || agent.indexOf('iPad') !== -1 || agent.indexOf('iOs') !== -1;
         var hiddenForm = this._pydioObject && this._pydioObject.UI && this._pydioObject.UI.hasHiddenDownloadForm();
 
-        if (userSelection.getSelectedNodes().length == 1 && Object.keys(additionalParameters).length === 0) {
-            this.buildPresignedGetUrl(userSelection.getUniqueNode(), function (url) {
+        if (userSelection.getSelectedNodes().length === 1 && Object.keys(additionalParameters).length === 0) {
+            this.buildPresignedGetUrl(userSelection.getUniqueNode()).then(function (url) {
                 if (agentIsMobile || !hiddenForm) {
                     document.location.href = url;
                 } else {
                     _this._pydioObject.UI.sendDownloadToHiddenForm(userSelection, { presignedUrl: url });
                 }
             });
-            return;
-        }
-
-        var ajxpServerAccess = this._pydioObject.Parameters.get("ajxpServerAccess");
-        if (agentIsMobile || !hiddenForm) {
-            var downloadUrl = ajxpServerAccess + '&get_action=' + dlActionName;
-            if (additionalParameters) {
-                for (var param in additionalParameters) {
-                    if (additionalParameters.hasOwnProperty(param)) downloadUrl += "&" + param + "=" + additionalParameters[param];
-                }
-            }
-            if (userSelection) {
-                downloadUrl = userSelection.updateFormOrUrl(null, downloadUrl);
-            }
-            document.location.href = downloadUrl;
         } else {
-
-            var parameters = _extends({}, additionalParameters, { secure_token: this._pydioObject.Parameters.get("SECURE_TOKEN"), get_action: dlActionName });
-            var minisite_session = PydioApi.detectMinisiteSession(ajxpServerAccess);
-            if (minisite_session) {
-                parameters['minisite_session'] = minisite_session;
-            }
-            try {
-                pydio.UI.sendDownloadToHiddenForm(userSelection, parameters);
-            } catch (e) {
-                if (window.console) window.console.error("Error while submitting hidden form for download", e);
-            }
+            throw new Error('Multiple selection download is not supported yet.');
         }
     };
 
@@ -533,17 +506,17 @@ var PydioApi = (function () {
         });
     };
 
+    /**
+     *
+     * @param node
+     * @param hookName
+     * @param hookArg
+     * @param completeCallback
+     * @param additionalParams
+     */
+
     PydioApi.prototype.applyCheckHook = function applyCheckHook(node, hookName, hookArg, completeCallback, additionalParams) {
-        var params = {
-            get_action: "apply_check_hook",
-            file: node.getPath(),
-            hook_name: hookName,
-            hook_arg: hookArg
-        };
-        if (additionalParams) {
-            params = _utilLangUtils2['default'].objectMerge(params, additionalParams);
-        }
-        this.request(params, completeCallback, null, { async: false });
+        completeCallback();
     };
 
     /**
@@ -614,13 +587,6 @@ var PydioApi = (function () {
                 var errorId = false;
                 switch (result) {
                     case '1':
-                        try {
-                            if (child.getAttribute('remember_login') && child.getAttribute('remember_pass')) {
-                                PydioApi.storeRememberData();
-                            }
-                        } catch (e) {
-                            Logger.error('Error after login, could prevent registry loading!', e);
-                        }
                         this._pydioObject.loadXmlRegistry();
                         break;
                     case '0':
@@ -672,121 +638,6 @@ var PydioApi = (function () {
             this._pydioObject.getContextHolder().multipleNodesReload(reloadNodes);
         }
         return !error;
-    };
-
-    /**
-     * Submits a form using Connexion class.
-     * @param formName String The id of the form
-     * @param post Boolean Whether to POST or GET
-     * @param completeCallback Function Callback to be called on complete
-     */
-
-    PydioApi.prototype.submitForm = function submitForm(formName) {
-        var post = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
-        var completeCallback = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-
-        var params = {};
-        // TODO: UI IMPLEMENTATION
-        $(formName).getElements().each(function (fElement) {
-            var fValue = fElement.getValue();
-            if (fElement.name == 'get_action' && fValue.substr(0, 4) == 'http') {
-                fValue = PathUtils.getBasename(fValue);
-            }
-            if (fElement.type == 'radio' && !fElement.checked) {
-                return;
-            }
-            if (params[fElement.name] && fElement.name.endsWith('[]')) {
-                var existing = params[fElement.name];
-                if (typeof existing == 'string') {
-                    existing = [existing];
-                }
-                existing.push(fValue);
-                params[fElement.name] = existing;
-            } else {
-                params[fElement.name] = fValue;
-            }
-        });
-        if (this._pydioObject.getContextNode()) {
-            params['dir'] = this._pydioObject.getContextNode().getPath();
-        }
-        var onComplete = undefined;
-        if (completeCallback) {
-            onComplete = completeCallback;
-        } else {
-            onComplete = (function (transport) {
-                this.parseXmlMessage(transport.responseXML);
-            }).bind(this);
-        }
-        this.request(params, onComplete, null, { method: post ? 'post' : 'get' });
-    };
-
-    PydioApi.prototype.postSelectionWithAction = function postSelectionWithAction(actionName) {
-        var callback = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-        var selectionModel = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-        var additionalParameters = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
-
-        if (!selectionModel) {
-            selectionModel = this._pydioObject.getContextHolder();
-        }
-        var params = {
-            get_action: actionName,
-            dir: selectionModel.getContextNode().getPath()
-        };
-        params['nodes[]'] = selectionModel.getFileNames();
-        if (additionalParameters) {
-            params = Object.assign(params, additionalParameters);
-        }
-        this.request(params, callback);
-    };
-
-    PydioApi.storeRememberData = function storeRememberData() {
-        if (!CookiesManager.supported()) {
-            return false;
-        }
-        var cManager = new CookiesManager({
-            expires: 3600 * 24 * 10,
-            path: '/',
-            secure: true
-        });
-        cManager.putCookie('remember', 'true');
-    };
-
-    PydioApi.clearRememberData = function clearRememberData() {
-        if (!CookiesManager.supported()) {
-            return false;
-        }
-        var cManager = new CookiesManager({
-            path: '/',
-            secure: true
-        });
-        return cManager.removeCookie('remember');
-    };
-
-    PydioApi.hasRememberData = function hasRememberData() {
-        if (!CookiesManager.supported()) {
-            return false;
-        }
-        var cManager = new CookiesManager({
-            path: '/',
-            secure: true
-        });
-        return cManager.getCookie('remember') === 'true';
-    };
-
-    PydioApi.prototype.tryToLogUserFromRememberData = function tryToLogUserFromRememberData() {
-        if (!CookiesManager.supported()) {
-            return false;
-        }
-        if (PydioApi.hasRememberData()) {
-            this.request({
-                get_action: 'login',
-                userid: 'notify',
-                password: 'notify',
-                cookie_login: 'true'
-            }, (function (transport) {
-                this.parseXmlMessage(transport.responseXML);
-            }).bind(this), null, { async: false });
-        }
     };
 
     return PydioApi;

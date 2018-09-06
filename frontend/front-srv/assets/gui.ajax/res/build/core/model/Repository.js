@@ -290,7 +290,7 @@ var Repository = (function () {
       this._lastConnection = repoNode.getAttribute('last_connection');
     }
 
-    if (repoNode.getAttribute('user_editable_repository') && repoNode.getAttribute('user_editable_repository') == "true") {
+    if (repoNode.getAttribute('user_editable_repository') && repoNode.getAttribute('user_editable_repository') === "true") {
       this.userEditable = true;
     }
     if (repoNode.getAttribute('access_type')) {
@@ -304,21 +304,17 @@ var Repository = (function () {
     }
     for (var i = 0; i < repoNode.childNodes.length; i++) {
       var childNode = repoNode.childNodes[i];
-      if (childNode.nodeName == "label") {
+      if (childNode.nodeName === "label") {
         this.setLabel(childNode.firstChild.nodeValue);
-      } else if (childNode.nodeName == "description") {
+      } else if (childNode.nodeName === "description") {
         this.description = childNode.firstChild.nodeValue;
-      } else if (childNode.nodeName == "client_settings") {
-        if (childNode.getAttribute('icon_tpl_id')) {
-          this.setIcon(window.pydio.Parameters.get('serverAccessPath') + '&get_action=get_user_template_logo&template_id=' + childNode.getAttribute('icon_tpl_id') + '&icon_format=small');
-        } else {
-          this.setIcon(childNode.getAttribute('icon'));
-        }
+      } else if (childNode.nodeName === "client_settings") {
+        this.setIcon(childNode.getAttribute('icon'));
         for (var j = 0; j < childNode.childNodes.length; j++) {
           var subCh = childNode.childNodes[j];
-          if (subCh.nodeName == 'resources') {
+          if (subCh.nodeName === 'resources') {
             this.resourcesManager.loadFromXmlNode(subCh);
-          } else if (subCh.nodeName == 'node_provider') {
+          } else if (subCh.nodeName === 'node_provider') {
             var nodeProviderName = subCh.getAttribute("ajxpClass");
             var nodeProviderOptions = JSON.parse(subCh.getAttribute("ajxpOptions"));
             this.nodeProviderDef = { name: nodeProviderName, options: nodeProviderOptions };

@@ -109,14 +109,6 @@ var _PydioContextConsumer = require('./PydioContextConsumer');
 
 var _PydioContextConsumer2 = _interopRequireDefault(_PydioContextConsumer);
 
-var _compatCompatMigrationDialog = require('./compat/CompatMigrationDialog');
-
-var _compatCompatMigrationDialog2 = _interopRequireDefault(_compatCompatMigrationDialog);
-
-var _compatCompatModal = require('./compat/CompatModal');
-
-var _compatCompatModal2 = _interopRequireDefault(_compatCompatModal);
-
 var _Moment = require('./Moment');
 
 var _Moment2 = _interopRequireDefault(_Moment);
@@ -154,8 +146,6 @@ exports.HiddenDownloadForm = _HiddenDownloadForm2['default'];
 exports.withProgressiveBg = _withProgressiveBg2['default'];
 exports.PydioContextProvider = _PydioContextProvider2['default'];
 exports.PydioContextConsumer = _PydioContextConsumer2['default'];
-exports.CompatMigrationDialog = _compatCompatMigrationDialog2['default'];
-exports.CompatModal = _compatCompatModal2['default'];
 exports.Tooltip = _materialUiInternalTooltip2['default'];
 exports.moment = _Moment2['default'];
 exports.TasksPanel = _tasksTasksPanel2['default'];

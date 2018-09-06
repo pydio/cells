@@ -200,7 +200,6 @@ var Connexion = (function () {
 
         var aSync = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
-        Connexion.log(this._parameters.get("get_action"), aSync ? 'async' : 'sync');
         this.addSecureToken();
         this.addServerPermanentParams();
         this.showLoader();

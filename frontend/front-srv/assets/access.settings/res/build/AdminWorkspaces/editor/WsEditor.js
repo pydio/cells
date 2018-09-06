@@ -82,8 +82,9 @@ var WsEditor = (function (_React$Component) {
             var _props = this.props;
             var closeEditor = _props.closeEditor;
             var reloadList = _props.reloadList;
+            var pydio = _props.pydio;
 
-            if (confirm('Are you sure?')) {
+            if (confirm(pydio.MessageHash['settings.35'])) {
                 container.remove().then(function () {
                     reloadList();
                     closeEditor();

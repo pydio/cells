@@ -28,7 +28,6 @@ var docReady = require('doc-ready');
 var Connexion = require('./http/Connexion');
 /**
  * Main BootLoader.
- * Defaults params for constructor should be {} and content.php?get_action=get_boot_conf
  */
 
 var PydioBootstrap = (function () {

@@ -19,6 +19,7 @@
  */
 
 import Observable from '../lang/Observable'
+import PydioApi from '../http/PydioApi'
 
 /**
  * A monitor for user "idle" state to prevent session timing out.
@@ -47,7 +48,9 @@ export default class ActivityMonitor extends Observable{
         this._longTaskRunning   =  false;
 
 
-        if(!serverSessionTime) return;
+        if(!serverSessionTime) {
+            return;
+        }
 
         if( serverSessionTime <= 60 * this._renewMinutes ){
             this._renewMinutes = 2;
@@ -90,8 +93,12 @@ export default class ActivityMonitor extends Observable{
     }
 
     startServerLongPoller(){
-        if(this._serverInterval) return;
-        this._serverInterval = setInterval(this.serverPoller.bind(this), Math.min((Math.pow(2,31)-1), this._renewTime*1000));
+        if(this._serverInterval) {
+            return;
+        }
+        this._serverInterval = setInterval(()=>{
+            PydioApi.getRestClient().getOrUpdateJwt().then(() => {});
+        }, Math.min((Math.pow(2,31)-1), this._renewTime*1000));
     }
 
     stopServerLongPoller(){
@@ -170,13 +177,6 @@ export default class ActivityMonitor extends Observable{
      */
     updateLastActive() {
         this._lastActive = this.getNow();
-    }
-
-    /**
-     * Pings the server
-     */
-    serverPoller(){
-        PydioApi.getClient().request({get_action:'ping'}, null, null, {method: 'get', discrete:true});
     }
 
     /**

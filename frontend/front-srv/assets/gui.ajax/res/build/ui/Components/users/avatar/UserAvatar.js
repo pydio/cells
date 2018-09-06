@@ -122,9 +122,11 @@ var UserAvatar = (function (_React$Component) {
         }
         UsersApi.getUserPromise(userId, idmUser).then(function (userObject) {
             if (userObject.isLocal()) {
-                _this._userLoggedObs = function () {
+                _this._userLoggedObs = function (eventUser) {
                     _this._userLoggedObs = null;
-                    _this.loadPublicData(userId);
+                    if (eventUser !== null) {
+                        _this.loadPublicData(userId);
+                    }
                 };
                 pydio.observeOnce('user_logged', _this._userLoggedObs);
             }

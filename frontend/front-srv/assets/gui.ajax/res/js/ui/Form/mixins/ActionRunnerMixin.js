@@ -37,7 +37,7 @@ export default {
             return;
         }
         if(this.props.applyButtonAction){
-            let parameters = {get_action:firstPart};
+            let parameters = {action:firstPart};
             if(choicesValue.length > 1){
                 parameters['action_plugin_id'] = choicesValue.shift();
                 parameters['action_plugin_method'] = choicesValue.shift();

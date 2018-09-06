@@ -1,6 +1,6 @@
 (function(global){
 
-    const {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} = require('pydio/http/rest-api');
+    const {TreeServiceApi, RestCreateNodesRequest, RestGetBulkMetaRequest, TreeNode, TreeNodeType} = require('pydio/http/rest-api');
 
     class StatusItem extends Observable{
         constructor(type){
@@ -81,36 +81,6 @@
         getRelativePath(){
             return this._relativePath;
         }
-        buildQueryString(){
-
-            let fullPath = this._targetNode.getPath();
-            if(this._relativePath) {
-                fullPath += PathUtils.getDirname(this._relativePath);
-            }
-            let currentRepo = global.pydio.user.activeRepository;
-
-            if (fullPath.normalize) {
-                fullPath = fullPath.normalize();
-            }
-            let queryString = '&get_action=upload&xhr_uploader=true&dir=' + encodeURIComponent(fullPath);
-
-            let dataModel = global.pydio.getContextHolder();
-            let nodeName = PathUtils.getBasename(this._file.name);
-            let overwriteStatus = UploaderConfigs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
-            if(overwriteStatus === 'rename'){
-                queryString += '&auto_rename=true';
-            }else if(overwriteStatus === 'alert' && !this._relativePath && currentRepo === this._repositoryId){
-                if(dataModel.fileNameExists(nodeName, false, this._targetNode)){
-                    if(!global.confirm(global.pydio.MessageHash['124'])){
-                        throw new Error(global.pydio.MessageHash['71']);
-                    }
-                }
-            }
-            if(currentRepo !== this._repositoryId){
-                queryString += '&tmp_repository_id=' + this._repositoryId;
-            }
-            return queryString;
-        }
         _parseXHRResponse(){
             if(!this.xhr) return;
             if (this.xhr.responseXML){
@@ -128,7 +98,7 @@
             }.bind(this);
 
             let progress = function(computableEvent){
-                if(this._status === 'error'){
+                if (this._status === 'error') {
                     return;
                 }
                 let percentage = Math.round((computableEvent.loaded * 100) / computableEvent.total);
@@ -142,7 +112,6 @@
 
             try{
                 UploaderConfigs.getInstance().extensionAllowed(this);
-                this.buildQueryString();
             }catch(e){
                 this.onError(e.message);
                 completeCallback();
@@ -153,7 +122,6 @@
                 this.onError(global.pydio.MessageHash[210]+": " +e.message);
                 completeCallback();
             }.bind(this));
-
         }
 
         _doAbort(completeCallback){
@@ -165,7 +133,49 @@
             this.setStatus('error');
         }
 
-        uploadPresigned(completeCallback, progressCallback, errorCallback){
+        file_newpath(fullpath) {
+            return new Promise(async function (resolve) {
+                const lastSlash = fullpath.lastIndexOf('/')
+                const pos = fullpath.lastIndexOf('.')
+                let path = fullpath;
+                let ext = '';
+
+                if (pos  > -1 && lastSlash < pos) {
+                    path = fullpath.substring(0, pos);
+                    ext = fullpath.substring(pos);
+                }
+
+                let newPath = fullpath;
+                let counter = 0;
+
+                let exists = await this._fileExists(newPath);
+                while (exists) {
+                    newPath = path + '_' + counter + ext;
+                    counter++;
+                    exists = await this._fileExists(newPath)
+                }
+
+                resolve(newPath);
+            }.bind(this))
+        }
+
+        _fileExists(fullpath) {
+            return new Promise(resolve => {
+                const api = new TreeServiceApi(PydioApi.getRestClient());
+
+                api.headNode(fullpath).then(node => {
+                    if (node.Node) {
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                }).catch(() => resolve(false))
+            })
+        }
+
+        async uploadPresigned(completeCallback, progressCallback, errorCallback){
+
+            const slug = global.pydio.user.getActiveRepositoryObject().getSlug();
 
             let fullPath = this._targetNode.getPath();
             if(this._relativePath) {
@@ -177,31 +187,23 @@
                 fullPath = fullPath.normalize('NFC');
             }
 
+            // Checking file already exists or not
+            let overwriteStatus = UploaderConfigs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
+
+            if (overwriteStatus === 'rename') {
+                fullPath = await this.file_newpath(slug + fullPath)
+
+                fullPath = fullPath.replace(slug, '')
+            } else if (overwriteStatus === 'alert') {
+                if (!global.confirm(global.pydio.MessageHash[124])) {
+                    errorCallback(new Error(global.pydio.MessageHash[71]));
+                    return;
+                }
+            }
+
             PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(xhr => {
                 this.xhr = xhr;
             });
-            return;
-            /*
-            let params = {
-                get_action:'presigned',
-                file_0:fullPath,
-                cmd:'PUT'
-            };
-            const client = PydioApi.getClient();
-            client.request(params,(t) => {
-                if(t.responseJSON){
-                    let response = t.responseJSON;
-                    const url = response.signedUrl;
-                    const jwt = response.jwt;
-                    this.xhr = client.uploadFile(this._file,'','',completeCallback,errorCallback,progressCallback, url, {method: 'PUT', customHeaders:{'X-Pydio-Bearer':jwt}});
-                } else  if(t.responseXML){
-                    const res = client.parseXmlMessage(t.responseXML);
-                    if (res === false){
-                        errorCallback(new Error(client.LAST_ERROR));
-                    }
-                }
-            });
-            */
         }
     }
 
@@ -231,12 +233,11 @@
             const api = new TreeServiceApi(PydioApi.getRestClient());
             const request = new RestCreateNodesRequest();
             const node = new TreeNode();
-            console.log(node, this._targetNode)
+
             node.Path = fullPath;
             node.Type = TreeNodeType.constructFromObject('COLLECTION');
             request.Nodes = [node];
             api.createNodes(request).then(collection => {
-                console.log('Created nodes', collection.Children);
                 this.setStatus('loaded');
                 completeCallback();
             });
@@ -472,12 +473,12 @@
 
         handleFolderPickerResult(files, targetNode){
             var folders = {};
-            for(var i=0;i<files.length;i++){
+            for (var i=0; i<files.length; i++) {
                 var relPath = null;
-                if(files[i]['webkitRelativePath']){
+                if (files[i]['webkitRelativePath']) {
                     relPath = '/' + files[i]['webkitRelativePath'];
                     var folderPath = PathUtils.getDirname(relPath);
-                    if(!folders[folderPath]){
+                    if (!folders[folderPath]) {
                         this.pushFolder(new FolderItem(folderPath, targetNode));
                         folders[folderPath] = true;
                     }
@@ -515,7 +516,7 @@
                         if(!accumulator) oThis.pushFolder(folderItem);
                         else accumulator.push(folderItem);
 
-                        this.recurseDirectory(entry, function(fileEntry){
+                        this.recurseDirectory(entry, function(fileEntry) {
                             var relativePath = fileEntry.fullPath;
                             fileEntry.file(function(File) {
                                 if(File.size == 0) return;
@@ -579,10 +580,7 @@
             };
 
             readEntries(); // Start reading dirs.
-
         }
-
-
     }
 
     class UploaderConfigs extends Observable{
@@ -684,7 +682,6 @@
             pydio.user.setPreference("gui_preferences", guiPref, true);
             pydio.user.savePreference("gui_preferences");
         }
-
     }
 
     var ns = global.UploaderModel || {};

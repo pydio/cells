@@ -37,6 +37,8 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
 var ShareHelper = (function () {
     function ShareHelper() {
         _classCallCheck(this, ShareHelper);
@@ -154,20 +156,22 @@ var ShareHelper = (function () {
             var templateId = _ShareHelper$prepareEmail.templateId;
             var templateData = _ShareHelper$prepareEmail.templateData;
 
-            var users = Object.keys(targetUsers).map(function (k) {
+            var mail = new _pydioHttpRestApi.MailerMail();
+            var api = new _pydioHttpRestApi.MailerServiceApi(_pydioHttpApi2['default'].getRestClient());
+            mail.To = Object.keys(targetUsers).map(function (k) {
                 var u = targetUsers[k];
-                return u.IdmUser ? u.IdmUser.Login : u.id;
+                var to = new _pydioHttpRestApi.MailerUser();
+                if (u.IdmUser) {
+                    to.Uuid = u.IdmUser.Login;
+                } else {
+                    to.Uuid = u.id;
+                }
+                return to;
             });
-            var params = {
-                get_action: 'send_mail',
-                'emails[]': users,
-                template_id: templateId,
-                template_data: JSON.stringify(templateData)
-            };
-            var client = _pydioHttpApi2['default'].getClient();
-            client.request(params, function (transport) {
-                var res = client.parseXmlMessage(transport.responseXML);
-                callback(res);
+            mail.TemplateId = templateId;
+            mail.TemplateData = templateData;
+            api.send(mail).then(function () {
+                callback();
             });
         }
 

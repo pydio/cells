@@ -182,37 +182,19 @@ var WorkspaceEntry = React.createClass({
     },
 
     handleAccept: function handleAccept() {
-        PydioApi.getClient().request({
-            'get_action': 'accept_invitation',
-            'remote_share_id': this.props.workspace.getShareId()
-        }, (function () {
-            // Switching status to decline
-            this.props.workspace.setAccessStatus('accepted');
-
-            this.handleCloseAlert();
-            this.onClick();
-        }).bind(this), (function () {
-            this.handleCloseAlert();
-        }).bind(this));
+        this.props.workspace.setAccessStatus('accepted');
+        this.handleCloseAlert();
+        this.onClick();
     },
 
     handleDecline: function handleDecline() {
-        PydioApi.getClient().request({
-            'get_action': 'reject_invitation',
-            'remote_share_id': this.props.workspace.getShareId()
-        }, (function () {
-            // Switching status to decline
-            this.props.workspace.setAccessStatus('declined');
-
-            this.props.pydio.fire("repository_list_refreshed", {
-                list: this.props.pydio.user.getRepositoriesList(),
-                active: this.props.pydio.user.getActiveRepository()
-            });
-
-            this.handleCloseAlert();
-        }).bind(this), (function () {
-            this.handleCloseAlert();
-        }).bind(this));
+        // Switching status to decline
+        this.props.workspace.setAccessStatus('declined');
+        this.props.pydio.fire("repository_list_refreshed", {
+            list: this.props.pydio.user.getRepositoriesList(),
+            active: this.props.pydio.user.getActiveRepository()
+        });
+        this.handleCloseAlert();
     },
 
     handleOpenAlert: function handleOpenAlert(mode, event) {
@@ -236,16 +218,6 @@ var WorkspaceEntry = React.createClass({
     handleCloseAlert: function handleCloseAlert() {
         ReactDOM.unmountComponentAtNode(this.wrapper);
         this.wrapper.remove();
-    },
-
-    handleRemoveTplBasedWorkspace: function handleRemoveTplBasedWorkspace(event) {
-        event.stopPropagation();
-        if (!global.confirm(this.props.pydio.MessageHash['424'])) {
-            return;
-        }
-        PydioApi.getClient().request({ get_action: 'user_delete_repository', repository_id: this.props.workspace.getId() }, function (transport) {
-            PydioApi.getClient().parseXmlMessage(transport.responseXML);
-        });
     },
 
     onClick: function onClick() {
@@ -372,8 +344,6 @@ var WorkspaceEntry = React.createClass({
         } else if (workspace.getRepositoryType() === "remote" && !current) {
             // Remote share but already accepted, add delete
             additionalAction = React.createElement('span', { className: 'workspace-additional-action mdi mdi-close', onClick: this.handleOpenAlert.bind(this, 'reject_accepted'), title: messages['550'] });
-        } else if (workspace.userEditable && !current) {
-            additionalAction = React.createElement('span', { className: 'workspace-additional-action mdi mdi-close', onClick: this.handleRemoveTplBasedWorkspace, title: messages['423'] });
         }
 
         if (this.state && this.state.loading) {

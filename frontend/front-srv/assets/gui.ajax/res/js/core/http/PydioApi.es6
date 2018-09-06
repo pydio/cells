@@ -120,44 +120,19 @@ class PydioApi{
     downloadSelection(userSelection, dlActionName='download', additionalParameters = {}){
 
         const agent = navigator.userAgent || '';
-        const agentIsMobile = (agent.indexOf('iPhone')!=-1||agent.indexOf('iPod')!=-1||agent.indexOf('iPad')!=-1||agent.indexOf('iOs')!=-1);
+        const agentIsMobile = (agent.indexOf('iPhone')!==-1||agent.indexOf('iPod')!==-1||agent.indexOf('iPad')!==-1||agent.indexOf('iOs')!==-1);
         const hiddenForm = this._pydioObject && this._pydioObject.UI && this._pydioObject.UI.hasHiddenDownloadForm();
 
-        if (userSelection.getSelectedNodes().length == 1 && Object.keys(additionalParameters).length === 0) {
-            this.buildPresignedGetUrl(userSelection.getUniqueNode(), (url) => {
+        if (userSelection.getSelectedNodes().length === 1 && Object.keys(additionalParameters).length === 0) {
+            this.buildPresignedGetUrl(userSelection.getUniqueNode()).then(url => {
                 if(agentIsMobile || !hiddenForm){
                     document.location.href = url;
                 } else {
                     this._pydioObject.UI.sendDownloadToHiddenForm(userSelection, {presignedUrl: url});
                 }
             });
-            return;
-        }
-
-        const ajxpServerAccess = this._pydioObject.Parameters.get("ajxpServerAccess");
-        if(agentIsMobile || !hiddenForm){
-            let downloadUrl = ajxpServerAccess + '&get_action=' + dlActionName;
-            if(additionalParameters){
-                for(let param in additionalParameters){
-                    if(additionalParameters.hasOwnProperty(param)) downloadUrl += "&" + param + "=" + additionalParameters[param];
-                }
-            }
-            if(userSelection){
-                downloadUrl = userSelection.updateFormOrUrl(null,downloadUrl);
-            }
-            document.location.href=downloadUrl;
-        }else{
-
-            let parameters = {...additionalParameters, secure_token:this._pydioObject.Parameters.get("SECURE_TOKEN"), get_action: dlActionName};
-            const minisite_session = PydioApi.detectMinisiteSession(ajxpServerAccess);
-            if(minisite_session){
-                parameters['minisite_session'] = minisite_session;
-            }
-            try{
-                pydio.UI.sendDownloadToHiddenForm(userSelection, parameters);
-            }catch(e){
-                if(window.console) window.console.error("Error while submitting hidden form for download", e);
-            }
+        } else {
+            throw new Error('Multiple selection download is not supported yet.');
         }
 
     }
@@ -472,17 +447,16 @@ class PydioApi{
 
     }
 
+    /**
+     *
+     * @param node
+     * @param hookName
+     * @param hookArg
+     * @param completeCallback
+     * @param additionalParams
+     */
     applyCheckHook(node, hookName, hookArg, completeCallback, additionalParams){
-        let params = {
-            get_action : "apply_check_hook",
-            file       : node.getPath(),
-            hook_name  : hookName,
-            hook_arg   : hookArg
-        };
-        if(additionalParams){
-            params = LangUtils.objectMerge(params, additionalParams);
-        }
-        this.request(params, completeCallback, null, {async:false});
+        completeCallback();
     }
 
     /**
@@ -559,13 +533,6 @@ class PydioApi{
                 let errorId = false;
                 switch(result){
                     case '1':
-                        try{
-                            if(child.getAttribute('remember_login') && child.getAttribute('remember_pass')){
-                                PydioApi.storeRememberData();
-                            }
-                        }catch(e){
-                            Logger.error('Error after login, could prevent registry loading!', e);
-                        }
                         this._pydioObject.loadXmlRegistry();
                         break;
                     case '0':
@@ -621,113 +588,6 @@ class PydioApi{
             this._pydioObject.getContextHolder().multipleNodesReload(reloadNodes);
         }
         return !error;
-    }
-
-    /**
-     * Submits a form using Connexion class.
-     * @param formName String The id of the form
-     * @param post Boolean Whether to POST or GET
-     * @param completeCallback Function Callback to be called on complete
-     */
-    submitForm(formName, post = true, completeCallback = null)
-    {
-        let params = {};
-        // TODO: UI IMPLEMENTATION
-        $(formName).getElements().each(function(fElement){
-            let fValue = fElement.getValue();
-            if(fElement.name == 'get_action' && fValue.substr(0,4) == 'http'){
-                fValue = PathUtils.getBasename(fValue);
-            }
-            if(fElement.type == 'radio' && !fElement.checked) {
-                return;
-            }
-            if(params[fElement.name] && fElement.name.endsWith('[]')){
-                let existing = params[fElement.name];
-                if(typeof(existing) == 'string') {
-                    existing = [existing];
-                }
-                existing.push(fValue);
-                params[fElement.name] = existing;
-            }else{
-                params[fElement.name] = fValue;
-            }
-        });
-        if(this._pydioObject.getContextNode()){
-            params['dir'] = this._pydioObject.getContextNode().getPath();
-        }
-        let onComplete;
-        if(completeCallback){
-            onComplete = completeCallback;
-        }else{
-            onComplete = function(transport){this.parseXmlMessage(transport.responseXML);}.bind(this) ;
-        }
-        this.request(params, onComplete, null, {method:post?'post':'get'});
-    }
-
-    postSelectionWithAction(actionName, callback=null, selectionModel=null, additionalParameters=null){
-        if(!selectionModel){
-            selectionModel = this._pydioObject.getContextHolder();
-        }
-        let params = {
-            get_action:actionName,
-            dir: selectionModel.getContextNode().getPath()
-        };
-        params['nodes[]'] = selectionModel.getFileNames();
-        if(additionalParameters){
-            params = Object.assign(params, additionalParameters);
-        }
-        this.request(params, callback);
-
-    }
-
-    static storeRememberData(){
-        if(!CookiesManager.supported()) {
-            return false;
-        }
-        let cManager = new CookiesManager({
-            expires: 3600*24*10,
-            path:'/',
-            secure: true
-        });
-        cManager.putCookie('remember', 'true');
-    }
-
-    static clearRememberData(){
-        if(!CookiesManager.supported()) {
-            return false;
-        }
-        let cManager = new CookiesManager({
-            path:'/',
-            secure: true
-        });
-        return cManager.removeCookie('remember');
-    }
-
-    static hasRememberData(){
-        if(!CookiesManager.supported()) {
-            return false;
-        }
-        let cManager = new CookiesManager({
-            path:'/',
-            secure: true
-        });
-        return (cManager.getCookie('remember') === 'true');
-    }
-
-    tryToLogUserFromRememberData(){
-        if(!CookiesManager.supported()) {
-            return false;
-        }
-        if(PydioApi.hasRememberData()){
-            this.request({
-                get_action:'login',
-                userid:'notify',
-                password:'notify',
-                cookie_login:'true'
-            }, function(transport){
-                this.parseXmlMessage(transport.responseXML);
-            }.bind(this), null, {async:false});
-        }
     }
 
 }

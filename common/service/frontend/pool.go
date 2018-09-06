@@ -73,6 +73,7 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 	registry := &Cpydio_registry{}
 	registry.Cplugins = &Cplugins{}
 	registry.Cactions = &Cactions{}
+	registry.Cextensions = &Cextensions{}
 	registry.Cclient_configs = &Cclient_configs{}
 	registry.Cuser = status.User.Publish(status, p)
 
@@ -132,6 +133,9 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 			registry.Cclient_configs.Ccomponent_config = append(registry.Cclient_configs.Ccomponent_config, plugin.GetRegistryContributions().Cclient_configs.Ccomponent_config...)
 			registry.Cclient_configs.Ctemplate = append(registry.Cclient_configs.Ctemplate, plugin.GetRegistryContributions().Cclient_configs.Ctemplate...)
 			registry.Cclient_configs.Ctemplate_part = append(registry.Cclient_configs.Ctemplate_part, plugin.GetRegistryContributions().Cclient_configs.Ctemplate_part...)
+		}
+		if contribs != nil && contribs.Cextensions != nil {
+			registry.Cextensions.Cextension = append(registry.Cextensions.Cextension, contribs.Cextensions.Cextension...)
 		}
 
 	}

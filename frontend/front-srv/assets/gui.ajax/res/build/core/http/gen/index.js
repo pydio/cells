@@ -569,6 +569,14 @@ var _modelRestFrontBootConfResponse = require('./model/RestFrontBootConfResponse
 
 var _modelRestFrontBootConfResponse2 = _interopRequireDefault(_modelRestFrontBootConfResponse);
 
+var _modelRestFrontEnrollAuthRequest = require('./model/RestFrontEnrollAuthRequest');
+
+var _modelRestFrontEnrollAuthRequest2 = _interopRequireDefault(_modelRestFrontEnrollAuthRequest);
+
+var _modelRestFrontEnrollAuthResponse = require('./model/RestFrontEnrollAuthResponse');
+
+var _modelRestFrontEnrollAuthResponse2 = _interopRequireDefault(_modelRestFrontEnrollAuthResponse);
+
 var _modelRestFrontLogMessage = require('./model/RestFrontLogMessage');
 
 var _modelRestFrontLogMessage2 = _interopRequireDefault(_modelRestFrontLogMessage);
@@ -2013,6 +2021,20 @@ exports.
  * @property {module:model/RestFrontBootConfResponse}
  */
 RestFrontBootConfResponse = _modelRestFrontBootConfResponse2['default'];
+exports.
+
+/**
+ * The RestFrontEnrollAuthRequest model constructor.
+ * @property {module:model/RestFrontEnrollAuthRequest}
+ */
+RestFrontEnrollAuthRequest = _modelRestFrontEnrollAuthRequest2['default'];
+exports.
+
+/**
+ * The RestFrontEnrollAuthResponse model constructor.
+ * @property {module:model/RestFrontEnrollAuthResponse}
+ */
+RestFrontEnrollAuthResponse = _modelRestFrontEnrollAuthResponse2['default'];
 exports.
 
 /**

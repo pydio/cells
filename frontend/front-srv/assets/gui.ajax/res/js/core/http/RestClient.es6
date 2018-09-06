@@ -96,27 +96,35 @@ class JwtApiClient extends ApiClient{
     }
 
     /**
-     *
+     * Create AuthInfo request with type "credentials"
      * @param login string
      * @param password string
      * @param reloadRegistry bool
      * @return {Promise<any>}
      */
     jwtFromCredentials(login, password, reloadRegistry = true) {
-        const request = RestFrontSessionRequest.constructFromObject({Login:login, Password: password});
+        return this.jwtWithAuthInfo({login, password, type:"credentials"}, reloadRegistry);
+    }
+
+    jwtWithAuthInfo(authInfo, reloadRegistry = true) {
+        const request = new RestFrontSessionRequest();
+        request.AuthInfo = authInfo;
         return this.jwtEndpoint(request).then(response => {
-            if(response.data && response.data.JWT){
+            if(response.data && response.data.JWT) {
                 JwtApiClient.storeJwtLocally(response.data);
-                if(reloadRegistry){
+                if (reloadRegistry) {
                     let targetRepository = null;
                     if (this.pydio.Parameters.has('START_REPOSITORY')) {
                         targetRepository = this.pydio.Parameters.get("START_REPOSITORY");
                     }
                     this.pydio.loadXmlRegistry(null, null, targetRepository);
                 }
+            } else if (response.data && response.data.Trigger) {
+                this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
             } else {
                 PydioApi.JWT_DATA = null;
             }
+            return response;
         });
     }
 
@@ -141,7 +149,10 @@ class JwtApiClient extends ApiClient{
                 if(response.data && response.data.JWT){
                     JwtApiClient.storeJwtLocally(response.data);
                     resolve(response.data.JWT)
-                } else {
+                } else if (response.data && response.data.Trigger) {
+                    this.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
+                    resolve('');
+                }  else {
                     PydioApi.JWT_DATA = null;
                     resolve('');
                 }

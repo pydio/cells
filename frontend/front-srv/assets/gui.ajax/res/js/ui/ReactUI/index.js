@@ -44,9 +44,6 @@ import HiddenDownloadForm from './HiddenDownloadForm'
 import PydioContextProvider from './PydioContextProvider'
 import PydioContextConsumer from './PydioContextConsumer'
 
-import CompatMigrationDialog from './compat/CompatMigrationDialog'
-import CompatModal from './compat/CompatModal'
-
 import moment from './Moment'
 
 import TasksPanel from './tasks/TasksPanel'
@@ -80,8 +77,6 @@ export {
     PydioContextProvider,
     PydioContextConsumer,
 
-    CompatMigrationDialog,
-    CompatModal,
     Tooltip,
     moment,
 

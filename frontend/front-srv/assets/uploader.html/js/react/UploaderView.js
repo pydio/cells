@@ -308,13 +308,14 @@
             this.setState({random: Math.random()});
         },
 
-        radioChange: function(e, newValue){
+        radioChange: function(e, newValue) {
+            const {configs} = this.props;
+
             configs.updateOption('upload_existing', newValue);
             this.setState({random: Math.random()});
         },
 
-        render: function(){
-
+        render: function() {
             const {configs} = this.props;
 
             let maxUploadMessage

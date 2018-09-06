@@ -40,8 +40,7 @@ var RestFrontSessionRequest = (function () {
         _classCallCheck(this, RestFrontSessionRequest);
 
         this.ClientTime = undefined;
-        this.Login = undefined;
-        this.Password = undefined;
+        this.AuthInfo = undefined;
         this.Logout = undefined;
     }
 
@@ -60,11 +59,8 @@ var RestFrontSessionRequest = (function () {
             if (data.hasOwnProperty('ClientTime')) {
                 obj['ClientTime'] = _ApiClient2['default'].convertToType(data['ClientTime'], 'Number');
             }
-            if (data.hasOwnProperty('Login')) {
-                obj['Login'] = _ApiClient2['default'].convertToType(data['Login'], 'String');
-            }
-            if (data.hasOwnProperty('Password')) {
-                obj['Password'] = _ApiClient2['default'].convertToType(data['Password'], 'String');
+            if (data.hasOwnProperty('AuthInfo')) {
+                obj['AuthInfo'] = _ApiClient2['default'].convertToType(data['AuthInfo'], { 'String': 'String' });
             }
             if (data.hasOwnProperty('Logout')) {
                 obj['Logout'] = _ApiClient2['default'].convertToType(data['Logout'], 'Boolean');
@@ -83,11 +79,7 @@ exports['default'] = RestFrontSessionRequest;
 module.exports = exports['default'];
 
 /**
-* @member {String} Login
-*/
-
-/**
-* @member {String} Password
+* @member {Object.<String, String>} AuthInfo
 */
 
 /**

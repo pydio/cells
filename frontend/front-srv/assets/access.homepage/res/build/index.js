@@ -42,10 +42,6 @@ var _quicksendWorkspacePickerDialog = require('./quicksend/WorkspacePickerDialog
 
 var _quicksendWorkspacePickerDialog2 = _interopRequireDefault(_quicksendWorkspacePickerDialog);
 
-var _recentRecentAccessCard = require('./recent/RecentAccessCard');
-
-var _recentRecentAccessCard2 = _interopRequireDefault(_recentRecentAccessCard);
-
 var _videosVideoCard = require('./videos/VideoCard');
 
 var _videosVideoCard2 = _interopRequireDefault(_videosVideoCard);
@@ -66,7 +62,6 @@ exports.DlAppsCard = _appsDlAppsCard2['default'];
 exports.QRCodeCard = _appsQRCodeCard2['default'];
 exports.QuickSendCard = _quicksendQuickSendCard2['default'];
 exports.WorkspacePickerDialog = _quicksendWorkspacePickerDialog2['default'];
-exports.RecentAccessCard = _recentRecentAccessCard2['default'];
 exports.VideoCard = _videosVideoCard2['default'];
 exports.WorkspacesListCard = _workspacesWorkspacesListCard2['default'];
 exports.HomeDashboard = _boardHomeDashboard2['default'];

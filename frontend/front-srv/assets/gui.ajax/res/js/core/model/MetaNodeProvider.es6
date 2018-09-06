@@ -51,7 +51,9 @@ export default class MetaNodeProvider{
     initProvider(properties){
         this.properties = new Map();
         for (let p in properties){
-            if(properties.hasOwnProperty(p)) this.properties.set(p, properties[p]);
+            if(properties.hasOwnProperty(p)) {
+                this.properties.set(p, properties[p]);
+            }
         }
         if(this.properties && this.properties.has('connexion_discrete')){
             this.discrete = true;
@@ -133,10 +135,6 @@ export default class MetaNodeProvider{
         });
 
         /*
-        let params = {
-            get_action:'ls',
-            options:'al'
-        };
         if(recursive){
             params['recursive'] = true;
             params['depth'] = depth;
@@ -186,7 +184,7 @@ export default class MetaNodeProvider{
 
     /**
      * Load a node
-     * @param node AjxpNode
+     * @param node {AjxpNode}
      * @param nodeCallback Function On node loaded
      * @param aSync bool
      * @param additionalParameters object
@@ -198,7 +196,15 @@ export default class MetaNodeProvider{
         let slug = '';
         let path = node.getPath();
         if(pydio.user){
-            slug = pydio.user.getActiveRepositoryObject().getSlug();
+            if(node.getMetadata().has('repository_id')){
+                const repoId = node.getMetadata().get('repository_id');
+                const repo = pydio.user.getRepositoriesList().get(repoId);
+                if(repo){
+                    slug = repo.getSlug();
+                }
+            } else {
+                slug = pydio.user.getActiveRepositoryObject().getSlug();
+            }
         }
         if(path && path[0] !== '/') {
             path = '/' + path;
@@ -214,7 +220,7 @@ export default class MetaNodeProvider{
 
     refreshNodeAndReplace (node, onComplete){
 
-        const nodeCallback = function(newNode){
+        const nodeCallback = (newNode) => {
             node.replaceBy(newNode, "override");
             if(onComplete) {
                 onComplete(node);
@@ -232,7 +238,7 @@ export default class MetaNodeProvider{
      */
     static parseTreeNode(obj, workspaceSlug, defaultSlug = '') {
 
-        if (!obj){
+        if (!obj || !obj.MetaStore){
             return null;
         }
 

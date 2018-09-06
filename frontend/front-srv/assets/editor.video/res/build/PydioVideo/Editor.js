@@ -83,21 +83,6 @@ var Viewer = (function (_React$Component) {
             }, "video/" + node.getAjxpMime());
         }
 
-        // Util functions
-    }, {
-        key: 'getSessionId',
-        value: function getSessionId() {
-            var pydio = this.props.pydio;
-
-            return new Promise(function (resolve, reject) {
-                pydio.ApiClient.request({
-                    get_action: 'get_sess_id'
-                }, function (transport) {
-                    resolve(transport.responseText);
-                });
-            });
-        }
-
         // Plugin Main Editor rendering
     }, {
         key: 'render',

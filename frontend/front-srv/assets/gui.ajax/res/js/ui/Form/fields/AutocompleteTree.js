@@ -27,12 +27,12 @@ const AutocompleteTree = React.createClass({
 
     mixins:[FormMixin],
 
-    handleUpdateInput: function(searchText) {
+    handleUpdateInput(searchText) {
         this.debounced();
         this.setState({searchText: searchText});
     },
 
-    handleNewRequest: function(chosenValue) {
+    handleNewRequest(chosenValue) {
         let key;
         if (chosenValue.key !== undefined){
             key = chosenValue.key;
@@ -43,7 +43,7 @@ const AutocompleteTree = React.createClass({
         this.loadValues(key);
     },
 
-    componentWillMount: function(){
+    componentWillMount(){
         this.debounced = debounce(this.loadValues.bind(this), 300);
         this.lastSearch = null;
         let value = "";
@@ -53,7 +53,7 @@ const AutocompleteTree = React.createClass({
         this.loadValues(value);
     },
 
-    loadValues: function(value = "") {
+    loadValues(value = "") {
         let basePath = value;
         if (!value && this.state.searchText){
             let last = this.state.searchText.lastIndexOf('/');
@@ -63,15 +63,10 @@ const AutocompleteTree = React.createClass({
             return;
         }
         this.lastSearch = basePath;
-        PydioApi.getClient().request({
-            get_action: this.props.attributes["choices"],
-            path: basePath,
-        }, (t) => {
-            this.setState({nodes: t.responseJSON});
-        });
+        // TODO : load values from service
     },
 
-    render: function(){
+    render(){
 
         let dataSource = [];
         if (this.state && this.state.nodes){

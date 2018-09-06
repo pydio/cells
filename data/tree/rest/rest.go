@@ -57,13 +57,36 @@ func (a *Handler) SwaggerTags() []string {
 
 // Filter returns a function to filter the swagger path
 func (a *Handler) Filter() func(string) string {
-	return nil
+	return func(s string) string {
+		return strings.Replace(s, "{Node}", "{Node:*}", 1)
+	}
 }
 
 func (h *Handler) BulkStatNodes(req *restful.Request, resp *restful.Response) {
 
 	// This is exactly the same a MetaService => BulkStatNodes
 	h.GetBulkMeta(req, resp)
+
+}
+
+func (h *Handler) HeadNode(req *restful.Request, resp *restful.Response) {
+
+	nodeRequest := &tree.ReadNodeRequest{
+		Node: &tree.Node{
+			Path: req.PathParameter("Node"),
+		},
+	}
+
+	router := h.GetRouter()
+
+	response, err := router.ReadNode(req.Request.Context(), nodeRequest)
+	if err != nil {
+		resp.WriteError(404, err)
+		return
+	}
+
+	response.Node = response.Node.WithoutReservedMetas()
+	resp.WriteEntity(response)
 
 }
 
@@ -88,7 +111,11 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 			}
 			output.Children = append(output.Children, r.Node)
 		} else {
-			_, e := router.PutObject(ctx, n, strings.NewReader(" "), &views.PutRequestData{Size: 1})
+			contents := " " // Use simple space for empty files
+			if n.GetStringMeta("Contents") != "" {
+				contents = n.GetStringMeta("Contents")
+			}
+			_, e := router.PutObject(ctx, n, strings.NewReader(contents), &views.PutRequestData{Size: int64(len(contents))})
 			if e != nil {
 				service.RestError500(req, resp, e)
 				return

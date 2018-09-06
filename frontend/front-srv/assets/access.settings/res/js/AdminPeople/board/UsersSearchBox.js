@@ -119,10 +119,6 @@ class UsersSearchBox extends React.Component{
 }
 
 UsersSearchBox.PropTypes = {
-    // Required
-    parameters:React.PropTypes.object.isRequired,
-    queryParameterName:React.PropTypes.string.isRequired,
-    // Other
     textLabel:React.PropTypes.string,
     displayResults:React.PropTypes.func,
     hideResults:React.PropTypes.func,

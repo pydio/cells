@@ -1,8 +1,9 @@
 module.exports = function(grunt) {
     grunt.initConfig({
         babel: {
-            options: {},
-
+            options: {
+                "plugins": ["transform-react-jsx"]
+            },
             dist: {
                 files: [
                     {

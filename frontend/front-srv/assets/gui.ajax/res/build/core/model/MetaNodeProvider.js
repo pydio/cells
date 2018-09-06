@@ -89,7 +89,9 @@ var MetaNodeProvider = (function () {
     MetaNodeProvider.prototype.initProvider = function initProvider(properties) {
         this.properties = new Map();
         for (var p in properties) {
-            if (properties.hasOwnProperty(p)) this.properties.set(p, properties[p]);
+            if (properties.hasOwnProperty(p)) {
+                this.properties.set(p, properties[p]);
+            }
         }
         if (this.properties && this.properties.has('connexion_discrete')) {
             this.discrete = true;
@@ -177,10 +179,6 @@ var MetaNodeProvider = (function () {
         });
 
         /*
-        let params = {
-            get_action:'ls',
-            options:'al'
-        };
         if(recursive){
             params['recursive'] = true;
             params['depth'] = depth;
@@ -230,7 +228,7 @@ var MetaNodeProvider = (function () {
 
     /**
      * Load a node
-     * @param node AjxpNode
+     * @param node {AjxpNode}
      * @param nodeCallback Function On node loaded
      * @param aSync bool
      * @param additionalParameters object
@@ -245,7 +243,15 @@ var MetaNodeProvider = (function () {
         var slug = '';
         var path = node.getPath();
         if (pydio.user) {
-            slug = pydio.user.getActiveRepositoryObject().getSlug();
+            if (node.getMetadata().has('repository_id')) {
+                var repoId = node.getMetadata().get('repository_id');
+                var repo = pydio.user.getRepositoriesList().get(repoId);
+                if (repo) {
+                    slug = repo.getSlug();
+                }
+            } else {
+                slug = pydio.user.getActiveRepositoryObject().getSlug();
+            }
         }
         if (path && path[0] !== '/') {
             path = '/' + path;
@@ -279,7 +285,7 @@ var MetaNodeProvider = (function () {
     MetaNodeProvider.parseTreeNode = function parseTreeNode(obj, workspaceSlug) {
         var defaultSlug = arguments.length <= 2 || arguments[2] === undefined ? '' : arguments[2];
 
-        if (!obj) {
+        if (!obj || !obj.MetaStore) {
             return null;
         }
 

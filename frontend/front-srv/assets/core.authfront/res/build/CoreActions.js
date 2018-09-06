@@ -71,24 +71,10 @@ var LoginDialogMixin = {
         } else {
             login = this.refs.login.getValue();
         }
-        var params = {
-            get_action: 'login',
-            userid: login,
-            password: this.refs.password.getValue(),
-            login_seed: -1
-        };
-        if (this.refs.captcha_input) {
-            params['captcha_code'] = this.refs.captcha_input.getValue();
-        }
-        if (this.state && this.state.rememberChecked) {
-            params['remember_me'] = 'true';
-        }
-        if (this.props.modifiers) {
-            this.props.modifiers.map((function (m) {
-                m.enrichSubmitParameters(this.props, this.state, this.refs, params);
-            }).bind(this));
-        }
         restClient.jwtFromCredentials(login, this.refs.password.getValue()).then(function (r) {
+            if (r.data && r.data.Trigger) {
+                return;
+            }
             _this.dismiss();
         })['catch'](function (e) {
             if (e.response && e.response.text) {
@@ -177,15 +163,6 @@ var LoginPasswordDialog = React.createClass({
                 this.state.errorId
             );
         }
-        var captcha = undefined;
-        if (this.state.displayCaptcha) {
-            captcha = React.createElement(
-                'div',
-                { className: 'captcha_container' },
-                React.createElement(_materialUi.TextField, { style: { width: 170, marginTop: -20 }, hintText: pydio.MessageHash[390], ref: 'captcha_input', onKeyDown: this.submitOnEnterKey }),
-                React.createElement('img', { src: this.state.globalParameters.get('ajxpServerAccess') + '&get_action=get_captcha&sid=' + Math.random() })
-            );
-        }
         var forgotLink = undefined;
         if (forgotPasswordLink) {
             forgotLink = React.createElement(
@@ -268,7 +245,6 @@ var LoginPasswordDialog = React.createClass({
                 languageMenu
             ),
             errorMessage,
-            captcha,
             additionalComponentsTop,
             React.createElement(
                 'form',
@@ -400,153 +376,6 @@ var MultiAuthModifier = (function (_PydioReactUI$AbstractDialogModifier) {
     return MultiAuthModifier;
 })(PydioReactUI.AbstractDialogModifier);
 
-var WebFTPDialog = React.createClass({
-    displayName: 'WebFTPDialog',
-
-    mixins: [PydioReactUI.ActionDialogMixin, PydioReactUI.SubmitButtonProviderMixin, LoginDialogMixin],
-
-    getDefaultProps: function getDefaultProps() {
-        return {
-            dialogTitle: pydio.MessageHash[163],
-            dialogIsModal: true
-        };
-    },
-
-    submit: function submit() {
-
-        var client = _pydioHttpApi2['default'].getClient();
-        client.request({
-            get_action: 'set_ftp_data',
-            FTP_HOST: this.refs.FTP_HOST.getValue(),
-            FTP_PORT: this.refs.FTP_PORT.getValue(),
-            PATH: this.refs.PATH.getValue(),
-            CHARSET: this.refs.CHARSET.getValue(),
-            FTP_SECURE: this.refs.FTP_SECURE.isToggled() ? 'TRUE' : 'FALSE',
-            FTP_DIRECT: this.refs.FTP_DIRECT.isToggled() ? 'TRUE' : 'FALSE'
-        }, (function () {
-
-            this.postLoginData(client);
-        }).bind(this));
-    },
-
-    render: function render() {
-
-        var messages = pydio.MessageHash;
-        var tFieldStyle = { width: '100%' };
-        var errorMessage = undefined;
-        if (this.state.errorId) {
-            errorMessage = React.createElement(
-                'div',
-                { 'class': 'ajxp_login_error' },
-                pydio.MessageHash[this.state.errorId]
-            );
-        }
-        var captcha = undefined;
-        if (this.state.displayCaptcha) {
-            captcha = React.createElement(
-                'div',
-                { className: 'captcha_container' },
-                React.createElement('img', { src: this.state.globalParameters.get('ajxpServerAccess') + '&get_action=get_captcha&sid=' + Math.random() }),
-                React.createElement(_materialUi.TextField, { floatingLabelText: pydio.MessageHash[390], ref: 'captcha_input' })
-            );
-        }
-
-        return React.createElement(
-            'div',
-            null,
-            captcha,
-            React.createElement(
-                'table',
-                { cellPadding: 5, border: '0', style: { width: 370 } },
-                React.createElement(
-                    'tr',
-                    null,
-                    React.createElement(
-                        'td',
-                        { colspan: '2' },
-                        React.createElement(
-                            'div',
-                            { 'class': 'dialogLegend' },
-                            messages['ftp_auth.1']
-                        )
-                    )
-                ),
-                React.createElement(
-                    'tr',
-                    null,
-                    React.createElement(
-                        'td',
-                        { style: { padding: '0 5px' } },
-                        React.createElement(_materialUi.TextField, { fullWidth: true, style: tFieldStyle, ref: 'FTP_HOST', floatingLabelText: messages['ftp_auth.2'] })
-                    ),
-                    React.createElement(
-                        'td',
-                        { style: { padding: '0 5px' } },
-                        React.createElement(_materialUi.TextField, { fullWidth: true, ref: 'FTP_PORT', style: tFieldStyle, defaultValue: '21', floatingLabelText: messages['ftp_auth.8'] })
-                    )
-                ),
-                React.createElement(
-                    'tr',
-                    null,
-                    React.createElement(
-                        'td',
-                        { style: { padding: '0 5px' } },
-                        React.createElement(_materialUi.TextField, { fullWidth: true, style: tFieldStyle, ref: 'login', floatingLabelText: messages['181'] })
-                    ),
-                    React.createElement(
-                        'td',
-                        { style: { padding: '0 5px' } },
-                        React.createElement(_materialUi.TextField, { fullWidth: true, style: tFieldStyle, ref: 'password', type: 'password', floatingLabelText: messages['182'] })
-                    )
-                ),
-                React.createElement(
-                    'tr',
-                    null,
-                    React.createElement(
-                        'td',
-                        { colspan: '2', style: { padding: '15px 5px 0' } },
-                        React.createElement(
-                            'div',
-                            { 'class': 'dialogLegend' },
-                            messages['ftp_auth.3']
-                        )
-                    )
-                ),
-                React.createElement(
-                    'tr',
-                    null,
-                    React.createElement(
-                        'td',
-                        { style: { padding: '0 5px' } },
-                        React.createElement(_materialUi.TextField, { fullWidth: true, style: tFieldStyle, ref: 'PATH', defaultValue: '/', floatingLabelText: messages['ftp_auth.4'] })
-                    ),
-                    React.createElement(
-                        'td',
-                        { style: { padding: '0 5px' } },
-                        React.createElement(_materialUi.Toggle, { ref: 'FTP_SECURE', label: messages['ftp_auth.5'], labelPosition: 'right' })
-                    )
-                ),
-                React.createElement(
-                    'tr',
-                    null,
-                    React.createElement(
-                        'td',
-                        { style: { padding: '0 5px' } },
-                        React.createElement(_materialUi.TextField, { fullWidth: true, style: tFieldStyle, ref: 'CHARSET', floatingLabelText: messages['ftp_auth.6'] })
-                    ),
-                    React.createElement(
-                        'td',
-                        { style: { padding: '0 5px' } },
-                        React.createElement(_materialUi.Toggle, { ref: 'FTP_DIRECT', label: messages['ftp_auth.7'], labelPosition: 'right' })
-                    )
-                )
-            ),
-            errorMessage
-        );
-    }
-
-});
-
 var Callbacks = (function () {
     function Callbacks() {
         _classCallCheck(this, Callbacks);
@@ -556,7 +385,6 @@ var Callbacks = (function () {
         key: 'sessionLogout',
         value: function sessionLogout() {
 
-            _pydioHttpApi2['default'].clearRememberData();
             _pydioHttpApi2['default'].getRestClient().sessionLogout();
         }
     }, {
@@ -565,12 +393,6 @@ var Callbacks = (function () {
             var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
             pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', _extends({}, props, { blur: true }));
-        }
-    }, {
-        key: 'webFTP',
-        value: function webFTP() {
-
-            pydio.UI.openComponentInModal('AuthfrontCoreActions', 'WebFTPDialog');
         }
     }]);
 
@@ -769,5 +591,4 @@ exports.Callbacks = Callbacks;
 exports.LoginPasswordDialog = LoginPasswordDialog;
 exports.ResetPasswordRequire = ResetPasswordRequire;
 exports.ResetPasswordDialog = ResetPasswordDialog;
-exports.WebFTPDialog = WebFTPDialog;
 exports.MultiAuthModifier = MultiAuthModifier;

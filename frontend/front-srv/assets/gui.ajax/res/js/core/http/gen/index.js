@@ -150,6 +150,8 @@ import RestFrontBinaryRequest from './model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
 import RestFrontBinaryType from './model/RestFrontBinaryType';
 import RestFrontBootConfResponse from './model/RestFrontBootConfResponse';
+import RestFrontEnrollAuthRequest from './model/RestFrontEnrollAuthRequest';
+import RestFrontEnrollAuthResponse from './model/RestFrontEnrollAuthResponse';
 import RestFrontLogMessage from './model/RestFrontLogMessage';
 import RestFrontLogResponse from './model/RestFrontLogResponse';
 import RestFrontMessagesResponse from './model/RestFrontMessagesResponse';
@@ -1123,6 +1125,18 @@ export {
      * @property {module:model/RestFrontBootConfResponse}
      */
     RestFrontBootConfResponse,
+
+    /**
+     * The RestFrontEnrollAuthRequest model constructor.
+     * @property {module:model/RestFrontEnrollAuthRequest}
+     */
+    RestFrontEnrollAuthRequest,
+
+    /**
+     * The RestFrontEnrollAuthResponse model constructor.
+     * @property {module:model/RestFrontEnrollAuthResponse}
+     */
+    RestFrontEnrollAuthResponse,
 
     /**
      * The RestFrontLogMessage model constructor.

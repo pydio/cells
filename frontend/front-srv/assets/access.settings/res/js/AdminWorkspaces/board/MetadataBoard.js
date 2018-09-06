@@ -48,7 +48,6 @@ class MetadataBoard extends React.Component{
         if(confirm('Are you sure you want to delete this metadata?')) {
             Metadata.deleteNS(row).then(() => {
                 this.load();
-                PydioApi.getClient().request({get_action:'meta_user_clear_cache'});
             });
         }
     }

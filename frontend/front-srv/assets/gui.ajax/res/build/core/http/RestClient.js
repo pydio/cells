@@ -139,7 +139,7 @@ var JwtApiClient = (function (_ApiClient) {
     };
 
     /**
-     *
+     * Create AuthInfo request with type "credentials"
      * @param login string
      * @param password string
      * @param reloadRegistry bool
@@ -147,11 +147,18 @@ var JwtApiClient = (function (_ApiClient) {
      */
 
     JwtApiClient.prototype.jwtFromCredentials = function jwtFromCredentials(login, password) {
-        var _this2 = this;
-
         var reloadRegistry = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
 
-        var request = _genModelRestFrontSessionRequest2['default'].constructFromObject({ Login: login, Password: password });
+        return this.jwtWithAuthInfo({ login: login, password: password, type: "credentials" }, reloadRegistry);
+    };
+
+    JwtApiClient.prototype.jwtWithAuthInfo = function jwtWithAuthInfo(authInfo) {
+        var _this2 = this;
+
+        var reloadRegistry = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+
+        var request = new _genModelRestFrontSessionRequest2['default']();
+        request.AuthInfo = authInfo;
         return this.jwtEndpoint(request).then(function (response) {
             if (response.data && response.data.JWT) {
                 JwtApiClient.storeJwtLocally(response.data);
@@ -162,9 +169,12 @@ var JwtApiClient = (function (_ApiClient) {
                     }
                     _this2.pydio.loadXmlRegistry(null, null, targetRepository);
                 }
+            } else if (response.data && response.data.Trigger) {
+                _this2.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
             } else {
                 _PydioApi2['default'].JWT_DATA = null;
             }
+            return response;
         });
     };
 
@@ -191,6 +201,9 @@ var JwtApiClient = (function (_ApiClient) {
                 if (response.data && response.data.JWT) {
                     JwtApiClient.storeJwtLocally(response.data);
                     resolve(response.data.JWT);
+                } else if (response.data && response.data.Trigger) {
+                    _this3.pydio.getController().fireAction(response.data.Trigger, response.data.TriggerInfo);
+                    resolve('');
                 } else {
                     _PydioApi2['default'].JWT_DATA = null;
                     resolve('');

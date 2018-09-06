@@ -6,259 +6,3153 @@ package rest
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import _ "github.com/pydio/cells/common/proto/tree"
-import _ "github.com/pydio/cells/common/proto/idm"
-import _ "github.com/pydio/cells/common/proto/mailer"
-import _ "github.com/pydio/cells/common/proto/activity"
-import _ "github.com/pydio/cells/common/proto/docstore"
-import _ "github.com/pydio/cells/common/proto/jobs"
-import _ "github.com/pydio/cells/common/proto/encryption"
-import _ "github.com/pydio/cells/common/proto/log"
-import _ "github.com/pydio/cells/common/proto/object"
-import _ "github.com/pydio/cells/common/proto/install"
-import _ "github.com/pydio/cells/common/proto/ctl"
-import _ "github.com/pydio/cells/common/proto/cert"
-import _ "github.com/pydio/cells/common/proto/update"
+import tree "github.com/pydio/cells/common/proto/tree"
+import idm "github.com/pydio/cells/common/proto/idm"
+import mailer "github.com/pydio/cells/common/proto/mailer"
+import activity "github.com/pydio/cells/common/proto/activity"
+import docstore "github.com/pydio/cells/common/proto/docstore"
+import jobs "github.com/pydio/cells/common/proto/jobs"
+import encryption "github.com/pydio/cells/common/proto/encryption"
+import log "github.com/pydio/cells/common/proto/log"
+import object "github.com/pydio/cells/common/proto/object"
+import install "github.com/pydio/cells/common/proto/install"
+import ctl "github.com/pydio/cells/common/proto/ctl"
+import cert "github.com/pydio/cells/common/proto/cert"
+import update "github.com/pydio/cells/common/proto/update"
 import _ "google.golang.org/genproto/googleapis/api/annotations"
 import _ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
+
+import (
+	client "github.com/micro/go-micro/client"
+	server "github.com/micro/go-micro/server"
+	context "golang.org/x/net/context"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ client.Option
+var _ server.Option
+
+// Client API for ConfigService service
+
+type ConfigServiceClient interface {
+	// Generic config Put, using a full path in the config tree
+	PutConfig(ctx context.Context, in *Configuration, opts ...client.CallOption) (*Configuration, error)
+	// Generic config Get using a full path in the config tree
+	GetConfig(ctx context.Context, in *Configuration, opts ...client.CallOption) (*Configuration, error)
+	// Create or update a datasource
+	PutDataSource(ctx context.Context, in *object.DataSource, opts ...client.CallOption) (*object.DataSource, error)
+	// Load datasource information
+	GetDataSource(ctx context.Context, in *object.DataSource, opts ...client.CallOption) (*object.DataSource, error)
+	// Delete a datasource
+	DeleteDataSource(ctx context.Context, in *object.DataSource, opts ...client.CallOption) (*DeleteDataSourceResponse, error)
+	// List all defined datasources
+	ListDataSources(ctx context.Context, in *ListDataSourceRequest, opts ...client.CallOption) (*DataSourceCollection, error)
+	// List all defined versioning policies
+	ListVersioningPolicies(ctx context.Context, in *ListVersioningPolicyRequest, opts ...client.CallOption) (*VersioningPolicyCollection, error)
+	// Load a given versioning policy
+	GetVersioningPolicy(ctx context.Context, in *tree.VersioningPolicy, opts ...client.CallOption) (*tree.VersioningPolicy, error)
+	// [Enterprise Only] Create or update a versioning policy
+	PutVersioningPolicy(ctx context.Context, in *tree.VersioningPolicy, opts ...client.CallOption) (*tree.VersioningPolicy, error)
+	// [Enterprise Only] Delete a versioning policy
+	DeleteVersioningPolicy(ctx context.Context, in *tree.VersioningPolicy, opts ...client.CallOption) (*DeleteVersioningPolicyResponse, error)
+	// List all services and their status
+	ListServices(ctx context.Context, in *ListServiceRequest, opts ...client.CallOption) (*ServiceCollection, error)
+	// [Not Implemented]  Start/Stop a service
+	ControlService(ctx context.Context, in *ControlServiceRequest, opts ...client.CallOption) (*ctl.Service, error)
+	// List all detected peers (servers on which the app is running)
+	ListPeersAddresses(ctx context.Context, in *ListPeersAddressesRequest, opts ...client.CallOption) (*ListPeersAddressesResponse, error)
+	// List folders on a peer, starting from root
+	ListPeerFolders(ctx context.Context, in *ListPeerFoldersRequest, opts ...client.CallOption) (*NodesCollection, error)
+	// List registered master keys
+	ListEncryptionKeys(ctx context.Context, in *encryption.AdminListKeysRequest, opts ...client.CallOption) (*encryption.AdminListKeysResponse, error)
+	// Create a new master key
+	CreateEncryptionKey(ctx context.Context, in *encryption.AdminCreateKeyRequest, opts ...client.CallOption) (*encryption.AdminCreateKeyResponse, error)
+	// Delete an existing master key
+	DeleteEncryptionKey(ctx context.Context, in *encryption.AdminDeleteKeyRequest, opts ...client.CallOption) (*encryption.AdminDeleteKeyResponse, error)
+	// Export a master key for backup purpose, protected with a password
+	ExportEncryptionKey(ctx context.Context, in *encryption.AdminExportKeyRequest, opts ...client.CallOption) (*encryption.AdminExportKeyResponse, error)
+	// Import a previously exported master key, requires the password created at export time
+	ImportEncryptionKey(ctx context.Context, in *encryption.AdminImportKeyRequest, opts ...client.CallOption) (*encryption.AdminImportKeyResponse, error)
+	// Publish available endpoints
+	EndpointsDiscovery(ctx context.Context, in *DiscoveryRequest, opts ...client.CallOption) (*DiscoveryResponse, error)
+	// Publish available REST APIs
+	OpenApiDiscovery(ctx context.Context, in *DiscoveryRequest, opts ...client.CallOption) (*OpenApiResponse, error)
+	// Publish Forms definition for building screens in frontend
+	ConfigFormsDiscovery(ctx context.Context, in *ConfigFormRequest, opts ...client.CallOption) (*DiscoveryResponse, error)
+	// [Enterprise Only] List additional user directories
+	ListExternalDirectories(ctx context.Context, in *ListExternalDirectoryRequest, opts ...client.CallOption) (*ExternalDirectoryCollection, error)
+	// [Enterprise Only] Add/Create an external directory
+	PutExternalDirectory(ctx context.Context, in *ExternalDirectoryConfig, opts ...client.CallOption) (*ExternalDirectoryResponse, error)
+	// [Enterprise Only] Delete external directory
+	DeleteExternalDirectory(ctx context.Context, in *ExternalDirectoryConfig, opts ...client.CallOption) (*ExternalDirectoryResponse, error)
+}
+
+type configServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewConfigServiceClient(serviceName string, c client.Client) ConfigServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &configServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *configServiceClient) PutConfig(ctx context.Context, in *Configuration, opts ...client.CallOption) (*Configuration, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.PutConfig", in)
+	out := new(Configuration)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) GetConfig(ctx context.Context, in *Configuration, opts ...client.CallOption) (*Configuration, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.GetConfig", in)
+	out := new(Configuration)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) PutDataSource(ctx context.Context, in *object.DataSource, opts ...client.CallOption) (*object.DataSource, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.PutDataSource", in)
+	out := new(object.DataSource)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) GetDataSource(ctx context.Context, in *object.DataSource, opts ...client.CallOption) (*object.DataSource, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.GetDataSource", in)
+	out := new(object.DataSource)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) DeleteDataSource(ctx context.Context, in *object.DataSource, opts ...client.CallOption) (*DeleteDataSourceResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.DeleteDataSource", in)
+	out := new(DeleteDataSourceResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) ListDataSources(ctx context.Context, in *ListDataSourceRequest, opts ...client.CallOption) (*DataSourceCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.ListDataSources", in)
+	out := new(DataSourceCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) ListVersioningPolicies(ctx context.Context, in *ListVersioningPolicyRequest, opts ...client.CallOption) (*VersioningPolicyCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.ListVersioningPolicies", in)
+	out := new(VersioningPolicyCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) GetVersioningPolicy(ctx context.Context, in *tree.VersioningPolicy, opts ...client.CallOption) (*tree.VersioningPolicy, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.GetVersioningPolicy", in)
+	out := new(tree.VersioningPolicy)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) PutVersioningPolicy(ctx context.Context, in *tree.VersioningPolicy, opts ...client.CallOption) (*tree.VersioningPolicy, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.PutVersioningPolicy", in)
+	out := new(tree.VersioningPolicy)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) DeleteVersioningPolicy(ctx context.Context, in *tree.VersioningPolicy, opts ...client.CallOption) (*DeleteVersioningPolicyResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.DeleteVersioningPolicy", in)
+	out := new(DeleteVersioningPolicyResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) ListServices(ctx context.Context, in *ListServiceRequest, opts ...client.CallOption) (*ServiceCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.ListServices", in)
+	out := new(ServiceCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) ControlService(ctx context.Context, in *ControlServiceRequest, opts ...client.CallOption) (*ctl.Service, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.ControlService", in)
+	out := new(ctl.Service)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) ListPeersAddresses(ctx context.Context, in *ListPeersAddressesRequest, opts ...client.CallOption) (*ListPeersAddressesResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.ListPeersAddresses", in)
+	out := new(ListPeersAddressesResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) ListPeerFolders(ctx context.Context, in *ListPeerFoldersRequest, opts ...client.CallOption) (*NodesCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.ListPeerFolders", in)
+	out := new(NodesCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) ListEncryptionKeys(ctx context.Context, in *encryption.AdminListKeysRequest, opts ...client.CallOption) (*encryption.AdminListKeysResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.ListEncryptionKeys", in)
+	out := new(encryption.AdminListKeysResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) CreateEncryptionKey(ctx context.Context, in *encryption.AdminCreateKeyRequest, opts ...client.CallOption) (*encryption.AdminCreateKeyResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.CreateEncryptionKey", in)
+	out := new(encryption.AdminCreateKeyResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) DeleteEncryptionKey(ctx context.Context, in *encryption.AdminDeleteKeyRequest, opts ...client.CallOption) (*encryption.AdminDeleteKeyResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.DeleteEncryptionKey", in)
+	out := new(encryption.AdminDeleteKeyResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) ExportEncryptionKey(ctx context.Context, in *encryption.AdminExportKeyRequest, opts ...client.CallOption) (*encryption.AdminExportKeyResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.ExportEncryptionKey", in)
+	out := new(encryption.AdminExportKeyResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) ImportEncryptionKey(ctx context.Context, in *encryption.AdminImportKeyRequest, opts ...client.CallOption) (*encryption.AdminImportKeyResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.ImportEncryptionKey", in)
+	out := new(encryption.AdminImportKeyResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) EndpointsDiscovery(ctx context.Context, in *DiscoveryRequest, opts ...client.CallOption) (*DiscoveryResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.EndpointsDiscovery", in)
+	out := new(DiscoveryResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) OpenApiDiscovery(ctx context.Context, in *DiscoveryRequest, opts ...client.CallOption) (*OpenApiResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.OpenApiDiscovery", in)
+	out := new(OpenApiResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) ConfigFormsDiscovery(ctx context.Context, in *ConfigFormRequest, opts ...client.CallOption) (*DiscoveryResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.ConfigFormsDiscovery", in)
+	out := new(DiscoveryResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) ListExternalDirectories(ctx context.Context, in *ListExternalDirectoryRequest, opts ...client.CallOption) (*ExternalDirectoryCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.ListExternalDirectories", in)
+	out := new(ExternalDirectoryCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) PutExternalDirectory(ctx context.Context, in *ExternalDirectoryConfig, opts ...client.CallOption) (*ExternalDirectoryResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.PutExternalDirectory", in)
+	out := new(ExternalDirectoryResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *configServiceClient) DeleteExternalDirectory(ctx context.Context, in *ExternalDirectoryConfig, opts ...client.CallOption) (*ExternalDirectoryResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ConfigService.DeleteExternalDirectory", in)
+	out := new(ExternalDirectoryResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for ConfigService service
+
+type ConfigServiceHandler interface {
+	// Generic config Put, using a full path in the config tree
+	PutConfig(context.Context, *Configuration, *Configuration) error
+	// Generic config Get using a full path in the config tree
+	GetConfig(context.Context, *Configuration, *Configuration) error
+	// Create or update a datasource
+	PutDataSource(context.Context, *object.DataSource, *object.DataSource) error
+	// Load datasource information
+	GetDataSource(context.Context, *object.DataSource, *object.DataSource) error
+	// Delete a datasource
+	DeleteDataSource(context.Context, *object.DataSource, *DeleteDataSourceResponse) error
+	// List all defined datasources
+	ListDataSources(context.Context, *ListDataSourceRequest, *DataSourceCollection) error
+	// List all defined versioning policies
+	ListVersioningPolicies(context.Context, *ListVersioningPolicyRequest, *VersioningPolicyCollection) error
+	// Load a given versioning policy
+	GetVersioningPolicy(context.Context, *tree.VersioningPolicy, *tree.VersioningPolicy) error
+	// [Enterprise Only] Create or update a versioning policy
+	PutVersioningPolicy(context.Context, *tree.VersioningPolicy, *tree.VersioningPolicy) error
+	// [Enterprise Only] Delete a versioning policy
+	DeleteVersioningPolicy(context.Context, *tree.VersioningPolicy, *DeleteVersioningPolicyResponse) error
+	// List all services and their status
+	ListServices(context.Context, *ListServiceRequest, *ServiceCollection) error
+	// [Not Implemented]  Start/Stop a service
+	ControlService(context.Context, *ControlServiceRequest, *ctl.Service) error
+	// List all detected peers (servers on which the app is running)
+	ListPeersAddresses(context.Context, *ListPeersAddressesRequest, *ListPeersAddressesResponse) error
+	// List folders on a peer, starting from root
+	ListPeerFolders(context.Context, *ListPeerFoldersRequest, *NodesCollection) error
+	// List registered master keys
+	ListEncryptionKeys(context.Context, *encryption.AdminListKeysRequest, *encryption.AdminListKeysResponse) error
+	// Create a new master key
+	CreateEncryptionKey(context.Context, *encryption.AdminCreateKeyRequest, *encryption.AdminCreateKeyResponse) error
+	// Delete an existing master key
+	DeleteEncryptionKey(context.Context, *encryption.AdminDeleteKeyRequest, *encryption.AdminDeleteKeyResponse) error
+	// Export a master key for backup purpose, protected with a password
+	ExportEncryptionKey(context.Context, *encryption.AdminExportKeyRequest, *encryption.AdminExportKeyResponse) error
+	// Import a previously exported master key, requires the password created at export time
+	ImportEncryptionKey(context.Context, *encryption.AdminImportKeyRequest, *encryption.AdminImportKeyResponse) error
+	// Publish available endpoints
+	EndpointsDiscovery(context.Context, *DiscoveryRequest, *DiscoveryResponse) error
+	// Publish available REST APIs
+	OpenApiDiscovery(context.Context, *DiscoveryRequest, *OpenApiResponse) error
+	// Publish Forms definition for building screens in frontend
+	ConfigFormsDiscovery(context.Context, *ConfigFormRequest, *DiscoveryResponse) error
+	// [Enterprise Only] List additional user directories
+	ListExternalDirectories(context.Context, *ListExternalDirectoryRequest, *ExternalDirectoryCollection) error
+	// [Enterprise Only] Add/Create an external directory
+	PutExternalDirectory(context.Context, *ExternalDirectoryConfig, *ExternalDirectoryResponse) error
+	// [Enterprise Only] Delete external directory
+	DeleteExternalDirectory(context.Context, *ExternalDirectoryConfig, *ExternalDirectoryResponse) error
+}
+
+func RegisterConfigServiceHandler(s server.Server, hdlr ConfigServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&ConfigService{hdlr}, opts...))
+}
+
+type ConfigService struct {
+	ConfigServiceHandler
+}
+
+func (h *ConfigService) PutConfig(ctx context.Context, in *Configuration, out *Configuration) error {
+	return h.ConfigServiceHandler.PutConfig(ctx, in, out)
+}
+
+func (h *ConfigService) GetConfig(ctx context.Context, in *Configuration, out *Configuration) error {
+	return h.ConfigServiceHandler.GetConfig(ctx, in, out)
+}
+
+func (h *ConfigService) PutDataSource(ctx context.Context, in *object.DataSource, out *object.DataSource) error {
+	return h.ConfigServiceHandler.PutDataSource(ctx, in, out)
+}
+
+func (h *ConfigService) GetDataSource(ctx context.Context, in *object.DataSource, out *object.DataSource) error {
+	return h.ConfigServiceHandler.GetDataSource(ctx, in, out)
+}
+
+func (h *ConfigService) DeleteDataSource(ctx context.Context, in *object.DataSource, out *DeleteDataSourceResponse) error {
+	return h.ConfigServiceHandler.DeleteDataSource(ctx, in, out)
+}
+
+func (h *ConfigService) ListDataSources(ctx context.Context, in *ListDataSourceRequest, out *DataSourceCollection) error {
+	return h.ConfigServiceHandler.ListDataSources(ctx, in, out)
+}
+
+func (h *ConfigService) ListVersioningPolicies(ctx context.Context, in *ListVersioningPolicyRequest, out *VersioningPolicyCollection) error {
+	return h.ConfigServiceHandler.ListVersioningPolicies(ctx, in, out)
+}
+
+func (h *ConfigService) GetVersioningPolicy(ctx context.Context, in *tree.VersioningPolicy, out *tree.VersioningPolicy) error {
+	return h.ConfigServiceHandler.GetVersioningPolicy(ctx, in, out)
+}
+
+func (h *ConfigService) PutVersioningPolicy(ctx context.Context, in *tree.VersioningPolicy, out *tree.VersioningPolicy) error {
+	return h.ConfigServiceHandler.PutVersioningPolicy(ctx, in, out)
+}
+
+func (h *ConfigService) DeleteVersioningPolicy(ctx context.Context, in *tree.VersioningPolicy, out *DeleteVersioningPolicyResponse) error {
+	return h.ConfigServiceHandler.DeleteVersioningPolicy(ctx, in, out)
+}
+
+func (h *ConfigService) ListServices(ctx context.Context, in *ListServiceRequest, out *ServiceCollection) error {
+	return h.ConfigServiceHandler.ListServices(ctx, in, out)
+}
+
+func (h *ConfigService) ControlService(ctx context.Context, in *ControlServiceRequest, out *ctl.Service) error {
+	return h.ConfigServiceHandler.ControlService(ctx, in, out)
+}
+
+func (h *ConfigService) ListPeersAddresses(ctx context.Context, in *ListPeersAddressesRequest, out *ListPeersAddressesResponse) error {
+	return h.ConfigServiceHandler.ListPeersAddresses(ctx, in, out)
+}
+
+func (h *ConfigService) ListPeerFolders(ctx context.Context, in *ListPeerFoldersRequest, out *NodesCollection) error {
+	return h.ConfigServiceHandler.ListPeerFolders(ctx, in, out)
+}
+
+func (h *ConfigService) ListEncryptionKeys(ctx context.Context, in *encryption.AdminListKeysRequest, out *encryption.AdminListKeysResponse) error {
+	return h.ConfigServiceHandler.ListEncryptionKeys(ctx, in, out)
+}
+
+func (h *ConfigService) CreateEncryptionKey(ctx context.Context, in *encryption.AdminCreateKeyRequest, out *encryption.AdminCreateKeyResponse) error {
+	return h.ConfigServiceHandler.CreateEncryptionKey(ctx, in, out)
+}
+
+func (h *ConfigService) DeleteEncryptionKey(ctx context.Context, in *encryption.AdminDeleteKeyRequest, out *encryption.AdminDeleteKeyResponse) error {
+	return h.ConfigServiceHandler.DeleteEncryptionKey(ctx, in, out)
+}
+
+func (h *ConfigService) ExportEncryptionKey(ctx context.Context, in *encryption.AdminExportKeyRequest, out *encryption.AdminExportKeyResponse) error {
+	return h.ConfigServiceHandler.ExportEncryptionKey(ctx, in, out)
+}
+
+func (h *ConfigService) ImportEncryptionKey(ctx context.Context, in *encryption.AdminImportKeyRequest, out *encryption.AdminImportKeyResponse) error {
+	return h.ConfigServiceHandler.ImportEncryptionKey(ctx, in, out)
+}
+
+func (h *ConfigService) EndpointsDiscovery(ctx context.Context, in *DiscoveryRequest, out *DiscoveryResponse) error {
+	return h.ConfigServiceHandler.EndpointsDiscovery(ctx, in, out)
+}
+
+func (h *ConfigService) OpenApiDiscovery(ctx context.Context, in *DiscoveryRequest, out *OpenApiResponse) error {
+	return h.ConfigServiceHandler.OpenApiDiscovery(ctx, in, out)
+}
+
+func (h *ConfigService) ConfigFormsDiscovery(ctx context.Context, in *ConfigFormRequest, out *DiscoveryResponse) error {
+	return h.ConfigServiceHandler.ConfigFormsDiscovery(ctx, in, out)
+}
+
+func (h *ConfigService) ListExternalDirectories(ctx context.Context, in *ListExternalDirectoryRequest, out *ExternalDirectoryCollection) error {
+	return h.ConfigServiceHandler.ListExternalDirectories(ctx, in, out)
+}
+
+func (h *ConfigService) PutExternalDirectory(ctx context.Context, in *ExternalDirectoryConfig, out *ExternalDirectoryResponse) error {
+	return h.ConfigServiceHandler.PutExternalDirectory(ctx, in, out)
+}
+
+func (h *ConfigService) DeleteExternalDirectory(ctx context.Context, in *ExternalDirectoryConfig, out *ExternalDirectoryResponse) error {
+	return h.ConfigServiceHandler.DeleteExternalDirectory(ctx, in, out)
+}
+
+// Client API for RoleService service
+
+type RoleServiceClient interface {
+	// Create or update a Role
+	SetRole(ctx context.Context, in *idm.Role, opts ...client.CallOption) (*idm.Role, error)
+	// Delete a Role by ID
+	DeleteRole(ctx context.Context, in *idm.Role, opts ...client.CallOption) (*idm.Role, error)
+	// Get a Role by ID
+	GetRole(ctx context.Context, in *idm.Role, opts ...client.CallOption) (*idm.Role, error)
+	// Search Roles
+	SearchRoles(ctx context.Context, in *SearchRoleRequest, opts ...client.CallOption) (*RolesCollection, error)
+}
+
+type roleServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewRoleServiceClient(serviceName string, c client.Client) RoleServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &roleServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *roleServiceClient) SetRole(ctx context.Context, in *idm.Role, opts ...client.CallOption) (*idm.Role, error) {
+	req := c.c.NewRequest(c.serviceName, "RoleService.SetRole", in)
+	out := new(idm.Role)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleServiceClient) DeleteRole(ctx context.Context, in *idm.Role, opts ...client.CallOption) (*idm.Role, error) {
+	req := c.c.NewRequest(c.serviceName, "RoleService.DeleteRole", in)
+	out := new(idm.Role)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleServiceClient) GetRole(ctx context.Context, in *idm.Role, opts ...client.CallOption) (*idm.Role, error) {
+	req := c.c.NewRequest(c.serviceName, "RoleService.GetRole", in)
+	out := new(idm.Role)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleServiceClient) SearchRoles(ctx context.Context, in *SearchRoleRequest, opts ...client.CallOption) (*RolesCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "RoleService.SearchRoles", in)
+	out := new(RolesCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for RoleService service
+
+type RoleServiceHandler interface {
+	// Create or update a Role
+	SetRole(context.Context, *idm.Role, *idm.Role) error
+	// Delete a Role by ID
+	DeleteRole(context.Context, *idm.Role, *idm.Role) error
+	// Get a Role by ID
+	GetRole(context.Context, *idm.Role, *idm.Role) error
+	// Search Roles
+	SearchRoles(context.Context, *SearchRoleRequest, *RolesCollection) error
+}
+
+func RegisterRoleServiceHandler(s server.Server, hdlr RoleServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&RoleService{hdlr}, opts...))
+}
+
+type RoleService struct {
+	RoleServiceHandler
+}
+
+func (h *RoleService) SetRole(ctx context.Context, in *idm.Role, out *idm.Role) error {
+	return h.RoleServiceHandler.SetRole(ctx, in, out)
+}
+
+func (h *RoleService) DeleteRole(ctx context.Context, in *idm.Role, out *idm.Role) error {
+	return h.RoleServiceHandler.DeleteRole(ctx, in, out)
+}
+
+func (h *RoleService) GetRole(ctx context.Context, in *idm.Role, out *idm.Role) error {
+	return h.RoleServiceHandler.GetRole(ctx, in, out)
+}
+
+func (h *RoleService) SearchRoles(ctx context.Context, in *SearchRoleRequest, out *RolesCollection) error {
+	return h.RoleServiceHandler.SearchRoles(ctx, in, out)
+}
+
+// Client API for UserService service
+
+type UserServiceClient interface {
+	// Create or update a user
+	PutUser(ctx context.Context, in *idm.User, opts ...client.CallOption) (*idm.User, error)
+	// Delete a user
+	DeleteUser(ctx context.Context, in *idm.User, opts ...client.CallOption) (*DeleteResponse, error)
+	// Get a user by login
+	GetUser(ctx context.Context, in *idm.User, opts ...client.CallOption) (*idm.User, error)
+	// List/Search users
+	SearchUsers(ctx context.Context, in *SearchUserRequest, opts ...client.CallOption) (*UsersCollection, error)
+	// Bind a user with her login and password
+	BindUser(ctx context.Context, in *idm.User, opts ...client.CallOption) (*BindResponse, error)
+	// Just save a user roles, without other datas
+	PutRoles(ctx context.Context, in *idm.User, opts ...client.CallOption) (*idm.User, error)
+}
+
+type userServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewUserServiceClient(serviceName string, c client.Client) UserServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &userServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *userServiceClient) PutUser(ctx context.Context, in *idm.User, opts ...client.CallOption) (*idm.User, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.PutUser", in)
+	out := new(idm.User)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) DeleteUser(ctx context.Context, in *idm.User, opts ...client.CallOption) (*DeleteResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.DeleteUser", in)
+	out := new(DeleteResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetUser(ctx context.Context, in *idm.User, opts ...client.CallOption) (*idm.User, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.GetUser", in)
+	out := new(idm.User)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) SearchUsers(ctx context.Context, in *SearchUserRequest, opts ...client.CallOption) (*UsersCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.SearchUsers", in)
+	out := new(UsersCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) BindUser(ctx context.Context, in *idm.User, opts ...client.CallOption) (*BindResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.BindUser", in)
+	out := new(BindResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) PutRoles(ctx context.Context, in *idm.User, opts ...client.CallOption) (*idm.User, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.PutRoles", in)
+	out := new(idm.User)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for UserService service
+
+type UserServiceHandler interface {
+	// Create or update a user
+	PutUser(context.Context, *idm.User, *idm.User) error
+	// Delete a user
+	DeleteUser(context.Context, *idm.User, *DeleteResponse) error
+	// Get a user by login
+	GetUser(context.Context, *idm.User, *idm.User) error
+	// List/Search users
+	SearchUsers(context.Context, *SearchUserRequest, *UsersCollection) error
+	// Bind a user with her login and password
+	BindUser(context.Context, *idm.User, *BindResponse) error
+	// Just save a user roles, without other datas
+	PutRoles(context.Context, *idm.User, *idm.User) error
+}
+
+func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&UserService{hdlr}, opts...))
+}
+
+type UserService struct {
+	UserServiceHandler
+}
+
+func (h *UserService) PutUser(ctx context.Context, in *idm.User, out *idm.User) error {
+	return h.UserServiceHandler.PutUser(ctx, in, out)
+}
+
+func (h *UserService) DeleteUser(ctx context.Context, in *idm.User, out *DeleteResponse) error {
+	return h.UserServiceHandler.DeleteUser(ctx, in, out)
+}
+
+func (h *UserService) GetUser(ctx context.Context, in *idm.User, out *idm.User) error {
+	return h.UserServiceHandler.GetUser(ctx, in, out)
+}
+
+func (h *UserService) SearchUsers(ctx context.Context, in *SearchUserRequest, out *UsersCollection) error {
+	return h.UserServiceHandler.SearchUsers(ctx, in, out)
+}
+
+func (h *UserService) BindUser(ctx context.Context, in *idm.User, out *BindResponse) error {
+	return h.UserServiceHandler.BindUser(ctx, in, out)
+}
+
+func (h *UserService) PutRoles(ctx context.Context, in *idm.User, out *idm.User) error {
+	return h.UserServiceHandler.PutRoles(ctx, in, out)
+}
+
+// Client API for ACLService service
+
+type ACLServiceClient interface {
+	// Store an ACL
+	PutAcl(ctx context.Context, in *idm.ACL, opts ...client.CallOption) (*idm.ACL, error)
+	// Delete one or more ACLs
+	DeleteAcl(ctx context.Context, in *idm.ACL, opts ...client.CallOption) (*DeleteResponse, error)
+	// Search Acls
+	SearchAcls(ctx context.Context, in *SearchACLRequest, opts ...client.CallOption) (*ACLCollection, error)
+}
+
+type aCLServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewACLServiceClient(serviceName string, c client.Client) ACLServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &aCLServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *aCLServiceClient) PutAcl(ctx context.Context, in *idm.ACL, opts ...client.CallOption) (*idm.ACL, error) {
+	req := c.c.NewRequest(c.serviceName, "ACLService.PutAcl", in)
+	out := new(idm.ACL)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aCLServiceClient) DeleteAcl(ctx context.Context, in *idm.ACL, opts ...client.CallOption) (*DeleteResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ACLService.DeleteAcl", in)
+	out := new(DeleteResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aCLServiceClient) SearchAcls(ctx context.Context, in *SearchACLRequest, opts ...client.CallOption) (*ACLCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "ACLService.SearchAcls", in)
+	out := new(ACLCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for ACLService service
+
+type ACLServiceHandler interface {
+	// Store an ACL
+	PutAcl(context.Context, *idm.ACL, *idm.ACL) error
+	// Delete one or more ACLs
+	DeleteAcl(context.Context, *idm.ACL, *DeleteResponse) error
+	// Search Acls
+	SearchAcls(context.Context, *SearchACLRequest, *ACLCollection) error
+}
+
+func RegisterACLServiceHandler(s server.Server, hdlr ACLServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&ACLService{hdlr}, opts...))
+}
+
+type ACLService struct {
+	ACLServiceHandler
+}
+
+func (h *ACLService) PutAcl(ctx context.Context, in *idm.ACL, out *idm.ACL) error {
+	return h.ACLServiceHandler.PutAcl(ctx, in, out)
+}
+
+func (h *ACLService) DeleteAcl(ctx context.Context, in *idm.ACL, out *DeleteResponse) error {
+	return h.ACLServiceHandler.DeleteAcl(ctx, in, out)
+}
+
+func (h *ACLService) SearchAcls(ctx context.Context, in *SearchACLRequest, out *ACLCollection) error {
+	return h.ACLServiceHandler.SearchAcls(ctx, in, out)
+}
+
+// Client API for PolicyService service
+
+type PolicyServiceClient interface {
+	// List all defined security policies
+	ListPolicies(ctx context.Context, in *idm.ListPolicyGroupsRequest, opts ...client.CallOption) (*idm.ListPolicyGroupsResponse, error)
+	// Update or create a security policy
+	PutPolicy(ctx context.Context, in *idm.PolicyGroup, opts ...client.CallOption) (*idm.PolicyGroup, error)
+	// Delete a security policy
+	DeletePolicy(ctx context.Context, in *idm.PolicyGroup, opts ...client.CallOption) (*DeleteResponse, error)
+}
+
+type policyServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewPolicyServiceClient(serviceName string, c client.Client) PolicyServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &policyServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *policyServiceClient) ListPolicies(ctx context.Context, in *idm.ListPolicyGroupsRequest, opts ...client.CallOption) (*idm.ListPolicyGroupsResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "PolicyService.ListPolicies", in)
+	out := new(idm.ListPolicyGroupsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *policyServiceClient) PutPolicy(ctx context.Context, in *idm.PolicyGroup, opts ...client.CallOption) (*idm.PolicyGroup, error) {
+	req := c.c.NewRequest(c.serviceName, "PolicyService.PutPolicy", in)
+	out := new(idm.PolicyGroup)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *policyServiceClient) DeletePolicy(ctx context.Context, in *idm.PolicyGroup, opts ...client.CallOption) (*DeleteResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "PolicyService.DeletePolicy", in)
+	out := new(DeleteResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for PolicyService service
+
+type PolicyServiceHandler interface {
+	// List all defined security policies
+	ListPolicies(context.Context, *idm.ListPolicyGroupsRequest, *idm.ListPolicyGroupsResponse) error
+	// Update or create a security policy
+	PutPolicy(context.Context, *idm.PolicyGroup, *idm.PolicyGroup) error
+	// Delete a security policy
+	DeletePolicy(context.Context, *idm.PolicyGroup, *DeleteResponse) error
+}
+
+func RegisterPolicyServiceHandler(s server.Server, hdlr PolicyServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&PolicyService{hdlr}, opts...))
+}
+
+type PolicyService struct {
+	PolicyServiceHandler
+}
+
+func (h *PolicyService) ListPolicies(ctx context.Context, in *idm.ListPolicyGroupsRequest, out *idm.ListPolicyGroupsResponse) error {
+	return h.PolicyServiceHandler.ListPolicies(ctx, in, out)
+}
+
+func (h *PolicyService) PutPolicy(ctx context.Context, in *idm.PolicyGroup, out *idm.PolicyGroup) error {
+	return h.PolicyServiceHandler.PutPolicy(ctx, in, out)
+}
+
+func (h *PolicyService) DeletePolicy(ctx context.Context, in *idm.PolicyGroup, out *DeleteResponse) error {
+	return h.PolicyServiceHandler.DeletePolicy(ctx, in, out)
+}
+
+// Client API for WorkspaceService service
+
+type WorkspaceServiceClient interface {
+	// Create or update a workspace
+	PutWorkspace(ctx context.Context, in *idm.Workspace, opts ...client.CallOption) (*idm.Workspace, error)
+	// Delete an existing workspace
+	DeleteWorkspace(ctx context.Context, in *idm.Workspace, opts ...client.CallOption) (*DeleteResponse, error)
+	// Search workspaces on certain keys
+	SearchWorkspaces(ctx context.Context, in *SearchWorkspaceRequest, opts ...client.CallOption) (*WorkspaceCollection, error)
+}
+
+type workspaceServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewWorkspaceServiceClient(serviceName string, c client.Client) WorkspaceServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &workspaceServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *workspaceServiceClient) PutWorkspace(ctx context.Context, in *idm.Workspace, opts ...client.CallOption) (*idm.Workspace, error) {
+	req := c.c.NewRequest(c.serviceName, "WorkspaceService.PutWorkspace", in)
+	out := new(idm.Workspace)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *workspaceServiceClient) DeleteWorkspace(ctx context.Context, in *idm.Workspace, opts ...client.CallOption) (*DeleteResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "WorkspaceService.DeleteWorkspace", in)
+	out := new(DeleteResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *workspaceServiceClient) SearchWorkspaces(ctx context.Context, in *SearchWorkspaceRequest, opts ...client.CallOption) (*WorkspaceCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "WorkspaceService.SearchWorkspaces", in)
+	out := new(WorkspaceCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for WorkspaceService service
+
+type WorkspaceServiceHandler interface {
+	// Create or update a workspace
+	PutWorkspace(context.Context, *idm.Workspace, *idm.Workspace) error
+	// Delete an existing workspace
+	DeleteWorkspace(context.Context, *idm.Workspace, *DeleteResponse) error
+	// Search workspaces on certain keys
+	SearchWorkspaces(context.Context, *SearchWorkspaceRequest, *WorkspaceCollection) error
+}
+
+func RegisterWorkspaceServiceHandler(s server.Server, hdlr WorkspaceServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&WorkspaceService{hdlr}, opts...))
+}
+
+type WorkspaceService struct {
+	WorkspaceServiceHandler
+}
+
+func (h *WorkspaceService) PutWorkspace(ctx context.Context, in *idm.Workspace, out *idm.Workspace) error {
+	return h.WorkspaceServiceHandler.PutWorkspace(ctx, in, out)
+}
+
+func (h *WorkspaceService) DeleteWorkspace(ctx context.Context, in *idm.Workspace, out *DeleteResponse) error {
+	return h.WorkspaceServiceHandler.DeleteWorkspace(ctx, in, out)
+}
+
+func (h *WorkspaceService) SearchWorkspaces(ctx context.Context, in *SearchWorkspaceRequest, out *WorkspaceCollection) error {
+	return h.WorkspaceServiceHandler.SearchWorkspaces(ctx, in, out)
+}
+
+// Client API for ActivityService service
+
+type ActivityServiceClient interface {
+	// Load the the feeds of the currently logged user
+	Stream(ctx context.Context, in *activity.StreamActivitiesRequest, opts ...client.CallOption) (*activity.Object, error)
+	// Manage subscriptions to other users/nodes feeds
+	Subscribe(ctx context.Context, in *activity.Subscription, opts ...client.CallOption) (*activity.Subscription, error)
+	// Load subscriptions to other users/nodes feeds
+	SearchSubscriptions(ctx context.Context, in *activity.SearchSubscriptionsRequest, opts ...client.CallOption) (*SubscriptionsCollection, error)
+}
+
+type activityServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewActivityServiceClient(serviceName string, c client.Client) ActivityServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &activityServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *activityServiceClient) Stream(ctx context.Context, in *activity.StreamActivitiesRequest, opts ...client.CallOption) (*activity.Object, error) {
+	req := c.c.NewRequest(c.serviceName, "ActivityService.Stream", in)
+	out := new(activity.Object)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *activityServiceClient) Subscribe(ctx context.Context, in *activity.Subscription, opts ...client.CallOption) (*activity.Subscription, error) {
+	req := c.c.NewRequest(c.serviceName, "ActivityService.Subscribe", in)
+	out := new(activity.Subscription)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *activityServiceClient) SearchSubscriptions(ctx context.Context, in *activity.SearchSubscriptionsRequest, opts ...client.CallOption) (*SubscriptionsCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "ActivityService.SearchSubscriptions", in)
+	out := new(SubscriptionsCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for ActivityService service
+
+type ActivityServiceHandler interface {
+	// Load the the feeds of the currently logged user
+	Stream(context.Context, *activity.StreamActivitiesRequest, *activity.Object) error
+	// Manage subscriptions to other users/nodes feeds
+	Subscribe(context.Context, *activity.Subscription, *activity.Subscription) error
+	// Load subscriptions to other users/nodes feeds
+	SearchSubscriptions(context.Context, *activity.SearchSubscriptionsRequest, *SubscriptionsCollection) error
+}
+
+func RegisterActivityServiceHandler(s server.Server, hdlr ActivityServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&ActivityService{hdlr}, opts...))
+}
+
+type ActivityService struct {
+	ActivityServiceHandler
+}
+
+func (h *ActivityService) Stream(ctx context.Context, in *activity.StreamActivitiesRequest, out *activity.Object) error {
+	return h.ActivityServiceHandler.Stream(ctx, in, out)
+}
+
+func (h *ActivityService) Subscribe(ctx context.Context, in *activity.Subscription, out *activity.Subscription) error {
+	return h.ActivityServiceHandler.Subscribe(ctx, in, out)
+}
+
+func (h *ActivityService) SearchSubscriptions(ctx context.Context, in *activity.SearchSubscriptionsRequest, out *SubscriptionsCollection) error {
+	return h.ActivityServiceHandler.SearchSubscriptions(ctx, in, out)
+}
+
+// Client API for LogService service
+
+type LogServiceClient interface {
+	// Technical Logs, in Json or CSV format
+	Syslog(ctx context.Context, in *log.ListLogRequest, opts ...client.CallOption) (*LogMessageCollection, error)
+	// Technical Logs, in Json or CSV format
+	SyslogExport(ctx context.Context, in *log.ListLogRequest, opts ...client.CallOption) (*LogMessageCollection, error)
+	// Auditable Logs, in Json or CSV format
+	Audit(ctx context.Context, in *log.ListLogRequest, opts ...client.CallOption) (*LogMessageCollection, error)
+	// Auditable Logs, in Json or CSV format
+	AuditExport(ctx context.Context, in *log.ListLogRequest, opts ...client.CallOption) (*LogMessageCollection, error)
+	// Retrieves aggregated audit logs to generate charts
+	AuditChartData(ctx context.Context, in *log.TimeRangeRequest, opts ...client.CallOption) (*TimeRangeResultCollection, error)
+}
+
+type logServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewLogServiceClient(serviceName string, c client.Client) LogServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &logServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *logServiceClient) Syslog(ctx context.Context, in *log.ListLogRequest, opts ...client.CallOption) (*LogMessageCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "LogService.Syslog", in)
+	out := new(LogMessageCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *logServiceClient) SyslogExport(ctx context.Context, in *log.ListLogRequest, opts ...client.CallOption) (*LogMessageCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "LogService.SyslogExport", in)
+	out := new(LogMessageCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *logServiceClient) Audit(ctx context.Context, in *log.ListLogRequest, opts ...client.CallOption) (*LogMessageCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "LogService.Audit", in)
+	out := new(LogMessageCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *logServiceClient) AuditExport(ctx context.Context, in *log.ListLogRequest, opts ...client.CallOption) (*LogMessageCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "LogService.AuditExport", in)
+	out := new(LogMessageCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *logServiceClient) AuditChartData(ctx context.Context, in *log.TimeRangeRequest, opts ...client.CallOption) (*TimeRangeResultCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "LogService.AuditChartData", in)
+	out := new(TimeRangeResultCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for LogService service
+
+type LogServiceHandler interface {
+	// Technical Logs, in Json or CSV format
+	Syslog(context.Context, *log.ListLogRequest, *LogMessageCollection) error
+	// Technical Logs, in Json or CSV format
+	SyslogExport(context.Context, *log.ListLogRequest, *LogMessageCollection) error
+	// Auditable Logs, in Json or CSV format
+	Audit(context.Context, *log.ListLogRequest, *LogMessageCollection) error
+	// Auditable Logs, in Json or CSV format
+	AuditExport(context.Context, *log.ListLogRequest, *LogMessageCollection) error
+	// Retrieves aggregated audit logs to generate charts
+	AuditChartData(context.Context, *log.TimeRangeRequest, *TimeRangeResultCollection) error
+}
+
+func RegisterLogServiceHandler(s server.Server, hdlr LogServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&LogService{hdlr}, opts...))
+}
+
+type LogService struct {
+	LogServiceHandler
+}
+
+func (h *LogService) Syslog(ctx context.Context, in *log.ListLogRequest, out *LogMessageCollection) error {
+	return h.LogServiceHandler.Syslog(ctx, in, out)
+}
+
+func (h *LogService) SyslogExport(ctx context.Context, in *log.ListLogRequest, out *LogMessageCollection) error {
+	return h.LogServiceHandler.SyslogExport(ctx, in, out)
+}
+
+func (h *LogService) Audit(ctx context.Context, in *log.ListLogRequest, out *LogMessageCollection) error {
+	return h.LogServiceHandler.Audit(ctx, in, out)
+}
+
+func (h *LogService) AuditExport(ctx context.Context, in *log.ListLogRequest, out *LogMessageCollection) error {
+	return h.LogServiceHandler.AuditExport(ctx, in, out)
+}
+
+func (h *LogService) AuditChartData(ctx context.Context, in *log.TimeRangeRequest, out *TimeRangeResultCollection) error {
+	return h.LogServiceHandler.AuditChartData(ctx, in, out)
+}
+
+// Client API for TokenService service
+
+type TokenServiceClient interface {
+	// Revoke a JWT token
+	Revoke(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error)
+	// Generate a unique token for the reset password process
+	ResetPasswordToken(ctx context.Context, in *ResetPasswordTokenRequest, opts ...client.CallOption) (*ResetPasswordTokenResponse, error)
+	// Finish up the reset password process by providing the unique token
+	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...client.CallOption) (*ResetPasswordResponse, error)
+}
+
+type tokenServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewTokenServiceClient(serviceName string, c client.Client) TokenServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &tokenServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *tokenServiceClient) Revoke(ctx context.Context, in *RevokeRequest, opts ...client.CallOption) (*RevokeResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "TokenService.Revoke", in)
+	out := new(RevokeResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tokenServiceClient) ResetPasswordToken(ctx context.Context, in *ResetPasswordTokenRequest, opts ...client.CallOption) (*ResetPasswordTokenResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "TokenService.ResetPasswordToken", in)
+	out := new(ResetPasswordTokenResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tokenServiceClient) ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...client.CallOption) (*ResetPasswordResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "TokenService.ResetPassword", in)
+	out := new(ResetPasswordResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for TokenService service
+
+type TokenServiceHandler interface {
+	// Revoke a JWT token
+	Revoke(context.Context, *RevokeRequest, *RevokeResponse) error
+	// Generate a unique token for the reset password process
+	ResetPasswordToken(context.Context, *ResetPasswordTokenRequest, *ResetPasswordTokenResponse) error
+	// Finish up the reset password process by providing the unique token
+	ResetPassword(context.Context, *ResetPasswordRequest, *ResetPasswordResponse) error
+}
+
+func RegisterTokenServiceHandler(s server.Server, hdlr TokenServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&TokenService{hdlr}, opts...))
+}
+
+type TokenService struct {
+	TokenServiceHandler
+}
+
+func (h *TokenService) Revoke(ctx context.Context, in *RevokeRequest, out *RevokeResponse) error {
+	return h.TokenServiceHandler.Revoke(ctx, in, out)
+}
+
+func (h *TokenService) ResetPasswordToken(ctx context.Context, in *ResetPasswordTokenRequest, out *ResetPasswordTokenResponse) error {
+	return h.TokenServiceHandler.ResetPasswordToken(ctx, in, out)
+}
+
+func (h *TokenService) ResetPassword(ctx context.Context, in *ResetPasswordRequest, out *ResetPasswordResponse) error {
+	return h.TokenServiceHandler.ResetPassword(ctx, in, out)
+}
+
+// Client API for MailerService service
+
+type MailerServiceClient interface {
+	// Send an email to a user or any email address
+	Send(ctx context.Context, in *mailer.Mail, opts ...client.CallOption) (*mailer.SendMailResponse, error)
+}
+
+type mailerServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewMailerServiceClient(serviceName string, c client.Client) MailerServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &mailerServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *mailerServiceClient) Send(ctx context.Context, in *mailer.Mail, opts ...client.CallOption) (*mailer.SendMailResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "MailerService.Send", in)
+	out := new(mailer.SendMailResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for MailerService service
+
+type MailerServiceHandler interface {
+	// Send an email to a user or any email address
+	Send(context.Context, *mailer.Mail, *mailer.SendMailResponse) error
+}
+
+func RegisterMailerServiceHandler(s server.Server, hdlr MailerServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&MailerService{hdlr}, opts...))
+}
+
+type MailerService struct {
+	MailerServiceHandler
+}
+
+func (h *MailerService) Send(ctx context.Context, in *mailer.Mail, out *mailer.SendMailResponse) error {
+	return h.MailerServiceHandler.Send(ctx, in, out)
+}
+
+// Client API for SearchService service
+
+type SearchServiceClient interface {
+	// Search indexed nodes (files/folders) on various aspects
+	Nodes(ctx context.Context, in *tree.SearchRequest, opts ...client.CallOption) (*SearchResults, error)
+}
+
+type searchServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewSearchServiceClient(serviceName string, c client.Client) SearchServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &searchServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *searchServiceClient) Nodes(ctx context.Context, in *tree.SearchRequest, opts ...client.CallOption) (*SearchResults, error) {
+	req := c.c.NewRequest(c.serviceName, "SearchService.Nodes", in)
+	out := new(SearchResults)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for SearchService service
+
+type SearchServiceHandler interface {
+	// Search indexed nodes (files/folders) on various aspects
+	Nodes(context.Context, *tree.SearchRequest, *SearchResults) error
+}
+
+func RegisterSearchServiceHandler(s server.Server, hdlr SearchServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&SearchService{hdlr}, opts...))
+}
+
+type SearchService struct {
+	SearchServiceHandler
+}
+
+func (h *SearchService) Nodes(ctx context.Context, in *tree.SearchRequest, out *SearchResults) error {
+	return h.SearchServiceHandler.Nodes(ctx, in, out)
+}
+
+// Client API for TreeService service
+
+type TreeServiceClient interface {
+	// List meta for a list of nodes, or a full directory using /path/* syntax
+	BulkStatNodes(ctx context.Context, in *GetBulkMetaRequest, opts ...client.CallOption) (*BulkMetaResponse, error)
+	// Create dirs or empty files inside the tree
+	CreateNodes(ctx context.Context, in *CreateNodesRequest, opts ...client.CallOption) (*NodesCollection, error)
+	// Return node meta without the node content itself
+	HeadNode(ctx context.Context, in *HeadNodeRequest, opts ...client.CallOption) (*HeadNodeResponse, error)
+}
+
+type treeServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewTreeServiceClient(serviceName string, c client.Client) TreeServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &treeServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *treeServiceClient) BulkStatNodes(ctx context.Context, in *GetBulkMetaRequest, opts ...client.CallOption) (*BulkMetaResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "TreeService.BulkStatNodes", in)
+	out := new(BulkMetaResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *treeServiceClient) CreateNodes(ctx context.Context, in *CreateNodesRequest, opts ...client.CallOption) (*NodesCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "TreeService.CreateNodes", in)
+	out := new(NodesCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *treeServiceClient) HeadNode(ctx context.Context, in *HeadNodeRequest, opts ...client.CallOption) (*HeadNodeResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "TreeService.HeadNode", in)
+	out := new(HeadNodeResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for TreeService service
+
+type TreeServiceHandler interface {
+	// List meta for a list of nodes, or a full directory using /path/* syntax
+	BulkStatNodes(context.Context, *GetBulkMetaRequest, *BulkMetaResponse) error
+	// Create dirs or empty files inside the tree
+	CreateNodes(context.Context, *CreateNodesRequest, *NodesCollection) error
+	// Return node meta without the node content itself
+	HeadNode(context.Context, *HeadNodeRequest, *HeadNodeResponse) error
+}
+
+func RegisterTreeServiceHandler(s server.Server, hdlr TreeServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&TreeService{hdlr}, opts...))
+}
+
+type TreeService struct {
+	TreeServiceHandler
+}
+
+func (h *TreeService) BulkStatNodes(ctx context.Context, in *GetBulkMetaRequest, out *BulkMetaResponse) error {
+	return h.TreeServiceHandler.BulkStatNodes(ctx, in, out)
+}
+
+func (h *TreeService) CreateNodes(ctx context.Context, in *CreateNodesRequest, out *NodesCollection) error {
+	return h.TreeServiceHandler.CreateNodes(ctx, in, out)
+}
+
+func (h *TreeService) HeadNode(ctx context.Context, in *HeadNodeRequest, out *HeadNodeResponse) error {
+	return h.TreeServiceHandler.HeadNode(ctx, in, out)
+}
+
+// Client API for MetaService service
+
+type MetaServiceClient interface {
+	// Load metadata for a given node
+	GetMeta(ctx context.Context, in *MetaNamespaceRequest, opts ...client.CallOption) (*tree.Node, error)
+	// Update metadata for a given node
+	SetMeta(ctx context.Context, in *MetaCollection, opts ...client.CallOption) (*tree.Node, error)
+	// Delete metadata of a given node
+	DeleteMeta(ctx context.Context, in *MetaNamespaceRequest, opts ...client.CallOption) (*tree.Node, error)
+	// List meta for a list of nodes, or a full directory using /path/* syntax
+	GetBulkMeta(ctx context.Context, in *GetBulkMetaRequest, opts ...client.CallOption) (*BulkMetaResponse, error)
+}
+
+type metaServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewMetaServiceClient(serviceName string, c client.Client) MetaServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &metaServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *metaServiceClient) GetMeta(ctx context.Context, in *MetaNamespaceRequest, opts ...client.CallOption) (*tree.Node, error) {
+	req := c.c.NewRequest(c.serviceName, "MetaService.GetMeta", in)
+	out := new(tree.Node)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *metaServiceClient) SetMeta(ctx context.Context, in *MetaCollection, opts ...client.CallOption) (*tree.Node, error) {
+	req := c.c.NewRequest(c.serviceName, "MetaService.SetMeta", in)
+	out := new(tree.Node)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *metaServiceClient) DeleteMeta(ctx context.Context, in *MetaNamespaceRequest, opts ...client.CallOption) (*tree.Node, error) {
+	req := c.c.NewRequest(c.serviceName, "MetaService.DeleteMeta", in)
+	out := new(tree.Node)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *metaServiceClient) GetBulkMeta(ctx context.Context, in *GetBulkMetaRequest, opts ...client.CallOption) (*BulkMetaResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "MetaService.GetBulkMeta", in)
+	out := new(BulkMetaResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for MetaService service
+
+type MetaServiceHandler interface {
+	// Load metadata for a given node
+	GetMeta(context.Context, *MetaNamespaceRequest, *tree.Node) error
+	// Update metadata for a given node
+	SetMeta(context.Context, *MetaCollection, *tree.Node) error
+	// Delete metadata of a given node
+	DeleteMeta(context.Context, *MetaNamespaceRequest, *tree.Node) error
+	// List meta for a list of nodes, or a full directory using /path/* syntax
+	GetBulkMeta(context.Context, *GetBulkMetaRequest, *BulkMetaResponse) error
+}
+
+func RegisterMetaServiceHandler(s server.Server, hdlr MetaServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&MetaService{hdlr}, opts...))
+}
+
+type MetaService struct {
+	MetaServiceHandler
+}
+
+func (h *MetaService) GetMeta(ctx context.Context, in *MetaNamespaceRequest, out *tree.Node) error {
+	return h.MetaServiceHandler.GetMeta(ctx, in, out)
+}
+
+func (h *MetaService) SetMeta(ctx context.Context, in *MetaCollection, out *tree.Node) error {
+	return h.MetaServiceHandler.SetMeta(ctx, in, out)
+}
+
+func (h *MetaService) DeleteMeta(ctx context.Context, in *MetaNamespaceRequest, out *tree.Node) error {
+	return h.MetaServiceHandler.DeleteMeta(ctx, in, out)
+}
+
+func (h *MetaService) GetBulkMeta(ctx context.Context, in *GetBulkMetaRequest, out *BulkMetaResponse) error {
+	return h.MetaServiceHandler.GetBulkMeta(ctx, in, out)
+}
+
+// Client API for UserMetaService service
+
+type UserMetaServiceClient interface {
+	// Update/delete user meta
+	UpdateUserMeta(ctx context.Context, in *idm.UpdateUserMetaRequest, opts ...client.CallOption) (*idm.UpdateUserMetaResponse, error)
+	// Search a list of meta by node Id or by User id and by namespace
+	SearchUserMeta(ctx context.Context, in *idm.SearchUserMetaRequest, opts ...client.CallOption) (*UserMetaCollection, error)
+	// Special API for Bookmarks, will load userMeta and the associated nodes, and return
+	// as a node list
+	UserBookmarks(ctx context.Context, in *UserBookmarksRequest, opts ...client.CallOption) (*BulkMetaResponse, error)
+	// Admin: update namespaces
+	UpdateUserMetaNamespace(ctx context.Context, in *idm.UpdateUserMetaNamespaceRequest, opts ...client.CallOption) (*idm.UpdateUserMetaNamespaceResponse, error)
+	// List defined meta namespaces
+	ListUserMetaNamespace(ctx context.Context, in *idm.ListUserMetaNamespaceRequest, opts ...client.CallOption) (*UserMetaNamespaceCollection, error)
+	// List Tags for a given namespace
+	ListUserMetaTags(ctx context.Context, in *ListUserMetaTagsRequest, opts ...client.CallOption) (*ListUserMetaTagsResponse, error)
+	// List Tags for a given namespace
+	PutUserMetaTag(ctx context.Context, in *PutUserMetaTagRequest, opts ...client.CallOption) (*PutUserMetaTagResponse, error)
+	// List Tags for a given namespace
+	DeleteUserMetaTags(ctx context.Context, in *DeleteUserMetaTagsRequest, opts ...client.CallOption) (*DeleteUserMetaTagsResponse, error)
+}
+
+type userMetaServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewUserMetaServiceClient(serviceName string, c client.Client) UserMetaServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &userMetaServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *userMetaServiceClient) UpdateUserMeta(ctx context.Context, in *idm.UpdateUserMetaRequest, opts ...client.CallOption) (*idm.UpdateUserMetaResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserMetaService.UpdateUserMeta", in)
+	out := new(idm.UpdateUserMetaResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) SearchUserMeta(ctx context.Context, in *idm.SearchUserMetaRequest, opts ...client.CallOption) (*UserMetaCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "UserMetaService.SearchUserMeta", in)
+	out := new(UserMetaCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) UserBookmarks(ctx context.Context, in *UserBookmarksRequest, opts ...client.CallOption) (*BulkMetaResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserMetaService.UserBookmarks", in)
+	out := new(BulkMetaResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) UpdateUserMetaNamespace(ctx context.Context, in *idm.UpdateUserMetaNamespaceRequest, opts ...client.CallOption) (*idm.UpdateUserMetaNamespaceResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserMetaService.UpdateUserMetaNamespace", in)
+	out := new(idm.UpdateUserMetaNamespaceResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) ListUserMetaNamespace(ctx context.Context, in *idm.ListUserMetaNamespaceRequest, opts ...client.CallOption) (*UserMetaNamespaceCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "UserMetaService.ListUserMetaNamespace", in)
+	out := new(UserMetaNamespaceCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) ListUserMetaTags(ctx context.Context, in *ListUserMetaTagsRequest, opts ...client.CallOption) (*ListUserMetaTagsResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserMetaService.ListUserMetaTags", in)
+	out := new(ListUserMetaTagsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) PutUserMetaTag(ctx context.Context, in *PutUserMetaTagRequest, opts ...client.CallOption) (*PutUserMetaTagResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserMetaService.PutUserMetaTag", in)
+	out := new(PutUserMetaTagResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userMetaServiceClient) DeleteUserMetaTags(ctx context.Context, in *DeleteUserMetaTagsRequest, opts ...client.CallOption) (*DeleteUserMetaTagsResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserMetaService.DeleteUserMetaTags", in)
+	out := new(DeleteUserMetaTagsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for UserMetaService service
+
+type UserMetaServiceHandler interface {
+	// Update/delete user meta
+	UpdateUserMeta(context.Context, *idm.UpdateUserMetaRequest, *idm.UpdateUserMetaResponse) error
+	// Search a list of meta by node Id or by User id and by namespace
+	SearchUserMeta(context.Context, *idm.SearchUserMetaRequest, *UserMetaCollection) error
+	// Special API for Bookmarks, will load userMeta and the associated nodes, and return
+	// as a node list
+	UserBookmarks(context.Context, *UserBookmarksRequest, *BulkMetaResponse) error
+	// Admin: update namespaces
+	UpdateUserMetaNamespace(context.Context, *idm.UpdateUserMetaNamespaceRequest, *idm.UpdateUserMetaNamespaceResponse) error
+	// List defined meta namespaces
+	ListUserMetaNamespace(context.Context, *idm.ListUserMetaNamespaceRequest, *UserMetaNamespaceCollection) error
+	// List Tags for a given namespace
+	ListUserMetaTags(context.Context, *ListUserMetaTagsRequest, *ListUserMetaTagsResponse) error
+	// List Tags for a given namespace
+	PutUserMetaTag(context.Context, *PutUserMetaTagRequest, *PutUserMetaTagResponse) error
+	// List Tags for a given namespace
+	DeleteUserMetaTags(context.Context, *DeleteUserMetaTagsRequest, *DeleteUserMetaTagsResponse) error
+}
+
+func RegisterUserMetaServiceHandler(s server.Server, hdlr UserMetaServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&UserMetaService{hdlr}, opts...))
+}
+
+type UserMetaService struct {
+	UserMetaServiceHandler
+}
+
+func (h *UserMetaService) UpdateUserMeta(ctx context.Context, in *idm.UpdateUserMetaRequest, out *idm.UpdateUserMetaResponse) error {
+	return h.UserMetaServiceHandler.UpdateUserMeta(ctx, in, out)
+}
+
+func (h *UserMetaService) SearchUserMeta(ctx context.Context, in *idm.SearchUserMetaRequest, out *UserMetaCollection) error {
+	return h.UserMetaServiceHandler.SearchUserMeta(ctx, in, out)
+}
+
+func (h *UserMetaService) UserBookmarks(ctx context.Context, in *UserBookmarksRequest, out *BulkMetaResponse) error {
+	return h.UserMetaServiceHandler.UserBookmarks(ctx, in, out)
+}
+
+func (h *UserMetaService) UpdateUserMetaNamespace(ctx context.Context, in *idm.UpdateUserMetaNamespaceRequest, out *idm.UpdateUserMetaNamespaceResponse) error {
+	return h.UserMetaServiceHandler.UpdateUserMetaNamespace(ctx, in, out)
+}
+
+func (h *UserMetaService) ListUserMetaNamespace(ctx context.Context, in *idm.ListUserMetaNamespaceRequest, out *UserMetaNamespaceCollection) error {
+	return h.UserMetaServiceHandler.ListUserMetaNamespace(ctx, in, out)
+}
+
+func (h *UserMetaService) ListUserMetaTags(ctx context.Context, in *ListUserMetaTagsRequest, out *ListUserMetaTagsResponse) error {
+	return h.UserMetaServiceHandler.ListUserMetaTags(ctx, in, out)
+}
+
+func (h *UserMetaService) PutUserMetaTag(ctx context.Context, in *PutUserMetaTagRequest, out *PutUserMetaTagResponse) error {
+	return h.UserMetaServiceHandler.PutUserMetaTag(ctx, in, out)
+}
+
+func (h *UserMetaService) DeleteUserMetaTags(ctx context.Context, in *DeleteUserMetaTagsRequest, out *DeleteUserMetaTagsResponse) error {
+	return h.UserMetaServiceHandler.DeleteUserMetaTags(ctx, in, out)
+}
+
+// Client API for JobsService service
+
+type JobsServiceClient interface {
+	// Create a predefined job to be run directly
+	UserCreateJob(ctx context.Context, in *UserJobRequest, opts ...client.CallOption) (*UserJobResponse, error)
+	// List jobs associated with current user
+	UserListJobs(ctx context.Context, in *jobs.ListJobsRequest, opts ...client.CallOption) (*UserJobsCollection, error)
+	// Send Control Commands to one or many jobs / tasks
+	UserControlJob(ctx context.Context, in *jobs.CtrlCommand, opts ...client.CallOption) (*jobs.CtrlCommandResponse, error)
+	// Send a control command to clean tasks on a given job
+	UserDeleteTasks(ctx context.Context, in *jobs.DeleteTasksRequest, opts ...client.CallOption) (*jobs.DeleteTasksResponse, error)
+}
+
+type jobsServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewJobsServiceClient(serviceName string, c client.Client) JobsServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &jobsServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *jobsServiceClient) UserCreateJob(ctx context.Context, in *UserJobRequest, opts ...client.CallOption) (*UserJobResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "JobsService.UserCreateJob", in)
+	out := new(UserJobResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *jobsServiceClient) UserListJobs(ctx context.Context, in *jobs.ListJobsRequest, opts ...client.CallOption) (*UserJobsCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "JobsService.UserListJobs", in)
+	out := new(UserJobsCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *jobsServiceClient) UserControlJob(ctx context.Context, in *jobs.CtrlCommand, opts ...client.CallOption) (*jobs.CtrlCommandResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "JobsService.UserControlJob", in)
+	out := new(jobs.CtrlCommandResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *jobsServiceClient) UserDeleteTasks(ctx context.Context, in *jobs.DeleteTasksRequest, opts ...client.CallOption) (*jobs.DeleteTasksResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "JobsService.UserDeleteTasks", in)
+	out := new(jobs.DeleteTasksResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for JobsService service
+
+type JobsServiceHandler interface {
+	// Create a predefined job to be run directly
+	UserCreateJob(context.Context, *UserJobRequest, *UserJobResponse) error
+	// List jobs associated with current user
+	UserListJobs(context.Context, *jobs.ListJobsRequest, *UserJobsCollection) error
+	// Send Control Commands to one or many jobs / tasks
+	UserControlJob(context.Context, *jobs.CtrlCommand, *jobs.CtrlCommandResponse) error
+	// Send a control command to clean tasks on a given job
+	UserDeleteTasks(context.Context, *jobs.DeleteTasksRequest, *jobs.DeleteTasksResponse) error
+}
+
+func RegisterJobsServiceHandler(s server.Server, hdlr JobsServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&JobsService{hdlr}, opts...))
+}
+
+type JobsService struct {
+	JobsServiceHandler
+}
+
+func (h *JobsService) UserCreateJob(ctx context.Context, in *UserJobRequest, out *UserJobResponse) error {
+	return h.JobsServiceHandler.UserCreateJob(ctx, in, out)
+}
+
+func (h *JobsService) UserListJobs(ctx context.Context, in *jobs.ListJobsRequest, out *UserJobsCollection) error {
+	return h.JobsServiceHandler.UserListJobs(ctx, in, out)
+}
+
+func (h *JobsService) UserControlJob(ctx context.Context, in *jobs.CtrlCommand, out *jobs.CtrlCommandResponse) error {
+	return h.JobsServiceHandler.UserControlJob(ctx, in, out)
+}
+
+func (h *JobsService) UserDeleteTasks(ctx context.Context, in *jobs.DeleteTasksRequest, out *jobs.DeleteTasksResponse) error {
+	return h.JobsServiceHandler.UserDeleteTasks(ctx, in, out)
+}
+
+// Client API for SchedulerService service
+
+type SchedulerServiceClient interface {
+	PutJob(ctx context.Context, in *jobs.PutJobRequest, opts ...client.CallOption) (*jobs.PutJobResponse, error)
+}
+
+type schedulerServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewSchedulerServiceClient(serviceName string, c client.Client) SchedulerServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &schedulerServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *schedulerServiceClient) PutJob(ctx context.Context, in *jobs.PutJobRequest, opts ...client.CallOption) (*jobs.PutJobResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "SchedulerService.PutJob", in)
+	out := new(jobs.PutJobResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for SchedulerService service
+
+type SchedulerServiceHandler interface {
+	PutJob(context.Context, *jobs.PutJobRequest, *jobs.PutJobResponse) error
+}
+
+func RegisterSchedulerServiceHandler(s server.Server, hdlr SchedulerServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&SchedulerService{hdlr}, opts...))
+}
+
+type SchedulerService struct {
+	SchedulerServiceHandler
+}
+
+func (h *SchedulerService) PutJob(ctx context.Context, in *jobs.PutJobRequest, out *jobs.PutJobResponse) error {
+	return h.SchedulerServiceHandler.PutJob(ctx, in, out)
+}
+
+// Client API for AdminTreeService service
+
+type AdminTreeServiceClient interface {
+	// List files and folders starting at the root (first level lists the datasources)
+	ListAdminTree(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (*NodesCollection, error)
+	// Read a node information inside the admin tree
+	StatAdminTree(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error)
+}
+
+type adminTreeServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewAdminTreeServiceClient(serviceName string, c client.Client) AdminTreeServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &adminTreeServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *adminTreeServiceClient) ListAdminTree(ctx context.Context, in *tree.ListNodesRequest, opts ...client.CallOption) (*NodesCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "AdminTreeService.ListAdminTree", in)
+	out := new(NodesCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminTreeServiceClient) StatAdminTree(ctx context.Context, in *tree.ReadNodeRequest, opts ...client.CallOption) (*tree.ReadNodeResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "AdminTreeService.StatAdminTree", in)
+	out := new(tree.ReadNodeResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for AdminTreeService service
+
+type AdminTreeServiceHandler interface {
+	// List files and folders starting at the root (first level lists the datasources)
+	ListAdminTree(context.Context, *tree.ListNodesRequest, *NodesCollection) error
+	// Read a node information inside the admin tree
+	StatAdminTree(context.Context, *tree.ReadNodeRequest, *tree.ReadNodeResponse) error
+}
+
+func RegisterAdminTreeServiceHandler(s server.Server, hdlr AdminTreeServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&AdminTreeService{hdlr}, opts...))
+}
+
+type AdminTreeService struct {
+	AdminTreeServiceHandler
+}
+
+func (h *AdminTreeService) ListAdminTree(ctx context.Context, in *tree.ListNodesRequest, out *NodesCollection) error {
+	return h.AdminTreeServiceHandler.ListAdminTree(ctx, in, out)
+}
+
+func (h *AdminTreeService) StatAdminTree(ctx context.Context, in *tree.ReadNodeRequest, out *tree.ReadNodeResponse) error {
+	return h.AdminTreeServiceHandler.StatAdminTree(ctx, in, out)
+}
+
+// Client API for DocStoreService service
+
+type DocStoreServiceClient interface {
+	// List all docs of a given store
+	ListDocs(ctx context.Context, in *ListDocstoreRequest, opts ...client.CallOption) (*DocstoreCollection, error)
+	// Delete one or more docs inside a given store
+	DeleteDoc(ctx context.Context, in *docstore.DeleteDocumentsRequest, opts ...client.CallOption) (*docstore.DeleteDocumentsResponse, error)
+	// Put a document inside a given store
+	PutDoc(ctx context.Context, in *docstore.PutDocumentRequest, opts ...client.CallOption) (*docstore.PutDocumentResponse, error)
+	// Load one document by ID from a given store
+	GetDoc(ctx context.Context, in *docstore.GetDocumentRequest, opts ...client.CallOption) (*docstore.GetDocumentResponse, error)
+}
+
+type docStoreServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewDocStoreServiceClient(serviceName string, c client.Client) DocStoreServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &docStoreServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *docStoreServiceClient) ListDocs(ctx context.Context, in *ListDocstoreRequest, opts ...client.CallOption) (*DocstoreCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "DocStoreService.ListDocs", in)
+	out := new(DocstoreCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *docStoreServiceClient) DeleteDoc(ctx context.Context, in *docstore.DeleteDocumentsRequest, opts ...client.CallOption) (*docstore.DeleteDocumentsResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "DocStoreService.DeleteDoc", in)
+	out := new(docstore.DeleteDocumentsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *docStoreServiceClient) PutDoc(ctx context.Context, in *docstore.PutDocumentRequest, opts ...client.CallOption) (*docstore.PutDocumentResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "DocStoreService.PutDoc", in)
+	out := new(docstore.PutDocumentResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *docStoreServiceClient) GetDoc(ctx context.Context, in *docstore.GetDocumentRequest, opts ...client.CallOption) (*docstore.GetDocumentResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "DocStoreService.GetDoc", in)
+	out := new(docstore.GetDocumentResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for DocStoreService service
+
+type DocStoreServiceHandler interface {
+	// List all docs of a given store
+	ListDocs(context.Context, *ListDocstoreRequest, *DocstoreCollection) error
+	// Delete one or more docs inside a given store
+	DeleteDoc(context.Context, *docstore.DeleteDocumentsRequest, *docstore.DeleteDocumentsResponse) error
+	// Put a document inside a given store
+	PutDoc(context.Context, *docstore.PutDocumentRequest, *docstore.PutDocumentResponse) error
+	// Load one document by ID from a given store
+	GetDoc(context.Context, *docstore.GetDocumentRequest, *docstore.GetDocumentResponse) error
+}
+
+func RegisterDocStoreServiceHandler(s server.Server, hdlr DocStoreServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&DocStoreService{hdlr}, opts...))
+}
+
+type DocStoreService struct {
+	DocStoreServiceHandler
+}
+
+func (h *DocStoreService) ListDocs(ctx context.Context, in *ListDocstoreRequest, out *DocstoreCollection) error {
+	return h.DocStoreServiceHandler.ListDocs(ctx, in, out)
+}
+
+func (h *DocStoreService) DeleteDoc(ctx context.Context, in *docstore.DeleteDocumentsRequest, out *docstore.DeleteDocumentsResponse) error {
+	return h.DocStoreServiceHandler.DeleteDoc(ctx, in, out)
+}
+
+func (h *DocStoreService) PutDoc(ctx context.Context, in *docstore.PutDocumentRequest, out *docstore.PutDocumentResponse) error {
+	return h.DocStoreServiceHandler.PutDoc(ctx, in, out)
+}
+
+func (h *DocStoreService) GetDoc(ctx context.Context, in *docstore.GetDocumentRequest, out *docstore.GetDocumentResponse) error {
+	return h.DocStoreServiceHandler.GetDoc(ctx, in, out)
+}
+
+// Client API for GraphService service
+
+type GraphServiceClient interface {
+	// Compute accessible workspaces for a given user
+	UserState(ctx context.Context, in *UserStateRequest, opts ...client.CallOption) (*UserStateResponse, error)
+	// Compute relation of context user with another user
+	Relation(ctx context.Context, in *RelationRequest, opts ...client.CallOption) (*RelationResponse, error)
+}
+
+type graphServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewGraphServiceClient(serviceName string, c client.Client) GraphServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &graphServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *graphServiceClient) UserState(ctx context.Context, in *UserStateRequest, opts ...client.CallOption) (*UserStateResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "GraphService.UserState", in)
+	out := new(UserStateResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *graphServiceClient) Relation(ctx context.Context, in *RelationRequest, opts ...client.CallOption) (*RelationResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "GraphService.Relation", in)
+	out := new(RelationResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for GraphService service
+
+type GraphServiceHandler interface {
+	// Compute accessible workspaces for a given user
+	UserState(context.Context, *UserStateRequest, *UserStateResponse) error
+	// Compute relation of context user with another user
+	Relation(context.Context, *RelationRequest, *RelationResponse) error
+}
+
+func RegisterGraphServiceHandler(s server.Server, hdlr GraphServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&GraphService{hdlr}, opts...))
+}
+
+type GraphService struct {
+	GraphServiceHandler
+}
+
+func (h *GraphService) UserState(ctx context.Context, in *UserStateRequest, out *UserStateResponse) error {
+	return h.GraphServiceHandler.UserState(ctx, in, out)
+}
+
+func (h *GraphService) Relation(ctx context.Context, in *RelationRequest, out *RelationResponse) error {
+	return h.GraphServiceHandler.Relation(ctx, in, out)
+}
+
+// Client API for ChangeService service
+
+type ChangeServiceClient interface {
+	// Get Changes
+	GetChanges(ctx context.Context, in *ChangeRequest, opts ...client.CallOption) (*ChangeCollection, error)
+}
+
+type changeServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewChangeServiceClient(serviceName string, c client.Client) ChangeServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &changeServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *changeServiceClient) GetChanges(ctx context.Context, in *ChangeRequest, opts ...client.CallOption) (*ChangeCollection, error) {
+	req := c.c.NewRequest(c.serviceName, "ChangeService.GetChanges", in)
+	out := new(ChangeCollection)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for ChangeService service
+
+type ChangeServiceHandler interface {
+	// Get Changes
+	GetChanges(context.Context, *ChangeRequest, *ChangeCollection) error
+}
+
+func RegisterChangeServiceHandler(s server.Server, hdlr ChangeServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&ChangeService{hdlr}, opts...))
+}
+
+type ChangeService struct {
+	ChangeServiceHandler
+}
+
+func (h *ChangeService) GetChanges(ctx context.Context, in *ChangeRequest, out *ChangeCollection) error {
+	return h.ChangeServiceHandler.GetChanges(ctx, in, out)
+}
+
+// Client API for ShareService service
+
+type ShareServiceClient interface {
+	// Put or Create a share room
+	PutCell(ctx context.Context, in *PutCellRequest, opts ...client.CallOption) (*Cell, error)
+	// Load a share room
+	GetCell(ctx context.Context, in *GetCellRequest, opts ...client.CallOption) (*Cell, error)
+	// Delete a share room
+	DeleteCell(ctx context.Context, in *DeleteCellRequest, opts ...client.CallOption) (*DeleteCellResponse, error)
+	// Put or Create a share room
+	PutShareLink(ctx context.Context, in *PutShareLinkRequest, opts ...client.CallOption) (*ShareLink, error)
+	// Load a share link with all infos
+	GetShareLink(ctx context.Context, in *GetShareLinkRequest, opts ...client.CallOption) (*ShareLink, error)
+	// Delete Share Link
+	DeleteShareLink(ctx context.Context, in *DeleteShareLinkRequest, opts ...client.CallOption) (*DeleteShareLinkResponse, error)
+	// List Shared Resources for current user or all users
+	ListSharedResources(ctx context.Context, in *ListSharedResourcesRequest, opts ...client.CallOption) (*ListSharedResourcesResponse, error)
+}
+
+type shareServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewShareServiceClient(serviceName string, c client.Client) ShareServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &shareServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *shareServiceClient) PutCell(ctx context.Context, in *PutCellRequest, opts ...client.CallOption) (*Cell, error) {
+	req := c.c.NewRequest(c.serviceName, "ShareService.PutCell", in)
+	out := new(Cell)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *shareServiceClient) GetCell(ctx context.Context, in *GetCellRequest, opts ...client.CallOption) (*Cell, error) {
+	req := c.c.NewRequest(c.serviceName, "ShareService.GetCell", in)
+	out := new(Cell)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *shareServiceClient) DeleteCell(ctx context.Context, in *DeleteCellRequest, opts ...client.CallOption) (*DeleteCellResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ShareService.DeleteCell", in)
+	out := new(DeleteCellResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *shareServiceClient) PutShareLink(ctx context.Context, in *PutShareLinkRequest, opts ...client.CallOption) (*ShareLink, error) {
+	req := c.c.NewRequest(c.serviceName, "ShareService.PutShareLink", in)
+	out := new(ShareLink)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *shareServiceClient) GetShareLink(ctx context.Context, in *GetShareLinkRequest, opts ...client.CallOption) (*ShareLink, error) {
+	req := c.c.NewRequest(c.serviceName, "ShareService.GetShareLink", in)
+	out := new(ShareLink)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *shareServiceClient) DeleteShareLink(ctx context.Context, in *DeleteShareLinkRequest, opts ...client.CallOption) (*DeleteShareLinkResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ShareService.DeleteShareLink", in)
+	out := new(DeleteShareLinkResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *shareServiceClient) ListSharedResources(ctx context.Context, in *ListSharedResourcesRequest, opts ...client.CallOption) (*ListSharedResourcesResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ShareService.ListSharedResources", in)
+	out := new(ListSharedResourcesResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for ShareService service
+
+type ShareServiceHandler interface {
+	// Put or Create a share room
+	PutCell(context.Context, *PutCellRequest, *Cell) error
+	// Load a share room
+	GetCell(context.Context, *GetCellRequest, *Cell) error
+	// Delete a share room
+	DeleteCell(context.Context, *DeleteCellRequest, *DeleteCellResponse) error
+	// Put or Create a share room
+	PutShareLink(context.Context, *PutShareLinkRequest, *ShareLink) error
+	// Load a share link with all infos
+	GetShareLink(context.Context, *GetShareLinkRequest, *ShareLink) error
+	// Delete Share Link
+	DeleteShareLink(context.Context, *DeleteShareLinkRequest, *DeleteShareLinkResponse) error
+	// List Shared Resources for current user or all users
+	ListSharedResources(context.Context, *ListSharedResourcesRequest, *ListSharedResourcesResponse) error
+}
+
+func RegisterShareServiceHandler(s server.Server, hdlr ShareServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&ShareService{hdlr}, opts...))
+}
+
+type ShareService struct {
+	ShareServiceHandler
+}
+
+func (h *ShareService) PutCell(ctx context.Context, in *PutCellRequest, out *Cell) error {
+	return h.ShareServiceHandler.PutCell(ctx, in, out)
+}
+
+func (h *ShareService) GetCell(ctx context.Context, in *GetCellRequest, out *Cell) error {
+	return h.ShareServiceHandler.GetCell(ctx, in, out)
+}
+
+func (h *ShareService) DeleteCell(ctx context.Context, in *DeleteCellRequest, out *DeleteCellResponse) error {
+	return h.ShareServiceHandler.DeleteCell(ctx, in, out)
+}
+
+func (h *ShareService) PutShareLink(ctx context.Context, in *PutShareLinkRequest, out *ShareLink) error {
+	return h.ShareServiceHandler.PutShareLink(ctx, in, out)
+}
+
+func (h *ShareService) GetShareLink(ctx context.Context, in *GetShareLinkRequest, out *ShareLink) error {
+	return h.ShareServiceHandler.GetShareLink(ctx, in, out)
+}
+
+func (h *ShareService) DeleteShareLink(ctx context.Context, in *DeleteShareLinkRequest, out *DeleteShareLinkResponse) error {
+	return h.ShareServiceHandler.DeleteShareLink(ctx, in, out)
+}
+
+func (h *ShareService) ListSharedResources(ctx context.Context, in *ListSharedResourcesRequest, out *ListSharedResourcesResponse) error {
+	return h.ShareServiceHandler.ListSharedResources(ctx, in, out)
+}
+
+// Client API for InstallService service
+
+type InstallServiceClient interface {
+	// Loads default values for install form
+	GetInstall(ctx context.Context, in *install.GetDefaultsRequest, opts ...client.CallOption) (*install.GetDefaultsResponse, error)
+	// Post values to be saved for install
+	PostInstall(ctx context.Context, in *install.InstallRequest, opts ...client.CallOption) (*install.InstallResponse, error)
+	// Perform a check during install (like DB connection, php-fpm detection, etc)
+	PerformInstallCheck(ctx context.Context, in *install.PerformCheckRequest, opts ...client.CallOption) (*install.PerformCheckResponse, error)
+	// Perform a check during install (like DB connection, php-fpm detection, etc)
+	GetAgreement(ctx context.Context, in *install.GetAgreementRequest, opts ...client.CallOption) (*install.GetAgreementResponse, error)
+}
+
+type installServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewInstallServiceClient(serviceName string, c client.Client) InstallServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &installServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *installServiceClient) GetInstall(ctx context.Context, in *install.GetDefaultsRequest, opts ...client.CallOption) (*install.GetDefaultsResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "InstallService.GetInstall", in)
+	out := new(install.GetDefaultsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *installServiceClient) PostInstall(ctx context.Context, in *install.InstallRequest, opts ...client.CallOption) (*install.InstallResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "InstallService.PostInstall", in)
+	out := new(install.InstallResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *installServiceClient) PerformInstallCheck(ctx context.Context, in *install.PerformCheckRequest, opts ...client.CallOption) (*install.PerformCheckResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "InstallService.PerformInstallCheck", in)
+	out := new(install.PerformCheckResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *installServiceClient) GetAgreement(ctx context.Context, in *install.GetAgreementRequest, opts ...client.CallOption) (*install.GetAgreementResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "InstallService.GetAgreement", in)
+	out := new(install.GetAgreementResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for InstallService service
+
+type InstallServiceHandler interface {
+	// Loads default values for install form
+	GetInstall(context.Context, *install.GetDefaultsRequest, *install.GetDefaultsResponse) error
+	// Post values to be saved for install
+	PostInstall(context.Context, *install.InstallRequest, *install.InstallResponse) error
+	// Perform a check during install (like DB connection, php-fpm detection, etc)
+	PerformInstallCheck(context.Context, *install.PerformCheckRequest, *install.PerformCheckResponse) error
+	// Perform a check during install (like DB connection, php-fpm detection, etc)
+	GetAgreement(context.Context, *install.GetAgreementRequest, *install.GetAgreementResponse) error
+}
+
+func RegisterInstallServiceHandler(s server.Server, hdlr InstallServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&InstallService{hdlr}, opts...))
+}
+
+type InstallService struct {
+	InstallServiceHandler
+}
+
+func (h *InstallService) GetInstall(ctx context.Context, in *install.GetDefaultsRequest, out *install.GetDefaultsResponse) error {
+	return h.InstallServiceHandler.GetInstall(ctx, in, out)
+}
+
+func (h *InstallService) PostInstall(ctx context.Context, in *install.InstallRequest, out *install.InstallResponse) error {
+	return h.InstallServiceHandler.PostInstall(ctx, in, out)
+}
+
+func (h *InstallService) PerformInstallCheck(ctx context.Context, in *install.PerformCheckRequest, out *install.PerformCheckResponse) error {
+	return h.InstallServiceHandler.PerformInstallCheck(ctx, in, out)
+}
+
+func (h *InstallService) GetAgreement(ctx context.Context, in *install.GetAgreementRequest, out *install.GetAgreementResponse) error {
+	return h.InstallServiceHandler.GetAgreement(ctx, in, out)
+}
+
+// Client API for UpdateService service
+
+type UpdateServiceClient interface {
+	// Check the remote server to see if there are available binaries
+	UpdateRequired(ctx context.Context, in *update.UpdateRequest, opts ...client.CallOption) (*update.UpdateResponse, error)
+	// Apply an update to a given version
+	ApplyUpdate(ctx context.Context, in *update.ApplyUpdateRequest, opts ...client.CallOption) (*update.ApplyUpdateResponse, error)
+}
+
+type updateServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewUpdateServiceClient(serviceName string, c client.Client) UpdateServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &updateServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *updateServiceClient) UpdateRequired(ctx context.Context, in *update.UpdateRequest, opts ...client.CallOption) (*update.UpdateResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UpdateService.UpdateRequired", in)
+	out := new(update.UpdateResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *updateServiceClient) ApplyUpdate(ctx context.Context, in *update.ApplyUpdateRequest, opts ...client.CallOption) (*update.ApplyUpdateResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UpdateService.ApplyUpdate", in)
+	out := new(update.ApplyUpdateResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for UpdateService service
+
+type UpdateServiceHandler interface {
+	// Check the remote server to see if there are available binaries
+	UpdateRequired(context.Context, *update.UpdateRequest, *update.UpdateResponse) error
+	// Apply an update to a given version
+	ApplyUpdate(context.Context, *update.ApplyUpdateRequest, *update.ApplyUpdateResponse) error
+}
+
+func RegisterUpdateServiceHandler(s server.Server, hdlr UpdateServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&UpdateService{hdlr}, opts...))
+}
+
+type UpdateService struct {
+	UpdateServiceHandler
+}
+
+func (h *UpdateService) UpdateRequired(ctx context.Context, in *update.UpdateRequest, out *update.UpdateResponse) error {
+	return h.UpdateServiceHandler.UpdateRequired(ctx, in, out)
+}
+
+func (h *UpdateService) ApplyUpdate(ctx context.Context, in *update.ApplyUpdateRequest, out *update.ApplyUpdateResponse) error {
+	return h.UpdateServiceHandler.ApplyUpdate(ctx, in, out)
+}
+
+// Client API for FrontendService service
+
+type FrontendServiceClient interface {
+	// Sends a tree of nodes to be used a menu in the Settings panel
+	SettingsMenu(ctx context.Context, in *SettingsMenuRequest, opts ...client.CallOption) (*SettingsMenuResponse, error)
+	// Sends a log from front (php) to back
+	FrontLog(ctx context.Context, in *FrontLogMessage, opts ...client.CallOption) (*FrontLogResponse, error)
+	// Add some data to the initial set of parameters loaded by the frontend
+	FrontBootConf(ctx context.Context, in *FrontBootConfRequest, opts ...client.CallOption) (*FrontBootConfResponse, error)
+	// Send XML state registry
+	FrontState(ctx context.Context, in *FrontStateRequest, opts ...client.CallOption) (*FrontStateResponse, error)
+	// Serve list of I18n messages
+	FrontMessages(ctx context.Context, in *FrontMessagesRequest, opts ...client.CallOption) (*FrontMessagesResponse, error)
+	// Serve list of I18n messages
+	FrontPlugins(ctx context.Context, in *FrontPluginsRequest, opts ...client.CallOption) (*FrontPluginsResponse, error)
+	// Handle JWT
+	FrontSession(ctx context.Context, in *FrontSessionRequest, opts ...client.CallOption) (*FrontSessionResponse, error)
+	// Generic endpoint that can be implemented by 2FA systems for enrollment
+	FrontEnrollAuth(ctx context.Context, in *FrontEnrollAuthRequest, opts ...client.CallOption) (*FrontEnrollAuthResponse, error)
+	// Serve frontend binaries directly (avatars / logos / bg images)
+	FrontServeBinary(ctx context.Context, in *FrontBinaryRequest, opts ...client.CallOption) (*FrontBinaryResponse, error)
+	// Upload frontend binaries (avatars / logos / bg images)
+	FrontPutBinary(ctx context.Context, in *FrontBinaryRequest, opts ...client.CallOption) (*FrontBinaryResponse, error)
+}
+
+type frontendServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewFrontendServiceClient(serviceName string, c client.Client) FrontendServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &frontendServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *frontendServiceClient) SettingsMenu(ctx context.Context, in *SettingsMenuRequest, opts ...client.CallOption) (*SettingsMenuResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "FrontendService.SettingsMenu", in)
+	out := new(SettingsMenuResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *frontendServiceClient) FrontLog(ctx context.Context, in *FrontLogMessage, opts ...client.CallOption) (*FrontLogResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "FrontendService.FrontLog", in)
+	out := new(FrontLogResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *frontendServiceClient) FrontBootConf(ctx context.Context, in *FrontBootConfRequest, opts ...client.CallOption) (*FrontBootConfResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "FrontendService.FrontBootConf", in)
+	out := new(FrontBootConfResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *frontendServiceClient) FrontState(ctx context.Context, in *FrontStateRequest, opts ...client.CallOption) (*FrontStateResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "FrontendService.FrontState", in)
+	out := new(FrontStateResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *frontendServiceClient) FrontMessages(ctx context.Context, in *FrontMessagesRequest, opts ...client.CallOption) (*FrontMessagesResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "FrontendService.FrontMessages", in)
+	out := new(FrontMessagesResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *frontendServiceClient) FrontPlugins(ctx context.Context, in *FrontPluginsRequest, opts ...client.CallOption) (*FrontPluginsResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "FrontendService.FrontPlugins", in)
+	out := new(FrontPluginsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *frontendServiceClient) FrontSession(ctx context.Context, in *FrontSessionRequest, opts ...client.CallOption) (*FrontSessionResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "FrontendService.FrontSession", in)
+	out := new(FrontSessionResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *frontendServiceClient) FrontEnrollAuth(ctx context.Context, in *FrontEnrollAuthRequest, opts ...client.CallOption) (*FrontEnrollAuthResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "FrontendService.FrontEnrollAuth", in)
+	out := new(FrontEnrollAuthResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *frontendServiceClient) FrontServeBinary(ctx context.Context, in *FrontBinaryRequest, opts ...client.CallOption) (*FrontBinaryResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "FrontendService.FrontServeBinary", in)
+	out := new(FrontBinaryResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *frontendServiceClient) FrontPutBinary(ctx context.Context, in *FrontBinaryRequest, opts ...client.CallOption) (*FrontBinaryResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "FrontendService.FrontPutBinary", in)
+	out := new(FrontBinaryResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for FrontendService service
+
+type FrontendServiceHandler interface {
+	// Sends a tree of nodes to be used a menu in the Settings panel
+	SettingsMenu(context.Context, *SettingsMenuRequest, *SettingsMenuResponse) error
+	// Sends a log from front (php) to back
+	FrontLog(context.Context, *FrontLogMessage, *FrontLogResponse) error
+	// Add some data to the initial set of parameters loaded by the frontend
+	FrontBootConf(context.Context, *FrontBootConfRequest, *FrontBootConfResponse) error
+	// Send XML state registry
+	FrontState(context.Context, *FrontStateRequest, *FrontStateResponse) error
+	// Serve list of I18n messages
+	FrontMessages(context.Context, *FrontMessagesRequest, *FrontMessagesResponse) error
+	// Serve list of I18n messages
+	FrontPlugins(context.Context, *FrontPluginsRequest, *FrontPluginsResponse) error
+	// Handle JWT
+	FrontSession(context.Context, *FrontSessionRequest, *FrontSessionResponse) error
+	// Generic endpoint that can be implemented by 2FA systems for enrollment
+	FrontEnrollAuth(context.Context, *FrontEnrollAuthRequest, *FrontEnrollAuthResponse) error
+	// Serve frontend binaries directly (avatars / logos / bg images)
+	FrontServeBinary(context.Context, *FrontBinaryRequest, *FrontBinaryResponse) error
+	// Upload frontend binaries (avatars / logos / bg images)
+	FrontPutBinary(context.Context, *FrontBinaryRequest, *FrontBinaryResponse) error
+}
+
+func RegisterFrontendServiceHandler(s server.Server, hdlr FrontendServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&FrontendService{hdlr}, opts...))
+}
+
+type FrontendService struct {
+	FrontendServiceHandler
+}
+
+func (h *FrontendService) SettingsMenu(ctx context.Context, in *SettingsMenuRequest, out *SettingsMenuResponse) error {
+	return h.FrontendServiceHandler.SettingsMenu(ctx, in, out)
+}
+
+func (h *FrontendService) FrontLog(ctx context.Context, in *FrontLogMessage, out *FrontLogResponse) error {
+	return h.FrontendServiceHandler.FrontLog(ctx, in, out)
+}
+
+func (h *FrontendService) FrontBootConf(ctx context.Context, in *FrontBootConfRequest, out *FrontBootConfResponse) error {
+	return h.FrontendServiceHandler.FrontBootConf(ctx, in, out)
+}
+
+func (h *FrontendService) FrontState(ctx context.Context, in *FrontStateRequest, out *FrontStateResponse) error {
+	return h.FrontendServiceHandler.FrontState(ctx, in, out)
+}
+
+func (h *FrontendService) FrontMessages(ctx context.Context, in *FrontMessagesRequest, out *FrontMessagesResponse) error {
+	return h.FrontendServiceHandler.FrontMessages(ctx, in, out)
+}
+
+func (h *FrontendService) FrontPlugins(ctx context.Context, in *FrontPluginsRequest, out *FrontPluginsResponse) error {
+	return h.FrontendServiceHandler.FrontPlugins(ctx, in, out)
+}
+
+func (h *FrontendService) FrontSession(ctx context.Context, in *FrontSessionRequest, out *FrontSessionResponse) error {
+	return h.FrontendServiceHandler.FrontSession(ctx, in, out)
+}
+
+func (h *FrontendService) FrontEnrollAuth(ctx context.Context, in *FrontEnrollAuthRequest, out *FrontEnrollAuthResponse) error {
+	return h.FrontendServiceHandler.FrontEnrollAuth(ctx, in, out)
+}
+
+func (h *FrontendService) FrontServeBinary(ctx context.Context, in *FrontBinaryRequest, out *FrontBinaryResponse) error {
+	return h.FrontendServiceHandler.FrontServeBinary(ctx, in, out)
+}
+
+func (h *FrontendService) FrontPutBinary(ctx context.Context, in *FrontBinaryRequest, out *FrontBinaryResponse) error {
+	return h.FrontendServiceHandler.FrontPutBinary(ctx, in, out)
+}
+
+// Client API for LicenseService service
+
+type LicenseServiceClient interface {
+	// [Enterprise Only] Display statistics about licenses usage
+	LicenseStats(ctx context.Context, in *cert.LicenseStatsRequest, opts ...client.CallOption) (*cert.LicenseStatsResponse, error)
+}
+
+type licenseServiceClient struct {
+	c           client.Client
+	serviceName string
+}
+
+func NewLicenseServiceClient(serviceName string, c client.Client) LicenseServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "rest"
+	}
+	return &licenseServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
+}
+
+func (c *licenseServiceClient) LicenseStats(ctx context.Context, in *cert.LicenseStatsRequest, opts ...client.CallOption) (*cert.LicenseStatsResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "LicenseService.LicenseStats", in)
+	out := new(cert.LicenseStatsResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Server API for LicenseService service
+
+type LicenseServiceHandler interface {
+	// [Enterprise Only] Display statistics about licenses usage
+	LicenseStats(context.Context, *cert.LicenseStatsRequest, *cert.LicenseStatsResponse) error
+}
+
+func RegisterLicenseServiceHandler(s server.Server, hdlr LicenseServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&LicenseService{hdlr}, opts...))
+}
+
+type LicenseService struct {
+	LicenseServiceHandler
+}
+
+func (h *LicenseService) LicenseStats(ctx context.Context, in *cert.LicenseStatsRequest, out *cert.LicenseStatsResponse) error {
+	return h.LicenseServiceHandler.LicenseStats(ctx, in, out)
+}
+
 func init() { proto.RegisterFile("rest.proto", fileDescriptor7) }
 
 var fileDescriptor7 = []byte{
-	// 3677 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x5a, 0x5b, 0x6f, 0x1c, 0xc9,
-	0x75, 0xc6, 0xe8, 0xce, 0xe2, 0x0c, 0x49, 0xd5, 0xf0, 0xa6, 0x26, 0x25, 0x51, 0xbd, 0xf2, 0xc6,
-	0xa0, 0xc3, 0x69, 0xef, 0x6c, 0x9c, 0x5d, 0x6f, 0x10, 0xc4, 0x23, 0x52, 0xcb, 0x48, 0x4b, 0xed,
-	0x4e, 0x38, 0xd4, 0x7a, 0xbd, 0xb2, 0xb1, 0xe9, 0xe9, 0x29, 0x35, 0x5b, 0xec, 0xe9, 0x1a, 0x77,
-	0xd5, 0x48, 0x4b, 0x4c, 0x98, 0x87, 0x0d, 0x02, 0x23, 0x7e, 0xdc, 0x24, 0x80, 0x13, 0xc0, 0x4f,
-	0xf9, 0x13, 0x79, 0x49, 0x80, 0xe4, 0x2d, 0x46, 0x5e, 0x82, 0x20, 0xc8, 0x1f, 0x48, 0xfe, 0x47,
-	0x70, 0xea, 0xd2, 0x55, 0x7d, 0x99, 0x21, 0x29, 0xe7, 0x41, 0xe2, 0xf4, 0x39, 0xa7, 0xbe, 0xef,
-	0xd4, 0xa9, 0xfb, 0xa9, 0x42, 0x28, 0x25, 0x8c, 0xb7, 0x46, 0x29, 0xe5, 0x14, 0x5f, 0x83, 0xdf,
-	0x4e, 0x3d, 0xa0, 0xc3, 0x21, 0x4d, 0xa4, 0xcc, 0x41, 0x03, 0x9f, 0xfb, 0xea, 0xf7, 0x5c, 0x34,
-	0x18, 0xaa, 0x9f, 0xf5, 0x7e, 0x4a, 0x4f, 0x48, 0xaa, 0xbf, 0x02, 0x9a, 0xbc, 0x8c, 0x42, 0xf5,
-	0xb5, 0xc8, 0x82, 0x63, 0x32, 0x18, 0xc7, 0x99, 0x7a, 0x3e, 0x4c, 0xfd, 0xd1, 0xb1, 0xfe, 0x60,
-	0xc7, 0x7e, 0x4a, 0xd4, 0xc7, 0xc2, 0xcb, 0x94, 0x26, 0x9c, 0x24, 0x03, 0xf5, 0xfd, 0x7e, 0x18,
-	0xf1, 0xe3, 0x71, 0xbf, 0x15, 0xd0, 0xa1, 0x37, 0x3a, 0x1d, 0x44, 0xd4, 0x0b, 0x48, 0x1c, 0x33,
-	0x4f, 0xba, 0xe4, 0x09, 0x23, 0x8f, 0xa7, 0x84, 0x88, 0xff, 0x54, 0xa1, 0xf7, 0x2e, 0x52, 0x28,
-	0x1a, 0x0c, 0x3d, 0xe3, 0xfe, 0x07, 0x17, 0x29, 0x32, 0xf4, 0xa3, 0x98, 0xa4, 0xea, 0x8f, 0x2a,
-	0xd8, 0xb9, 0x48, 0x41, 0x3f, 0xe0, 0xd1, 0xeb, 0x88, 0x9f, 0x66, 0x3f, 0x18, 0x4f, 0x89, 0xaf,
-	0xb9, 0xff, 0xe0, 0x22, 0x10, 0x03, 0x1a, 0x30, 0x4e, 0x53, 0x92, 0xfd, 0xb8, 0x4c, 0x80, 0x5e,
-	0xd1, 0x3e, 0x13, 0xff, 0xa9, 0x42, 0x7f, 0x74, 0x91, 0x42, 0x24, 0x09, 0xd2, 0xd3, 0x11, 0x8f,
-	0x68, 0x62, 0xfd, 0xbc, 0x4c, 0x84, 0x63, 0x1a, 0xc2, 0xbf, 0xcb, 0x44, 0x98, 0xf6, 0x5f, 0x91,
-	0x80, 0xab, 0x3f, 0xaa, 0xe0, 0x0f, 0x2f, 0xd4, 0x9a, 0x09, 0xe3, 0x7e, 0x1c, 0xeb, 0xbf, 0x97,
-	0x71, 0x33, 0xe0, 0x31, 0xfc, 0x53, 0x45, 0x7e, 0xef, 0x42, 0x45, 0x48, 0xca, 0xe5, 0xcf, 0xcb,
-	0x54, 0x6e, 0x3c, 0x1a, 0xf8, 0x9c, 0xa8, 0x3f, 0xaa, 0xe0, 0x66, 0x48, 0x69, 0x18, 0x13, 0xcf,
-	0x1f, 0x45, 0x9e, 0x9f, 0x24, 0x94, 0xfb, 0x10, 0x65, 0xdd, 0x4e, 0xbf, 0x2b, 0xfe, 0x04, 0x3b,
-	0x21, 0x49, 0x76, 0xd8, 0x1b, 0x3f, 0x0c, 0x49, 0xea, 0x51, 0xd1, 0x0e, 0xac, 0x6c, 0xdd, 0xfe,
-	0xe5, 0x1a, 0x6a, 0xec, 0x8a, 0x71, 0xd7, 0x23, 0xe9, 0xeb, 0x28, 0x20, 0xf8, 0x08, 0xcd, 0x75,
-	0xc7, 0x5c, 0xca, 0x70, 0xb3, 0x25, 0x46, 0xb6, 0xfc, 0x1a, 0xa7, 0xa2, 0xa8, 0x53, 0x25, 0x74,
-	0xef, 0x7e, 0xf3, 0x9f, 0xff, 0xf3, 0xd7, 0x57, 0xd6, 0x1c, 0xec, 0xc9, 0x61, 0xec, 0x4d, 0x3e,
-	0x1e, 0xc7, 0x71, 0xd7, 0xe7, 0xc7, 0x67, 0x1f, 0xd5, 0xb6, 0xf1, 0x9f, 0xa0, 0xb9, 0x7d, 0x72,
-	0x79, 0x54, 0x47, 0xa0, 0x2e, 0xe3, 0x0a, 0x54, 0xfc, 0x33, 0xd4, 0xe8, 0x8e, 0xf9, 0x9e, 0xcf,
-	0xfd, 0x1e, 0x1d, 0xa7, 0x01, 0xc1, 0xb8, 0xa5, 0xfa, 0x80, 0x91, 0x39, 0x15, 0x32, 0xf7, 0xa1,
-	0x00, 0xbd, 0xe7, 0xde, 0xd1, 0xa0, 0x30, 0x3b, 0x31, 0xa1, 0xf3, 0x26, 0x9f, 0xfa, 0x43, 0x22,
-	0x3c, 0xfe, 0x12, 0x35, 0xf6, 0xc9, 0xdb, 0xc0, 0x3f, 0x10, 0xf0, 0x1b, 0x78, 0x3a, 0x3c, 0x8e,
-	0xd0, 0xd2, 0x1e, 0x89, 0x09, 0x27, 0xe7, 0xc0, 0xdf, 0x93, 0x31, 0x29, 0xda, 0x1e, 0x12, 0x36,
-	0xa2, 0x09, 0xcb, 0xa8, 0xb6, 0x67, 0x50, 0xbd, 0x44, 0x8b, 0x07, 0x11, 0xb3, 0xea, 0xc1, 0xf0,
-	0x86, 0x44, 0xcd, 0x8b, 0x0f, 0xc9, 0xcf, 0xc7, 0x30, 0x71, 0x3b, 0x8a, 0x32, 0x53, 0xec, 0xd2,
-	0x38, 0x26, 0x41, 0x75, 0x6b, 0x18, 0x3a, 0x7c, 0x8a, 0x56, 0x01, 0xf0, 0x73, 0x92, 0xb2, 0x88,
-	0x26, 0x51, 0x12, 0x76, 0x69, 0x1c, 0x05, 0x11, 0x61, 0xf8, 0x81, 0xa1, 0x2b, 0x68, 0x4f, 0x35,
-	0xe9, 0x96, 0x34, 0x29, 0xaa, 0x67, 0x51, 0xbf, 0xce, 0x6c, 0xf1, 0x31, 0x6a, 0xee, 0x93, 0x12,
-	0x36, 0x5e, 0x6d, 0x89, 0xe9, 0xbd, 0x28, 0x77, 0xa6, 0xc8, 0xcb, 0xed, 0x66, 0x28, 0xbc, 0xc9,
-	0xf3, 0x71, 0x34, 0x38, 0xc3, 0xbf, 0xa8, 0xa1, 0x66, 0x77, 0xfc, 0xdb, 0x53, 0xfd, 0xe8, 0xdb,
-	0xce, 0x1d, 0xb4, 0xf6, 0x38, 0xe1, 0x24, 0x1d, 0xa5, 0x11, 0x23, 0xb9, 0x11, 0x58, 0xec, 0x9d,
-	0x25, 0x37, 0xa0, 0x77, 0xfe, 0x6d, 0x0d, 0xad, 0xca, 0x6e, 0x71, 0x61, 0x67, 0x1e, 0xda, 0x9d,
-	0xa9, 0xdc, 0x12, 0xaa, 0x4b, 0xfd, 0xe1, 0xb9, 0xae, 0x59, 0xdd, 0xad, 0x1c, 0xa1, 0xcf, 0x51,
-	0x1d, 0x1a, 0x5a, 0xd9, 0x33, 0xbc, 0x6e, 0x1a, 0x5f, 0xc9, 0x74, 0x9b, 0xaf, 0x49, 0x8d, 0x92,
-	0x5a, 0x4d, 0xdd, 0x14, 0x2c, 0x0d, 0x3c, 0xaf, 0x59, 0x02, 0x1e, 0xe3, 0x1e, 0x5a, 0xd8, 0xa5,
-	0x09, 0x4f, 0x69, 0xac, 0xe7, 0xa9, 0x8d, 0x6c, 0xbe, 0xb0, 0xa4, 0x1a, 0xbc, 0xde, 0x82, 0xd9,
-	0x59, 0x09, 0xdd, 0x55, 0x81, 0xb8, 0xe4, 0xda, 0x88, 0x10, 0xc4, 0x04, 0x61, 0x70, 0xac, 0x4b,
-	0x48, 0xca, 0x3a, 0x83, 0x41, 0x4a, 0x18, 0x23, 0x0c, 0xdf, 0x37, 0x2e, 0xe7, 0x35, 0x85, 0xde,
-	0x5a, 0x65, 0xa0, 0x82, 0xb8, 0x22, 0x08, 0x17, 0x71, 0x43, 0x13, 0x8e, 0xc0, 0x0e, 0x27, 0x72,
-	0x2c, 0x42, 0xa1, 0x8f, 0x69, 0x3c, 0x00, 0xd1, 0x66, 0x1e, 0x4b, 0x89, 0x35, 0xd3, 0x8a, 0xd4,
-	0x7e, 0x4a, 0x07, 0x84, 0x59, 0x11, 0x7a, 0x57, 0xc0, 0x6f, 0xb9, 0x1b, 0x39, 0x78, 0x6f, 0x02,
-	0x08, 0xca, 0x19, 0xd1, 0x49, 0xce, 0x64, 0xfd, 0x1e, 0x67, 0x2b, 0xf1, 0x27, 0xe4, 0x94, 0xe1,
-	0xad, 0x96, 0xb5, 0x34, 0x77, 0x06, 0xc3, 0x28, 0x01, 0x23, 0x50, 0x69, 0xda, 0x07, 0x33, 0x2c,
-	0x54, 0x0d, 0x5d, 0xe1, 0xc2, 0xa6, 0xbb, 0xa6, 0x5d, 0xb0, 0x56, 0xfe, 0x38, 0x62, 0x1c, 0xe8,
-	0xbf, 0xa9, 0xa1, 0xe6, 0x6e, 0x4a, 0x7c, 0x4e, 0x72, 0x1e, 0xe0, 0x32, 0xbc, 0xb4, 0xfa, 0x84,
-	0x64, 0x13, 0x82, 0x3b, 0xcb, 0x44, 0xb9, 0x50, 0x9a, 0xc6, 0x2d, 0x17, 0x02, 0x61, 0xad, 0x9d,
-	0x90, 0x5d, 0xfe, 0x3c, 0x27, 0xa4, 0xd5, 0x4c, 0x27, 0x2c, 0x93, 0x0b, 0x38, 0x31, 0x10, 0xd6,
-	0xda, 0x89, 0xc7, 0x5f, 0x8f, 0x68, 0xca, 0xcf, 0x73, 0x42, 0x5a, 0xcd, 0x74, 0xc2, 0x32, 0xb9,
-	0x80, 0x13, 0x44, 0x58, 0x6b, 0x27, 0x9e, 0x0c, 0x2f, 0xe2, 0x84, 0xb4, 0x9a, 0xe9, 0x84, 0x65,
-	0x92, 0x77, 0xc2, 0xa9, 0x72, 0x22, 0x1a, 0x6a, 0x27, 0xfe, 0x14, 0xe1, 0xc7, 0xc9, 0x60, 0x44,
-	0xa3, 0x84, 0xb3, 0xbd, 0x88, 0x05, 0xf4, 0x35, 0x49, 0x61, 0xca, 0x92, 0x53, 0x93, 0x16, 0x14,
-	0xe6, 0x08, 0x4b, 0xae, 0xc8, 0xee, 0x08, 0xb2, 0x26, 0xbe, 0x9d, 0xad, 0x44, 0x19, 0xd6, 0x00,
-	0x2d, 0x7d, 0x36, 0x22, 0x49, 0x67, 0x14, 0x9d, 0x8f, 0xaf, 0xc6, 0x97, 0xb2, 0x2f, 0x2e, 0xab,
-	0xd6, 0x0a, 0xae, 0x0b, 0x7a, 0x74, 0x44, 0x12, 0x7f, 0x14, 0xe1, 0x37, 0x68, 0x59, 0xce, 0x8c,
-	0x1f, 0xd3, 0x74, 0x68, 0xd5, 0x64, 0xcd, 0xde, 0xc5, 0x80, 0xee, 0xdc, 0xaa, 0xec, 0x08, 0xb2,
-	0xdf, 0xc1, 0xdf, 0x29, 0x93, 0xbd, 0x04, 0x6c, 0x6f, 0xa2, 0xa6, 0x31, 0xb9, 0x9e, 0xff, 0x5d,
-	0x0d, 0xad, 0x89, 0x41, 0xfd, 0x35, 0x27, 0x69, 0xe2, 0xc7, 0x7b, 0x51, 0x4a, 0x02, 0x4e, 0x53,
-	0x58, 0x69, 0x5d, 0x33, 0x99, 0x14, 0xd5, 0xa7, 0x66, 0x6c, 0x0b, 0x9b, 0x92, 0xde, 0x9a, 0x5e,
-	0x3e, 0x38, 0x77, 0x09, 0x58, 0xc1, 0x4d, 0xe3, 0xad, 0xe1, 0xff, 0x75, 0x0d, 0x2d, 0x77, 0xc7,
-	0x65, 0x6e, 0x7c, 0x77, 0x2a, 0x29, 0x60, 0x38, 0xf7, 0xa7, 0xa8, 0xb3, 0x18, 0x3d, 0x3e, 0xd7,
-	0xa3, 0x77, 0x9c, 0x7b, 0x15, 0x1e, 0x79, 0x13, 0x69, 0xf9, 0x44, 0x2e, 0x9a, 0xbf, 0xae, 0xa1,
-	0x35, 0x35, 0x17, 0xfc, 0xbf, 0xbb, 0xf8, 0xe8, 0x5c, 0x17, 0xb7, 0xb6, 0xcf, 0x71, 0xb1, 0xfd,
-	0x57, 0x57, 0xd0, 0xfc, 0x21, 0x8d, 0x89, 0x5e, 0xe2, 0x3e, 0x44, 0x37, 0x7b, 0x84, 0x83, 0x04,
-	0xcf, 0xb5, 0xe0, 0xdc, 0x09, 0x3f, 0x1d, 0xf3, 0xd3, 0x5d, 0x13, 0xc0, 0xb7, 0x9d, 0xba, 0x97,
-	0xd2, 0x98, 0x58, 0xdb, 0x83, 0x0f, 0x11, 0x92, 0x15, 0x9d, 0x51, 0x78, 0x59, 0x14, 0x5e, 0xd8,
-	0xce, 0x15, 0xc6, 0x3f, 0x40, 0x37, 0xf7, 0x67, 0x72, 0xaa, 0x62, 0x38, 0x5f, 0xec, 0x33, 0x34,
-	0xdf, 0x23, 0x7e, 0x1a, 0x1c, 0x83, 0x0d, 0xc3, 0xd9, 0xe2, 0xae, 0x45, 0x85, 0x11, 0x27, 0xac,
-	0xac, 0x2e, 0xb7, 0x24, 0x40, 0x91, 0x7b, 0x5d, 0x80, 0x7e, 0x54, 0xdb, 0x6e, 0xff, 0xc3, 0x55,
-	0x34, 0xff, 0x9c, 0x91, 0x54, 0xc7, 0xe2, 0x87, 0xe8, 0x66, 0x77, 0xcc, 0x41, 0xa2, 0xfc, 0x82,
-	0x9f, 0x8e, 0xf9, 0xe9, 0xae, 0x0b, 0x08, 0xec, 0x34, 0xbc, 0x31, 0x23, 0xa9, 0x37, 0x39, 0xa0,
-	0x61, 0x94, 0x88, 0x60, 0xec, 0xe9, 0x60, 0x14, 0x4b, 0x2f, 0xdb, 0x3b, 0xa2, 0xe2, 0xe2, 0xbd,
-	0x9d, 0x07, 0xc2, 0xbf, 0x2f, 0x02, 0x33, 0xc3, 0x01, 0xb3, 0xe8, 0xe7, 0xca, 0x65, 0x91, 0x01,
-	0xa3, 0x42, 0x64, 0x40, 0x54, 0x88, 0x8c, 0xb0, 0xaa, 0x8c, 0x0c, 0xa0, 0x42, 0x75, 0xfe, 0x18,
-	0xdd, 0x7a, 0x14, 0x25, 0x83, 0xa2, 0x27, 0x58, 0x96, 0x07, 0x55, 0x56, 0x15, 0x75, 0x28, 0x73,
-	0x71, 0xce, 0x25, 0xaf, 0x1f, 0x25, 0x03, 0x40, 0xfa, 0x11, 0xba, 0xd5, 0x1d, 0x73, 0xd9, 0x62,
-	0xd5, 0x75, 0xba, 0x27, 0x00, 0xd6, 0x9d, 0xa6, 0x04, 0x80, 0xc6, 0x61, 0x56, 0x68, 0xdb, 0xff,
-	0x51, 0x43, 0xa8, 0xb3, 0x7b, 0xa0, 0x1b, 0x69, 0x07, 0xdd, 0xe8, 0x8e, 0x79, 0x27, 0x88, 0xf1,
-	0x2d, 0x81, 0xd1, 0xd9, 0x3d, 0x70, 0xb2, 0x5f, 0xee, 0xa2, 0x00, 0x9b, 0x73, 0xae, 0x79, 0x7e,
-	0x10, 0xcb, 0x9a, 0xcc, 0xc9, 0xd8, 0xe7, 0x4b, 0x54, 0x37, 0xcb, 0x86, 0x9c, 0x79, 0xdc, 0x25,
-	0x28, 0xed, 0xf5, 0xc7, 0xf1, 0x89, 0xb5, 0xc0, 0x3e, 0x45, 0x48, 0x46, 0xb4, 0x13, 0xc4, 0x4c,
-	0x4f, 0xf7, 0x4a, 0xb2, 0x7b, 0xa0, 0x43, 0xac, 0x8e, 0x98, 0x9d, 0xdd, 0x03, 0x2b, 0xc0, 0xca,
-	0x2b, 0x57, 0x7b, 0xd5, 0xfe, 0xa7, 0x2b, 0xa8, 0x21, 0x37, 0xc5, 0xba, 0x5a, 0x5f, 0xc9, 0x4d,
-	0x6d, 0x76, 0xa2, 0xd9, 0x14, 0xae, 0x66, 0xa2, 0xd3, 0xfd, 0x94, 0x8e, 0x47, 0xd9, 0xee, 0xe9,
-	0xee, 0x14, 0xad, 0xaa, 0x07, 0x16, 0x7c, 0x75, 0xf7, 0xa6, 0x37, 0x12, 0x6a, 0x70, 0xff, 0x2b,
-	0x71, 0xe6, 0x56, 0xfb, 0xf7, 0x25, 0x51, 0xde, 0x2a, 0xeb, 0x94, 0x24, 0x6e, 0xab, 0x30, 0xdb,
-	0xe4, 0xfc, 0x95, 0x04, 0x8e, 0x4d, 0xf0, 0x0a, 0xd5, 0x65, 0x38, 0xa7, 0x72, 0x54, 0x07, 0xbd,
-	0x7d, 0x2e, 0xcf, 0xd2, 0xf6, 0x82, 0xe2, 0x51, 0x53, 0x41, 0xfb, 0x57, 0x57, 0xd0, 0xd2, 0x8f,
-	0x69, 0x7a, 0xc2, 0x46, 0x7e, 0x90, 0x4d, 0x65, 0x07, 0xa8, 0xde, 0x1d, 0xf3, 0x4c, 0x8c, 0x17,
-	0x84, 0x03, 0xd9, 0xb7, 0x53, 0xf8, 0x76, 0x37, 0x05, 0xf8, 0xaa, 0x73, 0xdb, 0x7b, 0xa3, 0x65,
-	0xde, 0xa4, 0x17, 0x8f, 0x43, 0x31, 0xa2, 0x0f, 0xd1, 0xa2, 0x74, 0x74, 0x3a, 0x60, 0x75, 0x7d,
-	0xd4, 0xbe, 0x61, 0xbb, 0x0c, 0x8b, 0xfb, 0x68, 0x49, 0x76, 0x98, 0x0c, 0x23, 0xdb, 0x9d, 0x17,
-	0xe4, 0xba, 0xa1, 0xef, 0x48, 0x6d, 0x26, 0xb7, 0x3a, 0x95, 0x9a, 0x0b, 0x5c, 0x64, 0x78, 0xa0,
-	0x6b, 0xfd, 0xe6, 0x0a, 0x5a, 0xec, 0xa8, 0x74, 0x9e, 0x8e, 0xcc, 0x97, 0xe8, 0x46, 0x4f, 0x64,
-	0xf6, 0xf0, 0x83, 0x96, 0x4e, 0xf5, 0xb5, 0xa4, 0x44, 0x99, 0x46, 0xe6, 0xe8, 0xb1, 0x64, 0x4c,
-	0x3e, 0x13, 0xd9, 0x82, 0xdc, 0xb0, 0x50, 0x09, 0x43, 0x99, 0x28, 0x84, 0x38, 0xbd, 0x40, 0x73,
-	0xbd, 0x71, 0x9f, 0x05, 0x69, 0xd4, 0x27, 0x78, 0xd5, 0x82, 0x97, 0x42, 0xb1, 0x39, 0x73, 0xa6,
-	0xc8, 0xf5, 0xd8, 0x77, 0x9b, 0x16, 0xb2, 0x06, 0x03, 0xf0, 0x3f, 0x47, 0x4d, 0x19, 0x18, 0xbb,
-	0x14, 0xc3, 0x0f, 0x2d, 0xb8, 0xb2, 0xda, 0x0c, 0x12, 0x19, 0x59, 0x5b, 0x67, 0xc5, 0xcf, 0x1c,
-	0x2f, 0x8a, 0xdc, 0xd2, 0x14, 0x82, 0xf9, 0x8f, 0xd7, 0x10, 0x3a, 0xa0, 0x59, 0xde, 0xea, 0x53,
-	0x74, 0xa3, 0x77, 0xca, 0x62, 0x1a, 0xe2, 0x66, 0x2b, 0xa6, 0xa1, 0x18, 0x80, 0x07, 0x34, 0x2c,
-	0xe4, 0x35, 0x0e, 0x68, 0xf8, 0x8c, 0x30, 0xe6, 0x87, 0x15, 0x27, 0x4e, 0xf7, 0x96, 0x48, 0x3f,
-	0xb2, 0x53, 0x80, 0xc7, 0x1c, 0xd5, 0x25, 0x9e, 0xdc, 0x6f, 0x5f, 0x1e, 0xf5, 0xfd, 0x6f, 0x3b,
-	0xab, 0x68, 0xd9, 0x8c, 0x1d, 0xe3, 0xab, 0xcc, 0x65, 0xb8, 0x8b, 0x9a, 0xce, 0xda, 0xa4, 0x1f,
-	0xa3, 0xeb, 0x9d, 0xf1, 0x20, 0x7a, 0x0b, 0xba, 0xd6, 0x6c, 0x3a, 0xe8, 0x8b, 0x40, 0xe7, 0x03,
-	0x3a, 0x30, 0x8d, 0xd1, 0xbc, 0x60, 0x7a, 0xdb, 0xea, 0xfd, 0x60, 0x36, 0xdf, 0xaa, 0x7b, 0xdb,
-	0xf0, 0xe5, 0x4f, 0x21, 0x0b, 0x82, 0x77, 0xf7, 0xd8, 0x4f, 0x45, 0xfe, 0x09, 0xaf, 0x08, 0xea,
-	0xa3, 0x68, 0x48, 0x0e, 0xfd, 0x24, 0xcc, 0x86, 0x97, 0xda, 0x72, 0x59, 0x72, 0x36, 0x8e, 0xb9,
-	0xe5, 0xc1, 0x87, 0xb3, 0x3d, 0xb8, 0xe3, 0x2e, 0x5b, 0x1e, 0x04, 0x40, 0x37, 0xf0, 0xb9, 0x0f,
-	0x5d, 0xe7, 0xbf, 0xaf, 0xa0, 0xfa, 0x11, 0x3d, 0x21, 0x89, 0xee, 0x3c, 0x87, 0xe8, 0xc6, 0x21,
-	0x79, 0x4d, 0x4f, 0x88, 0xce, 0x4d, 0xca, 0x2f, 0xed, 0xca, 0x72, 0x5e, 0x58, 0x5a, 0x5d, 0xfd,
-	0x31, 0x3f, 0xf6, 0x38, 0x00, 0x7a, 0xa9, 0xb0, 0x81, 0x9a, 0xfe, 0xa2, 0x86, 0xf0, 0x21, 0x61,
-	0x84, 0x77, 0x7d, 0xc6, 0xde, 0xd0, 0x74, 0x20, 0x18, 0x75, 0x7a, 0xa1, 0xac, 0x29, 0xa4, 0x17,
-	0xaa, 0x0c, 0x14, 0x71, 0x4b, 0x10, 0x7f, 0xd7, 0x79, 0x57, 0x12, 0xa7, 0x60, 0xb9, 0x33, 0x52,
-	0xa6, 0x3b, 0xd2, 0x8f, 0x09, 0xac, 0xdf, 0x6a, 0x0b, 0x12, 0xa1, 0x46, 0x0e, 0x0d, 0x3b, 0x15,
-	0x14, 0x9a, 0x7e, 0xa3, 0x52, 0xa7, 0x98, 0xef, 0x67, 0x91, 0xad, 0x60, 0x86, 0xc8, 0x7e, 0x81,
-	0x1a, 0xcf, 0xc4, 0x55, 0x87, 0x8e, 0xec, 0x3e, 0xba, 0xd6, 0x23, 0xc9, 0x00, 0xd7, 0x5b, 0xea,
-	0x0a, 0x04, 0xd4, 0xce, 0xba, 0xfe, 0x02, 0x1d, 0x48, 0x32, 0x06, 0xb5, 0xa5, 0x75, 0xeb, 0xfa,
-	0xe6, 0x84, 0x11, 0xb1, 0x59, 0x69, 0xff, 0x14, 0x35, 0xd4, 0x7c, 0xa2, 0x90, 0x3f, 0x41, 0xd7,
-	0x45, 0x62, 0x04, 0x37, 0x65, 0xc2, 0x4b, 0x6d, 0x36, 0xf3, 0x6b, 0xbd, 0x16, 0x42, 0xd7, 0x61,
-	0x7a, 0x8f, 0xe8, 0x36, 0x3c, 0x26, 0xe4, 0x5e, 0x02, 0x00, 0x80, 0xfe, 0x2f, 0x35, 0x34, 0x7f,
-	0x94, 0x92, 0x6c, 0xbd, 0xfa, 0x09, 0x6a, 0x3c, 0x1a, 0xc7, 0x27, 0x3d, 0xee, 0x73, 0x49, 0xa2,
-	0x12, 0x59, 0xfb, 0x84, 0x83, 0xfc, 0x19, 0xe1, 0xbe, 0x66, 0x52, 0xbb, 0x0d, 0x23, 0x56, 0x35,
-	0x31, 0x59, 0x27, 0x71, 0xd7, 0xc4, 0xb8, 0xcf, 0xc5, 0xc4, 0xf2, 0x63, 0x34, 0x2f, 0x93, 0x19,
-	0x39, 0x60, 0x4b, 0x74, 0x4e, 0xf6, 0xc7, 0x44, 0x48, 0xe0, 0x66, 0xa9, 0x8e, 0xf6, 0xff, 0x5e,
-	0x41, 0xf3, 0xe0, 0x81, 0xe9, 0xd4, 0xb0, 0x63, 0x05, 0x89, 0x6e, 0x70, 0xf8, 0x0d, 0xc7, 0xc8,
-	0xdc, 0x32, 0x86, 0x64, 0xf8, 0x80, 0xc6, 0x6a, 0xdf, 0x21, 0xe1, 0xbe, 0x17, 0x12, 0xee, 0x4d,
-	0x40, 0x91, 0xe5, 0xf1, 0x0f, 0xc4, 0x91, 0x44, 0x60, 0x2e, 0x1b, 0x4c, 0xe3, 0xdd, 0x2c, 0x34,
-	0x56, 0x42, 0xfb, 0x42, 0xef, 0xcc, 0x2f, 0xe5, 0xa4, 0x59, 0x1c, 0x04, 0xac, 0xdc, 0x05, 0x16,
-	0x90, 0xbf, 0x44, 0xf3, 0x56, 0x53, 0xbd, 0x45, 0xeb, 0xa9, 0x9d, 0x82, 0xbb, 0x20, 0x49, 0xc4,
-	0x7e, 0x33, 0x24, 0x30, 0x85, 0xb5, 0xff, 0xf9, 0x26, 0x5a, 0x84, 0xd1, 0x65, 0xc7, 0x3a, 0x44,
-	0x0b, 0xcf, 0xc5, 0x1d, 0x8d, 0x56, 0x60, 0x47, 0xee, 0xa2, 0x73, 0x42, 0x33, 0xc6, 0xaa, 0x74,
-	0x8a, 0xd9, 0x6c, 0x7d, 0x60, 0xcf, 0xbd, 0x23, 0xe8, 0xe5, 0xfd, 0x0f, 0x54, 0x6c, 0x80, 0x16,
-	0xcc, 0xd9, 0xc1, 0x22, 0xca, 0x0b, 0x35, 0xd1, 0xba, 0x39, 0x54, 0xe4, 0xdb, 0x49, 0xb3, 0xb8,
-	0x36, 0x8b, 0x1c, 0x14, 0x92, 0xa5, 0x01, 0x65, 0x1e, 0x51, 0x7a, 0x32, 0xf4, 0xd3, 0x13, 0xa6,
-	0xdb, 0x26, 0x27, 0x3c, 0x2f, 0x84, 0xa6, 0xf9, 0x0d, 0x45, 0x5f, 0x17, 0x06, 0x96, 0xbf, 0xac,
-	0xa1, 0xb5, 0x7c, 0x10, 0xb2, 0x76, 0xc7, 0xef, 0x54, 0x84, 0xa8, 0xd4, 0x2b, 0x1e, 0xce, 0x36,
-	0xca, 0xfb, 0xe1, 0xd8, 0x7e, 0x24, 0xda, 0x0a, 0xfc, 0x98, 0xa0, 0x15, 0x58, 0xf8, 0xca, 0x4e,
-	0x3c, 0xc8, 0xb6, 0xf2, 0x53, 0x5d, 0x78, 0x90, 0x8f, 0x70, 0xa6, 0x2f, 0x87, 0x1a, 0x57, 0xf2,
-	0xe3, 0xd7, 0x68, 0xc9, 0x26, 0x38, 0xf2, 0x43, 0xa6, 0x93, 0x11, 0x45, 0xb9, 0xe6, 0xbc, 0x37,
-	0x4d, 0xad, 0x2a, 0xfc, 0x8e, 0x20, 0xbc, 0x8b, 0x37, 0x2c, 0x42, 0xee, 0x87, 0x4c, 0xde, 0x09,
-	0x09, 0xda, 0x33, 0xcc, 0xd0, 0x82, 0x3a, 0x50, 0xab, 0xf2, 0x3a, 0xa3, 0x9e, 0x97, 0x6a, 0xce,
-	0xcd, 0x6a, 0xa5, 0x62, 0x34, 0x19, 0xe9, 0xe9, 0x8c, 0x10, 0xe9, 0xbf, 0xa8, 0x21, 0x6c, 0xce,
-	0xe2, 0x59, 0x7d, 0xef, 0xdb, 0x9b, 0xf5, 0xaa, 0x1a, 0x6f, 0x4d, 0x37, 0x50, 0x1e, 0x6c, 0x0b,
-	0x0f, 0x1e, 0x6e, 0xbb, 0x33, 0x3c, 0xf0, 0x26, 0x50, 0xe4, 0xac, 0xfd, 0xcd, 0x55, 0x34, 0xff,
-	0x94, 0xf6, 0x99, 0x1e, 0xbc, 0x3f, 0x93, 0xbd, 0x5d, 0x4e, 0xc1, 0x4f, 0x69, 0x5f, 0x4f, 0x6d,
-	0x20, 0x7c, 0x4a, 0xfb, 0x15, 0x27, 0x74, 0x21, 0x2d, 0x75, 0x2f, 0x71, 0x65, 0x2e, 0x4f, 0xda,
-	0x4f, 0x69, 0x3f, 0xbb, 0x49, 0xfc, 0x1c, 0xd5, 0xc5, 0x62, 0x1c, 0x31, 0x0e, 0xac, 0x78, 0xa5,
-	0x25, 0xae, 0xd5, 0xf5, 0x77, 0xc5, 0x58, 0x05, 0x71, 0xe5, 0x69, 0x22, 0x63, 0x00, 0xdc, 0xe7,
-	0x68, 0x41, 0xb8, 0x2d, 0x6f, 0x40, 0xc0, 0xef, 0xdb, 0x12, 0x79, 0x97, 0xa7, 0xf1, 0x2e, 0x1d,
-	0x0e, 0xfd, 0x64, 0xe0, 0xdc, 0x29, 0x89, 0x8a, 0x89, 0x0e, 0xa7, 0x00, 0x4b, 0xe4, 0xec, 0x26,
-	0x63, 0x7d, 0xe4, 0xb3, 0x13, 0x58, 0xa3, 0x04, 0x88, 0x25, 0x32, 0x67, 0xa0, 0xb2, 0xa6, 0xb4,
-	0x3d, 0x12, 0xf0, 0x1c, 0x94, 0xe6, 0xc8, 0xde, 0x0e, 0xd0, 0x52, 0x4f, 0x3f, 0xf1, 0xd0, 0x0d,
-	0xf1, 0x99, 0xc8, 0x1f, 0x40, 0x4d, 0x9a, 0x12, 0x57, 0x7e, 0x99, 0x6d, 0x58, 0x4e, 0xa8, 0x78,
-	0xd4, 0xd5, 0xa0, 0xb3, 0xe8, 0x65, 0x4f, 0x46, 0x04, 0x23, 0x90, 0xfc, 0x7b, 0x0d, 0x2d, 0x89,
-	0x7c, 0xb5, 0xbd, 0xb6, 0xbf, 0x40, 0x0d, 0x88, 0x7d, 0x26, 0xd7, 0x37, 0x66, 0x20, 0xbc, 0xc8,
-	0x02, 0x6c, 0x8e, 0x5c, 0x62, 0x01, 0xf6, 0x01, 0x27, 0xbb, 0xf4, 0x78, 0x81, 0x1a, 0xb0, 0x69,
-	0x30, 0xe0, 0x2b, 0x12, 0xfc, 0x90, 0xf8, 0x03, 0x00, 0x32, 0x93, 0x66, 0x41, 0x5c, 0x4a, 0x73,
-	0x58, 0xe0, 0xb0, 0x77, 0x80, 0xea, 0xfc, 0xd7, 0x55, 0xb4, 0xb8, 0x47, 0x83, 0x1e, 0xa7, 0x29,
-	0x31, 0xc9, 0x89, 0x5b, 0xe2, 0x26, 0x97, 0x06, 0x0c, 0xdf, 0xb1, 0x6e, 0x76, 0xd5, 0x93, 0x8f,
-	0x42, 0xef, 0xd2, 0x62, 0xab, 0x3a, 0xe6, 0x9c, 0x97, 0xbd, 0x17, 0x99, 0x08, 0x86, 0x27, 0x7b,
-	0xa2, 0xfb, 0xfe, 0x99, 0xce, 0xd2, 0xec, 0xd1, 0x00, 0x6f, 0xb5, 0xb2, 0xb7, 0x24, 0x99, 0x70,
-	0x3c, 0x24, 0x09, 0xb7, 0x2e, 0x8f, 0xa6, 0x5b, 0xe4, 0xc7, 0xaa, 0x7b, 0xdf, 0x30, 0xc2, 0xfa,
-	0xfa, 0x95, 0x5e, 0xc9, 0x6d, 0xf6, 0x54, 0x74, 0x09, 0xa0, 0xde, 0x34, 0xc0, 0x52, 0x22, 0x50,
-	0xcd, 0x81, 0xb2, 0x5a, 0xab, 0x28, 0xbf, 0x27, 0x28, 0xbf, 0xe3, 0x6c, 0x55, 0x54, 0xd2, 0x9b,
-	0x68, 0x73, 0xc5, 0x49, 0xd1, 0x8d, 0x7d, 0x52, 0xe4, 0x94, 0x92, 0x69, 0x9c, 0x39, 0xad, 0xe2,
-	0xfc, 0xae, 0xe0, 0x74, 0xf1, 0xb9, 0x9c, 0xed, 0x7f, 0xab, 0xa1, 0xfa, 0x7e, 0xea, 0x8f, 0xb2,
-	0xbd, 0xed, 0x4f, 0xd1, 0x9c, 0x48, 0x7e, 0x72, 0x9f, 0x13, 0x9d, 0xce, 0xca, 0x04, 0x85, 0x2b,
-	0x05, 0x4b, 0xae, 0x88, 0x55, 0x8b, 0xe2, 0x55, 0x4f, 0xbc, 0x99, 0x12, 0xdd, 0x07, 0xb8, 0x49,
-	0x08, 0x84, 0x67, 0xf8, 0x05, 0xba, 0x75, 0x48, 0x62, 0xf1, 0xc2, 0x02, 0xeb, 0x84, 0xac, 0xfa,
-	0x2e, 0xac, 0xe9, 0x46, 0xac, 0xa0, 0xb7, 0x04, 0xb4, 0x83, 0xd7, 0x15, 0x74, 0xaa, 0x0c, 0xe4,
-	0x79, 0xe3, 0xc9, 0xe0, 0xac, 0x1d, 0xa2, 0xc6, 0xee, 0x31, 0x9c, 0xd7, 0x74, 0x5d, 0x3e, 0x47,
-	0x68, 0x9f, 0x70, 0x29, 0x63, 0xd9, 0xdb, 0x8f, 0x63, 0xfb, 0xa8, 0xb7, 0x6a, 0x0b, 0x2b, 0x47,
-	0x5a, 0x20, 0x8b, 0x43, 0x25, 0x7e, 0x2e, 0x5b, 0xa9, 0xfd, 0xcb, 0xeb, 0xa8, 0xde, 0x3b, 0xf6,
-	0xcd, 0x48, 0xd8, 0x15, 0x29, 0xe2, 0x5d, 0x12, 0xc7, 0x7a, 0x02, 0x57, 0x9f, 0x66, 0x13, 0x29,
-	0x69, 0x48, 0x1c, 0xeb, 0xdd, 0xb9, 0x33, 0xef, 0x89, 0xa7, 0x64, 0xe2, 0xed, 0x0d, 0xb4, 0xfd,
-	0xbe, 0xd8, 0x34, 0xdb, 0x20, 0xea, 0xb3, 0x0a, 0xc4, 0xbc, 0x4a, 0x30, 0x20, 0x3a, 0x23, 0xfe,
-	0x42, 0xef, 0x6d, 0x05, 0xd6, 0x9a, 0xbd, 0x80, 0xd9, 0x70, 0xeb, 0x65, 0x45, 0x7e, 0x5e, 0xdb,
-	0xae, 0x02, 0x3f, 0x14, 0xe9, 0x34, 0x51, 0xfb, 0x83, 0x28, 0x39, 0xd1, 0x03, 0xdf, 0x96, 0x69,
-	0x82, 0x45, 0x75, 0x10, 0xd2, 0xf2, 0x52, 0xcd, 0xe3, 0x28, 0x39, 0x51, 0xcb, 0xd4, 0x3e, 0x29,
-	0x63, 0xda, 0xb2, 0xa9, 0x98, 0xc5, 0x40, 0x00, 0xa6, 0xf6, 0xf5, 0x95, 0x4e, 0xd6, 0x19, 0xe8,
-	0x4d, 0xbb, 0xd2, 0x25, 0xf4, 0xbb, 0x53, 0xb4, 0x53, 0xe2, 0x62, 0x73, 0xbd, 0x41, 0x4d, 0xf1,
-	0xd4, 0x00, 0x14, 0xb0, 0xd0, 0xa9, 0x17, 0x2f, 0xd6, 0x8d, 0x7d, 0x41, 0x55, 0xd8, 0xc6, 0x55,
-	0x5a, 0x94, 0x66, 0x66, 0xc9, 0x9b, 0x6a, 0x0b, 0xe8, 0x8c, 0x7f, 0x7f, 0x15, 0x2d, 0x3c, 0x91,
-	0xef, 0xc8, 0xcc, 0x11, 0x12, 0xfa, 0xbd, 0x12, 0xe2, 0x8d, 0x96, 0x7e, 0x66, 0x06, 0x53, 0x05,
-	0x79, 0xe9, 0xc3, 0x81, 0xd4, 0x6c, 0xae, 0x2a, 0x95, 0x8a, 0x58, 0x5d, 0x01, 0xe0, 0x5b, 0xfa,
-	0xa5, 0x1a, 0x7e, 0x8e, 0xe6, 0xbb, 0x94, 0x65, 0xd8, 0x6b, 0x59, 0x71, 0x25, 0x31, 0x9d, 0xab,
-	0xa4, 0x50, 0x98, 0x26, 0xe5, 0xa5, 0x2c, 0xa0, 0x07, 0x0c, 0x51, 0xb3, 0x4b, 0xd2, 0x97, 0x34,
-	0x1d, 0x2a, 0xf3, 0xdd, 0x63, 0x12, 0x40, 0x6b, 0x69, 0x14, 0xa5, 0x15, 0x62, 0x2b, 0xdd, 0x5d,
-	0xa9, 0x2d, 0x9d, 0xa3, 0xf4, 0x73, 0xbb, 0x00, 0xf4, 0x40, 0x17, 0x8a, 0x0e, 0xd7, 0x09, 0x53,
-	0x42, 0x60, 0x5e, 0xc2, 0xb9, 0x28, 0x64, 0xe2, 0x32, 0x4f, 0x5e, 0x9b, 0xef, 0x15, 0x18, 0x67,
-	0x3c, 0xbe, 0xb6, 0x69, 0xff, 0xa6, 0x86, 0x1a, 0xf2, 0x90, 0xa0, 0xdb, 0xa6, 0xab, 0x8f, 0x6b,
-	0x80, 0x1e, 0xa5, 0x64, 0x80, 0x57, 0x5a, 0xea, 0x8d, 0x9d, 0x91, 0xcb, 0x99, 0xa9, 0x20, 0x56,
-	0x74, 0xea, 0xd6, 0x00, 0xdf, 0x54, 0x47, 0x33, 0x1c, 0xa2, 0xf9, 0xce, 0x68, 0x14, 0x9f, 0x4a,
-	0x3b, 0xec, 0xe8, 0x72, 0x96, 0xd0, 0x9c, 0xfe, 0xaa, 0x74, 0xf9, 0xdd, 0x24, 0x5e, 0xd3, 0x4f,
-	0xff, 0x26, 0x47, 0x7e, 0x1a, 0x66, 0xcf, 0x9b, 0xce, 0xda, 0xff, 0x7a, 0x13, 0x2d, 0x7e, 0xac,
-	0x1e, 0xbc, 0xea, 0xea, 0xbc, 0x44, 0xf5, 0x1e, 0xe1, 0x3c, 0x4a, 0x42, 0xf6, 0x8c, 0x24, 0x63,
-	0x3d, 0x74, 0x6d, 0x59, 0x21, 0xa5, 0x97, 0x57, 0x95, 0xb8, 0xf5, 0x8b, 0x5a, 0x38, 0xb3, 0x0b,
-	0xbb, 0x9d, 0x21, 0xe0, 0xfe, 0x04, 0xdd, 0x12, 0xd4, 0x07, 0x34, 0xd4, 0x0b, 0x87, 0xfe, 0x56,
-	0x09, 0x42, 0x3d, 0x95, 0x6b, 0x71, 0x71, 0x4d, 0x72, 0x9a, 0x06, 0x5b, 0xfc, 0x88, 0x69, 0xc8,
-	0xd4, 0x89, 0x53, 0x94, 0x79, 0x44, 0xa9, 0x78, 0x26, 0xa8, 0x4f, 0x9c, 0x39, 0x61, 0x21, 0x47,
-	0x55, 0xd0, 0x95, 0x7a, 0x42, 0xc6, 0xd4, 0xa7, 0x94, 0x07, 0x00, 0xfa, 0x05, 0x42, 0xa2, 0x90,
-	0x5c, 0x58, 0xd7, 0x2c, 0x98, 0xdc, 0xca, 0xba, 0x5e, 0x56, 0xe4, 0xd3, 0x53, 0x78, 0xd1, 0x0a,
-	0x91, 0xc0, 0x3a, 0x51, 0xfe, 0xab, 0x38, 0xb0, 0x9c, 0xff, 0x5a, 0x58, 0xe5, 0xbf, 0xd1, 0x95,
-	0x5e, 0x1f, 0x64, 0x14, 0x43, 0x65, 0xe3, 0x4d, 0x0e, 0xfc, 0x24, 0x3c, 0x83, 0x91, 0x23, 0xca,
-	0x76, 0xe3, 0x71, 0x18, 0x25, 0xd9, 0xbe, 0xcf, 0x96, 0x15, 0xda, 0x3b, 0xaf, 0x2a, 0x2d, 0xe6,
-	0x19, 0xd3, 0x48, 0x9a, 0x68, 0xa2, 0x40, 0x11, 0xf5, 0x08, 0x83, 0xde, 0x97, 0x23, 0x52, 0xb2,
-	0x2a, 0xa2, 0x4c, 0x95, 0x4f, 0x69, 0xb8, 0xb7, 0xed, 0x8e, 0x25, 0x4c, 0xa0, 0xe9, 0xdf, 0xa0,
-	0x25, 0x55, 0x2a, 0x7d, 0x4d, 0x1e, 0x45, 0x89, 0x9f, 0x9e, 0x62, 0xbb, 0x05, 0xa4, 0xa8, 0x70,
-	0xeb, 0x92, 0xd3, 0xe4, 0xf3, 0xa2, 0xf8, 0x5d, 0xab, 0xe5, 0xc1, 0x42, 0x5c, 0xb3, 0x4b, 0xdb,
-	0xa3, 0xd3, 0x11, 0x9c, 0x03, 0xe5, 0x6a, 0xf1, 0x35, 0x5a, 0x90, 0x71, 0x19, 0xf3, 0xdf, 0x86,
-	0xf6, 0x3d, 0x41, 0xfb, 0x3d, 0xf7, 0x82, 0xb4, 0xb0, 0x5c, 0x50, 0xb4, 0x70, 0x10, 0x05, 0x24,
-	0x61, 0xc4, 0x9c, 0x41, 0xeb, 0x5a, 0xc2, 0x7d, 0x0e, 0x4d, 0x1a, 0x90, 0x14, 0x16, 0x24, 0x23,
-	0x33, 0x91, 0xae, 0x50, 0xe5, 0x93, 0x8e, 0x78, 0xc1, 0x8b, 0xa5, 0x5a, 0xe6, 0x1d, 0x1f, 0xfd,
-	0xaa, 0xf6, 0x6d, 0xe7, 0x6f, 0x6a, 0xf8, 0x03, 0xb4, 0xdc, 0x3d, 0x1d, 0x44, 0x74, 0x0b, 0x76,
-	0x1a, 0x6c, 0xeb, 0x90, 0x30, 0xbe, 0xd5, 0xe9, 0x3e, 0x71, 0x1d, 0x74, 0x5d, 0xc8, 0xf1, 0xed,
-	0x63, 0xce, 0x47, 0xec, 0x23, 0x4f, 0xbe, 0x48, 0x6e, 0x05, 0x74, 0xd8, 0xbe, 0xfa, 0x5e, 0xeb,
-	0xfb, 0xdb, 0x57, 0x6b, 0x57, 0xae, 0xb5, 0x97, 0xfc, 0xd1, 0x28, 0x8e, 0x02, 0xb9, 0xe1, 0x7b,
-	0xc5, 0x68, 0xf2, 0x51, 0x49, 0x92, 0x7e, 0x1f, 0x6d, 0x3c, 0xa3, 0x29, 0xd9, 0xf2, 0xfb, 0x74,
-	0xcc, 0xb7, 0x6c, 0xb2, 0xce, 0x28, 0x62, 0x15, 0xf8, 0xfd, 0x1b, 0xe2, 0x25, 0xf2, 0xfb, 0xff,
-	0x17, 0x00, 0x00, 0xff, 0xff, 0xfa, 0xdc, 0xdd, 0x5c, 0x45, 0x30, 0x00, 0x00,
+	// 3726 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x5a, 0x5b, 0x73, 0x1c, 0xc7,
+	0x75, 0xae, 0x05, 0x6f, 0x60, 0x63, 0x17, 0x00, 0x1b, 0x20, 0x40, 0x0e, 0x78, 0x01, 0x47, 0xb4,
+	0xe2, 0x82, 0xc3, 0x1d, 0x6b, 0x15, 0x47, 0xb2, 0x52, 0xa9, 0x78, 0x09, 0x52, 0x30, 0x29, 0x50,
+	0xda, 0x60, 0x41, 0x59, 0x16, 0xed, 0x52, 0x66, 0x67, 0x9b, 0xb3, 0x43, 0xcc, 0x4e, 0xaf, 0xa7,
+	0x7b, 0x48, 0xa1, 0x36, 0xc8, 0x83, 0x52, 0x29, 0x57, 0xfc, 0xa8, 0x24, 0x15, 0x27, 0x55, 0x7e,
+	0xca, 0x0f, 0xc8, 0x6b, 0x5e, 0x92, 0xf7, 0xb8, 0xf2, 0x92, 0x4a, 0xa5, 0xf2, 0x07, 0x92, 0xff,
+	0x91, 0x3a, 0x7d, 0x99, 0xee, 0xb9, 0xec, 0x02, 0x90, 0xfc, 0x00, 0xec, 0xcc, 0x39, 0xa7, 0xbf,
+	0xef, 0xf4, 0xe9, 0xfb, 0x99, 0x46, 0x28, 0x25, 0x8c, 0xb7, 0x27, 0x29, 0xe5, 0x14, 0x5f, 0x84,
+	0x67, 0xa7, 0x19, 0xd0, 0xf1, 0x98, 0x26, 0x52, 0xe6, 0xa0, 0xa1, 0xcf, 0x7d, 0xf5, 0x7c, 0x35,
+	0x1a, 0x8e, 0xd5, 0x63, 0x73, 0x90, 0xd2, 0x23, 0x92, 0xea, 0xb7, 0x80, 0x26, 0x2f, 0xa3, 0x50,
+	0xbd, 0xad, 0xb0, 0x60, 0x44, 0x86, 0x59, 0x9c, 0xab, 0x97, 0xc2, 0xd4, 0x9f, 0x8c, 0xf4, 0x0b,
+	0x1b, 0xf9, 0x29, 0x51, 0x2f, 0xcb, 0x2f, 0x53, 0x9a, 0x70, 0x92, 0x0c, 0xd5, 0xfb, 0xbb, 0x61,
+	0xc4, 0x47, 0xd9, 0xa0, 0x1d, 0xd0, 0xb1, 0x37, 0x39, 0x1e, 0x46, 0xd4, 0x0b, 0x48, 0x1c, 0x33,
+	0x4f, 0xba, 0xe4, 0x09, 0x23, 0x8f, 0xa7, 0x84, 0x88, 0x7f, 0xaa, 0xd0, 0x3b, 0x67, 0x29, 0x14,
+	0x0d, 0xc7, 0x9e, 0x71, 0xff, 0xbd, 0xb3, 0x14, 0x19, 0xfb, 0x51, 0x4c, 0x52, 0xf5, 0xa3, 0x0a,
+	0x76, 0xcf, 0x52, 0xd0, 0x0f, 0x78, 0xf4, 0x3a, 0xe2, 0xc7, 0xf9, 0x03, 0xe3, 0x29, 0xf1, 0x35,
+	0xf7, 0x1f, 0x9d, 0x05, 0x62, 0x48, 0x03, 0xc6, 0x69, 0x4a, 0xf2, 0x87, 0xf3, 0x04, 0xe8, 0x15,
+	0x1d, 0x30, 0xf1, 0x4f, 0x15, 0xfa, 0x93, 0xb3, 0x14, 0x22, 0x49, 0x90, 0x1e, 0x4f, 0x78, 0x44,
+	0x13, 0xeb, 0xf1, 0x3c, 0x11, 0x8e, 0x69, 0x08, 0x7f, 0xe7, 0x89, 0x30, 0x1d, 0xbc, 0x22, 0x01,
+	0x57, 0x3f, 0xaa, 0xe0, 0x0f, 0xcf, 0xd4, 0x9a, 0x09, 0xe3, 0x7e, 0x1c, 0xeb, 0xdf, 0xf3, 0xb8,
+	0x19, 0xf0, 0x18, 0xfe, 0x54, 0x91, 0x3f, 0x38, 0x53, 0x11, 0x92, 0x72, 0xf9, 0x78, 0x9e, 0xca,
+	0x65, 0x93, 0xa1, 0xcf, 0x89, 0xfa, 0x51, 0x05, 0x6f, 0x85, 0x94, 0x86, 0x31, 0xf1, 0xfc, 0x49,
+	0xe4, 0xf9, 0x49, 0x42, 0xb9, 0x0f, 0x51, 0xd6, 0xed, 0xf4, 0xfb, 0xe2, 0x27, 0x78, 0x10, 0x92,
+	0xe4, 0x01, 0x7b, 0xe3, 0x87, 0x21, 0x49, 0x3d, 0x2a, 0xda, 0x81, 0x55, 0xad, 0x3b, 0xbf, 0xda,
+	0x44, 0xad, 0x5d, 0x31, 0xee, 0xfa, 0x24, 0x7d, 0x1d, 0x05, 0x04, 0x1f, 0xa2, 0xab, 0xbd, 0x8c,
+	0x4b, 0x19, 0x5e, 0x6b, 0x8b, 0x91, 0x2d, 0xdf, 0xb2, 0x54, 0x14, 0x75, 0xea, 0x84, 0xee, 0xed,
+	0xaf, 0xfe, 0xeb, 0x7f, 0xff, 0x66, 0x61, 0xd3, 0xc1, 0x9e, 0x1c, 0xc6, 0xde, 0xf4, 0xc3, 0x2c,
+	0x8e, 0x7b, 0x3e, 0x1f, 0x9d, 0x7c, 0xd0, 0xd8, 0xc1, 0x7f, 0x8a, 0xae, 0xee, 0x91, 0xf3, 0xa3,
+	0x3a, 0x02, 0x75, 0x1d, 0xd7, 0xa0, 0xe2, 0x9f, 0xa3, 0x56, 0x2f, 0xe3, 0x8f, 0x7c, 0xee, 0xf7,
+	0x69, 0x96, 0x06, 0x04, 0xe3, 0xb6, 0xea, 0x03, 0x46, 0xe6, 0xd4, 0xc8, 0xdc, 0xfb, 0x02, 0xf4,
+	0x8e, 0x7b, 0x53, 0x83, 0xc2, 0xec, 0xc4, 0x84, 0xce, 0x9b, 0x7e, 0xec, 0x8f, 0x89, 0xf0, 0xf8,
+	0x73, 0xd4, 0xda, 0x23, 0xdf, 0x04, 0xfe, 0x9e, 0x80, 0xdf, 0xc2, 0xb3, 0xe1, 0x71, 0x84, 0x56,
+	0x1f, 0x91, 0x98, 0x70, 0x72, 0x0a, 0xfc, 0x1d, 0x19, 0x93, 0xb2, 0xed, 0x01, 0x61, 0x13, 0x9a,
+	0xb0, 0x9c, 0x6a, 0x67, 0x0e, 0xd5, 0x4b, 0xb4, 0xb2, 0x1f, 0x31, 0xab, 0x1e, 0x0c, 0x6f, 0x49,
+	0xd4, 0xa2, 0xf8, 0x80, 0xfc, 0x22, 0x83, 0x89, 0xdb, 0x51, 0x94, 0xb9, 0x62, 0x97, 0xc6, 0x31,
+	0x09, 0xea, 0x5b, 0xc3, 0xd0, 0xe1, 0x63, 0xb4, 0x01, 0x80, 0x9f, 0x92, 0x94, 0x45, 0x34, 0x89,
+	0x92, 0xb0, 0x47, 0xe3, 0x28, 0x88, 0x08, 0xc3, 0xf7, 0x0c, 0x5d, 0x49, 0x7b, 0xac, 0x49, 0xb7,
+	0xa5, 0x49, 0x59, 0x3d, 0x8f, 0xfa, 0x75, 0x6e, 0x8b, 0x47, 0x68, 0x6d, 0x8f, 0x54, 0xb0, 0xf1,
+	0x46, 0x5b, 0x4c, 0xef, 0x65, 0xb9, 0x33, 0x43, 0x5e, 0x6d, 0x37, 0x43, 0xe1, 0x4d, 0x9f, 0x67,
+	0xd1, 0xf0, 0x04, 0xff, 0xb2, 0x81, 0xd6, 0x7a, 0xd9, 0xb7, 0xa7, 0xfa, 0xd1, 0xd7, 0xdd, 0x9b,
+	0x68, 0xf3, 0x71, 0xc2, 0x49, 0x3a, 0x49, 0x23, 0x46, 0x0a, 0x23, 0xb0, 0xdc, 0x3b, 0x2b, 0x6e,
+	0x40, 0xef, 0xfc, 0xbb, 0x06, 0xda, 0x90, 0xdd, 0xe2, 0xcc, 0xce, 0xdc, 0xb7, 0x3b, 0x53, 0xb5,
+	0x25, 0x54, 0x97, 0xfa, 0xe3, 0x53, 0x5d, 0xb3, 0xba, 0x5b, 0x35, 0x42, 0x9f, 0xa2, 0x26, 0x34,
+	0xb4, 0xb2, 0x67, 0xf8, 0x86, 0x69, 0x7c, 0x25, 0xd3, 0x6d, 0xbe, 0x29, 0x35, 0x4a, 0x6a, 0x35,
+	0xf5, 0x9a, 0x60, 0x69, 0xe1, 0x25, 0xcd, 0x12, 0xf0, 0x18, 0xf7, 0xd1, 0xf2, 0x2e, 0x4d, 0x78,
+	0x4a, 0x63, 0x3d, 0x4f, 0x6d, 0xe5, 0xf3, 0x85, 0x25, 0xd5, 0xe0, 0xcd, 0x36, 0xcc, 0xce, 0x4a,
+	0xe8, 0x6e, 0x08, 0xc4, 0x55, 0xd7, 0x46, 0x84, 0x20, 0x26, 0x08, 0x83, 0x63, 0x3d, 0x42, 0x52,
+	0xd6, 0x1d, 0x0e, 0x53, 0xc2, 0x18, 0x61, 0xf8, 0xae, 0x71, 0xb9, 0xa8, 0x29, 0xf5, 0xd6, 0x3a,
+	0x03, 0x15, 0xc4, 0xeb, 0x82, 0x70, 0x05, 0xb7, 0x34, 0xe1, 0x04, 0xec, 0x70, 0x22, 0xc7, 0x22,
+	0x14, 0xfa, 0x90, 0xc6, 0x43, 0x10, 0xdd, 0x2a, 0x62, 0x29, 0xb1, 0x66, 0xba, 0x2e, 0xb5, 0x1f,
+	0xd3, 0x21, 0x61, 0x56, 0x84, 0xde, 0x16, 0xf0, 0xdb, 0xee, 0x56, 0x01, 0xde, 0x9b, 0x02, 0x82,
+	0x72, 0x46, 0x74, 0x92, 0x13, 0x59, 0xbf, 0xc7, 0xf9, 0x4a, 0xfc, 0x11, 0x39, 0x66, 0x78, 0xbb,
+	0x6d, 0x2d, 0xcd, 0xdd, 0xe1, 0x38, 0x4a, 0xc0, 0x08, 0x54, 0x9a, 0xf6, 0xde, 0x1c, 0x0b, 0x55,
+	0x43, 0x57, 0xb8, 0x70, 0xcb, 0xdd, 0xd4, 0x2e, 0x58, 0x2b, 0x7f, 0x1c, 0x31, 0x0e, 0xf4, 0x5f,
+	0x35, 0xd0, 0xda, 0x6e, 0x4a, 0x7c, 0x4e, 0x0a, 0x1e, 0xe0, 0x2a, 0xbc, 0xb4, 0xfa, 0x88, 0xe4,
+	0x13, 0x82, 0x3b, 0xcf, 0x44, 0xb9, 0x50, 0x99, 0xc6, 0x2d, 0x17, 0x02, 0x61, 0xad, 0x9d, 0x90,
+	0x5d, 0xfe, 0x34, 0x27, 0xa4, 0xd5, 0x5c, 0x27, 0x2c, 0x93, 0x33, 0x38, 0x31, 0x14, 0xd6, 0xda,
+	0x89, 0xc7, 0x5f, 0x4e, 0x68, 0xca, 0x4f, 0x73, 0x42, 0x5a, 0xcd, 0x75, 0xc2, 0x32, 0x39, 0x83,
+	0x13, 0x44, 0x58, 0x6b, 0x27, 0x9e, 0x8c, 0xcf, 0xe2, 0x84, 0xb4, 0x9a, 0xeb, 0x84, 0x65, 0x52,
+	0x74, 0xc2, 0xa9, 0x73, 0x22, 0x1a, 0x6b, 0x27, 0xfe, 0x0c, 0xe1, 0xc7, 0xc9, 0x70, 0x42, 0xa3,
+	0x84, 0xb3, 0x47, 0x11, 0x0b, 0xe8, 0x6b, 0x92, 0xc2, 0x94, 0x25, 0xa7, 0x26, 0x2d, 0x28, 0xcd,
+	0x11, 0x96, 0x5c, 0x91, 0xdd, 0x14, 0x64, 0x6b, 0xf8, 0x5a, 0xbe, 0x12, 0xe5, 0x58, 0x43, 0xb4,
+	0xfa, 0xc9, 0x84, 0x24, 0xdd, 0x49, 0x74, 0x3a, 0xbe, 0x1a, 0x5f, 0xca, 0xbe, 0xbc, 0xac, 0x5a,
+	0x2b, 0xb8, 0x2e, 0xe8, 0xd1, 0x09, 0x49, 0xfc, 0x49, 0x84, 0xdf, 0xa0, 0x75, 0x39, 0x33, 0x7e,
+	0x48, 0xd3, 0xb1, 0x55, 0x93, 0x4d, 0x7b, 0x17, 0x03, 0xba, 0x53, 0xab, 0xf2, 0x40, 0x90, 0xfd,
+	0x1e, 0xfe, 0x4e, 0x95, 0xec, 0x25, 0x60, 0x7b, 0x53, 0x35, 0x8d, 0xc9, 0xf5, 0xfc, 0x1f, 0x1a,
+	0x68, 0x53, 0x0c, 0xea, 0x2f, 0x39, 0x49, 0x13, 0x3f, 0x7e, 0x14, 0xa5, 0x24, 0xe0, 0x34, 0x85,
+	0x95, 0xd6, 0x35, 0x93, 0x49, 0x59, 0x7d, 0x6c, 0xc6, 0xb6, 0xb0, 0xa9, 0xe8, 0xad, 0xe9, 0xe5,
+	0xbd, 0x53, 0x97, 0x80, 0xeb, 0x78, 0xcd, 0x78, 0x6b, 0xf8, 0x7f, 0xd3, 0x40, 0xeb, 0xbd, 0xac,
+	0xca, 0x8d, 0x6f, 0xcf, 0x24, 0x05, 0x0c, 0xe7, 0xee, 0x0c, 0x75, 0x1e, 0xa3, 0xc7, 0xa7, 0x7a,
+	0xf4, 0x96, 0x73, 0xa7, 0xc6, 0x23, 0x6f, 0x2a, 0x2d, 0x9f, 0xc8, 0x45, 0xf3, 0x37, 0x0d, 0xb4,
+	0xa9, 0xe6, 0x82, 0xdf, 0xb9, 0x8b, 0x0f, 0x4f, 0x75, 0x71, 0x7b, 0xe7, 0x14, 0x17, 0x3b, 0x7f,
+	0xbd, 0x80, 0x96, 0x0e, 0x68, 0x4c, 0xf4, 0x12, 0xf7, 0x3e, 0xba, 0xd2, 0x27, 0x1c, 0x24, 0xf8,
+	0x6a, 0x1b, 0xce, 0x9d, 0xf0, 0xe8, 0x98, 0x47, 0x77, 0x53, 0x00, 0x5f, 0x73, 0x9a, 0x5e, 0x4a,
+	0x63, 0x62, 0x6d, 0x0f, 0xde, 0x47, 0x48, 0x56, 0x74, 0x4e, 0xe1, 0x75, 0x51, 0x78, 0x79, 0xa7,
+	0x50, 0x18, 0xff, 0x00, 0x5d, 0xd9, 0x9b, 0xcb, 0xa9, 0x8a, 0xe1, 0x62, 0xb1, 0x4f, 0xd0, 0x52,
+	0x9f, 0xf8, 0x69, 0x30, 0x02, 0x1b, 0x86, 0xf3, 0xc5, 0x5d, 0x8b, 0x4a, 0x23, 0x4e, 0x58, 0x59,
+	0x5d, 0x6e, 0x55, 0x80, 0x22, 0xf7, 0x92, 0x00, 0xfd, 0xa0, 0xb1, 0xd3, 0xf9, 0xa7, 0x0b, 0x68,
+	0xe9, 0x39, 0x23, 0xa9, 0x8e, 0xc5, 0x0f, 0xd1, 0x95, 0x5e, 0xc6, 0x41, 0xa2, 0xfc, 0x82, 0x47,
+	0xc7, 0x3c, 0xba, 0x37, 0x04, 0x04, 0x76, 0x5a, 0x5e, 0xc6, 0x48, 0xea, 0x4d, 0xf7, 0x69, 0x18,
+	0x25, 0x22, 0x18, 0x8f, 0x74, 0x30, 0xca, 0xa5, 0xd7, 0xed, 0x1d, 0x51, 0x79, 0xf1, 0xde, 0x29,
+	0x02, 0xe1, 0x3f, 0x14, 0x81, 0x99, 0xe3, 0x80, 0x59, 0xf4, 0x0b, 0xe5, 0xf2, 0xc8, 0x80, 0x51,
+	0x29, 0x32, 0x20, 0x2a, 0x45, 0x46, 0x58, 0xd5, 0x46, 0x06, 0x50, 0xa1, 0x3a, 0x3f, 0x46, 0x8b,
+	0x0f, 0xa3, 0x64, 0x58, 0xf6, 0x04, 0xcb, 0xf2, 0xa0, 0xca, 0xab, 0xa2, 0x0e, 0x65, 0x2e, 0x2e,
+	0xb8, 0xe4, 0x0d, 0xa2, 0x64, 0x08, 0x48, 0x3f, 0x42, 0x8b, 0xbd, 0x8c, 0xcb, 0x16, 0xab, 0xaf,
+	0xd3, 0x1d, 0x01, 0x70, 0xc3, 0x59, 0x93, 0x00, 0xd0, 0x38, 0xcc, 0x0a, 0x6d, 0xe7, 0x3f, 0x1b,
+	0x08, 0x75, 0x77, 0xf7, 0x75, 0x23, 0x3d, 0x40, 0x97, 0x7b, 0x19, 0xef, 0x06, 0x31, 0x5e, 0x14,
+	0x18, 0xdd, 0xdd, 0x7d, 0x27, 0x7f, 0x72, 0x57, 0x04, 0xd8, 0x55, 0xe7, 0xa2, 0xe7, 0x07, 0xb1,
+	0xac, 0xc9, 0x55, 0x19, 0xfb, 0x62, 0x89, 0xfa, 0x66, 0xd9, 0x92, 0x33, 0x8f, 0xbb, 0x0a, 0xa5,
+	0xbd, 0x41, 0x16, 0x1f, 0x59, 0x0b, 0xec, 0x53, 0x84, 0x64, 0x44, 0xbb, 0x41, 0xcc, 0xf4, 0x74,
+	0xaf, 0x24, 0xbb, 0xfb, 0x3a, 0xc4, 0xea, 0x88, 0xd9, 0xdd, 0xdd, 0xb7, 0x02, 0xac, 0xbc, 0x72,
+	0xb5, 0x57, 0x9d, 0x7f, 0x5d, 0x40, 0x2d, 0xb9, 0x29, 0xd6, 0xd5, 0xfa, 0x42, 0x6e, 0x6a, 0xf3,
+	0x13, 0xcd, 0x2d, 0xe1, 0x6a, 0x2e, 0x3a, 0xde, 0x4b, 0x69, 0x36, 0xc9, 0x77, 0x4f, 0xb7, 0x67,
+	0x68, 0x55, 0x3d, 0xb0, 0xe0, 0x6b, 0xba, 0x57, 0xbc, 0x89, 0x50, 0x83, 0xfb, 0x5f, 0x88, 0x33,
+	0xb7, 0xda, 0xbf, 0xaf, 0x8a, 0xf2, 0x56, 0x59, 0xa7, 0x22, 0x71, 0xdb, 0xa5, 0xd9, 0xa6, 0xe0,
+	0xaf, 0x24, 0x70, 0x6c, 0x82, 0x57, 0xa8, 0x29, 0xc3, 0x39, 0x93, 0xa3, 0x3e, 0xe8, 0x9d, 0x53,
+	0x79, 0x56, 0x77, 0x96, 0x15, 0x8f, 0x9a, 0x0a, 0x3a, 0xbf, 0x5e, 0x40, 0xab, 0x3f, 0xa1, 0xe9,
+	0x11, 0x9b, 0xf8, 0x41, 0x3e, 0x95, 0xed, 0xa3, 0x66, 0x2f, 0xe3, 0xb9, 0x18, 0x2f, 0x0b, 0x07,
+	0xf2, 0x77, 0xa7, 0xf4, 0xee, 0xde, 0x12, 0xe0, 0x1b, 0xce, 0x35, 0xef, 0x8d, 0x96, 0x79, 0xd3,
+	0x7e, 0x9c, 0x85, 0x62, 0x44, 0x1f, 0xa0, 0x15, 0xe9, 0xe8, 0x6c, 0xc0, 0xfa, 0xfa, 0xa8, 0x7d,
+	0xc3, 0x4e, 0x15, 0x16, 0x0f, 0xd0, 0xaa, 0xec, 0x30, 0x39, 0x46, 0xbe, 0x3b, 0x2f, 0xc9, 0x75,
+	0x43, 0xdf, 0x94, 0xda, 0x5c, 0x6e, 0x75, 0x2a, 0x35, 0x17, 0xb8, 0xc8, 0xf0, 0x40, 0xd7, 0xfa,
+	0xed, 0x02, 0x5a, 0xe9, 0xaa, 0x74, 0x9e, 0x8e, 0xcc, 0xe7, 0xe8, 0x72, 0x5f, 0x64, 0xf6, 0xf0,
+	0xbd, 0xb6, 0x4e, 0xf5, 0xb5, 0xa5, 0x44, 0x99, 0x46, 0xe6, 0xe8, 0xb1, 0x6a, 0x4c, 0x3e, 0x11,
+	0xd9, 0x82, 0xc2, 0xb0, 0x50, 0x09, 0x43, 0x99, 0x28, 0x84, 0x38, 0xbd, 0x40, 0x57, 0xfb, 0xd9,
+	0x80, 0x05, 0x69, 0x34, 0x20, 0x78, 0xc3, 0x82, 0x97, 0x42, 0xb1, 0x39, 0x73, 0x66, 0xc8, 0xf5,
+	0xd8, 0x77, 0xd7, 0x2c, 0x64, 0x0d, 0x06, 0xe0, 0x7f, 0x81, 0xd6, 0x64, 0x60, 0xec, 0x52, 0x0c,
+	0xdf, 0xb7, 0xe0, 0xaa, 0x6a, 0x33, 0x48, 0x64, 0x64, 0x6d, 0x9d, 0x15, 0x3f, 0x73, 0xbc, 0x28,
+	0x73, 0x4b, 0x53, 0x08, 0xe6, 0xbf, 0x5c, 0x44, 0x68, 0x9f, 0xe6, 0x79, 0xab, 0x8f, 0xd1, 0xe5,
+	0xfe, 0x31, 0x8b, 0x69, 0x88, 0xd7, 0xda, 0x31, 0x0d, 0xc5, 0x00, 0xdc, 0xa7, 0x61, 0x29, 0xaf,
+	0xb1, 0x4f, 0xc3, 0x67, 0x84, 0x31, 0x3f, 0xac, 0x39, 0x71, 0xba, 0x8b, 0x22, 0xfd, 0xc8, 0x8e,
+	0x01, 0x1e, 0x73, 0xd4, 0x94, 0x78, 0x72, 0xbf, 0x7d, 0x7e, 0xd4, 0x77, 0xbf, 0xee, 0x6e, 0xa0,
+	0x75, 0x33, 0x76, 0x8c, 0xaf, 0x32, 0x97, 0xe1, 0xae, 0x68, 0x3a, 0x6b, 0x93, 0x3e, 0x42, 0x97,
+	0xba, 0xd9, 0x30, 0xfa, 0x06, 0x74, 0xed, 0xf9, 0x74, 0xd0, 0x17, 0x81, 0xce, 0x07, 0x74, 0x60,
+	0xca, 0xd0, 0x92, 0x60, 0xfa, 0xa6, 0xd5, 0xfb, 0xc1, 0x7c, 0xbe, 0x0d, 0xf7, 0x9a, 0xe1, 0x2b,
+	0x9e, 0x42, 0x96, 0x05, 0xef, 0xee, 0xc8, 0x4f, 0x45, 0xfe, 0x09, 0x5f, 0x17, 0xd4, 0x87, 0xd1,
+	0x98, 0x1c, 0xf8, 0x49, 0x98, 0x0f, 0x2f, 0xb5, 0xe5, 0xb2, 0xe4, 0x2c, 0x8b, 0xb9, 0xe5, 0xc1,
+	0xfb, 0xf3, 0x3d, 0xb8, 0xe9, 0xae, 0x5b, 0x1e, 0x04, 0x40, 0x37, 0xf4, 0xb9, 0x0f, 0x5d, 0xe7,
+	0x7f, 0x16, 0x50, 0xf3, 0x90, 0x1e, 0x91, 0x44, 0x77, 0x9e, 0x03, 0x74, 0xf9, 0x80, 0xbc, 0xa6,
+	0x47, 0x44, 0xe7, 0x26, 0xe5, 0x9b, 0x76, 0x65, 0xbd, 0x28, 0xac, 0xac, 0xae, 0x7e, 0xc6, 0x47,
+	0x1e, 0x07, 0x40, 0x2f, 0x15, 0x36, 0x50, 0xd3, 0x5f, 0x36, 0x10, 0x3e, 0x20, 0x8c, 0xf0, 0x9e,
+	0xcf, 0xd8, 0x1b, 0x9a, 0x0e, 0x05, 0xa3, 0x4e, 0x2f, 0x54, 0x35, 0xa5, 0xf4, 0x42, 0x9d, 0x81,
+	0x22, 0x6e, 0x0b, 0xe2, 0xef, 0x3a, 0x6f, 0x4b, 0xe2, 0x14, 0x2c, 0x1f, 0x4c, 0x94, 0xe9, 0x03,
+	0xe9, 0xc7, 0x14, 0xd6, 0x6f, 0xb5, 0x05, 0x89, 0x50, 0xab, 0x80, 0x86, 0x9d, 0x1a, 0x0a, 0x4d,
+	0xbf, 0x55, 0xab, 0x53, 0xcc, 0x77, 0xf3, 0xc8, 0xd6, 0x30, 0x43, 0x64, 0x3f, 0x43, 0xad, 0x67,
+	0xe2, 0x53, 0x87, 0x8e, 0xec, 0x1e, 0xba, 0xd8, 0x27, 0xc9, 0x10, 0x37, 0xdb, 0xea, 0x13, 0x08,
+	0xa8, 0x9d, 0x1b, 0xfa, 0x0d, 0x74, 0x20, 0xc9, 0x19, 0xd4, 0x96, 0xd6, 0x6d, 0xea, 0x2f, 0x27,
+	0x8c, 0x88, 0xcd, 0x4a, 0xe7, 0x67, 0xa8, 0xa5, 0xe6, 0x13, 0x85, 0xfc, 0x11, 0xba, 0x24, 0x12,
+	0x23, 0x78, 0x4d, 0x26, 0xbc, 0xd4, 0x66, 0xb3, 0xb8, 0xd6, 0x6b, 0x21, 0x74, 0x1d, 0xa6, 0xf7,
+	0x88, 0x6e, 0xcb, 0x63, 0x42, 0xee, 0x25, 0x00, 0x00, 0xe8, 0x7f, 0xbf, 0x80, 0x96, 0x0e, 0x53,
+	0x92, 0xaf, 0x57, 0x3f, 0x45, 0xad, 0x87, 0x59, 0x7c, 0xd4, 0xe7, 0x3e, 0x97, 0x24, 0x2a, 0x91,
+	0xb5, 0x47, 0x38, 0xc8, 0x9f, 0x11, 0xee, 0x6b, 0x26, 0xb5, 0xdb, 0x30, 0x62, 0x55, 0x13, 0x93,
+	0x75, 0x12, 0xdf, 0x9a, 0x18, 0xf7, 0xb9, 0x98, 0x58, 0x7e, 0x82, 0x96, 0x64, 0x32, 0xa3, 0x00,
+	0x6c, 0x89, 0x4e, 0xc9, 0xfe, 0x98, 0x08, 0x09, 0x5c, 0x93, 0xea, 0x38, 0x44, 0x8b, 0x3f, 0x26,
+	0xfe, 0x10, 0xec, 0xb1, 0x2a, 0xab, 0xdf, 0x4b, 0xbe, 0x1a, 0x71, 0xe5, 0x3c, 0x9d, 0xfb, 0xea,
+	0x4d, 0xc1, 0xe2, 0xa4, 0xf3, 0x7f, 0x0b, 0x68, 0x09, 0xea, 0x65, 0x86, 0x0a, 0xec, 0x83, 0x41,
+	0xa2, 0xbb, 0x11, 0x3c, 0xc3, 0xe1, 0xb4, 0xb0, 0x38, 0x22, 0xd9, 0x28, 0x80, 0x61, 0xf5, 0x9a,
+	0x31, 0xe1, 0xbe, 0x17, 0x12, 0x05, 0x9e, 0x7f, 0x1d, 0xd8, 0x17, 0x07, 0x1d, 0x81, 0xb9, 0x6e,
+	0x30, 0x4d, 0x9d, 0xe7, 0xa1, 0xb1, 0x0a, 0xda, 0x67, 0x7a, 0xbf, 0x7f, 0x2e, 0x27, 0xcd, 0x92,
+	0x23, 0x60, 0xe5, 0xde, 0xb2, 0x84, 0xfc, 0x39, 0x5a, 0xb2, 0x3a, 0xc0, 0x37, 0xe8, 0x13, 0x2a,
+	0xce, 0xee, 0xb2, 0x24, 0x11, 0xbb, 0xd8, 0x90, 0xc0, 0xc4, 0xd8, 0xf9, 0xb7, 0x2b, 0x68, 0x05,
+	0xc6, 0xac, 0x1d, 0xeb, 0x10, 0x2d, 0x3f, 0x17, 0x5f, 0x7e, 0xb4, 0x02, 0x3b, 0x72, 0x6f, 0x5e,
+	0x10, 0x9a, 0x91, 0x5b, 0xa7, 0x53, 0xcc, 0x66, 0x43, 0x05, 0x3b, 0xf9, 0x07, 0x82, 0x5e, 0x7e,
+	0x55, 0x82, 0x8a, 0x0d, 0xd1, 0xb2, 0x39, 0x91, 0x58, 0x44, 0x45, 0xa1, 0x26, 0xba, 0x61, 0x8e,
+	0x2a, 0xc5, 0x76, 0xd2, 0x2c, 0xae, 0xcd, 0x22, 0x87, 0x9a, 0x64, 0x69, 0x41, 0x99, 0x87, 0x94,
+	0x1e, 0x8d, 0xfd, 0xf4, 0x88, 0xe9, 0xb6, 0x29, 0x08, 0x4f, 0x0b, 0xa1, 0x69, 0x7e, 0x43, 0x31,
+	0xd0, 0x85, 0x81, 0xe5, 0xaf, 0x1a, 0x68, 0xb3, 0x18, 0x84, 0xbc, 0xdd, 0xf1, 0x5b, 0x35, 0x21,
+	0xaa, 0xf4, 0x8a, 0xfb, 0xf3, 0x8d, 0x8a, 0x7e, 0x38, 0xb6, 0x1f, 0x89, 0xb6, 0x02, 0x3f, 0xa6,
+	0xe8, 0x3a, 0x2c, 0xa7, 0x55, 0x27, 0xee, 0xe5, 0x07, 0x84, 0x99, 0x2e, 0xdc, 0x2b, 0x46, 0x38,
+	0xd7, 0x57, 0x43, 0x8d, 0x6b, 0xf9, 0xf1, 0x6b, 0xb4, 0x6a, 0x13, 0x1c, 0xfa, 0x21, 0xd3, 0x29,
+	0x8e, 0xb2, 0x5c, 0x73, 0xde, 0x99, 0xa5, 0x56, 0x15, 0x7e, 0x4b, 0x10, 0xde, 0xc6, 0x5b, 0x16,
+	0x21, 0xf7, 0x43, 0x26, 0xbf, 0x34, 0x09, 0xda, 0x13, 0xcc, 0xd0, 0xb2, 0x3a, 0xa6, 0xab, 0xf2,
+	0x3a, 0x4f, 0x5f, 0x94, 0x6a, 0xce, 0x5b, 0xf5, 0x4a, 0xc5, 0x68, 0xf2, 0xdc, 0xb3, 0x19, 0x21,
+	0xd2, 0x7f, 0xd9, 0x40, 0xd8, 0x9c, 0xf0, 0xf3, 0xfa, 0xde, 0xb5, 0x8f, 0x00, 0x75, 0x35, 0xde,
+	0x9e, 0x6d, 0xa0, 0x3c, 0xd8, 0x11, 0x1e, 0xdc, 0xdf, 0x71, 0xe7, 0x78, 0xe0, 0x4d, 0xa1, 0xc8,
+	0x49, 0xe7, 0xab, 0x0b, 0x68, 0xe9, 0x29, 0x1d, 0x30, 0x3d, 0x78, 0x7f, 0x2e, 0x7b, 0xbb, 0x9c,
+	0xd8, 0x9f, 0xd2, 0x81, 0x9e, 0xda, 0x40, 0xf8, 0x94, 0x0e, 0x6a, 0xce, 0xfd, 0x42, 0x5a, 0xe9,
+	0x5e, 0xe2, 0x43, 0xbc, 0x3c, 0xbf, 0x3f, 0xa5, 0x83, 0xfc, 0xfb, 0xe4, 0xa7, 0xa8, 0x29, 0x96,
+	0xf8, 0x88, 0x71, 0x60, 0xc5, 0xd7, 0xdb, 0xe2, 0x63, 0xbd, 0x7e, 0xaf, 0x19, 0xab, 0x20, 0xae,
+	0x3d, 0xa3, 0xe4, 0x0c, 0x80, 0xfb, 0x1c, 0x2d, 0x0b, 0xb7, 0xe5, 0x77, 0x15, 0xf0, 0xfb, 0x9a,
+	0x44, 0xde, 0xe5, 0x69, 0xbc, 0x4b, 0xc7, 0x63, 0x3f, 0x19, 0x3a, 0x37, 0x2b, 0xa2, 0x72, 0xfa,
+	0xc4, 0x29, 0xc1, 0x12, 0x39, 0xbb, 0xc9, 0x58, 0x1f, 0xfa, 0xec, 0x08, 0x56, 0x3e, 0x01, 0x62,
+	0x89, 0xcc, 0xc9, 0xaa, 0xaa, 0xa9, 0x6c, 0xba, 0x04, 0x3c, 0x07, 0xa5, 0x49, 0x04, 0x74, 0x02,
+	0xb4, 0xda, 0xd7, 0x17, 0x47, 0x74, 0x43, 0x7c, 0x22, 0xb2, 0x12, 0x50, 0x93, 0x35, 0x89, 0x2b,
+	0xdf, 0xcc, 0xe6, 0xae, 0x20, 0x54, 0x3c, 0xea, 0x83, 0xa3, 0xb3, 0xe2, 0xe5, 0x17, 0x51, 0x04,
+	0x23, 0x90, 0xfc, 0x47, 0x03, 0xad, 0x8a, 0x2c, 0xb8, 0xbd, 0x63, 0x78, 0x81, 0x5a, 0x10, 0xfb,
+	0x5c, 0xae, 0xbf, 0xc3, 0x81, 0xf0, 0x2c, 0xcb, 0xba, 0x39, 0xc8, 0x89, 0x25, 0xd8, 0x07, 0x9c,
+	0xfc, 0x53, 0xca, 0x0b, 0xd4, 0x82, 0xad, 0x88, 0x01, 0xbf, 0x2e, 0xc1, 0x0f, 0x2a, 0xeb, 0x7b,
+	0x49, 0x5c, 0x49, 0x9e, 0x58, 0xe0, 0xb0, 0xca, 0x43, 0x75, 0xfe, 0xfb, 0x02, 0x5a, 0x79, 0x44,
+	0x83, 0x3e, 0xa7, 0x29, 0x31, 0x29, 0x8f, 0x45, 0xf1, 0x7d, 0x98, 0x06, 0x0c, 0xdf, 0xb4, 0xbe,
+	0x17, 0xab, 0x8b, 0x24, 0xa5, 0xde, 0xa5, 0xc5, 0x56, 0x75, 0xcc, 0xe9, 0x31, 0xbf, 0x85, 0x32,
+	0x15, 0x0c, 0x4f, 0x1e, 0x89, 0xee, 0xfb, 0xe7, 0x3a, 0xf7, 0xf3, 0x88, 0x06, 0x78, 0xbb, 0x9d,
+	0xdf, 0x50, 0xc9, 0x85, 0xd9, 0x98, 0x24, 0xdc, 0xfa, 0x24, 0x35, 0xdb, 0xa2, 0x38, 0x56, 0xdd,
+	0xbb, 0x86, 0x11, 0xd6, 0xd7, 0x2f, 0xf4, 0x4a, 0x6e, 0xb3, 0xa7, 0xa2, 0x4b, 0x00, 0xf5, 0x2d,
+	0x03, 0x2c, 0x25, 0x02, 0xd5, 0x1c, 0x53, 0xeb, 0xb5, 0x8a, 0xf2, 0x7b, 0x82, 0xf2, 0x3b, 0xce,
+	0x76, 0x4d, 0x25, 0xbd, 0xa9, 0x36, 0x57, 0x9c, 0x14, 0x5d, 0xde, 0x23, 0x65, 0x4e, 0x29, 0x99,
+	0xc5, 0x59, 0xd0, 0x2a, 0xce, 0xef, 0x0a, 0x4e, 0x17, 0x9f, 0xca, 0xd9, 0xf9, 0xf7, 0x06, 0x6a,
+	0xee, 0xa5, 0xfe, 0x24, 0xdf, 0x31, 0xff, 0x0c, 0x5d, 0x15, 0x29, 0x55, 0xee, 0x73, 0xa2, 0x93,
+	0x64, 0xb9, 0xa0, 0xf4, 0xa1, 0xc2, 0x92, 0x2b, 0x62, 0xd5, 0xa2, 0x78, 0xc3, 0x13, 0x37, 0xb1,
+	0x44, 0xf7, 0x01, 0x6e, 0x12, 0x02, 0xe1, 0x09, 0x7e, 0x81, 0x16, 0x0f, 0x48, 0x2c, 0xee, 0x6d,
+	0xe8, 0xed, 0xa7, 0x7e, 0x2f, 0xad, 0xe9, 0x46, 0xac, 0xa0, 0xb7, 0x05, 0xb4, 0x83, 0x6f, 0x28,
+	0xe8, 0x54, 0x19, 0xc8, 0x53, 0xcc, 0x93, 0xe1, 0x49, 0x27, 0x44, 0xad, 0xdd, 0x11, 0x9c, 0x02,
+	0x75, 0x5d, 0x3e, 0x45, 0x68, 0x8f, 0x70, 0x29, 0x63, 0xf9, 0x8d, 0x92, 0x91, 0x7d, 0x80, 0xdc,
+	0xb0, 0x85, 0xb5, 0x23, 0x2d, 0x90, 0xc5, 0xa1, 0x12, 0xbf, 0x90, 0xad, 0xd4, 0xf9, 0xd5, 0x25,
+	0xd4, 0xec, 0x8f, 0x7c, 0x33, 0x12, 0x76, 0x45, 0xe2, 0x79, 0x97, 0xc4, 0xb1, 0x9e, 0xc0, 0xd5,
+	0xab, 0xd9, 0x44, 0x4a, 0x1a, 0x12, 0xc7, 0x7a, 0xcf, 0xef, 0x2c, 0x79, 0xe2, 0x82, 0x9a, 0xb8,
+	0xd1, 0x03, 0x6d, 0xbf, 0x27, 0x36, 0xcd, 0x36, 0x88, 0x7a, 0xad, 0x03, 0x31, 0x77, 0x1d, 0x0c,
+	0x88, 0xce, 0xb3, 0xbf, 0xd0, 0x7b, 0x5b, 0x81, 0xb5, 0x69, 0x2f, 0x60, 0x36, 0xdc, 0x8d, 0xaa,
+	0xa2, 0x38, 0xaf, 0xed, 0xd4, 0x81, 0x1f, 0x88, 0x24, 0x9d, 0xa8, 0xfd, 0x7e, 0x94, 0x1c, 0xe9,
+	0x81, 0x6f, 0xcb, 0x34, 0xc1, 0x8a, 0x3a, 0x5e, 0x69, 0x79, 0xa5, 0xe6, 0x71, 0x94, 0x1c, 0xa9,
+	0x65, 0x6a, 0x8f, 0x54, 0x31, 0x6d, 0xd9, 0x4c, 0xcc, 0x72, 0x20, 0x00, 0x53, 0xfb, 0xfa, 0x4a,
+	0xa7, 0x00, 0x0d, 0xf4, 0x2d, 0xbb, 0xd2, 0x15, 0xf4, 0xdb, 0x33, 0xb4, 0x33, 0xe2, 0x62, 0x73,
+	0xbd, 0x41, 0x6b, 0xe2, 0x02, 0x03, 0x28, 0x60, 0xa1, 0x53, 0xf7, 0x68, 0xac, 0x7b, 0x00, 0x25,
+	0x55, 0x69, 0x1b, 0x57, 0x6b, 0x51, 0x99, 0x99, 0x25, 0x6f, 0xaa, 0x2d, 0xa0, 0x33, 0xfe, 0xe3,
+	0x05, 0xb4, 0xfc, 0x44, 0xde, 0x4e, 0x33, 0x07, 0x53, 0xe8, 0xf7, 0x4a, 0x88, 0xb7, 0xda, 0xfa,
+	0xf2, 0x1a, 0x4c, 0x15, 0xe4, 0xa5, 0x0f, 0xc7, 0x5c, 0xb3, 0xb9, 0xaa, 0x55, 0x2a, 0x62, 0xf5,
+	0x61, 0x01, 0x2f, 0xea, 0xfb, 0x6f, 0xf8, 0x39, 0x5a, 0xea, 0x51, 0x96, 0x63, 0x6f, 0xe6, 0xc5,
+	0x95, 0xc4, 0x74, 0xae, 0x8a, 0x42, 0x61, 0x9a, 0x44, 0x9a, 0xb2, 0x80, 0x1e, 0x30, 0x46, 0x6b,
+	0x3d, 0x92, 0xbe, 0xa4, 0xe9, 0x58, 0x99, 0xef, 0x8e, 0x48, 0x00, 0xad, 0xa5, 0x51, 0x94, 0x56,
+	0x88, 0xad, 0x24, 0x7a, 0xad, 0xb6, 0x72, 0x8e, 0xd2, 0x97, 0xf8, 0x02, 0xd0, 0x03, 0x5d, 0x28,
+	0x3a, 0x5c, 0x37, 0x4c, 0x09, 0x81, 0x79, 0x09, 0x17, 0xa2, 0x90, 0x8b, 0xab, 0x3c, 0x45, 0x6d,
+	0xb1, 0x57, 0x60, 0x9c, 0xf3, 0xf8, 0xda, 0xa6, 0xf3, 0xdb, 0x06, 0x6a, 0xc9, 0x43, 0x82, 0x6e,
+	0x9b, 0x9e, 0x3e, 0xae, 0x01, 0x7a, 0x94, 0x92, 0x21, 0xbe, 0xde, 0x56, 0x37, 0xf7, 0x8c, 0x5c,
+	0xce, 0x4c, 0x25, 0xb1, 0xa2, 0x53, 0xdf, 0x22, 0xf0, 0x15, 0x75, 0x34, 0xc3, 0x21, 0x5a, 0xea,
+	0x4e, 0x26, 0xf1, 0xb1, 0xb4, 0xc3, 0x8e, 0x2e, 0x67, 0x09, 0xcd, 0xe9, 0xaf, 0x4e, 0x57, 0xdc,
+	0x4d, 0xe2, 0x4d, 0x7d, 0xa1, 0x70, 0x7a, 0xe8, 0xa7, 0x61, 0x7e, 0x69, 0xea, 0xa4, 0xf3, 0xcf,
+	0x8b, 0x68, 0xe5, 0x43, 0x75, 0x8d, 0x56, 0x57, 0xe7, 0x25, 0x6a, 0xf6, 0x09, 0xe7, 0x51, 0x12,
+	0xb2, 0x67, 0x24, 0xc9, 0xf4, 0xd0, 0xb5, 0x65, 0xa5, 0x44, 0x61, 0x51, 0x55, 0xe1, 0xd6, 0xf7,
+	0x74, 0xe1, 0xcc, 0x2e, 0xec, 0x1e, 0x8c, 0x01, 0xf7, 0xa7, 0x68, 0x51, 0x50, 0xef, 0xd3, 0x50,
+	0x2f, 0x1c, 0xfa, 0x5d, 0xa5, 0x1d, 0xf5, 0x54, 0xae, 0xc5, 0xe5, 0x35, 0xc9, 0x59, 0x33, 0xd8,
+	0xe2, 0x21, 0xa6, 0x21, 0x53, 0x27, 0x4e, 0x51, 0xe6, 0x21, 0xa5, 0xe2, 0xf2, 0xa1, 0x3e, 0x71,
+	0x16, 0x84, 0xa5, 0xcc, 0x57, 0x49, 0x57, 0xe9, 0x09, 0x39, 0xd3, 0x80, 0x52, 0x1e, 0x00, 0xe8,
+	0x67, 0x08, 0x89, 0x42, 0x72, 0x61, 0xdd, 0xb4, 0x60, 0x0a, 0x2b, 0xeb, 0x8d, 0xaa, 0xa2, 0x98,
+	0xf4, 0xc2, 0x2b, 0x56, 0x88, 0x04, 0xd6, 0x91, 0xf2, 0x5f, 0xc5, 0x81, 0x15, 0xfc, 0xd7, 0xc2,
+	0x3a, 0xff, 0x8d, 0xae, 0x72, 0xa7, 0x21, 0xa7, 0x18, 0x2b, 0x1b, 0x6f, 0xba, 0xef, 0x27, 0xe1,
+	0x09, 0x8c, 0x1c, 0x51, 0xb6, 0x17, 0x67, 0x61, 0x94, 0xe4, 0xfb, 0x3e, 0x5b, 0x56, 0x6a, 0xef,
+	0xa2, 0xaa, 0xb2, 0x98, 0xe7, 0x4c, 0x13, 0x69, 0xa2, 0x89, 0x02, 0x45, 0xd4, 0x27, 0x0c, 0x7a,
+	0x5f, 0x81, 0x48, 0xc9, 0xea, 0x88, 0x72, 0x55, 0x31, 0xa5, 0xe1, 0x5e, 0xb3, 0x3b, 0x96, 0x30,
+	0x81, 0xa6, 0x3f, 0x52, 0x1d, 0xfa, 0x71, 0x92, 0xd2, 0x38, 0xee, 0x66, 0x7c, 0xa4, 0x17, 0x88,
+	0x92, 0xb8, 0xb4, 0x40, 0x54, 0xb4, 0x95, 0x89, 0x3a, 0x67, 0x23, 0xc2, 0x0a, 0xc8, 0xde, 0xa0,
+	0x55, 0xe5, 0x62, 0xfa, 0x9a, 0x3c, 0x8c, 0x12, 0x3f, 0x3d, 0xc6, 0x76, 0x73, 0x4b, 0x51, 0xe9,
+	0xc3, 0x51, 0x41, 0x53, 0x4c, 0xed, 0xe2, 0xb7, 0xad, 0x6e, 0x06, 0x16, 0xe2, 0xa6, 0x80, 0xb4,
+	0x3d, 0x3c, 0x9e, 0xc0, 0xa1, 0x53, 0x2e, 0x4d, 0x5f, 0xa2, 0x65, 0xd9, 0x08, 0x19, 0xff, 0x36,
+	0xb4, 0xef, 0x08, 0xda, 0xef, 0xb9, 0x67, 0xa4, 0x85, 0xb5, 0x89, 0xa2, 0xe5, 0xfd, 0x28, 0x20,
+	0x09, 0x23, 0xe6, 0xc0, 0xdb, 0xd4, 0x12, 0xee, 0x73, 0xe8, 0x3f, 0x01, 0x49, 0x61, 0xf5, 0x33,
+	0x32, 0xd3, 0xac, 0x35, 0xaa, 0x62, 0xde, 0x14, 0x2f, 0x7b, 0xb1, 0x54, 0xcb, 0xd4, 0xe9, 0xc3,
+	0x5f, 0x37, 0xbe, 0xee, 0xfe, 0x6d, 0x03, 0xbf, 0x87, 0xd6, 0x7b, 0xc7, 0xc3, 0x88, 0x6e, 0xc3,
+	0xb6, 0x86, 0x6d, 0x1f, 0x10, 0xc6, 0xb7, 0xbb, 0xbd, 0x27, 0xae, 0x83, 0x2e, 0x09, 0x39, 0xbe,
+	0x36, 0xe2, 0x7c, 0xc2, 0x3e, 0xf0, 0xe4, 0xa5, 0xea, 0x76, 0x40, 0xc7, 0x9d, 0x0b, 0xef, 0xb4,
+	0xbf, 0xbf, 0x73, 0xa1, 0xb1, 0x70, 0xb1, 0xb3, 0xea, 0x4f, 0x26, 0x71, 0x14, 0xc8, 0xdd, 0xe5,
+	0x2b, 0x46, 0x93, 0x0f, 0x2a, 0x92, 0xf4, 0xfb, 0x68, 0xeb, 0x19, 0x4d, 0xc9, 0xb6, 0x3f, 0xa0,
+	0x19, 0xdf, 0xb6, 0xc9, 0xba, 0x93, 0x88, 0xd5, 0xe0, 0x0f, 0x2e, 0x8b, 0xcb, 0xd4, 0xef, 0xfe,
+	0x7f, 0x00, 0x00, 0x00, 0xff, 0xff, 0xea, 0x22, 0x9f, 0x6d, 0x08, 0x31, 0x00, 0x00,
 }

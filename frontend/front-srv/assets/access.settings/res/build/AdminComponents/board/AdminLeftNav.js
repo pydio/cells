@@ -70,22 +70,6 @@ var AdminLeftNav = React.createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var rootNode = _props.rootNode;
-
-        if (pydio.Controller.getActionByName("get_upgrade_path")) {
-            PydioApi.getClient().request({ get_action: 'get_upgrade_path' }, (function (transp) {
-                var response = transp.responseJSON;
-                var fakeNode = new AjxpNode("/admin/action.updater");
-                var child = fakeNode.findInArbo(rootNode);
-                if (child) {
-                    var _length = 0;
-                    if (response && response.packages.length) {
-                        _length = response.packages.length;
-                    }
-                    child.getMetadata().set('flag', _length);
-                    _utilMenuItemListener2['default'].getInstance().notify("item_changed");
-                }
-            }).bind(this));
-        }
     },
 
     onMenuChange: function onMenuChange(event, node) {

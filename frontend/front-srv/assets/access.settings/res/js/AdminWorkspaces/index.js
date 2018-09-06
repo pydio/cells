@@ -20,9 +20,7 @@
 
 import MetaSourceForm from './meta/MetaSourceForm'
 import WsDashboard from './board/WsDashboard'
-import SharesList from './panel/SharesList'
 import MetaList from './meta/MetaList'
-import WorkspaceSummary from './panel/WorkspaceSummary'
 import VirtualNodes from './board/VirtualNodes'
 import DataSourcesBoard from './board/DataSourcesBoard'
 import MetadataBoard from './board/MetadataBoard'
@@ -34,9 +32,7 @@ import VirtualNode from './model/VirtualNode'
 
 window.AdminWorkspaces = {
     MetaSourceForm,
-    SharesList,
     MetaList,
-    WorkspaceSummary,
     VirtualNodes,
     WsDashboard,
     DataSourcesBoard,

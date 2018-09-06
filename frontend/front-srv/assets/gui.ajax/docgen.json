@@ -1,73 +1,5 @@
 {
   "access.gateway": {
-    "dialog/MultiDownloadDialog.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "removeNode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "nodePath",
-                "type": null
-              },
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "performChunking",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "actionName": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "selection": {
-            "type": {
-              "name": "instanceOf",
-              "value": "PydioDataModel"
-            },
-            "required": false,
-            "description": ""
-          },
-          "buildChunks": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "dialogTitleId": {
-            "defaultValue": {
-              "value": "88",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogIsModal": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          }
-        }
-      }
-    ],
     "dialog/OtherEditorPickerDialog.js": [
       {
         "description": "",
@@ -781,100 +713,6 @@
         }
       }
     ],
-    "AdminComponents/cards/MostActiveBadge.js": [
-      {
-        "description": "",
-        "displayName": "MostActiveBadge",
-        "methods": [
-          {
-            "name": "loadStatus",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "type": {
-            "type": {
-              "name": "enum",
-              "value": [
-                {
-                  "value": "'user'",
-                  "computed": false
-                },
-                {
-                  "value": "'ip'",
-                  "computed": false
-                },
-                {
-                  "value": "'action'",
-                  "computed": false
-                }
-              ]
-            },
-            "required": false,
-            "description": ""
-          },
-          "figure": {
-            "type": {
-              "name": "number"
-            },
-            "required": false,
-            "description": ""
-          },
-          "range": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "legend": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "className": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "actionName": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "workspaceFilter": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "filenameFilter": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
     "AdminComponents/cards/QuickLinks.js": [
       {
         "description": "",
@@ -948,28 +786,6 @@
                 "type": null
               }
             ],
-            "returns": null
-          },
-          {
-            "name": "triggerReload",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminComponents/cards/ServerStatus.js": [
-      {
-        "description": "",
-        "displayName": "ServerStatus",
-        "methods": [
-          {
-            "name": "loadStatus",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
             "returns": null
           },
           {
@@ -1884,17 +1700,6 @@
               }
             ],
             "returns": null
-          },
-          {
-            "name": "getOrUpdateJwt",
-            "docblock": "@return Promise",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "Promise",
-              "type": null
-            },
-            "description": null
           },
           {
             "name": "listPolicies",
@@ -5513,42 +5318,6 @@
             "returns": null
           },
           {
-            "name": "deleteWorkspace",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "workspaceId",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "updateWorkspace",
-            "docblock": "@param workspaceModel Workspace\n@param postData Object\n@param editorData Object",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "workspaceModel",
-                "description": "Workspace",
-                "type": null
-              },
-              {
-                "name": "postData",
-                "description": "Object",
-                "type": null
-              },
-              {
-                "name": "editorData",
-                "description": "Object",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": null
-          },
-          {
             "name": "reloadWorkspaceList",
             "docblock": null,
             "modifiers": [],
@@ -6184,30 +5953,6 @@
         }
       }
     ],
-    "AdminWorkspaces/panel/SharesList.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "clearBrokenLinks",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "model": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Workspace"
-            },
-            "required": true,
-            "description": ""
-          }
-        }
-      }
-    ],
     "AdminWorkspaces/virtual/NodeCard.js": [
       {
         "description": "",
@@ -6641,74 +6386,6 @@
           },
           {
             "name": "saveForm",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "WebdavPane.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "getMessage",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "id",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "onToggleChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "newValue",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "savePassword",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "loadPrefs",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "renderPasswordField",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "renderUrls",
             "docblock": null,
             "modifiers": [],
             "params": [],
@@ -7829,13 +7506,6 @@
               }
             ],
             "returns": null
-          },
-          {
-            "name": "getSessionId",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
           }
         ],
         "props": {
@@ -8658,7 +8328,7 @@
     ],
     "core/PydioBootstrap.es6": [
       {
-        "description": "Main BootLoader.\nDefaults params for constructor should be {} and content.php?get_action=get_boot_conf",
+        "description": "Main BootLoader.",
         "displayName": "PydioBootstrap",
         "methods": [
           {
@@ -10200,31 +9870,37 @@
           },
           {
             "name": "applyCheckHook",
-            "docblock": null,
+            "docblock": "@param node\n@param hookName\n@param hookArg\n@param completeCallback\n@param additionalParams",
             "modifiers": [],
             "params": [
               {
                 "name": "node",
+                "description": null,
                 "type": null
               },
               {
                 "name": "hookName",
+                "description": null,
                 "type": null
               },
               {
                 "name": "hookArg",
+                "description": null,
                 "type": null
               },
               {
                 "name": "completeCallback",
+                "description": null,
                 "type": null
               },
               {
                 "name": "additionalParams",
+                "description": null,
                 "type": null
               }
             ],
-            "returns": null
+            "returns": null,
+            "description": null
           },
           {
             "name": "parseXmlMessage",
@@ -10239,88 +9915,6 @@
             ],
             "returns": null,
             "description": "Standard parser for server XML answers"
-          },
-          {
-            "name": "submitForm",
-            "docblock": "Submits a form using Connexion class.\n@param formName String The id of the form\n@param post Boolean Whether to POST or GET\n@param completeCallback Function Callback to be called on complete",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "formName",
-                "description": "String The id of the form",
-                "type": null
-              },
-              {
-                "name": "post",
-                "description": "Boolean Whether to POST or GET",
-                "type": null
-              },
-              {
-                "name": "completeCallback",
-                "description": "Function Callback to be called on complete",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Submits a form using Connexion class."
-          },
-          {
-            "name": "postSelectionWithAction",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "actionName",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
-              },
-              {
-                "name": "selectionModel",
-                "type": null
-              },
-              {
-                "name": "additionalParameters",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "storeRememberData",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "clearRememberData",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "hasRememberData",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "tryToLogUserFromRememberData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
           }
         ],
         "require": "const PydioApi = require('pydio/http/api')"
@@ -11311,7 +10905,7 @@
           },
           {
             "name": "jwtFromCredentials",
-            "docblock": "@param login string\n@param password string\n@param reloadRegistry bool\n@return {Promise<any>}",
+            "docblock": "Create AuthInfo request with type \"credentials\"\n@param login string\n@param password string\n@param reloadRegistry bool\n@return {Promise<any>}",
             "modifiers": [],
             "params": [
               {
@@ -11336,7 +10930,23 @@
                 "name": "Promise"
               }
             },
-            "description": null
+            "description": "Create AuthInfo request with type \"credentials\""
+          },
+          {
+            "name": "jwtWithAuthInfo",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "authInfo",
+                "type": null
+              },
+              {
+                "name": "reloadRegistry",
+                "type": null
+              }
+            ],
+            "returns": null
           },
           {
             "name": "getOrUpdateJwt",
@@ -13894,6 +13504,48 @@
               }
             },
             "description": "Add some data to the initial set of parameters loaded by the frontend"
+          },
+          {
+            "name": "frontEnrollAuthWithHttpInfo",
+            "docblock": "Generic endpoint that can be implemented by 2FA systems for enrollment\n@param {module:model/RestFrontEnrollAuthRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontEnrollAuthResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestFrontEnrollAuthRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontEnrollAuthResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Generic endpoint that can be implemented by 2FA systems for enrollment"
+          },
+          {
+            "name": "frontEnrollAuth",
+            "docblock": "Generic endpoint that can be implemented by 2FA systems for enrollment\n@param {module:model/RestFrontEnrollAuthRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontEnrollAuthResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestFrontEnrollAuthRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontEnrollAuthResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Generic endpoint that can be implemented by 2FA systems for enrollment"
           },
           {
             "name": "frontLogWithHttpInfo",
@@ -23298,6 +22950,98 @@
         ]
       }
     ],
+    "core/http/gen/model/RestFrontEnrollAuthRequest.js": [
+      {
+        "description": "The RestFrontEnrollAuthRequest model module.\n@module model/RestFrontEnrollAuthRequest\n@version 1.0",
+        "displayName": "RestFrontEnrollAuthRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestFrontEnrollAuthRequest</code>.\n@alias module:model/RestFrontEnrollAuthRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestFrontEnrollAuthRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestFrontEnrollAuthRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontEnrollAuthRequest} obj Optional instance to populate.\n@return {module:model/RestFrontEnrollAuthRequest} The populated <code>RestFrontEnrollAuthRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestFrontEnrollAuthRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestFrontEnrollAuthRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestFrontEnrollAuthRequest"
+              }
+            },
+            "description": "Constructs a <code>RestFrontEnrollAuthRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestFrontEnrollAuthResponse.js": [
+      {
+        "description": "The RestFrontEnrollAuthResponse model module.\n@module model/RestFrontEnrollAuthResponse\n@version 1.0",
+        "displayName": "RestFrontEnrollAuthResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestFrontEnrollAuthResponse</code>.\n@alias module:model/RestFrontEnrollAuthResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestFrontEnrollAuthResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestFrontEnrollAuthResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontEnrollAuthResponse} obj Optional instance to populate.\n@return {module:model/RestFrontEnrollAuthResponse} The populated <code>RestFrontEnrollAuthResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestFrontEnrollAuthResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestFrontEnrollAuthResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestFrontEnrollAuthResponse"
+              }
+            },
+            "description": "Constructs a <code>RestFrontEnrollAuthResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/RestFrontLogMessage.js": [
       {
         "description": "The RestFrontLogMessage model module.\n@module model/RestFrontLogMessage\n@version 1.0",
@@ -28643,30 +28387,6 @@
             "description": "COMPATIBILITY METHD"
           },
           {
-            "name": "submitForm",
-            "docblock": "Submits a form using Connexion class.\n@param formName String The id of the form\n@param post Boolean Whether to POST or GET\n@param completeCallback Function Callback to be called on complete",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "formName",
-                "description": "String The id of the form",
-                "type": null
-              },
-              {
-                "name": "post",
-                "description": "Boolean Whether to POST or GET",
-                "type": null
-              },
-              {
-                "name": "completeCallback",
-                "description": "Function Callback to be called on complete",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Submits a form using Connexion class."
-          },
-          {
             "name": "setUser",
             "docblock": "Stores the currently logged user object\n@param oUser User User instance",
             "modifiers": [],
@@ -28816,35 +28536,6 @@
             ],
             "returns": null,
             "description": "Triggers an action by its access key."
-          },
-          {
-            "name": "applyDragMove",
-            "docblock": "Complex function called when drag'n'dropping. Basic checks of who is child of who.\n@param fileName String The dragged element \n@param destDir String The drop target node path\n@param destNodeName String The drop target node name\n@param copy Boolean Copy or Move",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "fileName",
-                "description": "String The dragged element",
-                "type": null
-              },
-              {
-                "name": "destDir",
-                "description": "String The drop target node path",
-                "type": null
-              },
-              {
-                "name": "destNodeName",
-                "description": "String The drop target node name",
-                "type": null
-              },
-              {
-                "name": "copy",
-                "description": "Boolean Copy or Move",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Complex function called when drag'n'dropping. Basic checks of who is child of who."
           },
           {
             "name": "getDefaultAction",
@@ -29158,12 +28849,12 @@
           },
           {
             "name": "loadLeafNodeSync",
-            "docblock": "Load a node\n@param node AjxpNode\n@param nodeCallback Function On node loaded\n@param aSync bool\n@param additionalParameters object",
+            "docblock": "Load a node\n@param node {AjxpNode}\n@param nodeCallback Function On node loaded\n@param aSync bool\n@param additionalParameters object",
             "modifiers": [],
             "params": [
               {
                 "name": "node",
-                "description": "AjxpNode",
+                "description": "{AjxpNode}",
                 "type": null
               },
               {
@@ -30448,7 +30139,7 @@
           },
           {
             "name": "parseAjxpNode",
-            "docblock": "Parses XML Node and create AjxpNode\n@param xmlNode XMLNode\n@returns AjxpNode",
+            "docblock": "Parses XML Node and create AjxpNode\n@param xmlNode XMLNode",
             "modifiers": [],
             "params": [
               {
@@ -30457,10 +30148,7 @@
                 "type": null
               }
             ],
-            "returns": {
-              "description": "AjxpNode",
-              "type": null
-            },
+            "returns": null,
             "description": "Parses XML Node and create AjxpNode"
           }
         ],
@@ -31271,14 +30959,6 @@
             "params": [],
             "returns": null,
             "description": "Set last activity time"
-          },
-          {
-            "name": "serverPoller",
-            "docblock": "Pings the server",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Pings the server"
           },
           {
             "name": "idleObserver",
@@ -38737,99 +38417,6 @@
         }
       }
     ],
-    "ReactUI/compat/CompatMigrationDialog.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "performUpgrade",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "getButtons",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "updater",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "dialogTitle": {
-            "defaultValue": {
-              "value": "'Migration Required'",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogIsModal": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogScrollBody": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          }
-        },
-        "require": "const {CompatMigrationDialog} = require('pydio').requireLib('boot')"
-      }
-    ],
-    "ReactUI/compat/CompatModal.js": [
-      {
-        "description": "",
-        "displayName": "CompatModal",
-        "methods": [
-          {
-            "name": "open",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "namespace",
-                "type": null
-              },
-              {
-                "name": "component",
-                "type": null
-              },
-              {
-                "name": "props",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "handleLoad",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "handleClose",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "require": "const {CompatModal} = require('pydio').requireLib('boot')"
-      }
-    ],
     "ReactUI/modal/AsyncModal.js": [
       {
         "description": "Specific AsyncComponent for Modal Dialog",
@@ -40716,18 +40303,6 @@
             "returns": null
           },
           {
-            "name": "handleRemoveTplBasedWorkspace",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
             "name": "onClick",
             "docblock": null,
             "modifiers": [],
@@ -41550,116 +41125,6 @@
         "description": "",
         "displayName": "ActivityStreamsPanel",
         "methods": []
-      }
-    ],
-    "recent/RecentAccessCard.js": [
-      {
-        "description": "Show a list of recently accessed files or folders.\nThis list is stored by the server in the user preferences, and served by the feed plugin",
-        "methods": [
-          {
-            "name": "getCorrectNode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "goTo",
-            "docblock": "@param node AjxpNode",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "description": "AjxpNode",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": null
-          },
-          {
-            "name": "renderIcon",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "renderLabel",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "data",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "renderAction",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "data",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "renderFirstLine",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "renderSecondLine",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "colored": {
-            "defaultValue": {
-              "value": "true",
-              "computed": false
-            },
-            "required": false
-          }
-        }
       }
     ],
     "videos/VideoCard.js": [

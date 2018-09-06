@@ -2,7 +2,7 @@
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x12, _x13, _x14) { var _again = true; _function: while (_again) { var object = _x12, property = _x13, receiver = _x14; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x12 = parent; _x13 = property; _x14 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x7, _x8, _x9) { var _again = true; _function: while (_again) { var object = _x7, property = _x8, receiver = _x9; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x7 = parent; _x8 = property; _x9 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -749,127 +749,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                     this.submitToServer();
                 }
             }
-        }, {
-            key: "stopSharing",
-            value: function stopSharing() {
-                var callbackFunc = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-
-                var params = {
-                    get_action: 'unshare'
-                };
-                ShareModel.prepareShareActionParameters(this.getNode(), params);
-                PydioApi.getClient().request(params, (function (response) {
-                    try {
-                        if (this._dataModel && this._pydio.getContextHolder() !== this._dataModel) {
-                            this._dataModel.requireContextChange(this._dataModel.getRootNode(), true);
-                        } else {
-                            this._pydio.fireNodeRefresh(this._node);
-                        }
-                    } catch (e) {}
-                    if (callbackFunc) {
-                        callbackFunc(response);
-                    } else {
-                        this.load();
-                    }
-                }).bind(this), null);
-            }
-        }, {
-            key: "submitToServer",
-            value: function submitToServer() {
-                var params = {
-                    get_action: 'share',
-                    sub_action: 'share_node',
-                    return_json: 'true'
-                };
-                if (this._pendingData["enable_public_link"] !== undefined) {
-                    if (this._pendingData["enable_public_link"]) {
-                        params["enable_public_link"] = "true";
-                    } else {
-                        params["disable_public_link"] = this.getPublicLinks()[0]['hash'];
-                    }
-                } else if (this.getPublicLinks().length) {
-                    params["enable_public_link"] = "true";
-                }
-                if (this._node.getMetadata().get('shared_element_hash')) {
-                    params["tmp_repository_id"] = this._node.getMetadata().get('shared_element_parent_repository');
-                    params["file"] = this._node.getMetadata().get("original_path");
-                } else {
-                    params["file"] = this._node.getPath();
-                }
-                params["node_uuid"] = this._node.getMetadata().get("uuid");
-
-                if (this._data['repositoryId']) {
-                    params['repository_id'] = this._data['repositoryId'];
-                } else {
-                    params["element_type"] = this._node.isLeaf() ? "file" : this._node.getMetadata().get("ajxp_shared_minisite") ? "minisite" : "repository";
-                    params['create_guest_user'] = 'true';
-                }
-                this._globalsAsParameters(params);
-                if (!params['repo_label']) {
-                    params['repo_label'] = this._node.getLabel();
-                }
-                this.notify('saving');
-                var publicLinks = this.getPublicLinks();
-                if (publicLinks.length) {
-                    var pLinkId = publicLinks[0]['hash'];
-                    var userEntry = this.userEntryForLink(pLinkId);
-                    params['guest_user_id'] = userEntry['internal_user_id'];
-                    params['hash'] = pLinkId;
-                    // PUBLIC LINKS
-                    this._permissionsToParameters(pLinkId, params);
-                    this._expirationsToParameters(pLinkId, params);
-                    this._passwordAsParameter(pLinkId, params);
-                    this._templateToParameter(pLinkId, params);
-                    if (this._pendingData['links'] && this._pendingData['links'][pLinkId] && this._pendingData['links'][pLinkId]['custom_link']) {
-                        params['custom_handle'] = this._pendingData['links'][pLinkId]['custom_link'];
-                    }
-                } else if (this._pendingData["enable_public_link"] === true) {
-                    this._permissionsToParameters('ajxp_create_public_link', params);
-                    this._expirationsToParameters('ajxp_create_public_link', params);
-                    this._passwordAsParameter('ajxp_create_public_link', params);
-                    this._templateToParameter('ajxp_create_public_link', params);
-                }
-
-                // GENERIC
-                this._sharedUsersToParameters(params);
-
-                // OCS LINK
-                this._ocsLinksToParameters(params);
-
-                PydioApi.getClient().request(params, (function (transport) {
-                    var _data = transport.responseJSON;
-                    if (_data !== null && _data !== undefined) {
-                        this._data = _data;
-                        if (this._data instanceof Array) this._data = {};
-                        this._pendingData = {};
-                        this._setStatus('saved');
-                        this._pydio.fireNodeRefresh(this._node);
-                    } else {
-                        // There must have been an error, revert
-                        this.revertChanges();
-                    }
-                    this.notify('saved');
-                }).bind(this), (function () {
-                    // The must have been an error, revert
-                    this.revertChanges();
-                    this.notify('saved');
-                }).bind(this));
-            }
-        }, {
-            key: "resetDownloadCounter",
-            value: function resetDownloadCounter(linkId) {
-                var callback = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
-
-                var params = {
-                    "get_action": "reset_counter",
-                    "element_id": linkId
-                };
-                ShareModel.prepareShareActionParameters(this.getNode(), params);
-                PydioApi.getClient().request(params, (function () {
-                    this.load(true);
-                    callback();
-                }).bind(this));
-            }
         }], [{
             key: "prepareShareActionParameters",
             value: function prepareShareActionParameters(uniqueNode, params) {
@@ -883,29 +762,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                     params["file"] = uniqueNode.getPath();
                     params["element_type"] = uniqueNode.isLeaf() ? "file" : meta.get("ajxp_shared_minisite") ? "minisite" : "repository";
                 }
-            }
-        }, {
-            key: "loadSharedElementData",
-            value: function loadSharedElementData(node) {
-                var completeCallback = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-                var errorCallback = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-                var settings = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
-
-                var meta = node.getMetadata();
-                var options = {
-                    get_action: 'load_shared_element_data',
-                    merged: 'true'
-                };
-                if (meta.get('pydio_shares')) {
-                    var data = JSON.parse(meta.get('pydio_shares'));
-                    options["share_id"] = data[0]['UUID'];
-                } else if (meta.get('pydio_share')) {
-                    options["share_id"] = meta.get('pydio_share');
-                } else {
-                    options["file"] = node.getPath();
-                }
-                options["node_uuid"] = node.getMetadata().get("uuid");
-                PydioApi.getClient().request(options, completeCallback, errorCallback, settings);
             }
         }, {
             key: "getAuthorizations",

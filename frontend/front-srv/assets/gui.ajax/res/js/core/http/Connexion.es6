@@ -181,7 +181,6 @@ class Connexion{
 
     _send(aSync=true){
 
-        Connexion.log(this._parameters.get("get_action"), aSync ? 'async' : 'sync');
 		this.addSecureToken();
 		this.addServerPermanentParams();
         this.showLoader();

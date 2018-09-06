@@ -24,6 +24,8 @@ package rest
 import (
 	"github.com/gobuffalo/packr"
 
+	"encoding/gob"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
@@ -38,7 +40,6 @@ var BasePluginsBox = frontend.PluginBox{
 		"access.settings",
 		"action.share",
 		"auth.pydio",
-		"authfront.keystore",
 		"authfront.session_login",
 		"conf.pydio",
 		"core.auth",
@@ -81,8 +82,11 @@ var BasePluginsBox = frontend.PluginBox{
 
 func init() {
 
+	gob.Register(map[string]string{})
+
 	frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
 	frontend.RegisterPluginModifier(modifiers.MobileRegModifier)
+	frontend.WrapAuthMiddleware(modifiers.LoginPasswordAuth)
 
 	s := service.NewService(
 		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),

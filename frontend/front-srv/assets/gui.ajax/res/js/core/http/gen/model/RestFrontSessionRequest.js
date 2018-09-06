@@ -59,11 +59,8 @@ export default class RestFrontSessionRequest {
             if (data.hasOwnProperty('ClientTime')) {
                 obj['ClientTime'] = ApiClient.convertToType(data['ClientTime'], 'Number');
             }
-            if (data.hasOwnProperty('Login')) {
-                obj['Login'] = ApiClient.convertToType(data['Login'], 'String');
-            }
-            if (data.hasOwnProperty('Password')) {
-                obj['Password'] = ApiClient.convertToType(data['Password'], 'String');
+            if (data.hasOwnProperty('AuthInfo')) {
+                obj['AuthInfo'] = ApiClient.convertToType(data['AuthInfo'], {'String': 'String'});
             }
             if (data.hasOwnProperty('Logout')) {
                 obj['Logout'] = ApiClient.convertToType(data['Logout'], 'Boolean');
@@ -77,13 +74,9 @@ export default class RestFrontSessionRequest {
     */
     ClientTime = undefined;
     /**
-    * @member {String} Login
+    * @member {Object.<String, String>} AuthInfo
     */
-    Login = undefined;
-    /**
-    * @member {String} Password
-    */
-    Password = undefined;
+    AuthInfo = undefined;
     /**
     * @member {Boolean} Logout
     */

@@ -36,25 +36,13 @@ var _pydioUtilXml = require('pydio/util/xml');
 
 var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
 
-var _modelWorkspace = require('../model/Workspace');
-
-var _modelWorkspace2 = _interopRequireDefault(_modelWorkspace);
-
 var _editorWsEditor = require('../editor/WsEditor');
 
 var _editorWsEditor2 = _interopRequireDefault(_editorWsEditor);
 
-var _editorWorkspaceCreator = require('../editor/WorkspaceCreator');
-
-var _editorWorkspaceCreator2 = _interopRequireDefault(_editorWorkspaceCreator);
-
 var _WorkspaceList = require('./WorkspaceList');
 
 var _WorkspaceList2 = _interopRequireDefault(_WorkspaceList);
-
-var _editorDataSourceEditor = require('../editor/DataSourceEditor');
-
-var _editorDataSourceEditor2 = _interopRequireDefault(_editorDataSourceEditor);
 
 var PydioDataModel = require('pydio/model/data-model');
 var AjxpNode = require('pydio/model/node');
@@ -118,17 +106,18 @@ exports['default'] = _react2['default'].createClass({
         if (editorNode) {
             editor = editorNode.getAttribute('namespace') + '.' + editorNode.getAttribute('component');
         }
+        var pydio = this.props.pydio;
+
         var editorData = {
             COMPONENT: editor,
             PROPS: {
                 ref: "editor",
+                pydio: pydio,
                 workspace: workspace,
                 closeEditor: this.closeWorkspace,
                 reloadList: function reloadList() {
                     _this2.refs['workspacesList'].reload();
-                },
-                deleteWorkspace: this.deleteWorkspace,
-                saveWorkspace: this.updateWorkspace
+                }
             }
         };
         this.props.openRightPane(editorData);
@@ -144,12 +133,14 @@ exports['default'] = _react2['default'].createClass({
     showWorkspaceCreator: function showWorkspaceCreator(type) {
         var _this3 = this;
 
+        var pydio = this.props.pydio;
+
         var editorData = {
             COMPONENT: _editorWsEditor2['default'],
             PROPS: {
                 ref: "editor",
                 type: type,
-                save: this.createWorkspace,
+                pydio: pydio,
                 closeEditor: this.closeWorkspace,
                 reloadList: function reloadList() {
                     _this3.refs['workspacesList'].reload();
@@ -157,74 +148,6 @@ exports['default'] = _react2['default'].createClass({
             }
         };
         this.props.openRightPane(editorData);
-    },
-
-    deleteWorkspace: function deleteWorkspace(workspaceId) {
-        if (window.confirm(this.context.getMessage('35', 'settings'))) {
-            this.closeWorkspace();
-            PydioApi.getClient().request({
-                get_action: 'delete',
-                data_type: 'repository',
-                data_id: workspaceId
-            }, (function (transport) {
-                this.refs.workspacesList.reload();
-            }).bind(this));
-        }
-    },
-
-    /**
-     *
-     * @param workspaceModel Workspace
-     * @param postData Object
-     * @param editorData Object
-     */
-    updateWorkspace: function updateWorkspace(workspaceModel, postData, editorData) {
-        var workspaceId = workspaceModel.wsId;
-        if (workspaceModel.isTemplate()) {
-            var formDefs = [],
-                formValues = {},
-                templateAllFormDefs = [];
-            if (!editorData["general"]) {
-                workspaceModel.buildEditor("general", formDefs, formValues, {}, templateAllFormDefs);
-                var generalPostValues = PydioForm.Manager.getValuesForPOST(formDefs, formValues);
-                postData = LangUtils.objectMerge(postData, generalPostValues);
-            }
-            if (!editorData["driver"]) {
-                workspaceModel.buildEditor("driver", formDefs, formValues, {}, templateAllFormDefs);
-                var driverPostValues = PydioForm.Manager.getValuesForPOST(formDefs, formValues);
-                postData = LangUtils.objectMerge(postData, driverPostValues);
-            }
-        }
-
-        if (editorData['permission-mask']) {
-            postData['permission_mask'] = JSON.stringify(editorData['permission-mask']);
-        }
-        var mainSave = (function () {
-            PydioApi.getClient().request(LangUtils.objectMerge({
-                get_action: 'edit',
-                sub_action: 'edit_repository_data',
-                repository_id: workspaceId
-            }, postData), (function (transport) {
-                this.refs['workspacesList'].reload();
-            }).bind(this));
-        }).bind(this);
-
-        var metaSources = editorData['META_SOURCES'];
-        if (Object.keys(metaSources["delete"]).length || Object.keys(metaSources["add"]).length || Object.keys(metaSources["edit"]).length) {
-            PydioApi.getClient().request(LangUtils.objectMerge({
-                get_action: 'edit',
-                sub_action: 'meta_source_edit',
-                repository_id: workspaceId,
-                bulk_data: JSON.stringify(metaSources)
-            }), (function (transport) {
-                if (this.refs['editor']) {
-                    this.refs['editor'].clearMetaSourceDiff();
-                }
-                mainSave();
-            }).bind(this));
-        } else {
-            mainSave();
-        }
     },
 
     reloadWorkspaceList: function reloadWorkspaceList() {
