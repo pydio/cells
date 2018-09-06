@@ -14,3 +14,4 @@
 /assets/src/pydio/*
 CHANGELOG.html
 node_modules
+package-lock.json

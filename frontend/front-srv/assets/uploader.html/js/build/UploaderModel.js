@@ -9,6 +9,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 (function (global) {
+    var _require = require('pydio/http/rest-api');
+
+    var TreeServiceApi = _require.TreeServiceApi;
+    var RestCreateNodesRequest = _require.RestCreateNodesRequest;
+    var TreeNode = _require.TreeNode;
+    var TreeNodeType = _require.TreeNodeType;
+
     var StatusItem = (function (_Observable) {
         _inherits(StatusItem, _Observable);
 
@@ -187,6 +194,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
                     this._parseXHRResponse();
                     completeCallback();
                 }).bind(this);
+
                 var progress = (function (computableEvent) {
                     if (this._status === 'error') {
                         return;
@@ -238,6 +246,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
                 if (fullPath.normalize) {
                     fullPath = fullPath.normalize('NFC');
                 }
+
                 PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(function (xhr) {
                     _this.xhr = xhr;
                 });
@@ -293,27 +302,30 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
         }, {
             key: '_doProcess',
             value: function _doProcess(completeCallback) {
-                var fullPath = this._targetNode.getPath() + this._path;
+                var _this2 = this;
+
+                var slug = global.pydio.user.getActiveRepositoryObject().getSlug();
+
+                var fullPath = this._targetNode.getPath();
+                fullPath = fullPath + '/' + this._path;
+                fullPath = fullPath.replace('//', '/');
                 if (fullPath.normalize) {
-                    fullPath = fullPath.normalize();
+                    fullPath = fullPath.normalize('NFC');
                 }
-                var params = {
-                    get_action: 'mkdir',
-                    dir: PathUtils.getDirname(fullPath),
-                    dirname: PathUtils.getBasename(fullPath),
-                    ignore_exists: true
-                };
-                if (this._repositoryId && global.pydio.user.activeRepository !== this._repositoryId) {
-                    params['tmp_repository_id'] = this._repositoryId;
-                }
-                PydioApi.getClient().request(params, (function (t) {
-                    this.setStatus('loaded');
+                fullPath = "/" + slug + fullPath;
 
-                    var result = PydioApi.getClient().parseXmlMessage(t.responseXML);
-                    if (!result) this.onError('Empty response');
-
+                var api = new TreeServiceApi(PydioApi.getRestClient());
+                var request = new RestCreateNodesRequest();
+                var node = new TreeNode();
+                console.log(node, this._targetNode);
+                node.Path = fullPath;
+                node.Type = TreeNodeType.constructFromObject('COLLECTION');
+                request.Nodes = [node];
+                api.createNodes(request).then(function (collection) {
+                    console.log('Created nodes', collection.Children);
+                    _this2.setStatus('loaded');
                     completeCallback();
-                }).bind(this));
+                });
             }
         }, {
             key: '_doAbort',
@@ -325,11 +337,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
         return FolderItem;
     })(StatusItem);
 
-    var _require = require('pydio/http/rest-api');
+    var _require2 = require('pydio/http/rest-api');
 
-    var JobsJob = _require.JobsJob;
-    var JobsTask = _require.JobsTask;
-    var JobsTaskStatus = _require.JobsTaskStatus;
+    var JobsJob = _require2.JobsJob;
+    var JobsTask = _require2.JobsTask;
+    var JobsTaskStatus = _require2.JobsTaskStatus;
 
     var _Pydio$requireLib = Pydio.requireLib("boot");
 
@@ -522,13 +534,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
         }, {
             key: 'processNext',
             value: function processNext() {
-                var _this2 = this;
+                var _this3 = this;
 
                 var processables = this.getNexts();
                 if (processables.length) {
                     processables.map(function (processable) {
-                        _this2._processing.push(processable);
-                        UploadTask.getInstance().setRunning(_this2.getQueueSize());
+                        _this3._processing.push(processable);
+                        UploadTask.getInstance().setRunning(_this3.getQueueSize());
                         processable.process((function () {
                             this._processing = LangUtils.arrayWithout(this._processing, this._processing.indexOf(processable));
                             if (processable.getStatus() === 'error') {
@@ -538,10 +550,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
                             }
                             this.processNext();
                             this.notify("update");
-                        }).bind(_this2));
+                        }).bind(_this3));
                     });
                 } else {
                     UploadTask.getInstance().setIdle();
+
                     if (this.hasErrors()) {
                         if (!pydio.getController().react_selector) {
                             global.pydio.getController().fireAction("upload");
@@ -616,7 +629,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
         }, {
             key: 'handleDropEventResults',
             value: function handleDropEventResults(items, files, targetNode) {
-                var _this3 = this;
+                var _this4 = this;
 
                 var accumulator = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
                 var filterFunction = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
@@ -651,7 +664,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
                                 if (filterFunction && !filterFunction(folderItem)) continue;
                                 if (!accumulator) oThis.pushFolder(folderItem);else accumulator.push(folderItem);
 
-                                _this3.recurseDirectory(entry, function (fileEntry) {
+                                _this4.recurseDirectory(entry, function (fileEntry) {
                                     var relativePath = fileEntry.fullPath;
                                     fileEntry.file(function (File) {
                                         if (File.size == 0) return;

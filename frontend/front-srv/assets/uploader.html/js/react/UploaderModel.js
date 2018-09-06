@@ -1,5 +1,7 @@
 (function(global){
 
+    const {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} = require('pydio/http/rest-api');
+
     class StatusItem extends Observable{
         constructor(type){
             super();
@@ -43,7 +45,7 @@
         }
     }
 
-    class UploadItem extends StatusItem{
+    class UploadItem extends StatusItem {
 
         constructor(file, targetNode, relativePath = null){
             super('file');
@@ -124,6 +126,7 @@
                 this._parseXHRResponse();
                 completeCallback();
             }.bind(this);
+
             let progress = function(computableEvent){
                 if(this._status === 'error'){
                     return;
@@ -151,8 +154,8 @@
                 completeCallback();
             }.bind(this));
 
-
         }
+
         _doAbort(completeCallback){
             if(this.xhr){
                 try{
@@ -173,6 +176,7 @@
             if (fullPath.normalize) {
                 fullPath = fullPath.normalize('NFC');
             }
+
             PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(xhr => {
                 this.xhr = xhr;
             });
@@ -213,28 +217,30 @@
         getLabel(){
             return PathUtils.getBasename(this._path);
         }
-        _doProcess(completeCallback){
-            let fullPath = this._targetNode.getPath() + this._path;
+        _doProcess(completeCallback) {
+            const slug = global.pydio.user.getActiveRepositoryObject().getSlug();
+
+            let fullPath = this._targetNode.getPath();
+            fullPath = fullPath + '/' + this._path;
+            fullPath = fullPath.replace('//', '/');
             if (fullPath.normalize) {
-                fullPath = fullPath.normalize();
+                fullPath = fullPath.normalize('NFC');
             }
-            let params = {
-                get_action: 'mkdir',
-                dir: PathUtils.getDirname(fullPath),
-                dirname:PathUtils.getBasename(fullPath),
-                ignore_exists:true,
-            };
-            if(this._repositoryId && global.pydio.user.activeRepository !== this._repositoryId) {
-                params['tmp_repository_id'] = this._repositoryId;
-            }
-            PydioApi.getClient().request(params, function(t){
+            fullPath = "/" + slug + fullPath
+
+            const api = new TreeServiceApi(PydioApi.getRestClient());
+            const request = new RestCreateNodesRequest();
+            const node = new TreeNode();
+            console.log(node, this._targetNode)
+            node.Path = fullPath;
+            node.Type = TreeNodeType.constructFromObject('COLLECTION');
+            request.Nodes = [node];
+            api.createNodes(request).then(collection => {
+                console.log('Created nodes', collection.Children);
                 this.setStatus('loaded');
-
-                var result = PydioApi.getClient().parseXmlMessage(t.responseXML);
-                if(!result) this.onError('Empty response');
-
                 completeCallback();
-            }.bind(this));
+            });
+
         }
         _doAbort(completeCallback){
             if(global.console) global.console.log(global.pydio.MessageHash['html_uploader.6']);
@@ -244,7 +250,7 @@
     const {JobsJob, JobsTask, JobsTaskStatus} = require('pydio/http/rest-api');
     const {JobsStore} = Pydio.requireLib("boot");
 
-    class UploadTask{
+    class UploadTask {
 
         constructor(){
             const {pydio} = global;
@@ -412,6 +418,7 @@
                 });
             }else{
                 UploadTask.getInstance().setIdle();
+
                 if(this.hasErrors()){
                     if(!pydio.getController().react_selector){
                         global.pydio.getController().fireAction("upload");

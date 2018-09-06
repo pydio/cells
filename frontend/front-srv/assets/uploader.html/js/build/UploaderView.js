@@ -10,7 +10,10 @@
         },
 
         getInitialState: function getInitialState() {
-            return {};
+            return {
+                showOptions: false,
+                configs: UploaderModel.Configs.getInstance()
+            };
         },
 
         onDrop: function onDrop(files) {
@@ -33,9 +36,14 @@
         },
         toggleOptions: function toggleOptions(e) {
             if (e.preventDefault) e.preventDefault();
-            var crtOptions = this.state && this.state.options ? this.state.options : false;
+
+            var _state = this.state;
+            var _state$showOptions = _state.showOptions;
+            var showOptions = _state$showOptions === undefined ? false : _state$showOptions;
+            var currentTarget = _state.currentTarget;
+
             this.setState({
-                options: !crtOptions,
+                showOptions: !showOptions,
                 optionsAnchorEl: e.currentTarget
             });
         },
@@ -57,15 +65,15 @@
             var connectDropTarget = this.props.connectDropTarget || function (c) {
                 return c;
             };
-            var options = this.state.options;
+            var _state2 = this.state;
+            var configs = _state2.configs;
+            var showOptions = _state2.showOptions;
 
             var dismiss = (function (e) {
                 this.toggleOptions(e);
-                if (UploaderModel.Configs.getInstance().getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send', true)) {
-                    UploaderModel.Store.getInstance().processNext();
-                }
             }).bind(this);
-            optionsEl = React.createElement(UploadOptionsPane, { open: options, anchorEl: this.state.optionsAnchorEl, onDismiss: dismiss });
+
+            optionsEl = React.createElement(UploadOptionsPane, { configs: configs, open: showOptions, anchorEl: this.state.optionsAnchorEl, onDismiss: dismiss });
 
             var folderButton = undefined,
                 startButton = undefined;
@@ -75,7 +83,7 @@
                 folderButton = React.createElement(ReactMUI.RaisedButton, { style: { marginRight: 10 }, label: messages['html_uploader.5'], onClick: this.openFolderPicker });
             }
             e = null;
-            var configs = UploaderModel.Configs.getInstance();
+
             if (!configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send', true)) {
                 startButton = React.createElement(ReactMUI.FlatButton, { style: { marginRight: 10 }, label: messages['html_uploader.11'], onClick: this.start, secondary: true });
             }
@@ -116,12 +124,14 @@
                         onFolderPicked: this.onFolderPicked,
                         style: { width: '100%', height: 300 }
                     },
-                    React.createElement(TransfersList, { onDismiss: this.props.onDismiss })
+                    React.createElement(TransfersList, {
+                        autoStart: configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send'),
+                        onDismiss: this.props.onDismiss
+                    })
                 ),
                 optionsEl
             ));
         }
-
     });
 
     DropUploader = Pydio.requireLib('hoc').dropProvider(DropUploader);
@@ -236,6 +246,7 @@
         displayName: 'TransfersList',
 
         propTypes: {
+            autoStart: React.PropTypes.bool,
             onDismiss: React.PropTypes.func
         },
 
@@ -252,6 +263,15 @@
                 }
             }).bind(this));
             this.setState({ items: store.getItems() });
+        },
+
+        componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+            var autoStart = nextProps.autoStart;
+            var items = this.state.items;
+
+            if (autoStart && items["pending"].length) {
+                UploaderModel.Store.getInstance().processNext();
+            }
         },
 
         componentWillUnmount: function componentWillUnmount() {
@@ -315,42 +335,40 @@
             onDismiss: React.PropTypes.func.isRequired
         },
 
-        getInitialState: function getInitialState() {
-            var configs = UploaderModel.Configs.getInstance();
-            return {
-                configs: configs
-            };
-        },
-
         updateField: function updateField(fName, event) {
+            var configs = this.props.configs;
+
             if (fName === 'autostart') {
-                var toggleStart = this.state.configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send', true);
+                var toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send', true);
                 toggleStart = !toggleStart;
-                this.state.configs.updateOption('upload_auto_send', toggleStart, true);
+                configs.updateOption('upload_auto_send', toggleStart, true);
             } else if (fName === 'autoclose') {
-                var toggleStart = this.state.configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close', true);
+                var toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close', true);
                 toggleStart = !toggleStart;
-                this.state.configs.updateOption('upload_auto_close', toggleStart, true);
+                configs.updateOption('upload_auto_close', toggleStart, true);
             } else if (fName === 'existing') {
-                this.state.configs.updateOption('upload_existing', event.target.getSelectedValue());
+                configs.updateOption('upload_existing', event.target.getSelectedValue());
             } else if (fName === 'show_processed') {
-                var toggleShowProcessed = this.state.configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
+                var toggleShowProcessed = configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
                 toggleShowProcessed = !toggleShowProcessed;
-                this.state.configs.updateOption('upload_show_processed', toggleShowProcessed, true);
+                configs.updateOption('upload_show_processed', toggleShowProcessed, true);
             }
             this.setState({ random: Math.random() });
         },
 
         radioChange: function radioChange(e, newValue) {
-            this.state.configs.updateOption('upload_existing', newValue);
+            configs.updateOption('upload_existing', newValue);
             this.setState({ random: Math.random() });
         },
 
         render: function render() {
+            var _this = this;
+
+            var configs = this.props.configs;
 
             var maxUploadMessage = undefined;
             if (!global.pydio.getPluginConfigs('mq').get('UPLOAD_ACTIVE')) {
-                var maxUpload = this.state.configs.getOption('UPLOAD_MAX_SIZE');
+                var maxUpload = configs.getOption('UPLOAD_MAX_SIZE');
                 maxUploadMessage = global.pydio.MessageHash[282] + ': ' + PathUtils.roundFileSize(maxUpload, '');
                 maxUploadMessage = React.createElement(
                     'div',
@@ -358,10 +376,10 @@
                     maxUploadMessage
                 );
             }
-            var toggleStart = this.state.configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
-            var toggleClose = this.state.configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close');
-            var toggleShowProcessed = this.state.configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
-            var overwriteType = this.state.configs.getOption('DEFAULT_EXISTING', 'upload_existing');
+            var toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
+            var toggleClose = configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close');
+            var toggleShowProcessed = configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
+            var overwriteType = configs.getOption('DEFAULT_EXISTING', 'upload_existing');
 
             return React.createElement(
                 MaterialUI.Popover,
@@ -370,7 +388,9 @@
                     anchorEl: this.props.anchorEl,
                     anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
                     targetOrigin: { horizontal: 'right', vertical: 'top' },
-                    onRequestClose: this.props.onDismiss
+                    onRequestClose: function (e) {
+                        _this.props.onDismiss(e);
+                    }
                 },
                 React.createElement(
                     MaterialUI.List,
