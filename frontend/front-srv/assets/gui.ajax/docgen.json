@@ -6463,131 +6463,6 @@
       }
     ]
   },
-  "authfront.otp": {
-    "Enrollment.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "submit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "loadOtpData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "testOtpData",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "testYubikey",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "dialogTitle": {
-            "defaultValue": {
-              "value": "''",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogSize": {
-            "defaultValue": {
-              "value": "'md'",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogPadding": {
-            "defaultValue": {
-              "value": "false",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogIsModal": {
-            "defaultValue": {
-              "value": "false",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogScrollBody": {
-            "defaultValue": {
-              "value": "false",
-              "computed": false
-            },
-            "required": false
-          }
-        }
-      }
-    ],
-    "Prompt.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "submit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "dialogTitle": {
-            "defaultValue": {
-              "value": "''",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogSize": {
-            "defaultValue": {
-              "value": "'sm'",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogPadding": {
-            "defaultValue": {
-              "value": "false",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogIsModal": {
-            "defaultValue": {
-              "value": "false",
-              "computed": false
-            },
-            "required": false
-          },
-          "dialogScrollBody": {
-            "defaultValue": {
-              "value": "false",
-              "computed": false
-            },
-            "required": false
-          }
-        }
-      }
-    ]
-  },
   "core.activitystreams": {
     "Activity.js": [
       {
@@ -11030,7 +10905,7 @@
           },
           {
             "name": "jwtFromCredentials",
-            "docblock": "@param login string\n@param password string\n@param reloadRegistry bool\n@return {Promise<any>}",
+            "docblock": "Create AuthInfo request with type \"credentials\"\n@param login string\n@param password string\n@param reloadRegistry bool\n@return {Promise<any>}",
             "modifiers": [],
             "params": [
               {
@@ -11055,7 +10930,7 @@
                 "name": "Promise"
               }
             },
-            "description": null
+            "description": "Create AuthInfo request with type \"credentials\""
           },
           {
             "name": "jwtWithAuthInfo",
@@ -31068,14 +30943,6 @@
             "params": [],
             "returns": null,
             "description": "Set last activity time"
-          },
-          {
-            "name": "serverPoller",
-            "docblock": "Pings the server",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Pings the server"
           },
           {
             "name": "idleObserver",

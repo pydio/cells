@@ -32,6 +32,10 @@ var _langObservable = require('../lang/Observable');
 
 var _langObservable2 = _interopRequireDefault(_langObservable);
 
+var _httpPydioApi = require('../http/PydioApi');
+
+var _httpPydioApi2 = _interopRequireDefault(_httpPydioApi);
+
 /**
  * A monitor for user "idle" state to prevent session timing out.
  */
@@ -64,7 +68,9 @@ var ActivityMonitor = (function (_Observable) {
         this._state = 'active';
         this._longTaskRunning = false;
 
-        if (!serverSessionTime) return;
+        if (!serverSessionTime) {
+            return;
+        }
 
         if (serverSessionTime <= 60 * this._renewMinutes) {
             this._renewMinutes = 2;
@@ -103,8 +109,12 @@ var ActivityMonitor = (function (_Observable) {
     }
 
     ActivityMonitor.prototype.startServerLongPoller = function startServerLongPoller() {
-        if (this._serverInterval) return;
-        this._serverInterval = setInterval(this.serverPoller.bind(this), Math.min(Math.pow(2, 31) - 1, this._renewTime * 1000));
+        if (this._serverInterval) {
+            return;
+        }
+        this._serverInterval = setInterval(function () {
+            _httpPydioApi2['default'].getRestClient().getOrUpdateJwt().then(function () {});
+        }, Math.min(Math.pow(2, 31) - 1, this._renewTime * 1000));
     };
 
     ActivityMonitor.prototype.stopServerLongPoller = function stopServerLongPoller() {
@@ -197,14 +207,6 @@ var ActivityMonitor = (function (_Observable) {
 
     ActivityMonitor.prototype.updateLastActive = function updateLastActive() {
         this._lastActive = this.getNow();
-    };
-
-    /**
-     * Pings the server
-     */
-
-    ActivityMonitor.prototype.serverPoller = function serverPoller() {
-        PydioApi.getClient().request({ get_action: 'ping' }, null, null, { method: 'get', discrete: true }); // Todo : do we keep activity poller ?
     };
 
     /**
