@@ -35,6 +35,10 @@ var _modelRestGetBulkMetaRequest = require('../model/RestGetBulkMetaRequest');
 
 var _modelRestGetBulkMetaRequest2 = _interopRequireDefault(_modelRestGetBulkMetaRequest);
 
+var _modelRestHeadNodeResponse = require('../model/RestHeadNodeResponse');
+
+var _modelRestHeadNodeResponse2 = _interopRequireDefault(_modelRestHeadNodeResponse);
+
 var _modelRestNodesCollection = require('../model/RestNodesCollection');
 
 var _modelRestNodesCollection2 = _interopRequireDefault(_modelRestNodesCollection);
@@ -135,6 +139,47 @@ var TreeServiceApi = (function () {
 
   TreeServiceApi.prototype.createNodes = function createNodes(body) {
     return this.createNodesWithHttpInfo(body).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * Return node meta without the node content itself
+   * @param {String} node 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestHeadNodeResponse} and HTTP response
+   */
+
+  TreeServiceApi.prototype.headNodeWithHttpInfo = function headNodeWithHttpInfo(node) {
+    var postBody = null;
+
+    // verify the required parameter 'node' is set
+    if (node === undefined || node === null) {
+      throw new Error("Missing the required parameter 'node' when calling headNode");
+    }
+
+    var pathParams = {
+      'Node': node
+    };
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestHeadNodeResponse2['default'];
+
+    return this.apiClient.callApi('/tree/stat/{Node}', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Return node meta without the node content itself
+   * @param {String} node 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestHeadNodeResponse}
+   */
+
+  TreeServiceApi.prototype.headNode = function headNode(node) {
+    return this.headNodeWithHttpInfo(node).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

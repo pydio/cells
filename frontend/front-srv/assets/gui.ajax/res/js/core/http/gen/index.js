@@ -158,6 +158,7 @@ import RestFrontSessionRequest from './model/RestFrontSessionRequest';
 import RestFrontSessionResponse from './model/RestFrontSessionResponse';
 import RestFrontStateResponse from './model/RestFrontStateResponse';
 import RestGetBulkMetaRequest from './model/RestGetBulkMetaRequest';
+import RestHeadNodeResponse from './model/RestHeadNodeResponse';
 import RestListDocstoreRequest from './model/RestListDocstoreRequest';
 import RestListPeerFoldersRequest from './model/RestListPeerFoldersRequest';
 import RestListPeersAddressesResponse from './model/RestListPeersAddressesResponse';
@@ -242,9 +243,6 @@ import AdminTreeServiceApi from './api/AdminTreeServiceApi';
 import ChangeServiceApi from './api/ChangeServiceApi';
 import ConfigServiceApi from './api/ConfigServiceApi';
 import DocStoreServiceApi from './api/DocStoreServiceApi';
-import EnterpriseConfigServiceApi from './api/EnterpriseConfigServiceApi';
-import EnterpriseLogServiceApi from './api/EnterpriseLogServiceApi';
-import EnterprisePolicyServiceApi from './api/EnterprisePolicyServiceApi';
 import FrontendServiceApi from './api/FrontendServiceApi';
 import GraphServiceApi from './api/GraphServiceApi';
 import InstallServiceApi from './api/InstallServiceApi';
@@ -1175,6 +1173,12 @@ export {
     RestGetBulkMetaRequest,
 
     /**
+     * The RestHeadNodeResponse model constructor.
+     * @property {module:model/RestHeadNodeResponse}
+     */
+    RestHeadNodeResponse,
+
+    /**
      * The RestListDocstoreRequest model constructor.
      * @property {module:model/RestListDocstoreRequest}
      */
@@ -1677,24 +1681,6 @@ export {
     * @property {module:api/DocStoreServiceApi}
     */
     DocStoreServiceApi,
-
-    /**
-    * The EnterpriseConfigServiceApi service constructor.
-    * @property {module:api/EnterpriseConfigServiceApi}
-    */
-    EnterpriseConfigServiceApi,
-
-    /**
-    * The EnterpriseLogServiceApi service constructor.
-    * @property {module:api/EnterpriseLogServiceApi}
-    */
-    EnterpriseLogServiceApi,
-
-    /**
-    * The EnterprisePolicyServiceApi service constructor.
-    * @property {module:api/EnterprisePolicyServiceApi}
-    */
-    EnterprisePolicyServiceApi,
 
     /**
     * The FrontendServiceApi service constructor.

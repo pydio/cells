@@ -265,6 +265,11 @@ var JwtApiClient = (function (_ApiClient) {
         if (reason.response && reason.response.status === 401) {
             this.pydio.getController().fireAction('logout');
         }
+        if (reason.response && reason.response.status === 404) {
+            // 404 may happen
+            console.info('404 not found', msg);
+            return;
+        }
         if (this.pydio && this.pydio.UI) {
             this.pydio.UI.displayMessage('ERROR', msg);
         }

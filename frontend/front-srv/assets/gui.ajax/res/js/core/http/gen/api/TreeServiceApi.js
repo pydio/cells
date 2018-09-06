@@ -16,6 +16,7 @@ import ApiClient from "../ApiClient";
 import RestBulkMetaResponse from '../model/RestBulkMetaResponse';
 import RestCreateNodesRequest from '../model/RestCreateNodesRequest';
 import RestGetBulkMetaRequest from '../model/RestGetBulkMetaRequest';
+import RestHeadNodeResponse from '../model/RestHeadNodeResponse';
 import RestNodesCollection from '../model/RestNodesCollection';
 
 /**
@@ -128,6 +129,55 @@ export default class TreeServiceApi {
      */
     createNodes(body) {
       return this.createNodesWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Return node meta without the node content itself
+     * @param {String} node 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestHeadNodeResponse} and HTTP response
+     */
+    headNodeWithHttpInfo(node) {
+      let postBody = null;
+
+      // verify the required parameter 'node' is set
+      if (node === undefined || node === null) {
+        throw new Error("Missing the required parameter 'node' when calling headNode");
+      }
+
+
+      let pathParams = {
+        'Node': node
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestHeadNodeResponse;
+
+      return this.apiClient.callApi(
+        '/tree/stat/{Node}', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Return node meta without the node content itself
+     * @param {String} node 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestHeadNodeResponse}
+     */
+    headNode(node) {
+      return this.headNodeWithHttpInfo(node)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

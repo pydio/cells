@@ -14,7 +14,9 @@
 
 import ApiClient from "../ApiClient";
 import LogListLogRequest from '../model/LogListLogRequest';
+import LogTimeRangeRequest from '../model/LogTimeRangeRequest';
 import RestLogMessageCollection from '../model/RestLogMessageCollection';
+import RestTimeRangeResultCollection from '../model/RestTimeRangeResultCollection';
 
 /**
 * LogService service.
@@ -34,6 +36,150 @@ export default class LogServiceApi {
         this.apiClient = apiClient || ApiClient.instance;
     }
 
+
+
+    /**
+     * Auditable Logs, in Json or CSV format
+     * @param {module:model/LogListLogRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response
+     */
+    auditWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling audit");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestLogMessageCollection;
+
+      return this.apiClient.callApi(
+        '/log/audit', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Auditable Logs, in Json or CSV format
+     * @param {module:model/LogListLogRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}
+     */
+    audit(body) {
+      return this.auditWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Retrieves aggregated audit logs to generate charts
+     * @param {module:model/LogTimeRangeRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestTimeRangeResultCollection} and HTTP response
+     */
+    auditChartDataWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling auditChartData");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestTimeRangeResultCollection;
+
+      return this.apiClient.callApi(
+        '/log/audit/chartdata', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Retrieves aggregated audit logs to generate charts
+     * @param {module:model/LogTimeRangeRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestTimeRangeResultCollection}
+     */
+    auditChartData(body) {
+      return this.auditChartDataWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Auditable Logs, in Json or CSV format
+     * @param {module:model/LogListLogRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response
+     */
+    auditExportWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling auditExport");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestLogMessageCollection;
+
+      return this.apiClient.callApi(
+        '/log/audit/export', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Auditable Logs, in Json or CSV format
+     * @param {module:model/LogListLogRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}
+     */
+    auditExport(body) {
+      return this.auditExportWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
 
 
     /**
@@ -78,6 +224,54 @@ export default class LogServiceApi {
      */
     syslog(body) {
       return this.syslogWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Technical Logs, in Json or CSV format
+     * @param {module:model/LogListLogRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response
+     */
+    syslogExportWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling syslogExport");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestLogMessageCollection;
+
+      return this.apiClient.callApi(
+        '/log/sys/export', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Technical Logs, in Json or CSV format
+     * @param {module:model/LogListLogRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}
+     */
+    syslogExport(body) {
+      return this.syslogExportWithHttpInfo(body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

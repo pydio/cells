@@ -12696,6 +12696,90 @@
             "description": "Delete an existing master key"
           },
           {
+            "name": "deleteExternalDirectoryWithHttpInfo",
+            "docblock": "[Enterprise Only] Delete external directory\n@param {String} configId \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "configId",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Delete external directory"
+          },
+          {
+            "name": "deleteExternalDirectory",
+            "docblock": "[Enterprise Only] Delete external directory\n@param {String} configId \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "configId",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Delete external directory"
+          },
+          {
+            "name": "deleteVersioningPolicyWithHttpInfo",
+            "docblock": "[Enterprise Only] Delete a versioning policy\n@param {String} uuid \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteVersioningPolicyResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteVersioningPolicyResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Delete a versioning policy"
+          },
+          {
+            "name": "deleteVersioningPolicy",
+            "docblock": "[Enterprise Only] Delete a versioning policy\n@param {String} uuid \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteVersioningPolicyResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteVersioningPolicyResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Delete a versioning policy"
+          },
+          {
             "name": "endpointsDiscoveryWithHttpInfo",
             "docblock": "Publish available endpoints\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDiscoveryResponse} and HTTP response",
             "modifiers": [],
@@ -13058,6 +13142,32 @@
             "description": "List registered master keys"
           },
           {
+            "name": "listExternalDirectoriesWithHttpInfo",
+            "docblock": "[Enterprise Only] List additional user directories\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryCollection} and HTTP response",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryCollection} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] List additional user directories"
+          },
+          {
+            "name": "listExternalDirectories",
+            "docblock": "[Enterprise Only] List additional user directories\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryCollection}",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryCollection}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] List additional user directories"
+          },
+          {
             "name": "listPeerFoldersWithHttpInfo",
             "docblock": "List folders on a peer, starting from root\n@param {String} peerAddress \n@param {module:model/RestListPeerFoldersRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestNodesCollection} and HTTP response",
             "modifiers": [],
@@ -13360,6 +13470,118 @@
               }
             },
             "description": "Create or update a datasource"
+          },
+          {
+            "name": "putExternalDirectoryWithHttpInfo",
+            "docblock": "[Enterprise Only] Add/Create an external directory\n@param {String} configId \n@param {module:model/RestExternalDirectoryConfig} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "configId",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestExternalDirectoryConfig"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Add/Create an external directory"
+          },
+          {
+            "name": "putExternalDirectory",
+            "docblock": "[Enterprise Only] Add/Create an external directory\n@param {String} configId \n@param {module:model/RestExternalDirectoryConfig} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "configId",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestExternalDirectoryConfig"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Add/Create an external directory"
+          },
+          {
+            "name": "putVersioningPolicyWithHttpInfo",
+            "docblock": "[Enterprise Only] Create or update a versioning policy\n@param {String} uuid \n@param {module:model/TreeVersioningPolicy} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/TreeVersioningPolicy} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/TreeVersioningPolicy"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/TreeVersioningPolicy} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Create or update a versioning policy"
+          },
+          {
+            "name": "putVersioningPolicy",
+            "docblock": "[Enterprise Only] Create or update a versioning policy\n@param {String} uuid \n@param {module:model/TreeVersioningPolicy} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/TreeVersioningPolicy}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/TreeVersioningPolicy"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/TreeVersioningPolicy}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Create or update a versioning policy"
           }
         ]
       }
@@ -13622,552 +13844,6 @@
               }
             },
             "description": "Put a document inside a given store"
-          }
-        ]
-      }
-    ],
-    "core/http/gen/api/EnterpriseConfigServiceApi.js": [
-      {
-        "description": "EnterpriseConfigService service.\n@module api/EnterpriseConfigServiceApi\n@version 1.0",
-        "displayName": "EnterpriseConfigServiceApi",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new EnterpriseConfigServiceApi. \n@alias module:api/EnterpriseConfigServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
-              }
-            ],
-            "returns": null,
-            "description": "Constructs a new EnterpriseConfigServiceApi."
-          },
-          {
-            "name": "deleteExternalDirectoryWithHttpInfo",
-            "docblock": "[Enterprise Only] Delete external directory\n@param {String} configId \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryResponse} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "configId",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryResponse} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "[Enterprise Only] Delete external directory"
-          },
-          {
-            "name": "deleteExternalDirectory",
-            "docblock": "[Enterprise Only] Delete external directory\n@param {String} configId \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryResponse}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "configId",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryResponse}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "[Enterprise Only] Delete external directory"
-          },
-          {
-            "name": "deleteVersioningPolicyWithHttpInfo",
-            "docblock": "[Enterprise Only] Delete a versioning policy\n@param {String} uuid \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteVersioningPolicyResponse} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "uuid",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteVersioningPolicyResponse} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "[Enterprise Only] Delete a versioning policy"
-          },
-          {
-            "name": "deleteVersioningPolicy",
-            "docblock": "[Enterprise Only] Delete a versioning policy\n@param {String} uuid \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteVersioningPolicyResponse}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "uuid",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteVersioningPolicyResponse}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "[Enterprise Only] Delete a versioning policy"
-          },
-          {
-            "name": "listExternalDirectoriesWithHttpInfo",
-            "docblock": "[Enterprise Only] List additional user directories\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryCollection} and HTTP response",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryCollection} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "[Enterprise Only] List additional user directories"
-          },
-          {
-            "name": "listExternalDirectories",
-            "docblock": "[Enterprise Only] List additional user directories\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryCollection}",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryCollection}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "[Enterprise Only] List additional user directories"
-          },
-          {
-            "name": "putExternalDirectoryWithHttpInfo",
-            "docblock": "[Enterprise Only] Add/Create an external directory\n@param {String} configId \n@param {module:model/RestExternalDirectoryConfig} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryResponse} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "configId",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              },
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/RestExternalDirectoryConfig"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryResponse} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "[Enterprise Only] Add/Create an external directory"
-          },
-          {
-            "name": "putExternalDirectory",
-            "docblock": "[Enterprise Only] Add/Create an external directory\n@param {String} configId \n@param {module:model/RestExternalDirectoryConfig} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryResponse}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "configId",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              },
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/RestExternalDirectoryConfig"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryResponse}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "[Enterprise Only] Add/Create an external directory"
-          },
-          {
-            "name": "putVersioningPolicyWithHttpInfo",
-            "docblock": "[Enterprise Only] Create or update a versioning policy\n@param {String} uuid \n@param {module:model/TreeVersioningPolicy} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/TreeVersioningPolicy} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "uuid",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              },
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/TreeVersioningPolicy"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/TreeVersioningPolicy} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "[Enterprise Only] Create or update a versioning policy"
-          },
-          {
-            "name": "putVersioningPolicy",
-            "docblock": "[Enterprise Only] Create or update a versioning policy\n@param {String} uuid \n@param {module:model/TreeVersioningPolicy} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/TreeVersioningPolicy}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "uuid",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              },
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/TreeVersioningPolicy"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/TreeVersioningPolicy}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "[Enterprise Only] Create or update a versioning policy"
-          }
-        ]
-      }
-    ],
-    "core/http/gen/api/EnterpriseLogServiceApi.js": [
-      {
-        "description": "EnterpriseLogService service.\n@module api/EnterpriseLogServiceApi\n@version 1.0",
-        "displayName": "EnterpriseLogServiceApi",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new EnterpriseLogServiceApi. \n@alias module:api/EnterpriseLogServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
-              }
-            ],
-            "returns": null,
-            "description": "Constructs a new EnterpriseLogServiceApi."
-          },
-          {
-            "name": "auditWithHttpInfo",
-            "docblock": "Auditable Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/LogListLogRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Auditable Logs, in Json or CSV format"
-          },
-          {
-            "name": "audit",
-            "docblock": "Auditable Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/LogListLogRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Auditable Logs, in Json or CSV format"
-          },
-          {
-            "name": "auditChartDataWithHttpInfo",
-            "docblock": "Retrieves aggregated audit logs to generate charts\n@param {module:model/LogTimeRangeRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestTimeRangeResultCollection} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/LogTimeRangeRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestTimeRangeResultCollection} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Retrieves aggregated audit logs to generate charts"
-          },
-          {
-            "name": "auditChartData",
-            "docblock": "Retrieves aggregated audit logs to generate charts\n@param {module:model/LogTimeRangeRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestTimeRangeResultCollection}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/LogTimeRangeRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestTimeRangeResultCollection}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Retrieves aggregated audit logs to generate charts"
-          },
-          {
-            "name": "auditExportWithHttpInfo",
-            "docblock": "Auditable Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/LogListLogRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Auditable Logs, in Json or CSV format"
-          },
-          {
-            "name": "auditExport",
-            "docblock": "Auditable Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/LogListLogRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Auditable Logs, in Json or CSV format"
-          },
-          {
-            "name": "syslogExportWithHttpInfo",
-            "docblock": "Technical Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/LogListLogRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Technical Logs, in Json or CSV format"
-          },
-          {
-            "name": "syslogExport",
-            "docblock": "Technical Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/LogListLogRequest"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Technical Logs, in Json or CSV format"
-          }
-        ]
-      }
-    ],
-    "core/http/gen/api/EnterprisePolicyServiceApi.js": [
-      {
-        "description": "EnterprisePolicyService service.\n@module api/EnterprisePolicyServiceApi\n@version 1.0",
-        "displayName": "EnterprisePolicyServiceApi",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new EnterprisePolicyServiceApi. \n@alias module:api/EnterprisePolicyServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "apiClient",
-                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
-                "type": {
-                  "name": "module:ApiClient"
-                }
-              }
-            ],
-            "returns": null,
-            "description": "Constructs a new EnterprisePolicyServiceApi."
-          },
-          {
-            "name": "deletePolicyWithHttpInfo",
-            "docblock": "Delete a security policy\n@param {String} uuid \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteResponse} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "uuid",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteResponse} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Delete a security policy"
-          },
-          {
-            "name": "deletePolicy",
-            "docblock": "Delete a security policy\n@param {String} uuid \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteResponse}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "uuid",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteResponse}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Delete a security policy"
-          },
-          {
-            "name": "putPolicyWithHttpInfo",
-            "docblock": "Update or create a security policy\n@param {module:model/IdmPolicyGroup} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmPolicyGroup} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/IdmPolicyGroup"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmPolicyGroup} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Update or create a security policy"
-          },
-          {
-            "name": "putPolicy",
-            "docblock": "Update or create a security policy\n@param {module:model/IdmPolicyGroup} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmPolicyGroup}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/IdmPolicyGroup"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmPolicyGroup}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Update or create a security policy"
           }
         ]
       }
@@ -15130,6 +14806,132 @@
             "description": "Constructs a new LogServiceApi."
           },
           {
+            "name": "auditWithHttpInfo",
+            "docblock": "Auditable Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/LogListLogRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Auditable Logs, in Json or CSV format"
+          },
+          {
+            "name": "audit",
+            "docblock": "Auditable Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/LogListLogRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Auditable Logs, in Json or CSV format"
+          },
+          {
+            "name": "auditChartDataWithHttpInfo",
+            "docblock": "Retrieves aggregated audit logs to generate charts\n@param {module:model/LogTimeRangeRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestTimeRangeResultCollection} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/LogTimeRangeRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestTimeRangeResultCollection} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Retrieves aggregated audit logs to generate charts"
+          },
+          {
+            "name": "auditChartData",
+            "docblock": "Retrieves aggregated audit logs to generate charts\n@param {module:model/LogTimeRangeRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestTimeRangeResultCollection}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/LogTimeRangeRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestTimeRangeResultCollection}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Retrieves aggregated audit logs to generate charts"
+          },
+          {
+            "name": "auditExportWithHttpInfo",
+            "docblock": "Auditable Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/LogListLogRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Auditable Logs, in Json or CSV format"
+          },
+          {
+            "name": "auditExport",
+            "docblock": "Auditable Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/LogListLogRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Auditable Logs, in Json or CSV format"
+          },
+          {
             "name": "syslogWithHttpInfo",
             "docblock": "Technical Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
             "modifiers": [],
@@ -15152,6 +14954,48 @@
           },
           {
             "name": "syslog",
+            "docblock": "Technical Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/LogListLogRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Technical Logs, in Json or CSV format"
+          },
+          {
+            "name": "syslogExportWithHttpInfo",
+            "docblock": "Technical Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/LogListLogRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Technical Logs, in Json or CSV format"
+          },
+          {
+            "name": "syslogExport",
             "docblock": "Technical Logs, in Json or CSV format\n@param {module:model/LogListLogRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestLogMessageCollection}",
             "modifiers": [],
             "params": [
@@ -15496,6 +15340,48 @@
             "description": "Constructs a new PolicyServiceApi."
           },
           {
+            "name": "deletePolicyWithHttpInfo",
+            "docblock": "Delete a security policy\n@param {String} uuid \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Delete a security policy"
+          },
+          {
+            "name": "deletePolicy",
+            "docblock": "Delete a security policy\n@param {String} uuid \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Delete a security policy"
+          },
+          {
             "name": "listPoliciesWithHttpInfo",
             "docblock": "List all defined security policies\n@param {module:model/IdmListPolicyGroupsRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmListPolicyGroupsResponse} and HTTP response",
             "modifiers": [],
@@ -15536,6 +15422,48 @@
               }
             },
             "description": "List all defined security policies"
+          },
+          {
+            "name": "putPolicyWithHttpInfo",
+            "docblock": "Update or create a security policy\n@param {module:model/IdmPolicyGroup} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmPolicyGroup} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/IdmPolicyGroup"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmPolicyGroup} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Update or create a security policy"
+          },
+          {
+            "name": "putPolicy",
+            "docblock": "Update or create a security policy\n@param {module:model/IdmPolicyGroup} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmPolicyGroup}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/IdmPolicyGroup"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmPolicyGroup}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Update or create a security policy"
           }
         ]
       }
@@ -16464,6 +16392,48 @@
               }
             },
             "description": "Create dirs or empty files inside the tree"
+          },
+          {
+            "name": "headNodeWithHttpInfo",
+            "docblock": "Return node meta without the node content itself\n@param {String} node \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestHeadNodeResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestHeadNodeResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Return node meta without the node content itself"
+          },
+          {
+            "name": "headNode",
+            "docblock": "Return node meta without the node content itself\n@param {String} node \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestHeadNodeResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestHeadNodeResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Return node meta without the node content itself"
           }
         ]
       }
@@ -23692,6 +23662,52 @@
               }
             },
             "description": "Constructs a <code>RestGetBulkMetaRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestHeadNodeResponse.js": [
+      {
+        "description": "The RestHeadNodeResponse model module.\n@module model/RestHeadNodeResponse\n@version 1.0",
+        "displayName": "RestHeadNodeResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestHeadNodeResponse</code>.\n@alias module:model/RestHeadNodeResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestHeadNodeResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestHeadNodeResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestHeadNodeResponse} obj Optional instance to populate.\n@return {module:model/RestHeadNodeResponse} The populated <code>RestHeadNodeResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestHeadNodeResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestHeadNodeResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestHeadNodeResponse"
+              }
+            },
+            "description": "Constructs a <code>RestHeadNodeResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
