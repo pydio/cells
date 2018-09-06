@@ -867,6 +867,12 @@
 			"revisionTime": "2018-04-06T10:54:59Z"
 		},
 		{
+			"checksumSHA1": "4tTcNh86OwCSkCD6WeA6ajRYqDA=",
+			"path": "github.com/coreos/go-oidc/jose",
+			"revision": "a4973d9a4225417aecf5d450a9522f00c1f7130f",
+			"revisionTime": "2017-07-11T23:37:13Z"
+		},
+		{
 			"checksumSHA1": "iHFXboAD202nZr2btnHnyf4iqYA=",
 			"path": "github.com/couchbase/vellum",
 			"revision": "5083a469fcef50a4705e3c90652246ecd6806f2a",
