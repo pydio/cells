@@ -62,6 +62,12 @@ export default class RestFrontSessionResponse {
             if (data.hasOwnProperty('ExpireTime')) {
                 obj['ExpireTime'] = ApiClient.convertToType(data['ExpireTime'], 'Number');
             }
+            if (data.hasOwnProperty('Trigger')) {
+                obj['Trigger'] = ApiClient.convertToType(data['Trigger'], 'String');
+            }
+            if (data.hasOwnProperty('TriggerInfo')) {
+                obj['TriggerInfo'] = ApiClient.convertToType(data['TriggerInfo'], {'String': 'String'});
+            }
         }
         return obj;
     }
@@ -74,6 +80,14 @@ export default class RestFrontSessionResponse {
     * @member {Number} ExpireTime
     */
     ExpireTime = undefined;
+    /**
+    * @member {String} Trigger
+    */
+    Trigger = undefined;
+    /**
+    * @member {Object.<String, String>} TriggerInfo
+    */
+    TriggerInfo = undefined;
 
 
 

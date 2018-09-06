@@ -73,9 +73,11 @@ class UserAvatar extends React.Component{
         }
         UsersApi.getUserPromise(userId, idmUser).then((userObject) => {
             if(userObject.isLocal()){
-                this._userLoggedObs = () => {
+                this._userLoggedObs = (eventUser) => {
                     this._userLoggedObs = null;
-                    this.loadPublicData(userId);
+                    if(eventUser !== null){
+                        this.loadPublicData(userId);
+                    }
                 };
                 pydio.observeOnce('user_logged', this._userLoggedObs);
             }

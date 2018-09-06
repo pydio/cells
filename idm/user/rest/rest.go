@@ -315,6 +315,17 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 				existingAcls = utils.GetACLsForRoles(ctx, []*idm.Role{r}, &idm.ACLAction{Name: "parameter:*"})
 			}
 		}
+		// Put back the pydio: attributes
+		if update.Attributes != nil {
+			for k, v := range update.Attributes {
+				if strings.HasPrefix(k, "pydio:") {
+					if inputUser.Attributes == nil {
+						inputUser.Attributes = map[string]string{}
+					}
+					inputUser.Attributes[k] = v
+				}
+			}
+		}
 	}
 
 	if inputUser.IsGroup {
@@ -645,6 +656,13 @@ func (s *UserHandler) userById(ctx context.Context, userId string, cli idm.UserS
 func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 	var roles []*idm.Role
 	for _, user := range users {
+		if user.Attributes != nil {
+			for k, _ := range user.Attributes {
+				if strings.HasPrefix(k, "pydio:") {
+					delete(user.Attributes, k)
+				}
+			}
+		}
 		var role *idm.Role
 		for _, r := range user.Roles {
 			if r.UserRole {

@@ -41,6 +41,8 @@ var RestFrontSessionResponse = (function () {
 
         this.JWT = undefined;
         this.ExpireTime = undefined;
+        this.Trigger = undefined;
+        this.TriggerInfo = undefined;
     }
 
     /**
@@ -61,6 +63,12 @@ var RestFrontSessionResponse = (function () {
             if (data.hasOwnProperty('ExpireTime')) {
                 obj['ExpireTime'] = _ApiClient2['default'].convertToType(data['ExpireTime'], 'Number');
             }
+            if (data.hasOwnProperty('Trigger')) {
+                obj['Trigger'] = _ApiClient2['default'].convertToType(data['Trigger'], 'String');
+            }
+            if (data.hasOwnProperty('TriggerInfo')) {
+                obj['TriggerInfo'] = _ApiClient2['default'].convertToType(data['TriggerInfo'], { 'String': 'String' });
+            }
         }
         return obj;
     };
@@ -76,4 +84,12 @@ module.exports = exports['default'];
 
 /**
 * @member {Number} ExpireTime
+*/
+
+/**
+* @member {String} Trigger
+*/
+
+/**
+* @member {Object.<String, String>} TriggerInfo
 */

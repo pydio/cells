@@ -16,6 +16,8 @@ import ApiClient from "../ApiClient";
 import RestFrontBinaryRequest from '../model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from '../model/RestFrontBinaryResponse';
 import RestFrontBootConfResponse from '../model/RestFrontBootConfResponse';
+import RestFrontEnrollAuthRequest from '../model/RestFrontEnrollAuthRequest';
+import RestFrontEnrollAuthResponse from '../model/RestFrontEnrollAuthResponse';
 import RestFrontLogMessage from '../model/RestFrontLogMessage';
 import RestFrontLogResponse from '../model/RestFrontLogResponse';
 import RestFrontMessagesResponse from '../model/RestFrontMessagesResponse';
@@ -80,6 +82,54 @@ export default class FrontendServiceApi {
      */
     frontBootConf() {
       return this.frontBootConfWithHttpInfo()
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Generic endpoint that can be implemented by 2FA systems for enrollment
+     * @param {module:model/RestFrontEnrollAuthRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontEnrollAuthResponse} and HTTP response
+     */
+    frontEnrollAuthWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling frontEnrollAuth");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestFrontEnrollAuthResponse;
+
+      return this.apiClient.callApi(
+        '/frontend/enroll', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Generic endpoint that can be implemented by 2FA systems for enrollment
+     * @param {module:model/RestFrontEnrollAuthRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontEnrollAuthResponse}
+     */
+    frontEnrollAuth(body) {
+      return this.frontEnrollAuthWithHttpInfo(body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

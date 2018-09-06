@@ -1324,6 +1324,33 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/frontend/enroll": {
+      "post": {
+        "summary": "Generic endpoint that can be implemented by 2FA systems for enrollment",
+        "operationId": "FrontEnrollAuth",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontEnrollAuthResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restFrontEnrollAuthRequest"
+            }
+          }
+        ],
+        "tags": [
+          "FrontendService"
+        ]
+      }
+    },
     "/frontend/frontlogs": {
       "put": {
         "summary": "Sends a log from front (php) to back",
@@ -6126,6 +6153,32 @@ var SwaggerJson = `{
         }
       }
     },
+    "restFrontEnrollAuthRequest": {
+      "type": "object",
+      "properties": {
+        "EnrollType": {
+          "type": "string"
+        },
+        "EnrollInfo": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "restFrontEnrollAuthResponse": {
+      "type": "object",
+      "properties": {
+        "Info": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Any parameters can be returned"
+        }
+      }
+    },
     "restFrontLogMessage": {
       "type": "object",
       "properties": {
@@ -6188,17 +6241,20 @@ var SwaggerJson = `{
       "properties": {
         "ClientTime": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "title": "Time reference for computing jwt expiry"
         },
-        "Login": {
-          "type": "string"
-        },
-        "Password": {
-          "type": "string"
+        "AuthInfo": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Data sent back by specific auth steps"
         },
         "Logout": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "Kill session now"
         }
       }
     },
@@ -6211,6 +6267,17 @@ var SwaggerJson = `{
         "ExpireTime": {
           "type": "integer",
           "format": "int32"
+        },
+        "Trigger": {
+          "type": "string",
+          "title": "Trigger a specific Auth step"
+        },
+        "TriggerInfo": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Additional data for the trigger"
         }
       }
     },

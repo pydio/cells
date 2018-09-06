@@ -78,16 +78,31 @@ message FrontMessagesResponse{
 }
 
 message FrontSessionRequest{
+    // Time reference for computing jwt expiry
     int32 ClientTime = 1;
-
-    string Login = 2;
-    string Password = 3;
-
-    bool Logout = 4;
+    // Data sent back by specific auth steps
+    map<string,string> AuthInfo = 2;
+    // Kill session now
+    bool Logout = 3;
 }
 message FrontSessionResponse{
     string JWT = 1;
     int32 ExpireTime = 2;
+
+    // Trigger a specific Auth step
+    string Trigger = 3;
+    // Additional data for the trigger
+    map<string,string> TriggerInfo = 4;
+}
+
+message FrontEnrollAuthRequest{
+    string EnrollType = 1;
+    map<string,string> EnrollInfo = 2;
+}
+
+message FrontEnrollAuthResponse {
+    // Any parameters can be returned
+    map<string,string> Info = 1;
 }
 
 enum FrontBinaryType {

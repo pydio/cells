@@ -75,6 +75,8 @@ It has these top-level messages:
 	FrontMessagesResponse
 	FrontSessionRequest
 	FrontSessionResponse
+	FrontEnrollAuthRequest
+	FrontEnrollAuthResponse
 	FrontBinaryRequest
 	FrontBinaryResponse
 	UserStateRequest

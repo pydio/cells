@@ -886,6 +886,13 @@ service FrontendService {
             body: "*"
         };
     }
+    // Generic endpoint that can be implemented by 2FA systems for enrollment
+    rpc FrontEnrollAuth(FrontEnrollAuthRequest) returns (FrontEnrollAuthResponse){
+        option (google.api.http) = {
+            post: "/frontend/enroll"
+            body: "*"
+        };
+    }
     // Serve frontend binaries directly (avatars / logos / bg images)
     rpc FrontServeBinary(FrontBinaryRequest) returns (FrontBinaryResponse) {
         option (google.api.http) =  {

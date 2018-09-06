@@ -46,26 +46,10 @@ let LoginDialogMixin = {
         }else{
             login = this.refs.login.getValue();
         }
-        /*
-        // old params
-        let params = {
-            userid      : login,
-            password    : this.refs.password.getValue(),
-            login_seed  : -1
-        };
-        if(this.refs.captcha_input){
-            params['captcha_code'] = this.refs.captcha_input.getValue();
-        }
-        if(this.state && this.state.rememberChecked){
-            params['remember_me'] = 'true' ;
-        }
-        if(this.props.modifiers){
-            this.props.modifiers.map(function(m){
-                m.enrichSubmitParameters(this.props, this.state, this.refs, params);
-            }.bind(this));
-        }
-        */
         restClient.jwtFromCredentials(login, this.refs.password.getValue()).then(r => {
+            if (r.data && r.data.Trigger){
+                return;
+            }
             this.dismiss();
         }).catch(e => {
             if (e.response && e.response.text) {

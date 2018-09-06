@@ -21,20 +21,17 @@
 package rest
 
 import (
+	"context"
 	"fmt"
+	"strconv"
 	"strings"
-	"time"
 
 	"github.com/emicklei/go-restful"
+	"github.com/micro/go-micro/metadata"
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"context"
-
-	"strconv"
-
-	"github.com/micro/go-micro/metadata"
-	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -46,6 +43,7 @@ import (
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/frontend/front-srv/rest/modifiers"
 )
 
 type FrontendHandler struct{}
@@ -129,103 +127,81 @@ func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Respo
 
 func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Response) {
 
-	ctx := req.Request.Context()
-
 	var loginRequest rest.FrontSessionRequest
 	if e := req.ReadEntity(&loginRequest); e != nil {
 		service.RestError500(req, rsp, e)
 		return
 	}
+	if loginRequest.AuthInfo == nil {
+		loginRequest.AuthInfo = map[string]string{}
+	}
 	sessionName := "pydio"
 	if h := req.HeaderParameter("X-Pydio-Minisite"); h != "" {
 		sessionName = sessionName + "-" + h
 	}
+	session, err := frontend.GetSessionStore().Get(req.Request, sessionName)
+	if err != nil {
+		service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
+		return
+	}
+	response := &rest.FrontSessionResponse{}
 
+	// Special case for Logout
 	if loginRequest.Logout {
-		if session, err := frontend.GetSessionStore().Get(req.Request, sessionName); err == nil {
-			if _, ok := session.Values["jwt"]; ok {
-				delete(session.Values, "jwt")
-				session.Options.MaxAge = 0
-				session.Save(req.Request, rsp.ResponseWriter)
-			}
+		if _, ok := session.Values["jwt"]; ok {
+			delete(session.Values, "jwt")
+			delete(session.Values, "expiry")
+			delete(session.Values, "refresh_token")
+			session.Options.MaxAge = 0
+			session.Save(req.Request, rsp.ResponseWriter)
 		}
 		rsp.WriteEntity(&rest.FrontSessionResponse{})
 		return
 	}
 
-	if loginRequest.Login == "" && loginRequest.Password == "" {
+	if len(loginRequest.AuthInfo) == 0 {
 
-		if session, err := frontend.GetSessionStore().Get(req.Request, sessionName); err == nil {
-			if val, ok := session.Values["jwt"]; ok {
-				expiry := session.Values["expiry"].(int64)
-				expTime := time.Unix(expiry, 0)
-				ref := time.Now()
-				if refresh, refOk := session.Values["refresh_token"]; refOk && (expTime.Before(ref) || expTime.Equal(ref)) {
-					// Refresh token
-					log.Logger(req.Request.Context()).Debug("Refreshing Token Now", zap.Any("refresh", refresh), zap.Any("nonce", session.Values["nonce"]))
-					refreshResponse, err := GrantTypeAccess(session.Values["nonce"].(string), refresh.(string), "", "")
-					if err != nil {
-						service.RestError401(req, rsp, err)
-						return
-					}
-					expiry := refreshResponse["expires_in"].(float64)
-					expTime = time.Now().Add(time.Duration(expiry) * time.Second)
-					val = refreshResponse["id_token"].(string)
-					newRefresh := refreshResponse["refresh_token"].(string)
-					session.Values["jwt"] = val
-					session.Values["expiry"] = expTime.Unix()
-					session.Values["refresh_token"] = newRefresh
-					if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
-						log.Logger(req.Request.Context()).Error("Error saving session", zap.Error(e))
-					}
-				}
-				response := &rest.FrontSessionResponse{
-					JWT:        val.(string),
-					ExpireTime: int32(expTime.Sub(time.Now()).Seconds()),
-				}
-				log.Logger(ctx).Debug("Sending response from session", zap.Any("r", response))
-				rsp.WriteEntity(response)
-			} else {
-				// Just send an empty response
-				rsp.WriteEntity(&rest.FrontSessionResponse{})
+		if trigger, ok := session.Values["trigger"]; ok {
+			tInfo := map[string]string{}
+			if info, o := session.Values["triggerInfo"]; o {
+				tInfo = info.(map[string]string)
+			}
+			response = &rest.FrontSessionResponse{
+				Trigger:     trigger.(string),
+				TriggerInfo: tInfo,
 			}
 		} else {
-			service.RestError500(req, rsp, fmt.Errorf("could not load session store: %s", err))
+			jwt, expireTime, e := modifiers.JwtFromSession(req.Request.Context(), session)
+			if e != nil {
+				service.RestError401(req, rsp, e)
+				return
+			}
+			response = &rest.FrontSessionResponse{
+				JWT:        jwt,
+				ExpireTime: expireTime,
+			}
 		}
-		return
-
-	}
-
-	nonce := uuid.New()
-	respMap, err := GrantTypeAccess(nonce, "", loginRequest.Login, loginRequest.Password)
-	if err != nil {
-		service.RestError401(req, rsp, err)
-		return
-	}
-
-	token := respMap["id_token"].(string)
-	expiry := respMap["expires_in"].(float64)
-	refreshToken := respMap["refresh_token"].(string)
-
-	response := &rest.FrontSessionResponse{
-		JWT:        token,
-		ExpireTime: int32(expiry),
-	}
-
-	if session, err := frontend.GetSessionStore().Get(req.Request, sessionName); err == nil {
-		log.Logger(req.Request.Context()).Debug("Saving token in session")
-		session.Values["nonce"] = nonce
-		session.Values["jwt"] = token
-		session.Values["refresh_token"] = refreshToken
-		session.Values["expiry"] = time.Now().Add(time.Duration(expiry) * time.Second).Unix()
+		rsp.WriteEntity(response)
 		if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
 			log.Logger(req.Request.Context()).Error("Error saving session", zap.Error(e))
 		}
-	} else {
-		log.Logger(req.Request.Context()).Error("Could not load session store", zap.Error(err))
+		return
+
 	}
 
+	if e := frontend.ApplyAuthMiddlewares(req, rsp, &loginRequest, response, session); e != nil {
+		service.RestError401(req, rsp, e)
+	}
+
+	if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
+		log.Logger(req.Request.Context()).Error("Error saving session", zap.Error(e))
+	}
 	rsp.WriteEntity(response)
+}
+
+// Generic endpoint that can be handled by specific 2FA plugins
+func (a *FrontendHandler) FrontEnrollAuth(req *restful.Request, rsp *restful.Response) {
+	frontend.ApplyEnrollMiddlewares("FrontEnrollAuth", req, rsp)
 }
 
 func (a *FrontendHandler) FrontMessages(req *restful.Request, rsp *restful.Response) {

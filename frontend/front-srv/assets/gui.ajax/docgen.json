@@ -6463,6 +6463,131 @@
       }
     ]
   },
+  "authfront.otp": {
+    "Enrollment.js": [
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "loadOtpData",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "testOtpData",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "testYubikey",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dialogTitle": {
+            "defaultValue": {
+              "value": "''",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'md'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogPadding": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogScrollBody": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          }
+        }
+      }
+    ],
+    "Prompt.js": [
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dialogTitle": {
+            "defaultValue": {
+              "value": "''",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'sm'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogPadding": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogScrollBody": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          }
+        }
+      }
+    ]
+  },
   "core.activitystreams": {
     "Activity.js": [
       {
@@ -9870,31 +9995,37 @@
           },
           {
             "name": "applyCheckHook",
-            "docblock": null,
+            "docblock": "@param node\n@param hookName\n@param hookArg\n@param completeCallback\n@param additionalParams",
             "modifiers": [],
             "params": [
               {
                 "name": "node",
+                "description": null,
                 "type": null
               },
               {
                 "name": "hookName",
+                "description": null,
                 "type": null
               },
               {
                 "name": "hookArg",
+                "description": null,
                 "type": null
               },
               {
                 "name": "completeCallback",
+                "description": null,
                 "type": null
               },
               {
                 "name": "additionalParams",
+                "description": null,
                 "type": null
               }
             ],
-            "returns": null
+            "returns": null,
+            "description": null
           },
           {
             "name": "parseXmlMessage",
@@ -9909,30 +10040,6 @@
             ],
             "returns": null,
             "description": "Standard parser for server XML answers"
-          },
-          {
-            "name": "postSelectionWithAction",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "actionName",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "type": null
-              },
-              {
-                "name": "selectionModel",
-                "type": null
-              },
-              {
-                "name": "additionalParameters",
-                "type": null
-              }
-            ],
-            "returns": null
           }
         ],
         "require": "const PydioApi = require('pydio/http/api')"
@@ -10949,6 +11056,22 @@
               }
             },
             "description": null
+          },
+          {
+            "name": "jwtWithAuthInfo",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "authInfo",
+                "type": null
+              },
+              {
+                "name": "reloadRegistry",
+                "type": null
+              }
+            ],
+            "returns": null
           },
           {
             "name": "getOrUpdateJwt",
@@ -13830,6 +13953,48 @@
               }
             },
             "description": "Add some data to the initial set of parameters loaded by the frontend"
+          },
+          {
+            "name": "frontEnrollAuthWithHttpInfo",
+            "docblock": "Generic endpoint that can be implemented by 2FA systems for enrollment\n@param {module:model/RestFrontEnrollAuthRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontEnrollAuthResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestFrontEnrollAuthRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontEnrollAuthResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Generic endpoint that can be implemented by 2FA systems for enrollment"
+          },
+          {
+            "name": "frontEnrollAuth",
+            "docblock": "Generic endpoint that can be implemented by 2FA systems for enrollment\n@param {module:model/RestFrontEnrollAuthRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontEnrollAuthResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestFrontEnrollAuthRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontEnrollAuthResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Generic endpoint that can be implemented by 2FA systems for enrollment"
           },
           {
             "name": "frontLogWithHttpInfo",
@@ -22940,6 +23105,98 @@
         ]
       }
     ],
+    "core/http/gen/model/RestFrontEnrollAuthRequest.js": [
+      {
+        "description": "The RestFrontEnrollAuthRequest model module.\n@module model/RestFrontEnrollAuthRequest\n@version 1.0",
+        "displayName": "RestFrontEnrollAuthRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestFrontEnrollAuthRequest</code>.\n@alias module:model/RestFrontEnrollAuthRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestFrontEnrollAuthRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestFrontEnrollAuthRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontEnrollAuthRequest} obj Optional instance to populate.\n@return {module:model/RestFrontEnrollAuthRequest} The populated <code>RestFrontEnrollAuthRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestFrontEnrollAuthRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestFrontEnrollAuthRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestFrontEnrollAuthRequest"
+              }
+            },
+            "description": "Constructs a <code>RestFrontEnrollAuthRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestFrontEnrollAuthResponse.js": [
+      {
+        "description": "The RestFrontEnrollAuthResponse model module.\n@module model/RestFrontEnrollAuthResponse\n@version 1.0",
+        "displayName": "RestFrontEnrollAuthResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestFrontEnrollAuthResponse</code>.\n@alias module:model/RestFrontEnrollAuthResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestFrontEnrollAuthResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestFrontEnrollAuthResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontEnrollAuthResponse} obj Optional instance to populate.\n@return {module:model/RestFrontEnrollAuthResponse} The populated <code>RestFrontEnrollAuthResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestFrontEnrollAuthResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestFrontEnrollAuthResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestFrontEnrollAuthResponse"
+              }
+            },
+            "description": "Constructs a <code>RestFrontEnrollAuthResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/RestFrontLogMessage.js": [
       {
         "description": "The RestFrontLogMessage model module.\n@module model/RestFrontLogMessage\n@version 1.0",
@@ -28701,12 +28958,12 @@
           },
           {
             "name": "loadLeafNodeSync",
-            "docblock": "Load a node\n@param node AjxpNode\n@param nodeCallback Function On node loaded\n@param aSync bool\n@param additionalParameters object",
+            "docblock": "Load a node\n@param node {AjxpNode}\n@param nodeCallback Function On node loaded\n@param aSync bool\n@param additionalParameters object",
             "modifiers": [],
             "params": [
               {
                 "name": "node",
-                "description": "AjxpNode",
+                "description": "{AjxpNode}",
                 "type": null
               },
               {

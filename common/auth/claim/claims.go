@@ -25,6 +25,7 @@ import (
 	"encoding/base64"
 	"time"
 
+	"github.com/coreos/go-oidc/jose"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -72,4 +73,22 @@ func (c *Claims) DecodeUserUuid() (string, error) {
 	} else {
 		return subject.UserId, nil
 	}
+}
+
+// UserNameFromIDToken parses an IDToken and extract the "name" field from the claims
+func UserNameFromIDToken(token string) string {
+
+	jwt, e := jose.ParseJWT(token)
+	if e != nil {
+		return ""
+	}
+	claims, e := jwt.Claims()
+	if e != nil {
+		return ""
+	}
+	if v, ok := claims["name"]; ok {
+		return v.(string)
+	}
+	return ""
+
 }
