@@ -33,15 +33,18 @@ class Tab extends React.Component {
                 display: "flex",
                 flex: 1,
                 flexFlow: "column nowrap",
-                overflow: "auto"
+                overflow: "auto",
+                backgroundColor: "rgb(66, 66, 66)"
             },
             child: {
                 display: "flex",
                 flex: 1
             },
             toolbar: {
-                backgroundColor: "#eeeeee",
-                flexShrink: 0
+                backgroundColor: "#000000",
+                opacity: 0.8,
+                width: "min-content",
+                margin: "0 auto",
             }
         }
     }
@@ -102,9 +105,8 @@ class Tab extends React.Component {
             </AnimatedCard>
         ) : (
             <AnimatedCard style={style} containerStyle={Tab.styles.container} maximised={true} expanded={isActive} onExpandChange={!isActive ? select : null}>
-                {Controls && this.renderControls(Controls, Actions)}
-
                 <Editor pydio={pydio} node={node} editorData={editorData} />
+                {Controls && this.renderControls(Controls, Actions)}
             </AnimatedCard>
         )
     }
