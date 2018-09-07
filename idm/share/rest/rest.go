@@ -1206,7 +1206,7 @@ func (h *SharesHandler) GetTemplateACLsForMinisite(ctx context.Context, roleId s
 		acls = append(acls, &idm.ACL{
 			RoleID:      roleId,
 			Action:      resp.ACL.Action,
-			WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+			WorkspaceID: "PYDIO_REPO_SCOPE_SHARED",
 		})
 	}
 
@@ -1233,7 +1233,7 @@ func (h *SharesHandler) GetTemplateACLsForMinisite(ctx context.Context, roleId s
 			acls = append(acls, &idm.ACL{
 				RoleID:      roleId,
 				Action:      resp.ACL.Action,
-				WorkspaceID: "PYDIO_REPO_SCOPE_ALL",
+				WorkspaceID: "PYDIO_REPO_SCOPE_SHARED",
 			})
 		}
 

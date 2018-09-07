@@ -37,10 +37,15 @@ func init() {
 		service.Tag(common.SERVICE_TAG_IDM),
 		service.Description("Roles Service"),
 		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
-		service.Migrations([]*service.Migration{{
-			TargetVersion: service.FirstRun(),
-			Up:            InitRoles,
-		}}),
+		service.Migrations([]*service.Migration{
+			{
+				TargetVersion: service.FirstRun(),
+				Up:            InitRoles,
+			}, {
+				TargetVersion: service.ValidVersion("1.2.0"),
+				Up:            UpgradeTo12,
+			},
+		}),
 		service.WithStorage(role.NewDAO, "idm_role"),
 		service.WithMicro(func(m micro.Service) error {
 			ctx := m.Options().Context

@@ -120,6 +120,29 @@ func InitRoles(ctx context.Context) error {
 				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.user:open_address_book", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
 			},
 		},
+		{
+			Role: &idm.Role{
+				Uuid:     "MINISITE",
+				Label:    "Minisite Permissions",
+				Policies: rootPolicies,
+			},
+			Acls: []*idm.ACL{
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share_react", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+			},
+		},
+		{
+			Role: &idm.Role{
+				Uuid:     "MINISITE_NODOWNLOAD",
+				Label:    "Minisite (Download Disabled)",
+				Policies: rootPolicies,
+			},
+			Acls: []*idm.ACL{
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download_folder", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+			},
+		},
 	}
 
 	var e error
@@ -134,6 +157,69 @@ func InitRoles(ctx context.Context) error {
 			continue
 		}
 		log.Logger(ctx).Info(fmt.Sprintf("Created default role %s", insert.Role.Label))
+		if e = dao.AddPolicies(false, insert.Role.Uuid, insert.Role.Policies); e == nil {
+			log.Logger(ctx).Info(fmt.Sprintf(" - Policies added for role %s", insert.Role.Label))
+		} else {
+			break
+		}
+		e = service2.Retry(func() error {
+			aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+			for _, acl := range insert.Acls {
+				_, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
+				if e != nil {
+					return e
+				}
+			}
+			log.Logger(ctx).Info(fmt.Sprintf(" - ACLS set for role %s", insert.Role.Label))
+			return nil
+		}, 8*time.Second, 50*time.Second)
+	}
+
+	return e
+}
+
+func UpgradeTo12(ctx context.Context) error {
+
+	<-time.After(3 * time.Second)
+
+	insertRoles := []*insertRole{
+		{
+			Role: &idm.Role{
+				Uuid:     "MINISITE",
+				Label:    "Minisite Permissions",
+				Policies: rootPolicies,
+			},
+			Acls: []*idm.ACL{
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share_react", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+			},
+		},
+		{
+			Role: &idm.Role{
+				Uuid:     "MINISITE_NODOWNLOAD",
+				Label:    "Minisite (Download Disabled)",
+				Policies: rootPolicies,
+			},
+			Acls: []*idm.ACL{
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "MINISITE_NODOWNLOAD", Action: &idm.ACLAction{Name: "action:access.gateway:download_folder", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+			},
+		},
+	}
+
+	var e error
+	for _, insert := range insertRoles {
+		dao := servicecontext.GetDAO(ctx).(role.DAO)
+		var update bool
+		_, update, e = dao.Add(insert.Role)
+		if e != nil {
+			break
+		}
+		if update {
+			continue
+		}
+		log.Logger(ctx).Info(fmt.Sprintf("Created role %s", insert.Role.Label))
 		if e = dao.AddPolicies(false, insert.Role.Uuid, insert.Role.Policies); e == nil {
 			log.Logger(ctx).Info(fmt.Sprintf(" - Policies added for role %s", insert.Role.Label))
 		} else {
