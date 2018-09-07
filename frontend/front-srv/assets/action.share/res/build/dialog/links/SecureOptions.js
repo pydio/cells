@@ -270,7 +270,7 @@ var PublicLinkSecureOptions = _react2['default'].createClass({
         var link = linkModel.getLink();
 
         var passContainer = this.renderPasswordContainer();
-        var crtLinkDLAllowed = linkModel.hasPermission('Download');
+        var crtLinkDLAllowed = linkModel.hasPermission('Download') && !linkModel.hasPermission('Preview') && !linkModel.hasPermission('Upload');
         var dlLimitValue = parseInt(link.MaxDownloads);
         var expirationDateValue = parseInt(link.AccessEnd);
 

@@ -20,7 +20,7 @@ let PublicLinkPanel = React.createClass({
         showMailer:React.PropTypes.func
     },
 
-    toggleLink: function(){
+    toggleLink(){
         const {linkModel, pydio} = this.props;
         const {showTemporaryPassword} = this.state;
         if(showTemporaryPassword){
@@ -36,11 +36,11 @@ let PublicLinkPanel = React.createClass({
         }
     },
 
-    getInitialState: function(){
+    getInitialState(){
         return {showTemporaryPassword: false, temporaryPassword: null, disabled: false};
     },
 
-    updateTemporaryPassword: function(value, event){
+    updateTemporaryPassword(value, event){
         if(value === undefined) {
             value = event.currentTarget.getValue();
         }
@@ -62,7 +62,7 @@ let PublicLinkPanel = React.createClass({
         this.setState({showTemporaryPassword:false, temporaryPassword:null});
     },
 
-    render: function(){
+    render(){
 
         const {linkModel, pydio, compositeModel} = this.props;
 

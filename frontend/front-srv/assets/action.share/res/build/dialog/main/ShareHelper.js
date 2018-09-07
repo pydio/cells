@@ -78,13 +78,46 @@ var ShareHelper = (function () {
                 return pluginConfigs.get('FRONTEND_URL') + pluginConfigs.get('PUBLIC_BASEURI') + '/' + linkHash;
             }
         }
+
+        /**
+         * @param pydio {Pydio}
+         * @param node {AjxpNode}
+         * @return {{preview: boolean, writeable: boolean}}
+         */
+    }, {
+        key: 'nodeHasEditor',
+        value: function nodeHasEditor(pydio, node) {
+            if (!node.getMetadata().has('mime_has_preview_editor')) {
+                var editors = pydio.Registry.findEditorsForMime(node.getAjxpMime());
+                editors = editors.filter(function (e) {
+                    return e.id !== 'editor.browser' && e.id !== 'editor.other';
+                });
+                var writeable = editors.filter(function (e) {
+                    return e.canWrite;
+                });
+                node.getMetadata().set("mime_has_preview_editor", editors.length > 0);
+                node.getMetadata().set("mime_has_writeable_editor", writeable.length > 0);
+            }
+            return {
+                preview: node.getMetadata().get("mime_has_preview_editor"),
+                writeable: node.getMetadata().get("mime_has_writeable_editor")
+            };
+        }
+
+        /**
+         *
+         * @param pydio {Pydio}
+         * @param linkModel {CompositeModel}
+         * @return {*}
+         */
     }, {
         key: 'compileLayoutData',
-        value: function compileLayoutData(pydio, node) {
+        value: function compileLayoutData(pydio, linkModel) {
 
             // Search registry for template nodes starting with minisite_
             var tmpl = undefined,
                 currentExt = undefined;
+            var node = linkModel.getNode();
             if (node.isLeaf()) {
                 currentExt = node.getAjxpMime();
                 tmpl = _pydioUtilXml2['default'].XPathSelectNodes(pydio.getXmlRegistry(), "//template[contains(@name, 'unique_preview_')]");
@@ -100,28 +133,24 @@ var ShareHelper = (function () {
             }
             var crtTheme = pydio.Parameters.get('theme');
             var values = [];
-            var noEditorsFound = false;
-            tmpl.map(function (node) {
-                var theme = node.getAttribute('theme');
+            tmpl.map(function (xmlNode) {
+                var theme = xmlNode.getAttribute('theme');
                 if (theme && theme !== crtTheme) {
                     return;
                 }
-                var element = node.getAttribute('element');
-                var name = node.getAttribute('name');
-                var label = node.getAttribute('label');
-                if (currentExt && name === "unique_preview_file") {
-                    var editors = pydio.Registry.findEditorsForMime(currentExt);
-                    if (!editors.length || editors.length === 1 && editors[0].editorClass === "OtherEditorChooser") {
-                        noEditorsFound = true;
-                        return;
-                    }
+                var element = xmlNode.getAttribute('element');
+                var name = xmlNode.getAttribute('name');
+                var label = xmlNode.getAttribute('label');
+                if (currentExt && name === "unique_preview_file" && !ShareHelper.nodeHasEditor(pydio, node).preview) {
+                    // Ignore this template
+                    return;
                 }
                 if (label) {
                     if (MessageHash[label]) {
                         label = MessageHash[label];
                     }
                 } else {
-                    label = node.getAttribute('name');
+                    label = xmlNode.getAttribute('name');
                 }
                 values[name] = element;
                 values.push({ LAYOUT_NAME: name, LAYOUT_ELEMENT: element, LAYOUT_LABEL: label });
@@ -221,18 +250,6 @@ var ShareHelper = (function () {
             return {
                 templateId: templateId, templateData: templateData, message: message, linkModel: linkModel
             };
-        }
-
-        // Check if there are available editors for node with Write ability
-    }, {
-        key: 'fileHasWriteableEditors',
-        value: function fileHasWriteableEditors(pydio, node) {
-            var previewEditors = pydio.Registry.findEditorsForMime(node.getAjxpMime()).filter(function (entry) {
-                return !(entry.editorClass === "OtherEditorChooser" || entry.editorClass === "BrowserOpener");
-            });
-            return previewEditors.filter(function (entry) {
-                return entry.canWrite;
-            }).length > 0;
         }
     }]);
 

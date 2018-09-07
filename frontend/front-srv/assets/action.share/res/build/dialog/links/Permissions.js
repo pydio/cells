@@ -58,7 +58,11 @@ var PublicLinkPermissions = _react2['default'].createClass({
     changePermission: function changePermission(event) {
         var name = event.target.name;
         var checked = event.target.checked;
-        var link = this.props.linkModel.getLink();
+        var _props = this.props;
+        var compositeModel = _props.compositeModel;
+        var linkModel = _props.linkModel;
+
+        var link = linkModel.getLink();
         if (checked) {
             link.Permissions.push(_pydioHttpRestApi.RestShareLinkAccessType.constructFromObject(name));
         } else {
@@ -66,38 +70,69 @@ var PublicLinkPermissions = _react2['default'].createClass({
                 return perm !== name;
             });
         }
+        if (compositeModel.getNode().isLeaf()) {
+            // Readapt template depending on permissions
+            if (linkModel.hasPermission('Preview')) {
+                link.ViewTemplateName = "pydio_unique_strip";
+            } else {
+                link.ViewTemplateName = "pydio_unique_dl";
+            }
+        }
         this.props.linkModel.updateLink(link);
     },
 
     render: function render() {
-        var _props = this.props;
-        var linkModel = _props.linkModel;
-        var compositeModel = _props.compositeModel;
-        var pydio = _props.pydio;
+        var _props2 = this.props;
+        var linkModel = _props2.linkModel;
+        var compositeModel = _props2.compositeModel;
+        var pydio = _props2.pydio;
 
+        var node = compositeModel.getNode();
         var perms = [],
             previewWarning = undefined;
-        perms.push({
-            NAME: 'Preview',
-            LABEL: this.props.getMessage('72'),
-            DISABLED: !linkModel.hasPermission('Upload')
-        });
-        perms.push({
-            NAME: 'Download',
-            LABEL: this.props.getMessage('73')
-        });
 
-        if (!compositeModel.getNode().isLeaf()) {
+        if (node.isLeaf()) {
+            var _ShareHelper$nodeHasEditor = _mainShareHelper2['default'].nodeHasEditor(pydio, node);
+
+            var preview = _ShareHelper$nodeHasEditor.preview;
+            var writeable = _ShareHelper$nodeHasEditor.writeable;
+
+            perms.push({
+                NAME: 'Download',
+                LABEL: this.props.getMessage('73'),
+                DISABLED: !preview || !linkModel.hasPermission('Preview') // Download Only, cannot edit this
+            });
+            if (preview) {
+                perms.push({
+                    NAME: 'Preview',
+                    LABEL: this.props.getMessage('72'),
+                    DISABLED: !linkModel.hasPermission('Download')
+                });
+                if (linkModel.hasPermission('Preview')) {
+                    if (writeable) {
+                        perms.push({
+                            NAME: 'Upload',
+                            LABEL: this.props.getMessage('74b')
+                        });
+                    }
+                }
+            }
+        } else {
+            perms.push({
+                NAME: 'Preview',
+                LABEL: this.props.getMessage('72'),
+                DISABLED: !linkModel.hasPermission('Upload')
+            });
+            perms.push({
+                NAME: 'Download',
+                LABEL: this.props.getMessage('73')
+            });
             perms.push({
                 NAME: 'Upload',
                 LABEL: this.props.getMessage('74')
             });
-        } else if (_mainShareHelper2['default'].fileHasWriteableEditors(pydio, compositeModel.getNode())) {
-            perms.push({
-                NAME: 'Upload',
-                LABEL: this.props.getMessage('74b')
-            });
         }
+
         /*
         if(this.props.shareModel.isPublicLinkPreviewDisabled() && this.props.shareModel.getPublicLinkPermission(linkId, 'read')){
             previewWarning = <div>{this.props.getMessage('195')}</div>;

@@ -57,7 +57,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/react/**/*"
                 ],
-                tasks: ['babel', 'browserify'],
+                tasks: ['babel', 'browserify', 'compress'],
                 options: {
                     spawn: false
                 }

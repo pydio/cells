@@ -187,10 +187,16 @@ class CompositeCard extends React.Component {
                 });
                 if(publicLinkModel.getLinkUuid()){
 
-                    const layoutData = ShareHelper.compileLayoutData(pydio, model.getNode());
+                    const layoutData = ShareHelper.compileLayoutData(pydio, model);
                     let templatePane;
                     if(layoutData.length > 1){
-                        templatePane = <PublicLinkTemplate linkModel={links[0]} pydio={pydio} layoutData={layoutData} style={{padding: '10px 16px'}}/>;
+                        templatePane = <PublicLinkTemplate
+                            linkModel={publicLinkModel}
+                            pydio={pydio}
+                            layoutData={layoutData}
+                            style={{padding: '10px 16px'}}
+                            readonly={model.getNode().isLeaf()}
+                        />;
                     }
                     tabs.left.push({
                         Label:m(252),

@@ -22,19 +22,15 @@ import ShareContextConsumer from '../ShareContextConsumer'
 import {SelectField, MenuItem} from 'material-ui';
 import LinkModel from './LinkModel'
 
-let PublicLinkTemplate = React.createClass({
+class PublicLinkTemplate extends React.Component{
 
-    propTypes:{
-        linkModel:React.PropTypes.instanceOf(LinkModel)
-    },
-
-    onDropDownChange: function(event, index, value){
+    onDropDownChange(event, index, value){
         const {linkModel} = this.props;
         linkModel.getLink().ViewTemplateName = value;
         linkModel.notifyDirty();
-    },
+    }
 
-    render: function(){
+    render(){
         let crtLabel;
         const {linkModel} = this.props;
         let selected = linkModel.getLink().ViewTemplateName;
@@ -43,24 +39,27 @@ let PublicLinkTemplate = React.createClass({
                 crtLabel = l.LAYOUT_LABEL;
             }
             if(!selected && !crtLabel) {
-                selected = l.LAYOUT_ELEMENT, crtLabel = l.LAYOUT_LABEL;
+                selected = l.LAYOUT_ELEMENT;
+                crtLabel = l.LAYOUT_LABEL;
             }
             return <MenuItem key={l.LAYOUT_ELEMENT} value={l.LAYOUT_ELEMENT} primaryText={l.LAYOUT_LABEL}/>;
         });
-        const unusedLegend = <div className="form-legend">{this.props.getMessage('198')}</div>;
         return (
             <div style={this.props.style}>
                 <SelectField
                     fullWidth={true}
                     value={selected}
-                    onChange={this.onDropDownChange}
-                    disabled={this.props.isReadonly() || !linkModel.isEditable()}
+                    onChange={this.onDropDownChange.bind(this)}
+                    disabled={this.props.isReadonly() || this.props.readonly || !linkModel.isEditable()}
                     floatingLabelText={this.props.getMessage('151')}
                 >{menuItems}</SelectField>
             </div>
         );
     }
-});
+}
 
+PublicLinkTemplate.PropTypes = {
+    linkModel:React.PropTypes.instanceOf(LinkModel)
+};
 PublicLinkTemplate = ShareContextConsumer(PublicLinkTemplate);
 export default PublicLinkTemplate

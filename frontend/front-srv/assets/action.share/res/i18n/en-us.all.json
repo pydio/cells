@@ -786,7 +786,7 @@
     "other": "Use the checkboxes to grant permissions to this folder for the public. If you check 'Upload' only, this folder will be an empty inbox in which people can drop files."
   },
   "70r": {
-    "other": "Labels and permissions granted to the users accessing this link"
+    "other": "Permissions granted to the users accessing this link"
   },
   "71": {
     "other": "Permissions"

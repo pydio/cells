@@ -54,11 +54,38 @@ class ShareHelper {
         }
     }
 
+    /**
+     * @param pydio {Pydio}
+     * @param node {AjxpNode}
+     * @return {{preview: boolean, writeable: boolean}}
+     */
+    static nodeHasEditor(pydio, node) {
+        if(!node.getMetadata().has('mime_has_preview_editor')) {
+            let editors = pydio.Registry.findEditorsForMime(node.getAjxpMime());
+            editors = editors.filter(e => {
+                return e.id !== 'editor.browser' && e.id !== 'editor.other'
+            });
+            const writeable = editors.filter(e => e.canWrite);
+            node.getMetadata().set("mime_has_preview_editor", editors.length > 0);
+            node.getMetadata().set("mime_has_writeable_editor", writeable.length > 0);
+        }
+        return {
+            preview: node.getMetadata().get("mime_has_preview_editor"),
+            writeable: node.getMetadata().get("mime_has_writeable_editor"),
+        };
+    }
 
-    static compileLayoutData(pydio, node){
+    /**
+     *
+     * @param pydio {Pydio}
+     * @param linkModel {CompositeModel}
+     * @return {*}
+     */
+    static compileLayoutData(pydio, linkModel){
 
         // Search registry for template nodes starting with minisite_
         let tmpl, currentExt;
+        const node = linkModel.getNode();
         if(node.isLeaf()){
             currentExt = node.getAjxpMime();
             tmpl = XMLUtils.XPathSelectNodes(pydio.getXmlRegistry(), "//template[contains(@name, 'unique_preview_')]");
@@ -74,28 +101,24 @@ class ShareHelper {
         }
         const crtTheme = pydio.Parameters.get('theme');
         let values = [];
-        let noEditorsFound = false;
-        tmpl.map(function(node){
-            const theme = node.getAttribute('theme');
+        tmpl.map(function(xmlNode){
+            const theme = xmlNode.getAttribute('theme');
             if(theme && theme !== crtTheme) {
                 return;
             }
-            const element = node.getAttribute('element');
-            const name = node.getAttribute('name');
-            let label = node.getAttribute('label');
-            if(currentExt && name === "unique_preview_file"){
-                const editors = pydio.Registry.findEditorsForMime(currentExt);
-                if(!editors.length || (editors.length === 1 && editors[0].editorClass === "OtherEditorChooser")) {
-                    noEditorsFound = true;
-                    return;
-                }
+            const element = xmlNode.getAttribute('element');
+            const name = xmlNode.getAttribute('name');
+            let label = xmlNode.getAttribute('label');
+            if(currentExt && name === "unique_preview_file" && !ShareHelper.nodeHasEditor(pydio, node).preview){
+                // Ignore this template
+                return
             }
             if(label) {
                 if(MessageHash[label]) {
                     label = MessageHash[label];
                 }
             }else{
-                label = node.getAttribute('name');
+                label = xmlNode.getAttribute('name');
             }
             values[name] = element;
             values.push({LAYOUT_NAME:name, LAYOUT_ELEMENT:element, LAYOUT_LABEL: label});
@@ -183,17 +206,6 @@ class ShareHelper {
             templateId, templateData, message, linkModel
         };
     }
-
-    // Check if there are available editors for node with Write ability
-    static fileHasWriteableEditors(pydio, node) {
-        const previewEditors = pydio.Registry.findEditorsForMime(node.getAjxpMime()).filter(function(entry){
-            return !(entry.editorClass === "OtherEditorChooser" || entry.editorClass === "BrowserOpener");
-        });
-        return previewEditors.filter(function(entry){
-            return (entry.canWrite);
-        }).length > 0;
-    }
-
 
 }
 

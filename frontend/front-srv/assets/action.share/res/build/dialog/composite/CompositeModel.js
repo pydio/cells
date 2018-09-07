@@ -42,6 +42,10 @@ var _linksLinkModel = require('../links/LinkModel');
 
 var _linksLinkModel2 = _interopRequireDefault(_linksLinkModel);
 
+var _mainShareHelper = require('../main/ShareHelper');
+
+var _mainShareHelper2 = _interopRequireDefault(_mainShareHelper);
+
 var _pydioModelCell = require('pydio/model/cell');
 
 var _pydioModelCell2 = _interopRequireDefault(_pydioModelCell);
@@ -81,7 +85,27 @@ var CompositeModel = (function (_Observable) {
             link.getLink().Label = node.getLabel();
             link.getLink().Description = pydio.MessageHash['share_center.257'].replace('%s', moment(new Date()).format("YYYY/MM/DD"));
             link.getLink().RootNodes.push(treeNode);
-            link.getLink().ViewTemplateName = node.isLeaf() ? "pydio_unique_strip" : "pydio_shared_folder";
+            // Template / Permissions from node
+            var defaultTemplate = undefined;
+            var defaultPermissions = [_pydioHttpRestApi.RestShareLinkAccessType.constructFromObject('Download')];
+            if (node.isLeaf()) {
+                defaultTemplate = "pydio_unique_dl";
+
+                var _ShareHelper$nodeHasEditor = _mainShareHelper2['default'].nodeHasEditor(pydio, node);
+
+                var preview = _ShareHelper$nodeHasEditor.preview;
+
+                if (preview) {
+                    defaultTemplate = "pydio_unique_strip";
+                    defaultPermissions.push(_pydioHttpRestApi.RestShareLinkAccessType.constructFromObject('Preview'));
+                }
+            } else {
+                defaultTemplate = "pydio_shared_folder";
+                defaultPermissions.push(_pydioHttpRestApi.RestShareLinkAccessType.constructFromObject('Preview'));
+            }
+            link.getLink().ViewTemplateName = defaultTemplate;
+            link.getLink().Permissions = defaultPermissions;
+
             link.observe("update", function () {
                 _this.notify("update");
             });

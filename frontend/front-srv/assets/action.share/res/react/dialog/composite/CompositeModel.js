@@ -20,8 +20,9 @@
 
 import Observable from 'pydio/lang/observable'
 import LinkModel from '../links/LinkModel'
+import ShareHelper from '../main/ShareHelper'
 import CellModel from 'pydio/model/cell'
-import {TreeNode} from 'pydio/http/rest-api'
+import {TreeNode, RestShareLinkAccessType} from 'pydio/http/rest-api'
 import Pydio from 'pydio'
 const {moment} = Pydio.requireLib('boot');
 
@@ -46,7 +47,23 @@ class CompositeModel extends Observable {
         link.getLink().Label = node.getLabel();
         link.getLink().Description = pydio.MessageHash['share_center.257'].replace('%s', moment(new Date()).format("YYYY/MM/DD"));
         link.getLink().RootNodes.push(treeNode);
-        link.getLink().ViewTemplateName = node.isLeaf() ? "pydio_unique_strip" : "pydio_shared_folder";
+        // Template / Permissions from node
+        let defaultTemplate;
+        let defaultPermissions = [RestShareLinkAccessType.constructFromObject('Download')];
+        if(node.isLeaf()){
+            defaultTemplate = "pydio_unique_dl";
+            const {preview} = ShareHelper.nodeHasEditor(pydio, node);
+            if(preview){
+                defaultTemplate = "pydio_unique_strip";
+                defaultPermissions.push(RestShareLinkAccessType.constructFromObject('Preview'));
+            }
+        } else {
+            defaultTemplate = "pydio_shared_folder";
+            defaultPermissions.push(RestShareLinkAccessType.constructFromObject('Preview'));
+        }
+        link.getLink().ViewTemplateName = defaultTemplate;
+        link.getLink().Permissions = defaultPermissions;
+
         link.observe("update", ()=> {this.notify("update")});
         link.observe("save", ()=> {this.updateUnderlyingNode()});
         return link;

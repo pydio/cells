@@ -87,7 +87,12 @@ export default React.createClass({
     render(){
         const {acl, actions, parameters, pydio} = this.props;
         const [type, pluginId, name] = acl.Action.Name.split(":");
-        const value = JSON.parse(acl.Action.Value);
+        let value;
+        if(name === 'DEFAULT_START_REPOSITORY'){
+            value = acl.Action.Value;
+        } else {
+            value = JSON.parse(acl.Action.Value);
+        }
         const inherited = acl.INHERITED;
         let label = name;
         let paramData;

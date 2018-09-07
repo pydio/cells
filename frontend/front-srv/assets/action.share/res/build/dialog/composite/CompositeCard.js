@@ -293,10 +293,16 @@ var CompositeCard = (function (_React$Component) {
                     });
                     if (publicLinkModel.getLinkUuid()) {
 
-                        var layoutData = _mainShareHelper2['default'].compileLayoutData(pydio, model.getNode());
+                        var layoutData = _mainShareHelper2['default'].compileLayoutData(pydio, model);
                         var templatePane = undefined;
                         if (layoutData.length > 1) {
-                            templatePane = _react2['default'].createElement(_linksPublicLinkTemplate2['default'], { linkModel: links[0], pydio: pydio, layoutData: layoutData, style: { padding: '10px 16px' } });
+                            templatePane = _react2['default'].createElement(_linksPublicLinkTemplate2['default'], {
+                                linkModel: publicLinkModel,
+                                pydio: pydio,
+                                layoutData: layoutData,
+                                style: { padding: '10px 16px' },
+                                readonly: model.getNode().isLeaf()
+                            });
                         }
                         tabs.left.push({
                             Label: m(252),

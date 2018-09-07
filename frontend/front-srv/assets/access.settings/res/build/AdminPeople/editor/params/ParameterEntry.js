@@ -146,7 +146,12 @@ exports['default'] = _react2['default'].createClass({
         var pluginId = _acl$Action$Name$split2[1];
         var name = _acl$Action$Name$split2[2];
 
-        var value = JSON.parse(acl.Action.Value);
+        var value = undefined;
+        if (name === 'DEFAULT_START_REPOSITORY') {
+            value = acl.Action.Value;
+        } else {
+            value = JSON.parse(acl.Action.Value);
+        }
         var inherited = acl.INHERITED;
         var label = name;
         var paramData = undefined;

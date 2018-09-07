@@ -270,7 +270,7 @@ var PublicLinkField = _react2['default'].createClass({
                             e.target.select();
                         },
                         fullWidth: true,
-                        inputStyle: { textAlign: 'center', backgroundColor: '#f5f5f5', borderRadius: 2 },
+                        inputStyle: { textAlign: 'center', backgroundColor: '#f5f5f5', borderRadius: 2, padding: '0 5px' },
                         underlineStyle: { borderColor: '#f5f5f5', textDecoration: linkModel.isExpired() ? 'line-through' : null },
                         underlineFocusStyle: { bottom: 0 }
                     })

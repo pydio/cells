@@ -786,7 +786,7 @@
     "other": "Utiliser les cases à cocher pour donner des droits aux utilisateurs publics sur ce dossier. Si vous cochez uniquement 'Envoi', le dossier sera une boîte de réception vide dans laquelle les utilisteurs pourront déposer des fichiers."
   },
   "70r": {
-    "other": "Libellés et permissions accordées aux utilisateurs accédant à ce lien"
+    "other": "Permissions accordées aux utilisateurs accédant à ce lien"
   },
   "71": {
     "other": "Permissions"
