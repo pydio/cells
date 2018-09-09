@@ -67,29 +67,42 @@ var IconButtonMenu = (function (_React$Component) {
     IconButtonMenu.prototype.render = function render() {
         var _this = this;
 
+        var _props = this.props;
+        var menuItems = _props.menuItems;
+        var className = _props.className;
+        var buttonTitle = _props.buttonTitle;
+        var buttonClassName = _props.buttonClassName;
+        var buttonStyle = _props.buttonStyle;
+        var popoverDirection = _props.popoverDirection;
+        var popoverTargetPosition = _props.popoverTargetPosition;
+        var menuProps = _props.menuProps;
+
+        if (!menuItems.length) {
+            return null;
+        }
         return React.createElement(
             'span',
-            { className: "toolbars-button-menu " + (this.props.className ? this.props.className : '') },
+            { className: "toolbars-button-menu " + (className ? className : '') },
             React.createElement(IconButton, {
                 ref: 'menuButton',
-                tooltip: this.props.buttonTitle,
-                iconClassName: this.props.buttonClassName,
+                tooltip: buttonTitle,
+                iconClassName: buttonClassName,
                 onTouchTap: this.showMenu.bind(this),
-                iconStyle: this.props.buttonStyle
+                iconStyle: buttonStyle
             }),
             React.createElement(
                 Popover,
                 {
                     open: this.state.showMenu,
                     anchorEl: this.state.anchor,
-                    anchorOrigin: { horizontal: this.props.popoverDirection || 'right', vertical: this.props.popoverTargetPosition || 'bottom' },
-                    targetOrigin: { horizontal: this.props.popoverDirection || 'right', vertical: 'top' },
+                    anchorOrigin: { horizontal: popoverDirection || 'right', vertical: popoverTargetPosition || 'bottom' },
+                    targetOrigin: { horizontal: popoverDirection || 'right', vertical: 'top' },
                     onRequestClose: function () {
                         _this.setState({ showMenu: false });
                     },
                     useLayerForClickAway: false
                 },
-                _Utils2['default'].itemsToMenu(this.props.menuItems, this.closeMenu.bind(this), false, this.props.menuProps || undefined)
+                _Utils2['default'].itemsToMenu(menuItems, this.closeMenu.bind(this), false, menuProps || undefined)
             )
         );
     };

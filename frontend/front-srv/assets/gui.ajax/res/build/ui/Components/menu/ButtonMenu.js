@@ -1,6 +1,6 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
+ * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio Cells.
  *
  * Pydio is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
@@ -34,24 +33,25 @@ var _MenuItemsConsumer = require('./MenuItemsConsumer');
 
 var _MenuItemsConsumer2 = _interopRequireDefault(_MenuItemsConsumer);
 
-var React = require('react');
-var ReactDOM = require('react-dom');
+var _react = require("react");
 
-var _require = require('material-ui');
+var _react2 = _interopRequireDefault(_react);
 
-var Menu = _require.Menu;
+var _reactDom = require("react-dom");
 
-var Controller = require('pydio/model/controller');
+var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var ButtonMenu = React.createClass({
+var _materialUi = require("material-ui");
+
+var ButtonMenu = _react2['default'].createClass({
     displayName: 'ButtonMenu',
 
     propTypes: {
-        buttonTitle: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.object]).isRequired,
-        menuItems: React.PropTypes.array.isRequired,
-        className: React.PropTypes.string,
-        raised: React.PropTypes.bool,
-        direction: React.PropTypes.oneOf(['left', 'right'])
+        buttonTitle: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.object]).isRequired,
+        menuItems: _react2['default'].PropTypes.array.isRequired,
+        className: _react2['default'].PropTypes.string,
+        raised: _react2['default'].PropTypes.bool,
+        direction: _react2['default'].PropTypes.oneOf(['left', 'right'])
     },
 
     componentDidMount: function componentDidMount() {
@@ -82,19 +82,22 @@ var ButtonMenu = React.createClass({
     },
 
     menuClicked: function menuClicked(event, index, object) {
-        //object.payload();
         this.setState({ showMenu: false });
     },
 
     render: function render() {
         var _this2 = this;
 
-        var label = React.createElement(
+        var _state = this.state;
+        var showMenu = _state.showMenu;
+        var anchor = _state.anchor;
+
+        var label = _react2['default'].createElement(
             'span',
-            null,
+            { style: { whiteSpace: 'nowrap' } },
             this.props.buttonTitle,
             ' ',
-            React.createElement('span', { className: 'icon-caret-down' })
+            _react2['default'].createElement('span', { className: 'mdi mdi-menu-down' })
         );
         var button = undefined;
         var props = {
@@ -103,32 +106,31 @@ var ButtonMenu = React.createClass({
             disabled: this.props.disabeld,
             label: label,
             onTouchTap: this.showMenu,
+            labelStyle: _extends({}, this.props.buttonLabelStyle, { paddingRight: 10 }),
+            style: _extends({}, this.props.buttonStyle, { backgroundColor: showMenu ? 'rgba(153,153,153,.2)' : '' }),
             onClick: function onClick(e) {
                 return e.stopPropagation();
             }
         };
         var menuItems = this.props.menuItems;
-        var _state = this.state;
-        var showMenu = _state.showMenu;
-        var anchor = _state.anchor;
 
         if (menuItems.length) {
             if (this.props.raised) {
-                button = React.createElement(MaterialUI.RaisedButton, _extends({}, props, { style: this.props.buttonStyle, labelStyle: this.props.buttonLabelStyle, ref: function (b) {
-                        _this2._buttonDOM = ReactDOM.findDOMNode(b);
+                button = _react2['default'].createElement(_materialUi.RaisedButton, _extends({}, props, { ref: function (b) {
+                        _this2._buttonDOM = _reactDom2['default'].findDOMNode(b);
                     } }));
             } else {
-                button = React.createElement(MaterialUI.FlatButton, _extends({}, props, { style: this.props.buttonStyle, labelStyle: this.props.buttonLabelStyle, ref: function (b) {
-                        _this2._buttonDOM = ReactDOM.findDOMNode(b);
+                button = _react2['default'].createElement(_materialUi.FlatButton, _extends({}, props, { ref: function (b) {
+                        _this2._buttonDOM = _reactDom2['default'].findDOMNode(b);
                     } }));
             }
         }
-        return React.createElement(
+        return _react2['default'].createElement(
             'span',
             { id: this.props.id, className: this.props.className },
             button,
-            React.createElement(
-                MaterialUI.Popover,
+            _react2['default'].createElement(
+                _materialUi.Popover,
                 {
                     className: 'menuPopover',
                     open: showMenu,

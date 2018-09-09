@@ -42,6 +42,10 @@ var _ButtonMenu = require('./ButtonMenu');
 
 var _ButtonMenu2 = _interopRequireDefault(_ButtonMenu);
 
+var _ButtonComposed = require('./ButtonComposed');
+
+var _ButtonComposed2 = _interopRequireDefault(_ButtonComposed);
+
 var _IconButtonPopover = require('./IconButtonPopover');
 
 var _IconButtonPopover2 = _interopRequireDefault(_IconButtonPopover);
@@ -128,13 +132,18 @@ exports['default'] = _react2['default'].createClass({
             allToolbars = allToolbars.concat(['MORE_ACTION']);
         }
         allToolbars.map(function (barName) {
-            if (!groups.has(barName)) return;
+            if (!groups.has(barName)) {
+                return;
+            }
             groups.get(barName).map(function (action) {
-                if (action.deny) return;
+                if (action.deny) {
+                    return;
+                }
                 var menuItems = undefined,
                     popoverContent = undefined,
                     menuTitle = undefined,
-                    menuIcon = undefined;
+                    menuIcon = undefined,
+                    menuItemsUseMasterAction = undefined;
                 var actionName = action.options.name;
 
                 menuTitle = pydio.MessageHash[action.options.text_id] || action.options.text;
@@ -152,6 +161,7 @@ exports['default'] = _react2['default'].createClass({
                             }
                         });
                         menuItems = _Utils2['default'].pydioActionsToItems(items);
+                        menuIcon = "mdi mdi-dots-vertical";
                     })();
                 } else if (action.subMenuItems.staticItems) {
                     menuItems = _Utils2['default'].pydioActionsToItems(action.subMenuItems.staticItems);
@@ -159,7 +169,17 @@ exports['default'] = _react2['default'].createClass({
                     menuItems = _Utils2['default'].pydioActionsToItems(action.subMenuItems.dynamicBuilder(controller));
                 } else if (action.subMenuItems.popoverContent) {
                     popoverContent = action.subMenuItems.popoverContent;
-                } else {}
+                }
+                if (menuItems && action.subMenuItems.masterAction) {
+                    (function () {
+                        var masterAction = controller.getActionByName(action.subMenuItems.masterAction);
+                        if (masterAction && !masterAction.deny) {
+                            menuItemsUseMasterAction = function () {
+                                masterAction.apply();
+                            };
+                        }
+                    })();
+                }
                 var id = 'action-' + action.options.name;
                 if (renderingType === 'button-icon') {
                     menuTitle = _react2['default'].createElement(
@@ -175,14 +195,26 @@ exports['default'] = _react2['default'].createClass({
                 }
                 if (menuItems) {
                     if (renderingType === 'button' || renderingType === 'button-icon') {
-                        actions.push(_react2['default'].createElement(_ButtonMenu2['default'], {
-                            key: actionName,
-                            className: id,
-                            buttonTitle: buttonMenuNoLabel ? '' : menuTitle,
-                            menuItems: menuItems,
-                            buttonLabelStyle: buttonStyle,
-                            direction: buttonMenuPopoverDirection
-                        }));
+                        if (menuItemsUseMasterAction) {
+                            actions.push(_react2['default'].createElement(_ButtonComposed2['default'], {
+                                key: actionName,
+                                className: id,
+                                buttonTitle: menuTitle,
+                                menuItems: menuItems,
+                                masterAction: menuItemsUseMasterAction,
+                                buttonLabelStyle: buttonStyle,
+                                direction: buttonMenuPopoverDirection
+                            }));
+                        } else {
+                            actions.push(_react2['default'].createElement(_ButtonMenu2['default'], {
+                                key: actionName,
+                                className: id,
+                                buttonTitle: buttonMenuNoLabel ? '' : menuTitle,
+                                menuItems: menuItems,
+                                buttonLabelStyle: buttonStyle,
+                                direction: buttonMenuPopoverDirection
+                            }));
+                        }
                     } else {
                         actions.push(_react2['default'].createElement(_IconButtonMenu2['default'], {
                             key: actionName,
@@ -207,7 +239,7 @@ exports['default'] = _react2['default'].createClass({
                         popoverContent: popoverContent
                     }));
                 } else {
-                    var click = function click(synthEvent) {
+                    var click = function click() {
                         action.apply();
                     };
                     if (fabAction && fabAction === actionName) {

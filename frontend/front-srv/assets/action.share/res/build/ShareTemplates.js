@@ -22,6 +22,14 @@ var _reactRedux = require('react-redux');
 
 var _redux = require('redux');
 
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
+var _pydioUtilDom = require('pydio/util/dom');
+
+var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
 var _require = require('react-textfit');
 
 var Textfit = _require.Textfit;
@@ -39,7 +47,7 @@ var EditionPanel = _Pydio$requireLib.EditionPanel;
 var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
 var ContextMenu = _Pydio$requireLib2.ContextMenu;
-var ButtonMenu = _Pydio$requireLib2.ButtonMenu;
+var IconButtonMenu = _Pydio$requireLib2.IconButtonMenu;
 var Toolbar = _Pydio$requireLib2.Toolbar;
 var ListPaginator = _Pydio$requireLib2.ListPaginator;
 var ClipboardTextField = _Pydio$requireLib2.ClipboardTextField;
@@ -179,64 +187,92 @@ var DLTemplate = React.createClass({
 
         var bgStyle = this.props.bgStyle;
 
-        var style = _extends({}, bgStyle, {
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            width: '100%'
-        });
+        var styles = {
+            main: _extends({}, bgStyle, {
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%'
+            }),
+            block: {
+                cursor: 'pointer',
+                width: 300,
+                margin: '0 auto',
+                textAlign: 'center',
+                background: 'rgba(255, 255, 255, 0.91)',
+                padding: 20,
+                borderRadius: 4,
+                boxShadow: '0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)'
+            },
+            logo: {
+                width: 230,
+                margin: '-50px auto 0'
+            },
+            filename: {
+                fontSize: 22,
+                lineHeight: '22px',
+                wordBreak: 'break-all'
+            },
+            fileIcon: {
+                fontSize: 180,
+                color: this.props.muiTheme.palette.primary1Color
+            },
+            dlIcon: {
+                position: 'absolute',
+                top: 90,
+                left: 80,
+                fontSize: 60,
+                color: '#f4f4f4',
+                transition: _pydioUtilDom2['default'].getBeziersTransition()
+            }
+        };
 
         if (!this.props.pydio.user) {
-            return React.createElement('div', { className: 'vertical_fit', style: _extends({}, style, { width: '100%' }) });
+            return React.createElement('div', { className: 'vertical_fit', style: _extends({}, styles.main, { width: '100%' }) });
         }
-        var name1 = undefined,
-            name2 = undefined,
-            name3 = undefined,
-            owner = undefined;
+        var fileName = undefined;
         var classNames = ['download-block'];
         if (this.state && this.state.repoObject) {
-            owner = this.state.repoObject.getOwner();
-            name1 = '%1 shared'.replace('%1', owner);
-            name2 = this.state.repoObject.getLabel();
-            name3 = 'with you';
+            fileName = this.state.repoObject.getLabel();
         }
         var click = null;
         var fileDetails = React.createElement(
             'div',
-            { className: 'dl-details' },
+            { style: { fontSize: 13, lineHeight: '18px' } },
             this.props.pydio.MessageHash[466]
         );
         if (this.state && this.state.node) {
             click = this.triggerDL.bind(this);
+            var bytesize = this.state.node.getMetadata().get('bytesize');
+            var txtColor = 'rgba(0,0,0,.43)';
             fileDetails = React.createElement(
                 'div',
-                { className: 'dl-details' },
+                { style: { fontSize: 13, lineHeight: '18px', color: txtColor } },
                 React.createElement(
                     'div',
-                    { className: 'row' },
+                    { style: { display: 'flex' } },
                     React.createElement(
-                        'span',
-                        { className: 'label' },
+                        'div',
+                        { style: { flex: 1, textAlign: 'right', paddingRight: 6, fontWeight: 500 } },
                         this.props.pydio.MessageHash[503]
                     ),
                     React.createElement(
-                        'span',
-                        { className: 'value' },
-                        this.state.node.getMetadata().get('filesize')
+                        'div',
+                        { style: { flex: 1, textAlign: 'left', color: 'rgba(0,0,0,.73)' } },
+                        _pydioUtilPath2['default'].roundFileSize(bytesize)
                     )
                 ),
                 React.createElement(
                     'div',
-                    { className: 'click-legend' },
+                    { style: { fontSize: 12, marginTop: 10 } },
                     this.props.pydio.MessageHash['share_center.231']
                 )
             );
-        } else {
-            classNames.push('not-ready');
         }
         if (this.state && this.state.downloadStarted) {
-            classNames.push('dl-started');
+            styles.dlIcon.opacity = .3;
         }
         var sharePageAction = this.props.pydio.Controller.getActionByName('share_current_page');
         var shareButton = undefined;
@@ -253,25 +289,25 @@ var DLTemplate = React.createClass({
         }
         return React.createElement(
             'div',
-            { style: style },
-            React.createElement(ConfigLogo, { pydio: this.props.pydio, style: { width: 230, margin: '-50px auto 0' } }),
+            { style: styles.main },
+            React.createElement(ConfigLogo, { pydio: this.props.pydio, style: styles.logo }),
             React.createElement(
                 'div',
-                { className: classNames.join(' '), onClick: click },
+                { className: classNames.join(' '), onClick: click, style: styles.block },
                 React.createElement(
                     'span',
-                    { className: 'dl-filename' },
+                    { style: styles.filename },
                     React.createElement(
                         Textfit,
                         { min: 12, max: 25, perfectFit: false, mode: 'single' },
-                        name2
+                        fileName
                     )
                 ),
                 React.createElement(
                     'div',
-                    { className: 'dl-icon' },
-                    React.createElement('span', { className: 'mdi mdi-file' }),
-                    React.createElement('span', { className: 'mdi mdi-download' })
+                    { style: { width: 220, margin: '0 auto', position: 'relative' } },
+                    React.createElement('span', { style: styles.fileIcon, className: "mdi mdi-file" }),
+                    React.createElement('span', { style: styles.dlIcon, className: 'mdi mdi-download' })
                 ),
                 fileDetails
             ),
@@ -282,6 +318,7 @@ var DLTemplate = React.createClass({
                         return _this2.props.pydio.MessageHash[id];
                     }, buttonStyle: { right: -8, bottom: 9 } })
             ),
+            React.createElement(Copyright, { mode: "block" }),
             !(this.state && this.state.displayShareLink) && shareButton
         );
     }
@@ -309,7 +346,7 @@ var ConfigLogo = (function (_React$Component) {
             var logo = pydio.Registry.getPluginConfigs(pluginName).get(pluginParameter);
             var url = undefined;
             if (!logo) {
-                logo = pydio.Parameters.get('ajxpResourcesFolder') + '/themes/common/images/PydioLogo250.png';
+                logo = pydio.Parameters.get('ajxpResourcesFolder') + '/themes/common/images/PydioLogoSquare.png';
             }
             if (logo) {
                 if (logo.indexOf('plug/') === 0) {
@@ -323,6 +360,61 @@ var ConfigLogo = (function (_React$Component) {
     }]);
 
     return ConfigLogo;
+})(React.Component);
+
+var Copyright = (function (_React$Component2) {
+    _inherits(Copyright, _React$Component2);
+
+    function Copyright() {
+        _classCallCheck(this, Copyright);
+
+        _get(Object.getPrototypeOf(Copyright.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(Copyright, [{
+        key: 'render',
+        value: function render() {
+            var _props = this.props;
+            var mode = _props.mode;
+            var style = _props.style;
+
+            var s = undefined;
+            if (mode === "insert") {
+                s = {
+                    textAlign: 'right',
+                    padding: '6px 16px',
+                    backgroundColor: '#f7f7f7',
+                    color: 'black'
+                };
+            } else if (mode === "overlay") {
+                s = {
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    color: 'rgba(255,255,255,0.8)',
+                    padding: '6px 16px'
+                };
+            } else if (mode === "block") {
+                s = {
+                    textAlign: 'center',
+                    padding: '6px 16px',
+                    color: 'rgba(255,255,255)'
+                };
+            }
+            return React.createElement(
+                'div',
+                { style: _extends({}, s, style) },
+                React.createElement(
+                    'a',
+                    { href: "https://pydio.com", style: { fontWeight: 500, color: s.color } },
+                    'Pydio Cells'
+                ),
+                ' - secure file sharing'
+            );
+        }
+    }]);
+
+    return Copyright;
 })(React.Component);
 
 var StandardLayout = React.createClass({
@@ -349,7 +441,7 @@ var StandardLayout = React.createClass({
     },
 
     getDefaultProps: function getDefaultProps() {
-        return { minisiteMode: 'standard', uniqueNode: true };
+        return { minisiteMode: 'embed', uniqueNode: true };
     },
 
     render: function render() {
@@ -358,32 +450,31 @@ var StandardLayout = React.createClass({
             appBarStyle: {
                 zIndex: 1,
                 backgroundColor: this.props.muiTheme.palette.primary1Color,
-                display: 'flex'
+                display: 'flex',
+                alignItems: 'center'
             },
             buttonsStyle: {
-                color: this.props.muiTheme.appBar.textColor
-            },
-            iconButtonsStyle: {
-                color: Color(this.props.muiTheme.palette.primary1Color).darken(0.4).toString()
-            },
-            raisedButtonStyle: {
-                height: 30
-            },
-            raisedButtonLabelStyle: {
-                height: 30,
-                lineHeight: '30px'
+                color: Color(this.props.muiTheme.appBar.textColor).alpha(0.8).toString()
             }
         };
 
-        var _props = this.props;
-        var minisiteMode = _props.minisiteMode;
-        var showSearchForm = _props.showSearchForm;
-        var uniqueNode = _props.uniqueNode;
-        var skipDisplayToolbar = _props.skipDisplayToolbar;
-        var bgStyle = _props.bgStyle;
+        var _props2 = this.props;
+        var showSearchForm = _props2.showSearchForm;
+        var uniqueNode = _props2.uniqueNode;
+        var skipDisplayToolbar = _props2.skipDisplayToolbar;
+        var bgStyle = _props2.bgStyle;
 
         if (!this.props.pydio.user) {
             return React.createElement('div', { className: 'vertical_fit vertical_layout', style: bgStyle });
+        }
+        var toolbars = [];
+        if (uniqueNode) {
+            toolbars.push("minisite_toolbar");
+        } else {
+            toolbars.push("info_panel");
+            if (!skipDisplayToolbar) {
+                toolbars.push("display_toolbar");
+            }
         }
 
         return React.createElement(
@@ -392,31 +483,32 @@ var StandardLayout = React.createClass({
             React.createElement(
                 MaterialUI.Paper,
                 { zDepth: 1, rounded: false, style: styles.appBarStyle },
-                minisiteMode === 'embed' && React.createElement(ConfigLogo, { pydio: this.props.pydio, style: { height: 50 } }),
+                React.createElement(ConfigLogo, { pydio: this.props.pydio, style: { height: 50 } }),
                 React.createElement(
                     'div',
-                    { style: { flex: 1, position: 'relative' } },
-                    minisiteMode !== 'embed' && React.createElement(
-                        'div',
-                        { id: 'workspace_toolbar', style: { display: 'flex' } },
-                        React.createElement(Breadcrumb, _extends({}, this.props, { rootStyle: { padding: 14, maxWidth: null } })),
-                        showSearchForm && React.createElement(SearchForm, _extends({}, this.props, { uniqueSearchScope: 'ws', style: { marginTop: 5 } }))
-                    ),
+                    { id: 'workspace_toolbar', style: { display: 'flex', flex: 1 } },
+                    React.createElement(Breadcrumb, _extends({}, this.props, { rootStyle: { padding: 14, maxWidth: null } })),
+                    showSearchForm && React.createElement(SearchForm, _extends({}, this.props, { uniqueSearchScope: 'ws', style: { marginTop: 5 } }))
+                ),
+                React.createElement(
+                    'div',
+                    { style: { position: 'relative' } },
                     React.createElement(
                         'div',
                         { id: 'main_toolbar', style: { display: 'flex', padding: '0 8px' } },
-                        !uniqueNode && React.createElement(
-                            'span',
-                            { style: { marginTop: 7 } },
-                            React.createElement(ButtonMenu, _extends({}, this.props, { id: 'create-button-menu', toolbars: ["upload", "create"], buttonTitle: this.props.pydio.MessageHash['198'], raised: true, secondary: true, controller: this.props.pydio.Controller }))
-                        ),
-                        React.createElement(Toolbar, _extends({}, this.props, { id: 'main-toolbar', toolbars: uniqueNode ? ["minisite_toolbar"] : ["info_panel"], groupOtherList: uniqueNode ? [] : ["change_main", "more", "change", "remote"], renderingType: 'button', buttonStyle: styles.buttonsStyle })),
+                        !uniqueNode && React.createElement(IconButtonMenu, _extends({}, this.props, {
+                            id: 'create-button-menu',
+                            toolbars: ["upload", "create"],
+                            buttonTitle: this.props.pydio.MessageHash['198'],
+                            buttonClassName: "mdi mdi-folder-plus",
+                            buttonStyle: { color: 'white' },
+                            controller: this.props.pydio.Controller
+                        })),
                         React.createElement('div', { style: { flex: 1 } }),
                         React.createElement(ListPaginator, { id: 'paginator-toolbar', dataModel: this.props.pydio.getContextHolder(), toolbarDisplay: true }),
-                        !skipDisplayToolbar && !uniqueNode && React.createElement(Toolbar, _extends({}, this.props, { id: 'display-toolbar', toolbars: ["display_toolbar"], renderingType: 'icon-font', buttonStyle: styles.iconButtonsStyle }))
+                        React.createElement(Toolbar, _extends({}, this.props, { id: 'main-toolbar', toolbars: toolbars, groupOtherList: uniqueNode ? [] : ["change_main", "more", "change", "remote"], renderingType: 'icon-font', buttonStyle: styles.buttonsStyle }))
                     )
-                ),
-                minisiteMode !== 'embed' && React.createElement(ConfigLogo, { pydio: this.props.pydio, style: { height: 90 } })
+                )
             ),
             this.props.children,
             React.createElement(
@@ -443,7 +535,8 @@ var FolderMinisite = React.createClass({
             React.createElement(
                 'div',
                 { style: { backgroundColor: 'white' }, className: 'layout-fill vertical-layout' },
-                React.createElement(MainFilesList, _extends({ ref: 'list' }, this.props))
+                React.createElement(MainFilesList, _extends({ ref: 'list' }, this.props)),
+                React.createElement(Copyright, { mode: "insert" })
             ),
             React.createElement(EditionPanel, this.props)
         );
@@ -467,7 +560,7 @@ var FileMinisite = React.createClass({
 
         pydio.UI.registerEditorOpener(this);
 
-        var selectedMime = PathUtils.getAjxpMimeType(node);
+        var selectedMime = _pydioUtilPath2['default'].getAjxpMimeType(node);
         var editors = pydio.Registry.findEditorsForMime(selectedMime, false);
         if (editors.length && editors[0].openable) {
             (function () {
@@ -545,7 +638,8 @@ var FileMinisite = React.createClass({
             React.createElement(
                 'div',
                 { className: 'editor_container vertical_layout vertical_fit', style: { backgroundColor: 'white' } },
-                React.createElement(Editor, { displayToolbar: false, style: { display: "flex", flex: 1 } })
+                React.createElement(Editor, { displayToolbar: false, style: { display: "flex", flex: 1 } }),
+                React.createElement(Copyright, { mode: "overlay" })
             )
         );
     }
@@ -565,9 +659,10 @@ var DropZoneMinisite = React.createClass({
                 { className: 'vertical_fit vertical_layout', style: { backgroundColor: 'white' } },
                 React.createElement(
                     'div',
-                    { className: 'minisite-dropzone vertical_fit vertical_layout' },
+                    { className: 'vertical_fit vertical_layout', style: { margin: 16, marginBottom: 2, border: '2px dashed #CFD8DC', borderRadius: 4 } },
                     React.createElement(MainFilesList, _extends({ ref: 'list' }, this.props))
-                )
+                ),
+                React.createElement(Copyright, { mode: "insert", style: { backgroundColor: 'white' } })
             ),
             React.createElement(EditionPanel, this.props)
         );
@@ -575,8 +670,8 @@ var DropZoneMinisite = React.createClass({
 
 });
 
-var FilmStripMinisite = (function (_React$Component2) {
-    _inherits(FilmStripMinisite, _React$Component2);
+var FilmStripMinisite = (function (_React$Component3) {
+    _inherits(FilmStripMinisite, _React$Component3);
 
     function FilmStripMinisite() {
         _classCallCheck(this, FilmStripMinisite);
@@ -609,7 +704,7 @@ var FilmStripMinisite = (function (_React$Component2) {
 
             if (!node || !node.isLeaf()) return;
 
-            var selectedMime = PathUtils.getAjxpMimeType(node);
+            var selectedMime = _pydioUtilPath2['default'].getAjxpMimeType(node);
             var editors = pydio.Registry.findEditorsForMime(selectedMime, false);
             if (editors.length && editors[0].openable) {
                 (function () {
@@ -698,7 +793,8 @@ var FilmStripMinisite = (function (_React$Component2) {
                 React.createElement(
                     MaterialUI.Paper,
                     { zDepth: 2, className: 'vertical_layout', style: { height: 160, backgroundColor: this.props.muiTheme.appBar.color, zIndex: 1 } },
-                    React.createElement(MainFilesList, _extends({ ref: 'list' }, this.props, { horizontalRibbon: true, displayMode: "grid-160" }))
+                    React.createElement(MainFilesList, _extends({ ref: 'list' }, this.props, { horizontalRibbon: true, displayMode: "grid-160" })),
+                    React.createElement(Copyright, { mode: "insert" })
                 )
             );
         }

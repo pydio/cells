@@ -2044,7 +2044,8 @@ div.menu.desktop a span.ajxp_icon_span {
   min-width: 0 !important;
 }
 #info_panel .panelCard .primaryToolbar .action-open_with button > div > span {
-  padding: 0 !important;
+  padding-right: 4px !important;
+  padding-left: 4px !important;
 }
 #info_panel .panelCard .primaryToolbar .action-open_with button > div > span > span .button-icon {
   display: none;

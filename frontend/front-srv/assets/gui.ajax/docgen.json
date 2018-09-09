@@ -34050,6 +34050,108 @@
         "require": "const {SortColumns} = require('pydio').requireLib('components')"
       }
     ],
+    "Components/menu/ButtonComposed.js": [
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "showMenu",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "menuClicked",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "index",
+                "type": null
+              },
+              {
+                "name": "object",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "buttonTitle": {
+            "type": {
+              "name": "union",
+              "value": [
+                {
+                  "name": "string"
+                },
+                {
+                  "name": "object"
+                }
+              ]
+            },
+            "required": true,
+            "description": ""
+          },
+          "masterAction": {
+            "type": {
+              "name": "func"
+            },
+            "required": true,
+            "description": ""
+          },
+          "menuItems": {
+            "type": {
+              "name": "array"
+            },
+            "required": true,
+            "description": ""
+          },
+          "className": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
+          "raised": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false,
+            "description": ""
+          },
+          "direction": {
+            "type": {
+              "name": "enum",
+              "value": [
+                {
+                  "value": "'left'",
+                  "computed": false
+                },
+                {
+                  "value": "'right'",
+                  "computed": false
+                }
+              ]
+            },
+            "required": false,
+            "description": ""
+          }
+        },
+        "require": "const {ButtonComposed} = require('pydio').requireLib('components')"
+      }
+    ],
     "Components/menu/ButtonMenu.js": [
       {
         "description": "",
@@ -41238,6 +41340,11 @@
       },
       {
         "description": "",
+        "displayName": "Copyright",
+        "methods": []
+      },
+      {
+        "description": "",
         "displayName": "FilmStripMinisite",
         "methods": [
           {
@@ -42117,6 +42224,7 @@
     "dialog/links/PublicLinkTemplate.js": [
       {
         "description": "",
+        "displayName": "PublicLinkTemplate",
         "methods": [
           {
             "name": "onDropDownChange",
@@ -42138,17 +42246,7 @@
             ],
             "returns": null
           }
-        ],
-        "props": {
-          "linkModel": {
-            "type": {
-              "name": "instanceOf",
-              "value": "LinkModel"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
+        ]
       }
     ],
     "dialog/links/SecureOptions.js": [

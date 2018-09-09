@@ -1,6 +1,6 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
+ * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio Cells.
  *
  * Pydio is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,13 +17,11 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-
 import Utils from './Utils'
-const React = require('react')
-const ReactDOM = require('react-dom')
-const {Menu} = require('material-ui')
-const Controller = require('pydio/model/controller')
+import MenuItemsConsumer from './MenuItemsConsumer'
+import React from "react";
+import ReactDOM from "react-dom";
+import {Popover, RaisedButton, FlatButton} from "material-ui";
 
 const ButtonMenu = React.createClass({
 
@@ -35,18 +33,18 @@ const ButtonMenu = React.createClass({
         direction   : React.PropTypes.oneOf(['left', 'right'])
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
         if(this.props.openOnEvent){
             this.props.pydio.observe(this.props.openOnEvent, () => { this.showMenu();});
         }
     },
 
-    getInitialState: function(){
+    getInitialState(){
         return {showMenu: false};
     },
 
 
-    showMenu: function(event){
+    showMenu(event){
         let anchor;
         if(event){
             anchor = event.currentTarget;
@@ -59,13 +57,13 @@ const ButtonMenu = React.createClass({
         })
     },
 
-    menuClicked: function(event, index, object){
-        //object.payload();
+    menuClicked(event, index, object){
         this.setState({showMenu: false});
     },
 
-    render: function(){
-        let label = <span>{this.props.buttonTitle} <span className="icon-caret-down"></span></span>
+    render(){
+        const {showMenu, anchor} = this.state;
+        let label = <span style={{whiteSpace:'nowrap'}}>{this.props.buttonTitle} <span className="mdi mdi-menu-down"/></span>
         let button;
         const props = {
             primary: this.props.primary,
@@ -73,21 +71,22 @@ const ButtonMenu = React.createClass({
             disabled: this.props.disabeld,
             label: label,
             onTouchTap: this.showMenu,
+            labelStyle:{...this.props.buttonLabelStyle,paddingRight: 10},
+            style:{...this.props.buttonStyle, backgroundColor:(showMenu?'rgba(153,153,153,.2)':'')},
             onClick:(e=>e.stopPropagation())
         };
         const {menuItems} = this.props;
-        const {showMenu, anchor} = this.state;
         if(menuItems.length){
             if(this.props.raised){
-                button = <MaterialUI.RaisedButton {...props} style={this.props.buttonStyle} labelStyle={this.props.buttonLabelStyle} ref={(b) => {this._buttonDOM = ReactDOM.findDOMNode(b);}}/>;
+                button = <RaisedButton {...props} ref={(b) => {this._buttonDOM = ReactDOM.findDOMNode(b);}}/>;
             }else{
-                button = <MaterialUI.FlatButton {...props} style={this.props.buttonStyle} labelStyle={this.props.buttonLabelStyle} ref={(b) => {this._buttonDOM = ReactDOM.findDOMNode(b);}}/>;
+                button = <FlatButton {...props} ref={(b) => {this._buttonDOM = ReactDOM.findDOMNode(b);}}/>;
             }
         }
         return (
             <span id={this.props.id} className={this.props.className}>
                 {button}
-                <MaterialUI.Popover
+                <Popover
                     className="menuPopover"
                     open={showMenu}
                     anchorEl={anchor}
@@ -98,13 +97,12 @@ const ButtonMenu = React.createClass({
                     useLayerForClickAway={false}
                 >
                     {Utils.itemsToMenu(menuItems, this.menuClicked)}
-                </MaterialUI.Popover>
+                </Popover>
             </span>
         );
     }
 
 });
 
-import MenuItemsConsumer from './MenuItemsConsumer'
 
 export default MenuItemsConsumer(ButtonMenu)

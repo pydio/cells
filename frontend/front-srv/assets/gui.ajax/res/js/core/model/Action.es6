@@ -98,7 +98,8 @@ export default class Action extends Observable{
 			staticItems:null,
 			dynamicItems:null,
 			dynamicBuilderCode:null,
-            popoverContent: null
+            popoverContent: null,
+            masterAction: undefined
 		}, arguments[4] || {});
 
 		this.elements = [];
@@ -479,25 +480,28 @@ export default class Action extends Observable{
 						if(this.context.infoPanel) this.context.ajxpWidgets.push('InfoPanel');
 						if(this.context.actionBar) this.context.ajxpWidgets.push('ActionsToolbar');
 					}
-					else if(node.childNodes[j].nodeName == "selectionContext"){
+					else if(node.childNodes[j].nodeName === "selectionContext"){
 						this.attributesToObject(this.selectionContext, node.childNodes[j]);
 					}
 				}
 							
-			}else if(node.nodeName == "rightsContext"){
+			}else if(node.nodeName === "rightsContext"){
 				this.attributesToObject(this.rightsContext, node);
-			}else if(node.nodeName == "subMenu"){
+			}else if(node.nodeName === "subMenu"){
 				this.options.subMenu = true;
-				if(node.getAttribute("updateImageOnSelect") && node.getAttribute("updateImageOnSelect") == "true"){
+				if(node.getAttribute("updateImageOnSelect") && node.getAttribute("updateImageOnSelect") === "true"){
 					this.options.subMenuUpdateImage = true;
 				}
-				if(node.getAttribute("updateTitleOnSelect") && node.getAttribute("updateTitleOnSelect") == "true"){
+				if(node.getAttribute("updateTitleOnSelect") && node.getAttribute("updateTitleOnSelect") === "true"){
 					this.options.subMenuUpdateTitle = true;
 				}
+				if(node.getAttribute("masterAction")){
+				    this.subMenuItems.masterAction = node.getAttribute("masterAction");
+                }
 				for(j=0;j<node.childNodes.length;j++){
-					if(node.childNodes[j].nodeName == "staticItems" || node.childNodes[j].nodeName == "dynamicItems"){
+					if(node.childNodes[j].nodeName === "staticItems" || node.childNodes[j].nodeName === "dynamicItems"){
 						this.subMenuItems[node.childNodes[j].nodeName] = [];
-						for(var k=0;k<node.childNodes[j].childNodes.length;k++){
+						for(let k=0;k<node.childNodes[j].childNodes.length;k++){
 							if(node.childNodes[j].childNodes[k].nodeName.startsWith("item")){
 								var item = {};
 								for(var z=0;z<node.childNodes[j].childNodes[k].attributes.length;z++){
@@ -507,7 +511,7 @@ export default class Action extends Observable{
 								this.subMenuItems[node.childNodes[j].nodeName].push(item);
 							}
 						}
-					}else if(node.childNodes[j].nodeName == "dynamicBuilder"){
+					}else if(node.childNodes[j].nodeName === "dynamicBuilder"){
                         if(node.childNodes[j].getAttribute("module")){
                             this.subMenuItems.dynamicBuilderModule = node.childNodes[j].getAttribute("module");
                         }else{

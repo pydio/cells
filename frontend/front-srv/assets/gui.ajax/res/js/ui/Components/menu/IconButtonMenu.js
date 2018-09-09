@@ -42,24 +42,28 @@ class IconButtonMenu extends React.Component{
     }
 
     render(){
+        const {menuItems, className, buttonTitle, buttonClassName, buttonStyle, popoverDirection, popoverTargetPosition, menuProps} = this.props;
+        if(!menuItems.length) {
+            return null;
+        }
         return (
-            <span className={"toolbars-button-menu " + (this.props.className ? this.props.className  : '')}>
+            <span className={"toolbars-button-menu " + (className ? className  : '')}>
                     <IconButton
                         ref="menuButton"
-                        tooltip={this.props.buttonTitle}
-                        iconClassName={this.props.buttonClassName}
+                        tooltip={buttonTitle}
+                        iconClassName={buttonClassName}
                         onTouchTap={this.showMenu.bind(this)}
-                        iconStyle={this.props.buttonStyle}
+                        iconStyle={buttonStyle}
                     />
                     <Popover
                         open={this.state.showMenu}
                         anchorEl={this.state.anchor}
-                        anchorOrigin={{horizontal: this.props.popoverDirection || 'right', vertical: this.props.popoverTargetPosition || 'bottom'}}
-                        targetOrigin={{horizontal: this.props.popoverDirection || 'right', vertical: 'top'}}
+                        anchorOrigin={{horizontal: popoverDirection || 'right', vertical: popoverTargetPosition || 'bottom'}}
+                        targetOrigin={{horizontal: popoverDirection || 'right', vertical: 'top'}}
                         onRequestClose={() => {this.setState({showMenu: false})}}
                         useLayerForClickAway={false}
                     >
-                        {Utils.itemsToMenu(this.props.menuItems, this.closeMenu.bind(this), false, this.props.menuProps || undefined)}
+                        {Utils.itemsToMenu(menuItems, this.closeMenu.bind(this), false, menuProps || undefined)}
                     </Popover>
                 </span>
         );

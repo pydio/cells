@@ -107,7 +107,7 @@
                 <gui text="462" title="462" iconClass="mdi mdi-eye-outline" accessKey="preview_access_key" hasAccessKey="true">
                     <context selection="true" dir="" recycle="hidden"  behaviour="hidden"
                              actionBar="true" contextMenu="true" infoPanel="false"
-                             actionBarGroup="inline,info_panel" inZip="false">
+                             actionBarGroup="inline" inZip="false">
                     </context>
                     <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="PYDIO_MIMES_EDITABLE,^ajxp_browsable_archive,^zip" behaviour="hidden"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
@@ -116,14 +116,14 @@
                 </processing>
             </action>
             <action name="open_with" fileDefault="true">
-                <gui text="316" title="316" iconClass="mdi mdi-eye-outline" accessKey="open_with_access" hasAccessKey="true">
+                <gui text="411" title="411" iconClass="mdi mdi-eye-outline" accessKey="open_with_access" hasAccessKey="true">
                     <context selection="true" dir="" recycle="hidden"  behaviour="hidden"
                              actionBar="true" contextMenu="true" infoPanel="false"
                              actionBarGroup="0_get,info_panel,minisite_toolbar" inZip="false">
                     </context>
                     <selectionContext dir="false" file="true" recycle="false" unique="true" allowedMimes="PYDIO_MIMES_EDITABLE,^ajxp_browsable_archive,^zip" behaviour="hidden"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
-                <subMenu>
+                <subMenu masterAction="open_with_unique">
                     <dynamicBuilder module="FSActions.Listeners.openWithDynamicBuilder"/>
                 </subMenu>
                 <processing>

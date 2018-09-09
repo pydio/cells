@@ -4,9 +4,11 @@ const Color = require('color');
 import {muiThemeable} from 'material-ui/styles';
 import {connect} from 'react-redux';
 import {compose} from 'redux';
+import PathUtils from 'pydio/util/path'
+import DOMUtils from 'pydio/util/dom'
 
 const { Breadcrumb, SearchForm, MainFilesList, Editor, EditionPanel } = Pydio.requireLib('workspaces');
-const { ContextMenu, ButtonMenu, Toolbar, ListPaginator, ClipboardTextField } = Pydio.requireLib('components');
+const { ContextMenu, IconButtonMenu, Toolbar, ListPaginator, ClipboardTextField } = Pydio.requireLib('components');
 const { withProgressiveBg } = Pydio.requireLib('boot');
 const { EditorActions, dropProvider } = Pydio.requireLib('hoc');
 
@@ -116,43 +118,74 @@ let DLTemplate = React.createClass({
     render(){
 
         const {bgStyle} = this.props;
-        const style = {...bgStyle,
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            width: '100%'
+        const styles = {
+            main: {...bgStyle,
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%'
+            },
+            block: {
+                cursor: 'pointer',
+                width: 300,
+                margin: '0 auto',
+                textAlign: 'center',
+                background: 'rgba(255, 255, 255, 0.91)',
+                padding: 20,
+                borderRadius: 4,
+                boxShadow: '0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)'
+            },
+            logo: {
+                width:230,
+                margin:'-50px auto 0'
+            },
+            filename: {
+                fontSize: 22,
+                lineHeight: '22px',
+                wordBreak: 'break-all'
+            },
+            fileIcon: {
+                fontSize:180,
+                color:this.props.muiTheme.palette.primary1Color
+            },
+            dlIcon: {
+                position:'absolute',
+                top:90,
+                left:80,
+                fontSize:60,
+                color:'#f4f4f4',
+                transition:DOMUtils.getBeziersTransition()
+            }
         };
 
         if(!this.props.pydio.user){
-            return <div className="vertical_fit" style={{...style, width:'100%'}}></div>;
+            return <div className="vertical_fit" style={{...styles.main, width:'100%'}}></div>;
         }
-        let name1, name2, name3, owner;
+        let fileName;
         let classNames = ['download-block'];
         if(this.state && this.state.repoObject){
-            owner = this.state.repoObject.getOwner();
-            name1 = '%1 shared'.replace('%1', owner);
-            name2 = this.state.repoObject.getLabel();
-            name3 = 'with you';
+            fileName = this.state.repoObject.getLabel();
         }
         let click = null;
-        let fileDetails = <div className="dl-details">{this.props.pydio.MessageHash[466]}</div> ;
+        let fileDetails = <div style={{fontSize:13,lineHeight:'18px'}}>{this.props.pydio.MessageHash[466]}</div> ;
         if(this.state && this.state.node){
             click = this.triggerDL.bind(this);
+            const bytesize = this.state.node.getMetadata().get('bytesize');
+            const txtColor = 'rgba(0,0,0,.43)';
             fileDetails = (
-                <div className="dl-details">
-                    <div className="row">
-                        <span className="label">{this.props.pydio.MessageHash[503]}</span>
-                        <span className="value">{this.state.node.getMetadata().get('filesize')}</span>
+                <div style={{fontSize:13,lineHeight:'18px', color:txtColor}}>
+                    <div style={{display:'flex'}}>
+                        <div style={{flex:1,textAlign:'right',paddingRight:6,fontWeight: 500}}>{this.props.pydio.MessageHash[503]}</div>
+                        <div style={{flex:1,textAlign:'left', color:'rgba(0,0,0,.73)'}}>{PathUtils.roundFileSize(bytesize)}</div>
                     </div>
-                    <div className="click-legend">{this.props.pydio.MessageHash['share_center.231']}</div>
+                    <div style={{fontSize:12,marginTop:10}}>{this.props.pydio.MessageHash['share_center.231']}</div>
                 </div>
             );
-        }else{
-            classNames.push('not-ready');
         }
         if(this.state && this.state.downloadStarted){
-            classNames.push('dl-started');
+            styles.dlIcon.opacity = .3;
         }
         let sharePageAction = this.props.pydio.Controller.getActionByName('share_current_page');
         let shareButton;
@@ -164,13 +197,13 @@ let DLTemplate = React.createClass({
             );
         }
         return (
-            <div style={style}>
-                <ConfigLogo pydio={this.props.pydio} style={{width:230, margin:'-50px auto 0'}}/>
-                <div className={classNames.join(' ')} onClick={click}>
-                    <span className="dl-filename"><Textfit min={12} max={25} perfectFit={false} mode="single">{name2}</Textfit></span>
-                    <div className="dl-icon">
-                        <span className="mdi mdi-file"/>
-                        <span className="mdi mdi-download"/>
+            <div style={styles.main}>
+                <ConfigLogo pydio={this.props.pydio} style={styles.logo}/>
+                <div className={classNames.join(' ')} onClick={click} style={styles.block}>
+                    <span style={styles.filename}><Textfit min={12} max={25} perfectFit={false} mode="single">{fileName}</Textfit></span>
+                    <div style={{width:220,margin:'0 auto', position:'relative'}}>
+                        <span style={styles.fileIcon} className={"mdi mdi-file"}/>
+                        <span style={styles.dlIcon} className="mdi mdi-download"/>
                     </div>
                     {fileDetails}
                 </div>
@@ -179,6 +212,7 @@ let DLTemplate = React.createClass({
                         <ClipboardTextField floatingLabelText={sharePageAction.options.text} inputValue={document.location.href} getMessage={(id)=>this.props.pydio.MessageHash[id]} buttonStyle={{right:-8, bottom:9}} />
                     </div>
                 }
+                <Copyright mode={"block"}/>
                 {!(this.state && this.state.displayShareLink) &&
                     shareButton
                 }
@@ -201,7 +235,7 @@ class ConfigLogo extends React.Component{
         let logo = pydio.Registry.getPluginConfigs(pluginName).get(pluginParameter);
         let url;
         if(!logo){
-            logo = pydio.Parameters.get('ajxpResourcesFolder') + '/themes/common/images/PydioLogo250.png';
+            logo = pydio.Parameters.get('ajxpResourcesFolder') + '/themes/common/images/PydioLogoSquare.png';
         }
         if(logo){
             if(logo.indexOf('plug/') === 0){
@@ -211,6 +245,39 @@ class ConfigLogo extends React.Component{
             }
         }
         return <img src={url} style={this.props.style}/>
+    }
+}
+
+class Copyright extends React.Component {
+    render(){
+        const {mode, style} = this.props;
+        let s;
+        if(mode === "insert"){
+            s = {
+                textAlign: 'right',
+                padding: '6px 16px',
+                backgroundColor: '#f7f7f7',
+                color: 'black'
+            };
+        } else if(mode === "overlay") {
+            s = {
+                position:'absolute',
+                bottom: 0,
+                right: 0,
+                color: 'rgba(255,255,255,0.8)',
+                padding: '6px 16px',
+            }
+        } else if(mode === "block") {
+            s = {
+                textAlign: 'center',
+                padding: '6px 16px',
+                color: 'rgba(255,255,255)'
+            }
+        }
+        return (
+            <div style={{...s,...style}}>
+                <a href={"https://pydio.com"} style={{fontWeight: 500, color:s.color}}>Pydio Cells</a> - secure file sharing
+            </div>);
     }
 }
 
@@ -237,7 +304,7 @@ let StandardLayout = React.createClass({
     },
 
     getDefaultProps(){
-        return {minisiteMode: 'standard', uniqueNode:true};
+        return {minisiteMode: 'embed', uniqueNode:true};
     },
 
     render(){
@@ -246,59 +313,55 @@ let StandardLayout = React.createClass({
             appBarStyle : {
                 zIndex: 1,
                 backgroundColor: this.props.muiTheme.palette.primary1Color,
-                display:'flex'
+                display:'flex',
+                alignItems:'center'
             },
             buttonsStyle : {
-                color: this.props.muiTheme.appBar.textColor
-            },
-            iconButtonsStyle :{
-                color: Color(this.props.muiTheme.palette.primary1Color).darken(0.4).toString()
-            },
-            raisedButtonStyle : {
-                height: 30
-            },
-            raisedButtonLabelStyle : {
-                height: 30,
-                lineHeight: '30px'
+                color: Color(this.props.muiTheme.appBar.textColor).alpha(0.8).toString()
             }
         };
 
-        const {minisiteMode, showSearchForm, uniqueNode, skipDisplayToolbar, bgStyle} = this.props;
+        const {showSearchForm, uniqueNode, skipDisplayToolbar, bgStyle} = this.props;
 
         if(!this.props.pydio.user){
             return <div className="vertical_fit vertical_layout" style={bgStyle}/>;
+        }
+        let toolbars = [];
+        if(uniqueNode){
+            toolbars.push("minisite_toolbar");
+        } else {
+            toolbars.push("info_panel");
+            if(!skipDisplayToolbar){
+                toolbars.push("display_toolbar");
+            }
         }
 
         return (
             <div className="vertical_fit vertical_layout" style={bgStyle}>
                 <MaterialUI.Paper zDepth={1} rounded={false} style={styles.appBarStyle}>
-                    {minisiteMode === 'embed' &&
-                        <ConfigLogo pydio={this.props.pydio} style={{height:50}}/>
-                    }
-                    <div style={{flex:1, position:'relative'}}>
-                        {minisiteMode !== 'embed' &&
-                            <div id="workspace_toolbar" style={{display:'flex'}}>
-                                <Breadcrumb {...this.props} rootStyle={{padding: 14, maxWidth:null}}/>
-                                {showSearchForm && <SearchForm {...this.props} uniqueSearchScope="ws" style={{marginTop: 5}}/>}
-                            </div>
-                        }
+                    <ConfigLogo pydio={this.props.pydio} style={{height:50}}/>
+                    <div id="workspace_toolbar" style={{display:'flex', flex: 1}}>
+                        <Breadcrumb {...this.props} rootStyle={{padding: 14, maxWidth:null}}/>
+                        {showSearchForm && <SearchForm {...this.props} uniqueSearchScope="ws" style={{marginTop: 5}}/>}
+                    </div>
+                    <div style={{position:'relative'}}>
                         <div id="main_toolbar" style={{display:'flex', padding: '0 8px'}}>
                             {!uniqueNode &&
-                                <span style={{marginTop:7}}>
-                                    <ButtonMenu {...this.props} id="create-button-menu" toolbars={["upload", "create"]} buttonTitle={this.props.pydio.MessageHash['198']} raised={true} secondary={true} controller={this.props.pydio.Controller}/>
-                                </span>
+                                <IconButtonMenu
+                                    {...this.props}
+                                    id="create-button-menu"
+                                    toolbars={["upload", "create"]}
+                                    buttonTitle={this.props.pydio.MessageHash['198']}
+                                    buttonClassName={"mdi mdi-folder-plus"}
+                                    buttonStyle={{color:'white'}}
+                                    controller={this.props.pydio.Controller}
+                                />
                             }
-                            <Toolbar {...this.props} id="main-toolbar" toolbars={uniqueNode ? ["minisite_toolbar"] : ["info_panel"]} groupOtherList={uniqueNode ? [] : ["change_main", "more", "change", "remote"]} renderingType="button" buttonStyle={styles.buttonsStyle}/>
                             <div style={{flex:1}}></div>
                             <ListPaginator id="paginator-toolbar" dataModel={this.props.pydio.getContextHolder()} toolbarDisplay={true}/>
-                            {!skipDisplayToolbar && !uniqueNode &&
-                                <Toolbar {...this.props} id="display-toolbar" toolbars={["display_toolbar"]} renderingType="icon-font" buttonStyle={styles.iconButtonsStyle}/>
-                            }
+                            <Toolbar {...this.props} id="main-toolbar" toolbars={toolbars} groupOtherList={uniqueNode ? [] : ["change_main", "more", "change", "remote"]} renderingType="icon-font" buttonStyle={styles.buttonsStyle}/>
                         </div>
                     </div>
-                    {minisiteMode !== 'embed' &&
-                        <ConfigLogo pydio={this.props.pydio} style={{height:90}}/>
-                    }
                 </MaterialUI.Paper>
                 {this.props.children}
                 <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>
@@ -320,6 +383,7 @@ const FolderMinisite = React.createClass({
             <StandardLayout {...this.props} uniqueNode={false} showSearchForm={this.props.pydio.getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')}>
                 <div style={{backgroundColor:'white'}} className="layout-fill vertical-layout">
                     <MainFilesList ref="list" {...this.props}/>
+                    <Copyright mode={"insert"}/>
                 </div>
                 <EditionPanel {...this.props}/>
             </StandardLayout>
@@ -419,6 +483,7 @@ const FileMinisite = React.createClass({
             <StandardLayout {...this.props} uniqueNode={true} skipDisplayToolbar={true}>
                 <div className="editor_container vertical_layout vertical_fit" style={{backgroundColor:'white'}}>
                     <Editor displayToolbar={false} style={{display: "flex", flex: 1}}/>
+                    <Copyright mode={"overlay"}/>
                 </div>
             </StandardLayout>
         );
@@ -435,9 +500,10 @@ const DropZoneMinisite = React.createClass({
         return (
             <StandardLayout {...this.props}>
                 <div className="vertical_fit vertical_layout" style={{backgroundColor:'white'}}>
-                    <div className="minisite-dropzone vertical_fit vertical_layout">
+                    <div className="vertical_fit vertical_layout" style={{margin: 16, marginBottom: 2,border: '2px dashed #CFD8DC',borderRadius: 4}}>
                         <MainFilesList ref="list" {...this.props}/>
                     </div>
+                    <Copyright mode={"insert"} style={{backgroundColor:'white'}}/>
                 </div>
                 <EditionPanel {...this.props}/>
             </StandardLayout>
@@ -555,6 +621,7 @@ class FilmStripMinisite extends React.Component{
                 </div>
                 <MaterialUI.Paper zDepth={2} className="vertical_layout" style={{height: 160, backgroundColor:this.props.muiTheme.appBar.color, zIndex:1}}>
                     <MainFilesList ref="list" {...this.props} horizontalRibbon={true} displayMode={"grid-160"}/>
+                    <Copyright mode={"insert"}/>
                 </MaterialUI.Paper>
             </StandardLayout>
         );

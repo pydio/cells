@@ -22,6 +22,7 @@ import React from 'react'
 import Utils from './Utils'
 import IconButtonMenu from './IconButtonMenu'
 import ButtonMenu from './ButtonMenu'
+import ButtonComposed from './ButtonComposed'
 import IconButtonPopover from './IconButtonPopover'
 import {FlatButton, IconButton, FloatingActionButton} from 'material-ui'
 
@@ -38,7 +39,7 @@ export default React.createClass({
         buttonMenuNoLabel: React.PropTypes.bool
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
         this._observer = function(){
             if(!this.isMounted()) return;
             this.setState({
@@ -52,7 +53,7 @@ export default React.createClass({
         }
     },
 
-    componentWillUnmount: function(){
+    componentWillUnmount(){
         if(this.props.controller === pydio.Controller){
             pydio.stopObserving("actions_refreshed", this._observer);
         }else {
@@ -60,7 +61,7 @@ export default React.createClass({
         }
     },
 
-    componentWillReceiveProps: function(nextProps){
+    componentWillReceiveProps(nextProps){
         if(nextProps.toolbars !== this.props.toolbars){
             this.setState({
                 groups:this.props.controller.getToolbarsActions(nextProps.toolbars, nextProps.groupOtherList)
@@ -68,13 +69,13 @@ export default React.createClass({
         }
     },
 
-    getInitialState: function(){
+    getInitialState(){
         return {
             groups:this.props.controller.getToolbarsActions(this.props.toolbars, this.props.groupOtherList)
         };
     },
 
-    getDefaultProps:function(){
+    getDefaultProps(){
         return {
             controller: global.pydio.Controller,
             renderingType:'button',
@@ -82,7 +83,7 @@ export default React.createClass({
         }
     },
 
-    render: function(){
+    render(){
         let {groups} = this.state;
         let actions = [];
         const {toolbars, renderingType, groupOtherList, buttonStyle,
@@ -91,11 +92,15 @@ export default React.createClass({
         if(groupOtherList.length){
             allToolbars = allToolbars.concat(['MORE_ACTION']);
         }
-        allToolbars.map(function(barName){
-            if(!groups.has(barName)) return;
-            groups.get(barName).map(function(action){
-                if(action.deny) return;
-                let menuItems, popoverContent, menuTitle , menuIcon;
+        allToolbars.map(barName => {
+            if(!groups.has(barName)) {
+                return;
+            }
+            groups.get(barName).map(action => {
+                if(action.deny) {
+                    return;
+                }
+                let menuItems, popoverContent, menuTitle , menuIcon, menuItemsUseMasterAction;
                 let actionName = action.options.name;
 
                 menuTitle = pydio.MessageHash[action.options.text_id] || action.options.text;
@@ -112,13 +117,19 @@ export default React.createClass({
                         }
                     });
                     menuItems = Utils.pydioActionsToItems(items);
+                    menuIcon = "mdi mdi-dots-vertical";
                 }else if(action.subMenuItems.staticItems){
                     menuItems = Utils.pydioActionsToItems(action.subMenuItems.staticItems);
                 }else if(action.subMenuItems.dynamicBuilder) {
                     menuItems = Utils.pydioActionsToItems(action.subMenuItems.dynamicBuilder(controller));
                 }else if(action.subMenuItems.popoverContent) {
                     popoverContent = action.subMenuItems.popoverContent;
-                }else{
+                }
+                if(menuItems && action.subMenuItems.masterAction) {
+                    const masterAction = controller.getActionByName(action.subMenuItems.masterAction);
+                    if(masterAction && !masterAction.deny){
+                        menuItemsUseMasterAction = () => {masterAction.apply()};
+                    }
                 }
                 let id = 'action-' + action.options.name;
                 if(renderingType === 'button-icon'){
@@ -126,14 +137,27 @@ export default React.createClass({
                 }
                 if(menuItems) {
                     if (renderingType === 'button' || renderingType === 'button-icon') {
-                        actions.push(<ButtonMenu
-                            key={actionName}
-                            className={id}
-                            buttonTitle={buttonMenuNoLabel ? '' : menuTitle}
-                            menuItems={menuItems}
-                            buttonLabelStyle={buttonStyle}
-                            direction={buttonMenuPopoverDirection}
-                        />);
+                        if (menuItemsUseMasterAction){
+                            actions.push(<ButtonComposed
+                                key={actionName}
+                                className={id}
+                                buttonTitle={menuTitle}
+                                menuItems={menuItems}
+                                masterAction={menuItemsUseMasterAction}
+                                buttonLabelStyle={buttonStyle}
+                                direction={buttonMenuPopoverDirection}
+                            />);
+
+                        } else {
+                            actions.push(<ButtonMenu
+                                key={actionName}
+                                className={id}
+                                buttonTitle={buttonMenuNoLabel ? '' : menuTitle}
+                                menuItems={menuItems}
+                                buttonLabelStyle={buttonStyle}
+                                direction={buttonMenuPopoverDirection}
+                            />);
+                        }
                     } else {
                         actions.push(<IconButtonMenu
                             key={actionName}
@@ -158,7 +182,7 @@ export default React.createClass({
                         popoverContent={popoverContent}
                     />);
                 }else{
-                    let click = function(synthEvent){action.apply();};
+                    let click = () => {action.apply();};
                     if(fabAction && fabAction === actionName) {
                         actions.push(<FloatingActionButton
                             key={actionName}

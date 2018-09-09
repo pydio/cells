@@ -40,7 +40,7 @@ module.exports = function(grunt) {
             js: {
                 expand: true,
                 cwd: 'res/build/',
-                src: ['ShareDialog.js'],
+                src: ['ShareDialog.js', 'ShareTemplates.js'],
                 dest: 'res/build/',
                 ext: '.js.gz'
             },

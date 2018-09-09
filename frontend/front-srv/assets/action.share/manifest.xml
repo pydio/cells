@@ -26,9 +26,6 @@
         <resources>
             <i18n namespace="share_center" remote="plug/action.share/res/i18n"/>
             <css file="plug/action.share/res/react-share-form.css" autoload="true"/>
-            <!--
-            <js file="plug/action.share/res/build/model/ShareModel.js" className="ReactModelShare"/>
-            -->
             <js file="plug/action.share/res/build/model/ShareActions.js" className="ShareActions"/>
             <js file="plug/action.share/res/build/ShareTemplates.js" className="ShareTemplates" depends="React,PydioComponents,PydioWorkspaces"/>
             <js file="plug/action.share/res/build/ShareInfoPanel.js" className="ShareInfoPanel" depends="React"/>
@@ -79,9 +76,6 @@
             <template name="unique_preview_download" element="pydio_unique_dl" position="top" label="Big download button"
                       namespace="ShareTemplates" component="DLTemplate" props='{"containerId":"pydio_unique_dl","imageBackgroundFromConfigs":"gui.ajax/CUSTOM_SHAREPAGE_BACKGROUND_"}'/>
 
-            <template name="minisite_embed_list" element="pydio_embed_template" position="top" label="share_center.155"
-                      namespace="ShareTemplates" component="FolderMinisite" props='{"containerId":"pydio_embed_template","minisiteMode":"embed","imageBackgroundFromConfigs":"gui.ajax/CUSTOM_SHAREPAGE_BACKGROUND_"}'/>
-
             <template name="minisite_dropbox" element="pydio_dropbox_template" position="top" label="share_center.163"
                       namespace="ShareTemplates" component="DropZoneMinisite" props='{"containerId":"pydio_dropbox_template","minisiteMode":"embed","imageBackgroundFromConfigs":"gui.ajax/CUSTOM_SHAREPAGE_BACKGROUND_"}'/>
 
@@ -90,7 +84,4 @@
             </component_config>
         </client_configs>
     </registry_contributions>
-    <dependencies>
-        <!--<activePlugin pluginName="access.STREAM_PROVIDER|access.ajxp_user|access.ajxp_conf|access.ajxp_admin"/>-->
-    </dependencies>
 </plugin>
