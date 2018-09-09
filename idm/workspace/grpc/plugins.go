@@ -48,7 +48,16 @@ func init() {
 		service.WithMicro(func(m micro.Service) error {
 			ctx := m.Options().Context
 
-			idm.RegisterWorkspaceServiceHandler(m.Options().Server, new(Handler))
+			h := new(Handler)
+			idm.RegisterWorkspaceServiceHandler(m.Options().Server, h)
+
+			// Register a cleaner for removing a workspace when there are no more ACLs on it.
+			wsCleaner := &WsCleaner{
+				Handler: h,
+			}
+			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, wsCleaner)); err != nil {
+				return err
+			}
 
 			// Register a cleaner on DeleteRole events to purge policies automatically
 			cleaner := &resources.PoliciesCleaner{

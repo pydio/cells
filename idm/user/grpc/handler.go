@@ -320,7 +320,20 @@ func (h *Handler) StreamUser(ctx context.Context, streamer idm.UserService_Strea
 // applyAutoApplies tries to find if some roles must be added to this user.
 // If necessary, it adds role to the list AFTER the groupRoles and before other roles.
 func (h *Handler) applyAutoApplies(usr *idm.User, autoApplies map[string][]*idm.Role) {
-	if len(autoApplies) == 0 || usr.Attributes == nil {
+	if usr.Attributes == nil {
+		return
+	}
+	// For hidden users, disable group roles inheritance
+	if _, ok := usr.Attributes["hidden"]; ok {
+		var newRoles []*idm.Role
+		for _, role := range usr.Roles {
+			if !role.GroupRole {
+				newRoles = append(newRoles, role)
+			}
+		}
+		usr.Roles = newRoles
+	}
+	if len(autoApplies) == 0 {
 		return
 	}
 	if profile, ok := usr.Attributes["profile"]; ok {

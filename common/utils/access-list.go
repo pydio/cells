@@ -404,8 +404,8 @@ func (a *AccessList) FlattenedFrontValues() *config.Map {
 			scope := acl.WorkspaceID
 			var iVal interface{}
 			if e := json.Unmarshal([]byte(value), &iVal); e != nil {
-				log.Logger(context.Background()).Error("Cannot parse config value")
-				continue
+				// May not be marshalled, use original string instead
+				iVal = value
 			}
 			parts := strings.Split(name, ":")
 			t := parts[0]

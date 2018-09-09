@@ -488,8 +488,9 @@ type Cspecial_rights struct {
 }
 
 type CsubMenu struct {
-	XMLName         xml.Name         `xml:"subMenu,omitempty" json:"subMenu,omitempty"`
-	CdynamicBuilder *CdynamicBuilder `xml:"dynamicBuilder,omitempty" json:"dynamicBuilder,omitempty"`
+	XMLName          xml.Name         `xml:"subMenu,omitempty" json:"subMenu,omitempty"`
+	AttrmasterAction string           `xml:"masterAction,attr,omitempty"  json:",omitempty"`
+	CdynamicBuilder  *CdynamicBuilder `xml:"dynamicBuilder,omitempty" json:"dynamicBuilder,omitempty"`
 }
 
 type Ctemplate struct {
