@@ -8,7 +8,7 @@ module.exports = function(grunt){
                 'res/js/core/*.es6',
                 'res/js/core/**/*.es6'
             ],
-                tasks:['babel:core', 'browserify:core', 'uglify:core', 'compress:boot'],
+                tasks:['babel:core', 'browserify:core', 'uglify:core', 'compress:mins'],
                 options:{
                 spawn:false
             }

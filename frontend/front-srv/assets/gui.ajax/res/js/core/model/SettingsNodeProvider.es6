@@ -102,11 +102,6 @@ export default class SettingsNodeProvider{
                     node.getMetadata().set('paginationData', paginationData);
                 }
                 node.setChildren(childrenNodes);
-                /*
-                childrenNodes.map(child => {
-                    node.addChild(child);
-                });
-                */
                 if(nodeCallback !== null){
                     node.replaceBy(node);
                     nodeCallback(node);
@@ -115,20 +110,20 @@ export default class SettingsNodeProvider{
             return;
         }
 
-        const client = PydioApi.getRestClient();
-        client.callApi('/frontend/settings-menu', 'GET', '',
-            [], [], [], null, null, ['application/json'], ['application/json'],
-            null).then(r => {
+        SettingsNodeProvider.loadMenu().then(data => {
                 // Check if a specific section path was required by navigation
                 const parts = LangUtils.trim(node.getPath(), '/').split('/').filter(k => k !== "");
                 let sectionPath;
-                if(parts.length === 1) {
-                    sectionPath = node.getPath();
+                let pagePath;
+                if(parts.length >= 1) {
+                    sectionPath = '/' + parts[0];
+                }
+                if(parts.length >= 2) {
+                    pagePath = node.getPath();
                 }
 
-                const data = r.response.body;
                 let childrenNodes = [];
-                if(data.__metadata__ && !sectionPath) {
+                if(data.__metadata__ && (!sectionPath && !pagePath)) {
                     for (let k in data.__metadata__) {
                         if (data.__metadata__.hasOwnProperty(k)) {
                             node.getMetadata().set(k, data.__metadata__[k]);
@@ -140,6 +135,17 @@ export default class SettingsNodeProvider{
                     data.Sections.map(section => {
                         const childNode = SettingsNodeProvider.parseSection('/', section, childCallback);
                         if(sectionPath && childNode.getPath() === sectionPath) {
+                            if (pagePath) {
+                                // We are looking for a specific child
+                                const children = childNode.getChildren();
+                                if(children.has(pagePath)) {
+                                    node.replaceBy(children.get(pagePath));
+                                    if (nodeCallback) {
+                                        nodeCallback(node);
+                                    }
+                                    return
+                                }
+                            }
                             // We are looking for this section, return this as the parent node
                             node.setChildren(childNode.getChildren());
                             node.replaceBy(childNode);
@@ -156,9 +162,7 @@ export default class SettingsNodeProvider{
                         }
                     })
                 }
-                childrenNodes.map(child => {
-                    node.addChild(child);
-                });
+                node.setChildren(childrenNodes);
                 if(nodeCallback !== null){
                     nodeCallback(node);
                 }
@@ -213,6 +217,27 @@ export default class SettingsNodeProvider{
             sectionNode.setLoaded(true);
         }
         return sectionNode
+    }
+
+    /**
+     * @return {Promise}
+     */
+    static loadMenu(){
+        if (PydioApi.LOADED_SETTINGS_MENU){
+            return Promise.resolve(PydioApi.LOADED_SETTINGS_MENU);
+        }
+        return new Promise((resolve, reject) => {
+            const client = PydioApi.getRestClient();
+            client.callApi('/frontend/settings-menu', 'GET', '',
+                [], [], [], null, null, ['application/json'], ['application/json'],
+                null).then(r => {
+                    PydioApi.LOADED_SETTINGS_MENU = r.response.body;
+                    resolve(r.response.body)
+            }).catch(e => {
+                reject(e);
+            });
+
+        })
     }
 
 }
