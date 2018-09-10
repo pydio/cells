@@ -134,11 +134,6 @@ var SettingsNodeProvider = (function () {
                         node.getMetadata().set('paginationData', paginationData);
                     }
                     node.setChildren(childrenNodes);
-                    /*
-                    childrenNodes.map(child => {
-                        node.addChild(child);
-                    });
-                    */
                     if (nodeCallback !== null) {
                         node.replaceBy(node);
                         nodeCallback(node);
@@ -152,20 +147,22 @@ var SettingsNodeProvider = (function () {
             if (typeof _ret === 'object') return _ret.v;
         }
 
-        var client = _httpPydioApi2['default'].getRestClient();
-        client.callApi('/frontend/settings-menu', 'GET', '', [], [], [], null, null, ['application/json'], ['application/json'], null).then(function (r) {
+        SettingsNodeProvider.loadMenu().then(function (data) {
             // Check if a specific section path was required by navigation
             var parts = _utilLangUtils2['default'].trim(node.getPath(), '/').split('/').filter(function (k) {
                 return k !== "";
             });
             var sectionPath = undefined;
-            if (parts.length === 1) {
-                sectionPath = node.getPath();
+            var pagePath = undefined;
+            if (parts.length >= 1) {
+                sectionPath = '/' + parts[0];
+            }
+            if (parts.length >= 2) {
+                pagePath = node.getPath();
             }
 
-            var data = r.response.body;
             var childrenNodes = [];
-            if (data.__metadata__ && !sectionPath) {
+            if (data.__metadata__ && !sectionPath && !pagePath) {
                 for (var k in data.__metadata__) {
                     if (data.__metadata__.hasOwnProperty(k)) {
                         node.getMetadata().set(k, data.__metadata__[k]);
@@ -177,6 +174,17 @@ var SettingsNodeProvider = (function () {
                 data.Sections.map(function (section) {
                     var childNode = SettingsNodeProvider.parseSection('/', section, childCallback);
                     if (sectionPath && childNode.getPath() === sectionPath) {
+                        if (pagePath) {
+                            // We are looking for a specific child
+                            var children = childNode.getChildren();
+                            if (children.has(pagePath)) {
+                                node.replaceBy(children.get(pagePath));
+                                if (nodeCallback) {
+                                    nodeCallback(node);
+                                }
+                                return;
+                            }
+                        }
                         // We are looking for this section, return this as the parent node
                         node.setChildren(childNode.getChildren());
                         node.replaceBy(childNode);
@@ -193,9 +201,7 @@ var SettingsNodeProvider = (function () {
                     }
                 });
             }
-            childrenNodes.map(function (child) {
-                node.addChild(child);
-            });
+            node.setChildren(childrenNodes);
             if (nodeCallback !== null) {
                 nodeCallback(node);
             }
@@ -253,6 +259,25 @@ var SettingsNodeProvider = (function () {
             sectionNode.setLoaded(true);
         }
         return sectionNode;
+    };
+
+    /**
+     * @return {Promise}
+     */
+
+    SettingsNodeProvider.loadMenu = function loadMenu() {
+        if (_httpPydioApi2['default'].LOADED_SETTINGS_MENU) {
+            return Promise.resolve(_httpPydioApi2['default'].LOADED_SETTINGS_MENU);
+        }
+        return new Promise(function (resolve, reject) {
+            var client = _httpPydioApi2['default'].getRestClient();
+            client.callApi('/frontend/settings-menu', 'GET', '', [], [], [], null, null, ['application/json'], ['application/json'], null).then(function (r) {
+                _httpPydioApi2['default'].LOADED_SETTINGS_MENU = r.response.body;
+                resolve(r.response.body);
+            })['catch'](function (e) {
+                reject(e);
+            });
+        });
     };
 
     return SettingsNodeProvider;
