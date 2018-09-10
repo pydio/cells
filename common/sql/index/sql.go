@@ -258,6 +258,16 @@ func init() {
 			order by t.level DESC`, getMPathEqualsOrLike("t", []byte(mpathes[0])))
 	}
 
+	queries["childrenCount"] = func(mpathes ...string) string {
+		return fmt.Sprintf(`
+			select count(t.uuid)
+			from %%PREFIX%%_idx_tree t, %%PREFIX%%_idx_nodes n
+			where %s
+			and t.uuid = n.uuid
+			and t.level = ?
+			order by n.name`, getMPathLike("t", []byte(mpathes[0])))
+	}
+
 }
 
 // IndexSQL implementation
@@ -1115,6 +1125,34 @@ func (dao *IndexSQL) GetNodeFirstAvailableChildIndex(reqPath utils.MPath) (uint6
 	}
 
 	return uint64(max + 1), nil
+}
+
+// GetNodeChildrenCount List
+func (dao *IndexSQL) GetNodeChildrenCount(path utils.MPath) int {
+
+	dao.Lock()
+	defer dao.Unlock()
+
+	node := utils.NewTreeNode()
+	node.SetMPath(path...)
+
+	mpath := node.MPath
+
+	res := 0
+
+	// First we check if we already have an object with the same key
+	if stmt := dao.GetStmt("childrenCount", mpath.String()); stmt != nil {
+		defer stmt.Close()
+
+		row := stmt.QueryRow(len(path) + 1)
+		if row == nil {
+			return 0
+		}
+
+		row.Scan(&res)
+	}
+
+	return res
 }
 
 // GetNodeChildren List

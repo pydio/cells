@@ -190,6 +190,14 @@ func TestMysql(t *testing.T) {
 		So(node.Node, ShouldResemble, mockLongNodeChild2.Node)
 	})
 
+	// Getting children count
+	Convey("Test Getting the Children Count of a node", t, func() {
+
+		count := getDAO(ctxNoCache).GetNodeChildrenCount(mockLongNodeMPath)
+
+		So(count, ShouldEqual, 2)
+	})
+
 	// Setting a file
 	Convey("Test Getting the Children of a node", t, func() {
 

@@ -533,6 +533,20 @@ func (d *daocache) GetNodeFirstAvailableChildIndex(path utils.MPath) (uint64, er
 
 }
 
+func (d *daocache) GetNodeChildrenCount(path utils.MPath) int {
+
+	d.mutex.RLock()
+	defer d.mutex.RUnlock()
+
+	res := 0
+
+	if nodes, ok := d.childCache[path.String()]; ok {
+		res = len(nodes)
+	}
+
+	return res
+}
+
 func (d *daocache) GetNodeChildren(path utils.MPath) chan *utils.TreeNode {
 
 	c := make(chan *utils.TreeNode)
@@ -551,6 +565,7 @@ func (d *daocache) GetNodeChildren(path utils.MPath) chan *utils.TreeNode {
 
 	return c
 }
+
 func (d *daocache) GetNodeTree(path utils.MPath) chan *utils.TreeNode {
 	c := make(chan *utils.TreeNode)
 

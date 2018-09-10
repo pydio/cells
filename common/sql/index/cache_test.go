@@ -240,6 +240,17 @@ func TestMysqlWithCache(t *testing.T) {
 	})
 
 	// Setting a file
+	Convey("Test Getting the Children Count of a node", t, func() {
+		newSession()
+
+		count := getDAO(ctxWithCache).GetNodeChildren(mockLongNodeMPath)
+
+		getDAO(ctxWithCache).Flush(true)
+
+		So(count, ShouldEqual, 2)
+	})
+
+	// Setting a file
 	Convey("Test Getting the Children of a node", t, func() {
 		newSession()
 
