@@ -92,7 +92,7 @@ export default class PydioDataModel extends Observable{
 		}
 		let paginationPage = null;
 		if(ajxpNode.getMetadata().has('paginationData') && ajxpNode.getMetadata().get('paginationData').has('new_page')
-			&& ajxpNode.getMetadata().get('paginationData').get('new_page') != ajxpNode.getMetadata().get('paginationData').get('current')){
+			&& ajxpNode.getMetadata().get('paginationData').get('new_page') !== ajxpNode.getMetadata().get('paginationData').get('current')){
 				paginationPage = ajxpNode.getMetadata().get('paginationData').get('new_page');
 				forceReload = true;
 		}

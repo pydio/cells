@@ -517,6 +517,18 @@ var _modelRestDeleteDataSourceResponse = require('./model/RestDeleteDataSourceRe
 
 var _modelRestDeleteDataSourceResponse2 = _interopRequireDefault(_modelRestDeleteDataSourceResponse);
 
+var _modelRestDeleteJobResult = require('./model/RestDeleteJobResult');
+
+var _modelRestDeleteJobResult2 = _interopRequireDefault(_modelRestDeleteJobResult);
+
+var _modelRestDeleteNodesRequest = require('./model/RestDeleteNodesRequest');
+
+var _modelRestDeleteNodesRequest2 = _interopRequireDefault(_modelRestDeleteNodesRequest);
+
+var _modelRestDeleteNodesResponse = require('./model/RestDeleteNodesResponse');
+
+var _modelRestDeleteNodesResponse2 = _interopRequireDefault(_modelRestDeleteNodesResponse);
+
 var _modelRestDeleteResponse = require('./model/RestDeleteResponse');
 
 var _modelRestDeleteResponse2 = _interopRequireDefault(_modelRestDeleteResponse);
@@ -664,6 +676,10 @@ var _modelRestNodesCollection2 = _interopRequireDefault(_modelRestNodesCollectio
 var _modelRestOpenApiResponse = require('./model/RestOpenApiResponse');
 
 var _modelRestOpenApiResponse2 = _interopRequireDefault(_modelRestOpenApiResponse);
+
+var _modelRestPagination = require('./model/RestPagination');
+
+var _modelRestPagination2 = _interopRequireDefault(_modelRestPagination);
 
 var _modelRestPutCellRequest = require('./model/RestPutCellRequest');
 
@@ -1945,6 +1961,27 @@ RestDeleteDataSourceResponse = _modelRestDeleteDataSourceResponse2['default'];
 exports.
 
 /**
+ * The RestDeleteJobResult model constructor.
+ * @property {module:model/RestDeleteJobResult}
+ */
+RestDeleteJobResult = _modelRestDeleteJobResult2['default'];
+exports.
+
+/**
+ * The RestDeleteNodesRequest model constructor.
+ * @property {module:model/RestDeleteNodesRequest}
+ */
+RestDeleteNodesRequest = _modelRestDeleteNodesRequest2['default'];
+exports.
+
+/**
+ * The RestDeleteNodesResponse model constructor.
+ * @property {module:model/RestDeleteNodesResponse}
+ */
+RestDeleteNodesResponse = _modelRestDeleteNodesResponse2['default'];
+exports.
+
+/**
  * The RestDeleteResponse model constructor.
  * @property {module:model/RestDeleteResponse}
  */
@@ -2201,6 +2238,13 @@ exports.
  * @property {module:model/RestOpenApiResponse}
  */
 RestOpenApiResponse = _modelRestOpenApiResponse2['default'];
+exports.
+
+/**
+ * The RestPagination model constructor.
+ * @property {module:model/RestPagination}
+ */
+RestPagination = _modelRestPagination2['default'];
 exports.
 
 /**

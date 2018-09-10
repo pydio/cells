@@ -23,6 +23,7 @@ package rest
 import (
 	"context"
 	"encoding/json"
+	"math"
 	"path/filepath"
 	"strings"
 
@@ -70,7 +71,7 @@ func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) {
 	}
 	ctx := req.Request.Context()
 	nsRequest.NodePath = path
-	node, err := h.loadNodeByUuidOrPath(ctx, nsRequest.NodePath, "")
+	node, err := h.loadNodeByUuidOrPath(ctx, nsRequest.NodePath, "", false)
 	if err != nil {
 		error404(req, resp, err)
 		return
@@ -94,31 +95,49 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 	}
 	output := &rest.BulkMetaResponse{}
 	ctx := req.Request.Context()
-	folderNodes := []*tree.Node{}
+	var folderNodes []*tree.Node
+
 	for _, p := range bulkRequest.NodePaths {
 		if strings.HasSuffix(p, "/*") || bulkRequest.Versions {
-			if readResp, err := h.loadNodeByUuidOrPath(ctx, strings.TrimSuffix(p, "/*"), ""); err == nil {
+			if readResp, err := h.loadNodeByUuidOrPath(ctx, strings.TrimSuffix(p, "/*"), "", true); err == nil {
 				pathExt := strings.ToLower(filepath.Ext(readResp.Path))
 				if pathExt == ".zip" || pathExt == ".tar" || pathExt == ".tar.gz" {
 					readResp.Path += "/"
 				}
 				folderNodes = append(folderNodes, readResp)
+				var inRequest bool
+				for _, p2 := range bulkRequest.NodePaths {
+					if p2 == readResp.Path {
+						inRequest = true
+						break
+					}
+				}
+				if inRequest {
+					output.Nodes = append(output.Nodes, readResp)
+				}
 			} else {
 				error404(req, resp, err)
 				return
 			}
 		} else {
-			if node, err := h.loadNodeByUuidOrPath(ctx, p, ""); err == nil {
+			var asFolder bool
+			for _, p2 := range bulkRequest.NodePaths {
+				if p2 == p+"/*" {
+					asFolder = true
+					break
+				}
+			}
+			// node is already loaded as a folder node ( = /*), do not send readNode twice
+			if asFolder {
+				continue
+			}
+			if node, err := h.loadNodeByUuidOrPath(ctx, p, "", bulkRequest.AllMetaProviders); err == nil {
 				output.Nodes = append(output.Nodes, node.WithoutReservedMetas())
-			} else {
-				// Do not send 404, just send no result
-				//service.error404(req, resp, err)
-				//return
 			}
 		}
 	}
 	for _, u := range bulkRequest.NodeUuids {
-		if node, err := h.loadNodeByUuidOrPath(ctx, "", u); err == nil {
+		if node, err := h.loadNodeByUuidOrPath(ctx, "", u, bulkRequest.AllMetaProviders); err == nil {
 			output.Nodes = append(output.Nodes, node.WithoutReservedMetas())
 		} else {
 			error404(req, resp, err)
@@ -144,7 +163,16 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 	defer closer()
 
 	for _, folderNode := range folderNodes {
-		streamer, err := h.GetRouter().ListNodes(ctx, &tree.ListNodesRequest{Node: folderNode, WithVersions: bulkRequest.Versions})
+		var childrenCount, total int32
+		if e := folderNode.GetMeta("ChildrenCount", &childrenCount); e == nil && childrenCount > 0 {
+			total = childrenCount
+		}
+		streamer, err := h.GetRouter().ListNodes(ctx, &tree.ListNodesRequest{
+			Node:         folderNode,
+			WithVersions: bulkRequest.Versions,
+			Offset:       int64(bulkRequest.Offset),
+			Limit:        int64(bulkRequest.Limit),
+		})
 		if err != nil {
 			continue
 		}
@@ -187,6 +215,29 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			}
 		}
 
+		// Handle Pagination
+		if total > 0 && bulkRequest.Limit > 0 && len(output.Nodes) < int(total) {
+			var totalPages, crtPage, nextOffset, prevOffset int32
+			pageSize := bulkRequest.Limit
+			totalPages = int32(math.Ceil(float64(total) / float64(pageSize)))
+			crtPage = int32(math.Floor(float64(bulkRequest.Offset)/float64(pageSize))) + 1
+			if crtPage > 1 {
+				prevOffset = bulkRequest.Offset - pageSize
+			}
+			if crtPage < totalPages {
+				nextOffset = bulkRequest.Offset + pageSize
+			}
+			output.Pagination = &rest.Pagination{
+				Limit:         pageSize,
+				CurrentOffset: bulkRequest.Offset,
+				Total:         total,
+				CurrentPage:   crtPage,
+				TotalPages:    totalPages,
+				NextOffset:    nextOffset,
+				PrevOffset:    prevOffset,
+			}
+		}
+
 	}
 
 	resp.WriteEntity(output)
@@ -201,7 +252,7 @@ func (h *Handler) SetMeta(req *restful.Request, resp *restful.Response) {
 		service.RestError500(req, resp, err)
 		return
 	}
-	node, err := h.loadNodeByUuidOrPath(req.Request.Context(), path, "")
+	node, err := h.loadNodeByUuidOrPath(req.Request.Context(), path, "", false)
 	if err != nil {
 		service.RestError500(req, resp, err)
 		return
@@ -243,7 +294,7 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 		return
 	}
 	nsRequest.NodePath = path
-	node, err := h.loadNodeByUuidOrPath(req.Request.Context(), nsRequest.NodePath, "")
+	node, err := h.loadNodeByUuidOrPath(req.Request.Context(), nsRequest.NodePath, "", false)
 	if err != nil {
 		service.RestError404(req, resp, err)
 		return
@@ -345,23 +396,23 @@ func (h *Handler) GetRouter() *views.Router {
 	return h.router
 }
 
-func (h *Handler) loadNodeByUuidOrPath(ctx context.Context, nodePath string, nodeUuid string) (*tree.Node, error) {
+func (h *Handler) loadNodeByUuidOrPath(ctx context.Context, nodePath string, nodeUuid string, loadExtended bool) (*tree.Node, error) {
 
 	var response *tree.ReadNodeResponse
 	var err error
 	if nodeUuid != "" {
-		log.Logger(ctx).Debug("Querying Meta Service by Uuid")
-
+		log.Logger(ctx).Debug("Querying Meta Service by Uuid", zap.Bool("withExtended", loadExtended))
 		cli := tree.NewNodeProviderClient(registry.GetClient(common.SERVICE_META))
-
 		response, err = cli.ReadNode(ctx, &tree.ReadNodeRequest{
+			WithExtendedStats: loadExtended,
 			Node: &tree.Node{
 				Uuid: nodeUuid,
 			},
 		})
 	} else {
-		log.Logger(ctx).Debug("Querying Tree Service by Path: ", zap.String("p", nodePath))
+		log.Logger(ctx).Debug("Querying Tree Service by Path: ", zap.String("p", nodePath), zap.Bool("withExtended", loadExtended))
 		response, err = h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{
+			WithExtendedStats: loadExtended,
 			Node: &tree.Node{
 				Path: nodePath,
 			},

@@ -137,6 +137,9 @@ import RestCreateNodesRequest from './model/RestCreateNodesRequest';
 import RestDataSourceCollection from './model/RestDataSourceCollection';
 import RestDeleteCellResponse from './model/RestDeleteCellResponse';
 import RestDeleteDataSourceResponse from './model/RestDeleteDataSourceResponse';
+import RestDeleteJobResult from './model/RestDeleteJobResult';
+import RestDeleteNodesRequest from './model/RestDeleteNodesRequest';
+import RestDeleteNodesResponse from './model/RestDeleteNodesResponse';
 import RestDeleteResponse from './model/RestDeleteResponse';
 import RestDeleteShareLinkResponse from './model/RestDeleteShareLinkResponse';
 import RestDeleteUserMetaTagsResponse from './model/RestDeleteUserMetaTagsResponse';
@@ -174,6 +177,7 @@ import RestMetaNamespaceRequest from './model/RestMetaNamespaceRequest';
 import RestMetadata from './model/RestMetadata';
 import RestNodesCollection from './model/RestNodesCollection';
 import RestOpenApiResponse from './model/RestOpenApiResponse';
+import RestPagination from './model/RestPagination';
 import RestPutCellRequest from './model/RestPutCellRequest';
 import RestPutShareLinkRequest from './model/RestPutShareLinkRequest';
 import RestPutUserMetaTagRequest from './model/RestPutUserMetaTagRequest';
@@ -1052,6 +1056,24 @@ export {
     RestDeleteDataSourceResponse,
 
     /**
+     * The RestDeleteJobResult model constructor.
+     * @property {module:model/RestDeleteJobResult}
+     */
+    RestDeleteJobResult,
+
+    /**
+     * The RestDeleteNodesRequest model constructor.
+     * @property {module:model/RestDeleteNodesRequest}
+     */
+    RestDeleteNodesRequest,
+
+    /**
+     * The RestDeleteNodesResponse model constructor.
+     * @property {module:model/RestDeleteNodesResponse}
+     */
+    RestDeleteNodesResponse,
+
+    /**
      * The RestDeleteResponse model constructor.
      * @property {module:model/RestDeleteResponse}
      */
@@ -1272,6 +1294,12 @@ export {
      * @property {module:model/RestOpenApiResponse}
      */
     RestOpenApiResponse,
+
+    /**
+     * The RestPagination model constructor.
+     * @property {module:model/RestPagination}
+     */
+    RestPagination,
 
     /**
      * The RestPutCellRequest model constructor.

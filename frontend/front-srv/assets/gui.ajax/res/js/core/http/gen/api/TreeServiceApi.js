@@ -15,6 +15,8 @@
 import ApiClient from "../ApiClient";
 import RestBulkMetaResponse from '../model/RestBulkMetaResponse';
 import RestCreateNodesRequest from '../model/RestCreateNodesRequest';
+import RestDeleteNodesRequest from '../model/RestDeleteNodesRequest';
+import RestDeleteNodesResponse from '../model/RestDeleteNodesResponse';
 import RestGetBulkMetaRequest from '../model/RestGetBulkMetaRequest';
 import RestHeadNodeResponse from '../model/RestHeadNodeResponse';
 import RestNodesCollection from '../model/RestNodesCollection';
@@ -129,6 +131,54 @@ export default class TreeServiceApi {
      */
     createNodes(body) {
       return this.createNodesWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Handle nodes deletion
+     * @param {module:model/RestDeleteNodesRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteNodesResponse} and HTTP response
+     */
+    deleteNodesWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling deleteNodes");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestDeleteNodesResponse;
+
+      return this.apiClient.callApi(
+        '/tree/delete', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Handle nodes deletion
+     * @param {module:model/RestDeleteNodesRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteNodesResponse}
+     */
+    deleteNodes(body) {
+      return this.deleteNodesWithHttpInfo(body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

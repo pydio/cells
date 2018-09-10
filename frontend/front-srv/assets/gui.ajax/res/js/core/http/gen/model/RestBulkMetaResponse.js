@@ -13,6 +13,7 @@
 
 
 import ApiClient from '../ApiClient';
+import RestPagination from './RestPagination';
 import TreeNode from './TreeNode';
 
 
@@ -60,6 +61,9 @@ export default class RestBulkMetaResponse {
             if (data.hasOwnProperty('Nodes')) {
                 obj['Nodes'] = ApiClient.convertToType(data['Nodes'], [TreeNode]);
             }
+            if (data.hasOwnProperty('Pagination')) {
+                obj['Pagination'] = RestPagination.constructFromObject(data['Pagination']);
+            }
         }
         return obj;
     }
@@ -68,6 +72,10 @@ export default class RestBulkMetaResponse {
     * @member {Array.<module:model/TreeNode>} Nodes
     */
     Nodes = undefined;
+    /**
+    * @member {module:model/RestPagination} Pagination
+    */
+    Pagination = undefined;
 
 
 

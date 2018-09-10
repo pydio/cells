@@ -248,6 +248,11 @@ func (s *TreeServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, re
 
 	node.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, s.DataSourceName)
 
+	if req.WithExtendedStats {
+		childrenCount := dao.GetNodeChildrenCount(node.MPath)
+		node.SetMeta("ChildrenCount", childrenCount)
+	}
+
 	if req.WithCommits && node.IsLeaf() {
 		if commits, err := dao.ListCommits(node); err == nil {
 			node.Commits = commits

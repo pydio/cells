@@ -31,6 +31,14 @@ var _modelRestCreateNodesRequest = require('../model/RestCreateNodesRequest');
 
 var _modelRestCreateNodesRequest2 = _interopRequireDefault(_modelRestCreateNodesRequest);
 
+var _modelRestDeleteNodesRequest = require('../model/RestDeleteNodesRequest');
+
+var _modelRestDeleteNodesRequest2 = _interopRequireDefault(_modelRestDeleteNodesRequest);
+
+var _modelRestDeleteNodesResponse = require('../model/RestDeleteNodesResponse');
+
+var _modelRestDeleteNodesResponse2 = _interopRequireDefault(_modelRestDeleteNodesResponse);
+
 var _modelRestGetBulkMetaRequest = require('../model/RestGetBulkMetaRequest');
 
 var _modelRestGetBulkMetaRequest2 = _interopRequireDefault(_modelRestGetBulkMetaRequest);
@@ -139,6 +147,45 @@ var TreeServiceApi = (function () {
 
   TreeServiceApi.prototype.createNodes = function createNodes(body) {
     return this.createNodesWithHttpInfo(body).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * Handle nodes deletion
+   * @param {module:model/RestDeleteNodesRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteNodesResponse} and HTTP response
+   */
+
+  TreeServiceApi.prototype.deleteNodesWithHttpInfo = function deleteNodesWithHttpInfo(body) {
+    var postBody = body;
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling deleteNodes");
+    }
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestDeleteNodesResponse2['default'];
+
+    return this.apiClient.callApi('/tree/delete', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Handle nodes deletion
+   * @param {module:model/RestDeleteNodesRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteNodesResponse}
+   */
+
+  TreeServiceApi.prototype.deleteNodes = function deleteNodes(body) {
+    return this.deleteNodesWithHttpInfo(body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

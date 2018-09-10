@@ -107,17 +107,6 @@ exports['default'] = _react2['default'].createClass({
         if (pages.length <= 1) {
             return null;
         }
-        var sep = undefined;
-        /*
-        if(this.props.toolbarDisplay){
-            if(current > 1) previous = <span className="toolbars-button-menu"><ReactMUI.IconButton onClick={this.changePage} data-page={current-1} iconClassName="icon-caret-left" /></span>;
-            if(current < total) next = <span className="toolbars-button-menu"><ReactMUI.IconButton onClick={this.changePage} data-page={current+1} iconClassName="icon-caret-right" /></span>;
-        }else{
-            if(current > 1) previous = <ReactMUI.FontIcon onClick={this.changePage} data-page={current-1} className="icon-angle-left" />;
-            if(current < total) next = <ReactMUI.FontIcon onClick={this.changePage} data-page={current+1} className="icon-angle-right" />;
-            sep = <span className="mui-toolbar-separator">&nbsp;</span>;
-        }
-        */
         previous = _react2['default'].createElement(_materialUi.IconButton, { onTouchTap: function () {
                 _this2.onMenuChange(null, 0, current - 1);
             }, iconClassName: "mdi mdi-chevron-left", disabled: current === 1 });
@@ -135,7 +124,8 @@ exports['default'] = _react2['default'].createClass({
                     style: { width: 150, marginTop: -6 },
                     onChange: this.onMenuChange,
                     value: current,
-                    underlineStyle: { display: 'none' }
+                    underlineStyle: { display: 'none' },
+                    labelStyle: { color: 'white' }
                 },
                 pages
             ),

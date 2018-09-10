@@ -136,7 +136,7 @@ var PydioDataModel = (function (_Observable) {
 			ajxpNode = this._rootNode;
 		}
 		var paginationPage = null;
-		if (ajxpNode.getMetadata().has('paginationData') && ajxpNode.getMetadata().get('paginationData').has('new_page') && ajxpNode.getMetadata().get('paginationData').get('new_page') != ajxpNode.getMetadata().get('paginationData').get('current')) {
+		if (ajxpNode.getMetadata().has('paginationData') && ajxpNode.getMetadata().get('paginationData').has('new_page') && ajxpNode.getMetadata().get('paginationData').get('new_page') !== ajxpNode.getMetadata().get('paginationData').get('current')) {
 			paginationPage = ajxpNode.getMetadata().get('paginationData').get('new_page');
 			forceReload = true;
 		}

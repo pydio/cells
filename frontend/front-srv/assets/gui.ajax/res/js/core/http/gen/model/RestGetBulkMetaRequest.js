@@ -68,6 +68,12 @@ export default class RestGetBulkMetaRequest {
             if (data.hasOwnProperty('Versions')) {
                 obj['Versions'] = ApiClient.convertToType(data['Versions'], 'Boolean');
             }
+            if (data.hasOwnProperty('Offset')) {
+                obj['Offset'] = ApiClient.convertToType(data['Offset'], 'Number');
+            }
+            if (data.hasOwnProperty('Limit')) {
+                obj['Limit'] = ApiClient.convertToType(data['Limit'], 'Number');
+            }
         }
         return obj;
     }
@@ -88,6 +94,14 @@ export default class RestGetBulkMetaRequest {
     * @member {Boolean} Versions
     */
     Versions = undefined;
+    /**
+    * @member {Number} Offset
+    */
+    Offset = undefined;
+    /**
+    * @member {Number} Limit
+    */
+    Limit = undefined;
 
 
 

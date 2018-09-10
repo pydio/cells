@@ -10,6 +10,25 @@ message SearchResults{
     int32 Total = 2;
 }
 
+// Generic container for responses sending pagination information
+message Pagination {
+    // Current Limit parameter, either passed by request or default value
+    int32 Limit = 1;
+    // Current Offset value
+    int32 CurrentOffset = 2;
+    // Total number of records
+    int32 Total = 3;
+    // Current number of Page
+    int32 CurrentPage = 4;
+    // Number of detected pages
+    int32 TotalPages = 5;
+
+    // Offset value for next page if there is one
+    int32 NextOffset = 6;
+    // Offset value for previous page, if there is one
+    int32 PrevOffset = 7;
+}
+
 message Metadata {
     string Namespace = 1;
     string JsonMeta = 2;
@@ -30,10 +49,13 @@ message GetBulkMetaRequest{
     repeated string NodeUuids = 2;
     bool AllMetaProviders = 3;
     bool Versions = 4;
+    int32 Offset = 5;
+    int32 Limit = 6;
 }
 
 message BulkMetaResponse{
     repeated tree.Node Nodes = 1;
+    Pagination Pagination = 5;
 }
 
 message HeadNodeRequest {
@@ -49,18 +71,23 @@ message CreateNodesRequest {
     bool Recursive = 2;
 }
 
-
-message SetBulkMetaRequest{
-    repeated MetaCollection Metas = 1;
-}
-
-message DeleteBulkMetaRequest{
-    repeated MetaNamespaceRequest MetaNamespaceRequests = 1;
-}
-
 message NodesCollection {
     tree.Node Parent = 1;
     repeated tree.Node Children = 2;
+}
+
+message DeleteNodesRequest {
+    repeated tree.Node Nodes = 1;
+    bool Recursive = 2;
+}
+
+message DeleteJobResult {
+    string Uuid = 1;
+    string Label = 2;
+}
+
+message DeleteNodesResponse {
+    repeated DeleteJobResult DeleteJobs = 1;
 }
 
 message ListDocstoreRequest {

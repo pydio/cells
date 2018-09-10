@@ -33,7 +33,7 @@ export default React.createClass({
         node:React.PropTypes.instanceOf(AjxpNode)
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
         if(!this.props.node){
             let dm = this.props.dataModel;
             this._dmObserver = function(){
@@ -44,27 +44,27 @@ export default React.createClass({
         }
     },
 
-    componentWillUnmount: function(){
+    componentWillUnmount(){
         if(this._dmObserver){
             this.props.dataModel.stopObserving("context_changed", this._dmObserver);
         }
     },
 
-    getInitialState: function(){
+    getInitialState(){
         return { node: this.props.node };
     },
 
-    changePage: function(event){
+    changePage(event){
         this.state.node.getMetadata().get("paginationData").set("new_page", event.currentTarget.getAttribute('data-page'));
         this.props.dataModel.requireContextChange(this.state.node);
     },
 
-    onMenuChange:function(event, index, value){
+    onMenuChange(event, index, value){
         this.state.node.getMetadata().get("paginationData").set("new_page", value);
         this.props.dataModel.requireContextChange(this.state.node);
     },
 
-    render: function(){
+    render(){
         if(!this.state.node || !this.state.node.getMetadata().get("paginationData")) {
             return null;
         }
@@ -83,17 +83,6 @@ export default React.createClass({
         if(pages.length <= 1){
             return null;
         }
-        let sep;
-        /*
-        if(this.props.toolbarDisplay){
-            if(current > 1) previous = <span className="toolbars-button-menu"><ReactMUI.IconButton onClick={this.changePage} data-page={current-1} iconClassName="icon-caret-left" /></span>;
-            if(current < total) next = <span className="toolbars-button-menu"><ReactMUI.IconButton onClick={this.changePage} data-page={current+1} iconClassName="icon-caret-right" /></span>;
-        }else{
-            if(current > 1) previous = <ReactMUI.FontIcon onClick={this.changePage} data-page={current-1} className="icon-angle-left" />;
-            if(current < total) next = <ReactMUI.FontIcon onClick={this.changePage} data-page={current+1} className="icon-angle-right" />;
-            sep = <span className="mui-toolbar-separator">&nbsp;</span>;
-        }
-        */
         previous = <IconButton onTouchTap={() => {this.onMenuChange(null, 0, current-1)}} iconClassName={"mdi mdi-chevron-left"} disabled={current === 1}/>;
         next = <IconButton onTouchTap={() => {this.onMenuChange(null, 0, current+1)}} iconClassName={"mdi mdi-chevron-right"} disabled={current === total} style={{marginLeft: -20}}/>;
 
@@ -105,6 +94,7 @@ export default React.createClass({
                     onChange={this.onMenuChange}
                     value={current}
                     underlineStyle={{display: 'none'}}
+                    labelStyle={{color: 'white'}}
                 >{pages}</DropDownMenu>
                 {next}
             </div>

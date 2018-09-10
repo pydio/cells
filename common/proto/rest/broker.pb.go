@@ -45,6 +45,7 @@ It has these top-level messages:
 	ExternalDirectoryConfig
 	ExternalDirectoryCollection
 	SearchResults
+	Pagination
 	Metadata
 	MetaCollection
 	MetaNamespaceRequest
@@ -53,9 +54,10 @@ It has these top-level messages:
 	HeadNodeRequest
 	HeadNodeResponse
 	CreateNodesRequest
-	SetBulkMetaRequest
-	DeleteBulkMetaRequest
 	NodesCollection
+	DeleteNodesRequest
+	DeleteJobResult
+	DeleteNodesResponse
 	ListDocstoreRequest
 	DocstoreCollection
 	ChangeRequest

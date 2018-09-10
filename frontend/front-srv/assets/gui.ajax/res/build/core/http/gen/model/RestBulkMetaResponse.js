@@ -23,6 +23,10 @@ var _ApiClient = require('../ApiClient');
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
+var _RestPagination = require('./RestPagination');
+
+var _RestPagination2 = _interopRequireDefault(_RestPagination);
+
 var _TreeNode = require('./TreeNode');
 
 var _TreeNode2 = _interopRequireDefault(_TreeNode);
@@ -44,6 +48,7 @@ var RestBulkMetaResponse = (function () {
         _classCallCheck(this, RestBulkMetaResponse);
 
         this.Nodes = undefined;
+        this.Pagination = undefined;
     }
 
     /**
@@ -61,6 +66,9 @@ var RestBulkMetaResponse = (function () {
             if (data.hasOwnProperty('Nodes')) {
                 obj['Nodes'] = _ApiClient2['default'].convertToType(data['Nodes'], [_TreeNode2['default']]);
             }
+            if (data.hasOwnProperty('Pagination')) {
+                obj['Pagination'] = _RestPagination2['default'].constructFromObject(data['Pagination']);
+            }
         }
         return obj;
     };
@@ -73,3 +81,7 @@ var RestBulkMetaResponse = (function () {
 
 exports['default'] = RestBulkMetaResponse;
 module.exports = exports['default'];
+
+/**
+* @member {module:model/RestPagination} Pagination
+*/

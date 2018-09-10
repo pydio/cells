@@ -91,6 +91,13 @@ export default class MetaNodeProvider{
                 slug = pydio.user.getActiveRepositoryObject().getSlug();
             }
         }
+        const inputPagination = node.getMetadata().get("paginationData");
+        if(inputPagination){
+            request.Offset = (inputPagination.get("current") - 1) * inputPagination.get("size");
+            request.Limit = inputPagination.get("size");
+        } else {
+            request.Limit = pydio.getPluginConfigs("access.gateway").get("LIST_NODES_PER_PAGE") || 500;
+        }
         request.NodePaths = [slug + node.getPath(), slug + node.getPath() + '/*'];
         if(this.properties.has("versions")){
             request.Versions = true;
@@ -119,6 +126,13 @@ export default class MetaNodeProvider{
                 }
             });
             if(origNode !== undefined){
+                if (res.Pagination) {
+                    const paginationData = new Map();
+                    paginationData.set("current", res.Pagination.CurrentPage);
+                    paginationData.set("total", res.Pagination.TotalPages);
+                    paginationData.set("size", res.Pagination.Limit);
+                    origNode.getMetadata().set("paginationData", paginationData);
+                }
                 node.replaceBy(origNode);
             }
             childrenNodes.map(child => {
@@ -133,53 +147,6 @@ export default class MetaNodeProvider{
         }).catch(e => {
             console.log(e);
         });
-
-        /*
-        if(recursive){
-            params['recursive'] = true;
-            params['depth'] = depth;
-        }
-        let path = node.getPath();
-        // Double encode # character
-        let paginationHash;
-        if(node.getMetadata().has("paginationData")){
-            paginationHash = "%23" + node.getMetadata().get("paginationData").get("current");
-            path += paginationHash;
-            params['remote_order'] = 'true';
-            let remoteOrderData = node.getMetadata().get("remote_order");
-            if(remoteOrderData){
-                if(remoteOrderData._object) remoteOrderData = ProtoCompat.hash2map(remoteOrderData);
-                remoteOrderData.forEach(function(value, key){
-                    params[key] = value;
-                });
-            }
-        }
-        params['dir'] = path;
-        if(this.properties){
-            this.properties.forEach(function(value, key){
-                params[key] = value + (key == 'dir' && paginationHash ? paginationHash :'');
-            });
-        }
-        if(optionalParameters){
-            params = {...params, ...optionalParameters};
-        }
-        let parser = function (transport){
-            this.parseNodes(node, transport, nodeCallback, childCallback);
-            return node;
-        }.bind(this);
-        if(this.cacheService){
-            let loader = function(ajxpNode, cacheCallback){
-                PydioApi.getClient().request(params, cacheCallback, null, {discrete:this.discrete});
-            }.bind(this);
-            let cacheLoader = function(newNode){
-                node.replaceBy(newNode);
-                nodeCallback(node);
-            }.bind(this);
-            MetaCacheService.getInstance().metaForNode(this.cacheService['metaStreamName'], node, loader, parser, cacheLoader);
-        }else{
-            PydioApi.getClient().request(params, parser, null, {discrete:this.discrete});
-        }
-        */
     }
 
     /**
@@ -287,6 +254,7 @@ export default class MetaNodeProvider{
             node.getMetadata().set('mimestring_id', '122');
             node.getMetadata().set('ajxp_mime', 'ajxp_recycle');
             if(pydio) node.setLabel(pydio.MessageHash[122]);
+            node.getMetadata().set('mimestring', pydio.MessageHash[122]);
         }
         if(node.isLeaf() && pydio && pydio.Registry){
             const ext = PathUtils.getFileExtension(node.getPath());
@@ -295,6 +263,9 @@ export default class MetaNodeProvider{
                 const {messageId, fontIcon} = registered.get(ext);
                 node.getMetadata().set('fonticon',fontIcon);
                 node.getMetadata().set('mimestring_id',messageId);
+                if(pydio.MessageHash[messageId]){
+                    node.getMetadata().set('mimestring',pydio.MessageHash[messageId]);
+                }
             }
         }
         if (obj.Size !== undefined){
@@ -373,124 +344,5 @@ export default class MetaNodeProvider{
             meta.set('overlay_class', overlays.join(','));
         }
         node.setMetadata(meta);
-    }
-
-    /************************************
-     * TODO : REMOVE BELOW - FOR REFERENCE
-     */
-
-
-    /**
-     * Parse the answer and create AjxpNodes
-     * @param origNode AjxpNode
-     * @param transport Ajax.Response
-     * @param nodeCallback Function
-     * @param childCallback Function
-     * @param childrenOnly
-     */
-    parseNodes (origNode, transport, nodeCallback, childCallback, childrenOnly){
-
-        if(!transport.responseXML || !transport.responseXML.documentElement) {
-            Logger.debug('Loading node ' + origNode.getPath() + ' has wrong response: ' + transport.responseText);
-            if(nodeCallback) nodeCallback(origNode);
-            origNode.setLoaded(false);
-            if(!transport.responseText){
-                throw new Error('Empty response!');
-            }
-            throw new Error('Invalid XML Document (see console)');
-        }
-        const rootNode = transport.responseXML.documentElement;
-        if(!childrenOnly){
-            const contextNode = this.parseAjxpNode(rootNode);
-            origNode.replaceBy(contextNode, "merge");
-        }
-
-        // CHECK FOR MESSAGE OR ERRORS
-        let errorNode = XMLUtils.XPathSelectSingleNode(rootNode, "error|message");
-        if(errorNode){
-            let type;
-            if(errorNode.nodeName == "message") {
-                type = errorNode.getAttribute('type');
-            }
-            if(type == "ERROR"){
-                origNode.notify("error", errorNode.firstChild.nodeValue + '(Source:'+origNode.getPath()+')');
-            }
-        }
-
-        // CHECK FOR AUTH PROMPT REQUIRED
-        const authNode = XMLUtils.XPathSelectSingleNode(rootNode, "prompt");
-        if(authNode && pydio && pydio.UI && pydio.UI.openPromptDialog){
-            let jsonData = XMLUtils.XPathSelectSingleNode(authNode, "data").firstChild.nodeValue;
-            pydio.UI.openPromptDialog(JSON.parse(jsonData));
-            return false;
-        }
-
-        // CHECK FOR PAGINATION DATA
-        const paginationNode = XMLUtils.XPathSelectSingleNode(rootNode, "pagination");
-        if(paginationNode){
-            let paginationData = new Map();
-            Array.from(paginationNode.attributes).forEach(function(att){
-                paginationData.set(att.nodeName, att.value);
-            }.bind(this));
-            origNode.getMetadata().set('paginationData', paginationData);
-        }else if(origNode.getMetadata().get('paginationData')){
-            origNode.getMetadata().delete('paginationData');
-        }
-
-        // CHECK FOR COMPONENT CONFIGS CONTEXTUAL DATA
-        const configs = XMLUtils.XPathSelectSingleNode(rootNode, "client_configs");
-        if(configs){
-            origNode.getMetadata().set('client_configs', configs);
-        }
-
-        // NOW PARSE CHILDREN
-        const children = XMLUtils.XPathSelectNodes(rootNode, "tree");
-        children.forEach(function(childNode){
-            const child = this.parseAjxpNode(childNode);
-            if(!childrenOnly) {
-                origNode.addChild(child);
-            }
-            let cLoaded;
-            if(XMLUtils.XPathSelectNodes(childNode, 'tree').length){
-                XMLUtils.XPathSelectNodes(childNode, 'tree').forEach(function(c){
-                    const newChild = this.parseAjxpNode(c);
-                    if(newChild){
-                        child.addChild(newChild);
-                    }
-                }.bind(this));
-                cLoaded = true;
-            }
-            if(childCallback){
-                childCallback(child);
-            }
-            if(cLoaded) child.setLoaded(true);
-        }.bind(this) );
-
-        if(nodeCallback){
-            nodeCallback(origNode);
-        }
-    }
-
-
-
-
-    /**
-     * Parses XML Node and create AjxpNode
-     * @param xmlNode XMLNode
-     * @returns AjxpNode
-     */
-    parseAjxpNode (xmlNode){
-        let node = new AjxpNode(
-            xmlNode.getAttribute('filename'),
-            (xmlNode.getAttribute('is_file') == "1" || xmlNode.getAttribute('is_file') == "true"),
-            xmlNode.getAttribute('text'),
-            xmlNode.getAttribute('icon'));
-        let metadata = new Map();
-        for(let i=0;i<xmlNode.attributes.length;i++)
-        {
-            metadata.set(xmlNode.attributes[i].nodeName, xmlNode.attributes[i].value);
-        }
-        node.setMetadata(metadata);
-        return node;
     }
 }

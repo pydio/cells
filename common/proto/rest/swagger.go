@@ -2595,6 +2595,33 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/tree/delete": {
+      "post": {
+        "summary": "Handle nodes deletion",
+        "operationId": "DeleteNodes",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restDeleteNodesResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restDeleteNodesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TreeService"
+        ]
+      }
+    },
     "/tree/stat/{Node}": {
       "get": {
         "summary": "Return node meta without the node content itself",
@@ -5852,6 +5879,9 @@ var SwaggerJson = `{
           "items": {
             "$ref": "#/definitions/treeNode"
           }
+        },
+        "Pagination": {
+          "$ref": "#/definitions/restPagination"
         }
       }
     },
@@ -6027,6 +6057,43 @@ var SwaggerJson = `{
         "Success": {
           "type": "boolean",
           "format": "boolean"
+        }
+      }
+    },
+    "restDeleteJobResult": {
+      "type": "object",
+      "properties": {
+        "Uuid": {
+          "type": "string"
+        },
+        "Label": {
+          "type": "string"
+        }
+      }
+    },
+    "restDeleteNodesRequest": {
+      "type": "object",
+      "properties": {
+        "Nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/treeNode"
+          }
+        },
+        "Recursive": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "restDeleteNodesResponse": {
+      "type": "object",
+      "properties": {
+        "DeleteJobs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/restDeleteJobResult"
+          }
         }
       }
     },
@@ -6331,6 +6398,14 @@ var SwaggerJson = `{
         "Versions": {
           "type": "boolean",
           "format": "boolean"
+        },
+        "Offset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "Limit": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -6520,6 +6595,47 @@ var SwaggerJson = `{
     },
     "restOpenApiResponse": {
       "type": "object"
+    },
+    "restPagination": {
+      "type": "object",
+      "properties": {
+        "Limit": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Current Limit parameter, either passed by request or default value"
+        },
+        "CurrentOffset": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Current Offset value"
+        },
+        "Total": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Total number of records"
+        },
+        "CurrentPage": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Current number of Page"
+        },
+        "TotalPages": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Number of detected pages"
+        },
+        "NextOffset": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Offset value for next page if there is one"
+        },
+        "PrevOffset": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Offset value for previous page, if there is one"
+        }
+      },
+      "title": "Generic container for responses sending pagination information"
     },
     "restPutCellRequest": {
       "type": "object",
@@ -7510,6 +7626,10 @@ var SwaggerJson = `{
           "$ref": "#/definitions/treeNode"
         },
         "WithCommits": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "WithExtendedStats": {
           "type": "boolean",
           "format": "boolean"
         }

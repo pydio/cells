@@ -63,6 +63,9 @@ export default class TreeReadNodeRequest {
             if (data.hasOwnProperty('WithCommits')) {
                 obj['WithCommits'] = ApiClient.convertToType(data['WithCommits'], 'Boolean');
             }
+            if (data.hasOwnProperty('WithExtendedStats')) {
+                obj['WithExtendedStats'] = ApiClient.convertToType(data['WithExtendedStats'], 'Boolean');
+            }
         }
         return obj;
     }
@@ -75,6 +78,10 @@ export default class TreeReadNodeRequest {
     * @member {Boolean} WithCommits
     */
     WithCommits = undefined;
+    /**
+    * @member {Boolean} WithExtendedStats
+    */
+    WithExtendedStats = undefined;
 
 
 

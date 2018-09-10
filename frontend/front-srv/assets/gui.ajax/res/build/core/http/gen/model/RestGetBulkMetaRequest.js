@@ -43,6 +43,8 @@ var RestGetBulkMetaRequest = (function () {
         this.NodeUuids = undefined;
         this.AllMetaProviders = undefined;
         this.Versions = undefined;
+        this.Offset = undefined;
+        this.Limit = undefined;
     }
 
     /**
@@ -69,6 +71,12 @@ var RestGetBulkMetaRequest = (function () {
             if (data.hasOwnProperty('Versions')) {
                 obj['Versions'] = _ApiClient2['default'].convertToType(data['Versions'], 'Boolean');
             }
+            if (data.hasOwnProperty('Offset')) {
+                obj['Offset'] = _ApiClient2['default'].convertToType(data['Offset'], 'Number');
+            }
+            if (data.hasOwnProperty('Limit')) {
+                obj['Limit'] = _ApiClient2['default'].convertToType(data['Limit'], 'Number');
+            }
         }
         return obj;
     };
@@ -92,4 +100,12 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} Versions
+*/
+
+/**
+* @member {Number} Offset
+*/
+
+/**
+* @member {Number} Limit
 */

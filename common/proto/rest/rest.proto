@@ -534,6 +534,14 @@ service TreeService {
             get: "/tree/stat/{Node}"
         };
     }
+
+    // Handle nodes deletion
+    rpc DeleteNodes(DeleteNodesRequest) returns (DeleteNodesResponse) {
+        option (google.api.http) = {
+            post: "/tree/delete"
+            body: "*"
+        };
+    }
 }
 
 

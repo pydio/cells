@@ -18,6 +18,7 @@ service NodeProviderStreamer{
 message ReadNodeRequest {
     Node Node = 1;
     bool WithCommits = 2;
+    bool WithExtendedStats = 3;
 }
 
 message ReadNodeResponse {
