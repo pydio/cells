@@ -949,6 +949,18 @@ var _apiDocStoreServiceApi = require('./api/DocStoreServiceApi');
 
 var _apiDocStoreServiceApi2 = _interopRequireDefault(_apiDocStoreServiceApi);
 
+var _apiEnterpriseConfigServiceApi = require('./api/EnterpriseConfigServiceApi');
+
+var _apiEnterpriseConfigServiceApi2 = _interopRequireDefault(_apiEnterpriseConfigServiceApi);
+
+var _apiEnterpriseLogServiceApi = require('./api/EnterpriseLogServiceApi');
+
+var _apiEnterpriseLogServiceApi2 = _interopRequireDefault(_apiEnterpriseLogServiceApi);
+
+var _apiEnterprisePolicyServiceApi = require('./api/EnterprisePolicyServiceApi');
+
+var _apiEnterprisePolicyServiceApi2 = _interopRequireDefault(_apiEnterprisePolicyServiceApi);
+
 var _apiFrontendServiceApi = require('./api/FrontendServiceApi');
 
 var _apiFrontendServiceApi2 = _interopRequireDefault(_apiFrontendServiceApi);
@@ -2686,6 +2698,27 @@ exports.
 * @property {module:api/DocStoreServiceApi}
 */
 DocStoreServiceApi = _apiDocStoreServiceApi2['default'];
+exports.
+
+/**
+* The EnterpriseConfigServiceApi service constructor.
+* @property {module:api/EnterpriseConfigServiceApi}
+*/
+EnterpriseConfigServiceApi = _apiEnterpriseConfigServiceApi2['default'];
+exports.
+
+/**
+* The EnterpriseLogServiceApi service constructor.
+* @property {module:api/EnterpriseLogServiceApi}
+*/
+EnterpriseLogServiceApi = _apiEnterpriseLogServiceApi2['default'];
+exports.
+
+/**
+* The EnterprisePolicyServiceApi service constructor.
+* @property {module:api/EnterprisePolicyServiceApi}
+*/
+EnterprisePolicyServiceApi = _apiEnterprisePolicyServiceApi2['default'];
 exports.
 
 /**

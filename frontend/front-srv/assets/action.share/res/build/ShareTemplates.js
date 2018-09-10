@@ -318,7 +318,7 @@ var DLTemplate = React.createClass({
                         return _this2.props.pydio.MessageHash[id];
                     }, buttonStyle: { right: -8, bottom: 9 } })
             ),
-            React.createElement(Copyright, { mode: "block" }),
+            React.createElement(Copyright, _extends({ mode: "block" }, this.props)),
             !(this.state && this.state.displayShareLink) && shareButton
         );
     }
@@ -377,7 +377,11 @@ var Copyright = (function (_React$Component2) {
             var _props = this.props;
             var mode = _props.mode;
             var style = _props.style;
+            var aboutString = _props.aboutString;
 
+            if (aboutString === "false") {
+                return null;
+            }
             var s = undefined;
             if (mode === "insert") {
                 s = {
@@ -536,7 +540,7 @@ var FolderMinisite = React.createClass({
                 'div',
                 { style: { backgroundColor: 'white' }, className: 'layout-fill vertical-layout' },
                 React.createElement(MainFilesList, _extends({ ref: 'list' }, this.props)),
-                React.createElement(Copyright, { mode: "insert" })
+                React.createElement(Copyright, _extends({ mode: "insert" }, this.props))
             ),
             React.createElement(EditionPanel, this.props)
         );
@@ -639,7 +643,7 @@ var FileMinisite = React.createClass({
                 'div',
                 { className: 'editor_container vertical_layout vertical_fit', style: { backgroundColor: 'white' } },
                 React.createElement(Editor, { displayToolbar: false, style: { display: "flex", flex: 1 } }),
-                React.createElement(Copyright, { mode: "overlay" })
+                React.createElement(Copyright, _extends({ mode: "overlay" }, this.props))
             )
         );
     }
@@ -662,7 +666,7 @@ var DropZoneMinisite = React.createClass({
                     { className: 'vertical_fit vertical_layout', style: { margin: 16, marginBottom: 2, border: '2px dashed #CFD8DC', borderRadius: 4 } },
                     React.createElement(MainFilesList, _extends({ ref: 'list' }, this.props))
                 ),
-                React.createElement(Copyright, { mode: "insert", style: { backgroundColor: 'white' } })
+                React.createElement(Copyright, _extends({ mode: "insert", style: { backgroundColor: 'white' } }, this.props))
             ),
             React.createElement(EditionPanel, this.props)
         );
@@ -794,7 +798,7 @@ var FilmStripMinisite = (function (_React$Component3) {
                     MaterialUI.Paper,
                     { zDepth: 2, className: 'vertical_layout', style: { height: 160, backgroundColor: this.props.muiTheme.appBar.color, zIndex: 1 } },
                     React.createElement(MainFilesList, _extends({ ref: 'list' }, this.props, { horizontalRibbon: true, displayMode: "grid-160" })),
-                    React.createElement(Copyright, { mode: "insert" })
+                    React.createElement(Copyright, _extends({ mode: "insert" }, this.props))
                 )
             );
         }

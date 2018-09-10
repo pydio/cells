@@ -212,7 +212,7 @@ let DLTemplate = React.createClass({
                         <ClipboardTextField floatingLabelText={sharePageAction.options.text} inputValue={document.location.href} getMessage={(id)=>this.props.pydio.MessageHash[id]} buttonStyle={{right:-8, bottom:9}} />
                     </div>
                 }
-                <Copyright mode={"block"}/>
+                <Copyright mode={"block"} {...this.props}/>
                 {!(this.state && this.state.displayShareLink) &&
                     shareButton
                 }
@@ -250,7 +250,10 @@ class ConfigLogo extends React.Component{
 
 class Copyright extends React.Component {
     render(){
-        const {mode, style} = this.props;
+        const {mode, style, aboutString} = this.props;
+        if (aboutString === "false") {
+            return null;
+        }
         let s;
         if(mode === "insert"){
             s = {
@@ -383,7 +386,7 @@ const FolderMinisite = React.createClass({
             <StandardLayout {...this.props} uniqueNode={false} showSearchForm={this.props.pydio.getPluginConfigs('action.share').get('SHARED_FOLDER_SHOW_SEARCH')}>
                 <div style={{backgroundColor:'white'}} className="layout-fill vertical-layout">
                     <MainFilesList ref="list" {...this.props}/>
-                    <Copyright mode={"insert"}/>
+                    <Copyright mode={"insert"} {...this.props}/>
                 </div>
                 <EditionPanel {...this.props}/>
             </StandardLayout>
@@ -483,7 +486,7 @@ const FileMinisite = React.createClass({
             <StandardLayout {...this.props} uniqueNode={true} skipDisplayToolbar={true}>
                 <div className="editor_container vertical_layout vertical_fit" style={{backgroundColor:'white'}}>
                     <Editor displayToolbar={false} style={{display: "flex", flex: 1}}/>
-                    <Copyright mode={"overlay"}/>
+                    <Copyright mode={"overlay"} {...this.props}/>
                 </div>
             </StandardLayout>
         );
@@ -503,7 +506,7 @@ const DropZoneMinisite = React.createClass({
                     <div className="vertical_fit vertical_layout" style={{margin: 16, marginBottom: 2,border: '2px dashed #CFD8DC',borderRadius: 4}}>
                         <MainFilesList ref="list" {...this.props}/>
                     </div>
-                    <Copyright mode={"insert"} style={{backgroundColor:'white'}}/>
+                    <Copyright mode={"insert"} style={{backgroundColor:'white'}} {...this.props}/>
                 </div>
                 <EditionPanel {...this.props}/>
             </StandardLayout>
@@ -621,7 +624,7 @@ class FilmStripMinisite extends React.Component{
                 </div>
                 <MaterialUI.Paper zDepth={2} className="vertical_layout" style={{height: 160, backgroundColor:this.props.muiTheme.appBar.color, zIndex:1}}>
                     <MainFilesList ref="list" {...this.props} horizontalRibbon={true} displayMode={"grid-160"}/>
-                    <Copyright mode={"insert"}/>
+                    <Copyright mode={"insert"} {...this.props}/>
                 </MaterialUI.Paper>
             </StandardLayout>
         );

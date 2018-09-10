@@ -87,25 +87,9 @@ var _modelRestDeleteDataSourceResponse = require('../model/RestDeleteDataSourceR
 
 var _modelRestDeleteDataSourceResponse2 = _interopRequireDefault(_modelRestDeleteDataSourceResponse);
 
-var _modelRestDeleteVersioningPolicyResponse = require('../model/RestDeleteVersioningPolicyResponse');
-
-var _modelRestDeleteVersioningPolicyResponse2 = _interopRequireDefault(_modelRestDeleteVersioningPolicyResponse);
-
 var _modelRestDiscoveryResponse = require('../model/RestDiscoveryResponse');
 
 var _modelRestDiscoveryResponse2 = _interopRequireDefault(_modelRestDiscoveryResponse);
-
-var _modelRestExternalDirectoryCollection = require('../model/RestExternalDirectoryCollection');
-
-var _modelRestExternalDirectoryCollection2 = _interopRequireDefault(_modelRestExternalDirectoryCollection);
-
-var _modelRestExternalDirectoryConfig = require('../model/RestExternalDirectoryConfig');
-
-var _modelRestExternalDirectoryConfig2 = _interopRequireDefault(_modelRestExternalDirectoryConfig);
-
-var _modelRestExternalDirectoryResponse = require('../model/RestExternalDirectoryResponse');
-
-var _modelRestExternalDirectoryResponse2 = _interopRequireDefault(_modelRestExternalDirectoryResponse);
 
 var _modelRestListPeerFoldersRequest = require('../model/RestListPeerFoldersRequest');
 
@@ -352,88 +336,6 @@ var ConfigServiceApi = (function () {
 
   ConfigServiceApi.prototype.deleteEncryptionKey = function deleteEncryptionKey(body) {
     return this.deleteEncryptionKeyWithHttpInfo(body).then(function (response_and_data) {
-      return response_and_data.data;
-    });
-  };
-
-  /**
-   * [Enterprise Only] Delete external directory
-   * @param {String} configId 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryResponse} and HTTP response
-   */
-
-  ConfigServiceApi.prototype.deleteExternalDirectoryWithHttpInfo = function deleteExternalDirectoryWithHttpInfo(configId) {
-    var postBody = null;
-
-    // verify the required parameter 'configId' is set
-    if (configId === undefined || configId === null) {
-      throw new Error("Missing the required parameter 'configId' when calling deleteExternalDirectory");
-    }
-
-    var pathParams = {
-      'ConfigId': configId
-    };
-    var queryParams = {};
-    var headerParams = {};
-    var formParams = {};
-
-    var authNames = [];
-    var contentTypes = ['application/json'];
-    var accepts = ['application/json'];
-    var returnType = _modelRestExternalDirectoryResponse2['default'];
-
-    return this.apiClient.callApi('/config/directories/{ConfigId}', 'DELETE', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
-  };
-
-  /**
-   * [Enterprise Only] Delete external directory
-   * @param {String} configId 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryResponse}
-   */
-
-  ConfigServiceApi.prototype.deleteExternalDirectory = function deleteExternalDirectory(configId) {
-    return this.deleteExternalDirectoryWithHttpInfo(configId).then(function (response_and_data) {
-      return response_and_data.data;
-    });
-  };
-
-  /**
-   * [Enterprise Only] Delete a versioning policy
-   * @param {String} uuid 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteVersioningPolicyResponse} and HTTP response
-   */
-
-  ConfigServiceApi.prototype.deleteVersioningPolicyWithHttpInfo = function deleteVersioningPolicyWithHttpInfo(uuid) {
-    var postBody = null;
-
-    // verify the required parameter 'uuid' is set
-    if (uuid === undefined || uuid === null) {
-      throw new Error("Missing the required parameter 'uuid' when calling deleteVersioningPolicy");
-    }
-
-    var pathParams = {
-      'Uuid': uuid
-    };
-    var queryParams = {};
-    var headerParams = {};
-    var formParams = {};
-
-    var authNames = [];
-    var contentTypes = ['application/json'];
-    var accepts = ['application/json'];
-    var returnType = _modelRestDeleteVersioningPolicyResponse2['default'];
-
-    return this.apiClient.callApi('/config/versioning/{Uuid}', 'DELETE', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
-  };
-
-  /**
-   * [Enterprise Only] Delete a versioning policy
-   * @param {String} uuid 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteVersioningPolicyResponse}
-   */
-
-  ConfigServiceApi.prototype.deleteVersioningPolicy = function deleteVersioningPolicy(uuid) {
-    return this.deleteVersioningPolicyWithHttpInfo(uuid).then(function (response_and_data) {
       return response_and_data.data;
     });
   };
@@ -837,38 +739,6 @@ var ConfigServiceApi = (function () {
   };
 
   /**
-   * [Enterprise Only] List additional user directories
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryCollection} and HTTP response
-   */
-
-  ConfigServiceApi.prototype.listExternalDirectoriesWithHttpInfo = function listExternalDirectoriesWithHttpInfo() {
-    var postBody = null;
-
-    var pathParams = {};
-    var queryParams = {};
-    var headerParams = {};
-    var formParams = {};
-
-    var authNames = [];
-    var contentTypes = ['application/json'];
-    var accepts = ['application/json'];
-    var returnType = _modelRestExternalDirectoryCollection2['default'];
-
-    return this.apiClient.callApi('/config/directories', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
-  };
-
-  /**
-   * [Enterprise Only] List additional user directories
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryCollection}
-   */
-
-  ConfigServiceApi.prototype.listExternalDirectories = function listExternalDirectories() {
-    return this.listExternalDirectoriesWithHttpInfo().then(function (response_and_data) {
-      return response_and_data.data;
-    });
-  };
-
-  /**
    * List folders on a peer, starting from root
    * @param {String} peerAddress 
    * @param {module:model/RestListPeerFoldersRequest} body 
@@ -1150,102 +1020,6 @@ var ConfigServiceApi = (function () {
 
   ConfigServiceApi.prototype.putDataSource = function putDataSource(name, body) {
     return this.putDataSourceWithHttpInfo(name, body).then(function (response_and_data) {
-      return response_and_data.data;
-    });
-  };
-
-  /**
-   * [Enterprise Only] Add/Create an external directory
-   * @param {String} configId 
-   * @param {module:model/RestExternalDirectoryConfig} body 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryResponse} and HTTP response
-   */
-
-  ConfigServiceApi.prototype.putExternalDirectoryWithHttpInfo = function putExternalDirectoryWithHttpInfo(configId, body) {
-    var postBody = body;
-
-    // verify the required parameter 'configId' is set
-    if (configId === undefined || configId === null) {
-      throw new Error("Missing the required parameter 'configId' when calling putExternalDirectory");
-    }
-
-    // verify the required parameter 'body' is set
-    if (body === undefined || body === null) {
-      throw new Error("Missing the required parameter 'body' when calling putExternalDirectory");
-    }
-
-    var pathParams = {
-      'ConfigId': configId
-    };
-    var queryParams = {};
-    var headerParams = {};
-    var formParams = {};
-
-    var authNames = [];
-    var contentTypes = ['application/json'];
-    var accepts = ['application/json'];
-    var returnType = _modelRestExternalDirectoryResponse2['default'];
-
-    return this.apiClient.callApi('/config/directories/{ConfigId}', 'PUT', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
-  };
-
-  /**
-   * [Enterprise Only] Add/Create an external directory
-   * @param {String} configId 
-   * @param {module:model/RestExternalDirectoryConfig} body 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestExternalDirectoryResponse}
-   */
-
-  ConfigServiceApi.prototype.putExternalDirectory = function putExternalDirectory(configId, body) {
-    return this.putExternalDirectoryWithHttpInfo(configId, body).then(function (response_and_data) {
-      return response_and_data.data;
-    });
-  };
-
-  /**
-   * [Enterprise Only] Create or update a versioning policy
-   * @param {String} uuid 
-   * @param {module:model/TreeVersioningPolicy} body 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/TreeVersioningPolicy} and HTTP response
-   */
-
-  ConfigServiceApi.prototype.putVersioningPolicyWithHttpInfo = function putVersioningPolicyWithHttpInfo(uuid, body) {
-    var postBody = body;
-
-    // verify the required parameter 'uuid' is set
-    if (uuid === undefined || uuid === null) {
-      throw new Error("Missing the required parameter 'uuid' when calling putVersioningPolicy");
-    }
-
-    // verify the required parameter 'body' is set
-    if (body === undefined || body === null) {
-      throw new Error("Missing the required parameter 'body' when calling putVersioningPolicy");
-    }
-
-    var pathParams = {
-      'Uuid': uuid
-    };
-    var queryParams = {};
-    var headerParams = {};
-    var formParams = {};
-
-    var authNames = [];
-    var contentTypes = ['application/json'];
-    var accepts = ['application/json'];
-    var returnType = _modelTreeVersioningPolicy2['default'];
-
-    return this.apiClient.callApi('/config/versioning/{Uuid}', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
-  };
-
-  /**
-   * [Enterprise Only] Create or update a versioning policy
-   * @param {String} uuid 
-   * @param {module:model/TreeVersioningPolicy} body 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/TreeVersioningPolicy}
-   */
-
-  ConfigServiceApi.prototype.putVersioningPolicy = function putVersioningPolicy(uuid, body) {
-    return this.putVersioningPolicyWithHttpInfo(uuid, body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

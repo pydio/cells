@@ -31,14 +31,6 @@ var _modelIdmListPolicyGroupsResponse = require('../model/IdmListPolicyGroupsRes
 
 var _modelIdmListPolicyGroupsResponse2 = _interopRequireDefault(_modelIdmListPolicyGroupsResponse);
 
-var _modelIdmPolicyGroup = require('../model/IdmPolicyGroup');
-
-var _modelIdmPolicyGroup2 = _interopRequireDefault(_modelIdmPolicyGroup);
-
-var _modelRestDeleteResponse = require('../model/RestDeleteResponse');
-
-var _modelRestDeleteResponse2 = _interopRequireDefault(_modelRestDeleteResponse);
-
 /**
 * PolicyService service.
 * @module api/PolicyServiceApi
@@ -60,47 +52,6 @@ var PolicyServiceApi = (function () {
 
     this.apiClient = apiClient || _ApiClient2['default'].instance;
   }
-
-  /**
-   * Delete a security policy
-   * @param {String} uuid 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteResponse} and HTTP response
-   */
-
-  PolicyServiceApi.prototype.deletePolicyWithHttpInfo = function deletePolicyWithHttpInfo(uuid) {
-    var postBody = null;
-
-    // verify the required parameter 'uuid' is set
-    if (uuid === undefined || uuid === null) {
-      throw new Error("Missing the required parameter 'uuid' when calling deletePolicy");
-    }
-
-    var pathParams = {
-      'Uuid': uuid
-    };
-    var queryParams = {};
-    var headerParams = {};
-    var formParams = {};
-
-    var authNames = [];
-    var contentTypes = ['application/json'];
-    var accepts = ['application/json'];
-    var returnType = _modelRestDeleteResponse2['default'];
-
-    return this.apiClient.callApi('/policy/{Uuid}', 'DELETE', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
-  };
-
-  /**
-   * Delete a security policy
-   * @param {String} uuid 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteResponse}
-   */
-
-  PolicyServiceApi.prototype.deletePolicy = function deletePolicy(uuid) {
-    return this.deletePolicyWithHttpInfo(uuid).then(function (response_and_data) {
-      return response_and_data.data;
-    });
-  };
 
   /**
    * List all defined security policies
@@ -137,45 +88,6 @@ var PolicyServiceApi = (function () {
 
   PolicyServiceApi.prototype.listPolicies = function listPolicies(body) {
     return this.listPoliciesWithHttpInfo(body).then(function (response_and_data) {
-      return response_and_data.data;
-    });
-  };
-
-  /**
-   * Update or create a security policy
-   * @param {module:model/IdmPolicyGroup} body 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmPolicyGroup} and HTTP response
-   */
-
-  PolicyServiceApi.prototype.putPolicyWithHttpInfo = function putPolicyWithHttpInfo(body) {
-    var postBody = body;
-
-    // verify the required parameter 'body' is set
-    if (body === undefined || body === null) {
-      throw new Error("Missing the required parameter 'body' when calling putPolicy");
-    }
-
-    var pathParams = {};
-    var queryParams = {};
-    var headerParams = {};
-    var formParams = {};
-
-    var authNames = [];
-    var contentTypes = ['application/json'];
-    var accepts = ['application/json'];
-    var returnType = _modelIdmPolicyGroup2['default'];
-
-    return this.apiClient.callApi('/policy', 'PUT', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
-  };
-
-  /**
-   * Update or create a security policy
-   * @param {module:model/IdmPolicyGroup} body 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmPolicyGroup}
-   */
-
-  PolicyServiceApi.prototype.putPolicy = function putPolicy(body) {
-    return this.putPolicyWithHttpInfo(body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };
