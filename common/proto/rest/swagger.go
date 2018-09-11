@@ -1256,7 +1256,7 @@ var SwaggerJson = `{
             "name": "BinaryType",
             "in": "path",
             "required": true,
-            "type": "restFrontBinaryType"
+            "type": "string"
           },
           {
             "name": "Uuid",
@@ -1285,7 +1285,7 @@ var SwaggerJson = `{
             "name": "BinaryType",
             "in": "path",
             "required": true,
-            "type": "restFrontBinaryType"
+            "type": "string"
           },
           {
             "name": "Uuid",
@@ -6215,24 +6215,19 @@ var SwaggerJson = `{
       "type": "object",
       "properties": {
         "BinaryType": {
-          "$ref": "#/definitions/restFrontBinaryType"
+          "type": "string",
+          "title": "Currently supported values are USER and GLOBAL"
         },
         "Uuid": {
-          "type": "string"
+          "type": "string",
+          "title": "Id of the binary"
         }
-      }
+      },
+      "title": "Donwload binary"
     },
     "restFrontBinaryResponse": {
       "type": "object",
       "title": "Not used, endpoint returns octet-stream"
-    },
-    "restFrontBinaryType": {
-      "type": "string",
-      "enum": [
-        "USER",
-        "GLOBAL"
-      ],
-      "default": "USER"
     },
     "restFrontBootConfResponse": {
       "type": "object",

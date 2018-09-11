@@ -105,13 +105,11 @@ message FrontEnrollAuthResponse {
     map<string,string> Info = 1;
 }
 
-enum FrontBinaryType {
-    USER = 0;
-    GLOBAL = 1;
-}
-
+// Donwload binary
 message FrontBinaryRequest {
-    FrontBinaryType BinaryType = 1;
+    // Currently supported values are USER and GLOBAL
+    string BinaryType = 1;
+    // Id of the binary
     string Uuid = 2;
 }
 // Not used, endpoint returns octet-stream

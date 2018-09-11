@@ -573,10 +573,6 @@ var _modelRestFrontBinaryResponse = require('./model/RestFrontBinaryResponse');
 
 var _modelRestFrontBinaryResponse2 = _interopRequireDefault(_modelRestFrontBinaryResponse);
 
-var _modelRestFrontBinaryType = require('./model/RestFrontBinaryType');
-
-var _modelRestFrontBinaryType2 = _interopRequireDefault(_modelRestFrontBinaryType);
-
 var _modelRestFrontBootConfResponse = require('./model/RestFrontBootConfResponse');
 
 var _modelRestFrontBootConfResponse2 = _interopRequireDefault(_modelRestFrontBootConfResponse);
@@ -2056,13 +2052,6 @@ exports.
  * @property {module:model/RestFrontBinaryResponse}
  */
 RestFrontBinaryResponse = _modelRestFrontBinaryResponse2['default'];
-exports.
-
-/**
- * The RestFrontBinaryType model constructor.
- * @property {module:model/RestFrontBinaryType}
- */
-RestFrontBinaryType = _modelRestFrontBinaryType2['default'];
 exports.
 
 /**

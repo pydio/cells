@@ -23,10 +23,6 @@ var _ApiClient = require('../ApiClient');
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
-var _RestFrontBinaryType = require('./RestFrontBinaryType');
-
-var _RestFrontBinaryType2 = _interopRequireDefault(_RestFrontBinaryType);
-
 /**
 * The RestFrontBinaryRequest model module.
 * @module model/RestFrontBinaryRequest
@@ -60,7 +56,7 @@ var RestFrontBinaryRequest = (function () {
             obj = obj || new RestFrontBinaryRequest();
 
             if (data.hasOwnProperty('BinaryType')) {
-                obj['BinaryType'] = _RestFrontBinaryType2['default'].constructFromObject(data['BinaryType']);
+                obj['BinaryType'] = _ApiClient2['default'].convertToType(data['BinaryType'], 'String');
             }
             if (data.hasOwnProperty('Uuid')) {
                 obj['Uuid'] = _ApiClient2['default'].convertToType(data['Uuid'], 'String');
@@ -70,7 +66,7 @@ var RestFrontBinaryRequest = (function () {
     };
 
     /**
-    * @member {module:model/RestFrontBinaryType} BinaryType
+    * @member {String} BinaryType
     */
     return RestFrontBinaryRequest;
 })();

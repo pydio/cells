@@ -13,7 +13,6 @@
 
 
 import ApiClient from '../ApiClient';
-import RestFrontBinaryType from './RestFrontBinaryType';
 
 
 
@@ -58,7 +57,7 @@ export default class RestFrontBinaryRequest {
             
 
             if (data.hasOwnProperty('BinaryType')) {
-                obj['BinaryType'] = RestFrontBinaryType.constructFromObject(data['BinaryType']);
+                obj['BinaryType'] = ApiClient.convertToType(data['BinaryType'], 'String');
             }
             if (data.hasOwnProperty('Uuid')) {
                 obj['Uuid'] = ApiClient.convertToType(data['Uuid'], 'String');
@@ -68,7 +67,7 @@ export default class RestFrontBinaryRequest {
     }
 
     /**
-    * @member {module:model/RestFrontBinaryType} BinaryType
+    * @member {String} BinaryType
     */
     BinaryType = undefined;
     /**

@@ -16118,6 +16118,48 @@
             "description": "Create dirs or empty files inside the tree"
           },
           {
+            "name": "deleteNodesWithHttpInfo",
+            "docblock": "Handle nodes deletion\n@param {module:model/RestDeleteNodesRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteNodesResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestDeleteNodesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteNodesResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Handle nodes deletion"
+          },
+          {
+            "name": "deleteNodes",
+            "docblock": "Handle nodes deletion\n@param {module:model/RestDeleteNodesRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteNodesResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestDeleteNodesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteNodesResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Handle nodes deletion"
+          },
+          {
             "name": "headNodeWithHttpInfo",
             "docblock": "Return node meta without the node content itself\n@param {String} node \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestHeadNodeResponse} and HTTP response",
             "modifiers": [],
@@ -22443,6 +22485,144 @@
         ]
       }
     ],
+    "core/http/gen/model/RestDeleteJobResult.js": [
+      {
+        "description": "The RestDeleteJobResult model module.\n@module model/RestDeleteJobResult\n@version 1.0",
+        "displayName": "RestDeleteJobResult",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestDeleteJobResult</code>.\n@alias module:model/RestDeleteJobResult\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestDeleteJobResult</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestDeleteJobResult</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestDeleteJobResult} obj Optional instance to populate.\n@return {module:model/RestDeleteJobResult} The populated <code>RestDeleteJobResult</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestDeleteJobResult"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestDeleteJobResult</code> instance.",
+              "type": {
+                "name": "module:model/RestDeleteJobResult"
+              }
+            },
+            "description": "Constructs a <code>RestDeleteJobResult</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestDeleteNodesRequest.js": [
+      {
+        "description": "The RestDeleteNodesRequest model module.\n@module model/RestDeleteNodesRequest\n@version 1.0",
+        "displayName": "RestDeleteNodesRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestDeleteNodesRequest</code>.\n@alias module:model/RestDeleteNodesRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestDeleteNodesRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestDeleteNodesRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestDeleteNodesRequest} obj Optional instance to populate.\n@return {module:model/RestDeleteNodesRequest} The populated <code>RestDeleteNodesRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestDeleteNodesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestDeleteNodesRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestDeleteNodesRequest"
+              }
+            },
+            "description": "Constructs a <code>RestDeleteNodesRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestDeleteNodesResponse.js": [
+      {
+        "description": "The RestDeleteNodesResponse model module.\n@module model/RestDeleteNodesResponse\n@version 1.0",
+        "displayName": "RestDeleteNodesResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestDeleteNodesResponse</code>.\n@alias module:model/RestDeleteNodesResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestDeleteNodesResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestDeleteNodesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestDeleteNodesResponse} obj Optional instance to populate.\n@return {module:model/RestDeleteNodesResponse} The populated <code>RestDeleteNodesResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestDeleteNodesResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestDeleteNodesResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestDeleteNodesResponse"
+              }
+            },
+            "description": "Constructs a <code>RestDeleteNodesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/RestDeleteResponse.js": [
       {
         "description": "The RestDeleteResponse model module.\n@module model/RestDeleteResponse\n@version 1.0",
@@ -22945,33 +23125,6 @@
               }
             },
             "description": "Constructs a <code>RestFrontBinaryResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/RestFrontBinaryType.js": [
-      {
-        "description": "Enum class RestFrontBinaryType.\n@enum {}\n@readonly",
-        "displayName": "RestFrontBinaryType",
-        "methods": [
-          {
-            "name": "constructFromObject",
-            "docblock": "Returns a <code>RestFrontBinaryType</code> enum value from a Javascript object name.\n@param {Object} data The plain JavaScript object containing the name of the enum value.\n@return {module:model/RestFrontBinaryType} The enum <code>RestFrontBinaryType</code> value.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "object"
-              }
-            ],
-            "returns": {
-              "description": "The enum <code>RestFrontBinaryType</code> value.",
-              "type": {
-                "name": "module:model/RestFrontBinaryType"
-              }
-            },
-            "description": "Returns a <code>RestFrontBinaryType</code> enum value from a Javascript object name."
           }
         ]
       }
@@ -24103,6 +24256,52 @@
               }
             },
             "description": "Constructs a <code>RestOpenApiResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestPagination.js": [
+      {
+        "description": "The RestPagination model module.\n@module model/RestPagination\n@version 1.0",
+        "displayName": "RestPagination",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestPagination</code>.\n@alias module:model/RestPagination\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestPagination</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestPagination</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestPagination} obj Optional instance to populate.\n@return {module:model/RestPagination} The populated <code>RestPagination</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestPagination"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestPagination</code> instance.",
+              "type": {
+                "name": "module:model/RestPagination"
+              }
+            },
+            "description": "Constructs a <code>RestPagination</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -29008,57 +29207,6 @@
             ],
             "returns": null,
             "description": "Update metadata for specific overlays"
-          },
-          {
-            "name": "parseNodes",
-            "docblock": "Parse the answer and create AjxpNodes\n@param origNode AjxpNode\n@param transport Ajax.Response\n@param nodeCallback Function\n@param childCallback Function\n@param childrenOnly",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "origNode",
-                "description": "AjxpNode",
-                "type": null
-              },
-              {
-                "name": "transport",
-                "description": "Ajax.Response",
-                "type": null
-              },
-              {
-                "name": "nodeCallback",
-                "description": "Function",
-                "type": null
-              },
-              {
-                "name": "childCallback",
-                "description": "Function",
-                "type": null
-              },
-              {
-                "name": "childrenOnly",
-                "description": null,
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Parse the answer and create AjxpNodes"
-          },
-          {
-            "name": "parseAjxpNode",
-            "docblock": "Parses XML Node and create AjxpNode\n@param xmlNode XMLNode\n@returns AjxpNode",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "xmlNode",
-                "description": "XMLNode",
-                "type": null
-              }
-            ],
-            "returns": {
-              "description": "AjxpNode",
-              "type": null
-            },
-            "description": "Parses XML Node and create AjxpNode"
           }
         ],
         "require": "const MetaNodeProvider = require('pydio/model/meta-node-provider')"
@@ -30680,6 +30828,21 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "loadMenu",
+            "docblock": "@return {Promise}",
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": null
           }
         ]
       }

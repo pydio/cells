@@ -151,7 +151,6 @@ import RestExternalDirectoryConfig from './model/RestExternalDirectoryConfig';
 import RestExternalDirectoryResponse from './model/RestExternalDirectoryResponse';
 import RestFrontBinaryRequest from './model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
-import RestFrontBinaryType from './model/RestFrontBinaryType';
 import RestFrontBootConfResponse from './model/RestFrontBootConfResponse';
 import RestFrontEnrollAuthRequest from './model/RestFrontEnrollAuthRequest';
 import RestFrontEnrollAuthResponse from './model/RestFrontEnrollAuthResponse';
@@ -1138,12 +1137,6 @@ export {
      * @property {module:model/RestFrontBinaryResponse}
      */
     RestFrontBinaryResponse,
-
-    /**
-     * The RestFrontBinaryType model constructor.
-     * @property {module:model/RestFrontBinaryType}
-     */
-    RestFrontBinaryType,
 
     /**
      * The RestFrontBootConfResponse model constructor.
