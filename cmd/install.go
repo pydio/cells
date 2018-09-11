@@ -58,6 +58,8 @@ var (
 	niBindUrl    string
 	niExtUrl     string
 	niDisableSsl bool
+	niCertFile   string
+	niKeyFile    string
 )
 
 // installCmd represents the install command
@@ -117,7 +119,13 @@ Services will all start automatically after the install process is finished.
 				config.Set(internal.String(), "defaults", "urlInternal")
 				config.Set(external.String(), "defaults", "url")
 				config.Set(true, "cert", "proxy", "ssl")
-				config.Set(true, "cert", "proxy", "self")
+
+				if niCertFile != "" && niKeyFile != "" {
+					config.Set(niCertFile, "cert", "proxy", "certFile")
+					config.Set(niKeyFile, "cert", "proxy", "keyFile")
+				} else {
+					config.Set(true, "cert", "proxy", "self")
+				}
 				config.Save("cli", "Install / Non-Interactive / With SSL")
 			}
 
@@ -301,7 +309,9 @@ func init() {
 	flags := installCmd.PersistentFlags()
 	flags.StringVar(&niBindUrl, "bind", "", "[Non interactive mode] internal URL:PORT on which the main proxy will bind. Self-signed SSL will be used by default")
 	flags.StringVar(&niExtUrl, "external", "", "[Non interactive mode] external URL:PORT exposed to outside")
-	flags.BoolVar(&niDisableSsl, "no_ssl", false, "[Non interactive mode] do not enable self signed automatically")
+	flags.BoolVar(&niDisableSsl, "no_ssl", false, "[Non interactive mode] do not enable https")
+	flags.StringVar(&niCertFile, "ssl_cert_file", "", "[Non interactive mode] ssl cert file path, left empty for self signed automatically")
+	flags.StringVar(&niKeyFile, "ssl_key_file", "", "[Non interactive mode] ssl key file path, left empty for self signed automatically")
 
 	RootCmd.AddCommand(installCmd)
 }
