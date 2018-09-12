@@ -26,7 +26,8 @@ import makeMaximise from './make-maximise';
 
 const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu } = Pydio.requireLib('hoc');
 
-class Tab extends React.Component {
+@connect(mapStateToProps, EditorActions)
+export default class Tab extends React.Component {
     static get styles() {
         return {
             container: {
@@ -45,6 +46,10 @@ class Tab extends React.Component {
                 opacity: 0.8,
                 width: "min-content",
                 margin: "0 auto",
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
             }
         }
     }
@@ -79,10 +84,10 @@ class Tab extends React.Component {
                 })
         }
 
+        // {ResolutionControls && <ToolbarGroup>{controls(ResolutionControls)}</ToolbarGroup>}
+        // {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
         return (
             <Toolbar style={Tab.styles.toolbar}>
-                {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
-                {ResolutionControls && <ToolbarGroup>{controls(ResolutionControls)}</ToolbarGroup>}
                 {SizeControls && <ToolbarGroup>{controls(SizeControls)}</ToolbarGroup>}
                 {ContentControls && <ToolbarGroup>{controls(ContentControls)}</ToolbarGroup>}
                 {ContentSearchControls && <ToolbarGroup>{controls(ContentSearchControls)}</ToolbarGroup>}
@@ -125,7 +130,3 @@ function mapStateToProps(state, ownProps) {
 }
 
 const AnimatedCard = makeMaximise(Card)
-
-const EditorTab = connect(mapStateToProps, EditorActions)(Tab)
-
-export default EditorTab

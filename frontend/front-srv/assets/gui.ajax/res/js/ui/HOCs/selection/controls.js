@@ -21,15 +21,67 @@
 import { IconButton } from 'material-ui';
 import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
-import { handler } from '../utils';
+import { handler, getDisplayName } from '../utils';
 
-const _Prev = (props) => <IconButton onClick={() => handler("onSelectionChange", props)(props.tab.selection.previous())} iconClassName="mdi mdi-arrow-left" disabled={props.tab.selection && !props.tab.selection.hasPrevious()} />
-const _Play = (props) => <IconButton onClick={() => handler("onTogglePlaying", props)(true)} iconClassName="mdi mdi-play" disabled={props.tab.playing} />
-const _Pause = (props) => <IconButton onClick={() => handler("onTogglePlaying", props)(false)} iconClassName="mdi mdi-pause" disabled={!props.tab.playing} />
-const _Next = (props) => <IconButton onClick={() => handler("onSelectionChange", props)(props.tab.selection.next())} iconClassName="mdi mdi-arrow-right" disabled={props.tab.selection && !props.tab.selection.hasNext()} />
+function timeout( milliseconds: number = 0 ) {
 
-// Final export and connection
-export const Prev = connect(mapStateToProps)(_Prev)
-export const Play = connect(mapStateToProps)(_Play)
-export const Pause = connect(mapStateToProps)(_Pause)
-export const Next = connect(mapStateToProps)(_Next)
+  return function( target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value;
+
+    descriptor.value = function () {
+      setTimeout(() => {
+        originalMethod.apply(this, arguments);
+       }, milliseconds);
+    };
+
+    return descriptor;
+  }
+
+}
+
+export const withSelectionControls = () => {
+    return (Component) => {
+        return (
+            @connect(mapStateToProps)
+            class extends React.Component {
+                static get displayName() {
+                    return `WithSelectionControls(${getDisplayName(Component)})`
+                }
+
+                render() {
+                    const {tab, ...remaining} = this.props;
+                    const {selection} = tab;
+
+                    if (!selection || selection.length() == 0) {
+                        return (
+                            <Component />
+                        )
+                    }
+
+                    const fn = handler("onSelectionChange", this.props)
+
+                    return (
+                        <Component
+                            prevSelectionDisabled={!selection.hasPrevious()}
+                            nextSelectionDisabled={!selection.hasNext()}
+                            onSelectPrev={() => fn(selection.previous())}
+                            onSelectNext={() => fn(selection.next())}
+                            {...remaining}
+                        />
+                    )
+                }
+            }
+        )
+    }
+}
+
+// const _Prev = (props) => <IconButton onClick={() => handler("onSelectionChange", props)(props.tab.selection.previous())} iconClassName="mdi mdi-arrow-left" disabled={props.tab.selection && !props.tab.selection.hasPrevious()} />
+// const _Play = (props) => <IconButton onClick={() => handler("onTogglePlaying", props)(true)} iconClassName="mdi mdi-play" disabled={props.tab.playing} />
+// const _Pause = (props) => <IconButton onClick={() => handler("onTogglePlaying", props)(false)} iconClassName="mdi mdi-pause" disabled={!props.tab.playing} />
+// const _Next = (props) => <IconButton onClick={() => handler("onSelectionChange", props)(props.tab.selection.next())} iconClassName="mdi mdi-arrow-right" disabled={props.tab.selection && !props.tab.selection.hasNext()} />
+
+// // Final export and connection
+// export const Prev = connect(mapStateToProps)(_Prev)
+// export const Play = connect(mapStateToProps)(_Play)
+// export const Pause = connect(mapStateToProps)(_Pause)
+// export const Next = connect(mapStateToProps)(_Next)

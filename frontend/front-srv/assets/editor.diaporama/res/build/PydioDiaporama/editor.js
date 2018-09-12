@@ -105,34 +105,31 @@ var Editor = (function (_PureComponent) {
                 imageClassName = [].concat(_toConsumableArray(imageClassName), ['ort-rotate-' + orientation]);
             }
 
-            return _react2['default'].createElement(
-                ContainerSizeProvider,
-                null,
-                function (_ref) {
-                    var containerWidth = _ref.containerWidth;
-                    var containerHeight = _ref.containerHeight;
-                    return _react2['default'].createElement(
-                        ImageSizeProvider,
-                        { url: src, node: node },
-                        function (_ref2) {
-                            var imgWidth = _ref2.imgWidth;
-                            var imgHeight = _ref2.imgHeight;
-                            return _react2['default'].createElement(ExtendedImageContainer, {
-                                editorData: editorData,
-                                node: node,
-                                src: src,
-                                width: imgWidth,
-                                height: imgHeight,
-                                containerWidth: containerWidth,
-                                containerHeight: containerHeight,
-                                imgClassName: imageClassName.join(" "),
-                                style: { backgroundColor: '#424242' },
-                                imgStyle: { boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px' }
-                            });
-                        }
-                    );
-                }
-            );
+            //     <ContainerSizeProvider>
+            //     {({containerWidth, containerHeight}) =>
+            //         <ImageSizeProvider url={src} node={node}>
+            //         {({imgWidth, imgHeight}) =>
+            //
+            //
+            //     }
+            //     </ImageSizeProvider>
+            // }
+            // </ContainerSizeProvider>
+
+            // width={imgWidth}
+            // height={imgHeight}
+            // containerWidth={containerWidth}
+            // containerHeight={containerHeight}
+
+            return _react2['default'].createElement(ExtendedImageContainer, {
+                editorData: editorData,
+                node: node,
+                src: src,
+
+                imgClassName: imageClassName.join(" "),
+                style: { backgroundColor: '#424242' },
+                imgStyle: { boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px' }
+            });
         }
     }], [{
         key: 'propTypes',
@@ -175,9 +172,9 @@ var mapStateToProps = function mapStateToProps(state, props) {
 
     var tabs = state.tabs;
 
-    var tab = tabs.filter(function (_ref3) {
-        var currentEditorData = _ref3.editorData;
-        var currentNode = _ref3.node;
+    var tab = tabs.filter(function (_ref) {
+        var currentEditorData = _ref.editorData;
+        var currentNode = _ref.node;
         return (!currentEditorData || currentEditorData.id === editorData.id) && currentNode.getPath() === node.getPath();
     })[0] || {};
 

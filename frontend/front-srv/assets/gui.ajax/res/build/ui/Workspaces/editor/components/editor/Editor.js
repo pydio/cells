@@ -53,6 +53,10 @@ var _EditorToolbar = require('./EditorToolbar');
 
 var _EditorToolbar2 = _interopRequireDefault(_EditorToolbar);
 
+var _EditorButton = require('./EditorButton');
+
+var _EditorButton2 = _interopRequireDefault(_EditorButton);
+
 var _makeMinimise = require('./make-minimise');
 
 var _makeMinimise2 = _interopRequireDefault(_makeMinimise);
@@ -63,6 +67,32 @@ var EditorActions = _Pydio$requireLib.EditorActions;
 
 var MAX_ITEMS = 4;
 
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+
+var withSelectionControls = _Pydio$requireLib2.withSelectionControls;
+var withContainerSize = _Pydio$requireLib2.withContainerSize;
+
+var styles = {
+    selectionButtonLeft: {
+        position: "absolute",
+        top: "calc(50% - 18px)",
+        left: "40px"
+    },
+    selectionButtonRight: {
+        position: "absolute",
+        top: "calc(50% - 18px)",
+        right: "40px"
+    },
+    iconSelectionButton: {
+        borderRadius: "50%",
+        width: "36px",
+        height: "36px",
+        lineHeight: "36px",
+        backgroundColor: "rgb(0, 0, 0, 0.87)",
+        color: "rgb(255, 255,255, 0.87)"
+    }
+};
+
 // MAIN COMPONENT
 
 var Editor = (function (_React$Component) {
@@ -71,7 +101,7 @@ var Editor = (function (_React$Component) {
     function Editor(props) {
         var _this = this;
 
-        _classCallCheck(this, Editor);
+        _classCallCheck(this, _Editor);
 
         _React$Component.call(this, props);
 
@@ -207,6 +237,10 @@ var Editor = (function (_React$Component) {
         var activeTab = _props2.activeTab;
         var isActive = _props2.isActive;
         var displayToolbar = _props2.displayToolbar;
+        var prevSelectionDisabled = _props2.prevSelectionDisabled;
+        var nextSelectionDisabled = _props2.nextSelectionDisabled;
+        var onSelectPrev = _props2.onSelectPrev;
+        var onSelectNext = _props2.onSelectNext;
         var minimisable = this.state.minimisable;
 
         var title = activeTab ? activeTab.title : "";
@@ -245,14 +279,36 @@ var Editor = (function (_React$Component) {
                     'div',
                     { className: 'body', style: parentStyle },
                     this.renderChild()
-                )
+                ),
+                onSelectPrev && React.createElement(_EditorButton2['default'], {
+                    iconClassName: 'mdi mdi-chevron-left',
+                    style: styles.selectionButtonLeft,
+                    iconStyle: styles.iconSelectionButton,
+                    disabled: prevSelectionDisabled,
+                    onClick: function () {
+                        return onSelectPrev();
+                    }
+                }),
+                onSelectNext && React.createElement(_EditorButton2['default'], {
+                    iconClassName: 'mdi mdi-chevron-right',
+                    style: styles.selectionButtonRight,
+                    iconStyle: styles.iconSelectionButton,
+                    disabled: nextSelectionDisabled,
+                    onClick: function () {
+                        return onSelectNext();
+                    }
+                })
             )
         );
     };
 
+    var _Editor = Editor;
+    Editor = _reactRedux.connect(mapStateToProps, EditorActions)(Editor) || Editor;
+    Editor = withSelectionControls()(Editor) || Editor;
     return Editor;
 })(React.Component);
 
+exports['default'] = Editor;
 ;
 
 // ANIMATIONS
@@ -276,8 +332,4 @@ function mapStateToProps(state, ownProps) {
         isActive: editor.isPanelActive
     });
 }
-var ConnectedEditor = _reactRedux.connect(mapStateToProps, EditorActions)(Editor);
-
-// EXPORT
-exports['default'] = ConnectedEditor;
 module.exports = exports['default'];

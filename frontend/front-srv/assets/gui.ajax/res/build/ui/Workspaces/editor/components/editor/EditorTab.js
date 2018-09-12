@@ -60,7 +60,7 @@ var Tab = (function (_React$Component) {
     _inherits(Tab, _React$Component);
 
     function Tab() {
-        _classCallCheck(this, Tab);
+        _classCallCheck(this, _Tab);
 
         _React$Component.apply(this, arguments);
     }
@@ -93,19 +93,11 @@ var Tab = (function (_React$Component) {
             });
         };
 
+        // {ResolutionControls && <ToolbarGroup>{controls(ResolutionControls)}</ToolbarGroup>}
+        // {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
         return React.createElement(
             _materialUi.Toolbar,
             { style: Tab.styles.toolbar },
-            SelectionControls && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                controls(SelectionControls)
-            ),
-            ResolutionControls && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                controls(ResolutionControls)
-            ),
             SizeControls && React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
@@ -181,14 +173,22 @@ var Tab = (function (_React$Component) {
                     backgroundColor: "#000000",
                     opacity: 0.8,
                     width: "min-content",
-                    margin: "0 auto"
+                    margin: "0 auto",
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    bottom: 0
                 }
             };
         }
     }]);
 
+    var _Tab = Tab;
+    Tab = _reactRedux.connect(mapStateToProps, EditorActions)(Tab) || Tab;
     return Tab;
 })(React.Component);
+
+exports['default'] = Tab;
 
 function mapStateToProps(state, ownProps) {
     var editor = state.editor;
@@ -204,8 +204,4 @@ function mapStateToProps(state, ownProps) {
 }
 
 var AnimatedCard = _makeMaximise2['default'](_materialUi.Card);
-
-var EditorTab = _reactRedux.connect(mapStateToProps, EditorActions)(Tab);
-
-exports['default'] = EditorTab;
 module.exports = exports['default'];

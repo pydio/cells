@@ -141,7 +141,9 @@ var ImageContainer = (function (_Component2) {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                overflow: 'auto'
+                overflow: 'auto',
+                width: "100%",
+                height: "100%"
             };
         }
     }]);

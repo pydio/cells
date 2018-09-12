@@ -10,10 +10,6 @@ var _model = require('./model');
 
 var _model2 = _interopRequireDefault(_model);
 
-var _providers = require('./providers');
-
-var SelectionProviders = _interopRequireWildcard(_providers);
-
 var _controls = require('./controls');
 
 var SelectionControls = _interopRequireWildcard(_controls);
@@ -27,7 +23,7 @@ var _selection = require('./selection');
 var _selection2 = _interopRequireDefault(_selection);
 
 exports.SelectionModel = _model2['default'];
-exports.SelectionProviders = SelectionProviders;
 exports.SelectionControls = SelectionControls;
 exports.SelectionActions = SelectionActions;
 exports.withSelection = _selection2['default'];
+exports.withSelectionControls = _controls.withSelectionControls;

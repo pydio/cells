@@ -28,6 +28,7 @@
     "react-addons-update": "^15.4.2",
     "react-autosuggest": "8.0.0",
     "react-chartjs": "^0.8.0",
+    "react-container-dimensions": "^1.4.1",
     "react-dnd": "^2.2.2",
     "react-dnd-html5-backend": "^2.2.3",
     "react-dom": "^15.4.2",

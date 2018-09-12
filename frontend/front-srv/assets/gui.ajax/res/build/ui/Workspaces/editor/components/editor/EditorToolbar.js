@@ -18,9 +18,14 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
+'use strict';
 
 exports.__esModule = true;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _PydioComponents = PydioComponents;
 var ModalAppBar = _PydioComponents.ModalAppBar;
 
@@ -29,36 +34,56 @@ var _require = require('material-ui');
 var ToolbarGroup = _require.ToolbarGroup;
 var IconButton = _require.IconButton;
 
+var _Pydio$requireLib = Pydio.requireLib('hoc');
+
+var withResolutionControls = _Pydio$requireLib.withResolutionControls;
+
 // Display components
-var EditorToolbar = function EditorToolbar(_ref) {
-    var title = _ref.title;
-    var className = _ref.className;
-    var style = _ref.style;
-    var onFullScreen = _ref.onFullScreen;
-    var onMinimise = _ref.onMinimise;
-    var onClose = _ref.onClose;
 
-    var innerStyle = { color: "#FFFFFF", fill: "#FFFFFF" };
+var EditorToolbar = (function (_React$Component) {
+    _inherits(EditorToolbar, _React$Component);
 
-    return React.createElement(ModalAppBar, {
-        className: className,
-        style: style,
-        title: React.createElement(
-            "span",
-            null,
-            title
-        ),
-        titleStyle: innerStyle,
-        iconElementLeft: React.createElement(IconButton, { iconClassName: "mdi mdi-close", iconStyle: innerStyle, disabled: typeof onClose !== "function", touch: true, onTouchTap: onClose }),
-        iconElementRight: React.createElement(
-            ToolbarGroup,
-            null,
-            React.createElement(IconButton, { iconClassName: "mdi mdi-window-minimize", iconStyle: innerStyle, disabled: typeof onMinimise !== "function", touch: true, onTouchTap: onMinimise }),
-            !pydio.UI.MOBILE_EXTENSIONS && React.createElement(IconButton, { iconClassName: "mdi mdi-window-maximize", iconStyle: innerStyle,
-                disabled: typeof onFullScreen !== "function", touch: true, onTouchTap: onFullScreen })
-        )
-    });
-};
+    function EditorToolbar() {
+        _classCallCheck(this, _EditorToolbar);
 
-exports["default"] = EditorToolbar;
-module.exports = exports["default"];
+        _React$Component.apply(this, arguments);
+    }
+
+    EditorToolbar.prototype.render = function render() {
+        var _props = this.props;
+        var title = _props.title;
+        var className = _props.className;
+        var style = _props.style;
+        var onFullScreen = _props.onFullScreen;
+        var onMinimise = _props.onMinimise;
+        var onClose = _props.onClose;
+
+        var innerStyle = { color: "#FFFFFF", fill: "#FFFFFF" };
+
+        return React.createElement(ModalAppBar, {
+            className: className,
+            style: style,
+            title: React.createElement(
+                'span',
+                null,
+                title
+            ),
+            titleStyle: innerStyle,
+            iconElementLeft: React.createElement(IconButton, { iconClassName: 'mdi mdi-close', iconStyle: innerStyle, disabled: typeof onClose !== "function", touch: true, onTouchTap: onClose }),
+            iconElementRight: React.createElement(
+                ToolbarGroup,
+                null,
+                React.createElement(IconButton, { iconClassName: 'mdi mdi-window-minimize', iconStyle: innerStyle, disabled: typeof onMinimise !== "function", touch: true, onTouchTap: onMinimise }),
+                !pydio.UI.MOBILE_EXTENSIONS && React.createElement(IconButton, { iconClassName: 'mdi mdi-window-maximize', iconStyle: innerStyle,
+                    disabled: typeof onFullScreen !== "function", touch: true, onTouchTap: onFullScreen })
+            )
+        });
+    };
+
+    var _EditorToolbar = EditorToolbar;
+    EditorToolbar = withResolutionControls()(EditorToolbar) || EditorToolbar;
+    return EditorToolbar;
+})(React.Component);
+
+exports['default'] = EditorToolbar;
+module.exports = exports['default'];

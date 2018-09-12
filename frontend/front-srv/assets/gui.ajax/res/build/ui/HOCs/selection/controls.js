@@ -22,6 +22,16 @@
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _materialUi = require('material-ui');
 
 var _reactRedux = require('react-redux');
@@ -30,33 +40,84 @@ var _utils = require('./utils');
 
 var _utils2 = require('../utils');
 
-var _Prev = function _Prev(props) {
-  return React.createElement(_materialUi.IconButton, { onClick: function () {
-      return _utils2.handler("onSelectionChange", props)(props.tab.selection.previous());
-    }, iconClassName: 'mdi mdi-arrow-left', disabled: props.tab.selection && !props.tab.selection.hasPrevious() });
-};
-var _Play = function _Play(props) {
-  return React.createElement(_materialUi.IconButton, { onClick: function () {
-      return _utils2.handler("onTogglePlaying", props)(true);
-    }, iconClassName: 'mdi mdi-play', disabled: props.tab.playing });
-};
-var _Pause = function _Pause(props) {
-  return React.createElement(_materialUi.IconButton, { onClick: function () {
-      return _utils2.handler("onTogglePlaying", props)(false);
-    }, iconClassName: 'mdi mdi-pause', disabled: !props.tab.playing });
-};
-var _Next = function _Next(props) {
-  return React.createElement(_materialUi.IconButton, { onClick: function () {
-      return _utils2.handler("onSelectionChange", props)(props.tab.selection.next());
-    }, iconClassName: 'mdi mdi-arrow-right', disabled: props.tab.selection && !props.tab.selection.hasNext() });
+function timeout() {
+    var milliseconds = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+
+    return function (target, propertyKey, descriptor) {
+        var originalMethod = descriptor.value;
+
+        descriptor.value = function () {
+            var _this = this,
+                _arguments = arguments;
+
+            setTimeout(function () {
+                originalMethod.apply(_this, _arguments);
+            }, milliseconds);
+        };
+
+        return descriptor;
+    };
+}
+
+var withSelectionControls = function withSelectionControls() {
+    return function (Component) {
+        return (function (_React$Component) {
+            _inherits(_class, _React$Component);
+
+            function _class() {
+                _classCallCheck(this, _class2);
+
+                _React$Component.apply(this, arguments);
+            }
+
+            _class.prototype.render = function render() {
+                var _props = this.props;
+                var tab = _props.tab;
+
+                var remaining = _objectWithoutProperties(_props, ['tab']);
+
+                var selection = tab.selection;
+
+                if (!selection || selection.length() == 0) {
+                    return React.createElement(Component, null);
+                }
+
+                var fn = _utils2.handler("onSelectionChange", this.props);
+
+                return React.createElement(Component, _extends({
+                    prevSelectionDisabled: !selection.hasPrevious(),
+                    nextSelectionDisabled: !selection.hasNext(),
+                    onSelectPrev: function () {
+                        return fn(selection.previous());
+                    },
+                    onSelectNext: function () {
+                        return fn(selection.next());
+                    }
+                }, remaining));
+            };
+
+            _createClass(_class, null, [{
+                key: 'displayName',
+                get: function get() {
+                    return 'WithSelectionControls(' + _utils2.getDisplayName(Component) + ')';
+                }
+            }]);
+
+            var _class2 = _class;
+            _class = _reactRedux.connect(_utils.mapStateToProps)(_class) || _class;
+            return _class;
+        })(React.Component);
+    };
 };
 
-// Final export and connection
-var Prev = _reactRedux.connect(_utils.mapStateToProps)(_Prev);
-exports.Prev = Prev;
-var Play = _reactRedux.connect(_utils.mapStateToProps)(_Play);
-exports.Play = Play;
-var Pause = _reactRedux.connect(_utils.mapStateToProps)(_Pause);
-exports.Pause = Pause;
-var Next = _reactRedux.connect(_utils.mapStateToProps)(_Next);
-exports.Next = Next;
+exports.withSelectionControls = withSelectionControls;
+// const _Prev = (props) => <IconButton onClick={() => handler("onSelectionChange", props)(props.tab.selection.previous())} iconClassName="mdi mdi-arrow-left" disabled={props.tab.selection && !props.tab.selection.hasPrevious()} />
+// const _Play = (props) => <IconButton onClick={() => handler("onTogglePlaying", props)(true)} iconClassName="mdi mdi-play" disabled={props.tab.playing} />
+// const _Pause = (props) => <IconButton onClick={() => handler("onTogglePlaying", props)(false)} iconClassName="mdi mdi-pause" disabled={!props.tab.playing} />
+// const _Next = (props) => <IconButton onClick={() => handler("onSelectionChange", props)(props.tab.selection.next())} iconClassName="mdi mdi-arrow-right" disabled={props.tab.selection && !props.tab.selection.hasNext()} />
+
+// // Final export and connection
+// export const Prev = connect(mapStateToProps)(_Prev)
+// export const Play = connect(mapStateToProps)(_Play)
+// export const Pause = connect(mapStateToProps)(_Pause)
+// export const Next = connect(mapStateToProps)(_Next)

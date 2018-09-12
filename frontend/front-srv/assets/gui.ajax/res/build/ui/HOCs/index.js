@@ -22,6 +22,8 @@
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -31,6 +33,8 @@ var _contextMenu = require('./context-menu');
 var _contextMenu2 = _interopRequireDefault(_contextMenu);
 
 var _controls = require('./controls');
+
+var controls = _interopRequireWildcard(_controls);
 
 var _errors = require('./errors');
 
@@ -80,7 +84,7 @@ var _dropNativeFileDropProvider = require('./drop/NativeFileDropProvider');
 
 var _dropNativeFileDropProvider2 = _interopRequireDefault(_dropNativeFileDropProvider);
 
-var PydioHOCs = {
+var PydioHOCs = _extends({
     EditorActions: actions,
     EditorReducers: _editorReducersIndex2['default'],
     ContentActions: _contentIndex.ContentActions,
@@ -90,18 +94,18 @@ var PydioHOCs = {
     ResolutionControls: _resolutionIndex.ResolutionControls,
     SizeActions: _sizeIndex.SizeActions,
     SizeControls: _sizeIndex.SizeControls,
-    SelectionProviders: _selectionIndex.SelectionProviders,
     SelectionActions: _selectionIndex.SelectionActions,
     SelectionControls: _selectionIndex.SelectionControls,
     LocalisationActions: _localisationIndex.LocalisationActions,
     LocalisationControls: _localisationIndex.LocalisationControls,
-    withControls: _controls.withControls,
     withContextMenu: _contextMenu2['default'],
     withErrors: _errors2['default'],
     withLoader: _loader2['default'],
-    withMenu: _controls.withMenu,
+    withContainerSize: _sizeIndex.withContainerSize,
     withResize: _sizeIndex.withResize,
     withResolution: _resolutionIndex.withResolution,
+    withResolutionControls: _resolutionIndex.withResolutionControls,
+    withSelectionControls: _selectionIndex.withSelectionControls,
     withSelection: _selectionIndex.withSelection,
     withVerticalScroll: _scrollbarWithVerticalScroll2['default'],
     dropProvider: _dropDropProvider2['default'],
@@ -110,7 +114,7 @@ var PydioHOCs = {
     PaletteModifier: _PaletteModifier2['default'],
     URLProvider: _urls.URLProvider,
     SizeProviders: _sizeIndex.SizeProviders
-};
+}, controls);
 
 exports['default'] = PydioHOCs;
 module.exports = exports['default'];
