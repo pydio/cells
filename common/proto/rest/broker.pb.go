@@ -56,8 +56,10 @@ It has these top-level messages:
 	CreateNodesRequest
 	NodesCollection
 	DeleteNodesRequest
-	DeleteJobResult
+	BackgroundJobResult
 	DeleteNodesResponse
+	RestoreNodesRequest
+	RestoreNodesResponse
 	ListDocstoreRequest
 	DocstoreCollection
 	ChangeRequest

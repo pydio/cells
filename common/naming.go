@@ -117,6 +117,8 @@ const (
 	META_NAMESPACE_DATASOURCE_NAME        = "pydio:meta-data-source-name"
 	META_NAMESPACE_DATASOURCE_PATH        = "pydio:meta-data-source-path"
 	META_NAMESPACE_NODE_TEST_LOCAL_FOLDER = "pydio:test:local-folder-storage"
+	META_NAMESPACE_RECYCLE_RESTORE        = "pydio:recycle_restore"
+	RECYCLE_BIN_NAME                      = "recycle_bin"
 
 	PYDIO_THUMBSTORE_NAMESPACE        = "pydio-thumbstore"
 	PYDIO_DOCSTORE_BINARIES_NAMESPACE = "pydio-binaries"

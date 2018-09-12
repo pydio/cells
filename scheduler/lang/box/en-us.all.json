@@ -27,11 +27,26 @@
   "Jobs.User.Extract": {
     "other" : "Extracting archive..."
   },
+  "Jobs.User.Delete": {
+    "other" : "Deleting selection in background..."
+  },
   "Jobs.User.DirCopy": {
     "other" : "Copying folder in background..."
   },
   "Jobs.User.DirMove": {
     "other" : "Moving folder in background..."
+  },
+  "Jobs.User.FileCopy": {
+    "other" : "Copying file in background..."
+  },
+  "Jobs.User.FileMove": {
+    "other" : "Moving file in background..."
+  },
+  "Jobs.User.MultipleCopy": {
+    "other" : "Copying selection in background..."
+  },
+  "Jobs.User.MultipleMove": {
+    "other" : "Moving selection in background..."
   },
   "Jobs.User.ResyncDS": {
     "other" : "Re-indexing datasource {{.DsName}}..."

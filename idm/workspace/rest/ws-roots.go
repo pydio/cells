@@ -56,7 +56,7 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 		// Delete current Root Nodes ACLs
 		q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 			WorkspaceIDs: []string{ws.UUID},
-			Actions:      []*idm.ACLAction{{Name: utils.ACL_WSROOT_ACTION_NAME}},
+			Actions:      []*idm.ACLAction{{Name: utils.ACL_WSROOT_ACTION_NAME}, {Name: utils.ACL_RECYCLE_ROOT.Name}},
 		})
 		_, e := aclClient.DeleteACL(ctx, &idm.DeleteACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
 		if e != nil {
@@ -99,12 +99,19 @@ func (h *WorkspaceHandler) storeRootNodesAsACLs(ctx context.Context, ws *idm.Wor
 	// Now store new roots as ACLs
 	for nodeId, node := range ws.RootNodes {
 		// Roots
-		acl := &idm.ACL{
+		if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
 			WorkspaceID: ws.UUID,
 			NodeID:      nodeId,
 			Action:      &idm.ACLAction{Name: utils.ACL_WSROOT_ACTION_NAME, Value: node.GetPath()},
+		}}); e != nil {
+			return e
 		}
-		if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl}); e != nil {
+		// Recycle Roots
+		if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+			WorkspaceID: ws.UUID,
+			NodeID:      nodeId,
+			Action:      utils.ACL_RECYCLE_ROOT,
+		}}); e != nil {
 			return e
 		}
 		// Reassign if necessary

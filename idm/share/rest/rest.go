@@ -88,7 +88,8 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	}
 	log.Logger(ctx).Debug("Received Share.Cell API request", zap.Any("input", &shareRequest))
 
-	if err := h.ParseRootNodes(ctx, &shareRequest); err != nil {
+	err, cellNodeCreated := h.ParseRootNodes(ctx, &shareRequest)
+	if err != nil {
 		service.RestError500(req, rsp, err)
 		return
 	}
@@ -123,7 +124,16 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 				ACL: &idm.ACL{
 					NodeID:      node.Uuid,
 					WorkspaceID: workspace.UUID,
-					Action:      &idm.ACLAction{Name: "workspace-path", Value: "uuid:" + node.Uuid},
+					Action:      &idm.ACLAction{Name: utils.ACL_WSROOT_ACTION_NAME, Value: "uuid:" + node.Uuid},
+				},
+			})
+		}
+		if cellNodeCreated != nil {
+			aclClient.CreateACL(ctx, &idm.CreateACLRequest{
+				ACL: &idm.ACL{
+					NodeID:      cellNodeCreated.Uuid,
+					WorkspaceID: workspace.UUID,
+					Action:      utils.ACL_RECYCLE_ROOT,
 				},
 			})
 		}
@@ -792,8 +802,9 @@ func (h *SharesHandler) UpdatePoliciesFromAcls(ctx context.Context, workspace *i
 
 // ParseRootNodes reads the request property to either create a new node using the "rooms" Virtual node,
 // or just verify that the root nodes are not empty.
-func (h *SharesHandler) ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) error {
+func (h *SharesHandler) ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (error, *tree.Node) {
 
+	var createdNode *tree.Node
 	if shareRequest.CreateEmptyRoot {
 
 		manager := views.GetVirtualNodesManager()
@@ -801,7 +812,7 @@ func (h *SharesHandler) ParseRootNodes(ctx context.Context, shareRequest *rest.P
 		if root, exists := manager.ByUuid("cells"); exists {
 			parentNode, err := manager.ResolveInContext(ctx, root, router.GetClientsPool(), true)
 			if err != nil {
-				return err
+				return err, nil
 			}
 			index := 0
 			labelSlug := slug.Make(shareRequest.Room.Label)
@@ -819,21 +830,22 @@ func (h *SharesHandler) ParseRootNodes(ctx context.Context, shareRequest *rest.P
 			})
 			if err != nil {
 				log.Logger(ctx).Error("share/cells : create empty root", zap.Error(err))
-				return err
+				return err, nil
 			}
 			// Update node meta
 			createResp.Node.SetMeta("CellNode", true)
 			metaClient := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
 			metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: createResp.Node})
 			shareRequest.Room.RootNodes = append(shareRequest.Room.RootNodes, createResp.Node)
+			createdNode = createResp.Node
 		} else {
-			return errors.BadRequest(common.SERVICE_SHARE, "Wrong configuration, missing rooms virtual node")
+			return errors.BadRequest(common.SERVICE_SHARE, "Wrong configuration, missing rooms virtual node"), nil
 		}
 	}
 	if len(shareRequest.Room.RootNodes) == 0 {
-		return errors.BadRequest(common.SERVICE_SHARE, "Wrong configuration, missing RootNodes in CellRequest")
+		return errors.BadRequest(common.SERVICE_SHARE, "Wrong configuration, missing RootNodes in CellRequest"), nil
 	}
-	return nil
+	return nil, createdNode
 
 }
 

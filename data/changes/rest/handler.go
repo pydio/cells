@@ -114,7 +114,7 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 			fakeSeq++
 			outNode := resp.Node
 			outPath := strings.TrimPrefix(outNode.Path, restReq.Filter)
-			if strings.HasPrefix(outPath, "/recycle_bin") || strings.HasPrefix(outPath, "recycle_bin") ||
+			if strings.HasPrefix(outPath, "/"+common.RECYCLE_BIN_NAME) || strings.HasPrefix(outPath, common.RECYCLE_BIN_NAME) ||
 				strings.HasSuffix(outPath, common.PYDIO_SYNC_HIDDEN_FILE_META) {
 				continue
 			}
@@ -162,7 +162,7 @@ func (h Handler) GetChanges(req *restful.Request, rsp *restful.Response) {
 		service.RestError404(req, rsp, err)
 		return
 	}
-	recyclePath := inputFilterNode.Path + "/recycle_bin"
+	recyclePath := inputFilterNode.Path + "/" + common.RECYCLE_BIN_NAME
 
 	q := &tree.SearchSyncChangeRequest{
 		Seq:    uint64(restReq.SeqID),

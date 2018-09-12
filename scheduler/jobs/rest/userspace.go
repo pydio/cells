@@ -28,12 +28,15 @@ import (
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
+	"strings"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
+	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/lang"
 )
@@ -180,6 +183,7 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 
 	err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 
+		var loadedNodes []*tree.Node
 		for i, path := range selectedPathes {
 			node := &tree.Node{Path: path}
 			_, node, nodeErr := inputFilter(ctx, node, "sel")
@@ -187,7 +191,26 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			if nodeErr != nil {
 				return nodeErr
 			}
+			r, e := getRouter().GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: node.Path}})
+			if e != nil {
+				return e
+			}
+			loadedNodes = append(loadedNodes, r.Node)
 			selectedPathes[i] = node.Path
+		}
+
+		if len(loadedNodes) > 1 {
+			if move {
+				taskLabel = T("Jobs.User.MultipleMove")
+			} else {
+				taskLabel = T("Jobs.User.MultipleCopy")
+			}
+		} else if loadedNodes[0].IsLeaf() {
+			if move {
+				taskLabel = T("Jobs.User.FileMove")
+			} else {
+				taskLabel = T("Jobs.User.FileCopy")
+			}
 		}
 
 		if targetNodePath != "" {
@@ -215,6 +238,18 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			targetParent = "true"
 		}
 		log.Logger(ctx).Info("Creating copy/move job", zap.Any("paths", selectedPathes), zap.String("target", targetNodePath))
+		if move && strings.Contains(targetNodePath, common.RECYCLE_BIN_NAME) {
+			// Update node meta before moving
+			metaClient := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
+			for _, n := range loadedNodes {
+				metaNode := &tree.Node{Uuid: n.GetUuid()}
+				metaNode.SetMeta(common.META_NAMESPACE_RECYCLE_RESTORE, n.Path)
+				_, e := metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: metaNode})
+				if e != nil {
+					log.Logger(ctx).Error("Error while saving recycle_restore meta", zap.Error(e))
+				}
+			}
+		}
 
 		job := &jobs.Job{
 			ID:             "copy-move-" + jobUuid,

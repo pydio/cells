@@ -542,6 +542,14 @@ service TreeService {
             body: "*"
         };
     }
+
+    // Handle nodes restoration from recycle bin
+    rpc RestoreNodes(RestoreNodesRequest) returns (RestoreNodesResponse) {
+        option (google.api.http) = {
+            post: "/tree/restore"
+            body: "*"
+        };
+    }
 }
 
 

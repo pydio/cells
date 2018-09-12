@@ -27,11 +27,26 @@
   "Jobs.User.Extract": {
     "other" : "Extraction de l'archive..."
   },
+  "Jobs.User.Delete": {
+    "other" : "Suppression de la selection en tâche de fond..."
+  },
   "Jobs.User.DirCopy": {
     "other" : "Copie du répertoire en tâche de fond..."
   },
   "Jobs.User.DirMove": {
     "other" : "Déplacement du répertoire en tâche de fond..."
+  },
+  "Jobs.User.FileCopy": {
+    "other" : "Copie du fichier en tâche de fond..."
+  },
+  "Jobs.User.FileMove": {
+    "other" : "Déplacement du fichier en tâche de fond..."
+  },
+  "Jobs.User.MultipleCopy": {
+    "other" : "Copie de la sélection en tâche de fond..."
+  },
+  "Jobs.User.MultipleMove": {
+    "other" : "Déplacement de la sélection en tâche de fond..."
   },
   "Jobs.User.ResyncDS": {
     "other" : "Re-indexation de la DataSource {{.DsName}}..."

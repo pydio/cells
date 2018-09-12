@@ -81,13 +81,21 @@ message DeleteNodesRequest {
     bool Recursive = 2;
 }
 
-message DeleteJobResult {
+message BackgroundJobResult {
     string Uuid = 1;
     string Label = 2;
 }
 
 message DeleteNodesResponse {
-    repeated DeleteJobResult DeleteJobs = 1;
+    repeated BackgroundJobResult DeleteJobs = 1;
+}
+
+message RestoreNodesRequest {
+    repeated tree.Node Nodes = 1;
+}
+
+message RestoreNodesResponse {
+    repeated BackgroundJobResult RestoreJobs = 1;
 }
 
 message ListDocstoreRequest {

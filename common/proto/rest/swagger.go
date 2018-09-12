@@ -2622,6 +2622,33 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/tree/restore": {
+      "post": {
+        "summary": "Handle nodes restoration from recycle bin",
+        "operationId": "RestoreNodes",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restRestoreNodesResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restRestoreNodesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TreeService"
+        ]
+      }
+    },
     "/tree/stat/{Node}": {
       "get": {
         "summary": "Return node meta without the node content itself",
@@ -5861,6 +5888,17 @@ var SwaggerJson = `{
       },
       "title": "Response for search request"
     },
+    "restBackgroundJobResult": {
+      "type": "object",
+      "properties": {
+        "Uuid": {
+          "type": "string"
+        },
+        "Label": {
+          "type": "string"
+        }
+      }
+    },
     "restBindResponse": {
       "type": "object",
       "properties": {
@@ -6060,17 +6098,6 @@ var SwaggerJson = `{
         }
       }
     },
-    "restDeleteJobResult": {
-      "type": "object",
-      "properties": {
-        "Uuid": {
-          "type": "string"
-        },
-        "Label": {
-          "type": "string"
-        }
-      }
-    },
     "restDeleteNodesRequest": {
       "type": "object",
       "properties": {
@@ -6092,7 +6119,7 @@ var SwaggerJson = `{
         "DeleteJobs": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/restDeleteJobResult"
+            "$ref": "#/definitions/restBackgroundJobResult"
           }
         }
       }
@@ -6751,6 +6778,28 @@ var SwaggerJson = `{
         }
       },
       "title": "Generic Query for limiting results based on resource permissions"
+    },
+    "restRestoreNodesRequest": {
+      "type": "object",
+      "properties": {
+        "Nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/treeNode"
+          }
+        }
+      }
+    },
+    "restRestoreNodesResponse": {
+      "type": "object",
+      "properties": {
+        "RestoreJobs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/restBackgroundJobResult"
+          }
+        }
+      }
     },
     "restRevokeRequest": {
       "type": "object",

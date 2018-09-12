@@ -30,11 +30,15 @@ import (
 	"github.com/patrickmn/go-cache"
 	"go.uber.org/zap"
 
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/docstore"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
 )
 
@@ -184,9 +188,48 @@ func (m *VirtualNodesManager) ResolveInContext(ctx context.Context, vNode *tree.
 		if createResp, err := clientsPool.GetTreeClientWrite().CreateNode(ctx, &tree.CreateNodeRequest{Node: resolved}); err != nil {
 			return nil, err
 		} else {
+			if e := m.copyRecycleRootAcl(ctx, vNode, createResp.Node); e != nil {
+				return nil, e
+			}
 			return createResp.Node, nil
 		}
 	}
 	return resolved, nil
 
+}
+
+func (m *VirtualNodesManager) copyRecycleRootAcl(ctx context.Context, vNode *tree.Node, resolved *tree.Node) error {
+	cl := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	// Check if vNode has this flag set
+	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		NodeIDs: []string{vNode.Uuid},
+		Actions: []*idm.ACLAction{utils.ACL_RECYCLE_ROOT},
+	})
+	st, e := cl.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
+	if e != nil {
+		return e
+	}
+	defer st.Close()
+	var has bool
+	for {
+		r, e := st.Recv()
+		if e != nil {
+			break
+		}
+		if r != nil {
+			has = true
+			break
+		}
+	}
+	if !has {
+		return nil
+	}
+	cl.CreateACL(ctx, &idm.CreateACLRequest{
+		ACL: &idm.ACL{
+			NodeID: resolved.Uuid,
+			Action: utils.ACL_RECYCLE_ROOT,
+		},
+	})
+
+	return nil
 }

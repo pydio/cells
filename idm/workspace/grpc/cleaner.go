@@ -72,6 +72,8 @@ func (c *WsCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 		}
 	}
 	if !hasAcl {
+		log.Logger(ctx).Info("[warning] Workspace should be deleted based on ACL Delete events", zap.String("wsId", acl.WorkspaceID))
+		return nil
 		q2, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
 			Uuid: acl.WorkspaceID,
 		})

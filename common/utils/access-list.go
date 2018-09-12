@@ -82,6 +82,7 @@ var (
 	ACL_DELETE             = &idm.ACLAction{Name: "delete", Value: "1"}
 	ACL_LIST               = &idm.ACLAction{Name: "list", Value: "1"}
 	ACL_WSROOT_ACTION_NAME = "workspace-path"
+	ACL_RECYCLE_ROOT       = &idm.ACLAction{Name: "recycle_root", Value: "1"}
 	ResolvePolicyRequest   PolicyResolver
 )
 

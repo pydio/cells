@@ -27,12 +27,21 @@ import (
 	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"
 
+	"fmt"
+
+	"github.com/pborman/uuid"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/views"
 	rest_meta "github.com/pydio/cells/data/meta/rest"
+	"github.com/pydio/cells/scheduler/lang"
 )
 
 type Handler struct {
@@ -125,6 +134,222 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 	}
 
 	resp.WriteEntity(output)
+
+}
+
+func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
+
+	var input rest.DeleteNodesRequest
+	if e := req.ReadEntity(&input); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	ctx := req.Request.Context()
+	username, _ := utils.FindUserNameInContext(ctx)
+	languages := utils.UserLanguagesFromRestRequest(req)
+	T := lang.Bundle().GetTranslationFunc(languages...)
+	output := &rest.DeleteNodesResponse{}
+	router := h.GetRouter()
+
+	deleteJobs := newDeleteJobs()
+	metaClient := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
+
+	for _, node := range input.Nodes {
+		e := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+			ctx, filtered, _ := inputFilter(ctx, node, "in")
+			_, ancestors, e := views.AncestorsListFromContext(ctx, filtered, "in", router.GetClientsPool(), false)
+			if e != nil {
+				return e
+			}
+			if sourceInRecycle(ctx, filtered, ancestors) {
+				// THIS IS A REAL DELETE NOW !
+				log.Logger(ctx).Info("Delete Node: this is a real delete")
+				deleteJobs.RealDeletes = append(deleteJobs.RealDeletes, filtered.Path)
+			} else if recycleRoot, e := findRecycleForSource(ctx, filtered, ancestors); e == nil {
+				// MOVE TO RECYCLE INSTEAD OF DELETING
+				log.Logger(ctx).Info("Delete Node / found RecycleRoot : ", zap.Any("n", recycleRoot))
+				rPath := recycleRoot.Path + "/" + common.RECYCLE_BIN_NAME
+				// If moving to recycle, save current path as metadata for later restore operation
+				metaNode := &tree.Node{Uuid: ancestors[0].Uuid}
+				metaNode.SetMeta(common.META_NAMESPACE_RECYCLE_RESTORE, ancestors[0].Path)
+				if _, e := metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: metaNode}); e != nil {
+					log.Logger(ctx).Error("Could not store recycle_restore metadata for node", zap.Error(e))
+				}
+				deleteJobs.RecycleMoves[rPath] = append(deleteJobs.RecycleMoves[rPath], filtered.Path)
+			} else {
+				// we don't know what to do!
+				return fmt.Errorf("cannot find proper root for recycling: %s", e.Error())
+			}
+			return nil
+		})
+		if e != nil {
+			service.RestError500(req, resp, e)
+			return
+		}
+	}
+
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	moveLabel := T("Jobs.User.MultipleMove")
+	for recyclePath, selectedPaths := range deleteJobs.RecycleMoves {
+
+		jobUuid := uuid.New()
+		job := &jobs.Job{
+			ID:             "copy-move-" + jobUuid,
+			Owner:          username,
+			Label:          moveLabel,
+			Inactive:       false,
+			Languages:      languages,
+			MaxConcurrency: 1,
+			AutoStart:      true,
+			AutoClean:      true,
+			Actions: []*jobs.Action{
+				{
+					ID: "actions.tree.copymove",
+					Parameters: map[string]string{
+						"type":         "move",
+						"target":       recyclePath,
+						"targetParent": "true",
+						"recursive":    "true",
+						"create":       "true",
+					},
+					NodesSelector: &jobs.NodesSelector{
+						Pathes: selectedPaths,
+					},
+				},
+			},
+		}
+		if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
+			service.RestError500(req, resp, er)
+			return
+		} else {
+			output.DeleteJobs = append(output.DeleteJobs, &rest.BackgroundJobResult{
+				Uuid:  jobUuid,
+				Label: moveLabel,
+			})
+		}
+
+	}
+
+	if len(deleteJobs.RealDeletes) > 0 {
+
+		taskLabel := T("Jobs.User.Delete")
+		jobUuid := uuid.New()
+		job := &jobs.Job{
+			ID:             "delete-" + jobUuid,
+			Owner:          username,
+			Label:          taskLabel,
+			Inactive:       false,
+			Languages:      languages,
+			MaxConcurrency: 1,
+			AutoStart:      true,
+			AutoClean:      true,
+			Actions: []*jobs.Action{
+				{
+					ID:         "actions.tree.delete",
+					Parameters: map[string]string{},
+					NodesSelector: &jobs.NodesSelector{
+						Pathes: deleteJobs.RealDeletes,
+					},
+				},
+			},
+		}
+		if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
+			service.RestError500(req, resp, er)
+			return
+		} else {
+			output.DeleteJobs = append(output.DeleteJobs, &rest.BackgroundJobResult{
+				Uuid:  jobUuid,
+				Label: taskLabel,
+			})
+		}
+
+	}
+
+	resp.WriteEntity(output)
+
+}
+
+func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
+
+	var input rest.RestoreNodesRequest
+	if e := req.ReadEntity(&input); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	output := &rest.RestoreNodesResponse{}
+	ctx := req.Request.Context()
+	username, _ := utils.FindUserNameInContext(ctx)
+	languages := utils.UserLanguagesFromRestRequest(req)
+	T := lang.Bundle().GetTranslationFunc(languages...)
+	moveLabel := T("Jobs.User.DirMove")
+
+	router := h.GetRouter()
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+
+	e := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+		for _, n := range input.Nodes {
+			ctx, filtered, _ := inputFilter(ctx, n, "in")
+			r, e := router.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: filtered})
+			if e != nil {
+				log.Logger(ctx).Error("[restore] Cannot find source node", zap.Error(e))
+				return e
+			}
+			currentFullPath := filtered.Path
+			originalFullPath := r.GetNode().GetStringMeta(common.META_NAMESPACE_RECYCLE_RESTORE)
+			if originalFullPath == "" {
+				log.Logger(ctx).Error("[restore] Cannot find recycle_restore data", r.GetNode().Zap())
+				continue
+			}
+			if r.GetNode().IsLeaf() {
+				moveLabel = T("Jobs.User.FileMove")
+			} else {
+				moveLabel = T("Jobs.User.DirMove")
+			}
+
+			log.Logger(ctx).Info("Should restore node", zap.String("from", currentFullPath), zap.String("to", originalFullPath))
+			jobUuid := uuid.New()
+			job := &jobs.Job{
+				ID:             "copy-move-" + jobUuid,
+				Owner:          username,
+				Label:          moveLabel,
+				Inactive:       false,
+				Languages:      languages,
+				MaxConcurrency: 1,
+				AutoStart:      true,
+				AutoClean:      true,
+				Actions: []*jobs.Action{
+					{
+						ID: "actions.tree.copymove",
+						Parameters: map[string]string{
+							"type":      "move",
+							"target":    originalFullPath,
+							"recursive": "true",
+							"create":    "true",
+						},
+						NodesSelector: &jobs.NodesSelector{
+							Pathes: []string{currentFullPath},
+						},
+					},
+				},
+			}
+			if _, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job}); er != nil {
+				return er
+			} else {
+				output.RestoreJobs = append(output.RestoreJobs, &rest.BackgroundJobResult{
+					Uuid:  jobUuid,
+					Label: moveLabel,
+				})
+			}
+		}
+
+		return nil
+	})
+
+	if e != nil {
+		service.RestError500(req, resp, e)
+	} else {
+		resp.WriteEntity(output)
+	}
 
 }
 
