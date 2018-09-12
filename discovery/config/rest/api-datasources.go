@@ -46,14 +46,26 @@ import (
 /*********************
 DATASOURCES MANAGEMENT
 *********************/
+
+// GetDataSource retrieves a datasource given its name.
 func (s *Handler) GetDataSource(req *restful.Request, resp *restful.Response) {
 
 	dsName := req.PathParameter("Name")
-	if res, err := s.loadDataSource(req.Request.Context(), dsName); err != nil {
+	res, err := s.loadDataSource(req.Request.Context(), dsName)
+
+	if err != nil {
+		err = fmt.Errorf("could not to retrieve datasource with name [%s], root cause: %s", dsName, err.Error())
 		service.RestError500(req, resp, err)
-	} else {
-		resp.WriteEntity(res)
+		return
 	}
+
+	if res == nil {
+		err = fmt.Errorf("unknown datasource [%s]", dsName)
+		service.RestError404(req, resp, err)
+		return
+	}
+
+	resp.WriteEntity(res)
 
 }
 
@@ -217,14 +229,20 @@ func (s *Handler) getDataSources(ctx context.Context) ([]*object.DataSource, err
 
 func (s *Handler) loadDataSource(ctx context.Context, dsName string) (*object.DataSource, error) {
 
-	var objects *object.DataSource
-	if err := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dsName).Scan(&objects); err != nil {
+	var ds *object.DataSource
+
+	err := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+dsName).Scan(&ds)
+	if err != nil {
 		return nil, err
-	} else {
-		log.Logger(ctx).Info("LoadDataSource", zap.Any("objects", objects))
-		return objects, nil
 	}
 
+	if ds == nil {
+		log.Logger(ctx).Debug(fmt.Sprintf("No datasource found for name [%s]", dsName))
+		return nil, nil
+	}
+
+	log.Logger(ctx).Info(fmt.Sprintf("Retrieved datasource [%s]", dsName), zap.Any("datasource", ds))
+	return ds, nil
 }
 
 // findWorkspacesForDatasource loads all workspaces, find their roots in Acls and check if these roots

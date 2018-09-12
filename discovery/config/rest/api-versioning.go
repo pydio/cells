@@ -21,9 +21,9 @@
 package rest
 
 import (
-	"github.com/emicklei/go-restful"
-
 	"encoding/json"
+
+	"github.com/emicklei/go-restful"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/docstore"
@@ -36,9 +36,10 @@ import (
 )
 
 /****************************
-VERSIONINGPOLICIES MANAGEMENT
+VERSIONING POLICIES MANAGEMENT
 *****************************/
-// List all defined policies
+
+// ListVersioningPolicies list all defined policies.
 func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Response) {
 	T := lang.Bundle().GetTranslationFunc(utils.UserLanguagesFromRestRequest(req)...)
 	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
@@ -66,7 +67,7 @@ func (s *Handler) ListVersioningPolicies(req *restful.Request, resp *restful.Res
 	resp.WriteEntity(response)
 }
 
-// Get a specific policy
+// GetVersioningPolicy returns a specific policy
 func (s *Handler) GetVersioningPolicy(req *restful.Request, resp *restful.Response) {
 	T := lang.Bundle().GetTranslationFunc(utils.UserLanguagesFromRestRequest(req)...)
 	policyId := req.PathParameter("Uuid")

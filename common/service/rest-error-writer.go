@@ -26,22 +26,30 @@ import (
 	"go.uber.org/zap"
 )
 
+// RestError500 logs the error with context and write an Error 500 on the response.
 func RestError500(req *restful.Request, resp *restful.Response, err error) {
 	log.Logger(req.Request.Context()).Error("Rest Error 500", zap.Error(err))
+	// resp.AddHeader("Content-Type", "application/json")
 	resp.WriteError(500, err)
 }
 
+// RestError404 logs the error with context and writes an Error 404 on the response.
 func RestError404(req *restful.Request, resp *restful.Response, err error) {
 	log.Logger(req.Request.Context()).Error("Rest Error 404", zap.Error(err))
+	// resp.AddHeader("Content-Type", "application/json")
 	resp.WriteError(404, err)
 }
 
+// RestError403 logs the error with context and write an Error 403 on the response.
 func RestError403(req *restful.Request, resp *restful.Response, err error) {
 	log.Logger(req.Request.Context()).Error("Rest Error 403", zap.Error(err))
+	// resp.AddHeader("Content-Type", "application/json")
 	resp.WriteError(403, err)
 }
 
+// RestError401 logs the error with context and write an Error 401 on the response.
 func RestError401(req *restful.Request, resp *restful.Response, err error) {
 	log.Logger(req.Request.Context()).Error("Rest Error 401", zap.Error(err))
+	// resp.AddHeader("Content-Type", "application/json")
 	resp.WriteError(401, err)
 }
