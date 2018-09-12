@@ -44,7 +44,6 @@ import (
 	_ "github.com/pydio/cells/data/changes/grpc"
 	_ "github.com/pydio/cells/data/changes/rest"
 	_ "github.com/pydio/cells/data/docstore/grpc"
-	_ "github.com/pydio/cells/data/docstore/rest"
 	_ "github.com/pydio/cells/data/key/grpc"
 	_ "github.com/pydio/cells/data/meta/grpc"
 	_ "github.com/pydio/cells/data/meta/rest"

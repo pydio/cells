@@ -15,7 +15,6 @@ import "github.com/pydio/cells/common/proto/tree/tree.proto";
 import "github.com/pydio/cells/common/proto/idm/idm.proto";
 import "github.com/pydio/cells/common/proto/mailer/mailer.proto";
 import "github.com/pydio/cells/common/proto/activity/activitystream.proto";
-import "github.com/pydio/cells/common/proto/docstore/docstore.proto";
 import "github.com/pydio/cells/common/proto/jobs/jobs.proto";
 import "github.com/pydio/cells/common/proto/encryption/encryption.proto";
 import "github.com/pydio/cells/common/proto/log/log.proto";
@@ -730,38 +729,6 @@ service AdminTreeService {
             body: "*"
         };
     }
-
-}
-
-// DocStore Service is a simple JSON indexed datastore
-service DocStoreService {
-    // List all docs of a given store
-    rpc ListDocs(ListDocstoreRequest) returns (DocstoreCollection) {
-        option (google.api.http) = {
-            post: "/docstore/{StoreID}"
-            body: "*"
-        };
-    };
-    // Delete one or more docs inside a given store
-    rpc DeleteDoc(docstore.DeleteDocumentsRequest) returns (docstore.DeleteDocumentsResponse) {
-        option (google.api.http) = {
-            post: "/docstore/bulk_delete/{StoreID}"
-            body: "*"
-        };
-    };
-    // Put a document inside a given store
-    rpc PutDoc(docstore.PutDocumentRequest) returns (docstore.PutDocumentResponse) {
-        option (google.api.http) = {
-            put: "/docstore/{StoreID}/{DocumentID}"
-            body: "*"
-        };
-    };
-    // Load one document by ID from a given store
-    rpc GetDoc(docstore.GetDocumentRequest) returns (docstore.GetDocumentResponse) {
-        option (google.api.http) = {
-            get: "/docstore/{StoreID}/{DocumentID}"
-        };
-    };
 
 }
 

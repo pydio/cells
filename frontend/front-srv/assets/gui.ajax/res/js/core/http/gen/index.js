@@ -31,14 +31,6 @@ import CtlPeer from './model/CtlPeer';
 import CtlService from './model/CtlService';
 import CtlServiceCommand from './model/CtlServiceCommand';
 import CtlServiceStatus from './model/CtlServiceStatus';
-import DocstoreDeleteDocumentsRequest from './model/DocstoreDeleteDocumentsRequest';
-import DocstoreDeleteDocumentsResponse from './model/DocstoreDeleteDocumentsResponse';
-import DocstoreDocument from './model/DocstoreDocument';
-import DocstoreDocumentQuery from './model/DocstoreDocumentQuery';
-import DocstoreDocumentType from './model/DocstoreDocumentType';
-import DocstoreGetDocumentResponse from './model/DocstoreGetDocumentResponse';
-import DocstorePutDocumentRequest from './model/DocstorePutDocumentRequest';
-import DocstorePutDocumentResponse from './model/DocstorePutDocumentResponse';
 import EncryptionAdminCreateKeyRequest from './model/EncryptionAdminCreateKeyRequest';
 import EncryptionAdminCreateKeyResponse from './model/EncryptionAdminCreateKeyResponse';
 import EncryptionAdminDeleteKeyRequest from './model/EncryptionAdminDeleteKeyRequest';
@@ -146,7 +138,6 @@ import RestDeleteUserMetaTagsResponse from './model/RestDeleteUserMetaTagsRespon
 import RestDeleteVersioningPolicyResponse from './model/RestDeleteVersioningPolicyResponse';
 import RestDeleteVirtualNodeResponse from './model/RestDeleteVirtualNodeResponse';
 import RestDiscoveryResponse from './model/RestDiscoveryResponse';
-import RestDocstoreCollection from './model/RestDocstoreCollection';
 import RestExternalDirectoryCollection from './model/RestExternalDirectoryCollection';
 import RestExternalDirectoryConfig from './model/RestExternalDirectoryConfig';
 import RestExternalDirectoryResponse from './model/RestExternalDirectoryResponse';
@@ -161,7 +152,6 @@ import RestFrontSessionResponse from './model/RestFrontSessionResponse';
 import RestFrontStateResponse from './model/RestFrontStateResponse';
 import RestGetBulkMetaRequest from './model/RestGetBulkMetaRequest';
 import RestHeadNodeResponse from './model/RestHeadNodeResponse';
-import RestListDocstoreRequest from './model/RestListDocstoreRequest';
 import RestListPeerFoldersRequest from './model/RestListPeerFoldersRequest';
 import RestListPeersAddressesResponse from './model/RestListPeersAddressesResponse';
 import RestListSharedResourcesRequest from './model/RestListSharedResourcesRequest';
@@ -246,7 +236,6 @@ import ActivityServiceApi from './api/ActivityServiceApi';
 import AdminTreeServiceApi from './api/AdminTreeServiceApi';
 import ChangeServiceApi from './api/ChangeServiceApi';
 import ConfigServiceApi from './api/ConfigServiceApi';
-import DocStoreServiceApi from './api/DocStoreServiceApi';
 import EnterpriseConfigServiceApi from './api/EnterpriseConfigServiceApi';
 import EnterpriseLogServiceApi from './api/EnterpriseLogServiceApi';
 import EnterprisePolicyServiceApi from './api/EnterprisePolicyServiceApi';
@@ -416,54 +405,6 @@ export {
      * @property {module:model/CtlServiceStatus}
      */
     CtlServiceStatus,
-
-    /**
-     * The DocstoreDeleteDocumentsRequest model constructor.
-     * @property {module:model/DocstoreDeleteDocumentsRequest}
-     */
-    DocstoreDeleteDocumentsRequest,
-
-    /**
-     * The DocstoreDeleteDocumentsResponse model constructor.
-     * @property {module:model/DocstoreDeleteDocumentsResponse}
-     */
-    DocstoreDeleteDocumentsResponse,
-
-    /**
-     * The DocstoreDocument model constructor.
-     * @property {module:model/DocstoreDocument}
-     */
-    DocstoreDocument,
-
-    /**
-     * The DocstoreDocumentQuery model constructor.
-     * @property {module:model/DocstoreDocumentQuery}
-     */
-    DocstoreDocumentQuery,
-
-    /**
-     * The DocstoreDocumentType model constructor.
-     * @property {module:model/DocstoreDocumentType}
-     */
-    DocstoreDocumentType,
-
-    /**
-     * The DocstoreGetDocumentResponse model constructor.
-     * @property {module:model/DocstoreGetDocumentResponse}
-     */
-    DocstoreGetDocumentResponse,
-
-    /**
-     * The DocstorePutDocumentRequest model constructor.
-     * @property {module:model/DocstorePutDocumentRequest}
-     */
-    DocstorePutDocumentRequest,
-
-    /**
-     * The DocstorePutDocumentResponse model constructor.
-     * @property {module:model/DocstorePutDocumentResponse}
-     */
-    DocstorePutDocumentResponse,
 
     /**
      * The EncryptionAdminCreateKeyRequest model constructor.
@@ -1108,12 +1049,6 @@ export {
     RestDiscoveryResponse,
 
     /**
-     * The RestDocstoreCollection model constructor.
-     * @property {module:model/RestDocstoreCollection}
-     */
-    RestDocstoreCollection,
-
-    /**
      * The RestExternalDirectoryCollection model constructor.
      * @property {module:model/RestExternalDirectoryCollection}
      */
@@ -1196,12 +1131,6 @@ export {
      * @property {module:model/RestHeadNodeResponse}
      */
     RestHeadNodeResponse,
-
-    /**
-     * The RestListDocstoreRequest model constructor.
-     * @property {module:model/RestListDocstoreRequest}
-     */
-    RestListDocstoreRequest,
 
     /**
      * The RestListPeerFoldersRequest model constructor.
@@ -1706,12 +1635,6 @@ export {
     * @property {module:api/ConfigServiceApi}
     */
     ConfigServiceApi,
-
-    /**
-    * The DocStoreServiceApi service constructor.
-    * @property {module:api/DocStoreServiceApi}
-    */
-    DocStoreServiceApi,
 
     /**
     * The EnterpriseConfigServiceApi service constructor.

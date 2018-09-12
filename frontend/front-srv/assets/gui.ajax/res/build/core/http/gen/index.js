@@ -93,38 +93,6 @@ var _modelCtlServiceStatus = require('./model/CtlServiceStatus');
 
 var _modelCtlServiceStatus2 = _interopRequireDefault(_modelCtlServiceStatus);
 
-var _modelDocstoreDeleteDocumentsRequest = require('./model/DocstoreDeleteDocumentsRequest');
-
-var _modelDocstoreDeleteDocumentsRequest2 = _interopRequireDefault(_modelDocstoreDeleteDocumentsRequest);
-
-var _modelDocstoreDeleteDocumentsResponse = require('./model/DocstoreDeleteDocumentsResponse');
-
-var _modelDocstoreDeleteDocumentsResponse2 = _interopRequireDefault(_modelDocstoreDeleteDocumentsResponse);
-
-var _modelDocstoreDocument = require('./model/DocstoreDocument');
-
-var _modelDocstoreDocument2 = _interopRequireDefault(_modelDocstoreDocument);
-
-var _modelDocstoreDocumentQuery = require('./model/DocstoreDocumentQuery');
-
-var _modelDocstoreDocumentQuery2 = _interopRequireDefault(_modelDocstoreDocumentQuery);
-
-var _modelDocstoreDocumentType = require('./model/DocstoreDocumentType');
-
-var _modelDocstoreDocumentType2 = _interopRequireDefault(_modelDocstoreDocumentType);
-
-var _modelDocstoreGetDocumentResponse = require('./model/DocstoreGetDocumentResponse');
-
-var _modelDocstoreGetDocumentResponse2 = _interopRequireDefault(_modelDocstoreGetDocumentResponse);
-
-var _modelDocstorePutDocumentRequest = require('./model/DocstorePutDocumentRequest');
-
-var _modelDocstorePutDocumentRequest2 = _interopRequireDefault(_modelDocstorePutDocumentRequest);
-
-var _modelDocstorePutDocumentResponse = require('./model/DocstorePutDocumentResponse');
-
-var _modelDocstorePutDocumentResponse2 = _interopRequireDefault(_modelDocstorePutDocumentResponse);
-
 var _modelEncryptionAdminCreateKeyRequest = require('./model/EncryptionAdminCreateKeyRequest');
 
 var _modelEncryptionAdminCreateKeyRequest2 = _interopRequireDefault(_modelEncryptionAdminCreateKeyRequest);
@@ -553,10 +521,6 @@ var _modelRestDiscoveryResponse = require('./model/RestDiscoveryResponse');
 
 var _modelRestDiscoveryResponse2 = _interopRequireDefault(_modelRestDiscoveryResponse);
 
-var _modelRestDocstoreCollection = require('./model/RestDocstoreCollection');
-
-var _modelRestDocstoreCollection2 = _interopRequireDefault(_modelRestDocstoreCollection);
-
 var _modelRestExternalDirectoryCollection = require('./model/RestExternalDirectoryCollection');
 
 var _modelRestExternalDirectoryCollection2 = _interopRequireDefault(_modelRestExternalDirectoryCollection);
@@ -612,10 +576,6 @@ var _modelRestGetBulkMetaRequest2 = _interopRequireDefault(_modelRestGetBulkMeta
 var _modelRestHeadNodeResponse = require('./model/RestHeadNodeResponse');
 
 var _modelRestHeadNodeResponse2 = _interopRequireDefault(_modelRestHeadNodeResponse);
-
-var _modelRestListDocstoreRequest = require('./model/RestListDocstoreRequest');
-
-var _modelRestListDocstoreRequest2 = _interopRequireDefault(_modelRestListDocstoreRequest);
 
 var _modelRestListPeerFoldersRequest = require('./model/RestListPeerFoldersRequest');
 
@@ -953,10 +913,6 @@ var _apiConfigServiceApi = require('./api/ConfigServiceApi');
 
 var _apiConfigServiceApi2 = _interopRequireDefault(_apiConfigServiceApi);
 
-var _apiDocStoreServiceApi = require('./api/DocStoreServiceApi');
-
-var _apiDocStoreServiceApi2 = _interopRequireDefault(_apiDocStoreServiceApi);
-
 var _apiEnterpriseConfigServiceApi = require('./api/EnterpriseConfigServiceApi');
 
 var _apiEnterpriseConfigServiceApi2 = _interopRequireDefault(_apiEnterpriseConfigServiceApi);
@@ -1208,62 +1164,6 @@ exports.
  * @property {module:model/CtlServiceStatus}
  */
 CtlServiceStatus = _modelCtlServiceStatus2['default'];
-exports.
-
-/**
- * The DocstoreDeleteDocumentsRequest model constructor.
- * @property {module:model/DocstoreDeleteDocumentsRequest}
- */
-DocstoreDeleteDocumentsRequest = _modelDocstoreDeleteDocumentsRequest2['default'];
-exports.
-
-/**
- * The DocstoreDeleteDocumentsResponse model constructor.
- * @property {module:model/DocstoreDeleteDocumentsResponse}
- */
-DocstoreDeleteDocumentsResponse = _modelDocstoreDeleteDocumentsResponse2['default'];
-exports.
-
-/**
- * The DocstoreDocument model constructor.
- * @property {module:model/DocstoreDocument}
- */
-DocstoreDocument = _modelDocstoreDocument2['default'];
-exports.
-
-/**
- * The DocstoreDocumentQuery model constructor.
- * @property {module:model/DocstoreDocumentQuery}
- */
-DocstoreDocumentQuery = _modelDocstoreDocumentQuery2['default'];
-exports.
-
-/**
- * The DocstoreDocumentType model constructor.
- * @property {module:model/DocstoreDocumentType}
- */
-DocstoreDocumentType = _modelDocstoreDocumentType2['default'];
-exports.
-
-/**
- * The DocstoreGetDocumentResponse model constructor.
- * @property {module:model/DocstoreGetDocumentResponse}
- */
-DocstoreGetDocumentResponse = _modelDocstoreGetDocumentResponse2['default'];
-exports.
-
-/**
- * The DocstorePutDocumentRequest model constructor.
- * @property {module:model/DocstorePutDocumentRequest}
- */
-DocstorePutDocumentRequest = _modelDocstorePutDocumentRequest2['default'];
-exports.
-
-/**
- * The DocstorePutDocumentResponse model constructor.
- * @property {module:model/DocstorePutDocumentResponse}
- */
-DocstorePutDocumentResponse = _modelDocstorePutDocumentResponse2['default'];
 exports.
 
 /**
@@ -2016,13 +1916,6 @@ RestDiscoveryResponse = _modelRestDiscoveryResponse2['default'];
 exports.
 
 /**
- * The RestDocstoreCollection model constructor.
- * @property {module:model/RestDocstoreCollection}
- */
-RestDocstoreCollection = _modelRestDocstoreCollection2['default'];
-exports.
-
-/**
  * The RestExternalDirectoryCollection model constructor.
  * @property {module:model/RestExternalDirectoryCollection}
  */
@@ -2118,13 +2011,6 @@ exports.
  * @property {module:model/RestHeadNodeResponse}
  */
 RestHeadNodeResponse = _modelRestHeadNodeResponse2['default'];
-exports.
-
-/**
- * The RestListDocstoreRequest model constructor.
- * @property {module:model/RestListDocstoreRequest}
- */
-RestListDocstoreRequest = _modelRestListDocstoreRequest2['default'];
 exports.
 
 /**
@@ -2713,13 +2599,6 @@ exports.
 * @property {module:api/ConfigServiceApi}
 */
 ConfigServiceApi = _apiConfigServiceApi2['default'];
-exports.
-
-/**
-* The DocStoreServiceApi service constructor.
-* @property {module:api/DocStoreServiceApi}
-*/
-DocStoreServiceApi = _apiDocStoreServiceApi2['default'];
 exports.
 
 /**
