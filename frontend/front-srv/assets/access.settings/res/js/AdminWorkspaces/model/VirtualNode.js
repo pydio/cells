@@ -21,21 +21,19 @@
 import LangUtils from 'pydio/util/lang'
 import Observable from 'pydio/lang/observable'
 import PydioApi from 'pydio/http/api'
-import {DocStoreServiceApi, RestListDocstoreRequest, DocstorePutDocumentRequest, DocstoreDocument, DocstoreDeleteDocumentsRequest} from 'pydio/http/rest-api'
+import {ConfigServiceApi, EnterpriseConfigServiceApi, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
 
 class VirtualNode extends Observable {
 
     data;
 
     static loadNodes(callback){
-        const api = new DocStoreServiceApi(PydioApi.getRestClient());
-        const request = new RestListDocstoreRequest();
-        request.StoreID = "virtualnodes";
-        api.listDocs("virtualnodes", request).then(response => {
+        const api = new ConfigServiceApi(PydioApi.getRestClient());
+        api.listVirtualNodes().then(response => {
             let result = [];
-            if(response.Docs){
-                response.Docs.map(doc => {
-                    result.push(new VirtualNode(JSON.parse(doc.Data)));
+            if(response.Children){
+                response.Children.map(treeNode => {
+                    result.push(new VirtualNode(treeNode));
                 })
             }
             callback(result);
@@ -47,16 +45,13 @@ class VirtualNode extends Observable {
         if (data) {
             this.data = data;
         } else {
-            this.data = {
-                Uuid: "",
-                Path: "",
-                Type: "COLLECTION",
-                MetaStore: {
-                    name:"",
-                    resolution:"",
-                    contentType:"text/javascript"
-                }
-            }
+            this.data = new TreeNode();
+            this.data.Type = TreeNodeType.constructFromObject('COLLECTION');
+            this.data.MetaStore = {
+                name:"",
+                resolution:"",
+                contentType:"text/javascript"
+            };
         }
     }
 
@@ -82,30 +77,18 @@ class VirtualNode extends Observable {
     }
 
     save(callback) {
-        const api = new DocStoreServiceApi(PydioApi.getRestClient());
-        const request = new DocstorePutDocumentRequest();
-        request.StoreID = "virtualnodes";
-        request.DocumentID = this.data.Uuid;
-        const doc = new DocstoreDocument();
-        doc.ID = this.data.Uuid;
-        doc.Data = JSON.stringify(this.data);
-        request.Document = doc;
-
-        api.putDoc("virtualnodes", this.data.Uuid, request).then(() => {
+        const api = new EnterpriseConfigServiceApi(PydioApi.getRestClient());
+        api.putVirtualNode(this.data.Uuid, this.data).then(()=>{
             callback();
         });
-
     }
 
     remove(callback){
 
-        const api = new DocStoreServiceApi(PydioApi.getRestClient());
-        const request = new DocstoreDeleteDocumentsRequest();
-        request.StoreID = "virtualnodes";
-        request.DocumentID = this.data.Uuid;
-        api.deleteDoc("virtualnodes", request).then(() => {
+        const api = new EnterpriseConfigServiceApi(PydioApi.getRestClient());
+        api.deleteVirtualNode(this.data.Uuid).then(() => {
             callback();
-        })
+        });
 
     }
 

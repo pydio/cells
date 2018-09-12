@@ -54,14 +54,12 @@ var VirtualNode = (function (_Observable) {
     _createClass(VirtualNode, null, [{
         key: 'loadNodes',
         value: function loadNodes(callback) {
-            var api = new _pydioHttpRestApi.DocStoreServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.RestListDocstoreRequest();
-            request.StoreID = "virtualnodes";
-            api.listDocs("virtualnodes", request).then(function (response) {
+            var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.listVirtualNodes().then(function (response) {
                 var result = [];
-                if (response.Docs) {
-                    response.Docs.map(function (doc) {
-                        result.push(new VirtualNode(JSON.parse(doc.Data)));
+                if (response.Children) {
+                    response.Children.map(function (treeNode) {
+                        result.push(new VirtualNode(treeNode));
                     });
                 }
                 callback(result);
@@ -76,15 +74,12 @@ var VirtualNode = (function (_Observable) {
         if (data) {
             this.data = data;
         } else {
-            this.data = {
-                Uuid: "",
-                Path: "",
-                Type: "COLLECTION",
-                MetaStore: {
-                    name: "",
-                    resolution: "",
-                    contentType: "text/javascript"
-                }
+            this.data = new _pydioHttpRestApi.TreeNode();
+            this.data.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('COLLECTION');
+            this.data.MetaStore = {
+                name: "",
+                resolution: "",
+                contentType: "text/javascript"
             };
         }
     }
@@ -117,16 +112,8 @@ var VirtualNode = (function (_Observable) {
     }, {
         key: 'save',
         value: function save(callback) {
-            var api = new _pydioHttpRestApi.DocStoreServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.DocstorePutDocumentRequest();
-            request.StoreID = "virtualnodes";
-            request.DocumentID = this.data.Uuid;
-            var doc = new _pydioHttpRestApi.DocstoreDocument();
-            doc.ID = this.data.Uuid;
-            doc.Data = JSON.stringify(this.data);
-            request.Document = doc;
-
-            api.putDoc("virtualnodes", this.data.Uuid, request).then(function () {
+            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.putVirtualNode(this.data.Uuid, this.data).then(function () {
                 callback();
             });
         }
@@ -134,11 +121,8 @@ var VirtualNode = (function (_Observable) {
         key: 'remove',
         value: function remove(callback) {
 
-            var api = new _pydioHttpRestApi.DocStoreServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.DocstoreDeleteDocumentsRequest();
-            request.StoreID = "virtualnodes";
-            request.DocumentID = this.data.Uuid;
-            api.deleteDoc("virtualnodes", request).then(function () {
+            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.deleteVirtualNode(this.data.Uuid).then(function () {
                 callback();
             });
         }

@@ -12818,6 +12818,32 @@
             "description": "List all defined versioning policies"
           },
           {
+            "name": "listVirtualNodesWithHttpInfo",
+            "docblock": "List all defined virtual nodes\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestNodesCollection} and HTTP response",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestNodesCollection} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "List all defined virtual nodes"
+          },
+          {
+            "name": "listVirtualNodes",
+            "docblock": "List all defined virtual nodes\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestNodesCollection}",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestNodesCollection}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "List all defined virtual nodes"
+          },
+          {
             "name": "openApiDiscoveryWithHttpInfo",
             "docblock": "Publish available REST APIs\n@param {Object} opts Optional parameters\n@param {String} opts.endpointType \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestOpenApiResponse} and HTTP response",
             "modifiers": [],
@@ -13342,6 +13368,48 @@
             "description": "[Enterprise Only] Delete a versioning policy"
           },
           {
+            "name": "deleteVirtualNodeWithHttpInfo",
+            "docblock": "[Enterprise Only] Delete a virtual node\n@param {String} uuid \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteVirtualNodeResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteVirtualNodeResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Delete a virtual node"
+          },
+          {
+            "name": "deleteVirtualNode",
+            "docblock": "[Enterprise Only] Delete a virtual node\n@param {String} uuid \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteVirtualNodeResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteVirtualNodeResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Delete a virtual node"
+          },
+          {
             "name": "listExternalDirectoriesWithHttpInfo",
             "docblock": "[Enterprise Only] List additional user directories\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestExternalDirectoryCollection} and HTTP response",
             "modifiers": [],
@@ -13478,6 +13546,62 @@
               }
             },
             "description": "[Enterprise Only] Create or update a versioning policy"
+          },
+          {
+            "name": "putVirtualNodeWithHttpInfo",
+            "docblock": "[Enterprise Only] Create or update a virtual node\n@param {String} uuid \n@param {module:model/TreeNode} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/TreeNode} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/TreeNode"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/TreeNode} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Create or update a virtual node"
+          },
+          {
+            "name": "putVirtualNode",
+            "docblock": "[Enterprise Only] Create or update a virtual node\n@param {String} uuid \n@param {module:model/TreeNode} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/TreeNode}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "uuid",
+                "description": null,
+                "type": {
+                  "name": "String"
+                }
+              },
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/TreeNode"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/TreeNode}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "[Enterprise Only] Create or update a virtual node"
           }
         ]
       }
@@ -13804,32 +13928,6 @@
             "description": "Constructs a new FrontendServiceApi."
           },
           {
-            "name": "frontBootConfWithHttpInfo",
-            "docblock": "Add some data to the initial set of parameters loaded by the frontend\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBootConfResponse} and HTTP response",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBootConfResponse} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Add some data to the initial set of parameters loaded by the frontend"
-          },
-          {
-            "name": "frontBootConf",
-            "docblock": "Add some data to the initial set of parameters loaded by the frontend\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBootConfResponse}",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBootConfResponse}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Add some data to the initial set of parameters loaded by the frontend"
-          },
-          {
             "name": "frontEnrollAuthWithHttpInfo",
             "docblock": "Generic endpoint that can be implemented by 2FA systems for enrollment\n@param {module:model/RestFrontEnrollAuthRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontEnrollAuthResponse} and HTTP response",
             "modifiers": [],
@@ -13870,48 +13968,6 @@
               }
             },
             "description": "Generic endpoint that can be implemented by 2FA systems for enrollment"
-          },
-          {
-            "name": "frontLogWithHttpInfo",
-            "docblock": "Sends a log from front (php) to back\n@param {module:model/RestFrontLogMessage} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontLogResponse} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/RestFrontLogMessage"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontLogResponse} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Sends a log from front (php) to back"
-          },
-          {
-            "name": "frontLog",
-            "docblock": "Sends a log from front (php) to back\n@param {module:model/RestFrontLogMessage} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontLogResponse}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/RestFrontLogMessage"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontLogResponse}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Sends a log from front (php) to back"
           },
           {
             "name": "frontMessagesWithHttpInfo",
@@ -22849,6 +22905,52 @@
         ]
       }
     ],
+    "core/http/gen/model/RestDeleteVirtualNodeResponse.js": [
+      {
+        "description": "The RestDeleteVirtualNodeResponse model module.\n@module model/RestDeleteVirtualNodeResponse\n@version 1.0",
+        "displayName": "RestDeleteVirtualNodeResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestDeleteVirtualNodeResponse</code>.\n@alias module:model/RestDeleteVirtualNodeResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestDeleteVirtualNodeResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestDeleteVirtualNodeResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestDeleteVirtualNodeResponse} obj Optional instance to populate.\n@return {module:model/RestDeleteVirtualNodeResponse} The populated <code>RestDeleteVirtualNodeResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestDeleteVirtualNodeResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestDeleteVirtualNodeResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestDeleteVirtualNodeResponse"
+              }
+            },
+            "description": "Constructs a <code>RestDeleteVirtualNodeResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/RestDiscoveryResponse.js": [
       {
         "description": "The RestDiscoveryResponse model module.\n@module model/RestDiscoveryResponse\n@version 1.0",
@@ -23171,52 +23273,6 @@
         ]
       }
     ],
-    "core/http/gen/model/RestFrontBootConfResponse.js": [
-      {
-        "description": "The RestFrontBootConfResponse model module.\n@module model/RestFrontBootConfResponse\n@version 1.0",
-        "displayName": "RestFrontBootConfResponse",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>RestFrontBootConfResponse</code>.\n@alias module:model/RestFrontBootConfResponse\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>RestFrontBootConfResponse</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>RestFrontBootConfResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontBootConfResponse} obj Optional instance to populate.\n@return {module:model/RestFrontBootConfResponse} The populated <code>RestFrontBootConfResponse</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/RestFrontBootConfResponse"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>RestFrontBootConfResponse</code> instance.",
-              "type": {
-                "name": "module:model/RestFrontBootConfResponse"
-              }
-            },
-            "description": "Constructs a <code>RestFrontBootConfResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
     "core/http/gen/model/RestFrontEnrollAuthRequest.js": [
       {
         "description": "The RestFrontEnrollAuthRequest model module.\n@module model/RestFrontEnrollAuthRequest\n@version 1.0",
@@ -23305,98 +23361,6 @@
               }
             },
             "description": "Constructs a <code>RestFrontEnrollAuthResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/RestFrontLogMessage.js": [
-      {
-        "description": "The RestFrontLogMessage model module.\n@module model/RestFrontLogMessage\n@version 1.0",
-        "displayName": "RestFrontLogMessage",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>RestFrontLogMessage</code>.\n@alias module:model/RestFrontLogMessage\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>RestFrontLogMessage</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>RestFrontLogMessage</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontLogMessage} obj Optional instance to populate.\n@return {module:model/RestFrontLogMessage} The populated <code>RestFrontLogMessage</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/RestFrontLogMessage"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>RestFrontLogMessage</code> instance.",
-              "type": {
-                "name": "module:model/RestFrontLogMessage"
-              }
-            },
-            "description": "Constructs a <code>RestFrontLogMessage</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/RestFrontLogResponse.js": [
-      {
-        "description": "The RestFrontLogResponse model module.\n@module model/RestFrontLogResponse\n@version 1.0",
-        "displayName": "RestFrontLogResponse",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>RestFrontLogResponse</code>.\n@alias module:model/RestFrontLogResponse\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>RestFrontLogResponse</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>RestFrontLogResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontLogResponse} obj Optional instance to populate.\n@return {module:model/RestFrontLogResponse} The populated <code>RestFrontLogResponse</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/RestFrontLogResponse"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>RestFrontLogResponse</code> instance.",
-              "type": {
-                "name": "module:model/RestFrontLogResponse"
-              }
-            },
-            "description": "Constructs a <code>RestFrontLogResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -23995,33 +23959,6 @@
               }
             },
             "description": "Constructs a <code>RestListUserMetaTagsResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/RestLogLevel.js": [
-      {
-        "description": "Enum class RestLogLevel.\n@enum {}\n@readonly",
-        "displayName": "RestLogLevel",
-        "methods": [
-          {
-            "name": "constructFromObject",
-            "docblock": "Returns a <code>RestLogLevel</code> enum value from a Javascript object name.\n@param {Object} data The plain JavaScript object containing the name of the enum value.\n@return {module:model/RestLogLevel} The enum <code>RestLogLevel</code> value.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "object"
-              }
-            ],
-            "returns": {
-              "description": "The enum <code>RestLogLevel</code> value.",
-              "type": {
-                "name": "module:model/RestLogLevel"
-              }
-            },
-            "description": "Returns a <code>RestLogLevel</code> enum value from a Javascript object name."
           }
         ]
       }

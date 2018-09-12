@@ -1043,6 +1043,79 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/config/virtualnodes": {
+      "get": {
+        "summary": "List all defined virtual nodes",
+        "operationId": "ListVirtualNodes",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restNodesCollection"
+            }
+          }
+        },
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
+    "/config/virtualnodes/{Uuid}": {
+      "delete": {
+        "summary": "[Enterprise Only] Delete a virtual node",
+        "operationId": "DeleteVirtualNode",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restDeleteVirtualNodeResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Uuid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "EnterpriseConfigService"
+        ]
+      },
+      "post": {
+        "summary": "[Enterprise Only] Create or update a virtual node",
+        "operationId": "PutVirtualNode",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/treeNode"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Uuid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/treeNode"
+            }
+          }
+        ],
+        "tags": [
+          "EnterpriseConfigService"
+        ]
+      }
+    },
     "/config/{FullPath}": {
       "get": {
         "summary": "Generic config Get using a full path in the config tree",
@@ -1307,23 +1380,6 @@ var SwaggerJson = `{
         ]
       }
     },
-    "/frontend/bootconf": {
-      "get": {
-        "summary": "Add some data to the initial set of parameters loaded by the frontend",
-        "operationId": "FrontBootConf",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restFrontBootConfResponse"
-            }
-          }
-        },
-        "tags": [
-          "FrontendService"
-        ]
-      }
-    },
     "/frontend/enroll": {
       "post": {
         "summary": "Generic endpoint that can be implemented by 2FA systems for enrollment",
@@ -1343,33 +1399,6 @@ var SwaggerJson = `{
             "required": true,
             "schema": {
               "$ref": "#/definitions/restFrontEnrollAuthRequest"
-            }
-          }
-        ],
-        "tags": [
-          "FrontendService"
-        ]
-      }
-    },
-    "/frontend/frontlogs": {
-      "put": {
-        "summary": "Sends a log from front (php) to back",
-        "operationId": "FrontLog",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restFrontLogResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/restFrontLogMessage"
             }
           }
         ],
@@ -6165,6 +6194,15 @@ var SwaggerJson = `{
         }
       }
     },
+    "restDeleteVirtualNodeResponse": {
+      "type": "object",
+      "properties": {
+        "Success": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
     "restDiscoveryResponse": {
       "type": "object",
       "properties": {
@@ -6256,17 +6294,6 @@ var SwaggerJson = `{
       "type": "object",
       "title": "Not used, endpoint returns octet-stream"
     },
-    "restFrontBootConfResponse": {
-      "type": "object",
-      "properties": {
-        "JsonData": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      }
-    },
     "restFrontEnrollAuthRequest": {
       "type": "object",
       "properties": {
@@ -6292,49 +6319,6 @@ var SwaggerJson = `{
           "title": "Any parameters can be returned"
         }
       }
-    },
-    "restFrontLogMessage": {
-      "type": "object",
-      "properties": {
-        "Level": {
-          "$ref": "#/definitions/restLogLevel"
-        },
-        "Ip": {
-          "type": "string"
-        },
-        "UserId": {
-          "type": "string"
-        },
-        "WorkspaceId": {
-          "type": "string"
-        },
-        "Source": {
-          "type": "string"
-        },
-        "Prefix": {
-          "type": "string"
-        },
-        "Message": {
-          "type": "string"
-        },
-        "Nodes": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "title": "Frontend message to log"
-    },
-    "restFrontLogResponse": {
-      "type": "object",
-      "properties": {
-        "Success": {
-          "type": "boolean",
-          "format": "boolean"
-        }
-      },
-      "title": "Basic response for confirmation"
     },
     "restFrontMessagesResponse": {
       "type": "object",
@@ -6537,18 +6521,6 @@ var SwaggerJson = `{
           }
         }
       }
-    },
-    "restLogLevel": {
-      "type": "string",
-      "enum": [
-        "DEBUG",
-        "INFO",
-        "NOTICE",
-        "WARNING",
-        "ERROR"
-      ],
-      "default": "DEBUG",
-      "title": "Frontend Log Level"
     },
     "restLogMessageCollection": {
       "type": "object",

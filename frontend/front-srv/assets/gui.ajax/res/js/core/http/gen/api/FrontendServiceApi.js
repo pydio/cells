@@ -15,11 +15,8 @@
 import ApiClient from "../ApiClient";
 import RestFrontBinaryRequest from '../model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from '../model/RestFrontBinaryResponse';
-import RestFrontBootConfResponse from '../model/RestFrontBootConfResponse';
 import RestFrontEnrollAuthRequest from '../model/RestFrontEnrollAuthRequest';
 import RestFrontEnrollAuthResponse from '../model/RestFrontEnrollAuthResponse';
-import RestFrontLogMessage from '../model/RestFrontLogMessage';
-import RestFrontLogResponse from '../model/RestFrontLogResponse';
 import RestFrontMessagesResponse from '../model/RestFrontMessagesResponse';
 import RestFrontPluginsResponse from '../model/RestFrontPluginsResponse';
 import RestFrontSessionRequest from '../model/RestFrontSessionRequest';
@@ -45,47 +42,6 @@ export default class FrontendServiceApi {
         this.apiClient = apiClient || ApiClient.instance;
     }
 
-
-
-    /**
-     * Add some data to the initial set of parameters loaded by the frontend
-     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBootConfResponse} and HTTP response
-     */
-    frontBootConfWithHttpInfo() {
-      let postBody = null;
-
-
-      let pathParams = {
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = ['application/json'];
-      let accepts = ['application/json'];
-      let returnType = RestFrontBootConfResponse;
-
-      return this.apiClient.callApi(
-        '/frontend/bootconf', 'GET',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType
-      );
-    }
-
-    /**
-     * Add some data to the initial set of parameters loaded by the frontend
-     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBootConfResponse}
-     */
-    frontBootConf() {
-      return this.frontBootConfWithHttpInfo()
-        .then(function(response_and_data) {
-          return response_and_data.data;
-        });
-    }
 
 
     /**
@@ -130,54 +86,6 @@ export default class FrontendServiceApi {
      */
     frontEnrollAuth(body) {
       return this.frontEnrollAuthWithHttpInfo(body)
-        .then(function(response_and_data) {
-          return response_and_data.data;
-        });
-    }
-
-
-    /**
-     * Sends a log from front (php) to back
-     * @param {module:model/RestFrontLogMessage} body 
-     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontLogResponse} and HTTP response
-     */
-    frontLogWithHttpInfo(body) {
-      let postBody = body;
-
-      // verify the required parameter 'body' is set
-      if (body === undefined || body === null) {
-        throw new Error("Missing the required parameter 'body' when calling frontLog");
-      }
-
-
-      let pathParams = {
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = ['application/json'];
-      let accepts = ['application/json'];
-      let returnType = RestFrontLogResponse;
-
-      return this.apiClient.callApi(
-        '/frontend/frontlogs', 'PUT',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType
-      );
-    }
-
-    /**
-     * Sends a log from front (php) to back
-     * @param {module:model/RestFrontLogMessage} body 
-     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontLogResponse}
-     */
-    frontLog(body) {
-      return this.frontLogWithHttpInfo(body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

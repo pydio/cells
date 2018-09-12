@@ -27,6 +27,10 @@ var _modelRestDeleteVersioningPolicyResponse = require('../model/RestDeleteVersi
 
 var _modelRestDeleteVersioningPolicyResponse2 = _interopRequireDefault(_modelRestDeleteVersioningPolicyResponse);
 
+var _modelRestDeleteVirtualNodeResponse = require('../model/RestDeleteVirtualNodeResponse');
+
+var _modelRestDeleteVirtualNodeResponse2 = _interopRequireDefault(_modelRestDeleteVirtualNodeResponse);
+
 var _modelRestExternalDirectoryCollection = require('../model/RestExternalDirectoryCollection');
 
 var _modelRestExternalDirectoryCollection2 = _interopRequireDefault(_modelRestExternalDirectoryCollection);
@@ -38,6 +42,10 @@ var _modelRestExternalDirectoryConfig2 = _interopRequireDefault(_modelRestExtern
 var _modelRestExternalDirectoryResponse = require('../model/RestExternalDirectoryResponse');
 
 var _modelRestExternalDirectoryResponse2 = _interopRequireDefault(_modelRestExternalDirectoryResponse);
+
+var _modelTreeNode = require('../model/TreeNode');
+
+var _modelTreeNode2 = _interopRequireDefault(_modelTreeNode);
 
 var _modelTreeVersioningPolicy = require('../model/TreeVersioningPolicy');
 
@@ -143,6 +151,47 @@ var EnterpriseConfigServiceApi = (function () {
 
   EnterpriseConfigServiceApi.prototype.deleteVersioningPolicy = function deleteVersioningPolicy(uuid) {
     return this.deleteVersioningPolicyWithHttpInfo(uuid).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * [Enterprise Only] Delete a virtual node
+   * @param {String} uuid 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteVirtualNodeResponse} and HTTP response
+   */
+
+  EnterpriseConfigServiceApi.prototype.deleteVirtualNodeWithHttpInfo = function deleteVirtualNodeWithHttpInfo(uuid) {
+    var postBody = null;
+
+    // verify the required parameter 'uuid' is set
+    if (uuid === undefined || uuid === null) {
+      throw new Error("Missing the required parameter 'uuid' when calling deleteVirtualNode");
+    }
+
+    var pathParams = {
+      'Uuid': uuid
+    };
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestDeleteVirtualNodeResponse2['default'];
+
+    return this.apiClient.callApi('/config/virtualnodes/{Uuid}', 'DELETE', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * [Enterprise Only] Delete a virtual node
+   * @param {String} uuid 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestDeleteVirtualNodeResponse}
+   */
+
+  EnterpriseConfigServiceApi.prototype.deleteVirtualNode = function deleteVirtualNode(uuid) {
+    return this.deleteVirtualNodeWithHttpInfo(uuid).then(function (response_and_data) {
       return response_and_data.data;
     });
   };
@@ -271,6 +320,54 @@ var EnterpriseConfigServiceApi = (function () {
 
   EnterpriseConfigServiceApi.prototype.putVersioningPolicy = function putVersioningPolicy(uuid, body) {
     return this.putVersioningPolicyWithHttpInfo(uuid, body).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * [Enterprise Only] Create or update a virtual node
+   * @param {String} uuid 
+   * @param {module:model/TreeNode} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/TreeNode} and HTTP response
+   */
+
+  EnterpriseConfigServiceApi.prototype.putVirtualNodeWithHttpInfo = function putVirtualNodeWithHttpInfo(uuid, body) {
+    var postBody = body;
+
+    // verify the required parameter 'uuid' is set
+    if (uuid === undefined || uuid === null) {
+      throw new Error("Missing the required parameter 'uuid' when calling putVirtualNode");
+    }
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling putVirtualNode");
+    }
+
+    var pathParams = {
+      'Uuid': uuid
+    };
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelTreeNode2['default'];
+
+    return this.apiClient.callApi('/config/virtualnodes/{Uuid}', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * [Enterprise Only] Create or update a virtual node
+   * @param {String} uuid 
+   * @param {module:model/TreeNode} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/TreeNode}
+   */
+
+  EnterpriseConfigServiceApi.prototype.putVirtualNode = function putVirtualNode(uuid, body) {
+    return this.putVirtualNodeWithHttpInfo(uuid, body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

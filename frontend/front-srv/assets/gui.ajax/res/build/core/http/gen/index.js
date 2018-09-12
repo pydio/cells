@@ -545,6 +545,10 @@ var _modelRestDeleteVersioningPolicyResponse = require('./model/RestDeleteVersio
 
 var _modelRestDeleteVersioningPolicyResponse2 = _interopRequireDefault(_modelRestDeleteVersioningPolicyResponse);
 
+var _modelRestDeleteVirtualNodeResponse = require('./model/RestDeleteVirtualNodeResponse');
+
+var _modelRestDeleteVirtualNodeResponse2 = _interopRequireDefault(_modelRestDeleteVirtualNodeResponse);
+
 var _modelRestDiscoveryResponse = require('./model/RestDiscoveryResponse');
 
 var _modelRestDiscoveryResponse2 = _interopRequireDefault(_modelRestDiscoveryResponse);
@@ -573,10 +577,6 @@ var _modelRestFrontBinaryResponse = require('./model/RestFrontBinaryResponse');
 
 var _modelRestFrontBinaryResponse2 = _interopRequireDefault(_modelRestFrontBinaryResponse);
 
-var _modelRestFrontBootConfResponse = require('./model/RestFrontBootConfResponse');
-
-var _modelRestFrontBootConfResponse2 = _interopRequireDefault(_modelRestFrontBootConfResponse);
-
 var _modelRestFrontEnrollAuthRequest = require('./model/RestFrontEnrollAuthRequest');
 
 var _modelRestFrontEnrollAuthRequest2 = _interopRequireDefault(_modelRestFrontEnrollAuthRequest);
@@ -584,14 +584,6 @@ var _modelRestFrontEnrollAuthRequest2 = _interopRequireDefault(_modelRestFrontEn
 var _modelRestFrontEnrollAuthResponse = require('./model/RestFrontEnrollAuthResponse');
 
 var _modelRestFrontEnrollAuthResponse2 = _interopRequireDefault(_modelRestFrontEnrollAuthResponse);
-
-var _modelRestFrontLogMessage = require('./model/RestFrontLogMessage');
-
-var _modelRestFrontLogMessage2 = _interopRequireDefault(_modelRestFrontLogMessage);
-
-var _modelRestFrontLogResponse = require('./model/RestFrontLogResponse');
-
-var _modelRestFrontLogResponse2 = _interopRequireDefault(_modelRestFrontLogResponse);
 
 var _modelRestFrontMessagesResponse = require('./model/RestFrontMessagesResponse');
 
@@ -644,10 +636,6 @@ var _modelRestListSharedResourcesResponse2 = _interopRequireDefault(_modelRestLi
 var _modelRestListUserMetaTagsResponse = require('./model/RestListUserMetaTagsResponse');
 
 var _modelRestListUserMetaTagsResponse2 = _interopRequireDefault(_modelRestListUserMetaTagsResponse);
-
-var _modelRestLogLevel = require('./model/RestLogLevel');
-
-var _modelRestLogLevel2 = _interopRequireDefault(_modelRestLogLevel);
 
 var _modelRestLogMessageCollection = require('./model/RestLogMessageCollection');
 
@@ -2014,6 +2002,13 @@ RestDeleteVersioningPolicyResponse = _modelRestDeleteVersioningPolicyResponse2['
 exports.
 
 /**
+ * The RestDeleteVirtualNodeResponse model constructor.
+ * @property {module:model/RestDeleteVirtualNodeResponse}
+ */
+RestDeleteVirtualNodeResponse = _modelRestDeleteVirtualNodeResponse2['default'];
+exports.
+
+/**
  * The RestDiscoveryResponse model constructor.
  * @property {module:model/RestDiscoveryResponse}
  */
@@ -2063,13 +2058,6 @@ RestFrontBinaryResponse = _modelRestFrontBinaryResponse2['default'];
 exports.
 
 /**
- * The RestFrontBootConfResponse model constructor.
- * @property {module:model/RestFrontBootConfResponse}
- */
-RestFrontBootConfResponse = _modelRestFrontBootConfResponse2['default'];
-exports.
-
-/**
  * The RestFrontEnrollAuthRequest model constructor.
  * @property {module:model/RestFrontEnrollAuthRequest}
  */
@@ -2081,20 +2069,6 @@ exports.
  * @property {module:model/RestFrontEnrollAuthResponse}
  */
 RestFrontEnrollAuthResponse = _modelRestFrontEnrollAuthResponse2['default'];
-exports.
-
-/**
- * The RestFrontLogMessage model constructor.
- * @property {module:model/RestFrontLogMessage}
- */
-RestFrontLogMessage = _modelRestFrontLogMessage2['default'];
-exports.
-
-/**
- * The RestFrontLogResponse model constructor.
- * @property {module:model/RestFrontLogResponse}
- */
-RestFrontLogResponse = _modelRestFrontLogResponse2['default'];
 exports.
 
 /**
@@ -2186,13 +2160,6 @@ exports.
  * @property {module:model/RestListUserMetaTagsResponse}
  */
 RestListUserMetaTagsResponse = _modelRestListUserMetaTagsResponse2['default'];
-exports.
-
-/**
- * The RestLogLevel model constructor.
- * @property {module:model/RestLogLevel}
- */
-RestLogLevel = _modelRestLogLevel2['default'];
 exports.
 
 /**

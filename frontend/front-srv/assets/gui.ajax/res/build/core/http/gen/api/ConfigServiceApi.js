@@ -890,6 +890,38 @@ var ConfigServiceApi = (function () {
   };
 
   /**
+   * List all defined virtual nodes
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestNodesCollection} and HTTP response
+   */
+
+  ConfigServiceApi.prototype.listVirtualNodesWithHttpInfo = function listVirtualNodesWithHttpInfo() {
+    var postBody = null;
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestNodesCollection2['default'];
+
+    return this.apiClient.callApi('/config/virtualnodes', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * List all defined virtual nodes
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestNodesCollection}
+   */
+
+  ConfigServiceApi.prototype.listVirtualNodes = function listVirtualNodes() {
+    return this.listVirtualNodesWithHttpInfo().then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
    * Publish available REST APIs
    * @param {Object} opts Optional parameters
    * @param {String} opts.endpointType 

@@ -119,6 +119,32 @@ service ConfigService {
           tags: "EnterpriseConfigService"
         };
     }
+
+    // List all defined virtual nodes
+    rpc ListVirtualNodes(ListVirtualNodesRequest) returns (NodesCollection){
+        option (google.api.http) = {
+            get: "/config/virtualnodes"
+        };
+    }
+    // [Enterprise Only] Create or update a virtual node
+    rpc PutVirtualNode(tree.Node) returns (tree.Node){
+        option (google.api.http) = {
+          post: "/config/virtualnodes/{Uuid}"
+          body:"*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterpriseConfigService"
+        };
+    }
+    // [Enterprise Only] Delete a virtual node
+    rpc DeleteVirtualNode(tree.Node) returns (DeleteVirtualNodeResponse){
+        option (google.api.http) = {
+          delete: "/config/virtualnodes/{Uuid}"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+          tags: "EnterpriseConfigService"
+        };
+    }
     // List all services and their status
     rpc ListServices(ListServiceRequest) returns (ServiceCollection){
         option (google.api.http) = {
@@ -864,25 +890,6 @@ service UpdateService {
 // Frontend service for frontend-related requests that
 // are not linked to the actual data
 service FrontendService {
-    // Sends a tree of nodes to be used a menu in the Settings panel
-    rpc SettingsMenu(SettingsMenuRequest) returns (SettingsMenuResponse) {
-        option (google.api.http) =  {
-            get: "/frontend/settings-menu"
-        };
-    }
-    // Sends a log from front (php) to back
-    rpc FrontLog(FrontLogMessage) returns (FrontLogResponse) {
-        option (google.api.http) =  {
-            put: "/frontend/frontlogs"
-            body: "*"
-        };
-    }
-    // Add some data to the initial set of parameters loaded by the frontend
-    rpc FrontBootConf(FrontBootConfRequest) returns (FrontBootConfResponse){
-        option (google.api.http) = {
-            get: "/frontend/bootconf"
-        };
-    }
     // Send XML state registry
     rpc FrontState(FrontStateRequest) returns (FrontStateResponse) {
         option (google.api.http) = {
@@ -928,7 +935,12 @@ service FrontendService {
             body:"*"
         };
     }
-
+    // Sends a tree of nodes to be used a menu in the Settings panel
+    rpc SettingsMenu(SettingsMenuRequest) returns (SettingsMenuResponse) {
+        option (google.api.http) =  {
+            get: "/frontend/settings-menu"
+        };
+    }
 }
 
 // Used only in the Enterprise Distribution

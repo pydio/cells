@@ -208,7 +208,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 					return nil
 				})
 				if er != nil {
-					log.Logger(ctx).Error("Cannot publish READ event on node", fNode.Zap(), zap.Error(e))
+					log.Logger(ctx).Debug("Cannot publish READ event on node", resp.Node.Zap(), zap.Error(er))
 				}
 			} else {
 				log.Logger(ctx).Error("Cannot publish READ event on node", fNode.Zap(), zap.Error(e))
@@ -410,13 +410,14 @@ func (h *Handler) loadNodeByUuidOrPath(ctx context.Context, nodePath string, nod
 			},
 		})
 	} else {
-		log.Logger(ctx).Debug("Querying Tree Service by Path: ", zap.String("p", nodePath), zap.Bool("withExtended", loadExtended))
+		nodePath = strings.TrimSuffix(nodePath, "/")
 		response, err = h.GetRouter().ReadNode(ctx, &tree.ReadNodeRequest{
 			WithExtendedStats: loadExtended,
 			Node: &tree.Node{
 				Path: nodePath,
 			},
 		})
+		log.Logger(ctx).Info("Querying Tree Service by Path: ", zap.String("p", nodePath), zap.Bool("withExtended", loadExtended), zap.Any("resp", response), zap.Error(err))
 	}
 
 	if err != nil {

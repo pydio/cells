@@ -949,6 +949,47 @@ export default class ConfigServiceApi {
 
 
     /**
+     * List all defined virtual nodes
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestNodesCollection} and HTTP response
+     */
+    listVirtualNodesWithHttpInfo() {
+      let postBody = null;
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestNodesCollection;
+
+      return this.apiClient.callApi(
+        '/config/virtualnodes', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * List all defined virtual nodes
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestNodesCollection}
+     */
+    listVirtualNodes() {
+      return this.listVirtualNodesWithHttpInfo()
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
      * Publish available REST APIs
      * @param {Object} opts Optional parameters
      * @param {String} opts.endpointType 

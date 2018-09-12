@@ -144,6 +144,7 @@ import RestDeleteResponse from './model/RestDeleteResponse';
 import RestDeleteShareLinkResponse from './model/RestDeleteShareLinkResponse';
 import RestDeleteUserMetaTagsResponse from './model/RestDeleteUserMetaTagsResponse';
 import RestDeleteVersioningPolicyResponse from './model/RestDeleteVersioningPolicyResponse';
+import RestDeleteVirtualNodeResponse from './model/RestDeleteVirtualNodeResponse';
 import RestDiscoveryResponse from './model/RestDiscoveryResponse';
 import RestDocstoreCollection from './model/RestDocstoreCollection';
 import RestExternalDirectoryCollection from './model/RestExternalDirectoryCollection';
@@ -151,11 +152,8 @@ import RestExternalDirectoryConfig from './model/RestExternalDirectoryConfig';
 import RestExternalDirectoryResponse from './model/RestExternalDirectoryResponse';
 import RestFrontBinaryRequest from './model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
-import RestFrontBootConfResponse from './model/RestFrontBootConfResponse';
 import RestFrontEnrollAuthRequest from './model/RestFrontEnrollAuthRequest';
 import RestFrontEnrollAuthResponse from './model/RestFrontEnrollAuthResponse';
-import RestFrontLogMessage from './model/RestFrontLogMessage';
-import RestFrontLogResponse from './model/RestFrontLogResponse';
 import RestFrontMessagesResponse from './model/RestFrontMessagesResponse';
 import RestFrontPluginsResponse from './model/RestFrontPluginsResponse';
 import RestFrontSessionRequest from './model/RestFrontSessionRequest';
@@ -169,7 +167,6 @@ import RestListPeersAddressesResponse from './model/RestListPeersAddressesRespon
 import RestListSharedResourcesRequest from './model/RestListSharedResourcesRequest';
 import RestListSharedResourcesResponse from './model/RestListSharedResourcesResponse';
 import RestListUserMetaTagsResponse from './model/RestListUserMetaTagsResponse';
-import RestLogLevel from './model/RestLogLevel';
 import RestLogMessageCollection from './model/RestLogMessageCollection';
 import RestMetaCollection from './model/RestMetaCollection';
 import RestMetaNamespaceRequest from './model/RestMetaNamespaceRequest';
@@ -1099,6 +1096,12 @@ export {
     RestDeleteVersioningPolicyResponse,
 
     /**
+     * The RestDeleteVirtualNodeResponse model constructor.
+     * @property {module:model/RestDeleteVirtualNodeResponse}
+     */
+    RestDeleteVirtualNodeResponse,
+
+    /**
      * The RestDiscoveryResponse model constructor.
      * @property {module:model/RestDiscoveryResponse}
      */
@@ -1141,12 +1144,6 @@ export {
     RestFrontBinaryResponse,
 
     /**
-     * The RestFrontBootConfResponse model constructor.
-     * @property {module:model/RestFrontBootConfResponse}
-     */
-    RestFrontBootConfResponse,
-
-    /**
      * The RestFrontEnrollAuthRequest model constructor.
      * @property {module:model/RestFrontEnrollAuthRequest}
      */
@@ -1157,18 +1154,6 @@ export {
      * @property {module:model/RestFrontEnrollAuthResponse}
      */
     RestFrontEnrollAuthResponse,
-
-    /**
-     * The RestFrontLogMessage model constructor.
-     * @property {module:model/RestFrontLogMessage}
-     */
-    RestFrontLogMessage,
-
-    /**
-     * The RestFrontLogResponse model constructor.
-     * @property {module:model/RestFrontLogResponse}
-     */
-    RestFrontLogResponse,
 
     /**
      * The RestFrontMessagesResponse model constructor.
@@ -1247,12 +1232,6 @@ export {
      * @property {module:model/RestListUserMetaTagsResponse}
      */
     RestListUserMetaTagsResponse,
-
-    /**
-     * The RestLogLevel model constructor.
-     * @property {module:model/RestLogLevel}
-     */
-    RestLogLevel,
 
     /**
      * The RestLogMessageCollection model constructor.

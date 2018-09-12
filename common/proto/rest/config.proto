@@ -40,15 +40,18 @@ message ListPeerFoldersRequest{
     string Path = 2;
 }
 
-message ListVersioningPolicyRequest{
-
-}
+message ListVersioningPolicyRequest{}
 
 message VersioningPolicyCollection{
     repeated tree.VersioningPolicy Policies = 1;
 }
 
 message DeleteVersioningPolicyResponse{
+    bool Success = 1;
+}
+
+message ListVirtualNodesRequest{}
+message DeleteVirtualNodeResponse{
     bool Success = 1;
 }
 

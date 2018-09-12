@@ -31,10 +31,6 @@ var _modelRestFrontBinaryResponse = require('../model/RestFrontBinaryResponse');
 
 var _modelRestFrontBinaryResponse2 = _interopRequireDefault(_modelRestFrontBinaryResponse);
 
-var _modelRestFrontBootConfResponse = require('../model/RestFrontBootConfResponse');
-
-var _modelRestFrontBootConfResponse2 = _interopRequireDefault(_modelRestFrontBootConfResponse);
-
 var _modelRestFrontEnrollAuthRequest = require('../model/RestFrontEnrollAuthRequest');
 
 var _modelRestFrontEnrollAuthRequest2 = _interopRequireDefault(_modelRestFrontEnrollAuthRequest);
@@ -42,14 +38,6 @@ var _modelRestFrontEnrollAuthRequest2 = _interopRequireDefault(_modelRestFrontEn
 var _modelRestFrontEnrollAuthResponse = require('../model/RestFrontEnrollAuthResponse');
 
 var _modelRestFrontEnrollAuthResponse2 = _interopRequireDefault(_modelRestFrontEnrollAuthResponse);
-
-var _modelRestFrontLogMessage = require('../model/RestFrontLogMessage');
-
-var _modelRestFrontLogMessage2 = _interopRequireDefault(_modelRestFrontLogMessage);
-
-var _modelRestFrontLogResponse = require('../model/RestFrontLogResponse');
-
-var _modelRestFrontLogResponse2 = _interopRequireDefault(_modelRestFrontLogResponse);
 
 var _modelRestFrontMessagesResponse = require('../model/RestFrontMessagesResponse');
 
@@ -98,38 +86,6 @@ var FrontendServiceApi = (function () {
   }
 
   /**
-   * Add some data to the initial set of parameters loaded by the frontend
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBootConfResponse} and HTTP response
-   */
-
-  FrontendServiceApi.prototype.frontBootConfWithHttpInfo = function frontBootConfWithHttpInfo() {
-    var postBody = null;
-
-    var pathParams = {};
-    var queryParams = {};
-    var headerParams = {};
-    var formParams = {};
-
-    var authNames = [];
-    var contentTypes = ['application/json'];
-    var accepts = ['application/json'];
-    var returnType = _modelRestFrontBootConfResponse2['default'];
-
-    return this.apiClient.callApi('/frontend/bootconf', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
-  };
-
-  /**
-   * Add some data to the initial set of parameters loaded by the frontend
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBootConfResponse}
-   */
-
-  FrontendServiceApi.prototype.frontBootConf = function frontBootConf() {
-    return this.frontBootConfWithHttpInfo().then(function (response_and_data) {
-      return response_and_data.data;
-    });
-  };
-
-  /**
    * Generic endpoint that can be implemented by 2FA systems for enrollment
    * @param {module:model/RestFrontEnrollAuthRequest} body 
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontEnrollAuthResponse} and HTTP response
@@ -164,45 +120,6 @@ var FrontendServiceApi = (function () {
 
   FrontendServiceApi.prototype.frontEnrollAuth = function frontEnrollAuth(body) {
     return this.frontEnrollAuthWithHttpInfo(body).then(function (response_and_data) {
-      return response_and_data.data;
-    });
-  };
-
-  /**
-   * Sends a log from front (php) to back
-   * @param {module:model/RestFrontLogMessage} body 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontLogResponse} and HTTP response
-   */
-
-  FrontendServiceApi.prototype.frontLogWithHttpInfo = function frontLogWithHttpInfo(body) {
-    var postBody = body;
-
-    // verify the required parameter 'body' is set
-    if (body === undefined || body === null) {
-      throw new Error("Missing the required parameter 'body' when calling frontLog");
-    }
-
-    var pathParams = {};
-    var queryParams = {};
-    var headerParams = {};
-    var formParams = {};
-
-    var authNames = [];
-    var contentTypes = ['application/json'];
-    var accepts = ['application/json'];
-    var returnType = _modelRestFrontLogResponse2['default'];
-
-    return this.apiClient.callApi('/frontend/frontlogs', 'PUT', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
-  };
-
-  /**
-   * Sends a log from front (php) to back
-   * @param {module:model/RestFrontLogMessage} body 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontLogResponse}
-   */
-
-  FrontendServiceApi.prototype.frontLog = function frontLog(body) {
-    return this.frontLogWithHttpInfo(body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

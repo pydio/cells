@@ -33,6 +33,8 @@ It has these top-level messages:
 	ListVersioningPolicyRequest
 	VersioningPolicyCollection
 	DeleteVersioningPolicyResponse
+	ListVirtualNodesRequest
+	DeleteVirtualNodeResponse
 	ListServiceRequest
 	ServiceCollection
 	ControlServiceRequest
@@ -64,15 +66,11 @@ It has these top-level messages:
 	DocstoreCollection
 	ChangeRequest
 	ChangeCollection
-	FrontLogMessage
-	FrontLogResponse
 	SettingsMenuRequest
 	SettingsEntryMeta
 	SettingsEntry
 	SettingsSection
 	SettingsMenuResponse
-	FrontBootConfRequest
-	FrontBootConfResponse
 	FrontStateRequest
 	FrontStateResponse
 	FrontPluginsRequest

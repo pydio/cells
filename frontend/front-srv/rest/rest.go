@@ -30,7 +30,6 @@ import (
 	"github.com/micro/go-micro/metadata"
 	"github.com/pborman/uuid"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -110,18 +109,6 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 	}
 	plugins := pool.AllPluginsManifests(req.Request.Context(), lang)
 	rsp.WriteAsXml(plugins)
-
-}
-
-func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Response) {
-
-	pool, e := frontend.GetPluginsPool()
-	if e != nil {
-		service.RestError500(req, rsp, e)
-		return
-	}
-	bootConf := frontend.ComputeBootConf(pool)
-	rsp.WriteAsJson(bootConf)
 
 }
 
@@ -212,35 +199,6 @@ func (a *FrontendHandler) FrontMessages(req *restful.Request, rsp *restful.Respo
 	}
 	lang := req.PathParameter("Lang")
 	rsp.WriteAsJson(pool.I18nMessages(lang).Messages)
-}
-
-// Log handles all HTTP requests sent to the FrontLogService, reads the message and directly returns.
-// It then dispatches asynchronously the corresponding log message to technical and audit loggers.
-func (a *FrontendHandler) FrontLog(req *restful.Request, rsp *restful.Response) {
-
-	var message rest.FrontLogMessage
-	req.ReadEntity(&message)
-	rsp.WriteEntity(&rest.FrontLogResponse{Success: true})
-
-	go func() {
-		logger := log.Logger(req.Request.Context())
-
-		zaps := []zapcore.Field{
-			zap.String(common.KEY_FRONT_IP, message.Ip),
-			zap.String(common.KEY_FRONT_USERID, message.UserId),
-			zap.String(common.KEY_FRONT_WKSID, message.WorkspaceId),
-			zap.String(common.KEY_FRONT_SOURCE, message.Source),
-			zap.Strings(common.KEY_FRONT_NODES, message.Nodes),
-		}
-
-		if message.Level == rest.LogLevel_DEBUG || message.Level == rest.LogLevel_NOTICE {
-			logger.Debug(message.Message, zaps...)
-		} else if message.Level == rest.LogLevel_ERROR || message.Level == rest.LogLevel_WARNING {
-			logger.Error(message.Message, zaps...)
-		} else {
-			logger.Info(message.Message, zaps...)
-		}
-	}()
 }
 
 // Strip Cookies Metadata from context to avoid s3 too-long-header error

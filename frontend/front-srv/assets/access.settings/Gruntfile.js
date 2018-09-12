@@ -69,6 +69,19 @@ module.exports = function(grunt) {
                 files: { 'res/build/AdminServices.js'  : 'res/build/AdminServices/index.js' }
             }
         },
+        compress: {
+            options: {
+                mode: 'gzip',
+                level:9,
+            },
+            all: {
+                expand: true,
+                cwd: 'res/build/',
+                src: ['*.js'],
+                dest: 'res/build/',
+                ext: '.js.gz'
+            },
+        },
         less: {
             development: {
                 options: {
@@ -90,7 +103,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminComponents/**/*"
                 ],
-                tasks: ['babel:components', 'browserify:components'],
+                tasks: ['babel:components', 'browserify:components', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -99,7 +112,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminWorkspaces/**/*"
                 ],
-                tasks: ['babel:workspaces', 'browserify:workspaces'],
+                tasks: ['babel:workspaces', 'browserify:workspaces', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -108,7 +121,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminPeople/**/*"
                 ],
-                tasks: ['babel:people', 'browserify:people'],
+                tasks: ['babel:people', 'browserify:people', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -117,7 +130,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminPlugins/**/*"
                 ],
-                tasks: ['babel:plugins', 'browserify:plugins'],
+                tasks: ['babel:plugins', 'browserify:plugins', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -126,7 +139,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminScheduler/**/*"
                 ],
-                tasks: ['babel:scheduler', 'browserify:scheduler'],
+                tasks: ['babel:scheduler', 'browserify:scheduler', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -135,7 +148,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminLogs/**/*"
                 ],
-                tasks: ['babel:logs', 'browserify:logs'],
+                tasks: ['babel:logs', 'browserify:logs', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -144,7 +157,7 @@ module.exports = function(grunt) {
                 files: [
                     "res/js/AdminServices/**/*"
                 ],
-                tasks: ['babel:services', 'browserify:services'],
+                tasks: ['babel:services', 'browserify:services', 'compress:all'],
                 options: {
                     spawn: false
                 }
@@ -154,9 +167,10 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('assemble-less');
-    grunt.registerTask('default', ['babel:dist', 'browserify:ui', 'less']);
-    grunt.registerTask('type:js', ['babel:dist', 'browserify:ui']);
+    grunt.registerTask('default', ['babel:dist', 'browserify:ui', 'less', 'compress:all']);
+    grunt.registerTask('type:js', ['babel:dist', 'browserify:ui', 'compress:all']);
     grunt.registerTask('type:css', ['less']);
 
 };
