@@ -125,6 +125,7 @@ import PackagePackageStatus from './model/PackagePackageStatus';
 import ProtobufAny from './model/ProtobufAny';
 import ResourcePolicyQueryQueryType from './model/ResourcePolicyQueryQueryType';
 import RestACLCollection from './model/RestACLCollection';
+import RestBackgroundJobResult from './model/RestBackgroundJobResult';
 import RestBindResponse from './model/RestBindResponse';
 import RestBulkMetaResponse from './model/RestBulkMetaResponse';
 import RestCell from './model/RestCell';
@@ -137,7 +138,6 @@ import RestCreateNodesRequest from './model/RestCreateNodesRequest';
 import RestDataSourceCollection from './model/RestDataSourceCollection';
 import RestDeleteCellResponse from './model/RestDeleteCellResponse';
 import RestDeleteDataSourceResponse from './model/RestDeleteDataSourceResponse';
-import RestDeleteJobResult from './model/RestDeleteJobResult';
 import RestDeleteNodesRequest from './model/RestDeleteNodesRequest';
 import RestDeleteNodesResponse from './model/RestDeleteNodesResponse';
 import RestDeleteResponse from './model/RestDeleteResponse';
@@ -186,6 +186,8 @@ import RestResetPasswordRequest from './model/RestResetPasswordRequest';
 import RestResetPasswordResponse from './model/RestResetPasswordResponse';
 import RestResetPasswordTokenResponse from './model/RestResetPasswordTokenResponse';
 import RestResourcePolicyQuery from './model/RestResourcePolicyQuery';
+import RestRestoreNodesRequest from './model/RestRestoreNodesRequest';
+import RestRestoreNodesResponse from './model/RestRestoreNodesResponse';
 import RestRevokeRequest from './model/RestRevokeRequest';
 import RestRevokeResponse from './model/RestRevokeResponse';
 import RestRolesCollection from './model/RestRolesCollection';
@@ -983,6 +985,12 @@ export {
     RestACLCollection,
 
     /**
+     * The RestBackgroundJobResult model constructor.
+     * @property {module:model/RestBackgroundJobResult}
+     */
+    RestBackgroundJobResult,
+
+    /**
      * The RestBindResponse model constructor.
      * @property {module:model/RestBindResponse}
      */
@@ -1053,12 +1061,6 @@ export {
      * @property {module:model/RestDeleteDataSourceResponse}
      */
     RestDeleteDataSourceResponse,
-
-    /**
-     * The RestDeleteJobResult model constructor.
-     * @property {module:model/RestDeleteJobResult}
-     */
-    RestDeleteJobResult,
 
     /**
      * The RestDeleteNodesRequest model constructor.
@@ -1347,6 +1349,18 @@ export {
      * @property {module:model/RestResourcePolicyQuery}
      */
     RestResourcePolicyQuery,
+
+    /**
+     * The RestRestoreNodesRequest model constructor.
+     * @property {module:model/RestRestoreNodesRequest}
+     */
+    RestRestoreNodesRequest,
+
+    /**
+     * The RestRestoreNodesResponse model constructor.
+     * @property {module:model/RestRestoreNodesResponse}
+     */
+    RestRestoreNodesResponse,
 
     /**
      * The RestRevokeRequest model constructor.

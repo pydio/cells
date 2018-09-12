@@ -17,14 +17,31 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import PydioApi from 'pydio/http/api'
+import {RestRestoreNodesRequest, TreeServiceApi,TreeNode} from 'pydio/http/rest-api';
 
 export default function (pydio) {
 
     return function(){
 
-        // TODO : How to handle RESTORE operation
-        throw new Error('This is not implemented');
+        const nodes = pydio.getContextHolder().getSelectedNodes();
+        const slug = pydio.user.getActiveRepositoryObject().getSlug();
+        const restoreRequest = new RestRestoreNodesRequest();
+        const api = new TreeServiceApi(PydioApi.getRestClient());
+        restoreRequest.Nodes = nodes.map(n => {
+            const t = new TreeNode();
+            t.Path = slug + n.getPath();
+            return t;
+        });
+        api.restoreNodes(restoreRequest).then(r => {
+            if (r.RestoreJobs){
+                r.RestoreJobs.forEach(j => {
+                   pydio.UI.displayMessage('SUCCESS', j.Label);
+                })
+            }
+            pydio.getContextHolder().setSelectedNodes([]);
+        });
+
 
     }
 

@@ -51,6 +51,14 @@ var _modelRestNodesCollection = require('../model/RestNodesCollection');
 
 var _modelRestNodesCollection2 = _interopRequireDefault(_modelRestNodesCollection);
 
+var _modelRestRestoreNodesRequest = require('../model/RestRestoreNodesRequest');
+
+var _modelRestRestoreNodesRequest2 = _interopRequireDefault(_modelRestRestoreNodesRequest);
+
+var _modelRestRestoreNodesResponse = require('../model/RestRestoreNodesResponse');
+
+var _modelRestRestoreNodesResponse2 = _interopRequireDefault(_modelRestRestoreNodesResponse);
+
 /**
 * TreeService service.
 * @module api/TreeServiceApi
@@ -227,6 +235,45 @@ var TreeServiceApi = (function () {
 
   TreeServiceApi.prototype.headNode = function headNode(node) {
     return this.headNodeWithHttpInfo(node).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * Handle nodes restoration from recycle bin
+   * @param {module:model/RestRestoreNodesRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestRestoreNodesResponse} and HTTP response
+   */
+
+  TreeServiceApi.prototype.restoreNodesWithHttpInfo = function restoreNodesWithHttpInfo(body) {
+    var postBody = body;
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling restoreNodes");
+    }
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestRestoreNodesResponse2['default'];
+
+    return this.apiClient.callApi('/tree/restore', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Handle nodes restoration from recycle bin
+   * @param {module:model/RestRestoreNodesRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestRestoreNodesResponse}
+   */
+
+  TreeServiceApi.prototype.restoreNodes = function restoreNodes(body) {
+    return this.restoreNodesWithHttpInfo(body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

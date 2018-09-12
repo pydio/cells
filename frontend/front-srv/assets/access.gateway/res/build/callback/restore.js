@@ -17,31 +17,41 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
-var PydioApi = require('pydio/http/api');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 exports['default'] = function (pydio) {
 
     return function () {
 
-        if (pydio.getContextHolder().isMultiple()) {
-            (function () {
-                var ctxNode = pydio.getContextHolder().getContextNode();
-                pydio.getContextHolder().getSelectedNodes().forEach(function (n) {
-                    var tmpModel = new PydioDataModel();
-                    tmpModel.setContextNode(ctxNode);
-                    tmpModel.setSelectedNodes([n]);
-                    PydioApi.getClient().postSelectionWithAction('restore', null, tmpModel);
+        var nodes = pydio.getContextHolder().getSelectedNodes();
+        var slug = pydio.user.getActiveRepositoryObject().getSlug();
+        var restoreRequest = new _pydioHttpRestApi.RestRestoreNodesRequest();
+        var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+        restoreRequest.Nodes = nodes.map(function (n) {
+            var t = new _pydioHttpRestApi.TreeNode();
+            t.Path = slug + n.getPath();
+            return t;
+        });
+        api.restoreNodes(restoreRequest).then(function (r) {
+            if (r.RestoreJobs) {
+                r.RestoreJobs.forEach(function (j) {
+                    pydio.UI.displayMessage('SUCCESS', j.Label);
                 });
-            })();
-        } else {
-            PydioApi.getClient().postSelectionWithAction('restore');
-        }
+            }
+            pydio.getContextHolder().setSelectedNodes([]);
+        });
     };
 };
 

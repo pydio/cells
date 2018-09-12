@@ -23,9 +23,9 @@ var _ApiClient = require('../ApiClient');
 
 var _ApiClient2 = _interopRequireDefault(_ApiClient);
 
-var _RestDeleteJobResult = require('./RestDeleteJobResult');
+var _RestBackgroundJobResult = require('./RestBackgroundJobResult');
 
-var _RestDeleteJobResult2 = _interopRequireDefault(_RestDeleteJobResult);
+var _RestBackgroundJobResult2 = _interopRequireDefault(_RestBackgroundJobResult);
 
 /**
 * The RestDeleteNodesResponse model module.
@@ -59,14 +59,14 @@ var RestDeleteNodesResponse = (function () {
             obj = obj || new RestDeleteNodesResponse();
 
             if (data.hasOwnProperty('DeleteJobs')) {
-                obj['DeleteJobs'] = _ApiClient2['default'].convertToType(data['DeleteJobs'], [_RestDeleteJobResult2['default']]);
+                obj['DeleteJobs'] = _ApiClient2['default'].convertToType(data['DeleteJobs'], [_RestBackgroundJobResult2['default']]);
             }
         }
         return obj;
     };
 
     /**
-    * @member {Array.<module:model/RestDeleteJobResult>} DeleteJobs
+    * @member {Array.<module:model/RestBackgroundJobResult>} DeleteJobs
     */
     return RestDeleteNodesResponse;
 })();

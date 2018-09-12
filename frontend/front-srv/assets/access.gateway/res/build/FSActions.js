@@ -200,6 +200,8 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
 exports['default'] = function (pydio) {
     var MessageHash = pydio.MessageHash;
 
@@ -209,7 +211,6 @@ exports['default'] = function (pydio) {
 
         var repoHasRecycle = pydio.getContextHolder().getRootNode().getMetadata().get("repo_has_recycle") || pydio.getContextHolder().getRootNode().getChildren().has('/recycle_bin');
         if (repoHasRecycle && pydio.getContextNode().getAjxpMime() !== "ajxp_recycle") {
-            move = true;
             message = MessageHash[176];
         }
         // Detect shared node
@@ -217,7 +218,7 @@ exports['default'] = function (pydio) {
             (function () {
                 var shared = [];
                 pydio.getContextHolder().getSelectedNodes().forEach(function (n) {
-                    if (n.getMetadata().get('ajxp_shared')) {
+                    if (n.getMetadata().get('pydio_is_shared')) {
                         shared.push(n);
                     }
                 });
@@ -247,26 +248,19 @@ exports['default'] = function (pydio) {
             validCallback: function validCallback() {
                 var nodes = pydio.getContextHolder().getSelectedNodes();
                 var slug = pydio.user.getActiveRepositoryObject().getSlug();
-                var paths = nodes.map(function (n) {
-                    return slug + n.getPath();
+                var deleteRequest = new _pydioHttpRestApi.RestDeleteNodesRequest();
+                var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+                deleteRequest.Nodes = nodes.map(function (n) {
+                    var t = new _pydioHttpRestApi.TreeNode();
+                    t.Path = slug + n.getPath();
+                    return t;
                 });
-                var jobName = undefined,
-                    jobParams = undefined,
-                    success = undefined;
-
-                if (move) {
-                    var target = slug + '/recycle_bin';
-                    jobName = "move";
-                    jobParams = { nodes: paths, target: target, targetParent: true };
-                    success = "Moving to recycle bin in background";
-                } else {
-                    jobName = "delete";
-                    jobParams = { nodes: paths };
-                    success = "Deletion job sent to background";
-                }
-
-                _pydioHttpApi2['default'].getRestClient().userJob(jobName, jobParams).then(function (r) {
-                    pydio.UI.displayMessage('SUCCESS', success);
+                api.deleteNodes(deleteRequest).then(function (r) {
+                    if (r.DeleteJobs) {
+                        r.DeleteJobs.forEach(function (j) {
+                            pydio.UI.displayMessage('SUCCESS', j.Label);
+                        });
+                    }
                     pydio.getContextHolder().setSelectedNodes([]);
                 });
             }
@@ -276,7 +270,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],5:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],5:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -996,37 +990,47 @@ module.exports = exports['default'];
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
-var PydioApi = require('pydio/http/api');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 exports['default'] = function (pydio) {
 
     return function () {
 
-        if (pydio.getContextHolder().isMultiple()) {
-            (function () {
-                var ctxNode = pydio.getContextHolder().getContextNode();
-                pydio.getContextHolder().getSelectedNodes().forEach(function (n) {
-                    var tmpModel = new PydioDataModel();
-                    tmpModel.setContextNode(ctxNode);
-                    tmpModel.setSelectedNodes([n]);
-                    PydioApi.getClient().postSelectionWithAction('restore', null, tmpModel);
+        var nodes = pydio.getContextHolder().getSelectedNodes();
+        var slug = pydio.user.getActiveRepositoryObject().getSlug();
+        var restoreRequest = new _pydioHttpRestApi.RestRestoreNodesRequest();
+        var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+        restoreRequest.Nodes = nodes.map(function (n) {
+            var t = new _pydioHttpRestApi.TreeNode();
+            t.Path = slug + n.getPath();
+            return t;
+        });
+        api.restoreNodes(restoreRequest).then(function (r) {
+            if (r.RestoreJobs) {
+                r.RestoreJobs.forEach(function (j) {
+                    pydio.UI.displayMessage('SUCCESS', j.Label);
                 });
-            })();
-        } else {
-            PydioApi.getClient().postSelectionWithAction('restore');
-        }
+            }
+            pydio.getContextHolder().setSelectedNodes([]);
+        });
     };
 };
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],19:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],19:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

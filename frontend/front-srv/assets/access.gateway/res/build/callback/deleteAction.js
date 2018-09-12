@@ -30,6 +30,8 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioHttpRestApi = require('pydio/http/rest-api');
+
 exports['default'] = function (pydio) {
     var MessageHash = pydio.MessageHash;
 
@@ -39,7 +41,6 @@ exports['default'] = function (pydio) {
 
         var repoHasRecycle = pydio.getContextHolder().getRootNode().getMetadata().get("repo_has_recycle") || pydio.getContextHolder().getRootNode().getChildren().has('/recycle_bin');
         if (repoHasRecycle && pydio.getContextNode().getAjxpMime() !== "ajxp_recycle") {
-            move = true;
             message = MessageHash[176];
         }
         // Detect shared node
@@ -47,7 +48,7 @@ exports['default'] = function (pydio) {
             (function () {
                 var shared = [];
                 pydio.getContextHolder().getSelectedNodes().forEach(function (n) {
-                    if (n.getMetadata().get('ajxp_shared')) {
+                    if (n.getMetadata().get('pydio_is_shared')) {
                         shared.push(n);
                     }
                 });
@@ -77,26 +78,19 @@ exports['default'] = function (pydio) {
             validCallback: function validCallback() {
                 var nodes = pydio.getContextHolder().getSelectedNodes();
                 var slug = pydio.user.getActiveRepositoryObject().getSlug();
-                var paths = nodes.map(function (n) {
-                    return slug + n.getPath();
+                var deleteRequest = new _pydioHttpRestApi.RestDeleteNodesRequest();
+                var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+                deleteRequest.Nodes = nodes.map(function (n) {
+                    var t = new _pydioHttpRestApi.TreeNode();
+                    t.Path = slug + n.getPath();
+                    return t;
                 });
-                var jobName = undefined,
-                    jobParams = undefined,
-                    success = undefined;
-
-                if (move) {
-                    var target = slug + '/recycle_bin';
-                    jobName = "move";
-                    jobParams = { nodes: paths, target: target, targetParent: true };
-                    success = "Moving to recycle bin in background";
-                } else {
-                    jobName = "delete";
-                    jobParams = { nodes: paths };
-                    success = "Deletion job sent to background";
-                }
-
-                _pydioHttpApi2['default'].getRestClient().userJob(jobName, jobParams).then(function (r) {
-                    pydio.UI.displayMessage('SUCCESS', success);
+                api.deleteNodes(deleteRequest).then(function (r) {
+                    if (r.DeleteJobs) {
+                        r.DeleteJobs.forEach(function (j) {
+                            pydio.UI.displayMessage('SUCCESS', j.Label);
+                        });
+                    }
                     pydio.getContextHolder().setSelectedNodes([]);
                 });
             }

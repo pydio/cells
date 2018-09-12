@@ -20,6 +20,8 @@ import RestDeleteNodesResponse from '../model/RestDeleteNodesResponse';
 import RestGetBulkMetaRequest from '../model/RestGetBulkMetaRequest';
 import RestHeadNodeResponse from '../model/RestHeadNodeResponse';
 import RestNodesCollection from '../model/RestNodesCollection';
+import RestRestoreNodesRequest from '../model/RestRestoreNodesRequest';
+import RestRestoreNodesResponse from '../model/RestRestoreNodesResponse';
 
 /**
 * TreeService service.
@@ -228,6 +230,54 @@ export default class TreeServiceApi {
      */
     headNode(node) {
       return this.headNodeWithHttpInfo(node)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Handle nodes restoration from recycle bin
+     * @param {module:model/RestRestoreNodesRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestRestoreNodesResponse} and HTTP response
+     */
+    restoreNodesWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling restoreNodes");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestRestoreNodesResponse;
+
+      return this.apiClient.callApi(
+        '/tree/restore', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Handle nodes restoration from recycle bin
+     * @param {module:model/RestRestoreNodesRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestRestoreNodesResponse}
+     */
+    restoreNodes(body) {
+      return this.restoreNodesWithHttpInfo(body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

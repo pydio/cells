@@ -19,6 +19,7 @@
  */
 
 import PydioApi from 'pydio/http/api'
+import {RestDeleteNodesRequest, TreeServiceApi,TreeNode} from 'pydio/http/rest-api';
 
 export default function (pydio) {
 
@@ -30,14 +31,13 @@ export default function (pydio) {
 
         const repoHasRecycle = pydio.getContextHolder().getRootNode().getMetadata().get("repo_has_recycle") || pydio.getContextHolder().getRootNode().getChildren().has('/recycle_bin');
         if(repoHasRecycle && pydio.getContextNode().getAjxpMime() !== "ajxp_recycle"){
-            move = true;
             message = MessageHash[176];
         }
         // Detect shared node
         if(pydio.getPluginConfigs('action.share').size){
             let shared = [];
             pydio.getContextHolder().getSelectedNodes().forEach((n) => {
-                if(n.getMetadata().get('ajxp_shared')){
+                if(n.getMetadata().get('pydio_is_shared')){
                     shared.push(n);
                 }
             });
@@ -54,25 +54,22 @@ export default function (pydio) {
         pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
             message:message,
             dialogTitleId: 7,
-            validCallback:function(){
+            validCallback: () => {
                 const nodes = pydio.getContextHolder().getSelectedNodes();
                 const slug = pydio.user.getActiveRepositoryObject().getSlug();
-                const paths = nodes.map(n => slug + n.getPath());
-                let jobName, jobParams, success;
-
-                if (move) {
-                    const target = slug + '/recycle_bin';
-                    jobName = "move";
-                    jobParams = {nodes:paths, target: target, targetParent: true};
-                    success = "Moving to recycle bin in background";
-                } else {
-                    jobName = "delete";
-                    jobParams = {nodes:paths};
-                    success = "Deletion job sent to background";
-                }
-
-                PydioApi.getRestClient().userJob(jobName, jobParams).then(r => {
-                    pydio.UI.displayMessage('SUCCESS', success);
+                const deleteRequest = new RestDeleteNodesRequest();
+                const api = new TreeServiceApi(PydioApi.getRestClient());
+                deleteRequest.Nodes = nodes.map(n => {
+                    const t = new TreeNode()
+                    t.Path = slug + n.getPath();
+                    return t;
+                });
+                api.deleteNodes(deleteRequest).then(r => {
+                    if (r.DeleteJobs){
+                        r.DeleteJobs.forEach(j => {
+                            pydio.UI.displayMessage('SUCCESS', j.Label);
+                        })
+                    }
                     pydio.getContextHolder().setSelectedNodes([]);
                 });
             }

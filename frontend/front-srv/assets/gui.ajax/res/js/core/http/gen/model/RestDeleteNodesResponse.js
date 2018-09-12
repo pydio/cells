@@ -13,7 +13,7 @@
 
 
 import ApiClient from '../ApiClient';
-import RestDeleteJobResult from './RestDeleteJobResult';
+import RestBackgroundJobResult from './RestBackgroundJobResult';
 
 
 
@@ -58,14 +58,14 @@ export default class RestDeleteNodesResponse {
             
 
             if (data.hasOwnProperty('DeleteJobs')) {
-                obj['DeleteJobs'] = ApiClient.convertToType(data['DeleteJobs'], [RestDeleteJobResult]);
+                obj['DeleteJobs'] = ApiClient.convertToType(data['DeleteJobs'], [RestBackgroundJobResult]);
             }
         }
         return obj;
     }
 
     /**
-    * @member {Array.<module:model/RestDeleteJobResult>} DeleteJobs
+    * @member {Array.<module:model/RestBackgroundJobResult>} DeleteJobs
     */
     DeleteJobs = undefined;
 

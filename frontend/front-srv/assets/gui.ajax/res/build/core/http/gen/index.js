@@ -469,6 +469,10 @@ var _modelRestACLCollection = require('./model/RestACLCollection');
 
 var _modelRestACLCollection2 = _interopRequireDefault(_modelRestACLCollection);
 
+var _modelRestBackgroundJobResult = require('./model/RestBackgroundJobResult');
+
+var _modelRestBackgroundJobResult2 = _interopRequireDefault(_modelRestBackgroundJobResult);
+
 var _modelRestBindResponse = require('./model/RestBindResponse');
 
 var _modelRestBindResponse2 = _interopRequireDefault(_modelRestBindResponse);
@@ -516,10 +520,6 @@ var _modelRestDeleteCellResponse2 = _interopRequireDefault(_modelRestDeleteCellR
 var _modelRestDeleteDataSourceResponse = require('./model/RestDeleteDataSourceResponse');
 
 var _modelRestDeleteDataSourceResponse2 = _interopRequireDefault(_modelRestDeleteDataSourceResponse);
-
-var _modelRestDeleteJobResult = require('./model/RestDeleteJobResult');
-
-var _modelRestDeleteJobResult2 = _interopRequireDefault(_modelRestDeleteJobResult);
 
 var _modelRestDeleteNodesRequest = require('./model/RestDeleteNodesRequest');
 
@@ -712,6 +712,14 @@ var _modelRestResetPasswordTokenResponse2 = _interopRequireDefault(_modelRestRes
 var _modelRestResourcePolicyQuery = require('./model/RestResourcePolicyQuery');
 
 var _modelRestResourcePolicyQuery2 = _interopRequireDefault(_modelRestResourcePolicyQuery);
+
+var _modelRestRestoreNodesRequest = require('./model/RestRestoreNodesRequest');
+
+var _modelRestRestoreNodesRequest2 = _interopRequireDefault(_modelRestRestoreNodesRequest);
+
+var _modelRestRestoreNodesResponse = require('./model/RestRestoreNodesResponse');
+
+var _modelRestRestoreNodesResponse2 = _interopRequireDefault(_modelRestRestoreNodesResponse);
 
 var _modelRestRevokeRequest = require('./model/RestRevokeRequest');
 
@@ -1873,6 +1881,13 @@ RestACLCollection = _modelRestACLCollection2['default'];
 exports.
 
 /**
+ * The RestBackgroundJobResult model constructor.
+ * @property {module:model/RestBackgroundJobResult}
+ */
+RestBackgroundJobResult = _modelRestBackgroundJobResult2['default'];
+exports.
+
+/**
  * The RestBindResponse model constructor.
  * @property {module:model/RestBindResponse}
  */
@@ -1954,13 +1969,6 @@ exports.
  * @property {module:model/RestDeleteDataSourceResponse}
  */
 RestDeleteDataSourceResponse = _modelRestDeleteDataSourceResponse2['default'];
-exports.
-
-/**
- * The RestDeleteJobResult model constructor.
- * @property {module:model/RestDeleteJobResult}
- */
-RestDeleteJobResult = _modelRestDeleteJobResult2['default'];
 exports.
 
 /**
@@ -2297,6 +2305,20 @@ exports.
  * @property {module:model/RestResourcePolicyQuery}
  */
 RestResourcePolicyQuery = _modelRestResourcePolicyQuery2['default'];
+exports.
+
+/**
+ * The RestRestoreNodesRequest model constructor.
+ * @property {module:model/RestRestoreNodesRequest}
+ */
+RestRestoreNodesRequest = _modelRestRestoreNodesRequest2['default'];
+exports.
+
+/**
+ * The RestRestoreNodesResponse model constructor.
+ * @property {module:model/RestRestoreNodesResponse}
+ */
+RestRestoreNodesResponse = _modelRestRestoreNodesResponse2['default'];
 exports.
 
 /**

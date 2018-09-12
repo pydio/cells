@@ -16200,6 +16200,48 @@
               }
             },
             "description": "Return node meta without the node content itself"
+          },
+          {
+            "name": "restoreNodesWithHttpInfo",
+            "docblock": "Handle nodes restoration from recycle bin\n@param {module:model/RestRestoreNodesRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestRestoreNodesResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestRestoreNodesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestRestoreNodesResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Handle nodes restoration from recycle bin"
+          },
+          {
+            "name": "restoreNodes",
+            "docblock": "Handle nodes restoration from recycle bin\n@param {module:model/RestRestoreNodesRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestRestoreNodesResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestRestoreNodesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestRestoreNodesResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Handle nodes restoration from recycle bin"
           }
         ]
       }
@@ -21933,6 +21975,52 @@
         ]
       }
     ],
+    "core/http/gen/model/RestBackgroundJobResult.js": [
+      {
+        "description": "The RestBackgroundJobResult model module.\n@module model/RestBackgroundJobResult\n@version 1.0",
+        "displayName": "RestBackgroundJobResult",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestBackgroundJobResult</code>.\n@alias module:model/RestBackgroundJobResult\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestBackgroundJobResult</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestBackgroundJobResult</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestBackgroundJobResult} obj Optional instance to populate.\n@return {module:model/RestBackgroundJobResult} The populated <code>RestBackgroundJobResult</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestBackgroundJobResult"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestBackgroundJobResult</code> instance.",
+              "type": {
+                "name": "module:model/RestBackgroundJobResult"
+              }
+            },
+            "description": "Constructs a <code>RestBackgroundJobResult</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/RestBindResponse.js": [
       {
         "description": "The RestBindResponse model module.\n@module model/RestBindResponse\n@version 1.0",
@@ -22481,52 +22569,6 @@
               }
             },
             "description": "Constructs a <code>RestDeleteDataSourceResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
-    "core/http/gen/model/RestDeleteJobResult.js": [
-      {
-        "description": "The RestDeleteJobResult model module.\n@module model/RestDeleteJobResult\n@version 1.0",
-        "displayName": "RestDeleteJobResult",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>RestDeleteJobResult</code>.\n@alias module:model/RestDeleteJobResult\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>RestDeleteJobResult</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>RestDeleteJobResult</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestDeleteJobResult} obj Optional instance to populate.\n@return {module:model/RestDeleteJobResult} The populated <code>RestDeleteJobResult</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/RestDeleteJobResult"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>RestDeleteJobResult</code> instance.",
-              "type": {
-                "name": "module:model/RestDeleteJobResult"
-              }
-            },
-            "description": "Constructs a <code>RestDeleteJobResult</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -24716,6 +24758,98 @@
               }
             },
             "description": "Constructs a <code>RestResourcePolicyQuery</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestRestoreNodesRequest.js": [
+      {
+        "description": "The RestRestoreNodesRequest model module.\n@module model/RestRestoreNodesRequest\n@version 1.0",
+        "displayName": "RestRestoreNodesRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestRestoreNodesRequest</code>.\n@alias module:model/RestRestoreNodesRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestRestoreNodesRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestRestoreNodesRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestRestoreNodesRequest} obj Optional instance to populate.\n@return {module:model/RestRestoreNodesRequest} The populated <code>RestRestoreNodesRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestRestoreNodesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestRestoreNodesRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestRestoreNodesRequest"
+              }
+            },
+            "description": "Constructs a <code>RestRestoreNodesRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestRestoreNodesResponse.js": [
+      {
+        "description": "The RestRestoreNodesResponse model module.\n@module model/RestRestoreNodesResponse\n@version 1.0",
+        "displayName": "RestRestoreNodesResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestRestoreNodesResponse</code>.\n@alias module:model/RestRestoreNodesResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestRestoreNodesResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestRestoreNodesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestRestoreNodesResponse} obj Optional instance to populate.\n@return {module:model/RestRestoreNodesResponse} The populated <code>RestRestoreNodesResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestRestoreNodesResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestRestoreNodesResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestRestoreNodesResponse"
+              }
+            },
+            "description": "Constructs a <code>RestRestoreNodesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
