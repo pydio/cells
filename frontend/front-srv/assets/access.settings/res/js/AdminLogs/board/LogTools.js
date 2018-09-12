@@ -44,11 +44,25 @@ class LogTools extends React.Component{
     handleExport(format) {
         const {filter, date, endDate} = this.state;
         const {service} = this.props;
-        PydioApi.getClient().downloadSelection(new PydioDataModel(), 'export_logs', {
-            query: Log.buildQuery(filter, date, endDate),
-            format:format,
-            date: (date? date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate() : ''),
-            service: service || 'syslog'
+        const dateString = (date? date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate() : '');
+        const query = Log.buildQuery(filter, date, endDate);
+        Log.downloadLogs(service || 'syslog', query, format).then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            let filename = 'cells-logs-';
+            if (dateString){
+                filename += dateString;
+            } else {
+                filename += 'filtered';
+            }
+            filename += '.' + format.toLowerCase();
+
+            link.href = url;
+            link.download = filename;
+            link.click();
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+            }, 100);
         });
     }
 

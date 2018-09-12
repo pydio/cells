@@ -90,11 +90,25 @@ var LogTools = (function (_React$Component) {
             var endDate = _state2.endDate;
             var service = this.props.service;
 
-            _pydioHttpApi2['default'].getClient().downloadSelection(new _pydioModelDataModel2['default'](), 'export_logs', {
-                query: _modelLog2['default'].buildQuery(filter, date, endDate),
-                format: format,
-                date: date ? date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() : '',
-                service: service || 'syslog'
+            var dateString = date ? date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() : '';
+            var query = _modelLog2['default'].buildQuery(filter, date, endDate);
+            _modelLog2['default'].downloadLogs(service || 'syslog', query, format).then(function (blob) {
+                var url = window.URL.createObjectURL(blob);
+                var link = document.createElement('a');
+                var filename = 'cells-logs-';
+                if (dateString) {
+                    filename += dateString;
+                } else {
+                    filename += 'filtered';
+                }
+                filename += '.' + format.toLowerCase();
+
+                link.href = url;
+                link.download = filename;
+                link.click();
+                setTimeout(function () {
+                    window.URL.revokeObjectURL(url);
+                }, 100);
             });
         }
     }, {

@@ -64,6 +64,62 @@ class Log extends Observable{
             return Promise.reject("Unknown service name, must be 'syslog' or 'audit'");
         }
     }
+
+    /**
+     *
+     * @param serviceName
+     * @param query
+     * @param format
+     * @return {Promise<Blob>}
+     */
+    static downloadLogs(serviceName, query, format) {
+        let request = new LogListLogRequest();
+        request.Query = query;
+        request.Page = 0;
+        request.Size = 100000;
+        request.Format = ListLogRequestLogFormat.constructFromObject(format);
+        return Log.auditExportWithHttpInfo(request, serviceName).then(response_and_data => {
+            return response_and_data.response.body;
+        });
+    }
+
+    /**
+     * Auditable Logs, in Json or CSV format
+     * @param {module:model/LogListLogRequest} body
+     * @param serviceName {String} audit or syslog
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response
+     */
+    static auditExportWithHttpInfo(body, serviceName) {
+        let postBody = body;
+
+        // verify the required parameter 'body' is set
+        if (body === undefined || body === null) {
+            throw new Error("Missing the required parameter 'body' when calling auditExport");
+        }
+
+
+        let pathParams = {
+        };
+        let queryParams = {
+        };
+        let headerParams = {
+        };
+        let formParams = {
+        };
+
+        let authNames = [];
+        let contentTypes = ['application/json'];
+        let accepts = ['application/json'];
+        let returnType = 'Blob';
+
+        return PydioApi.getRestClient().callApi(
+            '/log/' + serviceName + '/export', 'POST',
+            pathParams, queryParams, headerParams, formParams, postBody,
+            authNames, contentTypes, accepts, returnType
+        );
+    }
+
+
 }
 
 
