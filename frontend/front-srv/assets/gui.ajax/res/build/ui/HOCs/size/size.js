@@ -68,7 +68,6 @@ var withResize = function withResize(Component) {
             var height = nextProps.height;
 
             if (size !== this.props.size || width !== this.props.width || height !== this.props.height || containerWidth !== this.props.containerWidth || containerHeight !== this.props.containerHeight) {
-
                 this.loadSize(nextProps);
             }
         };
@@ -83,6 +82,7 @@ var withResize = function withResize(Component) {
             var containerHeight = props.containerHeight;
             var height = props.height;
 
+            console.log("Loading size ", props);
             var state = {
                 size: size,
                 scale: _utils2.getRatio[size]({

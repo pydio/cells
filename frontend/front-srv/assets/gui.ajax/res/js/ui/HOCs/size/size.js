@@ -59,7 +59,6 @@ export const withResize = (Component) => {
                     containerWidth !== this.props.containerWidth ||
                     containerHeight !== this.props.containerHeight
                 ) {
-
                     this.loadSize(nextProps)
                 }
             }
@@ -67,6 +66,7 @@ export const withResize = (Component) => {
             loadSize(props) {
                 const {scale, size = "contain", dispatch, containerWidth, width, containerHeight, height} = props
 
+                console.log("Loading size ", props)
                 const state = {
                     size,
                     scale: getRatio[size]({
