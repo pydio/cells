@@ -1,12 +1,20 @@
-[Backend Changelog](https://github.com/pydio/cells/compare/v1.0.2...v1.0.3)
+# Pydio Cells - Changes between v1.0.3 and v1.0.4
 
- - [#86321ec](https://github.com/pydio/cells/commit/86321ec0afb82a5cf3a6f5d08dcfc5dc8a93e5f5): fix typo
- - [#2104ad8](https://github.com/pydio/cells/commit/2104ad860c5fcf6a76c027b7519e57833a17da94): Merge remote-tracking branch 'origin/master'
- - [#c9816ec](https://github.com/pydio/cells/commit/c9816ec88b088a69e13f6bc2b41fa76e9457cd91): Some fixes for share link dl count
- - [#abc132e](https://github.com/pydio/cells/commit/abc132e03bef08e2bc63c6c675186075ecbca7a3): fix adding backslash to special chars
+[See Full Backend Changelog](https://github.com/pydio/cells/compare/v1.0.3...v1.0.4)
 
-[Frontend Changelog](https://github.com/pydio/cells-front/compare/v1.0.2...v1.0.3)
+- [#c2599ca](https://github.com/pydio/cells/commit/c2599ca232a8be0fa5b93d5e7a90b695216c7963): Update coreos/dex TP. Also closes #15
+- [#1aaadda](https://github.com/pydio/cells/commit/1aaadda722e50d1e84512c9192ba2ce457667bff): Fix typo in error checking
+- [#5529392](https://github.com/pydio/cells/commit/5529392f810c933b3ea055a0617e9029765cdcc3): Revert default code version
+- [#c73a6d9](https://github.com/pydio/cells/commit/c73a6d98524cc25edc4950d4e4758748c0dbbbc5): Add more log on error
+- [#6814dd7](https://github.com/pydio/cells/commit/6814dd7b2a95fb0e696c29e0aa7882e1c6ca7e47): Test new color for grpc service names
+- [#660d01e](https://github.com/pydio/cells/commit/660d01ef8c11f2f4029f1d5553d961375dd759bd): Fix migration corner case for fresh installs
+- [#522db2a](https://github.com/pydio/cells/commit/522db2aa1491d41c085a5e812ca520767413d52d): Fix failing test
+- [#f9fd16c](https://github.com/pydio/cells/commit/f9fd16cfaa0290050181d7872c68d1c98c196925): Fix init issue on empty DB, makes linter happy
+- [#de1e705](https://github.com/pydio/cells/commit/de1e705bfcd8adcd65e1c42ca19581d325b6f0c7): Enhance comments and error handling, add tests.
+- [#e0b7754](https://github.com/pydio/cells/commit/e0b775440d7ca0fca94ebc9d635c7aa7cb503b19): Add comments, enhance error messages to ease error solving.
+- [#701b0f4](https://github.com/pydio/cells/commit/701b0f4251a67f117e47a7f2d31ecfc231c38d43): Make linter happy
+- [#413e66d](https://github.com/pydio/cells/commit/413e66dd1fdb9d3d29d9ae8ab1c895bb6e22a7e2): Merge frontend changelog
 
- - [#aaa704b](https://github.com/pydio/cells-front/commit/aaa704b35ee4bed1cb6433d8768e425eebd24705): Fix password reset/update mechanism for share links
- - [#515035b](https://github.com/pydio/cells-front/commit/515035b10d73814944ec2f8c500edb11bdc13478): Fix expiration DL and Times
+[See Full Front Changelog](https://github.com/pydio/cells-front/compare/v1.0.3...v1.0.4)
 
+- [#e2de68a](https://github.com/pydio/cells-front/commit/e2de68a458d5893de00ae41feea9eea77e919b70): Fix aws-sdk-php to last working version

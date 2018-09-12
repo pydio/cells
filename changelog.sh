@@ -23,7 +23,7 @@ PREVIOUS_TAG=${TAGS[1]}
 
 # If you want to specify your own two tags to compare, uncomment and enter them below
 LATEST_TAG=HEAD
-PREVIOUS_TAG=v1.0.2
+PREVIOUS_TAG=v1.0.3
 
 
 # Get a log of commits that occured between two tags
@@ -32,7 +32,8 @@ PREVIOUS_TAG=v1.0.2
 COMMITS=$(git log $PREVIOUS_TAG..$LATEST_TAG --pretty=format:"%H")
 
 # Store our changelog in a variable to be saved to a file at the end
-MARKDOWN="[Full Changelog]($REPOSITORY_URL/compare/$PREVIOUS_TAG...$LATEST_TAG)"
+MARKDOWN="# Pydio Cells - Changes since $PREVIOUS_TAG\n\n"
+MARKDOWN+="[See Full Changelog]($REPOSITORY_URL/compare/$PREVIOUS_TAG...$LATEST_TAG)"
 MARKDOWN+='\n'
 
 HTML="<a href='$REPOSITORY_URL/compare/$PREVIOUS_TAG...$LATEST_TAG'>Full Changelog</a>"
@@ -59,13 +60,13 @@ for COMMIT in $COMMITS; do
 		BODY=$(git log -1 ${COMMIT} --pretty=format:"%b")
 		MARKDOWN+='\n'
 		HTML+='\n'
-		MARKDOWN+=" - [#$PULL_NUM]($REPOSITORY_URL/pull/$PULL_NUM): $BODY"
+		MARKDOWN+="- [#$PULL_NUM]($REPOSITORY_URL/pull/$PULL_NUM): $BODY"
         HTML+="<li><a href="$REPOSITORY_URL/commit/$PULL_NUM">#${PULL_NUM}</a>: $BODY</li>"
     else
         if [ -z "$MERGE_BRANCH" ] && [ -z "$VENDOR_COMMIT" ]; then
             MARKDOWN+='\n'
     		HTML+='\n'
-            MARKDOWN+=" - [#${COMMIT:0:7}]($REPOSITORY_URL/commit/$COMMIT): $SUBJECT"
+            MARKDOWN+="- [#${COMMIT:0:7}]($REPOSITORY_URL/commit/$COMMIT): $SUBJECT"
             HTML+="<li><a href="$REPOSITORY_URL/commit/$COMMIT">#${COMMIT:0:7}</a>: $SUBJECT</li>"
 		fi
 	fi
