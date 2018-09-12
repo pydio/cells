@@ -396,12 +396,14 @@ class IdmApi {
                 idmUser.Attributes["parameter:" + pluginId + ":" + name] = JSON.stringify(value);
             }
         });
-        return this.policiesForExternalUser(pydio.user, idmUser.Login).then(policies => {
-            idmUser.Policies = policies;
-            const api = new UserServiceApi(this.client);
-            return api.putUser(idmUser.Login, idmUser);
+        return pydio.user.getIdmUser().then(crtUser => {
+            idmUser.GroupPath = crtUser.GroupPath;
+            return this.policiesForExternalUser(pydio.user, idmUser.Login).then(policies => {
+                idmUser.Policies = policies;
+                const api = new UserServiceApi(this.client);
+                return api.putUser(idmUser.Login, idmUser);
+            });
         });
-
     }
 
     /**
@@ -607,6 +609,11 @@ class IdmApi {
                     Action : 'WRITE',
                     Effect: 'allow',
                 }),
+                ServiceResourcePolicy.constructFromObject({
+                    Subject: "profile:admin",
+                    Action : 'READ',
+                    Effect: 'allow',
+                }),
             ];
         });
     }
@@ -648,6 +655,11 @@ class IdmApi {
                 ServiceResourcePolicy.constructFromObject({
                     Subject: "profile:admin",
                     Action : 'WRITE',
+                    Effect: 'allow',
+                }),
+                ServiceResourcePolicy.constructFromObject({
+                    Subject: "profile:admin",
+                    Action : 'READ',
                     Effect: 'allow',
                 }),
             ];

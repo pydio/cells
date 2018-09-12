@@ -484,10 +484,13 @@ var IdmApi = (function () {
                 idmUser.Attributes["parameter:" + pluginId + ":" + name] = JSON.stringify(value);
             }
         });
-        return this.policiesForExternalUser(pydio.user, idmUser.Login).then(function (policies) {
-            idmUser.Policies = policies;
-            var api = new _genApiUserServiceApi2["default"](_this.client);
-            return api.putUser(idmUser.Login, idmUser);
+        return pydio.user.getIdmUser().then(function (crtUser) {
+            idmUser.GroupPath = crtUser.GroupPath;
+            return _this.policiesForExternalUser(pydio.user, idmUser.Login).then(function (policies) {
+                idmUser.Policies = policies;
+                var api = new _genApiUserServiceApi2["default"](_this.client);
+                return api.putUser(idmUser.Login, idmUser);
+            });
         });
     };
 
@@ -700,6 +703,10 @@ var IdmApi = (function () {
                 Subject: "profile:admin",
                 Action: 'WRITE',
                 Effect: 'allow'
+            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+                Subject: "profile:admin",
+                Action: 'READ',
+                Effect: 'allow'
             })];
         });
     };
@@ -736,6 +743,10 @@ var IdmApi = (function () {
             }), _genModelServiceResourcePolicy2["default"].constructFromObject({
                 Subject: "profile:admin",
                 Action: 'WRITE',
+                Effect: 'allow'
+            }), _genModelServiceResourcePolicy2["default"].constructFromObject({
+                Subject: "profile:admin",
+                Action: 'READ',
                 Effect: 'allow'
             })];
         });
