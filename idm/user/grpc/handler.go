@@ -323,20 +323,21 @@ func (h *Handler) applyAutoApplies(usr *idm.User, autoApplies map[string][]*idm.
 	if usr.Attributes == nil {
 		return
 	}
-	// For hidden users, disable group roles inheritance
-	if _, ok := usr.Attributes["hidden"]; ok {
-		var newRoles []*idm.Role
-		for _, role := range usr.Roles {
-			if !role.GroupRole {
-				newRoles = append(newRoles, role)
-			}
-		}
-		usr.Roles = newRoles
-	}
-	if len(autoApplies) == 0 {
-		return
-	}
 	if profile, ok := usr.Attributes["profile"]; ok {
+		// For shared users, disable group roles inheritance
+		if profile == common.PYDIO_PROFILE_SHARED || profile == common.PYDIO_PROFILE_ANON {
+			var newRoles []*idm.Role
+			for _, role := range usr.Roles {
+				if !role.GroupRole {
+					newRoles = append(newRoles, role)
+				}
+			}
+			usr.Roles = newRoles
+		}
+		if len(autoApplies) == 0 {
+			return
+		}
+		// Apply AutoApply role if any
 		if applies, has := autoApplies[profile]; has {
 			var newRoles []*idm.Role
 			var added = false
