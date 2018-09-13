@@ -30,6 +30,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth/dex"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/cells/common/proto/auth"
@@ -39,6 +40,17 @@ import (
 )
 
 func init() {
+
+	dex.RegisterWrapperConnectorMiddleware("Login", dex.WrapWithIdmUser)
+	dex.RegisterWrapperConnectorMiddleware("Login", dex.WrapWithUserLocks)
+	dex.RegisterWrapperConnectorMiddleware("Login", dex.WrapWithPolicyCheck)
+	dex.RegisterWrapperConnectorMiddleware("Login", dex.WrapWithIdentity)
+
+	dex.RegisterWrapperConnectorMiddleware("Refresh", dex.WrapWithIdmUser)
+	dex.RegisterWrapperConnectorMiddleware("Refresh", dex.WrapWithUserLocks)
+	dex.RegisterWrapperConnectorMiddleware("Refresh", dex.WrapWithPolicyCheck)
+	dex.RegisterWrapperConnectorMiddleware("Refresh", dex.WrapWithIdentity)
+
 	service.NewService(
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH),
 		service.Tag(common.SERVICE_TAG_IDM),

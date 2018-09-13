@@ -181,6 +181,7 @@ func (h *TokenRevokerHandler) IsBanned(ctx context.Context, attempt *proto.Conne
 			break
 		}
 	}
+	log.Logger(ctx).Debug("[TOKEN MANAGER]", zap.Bool("Banned", banned), zap.Any("attempts", attempts))
 	if banned {
 		// Store this failed attempt now
 		h.dao.PutFailedConnection(attempt)
