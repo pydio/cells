@@ -3,7 +3,6 @@ syntax = "proto3";
 package rest;
 
 import "github.com/pydio/cells/common/proto/tree/tree.proto";
-import "github.com/pydio/cells/common/proto/auth/ldap.proto";
 import "github.com/pydio/cells/common/proto/object/object.proto";
 import "github.com/pydio/cells/common/proto/ctl/ctl.proto";
 
@@ -46,14 +45,7 @@ message VersioningPolicyCollection{
     repeated tree.VersioningPolicy Policies = 1;
 }
 
-message DeleteVersioningPolicyResponse{
-    bool Success = 1;
-}
-
 message ListVirtualNodesRequest{}
-message DeleteVirtualNodeResponse{
-    bool Success = 1;
-}
 
 message ListServiceRequest{
     ctl.ServiceStatus StatusFilter = 1;
@@ -89,19 +81,4 @@ message ConfigFormRequest{
 
 message OpenApiResponse{
 
-}
-
-message ListExternalDirectoryRequest {}
-
-message ExternalDirectoryResponse {
-    bool Success = 2;
-}
-
-message ExternalDirectoryConfig {
-    string ConfigId = 1;
-    auth.LdapServerConfig Config = 2;
-}
-
-message ExternalDirectoryCollection {
-    repeated auth.LdapServerConfig Directories = 1;
 }

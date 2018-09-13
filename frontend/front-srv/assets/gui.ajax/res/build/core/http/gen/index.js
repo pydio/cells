@@ -53,30 +53,6 @@ var _modelActivitySummaryPointOfView = require('./model/ActivitySummaryPointOfVi
 
 var _modelActivitySummaryPointOfView2 = _interopRequireDefault(_modelActivitySummaryPointOfView);
 
-var _modelAuthLdapMapping = require('./model/AuthLdapMapping');
-
-var _modelAuthLdapMapping2 = _interopRequireDefault(_modelAuthLdapMapping);
-
-var _modelAuthLdapMemberOfMapping = require('./model/AuthLdapMemberOfMapping');
-
-var _modelAuthLdapMemberOfMapping2 = _interopRequireDefault(_modelAuthLdapMemberOfMapping);
-
-var _modelAuthLdapSearchFilter = require('./model/AuthLdapSearchFilter');
-
-var _modelAuthLdapSearchFilter2 = _interopRequireDefault(_modelAuthLdapSearchFilter);
-
-var _modelAuthLdapServerConfig = require('./model/AuthLdapServerConfig');
-
-var _modelAuthLdapServerConfig2 = _interopRequireDefault(_modelAuthLdapServerConfig);
-
-var _modelCertLicenseInfo = require('./model/CertLicenseInfo');
-
-var _modelCertLicenseInfo2 = _interopRequireDefault(_modelCertLicenseInfo);
-
-var _modelCertLicenseStatsResponse = require('./model/CertLicenseStatsResponse');
-
-var _modelCertLicenseStatsResponse2 = _interopRequireDefault(_modelCertLicenseStatsResponse);
-
 var _modelCtlPeer = require('./model/CtlPeer');
 
 var _modelCtlPeer2 = _interopRequireDefault(_modelCtlPeer);
@@ -329,14 +305,6 @@ var _modelJobsNodesSelector = require('./model/JobsNodesSelector');
 
 var _modelJobsNodesSelector2 = _interopRequireDefault(_modelJobsNodesSelector);
 
-var _modelJobsPutJobRequest = require('./model/JobsPutJobRequest');
-
-var _modelJobsPutJobRequest2 = _interopRequireDefault(_modelJobsPutJobRequest);
-
-var _modelJobsPutJobResponse = require('./model/JobsPutJobResponse');
-
-var _modelJobsPutJobResponse2 = _interopRequireDefault(_modelJobsPutJobResponse);
-
 var _modelJobsSchedule = require('./model/JobsSchedule');
 
 var _modelJobsSchedule2 = _interopRequireDefault(_modelJobsSchedule);
@@ -376,22 +344,6 @@ var _modelLogListLogRequest2 = _interopRequireDefault(_modelLogListLogRequest);
 var _modelLogLogMessage = require('./model/LogLogMessage');
 
 var _modelLogLogMessage2 = _interopRequireDefault(_modelLogLogMessage);
-
-var _modelLogRelType = require('./model/LogRelType');
-
-var _modelLogRelType2 = _interopRequireDefault(_modelLogRelType);
-
-var _modelLogTimeRangeCursor = require('./model/LogTimeRangeCursor');
-
-var _modelLogTimeRangeCursor2 = _interopRequireDefault(_modelLogTimeRangeCursor);
-
-var _modelLogTimeRangeRequest = require('./model/LogTimeRangeRequest');
-
-var _modelLogTimeRangeRequest2 = _interopRequireDefault(_modelLogTimeRangeRequest);
-
-var _modelLogTimeRangeResult = require('./model/LogTimeRangeResult');
-
-var _modelLogTimeRangeResult2 = _interopRequireDefault(_modelLogTimeRangeResult);
 
 var _modelMailerMail = require('./model/MailerMail');
 
@@ -509,29 +461,9 @@ var _modelRestDeleteUserMetaTagsResponse = require('./model/RestDeleteUserMetaTa
 
 var _modelRestDeleteUserMetaTagsResponse2 = _interopRequireDefault(_modelRestDeleteUserMetaTagsResponse);
 
-var _modelRestDeleteVersioningPolicyResponse = require('./model/RestDeleteVersioningPolicyResponse');
-
-var _modelRestDeleteVersioningPolicyResponse2 = _interopRequireDefault(_modelRestDeleteVersioningPolicyResponse);
-
-var _modelRestDeleteVirtualNodeResponse = require('./model/RestDeleteVirtualNodeResponse');
-
-var _modelRestDeleteVirtualNodeResponse2 = _interopRequireDefault(_modelRestDeleteVirtualNodeResponse);
-
 var _modelRestDiscoveryResponse = require('./model/RestDiscoveryResponse');
 
 var _modelRestDiscoveryResponse2 = _interopRequireDefault(_modelRestDiscoveryResponse);
-
-var _modelRestExternalDirectoryCollection = require('./model/RestExternalDirectoryCollection');
-
-var _modelRestExternalDirectoryCollection2 = _interopRequireDefault(_modelRestExternalDirectoryCollection);
-
-var _modelRestExternalDirectoryConfig = require('./model/RestExternalDirectoryConfig');
-
-var _modelRestExternalDirectoryConfig2 = _interopRequireDefault(_modelRestExternalDirectoryConfig);
-
-var _modelRestExternalDirectoryResponse = require('./model/RestExternalDirectoryResponse');
-
-var _modelRestExternalDirectoryResponse2 = _interopRequireDefault(_modelRestExternalDirectoryResponse);
 
 var _modelRestFrontBinaryRequest = require('./model/RestFrontBinaryRequest');
 
@@ -737,10 +669,6 @@ var _modelRestSubscriptionsCollection = require('./model/RestSubscriptionsCollec
 
 var _modelRestSubscriptionsCollection2 = _interopRequireDefault(_modelRestSubscriptionsCollection);
 
-var _modelRestTimeRangeResultCollection = require('./model/RestTimeRangeResultCollection');
-
-var _modelRestTimeRangeResultCollection2 = _interopRequireDefault(_modelRestTimeRangeResultCollection);
-
 var _modelRestUserBookmarksRequest = require('./model/RestUserBookmarksRequest');
 
 var _modelRestUserBookmarksRequest2 = _interopRequireDefault(_modelRestUserBookmarksRequest);
@@ -913,18 +841,6 @@ var _apiConfigServiceApi = require('./api/ConfigServiceApi');
 
 var _apiConfigServiceApi2 = _interopRequireDefault(_apiConfigServiceApi);
 
-var _apiEnterpriseConfigServiceApi = require('./api/EnterpriseConfigServiceApi');
-
-var _apiEnterpriseConfigServiceApi2 = _interopRequireDefault(_apiEnterpriseConfigServiceApi);
-
-var _apiEnterpriseLogServiceApi = require('./api/EnterpriseLogServiceApi');
-
-var _apiEnterpriseLogServiceApi2 = _interopRequireDefault(_apiEnterpriseLogServiceApi);
-
-var _apiEnterprisePolicyServiceApi = require('./api/EnterprisePolicyServiceApi');
-
-var _apiEnterprisePolicyServiceApi2 = _interopRequireDefault(_apiEnterprisePolicyServiceApi);
-
 var _apiFrontendServiceApi = require('./api/FrontendServiceApi');
 
 var _apiFrontendServiceApi2 = _interopRequireDefault(_apiFrontendServiceApi);
@@ -940,10 +856,6 @@ var _apiInstallServiceApi2 = _interopRequireDefault(_apiInstallServiceApi);
 var _apiJobsServiceApi = require('./api/JobsServiceApi');
 
 var _apiJobsServiceApi2 = _interopRequireDefault(_apiJobsServiceApi);
-
-var _apiLicenseServiceApi = require('./api/LicenseServiceApi');
-
-var _apiLicenseServiceApi2 = _interopRequireDefault(_apiLicenseServiceApi);
 
 var _apiLogServiceApi = require('./api/LogServiceApi');
 
@@ -964,10 +876,6 @@ var _apiPolicyServiceApi2 = _interopRequireDefault(_apiPolicyServiceApi);
 var _apiRoleServiceApi = require('./api/RoleServiceApi');
 
 var _apiRoleServiceApi2 = _interopRequireDefault(_apiRoleServiceApi);
-
-var _apiSchedulerServiceApi = require('./api/SchedulerServiceApi');
-
-var _apiSchedulerServiceApi2 = _interopRequireDefault(_apiSchedulerServiceApi);
 
 var _apiSearchServiceApi = require('./api/SearchServiceApi');
 
@@ -1094,48 +1002,6 @@ exports.
  * @property {module:model/ActivitySummaryPointOfView}
  */
 ActivitySummaryPointOfView = _modelActivitySummaryPointOfView2['default'];
-exports.
-
-/**
- * The AuthLdapMapping model constructor.
- * @property {module:model/AuthLdapMapping}
- */
-AuthLdapMapping = _modelAuthLdapMapping2['default'];
-exports.
-
-/**
- * The AuthLdapMemberOfMapping model constructor.
- * @property {module:model/AuthLdapMemberOfMapping}
- */
-AuthLdapMemberOfMapping = _modelAuthLdapMemberOfMapping2['default'];
-exports.
-
-/**
- * The AuthLdapSearchFilter model constructor.
- * @property {module:model/AuthLdapSearchFilter}
- */
-AuthLdapSearchFilter = _modelAuthLdapSearchFilter2['default'];
-exports.
-
-/**
- * The AuthLdapServerConfig model constructor.
- * @property {module:model/AuthLdapServerConfig}
- */
-AuthLdapServerConfig = _modelAuthLdapServerConfig2['default'];
-exports.
-
-/**
- * The CertLicenseInfo model constructor.
- * @property {module:model/CertLicenseInfo}
- */
-CertLicenseInfo = _modelCertLicenseInfo2['default'];
-exports.
-
-/**
- * The CertLicenseStatsResponse model constructor.
- * @property {module:model/CertLicenseStatsResponse}
- */
-CertLicenseStatsResponse = _modelCertLicenseStatsResponse2['default'];
 exports.
 
 /**
@@ -1580,20 +1446,6 @@ JobsNodesSelector = _modelJobsNodesSelector2['default'];
 exports.
 
 /**
- * The JobsPutJobRequest model constructor.
- * @property {module:model/JobsPutJobRequest}
- */
-JobsPutJobRequest = _modelJobsPutJobRequest2['default'];
-exports.
-
-/**
- * The JobsPutJobResponse model constructor.
- * @property {module:model/JobsPutJobResponse}
- */
-JobsPutJobResponse = _modelJobsPutJobResponse2['default'];
-exports.
-
-/**
  * The JobsSchedule model constructor.
  * @property {module:model/JobsSchedule}
  */
@@ -1661,34 +1513,6 @@ exports.
  * @property {module:model/LogLogMessage}
  */
 LogLogMessage = _modelLogLogMessage2['default'];
-exports.
-
-/**
- * The LogRelType model constructor.
- * @property {module:model/LogRelType}
- */
-LogRelType = _modelLogRelType2['default'];
-exports.
-
-/**
- * The LogTimeRangeCursor model constructor.
- * @property {module:model/LogTimeRangeCursor}
- */
-LogTimeRangeCursor = _modelLogTimeRangeCursor2['default'];
-exports.
-
-/**
- * The LogTimeRangeRequest model constructor.
- * @property {module:model/LogTimeRangeRequest}
- */
-LogTimeRangeRequest = _modelLogTimeRangeRequest2['default'];
-exports.
-
-/**
- * The LogTimeRangeResult model constructor.
- * @property {module:model/LogTimeRangeResult}
- */
-LogTimeRangeResult = _modelLogTimeRangeResult2['default'];
 exports.
 
 /**
@@ -1895,45 +1719,10 @@ RestDeleteUserMetaTagsResponse = _modelRestDeleteUserMetaTagsResponse2['default'
 exports.
 
 /**
- * The RestDeleteVersioningPolicyResponse model constructor.
- * @property {module:model/RestDeleteVersioningPolicyResponse}
- */
-RestDeleteVersioningPolicyResponse = _modelRestDeleteVersioningPolicyResponse2['default'];
-exports.
-
-/**
- * The RestDeleteVirtualNodeResponse model constructor.
- * @property {module:model/RestDeleteVirtualNodeResponse}
- */
-RestDeleteVirtualNodeResponse = _modelRestDeleteVirtualNodeResponse2['default'];
-exports.
-
-/**
  * The RestDiscoveryResponse model constructor.
  * @property {module:model/RestDiscoveryResponse}
  */
 RestDiscoveryResponse = _modelRestDiscoveryResponse2['default'];
-exports.
-
-/**
- * The RestExternalDirectoryCollection model constructor.
- * @property {module:model/RestExternalDirectoryCollection}
- */
-RestExternalDirectoryCollection = _modelRestExternalDirectoryCollection2['default'];
-exports.
-
-/**
- * The RestExternalDirectoryConfig model constructor.
- * @property {module:model/RestExternalDirectoryConfig}
- */
-RestExternalDirectoryConfig = _modelRestExternalDirectoryConfig2['default'];
-exports.
-
-/**
- * The RestExternalDirectoryResponse model constructor.
- * @property {module:model/RestExternalDirectoryResponse}
- */
-RestExternalDirectoryResponse = _modelRestExternalDirectoryResponse2['default'];
 exports.
 
 /**
@@ -2294,13 +2083,6 @@ RestSubscriptionsCollection = _modelRestSubscriptionsCollection2['default'];
 exports.
 
 /**
- * The RestTimeRangeResultCollection model constructor.
- * @property {module:model/RestTimeRangeResultCollection}
- */
-RestTimeRangeResultCollection = _modelRestTimeRangeResultCollection2['default'];
-exports.
-
-/**
  * The RestUserBookmarksRequest model constructor.
  * @property {module:model/RestUserBookmarksRequest}
  */
@@ -2602,27 +2384,6 @@ ConfigServiceApi = _apiConfigServiceApi2['default'];
 exports.
 
 /**
-* The EnterpriseConfigServiceApi service constructor.
-* @property {module:api/EnterpriseConfigServiceApi}
-*/
-EnterpriseConfigServiceApi = _apiEnterpriseConfigServiceApi2['default'];
-exports.
-
-/**
-* The EnterpriseLogServiceApi service constructor.
-* @property {module:api/EnterpriseLogServiceApi}
-*/
-EnterpriseLogServiceApi = _apiEnterpriseLogServiceApi2['default'];
-exports.
-
-/**
-* The EnterprisePolicyServiceApi service constructor.
-* @property {module:api/EnterprisePolicyServiceApi}
-*/
-EnterprisePolicyServiceApi = _apiEnterprisePolicyServiceApi2['default'];
-exports.
-
-/**
 * The FrontendServiceApi service constructor.
 * @property {module:api/FrontendServiceApi}
 */
@@ -2648,13 +2409,6 @@ exports.
 * @property {module:api/JobsServiceApi}
 */
 JobsServiceApi = _apiJobsServiceApi2['default'];
-exports.
-
-/**
-* The LicenseServiceApi service constructor.
-* @property {module:api/LicenseServiceApi}
-*/
-LicenseServiceApi = _apiLicenseServiceApi2['default'];
 exports.
 
 /**
@@ -2690,13 +2444,6 @@ exports.
 * @property {module:api/RoleServiceApi}
 */
 RoleServiceApi = _apiRoleServiceApi2['default'];
-exports.
-
-/**
-* The SchedulerServiceApi service constructor.
-* @property {module:api/SchedulerServiceApi}
-*/
-SchedulerServiceApi = _apiSchedulerServiceApi2['default'];
 exports.
 
 /**

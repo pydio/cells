@@ -569,79 +569,6 @@ var SwaggerJson = `{
         ]
       }
     },
-    "/config/directories": {
-      "get": {
-        "summary": "[Enterprise Only] List additional user directories",
-        "operationId": "ListExternalDirectories",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restExternalDirectoryCollection"
-            }
-          }
-        },
-        "tags": [
-          "EnterpriseConfigService"
-        ]
-      }
-    },
-    "/config/directories/{ConfigId}": {
-      "delete": {
-        "summary": "[Enterprise Only] Delete external directory",
-        "operationId": "DeleteExternalDirectory",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restExternalDirectoryResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "ConfigId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "EnterpriseConfigService"
-        ]
-      },
-      "put": {
-        "summary": "[Enterprise Only] Add/Create an external directory",
-        "operationId": "PutExternalDirectory",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restExternalDirectoryResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "ConfigId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/restExternalDirectoryConfig"
-            }
-          }
-        ],
-        "tags": [
-          "EnterpriseConfigService"
-        ]
-      }
-    },
     "/config/discovery": {
       "get": {
         "summary": "Publish available endpoints",
@@ -987,60 +914,6 @@ var SwaggerJson = `{
         "tags": [
           "ConfigService"
         ]
-      },
-      "delete": {
-        "summary": "[Enterprise Only] Delete a versioning policy",
-        "operationId": "DeleteVersioningPolicy",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restDeleteVersioningPolicyResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Uuid",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "EnterpriseConfigService"
-        ]
-      },
-      "post": {
-        "summary": "[Enterprise Only] Create or update a versioning policy",
-        "operationId": "PutVersioningPolicy",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/treeVersioningPolicy"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Uuid",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/treeVersioningPolicy"
-            }
-          }
-        ],
-        "tags": [
-          "EnterpriseConfigService"
-        ]
       }
     },
     "/config/virtualnodes": {
@@ -1057,62 +930,6 @@ var SwaggerJson = `{
         },
         "tags": [
           "ConfigService"
-        ]
-      }
-    },
-    "/config/virtualnodes/{Uuid}": {
-      "delete": {
-        "summary": "[Enterprise Only] Delete a virtual node",
-        "operationId": "DeleteVirtualNode",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restDeleteVirtualNodeResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Uuid",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "EnterpriseConfigService"
-        ]
-      },
-      "post": {
-        "summary": "[Enterprise Only] Create or update a virtual node",
-        "operationId": "PutVirtualNode",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/treeNode"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Uuid",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/treeNode"
-            }
-          }
-        ],
-        "tags": [
-          "EnterpriseConfigService"
         ]
       }
     },
@@ -1632,113 +1449,6 @@ var SwaggerJson = `{
         ]
       }
     },
-    "/license/stats": {
-      "get": {
-        "summary": "[Enterprise Only] Display statistics about licenses usage",
-        "operationId": "LicenseStats",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/certLicenseStatsResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "ForceRefresh",
-            "in": "query",
-            "required": false,
-            "type": "boolean",
-            "format": "boolean"
-          }
-        ],
-        "tags": [
-          "LicenseService"
-        ]
-      }
-    },
-    "/log/audit": {
-      "post": {
-        "summary": "Auditable Logs, in Json or CSV format",
-        "operationId": "Audit",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restLogMessageCollection"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/logListLogRequest"
-            }
-          }
-        ],
-        "tags": [
-          "EnterpriseLogService"
-        ]
-      }
-    },
-    "/log/audit/chartdata": {
-      "post": {
-        "summary": "Retrieves aggregated audit logs to generate charts",
-        "operationId": "AuditChartData",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restTimeRangeResultCollection"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/logTimeRangeRequest"
-            }
-          }
-        ],
-        "tags": [
-          "EnterpriseLogService"
-        ]
-      }
-    },
-    "/log/audit/export": {
-      "post": {
-        "summary": "Auditable Logs, in Json or CSV format",
-        "operationId": "AuditExport",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restLogMessageCollection"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/logListLogRequest"
-            }
-          }
-        ],
-        "tags": [
-          "EnterpriseLogService"
-        ]
-      }
-    },
     "/log/sys": {
       "post": {
         "summary": "Technical Logs, in Json or CSV format",
@@ -1763,33 +1473,6 @@ var SwaggerJson = `{
         ],
         "tags": [
           "LogService"
-        ]
-      }
-    },
-    "/log/sys/export": {
-      "post": {
-        "summary": "Technical Logs, in Json or CSV format",
-        "operationId": "SyslogExport",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restLogMessageCollection"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/logListLogRequest"
-            }
-          }
-        ],
-        "tags": [
-          "EnterpriseLogService"
         ]
       }
     },
@@ -1971,56 +1654,6 @@ var SwaggerJson = `{
         "tags": [
           "PolicyService"
         ]
-      },
-      "put": {
-        "summary": "Update or create a security policy",
-        "operationId": "PutPolicy",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/idmPolicyGroup"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/idmPolicyGroup"
-            }
-          }
-        ],
-        "tags": [
-          "EnterprisePolicyService"
-        ]
-      }
-    },
-    "/policy/{Uuid}": {
-      "delete": {
-        "summary": "Delete a security policy",
-        "operationId": "DeletePolicy",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restDeleteResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Uuid",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "EnterprisePolicyService"
-        ]
       }
     },
     "/role": {
@@ -2176,32 +1809,6 @@ var SwaggerJson = `{
         ],
         "tags": [
           "RoleService"
-        ]
-      }
-    },
-    "/scheduler/jobs": {
-      "put": {
-        "operationId": "PutJob",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/jobsPutJobResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/jobsPutJobRequest"
-            }
-          }
-        ],
-        "tags": [
-          "SchedulerService"
         ]
       }
     },
@@ -3662,188 +3269,6 @@ var SwaggerJson = `{
       ],
       "default": "GENERIC"
     },
-    "authLdapMapping": {
-      "type": "object",
-      "properties": {
-        "LeftAttribute": {
-          "type": "string"
-        },
-        "RightAttribute": {
-          "type": "string"
-        },
-        "RuleString": {
-          "type": "string"
-        },
-        "RolePrefix": {
-          "type": "string"
-        }
-      }
-    },
-    "authLdapMemberOfMapping": {
-      "type": "object",
-      "properties": {
-        "Mapping": {
-          "$ref": "#/definitions/authLdapMapping"
-        },
-        "GroupFilter": {
-          "$ref": "#/definitions/authLdapSearchFilter"
-        },
-        "SupportNestedGroup": {
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "RealMemberOf": {
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "RealMemberOfAttribute": {
-          "type": "string"
-        },
-        "RealMemberOfValueFormat": {
-          "type": "string"
-        },
-        "PydioMemberOfAttribute": {
-          "type": "string"
-        },
-        "PydioMemberOfValueFormat": {
-          "type": "string"
-        }
-      }
-    },
-    "authLdapSearchFilter": {
-      "type": "object",
-      "properties": {
-        "DNs": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "Filter": {
-          "type": "string"
-        },
-        "IDAttribute": {
-          "type": "string"
-        },
-        "DisplayAttribute": {
-          "type": "string"
-        },
-        "Scope": {
-          "type": "string"
-        }
-      }
-    },
-    "authLdapServerConfig": {
-      "type": "object",
-      "properties": {
-        "ConfigId": {
-          "type": "string"
-        },
-        "DomainName": {
-          "type": "string"
-        },
-        "Host": {
-          "type": "string"
-        },
-        "Connection": {
-          "type": "string"
-        },
-        "BindDN": {
-          "type": "string"
-        },
-        "BindPW": {
-          "type": "string"
-        },
-        "SkipVerifyCertificate": {
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "RootCA": {
-          "type": "string"
-        },
-        "RootCAData": {
-          "type": "string",
-          "title": "To be converted to []byte"
-        },
-        "PageSize": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "User": {
-          "$ref": "#/definitions/authLdapSearchFilter"
-        },
-        "MappingRules": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/authLdapMapping"
-          }
-        },
-        "MemberOfMapping": {
-          "$ref": "#/definitions/authLdapMemberOfMapping"
-        },
-        "RolePrefix": {
-          "type": "string"
-        },
-        "Schedule": {
-          "type": "string"
-        },
-        "SchedulerDetails": {
-          "type": "string"
-        }
-      }
-    },
-    "certLicenseInfo": {
-      "type": "object",
-      "properties": {
-        "Id": {
-          "type": "string"
-        },
-        "AccountName": {
-          "type": "string"
-        },
-        "ServerDomain": {
-          "type": "string"
-        },
-        "IssueTime": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "ExpireTime": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "MaxUsers": {
-          "type": "string",
-          "format": "int64"
-        },
-        "MaxPeers": {
-          "type": "string",
-          "format": "int64"
-        },
-        "Features": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "certLicenseStatsResponse": {
-      "type": "object",
-      "properties": {
-        "License": {
-          "$ref": "#/definitions/certLicenseInfo"
-        },
-        "ActiveUsers": {
-          "type": "string",
-          "format": "int64"
-        },
-        "ActivePeers": {
-          "type": "string",
-          "format": "int64"
-        }
-      }
-    },
     "ctlPeer": {
       "type": "object",
       "properties": {
@@ -5151,22 +4576,6 @@ var SwaggerJson = `{
       },
       "title": "/////////////////\nJOB  SERVICE  //\n/////////////////"
     },
-    "jobsPutJobRequest": {
-      "type": "object",
-      "properties": {
-        "Job": {
-          "$ref": "#/definitions/jobsJob"
-        }
-      }
-    },
-    "jobsPutJobResponse": {
-      "type": "object",
-      "properties": {
-        "Job": {
-          "$ref": "#/definitions/jobsJob"
-        }
-      }
-    },
     "jobsSchedule": {
       "type": "object",
       "properties": {
@@ -5384,84 +4793,6 @@ var SwaggerJson = `{
         }
       },
       "description": "LogMessage is the format used to transmit log messages to clients via the REST API."
-    },
-    "logRelType": {
-      "type": "string",
-      "enum": [
-        "NONE",
-        "FIRST",
-        "PREV",
-        "NEXT",
-        "LAST"
-      ],
-      "default": "NONE",
-      "description": "Relative links types.\nNote that First is time.Now() and last time.Unix(0).\nWe added an unused NONE enum with value 0 to workaround 0 issues between JSON and proto3."
-    },
-    "logTimeRangeCursor": {
-      "type": "object",
-      "properties": {
-        "Rel": {
-          "$ref": "#/definitions/logRelType"
-        },
-        "RefTime": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "Count": {
-          "type": "integer",
-          "format": "int32"
-        }
-      },
-      "description": "Ease implementation of data navigation for a chart."
-    },
-    "logTimeRangeRequest": {
-      "type": "object",
-      "properties": {
-        "MsgId": {
-          "type": "string",
-          "title": "Type of event we are auditing"
-        },
-        "TimeRangeType": {
-          "type": "string",
-          "title": "Known types: H, D, W, M or Y"
-        },
-        "RefTime": {
-          "type": "integer",
-          "format": "int32",
-          "title": "Upper bound for our request"
-        }
-      },
-      "description": "TimeRangeRequest contains the parameter to configure the query to \nretrieve the number of audit events of this type for a given time range\ndefined by last timestamp and a range type."
-    },
-    "logTimeRangeResult": {
-      "type": "object",
-      "properties": {
-        "Name": {
-          "type": "string",
-          "title": "a label for this time range"
-        },
-        "Start": {
-          "type": "integer",
-          "format": "int32",
-          "title": "begin timestamp"
-        },
-        "End": {
-          "type": "integer",
-          "format": "int32",
-          "title": "end timestamp"
-        },
-        "Count": {
-          "type": "integer",
-          "format": "int32",
-          "title": "nb of occurrences found within this range"
-        },
-        "Relevance": {
-          "type": "integer",
-          "format": "int32",
-          "title": "a score between 1 and 100 that gives the relevance of this result:\nif End \u003e now, we ponderate the returned count with the duration of the last time range\nfor instance for a hour range if now is 6PM, last count will be \nmultiplied by 4/3 and have a relevance of 75. \nRelevance will be almost always equals to 100"
-        }
-      },
-      "description": "TimeRangeResult represents one point of a graph."
     },
     "mailerMail": {
       "type": "object",
@@ -5949,24 +5280,6 @@ var SwaggerJson = `{
         }
       }
     },
-    "restDeleteVersioningPolicyResponse": {
-      "type": "object",
-      "properties": {
-        "Success": {
-          "type": "boolean",
-          "format": "boolean"
-        }
-      }
-    },
-    "restDeleteVirtualNodeResponse": {
-      "type": "object",
-      "properties": {
-        "Success": {
-          "type": "boolean",
-          "format": "boolean"
-        }
-      }
-    },
     "restDiscoveryResponse": {
       "type": "object",
       "properties": {
@@ -5991,37 +5304,6 @@ var SwaggerJson = `{
           "additionalProperties": {
             "type": "string"
           }
-        }
-      }
-    },
-    "restExternalDirectoryCollection": {
-      "type": "object",
-      "properties": {
-        "Directories": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/authLdapServerConfig"
-          }
-        }
-      }
-    },
-    "restExternalDirectoryConfig": {
-      "type": "object",
-      "properties": {
-        "ConfigId": {
-          "type": "string"
-        },
-        "Config": {
-          "$ref": "#/definitions/authLdapServerConfig"
-        }
-      }
-    },
-    "restExternalDirectoryResponse": {
-      "type": "object",
-      "properties": {
-        "Success": {
-          "type": "boolean",
-          "format": "boolean"
         }
       }
     },
@@ -6890,24 +6172,6 @@ var SwaggerJson = `{
           }
         }
       }
-    },
-    "restTimeRangeResultCollection": {
-      "type": "object",
-      "properties": {
-        "Results": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/logTimeRangeResult"
-          }
-        },
-        "Links": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/logTimeRangeCursor"
-          }
-        }
-      },
-      "title": "Collection of serialized aggregated result of time range request \nwith a cursor to ease navigation implementation"
     },
     "restUserBookmarksRequest": {
       "type": "object"

@@ -21,7 +21,6 @@ import "github.com/pydio/cells/common/proto/log/log.proto";
 import "github.com/pydio/cells/common/proto/object/object.proto";
 import "github.com/pydio/cells/common/proto/install/install.proto";
 import "github.com/pydio/cells/common/proto/ctl/ctl.proto";
-import "github.com/pydio/cells/common/proto/cert/proto.proto";
 import "github.com/pydio/cells/common/proto/update/update.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";
@@ -99,49 +98,10 @@ service ConfigService {
           get: "/config/versioning/{Uuid}"
         };
     }
-    // [Enterprise Only] Create or update a versioning policy
-    rpc PutVersioningPolicy(tree.VersioningPolicy) returns (tree.VersioningPolicy){
-        option (google.api.http) = {
-          post: "/config/versioning/{Uuid}"
-          body:"*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
-        };
-    }
-    // [Enterprise Only] Delete a versioning policy
-    rpc DeleteVersioningPolicy(tree.VersioningPolicy) returns (DeleteVersioningPolicyResponse){
-        option (google.api.http) = {
-          delete: "/config/versioning/{Uuid}"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
-        };
-    }
-
     // List all defined virtual nodes
     rpc ListVirtualNodes(ListVirtualNodesRequest) returns (NodesCollection){
         option (google.api.http) = {
             get: "/config/virtualnodes"
-        };
-    }
-    // [Enterprise Only] Create or update a virtual node
-    rpc PutVirtualNode(tree.Node) returns (tree.Node){
-        option (google.api.http) = {
-          post: "/config/virtualnodes/{Uuid}"
-          body:"*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
-        };
-    }
-    // [Enterprise Only] Delete a virtual node
-    rpc DeleteVirtualNode(tree.Node) returns (DeleteVirtualNodeResponse){
-        option (google.api.http) = {
-          delete: "/config/virtualnodes/{Uuid}"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
         };
     }
     // List all services and their status
@@ -221,34 +181,6 @@ service ConfigService {
     rpc ConfigFormsDiscovery(ConfigFormRequest) returns (DiscoveryResponse){
         option (google.api.http) = {
             get: "/config/discovery/forms/{ServiceName}"
-        };
-    }
-    // [Enterprise Only] List additional user directories
-    rpc ListExternalDirectories(ListExternalDirectoryRequest) returns (ExternalDirectoryCollection) {
-        option (google.api.http) = {
-            get: "/config/directories"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
-        };
-    }
-    // [Enterprise Only] Add/Create an external directory
-    rpc PutExternalDirectory(ExternalDirectoryConfig) returns (ExternalDirectoryResponse) {
-        option (google.api.http) = {
-            put: "/config/directories/{ConfigId}"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
-        };
-    }
-    // [Enterprise Only] Delete external directory
-    rpc DeleteExternalDirectory(ExternalDirectoryConfig) returns (ExternalDirectoryResponse) {
-        option (google.api.http) = {
-            delete: "/config/directories/{ConfigId}"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseConfigService"
         };
     }
 }
@@ -363,25 +295,6 @@ service PolicyService {
             body: "*"
         };
     }
-    // Update or create a security policy
-    rpc PutPolicy(idm.PolicyGroup) returns (idm.PolicyGroup) {
-        option (google.api.http) = {
-            put: "/policy"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterprisePolicyService"
-        };
-    }
-    // Delete a security policy
-    rpc DeletePolicy(idm.PolicyGroup) returns (DeleteResponse) {
-        option (google.api.http) = {
-            delete: "/policy/{Uuid}"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterprisePolicyService"
-        };
-    }
 }
 
 // Workspace Service
@@ -444,48 +357,6 @@ service LogService {
         option (google.api.http) =  {
             post: "/log/sys"
             body: "*"
-        };
-    }
-
-    // Technical Logs, in Json or CSV format
-    rpc SyslogExport(log.ListLogRequest) returns (LogMessageCollection) {
-        option (google.api.http) =  {
-            post: "/log/sys/export"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseLogService"
-        };
-    }
-    // Auditable Logs, in Json or CSV format
-    rpc Audit(log.ListLogRequest) returns (LogMessageCollection) {
-        option (google.api.http) =  {
-            post: "/log/audit"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseLogService"
-        };
-    }
-    // Auditable Logs, in Json or CSV format
-    rpc AuditExport(log.ListLogRequest) returns (LogMessageCollection) {
-        option (google.api.http) =  {
-            post: "/log/audit/export"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseLogService"
-        };
-    }
-
-    // Retrieves aggregated audit logs to generate charts
-    rpc AuditChartData(log.TimeRangeRequest) returns (TimeRangeResultCollection) {
-        option (google.api.http) =  {
-            post: "/log/audit/chartdata"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-          tags: "EnterpriseLogService"
         };
     }
 }
@@ -703,16 +574,6 @@ service JobsService {
     }
 }
 
-// Implemented in Enterprise Distribution
-service SchedulerService {
-    rpc PutJob(jobs.PutJobRequest) returns (jobs.PutJobResponse) {
-        option (google.api.http) = {
-            put: "/scheduler/jobs"
-            body:"*"
-        };
-    }
-}
-
 // Admin Tree service is a specific endpoint to list all data from the root
 service AdminTreeService {
     // List files and folders starting at the root (first level lists the datasources)
@@ -908,16 +769,4 @@ service FrontendService {
             get: "/frontend/settings-menu"
         };
     }
-}
-
-// Used only in the Enterprise Distribution
-service LicenseService {
-
-    // [Enterprise Only] Display statistics about licenses usage
-    rpc LicenseStats(cert.LicenseStatsRequest) returns (cert.LicenseStatsResponse) {
-        option(google.api.http) = {
-            get: "/license/stats"
-        };
-    }
-
 }

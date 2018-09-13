@@ -21,12 +21,6 @@ import ActivityStreamActivitiesRequest from './model/ActivityStreamActivitiesReq
 import ActivityStreamContext from './model/ActivityStreamContext';
 import ActivitySubscription from './model/ActivitySubscription';
 import ActivitySummaryPointOfView from './model/ActivitySummaryPointOfView';
-import AuthLdapMapping from './model/AuthLdapMapping';
-import AuthLdapMemberOfMapping from './model/AuthLdapMemberOfMapping';
-import AuthLdapSearchFilter from './model/AuthLdapSearchFilter';
-import AuthLdapServerConfig from './model/AuthLdapServerConfig';
-import CertLicenseInfo from './model/CertLicenseInfo';
-import CertLicenseStatsResponse from './model/CertLicenseStatsResponse';
 import CtlPeer from './model/CtlPeer';
 import CtlService from './model/CtlService';
 import CtlServiceCommand from './model/CtlServiceCommand';
@@ -90,8 +84,6 @@ import JobsDeleteTasksResponse from './model/JobsDeleteTasksResponse';
 import JobsJob from './model/JobsJob';
 import JobsListJobsRequest from './model/JobsListJobsRequest';
 import JobsNodesSelector from './model/JobsNodesSelector';
-import JobsPutJobRequest from './model/JobsPutJobRequest';
-import JobsPutJobResponse from './model/JobsPutJobResponse';
 import JobsSchedule from './model/JobsSchedule';
 import JobsSourceFilter from './model/JobsSourceFilter';
 import JobsTask from './model/JobsTask';
@@ -102,10 +94,6 @@ import ListSharedResourcesRequestListShareType from './model/ListSharedResources
 import ListSharedResourcesResponseSharedResource from './model/ListSharedResourcesResponseSharedResource';
 import LogListLogRequest from './model/LogListLogRequest';
 import LogLogMessage from './model/LogLogMessage';
-import LogRelType from './model/LogRelType';
-import LogTimeRangeCursor from './model/LogTimeRangeCursor';
-import LogTimeRangeRequest from './model/LogTimeRangeRequest';
-import LogTimeRangeResult from './model/LogTimeRangeResult';
 import MailerMail from './model/MailerMail';
 import MailerSendMailResponse from './model/MailerSendMailResponse';
 import MailerUser from './model/MailerUser';
@@ -135,12 +123,7 @@ import RestDeleteNodesResponse from './model/RestDeleteNodesResponse';
 import RestDeleteResponse from './model/RestDeleteResponse';
 import RestDeleteShareLinkResponse from './model/RestDeleteShareLinkResponse';
 import RestDeleteUserMetaTagsResponse from './model/RestDeleteUserMetaTagsResponse';
-import RestDeleteVersioningPolicyResponse from './model/RestDeleteVersioningPolicyResponse';
-import RestDeleteVirtualNodeResponse from './model/RestDeleteVirtualNodeResponse';
 import RestDiscoveryResponse from './model/RestDiscoveryResponse';
-import RestExternalDirectoryCollection from './model/RestExternalDirectoryCollection';
-import RestExternalDirectoryConfig from './model/RestExternalDirectoryConfig';
-import RestExternalDirectoryResponse from './model/RestExternalDirectoryResponse';
 import RestFrontBinaryRequest from './model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
 import RestFrontEnrollAuthRequest from './model/RestFrontEnrollAuthRequest';
@@ -192,7 +175,6 @@ import RestShareLink from './model/RestShareLink';
 import RestShareLinkAccessType from './model/RestShareLinkAccessType';
 import RestShareLinkTargetUser from './model/RestShareLinkTargetUser';
 import RestSubscriptionsCollection from './model/RestSubscriptionsCollection';
-import RestTimeRangeResultCollection from './model/RestTimeRangeResultCollection';
 import RestUserBookmarksRequest from './model/RestUserBookmarksRequest';
 import RestUserJobRequest from './model/RestUserJobRequest';
 import RestUserJobResponse from './model/RestUserJobResponse';
@@ -236,20 +218,15 @@ import ActivityServiceApi from './api/ActivityServiceApi';
 import AdminTreeServiceApi from './api/AdminTreeServiceApi';
 import ChangeServiceApi from './api/ChangeServiceApi';
 import ConfigServiceApi from './api/ConfigServiceApi';
-import EnterpriseConfigServiceApi from './api/EnterpriseConfigServiceApi';
-import EnterpriseLogServiceApi from './api/EnterpriseLogServiceApi';
-import EnterprisePolicyServiceApi from './api/EnterprisePolicyServiceApi';
 import FrontendServiceApi from './api/FrontendServiceApi';
 import GraphServiceApi from './api/GraphServiceApi';
 import InstallServiceApi from './api/InstallServiceApi';
 import JobsServiceApi from './api/JobsServiceApi';
-import LicenseServiceApi from './api/LicenseServiceApi';
 import LogServiceApi from './api/LogServiceApi';
 import MailerServiceApi from './api/MailerServiceApi';
 import MetaServiceApi from './api/MetaServiceApi';
 import PolicyServiceApi from './api/PolicyServiceApi';
 import RoleServiceApi from './api/RoleServiceApi';
-import SchedulerServiceApi from './api/SchedulerServiceApi';
 import SearchServiceApi from './api/SearchServiceApi';
 import ShareServiceApi from './api/ShareServiceApi';
 import TokenServiceApi from './api/TokenServiceApi';
@@ -345,42 +322,6 @@ export {
      * @property {module:model/ActivitySummaryPointOfView}
      */
     ActivitySummaryPointOfView,
-
-    /**
-     * The AuthLdapMapping model constructor.
-     * @property {module:model/AuthLdapMapping}
-     */
-    AuthLdapMapping,
-
-    /**
-     * The AuthLdapMemberOfMapping model constructor.
-     * @property {module:model/AuthLdapMemberOfMapping}
-     */
-    AuthLdapMemberOfMapping,
-
-    /**
-     * The AuthLdapSearchFilter model constructor.
-     * @property {module:model/AuthLdapSearchFilter}
-     */
-    AuthLdapSearchFilter,
-
-    /**
-     * The AuthLdapServerConfig model constructor.
-     * @property {module:model/AuthLdapServerConfig}
-     */
-    AuthLdapServerConfig,
-
-    /**
-     * The CertLicenseInfo model constructor.
-     * @property {module:model/CertLicenseInfo}
-     */
-    CertLicenseInfo,
-
-    /**
-     * The CertLicenseStatsResponse model constructor.
-     * @property {module:model/CertLicenseStatsResponse}
-     */
-    CertLicenseStatsResponse,
 
     /**
      * The CtlPeer model constructor.
@@ -761,18 +702,6 @@ export {
     JobsNodesSelector,
 
     /**
-     * The JobsPutJobRequest model constructor.
-     * @property {module:model/JobsPutJobRequest}
-     */
-    JobsPutJobRequest,
-
-    /**
-     * The JobsPutJobResponse model constructor.
-     * @property {module:model/JobsPutJobResponse}
-     */
-    JobsPutJobResponse,
-
-    /**
      * The JobsSchedule model constructor.
      * @property {module:model/JobsSchedule}
      */
@@ -831,30 +760,6 @@ export {
      * @property {module:model/LogLogMessage}
      */
     LogLogMessage,
-
-    /**
-     * The LogRelType model constructor.
-     * @property {module:model/LogRelType}
-     */
-    LogRelType,
-
-    /**
-     * The LogTimeRangeCursor model constructor.
-     * @property {module:model/LogTimeRangeCursor}
-     */
-    LogTimeRangeCursor,
-
-    /**
-     * The LogTimeRangeRequest model constructor.
-     * @property {module:model/LogTimeRangeRequest}
-     */
-    LogTimeRangeRequest,
-
-    /**
-     * The LogTimeRangeResult model constructor.
-     * @property {module:model/LogTimeRangeResult}
-     */
-    LogTimeRangeResult,
 
     /**
      * The MailerMail model constructor.
@@ -1031,40 +936,10 @@ export {
     RestDeleteUserMetaTagsResponse,
 
     /**
-     * The RestDeleteVersioningPolicyResponse model constructor.
-     * @property {module:model/RestDeleteVersioningPolicyResponse}
-     */
-    RestDeleteVersioningPolicyResponse,
-
-    /**
-     * The RestDeleteVirtualNodeResponse model constructor.
-     * @property {module:model/RestDeleteVirtualNodeResponse}
-     */
-    RestDeleteVirtualNodeResponse,
-
-    /**
      * The RestDiscoveryResponse model constructor.
      * @property {module:model/RestDiscoveryResponse}
      */
     RestDiscoveryResponse,
-
-    /**
-     * The RestExternalDirectoryCollection model constructor.
-     * @property {module:model/RestExternalDirectoryCollection}
-     */
-    RestExternalDirectoryCollection,
-
-    /**
-     * The RestExternalDirectoryConfig model constructor.
-     * @property {module:model/RestExternalDirectoryConfig}
-     */
-    RestExternalDirectoryConfig,
-
-    /**
-     * The RestExternalDirectoryResponse model constructor.
-     * @property {module:model/RestExternalDirectoryResponse}
-     */
-    RestExternalDirectoryResponse,
 
     /**
      * The RestFrontBinaryRequest model constructor.
@@ -1373,12 +1248,6 @@ export {
     RestSubscriptionsCollection,
 
     /**
-     * The RestTimeRangeResultCollection model constructor.
-     * @property {module:model/RestTimeRangeResultCollection}
-     */
-    RestTimeRangeResultCollection,
-
-    /**
      * The RestUserBookmarksRequest model constructor.
      * @property {module:model/RestUserBookmarksRequest}
      */
@@ -1637,24 +1506,6 @@ export {
     ConfigServiceApi,
 
     /**
-    * The EnterpriseConfigServiceApi service constructor.
-    * @property {module:api/EnterpriseConfigServiceApi}
-    */
-    EnterpriseConfigServiceApi,
-
-    /**
-    * The EnterpriseLogServiceApi service constructor.
-    * @property {module:api/EnterpriseLogServiceApi}
-    */
-    EnterpriseLogServiceApi,
-
-    /**
-    * The EnterprisePolicyServiceApi service constructor.
-    * @property {module:api/EnterprisePolicyServiceApi}
-    */
-    EnterprisePolicyServiceApi,
-
-    /**
     * The FrontendServiceApi service constructor.
     * @property {module:api/FrontendServiceApi}
     */
@@ -1677,12 +1528,6 @@ export {
     * @property {module:api/JobsServiceApi}
     */
     JobsServiceApi,
-
-    /**
-    * The LicenseServiceApi service constructor.
-    * @property {module:api/LicenseServiceApi}
-    */
-    LicenseServiceApi,
 
     /**
     * The LogServiceApi service constructor.
@@ -1713,12 +1558,6 @@ export {
     * @property {module:api/RoleServiceApi}
     */
     RoleServiceApi,
-
-    /**
-    * The SchedulerServiceApi service constructor.
-    * @property {module:api/SchedulerServiceApi}
-    */
-    SchedulerServiceApi,
 
     /**
     * The SearchServiceApi service constructor.

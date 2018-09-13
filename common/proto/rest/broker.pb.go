@@ -32,9 +32,7 @@ It has these top-level messages:
 	ListPeerFoldersRequest
 	ListVersioningPolicyRequest
 	VersioningPolicyCollection
-	DeleteVersioningPolicyResponse
 	ListVirtualNodesRequest
-	DeleteVirtualNodeResponse
 	ListServiceRequest
 	ServiceCollection
 	ControlServiceRequest
@@ -42,10 +40,6 @@ It has these top-level messages:
 	DiscoveryResponse
 	ConfigFormRequest
 	OpenApiResponse
-	ListExternalDirectoryRequest
-	ExternalDirectoryResponse
-	ExternalDirectoryConfig
-	ExternalDirectoryCollection
 	SearchResults
 	Pagination
 	Metadata
