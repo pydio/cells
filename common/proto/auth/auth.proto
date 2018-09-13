@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth;
 
-//============== SERVICES ==========
+//SERVICES
 service AuthTokenRevoker {
 
     // Look for an invalid token entry in the store that match the current one
@@ -14,23 +14,13 @@ service AuthTokenRevoker {
     // PruneTokens clear revoked tokens
     rpc PruneTokens (PruneTokensRequest) returns (PruneTokensResponse) {};
 
-    // Store a failed connection
-    rpc StoreFailedConnection (ConnectionAttempt) returns (ConnectionAttempt) {};
-
-    // Check if a connection is banned
-    rpc IsBanned (ConnectionAttempt) returns (BannedResponse) {};
-
-    // List banned IPs
-    rpc BanList(BanListRequest) returns (BanListResponse) {};
-
 }
 
-//============== MESSAGES ==========
+
 enum State {
     NO_MATCH = 0;
     REVOKED = 1;
 }
-
 
 message Token {
     string Value = 1;           // The token to be invalidated
@@ -60,32 +50,4 @@ message PruneTokensRequest {
 
 message PruneTokensResponse {
     repeated string tokens = 1;
-}
-
-message ConnectionAttempt {
-    string IP = 1;
-    int64 connectionTime = 3;
-    bool IsSuccess = 4;
-    map <string, string> Details = 5;
-}
-
-message BannedConnection {
-    string IP = 1;
-    int64 BanExpire = 2;
-    repeated ConnectionAttempt History = 3;
-}
-
-message BannedResponse {
-    bool IsBanned = 1;
-    BannedConnection Connection = 2;
-}
-
-message BanListRequest {
-    string IP = 1;
-    int32 Limit = 2;
-    int32 Offset = 3;
-}
-
-message BanListResponse {
-    repeated BannedConnection BannedConnections = 1;
 }

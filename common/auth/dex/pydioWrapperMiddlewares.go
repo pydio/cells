@@ -4,21 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/coreos/dex/connector"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
-	"time"
-
-	"strconv"
-
-	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/utils"
 )
@@ -34,8 +28,6 @@ type WrapperConnectorOperation struct {
 	AuthSource    string
 	User          *idm.User
 	Identity      connector.Identity
-
-	Attempts *auth.ConnectionAttempt
 }
 type WrapperConnectorProvider func(ctx context.Context, in *WrapperConnectorOperation) (*WrapperConnectorOperation, error)
 type WrapperConnectorMiddleware func(wrapperConnector WrapperConnectorProvider) WrapperConnectorProvider
@@ -243,43 +235,4 @@ func WrapWithIdentity(middleware WrapperConnectorProvider) WrapperConnectorProvi
 
 	}
 
-}
-
-func WrapWithIPBan(middleware WrapperConnectorProvider) WrapperConnectorProvider {
-
-	return func(ctx context.Context, op *WrapperConnectorOperation) (*WrapperConnectorOperation, error) {
-		if op.OperationType != "Login" {
-			return middleware(ctx, op)
-		}
-
-		// BEFORE MIDDLEWARE
-		md, _ := metadata.FromContext(ctx)
-		cli := auth.NewAuthTokenRevokerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, defaults.NewClient())
-		if address, ok := md[servicecontext.HttpMetaRemoteAddress]; ok {
-			op.Attempts = &auth.ConnectionAttempt{IP: address, ConnectionTime: time.Now().Unix()}
-			if resp, e := cli.IsBanned(ctx, op.Attempts); e == nil {
-				if resp.IsBanned {
-					log.Auditer(ctx).Error("IP Address is banned: "+address, log.GetAuditId(common.AUDIT_LOGIN_FAILED), zap.String(common.KEY_USERNAME, op.Login))
-					log.Logger(ctx).Error("IP address is banned", zap.String("ip", address))
-					return op, errors.Unauthorized(common.SERVICE_AUTH, "ip address is banned, please retry later")
-				}
-			}
-		}
-		var e error
-		op, e = middleware(ctx, op)
-
-		// AFTER MIDDLEWARE
-		if op.Attempts != nil {
-			if e != nil && op.LoginError {
-				op.Attempts.IsSuccess = false
-			} else {
-				op.Attempts.IsSuccess = true
-			}
-			log.Logger(ctx).Info("[WrapWithIPBan] Updating IP attempts", zap.Any("attempts", op.Attempts))
-			if _, e := cli.StoreFailedConnection(ctx, op.Attempts); e != nil {
-				log.Logger(ctx).Error("Oops, could not update connection attempts", zap.Error(e))
-			}
-		}
-		return op, e
-	}
 }

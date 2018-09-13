@@ -16,11 +16,6 @@ It has these top-level messages:
 	RevokeTokenResponse
 	PruneTokensRequest
 	PruneTokensResponse
-	ConnectionAttempt
-	BannedConnection
-	BannedResponse
-	BanListRequest
-	BanListResponse
 	LdapSearchFilter
 	LdapMapping
 	LdapMemberOfMapping
@@ -63,12 +58,6 @@ type AuthTokenRevokerClient interface {
 	Revoke(ctx context.Context, in *RevokeTokenRequest, opts ...client.CallOption) (*RevokeTokenResponse, error)
 	// PruneTokens clear revoked tokens
 	PruneTokens(ctx context.Context, in *PruneTokensRequest, opts ...client.CallOption) (*PruneTokensResponse, error)
-	// Store a failed connection
-	StoreFailedConnection(ctx context.Context, in *ConnectionAttempt, opts ...client.CallOption) (*ConnectionAttempt, error)
-	// Check if a connection is banned
-	IsBanned(ctx context.Context, in *ConnectionAttempt, opts ...client.CallOption) (*BannedResponse, error)
-	// List banned IPs
-	BanList(ctx context.Context, in *BanListRequest, opts ...client.CallOption) (*BanListResponse, error)
 }
 
 type authTokenRevokerClient struct {
@@ -119,36 +108,6 @@ func (c *authTokenRevokerClient) PruneTokens(ctx context.Context, in *PruneToken
 	return out, nil
 }
 
-func (c *authTokenRevokerClient) StoreFailedConnection(ctx context.Context, in *ConnectionAttempt, opts ...client.CallOption) (*ConnectionAttempt, error) {
-	req := c.c.NewRequest(c.serviceName, "AuthTokenRevoker.StoreFailedConnection", in)
-	out := new(ConnectionAttempt)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *authTokenRevokerClient) IsBanned(ctx context.Context, in *ConnectionAttempt, opts ...client.CallOption) (*BannedResponse, error) {
-	req := c.c.NewRequest(c.serviceName, "AuthTokenRevoker.IsBanned", in)
-	out := new(BannedResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *authTokenRevokerClient) BanList(ctx context.Context, in *BanListRequest, opts ...client.CallOption) (*BanListResponse, error) {
-	req := c.c.NewRequest(c.serviceName, "AuthTokenRevoker.BanList", in)
-	out := new(BanListResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // Server API for AuthTokenRevoker service
 
 type AuthTokenRevokerHandler interface {
@@ -158,12 +117,6 @@ type AuthTokenRevokerHandler interface {
 	Revoke(context.Context, *RevokeTokenRequest, *RevokeTokenResponse) error
 	// PruneTokens clear revoked tokens
 	PruneTokens(context.Context, *PruneTokensRequest, *PruneTokensResponse) error
-	// Store a failed connection
-	StoreFailedConnection(context.Context, *ConnectionAttempt, *ConnectionAttempt) error
-	// Check if a connection is banned
-	IsBanned(context.Context, *ConnectionAttempt, *BannedResponse) error
-	// List banned IPs
-	BanList(context.Context, *BanListRequest, *BanListResponse) error
 }
 
 func RegisterAuthTokenRevokerHandler(s server.Server, hdlr AuthTokenRevokerHandler, opts ...server.HandlerOption) {
@@ -184,16 +137,4 @@ func (h *AuthTokenRevoker) Revoke(ctx context.Context, in *RevokeTokenRequest, o
 
 func (h *AuthTokenRevoker) PruneTokens(ctx context.Context, in *PruneTokensRequest, out *PruneTokensResponse) error {
 	return h.AuthTokenRevokerHandler.PruneTokens(ctx, in, out)
-}
-
-func (h *AuthTokenRevoker) StoreFailedConnection(ctx context.Context, in *ConnectionAttempt, out *ConnectionAttempt) error {
-	return h.AuthTokenRevokerHandler.StoreFailedConnection(ctx, in, out)
-}
-
-func (h *AuthTokenRevoker) IsBanned(ctx context.Context, in *ConnectionAttempt, out *BannedResponse) error {
-	return h.AuthTokenRevokerHandler.IsBanned(ctx, in, out)
-}
-
-func (h *AuthTokenRevoker) BanList(ctx context.Context, in *BanListRequest, out *BanListResponse) error {
-	return h.AuthTokenRevokerHandler.BanList(ctx, in, out)
 }
