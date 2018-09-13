@@ -22,7 +22,6 @@ import React from 'react'
 import Pydio from 'pydio'
 import {RaisedButton, Divider} from 'material-ui'
 const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} = Pydio.requireLib('components');
-import {AuthLdapServerConfig} from 'pydio/http/rest-api'
 import ServerConfigModel from './ServerConfigModel'
 import ConnectionPane from './ConnectionPane'
 import FilterPane from './FilterPane'
@@ -41,7 +40,7 @@ class LdapEditor extends React.Component{
             model = new ServerConfigModel(config.ConfigId, config);
             create = false;
         } else {
-            let conf = new AuthLdapServerConfig();
+            let conf = new EnterpriseSDK.AuthLdapServerConfig();
             conf.ConfigId = uuid();
             model = new ServerConfigModel(conf.ConfigId, conf);
         }

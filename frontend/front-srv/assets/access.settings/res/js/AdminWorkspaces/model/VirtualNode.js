@@ -21,7 +21,8 @@
 import LangUtils from 'pydio/util/lang'
 import Observable from 'pydio/lang/observable'
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi, EnterpriseConfigServiceApi, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
+import ResourcesManager from 'pydio/http/resources-manager'
+import {ConfigServiceApi, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
 
 class VirtualNode extends Observable {
 
@@ -77,17 +78,21 @@ class VirtualNode extends Observable {
     }
 
     save(callback) {
-        const api = new EnterpriseConfigServiceApi(PydioApi.getRestClient());
-        api.putVirtualNode(this.data.Uuid, this.data).then(()=>{
-            callback();
+        ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+            const api = new sdk.EnterpriseConfigServiceApi(PydioApi.getRestClient());
+            api.putVirtualNode(this.data.Uuid, this.data).then(() => {
+                callback();
+            });
         });
     }
 
     remove(callback){
 
-        const api = new EnterpriseConfigServiceApi(PydioApi.getRestClient());
-        api.deleteVirtualNode(this.data.Uuid).then(() => {
-            callback();
+        ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+            const api = new sdk.EnterpriseConfigServiceApi(PydioApi.getRestClient());
+            api.deleteVirtualNode(this.data.Uuid).then(() => {
+                callback();
+            });
         });
 
     }

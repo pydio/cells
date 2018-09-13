@@ -30,7 +30,9 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
@@ -49,23 +51,17 @@ var AboutPanel = (function (_React$Component) {
     _createClass(AboutPanel, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            if (this.state.content) return;
-            global.PydioApi.getClient().request({
-                get_action: 'display_doc',
-                doc_file: 'CREDITS-ONLY'
-            }, (function (t) {
-                this.setState({ content: t.responseText });
-            }).bind(this));
+            if (this.state.content) {
+                return;
+            }
+            // TODO : LOAD COPYRIGHT
         }
     }, {
         key: 'render',
         value: function render() {
 
             var setContent = (function () {
-                var c = 'Loading...';
-                if (this.state.content) {
-                    c = '<u>Pydio Enterprise Distribution</u> is covered by an <a href="plug/boot.enterprise/EULA.txt" target="_blank">End-User License Agreement</a> that you have agreed when installing the software.<br/>' + this.state.content;
-                }
+                var c = '<u>Pydio Enterprise Distribution</u> is covered by an <a href="plug/boot.enterprise/EULA.txt" target="_blank">End-User License Agreement</a> that you have agreed when installing the software.<br/>' + this.state.content;
                 return { __html: c };
             }).bind(this);
 
@@ -101,9 +97,11 @@ var Dashboard = (function (_React$Component2) {
             var _this = this;
 
             // Load and trigger callback
-            var api = new _pydioHttpRestApi.LicenseServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.licenseStats(false).then(function (res) {
-                _this.setState({ certLicense: res });
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var api = new sdk.LicenseServiceApi(_pydioHttpApi2['default'].getRestClient());
+                api.licenseStats(false).then(function (res) {
+                    _this.setState({ certLicense: res });
+                });
             });
         }
     }, {

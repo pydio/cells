@@ -1082,24 +1082,35 @@ window.AdminLogs = {
 };
 
 },{"./board/LogBoard":1,"./board/LogTools":4}],6:[function(require,module,exports){
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydioLangObservable = require("pydio/lang/observable");
+
+var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
+
+var _pydioHttpApi = require("pydio/http/api");
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
-
-var Observable = require('pydio/lang/observable');
-var PydioApi = require('pydio/http/api');
 
 var Log = (function (_Observable) {
     _inherits(Log, _Observable);
@@ -1107,11 +1118,11 @@ var Log = (function (_Observable) {
     function Log() {
         _classCallCheck(this, Log);
 
-        _get(Object.getPrototypeOf(Log.prototype), 'constructor', this).apply(this, arguments);
+        _get(Object.getPrototypeOf(Log.prototype), "constructor", this).apply(this, arguments);
     }
 
     _createClass(Log, null, [{
-        key: 'buildQuery',
+        key: "buildQuery",
 
         /**
          * Build Bleve Query based on filter and date
@@ -1158,7 +1169,7 @@ var Log = (function (_Observable) {
          * @return {Promise}
          */
     }, {
-        key: 'loadLogs',
+        key: "loadLogs",
         value: function loadLogs(serviceName, query, page, size, contentType) {
             var request = new _pydioHttpRestApi.LogListLogRequest();
             request.Query = query;
@@ -1166,11 +1177,13 @@ var Log = (function (_Observable) {
             request.Size = size;
             request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject(contentType);
             if (serviceName === 'syslog') {
-                var api = new _pydioHttpRestApi.LogServiceApi(PydioApi.getRestClient());
+                var api = new _pydioHttpRestApi.LogServiceApi(_pydioHttpApi2["default"].getRestClient());
                 return api.syslog(request);
             } else if (serviceName === 'audit') {
-                var api = new _pydioHttpRestApi.EnterpriseLogServiceApi(PydioApi.getRestClient());
-                return api.audit(request);
+                return _pydioHttpResourcesManager2["default"].loadClass('EnterpriseSDK').then(function (sdk) {
+                    var api = new sdk.EnterpriseLogServiceApi(_pydioHttpApi2["default"].getRestClient());
+                    return api.audit(request);
+                });
             } else {
                 return Promise.reject("Unknown service name, must be 'syslog' or 'audit'");
             }
@@ -1184,7 +1197,7 @@ var Log = (function (_Observable) {
          * @return {Promise<Blob>}
          */
     }, {
-        key: 'downloadLogs',
+        key: "downloadLogs",
         value: function downloadLogs(serviceName, query, format) {
             var request = new _pydioHttpRestApi.LogListLogRequest();
             request.Query = query;
@@ -1203,7 +1216,7 @@ var Log = (function (_Observable) {
          * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestLogMessageCollection} and HTTP response
          */
     }, {
-        key: 'auditExportWithHttpInfo',
+        key: "auditExportWithHttpInfo",
         value: function auditExportWithHttpInfo(body, serviceName) {
             var postBody = body;
 
@@ -1222,14 +1235,14 @@ var Log = (function (_Observable) {
             var accepts = ['application/json'];
             var returnType = 'Blob';
 
-            return PydioApi.getRestClient().callApi('/log/' + serviceName + '/export', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+            return _pydioHttpApi2["default"].getRestClient().callApi('/log/' + serviceName + '/export', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
         }
     }]);
 
     return Log;
-})(Observable);
+})(_pydioLangObservable2["default"]);
 
-exports['default'] = Log;
-module.exports = exports['default'];
+exports["default"] = Log;
+module.exports = exports["default"];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}]},{},[5]);
+},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}]},{},[5]);

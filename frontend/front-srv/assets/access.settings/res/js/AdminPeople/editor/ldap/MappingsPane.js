@@ -1,13 +1,12 @@
 import React from 'react'
 import {TextField, FlatButton, IconButton} from 'material-ui'
-import {AuthLdapServerConfig, AuthLdapMapping} from 'pydio/http/rest-api'
 
 class MappingsPane extends React.Component{
 
     addRule(){
         const {config} = this.props;
         const rules = config.MappingRules || [];
-        config.MappingRules = [...rules, new AuthLdapMapping()];
+        config.MappingRules = [...rules, new EnterpriseSDK.AuthLdapMapping()];
     }
 
     removeRule(index){
@@ -55,7 +54,6 @@ class MappingsPane extends React.Component{
 
 MappingsPane.propTypes = {
     style: React.PropTypes.object,
-    config: React.PropTypes.instanceOf(AuthLdapServerConfig)
 };
 
 export {MappingsPane as default}

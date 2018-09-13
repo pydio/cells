@@ -1,6 +1,5 @@
 import React from 'react'
 import {Paper, TextField, SelectField, MenuItem, TimePicker} from 'material-ui'
-import {AuthLdapServerConfig} from 'pydio/http/rest-api'
 
 class GeneralPane extends React.Component{
 
@@ -71,7 +70,6 @@ class GeneralPane extends React.Component{
 
 GeneralPane.propTypes = {
     style: React.PropTypes.object,
-    config: React.PropTypes.instanceOf(AuthLdapServerConfig)
 };
 
 export {GeneralPane as default}

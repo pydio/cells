@@ -25,6 +25,7 @@ import {Paper, List, ListItem, Subheader, Divider, IconButton, FlatButton, IconM
 import {muiThemeable} from 'material-ui/styles';
 import LdapEditor from '../editor/ldap/LdapEditor'
 import Pydio from 'pydio'
+import ResourcesManager from 'pydio/http/resources-manager'
 import ServerConfigModel from '../editor/ldap/ServerConfigModel'
 const PydioComponents = Pydio.requireLib('components');
 const {MaterialTable} = PydioComponents;
@@ -118,7 +119,9 @@ let DirectoriesBoard = React.createClass({
     },
 
     componentDidMount(){
-        this.loadDirectories();
+        ResourcesManager.loadClass('EnterpriseSDK').then(() => {
+            this.loadDirectories();
+        });
     },
 
     render(){

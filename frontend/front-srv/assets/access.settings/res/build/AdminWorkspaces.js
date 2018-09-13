@@ -24756,6 +24756,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _materialUi = require('material-ui');
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
@@ -24775,8 +24783,6 @@ var _pydio2 = _interopRequireDefault(_pydio);
 var _VersionPolicyPeriods = require('./VersionPolicyPeriods');
 
 var _VersionPolicyPeriods2 = _interopRequireDefault(_VersionPolicyPeriods);
-
-var React = require('react');
 
 var PydioForm = _pydio2['default'].requireLib('form');
 
@@ -24828,9 +24834,11 @@ var VersionPolicyEditor = (function (_React$Component) {
             var _this2 = this;
 
             if (confirm('Are you sure you want to delete this policy? This is undoable!')) {
-                var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                api.deleteVersioningPolicy(this.state.policy.Uuid).then(function (r) {
-                    _this2.props.closeEditor();
+                _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                    var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                    api.deleteVersioningPolicy(_this2.state.policy.Uuid).then(function (r) {
+                        _this2.props.closeEditor();
+                    });
                 });
             }
         }
@@ -24843,13 +24851,15 @@ var VersionPolicyEditor = (function (_React$Component) {
                 (function () {
                     var saveValue = _this3.state.saveValue;
 
-                    var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-                    api.putVersioningPolicy(saveValue.Uuid, saveValue).then(function () {
-                        _this3.props.reloadList();
-                        _this3.setState({
-                            dirty: false,
-                            policy: saveValue,
-                            saveValue: null
+                    _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                        var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                        api.putVersioningPolicy(saveValue.Uuid, saveValue).then(function () {
+                            _this3.props.reloadList();
+                            _this3.setState({
+                                dirty: false,
+                                policy: saveValue,
+                                saveValue: null
+                            });
                         });
                     });
                 })();
@@ -24900,7 +24910,7 @@ var VersionPolicyEditor = (function (_React$Component) {
                 if (saveValue) {
                     values = VersionPolicyEditor.TreeVersioningPolicyToValues(saveValue);
                 }
-                form = React.createElement(PydioForm.FormPanel, {
+                form = _react2['default'].createElement(PydioForm.FormPanel, {
                     parameters: parameters,
                     values: values,
                     className: 'full-width',
@@ -24914,20 +24924,20 @@ var VersionPolicyEditor = (function (_React$Component) {
             var titleActionBarButtons = [];
             if (!readonly) {
                 if (!create) {
-                    titleActionBarButtons.push(React.createElement(_materialUi.FlatButton, { key: 'delete', label: 'Delete Policy', secondary: true, onTouchTap: this.deleteSource.bind(this) }));
-                    titleActionBarButtons.push(React.createElement('div', { style: { display: 'inline', borderRight: '1px solid #757575', margin: '0 2px' }, key: 'separator' }));
-                    titleActionBarButtons.push(React.createElement(_materialUi.FlatButton, { key: 'reset', label: this.context.getMessage('plugins.6'), onTouchTap: this.resetForm.bind(this), secondary: true, disabled: !this.state.dirty }));
+                    titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'delete', label: 'Delete Policy', secondary: true, onTouchTap: this.deleteSource.bind(this) }));
+                    titleActionBarButtons.push(_react2['default'].createElement('div', { style: { display: 'inline', borderRight: '1px solid #757575', margin: '0 2px' }, key: 'separator' }));
+                    titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'reset', label: this.context.getMessage('plugins.6'), onTouchTap: this.resetForm.bind(this), secondary: true, disabled: !this.state.dirty }));
                 }
-                titleActionBarButtons.push(React.createElement(_materialUi.FlatButton, { key: 'save', label: this.context.getMessage('53', ''), onTouchTap: this.saveSource.bind(this), secondary: true, disabled: !this.state.valid || !this.state.dirty }));
+                titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'save', label: this.context.getMessage('53', ''), onTouchTap: this.saveSource.bind(this), secondary: true, disabled: !this.state.valid || !this.state.dirty }));
             }
-            titleActionBarButtons.push(React.createElement(_materialUi.RaisedButton, { key: 'close', label: this.context.getMessage('86', ''), onTouchTap: this.props.closeEditor }));
+            titleActionBarButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { key: 'close', label: this.context.getMessage('86', ''), onTouchTap: this.props.closeEditor }));
 
             var policyName = saveValue ? saveValue.Name : policy.Name;
             if (!policyName) {
                 policyName = '';
             }
 
-            return React.createElement(
+            return _react2['default'].createElement(
                 PydioComponents.PaperEditorLayout,
                 {
                     title: loaded && parameters ? "Policy " + policyName : "Loading...",
@@ -24935,13 +24945,13 @@ var VersionPolicyEditor = (function (_React$Component) {
                     className: 'workspace-editor',
                     contentFill: true
                 },
-                React.createElement(
+                _react2['default'].createElement(
                     _materialUi.Paper,
                     { zDepth: 1, style: { padding: '0 16px', backgroundColor: '#ECEFF1' } },
-                    React.createElement(
+                    _react2['default'].createElement(
                         'div',
                         { style: { overflowX: 'auto' } },
-                        React.createElement(_VersionPolicyPeriods2['default'], { periods: saveValue ? saveValue.KeepPeriods : policy.KeepPeriods })
+                        _react2['default'].createElement(_VersionPolicyPeriods2['default'], { periods: saveValue ? saveValue.KeepPeriods : policy.KeepPeriods })
                     )
                 ),
                 form
@@ -24994,17 +25004,17 @@ var VersionPolicyEditor = (function (_React$Component) {
     }]);
 
     return VersionPolicyEditor;
-})(React.Component);
+})(_react2['default'].Component);
 
 VersionPolicyEditor.contextTypes = {
-    messages: React.PropTypes.object,
-    getMessage: React.PropTypes.func
+    messages: _react2['default'].PropTypes.object,
+    getMessage: _react2['default'].PropTypes.func
 };
 
 exports['default'] = VersionPolicyEditor;
 module.exports = exports['default'];
 
-},{"./VersionPolicyPeriods":166,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],166:[function(require,module,exports){
+},{"./VersionPolicyPeriods":166,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],166:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26340,6 +26350,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var VirtualNode = (function (_Observable) {
@@ -26406,18 +26420,25 @@ var VirtualNode = (function (_Observable) {
     }, {
         key: 'save',
         value: function save(callback) {
-            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.putVirtualNode(this.data.Uuid, this.data).then(function () {
-                callback();
+            var _this = this;
+
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                api.putVirtualNode(_this.data.Uuid, _this.data).then(function () {
+                    callback();
+                });
             });
         }
     }, {
         key: 'remove',
         value: function remove(callback) {
+            var _this2 = this;
 
-            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.deleteVirtualNode(this.data.Uuid).then(function () {
-                callback();
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                api.deleteVirtualNode(_this2.data.Uuid).then(function () {
+                    callback();
+                });
             });
         }
     }]);
@@ -26428,7 +26449,7 @@ var VirtualNode = (function (_Observable) {
 exports['default'] = VirtualNode;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],175:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],175:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

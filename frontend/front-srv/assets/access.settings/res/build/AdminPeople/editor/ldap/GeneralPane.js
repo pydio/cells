@@ -22,8 +22,6 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var GeneralPane = (function (_React$Component) {
     _inherits(GeneralPane, _React$Component);
 
@@ -137,8 +135,7 @@ var GeneralPane = (function (_React$Component) {
 })(_react2['default'].Component);
 
 GeneralPane.propTypes = {
-    style: _react2['default'].PropTypes.object,
-    config: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.AuthLdapServerConfig)
+    style: _react2['default'].PropTypes.object
 };
 
 exports['default'] = GeneralPane;

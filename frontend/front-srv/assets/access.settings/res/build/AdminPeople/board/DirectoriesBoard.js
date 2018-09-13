@@ -50,6 +50,10 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _editorLdapServerConfigModel = require('../editor/ldap/ServerConfigModel');
 
 var _editorLdapServerConfigModel2 = _interopRequireDefault(_editorLdapServerConfigModel);
@@ -158,17 +162,21 @@ var DirectoriesBoard = _react2['default'].createClass({
     },
 
     componentDidMount: function componentDidMount() {
-        this.loadDirectories();
+        var _this4 = this;
+
+        _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function () {
+            _this4.loadDirectories();
+        });
     },
 
     render: function render() {
-        var _this4 = this;
+        var _this5 = this;
 
         var directories = this.state.directories;
 
         var columns = [{ name: 'DomainName', label: 'Directory' }, { name: 'Host', label: 'Server Address' }, { name: 'Schedule', label: 'Synchronization' }, { name: 'Actions', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
                 return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", tooltip: "Remove", onTouchTap: function () {
-                        _this4.deleteDirectory(row);
+                        _this5.deleteDirectory(row);
                     }, onClick: function (e) {
                         e.stopPropagation();
                     } });
@@ -181,7 +189,7 @@ var DirectoriesBoard = _react2['default'].createClass({
                 title: this.props.currentNode.getLabel(),
                 icon: this.props.currentNode.getMetadata().get('icon_class'),
                 actions: [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "+ Directory", onTouchTap: function () {
-                        _this4.openEditor();
+                        _this5.openEditor();
                     } })],
                 reloadAction: this.loadDirectories.bind(this),
                 loading: this.state.loading

@@ -21,14 +21,12 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/emicklei/go-restful"
-	"github.com/go-openapi/loads"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
@@ -106,9 +104,7 @@ func (s *Handler) OpenApiDiscovery(req *restful.Request, resp *restful.Response)
 		protocol = "https"
 	}
 
-	rawMessage := new(json.RawMessage)
-	json.Unmarshal([]byte(rest.SwaggerJson), rawMessage)
-	jsonSpec, _ := loads.Analyzed(*rawMessage, "")
+	jsonSpec := service.SwaggerSpec()
 	jsonSpec.Spec().Host = fmt.Sprintf("%s://%s:%s", protocol, ip.String(), restPort)
 	jsonSpec.Spec().Info.Title = "Pydio API"
 	jsonSpec.Spec().Info.Version = "1.0"

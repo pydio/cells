@@ -1,6 +1,5 @@
 import React from 'react'
 import {Paper, TextField, SelectField, MenuItem, Toggle} from 'material-ui'
-import {AuthLdapServerConfig} from 'pydio/http/rest-api'
 import DNs from './DNs'
 
 class FilterPane extends React.Component{
@@ -35,7 +34,6 @@ class FilterPane extends React.Component{
 
 FilterPane.propTypes = {
     style: React.PropTypes.object,
-    config: React.PropTypes.instanceOf(AuthLdapServerConfig)
 };
 
 export {FilterPane as default}

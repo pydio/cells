@@ -2,8 +2,9 @@ import {Component} from 'react'
 import {Paper, IconMenu, MenuItem, IconButton, List, ListItem, FlatButton} from 'material-ui'
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import {EnterpriseLogServiceApi, RestLogMessageCollection, LogListLogRequest, ListLogRequestLogFormat} from 'pydio/http/rest-api';
+import {RestLogMessageCollection, LogListLogRequest, ListLogRequestLogFormat} from 'pydio/http/rest-api';
 import ReloadWrapper from '../util/ReloadWrapper'
+import ResourcesManager from 'pydio/http/resources-manager'
 
 const {asGridItem} = Pydio.requireLib('components');
 const {PydioContextConsumer} = Pydio.requireLib('boot');
@@ -16,17 +17,19 @@ class RecentLogs extends Component{
     }
 
     loadLogs(){
-        const api = new EnterpriseLogServiceApi(PydioApi.getRestClient());
-        let request = new LogListLogRequest();
-        request.Query = '';
-        request.Page = 0;
-        request.Size = 20;
-        request.Format = ListLogRequestLogFormat.constructFromObject('JSON');
-        api.audit(request).then(result => {
-            if(result.Logs){
-                this.setState({logs: result.Logs});
-            }
-        })
+        ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+            const api = new sdk.EnterpriseLogServiceApi(PydioApi.getRestClient());
+            let request = new LogListLogRequest();
+            request.Query = '';
+            request.Page = 0;
+            request.Size = 20;
+            request.Format = ListLogRequestLogFormat.constructFromObject('JSON');
+            api.audit(request).then(result => {
+                if(result.Logs){
+                    this.setState({logs: result.Logs});
+                }
+            })
+        });
     }
 
     componentDidMount(){

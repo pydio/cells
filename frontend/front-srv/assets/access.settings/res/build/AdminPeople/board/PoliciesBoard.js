@@ -40,6 +40,10 @@ var _pydioModelNode = require('pydio/model/node');
 
 var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _materialUi = require('material-ui');
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
@@ -143,11 +147,13 @@ var PoliciesBoard = _react2['default'].createClass({
             this.listPolicies();
             return;
         }
-        var api = new _pydioHttpRestApi.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
-        api.putPolicy(policy).then(function () {
-            _this2.listPolicies();
-        })['catch'](function (reason) {
-            _this2.setState({ error: reason });
+        _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+            var api = new sdk.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.putPolicy(policy).then(function () {
+                _this2.listPolicies();
+            })['catch'](function (reason) {
+                _this2.setState({ error: reason });
+            });
         });
     },
 
@@ -156,11 +162,13 @@ var PoliciesBoard = _react2['default'].createClass({
 
         var _this3 = this;
 
-        var api = new _pydioHttpRestApi.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
-        api.deletePolicy(policy.Uuid).then(function () {
-            _this3.listPolicies();
-        })['catch'](function (reason) {
-            _this3.setState({ error: reason });
+        _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+            var api = new sdk.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.deletePolicy(policy.Uuid).then(function () {
+                _this3.listPolicies();
+            })['catch'](function (reason) {
+                _this3.setState({ error: reason });
+            });
         });
     },
 

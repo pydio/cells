@@ -24,8 +24,6 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var MappingsPane = (function (_React$Component) {
     _inherits(MappingsPane, _React$Component);
 
@@ -41,7 +39,7 @@ var MappingsPane = (function (_React$Component) {
             var config = this.props.config;
 
             var rules = config.MappingRules || [];
-            config.MappingRules = [].concat(_toConsumableArray(rules), [new _pydioHttpRestApi.AuthLdapMapping()]);
+            config.MappingRules = [].concat(_toConsumableArray(rules), [new EnterpriseSDK.AuthLdapMapping()]);
         }
     }, {
         key: 'removeRule',
@@ -122,8 +120,7 @@ var MappingsPane = (function (_React$Component) {
 })(_react2['default'].Component);
 
 MappingsPane.propTypes = {
-    style: _react2['default'].PropTypes.object,
-    config: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.AuthLdapServerConfig)
+    style: _react2['default'].PropTypes.object
 };
 
 exports['default'] = MappingsPane;

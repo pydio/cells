@@ -33,6 +33,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var GraphModel = (function () {
@@ -110,44 +114,36 @@ var GraphModel = (function () {
                 var stubLinks = GraphModel.stubLinks(frequency, refTime);
                 return Promise.resolve(this.parseData(data, stubLinks));
             } else {
-                var _ret = (function () {
-                    var api = new _pydioHttpRestApi.EnterpriseLogServiceApi(_pydioHttpApi2['default'].getRestClient());
-                    var request = new _pydioHttpRestApi.LogTimeRangeRequest();
+                return _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                    var api = new sdk.EnterpriseLogServiceApi(_pydioHttpApi2['default'].getRestClient());
+                    var request = new sdk.LogTimeRangeRequest();
                     request.MsgId = GraphModel.queryNameToMsgId(queryName);
                     var refUnix = undefined;
-                    if (!refTime) {
-                        refUnix = Math.floor(Date.now() / 1000);
-                    } else {
+                    if (refTime) {
                         refUnix = refTime;
+                    } else {
+                        refUnix = Math.floor(Date.now() / 1000);
                     }
                     request.RefTime = refUnix;
                     request.TimeRangeType = frequency;
-                    return {
-                        v: new Promise(function (resolve, reject) {
-                            api.auditChartData(request).then(function (result) {
-                                var labels = [],
-                                    points = [],
-                                    links = [];
-                                if (result.Results) {
-                                    result.Results.map(function (res) {
-                                        labels.push(res.Name);
-                                        points.push(res.Count || 0);
-                                    });
-                                }
-                                if (result.Links) {
-                                    result.Links.map(function (link) {
-                                        links.push(link);
-                                    });
-                                }
-                                resolve({ labels: labels, points: points, links: links });
-                            })['catch'](function (reason) {
-                                reject(reason);
+                    return api.auditChartData(request).then(function (result) {
+                        var labels = [],
+                            points = [],
+                            links = [];
+                        if (result.Results) {
+                            result.Results.map(function (res) {
+                                labels.push(res.Name);
+                                points.push(res.Count || 0);
                             });
-                        })
-                    };
-                })();
-
-                if (typeof _ret === 'object') return _ret.v;
+                        }
+                        if (result.Links) {
+                            result.Links.map(function (link) {
+                                links.push(link);
+                            });
+                        }
+                        return { labels: labels, points: points, links: links };
+                    });
+                });
             }
         }
 

@@ -424,7 +424,21 @@ var ResourcesManager = (function () {
         })['catch'](function (reason) {
             console.error('Failed Loading ' + classNames.join(', ') + ' : ', reason);
         });
-        return;
+    };
+
+    /**
+     * Load class and return as a promise
+     * @param className
+     * @return {*|Promise|PromiseLike<T>|Promise<T>}
+     */
+
+    ResourcesManager.loadClass = function loadClass(className) {
+        if (!ResourcesManager.__configsParsed) {
+            ResourcesManager.loadAutoLoadResources();
+        }
+        return SystemJS['import'](className)['catch'](function (e) {
+            console.error('Failed loading class ' + className, e);
+        });
     };
 
     ResourcesManager.detectModuleToLoadAndApply = function detectModuleToLoadAndApply(callbackString, callbackFunc) {
@@ -439,7 +453,6 @@ var ResourcesManager = (function () {
         } else {
             ResourcesManager.loadScriptSync(className, callbackFunc);
         }
-        return;
     };
 
     ResourcesManager.loadScriptSync = function loadScriptSync(name, callback) {

@@ -22,8 +22,6 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var ServerConfigModel = (function (_Observable) {
     _inherits(ServerConfigModel, _Observable);
 
@@ -50,7 +48,7 @@ var ServerConfigModel = (function (_Observable) {
                     } else if (out instanceof Object) {
                         return _this.buildProxy(out);
                     } else if (p === 'User') {
-                        var filter = new _pydioHttpRestApi.AuthLdapSearchFilter();
+                        var filter = new EnterpriseSDK.AuthLdapSearchFilter();
                         target[p] = _this.buildProxy(filter);
                         return target[p];
                     } else {
@@ -90,12 +88,12 @@ var ServerConfigModel = (function (_Observable) {
     }, {
         key: 'snapshot',
         value: function snapshot() {
-            return _pydioHttpRestApi.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(this.config)));
+            return EnterpriseSDK.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(this.config)));
         }
     }, {
         key: 'revertTo',
         value: function revertTo(snapshot) {
-            this.config = _pydioHttpRestApi.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(snapshot)));
+            this.config = EnterpriseSDK.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(snapshot)));
             this.observableConfig = this.buildProxy(this.config);
             return this.observableConfig;
         }
@@ -106,8 +104,8 @@ var ServerConfigModel = (function (_Observable) {
     }, {
         key: 'save',
         value: function save() {
-            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.RestExternalDirectoryConfig();
+            var api = new EnterpriseSDK.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new EnterpriseSDK.RestExternalDirectoryConfig();
             request.ConfigId = this.configId;
             request.Config = this.config;
             return api.putExternalDirectory(this.configId, request);
@@ -119,7 +117,7 @@ var ServerConfigModel = (function (_Observable) {
     }], [{
         key: 'loadDirectories',
         value: function loadDirectories() {
-            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new EnterpriseSDK.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.listExternalDirectories();
         }
 
@@ -130,7 +128,7 @@ var ServerConfigModel = (function (_Observable) {
     }, {
         key: 'deleteDirectory',
         value: function deleteDirectory(configId) {
-            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new EnterpriseSDK.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.deleteExternalDirectory(configId);
         }
     }]);

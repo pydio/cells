@@ -34,6 +34,10 @@ var _utilReloadWrapper = require('../util/ReloadWrapper');
 
 var _utilReloadWrapper2 = _interopRequireDefault(_utilReloadWrapper);
 
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var asGridItem = _Pydio$requireLib.asGridItem;
@@ -57,16 +61,18 @@ var RecentLogs = (function (_Component) {
         value: function loadLogs() {
             var _this = this;
 
-            var api = new _pydioHttpRestApi.EnterpriseLogServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.LogListLogRequest();
-            request.Query = '';
-            request.Page = 0;
-            request.Size = 20;
-            request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
-            api.audit(request).then(function (result) {
-                if (result.Logs) {
-                    _this.setState({ logs: result.Logs });
-                }
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var api = new sdk.EnterpriseLogServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var request = new _pydioHttpRestApi.LogListLogRequest();
+                request.Query = '';
+                request.Page = 0;
+                request.Size = 20;
+                request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
+                api.audit(request).then(function (result) {
+                    if (result.Logs) {
+                        _this.setState({ logs: result.Logs });
+                    }
+                });
             });
         }
     }, {

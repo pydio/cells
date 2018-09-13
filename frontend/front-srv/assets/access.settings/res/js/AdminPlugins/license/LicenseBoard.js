@@ -3,7 +3,7 @@ import {Paper} from 'material-ui'
 import {Doughnut} from 'react-chartjs'
 import PydioApi from 'pydio/http/api'
 import Pydio from 'pydio'
-import {LicenseServiceApi, CertLicenseStatsResponse} from 'pydio/http/rest-api'
+import ResourcesManager from 'pydio/http/resources-manager'
 const {moment} = Pydio.requireLib('boot');
 
 class AboutPanel extends React.Component{
@@ -14,22 +14,16 @@ class AboutPanel extends React.Component{
     }
 
     componentDidMount(){
-        if(this.state.content) return;
-        global.PydioApi.getClient().request({
-            get_action:'display_doc',
-            doc_file:'CREDITS-ONLY'
-        }, function(t){
-            this.setState({content: t.responseText});
-        }.bind(this));
+        if(this.state.content) {
+            return;
+        }
+        // TODO : LOAD COPYRIGHT
     }
 
     render(){
 
         let setContent = function(){
-            let c = 'Loading...';
-            if(this.state.content){
-                c = '<u>Pydio Enterprise Distribution</u> is covered by an <a href="plug/boot.enterprise/EULA.txt" target="_blank">End-User License Agreement</a> that you have agreed when installing the software.<br/>' + this.state.content;
-            }
+            const c = '<u>Pydio Enterprise Distribution</u> is covered by an <a href="plug/boot.enterprise/EULA.txt" target="_blank">End-User License Agreement</a> that you have agreed when installing the software.<br/>' + this.state.content;
             return {__html:c};
         }.bind(this);
 
@@ -51,17 +45,17 @@ class Dashboard extends React.Component {
 
     load() {
         // Load and trigger callback
-        const api = new LicenseServiceApi(PydioApi.getRestClient());
-        api.licenseStats(false).then(res => {
-            this.setState({certLicense: res})
+        ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+            const api = new sdk.LicenseServiceApi(PydioApi.getRestClient());
+            api.licenseStats(false).then(res => {
+                this.setState({certLicense: res})
+            });
         });
-
     }
 
     componentDidMount(){
         this.load();
     }
-
 
     getMessage(id){
         const {pydio} = this.props;

@@ -20,8 +20,6 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var _DNs = require('./DNs');
 
 var _DNs2 = _interopRequireDefault(_DNs);
@@ -89,8 +87,7 @@ var FilterPane = (function (_React$Component) {
 })(_react2['default'].Component);
 
 FilterPane.propTypes = {
-    style: _react2['default'].PropTypes.object,
-    config: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.AuthLdapServerConfig)
+    style: _react2['default'].PropTypes.object
 };
 
 exports['default'] = FilterPane;

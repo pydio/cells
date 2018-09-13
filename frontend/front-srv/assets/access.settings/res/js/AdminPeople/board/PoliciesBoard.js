@@ -21,8 +21,9 @@
 import React from 'react'
 import PydioDataModel from 'pydio/model/data-model'
 import Node from 'pydio/model/node'
+import ResourcesManager from 'pydio/http/resources-manager'
 import {Paper, List, ListItem, Subheader, Divider, IconButton, FlatButton, IconMenu, MenuItem, Popover, SelectField, TextField} from 'material-ui'
-import {PolicyServiceApi, EnterprisePolicyServiceApi, IdmListPolicyGroupsRequest} from 'pydio/http/rest-api'
+import {PolicyServiceApi, IdmListPolicyGroupsRequest} from 'pydio/http/rest-api'
 import PydioApi from 'pydio/http/api'
 import {muiThemeable} from 'material-ui/styles';
 import uuid from 'uuid4'
@@ -113,25 +114,27 @@ let PoliciesBoard = React.createClass({
             this.listPolicies();
             return;
         }
-        const api = new EnterprisePolicyServiceApi(PydioApi.getRestClient());
-        api.putPolicy(policy).then(() => {
-            this.listPolicies();
-        }).catch((reason) => {
-            this.setState({error: reason});
+        ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+            const api = new sdk.EnterprisePolicyServiceApi(PydioApi.getRestClient());
+            api.putPolicy(policy).then(() => {
+                this.listPolicies();
+            }).catch((reason) => {
+                this.setState({error: reason});
+            });
         });
-
     },
 
     deletePolicy(policy){
         "use strict";
 
-        const api = new EnterprisePolicyServiceApi(PydioApi.getRestClient());
-        api.deletePolicy(policy.Uuid).then(() => {
-            this.listPolicies();
-        }).catch((reason) => {
-            this.setState({error: reason});
+        ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+            const api = new sdk.EnterprisePolicyServiceApi(PydioApi.getRestClient());
+            api.deletePolicy(policy.Uuid).then(() => {
+                this.listPolicies();
+            }).catch((reason) => {
+                this.setState({error: reason});
+            });
         });
-
     },
 
     createPolicy(event){

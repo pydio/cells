@@ -1,6 +1,8 @@
-const Observable = require('pydio/lang/observable');
-const PydioApi = require('pydio/http/api');
-import {LogServiceApi, EnterpriseLogServiceApi, RestLogMessageCollection, LogListLogRequest, ListLogRequestLogFormat} from 'pydio/http/rest-api';
+import Observable from "pydio/lang/observable";
+import PydioApi from "pydio/http/api";
+import ResourcesManager from 'pydio/http/resources-manager'
+import {LogServiceApi, RestLogMessageCollection, LogListLogRequest, ListLogRequestLogFormat} from 'pydio/http/rest-api';
+
 
 class Log extends Observable{
 
@@ -58,8 +60,10 @@ class Log extends Observable{
             const api = new LogServiceApi(PydioApi.getRestClient());
             return api.syslog(request);
         } else if(serviceName === 'audit') {
-            const api = new EnterpriseLogServiceApi(PydioApi.getRestClient());
-            return api.audit(request);
+            return ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+                const api = new sdk.EnterpriseLogServiceApi(PydioApi.getRestClient());
+                return api.audit(request);
+            })
         } else {
             return Promise.reject("Unknown service name, must be 'syslog' or 'audit'");
         }

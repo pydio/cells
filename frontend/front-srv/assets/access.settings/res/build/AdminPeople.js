@@ -22757,6 +22757,10 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _editorLdapServerConfigModel = require('../editor/ldap/ServerConfigModel');
 
 var _editorLdapServerConfigModel2 = _interopRequireDefault(_editorLdapServerConfigModel);
@@ -22865,17 +22869,21 @@ var DirectoriesBoard = _react2['default'].createClass({
     },
 
     componentDidMount: function componentDidMount() {
-        this.loadDirectories();
+        var _this4 = this;
+
+        _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function () {
+            _this4.loadDirectories();
+        });
     },
 
     render: function render() {
-        var _this4 = this;
+        var _this5 = this;
 
         var directories = this.state.directories;
 
         var columns = [{ name: 'DomainName', label: 'Directory' }, { name: 'Host', label: 'Server Address' }, { name: 'Schedule', label: 'Synchronization' }, { name: 'Actions', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
                 return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", tooltip: "Remove", onTouchTap: function () {
-                        _this4.deleteDirectory(row);
+                        _this5.deleteDirectory(row);
                     }, onClick: function (e) {
                         e.stopPropagation();
                     } });
@@ -22888,7 +22896,7 @@ var DirectoriesBoard = _react2['default'].createClass({
                 title: this.props.currentNode.getLabel(),
                 icon: this.props.currentNode.getMetadata().get('icon_class'),
                 actions: [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "+ Directory", onTouchTap: function () {
-                        _this4.openEditor();
+                        _this5.openEditor();
                     } })],
                 reloadAction: this.loadDirectories.bind(this),
                 loading: this.state.loading
@@ -22914,7 +22922,7 @@ exports['default'] = DirectoriesBoard = (0, _materialUiStyles.muiThemeable)()(Di
 exports['default'] = DirectoriesBoard;
 module.exports = exports['default'];
 
-},{"../editor/ldap/LdapEditor":178,"../editor/ldap/ServerConfigModel":181,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],160:[function(require,module,exports){
+},{"../editor/ldap/LdapEditor":178,"../editor/ldap/ServerConfigModel":181,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],160:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -22956,6 +22964,10 @@ var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
 var _pydioModelNode = require('pydio/model/node');
 
 var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
 var _materialUi = require('material-ui');
 
@@ -23060,11 +23072,13 @@ var PoliciesBoard = _react2['default'].createClass({
             this.listPolicies();
             return;
         }
-        var api = new _pydioHttpRestApi.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
-        api.putPolicy(policy).then(function () {
-            _this2.listPolicies();
-        })['catch'](function (reason) {
-            _this2.setState({ error: reason });
+        _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+            var api = new sdk.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.putPolicy(policy).then(function () {
+                _this2.listPolicies();
+            })['catch'](function (reason) {
+                _this2.setState({ error: reason });
+            });
         });
     },
 
@@ -23073,11 +23087,13 @@ var PoliciesBoard = _react2['default'].createClass({
 
         var _this3 = this;
 
-        var api = new _pydioHttpRestApi.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
-        api.deletePolicy(policy.Uuid).then(function () {
-            _this3.listPolicies();
-        })['catch'](function (reason) {
-            _this3.setState({ error: reason });
+        _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+            var api = new sdk.EnterprisePolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.deletePolicy(policy.Uuid).then(function () {
+                _this3.listPolicies();
+            })['catch'](function (reason) {
+                _this3.setState({ error: reason });
+            });
         });
     },
 
@@ -23274,7 +23290,7 @@ exports['default'] = PoliciesBoard = (0, _materialUiStyles.muiThemeable)()(Polic
 exports['default'] = PoliciesBoard;
 module.exports = exports['default'];
 
-},{"../policies/Policy":195,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":155}],161:[function(require,module,exports){
+},{"../policies/Policy":195,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":155}],161:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25792,8 +25808,6 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var ConnectionPane = (function (_React$Component) {
     _inherits(ConnectionPane, _React$Component);
 
@@ -25936,14 +25950,13 @@ var ConnectionPane = (function (_React$Component) {
 })(_react2['default'].Component);
 
 ConnectionPane.propTypes = {
-    style: _react2['default'].PropTypes.object,
-    config: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.AuthLdapServerConfig)
+    style: _react2['default'].PropTypes.object
 };
 
 exports['default'] = ConnectionPane;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],175:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],175:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26074,8 +26087,6 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var _DNs = require('./DNs');
 
 var _DNs2 = _interopRequireDefault(_DNs);
@@ -26143,14 +26154,13 @@ var FilterPane = (function (_React$Component) {
 })(_react2['default'].Component);
 
 FilterPane.propTypes = {
-    style: _react2['default'].PropTypes.object,
-    config: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.AuthLdapServerConfig)
+    style: _react2['default'].PropTypes.object
 };
 
 exports['default'] = FilterPane;
 module.exports = exports['default'];
 
-},{"./DNs":175,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],177:[function(require,module,exports){
+},{"./DNs":175,"material-ui":"material-ui","react":"react"}],177:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26174,8 +26184,6 @@ var _react = require('react');
 var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
-
-var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var GeneralPane = (function (_React$Component) {
     _inherits(GeneralPane, _React$Component);
@@ -26290,14 +26298,13 @@ var GeneralPane = (function (_React$Component) {
 })(_react2['default'].Component);
 
 GeneralPane.propTypes = {
-    style: _react2['default'].PropTypes.object,
-    config: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.AuthLdapServerConfig)
+    style: _react2['default'].PropTypes.object
 };
 
 exports['default'] = GeneralPane;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],178:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],178:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26343,8 +26350,6 @@ var _pydio = require('pydio');
 var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
-
-var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _ServerConfigModel = require('./ServerConfigModel');
 
@@ -26397,7 +26402,7 @@ var LdapEditor = (function (_React$Component) {
             model = new _ServerConfigModel2['default'](config.ConfigId, config);
             create = false;
         } else {
-            var conf = new _pydioHttpRestApi.AuthLdapServerConfig();
+            var conf = new EnterpriseSDK.AuthLdapServerConfig();
             conf.ConfigId = (0, _uuid42['default'])();
             model = new _ServerConfigModel2['default'](conf.ConfigId, conf);
         }
@@ -26572,7 +26577,7 @@ var LdapEditor = (function (_React$Component) {
 exports['default'] = LdapEditor;
 module.exports = exports['default'];
 
-},{"./ConnectionPane":174,"./FilterPane":176,"./GeneralPane":177,"./MappingsPane":179,"./MemberOfPane":180,"./ServerConfigModel":181,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react","uuid4":155}],179:[function(require,module,exports){
+},{"./ConnectionPane":174,"./FilterPane":176,"./GeneralPane":177,"./MappingsPane":179,"./MemberOfPane":180,"./ServerConfigModel":181,"material-ui":"material-ui","pydio":"pydio","react":"react","uuid4":155}],179:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26599,8 +26604,6 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var MappingsPane = (function (_React$Component) {
     _inherits(MappingsPane, _React$Component);
 
@@ -26616,7 +26619,7 @@ var MappingsPane = (function (_React$Component) {
             var config = this.props.config;
 
             var rules = config.MappingRules || [];
-            config.MappingRules = [].concat(_toConsumableArray(rules), [new _pydioHttpRestApi.AuthLdapMapping()]);
+            config.MappingRules = [].concat(_toConsumableArray(rules), [new EnterpriseSDK.AuthLdapMapping()]);
         }
     }, {
         key: 'removeRule',
@@ -26697,14 +26700,13 @@ var MappingsPane = (function (_React$Component) {
 })(_react2['default'].Component);
 
 MappingsPane.propTypes = {
-    style: _react2['default'].PropTypes.object,
-    config: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.AuthLdapServerConfig)
+    style: _react2['default'].PropTypes.object
 };
 
 exports['default'] = MappingsPane;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],180:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],180:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26729,8 +26731,6 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var _DNs = require('./DNs');
 
 var _DNs2 = _interopRequireDefault(_DNs);
@@ -26749,9 +26749,9 @@ var MemberOfPane = (function (_React$Component) {
         value: function enableMapping() {
             var config = this.props.config;
 
-            var m = new _pydioHttpRestApi.AuthLdapMemberOfMapping();
-            m.Mapping = new _pydioHttpRestApi.AuthLdapMapping();
-            m.GroupFilter = new _pydioHttpRestApi.AuthLdapSearchFilter();
+            var m = new EnterpriseSDK.AuthLdapMemberOfMapping();
+            m.Mapping = new EnterpriseSDK.AuthLdapMapping();
+            m.GroupFilter = new EnterpriseSDK.AuthLdapSearchFilter();
             m.RealMemberOf = true;
             config.MemberOfMapping = m;
         }
@@ -26953,14 +26953,13 @@ var MemberOfPane = (function (_React$Component) {
 })(_react2['default'].Component);
 
 MemberOfPane.propTypes = {
-    style: _react2['default'].PropTypes.object,
-    config: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.AuthLdapServerConfig)
+    style: _react2['default'].PropTypes.object
 };
 
 exports['default'] = MemberOfPane;
 module.exports = exports['default'];
 
-},{"./DNs":175,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],181:[function(require,module,exports){
+},{"./DNs":175,"material-ui":"material-ui","react":"react"}],181:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26984,8 +26983,6 @@ var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
 var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var ServerConfigModel = (function (_Observable) {
     _inherits(ServerConfigModel, _Observable);
@@ -27013,7 +27010,7 @@ var ServerConfigModel = (function (_Observable) {
                     } else if (out instanceof Object) {
                         return _this.buildProxy(out);
                     } else if (p === 'User') {
-                        var filter = new _pydioHttpRestApi.AuthLdapSearchFilter();
+                        var filter = new EnterpriseSDK.AuthLdapSearchFilter();
                         target[p] = _this.buildProxy(filter);
                         return target[p];
                     } else {
@@ -27053,12 +27050,12 @@ var ServerConfigModel = (function (_Observable) {
     }, {
         key: 'snapshot',
         value: function snapshot() {
-            return _pydioHttpRestApi.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(this.config)));
+            return EnterpriseSDK.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(this.config)));
         }
     }, {
         key: 'revertTo',
         value: function revertTo(snapshot) {
-            this.config = _pydioHttpRestApi.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(snapshot)));
+            this.config = EnterpriseSDK.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(snapshot)));
             this.observableConfig = this.buildProxy(this.config);
             return this.observableConfig;
         }
@@ -27069,8 +27066,8 @@ var ServerConfigModel = (function (_Observable) {
     }, {
         key: 'save',
         value: function save() {
-            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.RestExternalDirectoryConfig();
+            var api = new EnterpriseSDK.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var request = new EnterpriseSDK.RestExternalDirectoryConfig();
             request.ConfigId = this.configId;
             request.Config = this.config;
             return api.putExternalDirectory(this.configId, request);
@@ -27082,7 +27079,7 @@ var ServerConfigModel = (function (_Observable) {
     }], [{
         key: 'loadDirectories',
         value: function loadDirectories() {
-            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new EnterpriseSDK.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.listExternalDirectories();
         }
 
@@ -27093,7 +27090,7 @@ var ServerConfigModel = (function (_Observable) {
     }, {
         key: 'deleteDirectory',
         value: function deleteDirectory(configId) {
-            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            var api = new EnterpriseSDK.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.deleteExternalDirectory(configId);
         }
     }]);
@@ -27104,7 +27101,7 @@ var ServerConfigModel = (function (_Observable) {
 exports['default'] = ServerConfigModel;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}],182:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/lang/observable":"pydio/lang/observable"}],182:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

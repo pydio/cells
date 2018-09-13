@@ -1878,7 +1878,6 @@ window.AdminPlugins = {
 };
 
 },{"./auth/AuthenticationPluginsDashboard":2,"./core/CoreAndPluginsDashboard":3,"./core/Manager":5,"./core/PluginEditor":6,"./core/PluginsList":7,"./core/ServiceEditor":8,"./docs/JSDocsDashboard":10,"./docs/OpenApiDashboard":11,"./editors/EditorsDashboard":12,"./license/LicenseBoard":14,"./updater/UpdaterDashboard":15}],14:[function(require,module,exports){
-(function (global){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1911,7 +1910,9 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
@@ -1930,23 +1931,17 @@ var AboutPanel = (function (_React$Component) {
     _createClass(AboutPanel, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            if (this.state.content) return;
-            global.PydioApi.getClient().request({
-                get_action: 'display_doc',
-                doc_file: 'CREDITS-ONLY'
-            }, (function (t) {
-                this.setState({ content: t.responseText });
-            }).bind(this));
+            if (this.state.content) {
+                return;
+            }
+            // TODO : LOAD COPYRIGHT
         }
     }, {
         key: 'render',
         value: function render() {
 
             var setContent = (function () {
-                var c = 'Loading...';
-                if (this.state.content) {
-                    c = '<u>Pydio Enterprise Distribution</u> is covered by an <a href="plug/boot.enterprise/EULA.txt" target="_blank">End-User License Agreement</a> that you have agreed when installing the software.<br/>' + this.state.content;
-                }
+                var c = '<u>Pydio Enterprise Distribution</u> is covered by an <a href="plug/boot.enterprise/EULA.txt" target="_blank">End-User License Agreement</a> that you have agreed when installing the software.<br/>' + this.state.content;
                 return { __html: c };
             }).bind(this);
 
@@ -1982,9 +1977,11 @@ var Dashboard = (function (_React$Component2) {
             var _this = this;
 
             // Load and trigger callback
-            var api = new _pydioHttpRestApi.LicenseServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.licenseStats(false).then(function (res) {
-                _this.setState({ certLicense: res });
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var api = new sdk.LicenseServiceApi(_pydioHttpApi2['default'].getRestClient());
+                api.licenseStats(false).then(function (res) {
+                    _this.setState({ certLicense: res });
+                });
             });
         }
     }, {
@@ -2148,8 +2145,7 @@ var Dashboard = (function (_React$Component2) {
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react","react-chartjs":"react-chartjs"}],15:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","react":"react","react-chartjs":"react-chartjs"}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

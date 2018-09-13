@@ -22,8 +22,6 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var _DNs = require('./DNs');
 
 var _DNs2 = _interopRequireDefault(_DNs);
@@ -42,9 +40,9 @@ var MemberOfPane = (function (_React$Component) {
         value: function enableMapping() {
             var config = this.props.config;
 
-            var m = new _pydioHttpRestApi.AuthLdapMemberOfMapping();
-            m.Mapping = new _pydioHttpRestApi.AuthLdapMapping();
-            m.GroupFilter = new _pydioHttpRestApi.AuthLdapSearchFilter();
+            var m = new EnterpriseSDK.AuthLdapMemberOfMapping();
+            m.Mapping = new EnterpriseSDK.AuthLdapMapping();
+            m.GroupFilter = new EnterpriseSDK.AuthLdapSearchFilter();
             m.RealMemberOf = true;
             config.MemberOfMapping = m;
         }
@@ -246,8 +244,7 @@ var MemberOfPane = (function (_React$Component) {
 })(_react2['default'].Component);
 
 MemberOfPane.propTypes = {
-    style: _react2['default'].PropTypes.object,
-    config: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.AuthLdapServerConfig)
+    style: _react2['default'].PropTypes.object
 };
 
 exports['default'] = MemberOfPane;

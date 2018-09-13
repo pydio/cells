@@ -1,6 +1,5 @@
 import React from 'react'
 import {Paper, TextField, SelectField, MenuItem, Toggle, IconButton} from 'material-ui'
-import {AuthLdapServerConfig} from 'pydio/http/rest-api'
 
 class ConnectionPane extends React.Component{
 
@@ -90,7 +89,6 @@ class ConnectionPane extends React.Component{
 
 ConnectionPane.propTypes = {
     style: React.PropTypes.object,
-    config: React.PropTypes.instanceOf(AuthLdapServerConfig)
 };
 
 export {ConnectionPane as default}

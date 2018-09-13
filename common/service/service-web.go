@@ -43,7 +43,6 @@ import (
 
 var (
 	swaggerJsonStrings = []string{rest.SwaggerJson}
-	serviceWebJSONSpec *loads.Document
 )
 
 func RegisterSwaggerJson(json string) {
@@ -238,10 +237,6 @@ func containsTags(operation *spec.Operation, filtersTags []string) (found bool) 
 
 func SwaggerSpec() *loads.Document {
 
-	if serviceWebJSONSpec != nil {
-		return serviceWebJSONSpec
-	}
-
 	var sp *loads.Document
 	for _, data := range swaggerJsonStrings {
 		// Reading swagger json
@@ -254,7 +249,32 @@ func SwaggerSpec() *loads.Document {
 				sp = j
 			} else { // other passes : merge all Paths
 				for p, i := range j.Spec().Paths.Paths {
-					sp.Spec().Paths.Paths[p] = i
+					if existing, ok := sp.Spec().Paths.Paths[p]; ok {
+						if i.Get != nil {
+							existing.Get = i.Get
+						}
+						if i.Put != nil {
+							existing.Put = i.Put
+						}
+						if i.Post != nil {
+							existing.Post = i.Post
+						}
+						if i.Options != nil {
+							existing.Options = i.Options
+						}
+						if i.Delete != nil {
+							existing.Delete = i.Delete
+						}
+						if i.Head != nil {
+							existing.Head = i.Head
+						}
+						sp.Spec().Paths.Paths[p] = existing
+					} else {
+						sp.Spec().Paths.Paths[p] = i
+					}
+				}
+				for name, schema := range j.Spec().Definitions {
+					sp.Spec().Definitions[name] = schema
 				}
 			}
 		}
@@ -263,6 +283,5 @@ func SwaggerSpec() *loads.Document {
 	if sp == nil {
 		log.Logger(nil).Fatal("Could not find any valid json spec for swagger")
 	}
-	serviceWebJSONSpec = sp
-	return serviceWebJSONSpec
+	return sp
 }

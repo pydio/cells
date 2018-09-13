@@ -18,7 +18,8 @@
 }
  */
 import PydioApi from 'pydio/http/api'
-import {LogTimeRangeRequest, EnterpriseLogServiceApi} from 'pydio/http/rest-api'
+import ResourcesManager from 'pydio/http/resources-manager'
+import {LogTimeRangeRequest} from 'pydio/http/rest-api'
 
 class GraphModel {
 
@@ -92,19 +93,19 @@ class GraphModel {
             const stubLinks = GraphModel.stubLinks(frequency, refTime);
             return Promise.resolve(this.parseData(data, stubLinks));
         } else {
-            const api = new EnterpriseLogServiceApi(PydioApi.getRestClient());
-            let request = new LogTimeRangeRequest();
-            request.MsgId = GraphModel.queryNameToMsgId(queryName);
-            let refUnix;
-            if(!refTime){
-                refUnix = Math.floor(Date.now() / 1000);
-            } else {
-                refUnix = refTime;
-            }
-            request.RefTime = refUnix;
-            request.TimeRangeType = frequency;
-            return new Promise((resolve, reject) => {
-                api.auditChartData(request).then(result => {
+            return ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+                const api = new sdk.EnterpriseLogServiceApi(PydioApi.getRestClient());
+                let request = new sdk.LogTimeRangeRequest();
+                request.MsgId = GraphModel.queryNameToMsgId(queryName);
+                let refUnix;
+                if (refTime) {
+                    refUnix = refTime;
+                } else {
+                    refUnix = Math.floor(Date.now() / 1000);
+                }
+                request.RefTime = refUnix;
+                request.TimeRangeType = frequency;
+                return api.auditChartData(request).then(result => {
                     let labels = [], points = [], links = [];
                     if(result.Results){
                         result.Results.map((res) => {
@@ -117,10 +118,8 @@ class GraphModel {
                             links.push(link);
                         })
                     }
-                    resolve({labels, points, links});
-                }).catch(reason => {
-                    reject(reason);
-                });
+                    return{labels, points, links};
+                })
             });
         }
     }

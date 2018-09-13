@@ -352,8 +352,20 @@ class ResourcesManager{
         }).catch((reason) => {
             console.error('Failed Loading ' + classNames.join(', ') + ' : ', reason);
         });
-        return;
+    }
 
+    /**
+     * Load class and return as a promise
+     * @param className
+     * @return {*|Promise|PromiseLike<T>|Promise<T>}
+     */
+    static loadClass(className) {
+        if(!ResourcesManager.__configsParsed){
+            ResourcesManager.loadAutoLoadResources();
+        }
+        return SystemJS.import(className).catch(e => {
+            console.error('Failed loading class ' + className, e);
+        });
     }
 
     static detectModuleToLoadAndApply(callbackString, callbackFunc, async = true){
@@ -366,7 +378,6 @@ class ResourcesManager{
         }else{
             ResourcesManager.loadScriptSync(className, callbackFunc);
         }
-        return;
     }
 
     static async loadScriptSync(name, callback){

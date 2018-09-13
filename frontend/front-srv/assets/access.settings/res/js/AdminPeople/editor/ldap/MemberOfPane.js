@@ -1,15 +1,14 @@
 import React from 'react'
 import {Divider, TextField, FlatButton, IconButton, Toggle} from 'material-ui'
-import {AuthLdapServerConfig, AuthLdapMapping, AuthLdapMemberOfMapping, AuthLdapSearchFilter} from 'pydio/http/rest-api'
 import DNs from './DNs'
 
 class MemberOfPane extends React.Component{
 
     enableMapping(){
         const {config} = this.props;
-        const m = new AuthLdapMemberOfMapping();
-        m.Mapping = new AuthLdapMapping();
-        m.GroupFilter = new AuthLdapSearchFilter();
+        const m = new EnterpriseSDK.AuthLdapMemberOfMapping();
+        m.Mapping = new EnterpriseSDK.AuthLdapMapping();
+        m.GroupFilter = new EnterpriseSDK.AuthLdapSearchFilter();
         m.RealMemberOf = true;
         config.MemberOfMapping = m;
     }
@@ -132,8 +131,7 @@ class MemberOfPane extends React.Component{
 }
 
 MemberOfPane.propTypes = {
-    style: React.PropTypes.object,
-    config: React.PropTypes.instanceOf(AuthLdapServerConfig)
+    style: React.PropTypes.object
 };
 
 export {MemberOfPane as default}

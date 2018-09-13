@@ -1,7 +1,5 @@
 import Observable from "pydio/lang/observable"
 import PydioApi from 'pydio/http/api'
-import {EnterpriseConfigServiceApi, RestExternalDirectoryConfig, AuthLdapServerConfig,
-    AuthLdapSearchFilter, AuthLdapMapping} from 'pydio/http/rest-api'
 
 class ServerConfigModel extends Observable {
 
@@ -22,7 +20,7 @@ class ServerConfigModel extends Observable {
                 } else if (out instanceof Object) {
                     return this.buildProxy(out);
                 } else if (p === 'User'){
-                    const filter = new AuthLdapSearchFilter();
+                    const filter = new EnterpriseSDK.AuthLdapSearchFilter();
                     target[p] = this.buildProxy(filter);
                     return target[p];
                 } else {
@@ -54,11 +52,11 @@ class ServerConfigModel extends Observable {
     }
 
     snapshot(){
-        return AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(this.config)));
+        return EnterpriseSDK.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(this.config)));
     }
 
     revertTo(snapshot){
-        this.config = AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(snapshot)));
+        this.config = EnterpriseSDK.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(snapshot)));
         this.observableConfig = this.buildProxy(this.config);
         return this.observableConfig;
     }
@@ -67,8 +65,8 @@ class ServerConfigModel extends Observable {
      * @return {Promise}
      */
     save(){
-        const api = new EnterpriseConfigServiceApi(PydioApi.getRestClient());
-        const request = new RestExternalDirectoryConfig();
+        const api = new EnterpriseSDK.EnterpriseConfigServiceApi(PydioApi.getRestClient());
+        const request = new EnterpriseSDK.RestExternalDirectoryConfig();
         request.ConfigId = this.configId;
         request.Config = this.config;
         return api.putExternalDirectory(this.configId, request)
@@ -78,7 +76,7 @@ class ServerConfigModel extends Observable {
      * @return {Promise}
      */
     static loadDirectories() {
-        const api = new EnterpriseConfigServiceApi(PydioApi.getRestClient());
+        const api = new EnterpriseSDK.EnterpriseConfigServiceApi(PydioApi.getRestClient());
         return api.listExternalDirectories();
     }
 
@@ -87,7 +85,7 @@ class ServerConfigModel extends Observable {
      * @return {Promise}
      */
     static deleteDirectory(configId){
-        const api = new EnterpriseConfigServiceApi(PydioApi.getRestClient());
+        const api = new EnterpriseSDK.EnterpriseConfigServiceApi(PydioApi.getRestClient());
         return api.deleteExternalDirectory(configId);
     }
 

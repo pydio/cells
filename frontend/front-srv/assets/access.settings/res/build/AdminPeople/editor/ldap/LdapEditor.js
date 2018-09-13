@@ -44,8 +44,6 @@ var _pydio2 = _interopRequireDefault(_pydio);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var _ServerConfigModel = require('./ServerConfigModel');
 
 var _ServerConfigModel2 = _interopRequireDefault(_ServerConfigModel);
@@ -97,7 +95,7 @@ var LdapEditor = (function (_React$Component) {
             model = new _ServerConfigModel2['default'](config.ConfigId, config);
             create = false;
         } else {
-            var conf = new _pydioHttpRestApi.AuthLdapServerConfig();
+            var conf = new EnterpriseSDK.AuthLdapServerConfig();
             conf.ConfigId = (0, _uuid42['default'])();
             model = new _ServerConfigModel2['default'](conf.ConfigId, conf);
         }

@@ -22,8 +22,6 @@ var _react2 = _interopRequireDefault(_react);
 
 var _materialUi = require('material-ui');
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
-
 var ConnectionPane = (function (_React$Component) {
     _inherits(ConnectionPane, _React$Component);
 
@@ -166,8 +164,7 @@ var ConnectionPane = (function (_React$Component) {
 })(_react2['default'].Component);
 
 ConnectionPane.propTypes = {
-    style: _react2['default'].PropTypes.object,
-    config: _react2['default'].PropTypes.instanceOf(_pydioHttpRestApi.AuthLdapServerConfig)
+    style: _react2['default'].PropTypes.object
 };
 
 exports['default'] = ConnectionPane;

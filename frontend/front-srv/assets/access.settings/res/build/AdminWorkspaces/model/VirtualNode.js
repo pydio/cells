@@ -46,6 +46,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var VirtualNode = (function (_Observable) {
@@ -112,18 +116,25 @@ var VirtualNode = (function (_Observable) {
     }, {
         key: 'save',
         value: function save(callback) {
-            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.putVirtualNode(this.data.Uuid, this.data).then(function () {
-                callback();
+            var _this = this;
+
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                api.putVirtualNode(_this.data.Uuid, _this.data).then(function () {
+                    callback();
+                });
             });
         }
     }, {
         key: 'remove',
         value: function remove(callback) {
+            var _this2 = this;
 
-            var api = new _pydioHttpRestApi.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            api.deleteVirtualNode(this.data.Uuid).then(function () {
-                callback();
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+                api.deleteVirtualNode(_this2.data.Uuid).then(function () {
+                    callback();
+                });
             });
         }
     }]);

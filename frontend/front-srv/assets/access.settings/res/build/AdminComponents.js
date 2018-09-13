@@ -18759,6 +18759,10 @@ var _utilReloadWrapper = require('../util/ReloadWrapper');
 
 var _utilReloadWrapper2 = _interopRequireDefault(_utilReloadWrapper);
 
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var asGridItem = _Pydio$requireLib.asGridItem;
@@ -18782,16 +18786,18 @@ var RecentLogs = (function (_Component) {
         value: function loadLogs() {
             var _this = this;
 
-            var api = new _pydioHttpRestApi.EnterpriseLogServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new _pydioHttpRestApi.LogListLogRequest();
-            request.Query = '';
-            request.Page = 0;
-            request.Size = 20;
-            request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
-            api.audit(request).then(function (result) {
-                if (result.Logs) {
-                    _this.setState({ logs: result.Logs });
-                }
+            _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                var api = new sdk.EnterpriseLogServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var request = new _pydioHttpRestApi.LogListLogRequest();
+                request.Query = '';
+                request.Page = 0;
+                request.Size = 20;
+                request.Format = _pydioHttpRestApi.ListLogRequestLogFormat.constructFromObject('JSON');
+                api.audit(request).then(function (result) {
+                    if (result.Logs) {
+                        _this.setState({ logs: result.Logs });
+                    }
+                });
             });
         }
     }, {
@@ -18884,7 +18890,7 @@ exports['default'] = RecentLogs;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/ReloadWrapper":46,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],33:[function(require,module,exports){
+},{"../util/ReloadWrapper":46,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],33:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19369,6 +19375,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var GraphModel = (function () {
@@ -19446,44 +19456,36 @@ var GraphModel = (function () {
                 var stubLinks = GraphModel.stubLinks(frequency, refTime);
                 return Promise.resolve(this.parseData(data, stubLinks));
             } else {
-                var _ret = (function () {
-                    var api = new _pydioHttpRestApi.EnterpriseLogServiceApi(_pydioHttpApi2['default'].getRestClient());
-                    var request = new _pydioHttpRestApi.LogTimeRangeRequest();
+                return _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
+                    var api = new sdk.EnterpriseLogServiceApi(_pydioHttpApi2['default'].getRestClient());
+                    var request = new sdk.LogTimeRangeRequest();
                     request.MsgId = GraphModel.queryNameToMsgId(queryName);
                     var refUnix = undefined;
-                    if (!refTime) {
-                        refUnix = Math.floor(Date.now() / 1000);
-                    } else {
+                    if (refTime) {
                         refUnix = refTime;
+                    } else {
+                        refUnix = Math.floor(Date.now() / 1000);
                     }
                     request.RefTime = refUnix;
                     request.TimeRangeType = frequency;
-                    return {
-                        v: new Promise(function (resolve, reject) {
-                            api.auditChartData(request).then(function (result) {
-                                var labels = [],
-                                    points = [],
-                                    links = [];
-                                if (result.Results) {
-                                    result.Results.map(function (res) {
-                                        labels.push(res.Name);
-                                        points.push(res.Count || 0);
-                                    });
-                                }
-                                if (result.Links) {
-                                    result.Links.map(function (link) {
-                                        links.push(link);
-                                    });
-                                }
-                                resolve({ labels: labels, points: points, links: links });
-                            })['catch'](function (reason) {
-                                reject(reason);
+                    return api.auditChartData(request).then(function (result) {
+                        var labels = [],
+                            points = [],
+                            links = [];
+                        if (result.Results) {
+                            result.Results.map(function (res) {
+                                labels.push(res.Name);
+                                points.push(res.Count || 0);
                             });
-                        })
-                    };
-                })();
-
-                if (typeof _ret === 'object') return _ret.v;
+                        }
+                        if (result.Links) {
+                            result.Links.map(function (link) {
+                                links.push(link);
+                            });
+                        }
+                        return { labels: labels, points: points, links: links };
+                    });
+                });
             }
         }
 
@@ -19513,7 +19515,7 @@ var GraphModel = (function () {
 exports['default'] = GraphModel;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],37:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {

@@ -1,7 +1,7 @@
-
-const React = require('react');
+import React from "react";
+import ResourcesManager from 'pydio/http/resources-manager'
 import {FlatButton, RaisedButton, Paper} from 'material-ui'
-import {EnterpriseConfigServiceApi, TreeVersioningPolicy,TreeVersioningKeepPeriod} from 'pydio/http/rest-api'
+import {TreeVersioningPolicy,TreeVersioningKeepPeriod} from 'pydio/http/rest-api'
 import PydioApi from 'pydio/http/api'
 import XMLUtils from 'pydio/util/xml'
 import Pydio from 'pydio'
@@ -88,9 +88,11 @@ class VersionPolicyEditor extends React.Component{
 
     deleteSource(){
         if(confirm('Are you sure you want to delete this policy? This is undoable!')){
-            const api = new EnterpriseConfigServiceApi(PydioApi.getRestClient());
-            api.deleteVersioningPolicy(this.state.policy.Uuid).then((r) =>{
-                this.props.closeEditor();
+            ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+                const api = new sdk.EnterpriseConfigServiceApi(PydioApi.getRestClient());
+                api.deleteVersioningPolicy(this.state.policy.Uuid).then((r) =>{
+                    this.props.closeEditor();
+                });
             });
         }
     }
@@ -98,14 +100,16 @@ class VersionPolicyEditor extends React.Component{
     saveSource(){
         if(this.state.saveValue){
             const {saveValue} = this.state;
-            const api = new EnterpriseConfigServiceApi(PydioApi.getRestClient());
-            api.putVersioningPolicy(saveValue.Uuid, saveValue).then(() => {
-                this.props.reloadList();
-                this.setState({
-                    dirty: false,
-                    policy: saveValue,
-                    saveValue: null
-                })
+            ResourcesManager.loadClass('EnterpriseSDK').then(sdk => {
+                const api = new sdk.EnterpriseConfigServiceApi(PydioApi.getRestClient());
+                api.putVersioningPolicy(saveValue.Uuid, saveValue).then(() => {
+                    this.props.reloadList();
+                    this.setState({
+                        dirty: false,
+                        policy: saveValue,
+                        saveValue: null
+                    })
+                });
             });
         }
     }
