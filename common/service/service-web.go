@@ -42,21 +42,17 @@ import (
 )
 
 var (
+	swaggerJsonStrings = []string{rest.SwaggerJson}
 	serviceWebJSONSpec *loads.Document
 )
 
+func RegisterSwaggerJson(json string) {
+	swaggerJsonStrings = append(swaggerJsonStrings, json)
+}
+
 func init() {
-	// Reading swagger json
-	rawMessage := new(json.RawMessage)
-	json.Unmarshal([]byte(rest.SwaggerJson), rawMessage)
 
-	if j, err := loads.Analyzed(*rawMessage, ""); err != nil {
-		log.Logger(nil).Fatal("Could not instanciate json")
-	} else {
-		serviceWebJSONSpec = j
-	}
-
-	// Instanciate RESTful
+	// Instanciate restful framework
 	restful.RegisterEntityAccessor("application/json", new(ProtoEntityReaderWriter))
 }
 
@@ -110,7 +106,7 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 
 			f := reflect.ValueOf(h)
 
-			for path, pathItem := range serviceWebJSONSpec.Spec().Paths.Paths {
+			for path, pathItem := range SwaggerSpec().Spec().Paths.Paths {
 				if pathItem.Get != nil {
 					shortPath, method := operationToRoute(rootPath, swaggerTags, path, pathItem.Get, filter, f)
 					if shortPath != "" {
@@ -238,4 +234,35 @@ func containsTags(operation *spec.Operation, filtersTags []string) (found bool) 
 		}
 	}
 	return
+}
+
+func SwaggerSpec() *loads.Document {
+
+	if serviceWebJSONSpec != nil {
+		return serviceWebJSONSpec
+	}
+
+	var sp *loads.Document
+	for _, data := range swaggerJsonStrings {
+		// Reading swagger json
+		rawMessage := new(json.RawMessage)
+		json.Unmarshal([]byte(data), rawMessage)
+		if j, err := loads.Analyzed(*rawMessage, ""); err != nil {
+			continue
+		} else {
+			if sp == nil { // First pass
+				sp = j
+			} else { // other passes : merge all Paths
+				for p, i := range j.Spec().Paths.Paths {
+					sp.Spec().Paths.Paths[p] = i
+				}
+			}
+		}
+	}
+
+	if sp == nil {
+		log.Logger(nil).Fatal("Could not find any valid json spec for swagger")
+	}
+	serviceWebJSONSpec = sp
+	return serviceWebJSONSpec
 }
