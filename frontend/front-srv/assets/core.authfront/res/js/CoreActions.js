@@ -52,7 +52,9 @@ let LoginDialogMixin = {
             }
             this.dismiss();
         }).catch(e => {
-            if (e.response && e.response.text) {
+            if (e.response && e.response.body) {
+                this.setState({errorId: e.response.body.Title});
+            } else if (e.response && e.response.text) {
                 this.setState({errorId: e.response.text});
             } else if(e.message){
                 this.setState({errorId: e.message});

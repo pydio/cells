@@ -77,7 +77,9 @@ var LoginDialogMixin = {
             }
             _this.dismiss();
         })['catch'](function (e) {
-            if (e.response && e.response.text) {
+            if (e.response && e.response.body) {
+                _this.setState({ errorId: e.response.body.Title });
+            } else if (e.response && e.response.text) {
                 _this.setState({ errorId: e.response.text });
             } else if (e.message) {
                 _this.setState({ errorId: e.message });
