@@ -19,28 +19,26 @@
  */
 
 import Pydio from 'pydio'
-import { Toolbar, ToolbarGroup, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton } from 'material-ui';
+import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton } from 'material-ui';
 import { connect } from 'react-redux';
 import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
 
-const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu, withSizeControls } = Pydio.requireLib('hoc');
+const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
 
 const styles = {
     iconButton: {
         backgroundColor: "rgb(0, 0, 0, 0.87)",
         color: "rgb(255, 255,255, 0.87)"
+    },
+    divider: {
+        backgroundColor: "rgb(255, 255,255, 0.87)",
+        marginLeft: "12px",
+        marginRight: "12px",
+        alignSelf: "center"
     }
 }
-
-@panAndZoomHoc
-class Test extends React.Component {
-    render() {
-        return <div>HERE</div>
-    }
-}
-
 
 @connect(mapStateToProps, EditorActions)
 export default class Tab extends React.Component {
@@ -71,7 +69,7 @@ export default class Tab extends React.Component {
     }
 
     renderControls(Controls, Actions) {
-        const {node, editorData} = this.props
+        const {id, node, editorData} = this.props
         const {SelectionControls, ResolutionControls, SizeControls, ContentControls, ContentSearchControls, LocalisationControls} = Controls
 
         let actions = {
@@ -103,7 +101,7 @@ export default class Tab extends React.Component {
         // {ResolutionControls && <ToolbarGroup>{controls(ResolutionControls)}</ToolbarGroup>}
         // {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
         return (
-            <SnackBar style={Tab.styles.toolbar}>
+            <SnackBar id={id} style={Tab.styles.toolbar}>
                 {SizeControls && <ToolbarGroup>{controls(SizeControls)}</ToolbarGroup>}
                 {ContentControls && <ToolbarGroup>{controls(ContentControls)}</ToolbarGroup>}
                 {ContentSearchControls && <ToolbarGroup>{controls(ContentSearchControls)}</ToolbarGroup>}
@@ -127,14 +125,16 @@ export default class Tab extends React.Component {
         ) : (
             <AnimatedCard style={style} containerStyle={Tab.styles.container} maximised={true} expanded={isActive} onExpandChange={!isActive ? select : null}>
                 <Editor pydio={pydio} node={node} editorData={editorData} />
-                <Test />
                 {Controls && this.renderControls(Controls, Actions)}
             </AnimatedCard>
         )
     }
 }
 
+@withAutoPlayControls()
 @withSizeControls
+@withResolutionControls()
+@connect(mapStateToProps)
 class SnackBar extends React.Component {
     constructor(props) {
         super(props)
@@ -160,9 +160,22 @@ class SnackBar extends React.Component {
 
     render() {
         const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false} = this.state
-        const {size, scale, onSizeChange, ...remaining} = this.props
+        const {size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
+
         return (
             <Toolbar {...remaining}>
+                {onAutoPlayToggle && (
+                    <ToolbarGroup>
+                        <IconButton
+                            iconClassName={"mdi " + (!playing ? "mdi-play" : "mdi-pause")}
+                            iconStyle={styles.iconButton}
+                            onClick={() => onAutoPlayToggle()}
+                        />
+                    </ToolbarGroup>
+                )}
+                {onAutoPlayToggle && onSizeChange && (
+                    <ToolbarSeparator style={styles.divider} />
+                )}
                 {onSizeChange && (
                     <ToolbarGroup>
                         <IconButton
@@ -193,6 +206,18 @@ class SnackBar extends React.Component {
                         />
                     </ToolbarGroup>
                 )}
+                {(onAutoPlayToggle || onSizeChange) && onResolutionToggle && (
+                    <ToolbarSeparator style={styles.divider} />
+                )}
+                {onResolutionToggle && (
+                    <ToolbarGroup>
+                        <IconButton
+                            iconClassName={"mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image")}
+                            iconStyle={styles.iconButton}
+                            onClick={() => onResolutionToggle()}
+                        />
+                    </ToolbarGroup>
+                )}
             </Toolbar>
         )
     }
@@ -201,7 +226,7 @@ class SnackBar extends React.Component {
 function mapStateToProps(state, ownProps) {
     const { editor, tabs } = state
 
-    let current = tabs.filter(tab => tab.id === ownProps.id)[0]
+    let current = tabs.filter(tab => tab.id === ownProps.id)[0] || {}
 
     return  {
         ...ownProps,

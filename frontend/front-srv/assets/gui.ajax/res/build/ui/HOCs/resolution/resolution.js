@@ -59,11 +59,17 @@ var withResolution = function withResolution(sizes, highResolution, lowResolutio
 
             WithResolution.prototype.componentDidMount = function componentDidMount() {
                 var _props = this.props;
-                var _props$resolution = _props.resolution;
-                var resolution = _props$resolution === undefined ? "lo" : _props$resolution;
+                var node = _props.node;
+                var tab = _props.tab;
                 var dispatch = _props.dispatch;
 
-                dispatch(_utils.EditorActions.editorModify({ resolution: resolution }));
+                var _ref = tab || {};
+
+                var id = _ref.id;
+                var _ref$resolution = _ref.resolution;
+                var resolution = _ref$resolution === undefined ? "lo" : _ref$resolution;
+
+                dispatch(_utils.EditorActions.tabModify({ id: id, resolution: resolution }));
             };
 
             WithResolution.prototype.onHi = function onHi() {
@@ -92,11 +98,13 @@ var withResolution = function withResolution(sizes, highResolution, lowResolutio
                 var _this = this;
 
                 var _props2 = this.props;
-                var _props2$resolution = _props2.resolution;
-                var resolution = _props2$resolution === undefined ? "lo" : _props2$resolution;
-                var dispatch = _props2.dispatch;
+                var _props2$tab = _props2.tab;
+                var tab = _props2$tab === undefined ? {} : _props2$tab;
 
-                var remainingProps = _objectWithoutProperties(_props2, ['resolution', 'dispatch']);
+                var remainingProps = _objectWithoutProperties(_props2, ['tab']);
+
+                var _tab$resolution = tab.resolution;
+                var resolution = _tab$resolution === undefined ? "lo" : _tab$resolution;
 
                 return _react2['default'].createElement(
                     _.ResolutionURLProvider,

@@ -62,47 +62,34 @@ var SelectionActions = _Pydio$requireLib.SelectionActions;
 var LocalisationActions = _Pydio$requireLib.LocalisationActions;
 var withMenu = _Pydio$requireLib.withMenu;
 var withSizeControls = _Pydio$requireLib.withSizeControls;
+var withAutoPlayControls = _Pydio$requireLib.withAutoPlayControls;
+var withResolutionControls = _Pydio$requireLib.withResolutionControls;
 
 var styles = {
     iconButton: {
         backgroundColor: "rgb(0, 0, 0, 0.87)",
         color: "rgb(255, 255,255, 0.87)"
+    },
+    divider: {
+        backgroundColor: "rgb(255, 255,255, 0.87)",
+        marginLeft: "12px",
+        marginRight: "12px",
+        alignSelf: "center"
     }
 };
 
-var Test = (function (_React$Component) {
-    _inherits(Test, _React$Component);
-
-    function Test() {
-        _classCallCheck(this, _Test);
-
-        _React$Component.apply(this, arguments);
-    }
-
-    Test.prototype.render = function render() {
-        return React.createElement(
-            'div',
-            null,
-            'HERE'
-        );
-    };
-
-    var _Test = Test;
-    Test = _reactPanAndZoomHoc2['default'](Test) || Test;
-    return Test;
-})(React.Component);
-
-var Tab = (function (_React$Component2) {
-    _inherits(Tab, _React$Component2);
+var Tab = (function (_React$Component) {
+    _inherits(Tab, _React$Component);
 
     function Tab() {
         _classCallCheck(this, _Tab);
 
-        _React$Component2.apply(this, arguments);
+        _React$Component.apply(this, arguments);
     }
 
     Tab.prototype.renderControls = function renderControls(Controls, Actions) {
         var _props = this.props;
+        var id = _props.id;
         var node = _props.node;
         var editorData = _props.editorData;
         var SelectionControls = Controls.SelectionControls;
@@ -133,7 +120,7 @@ var Tab = (function (_React$Component2) {
         // {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
         return React.createElement(
             SnackBar,
-            { style: Tab.styles.toolbar },
+            { id: id, style: Tab.styles.toolbar },
             SizeControls && React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
@@ -186,7 +173,6 @@ var Tab = (function (_React$Component2) {
             AnimatedCard,
             { style: style, containerStyle: Tab.styles.container, maximised: true, expanded: isActive, onExpandChange: !isActive ? select : null },
             React.createElement(Editor, { pydio: pydio, node: node, editorData: editorData }),
-            React.createElement(Test, null),
             Controls && this.renderControls(Controls, Actions)
         );
     };
@@ -227,13 +213,13 @@ var Tab = (function (_React$Component2) {
 
 exports['default'] = Tab;
 
-var SnackBar = (function (_React$Component3) {
-    _inherits(SnackBar, _React$Component3);
+var SnackBar = (function (_React$Component2) {
+    _inherits(SnackBar, _React$Component2);
 
     function SnackBar(props) {
         _classCallCheck(this, _SnackBar);
 
-        _React$Component3.call(this, props);
+        _React$Component2.call(this, props);
 
         var size = props.size;
         var scale = props.scale;
@@ -267,13 +253,31 @@ var SnackBar = (function (_React$Component3) {
         var _props3 = this.props;
         var size = _props3.size;
         var scale = _props3.scale;
+        var _props3$playing = _props3.playing;
+        var playing = _props3$playing === undefined ? false : _props3$playing;
+        var _props3$resolution = _props3.resolution;
+        var resolution = _props3$resolution === undefined ? "hi" : _props3$resolution;
+        var onAutoPlayToggle = _props3.onAutoPlayToggle;
         var onSizeChange = _props3.onSizeChange;
+        var onResolutionToggle = _props3.onResolutionToggle;
 
-        var remaining = _objectWithoutProperties(_props3, ['size', 'scale', 'onSizeChange']);
+        var remaining = _objectWithoutProperties(_props3, ['size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle']);
 
         return React.createElement(
             _materialUi.Toolbar,
             remaining,
+            onAutoPlayToggle && React.createElement(
+                _materialUi.ToolbarGroup,
+                null,
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: "mdi " + (!playing ? "mdi-play" : "mdi-pause"),
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onAutoPlayToggle();
+                    }
+                })
+            ),
+            onAutoPlayToggle && onSizeChange && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
             onSizeChange && React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
@@ -309,12 +313,27 @@ var SnackBar = (function (_React$Component3) {
                     },
                     disabled: plusDisabled
                 })
+            ),
+            (onAutoPlayToggle || onSizeChange) && onResolutionToggle && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+            onResolutionToggle && React.createElement(
+                _materialUi.ToolbarGroup,
+                null,
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: "mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image"),
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onResolutionToggle();
+                    }
+                })
             )
         );
     };
 
     var _SnackBar = SnackBar;
+    SnackBar = _reactRedux.connect(mapStateToProps)(SnackBar) || SnackBar;
+    SnackBar = withResolutionControls()(SnackBar) || SnackBar;
     SnackBar = withSizeControls(SnackBar) || SnackBar;
+    SnackBar = withAutoPlayControls()(SnackBar) || SnackBar;
     return SnackBar;
 })(React.Component);
 
@@ -324,7 +343,7 @@ function mapStateToProps(state, ownProps) {
 
     var current = tabs.filter(function (tab) {
         return tab.id === ownProps.id;
-    })[0];
+    })[0] || {};
 
     return _extends({}, ownProps, current, {
         isActive: editor.activeTabId === current.id

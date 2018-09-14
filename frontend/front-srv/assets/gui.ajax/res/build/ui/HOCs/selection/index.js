@@ -27,3 +27,4 @@ exports.SelectionControls = SelectionControls;
 exports.SelectionActions = SelectionActions;
 exports.withSelection = _selection2['default'];
 exports.withSelectionControls = _controls.withSelectionControls;
+exports.withAutoPlayControls = _controls.withAutoPlayControls;

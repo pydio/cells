@@ -106,6 +106,7 @@ var PydioHOCs = _extends({
     withSizeControls: _sizeIndex.withSizeControls,
     withResolution: _resolutionIndex.withResolution,
     withResolutionControls: _resolutionIndex.withResolutionControls,
+    withAutoPlayControls: _selectionIndex.withAutoPlayControls,
     withSelectionControls: _selectionIndex.withSelectionControls,
     withSelection: _selectionIndex.withSelection,
     withVerticalScroll: _scrollbarWithVerticalScroll2['default'],

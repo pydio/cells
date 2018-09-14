@@ -23,14 +23,17 @@ import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
 import { ImageSizeProvider, ContainerSizeProvider } from './providers';
 import { EditorActions, getRatio, getDisplayName, getBoundingRect } from '../utils';
-import { withImageSize, withContainerSize } from './providers'
+import { withImageSize, withContainerSize } from './providers';
+import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 
 export const withResize = (Component) => {
     return (
         @withImageSize
         @withContainerSize
         @connect(mapStateToProps)
+        @panAndZoomHoc
         class extends React.Component {
+            constructor
             static get displayName() {
                 return `WithResize(${getDisplayName(Component)})`
             }
@@ -50,7 +53,7 @@ export const withResize = (Component) => {
             }
 
             componentWillReceiveProps(nextProps) {
-                const {size, containerWidth, width, containerHeight, height} = nextProps
+                const {scale, size, containerWidth, width, containerHeight, height} = nextProps
 
                 if (
                     size !== this.props.size ||
@@ -66,7 +69,6 @@ export const withResize = (Component) => {
             loadSize(props) {
                 const {scale = 1, size = "contain", dispatch, containerWidth, width, containerHeight, height} = props
 
-                console.log("Loading size ", getRatio[size], props)
                 const state = {
                     size,
                     scale: getRatio[size]({

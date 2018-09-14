@@ -23,7 +23,7 @@ import * as controls from './controls'
 import withErrors from './errors'
 import withLoader from './loader'
 import {ContentActions, ContentControls, ContentSearchControls} from './content/index'
-import {SelectionActions, SelectionControls, withSelection, withSelectionControls} from './selection/index'
+import {SelectionActions, SelectionControls, withSelection, withSelectionControls, withAutoPlayControls} from './selection/index'
 import {SizeActions, SizeControls, SizeProviders, withContainerSize, withResize, withSizeControls} from './size/index'
 import {ResolutionActions, ResolutionControls, withResolution, withResolutionControls} from './resolution/index'
 import {LocalisationActions, LocalisationControls} from './localisation/index'
@@ -58,6 +58,7 @@ const PydioHOCs = {
     withSizeControls,
     withResolution,
     withResolutionControls,
+    withAutoPlayControls,
     withSelectionControls,
     withSelection,
     withVerticalScroll,

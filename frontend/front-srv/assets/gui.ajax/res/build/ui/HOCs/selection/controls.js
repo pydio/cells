@@ -92,13 +92,46 @@ var withSelectionControls = function withSelectionControls() {
 };
 
 exports.withSelectionControls = withSelectionControls;
-// const _Prev = (props) => <IconButton onClick={() => handler("onSelectionChange", props)(props.tab.selection.previous())} iconClassName="mdi mdi-arrow-left" disabled={props.tab.selection && !props.tab.selection.hasPrevious()} />
-// const _Play = (props) => <IconButton onClick={() => handler("onTogglePlaying", props)(true)} iconClassName="mdi mdi-play" disabled={props.tab.playing} />
-// const _Pause = (props) => <IconButton onClick={() => handler("onTogglePlaying", props)(false)} iconClassName="mdi mdi-pause" disabled={!props.tab.playing} />
-// const _Next = (props) => <IconButton onClick={() => handler("onSelectionChange", props)(props.tab.selection.next())} iconClassName="mdi mdi-arrow-right" disabled={props.tab.selection && !props.tab.selection.hasNext()} />
+var withAutoPlayControls = function withAutoPlayControls() {
+    return function (Component) {
+        return (function (_React$Component2) {
+            _inherits(_class3, _React$Component2);
 
-// // Final export and connection
-// export const Prev = connect(mapStateToProps)(_Prev)
-// export const Play = connect(mapStateToProps)(_Play)
-// export const Pause = connect(mapStateToProps)(_Pause)
-// export const Next = connect(mapStateToProps)(_Next)
+            function _class3() {
+                _classCallCheck(this, _class32);
+
+                _React$Component2.apply(this, arguments);
+            }
+
+            _class3.prototype.render = function render() {
+                var _props2 = this.props;
+                var tab = _props2.tab;
+
+                var remaining = _objectWithoutProperties(_props2, ['tab']);
+
+                var _tab$playing = tab.playing;
+                var playing = _tab$playing === undefined ? false : _tab$playing;
+
+                var fn = _utils2.handler("onTogglePlaying", this.props);
+
+                return React.createElement(Component, _extends({
+                    onAutoPlayToggle: function () {
+                        return fn(!playing);
+                    }
+                }, remaining));
+            };
+
+            _createClass(_class3, null, [{
+                key: 'displayName',
+                get: function get() {
+                    return 'WithSelectionControls(' + _utils2.getDisplayName(Component) + ')';
+                }
+            }]);
+
+            var _class32 = _class3;
+            _class3 = _reactRedux.connect(_utils.mapStateToProps)(_class3) || _class3;
+            return _class3;
+        })(React.Component);
+    };
+};
+exports.withAutoPlayControls = withAutoPlayControls;

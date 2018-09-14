@@ -24,7 +24,6 @@ const {ToolbarGroup, IconButton} = require('material-ui');
 const { withResolutionControls } = Pydio.requireLib('hoc');
 
 // Display components
-@withResolutionControls()
 class EditorToolbar extends React.Component {
 
     render() {

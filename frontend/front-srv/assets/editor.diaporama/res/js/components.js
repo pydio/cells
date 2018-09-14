@@ -72,10 +72,10 @@ export class ImageContainer extends Component {
     }
 
     render() {
-        const {src, style, width, height, imgStyle, imgClassName, scale = 1} = this.props
+        const {src, style, width, height, imgStyle, imgClassName, scale = 1, ...remaining} = this.props
 
         return (
-            <div style={{...ImageContainer.styles, ...style}}>
+            <div style={{...ImageContainer.styles, ...style}} {...remaining}>
                 <Image
                     src={src}
                     className={imgClassName}

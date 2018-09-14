@@ -59,13 +59,29 @@ export const withSelectionControls = () => {
     }
 }
 
-// const _Prev = (props) => <IconButton onClick={() => handler("onSelectionChange", props)(props.tab.selection.previous())} iconClassName="mdi mdi-arrow-left" disabled={props.tab.selection && !props.tab.selection.hasPrevious()} />
-// const _Play = (props) => <IconButton onClick={() => handler("onTogglePlaying", props)(true)} iconClassName="mdi mdi-play" disabled={props.tab.playing} />
-// const _Pause = (props) => <IconButton onClick={() => handler("onTogglePlaying", props)(false)} iconClassName="mdi mdi-pause" disabled={!props.tab.playing} />
-// const _Next = (props) => <IconButton onClick={() => handler("onSelectionChange", props)(props.tab.selection.next())} iconClassName="mdi mdi-arrow-right" disabled={props.tab.selection && !props.tab.selection.hasNext()} />
+export const withAutoPlayControls = () => {
+    return (Component) => {
+        return (
+            @connect(mapStateToProps)
+            class extends React.Component {
+                static get displayName() {
+                    return `WithSelectionControls(${getDisplayName(Component)})`
+                }
 
-// // Final export and connection
-// export const Prev = connect(mapStateToProps)(_Prev)
-// export const Play = connect(mapStateToProps)(_Play)
-// export const Pause = connect(mapStateToProps)(_Pause)
-// export const Next = connect(mapStateToProps)(_Next)
+                render() {
+                    const {tab, ...remaining} = this.props;
+                    const {playing = false} = tab;
+
+                    const fn = handler("onTogglePlaying", this.props)
+
+                    return (
+                        <Component
+                            onAutoPlayToggle={() => fn(!playing)}
+                            {...remaining}
+                        />
+                    )
+                }
+            }
+        )
+    }
+}

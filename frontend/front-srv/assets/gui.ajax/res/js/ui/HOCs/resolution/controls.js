@@ -26,14 +26,23 @@ import { withDisabled } from '../controls';
 
 export const withResolutionControls = () => {
     return (Component) => {
-        @connect(mapStateToProps)
-        @withDisabled(() => false)
-        class ResolutionControls extends React.Component {
-            render() {
-                const {resolution, ...remaining} = this.props;
+        return (
+            @connect(mapStateToProps)
+            class ResolutionControls extends React.Component {
+                render() {
+                    const {tab = {}, ...remaining} = this.props;
+                    const {resolution = "hi"} = tab;
 
-                return <IconButton onClick={() => handler("onToggleResolution", props)} iconClassName={`mdi mdi-crop-${resolution === "hi" ? "square" : "free"}`} {...remaining} />
+                    const fn = handler("onToggleResolution", this.props)
+
+                    return (
+                        <Component
+                            onResolutionToggle={() => fn(!(resolution == "hi"))}
+                            {...remaining}
+                        />
+                    )
+                }
             }
-        }
+        )
     }
 }

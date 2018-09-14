@@ -46,6 +46,10 @@ var _providers = require('./providers');
 
 var _utils2 = require('../utils');
 
+var _reactPanAndZoomHoc = require('react-pan-and-zoom-hoc');
+
+var _reactPanAndZoomHoc2 = _interopRequireDefault(_reactPanAndZoomHoc);
+
 var withResize = function withResize(Component) {
     return (function (_React$Component) {
         _inherits(_class, _React$Component);
@@ -61,6 +65,7 @@ var withResize = function withResize(Component) {
         };
 
         _class.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+            var scale = nextProps.scale;
             var size = nextProps.size;
             var containerWidth = nextProps.containerWidth;
             var width = nextProps.width;
@@ -83,7 +88,6 @@ var withResize = function withResize(Component) {
             var containerHeight = props.containerHeight;
             var height = props.height;
 
-            console.log("Loading size ", _utils2.getRatio[size], props);
             var state = {
                 size: size,
                 scale: _utils2.getRatio[size]({
@@ -127,6 +131,7 @@ var withResize = function withResize(Component) {
         }]);
 
         var _class2 = _class;
+        _class = _reactPanAndZoomHoc2['default'](_class) || _class;
         _class = _reactRedux.connect(_utils.mapStateToProps)(_class) || _class;
         _class = _providers.withContainerSize(_class) || _class;
         _class = _providers.withImageSize(_class) || _class;

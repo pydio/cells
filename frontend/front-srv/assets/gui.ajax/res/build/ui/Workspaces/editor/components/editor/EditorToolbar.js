@@ -44,7 +44,7 @@ var EditorToolbar = (function (_React$Component) {
     _inherits(EditorToolbar, _React$Component);
 
     function EditorToolbar() {
-        _classCallCheck(this, _EditorToolbar);
+        _classCallCheck(this, EditorToolbar);
 
         _React$Component.apply(this, arguments);
     }
@@ -80,8 +80,6 @@ var EditorToolbar = (function (_React$Component) {
         });
     };
 
-    var _EditorToolbar = EditorToolbar;
-    EditorToolbar = withResolutionControls()(EditorToolbar) || EditorToolbar;
     return EditorToolbar;
 })(React.Component);
 

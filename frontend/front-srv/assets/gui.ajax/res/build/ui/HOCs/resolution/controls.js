@@ -42,7 +42,7 @@ var _controls = require('../controls');
 
 var withResolutionControls = function withResolutionControls() {
     return function (Component) {
-        var ResolutionControls = (function (_React$Component) {
+        return (function (_React$Component) {
             _inherits(ResolutionControls, _React$Component);
 
             function ResolutionControls() {
@@ -53,19 +53,24 @@ var withResolutionControls = function withResolutionControls() {
 
             ResolutionControls.prototype.render = function render() {
                 var _props = this.props;
-                var resolution = _props.resolution;
+                var _props$tab = _props.tab;
+                var tab = _props$tab === undefined ? {} : _props$tab;
 
-                var remaining = _objectWithoutProperties(_props, ['resolution']);
+                var remaining = _objectWithoutProperties(_props, ['tab']);
 
-                return React.createElement(_materialUi.IconButton, _extends({ onClick: function () {
-                        return _utils2.handler("onToggleResolution", props);
-                    }, iconClassName: 'mdi mdi-crop-' + (resolution === "hi" ? "square" : "free") }, remaining));
+                var _tab$resolution = tab.resolution;
+                var resolution = _tab$resolution === undefined ? "hi" : _tab$resolution;
+
+                var fn = _utils2.handler("onToggleResolution", this.props);
+
+                return React.createElement(Component, _extends({
+                    onResolutionToggle: function () {
+                        return fn(!(resolution == "hi"));
+                    }
+                }, remaining));
             };
 
             var _ResolutionControls = ResolutionControls;
-            ResolutionControls = _controls.withDisabled(function () {
-                return false;
-            })(ResolutionControls) || ResolutionControls;
             ResolutionControls = _reactRedux.connect(_utils.mapStateToProps)(ResolutionControls) || ResolutionControls;
             return ResolutionControls;
         })(React.Component);
