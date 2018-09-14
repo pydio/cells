@@ -417,7 +417,7 @@ func (h *Handler) loadNodeByUuidOrPath(ctx context.Context, nodePath string, nod
 				Path: nodePath,
 			},
 		})
-		log.Logger(ctx).Info("Querying Tree Service by Path: ", zap.String("p", nodePath), zap.Bool("withExtended", loadExtended), zap.Any("resp", response), zap.Error(err))
+		log.Logger(ctx).Debug("Querying Tree Service by Path: ", zap.String("p", nodePath), zap.Bool("withExtended", loadExtended), zap.Any("resp", response), zap.Error(err))
 	}
 
 	if err != nil {
