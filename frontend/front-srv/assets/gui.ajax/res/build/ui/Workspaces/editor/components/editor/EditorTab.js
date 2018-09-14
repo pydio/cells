@@ -28,6 +28,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -39,6 +41,10 @@ var _pydio2 = _interopRequireDefault(_pydio);
 var _materialUi = require('material-ui');
 
 var _reactRedux = require('react-redux');
+
+var _reactPanAndZoomHoc = require('react-pan-and-zoom-hoc');
+
+var _reactPanAndZoomHoc2 = _interopRequireDefault(_reactPanAndZoomHoc);
 
 var _redux = require('redux');
 
@@ -55,14 +61,44 @@ var SizeActions = _Pydio$requireLib.SizeActions;
 var SelectionActions = _Pydio$requireLib.SelectionActions;
 var LocalisationActions = _Pydio$requireLib.LocalisationActions;
 var withMenu = _Pydio$requireLib.withMenu;
+var withSizeControls = _Pydio$requireLib.withSizeControls;
 
-var Tab = (function (_React$Component) {
-    _inherits(Tab, _React$Component);
+var styles = {
+    iconButton: {
+        backgroundColor: "rgb(0, 0, 0, 0.87)",
+        color: "rgb(255, 255,255, 0.87)"
+    }
+};
+
+var Test = (function (_React$Component) {
+    _inherits(Test, _React$Component);
+
+    function Test() {
+        _classCallCheck(this, _Test);
+
+        _React$Component.apply(this, arguments);
+    }
+
+    Test.prototype.render = function render() {
+        return React.createElement(
+            'div',
+            null,
+            'HERE'
+        );
+    };
+
+    var _Test = Test;
+    Test = _reactPanAndZoomHoc2['default'](Test) || Test;
+    return Test;
+})(React.Component);
+
+var Tab = (function (_React$Component2) {
+    _inherits(Tab, _React$Component2);
 
     function Tab() {
         _classCallCheck(this, _Tab);
 
-        _React$Component.apply(this, arguments);
+        _React$Component2.apply(this, arguments);
     }
 
     Tab.prototype.renderControls = function renderControls(Controls, Actions) {
@@ -96,7 +132,7 @@ var Tab = (function (_React$Component) {
         // {ResolutionControls && <ToolbarGroup>{controls(ResolutionControls)}</ToolbarGroup>}
         // {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
         return React.createElement(
-            _materialUi.Toolbar,
+            SnackBar,
             { style: Tab.styles.toolbar },
             SizeControls && React.createElement(
                 _materialUi.ToolbarGroup,
@@ -150,6 +186,7 @@ var Tab = (function (_React$Component) {
             AnimatedCard,
             { style: style, containerStyle: Tab.styles.container, maximised: true, expanded: isActive, onExpandChange: !isActive ? select : null },
             React.createElement(Editor, { pydio: pydio, node: node, editorData: editorData }),
+            React.createElement(Test, null),
             Controls && this.renderControls(Controls, Actions)
         );
     };
@@ -189,6 +226,97 @@ var Tab = (function (_React$Component) {
 })(React.Component);
 
 exports['default'] = Tab;
+
+var SnackBar = (function (_React$Component3) {
+    _inherits(SnackBar, _React$Component3);
+
+    function SnackBar(props) {
+        _classCallCheck(this, _SnackBar);
+
+        _React$Component3.call(this, props);
+
+        var size = props.size;
+        var scale = props.scale;
+
+        this.state = {
+            minusDisabled: scale - 0.5 <= 0,
+            magnifyDisabled: size == "contain",
+            plusDisabled: scale + 0.5 >= 20
+        };
+    }
+
+    SnackBar.prototype.componentWillReceiveProps = function componentWillReceiveProps(props) {
+        var size = props.size;
+        var scale = props.scale;
+
+        this.setState({
+            minusDisabled: scale - 0.5 <= 0,
+            magnifyDisabled: size == "contain",
+            plusDisabled: scale + 0.5 >= 20
+        });
+    };
+
+    SnackBar.prototype.render = function render() {
+        var _state = this.state;
+        var _state$minusDisabled = _state.minusDisabled;
+        var minusDisabled = _state$minusDisabled === undefined ? false : _state$minusDisabled;
+        var _state$magnifyDisabled = _state.magnifyDisabled;
+        var magnifyDisabled = _state$magnifyDisabled === undefined ? false : _state$magnifyDisabled;
+        var _state$plusDisabled = _state.plusDisabled;
+        var plusDisabled = _state$plusDisabled === undefined ? false : _state$plusDisabled;
+        var _props3 = this.props;
+        var size = _props3.size;
+        var scale = _props3.scale;
+        var onSizeChange = _props3.onSizeChange;
+
+        var remaining = _objectWithoutProperties(_props3, ['size', 'scale', 'onSizeChange']);
+
+        return React.createElement(
+            _materialUi.Toolbar,
+            remaining,
+            onSizeChange && React.createElement(
+                _materialUi.ToolbarGroup,
+                null,
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-minus',
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onSizeChange({
+                            size: "auto",
+                            scale: scale - 0.5
+                        });
+                    },
+                    disabled: minusDisabled
+                }),
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-magnify-minus',
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onSizeChange({
+                            size: "contain"
+                        });
+                    },
+                    disabled: magnifyDisabled
+                }),
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-plus',
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onSizeChange({
+                            size: "auto",
+                            scale: scale + 0.5
+                        });
+                    },
+                    disabled: plusDisabled
+                })
+            )
+        );
+    };
+
+    var _SnackBar = SnackBar;
+    SnackBar = withSizeControls(SnackBar) || SnackBar;
+    return SnackBar;
+})(React.Component);
 
 function mapStateToProps(state, ownProps) {
     var editor = state.editor;

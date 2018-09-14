@@ -40,25 +40,6 @@ var _utils = require('./utils');
 
 var _utils2 = require('../utils');
 
-function timeout() {
-    var milliseconds = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
-
-    return function (target, propertyKey, descriptor) {
-        var originalMethod = descriptor.value;
-
-        descriptor.value = function () {
-            var _this = this,
-                _arguments = arguments;
-
-            setTimeout(function () {
-                originalMethod.apply(_this, _arguments);
-            }, milliseconds);
-        };
-
-        return descriptor;
-    };
-}
-
 var withSelectionControls = function withSelectionControls() {
     return function (Component) {
         return (function (_React$Component) {

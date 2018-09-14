@@ -23,3 +23,4 @@ exports.SizeControls = SizeControls;
 exports.SizeActions = SizeActions;
 exports.withResize = _size.withResize;
 exports.withContainerSize = _providers.withContainerSize;
+exports.withSizeControls = _controls.withSizeControls;

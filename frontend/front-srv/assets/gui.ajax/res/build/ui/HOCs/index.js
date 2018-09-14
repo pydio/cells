@@ -103,6 +103,7 @@ var PydioHOCs = _extends({
     withLoader: _loader2['default'],
     withContainerSize: _sizeIndex.withContainerSize,
     withResize: _sizeIndex.withResize,
+    withSizeControls: _sizeIndex.withSizeControls,
     withResolution: _resolutionIndex.withResolution,
     withResolutionControls: _resolutionIndex.withResolutionControls,
     withSelectionControls: _selectionIndex.withSelectionControls,

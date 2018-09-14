@@ -73,7 +73,8 @@ var withResize = function withResize(Component) {
         };
 
         _class.prototype.loadSize = function loadSize(props) {
-            var scale = props.scale;
+            var _props$scale = props.scale;
+            var scale = _props$scale === undefined ? 1 : _props$scale;
             var _props$size = props.size;
             var size = _props$size === undefined ? "contain" : _props$size;
             var dispatch = props.dispatch;
@@ -82,7 +83,7 @@ var withResize = function withResize(Component) {
             var containerHeight = props.containerHeight;
             var height = props.height;
 
-            console.log("Loading size ", props);
+            console.log("Loading size ", _utils2.getRatio[size], props);
             var state = {
                 size: size,
                 scale: _utils2.getRatio[size]({

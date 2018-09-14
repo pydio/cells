@@ -160,7 +160,7 @@ export const withImageSize = (Component) => {
         render() {
             const {imgWidth, imgHeight} = this.state
             return (
-                <Component imgWidth={imgWidth} imgHeight={imgHeight} {...this.props} />
+                <Component width={imgWidth} height={imgHeight} {...this.props} />
             )
         }
     }

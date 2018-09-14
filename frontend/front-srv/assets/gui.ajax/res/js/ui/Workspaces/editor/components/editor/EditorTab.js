@@ -19,12 +19,28 @@
  */
 
 import Pydio from 'pydio'
-import { Toolbar, ToolbarGroup, Card, CardHeader, CardMedia } from 'material-ui';
+import { Toolbar, ToolbarGroup, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton } from 'material-ui';
 import { connect } from 'react-redux';
+import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
 
-const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu } = Pydio.requireLib('hoc');
+const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu, withSizeControls } = Pydio.requireLib('hoc');
+
+const styles = {
+    iconButton: {
+        backgroundColor: "rgb(0, 0, 0, 0.87)",
+        color: "rgb(255, 255,255, 0.87)"
+    }
+}
+
+@panAndZoomHoc
+class Test extends React.Component {
+    render() {
+        return <div>HERE</div>
+    }
+}
+
 
 @connect(mapStateToProps, EditorActions)
 export default class Tab extends React.Component {
@@ -87,12 +103,12 @@ export default class Tab extends React.Component {
         // {ResolutionControls && <ToolbarGroup>{controls(ResolutionControls)}</ToolbarGroup>}
         // {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
         return (
-            <Toolbar style={Tab.styles.toolbar}>
+            <SnackBar style={Tab.styles.toolbar}>
                 {SizeControls && <ToolbarGroup>{controls(SizeControls)}</ToolbarGroup>}
                 {ContentControls && <ToolbarGroup>{controls(ContentControls)}</ToolbarGroup>}
                 {ContentSearchControls && <ToolbarGroup>{controls(ContentSearchControls)}</ToolbarGroup>}
                 {LocalisationControls && <ToolbarGroup>{controls(LocalisationControls)}</ToolbarGroup>}
-            </Toolbar>
+            </SnackBar>
         )
     }
 
@@ -111,8 +127,73 @@ export default class Tab extends React.Component {
         ) : (
             <AnimatedCard style={style} containerStyle={Tab.styles.container} maximised={true} expanded={isActive} onExpandChange={!isActive ? select : null}>
                 <Editor pydio={pydio} node={node} editorData={editorData} />
+                <Test />
                 {Controls && this.renderControls(Controls, Actions)}
             </AnimatedCard>
+        )
+    }
+}
+
+@withSizeControls
+class SnackBar extends React.Component {
+    constructor(props) {
+        super(props)
+
+        const {size, scale} = props
+
+        this.state = {
+            minusDisabled: scale - 0.5 <= 0,
+            magnifyDisabled: size == "contain",
+            plusDisabled: scale + 0.5 >= 20,
+        }
+    }
+
+    componentWillReceiveProps(props) {
+        const {size, scale} = props
+
+        this.setState({
+            minusDisabled: scale - 0.5 <= 0,
+            magnifyDisabled: size == "contain",
+            plusDisabled: scale + 0.5 >= 20,
+        })
+    }
+
+    render() {
+        const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false} = this.state
+        const {size, scale, onSizeChange, ...remaining} = this.props
+        return (
+            <Toolbar {...remaining}>
+                {onSizeChange && (
+                    <ToolbarGroup>
+                        <IconButton
+                            iconClassName="mdi mdi-minus"
+                            iconStyle={styles.iconButton}
+                            onClick={() => onSizeChange({
+                                size: "auto",
+                                scale: scale - 0.5
+                            })}
+                            disabled={minusDisabled}
+                        />
+                        <IconButton
+                            iconClassName="mdi mdi-magnify-minus"
+                            iconStyle={styles.iconButton}
+                            onClick={() => onSizeChange({
+                                size: "contain",
+                            })}
+                            disabled={magnifyDisabled}
+                        />
+                        <IconButton
+                            iconClassName="mdi mdi-plus"
+                            iconStyle={styles.iconButton}
+                            onClick={() => onSizeChange({
+                                size: "auto",
+                                scale: scale + 0.5
+                            })}
+                            disabled={plusDisabled}
+                        />
+                    </ToolbarGroup>
+                )}
+            </Toolbar>
         )
     }
 }

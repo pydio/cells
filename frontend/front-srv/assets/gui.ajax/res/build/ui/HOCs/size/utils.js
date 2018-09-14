@@ -35,6 +35,7 @@ var mapStateToProps = function mapStateToProps(state, props) {
     var scale = editor.scale;
 
     return _extends({}, props, {
+        tab: tab,
         size: size,
         scale: scale
     });

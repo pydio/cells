@@ -26,6 +26,7 @@ export const mapStateToProps = (state, props) => {
 
     return {
         ...props,
+        tab,
         size,
         scale
     }

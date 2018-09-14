@@ -148,7 +148,7 @@ export default class Editor extends React.Component {
                 width: (100 / MAX_ITEMS) + "%",
                 height: "40%",
                 margin: "10px",
-                overflow: "scroll",
+                overflow: "hidden",
                 whiteSpace: "nowrap"
             }
 

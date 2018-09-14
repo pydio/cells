@@ -24,7 +24,7 @@ import withErrors from './errors'
 import withLoader from './loader'
 import {ContentActions, ContentControls, ContentSearchControls} from './content/index'
 import {SelectionActions, SelectionControls, withSelection, withSelectionControls} from './selection/index'
-import {SizeActions, SizeControls, SizeProviders, withContainerSize, withResize} from './size/index'
+import {SizeActions, SizeControls, SizeProviders, withContainerSize, withResize, withSizeControls} from './size/index'
 import {ResolutionActions, ResolutionControls, withResolution, withResolutionControls} from './resolution/index'
 import {LocalisationActions, LocalisationControls} from './localisation/index'
 import {URLProvider} from './urls'
@@ -55,6 +55,7 @@ const PydioHOCs = {
     withLoader,
     withContainerSize,
     withResize,
+    withSizeControls,
     withResolution,
     withResolutionControls,
     withSelectionControls,

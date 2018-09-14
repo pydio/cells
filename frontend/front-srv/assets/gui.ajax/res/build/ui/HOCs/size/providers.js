@@ -229,7 +229,7 @@ var withImageSize = function withImageSize(Component) {
             var imgWidth = _state2.imgWidth;
             var imgHeight = _state2.imgHeight;
 
-            return _react2['default'].createElement(Component, _extends({ imgWidth: imgWidth, imgHeight: imgHeight }, this.props));
+            return _react2['default'].createElement(Component, _extends({ width: imgWidth, height: imgHeight }, this.props));
         };
 
         _createClass(_class2, null, [{
