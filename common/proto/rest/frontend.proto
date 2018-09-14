@@ -83,3 +83,8 @@ message FrontBinaryRequest {
 }
 // Not used, endpoint returns octet-stream
 message FrontBinaryResponse {}
+
+message FrontBootConfRequest {}
+message FrontBootConfResponse {
+    map<string, string> JsonData = 1;
+}

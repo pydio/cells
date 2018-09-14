@@ -724,6 +724,12 @@ service FrontendService {
             get: "/frontend/state"
         };
     }
+    // Add some data to the initial set of parameters loaded by the frontend
+    rpc FrontBootConf(FrontBootConfRequest) returns (FrontBootConfResponse){
+        option (google.api.http) = {
+            get: "/frontend/bootconf"
+        };
+    }
     // Serve list of I18n messages
     rpc FrontMessages(FrontMessagesRequest) returns (FrontMessagesResponse) {
         option (google.api.http) = {

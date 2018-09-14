@@ -1063,6 +1063,23 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/frontend/bootconf": {
+      "get": {
+        "summary": "Add some data to the initial set of parameters loaded by the frontend",
+        "operationId": "FrontBootConf",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restFrontBootConfResponse"
+            }
+          }
+        },
+        "tags": [
+          "FrontendService"
+        ]
+      }
+    },
     "/frontend/enroll": {
       "post": {
         "summary": "Generic endpoint that can be implemented by 2FA systems for enrollment",
@@ -5324,6 +5341,17 @@ var SwaggerJson = `{
     "restFrontBinaryResponse": {
       "type": "object",
       "title": "Not used, endpoint returns octet-stream"
+    },
+    "restFrontBootConfResponse": {
+      "type": "object",
+      "properties": {
+        "JsonData": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
     },
     "restFrontEnrollAuthRequest": {
       "type": "object",

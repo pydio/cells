@@ -77,6 +77,8 @@ It has these top-level messages:
 	FrontEnrollAuthResponse
 	FrontBinaryRequest
 	FrontBinaryResponse
+	FrontBootConfRequest
+	FrontBootConfResponse
 	UserStateRequest
 	UserStateResponse
 	RelationRequest

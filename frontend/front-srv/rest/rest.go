@@ -95,6 +95,18 @@ func (a *FrontendHandler) FrontState(req *restful.Request, rsp *restful.Response
 	rsp.WriteAsXml(registry)
 }
 
+func (a *FrontendHandler) FrontBootConf(req *restful.Request, rsp *restful.Response) {
+
+	pool, e := frontend.GetPluginsPool()
+	if e != nil {
+		service.RestError500(req, rsp, e)
+		return
+	}
+	bootConf := frontend.ComputeBootConf(pool)
+	rsp.WriteAsJson(bootConf)
+
+}
+
 func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Response) {
 
 	pool, e := frontend.GetPluginsPool()
