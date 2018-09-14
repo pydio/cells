@@ -15,6 +15,7 @@
 import ApiClient from "../ApiClient";
 import RestFrontBinaryRequest from '../model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from '../model/RestFrontBinaryResponse';
+import RestFrontBootConfResponse from '../model/RestFrontBootConfResponse';
 import RestFrontEnrollAuthRequest from '../model/RestFrontEnrollAuthRequest';
 import RestFrontEnrollAuthResponse from '../model/RestFrontEnrollAuthResponse';
 import RestFrontMessagesResponse from '../model/RestFrontMessagesResponse';
@@ -42,6 +43,47 @@ export default class FrontendServiceApi {
         this.apiClient = apiClient || ApiClient.instance;
     }
 
+
+
+    /**
+     * Add some data to the initial set of parameters loaded by the frontend
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBootConfResponse} and HTTP response
+     */
+    frontBootConfWithHttpInfo() {
+      let postBody = null;
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestFrontBootConfResponse;
+
+      return this.apiClient.callApi(
+        '/frontend/bootconf', 'GET',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Add some data to the initial set of parameters loaded by the frontend
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBootConfResponse}
+     */
+    frontBootConf() {
+      return this.frontBootConfWithHttpInfo()
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
 
 
     /**

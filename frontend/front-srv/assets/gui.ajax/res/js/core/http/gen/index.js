@@ -126,6 +126,7 @@ import RestDeleteUserMetaTagsResponse from './model/RestDeleteUserMetaTagsRespon
 import RestDiscoveryResponse from './model/RestDiscoveryResponse';
 import RestFrontBinaryRequest from './model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
+import RestFrontBootConfResponse from './model/RestFrontBootConfResponse';
 import RestFrontEnrollAuthRequest from './model/RestFrontEnrollAuthRequest';
 import RestFrontEnrollAuthResponse from './model/RestFrontEnrollAuthResponse';
 import RestFrontMessagesResponse from './model/RestFrontMessagesResponse';
@@ -952,6 +953,12 @@ export {
      * @property {module:model/RestFrontBinaryResponse}
      */
     RestFrontBinaryResponse,
+
+    /**
+     * The RestFrontBootConfResponse model constructor.
+     * @property {module:model/RestFrontBootConfResponse}
+     */
+    RestFrontBootConfResponse,
 
     /**
      * The RestFrontEnrollAuthRequest model constructor.

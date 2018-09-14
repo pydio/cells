@@ -1576,115 +1576,6 @@
         }
       }
     ],
-    "AdminPeople/board/DirectoriesBoard.js": [
-      {
-        "description": "",
-        "methods": [
-          {
-            "name": "loadDirectories",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "deleteDirectory",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "row",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "openEditor",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "config",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "closeEditor",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "editor",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "openTableRows",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "rows",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "dataModel": {
-            "type": {
-              "name": "instanceOf",
-              "value": "PydioDataModel"
-            },
-            "required": true,
-            "description": ""
-          },
-          "rootNode": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Node"
-            },
-            "required": true,
-            "description": ""
-          },
-          "currentNode": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Node"
-            },
-            "required": true,
-            "description": ""
-          },
-          "openEditor": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "openRightPane": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "closeRightPane": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          }
-        }
-      }
-    ],
     "AdminPeople/board/PoliciesBoard.js": [
       {
         "description": "",
@@ -2543,274 +2434,6 @@
             "returns": null
           }
         ]
-      }
-    ],
-    "AdminPeople/editor/ldap/ConnectionPane.js": [
-      {
-        "description": "",
-        "displayName": "ConnectionPane",
-        "methods": [],
-        "props": {
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "config": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AuthLdapServerConfig"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "AdminPeople/editor/ldap/DNs.js": [
-      {
-        "description": "",
-        "displayName": "DNs",
-        "methods": [
-          {
-            "name": "addDn",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "editDn",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "index",
-                "type": null
-              },
-              {
-                "name": "value",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "removeDn",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "index",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/editor/ldap/FilterPane.js": [
-      {
-        "description": "",
-        "displayName": "FilterPane",
-        "methods": [],
-        "props": {
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "config": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AuthLdapServerConfig"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "AdminPeople/editor/ldap/GeneralPane.js": [
-      {
-        "description": "",
-        "displayName": "GeneralPane",
-        "methods": [
-          {
-            "name": "updateSyncDate",
-            "docblock": "@param d {Date}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "d",
-                "description": "{Date}",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": null
-          }
-        ],
-        "props": {
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "config": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AuthLdapServerConfig"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "AdminPeople/editor/ldap/LdapEditor.js": [
-      {
-        "description": "",
-        "displayName": "LdapEditor",
-        "methods": [
-          {
-            "name": "isDirty",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "isValid",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "isCreate",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "revert",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "save",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "setSelectedPane",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "key",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ],
-    "AdminPeople/editor/ldap/MappingsPane.js": [
-      {
-        "description": "",
-        "displayName": "MappingsPane",
-        "methods": [
-          {
-            "name": "addRule",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "removeRule",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "index",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "config": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AuthLdapServerConfig"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      }
-    ],
-    "AdminPeople/editor/ldap/MemberOfPane.js": [
-      {
-        "description": "",
-        "displayName": "MemberOfPane",
-        "methods": [
-          {
-            "name": "enableMapping",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "disableMapping",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "config": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AuthLdapServerConfig"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
       }
     ],
     "AdminPeople/editor/panel/SharesList.js": [
@@ -10797,6 +10420,33 @@
             "returns": null
           },
           {
+            "name": "loadClass",
+            "docblock": "Load class and return as a promise\n@param className\n@return {*|Promise|PromiseLike<T>|Promise<T>}",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "className",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "union",
+                "value": [
+                  null,
+                  "Promise",
+                  null,
+                  null
+                ]
+              }
+            },
+            "description": "Load class and return as a promise"
+          },
+          {
             "name": "detectModuleToLoadAndApply",
             "docblock": null,
             "modifiers": [
@@ -13020,6 +12670,32 @@
             ],
             "returns": null,
             "description": "Constructs a new FrontendServiceApi."
+          },
+          {
+            "name": "frontBootConfWithHttpInfo",
+            "docblock": "Add some data to the initial set of parameters loaded by the frontend\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBootConfResponse} and HTTP response",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBootConfResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Add some data to the initial set of parameters loaded by the frontend"
+          },
+          {
+            "name": "frontBootConf",
+            "docblock": "Add some data to the initial set of parameters loaded by the frontend\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBootConfResponse}",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBootConfResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Add some data to the initial set of parameters loaded by the frontend"
           },
           {
             "name": "frontEnrollAuthWithHttpInfo",
@@ -21073,6 +20749,52 @@
               }
             },
             "description": "Constructs a <code>RestFrontBinaryResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestFrontBootConfResponse.js": [
+      {
+        "description": "The RestFrontBootConfResponse model module.\n@module model/RestFrontBootConfResponse\n@version 1.0",
+        "displayName": "RestFrontBootConfResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestFrontBootConfResponse</code>.\n@alias module:model/RestFrontBootConfResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestFrontBootConfResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestFrontBootConfResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestFrontBootConfResponse} obj Optional instance to populate.\n@return {module:model/RestFrontBootConfResponse} The populated <code>RestFrontBootConfResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestFrontBootConfResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestFrontBootConfResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestFrontBootConfResponse"
+              }
+            },
+            "description": "Constructs a <code>RestFrontBootConfResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

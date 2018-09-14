@@ -31,6 +31,10 @@ var _modelRestFrontBinaryResponse = require('../model/RestFrontBinaryResponse');
 
 var _modelRestFrontBinaryResponse2 = _interopRequireDefault(_modelRestFrontBinaryResponse);
 
+var _modelRestFrontBootConfResponse = require('../model/RestFrontBootConfResponse');
+
+var _modelRestFrontBootConfResponse2 = _interopRequireDefault(_modelRestFrontBootConfResponse);
+
 var _modelRestFrontEnrollAuthRequest = require('../model/RestFrontEnrollAuthRequest');
 
 var _modelRestFrontEnrollAuthRequest2 = _interopRequireDefault(_modelRestFrontEnrollAuthRequest);
@@ -84,6 +88,38 @@ var FrontendServiceApi = (function () {
 
     this.apiClient = apiClient || _ApiClient2['default'].instance;
   }
+
+  /**
+   * Add some data to the initial set of parameters loaded by the frontend
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestFrontBootConfResponse} and HTTP response
+   */
+
+  FrontendServiceApi.prototype.frontBootConfWithHttpInfo = function frontBootConfWithHttpInfo() {
+    var postBody = null;
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestFrontBootConfResponse2['default'];
+
+    return this.apiClient.callApi('/frontend/bootconf', 'GET', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Add some data to the initial set of parameters loaded by the frontend
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestFrontBootConfResponse}
+   */
+
+  FrontendServiceApi.prototype.frontBootConf = function frontBootConf() {
+    return this.frontBootConfWithHttpInfo().then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
 
   /**
    * Generic endpoint that can be implemented by 2FA systems for enrollment

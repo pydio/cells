@@ -473,6 +473,10 @@ var _modelRestFrontBinaryResponse = require('./model/RestFrontBinaryResponse');
 
 var _modelRestFrontBinaryResponse2 = _interopRequireDefault(_modelRestFrontBinaryResponse);
 
+var _modelRestFrontBootConfResponse = require('./model/RestFrontBootConfResponse');
+
+var _modelRestFrontBootConfResponse2 = _interopRequireDefault(_modelRestFrontBootConfResponse);
+
 var _modelRestFrontEnrollAuthRequest = require('./model/RestFrontEnrollAuthRequest');
 
 var _modelRestFrontEnrollAuthRequest2 = _interopRequireDefault(_modelRestFrontEnrollAuthRequest);
@@ -1737,6 +1741,13 @@ exports.
  * @property {module:model/RestFrontBinaryResponse}
  */
 RestFrontBinaryResponse = _modelRestFrontBinaryResponse2['default'];
+exports.
+
+/**
+ * The RestFrontBootConfResponse model constructor.
+ * @property {module:model/RestFrontBootConfResponse}
+ */
+RestFrontBootConfResponse = _modelRestFrontBootConfResponse2['default'];
 exports.
 
 /**
