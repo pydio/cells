@@ -23,6 +23,7 @@ It has these top-level messages:
 	LogMessageCollection
 	TimeRangeResultCollection
 	DeleteResponse
+	Error
 	Configuration
 	ListDataSourceRequest
 	DataSourceCollection

@@ -19,6 +19,32 @@
   "produces": [
     "application/json"
   ],
+"responses": {
+    "401":{
+      "description":"User is not authenticated",
+      "schema":{
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "403":{
+      "description":"User has no permissions to access this particular resource",
+      "schema":{
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "404":{
+      "description":"Resource does not exists in the system",
+      "schema":{
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "500":{
+      "description":"An internal error occurred in the backend",
+      "schema":{
+        "$ref": "#/definitions/Error"
+      }
+    }
+  },
   "paths": {
     "/acl": {
       "post": {
@@ -5264,16 +5290,47 @@
         }
       }
     },
+    "restError": {
+      "type": "object",
+      "properties": {
+        "Code": {
+          "type": "string",
+          "title": "Unique ID of the error"
+        },
+        "Title": {
+          "type": "string",
+          "title": "Human-readable, short label"
+        },
+        "Detail": {
+          "type": "string",
+          "title": "Human-readable, longer description"
+        },
+        "Source": {
+          "type": "string",
+          "title": "Cells service name or other quickly useful info"
+        },
+        "Meta": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Additional Metadata"
+        }
+      },
+      "title": "Generic error message"
+    },
     "restDeleteResponse": {
       "type": "object",
       "properties": {
         "Success": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "title": "If delete was successfull"
         },
         "NumRows": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "title": "Number of records deleted during operation"
         }
       },
       "title": "Generic Message"
