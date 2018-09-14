@@ -3653,12 +3653,6 @@
 			"revisionTime": "2018-04-16T12:25:13Z"
 		},
 		{
-			"checksumSHA1": "FZi+axGkxy7jtWUsYVdHQNXr/ho=",
-			"path": "github.com/pydio/go-phpfpm-detect/fpm",
-			"revision": "d0801178f0ac64298dfcd994ff2c7f85ab910ae6",
-			"revisionTime": "2018-04-16T12:25:13Z"
-		},
-		{
 			"checksumSHA1": "ppfPk8dm4CwZ5YutyZ/Jqsk6NDU=",
 			"path": "github.com/pydio/minio-go",
 			"revision": "960f64538a91fed897eb835dd3780fe17b2c3ccb",
