@@ -189,7 +189,11 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 	}
 
 	if e := frontend.ApplyAuthMiddlewares(req, rsp, &loginRequest, response, session); e != nil {
+		if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
+			log.Logger(req.Request.Context()).Error("Error saving session", zap.Error(e))
+		}
 		service.RestError401(req, rsp, e)
+		return
 	}
 
 	if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {

@@ -21,7 +21,6 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/idm/auth"
@@ -39,8 +38,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		nonce := uuid.New()
 		respMap, err := GrantTypeAccess(req.Request.Context(), nonce, "", in.AuthInfo["login"], in.AuthInfo["password"])
 		if err != nil {
-			service.RestError401(req, rsp, err)
-			return nil
+			return err
 		}
 		token := respMap["id_token"].(string)
 		expiry := respMap["expires_in"].(float64)
