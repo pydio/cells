@@ -16,11 +16,13 @@ import (
 
 	"context"
 
+	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/idm/auth"
 	"go.uber.org/zap"
@@ -35,7 +37,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		}
 
 		nonce := uuid.New()
-		respMap, err := GrantTypeAccess(nonce, "", in.AuthInfo["login"], in.AuthInfo["password"])
+		respMap, err := GrantTypeAccess(req.Request.Context(), nonce, "", in.AuthInfo["login"], in.AuthInfo["password"])
 		if err != nil {
 			service.RestError401(req, rsp, err)
 			return nil
@@ -68,7 +70,7 @@ func JwtFromSession(ctx context.Context, session *sessions.Session) (jwt string,
 		if refresh, refOk := session.Values["refresh_token"]; refOk && (expTime.Before(ref) || expTime.Equal(ref)) {
 			// Refresh token
 			log.Logger(ctx).Debug("Refreshing Token Now", zap.Any("refresh", refresh), zap.Any("nonce", session.Values["nonce"]))
-			refreshResponse, err := GrantTypeAccess(session.Values["nonce"].(string), refresh.(string), "", "")
+			refreshResponse, err := GrantTypeAccess(ctx, session.Values["nonce"].(string), refresh.(string), "", "")
 			if err != nil {
 				// Silently return : refresh_token is invalid
 				//e = err
@@ -90,10 +92,17 @@ func JwtFromSession(ctx context.Context, session *sessions.Session) (jwt string,
 	return
 }
 
-func GrantTypeAccess(nonce string, refreshToken string, login string, pwd string) (map[string]interface{}, error) {
+func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, login string, pwd string) (map[string]interface{}, error) {
 
-	fullURL := config.Get("defaults", "urlInternal").String("") + "/auth/dex/token"
-	selfSigned := config.Get("cert", "proxy", "ssl").Bool(false) && config.Get("cert", "proxy", "self").Bool(false)
+	dexHost := config.Get("services", "pydio.grpc.auth", "dex", "web", "http").String("")
+	ssl := config.Get("cert", "http", "ssl").Bool(false)
+	var fullURL string
+	if ssl {
+		fullURL = "https://" + dexHost + "/dex/token"
+	} else {
+		fullURL = "http://" + dexHost + "/dex/token"
+	}
+	selfSigned := ssl && config.Get("cert", "http", "self").Bool(false)
 
 	data := url.Values{}
 	if refreshToken != "" {
@@ -125,6 +134,21 @@ func GrantTypeAccess(nonce string, refreshToken string, login string, pwd string
 		if static.Name == "cells-front" {
 			authString := static.ID + ":" + static.Secret
 			basic = "Basic " + base64.StdEncoding.EncodeToString([]byte(authString))
+		}
+	}
+
+	if meta, ok := metadata.FromContext(ctx); ok {
+		if remote, b := meta[servicecontext.HttpMetaRemoteAddress]; b {
+			httpReq.Header.Add("X-Forwarded-For", remote)
+		}
+		if uAgent, b := meta[servicecontext.HttpMetaUserAgent]; b {
+			httpReq.Header.Add("User-Agent", uAgent)
+		}
+		if span, b := meta[servicecontext.SpanMetadataId]; b {
+			httpReq.Header.Add(servicecontext.SpanMetadataId, span)
+		}
+		if rootSpan, b := meta[servicecontext.SpanMetadataRootParentId]; b {
+			httpReq.Header.Add(servicecontext.SpanMetadataRootParentId, rootSpan)
 		}
 	}
 
