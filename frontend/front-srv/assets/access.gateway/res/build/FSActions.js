@@ -778,8 +778,14 @@ exports['default'] = function (pydio) {
 
             if (dndActionParameter.getStep() === DNDActionParameter.STEP_CAN_DROP) {
 
-                if (dndActionParameter.getTarget().isLeaf() || dndActionParameter.getTarget().getPath() === dndActionParameter.getSource().getPath()) {
-                    throw new Error('Cannot drop');
+                var target = dndActionParameter.getTarget();
+                var source = dndActionParameter.getSource();
+                if (target.isLeaf() || target.getPath() === source.getPath()) {
+                    throw new Error('Cannot drop on leaf or on same path');
+                } else if (target.getMetadata().has("virtual_root")) {
+                    throw new Error('Cannot drop on virtual root');
+                } else if (source.getMetadata().has("ws_root")) {
+                    throw new Error('Cannot move roots around');
                 } else {
                     return false;
                 }

@@ -630,7 +630,6 @@ let SimpleList = React.createClass({
             this.updateElementHeightResponsive();
         }
         this.props.dataModel.observe('root_node_changed', (rootNode) => {
-            console.log('root node changed', rootNode, this.props.node);
             this.rootNodeChangedFlag = true;
         });
         this.props.dataModel.observe('selection_changed', function(){
