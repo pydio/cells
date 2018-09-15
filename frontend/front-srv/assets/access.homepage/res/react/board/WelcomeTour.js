@@ -166,24 +166,21 @@ class WelcomeTour extends Component{
                 position    : 'bottom'
             },
         ];
-        if(widgetBarEnabled){
-            /*
-            tourguideSteps.push({
-                title       : message('widget-cards.title'),
-                text        : <WidgetsCard message={message}/>,
-                selector    : '.dashboard-layout',
-                position    : 'left'
+        if(this.props.pydio.user){
+            let hasAccessRepo = false;
+            this.props.pydio.user.getRepositoriesList().forEach((entry) => {
+                if(entry.accessType === "gateway"){
+                    hasAccessRepo = true;
+                }
             });
-            */
-        }
-
-        if(this.props.pydio.user && this.props.pydio.user.getRepositoriesList().size){
-            tourguideSteps.push({
-                    title       : message('openworkspace.title'),
-                    text        : message('openworkspace'),
-                    selector    : '.workspace-entry',
-                    position    : 'right'
-            });
+            if(hasAccessRepo){
+                tourguideSteps.push({
+                        title       : message('openworkspace.title'),
+                        text        : message('openworkspace'),
+                        selector    : '.workspace-entry',
+                        position    : 'right'
+                });
+            }
         }
 
         const callback = (data) => {

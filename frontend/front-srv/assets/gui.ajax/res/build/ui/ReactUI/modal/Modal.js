@@ -88,10 +88,18 @@ var Modal = (function (_Component) {
     };
 
     Modal.prototype.handleClose = function handleClose() {
+        var _this = this;
+
         if (this.state.open && this.state.modalData && this.state.modalData.compName === 'ActivityWarningDialog') {
             this.props.pydio.notify('user_activity');
         }
-        this.setState({ open: false });
+        this.setState({ open: false, closing: true }, function () {
+            // Take transition time into account - triggers a render so that if it
+            // has been reopened in between, it correctly shows the new dialog
+            setTimeout(function () {
+                _this.setState({ closing: false });
+            }, 450);
+        });
     };
 
     Modal.prototype.render = function render() {

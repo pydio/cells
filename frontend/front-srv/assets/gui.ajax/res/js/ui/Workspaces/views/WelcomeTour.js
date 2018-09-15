@@ -229,12 +229,14 @@ class WelcomeTour extends Component{
         if(!this.state.started || this.state.skip){
             return null;
         }
-        const {getMessage} = this.props;
+        const {getMessage, pydio} = this.props;
         const message = (id) => getMessage('ajax_gui.tour.' + id);
 
         let tourguideSteps = [];
-
-        if(pydio.user && pydio.user.activeRepository){
+        const {Controller, user} = pydio;
+        const mkdir = Controller.getActionByName("mkdir") || {};
+        const upload = Controller.getActionByName("upload") || {};
+        if(user && user.activeRepository && (!mkdir.deny || !upload.deny)){
             tourguideSteps.push({
                 title:message('create-menu.title'),
                 text : <CreateMenuCard message={message} pydio={this.props.pydio}/>,

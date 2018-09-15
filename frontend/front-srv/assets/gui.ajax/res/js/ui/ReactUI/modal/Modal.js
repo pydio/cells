@@ -71,7 +71,11 @@ class Modal extends Component{
         if(this.state.open && this.state.modalData && this.state.modalData.compName === 'ActivityWarningDialog'){
             this.props.pydio.notify('user_activity');
         }
-        this.setState({open: false});
+        this.setState({open: false, closing: true}, () => {
+            // Take transition time into account - triggers a render so that if it
+            // has been reopened in between, it correctly shows the new dialog
+            setTimeout(()=>{this.setState({closing: false})}, 450)
+        });
     }
 
     render(){

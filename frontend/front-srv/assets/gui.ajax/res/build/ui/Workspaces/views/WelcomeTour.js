@@ -379,15 +379,21 @@ var WelcomeTour = (function (_Component6) {
         if (!this.state.started || this.state.skip) {
             return null;
         }
-        var getMessage = this.props.getMessage;
+        var _props = this.props;
+        var getMessage = _props.getMessage;
+        var pydio = _props.pydio;
 
         var message = function message(id) {
             return getMessage('ajax_gui.tour.' + id);
         };
 
         var tourguideSteps = [];
+        var Controller = pydio.Controller;
+        var user = pydio.user;
 
-        if (pydio.user && pydio.user.activeRepository) {
+        var mkdir = Controller.getActionByName("mkdir") || {};
+        var upload = Controller.getActionByName("upload") || {};
+        if (user && user.activeRepository && (!mkdir.deny || !upload.deny)) {
             tourguideSteps.push({
                 title: message('create-menu.title'),
                 text: React.createElement(CreateMenuCard, { message: message, pydio: this.props.pydio }),
