@@ -1837,7 +1837,7 @@ div.menu.desktop a span.ajxp_icon_span {
   cursor: pointer;
   opacity: 0.5;
 }
-.left-panel .workspaces .workspace-entry .workspace-additional-action:hover {
+.left-panel .workspaces .workspace-entry .workspace-additional-action.with-hover:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
 .left-panel .workspaces .workspace-entry.workspace-current {

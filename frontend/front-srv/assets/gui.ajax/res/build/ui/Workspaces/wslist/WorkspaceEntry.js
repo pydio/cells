@@ -310,6 +310,7 @@ var WorkspaceEntry = React.createClass({
                 style = this.getItemStyle(pydio.getContextHolder().getContextNode());
             }
         }
+        style = _extends({}, style, { paddingLeft: 16 });
 
         currentClass += " workspace-access-" + workspace.getAccessType();
 
@@ -329,7 +330,7 @@ var WorkspaceEntry = React.createClass({
         var chatIcon = undefined;
 
         if (workspace.getOwner()) {
-            additionalAction = React.createElement('span', { className: 'workspace-additional-action mdi mdi-dots-vertical', onClick: this.roomPopover.bind(this) });
+            additionalAction = React.createElement('span', { className: 'workspace-additional-action with-hover mdi mdi-dots-vertical', onClick: this.roomPopover.bind(this) });
             if (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")) {
                 chatIcon = React.createElement(ChatIcon, { pydio: pydio, roomType: 'WORKSPACE', objectId: workspace.getId() });
             }
@@ -343,21 +344,35 @@ var WorkspaceEntry = React.createClass({
             }
         } else if (workspace.getRepositoryType() === "remote" && !current) {
             // Remote share but already accepted, add delete
-            additionalAction = React.createElement('span', { className: 'workspace-additional-action mdi mdi-close', onClick: this.handleOpenAlert.bind(this, 'reject_accepted'), title: messages['550'] });
+            additionalAction = React.createElement('span', { className: 'workspace-additional-action with-hover mdi mdi-close', onClick: this.handleOpenAlert.bind(this, 'reject_accepted'), title: messages['550'] });
         }
 
         if (this.state && this.state.loading) {
             additionalAction = React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 3, style: { marginTop: 2, marginRight: 6, opacity: .5 } });
         }
 
-        if (showFoldersTree) {
-            var fTCName = this.state.openFoldersTree ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right";
-            treeToggle = React.createElement('span', { style: { opacity: 1 }, className: 'workspace-additional-action ' + fTCName, onClick: this.toggleFoldersPanelOpen });
+        var icon = "folder";
+        if (workspace.getOwner()) {
+            icon = "folder-account";
         }
 
         var menuNode = undefined;
         if (workspace.getId() === pydio.user.activeRepository) {
             menuNode = pydio.getContextHolder().getRootNode();
+            if (showFoldersTree) {
+                var children = menuNode.getChildren();
+                var hasFolders = false;
+                children.forEach(function (c) {
+                    if (!c.isLeaf()) {
+                        hasFolders = true;
+                    }
+                });
+                if (hasFolders) {
+                    var toggleIcon = this.state.openFoldersTree ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right";
+                    treeToggle = React.createElement('span', { style: { opacity: 1 }, className: 'workspace-additional-action ' + toggleIcon, onClick: this.toggleFoldersPanelOpen });
+                }
+            }
+            icon = "folder-open";
         } else {
             /*
             menuNode = new Node('/', false, workspace.getLabel());
@@ -378,7 +393,7 @@ var WorkspaceEntry = React.createClass({
         if (workspace.getDescription()) {
             title += ' - ' + workspace.getDescription();
         }
-
+        var entryIcon = React.createElement('span', { className: "mdi mdi-" + icon, style: { fontSize: 20, marginRight: 10, opacity: workspace.getId() === pydio.user.activeRepository ? 1 : 0.7 } });
         var wsBlock = React.createElement(
             ContextMenuWrapper,
             {
@@ -389,6 +404,7 @@ var WorkspaceEntry = React.createClass({
                 onMouseOut: onOut,
                 style: style
             },
+            entryIcon,
             React.createElement(
                 'span',
                 { className: 'workspace-label', title: title },

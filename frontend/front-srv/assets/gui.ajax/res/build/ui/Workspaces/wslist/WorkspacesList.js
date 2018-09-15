@@ -214,7 +214,7 @@ var WorkspacesList = (function (_React$Component) {
             k: 'shared',
             title: _react2['default'].createElement(
                 'div',
-                { key: 'shared-title', className: 'section-title', style: _extends({}, this.props.sectionTitleStyle, { position: 'relative', overflow: 'visible' }) },
+                { key: 'shared-title', className: 'section-title', style: _extends({}, this.props.sectionTitleStyle, { position: 'relative', overflow: 'visible', padding: '16px 16px' }) },
                 sharedEntries.length ? messages[469] : '',
                 createAction
             ),

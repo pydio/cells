@@ -149,7 +149,7 @@ class WorkspacesList extends React.Component{
         }
         sections.push({
             k:'shared',
-            title: <div key="shared-title" className="section-title" style={{...this.props.sectionTitleStyle, position:'relative', overflow:'visible'}}>{sharedEntries.length?messages[469]:''}{createAction}</div>,
+            title: <div key="shared-title" className="section-title" style={{...this.props.sectionTitleStyle, position:'relative', overflow:'visible', padding:'16px 16px'}}>{sharedEntries.length?messages[469]:''}{createAction}</div>,
             content: <div key="shared-ws" className="workspaces">{sharedEntries}</div>
         });
 

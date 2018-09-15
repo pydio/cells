@@ -1788,7 +1788,7 @@
     "other": "Pas de messages pour l'instant, commencez à taper pour discuter avec les utilisateurs de la cellule!"
   },
   "638": {
-    "other": "La cellule contient plusieurs répertoires (vous ne pouvez pas uploader directement ici, entrez dans un répertoire)"
+    "other": "La cellule contient plusieurs dossiers ou fichiers racine, vous ne pouvez pas uploader directement ici."
   },
   "639": {
     "other": "Dans la cellule"

@@ -254,6 +254,7 @@ let WorkspaceEntry =React.createClass({
                 style = this.getItemStyle(pydio.getContextHolder().getContextNode());
             }
         }
+        style = {...style, paddingLeft: 16};
 
         currentClass += " workspace-access-" + workspace.getAccessType();
 
@@ -274,7 +275,7 @@ let WorkspaceEntry =React.createClass({
 
         if(workspace.getOwner()){
             additionalAction = (
-                <span className="workspace-additional-action mdi mdi-dots-vertical" onClick={this.roomPopover.bind(this)}/>
+                <span className="workspace-additional-action with-hover mdi mdi-dots-vertical" onClick={this.roomPopover.bind(this)}/>
             );
             if (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")){
                 chatIcon = <ChatIcon pydio={pydio} roomType={'WORKSPACE'} objectId={workspace.getId()}/>
@@ -289,21 +290,35 @@ let WorkspaceEntry =React.createClass({
             }
         }else if(workspace.getRepositoryType() === "remote" && !current){
             // Remote share but already accepted, add delete
-            additionalAction = <span className="workspace-additional-action mdi mdi-close" onClick={this.handleOpenAlert.bind(this, 'reject_accepted')} title={messages['550']}/>;
+            additionalAction = <span className="workspace-additional-action with-hover mdi mdi-close" onClick={this.handleOpenAlert.bind(this, 'reject_accepted')} title={messages['550']}/>;
         }
 
         if(this.state && this.state.loading){
             additionalAction = <CircularProgress size={20} thickness={3} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
         }
 
-        if(showFoldersTree){
-            let fTCName = this.state.openFoldersTree ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right";
-            treeToggle = <span style={{opacity: 1}} className={'workspace-additional-action ' + fTCName} onClick={this.toggleFoldersPanelOpen}></span>;
+        let icon = "folder";
+        if(workspace.getOwner()){
+            icon = "folder-account"
         }
 
         let menuNode;
         if(workspace.getId() === pydio.user.activeRepository ){
             menuNode = pydio.getContextHolder().getRootNode();
+            if(showFoldersTree){
+                const children = menuNode.getChildren();
+                let hasFolders = false;
+                children.forEach(c => {
+                    if(!c.isLeaf()) {
+                        hasFolders = true;
+                    }
+                });
+                if(hasFolders){
+                    let toggleIcon = this.state.openFoldersTree ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right";
+                    treeToggle = <span style={{opacity: 1}} className={'workspace-additional-action ' + toggleIcon} onClick={this.toggleFoldersPanelOpen}></span>;
+                }
+            }
+            icon = "folder-open";
         }else{
             /*
             menuNode = new Node('/', false, workspace.getLabel());
@@ -319,7 +334,7 @@ let WorkspaceEntry =React.createClass({
         if(workspace.getDescription()){
             title += ' - ' + workspace.getDescription();
         }
-
+        const entryIcon = <span className={"mdi mdi-" + icon} style={{fontSize: 20, marginRight: 10, opacity:workspace.getId() === pydio.user.activeRepository ? 1 : 0.7}}/>;
         let wsBlock = (
             <ContextMenuWrapper
                 node={menuNode}
@@ -329,6 +344,7 @@ let WorkspaceEntry =React.createClass({
                 onMouseOut={onOut}
                 style={style}
             >
+                {entryIcon}
                 <span className="workspace-label" title={title}>{workspace.getLabel()}</span>
                 {chatIcon}
                 {treeToggle}

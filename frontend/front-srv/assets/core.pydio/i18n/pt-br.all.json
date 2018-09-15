@@ -1785,7 +1785,7 @@
     "other": "No messages yet, start typing to chat with users of this cell!"
   },
   "638": {
-    "other": "Cell contains multiple root folders (you cannot upload data directly here, open one of them)"
+    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
   },
   "639": {
     "other": "In this cell"
