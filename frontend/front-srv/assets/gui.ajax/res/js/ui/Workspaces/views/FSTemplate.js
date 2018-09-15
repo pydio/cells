@@ -48,7 +48,7 @@ let FSTemplate = React.createClass({
         INFO_PANEL_WIDTH: 270
     },
 
-    openRightPanel: function(name){
+    openRightPanel(name){
         this.setState({rightColumnState: name}, () => {
             let {infoPanelOpen} = this.state;
             if(name !== 'info-panel'){
@@ -58,13 +58,13 @@ let FSTemplate = React.createClass({
         });
     },
 
-    closeRightPanel: function() {
+    closeRightPanel() {
         this.setState({infoPanelToggle: false}, () => {
             this.resizeAfterTransition();
         });
     },
 
-    getInitialState: function(){
+    getInitialState(){
         return {
             infoPanelOpen: false,
             infoPanelToggle: true,
@@ -73,7 +73,7 @@ let FSTemplate = React.createClass({
         };
     },
 
-    resizeAfterTransition: function(){
+    resizeAfterTransition(){
         setTimeout(() => {
             if(this.refs.list) {
                 this.refs.list.resize();
@@ -88,19 +88,19 @@ let FSTemplate = React.createClass({
         this.setState({infoPanelOpen: (numberOfCards > 0)}, () => this.resizeAfterTransition())
     },
 
-    openDrawer: function(event){
+    openDrawer(event){
         event.stopPropagation();
         this.setState({drawerOpen: true});
     },
 
-    closeDrawer: function(){
+    closeDrawer(){
         if(!this.state.drawerOpen){
             return;
         }
         this.setState({drawerOpen: false});
     },
 
-    render: function () {
+    render () {
 
         const connectDropTarget = this.props.connectDropTarget || function(c){return c;};
         const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
@@ -116,7 +116,8 @@ let FSTemplate = React.createClass({
         const styles = {
             appBarStyle : {
                 zIndex: 1,
-                backgroundColor: this.props.muiTheme.appBar.color
+                backgroundColor: this.props.muiTheme.appBar.color,
+                height: 100,
             },
             buttonsStyle : {
                 color: this.props.muiTheme.appBar.textColor
@@ -196,7 +197,7 @@ let FSTemplate = React.createClass({
                 <LeftPanel className="left-panel" pydio={props.pydio}/>
                 <div className="desktop-container vertical_layout vertical_fit">
                     <Paper zDepth={1} style={styles.appBarStyle} rounded={false}>
-                        <div id="workspace_toolbar" style={{display: 'flex'}}>
+                        <div id="workspace_toolbar" style={{display: 'flex', height: 58}}>
                             <span className="drawer-button"><IconButton style={{color: 'white'}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/></span>
                             <Breadcrumb {...props} startWithSeparator={false}/>
                             <span style={{flex:1}}/>

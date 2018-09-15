@@ -2,6 +2,7 @@ import React from "react"
 import CompositeModel from './CompositeModel'
 import SharedUsers from '../cells/SharedUsers'
 import Pydio from 'pydio'
+import {muiThemeable} from 'material-ui/styles'
 import {Paper, Divider, RaisedButton, IconButton, Popover, Menu, List, ListItem, IconMenu, MenuItem} from 'material-ui'
 
 class CellsList extends React.Component {
@@ -30,7 +31,7 @@ class CellsList extends React.Component {
 
     render(){
 
-        const {compositeModel, pydio, usersInvitations} = this.props;
+        const {compositeModel, pydio, usersInvitations, muiTheme} = this.props;
         const m = (id) => pydio.MessageHash['share_center.' + id];
         const {edit} = this.state;
         let cells = [];
@@ -103,7 +104,12 @@ class CellsList extends React.Component {
         } else if (cells.length && edit==='NEWCELL') {
             legend = <div>{m(261)}</div>
         } else {
-            legend = <div style={{padding:'21px 16px'}}>{m(262)}</div>
+            legend = (
+                <div style={{padding:'21px 16px 21px 0px', cursor: 'pointer', display: 'flex', alignItems:'center'}} onTouchTap={() =>{compositeModel.createEmptyCell();this.setState({edit:'NEWCELL'})}}>
+                    <IconButton iconClassName={"icomoon-cells-clear-plus"} iconStyle={{color: muiTheme.palette.primary1Color}}/>
+                    <span style={{flex: 1, marginLeft: 8}}>{m(262)}</span>
+                </div>
+            );
         }
 
         const addCellItems = this.addToCellsMenuItems();
@@ -147,5 +153,7 @@ CellsList.PropTypes = {
     compositeModel: React.PropTypes.instanceOf(CompositeModel).isRequired,
     usersInvitations: React.PropTypes.func,
 };
+
+CellsList = muiThemeable()(CellsList);
 
 export {CellsList as default}

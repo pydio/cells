@@ -7423,7 +7423,7 @@ var AltDashboard = _react2['default'].createClass({
             appBarStyle: {
                 zIndex: 1,
                 backgroundColor: appBarColor.alpha(.6).toString(),
-                height: 110
+                height: 100
             },
             buttonsStyle: {
                 color: this.props.muiTheme.appBar.textColor
@@ -7443,7 +7443,7 @@ var AltDashboard = _react2['default'].createClass({
             },
             rglStyle: {
                 position: 'absolute',
-                top: 110,
+                top: 100,
                 bottom: 0,
                 right: 0,
                 width: 260,

@@ -191,7 +191,8 @@ var FSTemplate = _react2['default'].createClass({
         var styles = {
             appBarStyle: {
                 zIndex: 1,
-                backgroundColor: this.props.muiTheme.appBar.color
+                backgroundColor: this.props.muiTheme.appBar.color,
+                height: 100
             },
             buttonsStyle: {
                 color: this.props.muiTheme.appBar.textColor
@@ -285,7 +286,7 @@ var FSTemplate = _react2['default'].createClass({
                     { zDepth: 1, style: styles.appBarStyle, rounded: false },
                     _react2['default'].createElement(
                         'div',
-                        { id: 'workspace_toolbar', style: { display: 'flex' } },
+                        { id: 'workspace_toolbar', style: { display: 'flex', height: 58 } },
                         _react2['default'].createElement(
                             'span',
                             { className: 'drawer-button' },

@@ -22,7 +22,7 @@ var IdmObjectHelper = (function () {
             if (acl.Group.Uuid === 'ROOT_GROUP') {
                 return pydio.MessageHash['634c'];
             } else if (acl.Group.GroupLabel) {
-                return pydio.MessageHash['289'] + acl.Group.GroupLabel;
+                return pydio.MessageHash['289'] + ' ' + acl.Group.GroupLabel;
             } else {
                 return acl.Group.Uuid;
             }

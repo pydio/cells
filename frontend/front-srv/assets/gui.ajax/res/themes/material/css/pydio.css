@@ -1252,7 +1252,7 @@ div#multiple_download_container div div a:hover {
   opacity: .3 !important;
 }
 .user-widget {
-  height: 110px;
+  height: 100px;
   width: 250px;
   z-index: 1002;
 }
@@ -1272,7 +1272,8 @@ div#multiple_download_container div div a:hover {
   white-space: nowrap;
 }
 .user-widget .action_bar {
-  padding: 6px 8px;
+  padding: 0 8px;
+  margin-top: -4px;
   text-align: left;
 }
 .user-widget .action_bar button.userActionButton {
@@ -1954,7 +1955,7 @@ div.menu.desktop a span.ajxp_icon_span {
   position: absolute;
   z-index: 0;
   width: 270px;
-  top: 110px;
+  top: 100px;
   bottom: 0;
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
   overflow-y: auto;
@@ -2528,11 +2529,6 @@ body,
   .react-mui-context .desktop-container {
     margin-left: 0;
   }
-}
-.react-mui-context .desktop-container #workspace_toolbar {
-  display: -ms-flexbox;
-  display: flex;
-  height: 68px;
 }
 .react-mui-context .desktop-container #workspace_toolbar .react_breadcrumb {
   -ms-flex: 1;

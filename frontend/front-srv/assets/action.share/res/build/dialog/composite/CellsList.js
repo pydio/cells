@@ -30,6 +30,8 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _materialUiStyles = require('material-ui/styles');
+
 var _materialUi = require('material-ui');
 
 var CellsList = (function (_React$Component) {
@@ -76,6 +78,7 @@ var CellsList = (function (_React$Component) {
             var compositeModel = _props2.compositeModel;
             var pydio = _props2.pydio;
             var usersInvitations = _props2.usersInvitations;
+            var muiTheme = _props2.muiTheme;
 
             var m = function m(id) {
                 return pydio.MessageHash['share_center.' + id];
@@ -162,8 +165,15 @@ var CellsList = (function (_React$Component) {
             } else {
                 legend = _react2['default'].createElement(
                     'div',
-                    { style: { padding: '21px 16px' } },
-                    m(262)
+                    { style: { padding: '21px 16px 21px 0px', cursor: 'pointer', display: 'flex', alignItems: 'center' }, onTouchTap: function () {
+                            compositeModel.createEmptyCell();_this2.setState({ edit: 'NEWCELL' });
+                        } },
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "icomoon-cells-clear-plus", iconStyle: { color: muiTheme.palette.primary1Color } }),
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { flex: 1, marginLeft: 8 } },
+                        m(262)
+                    )
                 );
             }
 
@@ -234,6 +244,8 @@ CellsList.PropTypes = {
     compositeModel: _react2['default'].PropTypes.instanceOf(_CompositeModel2['default']).isRequired,
     usersInvitations: _react2['default'].PropTypes.func
 };
+
+exports['default'] = CellsList = (0, _materialUiStyles.muiThemeable)()(CellsList);
 
 exports['default'] = CellsList;
 module.exports = exports['default'];

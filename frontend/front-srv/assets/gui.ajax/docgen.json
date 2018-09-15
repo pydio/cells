@@ -7946,6 +7946,24 @@
               }
             },
             "description": "Proxy to ResourcesManager.requireLib for ease of writing"
+          },
+          {
+            "name": "getInstance",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "getMessages",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
           }
         ],
         "require": "const Pydio = require('pydio')"
@@ -29942,10 +29960,6 @@
               {
                 "name": "filesize",
                 "type": null
-              },
-              {
-                "name": "sizeUnit",
-                "type": null
               }
             ],
             "returns": null
@@ -39421,18 +39435,6 @@
           },
           {
             "name": "valueSelected",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "userObject",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "completerRenderSuggestion",
             "docblock": null,
             "modifiers": [],
             "params": [

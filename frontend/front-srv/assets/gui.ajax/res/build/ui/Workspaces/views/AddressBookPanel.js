@@ -171,7 +171,7 @@ var AddressBookPanel = (function (_React$Component) {
         var columnStyle = {
             position: 'absolute',
             width: 270,
-            top: 110,
+            top: 100,
             bottom: 0,
             backgroundColor: '#fafafa',
             borderLeft: '1px solid #e0e0e0',
