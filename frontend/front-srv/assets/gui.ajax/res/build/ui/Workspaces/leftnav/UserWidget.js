@@ -114,7 +114,8 @@ exports['default'] = React.createClass({
                     className: 'userActionButton backToHomeButton',
                     tooltip: user.activeRepository === 'homepage' ? null : messages['305'],
                     tooltipPosition: 'bottom-right',
-                    disabled: user.activeRepository === 'homepage'
+                    disabled: user.activeRepository === 'homepage',
+                    style: user.activeRepository === 'homepage' ? { borderBottom: '2px solid white' } : {}
                 });
             }
             if (!this.props.hideNotifications && !(this.props.pydio.user && this.props.pydio.user.activeRepository === 'inbox')) {

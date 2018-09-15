@@ -91,6 +91,7 @@ export default React.createClass({
                         tooltip={user.activeRepository === 'homepage' ? null : messages['305']}
                         tooltipPosition="bottom-right"
                         disabled={user.activeRepository === 'homepage'}
+                        style={user.activeRepository === 'homepage' ? {borderBottom:'2px solid white'} : {}}
                     />
                 );
             }

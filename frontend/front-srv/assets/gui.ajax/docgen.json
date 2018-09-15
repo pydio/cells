@@ -5422,7 +5422,9 @@
           {
             "name": "renderNode",
             "docblock": null,
-            "modifiers": [],
+            "modifiers": [
+              "static"
+            ],
             "params": [
               {
                 "name": "node",
