@@ -103,6 +103,7 @@ var Pydio = (function (_Observable) {
         _classCallCheck(this, Pydio);
 
         _Observable.call(this);
+        Pydio.instance = this;
         this.Parameters = parameters;
         this._initLoadRep = parameters.get('initLoadRep') || null;
         this.usersEnabled = parameters.get('usersEnabled') || null;
@@ -267,25 +268,6 @@ var Pydio = (function (_Observable) {
                 }
             });
         }
-        /*
-        if(this.Parameters.get("PRELOADED_REGISTRY")){
-             this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
-            this.Parameters.delete("PRELOADED_REGISTRY");
-            starterFunc();
-         }else{
-             if(this.Parameters.has("PRELOG_USER") && !this.user) {
-                const login = this.Parameters.get("PRELOG_USER");
-                const pwd = login + "#$!Az1";
-                PydioApi.getRestClient().jwtFromCredentials(login, pwd, false).then(()=> {
-                    this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
-                }).catch(e => {
-                    this.loadXmlRegistry(null, starterFunc);
-                })
-            } else {
-                this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
-            }
-         }
-        */
 
         this.observe("server_message", function (xml) {
             var reload = _utilXMLUtils2['default'].XPathSelectSingleNode(xml, "tree/require_registry_reload");
@@ -458,13 +440,13 @@ var Pydio = (function (_Observable) {
     Pydio.prototype.goTo = function goTo(nodeOrPath) {
         var gotoNode = undefined;
         var path = undefined;
-        if (typeof nodeOrPath == "string") {
+        if (typeof nodeOrPath === "string") {
             path = nodeOrPath;
             gotoNode = new _modelAjxpNode2['default'](nodeOrPath);
         } else {
             gotoNode = nodeOrPath;
             path = gotoNode.getPath();
-            if (nodeOrPath.getMetadata().has("repository_id") && nodeOrPath.getMetadata().get("repository_id") != this.repositoryId && nodeOrPath.getAjxpMime() != "repository" && nodeOrPath.getAjxpMime() != "repository_editable") {
+            if (nodeOrPath.getMetadata().has("repository_id") && nodeOrPath.getMetadata().get("repository_id") !== this.repositoryId && nodeOrPath.getAjxpMime() !== "repository" && nodeOrPath.getAjxpMime() !== "repository_editable") {
                 if (this.user) {
                     this.user.setPreference("pending_folder", nodeOrPath.getPath());
                     this._initLoadRep = nodeOrPath.getPath();
@@ -479,7 +461,7 @@ var Pydio = (function (_Observable) {
             return;
         }
         var current = this._contextHolder.getContextNode();
-        if (current && current.getPath() == path) {
+        if (current && current.getPath() === path) {
             return;
         }
         if (path === "" || path === "/") {
@@ -489,20 +471,20 @@ var Pydio = (function (_Observable) {
             gotoNode = gotoNode.findInArbo(this._contextHolder.getRootNode());
             if (gotoNode) {
                 // Node is already here
-                if (!gotoNode.isBrowsable()) {
+                if (gotoNode.isBrowsable()) {
+                    this._contextHolder.requireContextChange(gotoNode);
+                } else {
                     this._contextHolder.setPendingSelection(_utilPathUtils2['default'].getBasename(path));
                     this._contextHolder.requireContextChange(gotoNode.getParent());
-                } else {
-                    this._contextHolder.requireContextChange(gotoNode);
                 }
             } else {
                 // Check on server if it does exist, then load
                 this._contextHolder.loadPathInfoAsync(path, (function (foundNode) {
-                    if (!foundNode.isBrowsable()) {
+                    if (foundNode.isBrowsable()) {
+                        gotoNode = foundNode;
+                    } else {
                         this._contextHolder.setPendingSelection(_utilPathUtils2['default'].getBasename(path));
                         gotoNode = new _modelAjxpNode2['default'](_utilPathUtils2['default'].getDirname(path));
-                    } else {
-                        gotoNode = foundNode;
                     }
                     this._contextHolder.requireContextChange(gotoNode);
                 }).bind(this));
@@ -589,7 +571,7 @@ var Pydio = (function (_Observable) {
                 message = message.replace(match.url, repo.label + ":" + match.path + match.file);
             }).bind(this));
         }
-        if (messageType == 'ERROR') _langLogger2['default'].error(message);else _langLogger2['default'].log(message);
+        if (messageType === 'ERROR') _langLogger2['default'].error(message);else _langLogger2['default'].log(message);
         if (this.UI) {
             this.UI.displayMessage(messageType, message);
         }
@@ -679,8 +661,18 @@ var Pydio = (function (_Observable) {
         return require('pydio/http/resources-manager').requireLib(module, promise);
     };
 
+    Pydio.getInstance = function getInstance() {
+        return Pydio.instance;
+    };
+
+    Pydio.getMessages = function getMessages() {
+        return Pydio.instance ? Pydio.instance.MessageHash : {};
+    };
+
     return Pydio;
 })(_langObservable2['default']);
+
+Pydio.instance = null;
 
 exports['default'] = Pydio;
 module.exports = exports['default'];

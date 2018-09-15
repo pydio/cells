@@ -18,14 +18,21 @@
  * The latest code can be found at <https://pydio.com/>.
  *
  */
-/**
- * Utilitary class for manipulating file/folders pathes
- */
 "use strict";
 
 exports.__esModule = true;
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _Pydio = require('../Pydio');
+
+var _Pydio2 = _interopRequireDefault(_Pydio);
+
+/**
+ * Utilitary class for manipulating file/folders pathes
+ */
 
 var PathUtils = (function () {
     function PathUtils() {
@@ -33,9 +40,13 @@ var PathUtils = (function () {
     }
 
     PathUtils.getBasename = function getBasename(fileName) {
-        if (fileName == null) return null;
+        if (fileName == null) {
+            return null;
+        }
         var separator = "/";
-        if (fileName.indexOf("\\") !== -1) separator = "\\";
+        if (fileName.indexOf("\\") !== -1) {
+            separator = "\\";
+        }
         return fileName.substr(fileName.lastIndexOf(separator) + 1, fileName.length);
     };
 
@@ -44,7 +55,9 @@ var PathUtils = (function () {
     };
 
     PathUtils.getAjxpMimeType = function getAjxpMimeType(item) {
-        if (!item) return "";
+        if (!item) {
+            return "";
+        }
         if (item instanceof Map) {
             return item.get('ajxp_mime') || PathUtils.getFileExtension(item.get('filename'));
         } else if (item.getMetadata) {
@@ -55,15 +68,19 @@ var PathUtils = (function () {
     };
 
     PathUtils.getFileExtension = function getFileExtension(fileName) {
-        if (!fileName || fileName === "") return "";
+        if (!fileName || fileName === "") {
+            return "";
+        }
         var split = PathUtils.getBasename(fileName).split('.');
-        if (split.length > 1) return split[split.length - 1].toLowerCase();
+        if (split.length > 1) {
+            return split[split.length - 1].toLowerCase();
+        }
         return '';
     };
 
     PathUtils.roundFileSize = function roundFileSize(filesize) {
-        var sizeUnit = arguments.length <= 1 || arguments[1] === undefined ? "o" : arguments[1];
-
+        var messages = _Pydio2["default"].getMessages();
+        var sizeUnit = messages["byte_unit_symbol"] || "B";
         var size = filesize;
         if (filesize >= 1073741824) {
             size = Math.round(filesize / 1073741824 * 100) / 100 + " G" + sizeUnit;
@@ -87,9 +104,11 @@ var PathUtils = (function () {
     PathUtils.formatModifDate = function formatModifDate(dateObject, format) {
         var f = format;
         if (!format && pydio && pydio.MessageHash) {
-            f = pydio.MessageHash["date_format"];
+            f = _Pydio2["default"].getMessages()["date_format"];
         }
-        if (!f) return 'no format';
+        if (!f) {
+            return 'no format';
+        }
         f = f.replace("d", dateObject.getDate() < 10 ? '0' + dateObject.getDate() : dateObject.getDate());
         f = f.replace("D", dateObject.getDay());
         f = f.replace("Y", dateObject.getFullYear());

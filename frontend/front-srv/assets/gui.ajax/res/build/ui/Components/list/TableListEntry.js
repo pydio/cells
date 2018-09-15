@@ -36,6 +36,10 @@ var _InlineEditor = require('./InlineEditor');
 
 var _InlineEditor2 = _interopRequireDefault(_InlineEditor);
 
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
 var _require$requireLib = require('pydio').requireLib('boot');
 
 var moment = _require$requireLib.moment;
@@ -85,6 +89,8 @@ exports['default'] = React.createClass({
                     dateString = mDate.fromNow();
                 }
                 value = dateString;
+            } else if (key === 'bytesize') {
+                value = _pydioUtilPath2['default'].roundFileSize(parseInt(meta.get(key)));
             } else {
                 value = meta.get(key);
             }

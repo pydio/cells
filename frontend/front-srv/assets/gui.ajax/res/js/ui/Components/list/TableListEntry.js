@@ -22,6 +22,7 @@
 import ListEntryNodeListenerMixin from './ListEntryNodeListenerMixin'
 import {DragDropListEntry} from './ListEntry'
 import InlineEditor from './InlineEditor'
+import PathUtils from 'pydio/util/path'
 const {moment} = require('pydio').requireLib('boot');
 
 
@@ -60,13 +61,15 @@ export default React.createClass({
             if(data.renderCell) {
                 data['name'] = key;
                 value = data.renderCell(this.props.node, data);
-            }else if(key === 'ajxp_modiftime'){
-                let mDate = moment(parseFloat(meta.get('ajxp_modiftime'))*1000);
+            }else if(key === 'ajxp_modiftime') {
+                let mDate = moment(parseFloat(meta.get('ajxp_modiftime')) * 1000);
                 let dateString = mDate.calendar();
-                if(dateString.indexOf('/') > -1) {
+                if (dateString.indexOf('/') > -1) {
                     dateString = mDate.fromNow();
                 }
                 value = dateString;
+            } else if(key === 'bytesize'){
+                value = PathUtils.roundFileSize(parseInt(meta.get(key)));
             }else{
                 value = meta.get(key);
             }

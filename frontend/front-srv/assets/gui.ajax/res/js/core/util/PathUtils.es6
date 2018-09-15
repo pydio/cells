@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com/>.
  *
  */
+import Pydio from '../Pydio'
 /**
  * Utilitary class for manipulating file/folders pathes
  */
@@ -25,9 +26,13 @@ export default class PathUtils{
 
     static getBasename(fileName)
     {
-        if(fileName == null) return null;
+        if(fileName == null) {
+            return null;
+        }
         let separator = "/";
-        if(fileName.indexOf("\\") !== -1) separator = "\\";
+        if(fileName.indexOf("\\") !== -1) {
+            separator = "\\";
+        }
         return fileName.substr(fileName.lastIndexOf(separator)+1, fileName.length);
     }
 
@@ -37,7 +42,9 @@ export default class PathUtils{
     }
 
     static getAjxpMimeType(item){
-        if(!item) return "";
+        if(!item) {
+            return "";
+        }
         if(item instanceof Map){
             return (item.get('ajxp_mime') || PathUtils.getFileExtension(item.get('filename')));
         }else if(item.getMetadata){
@@ -49,13 +56,19 @@ export default class PathUtils{
 
     static getFileExtension(fileName)
     {
-        if(!fileName || fileName === "") return "";
+        if(!fileName || fileName === "") {
+            return "";
+        }
         const split = PathUtils.getBasename(fileName).split('.');
-        if(split.length > 1) return split[split.length-1].toLowerCase();
+        if(split.length > 1) {
+            return split[split.length-1].toLowerCase();
+        }
         return '';
     }
 
-    static roundFileSize(filesize, sizeUnit="o"){
+    static roundFileSize(filesize){
+        const messages = Pydio.getMessages();
+        const sizeUnit = messages["byte_unit_symbol"] || "B";
         let size = filesize;
         if (filesize >= 1073741824) {size = Math.round(filesize / 1073741824 * 100) / 100 + " G"+sizeUnit;}
         else if (filesize >= 1048576) {size = Math.round(filesize / 1048576 * 100) / 100 + " M"+sizeUnit;}
@@ -73,9 +86,11 @@ export default class PathUtils{
     static formatModifDate(dateObject, format){
         let f = format;
         if(!format && pydio && pydio.MessageHash) {
-            f = pydio.MessageHash["date_format"];
+            f = Pydio.getMessages()["date_format"];
         }
-        if(!f) return 'no format';
+        if(!f) {
+            return 'no format';
+        }
         f = f.replace("d", (dateObject.getDate()<10?'0'+dateObject.getDate():dateObject.getDate()));
         f = f.replace("D", dateObject.getDay());
         f = f.replace("Y", dateObject.getFullYear());

@@ -21,8 +21,7 @@
 import MetaCacheService from '../http/MetaCacheService'
 import PydioApi from '../http/PydioApi'
 import PathUtils from '../util/PathUtils'
-import XMLUtils from '../util/XMLUtils'
-import Logger from '../lang/Logger'
+import Pydio from 'pydio'
 import AjxpNode from './AjxpNode'
 import MetaServiceApi from "../http/gen/api/MetaServiceApi";
 import RestGetBulkMetaRequest from "../http/gen/model/RestGetBulkMetaRequest";
@@ -80,6 +79,7 @@ export default class MetaNodeProvider{
      */
     loadNode (node, nodeCallback=null, childCallback=null, recursive=false, depth=-1, optionalParameters=null){
 
+        const pydio = Pydio.getInstance();
         const api = new MetaServiceApi(PydioApi.getRestClient());
         let request = new RestGetBulkMetaRequest();
         let slug = '';
@@ -162,6 +162,7 @@ export default class MetaNodeProvider{
         let request = new RestGetBulkMetaRequest();
         let slug = '';
         let path = node.getPath();
+        const pydio = Pydio.getInstance();
         if(pydio.user){
             if(node.getMetadata().has('repository_id')){
                 const repoId = node.getMetadata().get('repository_id');
@@ -208,6 +209,7 @@ export default class MetaNodeProvider{
         if (!obj || !obj.MetaStore){
             return null;
         }
+        const pydio = Pydio.getInstance();
 
         let nodeName;
         if (obj.MetaStore.name){
@@ -267,6 +269,8 @@ export default class MetaNodeProvider{
                     node.getMetadata().set('mimestring',pydio.MessageHash[messageId]);
                 }
             }
+        } else if(!node.isLeaf()) {
+            node.getMetadata().set('mimestring',pydio.MessageHash[8]);
         }
         if (obj.Size !== undefined){
             node.getMetadata().set('bytesize', obj.Size);

@@ -47,6 +47,7 @@ class Pydio extends Observable{
      */
     constructor(parameters){
         super();
+        Pydio.instance = this;
         this.Parameters = parameters;
         this._initLoadRep = parameters.get('initLoadRep') || null;
         this.usersEnabled = parameters.get('usersEnabled') || null;
@@ -198,29 +199,6 @@ class Pydio extends Observable{
                 }
             });
         }
-        /*
-        if(this.Parameters.get("PRELOADED_REGISTRY")){
-
-            this.Registry.loadFromString(this.Parameters.get("PRELOADED_REGISTRY"));
-            this.Parameters.delete("PRELOADED_REGISTRY");
-            starterFunc();
-
-        }else{
-
-            if(this.Parameters.has("PRELOG_USER") && !this.user) {
-                const login = this.Parameters.get("PRELOG_USER");
-                const pwd = login + "#$!Az1";
-                PydioApi.getRestClient().jwtFromCredentials(login, pwd, false).then(()=> {
-                    this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
-                }).catch(e => {
-                    this.loadXmlRegistry(null, starterFunc);
-                })
-            } else {
-                this.loadXmlRegistry(null, starterFunc, this.Parameters.get("START_REPOSITORY"));
-            }
-
-        }
-        */
 
         this.observe("server_message", (xml) => {
             const reload = XMLUtils.XPathSelectSingleNode(xml, "tree/require_registry_reload");
@@ -379,14 +357,14 @@ class Pydio extends Observable{
     goTo(nodeOrPath){
         let gotoNode;
         let path;
-        if(typeof(nodeOrPath) == "string"){
+        if(typeof(nodeOrPath) === "string"){
             path = nodeOrPath;
             gotoNode = new AjxpNode(nodeOrPath);
         }else{
             gotoNode = nodeOrPath;
             path = gotoNode.getPath();
-            if(nodeOrPath.getMetadata().has("repository_id") && nodeOrPath.getMetadata().get("repository_id") != this.repositoryId
-                && nodeOrPath.getAjxpMime() != "repository" && nodeOrPath.getAjxpMime() != "repository_editable"){
+            if(nodeOrPath.getMetadata().has("repository_id") && nodeOrPath.getMetadata().get("repository_id") !== this.repositoryId
+                && nodeOrPath.getAjxpMime() !== "repository" && nodeOrPath.getAjxpMime() !== "repository_editable"){
                 if(this.user){
                     this.user.setPreference("pending_folder", nodeOrPath.getPath());
                     this._initLoadRep = nodeOrPath.getPath();
@@ -401,7 +379,7 @@ class Pydio extends Observable{
             return;
         }
         const current = this._contextHolder.getContextNode();
-        if(current && current.getPath() == path){
+        if(current && current.getPath() === path){
             return;
         }
         if(path === "" || path === "/") {
@@ -411,20 +389,20 @@ class Pydio extends Observable{
             gotoNode = gotoNode.findInArbo(this._contextHolder.getRootNode());
             if(gotoNode){
                 // Node is already here
-                if(!gotoNode.isBrowsable()){
+                if (gotoNode.isBrowsable()) {
+                    this._contextHolder.requireContextChange(gotoNode);
+                } else {
                     this._contextHolder.setPendingSelection(PathUtils.getBasename(path));
                     this._contextHolder.requireContextChange(gotoNode.getParent());
-                }else{
-                    this._contextHolder.requireContextChange(gotoNode);
                 }
             }else{
                 // Check on server if it does exist, then load
                 this._contextHolder.loadPathInfoAsync(path, function(foundNode){
-                    if(!foundNode.isBrowsable()) {
+                    if (foundNode.isBrowsable()) {
+                        gotoNode = foundNode;
+                    } else {
                         this._contextHolder.setPendingSelection(PathUtils.getBasename(path));
                         gotoNode = new AjxpNode(PathUtils.getDirname(path));
-                    }else{
-                        gotoNode = foundNode;
                     }
                     this._contextHolder.requireContextChange(gotoNode);
                 }.bind(this));
@@ -506,7 +484,7 @@ class Pydio extends Observable{
                 message = message.replace(match.url, repo.label+":" + match.path + match.file);
             }.bind(this));
         }
-        if(messageType == 'ERROR') Logger.error(message);
+        if(messageType === 'ERROR') Logger.error(message);
         else Logger.log(message);
         if(this.UI) {
             this.UI.displayMessage(messageType, message);
@@ -588,6 +566,16 @@ class Pydio extends Observable{
         return require('pydio/http/resources-manager').requireLib(module, promise);
     }
 
+    static getInstance(){
+        return Pydio.instance;
+    }
+
+    static getMessages(){
+        return Pydio.instance ? Pydio.instance.MessageHash : {};
+    }
+
 }
+
+Pydio.instance = null;
 
 export {Pydio as default}

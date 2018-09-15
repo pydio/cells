@@ -315,15 +315,19 @@ let MainFilesList = React.createClass({
             let label;
             if(s === 'ajxp_label' || s === 'text'){
                 continue;
-            }else if(s=="ajxp_modiftime"){
+            }else if(s==="ajxp_modiftime"){
                 let date = new Date();
                 date.setTime(parseInt(metaData.get(s))*1000);
                 label = PathUtils.formatModifDate(date);
-            }else if(s == "ajxp_dirname" && metaData.get("filename")){
+            }else if(s === "ajxp_dirname" && metaData.get("filename")){
                 let dirName = PathUtils.getDirname(metaData.get("filename"));
                 label =  dirName?dirName:"/" ;
-            }else if(s == "filesize" && metaData.get(s) == "-") {
-                continue;
+            }else if(s === "bytesize") {
+                if(metaData.get(s) === "-"){
+                    continue;
+                } else {
+                    label = PathUtils.roundFileSize(parseInt(metaData.get(s)));
+                }
             }else if(columnDef.renderComponent){
                 columnDef['name'] = s;
                 label = columnDef.renderComponent(node, columnDef);

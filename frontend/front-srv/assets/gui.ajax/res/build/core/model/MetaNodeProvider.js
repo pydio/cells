@@ -38,13 +38,9 @@ var _utilPathUtils = require('../util/PathUtils');
 
 var _utilPathUtils2 = _interopRequireDefault(_utilPathUtils);
 
-var _utilXMLUtils = require('../util/XMLUtils');
+var _pydio = require('pydio');
 
-var _utilXMLUtils2 = _interopRequireDefault(_utilXMLUtils);
-
-var _langLogger = require('../lang/Logger');
-
-var _langLogger2 = _interopRequireDefault(_langLogger);
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _AjxpNode = require('./AjxpNode');
 
@@ -124,6 +120,7 @@ var MetaNodeProvider = (function () {
         var depth = arguments.length <= 4 || arguments[4] === undefined ? -1 : arguments[4];
         var optionalParameters = arguments.length <= 5 || arguments[5] === undefined ? null : arguments[5];
 
+        var pydio = _pydio2['default'].getInstance();
         var api = new _httpGenApiMetaServiceApi2['default'](_httpPydioApi2['default'].getRestClient());
         var request = new _httpGenModelRestGetBulkMetaRequest2['default']();
         var slug = '';
@@ -209,6 +206,7 @@ var MetaNodeProvider = (function () {
         var request = new _httpGenModelRestGetBulkMetaRequest2['default']();
         var slug = '';
         var path = node.getPath();
+        var pydio = _pydio2['default'].getInstance();
         if (pydio.user) {
             if (node.getMetadata().has('repository_id')) {
                 var repoId = node.getMetadata().get('repository_id');
@@ -255,6 +253,7 @@ var MetaNodeProvider = (function () {
         if (!obj || !obj.MetaStore) {
             return null;
         }
+        var pydio = _pydio2['default'].getInstance();
 
         var nodeName = undefined;
         if (obj.MetaStore.name) {
@@ -318,6 +317,8 @@ var MetaNodeProvider = (function () {
                     node.getMetadata().set('mimestring', pydio.MessageHash[messageId]);
                 }
             }
+        } else if (!node.isLeaf()) {
+            node.getMetadata().set('mimestring', pydio.MessageHash[8]);
         }
         if (obj.Size !== undefined) {
             node.getMetadata().set('bytesize', obj.Size);
