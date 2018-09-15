@@ -65,14 +65,17 @@ exports['default'] = _react2['default'].createClass({
     },
 
     getInitialState: function getInitialState() {
-        return { workspaces: [] };
+        return { workspaces: [], loading: false };
     },
 
     reload: function reload() {
         var _this = this;
 
+        this.setState({ loading: true });
         _modelWs2['default'].listWorkpsaces().then(function (response) {
-            _this.setState({ workspaces: response.Workspaces || [] });
+            _this.setState({ loading: false, workspaces: response.Workspaces || [] });
+        })['catch'](function (e) {
+            _this.setState({ loading: false });
         });
     },
 
@@ -114,6 +117,7 @@ exports['default'] = _react2['default'].createClass({
     render: function render() {
 
         var columns = [{ name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: 'Description', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'summary', label: 'Root Nodes', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'slug', label: 'Slug', style: { width: '20%' }, headerStyle: { width: '20%' } }];
+        var loading = this.state.loading;
 
         var data = this.computeTableData();
 
@@ -122,7 +126,8 @@ exports['default'] = _react2['default'].createClass({
             columns: columns,
             onSelectRows: this.openTableRows.bind(this),
             deselectOnClickAway: true,
-            showCheckboxes: false
+            showCheckboxes: false,
+            emptyStateString: loading ? "Loading..." : "No workspaces defined"
         });
     }
 

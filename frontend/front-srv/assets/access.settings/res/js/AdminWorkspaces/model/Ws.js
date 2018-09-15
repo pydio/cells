@@ -50,6 +50,8 @@ class Workspace extends Observable{
             this.model = new IdmWorkspace();
             this.model.Scope = IdmWorkspaceScope.constructFromObject('ADMIN');
             this.model.RootNodes = {};
+            this.internalAttributes = {"DEFAULT_RIGHTS": "r"};
+            this.model.Attributes = JSON.stringify(this.internalAttributes);
         }
         this.observableModel = this.buildProxy(this.model);
     }
@@ -134,7 +136,7 @@ class Workspace extends Observable{
      * @return {boolean}
      */
     isValid(){
-        return this.model.Slug && this.model.Label && this.model.Description && Object.keys(this.model.RootNodes).length > 0;
+        return this.model.Slug && this.model.Label && Object.keys(this.model.RootNodes).length > 0;
     }
 
     isDirty(){

@@ -39,12 +39,15 @@ export default React.createClass({
     },
 
     getInitialState(){
-        return {workspaces: []};
+        return {workspaces: [], loading: false};
     },
 
     reload(){
+        this.setState({loading: true});
         Workspace.listWorkpsaces().then(response => {
-            this.setState({workspaces: response.Workspaces || []});
+            this.setState({loading: false, workspaces: response.Workspaces || []});
+        }).catch(e => {
+            this.setState({loading: false});
         });
     },
 
@@ -90,7 +93,7 @@ export default React.createClass({
             {name:'summary', label: 'Root Nodes', style:{width:'30%'}, headerStyle:{width:'30%'}},
             {name:'slug', label: 'Slug', style:{width:'20%'}, headerStyle:{width:'20%'}},
         ];
-
+        const {loading} = this.state;
         const data = this.computeTableData();
 
         return (
@@ -100,6 +103,7 @@ export default React.createClass({
                 onSelectRows={this.openTableRows.bind(this)}
                 deselectOnClickAway={true}
                 showCheckboxes={false}
+                emptyStateString={loading ? "Loading..." : "No workspaces defined"}
             />
         );
 

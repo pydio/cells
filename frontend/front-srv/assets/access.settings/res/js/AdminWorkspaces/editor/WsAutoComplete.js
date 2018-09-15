@@ -1,6 +1,7 @@
 import React from 'react'
 import {FlatButton, RaisedButton, SelectField, Paper, TextField, Divider, Toggle, MenuItem, AutoComplete, RefreshIndicator, FontIcon, IconButton, Subheader} from 'material-ui'
 import debounce from 'lodash.debounce'
+import PathUtils from 'pydio/util/path'
 import {AdminTreeServiceApi, TreeListNodesRequest, TreeNode} from "pydio/http/rest-api";
 
 export default class WsAutoComplete extends React.Component{
@@ -89,20 +90,24 @@ export default class WsAutoComplete extends React.Component{
         })
     }
 
-    renderNode(node) {
+    static renderNode(node) {
         let label = <span>{node.Path}</span>;
         let icon = "mdi mdi-folder";
         let categ = "folder";
-        if(!node.Uuid.startsWith("DATASOURCE:")){
-            icon = "mdi mdi-database";
+        if(node.MetaStore && node.MetaStore["resolution"]){
+            icon = "mdi mdi-file-tree";
             categ = "templatePath";
+            const resolutionPart = node.MetaStore["resolution"].split("\n").pop();
+            label = <span>{node.Path} <i style={{color: '#9e9e9e'}}>- Resolves to {resolutionPart}</i></span>;
+        } else if(node.Type === 'LEAF') {
+            icon = "mdi mdi-file";
         }
         return {
             key         : node.Path,
             text        : node.Path,
             node        : node,
             categ       : categ,
-            value       : <MenuItem><FontIcon className={icon} color="#616161" style={{float:'left',marginRight:8}}/> {label}</MenuItem>
+            value       : <MenuItem><FontIcon className={icon} color="#607d8b" style={{float:'left',marginRight:8}}/> {label}</MenuItem>
         };
     }
 
@@ -114,7 +119,14 @@ export default class WsAutoComplete extends React.Component{
         if (nodes){
             let categs = {};
             nodes.forEach((node) => {
-                const data = this.renderNode(node);
+                if (node.MetaStore && node.MetaStore["resolution"] && node.Uuid === "cells"){
+                    // Skip "Cells" Template Path
+                    return;
+                } else if(PathUtils.getBasename(node.Path).startsWith(".")) {
+                    // Skip hidden files
+                    return;
+                }
+                const data = WsAutoComplete.renderNode(node);
                 if(!categs[data.categ]) {
                     categs[data.categ] = [];
                 }
@@ -133,13 +145,13 @@ export default class WsAutoComplete extends React.Component{
         }
 
         let displayText = this.state.value;
-        let depth = 1;
+        let depth = 0;
         if(zDepth !== undefined){
             depth = zDepth;
         }
 
         return (
-            <Paper zDepth={depth} style={{display:'flex', alignItems: 'baseline', padding:10, paddingTop: 0, marginTop: 10, ...this.props.style}}>
+            <Paper zDepth={depth} style={{display:'flex', alignItems: 'baseline', margin:'10px 0 0 -8px', padding:'0 8px 10px', backgroundColor:'#fafafa', ...this.props.style}}>
                 <div style={{position:'relative', flex: 1, marginTop: -5}}>
                     <div style={{position:'absolute', right: 0, top: 30, width: 30}}>
                         <RefreshIndicator

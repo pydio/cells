@@ -118,7 +118,7 @@ var WsEditor = (function (_React$Component) {
                 delButton = _react2['default'].createElement(
                     'div',
                     { style: { padding: 16, textAlign: 'center' } },
-                    'Dangerous Operation: ',
+                    'Warning, dangerous operation! This is undoeable.',
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: "Delete Workspace", onTouchTap: function () {
@@ -131,14 +131,16 @@ var WsEditor = (function (_React$Component) {
                 null,
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: 16 } },
-                    'Workspace are used to actually grant data access to the users.',
+                    { style: { padding: 16, color: '#9e9e9e' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { fontSize: 120, textAlign: 'center', paddingBottom: 10 } },
+                        _react2['default'].createElement('i', { className: "mdi mdi-folder-open" })
+                    ),
+                    'Workspaces grant accesses to your data to the users. They expose one or many folders picked inside your datasources.',
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
-                    'It is composed of one or many "roots" that are exposed to the users. You can pick either a folder or a file from any datasource, or a preset Template Path that will be resolved automatically at run time (see the Storage section).',
-                    _react2['default'].createElement('br', null),
-                    _react2['default'].createElement('br', null),
-                    'In the latter case (using template paths), you can only add one Template Path as root of a workspace.'
+                    'It is important to properly organize how data will be presented to your users. You may create workspaces for various parts of your organization (finance, marketing, technical data, etc.), on a per-project basis, etc. You can then assign accesses to workspaces on a per-user / per-role / per-group basis.'
                 ),
                 delButton && _react2['default'].createElement(_materialUi.Divider, null),
                 delButton
@@ -150,7 +152,7 @@ var WsEditor = (function (_React$Component) {
                     paddingTop: 20,
                     marginBottom: 0
                 },
-                legend: {},
+                legend: { color: '#9E9E9E', paddingTop: 10 },
                 section: { padding: '0 20px 20px' },
                 toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
             };
@@ -207,14 +209,30 @@ var WsEditor = (function (_React$Component) {
                         { style: styles.title },
                         'Main Options'
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Label", value: workspace.Label, onChange: function (e, v) {
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.legend },
+                        'Label and description are displayed to the users. Choose a self-explanatory name to help users better organize the data.'
+                    ),
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
+                        errorText: workspace.Label ? "" : "Human-friendly label for this workspace",
+                        floatingLabelText: "Label",
+                        value: workspace.Label, onChange: function (e, v) {
                             workspace.Label = v;
-                        } }),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Description", value: workspace.Description, onChange: function (e, v) {
-                            workspace.Description = v;
-                        } }),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Slug (technical access)", value: workspace.Slug, onChange: function (e, v) {
+                        }
+                    }),
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
+                        errorText: workspace.Label && !workspace.Slug ? "Technical name used for example in URLs, automatically computed but you can customize it." : "",
+                        floatingLabelText: "Slug",
+                        value: workspace.Slug,
+                        onChange: function (e, v) {
                             workspace.Slug = v;
+                        }
+                    }),
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
+                        floatingLabelText: "Additional Description (optional)",
+                        value: workspace.Description, onChange: function (e, v) {
+                            workspace.Description = v;
                         } })
                 ),
                 _react2['default'].createElement(_materialUi.Divider, null),
@@ -224,15 +242,35 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Permissions'
+                        'Data Access'
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.legend },
+                        'Workspace exposes one or many "roots" to the users: choose on or more paths from any ',
+                        _react2['default'].createElement(
+                            'a',
+                            null,
+                            'DataSource'
+                        ),
+                        ' or a ',
+                        _react2['default'].createElement(
+                            'a',
+                            null,
+                            'Template Path'
+                        ),
+                        ' that will be resolved automatically at runtime.'
                     ),
                     completers,
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.legend },
+                        'Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section.'
+                    ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
                         {
                             fullWidth: true,
-                            floatingLabelFixed: true,
-                            floatingLabelText: "Default Access (all users)",
                             value: workspace.Attributes['DEFAULT_RIGHTS'],
                             onChange: function (e, i, v) {
                                 workspace.Attributes['DEFAULT_RIGHTS'] = v;
@@ -251,18 +289,18 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Other'
+                        'Other Properties'
                     ),
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: "Allow Synchronization", toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { label: "Allow Desktop Synchronization (experimental)", toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
                                 workspace.Attributes['ALLOW_SYNC'] = v;
                             } })
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Layout", value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
+                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Layout (enterprise only)", value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
                                 workspace.Attributes['META_LAYOUT'] = v;
                             } },
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Default", value: "" }),

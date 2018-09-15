@@ -23288,14 +23288,17 @@ exports['default'] = _react2['default'].createClass({
     },
 
     getInitialState: function getInitialState() {
-        return { workspaces: [] };
+        return { workspaces: [], loading: false };
     },
 
     reload: function reload() {
         var _this = this;
 
+        this.setState({ loading: true });
         _modelWs2['default'].listWorkpsaces().then(function (response) {
-            _this.setState({ workspaces: response.Workspaces || [] });
+            _this.setState({ loading: false, workspaces: response.Workspaces || [] });
+        })['catch'](function (e) {
+            _this.setState({ loading: false });
         });
     },
 
@@ -23337,6 +23340,7 @@ exports['default'] = _react2['default'].createClass({
     render: function render() {
 
         var columns = [{ name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: 'Description', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'summary', label: 'Root Nodes', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'slug', label: 'Slug', style: { width: '20%' }, headerStyle: { width: '20%' } }];
+        var loading = this.state.loading;
 
         var data = this.computeTableData();
 
@@ -23345,7 +23349,8 @@ exports['default'] = _react2['default'].createClass({
             columns: columns,
             onSelectRows: this.openTableRows.bind(this),
             deselectOnClickAway: true,
-            showCheckboxes: false
+            showCheckboxes: false,
+            emptyStateString: loading ? "Loading..." : "No workspaces defined"
         });
     }
 
@@ -25162,6 +25167,10 @@ var _lodashDebounce = require('lodash.debounce');
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
 var _pydioHttpRestApi = require("pydio/http/rest-api");
 
 var WsAutoComplete = (function (_React$Component) {
@@ -25262,38 +25271,8 @@ var WsAutoComplete = (function (_React$Component) {
             });
         }
     }, {
-        key: 'renderNode',
-        value: function renderNode(node) {
-            var label = _react2['default'].createElement(
-                'span',
-                null,
-                node.Path
-            );
-            var icon = "mdi mdi-folder";
-            var categ = "folder";
-            if (!node.Uuid.startsWith("DATASOURCE:")) {
-                icon = "mdi mdi-database";
-                categ = "templatePath";
-            }
-            return {
-                key: node.Path,
-                text: node.Path,
-                node: node,
-                categ: categ,
-                value: _react2['default'].createElement(
-                    _materialUi.MenuItem,
-                    null,
-                    _react2['default'].createElement(_materialUi.FontIcon, { className: icon, color: '#616161', style: { float: 'left', marginRight: 8 } }),
-                    ' ',
-                    label
-                )
-            };
-        }
-    }, {
         key: 'render',
         value: function render() {
-            var _this2 = this;
-
             var _props = this.props;
             var onDelete = _props.onDelete;
             var skipTemplates = _props.skipTemplates;
@@ -25308,7 +25287,14 @@ var WsAutoComplete = (function (_React$Component) {
                 (function () {
                     var categs = {};
                     nodes.forEach(function (node) {
-                        var data = _this2.renderNode(node);
+                        if (node.MetaStore && node.MetaStore["resolution"] && node.Uuid === "cells") {
+                            // Skip "Cells" Template Path
+                            return;
+                        } else if (_pydioUtilPath2['default'].getBasename(node.Path).startsWith(".")) {
+                            // Skip hidden files
+                            return;
+                        }
+                        var data = WsAutoComplete.renderNode(node);
                         if (!categs[data.categ]) {
                             categs[data.categ] = [];
                         }
@@ -25328,14 +25314,14 @@ var WsAutoComplete = (function (_React$Component) {
             }
 
             var displayText = this.state.value;
-            var depth = 1;
+            var depth = 0;
             if (zDepth !== undefined) {
                 depth = zDepth;
             }
 
             return _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: depth, style: _extends({ display: 'flex', alignItems: 'baseline', padding: 10, paddingTop: 0, marginTop: 10 }, this.props.style) },
+                { zDepth: depth, style: _extends({ display: 'flex', alignItems: 'baseline', margin: '10px 0 0 -8px', padding: '0 8px 10px', backgroundColor: '#fafafa' }, this.props.style) },
                 _react2['default'].createElement(
                     'div',
                     { style: { position: 'relative', flex: 1, marginTop: -5 } },
@@ -25368,6 +25354,49 @@ var WsAutoComplete = (function (_React$Component) {
                 onDelete && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onTouchTap: onDelete })
             );
         }
+    }], [{
+        key: 'renderNode',
+        value: function renderNode(node) {
+            var label = _react2['default'].createElement(
+                'span',
+                null,
+                node.Path
+            );
+            var icon = "mdi mdi-folder";
+            var categ = "folder";
+            if (node.MetaStore && node.MetaStore["resolution"]) {
+                icon = "mdi mdi-file-tree";
+                categ = "templatePath";
+                var resolutionPart = node.MetaStore["resolution"].split("\n").pop();
+                label = _react2['default'].createElement(
+                    'span',
+                    null,
+                    node.Path,
+                    ' ',
+                    _react2['default'].createElement(
+                        'i',
+                        { style: { color: '#9e9e9e' } },
+                        '- Resolves to ',
+                        resolutionPart
+                    )
+                );
+            } else if (node.Type === 'LEAF') {
+                icon = "mdi mdi-file";
+            }
+            return {
+                key: node.Path,
+                text: node.Path,
+                node: node,
+                categ: categ,
+                value: _react2['default'].createElement(
+                    _materialUi.MenuItem,
+                    null,
+                    _react2['default'].createElement(_materialUi.FontIcon, { className: icon, color: '#607d8b', style: { float: 'left', marginRight: 8 } }),
+                    ' ',
+                    label
+                )
+            };
+        }
     }]);
 
     return WsAutoComplete;
@@ -25376,7 +25405,7 @@ var WsAutoComplete = (function (_React$Component) {
 exports['default'] = WsAutoComplete;
 module.exports = exports['default'];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],168:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/path":"pydio/util/path","react":"react"}],168:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25497,7 +25526,7 @@ var WsEditor = (function (_React$Component) {
                 delButton = _react2['default'].createElement(
                     'div',
                     { style: { padding: 16, textAlign: 'center' } },
-                    'Dangerous Operation: ',
+                    'Warning, dangerous operation! This is undoeable.',
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: "Delete Workspace", onTouchTap: function () {
@@ -25510,14 +25539,16 @@ var WsEditor = (function (_React$Component) {
                 null,
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: 16 } },
-                    'Workspace are used to actually grant data access to the users.',
+                    { style: { padding: 16, color: '#9e9e9e' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { fontSize: 120, textAlign: 'center', paddingBottom: 10 } },
+                        _react2['default'].createElement('i', { className: "mdi mdi-folder-open" })
+                    ),
+                    'Workspaces grant accesses to your data to the users. They expose one or many folders picked inside your datasources.',
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
-                    'It is composed of one or many "roots" that are exposed to the users. You can pick either a folder or a file from any datasource, or a preset Template Path that will be resolved automatically at run time (see the Storage section).',
-                    _react2['default'].createElement('br', null),
-                    _react2['default'].createElement('br', null),
-                    'In the latter case (using template paths), you can only add one Template Path as root of a workspace.'
+                    'It is important to properly organize how data will be presented to your users. You may create workspaces for various parts of your organization (finance, marketing, technical data, etc.), on a per-project basis, etc. You can then assign accesses to workspaces on a per-user / per-role / per-group basis.'
                 ),
                 delButton && _react2['default'].createElement(_materialUi.Divider, null),
                 delButton
@@ -25529,7 +25560,7 @@ var WsEditor = (function (_React$Component) {
                     paddingTop: 20,
                     marginBottom: 0
                 },
-                legend: {},
+                legend: { color: '#9E9E9E', paddingTop: 10 },
                 section: { padding: '0 20px 20px' },
                 toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
             };
@@ -25586,14 +25617,30 @@ var WsEditor = (function (_React$Component) {
                         { style: styles.title },
                         'Main Options'
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Label", value: workspace.Label, onChange: function (e, v) {
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.legend },
+                        'Label and description are displayed to the users. Choose a self-explanatory name to help users better organize the data.'
+                    ),
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
+                        errorText: workspace.Label ? "" : "Human-friendly label for this workspace",
+                        floatingLabelText: "Label",
+                        value: workspace.Label, onChange: function (e, v) {
                             workspace.Label = v;
-                        } }),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Description", value: workspace.Description, onChange: function (e, v) {
-                            workspace.Description = v;
-                        } }),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Slug (technical access)", value: workspace.Slug, onChange: function (e, v) {
+                        }
+                    }),
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
+                        errorText: workspace.Label && !workspace.Slug ? "Technical name used for example in URLs, automatically computed but you can customize it." : "",
+                        floatingLabelText: "Slug",
+                        value: workspace.Slug,
+                        onChange: function (e, v) {
                             workspace.Slug = v;
+                        }
+                    }),
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
+                        floatingLabelText: "Additional Description (optional)",
+                        value: workspace.Description, onChange: function (e, v) {
+                            workspace.Description = v;
                         } })
                 ),
                 _react2['default'].createElement(_materialUi.Divider, null),
@@ -25603,15 +25650,35 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Permissions'
+                        'Data Access'
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.legend },
+                        'Workspace exposes one or many "roots" to the users: choose on or more paths from any ',
+                        _react2['default'].createElement(
+                            'a',
+                            null,
+                            'DataSource'
+                        ),
+                        ' or a ',
+                        _react2['default'].createElement(
+                            'a',
+                            null,
+                            'Template Path'
+                        ),
+                        ' that will be resolved automatically at runtime.'
                     ),
                     completers,
+                    _react2['default'].createElement(
+                        'div',
+                        { style: styles.legend },
+                        'Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section.'
+                    ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
                         {
                             fullWidth: true,
-                            floatingLabelFixed: true,
-                            floatingLabelText: "Default Access (all users)",
                             value: workspace.Attributes['DEFAULT_RIGHTS'],
                             onChange: function (e, i, v) {
                                 workspace.Attributes['DEFAULT_RIGHTS'] = v;
@@ -25630,18 +25697,18 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Other'
+                        'Other Properties'
                     ),
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: "Allow Synchronization", toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { label: "Allow Desktop Synchronization (experimental)", toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
                                 workspace.Attributes['ALLOW_SYNC'] = v;
                             } })
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Layout", value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
+                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Layout (enterprise only)", value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
                                 workspace.Attributes['META_LAYOUT'] = v;
                             } },
                         _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Default", value: "" }),
@@ -26530,6 +26597,8 @@ var Workspace = (function (_Observable) {
             this.model = new _pydioHttpRestApi.IdmWorkspace();
             this.model.Scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
             this.model.RootNodes = {};
+            this.internalAttributes = { "DEFAULT_RIGHTS": "r" };
+            this.model.Attributes = JSON.stringify(this.internalAttributes);
         }
         this.observableModel = this.buildProxy(this.model);
     }
@@ -26636,7 +26705,7 @@ var Workspace = (function (_Observable) {
     }, {
         key: 'isValid',
         value: function isValid() {
-            return this.model.Slug && this.model.Label && this.model.Description && Object.keys(this.model.RootNodes).length > 0;
+            return this.model.Slug && this.model.Label && Object.keys(this.model.RootNodes).length > 0;
         }
     }, {
         key: 'isDirty',

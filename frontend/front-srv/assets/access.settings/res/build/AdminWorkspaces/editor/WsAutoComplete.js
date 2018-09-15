@@ -28,6 +28,10 @@ var _lodashDebounce = require('lodash.debounce');
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
 var _pydioHttpRestApi = require("pydio/http/rest-api");
 
 var WsAutoComplete = (function (_React$Component) {
@@ -128,38 +132,8 @@ var WsAutoComplete = (function (_React$Component) {
             });
         }
     }, {
-        key: 'renderNode',
-        value: function renderNode(node) {
-            var label = _react2['default'].createElement(
-                'span',
-                null,
-                node.Path
-            );
-            var icon = "mdi mdi-folder";
-            var categ = "folder";
-            if (!node.Uuid.startsWith("DATASOURCE:")) {
-                icon = "mdi mdi-database";
-                categ = "templatePath";
-            }
-            return {
-                key: node.Path,
-                text: node.Path,
-                node: node,
-                categ: categ,
-                value: _react2['default'].createElement(
-                    _materialUi.MenuItem,
-                    null,
-                    _react2['default'].createElement(_materialUi.FontIcon, { className: icon, color: '#616161', style: { float: 'left', marginRight: 8 } }),
-                    ' ',
-                    label
-                )
-            };
-        }
-    }, {
         key: 'render',
         value: function render() {
-            var _this2 = this;
-
             var _props = this.props;
             var onDelete = _props.onDelete;
             var skipTemplates = _props.skipTemplates;
@@ -174,7 +148,14 @@ var WsAutoComplete = (function (_React$Component) {
                 (function () {
                     var categs = {};
                     nodes.forEach(function (node) {
-                        var data = _this2.renderNode(node);
+                        if (node.MetaStore && node.MetaStore["resolution"] && node.Uuid === "cells") {
+                            // Skip "Cells" Template Path
+                            return;
+                        } else if (_pydioUtilPath2['default'].getBasename(node.Path).startsWith(".")) {
+                            // Skip hidden files
+                            return;
+                        }
+                        var data = WsAutoComplete.renderNode(node);
                         if (!categs[data.categ]) {
                             categs[data.categ] = [];
                         }
@@ -194,14 +175,14 @@ var WsAutoComplete = (function (_React$Component) {
             }
 
             var displayText = this.state.value;
-            var depth = 1;
+            var depth = 0;
             if (zDepth !== undefined) {
                 depth = zDepth;
             }
 
             return _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: depth, style: _extends({ display: 'flex', alignItems: 'baseline', padding: 10, paddingTop: 0, marginTop: 10 }, this.props.style) },
+                { zDepth: depth, style: _extends({ display: 'flex', alignItems: 'baseline', margin: '10px 0 0 -8px', padding: '0 8px 10px', backgroundColor: '#fafafa' }, this.props.style) },
                 _react2['default'].createElement(
                     'div',
                     { style: { position: 'relative', flex: 1, marginTop: -5 } },
@@ -233,6 +214,49 @@ var WsAutoComplete = (function (_React$Component) {
                 ),
                 onDelete && _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onTouchTap: onDelete })
             );
+        }
+    }], [{
+        key: 'renderNode',
+        value: function renderNode(node) {
+            var label = _react2['default'].createElement(
+                'span',
+                null,
+                node.Path
+            );
+            var icon = "mdi mdi-folder";
+            var categ = "folder";
+            if (node.MetaStore && node.MetaStore["resolution"]) {
+                icon = "mdi mdi-file-tree";
+                categ = "templatePath";
+                var resolutionPart = node.MetaStore["resolution"].split("\n").pop();
+                label = _react2['default'].createElement(
+                    'span',
+                    null,
+                    node.Path,
+                    ' ',
+                    _react2['default'].createElement(
+                        'i',
+                        { style: { color: '#9e9e9e' } },
+                        '- Resolves to ',
+                        resolutionPart
+                    )
+                );
+            } else if (node.Type === 'LEAF') {
+                icon = "mdi mdi-file";
+            }
+            return {
+                key: node.Path,
+                text: node.Path,
+                node: node,
+                categ: categ,
+                value: _react2['default'].createElement(
+                    _materialUi.MenuItem,
+                    null,
+                    _react2['default'].createElement(_materialUi.FontIcon, { className: icon, color: '#607d8b', style: { float: 'left', marginRight: 8 } }),
+                    ' ',
+                    label
+                )
+            };
         }
     }]);
 

@@ -78,6 +78,8 @@ var Workspace = (function (_Observable) {
             this.model = new _pydioHttpRestApi.IdmWorkspace();
             this.model.Scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
             this.model.RootNodes = {};
+            this.internalAttributes = { "DEFAULT_RIGHTS": "r" };
+            this.model.Attributes = JSON.stringify(this.internalAttributes);
         }
         this.observableModel = this.buildProxy(this.model);
     }
@@ -184,7 +186,7 @@ var Workspace = (function (_Observable) {
     }, {
         key: 'isValid',
         value: function isValid() {
-            return this.model.Slug && this.model.Label && this.model.Description && Object.keys(this.model.RootNodes).length > 0;
+            return this.model.Slug && this.model.Label && Object.keys(this.model.RootNodes).length > 0;
         }
     }, {
         key: 'isDirty',
