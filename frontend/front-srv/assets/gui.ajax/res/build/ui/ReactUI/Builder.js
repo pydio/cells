@@ -250,6 +250,9 @@ var Builder = (function () {
             return;
         }
         if (type === 'ERROR') {
+            if (message instanceof Object && message.Title) {
+                message = message.Title;
+            }
             this._messageBar.error(message, actionLabel, actionCallback);
         } else {
             this._messageBar.info(message, actionLabel, actionCallback);

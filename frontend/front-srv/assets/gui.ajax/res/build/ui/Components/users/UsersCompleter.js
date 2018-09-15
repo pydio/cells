@@ -31,6 +31,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _addressbookAddressBook = require('./addressbook/AddressBook');
 
 var _addressbookAddressBook2 = _interopRequireDefault(_addressbookAddressBook);
@@ -147,22 +151,6 @@ var UsersLoader = _react2['default'].createClass({
                 return { IdmUser: u };
             })));
         });
-        /*
-        PydioUsers.Client.authorizedUsersStartingWith(input, function(users){
-            this.setState({loading:this.state.loading - 1});
-            if(disallowTemporary){
-                users = users.filter(function(user){
-                    return !user.getTemporary();
-                });
-            }
-            if(excludes && excludes.length){
-                users = users.filter(function(user){
-                    return excludes.indexOf(user.getId()) == -1;
-                });
-            }
-            callback(users);
-        }.bind(this), this.props.usersOnly, this.props.existingOnly);
-        */
     },
 
     /**
@@ -182,6 +170,10 @@ var UsersLoader = _react2['default'].createClass({
         return this.state.searchText || false;
     },
 
+    componentWillReceiveProps: function componentWillReceiveProps() {
+        this._emptyValueList = null;
+    },
+
     /**
      * Debounced call for rendering search
      * @param value {string}
@@ -196,45 +188,76 @@ var UsersLoader = _react2['default'].createClass({
         var _props = this.props;
         var existingOnly = _props.existingOnly;
         var freeValueAllowed = _props.freeValueAllowed;
+        var excludes = _props.excludes;
 
         _pydioUtilFunc2['default'].bufferCallback('remote_users_search', timeout, (function () {
             this.setState({ loading: true });
+            var excluded = [_pydio2['default'].getInstance().user.id, 'pydio.anon.user'];
             this.suggestionLoader(value, (function (users) {
                 var valueExists = false;
-                var values = users.map((function (userObject) {
-                    // Todo readapt renderSuggestion(s) calls
-                    //let component = (<MenuItem>{this.props.renderSuggestion(userObject)}</MenuItem>);
+                var values = users.filter(function (userObject) {
+                    return !(userObject.IdmUser && !userObject.IdmUser.IsGroup && excluded.indexOf(userObject.IdmUser.Login) > -1);
+                }).filter(function (userObject) {
+                    if (!excludes) {
+                        return true;
+                    }
+                    if (userObject.IdmUser && userObject.IdmUser.IsGroup) {
+                        return excludes.filter(function (e) {
+                            return e.Group && e.Group.Uuid === userObject.IdmUser.Uuid;
+                        }).length === 0;
+                    } else if (userObject.IdmUser) {
+                        return excludes.filter(function (e) {
+                            return e.User && e.User.Uuid === userObject.IdmUser.Uuid;
+                        }).length === 0;
+                    } else {
+                        return excludes.filter(function (e) {
+                            return e.Role && e.Role.Uuid === userObject.IdmRole.Uuid;
+                        }).length === 0;
+                    }
+                }).map(function (userObject) {
                     var identifier = undefined,
                         icon = undefined,
                         label = undefined;
                     if (userObject.IdmUser && userObject.IdmUser.IsGroup) {
                         identifier = userObject.IdmUser.GroupLabel;
                         label = userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"] ? userObject.IdmUser.Attributes["displayName"] : identifier;
-                        icon = "mdi mdi-folder";
+                        icon = "mdi mdi-folder-account";
                     } else if (userObject.IdmUser) {
                         identifier = userObject.IdmUser.Login;
                         label = userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"] ? userObject.IdmUser.Attributes["displayName"] : identifier;
-                        icon = "mdi mdi-account";
+                        var shared = userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["profile"] === "shared";
+                        if (shared) {
+                            icon = "mdi mdi-account";
+                        } else {
+                            icon = "mdi mdi-account-box-outline";
+                        }
                     } else {
                         identifier = userObject.IdmRole.Uuid;
                         label = userObject.IdmRole.Label;
-                        icon = "mdi mdi-folder";
+                        icon = "mdi mdi-account-multiple-outline";
                     }
-
                     valueExists |= label === value;
-                    var component = _react2['default'].createElement(_materialUi.MenuItem, { primaryText: label });
+                    var component = _react2['default'].createElement(_materialUi.MenuItem, {
+                        primaryText: label,
+                        leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: icon, style: { margin: '0 12px' } })
+                    });
                     return {
                         userObject: userObject,
                         text: identifier,
                         value: component
                     };
-                }).bind(this));
+                });
                 if (!value) {
                     this._emptyValueList = values;
                 }
                 // Append temporary create user
                 if (value && !valueExists && (!existingOnly || freeValueAllowed)) {
-                    values = [{ text: value, value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: value + (freeValueAllowed ? '' : ' (create user)') }) }].concat(values);
+                    var m = _pydio2['default'].getMessages()["448"] || "create";
+                    var createItem = _react2['default'].createElement(_materialUi.MenuItem, {
+                        primaryText: value + (freeValueAllowed ? '' : ' (' + m + ')'),
+                        leftIcon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-account-plus", style: { margin: '0 12px' } })
+                    });
+                    values = [{ text: value, value: createItem }].concat(values);
                 }
                 this.setState({ dataSource: values, loading: false });
             }).bind(this));

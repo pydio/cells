@@ -102,16 +102,6 @@ var SharedUsers = _react2['default'].createClass({
             this.props.onUserObjectAdd(userObject.IdmRole);
         }
     },
-    completerRenderSuggestion: function completerRenderSuggestion(userObject) {
-        var type = userObject.getType() === 'team' || userObject.getId().indexOf('/USER_TEAM/') === 0 ? 'team' : userObject.getGroup() ? 'group' : userObject.getTemporary() ? 'temporary' : userObject.getExternal() ? 'tmp_user' : 'user';
-
-        return _react2['default'].createElement(_UserBadge2['default'], {
-            label: userObject.getExtendedLabel() || userObject.getLabel(),
-            avatar: userObject.getAvatar(),
-            type: type
-        });
-    },
-
     render: function render() {
         var _this2 = this;
 
@@ -121,8 +111,8 @@ var SharedUsers = _react2['default'].createClass({
 
         var index = 0;
         var userEntries = [];
-        Object.keys(this.props.cellAcls).map(function (k) {
-            var acl = _this2.props.cellAcls[k];
+        Object.keys(cellAcls).map(function (k) {
+            var acl = cellAcls[k];
             if (acl.User && acl.User.Login === pydio.user.id) {
                 return;
             }
@@ -181,11 +171,11 @@ var SharedUsers = _react2['default'].createClass({
             usersInput = _react2['default'].createElement(UsersCompleter, {
                 className: 'share-form-users',
                 fieldLabel: this.props.getMessage('34'),
-                renderSuggestion: this.completerRenderSuggestion,
                 onValueSelected: this.valueSelected,
                 pydio: this.props.pydio,
                 showAddressBook: true,
-                usersFrom: 'local'
+                usersFrom: 'local',
+                excludes: Object.values(cellAcls)
             });
         }
 

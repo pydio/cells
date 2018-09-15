@@ -173,7 +173,7 @@ class Loaders{
         const pydio = PydioApi.getClient().getPydioObject();
         IdmApi.listUsers(path, filter, false, offset, limit, '!shared').then(users => {
             entry.pagination = Loaders.computePagination(users);
-            const items = users.Users.filter(idmUser => idmUser.Login !== pydio.user.id).map((idmUser) => {
+            const items = users.Users.filter(idmUser => idmUser.Login !== pydio.user.id && idmUser.Login !== "pydio.anon.user").map((idmUser) => {
                 return {
                     _parent: entry,
                     id: idmUser.Login,

@@ -41,7 +41,7 @@ let SharedUsers = React.createClass({
         onUserObjectUpdateRight:React.PropTypes.func.isRequired,
 
     },
-    sendInvitationToAllUsers:function(){
+    sendInvitationToAllUsers(){
         const {cellAcls, pydio} = this.props;
         let userObjects = [];
         Object.keys(cellAcls).map(k => {
@@ -56,43 +56,24 @@ let SharedUsers = React.createClass({
         });
         this.props.sendInvitations(userObjects);
     },
-    clearAllUsers:function(){
+    clearAllUsers(){
         Object.keys(this.props.cellAcls).map(k=>{
             this.props.onUserObjectRemove(k);
         })
     },
-    valueSelected: function(userObject){
+    valueSelected(userObject){
         if(userObject.IdmUser){
             this.props.onUserObjectAdd(userObject.IdmUser);
         } else {
             this.props.onUserObjectAdd(userObject.IdmRole);
         }
     },
-    completerRenderSuggestion: function(userObject){
-        let type = (userObject.getType() === 'team' || userObject.getId().indexOf('/USER_TEAM/') === 0 ? 'team' : (
-                        userObject.getGroup() ? 'group' : (
-                            userObject.getTemporary()? 'temporary' : (
-                                userObject.getExternal()? 'tmp_user':'user'
-                                )
-                            )
-                        )
-                    );
-
-        return (
-            <UserBadge
-                label={(userObject.getExtendedLabel() || userObject.getLabel())}
-                avatar={userObject.getAvatar()}
-                type={type}
-            />
-        );
-    },
-
-    render: function(){
+    render(){
         const {cellAcls, pydio} = this.props;
         let index = 0;
         let userEntries = [];
-        Object.keys(this.props.cellAcls).map(k => {
-            const acl = this.props.cellAcls[k];
+        Object.keys(cellAcls).map(k => {
+            const acl = cellAcls[k];
             if (acl.User && acl.User.Login === pydio.user.id){
                 return;
             }
@@ -139,11 +120,11 @@ let SharedUsers = React.createClass({
                 <UsersCompleter
                     className="share-form-users"
                     fieldLabel={this.props.getMessage('34')}
-                    renderSuggestion={this.completerRenderSuggestion}
                     onValueSelected={this.valueSelected}
                     pydio={this.props.pydio}
                     showAddressBook={true}
                     usersFrom="local"
+                    excludes={Object.values(cellAcls)}
                 />
             );
         }

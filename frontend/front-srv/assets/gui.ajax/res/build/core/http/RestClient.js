@@ -272,7 +272,9 @@ var JwtApiClient = (function (_ApiClient) {
 
     JwtApiClient.prototype.handleError = function handleError(reason) {
         var msg = reason.message;
-        if (reason.response && reason.response.text) {
+        if (reason.response && reason.response.body) {
+            msg = reason.response.body;
+        } else if (reason.response && reason.response.text) {
             msg = reason.response.text;
         }
         if (reason.response && reason.response.status === 401) {

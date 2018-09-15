@@ -219,7 +219,7 @@ var Loaders = (function () {
         IdmApi.listUsers(path, filter, false, offset, limit, '!shared').then(function (users) {
             entry.pagination = Loaders.computePagination(users);
             var items = users.Users.filter(function (idmUser) {
-                return idmUser.Login !== pydio.user.id;
+                return idmUser.Login !== pydio.user.id && idmUser.Login !== "pydio.anon.user";
             }).map(function (idmUser) {
                 return {
                     _parent: entry,

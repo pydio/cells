@@ -19,6 +19,7 @@
  */
 import React from 'react'
 import PydioApi from 'pydio/http/api'
+import Pydio from 'pydio'
 import AddressBook from './addressbook/AddressBook'
 import {TextField, AutoComplete, MenuItem, RefreshIndicator, Popover, FontIcon} from 'material-ui'
 import FuncUtils from 'pydio/util/func'
@@ -108,23 +109,6 @@ const UsersLoader = React.createClass({
             }
             callback([...groups.map(u => {return {IdmUser:u}}), ...teams.map(u => {return {IdmRole:u}}), ...users.map(u => {return {IdmUser:u}})]);
         });
-        /*
-        PydioUsers.Client.authorizedUsersStartingWith(input, function(users){
-            this.setState({loading:this.state.loading - 1});
-            if(disallowTemporary){
-                users = users.filter(function(user){
-                    return !user.getTemporary();
-                });
-            }
-            if(excludes && excludes.length){
-                users = users.filter(function(user){
-                    return excludes.indexOf(user.getId()) == -1;
-                });
-            }
-            callback(users);
-        }.bind(this), this.props.usersOnly, this.props.existingOnly);
-        */
-
     },
 
     /**
@@ -145,6 +129,10 @@ const UsersLoader = React.createClass({
         return this.state.searchText || false;
     },
 
+    componentWillReceiveProps(){
+        this._emptyValueList = null;
+    },
+
     /**
      * Debounced call for rendering search
      * @param value {string}
@@ -156,43 +144,71 @@ const UsersLoader = React.createClass({
             this.setState({dataSource: this._emptyValueList});
             return;
         }
-        const {existingOnly, freeValueAllowed} = this.props;
+        const {existingOnly, freeValueAllowed, excludes} = this.props;
         FuncUtils.bufferCallback('remote_users_search', timeout, function(){
             this.setState({loading: true});
+            const excluded = [Pydio.getInstance().user.id, 'pydio.anon.user'];
             this.suggestionLoader(value, function(users){
                 let valueExists = false;
-                let values = users.map(function(userObject){
-                    // Todo readapt renderSuggestion(s) calls
-                    //let component = (<MenuItem>{this.props.renderSuggestion(userObject)}</MenuItem>);
+                let values = users.filter(userObject => {
+                    return !(userObject.IdmUser && !userObject.IdmUser.IsGroup && excluded.indexOf(userObject.IdmUser.Login) > -1);
+                }).filter(userObject => {
+                    if(!excludes) {
+                        return true;
+                    }
+                    if(userObject.IdmUser && userObject.IdmUser.IsGroup){
+                        return excludes.filter(e => e.Group && e.Group.Uuid === userObject.IdmUser.Uuid).length === 0;
+                    } else if(userObject.IdmUser){
+                        return excludes.filter(e => e.User && e.User.Uuid === userObject.IdmUser.Uuid).length === 0;
+                    } else {
+                        return excludes.filter(e => e.Role && e.Role.Uuid === userObject.IdmRole.Uuid).length === 0;
+                    }
+                }).map(userObject => {
                     let identifier, icon, label;
                     if(userObject.IdmUser && userObject.IdmUser.IsGroup){
                         identifier = userObject.IdmUser.GroupLabel;
                         label = userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"] ? userObject.IdmUser.Attributes["displayName"] : identifier;
-                        icon = "mdi mdi-folder";
+                        icon = "mdi mdi-folder-account";
                     } else if(userObject.IdmUser) {
                         identifier = userObject.IdmUser.Login;
                         label = userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["displayName"] ? userObject.IdmUser.Attributes["displayName"] : identifier;
-                        icon = "mdi mdi-account";
+                        const shared = userObject.IdmUser.Attributes && userObject.IdmUser.Attributes["profile"] === "shared";
+                        if(shared){
+                            icon = "mdi mdi-account";
+                        } else {
+                            icon = "mdi mdi-account-box-outline";
+                        }
                     } else {
                         identifier = userObject.IdmRole.Uuid;
                         label = userObject.IdmRole.Label;
-                        icon = "mdi mdi-folder";
+                        icon = "mdi mdi-account-multiple-outline";
                     }
-
                     valueExists |= (label === value);
-                    let component = (<MenuItem primaryText={label}/>);
+                    let component = (
+                        <MenuItem
+                            primaryText={label}
+                            leftIcon={<FontIcon className={icon} style={{margin: '0 12px'}}/>}
+                        />
+                    );
                     return {
                         userObject  : userObject,
                         text        : identifier,
                         value       : component
                     };
-                }.bind(this));
+                });
                 if(!value){
                     this._emptyValueList = values;
                 }
                 // Append temporary create user
                 if(value && !valueExists && (!existingOnly || freeValueAllowed)){
-                    values = [{text:value, value:<MenuItem primaryText={value + (freeValueAllowed ? '' : ' (create user)')}/>}, ...values];
+                    const m = Pydio.getMessages()["448"] || "create";
+                    const createItem = (
+                        <MenuItem
+                            primaryText={value + (freeValueAllowed ? '' : ' ('+m+')')}
+                            leftIcon={<FontIcon className={"mdi mdi-account-plus"} style={{margin: '0 12px'}}/>}
+                        />
+                    );
+                    values = [{text:value, value:createItem}, ...values];
                 }
                 this.setState({dataSource: values, loading: false});
             }.bind(this));
