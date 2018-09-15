@@ -24,11 +24,15 @@ package grpc
 import (
 	"github.com/micro/go-micro"
 
+	"context"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
+	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/idm/meta"
 )
 
@@ -38,6 +42,12 @@ func init() {
 		service.Tag(common.SERVICE_TAG_IDM),
 		service.Description("User-defined Metadata"),
 		service.WithStorage(meta.NewDAO, "idm_usr_meta"),
+		service.Migrations([]*service.Migration{
+			{
+				TargetVersion: service.FirstRun(),
+				Up:            defaultMetas,
+			},
+		}),
 		service.WithMicro(func(m micro.Service) error {
 			ctx := m.Options().Context
 			server := new(Handler)
@@ -54,4 +64,19 @@ func init() {
 			return nil
 		}),
 	)
+}
+
+func defaultMetas(ctx context.Context) error {
+	log.Logger(ctx).Info("Inserting default namespace for metadata")
+	dao := servicecontext.GetDAO(ctx).(meta.DAO)
+	return dao.GetNamespaceDao().Add(&idm.UserMetaNamespace{
+		Namespace:      "usermeta-tags",
+		Label:          "Tags",
+		Indexable:      true,
+		JsonDefinition: "{\"type\":\"tags\"}",
+		Policies: []*service2.ResourcePolicy{
+			{Action: service2.ResourcePolicyAction_READ, Subject: "*", Effect: service2.ResourcePolicy_allow},
+			{Action: service2.ResourcePolicyAction_WRITE, Subject: "*", Effect: service2.ResourcePolicy_allow},
+		},
+	})
 }
