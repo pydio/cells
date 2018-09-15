@@ -92,7 +92,7 @@ class UserAvatar extends React.Component{
                     const graph = {cells:{}, teams:[]};
                     if(response.SharedCells){
                         response.SharedCells.forEach(workspace => {
-                            graph.cells[workspace.Uuid] = workspace.Label;
+                            graph.cells = response.SharedCells;
                         });
                     }
                     if(response.BelongsToTeams){

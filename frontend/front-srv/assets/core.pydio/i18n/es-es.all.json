@@ -1659,10 +1659,10 @@
     "other": "Editar usuario"
   },
   "601": {
-    "other": "Has compartido cell %2 con %1."
+    "other": "Has compartido una cell"
   },
   "602": {
-    "other": "Has compartido %2 cells con %1."
+    "other": "Has compartido %2 cells"
   },
   "603": {
     "other": "Equipo"

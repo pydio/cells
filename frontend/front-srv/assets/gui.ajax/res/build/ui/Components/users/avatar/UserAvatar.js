@@ -141,7 +141,7 @@ var UserAvatar = (function (_React$Component) {
                     var graph = { cells: {}, teams: [] };
                     if (response.SharedCells) {
                         response.SharedCells.forEach(function (workspace) {
-                            graph.cells[workspace.Uuid] = workspace.Label;
+                            graph.cells = response.SharedCells;
                         });
                     }
                     if (response.BelongsToTeams) {

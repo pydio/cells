@@ -39,6 +39,11 @@ var Component = _require.Component;
 var _require2 = require('material-ui');
 
 var Divider = _require2.Divider;
+var Subheader = _require2.Subheader;
+var List = _require2.List;
+var ListItem = _require2.ListItem;
+var FontIcon = _require2.FontIcon;
+var Avatar = _require2.Avatar;
 
 var PydioApi = require('pydio/http/api');
 
@@ -84,25 +89,34 @@ var GraphPanel = (function (_Component) {
                 React.createElement(_addressbookUsersList2['default'], { subHeader: getMessage(581).replace('%s', graph.teams.length), onItemClicked: function () {}, item: { leafs: graph.teams }, mode: 'inner', onDeleteAction: onDeleteAction })
             ));
         }
-        if (graph.cells && Object.keys(graph.cells).length) {
-            var sentence = undefined;
-            if (Object.keys(graph.cells).length === 1) {
-                var cellLabel = Object.values(graph.cells).pop();
-                sentence = getMessage(601).replace('%1', userLabel).replace('%2', cellLabel);
-            } else {
-                var cellLabels = '(' + Object.values(graph.cells).join(', ') + ')';
-                sentence = getMessage(602).replace('%1', userLabel).replace('%2', Object.keys(graph.cells).length) + ' ' + cellLabels;
-            }
-            elements.push(React.createElement(
-                'div',
-                { key: 'source' },
-                elements.length ? React.createElement(Divider, null) : null,
-                React.createElement(
+        if (graph.cells) {
+            var cells = Object.values(graph.cells).filter(function (cell) {
+                return cell.Scope === "ROOM";
+            });
+            if (cells.length) {
+                elements.push(React.createElement(
                     'div',
-                    { style: { padding: 16 } },
-                    sentence
-                )
-            ));
+                    null,
+                    elements.length ? React.createElement(Divider, null) : null,
+                    React.createElement(
+                        Subheader,
+                        null,
+                        cells.length === 1 ? getMessage('601') : getMessage('602').replace('%1', cells.length)
+                    ),
+                    React.createElement(
+                        List,
+                        null,
+                        cells.map(function (cell) {
+                            return React.createElement(ListItem, {
+                                leftAvatar: React.createElement(Avatar, { icon: React.createElement(FontIcon, { className: 'mdi mdi-share-variant' }), backgroundColor: "#009688", size: 36 }),
+                                primaryText: cell.Label,
+                                onTouchTap: function () {
+                                    pydio.triggerRepositoryChange(cell.UUID);
+                                } });
+                        })
+                    )
+                ));
+            }
         }
         return React.createElement(
             'div',

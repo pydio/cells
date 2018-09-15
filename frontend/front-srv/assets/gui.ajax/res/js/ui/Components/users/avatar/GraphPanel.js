@@ -20,7 +20,7 @@
 
 const {Component} = require('react');
 import UsersList from '../addressbook/UsersList'
-const {Divider} = require('material-ui');
+const {Divider, Subheader, List, ListItem, FontIcon, Avatar} = require('material-ui');
 const PydioApi = require('pydio/http/api');
 const {PydioContextConsumer} = require('pydio').requireLib('boot');
 
@@ -50,21 +50,26 @@ class GraphPanel extends Component{
                 </div>
             )
         }
-        if(graph.cells && Object.keys(graph.cells).length){
-            let sentence;
-            if(Object.keys(graph.cells).length === 1) {
-                const cellLabel = Object.values(graph.cells).pop();
-                sentence = getMessage(601).replace('%1', userLabel).replace('%2', cellLabel)
-            } else {
-                const cellLabels = '(' + Object.values(graph.cells).join(', ') + ')';
-                sentence = getMessage(602).replace('%1', userLabel).replace('%2', Object.keys(graph.cells).length) + ' ' + cellLabels
+        if(graph.cells){
+            const cells = Object.values(graph.cells).filter((cell) => {
+                return cell.Scope === "ROOM";
+            });
+            if(cells.length){
+                elements.push(
+                    <div>
+                        {elements.length ? <Divider/> : null}
+                        <Subheader>{cells.length === 1 ? getMessage('601') : getMessage('602').replace('%1', cells.length)}</Subheader>
+                        <List>{cells.map((cell) => {
+                            return <ListItem
+                                leftAvatar={<Avatar icon={<FontIcon className={'mdi mdi-share-variant'}/>} backgroundColor={"#009688"} size={36} />}
+                                primaryText={cell.Label}
+                                onTouchTap={() => {
+                                    pydio.triggerRepositoryChange(cell.UUID);
+                                }}/>
+                        })}</List>
+                    </div>
+                );
             }
-            elements.push(
-                <div key="source">
-                    {elements.length ? <Divider/> : null}
-                    <div style={{padding: 16}}>{sentence}</div>
-                </div>
-            )
         }
         return <div>{elements}</div>;
     }

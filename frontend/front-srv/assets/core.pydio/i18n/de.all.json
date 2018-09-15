@@ -1659,10 +1659,10 @@
     "other": "Benutzer bearbeiten"
   },
   "601": {
-    "other": "You and %1 both share the cell %2"
+    "other": "One shared cell"
   },
   "602": {
-    "other": "You and %1 both share access to %2 cells"
+    "other": "%1 shared cells"
   },
   "603": {
     "other": "Team"

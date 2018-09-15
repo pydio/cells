@@ -1662,10 +1662,10 @@
     "other": "Editer l'utilisateur"
   },
   "601": {
-    "other": "Vous et %1 partagez l'accès à la cellule %2"
+    "other": "Une cellule partagée"
   },
   "602": {
-    "other": "Vous et %1 partagez l'accès à %2 cellules"
+    "other": "%1 cellules partagées"
   },
   "603": {
     "other": "Equipe"
