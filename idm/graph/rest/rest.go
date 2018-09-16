@@ -89,23 +89,25 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 		query.SubQueries = append(query.SubQueries, q)
 	}
 	log.Logger(ctx).Debug("QUERY", zap.Any("q", query))
-	streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
-	if e != nil {
-		service.RestError500(req, rsp, e)
-		return
-	}
-	defer streamer.Close()
-	for {
-		resp, e := streamer.Recv()
-		if resp == nil || e != nil {
-			break
+	if len(query.SubQueries) > 0 {
+		streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
+		if e != nil {
+			service.RestError500(req, rsp, e)
+			return
 		}
-		if resp.Workspace != nil {
-			respWs := resp.Workspace
-			for nodeId, _ := range accessListWsNodes[respWs.UUID] {
-				respWs.RootUUIDs = append(respWs.RootUUIDs, nodeId)
+		defer streamer.Close()
+		for {
+			resp, e := streamer.Recv()
+			if resp == nil || e != nil {
+				break
 			}
-			state.Workspaces = append(state.Workspaces, respWs)
+			if resp.Workspace != nil {
+				respWs := resp.Workspace
+				for nodeId, _ := range accessListWsNodes[respWs.UUID] {
+					respWs.RootUUIDs = append(respWs.RootUUIDs, nodeId)
+				}
+				state.Workspaces = append(state.Workspaces, respWs)
+			}
 		}
 	}
 	rsp.WriteEntity(state)
@@ -116,6 +118,7 @@ func (h *GraphHandler) UserState(req *restful.Request, rsp *restful.Response) {
 func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 	userName := req.PathParameter("UserId")
 	ctx := req.Request.Context()
+	responseObject := &rest.RelationResponse{}
 
 	// Find all workspaces in common
 	contextAccessList, err := utils.AccessListFromContextClaims(ctx)
@@ -158,20 +161,21 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 		query.SubQueries = append(query.SubQueries, q)
 	}
 
-	log.Logger(ctx).Info("QUERY", zap.Any("q", query))
-	streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
-	if e != nil {
-		service.RestError500(req, rsp, e)
-		return
-	}
-	defer streamer.Close()
-	responseObject := &rest.RelationResponse{}
-	for {
-		resp, e := streamer.Recv()
-		if resp == nil || e != nil {
-			break
+	log.Logger(ctx).Debug("QUERY", zap.Any("q", query))
+	if len(query.SubQueries) > 0 {
+		streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
+		if e != nil {
+			service.RestError500(req, rsp, e)
+			return
 		}
-		responseObject.SharedCells = append(responseObject.SharedCells, resp.Workspace)
+		defer streamer.Close()
+		for {
+			resp, e := streamer.Recv()
+			if resp == nil || e != nil {
+				break
+			}
+			responseObject.SharedCells = append(responseObject.SharedCells, resp.Workspace)
+		}
 	}
 
 	// Load the current user teams, to check if the current user is part of one of them

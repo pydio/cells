@@ -186,6 +186,9 @@ func (u *User) LoadWorkspaces(ctx context.Context, accessList *utils.AccessList)
 			query.SubQueries = append(query.SubQueries, q)
 		}
 	}
+	if len(query.SubQueries) == 0 {
+		return nil
+	}
 	streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
 	if e != nil {
 		return e
