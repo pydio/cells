@@ -6,16 +6,12 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/views"
 )
 
 type User struct {
@@ -155,12 +151,6 @@ func (u *User) FlattenedRolesConfigs() *config.Map {
 func (u *User) LoadWorkspaces(ctx context.Context, accessList *utils.AccessList) error {
 
 	workspacesAccesses := accessList.GetAccessibleWorkspaces(ctx)
-
-	wsCli := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
-	query := &service.Query{
-		SubQueries: []*any.Any{},
-		Operation:  service.OperationType_OR,
-	}
 	for wsId, _ := range workspacesAccesses {
 		if wsId == "settings" || wsId == "homepage" {
 			slug := "settings"
@@ -180,39 +170,18 @@ func (u *User) LoadWorkspaces(ctx context.Context, accessList *utils.AccessList)
 			workspace.Workspace = *ws
 			u.Workspaces[wsId] = workspace
 		} else {
-			q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
-				Uuid: wsId,
-			})
-			query.SubQueries = append(query.SubQueries, q)
-		}
-	}
-	if len(query.SubQueries) == 0 {
-		return nil
-	}
-	streamer, e := wsCli.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: query})
-	if e != nil {
-		return e
-	}
-	defer streamer.Close()
-	for {
-		resp, e := streamer.Recv()
-		if resp == nil || e != nil {
-			break
-		}
-		if resp.Workspace != nil {
-			respWs := resp.Workspace
-			access := workspacesAccesses[respWs.UUID]
+			aclWs := accessList.Workspaces[wsId]
+			access := workspacesAccesses[aclWs.UUID]
 			access = strings.Replace(access, "read", "r", -1)
 			access = strings.Replace(access, "write", "w", -1)
 			access = strings.Replace(access, ",", "", -1)
 			ws := &Workspace{}
-			ws.Workspace = *respWs
+			ws.Workspace = *aclWs
 			ws.AccessRight = access
 			ws.AccessType = "gateway"
-			u.Workspaces[respWs.UUID] = ws
+			u.Workspaces[wsId] = ws
 		}
 	}
-
 	return nil
 }
 
@@ -319,6 +288,9 @@ func (u *User) publishWorkspaces(status RequestStatus, pool *PluginsPool) (works
 		}
 	}
 
+	// Used to detect "personal files"-like workspace
+	vNodeManager := views.GetVirtualNodesManager()
+
 	for _, ws := range u.Workspaces {
 		repo := &Crepo{
 			Attrid:             ws.UUID,
@@ -335,6 +307,14 @@ func (u *User) publishWorkspaces(status RequestStatus, pool *PluginsPool) (works
 		if ws.Scope != idm.WorkspaceScope_ADMIN {
 			repo.Attrowner = "shared"
 			repo.Attruser_editable_repository = "true"
+			repo.Attrrepository_type = "cell"
+		} else {
+			repo.Attrrepository_type = "workspace"
+			if len(ws.RootUUIDs) == 1 {
+				if _, ok := vNodeManager.ByUuid(ws.RootUUIDs[0]); ok {
+					repo.Attrrepository_type = "workspace-personal"
+				}
+			}
 		}
 		repo.Attracl = ws.AccessRight
 		if ws.AccessType == "gateway" && strings.Contains(ws.AccessRight, "w") {

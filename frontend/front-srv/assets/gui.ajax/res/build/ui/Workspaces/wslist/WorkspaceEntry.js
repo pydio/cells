@@ -351,9 +351,11 @@ var WorkspaceEntry = React.createClass({
             additionalAction = React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 3, style: { marginTop: 2, marginRight: 6, opacity: .5 } });
         }
 
-        var icon = "folder";
-        if (workspace.getOwner()) {
-            icon = "folder-account";
+        var icon = "mdi mdi-folder";
+        if (workspace.getRepositoryType() === "workspace-personal") {
+            icon = "mdi mdi-folder-account";
+        } else if (workspace.getRepositoryType() === "cell") {
+            icon = "icomoon-cells";
         }
 
         var menuNode = undefined;
@@ -372,7 +374,7 @@ var WorkspaceEntry = React.createClass({
                     treeToggle = React.createElement('span', { style: { opacity: 1 }, className: 'workspace-additional-action ' + toggleIcon, onClick: this.toggleFoldersPanelOpen });
                 }
             }
-            icon = "folder-open";
+            icon = "mdi mdi-folder-open";
         } else {
             /*
             menuNode = new Node('/', false, workspace.getLabel());
@@ -393,7 +395,7 @@ var WorkspaceEntry = React.createClass({
         if (workspace.getDescription()) {
             title += ' - ' + workspace.getDescription();
         }
-        var entryIcon = React.createElement('span', { className: "mdi mdi-" + icon, style: { fontSize: 20, marginRight: 10, opacity: workspace.getId() === pydio.user.activeRepository ? 1 : 0.7 } });
+        var entryIcon = React.createElement('span', { className: icon, style: { fontSize: 20, marginRight: 10, opacity: workspace.getId() === pydio.user.activeRepository ? 1 : 0.7 } });
         var wsBlock = React.createElement(
             ContextMenuWrapper,
             {

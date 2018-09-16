@@ -131,7 +131,7 @@ exports['default'] = React.createClass({
 
         var aboutButton = React.createElement(IconButton, {
             onTouchTap: this.applyAction.bind(this, 'about_pydio'),
-            iconClassName: 'userActionIcon icomoon-cells',
+            iconClassName: 'userActionIcon mdi mdi-information-outline',
             className: 'userActionButton backToHomeButton',
             tooltip: messages['166'],
             tooltipPosition: 'bottom-left'
