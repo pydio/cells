@@ -1,4 +1,7 @@
 module.exports = function(grunt) {
+
+    const {Externals} = require('../libdefs.js');
+
     grunt.initConfig({
         babel: {
             options: {},
@@ -15,6 +18,20 @@ module.exports = function(grunt) {
                 ]
             }
         },
+        browserify: {
+            ui : {
+                options: {
+                    external: Externals,
+                    browserifyOptions:{
+                        standalone: 'HTTPUploader',
+                        debug: true
+                    }
+                },
+                files: {
+                    'js/build/HTTPUploader.js':'js/build/index.js'
+                }
+            }
+        },
         compress: {
             options: {
                 mode: 'gzip',
@@ -23,7 +40,7 @@ module.exports = function(grunt) {
             js: {
                 expand: true,
                 cwd: 'js/build/',
-                src: ['*.js'],
+                src: ['HTTPUploader.js'],
                 dest: 'js/build/',
                 ext: '.js.gz'
             },
@@ -33,7 +50,7 @@ module.exports = function(grunt) {
                 files: [
                     "js/react/**/*"
                 ],
-                tasks: ['babel', 'compress'],
+                tasks: ['default'],
                 options: {
                     spawn: false
                 }
@@ -41,8 +58,9 @@ module.exports = function(grunt) {
         }
     });
     grunt.loadNpmTasks('grunt-babel');
+    grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-compress');
-    grunt.registerTask('default', ['babel', 'compress']);
+    grunt.registerTask('default', ['babel', 'browserify', 'compress']);
 
 };
