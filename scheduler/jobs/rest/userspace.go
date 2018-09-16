@@ -30,6 +30,7 @@ import (
 
 	"strings"
 
+	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
@@ -381,5 +382,91 @@ func syncDatasource(ctx context.Context, dsName string, languages ...string) (st
 
 	_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
 	return jobUuid, er
+
+}
+
+// wgetTasks launch one or many background task for downloading URL to the storage
+func wgetTasks(ctx context.Context, parentPath string, urls []string, languages ...string) ([]string, error) {
+
+	T := lang.Bundle().GetTranslationFunc(languages...)
+	taskLabel := T("Jobs.User.Wget")
+
+	claims := ctx.Value(claim.ContextKey).(claim.Claims)
+	userName := claims.Name
+	var jobUuids []string
+
+	var parentNode, fullPathParentNode *tree.Node
+	if resp, e := getRouter().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parentPath}}); e != nil {
+		return []string{}, e
+	} else {
+		parentNode = resp.Node
+	}
+
+	// Compute node real path, and check that its writeable as well
+	if err := getRouter().WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
+		updateCtx, realParent, e := inputFilter(ctx, parentNode, "sel")
+		if e != nil {
+			return e
+		} else {
+			accessList, e := views.AccessListFromContext(updateCtx)
+			if e != nil {
+				return e
+			}
+			// First load ancestors or grab them from BranchInfo
+			ctx, parents, err := views.AncestorsListFromContext(updateCtx, realParent, "in", getRouter().GetClientsPool(), false)
+			if err != nil {
+				return err
+			}
+			if !accessList.CanWrite(ctx, parents...) {
+				return errors.Forbidden(common.SERVICE_JOBS, "Parent Node is not writeable")
+			}
+			fullPathParentNode = realParent
+		}
+
+		return nil
+	}); err != nil {
+		return jobUuids, err
+	}
+
+	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
+	for _, url := range urls {
+
+		jobUuid := uuid.NewUUID().String()
+		jobUuids = append(jobUuids, jobUuid)
+
+		var params = map[string]string{
+			"url": url,
+		}
+		cleanUrl := strings.Split(url, "?")[0]
+		cleanUrl = strings.Split(cleanUrl, "#")[0]
+		basename := filepath.Base(cleanUrl)
+		if basename == "" {
+			basename = jobUuid
+		}
+		job := &jobs.Job{
+			ID:             "wget-" + jobUuid,
+			Owner:          userName,
+			Label:          taskLabel,
+			Inactive:       false,
+			Languages:      languages,
+			MaxConcurrency: 5,
+			AutoStart:      true,
+			Actions: []*jobs.Action{
+				{
+					ID:         "actions.cmd.wget",
+					Parameters: params,
+					NodesSelector: &jobs.NodesSelector{
+						Pathes: []string{filepath.Join(fullPathParentNode.Path, basename)},
+					},
+				},
+			},
+		}
+
+		_, er := cli.PutJob(ctx, &jobs.PutJobRequest{Job: job})
+		if er != nil {
+			return jobUuids, er
+		}
+	}
+	return jobUuids, nil
 
 }

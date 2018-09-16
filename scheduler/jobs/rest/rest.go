@@ -28,6 +28,8 @@ import (
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
+	"strings"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
@@ -227,6 +229,23 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		format := jsonParams["format"].(string)
 		jobUuid, err = extract(ctx, node, target, format, languages...)
 		break
+	case "remote-download":
+		// Reparse json to expected structure
+		type params struct {
+			Target string
+			Urls   []string
+		}
+		var jsonParams params
+		if request.JsonParameters != "" {
+			json.Unmarshal([]byte(request.JsonParameters), &jsonParams)
+		}
+		target := jsonParams.Target
+		urls := jsonParams.Urls
+		log.Logger(ctx).Info("Wget Task with params", zap.Any("params", jsonParams))
+		uuids, e := wgetTasks(ctx, target, urls, languages...)
+		jobUuid = strings.Join(uuids, ",")
+		err = e
+		break
 	case "copy", "move":
 		var nodes []string
 		for _, i := range jsonParams["nodes"].([]interface{}) {
@@ -261,7 +280,7 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 	}
 
 	if err != nil {
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 

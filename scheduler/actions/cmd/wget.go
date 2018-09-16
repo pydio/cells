@@ -74,11 +74,12 @@ func (w *WGetAction) Init(job *jobs.Job, cl client.Client, action *jobs.Action) 
 // Run the actual action code
 func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels, input jobs.ActionMessage) (jobs.ActionMessage, error) {
 
+	log.Logger(ctx).Info("WGET: " + w.SourceUrl.String())
 	if len(input.Nodes) == 0 {
+		log.Logger(ctx).Info("IGNORE WGET: " + w.SourceUrl.String())
 		return input.WithIgnore(), nil
 	}
 	targetNode := input.Nodes[0]
-	log.Logger(ctx).Debug("WGET: " + w.SourceUrl.String())
 	httpResponse, err := http.Get(w.SourceUrl.String())
 	if err != nil {
 		return input.WithError(err), err
@@ -96,7 +97,7 @@ func (w *WGetAction) Run(ctx context.Context, channels *actions.RunnableChannels
 	} else {
 		written, er = w.Router.PutObject(ctx, targetNode, httpResponse.Body, &views.PutRequestData{Size: httpResponse.ContentLength})
 	}
-	log.Logger(ctx).Debug("After PUT Object", zap.Int64("Written Bytes", written), zap.Error(er), zap.Any("ctx", ctx))
+	log.Logger(ctx).Info("After PUT Object", zap.Int64("Written Bytes", written), zap.Error(er), zap.Any("ctx", ctx))
 	if er != nil {
 		return input.WithError(er), err
 	}

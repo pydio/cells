@@ -16,6 +16,8 @@ import (
 
 	"context"
 
+	"runtime/debug"
+
 	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -104,6 +106,7 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 
 	data := url.Values{}
 	if refreshToken != "" {
+		debug.PrintStack()
 		data.Set("grant_type", "refresh_token")
 		data.Add("refresh_token", refreshToken)
 		data.Add("scope", "email profile pydio")
