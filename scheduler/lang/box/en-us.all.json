@@ -50,6 +50,9 @@
   },
   "Jobs.User.ResyncDS": {
     "other" : "Re-indexing datasource {{.DsName}}..."
+  },
+  "Jobs.User.Wget": {
+    "other" : "Downloading file in background..."
   }
 
 }
