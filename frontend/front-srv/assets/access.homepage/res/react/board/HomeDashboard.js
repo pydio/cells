@@ -108,7 +108,7 @@ let AltDashboard = React.createClass({
             wsListsContainerStyle: {
                 position:'absolute',
                 zIndex: 10,
-                top: 118,
+                top: 108,
                 bottom: 0,
                 right: 10,
                 left: 260,
