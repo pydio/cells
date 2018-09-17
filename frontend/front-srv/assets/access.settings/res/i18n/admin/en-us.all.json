@@ -341,6 +341,12 @@
   "menu.9": {
     "other": "Uploaders"
   },
+  "menu.metadata": {
+    "other": "Metadata"
+  },
+  "menu.metadata.description": {
+    "other": "User-editable fields attached to data"
+  },
   "perfs.booster.description": {
     "other": "Checks that Pydio Booster is started and enables WebSocket communication"
   },

@@ -276,16 +276,16 @@
     "other": "Erweiterungen zum hochladen von Dateien"
   },
   "menu.11": {
-    "other": "--- Authentifizierung"
+    "other": "Authentifizierung"
   },
   "menu.11b": {
     "other": "Authentifizierung"
   },
   "menu.12": {
-    "other": "--- Konfiguration"
+    "other": "Konfiguration"
   },
   "menu.13": {
-    "other": "--- Protokollierung"
+    "other": "Protokollierung"
   },
   "menu.14": {
     "other": "Ereignis-Benachrichtigung"
@@ -340,6 +340,12 @@
   },
   "menu.9": {
     "other": "Uploader"
+  },
+  "menu.metadata": {
+    "other": "Metadata"
+  },
+  "menu.metadata.description": {
+    "other": "User-editable fields attached to data"
   },
   "perfs.booster.description": {
     "other": "Überprüft, ob Pydio-Boost gestartet ist und WebSocket-Unterstützung anbietet"

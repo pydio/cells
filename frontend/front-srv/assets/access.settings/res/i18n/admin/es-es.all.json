@@ -276,16 +276,16 @@
     "other": "Extensiones para enviar archivos desde la interfaz Web"
   },
   "menu.11": {
-    "other": "--- Autenticación"
+    "other": "Autenticación"
   },
   "menu.11b": {
     "other": "Autenticación"
   },
   "menu.12": {
-    "other": "--- Backends Configuración"
+    "other": "Backends Configuración"
   },
   "menu.13": {
-    "other": "--- Registros"
+    "other": "Registros"
   },
   "menu.14": {
     "other": "Notificaciones"
@@ -340,6 +340,12 @@
   },
   "menu.9": {
     "other": "Uploaders"
+  },
+  "menu.metadata": {
+    "other": "Metadata"
+  },
+  "menu.metadata.description": {
+    "other": "User-editable fields attached to data"
   },
   "perfs.booster.description": {
     "other": "Comprueba que Pydio Booster está funcionando y hay comunicación via WebSocket"
