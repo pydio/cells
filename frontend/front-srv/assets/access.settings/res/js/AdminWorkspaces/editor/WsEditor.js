@@ -46,8 +46,10 @@ class WsEditor extends React.Component {
 
     render(){
 
-        const {closeEditor} = this.props;
+        const {closeEditor, pydio} = this.props;
         const {workspace, container, newFolderKey} = this.state;
+        const m = id => pydio.MessageHash['ajxp_admin.' + id] || id;
+        const mS = id => pydio.MessageHash['settings.' + id] || id;
 
         let buttons = [];
         if(!container.create){
@@ -60,8 +62,8 @@ class WsEditor extends React.Component {
         if(!container.create){
             delButton = (
                 <div style={{padding: 16, textAlign:'center'}}>
-                    Warning, dangerous operation! This is undoeable.<br/><br/>
-                    <RaisedButton secondary={true} label={"Delete Workspace"} onTouchTap={()=>{this.remove()}}/>
+                    {m('ws.editor.help.delete')}<br/><br/>
+                    <RaisedButton secondary={true} label={m('ws.23')} onTouchTap={()=>{this.remove()}}/>
                 </div>
             );
         }
@@ -71,9 +73,9 @@ class WsEditor extends React.Component {
                     <div style={{fontSize: 120, textAlign:'center', paddingBottom: 10}}>
                         <i className={"mdi mdi-folder-open"}/>
                     </div>
-                    Workspaces grant accesses to your data to the users. They expose one or many folders picked inside your datasources.
+                    {m('ws.editor.help.1')}
                     <br/><br/>
-                    It is important to properly organize how data will be presented to your users. You may create workspaces for various parts of your organization (finance, marketing, technical data, etc.), on a per-project basis, etc. You can then assign accesses to workspaces on a per-user / per-role / per-group basis.
+                    {m('ws.editor.help.2')}
                 </div>
                 {delButton && <Divider/>}
                 {delButton}
@@ -94,13 +96,14 @@ class WsEditor extends React.Component {
         const roots = workspace.RootNodes;
         let completers = Object.keys(roots).map(
             (k)=> {
-                let label = "Folder Path";
+                let label = m('ws.editor.path.folder');
                 if(Workspace.rootIsTemplatePath(roots[k])){
-                    label = "Template Path";
+                    label = m('ws.editor.path.template');
                 }
                 return (
                     <WsAutoComplete
                         key={roots[k].Uuid}
+                        pydio={pydio}
                         label={label}
                         value={roots[k].Path}
                         onDelete={() => {delete(roots[k]); this.forceUpdate()}}
@@ -119,6 +122,7 @@ class WsEditor extends React.Component {
             completers.push(
                 <WsAutoComplete
                     key={newFolderKey}
+                    pydio={pydio}
                     value={""}
                     onChange={(k,node) => {if(node){ roots[node.Uuid] = node; this.setState({newFolderKey: Math.random()})}}}
                     skipTemplates={container.hasFolderRoots()}
@@ -127,59 +131,55 @@ class WsEditor extends React.Component {
 
         return (
             <PydioComponents.PaperEditorLayout
-                title={workspace.Label || 'New Workspace'}
+                title={workspace.Label || mS('90')}
                 titleActionBar={buttons}
                 leftNav={leftNav}
                 className="workspace-editor"
                 contentFill={false}
             >
                 <div style={styles.section}>
-                    <div style={styles.title}>Main Options</div>
-                    <div style={styles.legend}>Label and description are displayed to the users. Choose a self-explanatory name to help users better organize the data.</div>
+                    <div style={styles.title}>{m('ws.30')}</div>
+                    <div style={styles.legend}>{m('ws.editor.options.legend')}</div>
 
                     <TextField fullWidth={true} floatingLabelFixed={true}
-                               errorText={workspace.Label ? "" : "Human-friendly label for this workspace"}
-                               floatingLabelText={"Label"}
+                               errorText={workspace.Label ? "" : m('ws.editor.label.legend')}
+                               floatingLabelText={mS('8')}
                                value={workspace.Label} onChange={(e,v)=>{workspace.Label = v}}
                     />
                     <TextField fullWidth={true} floatingLabelFixed={true}
-                               errorText={(workspace.Label && !workspace.Slug) ? "Technical name used for example in URLs, automatically computed but you can customize it." : ""}
-                               floatingLabelText={"Slug"}
+                               errorText={(workspace.Label && !workspace.Slug) ? m('ws.editor.slug.legend') : ""}
+                               floatingLabelText={m('ws.5')}
                                value={workspace.Slug}
                                onChange={(e,v)=>{workspace.Slug = v}}
                     />
                     <TextField fullWidth={true} floatingLabelFixed={true}
-                               floatingLabelText={"Additional Description (optional)"}
+                               floatingLabelText={m("ws.editor.description")}
                                value={workspace.Description} onChange={(e,v)=>{workspace.Description = v}}/>
                 </div>
                 <Divider/>
                 <div style={styles.section}>
-                    <div style={styles.title}>Data Access</div>
-                    <div style={styles.legend}>
-                        Workspace exposes one or many "roots" to the users: choose on or more paths from any <a>DataSource</a> or a <a>Template Path</a> that will be resolved automatically at runtime.
-                    </div>
+                    <div style={styles.title}>{m('ws.editor.data.title')}</div>
+                    <div style={styles.legend}>{m('ws.editor.data.legend')}</div>
                     {completers}
-                    <div style={styles.legend}>
-                        Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section.
-                    </div>
+                    <div style={styles.legend}>{m('ws.editor.default_rights')}</div>
                     <SelectField
                         fullWidth={true}
                         value={workspace.Attributes['DEFAULT_RIGHTS']}
                         onChange={(e,i,v) => {workspace.Attributes['DEFAULT_RIGHTS'] = v}}
                     >
-                        <MenuItem primaryText={"None"} value={""}/>
-                        <MenuItem primaryText={"Read only"} value={"r"}/>
-                        <MenuItem primaryText={"Read and write"} value={"rw"}/>
-                        <MenuItem primaryText={"Write only"} value={"w"}/>
+                        <MenuItem primaryText={m('ws.editor.default_rights.none')} value={""}/>
+                        <MenuItem primaryText={m('ws.editor.default_rights.read')} value={"r"}/>
+                        <MenuItem primaryText={m('ws.editor.default_rights.readwrite')} value={"rw"}/>
+                        <MenuItem primaryText={m('ws.editor.default_rights.write')} value={"w"}/>
                     </SelectField>
                 </div>
                 <Divider/>
                 <div style={styles.section}>
-                    <div style={styles.title}>Other Properties</div>
-                    <div style={styles.toggleDiv}><Toggle label={"Allow Desktop Synchronization (experimental)"} toggled={workspace.Attributes['ALLOW_SYNC']} onToggle={(e,v) =>{workspace.Attributes['ALLOW_SYNC']=v}} /></div>
-                    <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={"Workspace Layout (enterprise only)"} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
-                        <MenuItem primaryText={"Default"} value={""}/>
-                        <MenuItem primaryText={"Easy Transfer Layout"} value={"meta.layout_sendfile"}/>
+                    <div style={styles.title}>{m('ws.editor.other')}</div>
+                    <div style={styles.toggleDiv}><Toggle label={m('ws.editor.other.sync')} toggled={workspace.Attributes['ALLOW_SYNC']} onToggle={(e,v) =>{workspace.Attributes['ALLOW_SYNC']=v}} /></div>
+                    <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('ws.editor.other.layout')} value={workspace.Attributes['META_LAYOUT'] || ""} onChange={(e,i,v) => {workspace.Attributes['META_LAYOUT'] = v}}>
+                        <MenuItem primaryText={m('ws.editor.other.layout.default')} value={""}/>
+                        <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>
                     </SelectField>
                 </div>
             </PydioComponents.PaperEditorLayout>

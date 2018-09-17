@@ -23479,8 +23479,8 @@ var RolesDashboard = _react2['default'].createClass({
                     });
                 }
             },
-            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Hide technical roles", value: "hide", rightIcon: showTechnical ? null : _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) }),
-            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Show technical roles", value: "show", rightIcon: showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
+            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.hide', 'role_editor'), value: "hide", rightIcon: showTechnical ? null : _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) }),
+            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: this.context.getMessage('dashboard.technical.show', 'role_editor'), value: "show", rightIcon: showTechnical ? _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-check" }) : null })
         )];
 
         var centerContent = _react2['default'].createElement(
@@ -23494,7 +23494,7 @@ var RolesDashboard = _react2['default'].createClass({
             color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
-        var columns = [{ name: 'roleLabel', label: 'Label', style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: 'Last Updated' }, { name: 'isDefault', label: 'Applies to', style: { width: '20%' }, headerStyle: { width: '20%' } }, { name: 'actions', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+        var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor') }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' } }, { name: 'actions', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
                 return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
                         _this4.deleteAction(row.roleId);
                     }, onClick: function (e) {
@@ -23516,7 +23516,7 @@ var RolesDashboard = _react2['default'].createClass({
                 },
                 loading: this.state.loading
             }),
-            _react2['default'].createElement(AdminComponents.SubHeader, { legend: 'Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users.' }),
+            _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage("dashboard.description", "role_editor") }),
             _react2['default'].createElement(
                 _materialUi.Paper,
                 { zDepth: 1, style: { margin: 16 }, className: "horizontal-layout layout-fill" },

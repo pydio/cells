@@ -87,11 +87,15 @@ export default React.createClass({
 
     render(){
 
+        const {pydio} = this.props;
+        const m = (id) => pydio.MessageHash['ajxp_admin.' + id];
+        const s = (id) => pydio.MessageHash['settings.' + id];
+
         const columns = [
-            {name:'label', label: 'Label', style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
-            {name:'description', label: 'Description', style:{width:'30%'}, headerStyle:{width:'30%'}},
-            {name:'summary', label: 'Root Nodes', style:{width:'30%'}, headerStyle:{width:'30%'}},
-            {name:'slug', label: 'Slug', style:{width:'20%'}, headerStyle:{width:'20%'}},
+            {name:'label', label: s('8'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
+            {name:'description', label: s('103'), style:{width:'30%'}, headerStyle:{width:'30%'}},
+            {name:'summary', label: m('ws.board.summary'), style:{width:'30%'}, headerStyle:{width:'30%'}},
+            {name:'slug', label: m('ws.5'), style:{width:'20%'}, headerStyle:{width:'20%'}},
         ];
         const {loading} = this.state;
         const data = this.computeTableData();
@@ -103,7 +107,7 @@ export default React.createClass({
                 onSelectRows={this.openTableRows.bind(this)}
                 deselectOnClickAway={true}
                 showCheckboxes={false}
-                emptyStateString={loading ? "Loading..." : "No workspaces defined"}
+                emptyStateString={loading ? m('home.6') : m('ws.board.empty')}
             />
         );
 

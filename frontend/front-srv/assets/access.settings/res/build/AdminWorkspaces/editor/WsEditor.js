@@ -96,11 +96,20 @@ var WsEditor = (function (_React$Component) {
         value: function render() {
             var _this4 = this;
 
-            var closeEditor = this.props.closeEditor;
+            var _props2 = this.props;
+            var closeEditor = _props2.closeEditor;
+            var pydio = _props2.pydio;
             var _state = this.state;
             var workspace = _state.workspace;
             var container = _state.container;
             var newFolderKey = _state.newFolderKey;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.' + id] || id;
+            };
+            var mS = function mS(id) {
+                return pydio.MessageHash['settings.' + id] || id;
+            };
 
             var buttons = [];
             if (!container.create) {
@@ -118,10 +127,10 @@ var WsEditor = (function (_React$Component) {
                 delButton = _react2['default'].createElement(
                     'div',
                     { style: { padding: 16, textAlign: 'center' } },
-                    'Warning, dangerous operation! This is undoeable.',
+                    m('ws.editor.help.delete'),
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
-                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: "Delete Workspace", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('ws.23'), onTouchTap: function () {
                             _this4.remove();
                         } })
                 );
@@ -137,10 +146,10 @@ var WsEditor = (function (_React$Component) {
                         { style: { fontSize: 120, textAlign: 'center', paddingBottom: 10 } },
                         _react2['default'].createElement('i', { className: "mdi mdi-folder-open" })
                     ),
-                    'Workspaces grant accesses to your data to the users. They expose one or many folders picked inside your datasources.',
+                    m('ws.editor.help.1'),
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
-                    'It is important to properly organize how data will be presented to your users. You may create workspaces for various parts of your organization (finance, marketing, technical data, etc.), on a per-project basis, etc. You can then assign accesses to workspaces on a per-user / per-role / per-group basis.'
+                    m('ws.editor.help.2')
                 ),
                 delButton && _react2['default'].createElement(_materialUi.Divider, null),
                 delButton
@@ -159,12 +168,13 @@ var WsEditor = (function (_React$Component) {
 
             var roots = workspace.RootNodes;
             var completers = Object.keys(roots).map(function (k) {
-                var label = "Folder Path";
+                var label = m('ws.editor.path.folder');
                 if (_modelWs2['default'].rootIsTemplatePath(roots[k])) {
-                    label = "Template Path";
+                    label = m('ws.editor.path.template');
                 }
                 return _react2['default'].createElement(_WsAutoComplete2['default'], {
                     key: roots[k].Uuid,
+                    pydio: pydio,
                     label: label,
                     value: roots[k].Path,
                     onDelete: function () {
@@ -182,6 +192,7 @@ var WsEditor = (function (_React$Component) {
             if (!container.hasTemplatePath()) {
                 completers.push(_react2['default'].createElement(_WsAutoComplete2['default'], {
                     key: newFolderKey,
+                    pydio: pydio,
                     value: "",
                     onChange: function (k, node) {
                         if (node) {
@@ -195,7 +206,7 @@ var WsEditor = (function (_React$Component) {
             return _react2['default'].createElement(
                 PydioComponents.PaperEditorLayout,
                 {
-                    title: workspace.Label || 'New Workspace',
+                    title: workspace.Label || mS('90'),
                     titleActionBar: buttons,
                     leftNav: leftNav,
                     className: 'workspace-editor',
@@ -207,30 +218,30 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Main Options'
+                        m('ws.30')
                     ),
                     _react2['default'].createElement(
                         'div',
                         { style: styles.legend },
-                        'Label and description are displayed to the users. Choose a self-explanatory name to help users better organize the data.'
+                        m('ws.editor.options.legend')
                     ),
                     _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
-                        errorText: workspace.Label ? "" : "Human-friendly label for this workspace",
-                        floatingLabelText: "Label",
+                        errorText: workspace.Label ? "" : m('ws.editor.label.legend'),
+                        floatingLabelText: mS('8'),
                         value: workspace.Label, onChange: function (e, v) {
                             workspace.Label = v;
                         }
                     }),
                     _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
-                        errorText: workspace.Label && !workspace.Slug ? "Technical name used for example in URLs, automatically computed but you can customize it." : "",
-                        floatingLabelText: "Slug",
+                        errorText: workspace.Label && !workspace.Slug ? m('ws.editor.slug.legend') : "",
+                        floatingLabelText: m('ws.5'),
                         value: workspace.Slug,
                         onChange: function (e, v) {
                             workspace.Slug = v;
                         }
                     }),
                     _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
-                        floatingLabelText: "Additional Description (optional)",
+                        floatingLabelText: m("ws.editor.description"),
                         value: workspace.Description, onChange: function (e, v) {
                             workspace.Description = v;
                         } })
@@ -242,30 +253,18 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Data Access'
+                        m('ws.editor.data.title')
                     ),
                     _react2['default'].createElement(
                         'div',
                         { style: styles.legend },
-                        'Workspace exposes one or many "roots" to the users: choose on or more paths from any ',
-                        _react2['default'].createElement(
-                            'a',
-                            null,
-                            'DataSource'
-                        ),
-                        ' or a ',
-                        _react2['default'].createElement(
-                            'a',
-                            null,
-                            'Template Path'
-                        ),
-                        ' that will be resolved automatically at runtime.'
+                        m('ws.editor.data.legend')
                     ),
                     completers,
                     _react2['default'].createElement(
                         'div',
                         { style: styles.legend },
-                        'Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section.'
+                        m('ws.editor.default_rights')
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
@@ -276,10 +275,10 @@ var WsEditor = (function (_React$Component) {
                                 workspace.Attributes['DEFAULT_RIGHTS'] = v;
                             }
                         },
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "None", value: "" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Read only", value: "r" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Read and write", value: "rw" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Write only", value: "w" })
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.none'), value: "" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.read'), value: "r" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.readwrite'), value: "rw" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.write'), value: "w" })
                     )
                 ),
                 _react2['default'].createElement(_materialUi.Divider, null),
@@ -289,22 +288,22 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Other Properties'
+                        m('ws.editor.other')
                     ),
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: "Allow Desktop Synchronization (experimental)", toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { label: m('ws.editor.other.sync'), toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
                                 workspace.Attributes['ALLOW_SYNC'] = v;
                             } })
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Layout (enterprise only)", value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
+                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('ws.editor.other.layout'), value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
                                 workspace.Attributes['META_LAYOUT'] = v;
                             } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Default", value: "" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Easy Transfer Layout", value: "meta.layout_sendfile" })
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.other.layout.default'), value: "" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.other.layout.easy'), value: "meta.layout_sendfile" })
                     )
                 )
             );

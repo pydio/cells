@@ -175,6 +175,7 @@ var AutocompleteTree = (function (_React$Component) {
             var _state = this.state;
             var nodes = _state.nodes;
             var loading = _state.loading;
+            var fieldLabel = this.props.fieldLabel;
 
             var dataSource = [];
             if (nodes) {
@@ -204,7 +205,7 @@ var AutocompleteTree = (function (_React$Component) {
                     onUpdateInput: this.handleUpdateInput.bind(this),
                     onNewRequest: this.handleNewRequest.bind(this),
                     dataSource: dataSource,
-                    floatingLabelText: 'Pick a folder',
+                    floatingLabelText: fieldLabel,
                     floatingLabelStyle: { whiteSpace: 'nowrap' },
                     floatingLabelFixed: true,
                     filter: function (searchText, key) {
@@ -229,7 +230,10 @@ var DataSourceLocalSelector = (function (_React$Component2) {
         _get(Object.getPrototypeOf(DataSourceLocalSelector.prototype), 'constructor', this).call(this, props);
         this.state = {
             peerAddresses: [],
-            invalid: false
+            invalid: false,
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id;
+            }
         };
     }
 
@@ -246,13 +250,15 @@ var DataSourceLocalSelector = (function (_React$Component2) {
     }, {
         key: 'baseIsInvalid',
         value: function baseIsInvalid(path) {
+            var m = this.state.m;
+
             var invalid = false;
             var base = _pydioUtilPath2['default'].getBasename(path);
             var segments = _pydioUtilLang2['default'].trim(path, '/').split('/').length;
             if (segments < 2) {
-                invalid = 'Make sure to select a two-levels deep folder. Object storage will start on the parent folder.';
+                invalid = m('selector.error.depth');
             } else if (_pydioUtilLang2['default'].computeStringSlug(base) !== base) {
-                invalid = 'Folder is exposed as an S3 bucket and must comply to DNS names.';
+                invalid = m('selector.error.dnsname');
             }
             console.log(invalid);
             return invalid;
@@ -274,6 +280,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
             var _state2 = this.state;
             var peerAddresses = _state2.peerAddresses;
             var invalid = _state2.invalid;
+            var m = _state2.m;
 
             return _react2['default'].createElement(
                 'div',
@@ -289,7 +296,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             {
                                 value: model.PeerAddress || '',
                                 floatingLabelFixed: true,
-                                floatingLabelText: "Peer Address",
+                                floatingLabelText: m('selector.peer'),
                                 onChange: function (e, i, v) {
                                     model.PeerAddress = v;
                                 },
@@ -306,16 +313,17 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                         model.PeerAddress && _react2['default'].createElement(AutocompleteTree, {
                             value: model.StorageConfiguration.folder,
                             peerAddress: model.PeerAddress,
-                            onChange: this.onPathChange.bind(this)
+                            onChange: this.onPathChange.bind(this),
+                            fieldLabel: m('selector.completer')
                         }),
                         !model.PeerAddress && _react2['default'].createElement(_materialUi.TextField, {
                             style: { marginTop: -3 },
                             fullWidth: true,
                             disabled: true,
                             value: model.StorageConfiguration.folder,
-                            floatingLabelText: "Local folder",
+                            floatingLabelText: m('selector.folder'),
                             floatingLabelFixed: true,
-                            hintText: "Select a peer to load folders"
+                            hintText: m('selector.folder.hint')
                         })
                     )
                 ),

@@ -115,8 +115,16 @@ exports['default'] = _react2['default'].createClass({
     },
 
     render: function render() {
+        var pydio = this.props.pydio;
 
-        var columns = [{ name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: 'Description', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'summary', label: 'Root Nodes', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'slug', label: 'Slug', style: { width: '20%' }, headerStyle: { width: '20%' } }];
+        var m = function m(id) {
+            return pydio.MessageHash['ajxp_admin.' + id];
+        };
+        var s = function s(id) {
+            return pydio.MessageHash['settings.' + id];
+        };
+
+        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: s('103'), style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'summary', label: m('ws.board.summary'), style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' } }];
         var loading = this.state.loading;
 
         var data = this.computeTableData();
@@ -127,7 +135,7 @@ exports['default'] = _react2['default'].createClass({
             onSelectRows: this.openTableRows.bind(this),
             deselectOnClickAway: true,
             showCheckboxes: false,
-            emptyStateString: loading ? "Loading..." : "No workspaces defined"
+            emptyStateString: loading ? m('home.6') : m('ws.board.empty')
         });
     }
 

@@ -138,11 +138,12 @@ export default React.createClass({
                         reloadAction={this.reloadWorkspaceList}
                         loading={this.state.loading}
                     />
-                    <AdminComponents.SubHeader legend="Workspaces define the main access point to your data for the users. Make sure to define at least one datasource to be able to create a workspace that will point to a path of this datasource."/>
+                    <AdminComponents.SubHeader legend={this.context.getMessage('ws.dashboard', 'ajxp_admin')}/>
                     <div className="layout-fill">
                         <Paper zDepth={1} style={{margin: 16}}>
                             <WorkspaceList
                                 ref="workspacesList"
+                                pydio={this.props.pydio}
                                 dataModel={this.props.dataModel}
                                 rootNode={this.props.rootNode}
                                 currentNode={this.props.currentNode}

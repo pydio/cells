@@ -36,6 +36,11 @@ var VersionPolicyPeriods = (function (_React$Component) {
 
             var periods = _ref.periods;
             var rendering = _ref.rendering;
+            var pydio = _ref.pydio;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.versions.period.' + id] || id;
+            };
 
             if (rendering === 'short') {
 
@@ -43,17 +48,17 @@ var VersionPolicyPeriods = (function (_React$Component) {
                 if (periods.length === 1) {
                     var p = periods[0];
                     if (p.MaxNumber === -1) {
-                        text = "Always keep all versions";
+                        text = m('keep-all.always');
                     } else {
-                        text = "Keep " + p.MaxNumber + " versions";
+                        text = m('keep-n').replace('%s', p.MaxNumber);
                     }
                 } else {
-                    text = periods.length + " retention periods.";
+                    text = m('retentions-n').replace('%s', periods.length);
                     var last = periods[periods.length - 1];
                     if (last.MaxNumber === 0 || last.MaxNumber === undefined) {
-                        text += " Remove all after " + last.IntervalStart;
+                        text += ' ' + m('remove-all-after').replace('%s', last.IntervalStart);
                     } else {
-                        text += " Keep " + last.MaxNumber + " versions after " + last.IntervalStart;
+                        text += '' + m('keep-n-after').replace('%1', last.MaxNumber).replace('%2', last.IntervalStart);
                     }
                 }
 
@@ -80,13 +85,13 @@ var VersionPolicyPeriods = (function (_React$Component) {
                     );
                 }
                 if (p.MaxNumber === -1) {
-                    label = "Keep all";
+                    label = m('keep-all');
                 } else if (!p.MaxNumber) {
-                    label = "Remove all";
+                    label = m('remove-all');
                     icon = _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-delete', style: { color: '#c62828' } });
                     style = { color: '#c62828' };
                 } else {
-                    label = "Max. " + label + " versions";
+                    label = m('max-n').replace('%s', label);
                 }
                 return _react2['default'].createElement(
                     _materialUi.Step,

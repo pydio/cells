@@ -82,8 +82,8 @@ var settingsNode = &rest.SettingsMenuResponse{
 				},
 				{
 					Key:         "metadata",
-					Label:       "Metadata",
-					Description: "Metadata Definition",
+					Label:       "ajxp_admin.menu.metadata",
+					Description: "ajxp_admin.menu.metadata.description",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-tag-multiple",
 						Component: "AdminWorkspaces.MetadataBoard",

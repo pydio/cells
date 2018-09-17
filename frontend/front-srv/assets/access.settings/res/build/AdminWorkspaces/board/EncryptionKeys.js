@@ -49,7 +49,11 @@ var EncryptionKeys = (function (_React$Component) {
             exportedKey: null,
 
             showCreateKey: null,
-            showImportKey: null
+            showImportKey: null,
+
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.ds.encryption.' + id] || id;
+            }
         };
     }
 
@@ -76,6 +80,7 @@ var EncryptionKeys = (function (_React$Component) {
             var _this2 = this;
 
             var pydio = this.props.pydio;
+            var m = this.state.m;
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             var request = new _pydioHttpRestApi.EncryptionAdminExportKeyRequest();
@@ -94,7 +99,7 @@ var EncryptionKeys = (function (_React$Component) {
                 });
                 _this2.setState({ showExportKey: null });
             })['catch'](function (reason) {
-                pydio.UI.displayMessage('ERROR', 'Something went wrong: ' + reason.message);
+                pydio.UI.displayMessage('ERROR', m('key.export.fail') + " : " + reason.message);
                 _this2.setState({ showExportKey: null });
             });
         }
@@ -119,7 +124,9 @@ var EncryptionKeys = (function (_React$Component) {
         value: function deleteKey(keyId) {
             var _this4 = this;
 
-            if (confirm('This is a very dangerous operation, are you sure you want to do that??!')) {
+            var m = this.state.m;
+
+            if (confirm(m('key.delete.warning'))) {
                 var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
                 var req = new _pydioHttpRestApi.EncryptionAdminDeleteKeyRequest();
                 req.KeyID = keyId;
@@ -134,6 +141,7 @@ var EncryptionKeys = (function (_React$Component) {
             var _this5 = this;
 
             var pydio = this.props.pydio;
+            var m = this.state.m;
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
 
@@ -153,9 +161,9 @@ var EncryptionKeys = (function (_React$Component) {
             request.Override = importExisting;
             api.importEncryptionKey(request).then(function (response) {
                 if (response.Success) {
-                    pydio.UI.displayMessage('SUCCESS', 'Import was successful');
+                    pydio.UI.displayMessage('SUCCESS', m('key.import.success'));
                 } else {
-                    pydio.UI.displayMessage('ERROR', 'Something went wrong!');
+                    pydio.UI.displayMessage('ERROR', m('key.import.fail'));
                 }
                 _this5.load();
                 _this5.setState({ showImportKey: false, showDialog: false });
@@ -175,24 +183,26 @@ var EncryptionKeys = (function (_React$Component) {
             var showExportKey = _state.showExportKey;
             var exportedKey = _state.exportedKey;
             var showCreateKey = _state.showCreateKey;
+            var m = _state.m;
+            var pydio = this.props.pydio;
 
-            var columns = [{ name: 'Label', label: 'Label', style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: 'Id' }, { name: 'Owner', label: 'Owner' }, { name: 'CreationDate', label: 'Created', renderCell: function renderCell(row) {
+            var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id') }, { name: 'Owner', label: m('key.owner') }, { name: 'CreationDate', label: m('key.created'), renderCell: function renderCell(row) {
                     return new Date(row.CreationDate * 1000).toUTCString();
                 } }, { name: 'Actions', label: '', style: { width: 160, textAlign: 'right', overflow: 'visible' }, headerStyle: { width: '160' }, renderCell: function renderCell(row) {
                     return _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: "Import", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-import", onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.import'), iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-import", onTouchTap: function () {
                                 _this6.setState({ showDialog: true, showImportKey: row });
                             }, onClick: function (e) {
                                 return e.stopPropagation();
                             } }),
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: "Export", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-export", onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.export'), iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-export", onTouchTap: function () {
                                 _this6.setState({ showDialog: true, showExportKey: row.ID });
                             }, onClick: function (e) {
                                 return e.stopPropagation();
                             } }),
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: "Delete", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-delete", onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.delete'), iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-delete", onTouchTap: function () {
                                 _this6.deleteKey(row.ID);
                             }, onClick: function (e) {
                                 return e.stopPropagation();
@@ -204,12 +214,12 @@ var EncryptionKeys = (function (_React$Component) {
                 dialogTitle = undefined,
                 dialogActions = [];
             if (showExportKey || exportedKey) {
-                dialogTitle = "Export Encryption Key";
+                dialogTitle = m('key.export');
                 if (exportedKey) {
                     dialogContent = _react2['default'].createElement(_materialUi.TextField, {
                         value: exportedKey.Content,
                         fullWidth: true,
-                        floatingLabelText: "Copy result to a file to save the key",
+                        floatingLabelText: m('key.export.result.copy'),
                         multiLine: true,
                         ref: 'key-imported-field'
                     });
@@ -221,32 +231,32 @@ var EncryptionKeys = (function (_React$Component) {
                     dialogContent = _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Please provide a password", ref: 'key-password-field', type: "password", fullWidth: true }),
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Confirm your password", ref: 'key-password-confirm', type: "password", fullWidth: true })
+                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.export.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
+                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.export.confirm'), ref: 'key-password-confirm', type: "password", fullWidth: true })
                     );
-                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: function () {
+                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                             _this6.setState({ showExportKey: null, showDialog: false });
-                        } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "Export", primary: true, onTouchTap: function () {
+                        } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.export'), primary: true, onTouchTap: function () {
                             _this6.exportKey();
                         } })];
                 }
             } else if (showImportKey) {
-                dialogTitle = "Import key content";
+                dialogTitle = m('key.import');
                 dialogContent = _react2['default'].createElement(
                     'div',
                     null,
                     !showImportKey.ID && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Provide an identifier for this key", ref: 'key-import-id', fullWidth: true }),
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Provide a readable label for this key", ref: 'key-import-label', fullWidth: true })
+                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.id'), ref: 'key-import-id', fullWidth: true }),
+                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.label'), ref: 'key-import-label', fullWidth: true })
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Password you used at export", ref: 'key-password-field', type: "password", fullWidth: true }),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelText: "Paste key from your backup file.", multiLine: true, ref: 'key-imported-field' })
+                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelText: m('key.import.content'), multiLine: true, ref: 'key-imported-field' })
                 );
-                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: function () {
+                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                         _this6.setState({ showImportKey: null, showDialog: false });
-                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "Import", primary: true, onTouchTap: function () {
+                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.import'), primary: true, onTouchTap: function () {
                         _this6.importKey();
                     } })];
             } else if (showCreateKey) {
@@ -254,12 +264,12 @@ var EncryptionKeys = (function (_React$Component) {
                 dialogContent = _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Provide an identifier for this key", ref: 'createKeyId', fullWidth: true }),
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Provide a readable label for this key", ref: 'createKeyLabel', fullWidth: true })
+                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.id'), ref: 'createKeyId', fullWidth: true }),
+                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.label'), ref: 'createKeyLabel', fullWidth: true })
                 );
-                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: function () {
+                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                         _this6.setState({ showCreateKey: null, showDialog: false });
-                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "Create", primary: true, onTouchTap: function () {
+                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.create'), primary: true, onTouchTap: function () {
                         _this6.createKey();
                     } })];
             }
@@ -284,10 +294,10 @@ var EncryptionKeys = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { textAlign: 'right' } },
-                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: "Import Key...", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.import'), onTouchTap: function () {
                             _this6.setState({ showImportKey: {}, showDialog: true });
                         }, style: { marginLeft: 16 } }),
-                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: "Create Key...", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.create'), onTouchTap: function () {
                             _this6.setState({ showCreateKey: true, showDialog: true });
                         }, style: { marginLeft: 16 } })
                 ),

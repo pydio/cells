@@ -102,6 +102,7 @@ class AutocompleteTree extends React.Component{
     render(){
 
         const {nodes, loading} = this.state;
+        const {fieldLabel} = this.props;
         let dataSource = [];
         if (nodes){
             nodes.forEach((node) => {
@@ -127,7 +128,7 @@ class AutocompleteTree extends React.Component{
                     onUpdateInput={this.handleUpdateInput.bind(this)}
                     onNewRequest={this.handleNewRequest.bind(this)}
                     dataSource={dataSource}
-                    floatingLabelText={'Pick a folder'}
+                    floatingLabelText={fieldLabel}
                     floatingLabelStyle={{whiteSpace:'nowrap'}}
                     floatingLabelFixed={true}
                     filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
@@ -148,6 +149,7 @@ class DataSourceLocalSelector extends React.Component{
         this.state = {
             peerAddresses : [],
             invalid: false,
+            m: id => props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id
         }
     }
 
@@ -159,13 +161,14 @@ class DataSourceLocalSelector extends React.Component{
     }
 
     baseIsInvalid(path) {
+        const {m} = this.state;
         let invalid = false;
         const base = PathUtils.getBasename(path);
         const segments = LangUtils.trim(path, '/').split('/').length;
         if (segments < 2) {
-            invalid = 'Make sure to select a two-levels deep folder. Object storage will start on the parent folder.';
+            invalid = m('selector.error.depth');
         } else if(LangUtils.computeStringSlug(base) !== base) {
-            invalid = 'Folder is exposed as an S3 bucket and must comply to DNS names.';
+            invalid = m('selector.error.dnsname');
         }
         console.log(invalid);
         return invalid;
@@ -182,7 +185,7 @@ class DataSourceLocalSelector extends React.Component{
     render(){
 
         const {model} = this.props;
-        const {peerAddresses, invalid} = this.state;
+        const {peerAddresses, invalid, m} = this.state;
 
         return (
             <div>
@@ -191,7 +194,7 @@ class DataSourceLocalSelector extends React.Component{
                         <SelectField
                             value={model.PeerAddress || ''}
                             floatingLabelFixed={true}
-                            floatingLabelText={"Peer Address"}
+                            floatingLabelText={m('selector.peer')}
                             onChange={(e,i,v) => {model.PeerAddress = v}}
                             fullWidth={true}
                         >
@@ -206,6 +209,7 @@ class DataSourceLocalSelector extends React.Component{
                                 value={model.StorageConfiguration.folder}
                                 peerAddress={model.PeerAddress}
                                 onChange={this.onPathChange.bind(this)}
+                                fieldLabel={m('selector.completer')}
                             />
                         }
                         {!model.PeerAddress &&
@@ -214,9 +218,9 @@ class DataSourceLocalSelector extends React.Component{
                                 fullWidth={true}
                                 disabled={true}
                                 value={model.StorageConfiguration.folder}
-                                floatingLabelText={"Local folder"}
+                                floatingLabelText={m('selector.folder')}
                                 floatingLabelFixed={true}
-                                hintText={"Select a peer to load folders"}
+                                hintText={m('selector.folder.hint')}
                             />
                         }
                     </div>

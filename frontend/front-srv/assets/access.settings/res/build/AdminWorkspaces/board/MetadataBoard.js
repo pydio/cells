@@ -28,10 +28,6 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
 var _editorMetaNamespace = require('../editor/MetaNamespace');
 
 var _editorMetaNamespace2 = _interopRequireDefault(_editorMetaNamespace);
@@ -49,7 +45,13 @@ var MetadataBoard = (function (_React$Component) {
         _classCallCheck(this, MetadataBoard);
 
         _get(Object.getPrototypeOf(MetadataBoard.prototype), 'constructor', this).call(this, props);
-        this.state = { loading: false, namespaces: [] };
+        this.state = {
+            loading: false,
+            namespaces: [],
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.metadata.' + id];
+            }
+        };
     }
 
     _createClass(MetadataBoard, [{
@@ -89,7 +91,7 @@ var MetadataBoard = (function (_React$Component) {
         value: function deleteNs(row) {
             var _this2 = this;
 
-            if (confirm('Are you sure you want to delete this metadata?')) {
+            if (confirm(this.state.m('delete.confirm'))) {
                 _modelMetadata2['default'].deleteNS(row).then(function () {
                     _this2.load();
                 });
@@ -122,6 +124,7 @@ var MetadataBoard = (function (_React$Component) {
             var dialogOpen = _state.dialogOpen;
             var selectedNamespace = _state.selectedNamespace;
             var create = _state.create;
+            var m = _state.m;
 
             if (!selectedNamespace) {
                 selectedNamespace = this.emptyNs();
@@ -134,9 +137,9 @@ var MetadataBoard = (function (_React$Component) {
             var currentNode = _props.currentNode;
             var pydio = _props.pydio;
 
-            var columns = [{ name: 'Order', label: 'Order', style: { width: 30 }, headerStyle: { width: 30 } }, { name: 'Namespace', label: 'Name', style: { fontSize: 15 } }, { name: 'Label', label: 'Label', style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'Indexable', label: 'Indexation', style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
+            var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'Indexable', label: m('indexable'), style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
                     return row.Indexable ? 'Yes' : 'No';
-                } }, { name: 'JsonDefinition', label: 'Definition', renderCell: function renderCell(row) {
+                } }, { name: 'JsonDefinition', label: m('definition'), renderCell: function renderCell(row) {
                     var def = row.JsonDefinition;
                     if (!def) {
                         return '';
@@ -157,7 +160,7 @@ var MetadataBoard = (function (_React$Component) {
                 } }];
             var title = currentNode.getLabel();
             var icon = currentNode.getMetadata().get('icon_class');
-            var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "+ Namespace", onTouchTap: function () {
+            var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: m('namespace.add'), onTouchTap: function () {
                     _this3.create();
                 } })];
 
@@ -190,7 +193,7 @@ var MetadataBoard = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { className: 'layout-fill' },
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: 'Namespaces', legend: 'Metadata can be attached to any files or folders by the users. You can define here the kind of metadata you want to display, and whether each meta is readable/writeable by standard users as opposed to admin users.' }),
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('namespaces'), legend: m('namespaces.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
                             { zDepth: 1, style: { margin: 16 } },
@@ -200,7 +203,7 @@ var MetadataBoard = (function (_React$Component) {
                                 onSelectRows: this.open.bind(this),
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
-                                emptyStateString: "No metadata defined"
+                                emptyStateString: m('empty')
                             })
                         )
                     )

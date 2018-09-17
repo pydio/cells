@@ -2,7 +2,6 @@ import React from 'react'
 import Metadata from '../model/Metadata'
 import {FlatButton, Paper, IconButton} from 'material-ui'
 import Pydio from 'pydio'
-import PydioApi from 'pydio/http/api'
 const {MaterialTable} = Pydio.requireLib('components');
 import MetaNamespace from '../editor/MetaNamespace'
 import {IdmUserMetaNamespace, ServiceResourcePolicy} from 'pydio/http/rest-api'
@@ -12,7 +11,11 @@ class MetadataBoard extends React.Component{
 
     constructor(props){
         super(props);
-        this.state = {loading: false, namespaces: []};
+        this.state = {
+            loading: false,
+            namespaces: [],
+            m : (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id]
+        };
     }
 
     componentWillMount(){
@@ -45,7 +48,7 @@ class MetadataBoard extends React.Component{
     };
 
     deleteNs(row){
-        if(confirm('Are you sure you want to delete this metadata?')) {
+        if(confirm(this.state.m('delete.confirm'))) {
             Metadata.deleteNS(row).then(() => {
                 this.load();
             });
@@ -67,7 +70,7 @@ class MetadataBoard extends React.Component{
     }
 
     render(){
-        let {namespaces, loading, dialogOpen, selectedNamespace, create} = this.state;
+        let {namespaces, loading, dialogOpen, selectedNamespace, create, m} = this.state;
         if(!selectedNamespace){
             selectedNamespace = this.emptyNs();
         }
@@ -77,13 +80,13 @@ class MetadataBoard extends React.Component{
         });
         const {currentNode, pydio} = this.props;
         const columns = [
-            {name:'Order', label:'Order', style:{width: 30}, headerStyle:{width:30}},
-            {name:'Namespace', label:'Name', style:{fontSize: 15}},
-            {name:'Label', label:'Label', style:{width:'25%'}, headerStyle:{width:'25%'}},
-            {name:'Indexable', label:'Indexation', style:{width:'25%'}, headerStyle:{width:'25%'}, renderCell:(row => {
+            {name:'Order', label:m('order'), style:{width: 30}, headerStyle:{width:30}},
+            {name:'Namespace', label:m('namespace'), style:{fontSize: 15}},
+            {name:'Label', label:m('label'), style:{width:'25%'}, headerStyle:{width:'25%'}},
+            {name:'Indexable', label:m('indexable'), style:{width:'25%'}, headerStyle:{width:'25%'}, renderCell:(row => {
                 return row.Indexable ? 'Yes' : 'No';
             })},
-            {name:'JsonDefinition', label:'Definition', renderCell:(row => {
+            {name:'JsonDefinition', label:m('definition'), renderCell:(row => {
                 const def = row.JsonDefinition;
                 if(!def) {
                     return '';
@@ -104,7 +107,7 @@ class MetadataBoard extends React.Component{
         const title = currentNode.getLabel();
         const icon = currentNode.getMetadata().get('icon_class');
         const buttons = [
-            <FlatButton primary={true} label={"+ Namespace"} onTouchTap={()=>{this.create()}}/>,
+            <FlatButton primary={true} label={m('namespace.add')} onTouchTap={()=>{this.create()}}/>,
         ];
 
         return (
@@ -128,7 +131,7 @@ class MetadataBoard extends React.Component{
                         loading={loading}
                     />
                     <div className="layout-fill">
-                        <AdminComponents.SubHeader title="Namespaces" legend="Metadata can be attached to any files or folders by the users. You can define here the kind of metadata you want to display, and whether each meta is readable/writeable by standard users as opposed to admin users."/>
+                        <AdminComponents.SubHeader title={m('namespaces')} legend={m('namespaces.legend')}/>
                         <Paper zDepth={1} style={{margin: 16}}>
                             <MaterialTable
                                 data={namespaces}
@@ -136,7 +139,7 @@ class MetadataBoard extends React.Component{
                                 onSelectRows={this.open.bind(this)}
                                 deselectOnClickAway={true}
                                 showCheckboxes={false}
-                                emptyStateString={"No metadata defined"}
+                                emptyStateString={m('empty')}
                             />
                         </Paper>
                     </div>

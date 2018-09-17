@@ -22223,7 +22223,10 @@ var DataSourcesBoard = (function (_React$Component) {
             showImportKey: false,
             importResult: null,
             keyOperationError: null,
-            startedServices: []
+            startedServices: [],
+            m: function m(id) {
+                return props.pydio.MessageHash["ajxp_admin.ds." + id] || id;
+            }
         };
     }
 
@@ -22279,6 +22282,7 @@ var DataSourcesBoard = (function (_React$Component) {
                 COMPONENT: _editorDataSourceEditor2['default'],
                 PROPS: {
                     ref: "editor",
+                    pydio: pydio,
                     dataSource: dataSource,
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
@@ -22288,10 +22292,12 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'computeStatus',
         value: function computeStatus(dataSource) {
-            var startedServices = this.state.startedServices;
+            var _state = this.state;
+            var startedServices = _state.startedServices;
+            var m = _state.m;
 
             if (!startedServices.length) {
-                return 'N/A';
+                return m('status.na');
             }
             var index = undefined,
                 sync = undefined,
@@ -22306,23 +22312,23 @@ var DataSourcesBoard = (function (_React$Component) {
                 }
             });
             if (index && sync && object) {
-                return "All services running";
+                return m('status.ok');
             } else if (!index && !sync && !object) {
                 return _react2['default'].createElement(
                     'span',
                     { style: { color: '#e53935' } },
-                    'Services Stopped'
+                    m('status.ko')
                 );
             } else {
                 var services = [];
                 if (!index) {
-                    services.push('Index service down');
+                    services.push(m('status.index'));
                 }
                 if (!sync) {
-                    services.push('Sync service down');
+                    services.push(m('status.sync'));
                 }
                 if (!object) {
-                    services.push('Objects service down');
+                    services.push(m('status.object'));
                 }
                 return _react2['default'].createElement(
                     'span',
@@ -22360,6 +22366,7 @@ var DataSourcesBoard = (function (_React$Component) {
                     ref: "editor",
                     versionPolicy: versionPolicy,
                     create: create,
+                    pydio: this.props.pydio,
                     readonly: this.props.versioningReadonly,
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
@@ -22374,6 +22381,7 @@ var DataSourcesBoard = (function (_React$Component) {
                 PROPS: {
                     ref: "editor",
                     create: true,
+                    pydio: pydio,
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
                 }
@@ -22384,9 +22392,10 @@ var DataSourcesBoard = (function (_React$Component) {
         value: function render() {
             var _this3 = this;
 
-            var _state = this.state;
-            var dataSources = _state.dataSources;
-            var versioningPolicies = _state.versioningPolicies;
+            var _state2 = this.state;
+            var dataSources = _state2.dataSources;
+            var versioningPolicies = _state2.versioningPolicies;
+            var m = _state2.m;
 
             dataSources.sort(_pydioUtilLang2['default'].arraySorter('Name'));
             versioningPolicies.sort(_pydioUtilLang2['default'].arraySorter('Name'));
@@ -22396,13 +22405,13 @@ var DataSourcesBoard = (function (_React$Component) {
             var pydio = _props.pydio;
             var versioningReadonly = _props.versioningReadonly;
 
-            var dsColumns = [{ name: 'Name', label: 'Name', style: { fontSize: 15 } }, { name: 'StorageType', label: 'Storage Type', renderCell: function renderCell(row) {
-                    return row.StorageType === 'S3' ? 'Remote S3 Storage' : 'Local File System';
-                } }, { name: 'Status', label: 'Status', renderCell: function renderCell(row) {
-                    return row.Disabled ? 'Disabled' : _this3.computeStatus(row);
-                } }, { name: 'EncryptionMode', label: 'Encrypted', renderCell: function renderCell(row) {
-                    return row['EncryptionMode'] === 'MASTER' ? 'Yes' : 'No';
-                } }, { name: 'VersioningPolicyName', label: 'Versioning', renderCell: function renderCell(row) {
+            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15 } }, { name: 'StorageType', label: m('storage'), renderCell: function renderCell(row) {
+                    return row.StorageType === 'S3' ? m('storage.s3') : m('storage.fs');
+                } }, { name: 'Status', label: m('status'), renderCell: function renderCell(row) {
+                    return row.Disabled ? m('status.disabled') : _this3.computeStatus(row);
+                } }, { name: 'EncryptionMode', label: m('encryption'), renderCell: function renderCell(row) {
+                    return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'];
+                } }, { name: 'VersioningPolicyName', label: m('versioning'), renderCell: function renderCell(row) {
                     var pol = versioningPolicies.find(function (obj) {
                         return obj.Uuid === row['VersioningPolicyName'];
                     });
@@ -22420,8 +22429,8 @@ var DataSourcesBoard = (function (_React$Component) {
                         _this3.openVersionPolicy();
                     } }));
             }
-            var policiesColumns = [{ name: 'Name', label: 'Name', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'Description', label: 'Description' }, { name: 'KeepPeriods', label: 'Retention Strategy', renderCell: function renderCell(row) {
-                    return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods });
+            var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', label: m('versioning.periods'), renderCell: function renderCell(row) {
+                    return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods, pydio: pydio });
                 } }];
 
             return _react2['default'].createElement(
@@ -22440,7 +22449,7 @@ var DataSourcesBoard = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { className: 'layout-fill' },
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: 'DataSources', legend: 'Datasources are concrete storage locations that are aggregated by Pydio into a global tree. They can be distributed accross many storage nodes as needed.' }),
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.ds.title'), legend: m('board.ds.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
                             { zDepth: 1, style: { margin: 16 } },
@@ -22453,7 +22462,7 @@ var DataSourcesBoard = (function (_React$Component) {
                                 emptyStateString: "No datasources created yet"
                             })
                         ),
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: 'Versioning Policies', legend: 'You can define how files will be versioned for each datasource, and how many versions the application will retain over the time.' }),
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.versioning.title'), legend: m('board.versioning.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
                             { zDepth: 1, style: { margin: 16 } },
@@ -22465,7 +22474,7 @@ var DataSourcesBoard = (function (_React$Component) {
                                 showCheckboxes: false
                             })
                         ),
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: 'Encryption Master Keys', legend: 'Master keys are automatically generated by Pydio service and stored in the server protected keychain. Use the tools below to export/import these keys in case you need to reinstall or deploy on another server' }),
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.enc.title'), legend: m('board.enc.legend') }),
                         _react2['default'].createElement(_EncryptionKeys2['default'], { pydio: pydio, ref: "encKeys" })
                     )
                 )
@@ -22542,7 +22551,11 @@ var EncryptionKeys = (function (_React$Component) {
             exportedKey: null,
 
             showCreateKey: null,
-            showImportKey: null
+            showImportKey: null,
+
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.ds.encryption.' + id] || id;
+            }
         };
     }
 
@@ -22569,6 +22582,7 @@ var EncryptionKeys = (function (_React$Component) {
             var _this2 = this;
 
             var pydio = this.props.pydio;
+            var m = this.state.m;
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             var request = new _pydioHttpRestApi.EncryptionAdminExportKeyRequest();
@@ -22587,7 +22601,7 @@ var EncryptionKeys = (function (_React$Component) {
                 });
                 _this2.setState({ showExportKey: null });
             })['catch'](function (reason) {
-                pydio.UI.displayMessage('ERROR', 'Something went wrong: ' + reason.message);
+                pydio.UI.displayMessage('ERROR', m('key.export.fail') + " : " + reason.message);
                 _this2.setState({ showExportKey: null });
             });
         }
@@ -22612,7 +22626,9 @@ var EncryptionKeys = (function (_React$Component) {
         value: function deleteKey(keyId) {
             var _this4 = this;
 
-            if (confirm('This is a very dangerous operation, are you sure you want to do that??!')) {
+            var m = this.state.m;
+
+            if (confirm(m('key.delete.warning'))) {
                 var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
                 var req = new _pydioHttpRestApi.EncryptionAdminDeleteKeyRequest();
                 req.KeyID = keyId;
@@ -22627,6 +22643,7 @@ var EncryptionKeys = (function (_React$Component) {
             var _this5 = this;
 
             var pydio = this.props.pydio;
+            var m = this.state.m;
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
 
@@ -22646,9 +22663,9 @@ var EncryptionKeys = (function (_React$Component) {
             request.Override = importExisting;
             api.importEncryptionKey(request).then(function (response) {
                 if (response.Success) {
-                    pydio.UI.displayMessage('SUCCESS', 'Import was successful');
+                    pydio.UI.displayMessage('SUCCESS', m('key.import.success'));
                 } else {
-                    pydio.UI.displayMessage('ERROR', 'Something went wrong!');
+                    pydio.UI.displayMessage('ERROR', m('key.import.fail'));
                 }
                 _this5.load();
                 _this5.setState({ showImportKey: false, showDialog: false });
@@ -22668,24 +22685,26 @@ var EncryptionKeys = (function (_React$Component) {
             var showExportKey = _state.showExportKey;
             var exportedKey = _state.exportedKey;
             var showCreateKey = _state.showCreateKey;
+            var m = _state.m;
+            var pydio = this.props.pydio;
 
-            var columns = [{ name: 'Label', label: 'Label', style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: 'Id' }, { name: 'Owner', label: 'Owner' }, { name: 'CreationDate', label: 'Created', renderCell: function renderCell(row) {
+            var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id') }, { name: 'Owner', label: m('key.owner') }, { name: 'CreationDate', label: m('key.created'), renderCell: function renderCell(row) {
                     return new Date(row.CreationDate * 1000).toUTCString();
                 } }, { name: 'Actions', label: '', style: { width: 160, textAlign: 'right', overflow: 'visible' }, headerStyle: { width: '160' }, renderCell: function renderCell(row) {
                     return _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: "Import", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-import", onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.import'), iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-import", onTouchTap: function () {
                                 _this6.setState({ showDialog: true, showImportKey: row });
                             }, onClick: function (e) {
                                 return e.stopPropagation();
                             } }),
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: "Export", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-export", onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.export'), iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-export", onTouchTap: function () {
                                 _this6.setState({ showDialog: true, showExportKey: row.ID });
                             }, onClick: function (e) {
                                 return e.stopPropagation();
                             } }),
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: "Delete", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-delete", onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.delete'), iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-delete", onTouchTap: function () {
                                 _this6.deleteKey(row.ID);
                             }, onClick: function (e) {
                                 return e.stopPropagation();
@@ -22697,12 +22716,12 @@ var EncryptionKeys = (function (_React$Component) {
                 dialogTitle = undefined,
                 dialogActions = [];
             if (showExportKey || exportedKey) {
-                dialogTitle = "Export Encryption Key";
+                dialogTitle = m('key.export');
                 if (exportedKey) {
                     dialogContent = _react2['default'].createElement(_materialUi.TextField, {
                         value: exportedKey.Content,
                         fullWidth: true,
-                        floatingLabelText: "Copy result to a file to save the key",
+                        floatingLabelText: m('key.export.result.copy'),
                         multiLine: true,
                         ref: 'key-imported-field'
                     });
@@ -22714,32 +22733,32 @@ var EncryptionKeys = (function (_React$Component) {
                     dialogContent = _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Please provide a password", ref: 'key-password-field', type: "password", fullWidth: true }),
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Confirm your password", ref: 'key-password-confirm', type: "password", fullWidth: true })
+                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.export.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
+                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.export.confirm'), ref: 'key-password-confirm', type: "password", fullWidth: true })
                     );
-                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: function () {
+                    dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                             _this6.setState({ showExportKey: null, showDialog: false });
-                        } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "Export", primary: true, onTouchTap: function () {
+                        } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.export'), primary: true, onTouchTap: function () {
                             _this6.exportKey();
                         } })];
                 }
             } else if (showImportKey) {
-                dialogTitle = "Import key content";
+                dialogTitle = m('key.import');
                 dialogContent = _react2['default'].createElement(
                     'div',
                     null,
                     !showImportKey.ID && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Provide an identifier for this key", ref: 'key-import-id', fullWidth: true }),
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Provide a readable label for this key", ref: 'key-import-label', fullWidth: true })
+                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.id'), ref: 'key-import-id', fullWidth: true }),
+                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.label'), ref: 'key-import-label', fullWidth: true })
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Password you used at export", ref: 'key-password-field', type: "password", fullWidth: true }),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelText: "Paste key from your backup file.", multiLine: true, ref: 'key-imported-field' })
+                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.password'), ref: 'key-password-field', type: "password", fullWidth: true }),
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelText: m('key.import.content'), multiLine: true, ref: 'key-imported-field' })
                 );
-                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: function () {
+                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                         _this6.setState({ showImportKey: null, showDialog: false });
-                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "Import", primary: true, onTouchTap: function () {
+                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.import'), primary: true, onTouchTap: function () {
                         _this6.importKey();
                     } })];
             } else if (showCreateKey) {
@@ -22747,12 +22766,12 @@ var EncryptionKeys = (function (_React$Component) {
                 dialogContent = _react2['default'].createElement(
                     'div',
                     null,
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Provide an identifier for this key", ref: 'createKeyId', fullWidth: true }),
-                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Provide a readable label for this key", ref: 'createKeyLabel', fullWidth: true })
+                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.id'), ref: 'createKeyId', fullWidth: true }),
+                    _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('key.import.label'), ref: 'createKeyLabel', fullWidth: true })
                 );
-                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: function () {
+                dialogActions = [_react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: function () {
                         _this6.setState({ showCreateKey: null, showDialog: false });
-                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "Create", primary: true, onTouchTap: function () {
+                    } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('key.create'), primary: true, onTouchTap: function () {
                         _this6.createKey();
                     } })];
             }
@@ -22777,10 +22796,10 @@ var EncryptionKeys = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { textAlign: 'right' } },
-                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: "Import Key...", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.import'), onTouchTap: function () {
                             _this6.setState({ showImportKey: {}, showDialog: true });
                         }, style: { marginLeft: 16 } }),
-                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: "Create Key...", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.create'), onTouchTap: function () {
                             _this6.setState({ showCreateKey: true, showDialog: true });
                         }, style: { marginLeft: 16 } })
                 ),
@@ -22831,10 +22850,6 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
 var _editorMetaNamespace = require('../editor/MetaNamespace');
 
 var _editorMetaNamespace2 = _interopRequireDefault(_editorMetaNamespace);
@@ -22852,7 +22867,13 @@ var MetadataBoard = (function (_React$Component) {
         _classCallCheck(this, MetadataBoard);
 
         _get(Object.getPrototypeOf(MetadataBoard.prototype), 'constructor', this).call(this, props);
-        this.state = { loading: false, namespaces: [] };
+        this.state = {
+            loading: false,
+            namespaces: [],
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.metadata.' + id];
+            }
+        };
     }
 
     _createClass(MetadataBoard, [{
@@ -22892,7 +22913,7 @@ var MetadataBoard = (function (_React$Component) {
         value: function deleteNs(row) {
             var _this2 = this;
 
-            if (confirm('Are you sure you want to delete this metadata?')) {
+            if (confirm(this.state.m('delete.confirm'))) {
                 _modelMetadata2['default'].deleteNS(row).then(function () {
                     _this2.load();
                 });
@@ -22925,6 +22946,7 @@ var MetadataBoard = (function (_React$Component) {
             var dialogOpen = _state.dialogOpen;
             var selectedNamespace = _state.selectedNamespace;
             var create = _state.create;
+            var m = _state.m;
 
             if (!selectedNamespace) {
                 selectedNamespace = this.emptyNs();
@@ -22937,9 +22959,9 @@ var MetadataBoard = (function (_React$Component) {
             var currentNode = _props.currentNode;
             var pydio = _props.pydio;
 
-            var columns = [{ name: 'Order', label: 'Order', style: { width: 30 }, headerStyle: { width: 30 } }, { name: 'Namespace', label: 'Name', style: { fontSize: 15 } }, { name: 'Label', label: 'Label', style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'Indexable', label: 'Indexation', style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
+            var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'Indexable', label: m('indexable'), style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
                     return row.Indexable ? 'Yes' : 'No';
-                } }, { name: 'JsonDefinition', label: 'Definition', renderCell: function renderCell(row) {
+                } }, { name: 'JsonDefinition', label: m('definition'), renderCell: function renderCell(row) {
                     var def = row.JsonDefinition;
                     if (!def) {
                         return '';
@@ -22960,7 +22982,7 @@ var MetadataBoard = (function (_React$Component) {
                 } }];
             var title = currentNode.getLabel();
             var icon = currentNode.getMetadata().get('icon_class');
-            var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "+ Namespace", onTouchTap: function () {
+            var buttons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: m('namespace.add'), onTouchTap: function () {
                     _this3.create();
                 } })];
 
@@ -22993,7 +23015,7 @@ var MetadataBoard = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { className: 'layout-fill' },
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: 'Namespaces', legend: 'Metadata can be attached to any files or folders by the users. You can define here the kind of metadata you want to display, and whether each meta is readable/writeable by standard users as opposed to admin users.' }),
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('namespaces'), legend: m('namespaces.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
                             { zDepth: 1, style: { margin: 16 } },
@@ -23003,7 +23025,7 @@ var MetadataBoard = (function (_React$Component) {
                                 onSelectRows: this.open.bind(this),
                                 deselectOnClickAway: true,
                                 showCheckboxes: false,
-                                emptyStateString: "No metadata defined"
+                                emptyStateString: m('empty')
                             })
                         )
                     )
@@ -23018,7 +23040,7 @@ var MetadataBoard = (function (_React$Component) {
 exports['default'] = MetadataBoard;
 module.exports = exports['default'];
 
-},{"../editor/MetaNamespace":164,"../model/Metadata":173,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],159:[function(require,module,exports){
+},{"../editor/MetaNamespace":164,"../model/Metadata":173,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],159:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23142,13 +23164,18 @@ var VirtualNodes = (function (_React$Component) {
         value: function render() {
             var _this4 = this;
 
-            var readonly = this.props.readonly;
+            var _props = this.props;
+            var readonly = _props.readonly;
+            var pydio = _props.pydio;
             var _state = this.state;
             var nodes = _state.nodes;
             var dataSources = _state.dataSources;
             var nodesLoaded = _state.nodesLoaded;
             var dataSourcesLoaded = _state.dataSourcesLoaded;
 
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
+            };
             var vNodes = [];
             nodes.map(function (node) {
                 vNodes.push(_react2['default'].createElement(_virtualNodeCard2['default'], { dataSources: dataSources, node: node, reloadList: _this4.reload.bind(_this4), readonly: readonly }));
@@ -23156,14 +23183,14 @@ var VirtualNodes = (function (_React$Component) {
 
             var headerActions = [];
             if (!readonly) {
-                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "+ Template Path", onTouchTap: this.handleTouchTap.bind(this) }));
+                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: m('create'), onTouchTap: this.handleTouchTap.bind(this) }));
             }
 
             return _react2['default'].createElement(
                 'div',
                 { className: 'vertical-layout workspaces-list layout-fill' },
                 _react2['default'].createElement(AdminComponents.Header, {
-                    title: "Template Paths",
+                    title: m('title'),
                     icon: "mdi mdi-help-network",
                     actions: headerActions,
                     reloadAction: this.reload.bind(this),
@@ -23181,7 +23208,7 @@ var VirtualNodes = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { margin: '0 10px' } },
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newNode', floatingLabelText: "Label", value: this.state.newName, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newNode', floatingLabelText: m('label'), value: this.state.newName, onChange: function (e, v) {
                                 _this4.setState({ newName: v });
                             }, hintText: "Provide a label for this node" })
                     ),
@@ -23189,26 +23216,26 @@ var VirtualNodes = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { textAlign: 'right', padding: '4px 10px' } },
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onClick: this.handleRequestClose.bind(this) }),
-                        _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: "Create", onClick: this.createNode.bind(this) })
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: this.handleRequestClose.bind(this) }),
+                        _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('create.button'), onClick: this.createNode.bind(this) })
                     )
                 ),
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 20, paddingBottom: 0 } },
-                    'Template Paths are dynamically computed depending on the context. They can be used as roots for workspaces in replacement of a fixed datasource path. They are used by default to create the Personal Files workspace that points to a different folder for each users, and for computing the location of the users Cells folders.',
+                    m('legend.1'),
                     _react2['default'].createElement('br', null),
                     !readonly && _react2['default'].createElement(
                         'span',
                         null,
-                        'Use Ctrl+Space inside the editor to get hint about the possible values. Current values supported are: User.Name (dynamically resolved to the current user logged login) and DataSources (to pick a datasource dynamically).'
+                        m('legend.2')
                     )
                 ),
                 nodesLoaded && dataSourcesLoaded && vNodes,
                 (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
                     'div',
                     { style: { margin: 16, textAlign: 'center', padding: 20 } },
-                    'Loading...'
+                    pydio.MessageHash['ajxp_admin.home.6']
                 )
             );
         }
@@ -23338,8 +23365,16 @@ exports['default'] = _react2['default'].createClass({
     },
 
     render: function render() {
+        var pydio = this.props.pydio;
 
-        var columns = [{ name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: 'Description', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'summary', label: 'Root Nodes', style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'slug', label: 'Slug', style: { width: '20%' }, headerStyle: { width: '20%' } }];
+        var m = function m(id) {
+            return pydio.MessageHash['ajxp_admin.' + id];
+        };
+        var s = function s(id) {
+            return pydio.MessageHash['settings.' + id];
+        };
+
+        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: s('103'), style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'summary', label: m('ws.board.summary'), style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' } }];
         var loading = this.state.loading;
 
         var data = this.computeTableData();
@@ -23350,7 +23385,7 @@ exports['default'] = _react2['default'].createClass({
             onSelectRows: this.openTableRows.bind(this),
             deselectOnClickAway: true,
             showCheckboxes: false,
-            emptyStateString: loading ? "Loading..." : "No workspaces defined"
+            emptyStateString: loading ? m('home.6') : m('ws.board.empty')
         });
     }
 
@@ -23534,7 +23569,7 @@ exports['default'] = _react2['default'].createClass({
                     reloadAction: this.reloadWorkspaceList,
                     loading: this.state.loading
                 }),
-                _react2['default'].createElement(AdminComponents.SubHeader, { legend: 'Workspaces define the main access point to your data for the users. Make sure to define at least one datasource to be able to create a workspace that will point to a path of this datasource.' }),
+                _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage('ws.dashboard', 'ajxp_admin') }),
                 _react2['default'].createElement(
                     'div',
                     { className: 'layout-fill' },
@@ -23543,6 +23578,7 @@ exports['default'] = _react2['default'].createClass({
                         { zDepth: 1, style: { margin: 16 } },
                         _react2['default'].createElement(_WorkspaceList2['default'], {
                             ref: 'workspacesList',
+                            pydio: this.props.pydio,
                             dataModel: this.props.dataModel,
                             rootNode: this.props.rootNode,
                             currentNode: this.props.currentNode,
@@ -23607,7 +23643,10 @@ var DataSourceEditor = (function (_React$Component) {
             loaded: false,
             valid: observable.isValid(),
             encryptionKeys: [],
-            versioningPolicies: []
+            versioningPolicies: [],
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id;
+            }
         };
         _modelDataSource2['default'].loadEncryptionKeys().then(function (res) {
             _this.setState({ encryptionKeys: res.Keys || [] });
@@ -23667,7 +23706,9 @@ var DataSourceEditor = (function (_React$Component) {
         value: function deleteSource() {
             var _this4 = this;
 
-            if (confirm('Are you sure you want to delete this datasource? This is undoable, and you may loose all data linked to these nodes!')) {
+            var m = this.state.m;
+
+            if (confirm(m('delete.warning'))) {
                 this.state.observable.deleteSource().then(function () {
                     _this4.props.closeEditor();
                     _this4.props.reloadList();
@@ -23719,6 +23760,7 @@ var DataSourceEditor = (function (_React$Component) {
             var versioningPolicies = _state.versioningPolicies;
             var showDialog = _state.showDialog;
             var dialogTargetValue = _state.dialogTargetValue;
+            var m = _state.m;
 
             var titleActionBarButtons = [];
             if (!create) {
@@ -23748,36 +23790,24 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: 16 } },
-                        'File System datasources serve files via an object storage server, that is starting on the ',
-                        _react2['default'].createElement(
-                            'b',
-                            null,
-                            'parent folder'
-                        ),
-                        ' and serving the target as an ',
-                        _react2['default'].createElement(
-                            'b',
-                            null,
-                            's3 bucket'
-                        ),
-                        '. For this reason, the selected folder must meet the following requirements:',
+                        m('legend.local'),
                         _react2['default'].createElement(
                             'ul',
                             null,
                             _react2['default'].createElement(
                                 'li',
                                 { style: { listStyle: 'disc', marginLeft: 20 } },
-                                'At least two-levels deep.'
+                                m('legend.local.li.1')
                             ),
                             _react2['default'].createElement(
                                 'li',
                                 { style: { listStyle: 'disc', marginLeft: 20 } },
-                                'The parent must be writeable by the application service user'
+                                m('legend.local.li.2')
                             ),
                             _react2['default'].createElement(
                                 'li',
                                 { style: { listStyle: 'disc', marginLeft: 20 } },
-                                'The target must comply with DNS names (lowercase, no spaces or special chars).'
+                                m('legend.local.li.3')
                             )
                         )
                     )
@@ -23789,9 +23819,9 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: 16 } },
-                        'Remote Storage datasources will serve files from a remote, s3-compatible storage by proxying all requests. ',
+                        m('legend.s3.1'),
                         _react2['default'].createElement('br', null),
-                        'Use the standard API Key / Api Secret to authenticate, leave endpoint URL empty for AmazonS3 or use your storage URL for other on-premise solutions.'
+                        m('legend.s3.2')
                     )
                 ),
                 !create && _react2['default'].createElement(
@@ -23801,11 +23831,11 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: 16 } },
-                        'Resynchronization will scan the underlying storage and detect changes that are not currently indexed in Pydio.',
+                        m('legend.resync'),
                         _react2['default'].createElement(
                             'div',
                             { style: { textAlign: 'center', marginTop: 10 } },
-                            _react2['default'].createElement(_materialUi.RaisedButton, { label: "Re-Synchronize", onClick: this.launchResync.bind(this) })
+                            _react2['default'].createElement(_materialUi.RaisedButton, { label: m('legend.resync.button'), onClick: this.launchResync.bind(this) })
                         )
                     )
                 ),
@@ -23816,19 +23846,19 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: 16 } },
-                        'Deleting datasource is a destructive operation : although it will NOT remove the data inside the underlying storage, it will destroy existing index and unlink all ACLs linked to the indexed nodes.',
+                        m('legend.delete.1'),
                         _react2['default'].createElement('br', null),
-                        'Make sure to first remove all workspaces that are pointing to this datasource before deleting it.',
+                        m('legend.delete.2'),
                         _react2['default'].createElement(
                             'div',
                             { style: { textAlign: 'center', marginTop: 10 } },
-                            _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: "Delete DataSource", onClick: this.deleteSource.bind(this), style: { marginTop: 16 } })
+                            _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('legend.delete.button'), onClick: this.deleteSource.bind(this), style: { marginTop: 16 } })
                         )
                     )
                 )
             );
 
-            var title = model.Name ? "DataSource " + model.Name : 'New Data Source';
+            var title = model.Name ? m('title').replace('%s', model.Name) : m('new');
             var storageConfig = model.StorageConfiguration;
             var styles = {
                 title: {
@@ -23854,13 +23884,13 @@ var DataSourceEditor = (function (_React$Component) {
                     _materialUi.Dialog,
                     {
                         open: showDialog,
-                        title: "Warning!",
+                        title: m('enc.warning'),
                         onRequestClose: function () {
                             _this6.confirmEncryption(!dialogTargetValue);
                         },
                         actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: function () {
                                 _this6.confirmEncryption(!dialogTargetValue);
-                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "I Understand", onTouchTap: function () {
+                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('enc.validate'), onTouchTap: function () {
                                 _this6.confirmEncryption(dialogTargetValue);
                             } })]
                     },
@@ -23870,29 +23900,29 @@ var DataSourceEditor = (function (_React$Component) {
                         _react2['default'].createElement(
                             'p',
                             null,
-                            'Enabling encryption on a datasource will start cyphering the data on the storage using the encryption key you provide.'
+                            m('enc.dialog.enable.1')
                         ),
                         _react2['default'].createElement(
                             'p',
                             null,
-                            'Please be aware that if you do not export and backup your master key, and if you have to reinstall the server for any reason, ',
+                            m('enc.dialog.enable.2'),
+                            ' ',
                             _react2['default'].createElement(
                                 'b',
                                 null,
-                                'all data will be lost!'
-                            ),
-                            '.'
+                                m('enc.dialog.enable.2bold')
+                            )
                         ),
                         _react2['default'].createElement(
                             'p',
                             null,
-                            'You must also be aware that it may require more CPU for a smooth on-the-fly encrypting/decrypting of the data.'
+                            m('enc.dialog.enable.3')
                         )
                     ),
                     showDialog === 'disableEncryption' && _react2['default'].createElement(
                         'div',
                         null,
-                        'If you have previously enabled encrytion on this datasource, all the encrypted data will be unreadable! Are you sure you want to do that?'
+                        m('enc.dialog.disable')
                     )
                 ),
                 _react2['default'].createElement(
@@ -23901,19 +23931,19 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Main Options'
+                        m('options')
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "DataSource Identifier", disabled: !create, value: model.Name, onChange: function (e, v) {
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('options.id'), disabled: !create, value: model.Name, onChange: function (e, v) {
                             model.Name = v;
                         } }),
                     !create && _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: "Enabled", toggled: !model.Disabled, onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { label: m('options.enabled'), toggled: !model.Disabled, onToggle: function (e, v) {
                                 model.Disabled = !v;
                             } })
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Internal Port", type: "number", value: model.ObjectsPort, onChange: function (e, v) {
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('options.port'), type: "number", value: model.ObjectsPort, onChange: function (e, v) {
                             model.ObjectsPort = v;
                         } })
                 ),
@@ -23924,43 +23954,43 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Storage'
+                        this.context.getMessage('ds.storage.title', 'ajxp_admin')
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelText: "Storage Type", value: model.StorageType, onChange: function (e, i, v) {
+                        { fullWidth: true, floatingLabelText: this.context.getMessage('ds.storage', 'ajxp_admin'), value: model.StorageType, onChange: function (e, i, v) {
                                 model.StorageType = v;
                             } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "LOCAL", primaryText: "Local File System" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "S3", primaryText: "Remote Object Storage (S3)" })
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "LOCAL", primaryText: this.context.getMessage('ds.storage.fs', 'ajxp_admin') }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "S3", primaryText: this.context.getMessage('ds.storage.s3', 'ajxp_admin') })
                     ),
                     model.StorageType === 'S3' && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Bucket Name", value: model.ObjectsBucket, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.bucket'), value: model.ObjectsBucket, onChange: function (e, v) {
                                 model.ObjectsBucket = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "S3 Api Key", value: model.ApiKey, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.api'), value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "S3 Api Secret", value: model.ApiSecret, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.secret'), value: model.ApiSecret, onChange: function (e, v) {
                                 model.ApiSecret = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Internal Path", value: model.ObjectsBaseFolder, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
                                 model.ObjectsBaseFolder = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Custom Endpoint", value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.endpoint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
                                 model.StorageConfiguration.customEndpoint = v;
                             } })
                     ),
                     model.StorageType === 'LOCAL' && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model }),
+                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model, pydio: this.props.pydio }),
                         _react2['default'].createElement(
                             'div',
                             { style: styles.toggleDiv },
-                            _react2['default'].createElement(_materialUi.Toggle, { label: "Storage is MacOS", toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
+                            _react2['default'].createElement(_materialUi.Toggle, { label: m('storage.fs.macos'), toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
                                     storageConfig.normalize = v ? "true" : "false";
                                 } })
                         )
@@ -23977,10 +24007,10 @@ var DataSourceEditor = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Versioning Policy", value: model.VersioningPolicyName, onChange: function (e, i, v) {
+                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('versioning'), value: model.VersioningPolicyName, onChange: function (e, i, v) {
                                 model.VersioningPolicyName = v;
                             } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: "Do not enable versioning" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: m('versioning.disabled') }),
                         versioningPolicies.map(function (key) {
                             return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
                         })
@@ -23988,13 +24018,13 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: "Use Encryption", toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { label: m('enc'), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
                                 _this6.toggleEncryption(v);
                             } })
                     ),
                     model.EncryptionMode === "MASTER" && _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Encryption Key", value: model.EncryptionKey, onChange: function (e, i, v) {
+                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('enc.key'), value: model.EncryptionKey, onChange: function (e, i, v) {
                                 model.EncryptionKey = v;
                             } },
                         encryptionKeys.map(function (key) {
@@ -24195,6 +24225,7 @@ var AutocompleteTree = (function (_React$Component) {
             var _state = this.state;
             var nodes = _state.nodes;
             var loading = _state.loading;
+            var fieldLabel = this.props.fieldLabel;
 
             var dataSource = [];
             if (nodes) {
@@ -24224,7 +24255,7 @@ var AutocompleteTree = (function (_React$Component) {
                     onUpdateInput: this.handleUpdateInput.bind(this),
                     onNewRequest: this.handleNewRequest.bind(this),
                     dataSource: dataSource,
-                    floatingLabelText: 'Pick a folder',
+                    floatingLabelText: fieldLabel,
                     floatingLabelStyle: { whiteSpace: 'nowrap' },
                     floatingLabelFixed: true,
                     filter: function (searchText, key) {
@@ -24249,7 +24280,10 @@ var DataSourceLocalSelector = (function (_React$Component2) {
         _get(Object.getPrototypeOf(DataSourceLocalSelector.prototype), 'constructor', this).call(this, props);
         this.state = {
             peerAddresses: [],
-            invalid: false
+            invalid: false,
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id;
+            }
         };
     }
 
@@ -24266,13 +24300,15 @@ var DataSourceLocalSelector = (function (_React$Component2) {
     }, {
         key: 'baseIsInvalid',
         value: function baseIsInvalid(path) {
+            var m = this.state.m;
+
             var invalid = false;
             var base = _pydioUtilPath2['default'].getBasename(path);
             var segments = _pydioUtilLang2['default'].trim(path, '/').split('/').length;
             if (segments < 2) {
-                invalid = 'Make sure to select a two-levels deep folder. Object storage will start on the parent folder.';
+                invalid = m('selector.error.depth');
             } else if (_pydioUtilLang2['default'].computeStringSlug(base) !== base) {
-                invalid = 'Folder is exposed as an S3 bucket and must comply to DNS names.';
+                invalid = m('selector.error.dnsname');
             }
             console.log(invalid);
             return invalid;
@@ -24294,6 +24330,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
             var _state2 = this.state;
             var peerAddresses = _state2.peerAddresses;
             var invalid = _state2.invalid;
+            var m = _state2.m;
 
             return _react2['default'].createElement(
                 'div',
@@ -24309,7 +24346,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             {
                                 value: model.PeerAddress || '',
                                 floatingLabelFixed: true,
-                                floatingLabelText: "Peer Address",
+                                floatingLabelText: m('selector.peer'),
                                 onChange: function (e, i, v) {
                                     model.PeerAddress = v;
                                 },
@@ -24326,16 +24363,17 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                         model.PeerAddress && _react2['default'].createElement(AutocompleteTree, {
                             value: model.StorageConfiguration.folder,
                             peerAddress: model.PeerAddress,
-                            onChange: this.onPathChange.bind(this)
+                            onChange: this.onPathChange.bind(this),
+                            fieldLabel: m('selector.completer')
                         }),
                         !model.PeerAddress && _react2['default'].createElement(_materialUi.TextField, {
                             style: { marginTop: -3 },
                             fullWidth: true,
                             disabled: true,
                             value: model.StorageConfiguration.folder,
-                            floatingLabelText: "Local folder",
+                            floatingLabelText: m('selector.folder'),
                             floatingLabelFixed: true,
-                            hintText: "Select a peer to load folders"
+                            hintText: m('selector.folder.hint')
                         })
                     )
                 ),
@@ -24400,7 +24438,12 @@ var MetaNamespace = (function (_React$Component) {
         _classCallCheck(this, MetaNamespace);
 
         _get(Object.getPrototypeOf(MetaNamespace.prototype), 'constructor', this).call(this, props);
-        this.state = { namespace: this.cloneNs(props.namespace) };
+        this.state = {
+            namespace: this.cloneNs(props.namespace),
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.metadata.' + id];
+            }
+        };
     }
 
     _createClass(MetaNamespace, [{
@@ -24503,13 +24546,15 @@ var MetaNamespace = (function (_React$Component) {
             var _this2 = this;
 
             var data = this.getSelectionData();
+            var m = this.state.m;
+
             return _react2['default'].createElement(
                 'div',
                 { style: { padding: 10, backgroundColor: '#f5f5f5', borderRadius: 2 } },
                 _react2['default'].createElement(
                     'div',
                     { style: { fontSize: 13 } },
-                    'Selection Values'
+                    m('editor.selection')
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -24544,12 +24589,12 @@ var MetaNamespace = (function (_React$Component) {
                     _react2['default'].createElement(
                         'span',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newkey', hintText: "Key", fullWidth: true })
+                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newkey', hintText: m('editor.selection.key'), fullWidth: true })
                     ),
                     _react2['default'].createElement(
                         'span',
                         { style: { marginLeft: 10 } },
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newvalue', hintText: "Value", fullWidth: true })
+                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newvalue', hintText: m('editor.selection.value'), fullWidth: true })
                     ),
                     _react2['default'].createElement(
                         'span',
@@ -24588,13 +24633,16 @@ var MetaNamespace = (function (_React$Component) {
             var _props = this.props;
             var create = _props.create;
             var namespaces = _props.namespaces;
-            var namespace = this.state.namespace;
+            var pydio = _props.pydio;
+            var _state = this.state;
+            var namespace = _state.namespace;
+            var m = _state.m;
 
             var title = undefined;
             if (namespace.Label) {
                 title = namespace.Label;
             } else {
-                title = "Create Namespace";
+                title = m('editor.title.create');
             }
             var type = 'string';
             if (namespace.JsonDefinition) {
@@ -24606,18 +24654,18 @@ var MetaNamespace = (function (_React$Component) {
                 labelError = undefined;
             if (!namespace.Namespace) {
                 invalid = true;
-                nameError = 'Choose a namespace for this metadata';
+                nameError = m('editor.ns.error');
             }
             if (!namespace.Label) {
                 invalid = true;
-                labelError = 'Metadata label cannot be empty';
+                labelError = m('editor.label.error');
             }
             if (create) {
                 if (namespaces.filter(function (n) {
                     return n.Namespace === namespace.Namespace;
                 }).length) {
                     invalid = true;
-                    nameError = 'Name already exists, please pick another one';
+                    nameError = m('editor.ns.exists');
                 }
             }
             if (type === 'choice' && Object.keys(this.getSelectionData()).length === 0) {
@@ -24637,14 +24685,14 @@ var MetaNamespace = (function (_React$Component) {
                 });
             }
 
-            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "Cancel", onTouchTap: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid, label: "Save", onTouchTap: function () {
+            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onTouchTap: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid, label: "Save", onTouchTap: function () {
                     _this4.save();
                 } })];
             if (type === 'tags') {
-                actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: "Reset Tags", onTouchTap: function () {
+                actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: m('editor.tags.reset'), onTouchTap: function () {
                         var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
                         api.deleteUserMetaTags(namespace.Namespace, "*").then(function () {
-                            pydio.UI.displayMessage('SUCCESS', "Cleared tags for namespace " + namespace.Namespace);
+                            pydio.UI.displayMessage('SUCCESS', m('editor.tags.cleared').replace('%s', namespace.Namespace));
                         })['catch'](function (e) {
                             pydio.UI.displayMessage('ERROR', e.message);
                         });
@@ -24663,7 +24711,7 @@ var MetaNamespace = (function (_React$Component) {
                     autoScrollBodyContent: true
                 },
                 _react2['default'].createElement(_materialUi.TextField, {
-                    floatingLabelText: "Name",
+                    floatingLabelText: m('namespace'),
                     disabled: !create,
                     value: namespace.Namespace,
                     onChange: function (e, v) {
@@ -24673,7 +24721,7 @@ var MetaNamespace = (function (_React$Component) {
                     errorText: nameError
                 }),
                 _react2['default'].createElement(_materialUi.TextField, {
-                    floatingLabelText: "Label",
+                    floatingLabelText: m('label'),
                     value: namespace.Label,
                     onChange: function (e, v) {
                         namespace.Label = v;_this4.setState({ namespace: namespace });
@@ -24682,7 +24730,7 @@ var MetaNamespace = (function (_React$Component) {
                     errorText: labelError
                 }),
                 _react2['default'].createElement(_materialUi.TextField, {
-                    floatingLabelText: "Order",
+                    floatingLabelText: m('order'),
                     value: namespace.Order ? namespace.Order : '0',
                     onChange: function (e, v) {
                         namespace.Order = parseInt(v);_this4.setState({ namespace: namespace });
@@ -24693,7 +24741,7 @@ var MetaNamespace = (function (_React$Component) {
                 _react2['default'].createElement(
                     _materialUi.SelectField,
                     {
-                        floatingLabelText: "Type",
+                        floatingLabelText: m('type'),
                         value: type,
                         onChange: function (e, i, v) {
                             return _this4.updateType(v);
@@ -24707,21 +24755,21 @@ var MetaNamespace = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: "Index in search engine", labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
+                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.index'), labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
                             namespace.Indexable = v;_this4.setState({ namespace: namespace });
                         } })
                 ),
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: "Restrict visibility to admins", labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
+                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.read'), labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
                             _this4.togglePolicies('READ', v);
                         } })
                 ),
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: "Restrict edition to admins", labelPosition: "left", disabled: adminRead, toggled: adminWrite, onToggle: function (e, v) {
+                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.write'), labelPosition: "left", disabled: adminRead, toggled: adminWrite, onToggle: function (e, v) {
                             _this4.togglePolicies('WRITE', v);
                         } })
                 )
@@ -24803,7 +24851,10 @@ var VersionPolicyEditor = (function (_React$Component) {
             policy: props.versionPolicy,
             loaded: true,
             valid: true,
-            parameters: null
+            parameters: null,
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.versions.editor.' + id] || id;
+            }
         };
     }
 
@@ -24838,7 +24889,9 @@ var VersionPolicyEditor = (function (_React$Component) {
         value: function deleteSource() {
             var _this2 = this;
 
-            if (confirm('Are you sure you want to delete this policy? This is undoable!')) {
+            var m = this.state.m;
+
+            if (confirm(m('delete.confirm'))) {
                 _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                     var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
                     api.deleteVersioningPolicy(_this2.state.policy.Uuid).then(function (r) {
@@ -24873,6 +24926,8 @@ var VersionPolicyEditor = (function (_React$Component) {
     }, {
         key: 'onFormChange',
         value: function onFormChange(values) {
+            var m = this.state.m;
+
             var newPolicy = VersionPolicyEditor.valuesToTreeVersioningPolicy(values);
             // Check periods
             var periods = newPolicy.KeepPeriods || [];
@@ -24880,7 +24935,7 @@ var VersionPolicyEditor = (function (_React$Component) {
                 return p.MaxNumber === 0;
             });
             if (deleteAll > -1 && deleteAll < periods.length - 1) {
-                pydio.UI.displayMessage('ERROR', 'The Last period is configured to delete all version, you cannot add a new one!');
+                pydio.UI.displayMessage('ERROR', m('error.lastdelete'));
                 var i = periods.length - 1 - deleteAll;
                 while (i > 0) {
                     periods.pop();i--;
@@ -24903,11 +24958,13 @@ var VersionPolicyEditor = (function (_React$Component) {
             var _props = this.props;
             var create = _props.create;
             var readonly = _props.readonly;
+            var pydio = _props.pydio;
             var _state = this.state;
             var loaded = _state.loaded;
             var parameters = _state.parameters;
             var policy = _state.policy;
             var saveValue = _state.saveValue;
+            var m = _state.m;
 
             var form = undefined;
             if (parameters && loaded) {
@@ -24929,7 +24986,7 @@ var VersionPolicyEditor = (function (_React$Component) {
             var titleActionBarButtons = [];
             if (!readonly) {
                 if (!create) {
-                    titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'delete', label: 'Delete Policy', secondary: true, onTouchTap: this.deleteSource.bind(this) }));
+                    titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'delete', label: m('delete'), secondary: true, onTouchTap: this.deleteSource.bind(this) }));
                     titleActionBarButtons.push(_react2['default'].createElement('div', { style: { display: 'inline', borderRight: '1px solid #757575', margin: '0 2px' }, key: 'separator' }));
                     titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'reset', label: this.context.getMessage('plugins.6'), onTouchTap: this.resetForm.bind(this), secondary: true, disabled: !this.state.dirty }));
                 }
@@ -24945,7 +25002,7 @@ var VersionPolicyEditor = (function (_React$Component) {
             return _react2['default'].createElement(
                 PydioComponents.PaperEditorLayout,
                 {
-                    title: loaded && parameters ? "Policy " + policyName : "Loading...",
+                    title: loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.home.6'],
                     titleActionBar: titleActionBarButtons,
                     className: 'workspace-editor',
                     contentFill: true
@@ -24956,7 +25013,7 @@ var VersionPolicyEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { overflowX: 'auto' } },
-                        _react2['default'].createElement(_VersionPolicyPeriods2['default'], { periods: saveValue ? saveValue.KeepPeriods : policy.KeepPeriods })
+                        _react2['default'].createElement(_VersionPolicyPeriods2['default'], { pydio: pydio, periods: saveValue ? saveValue.KeepPeriods : policy.KeepPeriods })
                     )
                 ),
                 form
@@ -25058,6 +25115,11 @@ var VersionPolicyPeriods = (function (_React$Component) {
 
             var periods = _ref.periods;
             var rendering = _ref.rendering;
+            var pydio = _ref.pydio;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.versions.period.' + id] || id;
+            };
 
             if (rendering === 'short') {
 
@@ -25065,17 +25127,17 @@ var VersionPolicyPeriods = (function (_React$Component) {
                 if (periods.length === 1) {
                     var p = periods[0];
                     if (p.MaxNumber === -1) {
-                        text = "Always keep all versions";
+                        text = m('keep-all.always');
                     } else {
-                        text = "Keep " + p.MaxNumber + " versions";
+                        text = m('keep-n').replace('%s', p.MaxNumber);
                     }
                 } else {
-                    text = periods.length + " retention periods.";
+                    text = m('retentions-n').replace('%s', periods.length);
                     var last = periods[periods.length - 1];
                     if (last.MaxNumber === 0 || last.MaxNumber === undefined) {
-                        text += " Remove all after " + last.IntervalStart;
+                        text += ' ' + m('remove-all-after').replace('%s', last.IntervalStart);
                     } else {
-                        text += " Keep " + last.MaxNumber + " versions after " + last.IntervalStart;
+                        text += '' + m('keep-n-after').replace('%1', last.MaxNumber).replace('%2', last.IntervalStart);
                     }
                 }
 
@@ -25102,13 +25164,13 @@ var VersionPolicyPeriods = (function (_React$Component) {
                     );
                 }
                 if (p.MaxNumber === -1) {
-                    label = "Keep all";
+                    label = m('keep-all');
                 } else if (!p.MaxNumber) {
-                    label = "Remove all";
+                    label = m('remove-all');
                     icon = _react2['default'].createElement(_materialUi.FontIcon, { className: 'mdi mdi-delete', style: { color: '#c62828' } });
                     style = { color: '#c62828' };
                 } else {
-                    label = "Max. " + label + " versions";
+                    label = m('max-n').replace('%s', label);
                 }
                 return _react2['default'].createElement(
                     _materialUi.Step,
@@ -25278,6 +25340,11 @@ var WsAutoComplete = (function (_React$Component) {
             var skipTemplates = _props.skipTemplates;
             var label = _props.label;
             var zDepth = _props.zDepth;
+            var pydio = _props.pydio;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.' + id] || id;
+            };
             var _state = this.state;
             var nodes = _state.nodes;
             var loading = _state.loading;
@@ -25294,17 +25361,17 @@ var WsAutoComplete = (function (_React$Component) {
                             // Skip hidden files
                             return;
                         }
-                        var data = WsAutoComplete.renderNode(node);
+                        var data = WsAutoComplete.renderNode(node, m);
                         if (!categs[data.categ]) {
                             categs[data.categ] = [];
                         }
                         categs[data.categ].push(data);
                     });
                     if (Object.keys(categs).length > 1) {
-                        dataSource.push({ key: "h1", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "DataSources and folders", style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
+                        dataSource.push({ key: "h1", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.complete.datasources'), style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
                         dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[0]]));
                         if (!skipTemplates) {
-                            dataSource.push({ key: "h2", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Preset Template Paths", style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
+                            dataSource.push({ key: "h2", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.complete.templates'), style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
                             dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[1]]));
                         }
                     } else if (Object.keys(categs).length === 1) {
@@ -25341,7 +25408,7 @@ var WsAutoComplete = (function (_React$Component) {
                         onUpdateInput: this.handleUpdateInput.bind(this),
                         onNewRequest: this.handleNewRequest.bind(this),
                         dataSource: dataSource,
-                        floatingLabelText: label || 'Select a folder or a predefined template path',
+                        floatingLabelText: label || m('ws.complete.label'),
                         floatingLabelStyle: { whiteSpace: 'nowrap' },
                         floatingLabelFixed: true,
                         filter: function (searchText, key) {
@@ -25356,7 +25423,7 @@ var WsAutoComplete = (function (_React$Component) {
         }
     }], [{
         key: 'renderNode',
-        value: function renderNode(node) {
+        value: function renderNode(node, m) {
             var label = _react2['default'].createElement(
                 'span',
                 null,
@@ -25376,7 +25443,9 @@ var WsAutoComplete = (function (_React$Component) {
                     _react2['default'].createElement(
                         'i',
                         { style: { color: '#9e9e9e' } },
-                        '- Resolves to ',
+                        '- ',
+                        m('ws.complete.resolves'),
+                        ' ',
                         resolutionPart
                     )
                 );
@@ -25504,11 +25573,20 @@ var WsEditor = (function (_React$Component) {
         value: function render() {
             var _this4 = this;
 
-            var closeEditor = this.props.closeEditor;
+            var _props2 = this.props;
+            var closeEditor = _props2.closeEditor;
+            var pydio = _props2.pydio;
             var _state = this.state;
             var workspace = _state.workspace;
             var container = _state.container;
             var newFolderKey = _state.newFolderKey;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.' + id] || id;
+            };
+            var mS = function mS(id) {
+                return pydio.MessageHash['settings.' + id] || id;
+            };
 
             var buttons = [];
             if (!container.create) {
@@ -25526,10 +25604,10 @@ var WsEditor = (function (_React$Component) {
                 delButton = _react2['default'].createElement(
                     'div',
                     { style: { padding: 16, textAlign: 'center' } },
-                    'Warning, dangerous operation! This is undoeable.',
+                    m('ws.editor.help.delete'),
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
-                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: "Delete Workspace", onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('ws.23'), onTouchTap: function () {
                             _this4.remove();
                         } })
                 );
@@ -25545,10 +25623,10 @@ var WsEditor = (function (_React$Component) {
                         { style: { fontSize: 120, textAlign: 'center', paddingBottom: 10 } },
                         _react2['default'].createElement('i', { className: "mdi mdi-folder-open" })
                     ),
-                    'Workspaces grant accesses to your data to the users. They expose one or many folders picked inside your datasources.',
+                    m('ws.editor.help.1'),
                     _react2['default'].createElement('br', null),
                     _react2['default'].createElement('br', null),
-                    'It is important to properly organize how data will be presented to your users. You may create workspaces for various parts of your organization (finance, marketing, technical data, etc.), on a per-project basis, etc. You can then assign accesses to workspaces on a per-user / per-role / per-group basis.'
+                    m('ws.editor.help.2')
                 ),
                 delButton && _react2['default'].createElement(_materialUi.Divider, null),
                 delButton
@@ -25567,12 +25645,13 @@ var WsEditor = (function (_React$Component) {
 
             var roots = workspace.RootNodes;
             var completers = Object.keys(roots).map(function (k) {
-                var label = "Folder Path";
+                var label = m('ws.editor.path.folder');
                 if (_modelWs2['default'].rootIsTemplatePath(roots[k])) {
-                    label = "Template Path";
+                    label = m('ws.editor.path.template');
                 }
                 return _react2['default'].createElement(_WsAutoComplete2['default'], {
                     key: roots[k].Uuid,
+                    pydio: pydio,
                     label: label,
                     value: roots[k].Path,
                     onDelete: function () {
@@ -25590,6 +25669,7 @@ var WsEditor = (function (_React$Component) {
             if (!container.hasTemplatePath()) {
                 completers.push(_react2['default'].createElement(_WsAutoComplete2['default'], {
                     key: newFolderKey,
+                    pydio: pydio,
                     value: "",
                     onChange: function (k, node) {
                         if (node) {
@@ -25603,7 +25683,7 @@ var WsEditor = (function (_React$Component) {
             return _react2['default'].createElement(
                 PydioComponents.PaperEditorLayout,
                 {
-                    title: workspace.Label || 'New Workspace',
+                    title: workspace.Label || mS('90'),
                     titleActionBar: buttons,
                     leftNav: leftNav,
                     className: 'workspace-editor',
@@ -25615,30 +25695,30 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Main Options'
+                        m('ws.30')
                     ),
                     _react2['default'].createElement(
                         'div',
                         { style: styles.legend },
-                        'Label and description are displayed to the users. Choose a self-explanatory name to help users better organize the data.'
+                        m('ws.editor.options.legend')
                     ),
                     _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
-                        errorText: workspace.Label ? "" : "Human-friendly label for this workspace",
-                        floatingLabelText: "Label",
+                        errorText: workspace.Label ? "" : m('ws.editor.label.legend'),
+                        floatingLabelText: mS('8'),
                         value: workspace.Label, onChange: function (e, v) {
                             workspace.Label = v;
                         }
                     }),
                     _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
-                        errorText: workspace.Label && !workspace.Slug ? "Technical name used for example in URLs, automatically computed but you can customize it." : "",
-                        floatingLabelText: "Slug",
+                        errorText: workspace.Label && !workspace.Slug ? m('ws.editor.slug.legend') : "",
+                        floatingLabelText: m('ws.5'),
                         value: workspace.Slug,
                         onChange: function (e, v) {
                             workspace.Slug = v;
                         }
                     }),
                     _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true,
-                        floatingLabelText: "Additional Description (optional)",
+                        floatingLabelText: m("ws.editor.description"),
                         value: workspace.Description, onChange: function (e, v) {
                             workspace.Description = v;
                         } })
@@ -25650,30 +25730,18 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Data Access'
+                        m('ws.editor.data.title')
                     ),
                     _react2['default'].createElement(
                         'div',
                         { style: styles.legend },
-                        'Workspace exposes one or many "roots" to the users: choose on or more paths from any ',
-                        _react2['default'].createElement(
-                            'a',
-                            null,
-                            'DataSource'
-                        ),
-                        ' or a ',
-                        _react2['default'].createElement(
-                            'a',
-                            null,
-                            'Template Path'
-                        ),
-                        ' that will be resolved automatically at runtime.'
+                        m('ws.editor.data.legend')
                     ),
                     completers,
                     _react2['default'].createElement(
                         'div',
                         { style: styles.legend },
-                        'Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section.'
+                        m('ws.editor.default_rights')
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
@@ -25684,10 +25752,10 @@ var WsEditor = (function (_React$Component) {
                                 workspace.Attributes['DEFAULT_RIGHTS'] = v;
                             }
                         },
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "None", value: "" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Read only", value: "r" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Read and write", value: "rw" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Write only", value: "w" })
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.none'), value: "" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.read'), value: "r" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.readwrite'), value: "rw" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.default_rights.write'), value: "w" })
                     )
                 ),
                 _react2['default'].createElement(_materialUi.Divider, null),
@@ -25697,22 +25765,22 @@ var WsEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Other Properties'
+                        m('ws.editor.other')
                     ),
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: "Allow Desktop Synchronization (experimental)", toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { label: m('ws.editor.other.sync'), toggled: workspace.Attributes['ALLOW_SYNC'], onToggle: function (e, v) {
                                 workspace.Attributes['ALLOW_SYNC'] = v;
                             } })
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Workspace Layout (enterprise only)", value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
+                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('ws.editor.other.layout'), value: workspace.Attributes['META_LAYOUT'] || "", onChange: function (e, i, v) {
                                 workspace.Attributes['META_LAYOUT'] = v;
                             } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Default", value: "" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Easy Transfer Layout", value: "meta.layout_sendfile" })
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.other.layout.default'), value: "" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.editor.other.layout.easy'), value: "meta.layout_sendfile" })
                     )
                 )
             );

@@ -121,13 +121,18 @@ var VirtualNodes = (function (_React$Component) {
         value: function render() {
             var _this4 = this;
 
-            var readonly = this.props.readonly;
+            var _props = this.props;
+            var readonly = _props.readonly;
+            var pydio = _props.pydio;
             var _state = this.state;
             var nodes = _state.nodes;
             var dataSources = _state.dataSources;
             var nodesLoaded = _state.nodesLoaded;
             var dataSourcesLoaded = _state.dataSourcesLoaded;
 
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
+            };
             var vNodes = [];
             nodes.map(function (node) {
                 vNodes.push(_react2['default'].createElement(_virtualNodeCard2['default'], { dataSources: dataSources, node: node, reloadList: _this4.reload.bind(_this4), readonly: readonly }));
@@ -135,14 +140,14 @@ var VirtualNodes = (function (_React$Component) {
 
             var headerActions = [];
             if (!readonly) {
-                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "+ Template Path", onTouchTap: this.handleTouchTap.bind(this) }));
+                headerActions.push(_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: m('create'), onTouchTap: this.handleTouchTap.bind(this) }));
             }
 
             return _react2['default'].createElement(
                 'div',
                 { className: 'vertical-layout workspaces-list layout-fill' },
                 _react2['default'].createElement(AdminComponents.Header, {
-                    title: "Template Paths",
+                    title: m('title'),
                     icon: "mdi mdi-help-network",
                     actions: headerActions,
                     reloadAction: this.reload.bind(this),
@@ -160,7 +165,7 @@ var VirtualNodes = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { margin: '0 10px' } },
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newNode', floatingLabelText: "Label", value: this.state.newName, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newNode', floatingLabelText: m('label'), value: this.state.newName, onChange: function (e, v) {
                                 _this4.setState({ newName: v });
                             }, hintText: "Provide a label for this node" })
                     ),
@@ -168,26 +173,26 @@ var VirtualNodes = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { textAlign: 'right', padding: '4px 10px' } },
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onClick: this.handleRequestClose.bind(this) }),
-                        _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: "Create", onClick: this.createNode.bind(this) })
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onClick: this.handleRequestClose.bind(this) }),
+                        _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('create.button'), onClick: this.createNode.bind(this) })
                     )
                 ),
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 20, paddingBottom: 0 } },
-                    'Template Paths are dynamically computed depending on the context. They can be used as roots for workspaces in replacement of a fixed datasource path. They are used by default to create the Personal Files workspace that points to a different folder for each users, and for computing the location of the users Cells folders.',
+                    m('legend.1'),
                     _react2['default'].createElement('br', null),
                     !readonly && _react2['default'].createElement(
                         'span',
                         null,
-                        'Use Ctrl+Space inside the editor to get hint about the possible values. Current values supported are: User.Name (dynamically resolved to the current user logged login) and DataSources (to pick a datasource dynamically).'
+                        m('legend.2')
                     )
                 ),
                 nodesLoaded && dataSourcesLoaded && vNodes,
                 (!nodesLoaded || !dataSourcesLoaded) && _react2['default'].createElement(
                     'div',
                     { style: { margin: 16, textAlign: 'center', padding: 20 } },
-                    'Loading...'
+                    pydio.MessageHash['ajxp_admin.home.6']
                 )
             );
         }

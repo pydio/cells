@@ -90,7 +90,7 @@ export default class WsAutoComplete extends React.Component{
         })
     }
 
-    static renderNode(node) {
+    static renderNode(node, m) {
         let label = <span>{node.Path}</span>;
         let icon = "mdi mdi-folder";
         let categ = "folder";
@@ -98,7 +98,7 @@ export default class WsAutoComplete extends React.Component{
             icon = "mdi mdi-file-tree";
             categ = "templatePath";
             const resolutionPart = node.MetaStore["resolution"].split("\n").pop();
-            label = <span>{node.Path} <i style={{color: '#9e9e9e'}}>- Resolves to {resolutionPart}</i></span>;
+            label = <span>{node.Path} <i style={{color: '#9e9e9e'}}>- {m('ws.complete.resolves')} {resolutionPart}</i></span>;
         } else if(node.Type === 'LEAF') {
             icon = "mdi mdi-file";
         }
@@ -113,7 +113,8 @@ export default class WsAutoComplete extends React.Component{
 
     render(){
 
-        const {onDelete, skipTemplates, label, zDepth} = this.props;
+        const {onDelete, skipTemplates, label, zDepth, pydio} = this.props;
+        const m = (id) => pydio.MessageHash['ajxp_admin.' + id] || id;
         const {nodes, loading} = this.state;
         let dataSource = [];
         if (nodes){
@@ -126,17 +127,17 @@ export default class WsAutoComplete extends React.Component{
                     // Skip hidden files
                     return;
                 }
-                const data = WsAutoComplete.renderNode(node);
+                const data = WsAutoComplete.renderNode(node, m);
                 if(!categs[data.categ]) {
                     categs[data.categ] = [];
                 }
                 categs[data.categ].push(data);
             });
             if(Object.keys(categs).length > 1) {
-                dataSource.push({key: "h1", text: '', value: <MenuItem primaryText={"DataSources and folders"} style={{fontSize: 13, fontWeight: 500}} disabled={true}/>});
+                dataSource.push({key: "h1", text: '', value: <MenuItem primaryText={m('ws.complete.datasources')} style={{fontSize: 13, fontWeight: 500}} disabled={true}/>});
                 dataSource.push(...categs[Object.keys(categs)[0]]);
                 if(!skipTemplates){
-                    dataSource.push({key: "h2", text: '' , value: <MenuItem primaryText={"Preset Template Paths"} style={{fontSize: 13, fontWeight: 500}} disabled={true}/>});
+                    dataSource.push({key: "h2", text: '' , value: <MenuItem primaryText={m('ws.complete.templates')} style={{fontSize: 13, fontWeight: 500}} disabled={true}/>});
                     dataSource.push(...categs[Object.keys(categs)[1]]);
                 }
             } else if (Object.keys(categs).length === 1) {
@@ -167,7 +168,7 @@ export default class WsAutoComplete extends React.Component{
                         onUpdateInput={this.handleUpdateInput.bind(this)}
                         onNewRequest={this.handleNewRequest.bind(this)}
                         dataSource={dataSource}
-                        floatingLabelText={label || 'Select a folder or a predefined template path'}
+                        floatingLabelText={label || m('ws.complete.label')}
                         floatingLabelStyle={{whiteSpace:'nowrap'}}
                         floatingLabelFixed={true}
                         filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}

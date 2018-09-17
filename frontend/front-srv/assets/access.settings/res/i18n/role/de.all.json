@@ -157,5 +157,17 @@
   },
   "9": {
     "other": "Wählen Sie die Arbeitsumgebungen, auf welche diese Rolle Zugriff erhält. Wenn Sie 'Verweigern' wählen, wird der Zugriff verweigert, auch wenn der Zugriff in anderen Rollen gesetzt oder vererbt wurde."
+  },
+  "dashboard.description": {
+    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+  },
+  "dashboard.technical.hide": {
+    "other": "Hide technical roles"
+  },
+  "dashboard.technical.show": {
+    "other": "Show technical roles"
+  },
+  "last_update": {
+    "other": "Last updated"
   }
 }

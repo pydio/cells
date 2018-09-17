@@ -48,6 +48,7 @@ class DataSourcesBoard extends React.Component {
             importResult: null,
             keyOperationError: null,
             startedServices: [],
+            m: (id) => props.pydio.MessageHash["ajxp_admin.ds." + id] || id,
         };
     }
 
@@ -93,6 +94,7 @@ class DataSourcesBoard extends React.Component {
             COMPONENT:DataSourceEditor,
             PROPS:{
                 ref:"editor",
+                pydio:pydio,
                 dataSource:dataSource,
                 closeEditor:this.closeEditor.bind(this),
                 reloadList:this.load.bind(this),
@@ -101,9 +103,9 @@ class DataSourcesBoard extends React.Component {
     }
 
     computeStatus(dataSource) {
-        const {startedServices} = this.state;
+        const {startedServices, m} = this.state;
         if(!startedServices.length){
-            return 'N/A';
+            return m('status.na');
         }
         let index, sync, object;
         startedServices.map(service => {
@@ -116,19 +118,19 @@ class DataSourcesBoard extends React.Component {
             }
         });
         if(index && sync && object){
-            return "All services running";
+            return m('status.ok');
         } else if (!index && !sync && !object) {
-            return <span style={{color:'#e53935'}}>Services Stopped</span>;
+            return <span style={{color:'#e53935'}}>{m('status.ko')}</span>;
         } else {
             let services = [];
             if(!index) {
-                services.push('Index service down');
+                services.push(m('status.index'));
             }
             if(!sync) {
-                services.push('Sync service down');
+                services.push(m('status.sync'));
             }
             if(!object) {
-                services.push('Objects service down');
+                services.push(m('status.object'));
             }
             return <span style={{color:'#e53935'}}>{services.join(' - ')}</span>;
         }
@@ -159,6 +161,7 @@ class DataSourcesBoard extends React.Component {
                 ref:"editor",
                 versionPolicy:versionPolicy,
                 create: create,
+                pydio: this.props.pydio,
                 readonly: this.props.versioningReadonly,
                 closeEditor:this.closeEditor.bind(this),
                 reloadList:this.load.bind(this),
@@ -172,6 +175,7 @@ class DataSourcesBoard extends React.Component {
             PROPS:{
                 ref:"editor",
                 create:true,
+                pydio:pydio,
                 closeEditor:this.closeEditor.bind(this),
                 reloadList:this.load.bind(this),
             }
@@ -179,23 +183,23 @@ class DataSourcesBoard extends React.Component {
     }
 
     render(){
-        const {dataSources, versioningPolicies} = this.state;
+        const {dataSources, versioningPolicies, m} = this.state;
         dataSources.sort(LangUtils.arraySorter('Name'));
         versioningPolicies.sort(LangUtils.arraySorter('Name'));
 
         const {currentNode, pydio, versioningReadonly} = this.props;
         const dsColumns = [
-            {name:'Name', label:'Name', style:{fontSize: 15}},
-            {name:'StorageType', label:'Storage Type', renderCell:(row)=>{
-                    return row.StorageType === 'S3' ? 'Remote S3 Storage' : 'Local File System'
+            {name:'Name', label:m('name'), style:{fontSize: 15}},
+            {name:'StorageType', label:m('storage'), renderCell:(row)=>{
+                    return row.StorageType === 'S3' ? m('storage.s3') : m('storage.fs')
             }},
-            {name:'Status', label:'Status', renderCell:(row)=>{
-                    return row.Disabled ? 'Disabled' : this.computeStatus(row);
+            {name:'Status', label:m('status'), renderCell:(row)=>{
+                    return row.Disabled ? m('status.disabled') : this.computeStatus(row);
             }},
-            {name:'EncryptionMode', label:'Encrypted', renderCell:(row) => {
-                return row['EncryptionMode'] === 'MASTER' ? 'Yes' : 'No';
+            {name:'EncryptionMode', label:m('encryption'), renderCell:(row) => {
+                return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'] ;
             }},
-            {name:'VersioningPolicyName', label:'Versioning', renderCell:(row) => {
+            {name:'VersioningPolicyName', label:m('versioning'), renderCell:(row) => {
                 const pol = versioningPolicies.find((obj)=>obj.Uuid === row['VersioningPolicyName']);
                 if (pol) {
                     return pol.Name;
@@ -213,10 +217,10 @@ class DataSourcesBoard extends React.Component {
             buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onTouchTap={() => {this.openVersionPolicy()}}/>)
         }
         const policiesColumns = [
-            {name:'Name', label: 'Name', style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
-            {name:'Description', label: 'Description'},
-            {name:'KeepPeriods', label: 'Retention Strategy', renderCell:(row) => {
-                return <VersionPolicyPeriods rendering="short" periods={row.KeepPeriods}/>
+            {name:'Name', label: m('versioning.name'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
+            {name:'Description', label: m('versioning.description')},
+            {name:'KeepPeriods', label: m('versioning.periods'), renderCell:(row) => {
+                return <VersionPolicyPeriods rendering="short" periods={row.KeepPeriods} pydio={pydio}/>
             }}
         ];
 
@@ -232,7 +236,7 @@ class DataSourcesBoard extends React.Component {
                         loading={!(this.state.dsLoaded && this.state.versionsLoaded)}
                     />
                     <div className="layout-fill">
-                        <AdminComponents.SubHeader title="DataSources" legend="Datasources are concrete storage locations that are aggregated by Pydio into a global tree. They can be distributed accross many storage nodes as needed."/>
+                        <AdminComponents.SubHeader title={m('board.ds.title')} legend={m('board.ds.legend')}/>
                         <Paper zDepth={1} style={{margin: 16}}>
                             <MaterialTable
                                 data={dataSources}
@@ -244,7 +248,7 @@ class DataSourcesBoard extends React.Component {
                             />
                         </Paper>
 
-                        <AdminComponents.SubHeader title="Versioning Policies" legend="You can define how files will be versioned for each datasource, and how many versions the application will retain over the time."/>
+                        <AdminComponents.SubHeader title={m('board.versioning.title')} legend={m('board.versioning.legend')}/>
                         <Paper zDepth={1} style={{margin: 16}}>
                             <MaterialTable
                                 data={versioningPolicies}
@@ -255,7 +259,7 @@ class DataSourcesBoard extends React.Component {
                             />
                         </Paper>
 
-                        <AdminComponents.SubHeader title="Encryption Master Keys" legend="Master keys are automatically generated by Pydio service and stored in the server protected keychain. Use the tools below to export/import these keys in case you need to reinstall or deploy on another server"/>
+                        <AdminComponents.SubHeader  title={m('board.enc.title')} legend={m('board.enc.legend')}/>
                         <EncryptionKeys pydio={pydio} ref={"encKeys"}/>
 
                     </div>

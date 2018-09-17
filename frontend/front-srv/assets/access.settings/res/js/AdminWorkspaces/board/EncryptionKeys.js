@@ -19,6 +19,8 @@ class EncryptionKeys extends React.Component{
 
             showCreateKey: null,
             showImportKey: null,
+
+            m: id => props.pydio.MessageHash['ajxp_admin.ds.encryption.' + id] || id
         };
     }
 
@@ -37,6 +39,7 @@ class EncryptionKeys extends React.Component{
 
     exportKey(){
         const {pydio} = this.props;
+        const {m} = this.state;
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         const request = new EncryptionAdminExportKeyRequest();
         request.KeyID = this.state.showExportKey;
@@ -54,7 +57,7 @@ class EncryptionKeys extends React.Component{
             });
             this.setState({showExportKey: null});
         }).catch(reason => {
-            pydio.UI.displayMessage('ERROR', 'Something went wrong: ' + reason.message);
+            pydio.UI.displayMessage('ERROR', m('key.export.fail') + " : " + reason.message);
             this.setState({showExportKey: null});
         });
     }
@@ -73,7 +76,8 @@ class EncryptionKeys extends React.Component{
     }
 
     deleteKey(keyId){
-        if (confirm('This is a very dangerous operation, are you sure you want to do that??!')){
+        const {m} = this.state;
+        if (confirm(m('key.delete.warning'))){
             const api = new ConfigServiceApi(PydioApi.getRestClient());
             let req = new EncryptionAdminDeleteKeyRequest();
             req.KeyID = keyId;
@@ -85,6 +89,7 @@ class EncryptionKeys extends React.Component{
 
     importKey(){
         const {pydio} = this.props;
+        const {m} = this.state;
 
         const api = new ConfigServiceApi(PydioApi.getRestClient());
 
@@ -104,9 +109,9 @@ class EncryptionKeys extends React.Component{
         request.Override = importExisting;
         api.importEncryptionKey(request).then(response => {
             if (response.Success) {
-                pydio.UI.displayMessage('SUCCESS', 'Import was successful');
+                pydio.UI.displayMessage('SUCCESS', m('key.import.success'));
             } else {
-                pydio.UI.displayMessage('ERROR', 'Something went wrong!');
+                pydio.UI.displayMessage('ERROR', m('key.import.fail'));
             }
             this.load();
             this.setState({showImportKey: false, showDialog: false});
@@ -118,19 +123,20 @@ class EncryptionKeys extends React.Component{
 
     render(){
 
-        const {keys, showDialog, showImportKey, showExportKey, exportedKey, showCreateKey} = this.state;
+        const {keys, showDialog, showImportKey, showExportKey, exportedKey, showCreateKey, m} = this.state;
+        const {pydio} = this.props;
 
         const columns = [
-            {name:'Label', label: 'Label', style:{width:'30%', fontSize:15}, headerStyle:{width:'30%'}},
-            {name:'ID', label: 'Id'},
-            {name:'Owner', label: 'Owner'},
-            {name:'CreationDate', label: 'Created', renderCell:(row) => new Date(row.CreationDate*1000).toUTCString()},
+            {name:'Label', label: m('key.label'), style:{width:'30%', fontSize:15}, headerStyle:{width:'30%'}},
+            {name:'ID', label: m('key.id')},
+            {name:'Owner', label: m('key.owner')},
+            {name:'CreationDate', label: m('key.created'), renderCell:(row) => new Date(row.CreationDate*1000).toUTCString()},
             {name:'Actions', label:'', style:{width:160, textAlign:'right', overflow:'visible'}, headerStyle:{width:'160'}, renderCell:(row => {
                 return (
                     <div>
-                        <IconButton tooltip={"Import"} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-import"} onTouchTap={() => {this.setState({showDialog: true, showImportKey:row})}} onClick={e=>e.stopPropagation()}/>
-                        <IconButton tooltip={"Export"} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-export"} onTouchTap={() => {this.setState({showDialog: true, showExportKey:row.ID})}} onClick={e=>e.stopPropagation()}/>
-                        <IconButton tooltip={"Delete"} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-delete"} onTouchTap={() => {this.deleteKey(row.ID)}} onClick={e=>e.stopPropagation()}/>
+                        <IconButton tooltip={m('key.import')} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-import"} onTouchTap={() => {this.setState({showDialog: true, showImportKey:row})}} onClick={e=>e.stopPropagation()}/>
+                        <IconButton tooltip={m('key.export')} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-export"} onTouchTap={() => {this.setState({showDialog: true, showExportKey:row.ID})}} onClick={e=>e.stopPropagation()}/>
+                        <IconButton tooltip={m('key.delete')} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-delete"} onTouchTap={() => {this.deleteKey(row.ID)}} onClick={e=>e.stopPropagation()}/>
                     </div>
                 );
             })}
@@ -138,13 +144,13 @@ class EncryptionKeys extends React.Component{
 
         let dialogContent, dialogTitle, dialogActions = [];
         if(showExportKey || exportedKey){
-            dialogTitle = "Export Encryption Key";
+            dialogTitle = m('key.export');
             if(exportedKey){
                 dialogContent = (
                     <TextField
                         value={exportedKey.Content}
                         fullWidth={true}
-                        floatingLabelText={"Copy result to a file to save the key"}
+                        floatingLabelText={m('key.export.result.copy')}
                         multiLine={true}
                         ref="key-imported-field"
                     />
@@ -158,44 +164,44 @@ class EncryptionKeys extends React.Component{
             } else {
                 dialogContent = (
                     <div>
-                        <TextField floatingLabelText={"Please provide a password"} ref="key-password-field" type={"password"} fullWidth={true}/>
-                        <TextField floatingLabelText={"Confirm your password"} ref="key-password-confirm" type={"password"} fullWidth={true}/>
+                        <TextField floatingLabelText={m('key.export.password')} ref="key-password-field" type={"password"} fullWidth={true}/>
+                        <TextField floatingLabelText={m('key.export.confirm')} ref="key-password-confirm" type={"password"} fullWidth={true}/>
                     </div>
                 );
                 dialogActions = [
-                    <FlatButton label={"Cancel"} onTouchTap={()=>{this.setState({showExportKey:null, showDialog: false})}}/>,
-                    <FlatButton label={"Export"} primary={true} onTouchTap={()=>{this.exportKey()}}/>
+                    <FlatButton label={pydio.MessageHash['54']} onTouchTap={()=>{this.setState({showExportKey:null, showDialog: false})}}/>,
+                    <FlatButton label={m('key.export')} primary={true} onTouchTap={()=>{this.exportKey()}}/>
                 ];
             }
         } else if(showImportKey) {
-            dialogTitle = "Import key content";
+            dialogTitle = m('key.import');
             dialogContent = (
                 <div>
                     {!showImportKey.ID &&
                         <div>
-                            <TextField floatingLabelText={"Provide an identifier for this key"} ref="key-import-id" fullWidth={true}/>
-                            <TextField floatingLabelText={"Provide a readable label for this key"} ref="key-import-label" fullWidth={true}/>
+                            <TextField floatingLabelText={m('key.import.id')} ref="key-import-id" fullWidth={true}/>
+                            <TextField floatingLabelText={m('key.import.label')} ref="key-import-label" fullWidth={true}/>
                         </div>
                     }
-                    <TextField floatingLabelText={"Password you used at export"} ref="key-password-field" type={"password"} fullWidth={true}/>
-                    <TextField fullWidth={true} floatingLabelText={"Paste key from your backup file."} multiLine={true} ref="key-imported-field"/>
+                    <TextField floatingLabelText={m('key.import.password')} ref="key-password-field" type={"password"} fullWidth={true}/>
+                    <TextField fullWidth={true} floatingLabelText={m('key.import.content')} multiLine={true} ref="key-imported-field"/>
                 </div>
             );
             dialogActions =[
-                <FlatButton label={"Cancel"} onTouchTap={()=>{this.setState({showImportKey:null, showDialog: false})}}/>,
-                <FlatButton label={"Import"} primary={true} onTouchTap={()=>{this.importKey()}}/>
+                <FlatButton label={pydio.MessageHash['54']} onTouchTap={()=>{this.setState({showImportKey:null, showDialog: false})}}/>,
+                <FlatButton label={m('key.import')} primary={true} onTouchTap={()=>{this.importKey()}}/>
             ];
         } else if(showCreateKey) {
             dialogTitle = "Create a Key";
             dialogContent = (
                 <div>
-                    <TextField floatingLabelText={"Provide an identifier for this key"} ref="createKeyId" fullWidth={true}/>
-                    <TextField floatingLabelText={"Provide a readable label for this key"} ref="createKeyLabel" fullWidth={true}/>
+                    <TextField floatingLabelText={m('key.import.id')} ref="createKeyId" fullWidth={true}/>
+                    <TextField floatingLabelText={m('key.import.label')} ref="createKeyLabel" fullWidth={true}/>
                 </div>
             );
             dialogActions = [
-                <FlatButton label={"Cancel"} onTouchTap={()=>{this.setState({showCreateKey:null, showDialog: false})}}/>,
-                <FlatButton label={"Create"} primary={true} onTouchTap={()=>{this.createKey()}}/>
+                <FlatButton label={pydio.MessageHash['54']} onTouchTap={()=>{this.setState({showCreateKey:null, showDialog: false})}}/>,
+                <FlatButton label={m('key.create')} primary={true} onTouchTap={()=>{this.createKey()}}/>
             ];
         }
 
@@ -212,8 +218,8 @@ class EncryptionKeys extends React.Component{
                     {dialogContent}
                 </Dialog>
                 <div style={{textAlign:'right'}}>
-                    <RaisedButton primary={true} label={"Import Key..."} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} style={{marginLeft: 16}}/>
-                    <RaisedButton primary={true} label={"Create Key..."} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} style={{marginLeft: 16}}/>
+                    <RaisedButton primary={true} label={m('key.import')} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} style={{marginLeft: 16}}/>
+                    <RaisedButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} style={{marginLeft: 16}}/>
                 </div>
                 <MaterialTable
                     data={keys}
