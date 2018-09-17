@@ -102,6 +102,10 @@ var (
 		transparent
 	}
 
+	proxy /robots.txt {{.FrontPlugins.Host}} {
+		transparent
+	}
+
 	proxy /login {{.FrontPlugins.Host}}/gui {
 		transparent
 		without /login
@@ -150,6 +154,7 @@ var (
 		if {path} not_starts_with "/lool/"
 		if {path} not_starts_with "/public/"
 		if {path} not_starts_with "/user/reset-password"
+		if {path} not_starts_with "/robots.txt"
 		to {path} {path}/ /login
 	}
 

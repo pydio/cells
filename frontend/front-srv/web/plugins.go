@@ -38,7 +38,9 @@ import (
 )
 
 var (
-	Name = common.SERVICE_API_NAMESPACE_ + common.SERVICE_FRONTPLUGS
+	Name         = common.SERVICE_API_NAMESPACE_ + common.SERVICE_FRONTPLUGS
+	RobotsString = `User-agent: *
+Disallow: /`
 )
 
 func init() {
@@ -58,6 +60,11 @@ func init() {
 					router.Handle("/index.json", fs)
 					router.PathPrefix("/plug/").Handler(http.StripPrefix("/plug/", fs))
 					indexHandler := index.NewIndexHandler()
+					router.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+						w.WriteHeader(200)
+						w.Header().Set("Content-Type", "text/plain")
+						w.Write([]byte(RobotsString))
+					})
 					router.Handle("/gui", indexHandler)
 					router.Handle("/user/reset-password/{resetPasswordKey}", indexHandler)
 					router.Handle("/public/{link}", index.NewPublicHandler())
