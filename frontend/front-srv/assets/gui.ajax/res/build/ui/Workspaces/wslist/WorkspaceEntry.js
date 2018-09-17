@@ -352,10 +352,12 @@ var WorkspaceEntry = React.createClass({
         }
 
         var icon = "mdi mdi-folder";
+        var iconStyle = { fontSize: 20, marginRight: 10, opacity: 0.7 };
         if (workspace.getRepositoryType() === "workspace-personal") {
             icon = "mdi mdi-folder-account";
         } else if (workspace.getRepositoryType() === "cell") {
             icon = "icomoon-cells";
+            iconStyle = _extends({}, iconStyle, { fontSize: 22, opacity: 0.8 });
         }
 
         var menuNode = undefined;
@@ -375,6 +377,7 @@ var WorkspaceEntry = React.createClass({
                 }
             }
             icon = "mdi mdi-folder-open";
+            iconStyle.opacity = 1;
         } else {
             /*
             menuNode = new Node('/', false, workspace.getLabel());
@@ -395,7 +398,7 @@ var WorkspaceEntry = React.createClass({
         if (workspace.getDescription()) {
             title += ' - ' + workspace.getDescription();
         }
-        var entryIcon = React.createElement('span', { className: icon, style: { fontSize: 20, marginRight: 10, opacity: workspace.getId() === pydio.user.activeRepository ? 1 : 0.7 } });
+        var entryIcon = React.createElement('span', { className: icon, style: iconStyle });
         var wsBlock = React.createElement(
             ContextMenuWrapper,
             {

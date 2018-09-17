@@ -32,6 +32,7 @@ import (
 	//	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	//	"github.com/pydio/cells/common/registry"
+
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/data/source/index"

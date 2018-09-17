@@ -77,7 +77,7 @@ func FirstRun(ctx context.Context) error {
 			Description: "User personal data",
 			Slug:        "personal-files",
 		}
-		createWs(ctx, wsClient, ws, "my-files")
+		createWs(ctx, wsClient, ws, "my-files", "my-files")
 	}
 
 	if commonDS != "" {
@@ -88,14 +88,14 @@ func FirstRun(ctx context.Context) error {
 			Description: "Data shared by all users",
 			Slug:        "common-files",
 		}
-		createWs(ctx, wsClient, ws, "DATASOURCE:"+commonDS)
+		createWs(ctx, wsClient, ws, "DATASOURCE:"+commonDS, commonDS)
 
 	}
 
 	return nil
 }
 
-func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.Workspace, rootUuid string) error {
+func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.Workspace, rootUuid string, rootPath string) error {
 
 	ws.Scope = idm.WorkspaceScope_ADMIN
 	ws.Policies = initialPolicies
@@ -105,7 +105,7 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 	acls := []*idm.ACL{
 		{NodeID: rootUuid, Action: utils.ACL_READ, RoleID: "ROOT_GROUP", WorkspaceID: ws.UUID},
 		{NodeID: rootUuid, Action: utils.ACL_WRITE, RoleID: "ROOT_GROUP", WorkspaceID: ws.UUID},
-		{NodeID: rootUuid, Action: &idm.ACLAction{Name: "workspace-path", Value: rootUuid}, WorkspaceID: ws.UUID},
+		{NodeID: rootUuid, Action: &idm.ACLAction{Name: "workspace-path", Value: rootPath}, WorkspaceID: ws.UUID},
 	}
 	service2.Retry(func() error {
 		log.Logger(ctx).Info("Settings ACLS for workspace")
