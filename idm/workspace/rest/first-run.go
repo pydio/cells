@@ -51,7 +51,7 @@ func FirstRun(ctx context.Context) error {
 	var hasPersonal bool
 	var commonDS string
 	// List datasources from configs
-	syncConf := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources")
+	syncConf := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources")
 	sources := syncConf.StringSlice([]string{})
 	for _, s := range sources {
 		if s == "personal" {
