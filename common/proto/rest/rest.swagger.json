@@ -23,25 +23,25 @@
     "401":{
       "description":"User is not authenticated",
       "schema":{
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/restError"
       }
     },
     "403":{
       "description":"User has no permissions to access this particular resource",
       "schema":{
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/restError"
       }
     },
     "404":{
       "description":"Resource does not exists in the system",
       "schema":{
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/restError"
       }
     },
     "500":{
       "description":"An internal error occurred in the backend",
       "schema":{
-        "$ref": "#/definitions/Error"
+        "$ref": "#/definitions/restError"
       }
     }
   },
