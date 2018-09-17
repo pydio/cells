@@ -46,9 +46,10 @@ import (
 // This times out after 10 minutes
 
 var (
-	ctx      context.Context
-	options  config.Map
-	mockNode *utils.TreeNode
+	ctx       context.Context
+	options   config.Map
+	mockNode  *utils.TreeNode
+	mockNode2 *utils.TreeNode
 
 	mockLongNodeMPath       utils.MPath
 	mockLongNodeChild1MPath utils.MPath
@@ -68,6 +69,11 @@ func init() {
 		Uuid: "ROOT",
 		Type: tree.NodeType_LEAF,
 	}, []uint64{1}, []string{""})
+
+	mockNode2 = NewNode(&tree.Node{
+		Uuid: "ROOT2",
+		Type: tree.NodeType_LEAF,
+	}, []uint64{5}, []string{""})
 
 	mockLongNode = NewNode(&tree.Node{
 		Uuid: "mockLongNode",
@@ -161,7 +167,7 @@ func TestMysql(t *testing.T) {
 
 	// Adding a file
 	Convey("Test adding a file - Success", t, func() {
-		err := getDAO(ctx).AddNode(mockNode)
+		err := getDAO(ctx).AddNode(mockNode2)
 		So(err, ShouldBeNil)
 
 		// printTree()
