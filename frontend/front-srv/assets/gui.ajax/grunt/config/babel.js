@@ -33,6 +33,9 @@ module.exports = function(grunt, options){
                 }]
         },
         lib:{
+            options: {
+                optional: ['es7.decorators'],
+            },
             files: [
                 {
                     expand: true,

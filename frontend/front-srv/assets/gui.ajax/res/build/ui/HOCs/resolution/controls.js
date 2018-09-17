@@ -22,6 +22,14 @@
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _materialUi = require('material-ui');
 
 var _reactRedux = require('react-redux');
@@ -30,11 +38,42 @@ var _utils = require('./utils');
 
 var _utils2 = require('../utils');
 
-var _ToggleResolution = function _ToggleResolution(props) {
-  return React.createElement(_materialUi.IconButton, { onClick: function () {
-      return _utils2.handler("onToggleResolution", props);
-    }, iconClassName: 'mdi mdi-crop-' + (props.resolution === "hi" ? "square" : "free") });
-};
+var _controls = require('../controls');
 
-var ToggleResolution = _reactRedux.connect(_utils.mapStateToProps)(_ToggleResolution);
-exports.ToggleResolution = ToggleResolution;
+var withResolutionControls = function withResolutionControls() {
+    return function (Component) {
+        return (function (_React$Component) {
+            _inherits(ResolutionControls, _React$Component);
+
+            function ResolutionControls() {
+                _classCallCheck(this, _ResolutionControls);
+
+                _React$Component.apply(this, arguments);
+            }
+
+            ResolutionControls.prototype.render = function render() {
+                var _props = this.props;
+                var _props$tab = _props.tab;
+                var tab = _props$tab === undefined ? {} : _props$tab;
+
+                var remaining = _objectWithoutProperties(_props, ['tab']);
+
+                var _tab$resolution = tab.resolution;
+                var resolution = _tab$resolution === undefined ? "hi" : _tab$resolution;
+
+                var fn = _utils2.handler("onToggleResolution", this.props);
+
+                return React.createElement(Component, _extends({
+                    onResolutionToggle: function () {
+                        return fn(!(resolution == "hi"));
+                    }
+                }, remaining));
+            };
+
+            var _ResolutionControls = ResolutionControls;
+            ResolutionControls = _reactRedux.connect(_utils.mapStateToProps)(ResolutionControls) || ResolutionControls;
+            return ResolutionControls;
+        })(React.Component);
+    };
+};
+exports.withResolutionControls = withResolutionControls;

@@ -50,11 +50,11 @@ var _utils2 = require('./utils');
 
 var withSelection = function withSelection(getSelection) {
     return function (Component) {
-        var WithSelection = (function (_React$Component) {
+        return (function (_React$Component) {
             _inherits(WithSelection, _React$Component);
 
             function WithSelection(props) {
-                _classCallCheck(this, WithSelection);
+                _classCallCheck(this, _WithSelection);
 
                 _React$Component.call(this, props);
 
@@ -133,10 +133,10 @@ var withSelection = function withSelection(getSelection) {
                 }
             }]);
 
+            var _WithSelection = WithSelection;
+            WithSelection = _reactRedux.connect(_utils2.mapStateToProps)(WithSelection) || WithSelection;
             return WithSelection;
         })(_react2['default'].Component);
-
-        return _reactRedux.connect(_utils2.mapStateToProps)(WithSelection);
     };
 };
 

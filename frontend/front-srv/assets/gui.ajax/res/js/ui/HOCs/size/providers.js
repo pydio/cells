@@ -19,7 +19,9 @@
  */
 
 import React from 'react';
-import { getBoundingRect } from '../utils';
+import {CircularProgress} from 'material-ui';
+import ContainerDimensions from 'react-container-dimensions';
+import { getDisplayName, getBoundingRect } from '../utils';
 import _ from 'lodash';
 
 export class ContainerSizeProvider extends React.PureComponent {
@@ -56,51 +58,110 @@ export class ContainerSizeProvider extends React.PureComponent {
     }
 }
 
-export class ImageSizeProvider extends React.PureComponent {
-    static get propTypes() {
-        return {
-            url: React.PropTypes.string.isRequired,
-            node: React.PropTypes.instanceOf(AjxpNode).isRequired,
-            children: React.PropTypes.func.isRequired
-        }
-    }
+export const withContainerSize = (Component) => {
+    return class extends React.PureComponent {
+        constructor(props) {
+            super(props)
 
-    constructor(props) {
-        super(props)
+            this.state = {}
 
-        const {node} = this.props
-        const meta = node.getMetadata()
-
-        this.state = {
-            imgWidth: meta.has('image_width') && parseInt(meta.get('image_width')) || 200,
-            imgHeight: meta.has('image_height') && parseInt(meta.get('image_height')) || 200
+            this._observer = (e) => this.resize();
         }
 
-        this.updateSize = (imgWidth, imgHeight) => this.setState({imgWidth, imgHeight})
-        this.getImageSize = _.throttle(DOMUtils.imageLoader, 100)
+        static get displayName() {
+            return `WithContainerResize(${getDisplayName(Component)})`
+        }
+
+        resize() {
+            const node = ReactDOM.findDOMNode(this)
+            const dimensions = node && getBoundingRect(node) || {}
+
+            this.setState({
+                containerWidth: parseInt(dimensions.width),
+                containerHeight: parseInt(dimensions.height)
+            })
+        }
+
+        componentDidMount() {
+            DOMUtils.observeWindowResize(this._observer);
+
+            this.resize()
+        }
+
+        componentWillUnmount() {
+            DOMUtils.stopObservingWindowResize(this._observer);
+        }
+
+        render() {
+            const {containerWidth, containerHeight} = this.state;
+
+            return (
+                <ContainerDimensions>
+                    { ({ width, height }) => <Component containerWidth={width} containerHeight={height} {...this.props} /> }
+                </ContainerDimensions>
+            )
+        }
     }
+}
 
-    componentWillReceiveProps(nextProps) {
-        const {url, node} = nextProps
-        const meta = node.getMetadata()
+export const withImageSize = (Component) => {
+    return class extends React.PureComponent {
+        static get propTypes() {
+            return {
+                url: React.PropTypes.string.isRequired,
+                node: React.PropTypes.instanceOf(AjxpNode).isRequired,
+                children: React.PropTypes.func.isRequired
+            }
+        }
 
-        const update = this.updateSize
+        constructor(props) {
+            super(props)
 
-        this.getImageSize(url, function() {
-            if (!meta.has('image_width')){
-                meta.set("image_width", this.width);
-                meta.set("image_height", this.height);
+            const {node} = this.props
+            const meta = node.getMetadata()
+
+            this.state = {
+                imgWidth: meta.has('image_width') && parseInt(meta.get('image_width')) || 200,
+                imgHeight: meta.has('image_height') && parseInt(meta.get('image_height')) || 200
             }
 
-            update(this.width, this.height)
-        }, function() {
-            if (meta.has('image_width')) {
-                update(meta.get('image_width'), meta.get('image_height'))
-            }
-        })
-    }
+            this.updateSize = (imgWidth, imgHeight) => this.setState({imgWidth, imgHeight})
+            this.getImageSize = _.throttle(DOMUtils.imageLoader, 100)
+        }
 
-    render() {
-        return (this.props.children(this.state));
+        static get displayName() {
+            return `WithImageResize(${getDisplayName(Component)})`
+        }
+
+        componentWillReceiveProps(nextProps) {
+            const {url, node} = nextProps
+            const meta = node.getMetadata()
+
+            const update = this.updateSize
+
+            this.getImageSize(url, function() {
+                if (!meta.has('image_width')){
+                    meta.set("image_width", this.width);
+                    meta.set("image_height", this.height);
+                }
+
+                update(this.width, this.height)
+            }, function() {
+                if (meta.has('image_width')) {
+                    update(meta.get('image_width'), meta.get('image_height'))
+                }
+            })
+        }
+
+        componentDidMount() {
+            const test = ReactDOM.findDOMNode(this)
+        }
+
+        render() {
+            const {imgWidth, imgHeight} = this.state
+            return (
+                <Component width={imgWidth} height={imgHeight} {...this.props} />
+            )
+        }
     }
 }

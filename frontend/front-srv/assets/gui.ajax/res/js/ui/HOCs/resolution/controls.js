@@ -22,7 +22,27 @@ import { IconButton } from 'material-ui';
 import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
 import { handler } from '../utils';
+import { withDisabled } from '../controls';
 
-const _ToggleResolution = (props) => <IconButton onClick={() => handler("onToggleResolution", props)} iconClassName={`mdi mdi-crop-${props.resolution === "hi" ? "square" : "free"}`} />
+export const withResolutionControls = () => {
+    return (Component) => {
+        return (
+            @connect(mapStateToProps)
+            class ResolutionControls extends React.Component {
+                render() {
+                    const {tab = {}, ...remaining} = this.props;
+                    const {resolution = "hi"} = tab;
 
-export const ToggleResolution = connect(mapStateToProps)(_ToggleResolution);
+                    const fn = handler("onToggleResolution", this.props)
+
+                    return (
+                        <Component
+                            onResolutionToggle={() => fn(!(resolution == "hi"))}
+                            {...remaining}
+                        />
+                    )
+                }
+            }
+        )
+    }
+}

@@ -19,13 +19,13 @@
  */
 
 import withContextMenu from './context-menu'
-import {withMenu, withControls} from './controls'
+import * as controls from './controls'
 import withErrors from './errors'
 import withLoader from './loader'
 import {ContentActions, ContentControls, ContentSearchControls} from './content/index'
-import {SelectionProviders, SelectionActions, SelectionControls, withSelection} from './selection/index'
-import {SizeActions, SizeControls, SizeProviders, withResize} from './size/index'
-import {ResolutionActions, ResolutionControls, withResolution} from './resolution/index'
+import {SelectionActions, SelectionControls, withSelection, withSelectionControls, withAutoPlayControls} from './selection/index'
+import {SizeActions, SizeControls, SizeProviders, withContainerSize, withResize, withSizeControls} from './size/index'
+import {ResolutionActions, ResolutionControls, withResolution, withResolutionControls} from './resolution/index'
 import {LocalisationActions, LocalisationControls} from './localisation/index'
 import {URLProvider} from './urls'
 import PaletteModifier from './PaletteModifier'
@@ -46,18 +46,20 @@ const PydioHOCs = {
     ResolutionControls,
     SizeActions,
     SizeControls,
-    SelectionProviders,
     SelectionActions,
     SelectionControls,
     LocalisationActions,
     LocalisationControls,
-    withControls,
     withContextMenu,
     withErrors,
     withLoader,
-    withMenu,
+    withContainerSize,
     withResize,
+    withSizeControls,
     withResolution,
+    withResolutionControls,
+    withAutoPlayControls,
+    withSelectionControls,
     withSelection,
     withVerticalScroll,
     dropProvider,
@@ -65,7 +67,8 @@ const PydioHOCs = {
     Animations,
     PaletteModifier,
     URLProvider,
-    SizeProviders
+    SizeProviders,
+    ...controls
 };
 
 export {PydioHOCs as default}

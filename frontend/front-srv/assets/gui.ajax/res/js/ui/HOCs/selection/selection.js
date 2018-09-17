@@ -26,63 +26,64 @@ import { mapStateToProps } from './utils';
 
 const withSelection = (getSelection) => {
     return (Component) => {
-        class WithSelection extends React.Component {
-            constructor(props) {
-                super(props)
+        return (
+            @connect(mapStateToProps)
+            class WithSelection extends React.Component {
+                constructor(props) {
+                    super(props)
 
-                const {node, tab, dispatch} = this.props
-                const {id} = tab || {}
+                    const {node, tab, dispatch} = this.props
+                    const {id} = tab || {}
 
-                if (typeof dispatch === 'function') {
-                    // We have a redux dispatch so we use it
-                    this.setState = (data) => dispatch(EditorActions.tabModify({id, ...data}))
+                    if (typeof dispatch === 'function') {
+                        // We have a redux dispatch so we use it
+                        this.setState = (data) => dispatch(EditorActions.tabModify({id, ...data}))
+                    }
                 }
-            }
 
-            static get displayName() {
-                return `WithSelection(${getDisplayName(Component)})`
-            }
-
-            static get propTypes() {
-                return {
-                    node: React.PropTypes.instanceOf(AjxpNode).isRequired
+                static get displayName() {
+                    return `WithSelection(${getDisplayName(Component)})`
                 }
-            }
 
-            componentDidMount() {
-                const {tab, node, tabModify} = this.props
-                const {id} = tab
+                static get propTypes() {
+                    return {
+                        node: React.PropTypes.instanceOf(AjxpNode).isRequired
+                    }
+                }
 
-                getSelection(node).then(({selection, currentIndex}) => this.setState({id, selection: new SelectionModel(selection, currentIndex)}))
-            }
+                componentDidMount() {
+                    const {tab, node, tabModify} = this.props
+                    const {id} = tab
 
-            render() {
+                    getSelection(node).then(({selection, currentIndex}) => this.setState({id, selection: new SelectionModel(selection, currentIndex)}))
+                }
 
-                const {tab, dispatch, ...remainingProps} = this.props
-                const {id, selection, playing} = tab
+                render() {
 
-                if (!selection) {
+                    const {tab, dispatch, ...remainingProps} = this.props
+                    const {id, selection, playing} = tab
+
+                    if (!selection) {
+                        return (
+                            <Component
+                                {...remainingProps}
+                            />
+                        )
+                    }
+
                     return (
                         <Component
                             {...remainingProps}
+                            node={selection.current()}
+                            selection={selection}
+                            selectionPlaying={playing}
+
+                            onRequestSelectionPlay={() => this.setState({id, node: selection.nextOrFirst(), title: selection.current().getLabel()})}
                         />
                     )
                 }
-
-                return (
-                    <Component
-                        {...remainingProps}
-                        node={selection.current()}
-                        selection={selection}
-                        selectionPlaying={playing}
-
-                        onRequestSelectionPlay={() => this.setState({id, node: selection.nextOrFirst(), title: selection.current().getLabel()})}
-                    />
-                )
             }
-        }
-
-        return connect(mapStateToProps)(WithSelection)
+        )
     }
 }
 

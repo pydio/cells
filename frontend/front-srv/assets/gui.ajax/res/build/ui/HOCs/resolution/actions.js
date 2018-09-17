@@ -26,7 +26,9 @@ var _utils = require('../utils');
 
 var onToggleResolution = function onToggleResolution(_ref) {
   var dispatch = _ref.dispatch;
-  var resolution = _ref.resolution;
-  return dispatch(_utils.EditorActions.editorModify({ resolution: resolution === "hi" ? "lo" : "hi" }));
+  var tab = _ref.tab;
+  return function (high) {
+    return dispatch(_utils.EditorActions.tabModify({ id: tab.id, resolution: high ? "hi" : "lo" }));
+  };
 };
 exports.onToggleResolution = onToggleResolution;

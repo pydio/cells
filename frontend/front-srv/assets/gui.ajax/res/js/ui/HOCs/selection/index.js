@@ -1,11 +1,11 @@
 import SelectionModel from './model'
-import * as SelectionProviders from './providers'
 import * as SelectionControls from './controls'
 import * as SelectionActions from './actions'
 import withSelection from './selection'
+import {withSelectionControls, withAutoPlayControls} from './controls'
 
 export {SelectionModel}
-export {SelectionProviders}
 export {SelectionControls}
 export {SelectionActions}
 export {withSelection}
+export {withSelectionControls, withAutoPlayControls}

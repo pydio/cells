@@ -19,14 +19,29 @@
  */
 
 import Pydio from 'pydio'
-import { Toolbar, ToolbarGroup, Card, CardHeader, CardMedia } from 'material-ui';
+import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton } from 'material-ui';
 import { connect } from 'react-redux';
+import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
 
-const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu } = Pydio.requireLib('hoc');
+const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
 
-class Tab extends React.Component {
+const styles = {
+    iconButton: {
+        backgroundColor: "rgb(0, 0, 0, 0.87)",
+        color: "rgb(255, 255,255, 0.87)"
+    },
+    divider: {
+        backgroundColor: "rgb(255, 255,255, 0.87)",
+        marginLeft: "12px",
+        marginRight: "12px",
+        alignSelf: "center"
+    }
+}
+
+@connect(mapStateToProps, EditorActions)
+export default class Tab extends React.Component {
     static get styles() {
         return {
             container: {
@@ -45,12 +60,16 @@ class Tab extends React.Component {
                 opacity: 0.8,
                 width: "min-content",
                 margin: "0 auto",
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
             }
         }
     }
 
     renderControls(Controls, Actions) {
-        const {node, editorData} = this.props
+        const {id, node, editorData} = this.props
         const {SelectionControls, ResolutionControls, SizeControls, ContentControls, ContentSearchControls, LocalisationControls} = Controls
 
         let actions = {
@@ -79,15 +98,15 @@ class Tab extends React.Component {
                 })
         }
 
+        // {ResolutionControls && <ToolbarGroup>{controls(ResolutionControls)}</ToolbarGroup>}
+        // {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
         return (
-            <Toolbar style={Tab.styles.toolbar}>
-                {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
-                {ResolutionControls && <ToolbarGroup>{controls(ResolutionControls)}</ToolbarGroup>}
+            <SnackBar id={id} style={Tab.styles.toolbar}>
                 {SizeControls && <ToolbarGroup>{controls(SizeControls)}</ToolbarGroup>}
                 {ContentControls && <ToolbarGroup>{controls(ContentControls)}</ToolbarGroup>}
                 {ContentSearchControls && <ToolbarGroup>{controls(ContentSearchControls)}</ToolbarGroup>}
                 {LocalisationControls && <ToolbarGroup>{controls(LocalisationControls)}</ToolbarGroup>}
-            </Toolbar>
+            </SnackBar>
         )
     }
 
@@ -112,10 +131,102 @@ class Tab extends React.Component {
     }
 }
 
+@withAutoPlayControls()
+@withSizeControls
+@withResolutionControls()
+@connect(mapStateToProps)
+class SnackBar extends React.Component {
+    constructor(props) {
+        super(props)
+
+        const {size, scale} = props
+
+        this.state = {
+            minusDisabled: scale - 0.5 <= 0,
+            magnifyDisabled: size == "contain",
+            plusDisabled: scale + 0.5 >= 20,
+        }
+    }
+
+    componentWillReceiveProps(props) {
+        const {size, scale} = props
+
+        this.setState({
+            minusDisabled: scale - 0.5 <= 0,
+            magnifyDisabled: size == "contain",
+            plusDisabled: scale + 0.5 >= 20,
+        })
+    }
+
+    render() {
+        const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false} = this.state
+        const {size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
+
+        return (
+            <Toolbar {...remaining}>
+                {onAutoPlayToggle && (
+                    <ToolbarGroup>
+                        <IconButton
+                            iconClassName={"mdi " + (!playing ? "mdi-play" : "mdi-pause")}
+                            iconStyle={styles.iconButton}
+                            onClick={() => onAutoPlayToggle()}
+                        />
+                    </ToolbarGroup>
+                )}
+                {onAutoPlayToggle && onSizeChange && (
+                    <ToolbarSeparator style={styles.divider} />
+                )}
+                {onSizeChange && (
+                    <ToolbarGroup>
+                        <IconButton
+                            iconClassName="mdi mdi-minus"
+                            iconStyle={styles.iconButton}
+                            onClick={() => onSizeChange({
+                                size: "auto",
+                                scale: scale - 0.5
+                            })}
+                            disabled={minusDisabled}
+                        />
+                        <IconButton
+                            iconClassName="mdi mdi-magnify-minus"
+                            iconStyle={styles.iconButton}
+                            onClick={() => onSizeChange({
+                                size: "contain",
+                            })}
+                            disabled={magnifyDisabled}
+                        />
+                        <IconButton
+                            iconClassName="mdi mdi-plus"
+                            iconStyle={styles.iconButton}
+                            onClick={() => onSizeChange({
+                                size: "auto",
+                                scale: scale + 0.5
+                            })}
+                            disabled={plusDisabled}
+                        />
+                    </ToolbarGroup>
+                )}
+                {(onAutoPlayToggle || onSizeChange) && onResolutionToggle && (
+                    <ToolbarSeparator style={styles.divider} />
+                )}
+                {onResolutionToggle && (
+                    <ToolbarGroup>
+                        <IconButton
+                            iconClassName={"mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image")}
+                            iconStyle={styles.iconButton}
+                            onClick={() => onResolutionToggle()}
+                        />
+                    </ToolbarGroup>
+                )}
+            </Toolbar>
+        )
+    }
+}
+
 function mapStateToProps(state, ownProps) {
     const { editor, tabs } = state
 
-    let current = tabs.filter(tab => tab.id === ownProps.id)[0]
+    let current = tabs.filter(tab => tab.id === ownProps.id)[0] || {}
 
     return  {
         ...ownProps,
@@ -125,7 +236,3 @@ function mapStateToProps(state, ownProps) {
 }
 
 const AnimatedCard = makeMaximise(Card)
-
-const EditorTab = connect(mapStateToProps, EditorActions)(Tab)
-
-export default EditorTab

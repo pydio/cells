@@ -21,29 +21,35 @@
 const {ModalAppBar} = PydioComponents
 const {ToolbarGroup, IconButton} = require('material-ui');
 
+const { withResolutionControls } = Pydio.requireLib('hoc');
+
 // Display components
-const EditorToolbar = ({title, className, style, onFullScreen, onMinimise, onClose}) => {
+class EditorToolbar extends React.Component {
 
-    const innerStyle = {color: "#FFFFFF", fill: "#FFFFFF"}
+    render() {
+        const {title, className, style, onFullScreen, onMinimise, onClose} = this.props
 
-    return (
-        <ModalAppBar
-            className={className}
-            style={style}
-            title={<span>{title}</span>}
-            titleStyle={innerStyle}
-            iconElementLeft={<IconButton iconClassName="mdi mdi-close" iconStyle={innerStyle} disabled={typeof onClose !== "function"} touch={true} onTouchTap={onClose}/>}
-            iconElementRight={
-                <ToolbarGroup>
-                    <IconButton iconClassName="mdi mdi-window-minimize" iconStyle={innerStyle} disabled={typeof onMinimise !== "function"} touch={true} onTouchTap={onMinimise}/>
-                    {!pydio.UI.MOBILE_EXTENSIONS &&
-                        <IconButton iconClassName="mdi mdi-window-maximize" iconStyle={innerStyle}
-                                disabled={typeof onFullScreen !== "function"} touch={true} onTouchTap={onFullScreen}/>
-                    }
-                </ToolbarGroup>
-            }
-        />
-    )
+        const innerStyle = {color: "#FFFFFF", fill: "#FFFFFF"}
+
+        return (
+            <ModalAppBar
+                className={className}
+                style={style}
+                title={<span>{title}</span>}
+                titleStyle={innerStyle}
+                iconElementLeft={<IconButton iconClassName="mdi mdi-close" iconStyle={innerStyle} disabled={typeof onClose !== "function"} touch={true} onTouchTap={onClose}/>}
+                iconElementRight={
+                    <ToolbarGroup>
+                        <IconButton iconClassName="mdi mdi-window-minimize" iconStyle={innerStyle} disabled={typeof onMinimise !== "function"} touch={true} onTouchTap={onMinimise}/>
+                        {!pydio.UI.MOBILE_EXTENSIONS &&
+                            <IconButton iconClassName="mdi mdi-window-maximize" iconStyle={innerStyle}
+                                    disabled={typeof onFullScreen !== "function"} touch={true} onTouchTap={onFullScreen}/>
+                        }
+                    </ToolbarGroup>
+                }
+            />
+        )
+    }
 }
 
 export default EditorToolbar

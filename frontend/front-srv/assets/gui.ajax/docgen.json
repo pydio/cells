@@ -36081,75 +36081,9 @@
     "HOCs/localisation/controls.js": [
       {
         "description": "",
-        "displayName": "_Locate",
+        "displayName": "Locate",
         "methods": [],
         "require": "const {controls} = require('pydio').requireLib('hoc')"
-      }
-    ],
-    "HOCs/resolution/controls.js": [
-      {
-        "description": "",
-        "displayName": "_ToggleResolution",
-        "methods": [],
-        "require": "const {controls} = require('pydio').requireLib('hoc')"
-      }
-    ],
-    "HOCs/selection/controls.js": [
-      {
-        "description": "",
-        "displayName": "_Prev",
-        "methods": [],
-        "require": "const {controls} = require('pydio').requireLib('hoc')"
-      },
-      {
-        "description": "",
-        "displayName": "_Play",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "_Pause",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "_Next",
-        "methods": []
-      }
-    ],
-    "HOCs/selection/providers.js": [
-      {
-        "description": "",
-        "displayName": "SelectionProvider",
-        "methods": [
-          {
-            "name": "propTypes",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "selection": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Promise"
-            },
-            "required": true,
-            "description": ""
-          },
-          "children": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
-        "require": "const {providers} = require('pydio').requireLib('hoc')"
       }
     ],
     "HOCs/size/providers.js": [
@@ -36166,45 +36100,6 @@
           }
         ],
         "require": "const {providers} = require('pydio').requireLib('hoc')"
-      },
-      {
-        "description": "",
-        "displayName": "ImageSizeProvider",
-        "methods": [
-          {
-            "name": "propTypes",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "url": {
-            "type": {
-              "name": "string"
-            },
-            "required": true,
-            "description": ""
-          },
-          "node": {
-            "type": {
-              "name": "instanceOf",
-              "value": "AjxpNode"
-            },
-            "required": true,
-            "description": ""
-          },
-          "children": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          }
-        }
       }
     ],
     "ReactUI/AsyncComponent.js": [
@@ -37012,6 +36907,13 @@
         "require": "const {Editor} = require('pydio').requireLib('workspaces')"
       }
     ],
+    "Workspaces/editor/components/editor/EditorButton.js": [
+      {
+        "description": "",
+        "methods": [],
+        "require": "const {EditorButton} = require('pydio').requireLib('workspaces')"
+      }
+    ],
     "Workspaces/editor/components/editor/EditorTab.js": [
       {
         "description": "",
@@ -37044,6 +36946,11 @@
           }
         ],
         "require": "const {EditorTab} = require('pydio').requireLib('workspaces')"
+      },
+      {
+        "description": "",
+        "displayName": "SnackBar",
+        "methods": []
       }
     ],
     "Workspaces/editor/components/editor/EditorToolbar.js": [
