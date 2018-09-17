@@ -26,6 +26,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+exports.withHideDisabled = withHideDisabled;
+exports.withDisabled = withDisabled;
+
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -175,6 +178,90 @@ var withControls = function withControls() {
         })(_react.Component);
     };
 };
+
+var styles = {
+    active: {
+        backgroundColor: "rgb(0, 0, 0, 0.87)",
+        color: "rgb(255, 255, 255, 1)"
+    },
+    disabled: {
+        backgroundColor: "rgb(255, 255, 255, 0.87)",
+        color: "rgb(0, 0, 0, 0.87)"
+    }
+};
+
+function withHideDisabled() {
+    return function (WrappedComponent) {
+        return (function (_Component3) {
+            _inherits(_class3, _Component3);
+
+            function _class3() {
+                _classCallCheck(this, _class3);
+
+                _Component3.apply(this, arguments);
+            }
+
+            _class3.prototype.render = function render() {
+                var _props4 = this.props;
+                var disabled = _props4.disabled;
+
+                var remaining = _objectWithoutProperties(_props4, ['disabled']);
+
+                if (disabled) {
+                    return React.createElement('div', null);
+                }
+
+                return React.createElement(WrappedComponent, remaining);
+            };
+
+            _createClass(_class3, null, [{
+                key: 'displayName',
+                get: function get() {
+                    return 'WithHideDisabled(' + getDisplayName(WrappedComponent) + ')';
+                }
+            }]);
+
+            return _class3;
+        })(_react.Component);
+    };
+}
+
+function withDisabled(propName) {
+    return function (WrappedComponent) {
+        return (function (_Component4) {
+            _inherits(_class4, _Component4);
+
+            function _class4() {
+                _classCallCheck(this, _class4);
+
+                _Component4.apply(this, arguments);
+            }
+
+            _class4.prototype.render = function render() {
+                var _ref, _ref2;
+
+                var _props5 = this.props;
+                var disabled = _props5.disabled;
+                var old = _props5[propName];
+
+                var remaining = _objectWithoutProperties(_props5, ['disabled', propName]);
+
+                var newProps = disabled ? (_ref = {}, _ref[propName] = _extends({}, old, styles.disabled), _ref.disabled = true, _ref) : (_ref2 = {}, _ref2[propName] = _extends({}, old, styles.active), _ref2.disabled = false, _ref2);
+
+                return React.createElement(WrappedComponent, _extends({}, remaining, newProps));
+            };
+
+            _createClass(_class4, null, [{
+                key: 'displayName',
+                get: function get() {
+                    return 'WithDisabled(' + getDisplayName(WrappedComponent) + ')';
+                }
+            }]);
+
+            return _class4;
+        })(_react.Component);
+    };
+}
 
 exports.withControls = withControls;
 exports.withMenu = withMenu;

@@ -1,5 +1,4 @@
-class SelectionModel {
-
+export default class SelectionModel {
     constructor(selection = [], currentIndex = 0) {
         this.selection = selection;
         this.currentIndex = currentIndex
@@ -49,5 +48,3 @@ class SelectionModel {
         return this.current();
     }
 }
-
-export default SelectionModel

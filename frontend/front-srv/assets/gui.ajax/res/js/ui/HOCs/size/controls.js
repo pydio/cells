@@ -22,7 +22,33 @@ import { ToolbarTitle, DropDownMenu, MenuItem, IconButton, Slider } from 'materi
 import ActionAspectRatio from 'material-ui/svg-icons/action/aspect-ratio'
 import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
-import { handler } from '../utils';
+import { handler, getDisplayName } from '../utils';
+
+export const withSizeControls = (Component) => {
+    return (
+        @connect(mapStateToProps)
+        class extends React.Component {
+            static get displayName() {
+                return `WithSizeControls(${getDisplayName(Component)})`
+            }
+
+            render() {
+                const {size, scale, ...remaining} = this.props;
+
+                const fn = handler("onSizeChange", this.props)
+
+                return (
+                    <Component
+                        size={size}
+                        scale={scale}
+                        onSizeChange={(sizeProps) => fn(sizeProps)}
+                        {...remaining}
+                    />
+                )
+            }
+        }
+    )
+}
 
 const styles = {
     sliderContainer: {

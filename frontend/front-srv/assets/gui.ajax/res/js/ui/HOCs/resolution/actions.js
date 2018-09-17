@@ -20,4 +20,4 @@
 
 import { EditorActions } from '../utils';
 
-export const onToggleResolution = ({dispatch, resolution}) => dispatch(EditorActions.editorModify({resolution: resolution === "hi" ? "lo" : "hi"}))
+export const onToggleResolution = ({dispatch, tab}) => (high) => dispatch(EditorActions.tabModify({id: tab.id, resolution: high ? "hi": "lo"}))

@@ -23,16 +23,42 @@ import Pydio from 'pydio'
 //import FullScreen from 'react-fullscreen';
 import Draggable from 'react-draggable';
 import { connect } from 'react-redux';
-import { Paper } from 'material-ui';
+import { IconButton, Paper } from 'material-ui';
 import Tab from './EditorTab';
 import Toolbar from './EditorToolbar';
+import Button from './EditorButton';
 import makeMinimise from './make-minimise';
 
 const { EditorActions } = Pydio.requireLib('hoc');
 const MAX_ITEMS = 4;
 
+const { withSelectionControls, withContainerSize } = Pydio.requireLib('hoc');
+
+const styles = {
+    selectionButtonLeft: {
+        position: "absolute",
+        top: "calc(50% - 18px)",
+        left: "40px"
+    },
+    selectionButtonRight: {
+        position: "absolute",
+        top: "calc(50% - 18px)",
+        right: "40px"
+    },
+    iconSelectionButton: {
+        borderRadius: "50%",
+        width: "36px",
+        height: "36px",
+        lineHeight: "36px",
+        backgroundColor: "rgb(0, 0, 0, 0.87)",
+        color: "rgb(255, 255,255, 0.87)"
+    }
+}
+
 // MAIN COMPONENT
-class Editor extends React.Component {
+@withSelectionControls()
+@connect(mapStateToProps, EditorActions)
+export default class Editor extends React.Component {
 
     constructor(props) {
         super(props)
@@ -122,7 +148,7 @@ class Editor extends React.Component {
                 width: (100 / MAX_ITEMS) + "%",
                 height: "40%",
                 margin: "10px",
-                overflow: "scroll",
+                overflow: "hidden",
                 whiteSpace: "nowrap"
             }
 
@@ -150,7 +176,7 @@ class Editor extends React.Component {
     }
 
     render() {
-        const {style, activeTab, isActive, displayToolbar} = this.props
+        const {style, activeTab, isActive, displayToolbar, prevSelectionDisabled, nextSelectionDisabled, onSelectPrev, onSelectNext} = this.props
         const {minimisable} = this.state
 
         const title = activeTab ? activeTab.title : ""
@@ -177,15 +203,34 @@ class Editor extends React.Component {
 
         return (
             <div style={{display: "flex", ...style}}>
-                    <AnimatedPaper ref={(container) => this.container = ReactDOM.findDOMNode(container)} onMinimise={this.props.onMinimise}  minimised={!isActive} zDepth={5} style={{display: "flex", flexDirection: "column", overflow: "hidden", width: "100%", height: "100%", transformOrigin: style.transformOrigin}}>
-                        {displayToolbar &&
-                            <Toolbar style={{flexShrink: 0}} title={title} onClose={onClose} onFullScreen={() => this.enterFullScreen()} onMinimise={onMinimise} />
-                        }
+                <AnimatedPaper ref={(container) => this.container = ReactDOM.findDOMNode(container)} onMinimise={this.props.onMinimise}  minimised={!isActive} zDepth={5} style={{display: "flex", flexDirection: "column", overflow: "hidden", width: "100%", height: "100%", transformOrigin: style.transformOrigin}}>
+                    {displayToolbar &&
+                        <Toolbar style={{flexShrink: 0}} title={title} onClose={onClose} onFullScreen={() => this.enterFullScreen()} onMinimise={onMinimise} />
+                    }
 
-                        <div className="body" style={parentStyle}>
-                            {this.renderChild()}
-                        </div>
-                    </AnimatedPaper>
+                    <div className="body" style={parentStyle}>
+                        {this.renderChild()}
+                    </div>
+
+                    {onSelectPrev && (
+                        <Button
+                            iconClassName="mdi mdi-chevron-left"
+                            style={styles.selectionButtonLeft}
+                            iconStyle={styles.iconSelectionButton}
+                            disabled={prevSelectionDisabled}
+                            onClick={() => onSelectPrev()}
+                        />
+                    )}
+                    {onSelectNext && (
+                        <Button
+                            iconClassName="mdi mdi-chevron-right"
+                            style={styles.selectionButtonRight}
+                            iconStyle={styles.iconSelectionButton}
+                            disabled={nextSelectionDisabled}
+                            onClick={() => onSelectNext()}
+                        />
+                    )}
+                </AnimatedPaper>
             </div>
         );
     }
@@ -209,7 +254,3 @@ function mapStateToProps(state, ownProps) {
         isActive: editor.isPanelActive
     }
 }
-const ConnectedEditor = connect(mapStateToProps, EditorActions)(Editor)
-
-// EXPORT
-export default ConnectedEditor

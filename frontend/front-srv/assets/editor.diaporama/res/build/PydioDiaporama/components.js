@@ -102,9 +102,11 @@ var ImageContainer = (function (_Component2) {
             var _props2$scale = _props2.scale;
             var scale = _props2$scale === undefined ? 1 : _props2$scale;
 
+            var remaining = _objectWithoutProperties(_props2, ['src', 'style', 'width', 'height', 'imgStyle', 'imgClassName', 'scale']);
+
             return _react2['default'].createElement(
                 'div',
-                { style: _extends({}, ImageContainer.styles, style) },
+                _extends({ style: _extends({}, ImageContainer.styles, style) }, remaining),
                 _react2['default'].createElement(Image, {
                     src: src,
                     className: imgClassName,
@@ -141,7 +143,9 @@ var ImageContainer = (function (_Component2) {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                overflow: 'auto'
+                overflow: 'auto',
+                width: "100%",
+                height: "100%"
             };
         }
     }]);

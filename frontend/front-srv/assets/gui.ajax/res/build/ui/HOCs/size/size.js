@@ -46,21 +46,26 @@ var _providers = require('./providers');
 
 var _utils2 = require('../utils');
 
-var withResize = function withResize(Component) {
-    var WithResize = (function (_React$Component) {
-        _inherits(WithResize, _React$Component);
+var _reactPanAndZoomHoc = require('react-pan-and-zoom-hoc');
 
-        function WithResize() {
-            _classCallCheck(this, WithResize);
+var _reactPanAndZoomHoc2 = _interopRequireDefault(_reactPanAndZoomHoc);
+
+var withResize = function withResize(Component) {
+    return (function (_React$Component) {
+        _inherits(_class, _React$Component);
+
+        function _class() {
+            _classCallCheck(this, _class2);
 
             _React$Component.apply(this, arguments);
         }
 
-        WithResize.prototype.componentDidMount = function componentDidMount() {
+        _class.prototype.componentDidMount = function componentDidMount() {
             this.loadSize(this.props);
         };
 
-        WithResize.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+        _class.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+            var scale = nextProps.scale;
             var size = nextProps.size;
             var containerWidth = nextProps.containerWidth;
             var width = nextProps.width;
@@ -68,13 +73,13 @@ var withResize = function withResize(Component) {
             var height = nextProps.height;
 
             if (size !== this.props.size || width !== this.props.width || height !== this.props.height || containerWidth !== this.props.containerWidth || containerHeight !== this.props.containerHeight) {
-
                 this.loadSize(nextProps);
             }
         };
 
-        WithResize.prototype.loadSize = function loadSize(props) {
-            var scale = props.scale;
+        _class.prototype.loadSize = function loadSize(props) {
+            var _props$scale = props.scale;
+            var scale = _props$scale === undefined ? 1 : _props$scale;
             var _props$size = props.size;
             var size = _props$size === undefined ? "contain" : _props$size;
             var dispatch = props.dispatch;
@@ -95,7 +100,7 @@ var withResize = function withResize(Component) {
             dispatch(_utils2.EditorActions.editorModify(state));
         };
 
-        WithResize.prototype.render = function render() {
+        _class.prototype.render = function render() {
             var _props = this.props;
             var scale = _props.scale;
             var dispatch = _props.dispatch;
@@ -107,7 +112,7 @@ var withResize = function withResize(Component) {
             }));
         };
 
-        _createClass(WithResize, null, [{
+        _createClass(_class, null, [{
             key: 'displayName',
             get: function get() {
                 return 'WithResize(' + _utils2.getDisplayName(Component) + ')';
@@ -123,23 +128,14 @@ var withResize = function withResize(Component) {
                     height: _react2['default'].PropTypes.number.isRequired
                 };
             }
-        }, {
-            key: 'defaultProps',
-            get: function get() {
-                return {
-                    containerWidth: 1,
-                    containerHeight: 1,
-                    width: 1,
-                    height: 1
-                };
-            }
         }]);
 
-        return WithResize;
+        var _class2 = _class;
+        _class = _reactPanAndZoomHoc2['default'](_class) || _class;
+        _class = _reactRedux.connect(_utils.mapStateToProps)(_class) || _class;
+        _class = _providers.withContainerSize(_class) || _class;
+        _class = _providers.withImageSize(_class) || _class;
+        return _class;
     })(_react2['default'].Component);
-
-    return _reactRedux.connect(_utils.mapStateToProps)(WithResize);
 };
-
-exports['default'] = withResize;
-module.exports = exports['default'];
+exports.withResize = withResize;

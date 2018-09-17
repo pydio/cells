@@ -18,8 +18,6 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-
-
 import React, {Component} from 'react'
 
 export class Image extends Component {
@@ -67,15 +65,17 @@ export class ImageContainer extends Component {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            overflow: 'auto'
+            overflow: 'auto',
+            width: "100%",
+            height: "100%"
         }
     }
 
     render() {
-        const {src, style, width, height, imgStyle, imgClassName, scale = 1} = this.props
+        const {src, style, width, height, imgStyle, imgClassName, scale = 1, ...remaining} = this.props
 
         return (
-            <div style={{...ImageContainer.styles, ...style}}>
+            <div style={{...ImageContainer.styles, ...style}} {...remaining}>
                 <Image
                     src={src}
                     className={imgClassName}

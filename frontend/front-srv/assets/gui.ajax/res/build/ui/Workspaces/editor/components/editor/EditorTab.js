@@ -28,6 +28,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -39,6 +41,10 @@ var _pydio2 = _interopRequireDefault(_pydio);
 var _materialUi = require('material-ui');
 
 var _reactRedux = require('react-redux');
+
+var _reactPanAndZoomHoc = require('react-pan-and-zoom-hoc');
+
+var _reactPanAndZoomHoc2 = _interopRequireDefault(_reactPanAndZoomHoc);
 
 var _redux = require('redux');
 
@@ -55,18 +61,35 @@ var SizeActions = _Pydio$requireLib.SizeActions;
 var SelectionActions = _Pydio$requireLib.SelectionActions;
 var LocalisationActions = _Pydio$requireLib.LocalisationActions;
 var withMenu = _Pydio$requireLib.withMenu;
+var withSizeControls = _Pydio$requireLib.withSizeControls;
+var withAutoPlayControls = _Pydio$requireLib.withAutoPlayControls;
+var withResolutionControls = _Pydio$requireLib.withResolutionControls;
+
+var styles = {
+    iconButton: {
+        backgroundColor: "rgb(0, 0, 0, 0.87)",
+        color: "rgb(255, 255,255, 0.87)"
+    },
+    divider: {
+        backgroundColor: "rgb(255, 255,255, 0.87)",
+        marginLeft: "12px",
+        marginRight: "12px",
+        alignSelf: "center"
+    }
+};
 
 var Tab = (function (_React$Component) {
     _inherits(Tab, _React$Component);
 
     function Tab() {
-        _classCallCheck(this, Tab);
+        _classCallCheck(this, _Tab);
 
         _React$Component.apply(this, arguments);
     }
 
     Tab.prototype.renderControls = function renderControls(Controls, Actions) {
         var _props = this.props;
+        var id = _props.id;
         var node = _props.node;
         var editorData = _props.editorData;
         var SelectionControls = Controls.SelectionControls;
@@ -93,19 +116,11 @@ var Tab = (function (_React$Component) {
             });
         };
 
+        // {ResolutionControls && <ToolbarGroup>{controls(ResolutionControls)}</ToolbarGroup>}
+        // {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
         return React.createElement(
-            _materialUi.Toolbar,
-            { style: Tab.styles.toolbar },
-            SelectionControls && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                controls(SelectionControls)
-            ),
-            ResolutionControls && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                controls(ResolutionControls)
-            ),
+            SnackBar,
+            { id: id, style: Tab.styles.toolbar },
             SizeControls && React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
@@ -181,13 +196,145 @@ var Tab = (function (_React$Component) {
                     backgroundColor: "#000000",
                     opacity: 0.8,
                     width: "min-content",
-                    margin: "0 auto"
+                    margin: "0 auto",
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    bottom: 0
                 }
             };
         }
     }]);
 
+    var _Tab = Tab;
+    Tab = _reactRedux.connect(mapStateToProps, EditorActions)(Tab) || Tab;
     return Tab;
+})(React.Component);
+
+exports['default'] = Tab;
+
+var SnackBar = (function (_React$Component2) {
+    _inherits(SnackBar, _React$Component2);
+
+    function SnackBar(props) {
+        _classCallCheck(this, _SnackBar);
+
+        _React$Component2.call(this, props);
+
+        var size = props.size;
+        var scale = props.scale;
+
+        this.state = {
+            minusDisabled: scale - 0.5 <= 0,
+            magnifyDisabled: size == "contain",
+            plusDisabled: scale + 0.5 >= 20
+        };
+    }
+
+    SnackBar.prototype.componentWillReceiveProps = function componentWillReceiveProps(props) {
+        var size = props.size;
+        var scale = props.scale;
+
+        this.setState({
+            minusDisabled: scale - 0.5 <= 0,
+            magnifyDisabled: size == "contain",
+            plusDisabled: scale + 0.5 >= 20
+        });
+    };
+
+    SnackBar.prototype.render = function render() {
+        var _state = this.state;
+        var _state$minusDisabled = _state.minusDisabled;
+        var minusDisabled = _state$minusDisabled === undefined ? false : _state$minusDisabled;
+        var _state$magnifyDisabled = _state.magnifyDisabled;
+        var magnifyDisabled = _state$magnifyDisabled === undefined ? false : _state$magnifyDisabled;
+        var _state$plusDisabled = _state.plusDisabled;
+        var plusDisabled = _state$plusDisabled === undefined ? false : _state$plusDisabled;
+        var _props3 = this.props;
+        var size = _props3.size;
+        var scale = _props3.scale;
+        var _props3$playing = _props3.playing;
+        var playing = _props3$playing === undefined ? false : _props3$playing;
+        var _props3$resolution = _props3.resolution;
+        var resolution = _props3$resolution === undefined ? "hi" : _props3$resolution;
+        var onAutoPlayToggle = _props3.onAutoPlayToggle;
+        var onSizeChange = _props3.onSizeChange;
+        var onResolutionToggle = _props3.onResolutionToggle;
+
+        var remaining = _objectWithoutProperties(_props3, ['size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle']);
+
+        return React.createElement(
+            _materialUi.Toolbar,
+            remaining,
+            onAutoPlayToggle && React.createElement(
+                _materialUi.ToolbarGroup,
+                null,
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: "mdi " + (!playing ? "mdi-play" : "mdi-pause"),
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onAutoPlayToggle();
+                    }
+                })
+            ),
+            onAutoPlayToggle && onSizeChange && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+            onSizeChange && React.createElement(
+                _materialUi.ToolbarGroup,
+                null,
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-minus',
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onSizeChange({
+                            size: "auto",
+                            scale: scale - 0.5
+                        });
+                    },
+                    disabled: minusDisabled
+                }),
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-magnify-minus',
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onSizeChange({
+                            size: "contain"
+                        });
+                    },
+                    disabled: magnifyDisabled
+                }),
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-plus',
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onSizeChange({
+                            size: "auto",
+                            scale: scale + 0.5
+                        });
+                    },
+                    disabled: plusDisabled
+                })
+            ),
+            (onAutoPlayToggle || onSizeChange) && onResolutionToggle && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+            onResolutionToggle && React.createElement(
+                _materialUi.ToolbarGroup,
+                null,
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: "mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image"),
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onResolutionToggle();
+                    }
+                })
+            )
+        );
+    };
+
+    var _SnackBar = SnackBar;
+    SnackBar = _reactRedux.connect(mapStateToProps)(SnackBar) || SnackBar;
+    SnackBar = withResolutionControls()(SnackBar) || SnackBar;
+    SnackBar = withSizeControls(SnackBar) || SnackBar;
+    SnackBar = withAutoPlayControls()(SnackBar) || SnackBar;
+    return SnackBar;
 })(React.Component);
 
 function mapStateToProps(state, ownProps) {
@@ -196,7 +343,7 @@ function mapStateToProps(state, ownProps) {
 
     var current = tabs.filter(function (tab) {
         return tab.id === ownProps.id;
-    })[0];
+    })[0] || {};
 
     return _extends({}, ownProps, current, {
         isActive: editor.activeTabId === current.id
@@ -204,8 +351,4 @@ function mapStateToProps(state, ownProps) {
 }
 
 var AnimatedCard = _makeMaximise2['default'](_materialUi.Card);
-
-var EditorTab = _reactRedux.connect(mapStateToProps, EditorActions)(Tab);
-
-exports['default'] = EditorTab;
 module.exports = exports['default'];

@@ -46,3 +46,4 @@ exports.ResolutionURLProvider = ResolutionURLProvider;
 exports.ResolutionActions = ResolutionActions;
 exports.ResolutionControls = ResolutionControls;
 exports.withResolution = _resolution2['default'];
+exports.withResolutionControls = _controls.withResolutionControls;

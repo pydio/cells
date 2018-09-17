@@ -37,8 +37,14 @@ const defaultActions = {
 }
 
 // Helper functions
-const getActions = ({editorData}) => (editorData.editorActions && {...defaultActions, ...FuncUtils.getFunctionByName(editorData.editorActions, window)} || {...defaultActions})
-export const handler = (func, props) => getActions(props)[func](props)
+const getActions = ({editorData}) => (editorData.editorActions && {
+    ...defaultActions,
+    ...FuncUtils.getFunctionByName(editorData.editorActions, window)
+} || {
+    ...defaultActions
+})
+
+export const handler = (func, {dispatch, tab}) => getActions(tab)[func]({dispatch, tab})
 
 export const toTitleCase = str => str.replace(/\w\S*/g, (txt) => `${txt.charAt(0).toUpperCase()}${txt.substr(1)}`)
 

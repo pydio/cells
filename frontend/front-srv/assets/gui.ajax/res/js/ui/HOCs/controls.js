@@ -111,5 +111,68 @@ const withControls = (newControls = {}) => {
     }
 }
 
+
+const styles = {
+    active: {
+        backgroundColor: "rgb(0, 0, 0, 0.87)",
+        color: "rgb(255, 255, 255, 1)"
+    },
+    disabled: {
+        backgroundColor: "rgb(255, 255, 255, 0.87)",
+        color: "rgb(0, 0, 0, 0.87)"
+    }
+}
+
+export function withHideDisabled() {
+    return (WrappedComponent) => {
+        return class extends Component {
+            static get displayName() {
+                return `WithHideDisabled(${getDisplayName(WrappedComponent)})`
+            }
+            render() {
+                const {disabled, ...remaining} = this.props
+
+                if (disabled) {
+                    return <div />
+                }
+
+                return (
+                    <WrappedComponent
+                        {...remaining}
+                    />
+                )
+            }
+        }
+    }
+}
+
+export function withDisabled(propName) {
+    return (WrappedComponent) => {
+        return class extends Component {
+            static get displayName() {
+                return `WithDisabled(${getDisplayName(WrappedComponent)})`
+            }
+            render() {
+                const {disabled, [propName]: old, ...remaining} = this.props
+
+                const newProps = (disabled ? {
+                    [propName]: {...old, ...styles.disabled},
+                    disabled: true
+                } : {
+                    [propName]: {...old, ...styles.active},
+                    disabled: false
+                })
+
+                return (
+                    <WrappedComponent
+                        {...remaining}
+                        {...newProps}
+                    />
+                )
+            }
+        }
+    }
+}
+
 export {withControls}
 export {withMenu}

@@ -23,7 +23,9 @@ import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
 import { handler } from '../utils';
 
-const _Locate = (props) => <IconButton onClick={() => handler("onLocate", props)} iconClassName="mdi mdi-crosshairs" />
-
-// Final export and connection
-export const Locate = connect(mapStateToProps)(_Locate)
+@connect(mapStateToProps)
+export class Locate extends React.Component {
+    render() {
+        return <IconButton onClick={() => handler("onLocate", props)} iconClassName="mdi mdi-crosshairs" {...props} />
+    }
+}

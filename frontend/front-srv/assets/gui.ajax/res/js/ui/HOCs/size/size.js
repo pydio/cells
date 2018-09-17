@@ -23,79 +23,74 @@ import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
 import { ImageSizeProvider, ContainerSizeProvider } from './providers';
 import { EditorActions, getRatio, getDisplayName, getBoundingRect } from '../utils';
+import { withImageSize, withContainerSize } from './providers';
+import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 
-const withResize = (Component) => {
-    class WithResize extends React.Component {
-        static get displayName() {
-            return `WithResize(${getDisplayName(Component)})`
-        }
-
-        static get propTypes() {
-            return {
-                size: React.PropTypes.oneOf(["contain", "cover", "auto"]).isRequired,
-                containerWidth: React.PropTypes.number.isRequired,
-                containerHeight: React.PropTypes.number.isRequired,
-                width: React.PropTypes.number.isRequired,
-                height: React.PropTypes.number.isRequired
-            }
-        }
-
-        static get defaultProps() {
-            return {
-                containerWidth: 1,
-                containerHeight: 1,
-                width: 1,
-                height: 1
-            }
-        }
-
-        componentDidMount() {
-            this.loadSize(this.props)
-        }
-
-        componentWillReceiveProps(nextProps) {
-            const {size, containerWidth, width, containerHeight, height} = nextProps
-
-            if (
-                size !== this.props.size ||
-                width !== this.props.width ||
-                height !== this.props.height ||
-                containerWidth !== this.props.containerWidth ||
-                containerHeight !== this.props.containerHeight
-            ) {
-
-                this.loadSize(nextProps)
-            }
-        }
-
-        loadSize(props) {
-            const {scale, size = "contain", dispatch, containerWidth, width, containerHeight, height} = props
-
-            const state = {
-                size,
-                scale: getRatio[size]({
-                    scale,
-                    widthRatio: containerWidth / width,
-                    heightRatio: containerHeight / height
-                })
+export const withResize = (Component) => {
+    return (
+        @withImageSize
+        @withContainerSize
+        @connect(mapStateToProps)
+        @panAndZoomHoc
+        class extends React.Component {
+            constructor
+            static get displayName() {
+                return `WithResize(${getDisplayName(Component)})`
             }
 
-            dispatch(EditorActions.editorModify(state))
+            static get propTypes() {
+                return {
+                    size: React.PropTypes.oneOf(["contain", "cover", "auto"]).isRequired,
+                    containerWidth: React.PropTypes.number.isRequired,
+                    containerHeight: React.PropTypes.number.isRequired,
+                    width: React.PropTypes.number.isRequired,
+                    height: React.PropTypes.number.isRequired
+                }
+            }
+
+            componentDidMount() {
+                this.loadSize(this.props)
+            }
+
+            componentWillReceiveProps(nextProps) {
+                const {scale, size, containerWidth, width, containerHeight, height} = nextProps
+
+                if (
+                    size !== this.props.size ||
+                    width !== this.props.width ||
+                    height !== this.props.height ||
+                    containerWidth !== this.props.containerWidth ||
+                    containerHeight !== this.props.containerHeight
+                ) {
+                    this.loadSize(nextProps)
+                }
+            }
+
+            loadSize(props) {
+                const {scale = 1, size = "contain", dispatch, containerWidth, width, containerHeight, height} = props
+
+                const state = {
+                    size,
+                    scale: getRatio[size]({
+                        scale,
+                        widthRatio: containerWidth / width,
+                        heightRatio: containerHeight / height
+                    })
+                }
+
+                dispatch(EditorActions.editorModify(state))
+            }
+
+            render() {
+                const {scale, dispatch, ...remainingProps} = this.props
+
+                return (
+                    <Component
+                        {...remainingProps}
+                        scale={scale}
+                    />
+                )
+            }
         }
-
-        render() {
-            const {scale, dispatch, ...remainingProps} = this.props
-
-            return (
-                <Component
-                    {...remainingProps}
-                    scale={scale}
-                />
-            )
-        }
-    }
-
-    return connect(mapStateToProps)(WithResize)
+    )
 }
-
-export {withResize as default}

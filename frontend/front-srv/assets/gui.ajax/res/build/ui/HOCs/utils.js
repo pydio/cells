@@ -59,8 +59,11 @@ var getActions = function getActions(_ref) {
     var editorData = _ref.editorData;
     return editorData.editorActions && _extends({}, defaultActions, FuncUtils.getFunctionByName(editorData.editorActions, window)) || _extends({}, defaultActions);
 };
-var handler = function handler(func, props) {
-    return getActions(props)[func](props);
+
+var handler = function handler(func, _ref2) {
+    var dispatch = _ref2.dispatch;
+    var tab = _ref2.tab;
+    return getActions(tab)[func]({ dispatch: dispatch, tab: tab });
 };
 
 exports.handler = handler;
@@ -77,18 +80,18 @@ var getDisplayName = function getDisplayName(Component) {
 
 exports.getDisplayName = getDisplayName;
 var getRatio = {
-    cover: function cover(_ref2) {
-        var widthRatio = _ref2.widthRatio;
-        var heightRatio = _ref2.heightRatio;
-        return Math.max(widthRatio, heightRatio);
-    },
-    contain: function contain(_ref3) {
+    cover: function cover(_ref3) {
         var widthRatio = _ref3.widthRatio;
         var heightRatio = _ref3.heightRatio;
+        return Math.max(widthRatio, heightRatio);
+    },
+    contain: function contain(_ref4) {
+        var widthRatio = _ref4.widthRatio;
+        var heightRatio = _ref4.heightRatio;
         return Math.min(widthRatio, heightRatio);
     },
-    auto: function auto(_ref4) {
-        var scale = _ref4.scale;
+    auto: function auto(_ref5) {
+        var scale = _ref5.scale;
         return scale;
     }
 };
