@@ -204,8 +204,8 @@ var LoginPasswordDialog = React.createClass({
 
         var custom = this.props.pydio.Parameters.get('customWording');
         var logoUrl = custom.icon;
-        if (custom.icon_binary_url) {
-            logoUrl = this.props.pydio.Parameters.get('ajxpServerAccess') + '&' + custom.icon_binary_url;
+        if (custom.iconBinary) {
+            logoUrl = pydio.Parameters.get('ENDPOINT_REST_API') + "/frontend/binaries/GLOBAL/" + custom.iconBinary;
         }
 
         var logoStyle = {

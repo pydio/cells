@@ -22,8 +22,9 @@ type BackendConf struct {
 }
 
 type CustomWording struct {
-	Title string `json:"title"`
-	Icon  string `json:"icon"`
+	Title      string `json:"title"`
+	Icon       string `json:"icon"`
+	IconBinary string `json:"iconBinary"`
 }
 
 type BootConf struct {
@@ -85,8 +86,8 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 		Theme:                        "material",
 		AjxpImagesCommon:             true,
 		CustomWording: CustomWording{
-			Title: "Pydio",
-			Icon:  "",
+			Title: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("Pydio Cells"),
+			Icon:  "plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png",
 		},
 		AvailableLanguages: utils.AvailableLanguages,
 		I18nMessages:       pool.I18nMessages(lang).Messages,
@@ -98,6 +99,10 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 			BuildStamp:    common.BuildStamp,
 			License:       "agplv3",
 		},
+	}
+
+	if icBinary := config.Get("frontend", "plugin", "gui.ajax", "CUSTOM_ICON_BINARY").String(""); icBinary != "" {
+		b.CustomWording.IconBinary = icBinary
 	}
 
 	if e := ApplyBootConfModifiers(b); e != nil {
