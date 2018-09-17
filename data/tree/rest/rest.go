@@ -129,7 +129,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 				service.RestError500(req, resp, e)
 				return
 			}
-			output.Children = append(output.Children, n)
+			output.Children = append(output.Children, n.WithoutReservedMetas())
 		}
 	}
 

@@ -112,8 +112,8 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 						break
 					}
 				}
-				if inRequest {
-					output.Nodes = append(output.Nodes, readResp)
+				if inRequest && !bulkRequest.Versions {
+					output.Nodes = append(output.Nodes, readResp.WithoutReservedMetas())
 				}
 			} else {
 				error404(req, resp, err)
