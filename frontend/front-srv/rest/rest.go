@@ -131,6 +131,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 		service.RestError500(req, rsp, e)
 		return
 	}
+	ctx := req.Request.Context()
 	if loginRequest.AuthInfo == nil {
 		loginRequest.AuthInfo = map[string]string{}
 	}
@@ -170,7 +171,7 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 				TriggerInfo: tInfo,
 			}
 		} else {
-			jwt, expireTime, e := modifiers.JwtFromSession(req.Request.Context(), session)
+			jwt, expireTime, e := modifiers.JwtFromSession(ctx, session)
 			if e != nil {
 				service.RestError401(req, rsp, e)
 				return
@@ -180,24 +181,24 @@ func (a *FrontendHandler) FrontSession(req *restful.Request, rsp *restful.Respon
 				ExpireTime: expireTime,
 			}
 		}
-		rsp.WriteEntity(response)
 		if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
-			log.Logger(req.Request.Context()).Error("Error saving session", zap.Error(e))
+			log.Logger(ctx).Error("Error saving session", zap.Error(e))
 		}
+		rsp.WriteEntity(response)
 		return
 
 	}
 
 	if e := frontend.ApplyAuthMiddlewares(req, rsp, &loginRequest, response, session); e != nil {
 		if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
-			log.Logger(req.Request.Context()).Error("Error saving session", zap.Error(e))
+			log.Logger(ctx).Error("Error saving session", zap.Error(e))
 		}
 		service.RestError401(req, rsp, e)
 		return
 	}
 
 	if e := session.Save(req.Request, rsp.ResponseWriter); e != nil {
-		log.Logger(req.Request.Context()).Error("Error saving session", zap.Error(e))
+		log.Logger(ctx).Error("Error saving session", zap.Error(e))
 	}
 	rsp.WriteEntity(response)
 }
