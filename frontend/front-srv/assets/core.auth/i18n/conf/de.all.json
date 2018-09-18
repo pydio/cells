@@ -105,7 +105,7 @@
     "other": "Trennzeichen"
   },
   "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins.": {
-    "other": "Anmeldedaten nach erfolgreichem Login in der Sitzung merken. (möglicherweise beim Bridging von Auth-Erweiterungen nötig)"
+    "other": "Anmeldedaten nach erfolgreichem Login in der Sitzung merken. (möglicherweise beim Bridging von Auth-Erweiterungen nötig)."
   },
   "Slave Authentifiaction Label": {
     "other": "Titel für Slave-Authentifizierung"

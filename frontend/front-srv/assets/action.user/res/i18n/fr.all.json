@@ -3,7 +3,7 @@
     "other": "Carnet d'adresses"
   },
   "10": {
-    "other": "Dépôts associés"
+    "other": "Workspaces associés"
   },
   "11": {
     "other": "Êtes-vous sûr de vouloir effacer les élément(s) sélectionné(s) ?"
@@ -33,7 +33,7 @@
     "other": "Copier l'URL pour l'envoyer par courriel."
   },
   "2": {
-    "other": "Dépôts délégués"
+    "other": "Workspaces délégués"
   },
   "20": {
     "other": "Téléchargements"
@@ -63,13 +63,13 @@
     "other": "Fichiers partagés pour un téléchargement direct, protégés, ou non, par mot de passe."
   },
   "29": {
-    "other": "Dépôts délégués créés par les utilisateurs."
+    "other": "Workspaces délégués créés par les utilisateurs."
   },
   "3": {
     "other": "Fichiers publics"
   },
   "30": {
-    "other": "Utilisateurs associés aux dépôts délégués."
+    "other": "Utilisateurs associés aux workspaces délégués."
   },
   "31": {
     "other": "Description"
@@ -96,7 +96,7 @@
     "other": "Notifications"
   },
   "39": {
-    "other": "Voici les dépôts auxquels vous pouvez accèder. Ils vous sont personnels ou partagés avec / par d'autres utilisateurs."
+    "other": "Voici les workspaces auxquels vous pouvez accèder. Ils vous sont personnels ou partagés avec / par d'autres utilisateurs."
   },
   "4": {
     "other": "Chemin"
@@ -105,7 +105,7 @@
     "other": "Bienvenue, %s ! "
   },
   "41": {
-    "other": "Utiliser ce dépôt par défaut"
+    "other": "Utiliser ce workspace par défaut"
   },
   "42": {
     "other": "Entrer"
@@ -135,7 +135,7 @@
     "other": "Utilisateurs externes que vous avez créés"
   },
   "5": {
-    "other": "Dépôt"
+    "other": "Workspace"
   },
   "50": {
     "other": "Mes équipes"
@@ -147,7 +147,7 @@
     "other": "Voulez-vous vraiment supprimer cette équipe ? Aucun utilisateur ne sera supprimé."
   },
   "53": {
-    "other": "Retour aux dépôts"
+    "other": "Retour aux workspaces"
   },
   "54": {
     "other": "Editer les membres"
@@ -174,7 +174,7 @@
     "other": "Utilisateurs de l'équipe"
   },
   "61": {
-    "other": "Préferences Email"
+    "other": "Préférences Email"
   },
   "62": {
     "other": "Envoyer les mails toutes les X minutes"

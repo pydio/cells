@@ -57,7 +57,7 @@
     "other": "Der E-Mail-Text (HTML für Formatierung möglich). Die Variable PYDIO_MAIL_BODY fügt den Inhalt ein."
   },
   "Name of the sender": {
-    "other": "ame des Absenders"
+    "other": "Name des Absenders"
   },
   "Once a Week": {
     "other": "Einmal wöchentlich"

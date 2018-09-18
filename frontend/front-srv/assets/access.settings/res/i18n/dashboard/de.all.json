@@ -93,7 +93,7 @@
     "other": "Bitte lesen Sie zum Einstieg die Administrations-Anleitung:"
   },
   "welc.intro": {
-    "other": "Über das Menü auf der linken Seite können Sie \u003ca class=\"doc-link\" data-path=\"/data/workspaces\"\u003eArbeitusmgebungen\u003c/a\u003e oder \u003ca class=\"doc-link\" data-path=\"/idm/users\"\u003eBenutzer\u003c/a\u003e erstellen. Zudem haben Sie die Möglichkeit,\n                            die \u003ca class=\"doc-link\" data-path=\"/admin/logs\"\u003eProtokolle\u003c/a\u003e zu überprüfen oder Einstellungen des \u003ca class=\"doc-link\" data-path=\"/parameters/core\"\u003eSystems\u003c/a\u003e, oder einer \u003ca class=\"doc-link\" data-path=\"/plugins/manager\"\u003eErweiterung\u003c/a\u003e zu ändern."
+    "other": "Über das Menü auf der linken Seite können Sie <a class=\"doc-link\" data-path=\"/data/workspaces\">Arbeitusmgebungen</a> oder <a class=\"doc-link\" data-path=\"/idm/users\">Benutzer</a> erstellen. Zudem haben Sie die Möglichkeit,\n                            die <a class=\"doc-link\" data-path=\"/admin/logs\">Protokolle</a> zu überprüfen oder Einstellungen des <a class=\"doc-link\" data-path=\"/parameters/core\">Systems</a>, oder einer <a class=\"doc-link\" data-path=\"/plugins/manager\">Erweiterung</a> zu ändern."
   },
   "welc.subtitle": {
     "other": "Verwalten und überwachen Sie Ihre Pydio-Installation"

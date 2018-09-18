@@ -258,7 +258,7 @@
     "other": "I file selezionati saranno spostati nel cestino."
   },
   "177": {
-    "other": "Sei sicuro di voler eliminare definitivamente i file selezioanti?"
+    "other": "Sei sicuro di voler eliminare definitivamente i file selezionati?"
   },
   "178": {
     "other": "Precedente"
@@ -471,7 +471,7 @@
     "other": "Password errata!"
   },
   "241": {
-    "other": "Impostazioni salvate con successo"
+    "other": "Impostazioni salvate con successo."
   },
   "242": {
     "other": "Registro SVN"
@@ -498,7 +498,7 @@
     "other": "Gestione utenti"
   },
   "25": {
-    "other": "Invia uno o più file (max. %s) nella cartella : "
+    "other": "Invia uno o più file (max. %s) nella cartella:"
   },
   "250": {
     "other": "Gestione repository"
@@ -645,7 +645,7 @@
     "other": "Crea un collegamento pubblico a questo file"
   },
   "294": {
-    "other": "Scadenza collegamento e password"
+    "other": "Scadenza collegamento e password."
   },
   "295": {
     "other": "Scadenza collegamento (giorni)"
@@ -858,7 +858,7 @@
     "other": "Percorso Repository"
   },
   "358": {
-    "other": "scegliere un nome per l'elemento condiviso e assegnare i privilegi di accesso per l'utente."
+    "other": "Scegliere un nome per l'elemento condiviso e assegnare i privilegi di accesso per l'utente."
   },
   "359": {
     "other": "Etichetta"
@@ -894,7 +894,7 @@
     "other": "Selezione estratta con successo dall'archivio %s alla cartella %s"
   },
   "369": {
-    "other": "Link APPLICATION_TITLE"
+    "other": "Shortcut"
   },
   "37": {
     "other": "Devi inserire un nome valido"
@@ -1050,7 +1050,7 @@
     "other": "Pannello Sx"
   },
   "417": {
-    "other": "Aggiungi repository ..."
+    "other": "Aggiungi repository..."
   },
   "418": {
     "other": "Crea il tuo repository"
@@ -1074,7 +1074,7 @@
     "other": "Cancella repository"
   },
   "424": {
-    "other": "Sei sicuro di voler cancellare questo repository? L'operazione è irreversibile"
+    "other": "Sei sicuro di voler cancellare questo repository? L'operazione è irreversibile."
   },
   "425": {
     "other": "Il repository è stato creato ed aggiunto al tuo elenco dei repository, se vuoi rimuoverlo, prima passa ad un altro repository, poi clicca sulla croce rossa vicino al nome del repository."
@@ -1224,7 +1224,7 @@
     "other": "Condivisi con me"
   },
   "47": {
-    "other": "Vuoi davvero cancellare il "
+    "other": "Vuoi davvero cancellare il"
   },
   "470": {
     "other": "Creato %date"
@@ -1353,7 +1353,7 @@
     "other": "Benvenuto su %s"
   },
   "508": {
-    "other": "Ho appena creato un account per te su %s. Per collegarti, clicca sul seguente link %link ed utilizza queste credenziali:  \u003cbr\u003e\u003cbr\u003e Login: %user \u003cbr\u003e\u003cbr\u003e Password: %pass"
+    "other": "Ho appena creato un account per te su %s. Per collegarti, clicca sul seguente link %link ed utilizza queste credenziali:  <br><br> Login: %user <br><br> Password: %pass"
   },
   "509": {
     "other": "Salva la lista di utenti corrente come team"
@@ -1386,7 +1386,7 @@
     "other": "raggruppa"
   },
   "518": {
-    "other": "In alternativa, puoi \u003ca class='create_file_alt_link'\u003eCreare un file vuoto\u003c/a\u003e."
+    "other": "In alternativa, puoi <a class='create_file_alt_link'>Creare un file vuoto</a>."
   },
   "519": {
     "other": "Aggiorna utente"
@@ -1464,7 +1464,7 @@
     "other": "Errore caricamento: non è possibile scrivere nella cartella temporanea"
   },
   "542": {
-    "other": "Errore caricamento: un'estensione PHP ha bloccato il processo di caricamento"
+    "other": "Errore caricamento: un'estensione PHP ha bloccato il processo di caricamento."
   },
   "543": {
     "other": "Risultati limitati a %s."
@@ -1842,7 +1842,7 @@
     "other": "è stata copiata nella cartella"
   },
   "75": {
-    "other": "IL file users.txt non è nella cartella privata"
+    "other": "Il file users.txt non è nella cartella privata."
   },
   "76": {
     "other": "Questo file è stato cancellato"
@@ -1920,7 +1920,7 @@
     "other": "Clicca in qualsiasi punto di questo riquadro per chiuderlo."
   },
   "99": {
-    "other": "non è scrivibile. Potrebbero esserci problemi di permessi...contatta il tuo amministratore."
+    "other": "Non è scrivibile. Potrebbero esserci problemi di permessi... Contatta il tuo amministratore."
   },
   "about_access_key": {
     "other": "z"
@@ -2031,7 +2031,7 @@
     "other": "Unique plugin to set up the cache server used by the application"
   },
   "plugtype.desc.conf": {
-    "other": "Come i dati di configurazione sono memorizzati nel beckend"
+    "other": "Come i dati di configurazione sono memorizzati nel backend"
   },
   "plugtype.desc.cypher": {
     "other": "Plugin crittazione dati"
@@ -2171,7 +2171,7 @@
   "view_access_key": {
     "other": "V"
   },
-  "public_link_user" : {
+  "public_link_user": {
     "other": "Public access"
   }
 }

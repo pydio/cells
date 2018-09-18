@@ -1,6 +1,6 @@
 {
   "Address used for notifications": {
-    "other": "Addresse utilisée pour les notifications"
+    "other": "Adresse utilisée pour les notifications"
   },
   "All roles": {
     "other": "Tous les rôles"
@@ -54,7 +54,7 @@
     "other": "Workspace montré après le login. La 'Home' correspond à l'écran d'accueil avec le flux d'activités et le moteur de recherche"
   },
   "Display roles and/or groups": {
-    "other": "Aficher les roles et/ou les groupes"
+    "other": "Afficher les roles et/ou les groupes"
   },
   "Do not display real login in parenthesis": {
     "other": "Ne pas afficher le véritable identifiant entre parenthèses"
@@ -87,7 +87,7 @@
     "other": "Afficher la liste de tous les utilisateurs de tous les groupes"
   },
   "If set, this action will be triggered automatically at users login. Can be logout (to lock out the users), pass_change (to force password change), or anything else": {
-    "other": "Si elle est configurée, cette action va être déclenchée automatiquement au login. Par exemple 'logout' (empèche le login), 'pass_change' (force le changement de mot de passe), etc."
+    "other": "Si elle est configurée, cette action va être déclenchée automatiquement au login. Par exemple 'logout' (empêche le login), 'pass_change' (force le changement de mot de passe), etc."
   },
   "If the 'guest' user is enabled, remember her preferences accross sessions.": {
     "other": "Si l'utilisateur 'guest' est activé, se souvenir de ses préférences entre les sessions."
@@ -99,7 +99,7 @@
     "other": "Roles inclus"
   },
   "Instance": {
-    "other": "Instance"
+    "other": "Occurrence"
   },
   "Internal / External Users": {
     "other": "Utilisateurs internes / externes"
@@ -108,7 +108,7 @@
     "other": "Langue"
   },
   "Let user create repositories": {
-    "other": "Autoriser les utilisateurs à créer des dépôts"
+    "other": "Autoriser les utilisateurs à créer des workspaces"
   },
   "Let user create repositories from templates": {
     "other": "Autoriser les utilisateurs à créer des workspaces."
@@ -177,7 +177,7 @@
     "other": "Exclure ces rôles de la liste: liste separée par ',' ou commencer par 'preg:' pour une expression régulière."
   },
   "Some roles should be shown in the list.  list separated by ',' or start with 'preg:' for regex.": {
-    "other": "Inclure ces rôles de la liste: liste separée par ',' ou commencer par 'preg:' pour une expression régulière."
+    "other": "Inclure ces rôles de la liste: liste séparée par ',' ou commencer par 'preg:' pour une expression régulière."
   },
   "Use this option to avoid automatic reloading of the interface state (last folder, opened tabs, etc)": {
     "other": "Utilisez cette option pour éviter le rechargement automatique du dernier état de l'interface (répertoire, onglets ouverts, ...)"
@@ -210,6 +210,6 @@
     "other": "Délégation de la création de workspace"
   },
   "role prefix": {
-    "other": "Role commencant par"
+    "other": "Role commençant par"
   }
 }

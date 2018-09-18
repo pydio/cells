@@ -15,7 +15,7 @@
     "other": "Quell- und Zielordner sind identisch!"
   },
   "102": {
-    "other": "Fehler beim Erstellen der Datei: "
+    "other": "Fehler beim Erstellen der Datei:"
   },
   "103": {
     "other": "Ordner wurde nicht gefunden "
@@ -30,10 +30,10 @@
     "other": "Sende E-Mail"
   },
   "107": {
-    "other": "Name oder E-Mail-Adresse: "
+    "other": "Name oder E-Mail-Adresse"
   },
   "108": {
-    "other": "Ziel E-Mail-Adresse: "
+    "other": "Ziel E-Mail-Adresse"
   },
   "109": {
     "other": "Aufrufbare URL"
@@ -45,7 +45,7 @@
     "other": "Kommentar hinzufügen"
   },
   "111": {
-    "other": "Die folgende E-Mail wurde erfolgreich versendet: "
+    "other": "Die folgende E-Mail wurde erfolgreich versendet:"
   },
   "112": {
     "other": "Senden der E-Mail fehlgeschlagen: "
@@ -141,7 +141,7 @@
     "other": "Ordnerinhalt abspielen"
   },
   "141": {
-    "other": "öffne Ordner"
+    "other": "Öffne Ordner"
   },
   "142": {
     "other": "Angemeldet als "
@@ -195,7 +195,7 @@
     "other": "Neue Datei erstellen"
   },
   "158": {
-    "other": "Ausgewählte Datei/Ordner umbennen"
+    "other": "Ausgewählte Datei/Ordner umbenennen"
   },
   "159": {
     "other": "Kopieren der Auswahl nach..."
@@ -207,10 +207,10 @@
     "other": "Verschieben der Auswahl nach..."
   },
   "161": {
-    "other": "Auswahl löschen"
+    "other": "Auswahl löschen."
   },
   "162": {
-    "other": "Datei bearbeiten"
+    "other": "Datei bearbeiten."
   },
   "163": {
     "other": "Anmelden"
@@ -225,7 +225,7 @@
     "other": "Über Pydio"
   },
   "167": {
-    "other": "über Pydio"
+    "other": "Über Pydio"
   },
   "168": {
     "other": "Anmelden"
@@ -321,7 +321,7 @@
     "other": "Die gewählte Sprache entspricht nicht der aktuellen Sprache!\\n Soll die Seite neu geladen werden, um die Sprache zu ändern?"
   },
   "197": {
-    "other": "Die Benutzereinstellungen wurden erfolgreich gespeichert!\\n\\nFalls das Passwort geändert wurde, ist es beim nächsten Anmelden aktiv.\\n\\nFalls die Sprache geändert wurde, drücken Sie bitte 'Neu laden (F5)'; des Browsers."
+    "other": "Ihre Passwortänderung wird nach dem Logout wirksam."
   },
   "198": {
     "other": "Neu"
@@ -462,7 +462,7 @@
     "other": "Die Passwörter sind unterschiedlich!"
   },
   "239": {
-    "other": "Bitte das aktuelle Passwort eingeben!"
+    "other": "Bitte das aktuelle Passwort eingeben"
   },
   "24": {
     "other": "Aufwärts"
@@ -543,10 +543,10 @@
     "other": "Eine oder mehrere Dateien \\nexistieren im Zielordner!"
   },
   "263": {
-    "other": "überschreiben"
+    "other": "Überschreiben"
   },
   "264": {
-    "other": "überspringen"
+    "other": "Überspringen"
   },
   "265": {
     "other": "Dateien"
@@ -645,7 +645,7 @@
     "other": "Für diese Datei einen öffentlichen Link erstellen"
   },
   "294": {
-    "other": "Gültigkeit des Links (in Tagen) und Passwort (nichts eintragen für bisheriges)"
+    "other": "Gültigkeit des Links (in Tagen) und Passwort (nichts eintragen für bisheriges)."
   },
   "295": {
     "other": "Gültigkeit"
@@ -720,7 +720,7 @@
     "other": "Auswahl komprimieren nach"
   },
   "316": {
-    "other": "öffnen mit..."
+    "other": "Öffnen mit..."
   },
   "317": {
     "other": "Quelltextbetrachter"
@@ -732,7 +732,7 @@
     "other": "HTML-Editor"
   },
   "32": {
-    "other": "öffnen"
+    "other": "Öffnen"
   },
   "320": {
     "other": "WYSIWYG-Editor für HTML-Dateien"
@@ -879,7 +879,7 @@
     "other": "Freigegebene Elemente"
   },
   "364": {
-    "other": "F\u0026uuml;r diese Operation fehlt die Berechtigung"
+    "other": "Für diese Operation fehlt die Berechtigung"
   },
   "365": {
     "other": "Es dürfen nicht mehr als %s Dateien auf einmal hochgeladen werden."
@@ -972,7 +972,7 @@
     "other": "Achtung, der Name muss kürzer als %s sein, dieser Dateiname wird abgeschnitten!"
   },
   "394": {
-    "other": "Aufgrund des Authentifizierungstreibers sind Ordnerfreigaben nicht möglich. Nur Dateien können freigegeben werden. (Benutzer können nicht verändert werden)"
+    "other": "Aufgrund des Authentifizierungstreibers sind Ordnerfreigaben nicht möglich. Nur Dateien können freigegeben werden. (Benutzer können nicht verändert werden)."
   },
   "395": {
     "other": "Das fallengelassene Element scheint ein Ordner zu sein. Ordner können nicht zum Server hochgeladen werden! Soll der Vorgang trotzdem gestartet werden?"
@@ -1155,16 +1155,16 @@
     "other": "Benutzer erstellen"
   },
   "449": {
-    "other": "erstelle %s, wähle ein Passwort"
+    "other": "Erstelle %s, wähle ein Passwort"
   },
   "45": {
     "other": "Ordner"
   },
   "450": {
-    "other": "Sortieren nach ..."
+    "other": "Sortieren nach..."
   },
   "451": {
-    "other": "Sortiere Thumbnails nach ..."
+    "other": "Sortiere Thumbnails nach..."
   },
   "452": {
     "other": "Thumbnails Größe"
@@ -1182,7 +1182,7 @@
     "other": "Mehr"
   },
   "457": {
-    "other": "Bearbeiten"
+    "other": "bearbeiten"
   },
   "458": {
     "other": "löschen"
@@ -1353,7 +1353,7 @@
     "other": "Willkommen bei %s"
   },
   "508": {
-    "other": "Wir erstellten ein Benutzerkonto für Sie bei %s. Um sich zu verbinden klicken Sie auf den folgenden Link %link und melden Sie sich mit diesen Zugangsdaten an:  \u003cbr\u003e\u003cbr\u003e Benutzername: %user \u003cbr\u003e\u003cbr\u003e Passwort: %pass"
+    "other": "Wir erstellten ein Benutzerkonto für Sie bei %s. Um sich zu verbinden klicken Sie auf den folgenden Link %link und melden Sie sich mit diesen Zugangsdaten an:  <br><br> Benutzername: %user <br><br> Passwort: %pass"
   },
   "509": {
     "other": "Aktuelle Benutzerliste als persönliches Team speichern"
@@ -1386,7 +1386,7 @@
     "other": "einklappen"
   },
   "518": {
-    "other": "Sie können auch eine \u003ca class='create_file_alt_link'\u003eleere Datei erstellen\u003c/a\u003e."
+    "other": "Sie können auch eine <a class='create_file_alt_link'>leere Datei erstellen</a>."
   },
   "519": {
     "other": "Benutzer bearbeiten"
@@ -1434,7 +1434,7 @@
     "other": "Gruppen"
   },
   "533": {
-    "other": "Kennung für die Anmeldung (nur alphanumerische Zeichen und Kleinschreibung)"
+    "other": "Kennung für die Anmeldung, bitte nur alphanumerische Zeichen und Kleinschreibung."
   },
   "534": {
     "other": "Passwort"
@@ -1443,10 +1443,10 @@
     "other": "Passwort per E-Mail senden"
   },
   "536": {
-    "other": "Sende eine Willkommens-E-Mail an den neuen Benutzer (inkl. Passwort )"
+    "other": "Sende eine Willkommens-E-Mail an den neuen Benutzer (inkl. Passwort)."
   },
   "537": {
-    "other": "Datei zu gross! Maximal erlaubte Grösse ist %i"
+    "other": "Datei zu groß! Maximal erlaubte Größe ist %i"
   },
   "538": {
     "other": "Fehler beim Hochladen: Datei auf dem Server nicht gefunden!"
@@ -1464,7 +1464,7 @@
     "other": "Fehler beim Hochladen: Kein Schreibzugriff auf Ordner für temporäre Dateien"
   },
   "542": {
-    "other": "Fehler beim Hochladen: Hochladen wurde durch PHP-Erweiterung unterbrochen"
+    "other": "Fehler beim Hochladen: Hochladen wurde durch PHP-Erweiterung unterbrochen."
   },
   "543": {
     "other": "Es werden nur die ersten %s Ergebnissen angezeigt."
@@ -1821,7 +1821,7 @@
     "other": "Einfügen in"
   },
   "69": {
-    "other": "oder ein anderen Ordner wählen"
+    "other": "Oder ein anderen Ordner wählen"
   },
   "7": {
     "other": "Löschen"
@@ -2013,7 +2013,7 @@
     "other": "A"
   },
   "plugtype.desc.access": {
-    "other": "Erweiterungen, die bei Arbeitsumgebungen festlegen, wie auf die Daten zugegriffen werden kann"
+    "other": "Erweiterungen, die bei Arbeitsumgebungen festlegen, wie auf die Daten zugegriffen werden kann."
   },
   "plugtype.desc.action": {
     "other": "Erweiterungen für verschiedene Zusatzfunktionen"
@@ -2022,7 +2022,7 @@
     "other": "Methoden für die Anmeldung und Speicherung der Benutzerdaten im Backend"
   },
   "plugtype.desc.authfront": {
-    "other": "Verschiedene Methoden für die Anmeldung von Benutzern via Formular, API und mehr"
+    "other": "Verschiedene Methoden für die Anmeldung von Benutzern via Formular, API und mehr."
   },
   "plugtype.desc.boot": {
     "other": "Spezielle Erweiterung für den Ladevorgang des Frameworks"
@@ -2073,7 +2073,7 @@
     "other": "Erweiterung zum Kürzen öffentlicher Links"
   },
   "plugtype.desc.uploader": {
-    "other": "Uploader basierend auf verschiedenen Technologien wie HTML, Javascript, Java und andere"
+    "other": "Uploader basierend auf verschiedenen Technologien wie HTML, Javascript, Java und andere."
   },
   "plugtype.title.access": {
     "other": "Arbeitsumgebungs-Treiber"
@@ -2171,7 +2171,7 @@
   "view_access_key": {
     "other": "c"
   },
-  "public_link_user" : {
+  "public_link_user": {
     "other": "Public access"
   }
 }

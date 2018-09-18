@@ -45,7 +45,7 @@
     "other": "Activa intercambio de carpetas"
   },
   "Enable folder sharing (workspace and minisite)": {
-    "other": "Activa intercambio de carpetas (workspace y minisite)"
+    "other": "Activa intercambio de carpetas (workspace y minisitio)"
   },
   "Enable internal file sharing (sharing with users existing or temporary users)": {
     "other": "Activar intercambio interno de archivos (intercambio con usuarios o usuarios temporales)"
@@ -120,10 +120,10 @@
     "other": "Minisite"
   },
   "Minisites and Workspaces": {
-    "other": "Minisites y Workspaces"
+    "other": "Minisitios y Workspaces"
   },
   "Minisites only": {
-    "other": "Sólo Minisites"
+    "other": "Sólo Minisitios"
   },
   "Page Title": {
     "other": "Título de la Página"
@@ -135,13 +135,13 @@
     "other": "Acciones del Centro de Intercambio y hooks"
   },
   "Share page background color.": {
-    "other": "Color de fondo de la página de intercambio"
+    "other": "Color de fondo de la página de intercambio."
   },
   "Share page text color.": {
-    "other": "Color de texto de la página de intercambio"
+    "other": "Color de texto de la página de intercambio."
   },
   "Share page text shadow color.": {
-    "other": "Color de la sombra del texto de la página de intercambio"
+    "other": "Color de la sombra del texto de la página de intercambio."
   },
   "Shared users configurations": {
     "other": "Configuración de usuario compartida"

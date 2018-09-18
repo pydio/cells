@@ -9,7 +9,7 @@
     "other": "Migra meta.serial"
   },
   "12": {
-    "other": "I vecchi plugin  meta.serial sono stati rimossi e divisi in metastore.serial e meta.user"
+    "other": "I vecchi plugin meta.serial sono stati rimossi e divisi in metastore.serial e meta.user"
   },
   "13": {
     "other": "Simula migrazione"
@@ -21,7 +21,7 @@
     "other": "Are you sure that you want to perform the upgrade?"
   },
   "16": {
-    "other": "The following packages will be downloaded and installed."
+    "other": "Following packages are available for upgrade"
   },
   "17": {
     "other": "Checking for available upgrades..."

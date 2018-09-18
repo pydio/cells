@@ -36,7 +36,7 @@
     "other": "Tous les jours à "
   },
   "Extract the main layout from a localized file. Will prevail on the previous parameter, make sure to have an PYDIO_MAIL_BODY in the layout file.": {
-    "other": "Extraire la mise en page d'un fichier localisé. Ceci prendra le pas sur le paramêtre précédent, attention à bien utiliser PYDIO_MAIL_BODY dans le fichier."
+    "other": "Extraire la mise en page d'un fichier localisé. Ceci prendra le pas sur le paramètre précédent, attention à bien utiliser PYDIO_MAIL_BODY dans le fichier."
   },
   "Force all mails to be sent by this Sender email, instead of users adresses": {
     "other": "Forcer tous les mails à être envoyés par un même expéditeur, plutôt que par l'utilisateur."

@@ -20,8 +20,23 @@
   "15": {
     "other": "Las notificaciones de archivos apareceran aquí"
   },
+  "16": {
+    "other": "Inside"
+  },
+  "17": {
+    "other": "Loading activities..."
+  },
+  "18": {
+    "other": "No recent activity"
+  },
+  "19": {
+    "other": "More"
+  },
   "2": {
     "other": "Fuente de Notificaciones"
+  },
+  "20": {
+    "other": "Loading feed..."
   },
   "3": {
     "other": "Alertas"

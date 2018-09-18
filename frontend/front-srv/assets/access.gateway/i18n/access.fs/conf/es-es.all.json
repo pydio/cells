@@ -1,4 +1,7 @@
 {
+  "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path.": {
+    "other": "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path."
+  },
   "Create": {
     "other": "Crear"
   },
@@ -24,13 +27,13 @@
     "other": "Sistema de Archivos (Estándar)"
   },
   "Option to purge documents after a given number of days (even if shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Opción para purgar dorcumentos al transcurrir el número de dias seleccionado (incluso si están compartidos). Requiere que se configure una tarea CRON. Déjalo en 0 si no quieres activar esta función."
+    "other": "Opción para purgar documentos al transcurrir el número de dias seleccionado (incluso si están compartidos). Requiere que se configure una tarea CRON. Déjalo en 0 si no quieres activar esta función."
   },
   "Option to purge documents after a given number of days (if not shared). This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Opción para purgar dorcumentos al transcurrir el número de dias seleccionado (excluye los compartidos). Requiere que se configure una tarea CRON. Déjalo en 0 si no quieres activar esta función."
+    "other": "Opción para purgar documentos al transcurrir el número de dias seleccionado (excluye los compartidos). Requiere que se configure una tarea CRON. Déjalo en 0 si no quieres activar esta función."
   },
   "Option to purge documents after a given number of days. This require a manual set up of a CRON task. Leave to 0 if you don't wan't to use this feature.": {
-    "other": "Opción para purgar dorcumentos al transcurrir el número de dias seleccionado. Requiere que se configure una tarea CRON. Déjalo en 0 si no quieres activar esta función."
+    "other": "Opción para purgar documentos al transcurrir el número de dias seleccionado. Requiere que se configure una tarea CRON. Déjalo en 0 si no quieres activar esta función."
   },
   "Optionnaly apply a chmod operation. Value must be numeric, like 0777, 0644, etc.": {
     "other": "Aplicar opcionalmente una operación chmod. El valor debe ser numérico (p.e. 0777 0644, etc)."
@@ -52,9 +55,6 @@
   },
   "Real Size Probing": {
     "other": "Explorar Tamaño Real"
-  },
-  "Real path to the root folder on the server": {
-    "other": "Ruta real al directorio raiz del servidor"
   },
   "The most standard access to a filesystem located on the server.": {
     "other": "El acceso estándar al sistema de archivos del servidor"

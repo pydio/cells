@@ -1,4 +1,7 @@
 {
+  "39": {
+    "other": "Voici une liste des workspaces auxquels vous pouvez accéder. Ils peuvent être personnels ou partagés avec d'autres utilisateurs."
+  },
   "40": {
     "other": "Bienvenue, %s ! "
   },
@@ -48,7 +51,7 @@
     "other": "Suivez les guides vidéos pour bien débuter avec APPLICATION_TITLE"
   },
   "55": {
-    "other": "Avez-vous besoin d'aide \u003ca\u003epour débuter\u003c/a\u003e?"
+    "other": "Avez-vous besoin d'aide <a>pour débuter</a>?"
   },
   "56": {
     "other": "Nouveau sur APPLICATION_TITLE? Quelques guides vidéos pour vous!"
@@ -63,25 +66,25 @@
     "other": "iPhone / iPad"
   },
   "60": {
-    "other": "Mac OS"
+    "other": "Mac OSX"
   },
   "61": {
     "other": "Windows"
   },
   "62": {
-    "other": "\u003ch2\u003e[Tuto] Qu’est-ce qu’un workspace?\u003c/h2\u003e\n            Cette vidéo explique pourquoi APPLICATION_TITLE est basé sur des Workspaces\n            \u003cul\u003e\n                \u003cli\u003eQu'est ce qu'un workspace dans APPLICATION_TITLE?\u003c/li\u003e\n                \u003cli\u003eQu’est-ce qu’un Workspace d’un point de vue technique?\u003c/li\u003e\n                \u003cli\u003eEn quoi permettent-ils d’organiser vos données?\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[Tuto] Qu’est-ce qu’un workspace?</h2>\n            Cette vidéo explique pourquoi APPLICATION_TITLE est basé sur des Workspaces\n            <ul>\n                <li>Qu'est ce qu'un workspace dans APPLICATION_TITLE?</li>\n                <li>Qu’est-ce qu’un Workspace d’un point de vue technique?</li>\n                <li>En quoi permettent-ils d’organiser vos données?</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "\u003ch2\u003e[Tuto] Comment uploader des fichiers dans pydio ?\u003c/h2\u003e\n            Pour débuter, découvrez comment uploader des fichiers dans APPLICATION_TITLE:\n            \u003cul\u003e\n                \u003cli\u003eFaire Cliquer-Glisser des fichiers vers APPLICATION_TITLE\u003c/li\u003e\n                \u003cli\u003eCréer un nouveau dossier\u003c/li\u003e\n                \u003cli\u003eRenommer des fichiers et des dossiers\u003c/li\u003e\n                \u003cli\u003eTélécharger des fichiers sur votre Desktop\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[Tuto] Comment uploader des fichiers dans pydio ?</h2>\n            Pour débuter, découvrez comment uploader des fichiers dans APPLICATION_TITLE:\n            <ul>\n                <li>Faire Cliquer-Glisser des fichiers vers APPLICATION_TITLE</li>\n                <li>Créer un nouveau dossier</li>\n                <li>Renommer des fichiers et des dossiers</li>\n                <li>Télécharger des fichiers sur votre Desktop</li>\n            </ul>\n            "
   },
   "64": {
-    "other": "\u003ch2\u003e[Tuto] Rechercher, consulter et gérer vos fichiers\u003c/h2\u003e\n            Cette vidéo vous montre différentes astuces pour gérer efficacement vos fichiers avec APPLICATION_TITLE\n            \u003cul\u003e\n                \u003cli\u003eBarre de recherche Cross-Workspaces\u003c/li\u003e\n                \u003cli\u003eModes d’affichage du contenu\u003c/li\u003e\n                \u003cli\u003eRaccourcis-claviers\u003c/li\u003e\n                \u003cli\u003eOptions de tri des fichiers\u003c/li\u003e\n                \u003cli\u003eMeta-données, Favoris\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[Tuto] Rechercher, consulter et gérer vos fichiers</h2>\n            Cette vidéo vous montre différentes astuces pour gérer efficacement vos fichiers avec APPLICATION_TITLE\n            <ul>\n                <li>Barre de recherche Cross-Workspaces</li>\n                <li>Modes d’affichage du contenu</li>\n                <li>Raccourcis-claviers</li>\n                <li>Options de tri des fichiers</li>\n                <li>Meta-données, Favoris</li>\n            </ul>\n            "
   },
   "65": {
     "other": "Découvrir plus de vidéos sur le canal APPLICATION_TITLE!"
   },
   "66": {
-    "other": "\u003ch2\u003e[Tuto] Utiliser APPLICATION_TITLE sur un appareil iOS\u003c/h2\u003e\n                     Cette vidéo décrit l'utilisation de l'application APPLICATION_TITLE disponible sur l'App Store. Le processus est similaire sur Android.\n\u003cul\u003e\u003cli\u003eConfigurer la connexion\u003c/li\u003e\n\u003cli\u003eNaviguer dans les fichiers\u003c/li\u003e\n\u003cli\u003eGarder des fichiers en cache, et interagir avec d'autres applications\u003c/li\u003e\n\u003cli\u003eProtéger l'application avec un code PIN\u003c/li\u003e\n\u003cli\u003eUtiliser les favoris et le moteur de recherche\u003c/li\u003e\u003c/ul\u003e"
+    "other": "<h2>[Tuto] Utiliser APPLICATION_TITLE sur un appareil iOS</h2>\n                     Cette vidéo décrit l'utilisation de l'application APPLICATION_TITLE disponible sur l'App Store. Le processus est similaire sur Android.\n<ul><li>Configurer la connexion</li>\n<li>Naviguer dans les fichiers</li>\n<li>Garder des fichiers en cache, et interagir avec d'autres applications</li>\n<li>Protéger l'application avec un code PIN</li>\n<li>Utiliser les favoris et le moteur de recherche</li></ul>"
   },
   "67": {
     "other": "Vous n'êtes pas %s, %logout."
@@ -111,7 +114,7 @@
     "other": "Chercher dans tous les fichiers..."
   },
   "76": {
-    "other": "Utilisez le menu en haut à droite pour acceder au %1."
+    "other": "Utilisez le menu en haut à droite pour accéder au %1."
   },
   "77": {
     "other": "panneau d'administration"
@@ -120,25 +123,25 @@
     "other": "Sélectionnez un workspace"
   },
   "79": {
-    "other": "\u003ch2\u003e[Tuto] Partager des fichiers et des dossiers avec pydio\u003c/h2\u003e\n            Ce tutoriel vous montre comment partager des fichiers et des dossiers, aussi bien en interne qu’en externe:\n            \u003cul\u003e\n                \u003cli\u003eCréer des liens de partage publics\u003c/li\u003e\n                \u003cli\u003ePartager des fichiers et des dossiers en interne\u003c/li\u003e\n                \u003cli\u003ePartager un dossier en tant que Workspace\u003c/li\u003e\n                \u003cli\u003eOptions de présentation d’un dossier partagé\u003c/li\u003e\n                \u003cli\u003eCréer un dossier d’upload vierge\u003c/li\u003e\n                \u003cli\u003eGérer les accès utilisateurs et les droits\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[Tuto] Partager des fichiers et des dossiers avec pydio</h2>\n            Ce tutoriel vous montre comment partager des fichiers et des dossiers, aussi bien en interne qu’en externe:\n            <ul>\n                <li>Créer des liens de partage publics</li>\n                <li>Partager des fichiers et des dossiers en interne</li>\n                <li>Partager un dossier en tant que Workspace</li>\n                <li>Options de présentation d’un dossier partagé</li>\n                <li>Créer un dossier d’upload vierge</li>\n                <li>Gérer les accès utilisateurs et les droits</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "\u003ch2\u003e[Tuto] Partage avancé : fonctionnalités de sécurité\u003c/h2\u003e\n            Cette vidéo vous présente différentes fonctionnalités permettant de sécuriser vos partages avec APPLICATION_TITLE:\n            \u003cul\u003e\n                \u003cli\u003eProtection par mot de passe\u003c/li\u003e\n                \u003cli\u003eDate d’expiration du lien de partage\u003c/li\u003e\n                \u003cli\u003eLimitation du nombre de téléchargements\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[Tuto] Partage avancé : fonctionnalités de sécurité</h2>\n            Cette vidéo vous présente différentes fonctionnalités permettant de sécuriser vos partages avec APPLICATION_TITLE:\n            <ul>\n                <li>Protection par mot de passe</li>\n                <li>Date d’expiration du lien de partage</li>\n                <li>Limitation du nombre de téléchargements</li>\n            </ul>\n            "
   },
   "81": {
-    "other": "\u003ch2\u003e[Tuto] Personnalisation des liens de partage\u003c/h2\u003e\n            Découvrez comment personnaliser l’URL de vos liens de partage pour les rendre plus user-friendly.\n            "
+    "other": "<h2>[Tuto] Personnalisation des liens de partage</h2>\n            Découvrez comment personnaliser l’URL de vos liens de partage pour les rendre plus user-friendly.\n            "
   },
   "82": {
-    "other": "\u003ch2\u003e[Tuto] Gestions des permissions liées aux liens de partage\u003c/h2\u003e\n            Cette vidéo vous montre comment gérer les permissions liées à vos partages publics:\n            \u003cul\u003e\n                \u003cli\u003ePrévisualisation\u003c/li\u003e\n                \u003cli\u003eTéléchargement\u003c/li\u003e\n                \u003cli\u003eUpload / Edition\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[Tuto] Gestions des permissions liées aux liens de partage</h2>\n            Cette vidéo vous montre comment gérer les permissions liées à vos partages publics:\n            <ul>\n                <li>Prévisualisation</li>\n                <li>Téléchargement</li>\n                <li>Upload / Edition</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "\u003ch2\u003e[Tuto] Langues\u003c/h2\u003e\n            APPLICATION_TITLE est disponibles dans 28 langues. Cette vidéo vous montre comment changer la langue dans APPLICATION_TITLE.\n            "
+    "other": "<h2>[Tuto] Langues</h2>\n            APPLICATION_TITLE est disponibles dans 28 langues. Cette vidéo vous montre comment changer la langue dans APPLICATION_TITLE.\n            "
   },
   "84": {
-    "other": "\u003ch2\u003e[Tuto] Alertes\u003c/h2\u003e\n            Découvrez comment paramétrer des alertes sur certains fichiers, afin de suivre leur modification ou leur consultation.\n            "
+    "other": "<h2>[Tuto] Alertes</h2>\n            Découvrez comment paramétrer des alertes sur certains fichiers, afin de suivre leur modification ou leur consultation.\n            "
   },
   "85": {
-    "other": "\u003ch2\u003e[Tuto] Edition Collaborative\u003c/h2\u003e\n            Cette vidéo vous montre comment collaborer sur des documents bureautiques, grâce à l’intégration de la suite Office Collabora Online\n            \u003cul\u003e\n                \u003cli\u003eTravaillez en ligne sur des documents textes, présentations, tableurs\u003c/li\u003e\n                \u003cli\u003eCollaboration en temps réel multi-utilisateurs\u003c/li\u003e\n                \u003cli\u003eCréer de nouveaux documents directement depuis votre navigateur\u003c/li\u003e\n            \u003c/ul\u003e\n            "
+    "other": "<h2>[Tuto] Edition Collaborative</h2>\n            Cette vidéo vous montre comment collaborer sur des documents bureautiques, grâce à l’intégration de la suite Office Collabora Online\n            <ul>\n                <li>Travaillez en ligne sur des documents textes, présentations, tableurs</li>\n                <li>Collaboration en temps réel multi-utilisateurs</li>\n                <li>Créer de nouveaux documents directement depuis votre navigateur</li>\n            </ul>\n            "
   },
   "86": {
     "other": "Voir la vidéo"
@@ -159,13 +162,13 @@
     "other": "Vos fichiers hors-ligne avec l'application de synchro"
   },
   "92": {
-    "other": "Applications Download"
+    "other": "Téléchargement d'applications"
   },
   "93": {
-    "other": "Quick Upload"
+    "other": "Upload rapide"
   },
   "94": {
-    "other": "Video Tutorial"
+    "other": "Tutoriel vidéo"
   },
   "desc": {
     "other": "Accueil"

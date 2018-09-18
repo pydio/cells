@@ -1,6 +1,6 @@
 {
   "ds.board.ds.legend": {
-    "other": "Les datasources représentent concrètement les points d'accès à vos stockages, et sont aggregées dans un namespace global par Pydio. Elles peuvent être distribuées sur différents noeuds."
+    "other": "Les datasources représentent concrètement les points d'accès à vos stockages, et sont agrégées dans un namespace global par Pydio. Elles peuvent être distribuées sur différents nœuds."
   },
   "ds.board.ds.title": {
     "other": "Datasources"
@@ -108,10 +108,10 @@
     "other": "Répertoire local"
   },
   "ds.editor.selector.folder.hint": {
-    "other": "Sélectionnez un noeud pour charger les répertoires"
+    "other": "Sélectionnez un nœud pour charger les répertoires"
   },
   "ds.editor.selector.peer": {
-    "other": "Adresse du Noeud"
+    "other": "Adresse du Nœud"
   },
   "ds.editor.storage.fs.macos": {
     "other": "Le système d'exploitation est Mac OSX"
@@ -261,7 +261,7 @@
     "other": "Action de fichier"
   },
   "home.12": {
-    "other": "Legende"
+    "other": "Légende"
   },
   "home.13": {
     "other": "Plage de date"
@@ -324,10 +324,10 @@
     "other": "Titre"
   },
   "home.31": {
-    "other": "Aucun évenements."
+    "other": "Aucun événements."
   },
   "home.32": {
-    "other": "Evenements Récents"
+    "other": "Evénements Récents"
   },
   "home.33": {
     "other": "Tous"
@@ -396,7 +396,7 @@
     "other": "Pour personnaliser votre dashboard, vous pouvez supprimer des widget en cliquant sur le bouton."
   },
   "home.55": {
-    "other": "Pour ajouter votre widget, sélectionner un type, les paramêtres associés et cliquez sur Créer le widget."
+    "other": "Pour ajouter votre widget, sélectionner un type, les paramètres associés et cliquez sur Créer le widget."
   },
   "home.56": {
     "other": "Remise à zéro"
@@ -453,7 +453,7 @@
     "other": "Filtrer par fichier"
   },
   "home.72": {
-    "other": "Utiliser *.ext pour filtrer par extension, ou prefixe* pour ne sélectionner que les fichiers commencant par prefixe."
+    "other": "Utiliser *.ext pour filtrer par extension, ou préfixe* pour ne sélectionner que les fichiers commençant par préfixe."
   },
   "home.73": {
     "other": "Si le type est Action de Fichier, sélectionner l'action."
@@ -483,10 +483,10 @@
     "other": "Utilisateurs"
   },
   "home.getting_started": {
-    "other": "Bienvenue dans votre console d'administration! C'est le cockpit depuis lequel vous pouvez controler tous les aspects de l'application.\n                        Passez votre souris sur le panneau de gauche pour ouvrir le menu et accéder à la gestion des utilisateurs, des dépôts et des paramètres généraux.\n                        Vous pouvez personnaliser cette page d'accueil avec les courbes et les informations qui vous intéressent. Pour ceci, ouvrez le panneau de gestion\n                        en cliquant sur le bouton orange en bas à droite et ajouter ou supprimer des widgets. Vous pouvez réorganiser les widgets en les déplacant avec votre souris.\n                        \u003cbr/\u003e\n                        Si vous avez besoin d'aide pour des paramètres dans les formulaires et que vous voyez le signe \u003cspan class='icon-question-sign'\u003e\u003c/span\u003e, cliquez dessus pour ouvrir\n                        le Pydio Companion.\n    "
+    "other": "Bienvenue dans votre console d'administration! C'est le cockpit depuis lequel vous pouvez controler tous les aspects de l'application.\n                        Passez votre souris sur le panneau de gauche pour ouvrir le menu et accéder à la gestion des utilisateurs, des dépôts et des paramètres généraux.\n                        Vous pouvez personnaliser cette page d'accueil avec les courbes et les informations qui vous intéressent. Pour ceci, ouvrez le panneau de gestion\n                        en cliquant sur le bouton orange en bas à droite et ajouter ou supprimer des widgets. Vous pouvez réorganiser les widgets en les déplacant avec votre souris.\n                        <br/>\n                        Si vous avez besoin d'aide pour des paramètres dans les formulaires et que vous voyez le signe <span class='icon-question-sign'></span>, cliquez dessus pour ouvrir\n                        le Pydio Companion.\n    "
   },
   "logs.1": {
-    "other": "Evenements"
+    "other": "Evénements"
   },
   "logs.10": {
     "other": "Exporter et télécharger"
@@ -516,7 +516,7 @@
     "other": "jusqu'à"
   },
   "logs.9": {
-    "other": "Le fichier sera exporté au en CSV formatté avec des séparateurs point-virgules (;) et les valeurs encadrées de guillemets doubles (\")."
+    "other": "Le fichier sera exporté au en CSV formaté avec des séparateurs point-virgules (;) et les valeurs encadrées de guillemets doubles (\")."
   },
   "menu.0": {
     "other": "Tableau de bord"
@@ -543,13 +543,13 @@
     "other": "Notifications"
   },
   "menu.15": {
-    "other": "Comment les utilisateurs recoivent des notifications"
+    "other": "Comment les utilisateurs reçoivent des notifications."
   },
   "menu.16": {
     "other": "Pydio Booster"
   },
   "menu.17": {
-    "other": "Outil d'accéleration externe et gestion des messages applicatifs internes"
+    "other": "Outil d'accélération externe et gestion des messages applicatifs internes"
   },
   "menu.18": {
     "other": "Extensions"
@@ -558,7 +558,7 @@
     "other": "Tous les plugins"
   },
   "menu.2": {
-    "other": "Journal des évenements"
+    "other": "Journal des événements"
   },
   "menu.20": {
     "other": "Fonctions Utilisateurs"
@@ -582,13 +582,13 @@
     "other": "Partage"
   },
   "menu.6": {
-    "other": "Parametres pour les fonctionnalités de partage de fichiers."
+    "other": "Paramètres pour les fonctionnalités de partage de fichiers"
   },
   "menu.7": {
     "other": "Editeurs"
   },
   "menu.8": {
-    "other": "Activer/désactiver les éditeurs et gérer leurs parametres."
+    "other": "Activer/désactiver les éditeurs et gérer leurs paramètres"
   },
   "menu.9": {
     "other": "Outils d'envoi"
@@ -597,7 +597,7 @@
     "other": "Métadonnées"
   },
   "menu.metadata.description": {
-    "other": "Champs additionels éditables par les utilisateurs"
+    "other": "Champs additionnels éditables par les utilisateurs"
   },
   "metadata.definition": {
     "other": "Définition"
@@ -675,7 +675,7 @@
     "other": "Erreur Pydio Booster, voir le panel dédié."
   },
   "perfs.booster.help": {
-    "other": "Pydio Booster est un outil externe permettant de facilement ajouter le support des WebSocket ainsi que d'accéler les téléchargements."
+    "other": "Pydio Booster est un outil externe permettant de facilement ajouter le support des WebSocket ainsi que d'accélerer les téléchargements."
   },
   "perfs.booster.title": {
     "other": "Pydio Booster"
@@ -726,7 +726,7 @@
     "other": "Il serait sans doute opportun d'ajouter du CPU et/ou de la RAM, ou de déployer Pydio en configuration multi-noeud."
   },
   "perfs.load.help": {
-    "other": "Une charge elevée du serveur peut indiquer que votre matériel est sous-dimensionné par rapport à votre nombre d'utilisateurs et votre usage."
+    "other": "Une charge élevée du serveur peut indiquer que votre matériel est sous-dimensionné par rapport à votre nombre d'utilisateurs et votre usage."
   },
   "perfs.load.title": {
     "other": "Charge du Serveur"
@@ -735,7 +735,7 @@
     "other": "Vérifie que le mailer utilise bien la fonctionnalité de Queue"
   },
   "perfs.mailer.error": {
-    "other": "Le mailer n'est pas configuré pour utiliser la queue. Voir la page de configuration, penser à ajouter la tâche d'envoi dans le plannificateur."
+    "other": "Le mailer n'est pas configuré pour utiliser la queue. Voir la page de configuration, penser à ajouter la tâche d'envoi dans le planificateur."
   },
   "perfs.mailer.help": {
     "other": "Utiliser la queue évite d'envoyer directement des mails pendant les requêtes, mais stocke les mails dans une base séparée et les envoie de manière asynchrone."
@@ -780,7 +780,7 @@
     "other": "Driver secondaire"
   },
   "plugins.4": {
-    "other": "Les plugins de type Editeurs fournissent des capacités de prévisualisation ou d'édition de certains types de fichiers.\n                    Ils déclarent les extensions supportées, et il est possible de changer la priorité avec laquelle ils apparaissent\n                    dans le menu 'Ouvrir Avec' via le parametre d'ordre. "
+    "other": "Les plugins de type Editeurs fournissent des capacités de prévisualisation ou d'édition de certains types de fichiers.\n                    Ils déclarent les extensions supportées, et il est possible de changer la priorité avec laquelle ils apparaissent\n                    dans le menu 'Ouvrir Avec' via le paramètre d'ordre."
   },
   "plugins.5": {
     "other": "Sauver"
@@ -804,13 +804,13 @@
     "other": "Type"
   },
   "policies.type.acl.legend": {
-    "other": "Ces stratégies permettent de calculer dymaniquement des droits d'accès en lecture/écriture à des workspaces ou des répertoires à partir du context. Elles sont définies ici, et vous pouvez les utiliser dans le panneau d'assignation des droits d'accès (via les users / roles) en remplacement des valeurs basiques lecture/écriture."
+    "other": "Ces stratégies permettent de calculer dynamiquement des droits d'accès en lecture/écriture à des workspaces ou des répertoires à partir du context. Elles sont définies ici, et vous pouvez les utiliser dans le panneau d'assignation des droits d'accès (via les users / roles) en remplacement des valeurs basiques lecture/écriture."
   },
   "policies.type.acl.title": {
     "other": "ACLs Dynamiques"
   },
   "policies.type.oidc.legend": {
-    "other": "Les service OpenId Connect est utilisé pour l'authentification des utilisateurs, en amont de l'accès aux APIs. Ces stratégies permettent donc d'activer/désactiver complètement l'accès à la plateform pour un utilisateur en se basant sur les informations de contexte de la requête, telles que l'adresse IP d'origine, l'heure de connexion, etc."
+    "other": "Les service OpenId Connect est utilisé pour l'authentification des utilisateurs, en amont de l'accès aux APIs. Ces stratégies permettent donc d'activer/désactiver complètement l'accès à la plateforme pour un utilisateur en se basant sur les informations de contexte de la requête, telles que l'adresse IP d'origine, l'heure de connexion, etc."
   },
   "policies.type.oidc.title": {
     "other": "Ressources OpenId Connect"
@@ -840,7 +840,7 @@
     "other": "Montrer l'arbre résultant (visible)"
   },
   "react.2": {
-    "other": "selectionner"
+    "other": "sélectionner"
   },
   "react.3": {
     "other": "Résultat de recherche pour '%s'"
@@ -870,10 +870,10 @@
     "other": "Vous êtes sur le point de désactiver la gestion des permissions sur le niveau inférieur. Les enfants\n                        de ce répertoire vont automatiquement hériter des permissions du répertoire, et vous perdrez vos réglages\n                        existants sur ces enfants. Voulez vous continuer?"
   },
   "scheduler.1": {
-    "other": "Le plannificateur est utilisé pour déclenché automatiquement des tâches de manière régulière. Il nécessite le déclenchement d'une tâche 'master' de manière régulière. Si vous utilisez Pydio Booster, ceci sera déclenché pour vous. Sinon, utilisez l'expression CRON pour l'ajouter à votre système local."
+    "other": "Le planificateur est utilisé pour déclenché automatiquement des tâches de manière régulière. Il nécessite le déclenchement d'une tâche 'master' de manière régulière. Si vous utilisez Pydio Booster, ceci sera déclenché pour vous. Sinon, utilisez l'expression CRON pour l'ajouter à votre système local."
   },
   "scheduler.2": {
-    "other": "La ligne de commande n'est pas activée dans les %1, le plannificateur ne sera pas en mesure de lancer les tâches."
+    "other": "La ligne de commande n'est pas activée dans les %1, le planificateur ne sera pas en mesure de lancer les tâches."
   },
   "scheduler.3": {
     "other": "configurations globales"
@@ -882,7 +882,7 @@
     "other": "+ Utilisateur"
   },
   "user.10": {
-    "other": "Accès à %i dépots"
+    "other": "Accès à %i workspaces"
   },
   "user.11": {
     "other": "%i roles"
@@ -945,7 +945,7 @@
     "other": "Roles"
   },
   "user.5": {
-    "other": "Groupes \u0026 Utilisateurs"
+    "other": "Groupes & Utilisateurs"
   },
   "user.6": {
     "other": "+ Role"
@@ -1014,7 +1014,7 @@
     "other": "Modèles prédéfinis"
   },
   "ws.1": {
-    "other": "Gérer les DataSources"
+    "other": "Gérer les Datasources"
   },
   "ws.10": {
     "other": "Sélectionner un modèle"
@@ -1032,7 +1032,7 @@
     "other": "Options génériques"
   },
   "ws.15": {
-    "other": "Options du dépôt"
+    "other": "Options du workspace"
   },
   "ws.16": {
     "other": "Driver d'accès au stockage"
@@ -1056,13 +1056,13 @@
     "other": "Options générales du modèle"
   },
   "ws.22": {
-    "other": "Options générales du dépôt"
+    "other": "Options générales du workspace"
   },
   "ws.23": {
     "other": "Supprimer"
   },
   "ws.24": {
-    "other": "Dépôts enfants"
+    "other": "Workspace enfants"
   },
   "ws.25": {
     "other": "Partages"
@@ -1080,7 +1080,7 @@
     "other": "Paramètres"
   },
   "ws.3": {
-    "other": "+ dépôt"
+    "other": "+ workspace"
   },
   "ws.30": {
     "other": "Options Génériques"
@@ -1095,7 +1095,7 @@
     "other": "Activité récente"
   },
   "ws.34": {
-    "other": "Derniers évenements sur ce dépôt"
+    "other": "Derniers évenements sur ce workspace"
   },
   "ws.35": {
     "other": "Accessible à %i utilisateurs"
@@ -1104,10 +1104,10 @@
     "other": "+ %i fichiers ou dossiers partagés"
   },
   "ws.37": {
-    "other": "Dépôts utilisant ce modèle"
+    "other": "Workspaces utilisant ce modèle"
   },
   "ws.38": {
-    "other": "Elements partagés du dépôt"
+    "other": "Elements partagés du workspace"
   },
   "ws.39": {
     "other": "Propriétaire"
@@ -1125,13 +1125,13 @@
     "other": "Permissions au niveau des dossiers"
   },
   "ws.43": {
-    "other": "Vous pouvez ici détailler les droits d'accès dans le dépôt au niveau des dossiers. Pour activer la gestion\n    des permissions à un sous-niveau, cliquez sur le sélecteur 'ENFANTS' d'un dossier donné. Il passera en lecture seule par défaut,\n    et vous pourrez ouvrir les accès sélectivement sur ses dossiers descendants."
+    "other": "Vous pouvez ici détailler les droits d'accès dans le workspace au niveau des dossiers. Pour activer la gestion  des permissions à un sous-niveau, cliquez sur le sélecteur 'ENFANTS' d'un dossier donné. Il passera en lecture seule par défaut, et vous pourrez ouvrir les accès sélectivement sur ses dossiers descendants."
   },
   "ws.44": {
-    "other": "Veuillez bien noter qu'il ne s'agit ici que d'un masque. Si vous modifiez les dossiers directement dans le stockage, il faudra\n    manuellement mettre le masque à jour en conséquence. De plus, vérifiez la valeur du paramètre 'droits par défaut' dans l'onglet Général, elle peut limiter\n    l'accès global au dépôt."
+    "other": "Veuillez bien noter qu'il ne s'agit ici que d'un masque. Si vous modifiez les dossiers directement dans le stockage, il faudra\n    manuellement mettre le masque à jour en conséquence. De plus, vérifiez la valeur du paramètre 'droits par défaut' dans l'onglet Général, elle peut limiter\n    l'accès global au workspace."
   },
   "ws.45": {
-    "other": "Comme ce dépôt utilise dans ses paramètres des valeurs comme PYDIO_USER ou PYDIO_GROUP_*, le contenu affiché varie en fonction de l'utilisateur\n    qui est loggé. Vous ne pouvez donc pas gérer les permissions directement. En revanche, vous pouvez définir des règles d'affichage génériques qui seront utilisées\n    comme un mask de permission."
+    "other": "Comme ce workspace utilise dans ses paramètres des valeurs comme PYDIO_USER ou PYDIO_GROUP_*, le contenu affiché varie en fonction de l'utilisateur\n    qui est loggé. Vous ne pouvez donc pas gérer les permissions directement. En revanche, vous pouvez définir des règles d'affichage génériques qui seront utilisées\n    comme un mask de permission."
   },
   "ws.46": {
     "other": "Ajouter une fonctionnalité"
@@ -1140,7 +1140,7 @@
     "other": "Sélectionner"
   },
   "ws.48": {
-    "other": "Attention, ce dépôt/modèle n'est pas éditable, car il est défini directement dans conf/bootstrap_repositories.php."
+    "other": "Attention, ce workspace n'est pas éditable, car il est défini directement dans conf/bootstrap_repositories.php."
   },
   "ws.49": {
     "other": ""
@@ -1155,10 +1155,10 @@
     "other": "Indexation"
   },
   "ws.51": {
-    "other": "Ce workspace est indexé (%s). Normalement, l'indexation est faite \"au fil de l'eau\" lorsque les fichiers sont modifiés \n                    via l'application. Cependant, si vous effectuez des modifications directement sur le stockage, vous devrez peut-être \n                    réindexer manuellement de temps en temps. Utilisez les boutons ci-dessous pour lancer l'indexation, ou ajouter automatiquement\n                    une tâche au plannificateur."
+    "other": "Ce workspace est indexé (%s). Normalement, l'indexation est faite \"au fil de l'eau\" lorsque les fichiers sont modifiés \n                    via l'application. Cependant, si vous effectuez des modifications directement sur le stockage, vous devrez peut-être \n                    réindexer manuellement de temps en temps. Utilisez les boutons ci-dessous pour lancer l'indexation, ou ajouter automatiquement\n                    une tâche au planificateur."
   },
   "ws.52": {
-    "other": "Note: comme ce workspace a des contenus différents en fonction de l'utilisteur, l'indexation sera lancée pour chaque utilisateur."
+    "other": "Note: comme ce workspace a des contenus différents en fonction de l'utilisateur, l'indexation sera lancée pour chaque utilisateur."
   },
   "ws.53": {
     "other": "Indexer maintenant"
@@ -1170,7 +1170,7 @@
     "other": "Purge automatique"
   },
   "ws.56": {
-    "other": "Ce workspace a une configuration de \"purge\", pour automatiquement effacer les fichiers n'ayant pas été modifiés depuis %s jours.\n                    Assurez vous d'ajouter une tâche au plannificateur pour lancer la purge de manière régulière. Vous pouvez utiliser les boutons ci-dessous\n                    pour lancer la purge maintenant, ou ajouter une tâche qui sera lancée chaque jour."
+    "other": "Ce workspace a une configuration de \"purge\", pour automatiquement effacer les fichiers n'ayant pas été modifiés depuis %s jours.\n                    Assurez vous d'ajouter une tâche au planificateur pour lancer la purge de manière régulière. Vous pouvez utiliser les boutons ci-dessous\n                    pour lancer la purge maintenant, ou ajouter une tâche qui sera lancée chaque jour."
   },
   "ws.57": {
     "other": "Note: comme ce workspace a des contenus différents selon les utilisateurs, l'action sera lancée pour chacun."
@@ -1182,7 +1182,7 @@
     "other": "Programmer tous les jours à 4:00"
   },
   "ws.6": {
-    "other": "Nouveau Dépôt"
+    "other": "Nouveau Workspace"
   },
   "ws.60": {
     "other": "Activité du workspace"
@@ -1194,10 +1194,10 @@
     "other": "Vider l'activité"
   },
   "ws.63": {
-    "other": "Attention, ceci va effacer les évenements affichés aux utilisateurs sur ce workspace, êtes-vous sûr de vouloir le faire?"
+    "other": "Attention, ceci va effacer les événements affichés aux utilisateurs sur ce workspace, êtes-vous sûr de vouloir le faire?"
   },
   "ws.64": {
-    "other": "%s évenements ont été effacés."
+    "other": "%s événements ont été effacés"
   },
   "ws.65": {
     "other": "Maintenance du workspace"
@@ -1215,7 +1215,7 @@
     "other": "Basé sur un modèle"
   },
   "ws.7": {
-    "other": "Nouvelle DataSource"
+    "other": "Nouvelle Datasource"
   },
   "ws.70": {
     "other": "Basé sur un driver"
@@ -1230,13 +1230,13 @@
     "other": "Choisir une valeur pour continuer"
   },
   "ws.74": {
-    "other": "Utiliser le formulaire pour créer une nouvelle DataSource."
+    "other": "Utiliser le formulaire pour créer une nouvelle Datasource. "
   },
   "ws.75": {
     "other": "Une datasource définit un point d'accès à vos données."
   },
   "ws.76": {
-    "other": "Pydio aggrègera toutes vos datasources en un seul arbre sur lequel vous assignez des droits via les workspaces."
+    "other": "Pydio agrègera toutes vos datasources en un seul arbre sur lequel vous assignez des droits via les workspaces."
   },
   "ws.8": {
     "other": "Modèle existant"
@@ -1263,7 +1263,7 @@
     "other": "Modèles prédéfinis"
   },
   "ws.dashboard": {
-    "other": "Les workspces définissent l'accès aux données pour vos utilisateurs. Assurez vous d'avoir au moins créé une datasource pour pouvoir créer un workspace qui pointe vers ce stockage."
+    "other": "Les workspaces définissent l'accès aux données pour vos utilisateurs. Assurez vous d'avoir au moins créé une datasource pour pouvoir créer un workspace qui pointe vers ce stockage."
   },
   "ws.editor.data.legend": {
     "other": "Un workspace exposent une ou plusieurs 'racines' à l'utilisateur: sélectionner un chemin vers un dossier d'une datasource, ou un modèle prédéfini qui sera résolu en fonction de l'utilisateur du contexte."

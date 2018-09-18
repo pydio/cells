@@ -6,7 +6,7 @@
     "other": "Icône 16X16 pour représenter le modèle"
   },
   "A user-defined description of the content of this workspace": {
-    "other": "Une description de l'utilisateur du contenu de ce dépôt"
+    "other": "Une description de l'utilisateur du contenu de ce workspace"
   },
   "API endpoint - Used to launch the window allowing the user to authenticate and accept the terms of the app": {
     "other": "Point final de l'API endpoint - Ouvre la fenêtre permettant à l'utilisateur de s'authentifier et d'accepter les termes de l'application"
@@ -33,13 +33,13 @@
     "other": "Alias"
   },
   "Alias for replacing the generated unique id of the repository": {
-    "other": "Alias pour remplacer l'id unique du dépôt."
+    "other": "Alias pour remplacer l'id unique du workspace."
   },
   "Allow group administrators to create a repository from this template.": {
-    "other": "Autoriser le groupe administrateur à créer un dépôt à partir de ce modèle."
+    "other": "Autoriser le groupe administrateur à créer un workspace à partir de ce modèle."
   },
   "Allow non-admin users to create a repository from this template.": {
-    "other": "Permettre aux utilisateurs non-administrateur de créer un dépôt à partir de ce modèle."
+    "other": "Permettre aux utilisateurs non-administrateur de créer un workspace à partir de ce modèle."
   },
   "Allow the users to pick an existing user when sharing a folder": {
     "other": "Autoriser les utilisateurs à voir une liste d'utilisateurs existants lors du partage d'un répertoire"
@@ -81,19 +81,16 @@
     "other": "Encodage des caractères"
   },
   "Client ID": {
-    "other": "Client ID"
+    "other": "Id du Client"
   },
   "Client SECRET": {
-    "other": "Client SECRET"
+    "other": "Secret du client"
   },
   "Comma separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
-    "other": "Liste des metastore et des plugins meta (séparés par des virgules) appliqués automatiquement lors de la création de dépôts utilisant ce driver."
+    "other": "Liste des metastore et des plugins meta (séparés par des virgules) appliqués automatiquement lors de la création de workspaces utilisant ce driver."
   },
   "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden.": {
     "other": "Liste, séparée par des virgules, d'extensions à cacher. Les extensions, fichiers et répertoires cachés ne seront plus accessibles."
-  },
-  "Comma-separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
-    "other": "Liste des metastore et des plugins meta (séparés par des virgules) appliqués automatiquement lors de la création de dépôts utilisant ce driver."
   },
   "Comma-separated list of specific files to hide": {
     "other": "Liste, séparée par des virgules, de fichiers à cacher."
@@ -123,7 +120,7 @@
     "other": "DSN"
   },
   "Data Source Name": {
-    "other": "Data Source Name"
+    "other": "Nom de la Datasource"
   },
   "Database": {
     "other": "Base de Données"
@@ -216,7 +213,7 @@
     "other": "Utilisateurs existants"
   },
   "Explicitly disable WebDAV access for this repository.": {
-    "other": "Désactiver explicitement l'accès WebDAV pour ce dépôt."
+    "other": "Désactiver explicitement l'accès WebDAV pour ce workspace."
   },
   "File": {
     "other": "Fichiers"
@@ -339,7 +336,7 @@
     "other": "Mot de passe"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
-    "other": "Libellé prérempli pour le nouveau dépôt, vous pouvez y utiliser le mot clef 'PYDIO_USER'."
+    "other": "Libellé prérempli pour le nouveau workspace, vous pouvez y utiliser le mot clef 'PYDIO_USER'."
   },
   "Public Base URI": {
     "other": "URI Liens Publics"
@@ -369,13 +366,13 @@
     "other": "Champ par défaut."
   },
   "Repository Commons": {
-    "other": "Dépôt commun"
+    "other": "Options génériques"
   },
   "Repository Slug": {
-    "other": "Alias du dépôt"
+    "other": "Alias du workspace"
   },
   "Scope": {
-    "other": "Scope"
+    "other": "Portée"
   },
   "Server URL": {
     "other": "URL du serveur"
@@ -387,7 +384,7 @@
     "other": "Identifiants de session"
   },
   "Set this repository group owner : only users of this group will see it": {
-    "other": "Définissez le groupe propriétaire de ce dépôt : seuls les utilisateurs du groupe pourront le voir."
+    "other": "Définissez le groupe propriétaire de ce worskpace: seuls les utilisateurs du groupe pourront le voir."
   },
   "Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac).": {
     "other": "Utilisez un encodage spécifique (essayez IBM850 ou CP437) pour les noms de fichiers afin de résoudre les problèmes avec les caractères durant la création de Zip. Peut créer des archives incompatibles avec certains systèmes d'exploitation (Win / Mac). En cas de problèmes, vous pouvez aussi ajouter //TRANSLIT après l'encodage, pour forcer la translitération des caractères inconnus dans l'encodage de destination (par exemple CP437//TRANSLIT)."
@@ -426,7 +423,7 @@
     "other": "Requis uniquement si vous avez des erreurs concernant l'accès au répertoire temporaire ou la possibilité d'y écrire : certainement lié à l'utilisation du SAFE MODE PHP (disparaîtra dans php6), ou diverses restrictions d'OPEN_BASEDIR. Dans ce cas, créez, et autorisez l'écriture, d'un répertoire temporaire quelque part à la racine de votre hébergement (mais en dessous de '/web', 'www/', 'http/' si possible) et saisissez le chemin absolu vers ce répertoire"
   },
   "This right pattern (empty, r, or rw) will be applied at user creation for this repository.": {
-    "other": "Ce droit d'accès (vide, r, ou rw) sera appliqué à la création d'utilisateur pour ce dépôt"
+    "other": "Ce droit d'accès (vide, r, ou rw) sera appliqué à la création d'utilisateur pour ce dépôt."
   },
   "Token URL": {
     "other": "URL du 'Refresh Token'"
@@ -468,7 +465,7 @@
     "other": "Mot de passe de l'utilisateur"
   },
   "User password - Can be overriden on a per-user basis.": {
-    "other": "Mot de passe de l'utilisateur - peut-être remplacé pour cahque utilisateur."
+    "other": "Mot de passe de l'utilisateur - peut-être remplacé pour chaque utilisateur."
   },
   "WebDAV Server": {
     "other": "Serveur WebDAV"

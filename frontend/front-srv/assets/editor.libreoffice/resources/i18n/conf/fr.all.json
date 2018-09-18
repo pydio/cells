@@ -3,18 +3,18 @@
     "other": "Collabora Online"
   },
   "Collabora Online Editor for office documents": {
-    "other": "Collabora Online Editor for office documents"
+    "other": "Editeur Collabora Online pour les documents Office"
   },
   "URL to the Libre Office Editor Iframe": {
-    "other": "URL to the Libre Office Editor Iframe"
+    "other": "URL de l'Iframe LibreOffice"
   },
   "Web Socket Connector Host": {
-    "other": "Web Socket Connector Host"
+    "other": "Host du connecteur WebSocket"
   },
   "Web Socket Connector Port": {
-    "other": "Web Socket Connector Port"
+    "other": "Port du connecteur WebSocket"
   },
   "Websocket Uses TLS": {
-    "other": "Websocket Uses TLS"
+    "other": "Le WebSocket utilise TLS"
   }
 }

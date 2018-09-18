@@ -159,10 +159,10 @@
     "other": "Ocultar parametros"
   },
   "143": {
-    "other": "Use \u003ckbd\u003eCtrl\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e para copiar o link"
+    "other": "Use <kbd>Ctrl</kbd>+<kbd>C</kbd> para copiar o link"
   },
   "144": {
-    "other": "Use \u003ckbd\u003e\u0026#8984;\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e para copiar o link"
+    "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> para copiar o link"
   },
   "145": {
     "other": "Descrição"
@@ -222,7 +222,7 @@
     "other": "Link Obsoleto"
   },
   "162": {
-    "other": "Você possui um ou mais links legados neste arquivo. Links ainda estão ativos, mas você pode substitui-los com um novo link parando este compartilhamento e recriando um novo. Copie o 'hash' (última parte do link, e.g. https://.../data/public/\u003cem style='color:red;'\u003e206a51\u003c/em\u003e.php) do compartilhamento para aplicá-lo usando o formulário 'Modificar Parametros'."
+    "other": "Você possui um ou mais links legados neste arquivo. Links ainda estão ativos, mas você pode substitui-los com um novo link parando este compartilhamento e recriando um novo. Copie o 'hash' (última parte do link, e.g. https://.../data/public/<em style='color:red;'>206a51</em>.php) do compartilhamento para aplicá-lo usando o formulário 'Modificar Parametros'."
   },
   "163": {
     "other": "Soltar arquivos aqui (para mini-sites com upload habilitado)"
@@ -345,7 +345,7 @@
     "other": "Visibilidade do Compartilhamento"
   },
   "2": {
-    "other": "Clique na imagem para fazer o download do \u003cb\u003e%s\u003c/b\u003e para o seu computador"
+    "other": "Clique na imagem para fazer o download do <b>%s</b> para o seu computador"
   },
   "20": {
     "other": "Ooops, o arquivo requerido não foi encontrado! Talvez este tenha sido apagado, ou não esteja mais compartilhado com você."
@@ -672,7 +672,7 @@
     "other": "Seguir a atividade deste arquivo"
   },
   "4": {
-    "other": "Insira a senha e clique na imagem para fazer o download do \u003cb\u003e%s\u003c/b\u003e para o seu computador"
+    "other": "Insira a senha e clique na imagem para fazer o download do <b>%s</b> para o seu computador"
   },
   "40": {
     "other": "Convites"

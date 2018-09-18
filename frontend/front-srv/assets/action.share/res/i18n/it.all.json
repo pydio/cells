@@ -150,7 +150,7 @@
     "other": "Hai condiviso questo file con un link pubblico"
   },
   "140b": {
-    "other": "hai condiviso questa cartella attraverso link pubblico, ma è attualmente inattivo (scaduto)."
+    "other": "Hai condiviso questa cartella attraverso link pubblico, ma è attualmente inattivo (scaduto)."
   },
   "141": {
     "other": "Cambia parametri"
@@ -159,10 +159,10 @@
     "other": "Nascondi parametri"
   },
   "143": {
-    "other": "Usa \u003ckbd\u003eCtrl\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003eper copiare il link"
+    "other": "Usa <kbd>Ctrl</kbd>+<kbd>C</kbd>per copiare il link"
   },
   "144": {
-    "other": "Usa \u003ckbd\u003e\u0026#8984;\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e per copiare il link"
+    "other": "Usa <kbd>&#8984;</kbd>+<kbd>C</kbd> per copiare il link"
   },
   "145": {
     "other": "Descrizione"
@@ -222,10 +222,10 @@
     "other": "Link Deprecato"
   },
   "162": {
-    "other": "Ci sono uno o più vecchi link di condivisione, relativi a questo file. Sostituiscili con un nuovo link, fermando questa condivisione e ricreandone una nuova. Copia l'hash di condivisione (l'ultima parte del link, per es. http://yourpydio.com/data/public/\u003cem style='color:red;'\u003e206a51\u003c/em\u003e.php) ed inseriscilo nella nuova finestra di condivione per assicurarti che resti valido dopo la condivisione."
+    "other": "Ci sono uno o più vecchi link di condivisione, relativi a questo file. Sostituiscili con un nuovo link, fermando questa condivisione e ricreandone una nuova. Copia l'hash di condivisione (l'ultima parte del link, per es. http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) ed inseriscilo nella nuova finestra di condivione per assicurarti che resti valido dopo la condivisione."
   },
   "163": {
-    "other": "Trascina File (per i minisite con upload)"
+    "other": "Trascina File (per i minisito con upload)"
   },
   "164": {
     "other": "Non permesso: lo script è stato modificato!"
@@ -288,7 +288,7 @@
     "other": "Modifica"
   },
   "182": {
-    "other": "Usa il campo quì sopra per trovare un utente interno o della tua rubrica personale. Se vuoi creare un nuovo utente, digita semplicemente il nuovo identificativo e premi 'Invio'."
+    "other": "Usa il campo qui sopra per trovare un utente interno o della tua rubrica personale. Se vuoi creare un nuovo utente, digita semplicemente il nuovo identificativo e premi 'Invio'."
   },
   "183": {
     "other": "Notifica al cambiamento del contenuto"
@@ -345,7 +345,7 @@
     "other": "Visibilità Condivisione"
   },
   "2": {
-    "other": "Clicca sull'immagine per scaricare \u003cb\u003e%s\u003c/b\u003e sul tuo PC"
+    "other": "Clicca sull'immagine per scaricare <b>%s</b> sul tuo PC"
   },
   "20": {
     "other": "Ooops! Il file che hai richiesto non può essere trovato! Probabilmente è stato cancellato o non è più condiviso con te."
@@ -486,7 +486,7 @@
     "other": "Share Types"
   },
   "24": {
-    "other": "Imposta una scadenza e definisci una password per accedere al file, poi clicca su \u003cspan class=\"icon-plus-sign\"\u003e\u003c/span\u003e per generare il link. Puoi generare più di un link, per inviarne uno per ciascuna persona."
+    "other": "Imposta una scadenza e definisci una password per accedere al file, poi clicca su <span class=\"icon-plus-sign\"></span> per generare il link. Puoi generare più di un link, per inviarne uno per ciascuna persona."
   },
   "240": {
     "other": "Group by..."
@@ -642,7 +642,7 @@
     "other": "Password errata"
   },
   "30": {
-    "other": "Accesso Utente"
+    "other": "Accesso Utente..."
   },
   "31": {
     "other": "Lettura"
@@ -672,7 +672,7 @@
     "other": "'Osserva' le attività su questo file"
   },
   "4": {
-    "other": "Inserisci la password richiesta e clicca sull'immagine per scaricare \u003cb\u003e%s\u003c/b\u003e sul tuo PC"
+    "other": "Inserisci la password richiesta e clicca sull'immagine per scaricare <b>%s</b> sul tuo PC"
   },
   "40": {
     "other": "Inviti"
@@ -792,7 +792,7 @@
     "other": "Permessi"
   },
   "72": {
-    "other": "Sfoglia \u0026 Anteprima"
+    "other": "Sfoglia & Anteprima"
   },
   "73": {
     "other": "Download"
@@ -810,7 +810,7 @@
     "other": "Abilitare i Cookies per accedere a questa applicazione"
   },
   "77": {
-    "other": "Abilitare JavScript per accedere a questa applicazione"
+    "other": "Abilitare JavaScript per accedere a questa applicazione"
   },
   "78": {
     "other": "ATTENZIONE: dovresti utilizzare solo caratteri alfanumerici standard per i nomi utente. '%CURRENT%' verrà sostituito con '%NEW%'"

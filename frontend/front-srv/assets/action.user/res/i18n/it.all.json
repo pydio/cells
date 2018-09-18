@@ -96,13 +96,13 @@
     "other": "Notifiche"
   },
   "39": {
-    "other": "Seleziona un workspace"
+    "other": "Seleziona un workspace."
   },
   "4": {
     "other": "Percorso File"
   },
   "40": {
-    "other": "Benvenuto, %s"
+    "other": "Benvenuto, %s!"
   },
   "41": {
     "other": "Usa questo workspace come principale"
@@ -144,7 +144,7 @@
     "other": "Teams di utenti, usati come scorciatoia durante la condivisione"
   },
   "52": {
-    "other": "Sei sicuro di voler cancellare questo team? Questa operazione non cancellerà gli utenti associati.."
+    "other": "Sei sicuro di voler cancellare questo team? Questa operazione non cancellerà gli utenti associati."
   },
   "53": {
     "other": "Torna ai miei workspace"

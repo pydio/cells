@@ -83,11 +83,44 @@
   "26": {
     "other": "Detener un trabajo en ejecución"
   },
+  "27": {
+    "other": "Scheduled"
+  },
+  "28": {
+    "other": "Successfully added/edited task"
+  },
+  "29": {
+    "other": "This task has currently jobs running, please wait that they are finished"
+  },
   "2d": {
     "other": "Expresión Crontab usando el formato: minutos horas dias diaSemana meses. Puedes usar wildcards, saltos y rangos."
   },
   "3": {
     "other": "Próximo"
+  },
+  "30": {
+    "other": "Successfully removed task"
+  },
+  "31": {
+    "other": "Starting..."
+  },
+  "32": {
+    "other": "Launching "
+  },
+  "33": {
+    "other": "Nothing to do"
+  },
+  "34": {
+    "other": "Launching task now"
+  },
+  "35": {
+    "other": "JOB RUNNING"
+  },
+  "36": {
+    "other": "JOB ERROR"
+  },
+  "37": {
+    "other": "Started on "
   },
   "4": {
     "other": "ID del Repositorio"

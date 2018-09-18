@@ -24,7 +24,7 @@
     "other": "Immer überschreiben"
   },
   "Always override other roles, included group roles.": {
-    "other": "Andere Rollen überschreiben (einschließlich Rollen der Gruppe)"
+    "other": "Andere Rollen überschreiben (einschließlich Rollen der Gruppe)."
   },
   "Avatar": {
     "other": "Avatar"
@@ -51,7 +51,7 @@
     "other": "Standard Arbeitsumgebung"
   },
   "Default start repository": {
-    "other": "Diese Arbeitsumgebung nach der Anmeldung standardmäßig öffnen"
+    "other": "Diese Arbeitsumgebung nach der Anmeldung standardmäßig öffnen."
   },
   "Display roles and/or groups": {
     "other": "Anzeige von Rollen oder Gruppen"
@@ -72,7 +72,7 @@
     "other": "Anlage von Benutzern während der Freigabe von Elementen"
   },
   "External users parameters": {
-    "other": "Parameter bei der Analge von Freigabebenutzern"
+    "other": "Parameter bei der Anlage von Freigabebenutzern"
   },
   "Full name displayed to others": {
     "other": "Ihr Name wird anderen Benutzern angezeigt"

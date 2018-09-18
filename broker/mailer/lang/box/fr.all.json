@@ -1,0 +1,188 @@
+{
+  "Mail.Main.Copyright": {
+    "other": "Plateforme de partage de fichiers par Pydio"
+  },
+  "Mail.Main.Troubleshoot": {
+    "other": "Si le bouton {ACTION} ne fonctionne pas, veuillez copier\/coller l'URL ci-dessous dans votre navigateur web."
+  },
+  "Mail.Main.Greeting": {
+    "other": "Bonjour"
+  },
+  "Mail.Main.Signature": {
+    "other": "Cordialement"
+  },
+  "Mail.ResetPassword.Subject": {
+    "other": "Mise à jour du mot de passe demandée pour {{.Configs.Title}}"
+  },
+  "Mail.ResetPassword.Intros": {
+    "other": "Une requête de remise à jour de mot de passe a été demandée pour votre compte sur {{.Configs.Title}}."
+  },
+  "Mail.ResetPassword.Outros": {
+    "other": "Si vous n'avez pas déclenché cette requête, vous pouvez ignorer ce message. Si vous recevez plusieurs fois un tel message, veuillez alerter votre administrateur car il peut s'agir d'un problème de sécurité."
+  },
+  "Mail.ResetPassword.LinkLabel": {
+    "other": "Créer un nouveau mot de passe"
+  },
+  "Mail.ResetPassword.LinkInstructions": {
+    "other": "Cliquez pour créer un nouveau mot de passe"
+  },
+  "Mail.ResetPasswordDone.Subject": {
+    "other": "Votre mot de passe pour {{.Configs.Title}} a été mis à jour"
+  },
+  "Mail.ResetPasswordDone.Intros": {
+    "other": "Suite à votre demande, votre mot de passe a été mis à jour avec succès sur {{.Configs.Title}}."
+  },
+  "Mail.ResetPasswordDone.Outros": {
+    "other": "Si vous n'avez pas déclenché cette opération, veuillez alerter votre administrateur immédiatement, car il peut s'agir d'un problème de sécurité."
+  },
+  "Mail.Digest.Subject": {
+    "other": "Votre résumé quotidien pour {{.Configs.Title}}"
+  },
+  "Mail.Digest.Intros": {
+    "other": "Voici un résumé des notifications que vous avez reçues sur {{.Configs.Title}}"
+  },
+  "Mail.Welcome.Subject": {
+    "other": "Bienvenue sur {{.Configs.Title}}"
+  },
+  "Mail.Welcome.Intros": {
+    "other": "Un compte a été créé pour vous sur {{.Configs.Title}}.\nVotre identifiant est {{.TplData.Login}}{{if .TplData.Password}} et votre mot de passe est {{.TplData.Password}}. Vous pouvez le changer lors de votre prochaine identification{{end}}."
+  },
+  "Mail.Welcome.LinkInstructions": {
+    "other": "Cliquez pour vous connecter"
+  },
+  "Mail.Welcome.LinkLabel": {
+    "other": "Connectez vous à {{.Configs.Title}}"
+  },
+  "Mail.Welcome.Outros": {
+    "other": "La plateforme de partage de fichiers {{.Configs.Title}} est utilisée par votre équipe pour collaborer efficacement avec vos fichiers. Bienvenue à bord!"
+  },
+  "Mail.Invite.Subject": {
+    "other": "{{.TplData.Inviter}} vous a invité sur {{.Configs.Title}}"
+  },
+  "Mail.Invite.Intros": {
+    "other": "Un compte a été créé pour vous par {{.TplData.Inviter}} sur {{.Configs.Title}}.\nVotre identifiant est {{.TplData.Login}}{{if .TplData.Password}} et votre mot de passe est {{.TplData.Password}}. Vous pouvez le changer à la première connexion{{end}}."
+  },
+  "Mail.Invite.LinkInstructions": {
+    "other": "Connectez vous"
+  },
+  "Mail.Invite.LinkLabel": {
+    "other": "Cliquez pour vous connecter sur {{.Configs.Title}}"
+  },
+  "Mail.Invite.Outros": {
+    "other": "La plateforme de partage de fichiers {{.Configs.Title}} est utilisée par {{.TplData.Inviter}} pour collaborer efficacement avec vos fichiers. Bienvenue à bord!"
+  },
+  "Mail.Cell.Subject": {
+    "other": "{{.TplData.Inviter}} vous a ajouté à la cellule {{.TplData.Cell}}"
+  },
+  "Mail.Cell.Intros": {
+    "other": "{{.TplData.Inviter}} vous a ajouté à la cellule {{.TplData.Cell}} sur {{.Configs.Title}}! Vous pouvez désormais partager des fichiers et des répertoires ensembles et collaborer efficacement."
+  },
+  "Mail.Cell.LinkInstructions": {
+    "other": "Ouvrir la cellule"
+  },
+  "Mail.Cell.LinkLabel": {
+    "other": "Cliquez pour ouvrir la cellule {{.TplData.Cell}}"
+  },
+  "Mail.PublicFile.Subject": {
+    "other": "{{.TplData.Inviter}} partage un fichier avec vous"
+  },
+  "Mail.PublicFile.Intros": {
+    "other": "{{.TplData.Inviter}} partage un fichier avec vous.\n\n'{{.TplData.Message}}'\n\n{{if .TplData.Expire}}Le lien va expirer le {{.TplData.Expire}}{{end}}.\n{{if .TplData.MaxDownloads}}Nombre de téléchargements limités à {{.TplData.MaxDownloads}}{{end}}"
+  },
+  "Mail.PublicFile.LinkLabel": {
+    "other": "Ouvrir {{.TplData.FileName}}"
+  },
+  "Mail.PublicFile.LinkInstructions": {
+    "other": "Cliquez pour ouvrir le fichier dans votre navigateur"
+  },
+  "Mail.PublicFile.Outros": {
+    "other": "La plateforme de partage de fichiers {{.Configs.Title}} est utilisée par {{.TplData.Inviter}} pour partager et collaborer efficacement sur ses documents."
+  },
+  "Mail.PublicFolder.Subject": {
+    "other": "{{.TplData.Inviter}} partage un répertoire avec vous"
+  },
+  "Mail.PublicFolder.Intros": {
+    "other": "{{.TplData.Inviter}} a partagé un répertoire avec vous.\n\n'{{.TplData.Message}}' \n\n{{if .TplData.Expire}}Ce lien expirera le {{.TplData.Expire}}{{end}}"
+  },
+  "Mail.PublicFolder.LinkLabel": {
+    "other": "Ouvrir {{.TplData.FolderName}}"
+  },
+  "Mail.PublicFolder.LinkInstructions": {
+    "other": "Cliquez pour ouvrir le répertoire dans votre navigateur"
+  },
+  "Mail.PublicFolder.Outros": {
+    "other": "La plateforme de partage de fichiers {{.Configs.Title}} est utilisée par {{.TplData.Inviter}} pour partager et collaborer efficacement sur ses documents."
+  },
+  "Mail.Config.Title": {
+    "other": "Moteur de mail"
+  },
+  "Mail.Config.From.Label": {
+    "other": "Adresse d'expéditeur par défaut"
+  },
+  "Mail.Config.From.Description": {
+    "other": "Adresse d'expédition utilisée par défaut lors de l'envoi de mail. Utilisez un mail de support réel plutôt qu'un \"no-reply\"."
+  },
+  "Mail.Config.Queue.Label": {
+    "other": "File d'attente"
+  },
+  "Mail.Config.Queue.Description": {
+    "other": "Persistence pour les mails en attente d'envoi"
+  },
+  "Mail.Config.Queue.ValueBolt": {
+    "other": "Fichiers (Bolt)"
+  },
+  "Mail.Config.Queue.ValueMemory": {
+    "other": "Mémoire"
+  },
+  "Mail.Config.Mailer.Label": {
+    "other": "Moteur d'envoi"
+  },
+  "Mail.Config.Mailer.Description": {
+    "other": "Service utilisé pour envoyer les emails"
+  },
+  "Mail.Config.Smtp.Label": {
+    "other": "Serveur SMTP"
+  },
+  "Mail.Config.Smtp.Host.Label": {
+    "other": "Hôte du serveur"
+  },
+  "Mail.Config.Smtp.Host.Description": {
+    "other": "Hôte sur serveur SMTP, par exemple smtp.gmail.com"
+  },
+  "Mail.Config.Smtp.Port.Label": {
+    "other": "Port"
+  },
+  "Mail.Config.Smtp.Port.Description": {
+    "other": "Port du serveur SMTP, par exemple 587 (non sécurisé) ou 465 (sécurisé par TLS)"
+  },
+  "Mail.Config.Smtp.User.Label": {
+    "other": "Utilisateur"
+  },
+  "Mail.Config.Smtp.User.Description": {
+    "other": "Identifiant de l'utilisateur pour se connecter au serveur SMTP"
+  },
+  "Mail.Config.Smtp.Password.Label": {
+    "other": "Mot de passe"
+  },
+  "Mail.Config.Smtp.Password.Description": {
+    "other": "Mot de passe de l'utilisateur pour se connecter au serveur SMTP"
+  },
+  "Mail.Config.SendGrid.Label": {
+    "other": "Service SendGrid"
+  },
+  "Mail.Config.SendGrid.ApiKey.Label": {
+    "other": "Clé d'API"
+  },
+  "Mail.Config.SendGrid.ApiKey.Description": {
+    "other": "Clé d'API fournie par SendGrid pour se connecter au service"
+  },
+  "Mail.Config.Sendmail.Label": {
+    "other": "Sendmail"
+  },
+  "Mail.Config.Sendmail.Executable.Label": {
+    "other": "Chemin vers l'exécutable"
+  },
+  "Mail.Config.Sendmail.Executable.Description": {
+    "other": "Chemin complet vers le binaire sur le serveur"
+  }
+}

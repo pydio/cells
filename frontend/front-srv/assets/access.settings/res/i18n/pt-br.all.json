@@ -39,13 +39,13 @@
     "other": "Adicionar uma origem"
   },
   "110": {
-    "other": "Áreas de Trabalho \u0026 Usuários"
+    "other": "Áreas de Trabalho & Usuários"
   },
   "111": {
-    "other": "Logs \u0026 Outros Dados"
+    "other": "Logs & Outros Dados"
   },
   "112": {
-    "other": "\u003cb\u003eAplicar este papel por padrão\u003c/b\u003e a todos os novos usuários."
+    "other": "<b>Aplicar este papel por padrão</b> a todos os novos usuários."
   },
   "113": {
     "other": "Estado dos Papéis atualizado com sucesso"
@@ -247,6 +247,18 @@
   },
   "173": {
     "other": "Pydio Backend Services and their running status"
+  },
+  "174": {
+    "other": "Identity Management"
+  },
+  "175": {
+    "other": "Data Management"
+  },
+  "176": {
+    "other": "Security Policies"
+  },
+  "177": {
+    "other": "Security Policies"
   },
   "18": {
     "other": "I.P."

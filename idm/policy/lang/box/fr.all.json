@@ -11,7 +11,6 @@
   "PolicyGroup.PublicAccess.Rule2": {
     "other": "Accès anonyme aux API de réinitialisation de mot de passe (PUT, POST)"
   },
-
   "PolicyGroup.PublicInstall.Title": {
     "other": "Installation (premier démarrage)"
   },
@@ -21,9 +20,8 @@
   "PolicyGroup.PublicInstall.Rule1": {
     "other": "Accès anonyme à /install (GET, POST)"
   },
-
   "PolicyGroup.FrontendAccess.Title": {
-    "other": "Accès restreint au frontend"
+    "other": "Accès restreint à l'interface"
   },
   "PolicyGroup.FrontendAccess.Description": {
     "other": "Points d'accès qui peuvent être accédés anonymement mais seulement par le frontend"
@@ -34,9 +32,8 @@
   "PolicyGroup.FrontendAccess.Rule2": {
     "other": "PUT accès restreint à l'IP du frontend"
   },
-
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "Accès des utilisateurs loggés et administrateurs"
+    "other": "Accès des utilisateurs identifiés et administrateurs"
   },
   "PolicyGroup.LoggedUsers.Description": {
     "other": "APIs REST accessibles aux utilisateurs identifiés"
@@ -45,12 +42,11 @@
     "other": "Accès complet pour les profils Admin"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
-    "other": "Accès par défaut pour les utilisateurs loggés"
+    "other": "Accès par défaut pour les utilisateurs identifiés"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
     "other": "Accès pour incrémenter les téléchargements des liens partagés"
   },
-
   "PolicyGroup.OIDC.Title": {
     "other": "Opérations OpenIdConnect"
   },
@@ -60,7 +56,6 @@
   "PolicyGroup.OIDC.Rule1": {
     "other": "Par défaut, login autorisé à tous les utilisateurs"
   },
-
   "PolicyGroup.ACLSample1.Title": {
     "other": "[Exemple] Règle d'ACL complexe"
   },
@@ -76,7 +71,6 @@
   "PolicyGroup.ACLSample1.Rule3": {
     "other": "Cacher tous les fichiers avec l'extension PNG"
   },
-
   "PolicyGroup.ACLSamplePeriod.Title": {
     "other": "[Exemple] Période Limitée"
   },
@@ -86,7 +80,6 @@
   "PolicyGroup.ACLSamplePeriod.Rule1": {
     "other": "Accès autorisé seulement entre le 1er février et le 31 mars 2018"
   },
-
   "PolicyGroup.ACLSampleDateDisable.Title": {
     "other": "[Exemple] Limite de date"
   },
@@ -99,7 +92,6 @@
   "PolicyGroup.ACLSampleDateDisable.Rule2": {
     "other": "Restriction si la date est après le 2 février 2018"
   },
-
   "PolicyGroup.ACLSampleBusinessHours.Title": {
     "other": "[Exemple] Horaires de bureau"
   },
@@ -109,7 +101,6 @@
   "PolicyGroup.ACLSampleBusinessHours.Rule1": {
     "other": "Autoriser l'accès entre 9:00 et 18:30 du lundi au vendredi"
   },
-
   "PolicyGroup.ACLSampleExternalIP.Title": {
     "other": "[Exemple] Filtrage par adresse IP"
   },
@@ -122,5 +113,4 @@
   "PolicyGroup.ACLSampleExternalIP.Rule2": {
     "other": "Désactiver l'accès si l'IP n'est pas localhost, 127.0.0.1 ou ::1"
   }
-  
 }

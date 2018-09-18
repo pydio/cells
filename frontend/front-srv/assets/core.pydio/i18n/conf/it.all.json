@@ -92,9 +92,6 @@
   "Comma-separated list of extensions to hide. Extensions, files and folders that are hidden are also access forbidden.": {
     "other": "Lista di estensioni, separate dalla virgola, che saranno nascoste. Estensioni, file e cartelle che sono nascoste, hanno anche accesso interdetto."
   },
-  "Comma-separated list of metastore and meta plugins, that will be automatically applied to all repositories created with this driver": {
-    "other": "Lista di plugin metastore e meta, separati da virgola, che sarà automaticamente applicata a tutti i workspace creati con questo driver"
-  },
   "Comma-separated list of specific files to hide": {
     "other": "Lista di specifici file, separati da virgola, da nascondere"
   },

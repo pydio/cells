@@ -48,7 +48,7 @@
     "other": "Hintergrund-Attribute (niedrige Auflösung)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "Browser-basierte Oberfläche. Beinhaltet die Konfiguraton der Themen, kundenspezifische Willkommens-Mitteilung, usw."
+    "other": "Browser-basierte Oberfläche. Beinhaltet die Konfiguration der Themen, kundenspezifische Willkommens-Mitteilung, usw."
   },
   "Center in Page (no-repeat)": {
     "other": "In Seite zentriert (Nicht-wiederholend)"
@@ -105,7 +105,7 @@
     "other": "Ganzes Fenster (Vertikal wiederholend)"
   },
   "Font sized used for the title in the start up screen": {
-    "other": "Schriftgrösse des Titels auf der Anmelde-Seite"
+    "other": "Schriftgröße des Titels auf der Anmelde-Seite"
   },
   "Google Analytics": {
     "other": "Google Analytics"
@@ -234,7 +234,7 @@
     "other": "Titel"
   },
   "Title Font Size": {
-    "other": "Schriftgrösse des Titels"
+    "other": "Schriftgröße des Titels"
   },
   "Top Toolbar": {
     "other": "Obere Werkzeugleiste"

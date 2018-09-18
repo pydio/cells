@@ -39,7 +39,7 @@
     "other": "Activar Usuarios"
   },
   "Enable the 'guest' user, who does not need to log in.": {
-    "other": "Activar el usuario 'guest', no tiene que iniciar sesión"
+    "other": "Activar el usuario 'guest', no tiene que iniciar sesión."
   },
   "Forgot Password Action": {
     "other": "Acción Recordar Contraseña"
@@ -72,7 +72,7 @@
     "other": "Maestro/Esclavo"
   },
   "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup.": {
-    "other": "Maestro/esclavo asumirá que el maestro es de sólo lectura y el esclavo es una alternativa local que permite las funciones de compartir. El usuario elegirá el metodo de autenticación al inicio."
+    "other": "Maestro/esclavo asumirá que el maestro es de sólo lectura y el esclavo es una alternativa local que permite las funciones de compartir. El usuario elegirá el método de autenticación al inicio."
   },
   "Minimum number of characters required for passwords in the application": {
     "other": "Número mínimo de caracteres necesarios en la contraseña"

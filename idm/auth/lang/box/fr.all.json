@@ -3,11 +3,11 @@
     "other": "Suppression des jetons et des clés de réinitialisation de mot de passe expirés"
   },
   "Auth.PruneJob.Revoked": {
-    "one" : "Suppression d'un jeton révoqué expiré",
+    "one": "Suppression d'un jeton révoqué",
     "other": "Suppression de {{.Count}} jetons révoqués et expirés"
   },
   "Auth.PruneJob.ResetToken": {
-    "one" : "Suppression d'une clé de réinitialisation expirée",
+    "one": "Suppression d'une clé de réinitialisation expirée",
     "other": "Suppression de {{.DeletionCount}} clés de réinitialisation expirées"
   }
 }

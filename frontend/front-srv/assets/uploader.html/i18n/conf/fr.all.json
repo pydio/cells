@@ -1,12 +1,12 @@
 {
   "Always Override": {
-    "other": "Always Override"
+    "other": "Toujours écraser"
   },
   "Auto Close": {
     "other": "Fermeture automatique"
   },
   "Auto Rename File": {
-    "other": "Auto Rename File"
+    "other": "Renommer le fichier automatiquement"
   },
   "Auto Start": {
     "other": "Envoi automatique"
@@ -33,6 +33,6 @@
     "other": "Informer l'utilisateur si le fichier existe déjà ? (comportement par défaut, l'utilisateur pourra modifier cette préférence)"
   },
   "Prompt user": {
-    "other": "Prompt user"
+    "other": "Demander à l'utilisateur"
   }
 }

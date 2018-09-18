@@ -39,6 +39,6 @@
     "other": "Qualité des miniatures."
   },
   "When connected to a remote server, metadata extraction can make the listing action very long, as it must first copy each file locally. For plugins using the defined wrappers and files whose size is greater than this threshold, the image type and dimension will be skipped.": {
-    "other": "Lors de la connexion à un serveur distant, l'extraction des meta-données peut rendre l'action de lister très lente, car elle requiert de copier locallement chaque fichier. Pour les plugins utilisant les encapsuleurs (wrappers) et les fichiers dont la taille est supérieure à celle définie, le type d'image et ses dimensions seront ignorés."
+    "other": "Lors de la connexion à un serveur distant, l'extraction des metadonnées peut rendre l'action de lister très lente, car elle requiert de copier localement chaque fichier. Pour les plugins utilisant les encapsuleurs (wrappers) et les fichiers dont la taille est supérieure à celle définie, le type d'image et ses dimensions seront ignorés."
   }
 }

@@ -9,7 +9,7 @@
     "other": "Format du document"
   },
   "12": {
-    "other": "Vous pouvez aussi \u003ca\u003ecréer un document vide\u003c/a\u003e"
+    "other": "Vous pouvez aussi <a>créer un document vide</a>"
   },
   "13": {
     "other": "Document sans titre"
@@ -30,16 +30,16 @@
     "other": "Microsoft Word 2007/2010/2013 XML"
   },
   "ext.odg": {
-    "other": "ODF Drawing"
+    "other": "Dessin ODF"
   },
   "ext.odp": {
-    "other": "ODF Presentation"
+    "other": "Présentation ODF"
   },
   "ext.ods": {
-    "other": "ODF Spreadsheet"
+    "other": "Tableur ODF"
   },
   "ext.odt": {
-    "other": "ODF Text Document"
+    "other": "Document Texte ODF"
   },
   "ext.ppt": {
     "other": "Microsoft PowerPoint 97/2000/XP/2003"
@@ -48,7 +48,7 @@
     "other": "Microsoft PowerPoint 2007/2010/2013 XML"
   },
   "ext.rtf": {
-    "other": "Rich Text"
+    "other": "Texte Riche"
   },
   "ext.xls": {
     "other": "Microsoft Excel 97/2000/XP/2003"

@@ -318,7 +318,7 @@
     "other": "Preferências do usuário"
   },
   "196": {
-    "other": "Seu idioma difere do idioma atual!\\n Você quer atualizar a página para mudar o idioma??"
+    "other": "Seu idioma difere do idioma atual!\\n Você quer atualizar a página para mudar o idioma?"
   },
   "197": {
     "other": "Sua nova senha só valerá após desconectar-se da sessão atual."
@@ -369,7 +369,7 @@
     "other": "Script PHP"
   },
   "210": {
-    "other": "o envio falhou"
+    "other": "O envio falhou"
   },
   "211": {
     "other": "O tamanho do arquivo é muito grande!"
@@ -471,7 +471,7 @@
     "other": "Senha incorreta!"
   },
   "241": {
-    "other": "Suas preferências foram salvas com sucesso"
+    "other": "Suas preferências foram salvas com sucesso."
   },
   "242": {
     "other": "Log Svn"
@@ -666,7 +666,7 @@
     "other": "Tipo"
   },
   "30": {
-    "other": "Informe um nome para o diretório e clique em \u0026quot;Criar\u0026quot;"
+    "other": "Informe um nome para o diretório e clique em &quot;Criar&quot;"
   },
   "300": {
     "other": "Criar um novo repo."
@@ -1020,16 +1020,16 @@
     "other": "Digite sua senha se é a primeira vez que você está ativando compartilhamentos WebDAV, ou se você quiser re-digite uma nova senha:"
   },
   "408": {
-    "other": "Compartilhamentos WebDav ativados com sucesso"
+    "other": "Compartilhamentos WebDAV ativados com sucesso"
   },
   "409": {
-    "other": "Compartilhamentos WebDav desativados com sucesso"
+    "other": "Compartilhamentos WebDAV desativados com sucesso"
   },
   "41": {
     "other": "foi renomeado para"
   },
   "410": {
-    "other": "Senha WebDav atualizada com sucesso"
+    "other": "Senha WebDAV atualizada com sucesso"
   },
   "411": {
     "other": "Abrir"
@@ -1353,7 +1353,7 @@
     "other": "Bem-vindo a %s"
   },
   "508": {
-    "other": "Acabei de criar uma conta para você em %s. Para conectar-se, favor clicar no seguinte link %link e usar essas credenciais: \u003cbr\u003e\u003cbr\u003e Usuário: %user \u003cbr\u003e\u003cbr\u003e Senha: %pass"
+    "other": "Acabei de criar uma conta para você em %s. Para conectar-se, favor clicar no seguinte link %link e usar essas credenciais: <br><br> Usuário: %user <br><br> Senha: %pass"
   },
   "509": {
     "other": "Salve como uma equipe"
@@ -1386,7 +1386,7 @@
     "other": "recolher"
   },
   "518": {
-    "other": "Alternativamente, você pode \u003ca class='create_file_alt_link'\u003ecriar um novo arquivo vazio\u003c/a\u003e."
+    "other": "Alternativamente, você pode <a class='create_file_alt_link'>criar um novo arquivo vazio</a>."
   },
   "519": {
     "other": "Atualizar usuário"
@@ -2025,7 +2025,7 @@
     "other": "Methods for gathering identification credentials (web form, api key, etc)"
   },
   "plugtype.desc.boot": {
-    "other": "Unique plugin for loading the framework."
+    "other": "Unique plugin for loading the framework"
   },
   "plugtype.desc.cache": {
     "other": "Unique plugin to set up the cache server used by the application"
@@ -2043,7 +2043,7 @@
     "other": "Implementations for storing data events (only SQL yet)"
   },
   "plugtype.desc.gui": {
-    "other": "Main web interface and its declinations"
+    "other": "Main web interface, themes and extensions"
   },
   "plugtype.desc.helper": {
     "other": "Helpers tools for administrative tasks"
@@ -2058,7 +2058,7 @@
     "other": "Tools for letting the application send emails"
   },
   "plugtype.desc.meta": {
-    "other": "Additionnal features to be added to the workspaces"
+    "other": "Additional features to be added to the workspaces"
   },
   "plugtype.desc.metastore": {
     "other": "Various implementations for storing metadata along with files and folders"
@@ -2073,7 +2073,7 @@
     "other": "Webservices bridges for shortening public links"
   },
   "plugtype.desc.uploader": {
-    "other": "Implementation of uploaders using various technologies (html, js, java...)"
+    "other": "Uploaders based on various technologies like HTML, Javascript, Java and others"
   },
   "plugtype.title.access": {
     "other": "Controlador de Áreas de Trabalhos"
@@ -2171,7 +2171,7 @@
   "view_access_key": {
     "other": "V"
   },
-  "public_link_user" : {
+  "public_link_user": {
     "other": "Public access"
   }
 }

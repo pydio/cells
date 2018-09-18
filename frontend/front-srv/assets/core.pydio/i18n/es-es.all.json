@@ -15,7 +15,7 @@
     "other": "¡La carpeta de origen y destino son las misma!"
   },
   "102": {
-    "other": "Error al crear el archivo: "
+    "other": "Error al crear el archivo:"
   },
   "103": {
     "other": "Imposible encontrar la carpeta "
@@ -45,7 +45,7 @@
     "other": "Añadir comentario"
   },
   "111": {
-    "other": "Ha sido enviado el correo siguiente: "
+    "other": "Ha sido enviado el correo siguiente:"
   },
   "112": {
     "other": "Error al enviar el correo: "
@@ -78,7 +78,7 @@
     "other": "¡No puedes borrar todo el árbol!"
   },
   "121": {
-    "other": "Archivo de Imágen "
+    "other": "Archivo de Imagen "
   },
   "122": {
     "other": "Papelera"
@@ -126,7 +126,7 @@
     "other": "Dimensiones"
   },
   "136": {
-    "other": "Ver Imágen Mayor"
+    "other": "Ver Imagen Mayor"
   },
   "138": {
     "other": "Última Modificación"
@@ -231,7 +231,7 @@
     "other": "Acceder a APPLICATION_TITLE"
   },
   "169": {
-    "other": "Desconectar de "
+    "other": "Desconectar de APPLICATION_TITLE"
   },
   "17": {
     "other": "Archivo REAL"
@@ -288,7 +288,7 @@
     "other": "Parar la búsqueda"
   },
   "186": {
-    "other": "Previsualización de Imágen"
+    "other": "Previsualización de Imagen"
   },
   "187": {
     "other": "Edición en línea - "
@@ -321,7 +321,7 @@
     "other": "¡Tu idioma difiere del idioma actual!\\n ¿Quieres recargar la página para cambiar el idioma?"
   },
   "197": {
-    "other": "¡Preferencias de usuario correctamente modificadas! \\n\\nSi has cambiado tu contraseña, tendrá efecto tras la desconexión"
+    "other": "¡Preferencias de usuario correctamente modificadas! \\n\\nSi has cambiado tu contraseña, tendrá efecto tras la desconexión."
   },
   "198": {
     "other": "Nuevo"
@@ -471,7 +471,7 @@
     "other": "¡Contraseña incorrecta!"
   },
   "241": {
-    "other": "Se han guardado tus preferencias"
+    "other": "Se han guardado tus preferencias!"
   },
   "242": {
     "other": "Registro SVN"
@@ -525,10 +525,10 @@
     "other": "Eliminar"
   },
   "258": {
-    "other": "Número de archivos: "
+    "other": "Número de archivos:"
   },
   "259": {
-    "other": "Tamaño combinado: "
+    "other": "Tamaño combinado:"
   },
   "26": {
     "other": "Crear nueva carpeta en: "
@@ -615,7 +615,7 @@
     "other": "Número de archivos"
   },
   "285": {
-    "other": "No se encuentra ese usuario. Inténtalo de nuevo.\\n Comprueba que las mayúsculas no estén activadas"
+    "other": "No se encuentra ese usuario. Inténtalo de nuevo.\\n Comprueba que las mayúsculas no estén activadas!"
   },
   "286": {
     "other": "Este usuario está caducado en la versión actual, utiliza el procedimiento de actualización."
@@ -645,10 +645,10 @@
     "other": "Crear un enlace público a este archivo"
   },
   "294": {
-    "other": "Tiempo de caducidad del enlace (en días)"
+    "other": "Tiempo de caducidad del enlace (en días) y contraseña (es posible dejarlo en blanco)."
   },
   "295": {
-    "other": "Contraseña (es posible dejarlo en blanco)"
+    "other": "Expiración"
   },
   "296": {
     "other": "Copia la dirección que aparece debajo:"
@@ -666,7 +666,7 @@
     "other": "Tipo"
   },
   "30": {
-    "other": "Escribe un nombre para la carpeta y después haz click en \u0026quot;Crear\u0026quot;"
+    "other": "Escribe un nombre para la carpeta y después haz click en &quot;Crear&quot;"
   },
   "300": {
     "other": "Crea un nuevo repositorio"
@@ -735,7 +735,7 @@
     "other": "Explorar"
   },
   "320": {
-    "other": "editor visual para archivos HTML"
+    "other": "Editor visual para archivos HTML"
   },
   "321": {
     "other": "Selecciona"
@@ -810,7 +810,7 @@
     "other": "Información de carpeta"
   },
   "343": {
-    "other": "Información de imágen"
+    "other": "Información de imagen"
   },
   "344": {
     "other": "Buscar en"
@@ -858,7 +858,7 @@
     "other": "Repositorio de Destino"
   },
   "358": {
-    "other": "Elige un nombre para el elemento compartido y asigna permisos de acceso a tu usuario"
+    "other": "Elige un nombre para el elemento compartido."
   },
   "359": {
     "other": "Etiqueta"
@@ -1020,16 +1020,16 @@
     "other": "Ingrese su contraseña si es la primera vez que activa compartir con webDAV, o si quiere tipear una nueva contraseña:"
   },
   "408": {
-    "other": "Se ha activado exitosamente compartir con WebDav, ¡recuerde actualizar su contraseña si esta es su primera vez!"
+    "other": "Se ha activado exitosamente compartir con WebDAV, ¡recuerde actualizar su contraseña si esta es su primera vez!"
   },
   "409": {
-    "other": "Se ha desactivado exitosamente compartir con WebDav"
+    "other": "Se ha desactivado exitosamente compartir con WebDAV"
   },
   "41": {
     "other": "ha sido renombrado a"
   },
   "410": {
-    "other": "Se ha actualizado con éxito la contraseña webDav"
+    "other": "Se ha actualizado con éxito la contraseña webDAV"
   },
   "411": {
     "other": "Abrir"
@@ -1308,7 +1308,7 @@
     "other": "Ayer"
   },
   "495": {
-    "other": "La útima semana"
+    "other": "La última semana"
   },
   "496": {
     "other": "El último mes"
@@ -1353,7 +1353,7 @@
     "other": "Bienvenido a %s"
   },
   "508": {
-    "other": "Acabo de crear una cuenta para usted en %s. Para conectar, por favor haga click en el siguiente enlace %link y use estas credenciales:  \u003cbr\u003e\u003cbr\u003e Usuario: %user \u003cbr\u003e\u003cbr\u003e Contraseña: %pass"
+    "other": "Acabo de crear una cuenta para usted en %s. Para conectar, por favor haga click en el siguiente enlace %link y use estas credenciales:  <br><br> Usuario: %user <br><br> Contraseña: %pass"
   },
   "509": {
     "other": "Guardar la lista actual de usuarios como un equipo personal"
@@ -1386,7 +1386,7 @@
     "other": "colapsar"
   },
   "518": {
-    "other": "De manera alternativa, puede \u003ca class='create_file_alt_link'\u003ecrear un nuevo archivo vacío\u003c/a\u003e."
+    "other": "De manera alternativa, puede <a class='create_file_alt_link'>crear un nuevo archivo vacío</a>."
   },
   "519": {
     "other": "Actualizar usuario"
@@ -1497,7 +1497,7 @@
     "other": "Rechazar"
   },
   "552": {
-    "other": "Por favor introduzca la contraseña"
+    "other": "Por favor introduzca la contraseña."
   },
   "553": {
     "other": "Contraseña incorrecta, por favor prueba de nuevo. \\n ¡Comprueba que no este activo el bloqueo de mayúsculas!"
@@ -1605,7 +1605,7 @@
     "other": "Sin Usuarios Externos"
   },
   "586": {
-    "other": "Cree sus propios usuarios y comparta archivos y carpetas desde sus workspaces"
+    "other": "Cree sus propios usuarios y comparta archivos y carpetas desde sus workspaces."
   },
   "587": {
     "other": "Sin resultados"
@@ -1662,7 +1662,7 @@
     "other": "Has compartido una cell"
   },
   "602": {
-    "other": "Has compartido %2 cells"
+    "other": "Has compartido %1 cells"
   },
   "603": {
     "other": "Equipo"
@@ -1908,7 +1908,7 @@
     "other": "Conectar"
   },
   "95": {
-    "other": "Escoge tu idioma: "
+    "other": "Escoge tu idioma:"
   },
   "96": {
     "other": "Escoge la carpeta de destino en el árbol de carpetas: "
@@ -1956,7 +1956,7 @@
     "other": "hace %s días"
   },
   "date_relative_days_ahead": {
-    "other": "en %s díass"
+    "other": "en %s días"
   },
   "date_relative_time": {
     "other": "TIME"
@@ -2171,7 +2171,7 @@
   "view_access_key": {
     "other": "V"
   },
-  "public_link_user" : {
+  "public_link_user": {
     "other": "Public access"
   }
 }

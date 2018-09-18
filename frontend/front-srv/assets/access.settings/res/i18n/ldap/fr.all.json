@@ -1,24 +1,24 @@
 {
   "1": {
-    "other": "Directory"
+    "other": "Annuaire"
   },
   "10": {
-    "other": "Specify one or many DNs and ldap filters to retrieve the users list from the external directory"
+    "other": "Spécifier un ou plusieurs DNs et filtres Ldap pour extraire les utilisateurs de l'annuaire externe"
   },
   "11": {
-    "other": "+ Add DN"
+    "other": "+ Ajouter DN"
   },
   "12": {
-    "other": "Connection Type"
+    "other": "Type de connexion"
   },
   "13": {
-    "other": "Required parameters to connect to your external directory (ldap)"
+    "other": "Paramètres requis pour la connexion à l'annuaire Ldap"
   },
   "14": {
-    "other": "Connection"
+    "other": "Connexion"
   },
   "15": {
-    "other": "Not Secure"
+    "other": "Non sécurisée"
   },
   "16": {
     "other": "SSL"
@@ -27,96 +27,96 @@
     "other": "StartTLS"
   },
   "18": {
-    "other": "Binding DN"
+    "other": "Liaison DN"
   },
   "19": {
-    "other": "Binding Password"
+    "other": "Mot de passe"
   },
   "2": {
     "other": "Options Générales"
   },
   "20": {
-    "other": "Skip certificate verification (not recommended)"
+    "other": "Ignorer la vérification du certificat (non recommandé)"
   },
   "21": {
-    "other": "Root Certificate Path"
+    "other": "Chemin d'accès du certificat racine"
   },
   "22": {
-    "other": "Root Certificate Data"
+    "other": "Données du certificat racine"
   },
   "23": {
-    "other": "Page size"
+    "other": "Taille de la page"
   },
   "24": {
-    "other": "Left Attribute"
+    "other": "Attribut de gauche"
   },
   "25": {
-    "other": "Rule String"
+    "other": "Règle"
   },
   "26": {
-    "other": "Right Attribute"
+    "other": "Attribut de droite"
   },
   "27": {
-    "other": "+ Add rule"
+    "other": "+ Ajouter une règle"
   },
   "28": {
-    "other": "Define here one or more DNs and filters to retrieve group information from your directory"
+    "other": "Définir un ou plusieurs DNs et des filtres pour extraire les groupes de votre annuaire Ldap"
   },
   "29": {
-    "other": "Mapping"
+    "other": "Mapping (correspondance des champs)"
   },
   "3": {
-    "other": "Server Connection"
+    "other": "Connexion au serveur"
   },
   "30": {
-    "other": "Define one or more mappings to import automatically users capabilities from the directory to Pydio. Left attributes are ldap attributes that may be attached to the retrieved object. Right attributes can be either a Pydio user attribute, his/her group path or a Pydio role. Rule string may add an additional filtering to the ldap attribute before mapping."
+    "other": "Définir un ou plusieurs mappings pour importer automatiquement les permissions des utilisateurs depuis l'annuaire dans Pydio. Les attributs de gauche correspondent aux attributs LDAP attachés aux objets. Les attributs de droite peuvent être un attribut utilisateur dans Pydio, son groupe ou un rôle. La règle permet d'ajouter un niveau supplémentaire de filtrage avant le mapping."
   },
   "31": {
-    "other": "Specify how the attribute value will be mapped to Pydio groups or roles."
+    "other": "Spécifier comment les correspondances des champs sont effectuées avec les groupes / roles Pydio."
   },
   "32": {
-    "other": "Define here one or more DNs and filters to retrieve group information from your directory"
+    "other": "Définir un ou plusieurs DNs et des filtres pour extraire les groupes de votre annuaire Ldap"
   },
   "33": {
-    "other": "Display Attribute"
+    "other": "Attribut d'affichage"
   },
   "34": {
-    "other": "Choose between the native memberOf feature and a fake memberOf support. In the latter case, groups will be automatically\n    recomputed by Pydio."
+    "other": "Choisir entre la fonctionnalité memberOf native ou le support d'un memberOf simulé. Dans le dernier cas, les groupes seront recalculés automatiquement par Pydio."
   },
   "35": {
-    "other": "MemberOf Attribute"
+    "other": "Attribut MemberOf"
   },
   "36": {
-    "other": "MemberOf Format"
+    "other": "Format du MemberOf"
   },
   "37": {
-    "other": "Fake Member Of Attribute"
+    "other": "MemberOf Simulé"
   },
   "38": {
-    "other": "Attribute Value Format"
+    "other": "Format de la valeur"
   },
   "39": {
-    "other": "MemberOf Mapping"
+    "other": "Mapping MemberOf"
   },
   "4": {
-    "other": "Users Filter"
+    "other": "Filtre d'utilisateurs"
   },
   "40": {
-    "other": "MemberOf mapping is a specific mapping to retrieve directory information from 'memberof' or a similar attribute and map this to Pydio groups or roles concept. It can use the native memberOf feature of AD/LDAP or use another attribute to emulate this feature if it is not supported by your directory."
+    "other": "Le mapping MemberOf est un mapping spécifique permettant l'extraction de l'attribut 'memberof' ou similaire et d'associer cette valeur à des groupes ou des rôles Pydio. Vous pouvez utiliser l'attribut natif memberOf de AD/LDAP ou utiliser un autre attribut pour le simuler s'il n'est pas supporté."
   },
   "5": {
-    "other": "Simple Mappings"
+    "other": "Mappings simples"
   },
   "6": {
-    "other": "MemberOf Mapping"
+    "other": "Mapping MemberOf"
   },
   "7": {
-    "other": "Filter"
+    "other": "Filtre"
   },
   "8": {
-    "other": "Id Attribute Name"
+    "other": "Nom de l'attribut pour l'ID"
   },
   "9": {
-    "other": "User Filtering"
+    "other": "Filtrage des utilisateurs"
   }
 }

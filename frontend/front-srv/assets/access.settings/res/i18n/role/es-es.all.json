@@ -36,7 +36,7 @@
     "other": "Añadir acción"
   },
   "16": {
-    "other": "Use los selectores de abajo para seleccionar los parámetros que quiere ajustar para los usuarios de este rol. Pueden ser aplicados a todos los workspaces o sólo a uno, depdende del contexto del plugin."
+    "other": "Use los selectores de abajo para seleccionar los parámetros que quiere ajustar para los usuarios de este rol. Pueden ser aplicados a todos los workspaces o sólo a uno, depende del contexto del plugin."
   },
   "17": {
     "other": "Nombre del Parámetro"

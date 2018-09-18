@@ -78,19 +78,19 @@
     "other": "Paramètres"
   },
   "25": {
-    "other": "Arrêter  le jobs"
+    "other": "Arrêter le jobs"
   },
   "26": {
     "other": "Arrêter les jobs en cours"
   },
   "27": {
-    "other": "Plannifié"
+    "other": "Planifié"
   },
   "28": {
     "other": "Tâche ajoutée/éditée"
   },
   "29": {
-    "other": "Cette tâche a actuellement des occurences en cours, veuillez patienter."
+    "other": "Cette tâche a actuellement des occurrences en cours, veuillez patienter"
   },
   "2d": {
     "other": "Expression de type Crontab au format suivant : minutes heures jours joursDeSemaine mois. Vous pouvez utiliser des jokers (*), des pas (,) et des intervalles (-)."
@@ -123,13 +123,13 @@
     "other": "Démarré le "
   },
   "4": {
-    "other": "ID du dépôt"
+    "other": "ID du workspace"
   },
   "4d": {
-    "other": "Id du dépôt cible"
+    "other": "Id du workspace cible"
   },
   "4s": {
-    "other": "Dépôt"
+    "other": "Workspace"
   },
   "5": {
     "other": "Paramètres"

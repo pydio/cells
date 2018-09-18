@@ -159,10 +159,10 @@
     "other": "Parameter verstecken"
   },
   "143": {
-    "other": "Benutze \u003ckbd\u003eCtrl\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e um den Link zu Kopieren"
+    "other": "Benutze <kbd>Ctrl</kbd>+<kbd>C</kbd> um den Link zu Kopieren"
   },
   "144": {
-    "other": "Benutze \u003ckbd\u003e\u0026#8984;\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e um den Link zu Kopieren"
+    "other": "Benutze <kbd>&#8984;</kbd>+<kbd>C</kbd> um den Link zu Kopieren"
   },
   "145": {
     "other": "Beschreibung"
@@ -222,7 +222,7 @@
     "other": "Veralteter Link"
   },
   "162": {
-    "other": "Sie besitzen ein oder mehrere veralteter Links auf diese Datei. Bitte ersetzen Sie diesen mit einem neuen Link durch Löschen und Neuerstellung der Freigabe. Kopiere das Freigabe-Kürzel (der letzte Bestandteil der URL, z.B. https://.../data/public/\u003cem style='color:red;'\u003e206a51\u003c/em\u003e.php) und nutze ihn als neues Kürzel beim Erstellen um sicherzugehen, dass der Link auch nach der Migration noch gültig ist."
+    "other": "Sie besitzen ein oder mehrere veralteter Links auf diese Datei. Bitte ersetzen Sie diesen mit einem neuen Link durch Löschen und Neuerstellung der Freigabe. Kopiere das Freigabe-Kürzel (der letzte Bestandteil der URL, z.B. https://.../data/public/<em style='color:red;'>206a51</em>.php) und nutze ihn als neues Kürzel beim Erstellen um sicherzugehen, dass der Link auch nach der Migration noch gültig ist."
   },
   "163": {
     "other": "Drag'n'Drop (Für öffentliche Links mit aktivierten Upload)"
@@ -345,7 +345,7 @@
     "other": "Sichtbarkeit der Freigabe"
   },
   "2": {
-    "other": "Klicken Sie auf das Bild, um \u003cb\u003e%s\u003c/b\u003e auf Ihre Festplatte zu speichern"
+    "other": "Klicken Sie auf das Bild, um <b>%s</b> auf Ihre Festplatte zu speichern"
   },
   "20": {
     "other": "Ooops, die gesuchte Datei konnte nicht gefunden werden! Möglicherweise wurde die Datei bereits entfernt oder ist nicht mehr freigegeben."
@@ -372,7 +372,7 @@
     "other": "Ändern auf ... (Kennung)"
   },
   "206": {
-    "other": "Freigaben sind standardmäßig privat. Durch aktivieren dieser Checkbox kann die Freigabe auch duch Benutzer mit Zugriff auf diese Arbeitsumgebung eingesehen und geändert werden."
+    "other": "Freigaben sind standardmäßig privat. Durch aktivieren dieser Checkbox kann die Freigabe auch durch Benutzer mit Zugriff auf diese Arbeitsumgebung eingesehen und geändert werden."
   },
   "207": {
     "other": "Benutzer eines Remote-Systems"
@@ -420,13 +420,13 @@
     "other": "Abgelaufen am"
   },
   "22": {
-    "other": "Erlaubte Downloads: "
+    "other": "Erlaubte Downloads"
   },
   "220": {
     "other": "Sie dürfen keine Benutzer erstellen"
   },
   "221": {
-    "other": "Sie dürfen Freigaben nur für die eigenen externen Benutzer erstellen."
+    "other": "Sie dürfen Freigaben nur für die eigenen externen Benutzer erstellen"
   },
   "222": {
     "other": "Der Benutzer %s existiert bereits. Bitte wählen Sie einen anderen Benutzernamen."
@@ -456,7 +456,7 @@
     "other": "Keine Downloads mehr"
   },
   "23": {
-    "other": "Passwort: "
+    "other": "Passwort"
   },
   "230": {
     "other": "Bitte speichern Sie die Änderungen vor dem Senden einer Einladung"
@@ -486,7 +486,7 @@
     "other": "Art der Freigabe"
   },
   "24": {
-    "other": "Den Direktzugriff auf die Freigabe einschränken"
+    "other": "Den Direktzugriff auf die Freigabe einschränken."
   },
   "240": {
     "other": "Gruppieren..."
@@ -639,7 +639,7 @@
     "other": "Freigabe"
   },
   "3": {
-    "other": "falsches Passwort"
+    "other": "Falsches Passwort"
   },
   "30": {
     "other": "Benutzerzugang"
@@ -672,7 +672,7 @@
     "other": "Beobachte die Datei-Aktivität"
   },
   "4": {
-    "other": "Geben Sie das erforderliche Passwort ein und klicken Sie auf das Bild um \u003cb\u003e%s\u003c/b\u003e auf Ihre Festplatte zu speichern"
+    "other": "Geben Sie das erforderliche Passwort ein und klicken Sie auf das Bild um <b>%s</b> auf Ihre Festplatte zu speichern"
   },
   "40": {
     "other": "Einladungen"
@@ -702,7 +702,7 @@
     "other": "Vorschau von %s1 öffnen"
   },
   "47": {
-    "other": "Beobachtungsstatus erfolgreich geändert "
+    "other": "Beobachtungsstatus erfolgreich geändert"
   },
   "48": {
     "other": "Sie sind nicht berechtigt auf diese Daten zuzugreifen."
