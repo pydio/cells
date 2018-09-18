@@ -56,7 +56,6 @@ func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (stat
 		tplConf.ErrorMessage = "Cannot find this link! Please contact the person who sent it to you."
 		return 404, tplConf
 	}
-	log.Logger(ctx).Info("PUBLIC LINK", zap.String("link", linkId), zap.Any("linkData", linkData))
 
 	// Check expiration time
 	if linkData.ExpireTime > 0 && time.Now().After(time.Unix(linkData.ExpireTime, 0)) {
@@ -131,100 +130,6 @@ func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (stat
 func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	link := mux.Vars(r)["link"]
-
-	/*
-		url := config.Get("defaults", "url").String("")
-		tplConf := &TplConf{
-			ApplicationTitle: "Pydio",
-			Rebase:           url,
-			ResourcesFolder:  "plug/gui.ajax/res",
-			Theme:            "material",
-			Version:          common.Version().String(),
-			Debug:            config.Get("frontend", "debug").Bool(false),
-		}
-
-		// Load link data
-		linkData, e := h.loadLink(r.Context(), link)
-		if e != nil {
-			w.WriteHeader(404)
-			tplConf.ErrorMessage = "Cannot find this link! Please contact the person who sent it to you."
-			h.error.Execute(w, tplConf)
-			return
-		}
-		log.Logger(r.Context()).Info("PUBLIC LINK", zap.String("link", link), zap.Any("linkData", linkData))
-
-		// Check expiration time
-		if linkData.ExpireTime > 0 && time.Now().After(time.Unix(linkData.ExpireTime, 0)) {
-			w.WriteHeader(404)
-			tplConf.ErrorMessage = "This link has expired. Please contact the person who sent it to you."
-			h.error.Execute(w, tplConf)
-			return
-		}
-
-		// Check number of downloads
-		if linkData.DownloadLimit > 0 && linkData.DownloadCount >= linkData.DownloadLimit {
-			w.WriteHeader(404)
-			tplConf.ErrorMessage = "This link has expired (number of maximum downloads has been reached)."
-			h.error.Execute(w, tplConf)
-			return
-		}
-
-		cl := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
-		q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
-			Uuid: linkData.RepositoryId,
-		})
-		s, e := cl.SearchWorkspace(r.Context(), &idm.SearchWorkspaceRequest{Query: &service.Query{
-			SubQueries: []*any.Any{q},
-		}})
-		if e != nil {
-			w.WriteHeader(500)
-			tplConf.ErrorMessage = "An unexpected error happened while loading this link"
-			log.Logger(r.Context()).Error("Error while loading public link, cannot load workspace", zap.Error(e))
-			h.error.Execute(w, tplConf)
-			return
-		}
-		defer s.Close()
-		var wsExists bool
-		for {
-			r, er := s.Recv()
-			if er != nil {
-				break
-			}
-			if r != nil {
-				wsExists = true
-				break
-			}
-		}
-		if !wsExists {
-			w.WriteHeader(404)
-			tplConf.ErrorMessage = "Error while loading link, the original data may have been deleted!"
-			h.error.Execute(w, tplConf)
-			return
-		}
-
-		pool, e := frontend.GetPluginsPool()
-		if e != nil {
-			w.WriteHeader(500)
-			tplConf.ErrorMessage = "Internal server error"
-			h.error.Execute(w, tplConf)
-			return
-		}
-		startParameters := map[string]interface{}{
-			"BOOTER_URL":          "/frontend/bootconf",
-			"MAIN_ELEMENT":        linkData.TemplateName,
-			"REBASE":              url,
-			"PRELOADED_BOOT_CONF": frontend.ComputeBootConf(pool),
-			"MINISITE":            link,
-			"START_REPOSITORY":    linkData.RepositoryId,
-		}
-		if linkData.PreLogUser != "" {
-			startParameters["PRELOG_USER"] = linkData.PreLogUser
-		} else if linkData.PresetLogin != "" {
-			startParameters["PRESET_LOGIN"] = linkData.PresetLogin
-			startParameters["PASSWORD_AUTH_ONLY"] = true
-		}
-		tplConf.StartParameters = startParameters
-	*/
 	status, tplConf := h.computeTplConf(r.Context(), link)
 	if status != 200 {
 		w.WriteHeader(status)
