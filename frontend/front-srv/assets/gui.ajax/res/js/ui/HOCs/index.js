@@ -64,7 +64,7 @@ const PydioHOCs = {
     withVerticalScroll,
     dropProvider,
     NativeFileDropProvider,
-    Animations,
+    ...Animations,
     PaletteModifier,
     URLProvider,
     SizeProviders,

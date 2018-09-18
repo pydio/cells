@@ -38,7 +38,7 @@ export const withSelectionControls = () => {
 
                     if (!selection || selection.length() == 0) {
                         return (
-                            <Component />
+                            <Component {...remaining} />
                         )
                     }
 

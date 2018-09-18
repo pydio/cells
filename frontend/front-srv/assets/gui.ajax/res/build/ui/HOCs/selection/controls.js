@@ -60,7 +60,7 @@ var withSelectionControls = function withSelectionControls() {
                 var selection = tab.selection;
 
                 if (!selection || selection.length() == 0) {
-                    return React.createElement(Component, null);
+                    return React.createElement(Component, remaining);
                 }
 
                 var fn = _utils2.handler("onSelectionChange", this.props);

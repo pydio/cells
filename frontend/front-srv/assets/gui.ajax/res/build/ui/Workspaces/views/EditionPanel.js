@@ -123,25 +123,6 @@ var EditionPanel = (function (_React$Component) {
 
     EditionPanel.prototype._handleNodeRemoved = function _handleNodeRemoved(index) {};
 
-    /*componentDidMount() {
-        const {editorData, registry} = this.props
-         registry.loadEditorResources(
-            editorData.resourcesManager,
-            () => this.setState({ready: true})
-        );
-    }
-     render() {
-        const {editorData} = this.props
-        const {ready} = this.state
-         if (!ready) return null
-         let EditorClass = null
-        if (!(EditorClass = FuncUtils.getFunctionByName(editorData.editorClass, window))) {
-            return <div>{"Cannot find editor component (" + editorData.editorClass + ")!"}</div>
-        }
-         // Getting HOC of the class
-        return <EditorClass.Editor {...this.props} />
-    }*/
-
     EditionPanel.prototype.render = function render() {
         var style = {
             position: "fixed",

@@ -70,13 +70,23 @@ var App = (function (_React$Component) {
 
         this.state = {
             editorMinimised: false,
-            fullBrowserScreen: pydio.UI.MOBILE_EXTENSIONS || false
+            fullBrowserScreen: pydio.UI.MOBILE_EXTENSIONS || true
         };
 
         this.onFullBrowserScreen = function () {
             return _this.setState({ fullBrowserScreen: !_this.state.fullBrowserScreen });
         };
     }
+
+    /*const Animation = (props) => {
+        return (
+            <div {...props} />
+        );
+    };
+    
+    const AnimationGroup = makeEditorOpen(Animation)*/
+
+    // REDUX - Then connect the redux store
 
     App.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
         var editorModify = nextProps.editorModify;
@@ -154,25 +164,14 @@ var App = (function (_React$Component) {
             'div',
             null,
             display ? React.createElement('div', { style: overlayStyle }) : null,
-            React.createElement(
-                AnimationGroup,
-                null,
-                display ? React.createElement(_componentsEditor.Editor, { style: editorStyle, onFullBrowserScreen: this.onFullBrowserScreen.bind(this), onMinimise: this.onEditorMinimise.bind(this) }) : null,
-                display ? React.createElement(_componentsMenu.Menu, { style: menuStyle }) : null
-            )
+            display ? React.createElement(_componentsEditor.Editor, { style: editorStyle, onFullBrowserScreen: this.onFullBrowserScreen.bind(this), onMinimise: this.onEditorMinimise.bind(this) }) : null,
+            display ? React.createElement(_componentsMenu.Menu, { style: menuStyle }) : null
         );
     };
 
     return App;
 })(React.Component);
 
-var Animation = function Animation(props) {
-    return React.createElement('div', props);
-};
-
-var AnimationGroup = _makeEditorOpen2['default'](Animation);
-
-// REDUX - Then connect the redux store
 function mapStateToProps(state, ownProps) {
     var editor = state.editor;
     var tabs = state.tabs;

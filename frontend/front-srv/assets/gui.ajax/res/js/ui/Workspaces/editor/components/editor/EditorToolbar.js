@@ -21,9 +21,11 @@
 const {ModalAppBar} = PydioComponents
 const {ToolbarGroup, IconButton} = require('material-ui');
 
-const { withResolutionControls } = Pydio.requireLib('hoc');
+const { makeTransitionHOC, withResolutionControls } = Pydio.requireLib('hoc');
 
 // Display components
+// TODO - should be two motions for appearing and disappearing, based on a condition in the props
+@makeTransitionHOC({translateY: -60, opacity: 0}, {translateY: 0, opacity: 1})
 class EditorToolbar extends React.Component {
 
     render() {

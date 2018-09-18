@@ -35,3 +35,7 @@ exports.makeTransition = _interopRequire(_makeTransition);
 var _makeStaggered = require('./make-staggered');
 
 exports.makeStaggered = _interopRequire(_makeStaggered);
+
+var _makeTransitionHoc = require('./make-transition-hoc');
+
+exports.makeTransitionHOC = _interopRequire(_makeTransitionHoc);

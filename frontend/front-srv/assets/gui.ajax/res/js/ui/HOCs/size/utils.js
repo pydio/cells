@@ -19,7 +19,6 @@
  */
 
 export const mapStateToProps = (state, props) => {
-    console.log(state, props)
     const {editor, tabs} = state
 
     const tab = tabs.reduce((current, tab) => tab.id === editor.activeTabId ? tab : current, {})

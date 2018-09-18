@@ -69,6 +69,8 @@ var MAX_ITEMS = 4;
 
 var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
 
+var makeTransitionHOC = _Pydio$requireLib2.makeTransitionHOC;
+var withMouseTracker = _Pydio$requireLib2.withMouseTracker;
 var withSelectionControls = _Pydio$requireLib2.withSelectionControls;
 var withContainerSize = _Pydio$requireLib2.withContainerSize;
 
@@ -236,7 +238,8 @@ var Editor = (function (_React$Component) {
         var style = _props2.style;
         var activeTab = _props2.activeTab;
         var isActive = _props2.isActive;
-        var displayToolbar = _props2.displayToolbar;
+        var hideToolbar = _props2.hideToolbar;
+        var hideSelectionControls = _props2.hideSelectionControls;
         var prevSelectionDisabled = _props2.prevSelectionDisabled;
         var nextSelectionDisabled = _props2.nextSelectionDisabled;
         var onSelectPrev = _props2.onSelectPrev;
@@ -272,15 +275,15 @@ var Editor = (function (_React$Component) {
                 { ref: function (container) {
                         return _this2.container = ReactDOM.findDOMNode(container);
                     }, onMinimise: this.props.onMinimise, minimised: !isActive, zDepth: 5, style: { display: "flex", flexDirection: "column", overflow: "hidden", width: "100%", height: "100%", transformOrigin: style.transformOrigin } },
-                displayToolbar && React.createElement(_EditorToolbar2['default'], { style: { flexShrink: 0 }, title: title, onClose: onClose, onFullScreen: function () {
+                !hideToolbar && React.createElement(_EditorToolbar2['default'], { style: { position: "absolute", top: 0, left: 0, right: 0, flexShrink: 0 }, title: title, onClose: onClose, onFullScreen: function () {
                         return _this2.enterFullScreen();
                     }, onMinimise: onMinimise }),
                 React.createElement(
                     'div',
                     { className: 'body', style: parentStyle },
-                    this.renderChild()
+                    this.props.transitionEnded && this.renderChild()
                 ),
-                onSelectPrev && React.createElement(_EditorButton2['default'], {
+                !hideSelectionControls && onSelectPrev && React.createElement(_EditorButton2['default'], {
                     iconClassName: 'mdi mdi-chevron-left',
                     style: styles.selectionButtonLeft,
                     iconStyle: styles.iconSelectionButton,
@@ -289,7 +292,7 @@ var Editor = (function (_React$Component) {
                         return onSelectPrev();
                     }
                 }),
-                onSelectNext && React.createElement(_EditorButton2['default'], {
+                !hideSelectionControls && onSelectNext && React.createElement(_EditorButton2['default'], {
                     iconClassName: 'mdi mdi-chevron-right',
                     style: styles.selectionButtonRight,
                     iconStyle: styles.iconSelectionButton,
@@ -305,6 +308,8 @@ var Editor = (function (_React$Component) {
     var _Editor = Editor;
     Editor = _reactRedux.connect(mapStateToProps, EditorActions)(Editor) || Editor;
     Editor = withSelectionControls()(Editor) || Editor;
+    Editor = withMouseTracker()(Editor) || Editor;
+    Editor = makeTransitionHOC({ translateY: 800 }, { translateY: 0 })(Editor) || Editor;
     return Editor;
 })(React.Component);
 
@@ -325,7 +330,8 @@ function mapStateToProps(state, ownProps) {
 
     return _extends({
         style: {},
-        displayToolbar: !editor.fullscreen
+        hideToolbar: !ownProps.isNearTop,
+        hideSelectionControls: !ownProps.isNearTop && !ownProps.isNearLeft && !ownProps.isNearRight
     }, ownProps, {
         activeTab: activeTab,
         tabs: tabs,
