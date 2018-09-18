@@ -1,6 +1,6 @@
 {
   "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path.": {
-    "other": "Absoluter Pfad zu einem Ordner auf dem Server. Verwenden Sie PYDIO_DATA_PATH als Platzhalter für den Pydio-Daten-Ordner oder PYDIO_INSTALL_PATH für den Installations-Ordner"
+    "other": "Absoluter Pfad zu einem Ordner auf dem Server. Verwenden Sie PYDIO_DATA_PATH als Platzhalter für den Pydio-Daten-Ordner oder PYDIO_INSTALL_PATH für den Installations-Ordner."
   },
   "Create": {
     "other": "Ordner erstellen"
@@ -57,13 +57,13 @@
     "other": "Reale Größe ermitteln"
   },
   "The most standard access to a filesystem located on the server.": {
-    "other": "Zugriff auf das Dateisystem des Servers"
+    "other": "Zugriff auf das Dateisystem des Servers."
   },
   "Use POSIX": {
     "other": "POSIX verwenden"
   },
   "Use php POSIX extension to read files permissions. Only works on *nix systems.": {
-    "other": "Verwenden Sie php-POSIX Erweiterungen um Dateiberechtigungen zu lesen. Funktioniert nur auf *nix-Systemen"
+    "other": "Verwenden Sie php-POSIX Erweiterungen um Dateiberechtigungen zu lesen. Funktioniert nur auf *nix-Systemen."
   },
   "Use system command line to get the filesize instead of php built-in function (fixes the 2Go limitation)": {
     "other": "Verwendet die Systemfunktion zum Ermitteln der Dateigröße statt der integrierten PHP-Funktion (beseitigt das 2GB Limit). "

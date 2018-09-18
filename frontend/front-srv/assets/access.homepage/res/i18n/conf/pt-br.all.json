@@ -2,11 +2,23 @@
   "Android App URL": {
     "other": "URL do APPLICATION_TITLE App para Android"
   },
+  "Display Server QRCode": {
+    "other": "Display Server QRCode"
+  },
   "Enable Getting Started": {
     "other": "Habilitar Primeiros passos"
   },
+  "Enable Global Search": {
+    "other": "Enable Global Search"
+  },
   "Enable addition tabulation to access getting started videos": {
     "other": "Habilitar tabulação adicional para acessar vídeos de primeiros passos"
+  },
+  "Enable cross-workspaces search form on home page": {
+    "other": "Enable cross-workspaces search form on home page"
+  },
+  "Let users connect easily to the latest mobile applications by displaying a QRCode": {
+    "other": "Let users connect easily to the latest mobile applications by displaying a QRCode"
   },
   "Mac PydioSync URL": {
     "other": "URL do APPLICATION_TITLE Sync para Mac"

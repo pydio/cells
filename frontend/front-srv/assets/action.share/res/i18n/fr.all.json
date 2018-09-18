@@ -15,7 +15,7 @@
     "other": "Répertoires partagés"
   },
   "103": {
-    "other": "Tous les répertoires partagés comme dépôts ou minisites."
+    "other": "Tous les répertoires partagés comme workspaces ou minisites."
   },
   "104": {
     "other": "Affichage du premier lien, il y en a %s autres"
@@ -39,7 +39,7 @@
     "other": "Expiration"
   },
   "110": {
-    "other": "Partager.."
+    "other": "Partager"
   },
   "110b": {
     "other": "Partage"
@@ -51,7 +51,7 @@
     "other": "Partager cette page"
   },
   "113": {
-    "other": "En tant que nouveau dépôt"
+    "other": "En tant que nouveau workspace"
   },
   "114": {
     "other": "Partager ce répertoire avec des utilisateurs internes"
@@ -114,19 +114,19 @@
     "other": "Pas de fichiers ou de dossiers partagés pour le moment."
   },
   "132": {
-    "other": "Dépôt"
+    "other": "Workspace"
   },
   "133": {
     "other": "En tant que lien public"
   },
   "134": {
-    "other": "En tant que dépôt"
+    "other": "En tant que workspace"
   },
   "135": {
     "other": "Le répertoire apparaîtra comme un minisite dans le navigateur"
   },
   "136": {
-    "other": "Le contenu du répertoire apparîtra comme un nouveau dépôt pour les utilisateurs de l'application"
+    "other": "Le contenu du répertoire apparaîtra comme un nouveau workspace pour les utilisateurs de l'application"
   },
   "137": {
     "other": "Partager le fichier sélectionné via un lien public"
@@ -138,10 +138,10 @@
     "other": "Vous avez partagé ce dossier via un lien public, mais il est actuellement inactif (expiré)."
   },
   "139": {
-    "other": "Vous avez partagé ce dossier, comme un dépôt, avec des utilisateurs de l'application."
+    "other": "Vous avez partagé ce dossier, comme un workspace, avec des utilisateurs de l'application"
   },
   "139b": {
-    "other": "Vous avez partagé ce dossier comme un dépôt, , mais il est actuellement inactif (expiré)."
+    "other": "Vous avez partagé ce dossier comme un workspace, , mais il est actuellement inactif (expiré)."
   },
   "14": {
     "other": "Non"
@@ -159,10 +159,10 @@
     "other": "Cacher les paramètres"
   },
   "143": {
-    "other": "Utilisez \u003ckbd\u003eCtrl\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e pour copier le lien"
+    "other": "Utilisez <kbd>Ctrl</kbd>+<kbd>C</kbd> pour copier le lien"
   },
   "144": {
-    "other": "Utilisez \u003ckbd\u003e\u0026#8984;\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e pour copier le lien"
+    "other": "Utilisez <kbd>&#8984;</kbd>+<kbd>C</kbd> pour copier le lien"
   },
   "145": {
     "other": "Description"
@@ -174,7 +174,7 @@
     "other": "Sécurité"
   },
   "148": {
-    "other": "(optionel)"
+    "other": "(optionnel)"
   },
   "149": {
     "other": "Laisser 0 pour illimité"
@@ -222,10 +222,10 @@
     "other": "Lien obsolète"
   },
   "162": {
-    "other": "Ce partage a été généré par une ancienne version de l'application. Veuillez le remplacer en le stoppant puis en le recréant. Vous pouvez copier le 'hash' (la dernière partie du lien, soit par exemple http://votrepydio.com/data/public/\u003cem style='color:red;'\u003e206a51\u003c/em\u003e.php) et l'utiliser pour regénérer un nouveau partage qui aura donc toujours la même addresse."
+    "other": "Ce partage a été généré par une ancienne version de l'application. Veuillez le remplacer en le stoppant puis en le recréant. Vous pouvez copier le 'hash' (la dernière partie du lien, soit par exemple http://votrepydio.com/data/public/<em style='color:red;'>206a51</em>.php) et l'utiliser pour régénérer un nouveau partage qui aura donc toujours la même adresse."
   },
   "163": {
-    "other": "Déposer vos fichiers ici (pour les minisites permetant l'envois)"
+    "other": "Déposer vos fichiers ici (pour les minisites permettant l'envoi)"
   },
   "164": {
     "other": "Accès refusé: le script a été modifié!"
@@ -279,7 +279,7 @@
     "other": "Annuler"
   },
   "18": {
-    "other": "Le répertoire a été partagé comme un nouveau dépôt"
+    "other": "Le répertoire a été partagé comme un nouveau workspace"
   },
   "180": {
     "other": "Vider la liste"
@@ -321,13 +321,13 @@
     "other": "Copier le lien dans le presse-papiers"
   },
   "192": {
-    "other": "Le lien a été copié!"
+    "other": "Le lien a été copié"
   },
   "193": {
-    "other": "Personnaliser le lien."
+    "other": "Personnaliser le lien"
   },
   "194": {
-    "other": "Vous pouvez modifier la dernière partie du lien."
+    "other": "Vous pouvez modifier la dernière partie du lien"
   },
   "195": {
     "other": "Attention, il n'y a pas de visualisateur intégré pour ce type de fichier. L'ouverture du lien risque de déclencher un téléchargement automatique pour l'utilisateur."
@@ -345,7 +345,7 @@
     "other": "Visibilité du Partage"
   },
   "2": {
-    "other": "Cliquez sur l'image pour télécharger \u003cb\u003e%s\u003c/b\u003e sur votre disque dur"
+    "other": "Cliquez sur l'image pour télécharger <b>%s</b> sur votre disque dur"
   },
   "20": {
     "other": "Désolé, le fichier que vous avez demandé ne peut pas être trouvé ! Peut-être a-t-il été supprimé, ou il n'est plus partagé avec vous."
@@ -423,16 +423,16 @@
     "other": "Téléchargements autorisés"
   },
   "220": {
-    "other": "Vous n'êtes pas autorisé à créer des utilisateurs."
+    "other": "Vous n'êtes pas autorisé à créer des utilisateurs"
   },
   "221": {
-    "other": "Vous n'êtes pas autorisé à partager avec des utilisateurs internes, seulement vos propres utilisateurs partagés."
+    "other": "Vous n'êtes pas autorisé à partager avec des utilisateurs internes, seulement vos propres utilisateurs partagés"
   },
   "222": {
-    "other": "L'utilisateur %s existe déjà, veuillez choisir un autre identifiant."
+    "other": "L'utilisateur %s existe déjà, veuillez choisir un autre identifiant"
   },
   "223": {
-    "other": "Le lien personnalisé est trop court, veuillez utiliser au moins %s caractères."
+    "other": "Le lien personnalisé est trop court, veuillez utiliser au moins %s caractères"
   },
   "224": {
     "other": "Vous n'êtes pas autorisé à gérer ce partage, veuillez demander au propriétaire du partage."
@@ -471,10 +471,10 @@
     "other": "Réinitialiser le partage"
   },
   "234": {
-    "other": "Le fichier a été ajouté à votre dépôt %s."
+    "other": "Le fichier a été ajouté à votre workspace %s."
   },
   "235": {
-    "other": "Génerer des liens uniques pour chaque utilisateur"
+    "other": "Générer des liens uniques pour chaque utilisateur"
   },
   "236": {
     "other": "Restreindre l'accès à ces seuls liens"
@@ -486,7 +486,7 @@
     "other": "Types de partages"
   },
   "24": {
-    "other": "Définissez des limites d'expiration ou un mot de passe pour accèder au partage"
+    "other": "Définissez des limites d'expiration ou un mot de passe pour accéder au partage."
   },
   "240": {
     "other": "Grouper par..."
@@ -504,7 +504,7 @@
     "other": "Dossiers Partagés"
   },
   "245": {
-    "other": "%s invitation(s) personelle(s) envoyée(s)"
+    "other": "%s invitation(s) personnelle(s) envoyée(s)"
   },
   "246": {
     "other": "Ouvrir"
@@ -552,7 +552,7 @@
     "other": "Retirer de la cellule"
   },
   "26": {
-    "other": "Choisir les utilisateurs et groupes et leurs droits d'accès. Sélectionnez uniquement \"Ecrire\" pour faire un dépôt d'envoi uniquement."
+    "other": "Choisir les utilisateurs et groupes et leurs droits d'accès. Sélectionnez uniquement \"Ecrire\" pour faire un workspace d'envoi uniquement."
   },
   "260": {
     "other": "Le répertoire est partagé dans les cellules suivantes. Vous pouvez éditer les utilisateurs ou en créer une nouvelle."
@@ -630,7 +630,7 @@
     "other": "Ajouter un répertoire existant..."
   },
   "283": {
-    "other": "Sélectionnez un noeud de l'arbre..."
+    "other": "Sélectionnez un nœud de l'arbre..."
   },
   "284": {
     "other": "Visible dans %s cellules"
@@ -660,7 +660,7 @@
     "other": "Libellé"
   },
   "36": {
-    "other": "Définissez un libellé et une description succinte."
+    "other": "Définissez un libellé et une description succincte"
   },
   "37": {
     "other": "Confirmer"
@@ -672,13 +672,13 @@
     "other": "Surveiller l'activité de ce fichier"
   },
   "4": {
-    "other": "Saisissez le mot de passe fourni puis cliquez sur l'image pour télécharger \u003cb\u003e%s\u003c/b\u003e sur votre disque dur"
+    "other": "Saisissez le mot de passe fourni puis cliquez sur l'image pour télécharger <b>%s</b> sur votre disque dur"
   },
   "40": {
     "other": "Invitations"
   },
   "41": {
-    "other": "Envoyer des invitations par courriel aux utilisateurs avec qui vous partagez ce fichier"
+    "other": "Envoyer des invitations par courriel aux utilisateurs avec qui vous partagez ce fichier."
   },
   "42": {
     "other": "Un utilisateur de %s a partagé un fichier avec vous"
@@ -693,7 +693,7 @@
     "other": "Invitation"
   },
   "46": {
-    "other": "Ouvrir le dépôt %s1 directement dans %s2"
+    "other": "Ouvrir le workspace %s1 directement dans %s2"
   },
   "46_file": {
     "other": "Ouvrir le fichier %s1"
@@ -756,10 +756,10 @@
     "other": "Adresse du minisite"
   },
   "63": {
-    "other": "Nouveau dépôt"
+    "other": "Nouveau workspace"
   },
   "64": {
-    "other": "Pour les utilisateurs internes comme externes, le répertoire apparaîtra comme un nouveau dépôt partagé dans la liste des dépôts."
+    "other": "Pour les utilisateurs internes comme externes, le répertoire apparaîtra comme un nouveau workspace partagé dans la liste des dépôts."
   },
   "65": {
     "other": "Minisite public (sans authentification)"
@@ -783,7 +783,7 @@
     "other": "L'arrêt du partage ne supprimera pas le fichier. Si vous voulez modifier les paramètres, re-partager le fichier."
   },
   "70": {
-    "other": "Utiliser les cases à cocher pour donner des droits aux utilisateurs publics sur ce dossier. Si vous cochez uniquement 'Envoi', le dossier sera une boîte de réception vide dans laquelle les utilisteurs pourront déposer des fichiers."
+    "other": "Utiliser les cases à cocher pour donner des droits aux utilisateurs publics sur ce dossier. Si vous cochez uniquement 'Envoi', le dossier sera une boîte de réception vide dans laquelle les utilisateurs pourront déposer des fichiers."
   },
   "70r": {
     "other": "Permissions accordées aux utilisateurs accédant à ce lien"
@@ -804,7 +804,7 @@
     "other": "Editer"
   },
   "75": {
-    "other": "Veuillez utiliser des entiers positifs pour les champs Expiration et Nombre de téléchargements !"
+    "other": "Veuillez utiliser des entiers positifs pour les champs Expiration et Nombre de téléchargements."
   },
   "76": {
     "other": "Merci d'activer les cookies pour accéder à cette application"
@@ -825,7 +825,7 @@
     "other": "Envoyer une invitation à des utilisateurs ou des adresses courriel externes."
   },
   "80b": {
-    "other": "Inviter, par courriel, les utilisateurs sélectionnés à visiter ce dépôt"
+    "other": "Inviter, par courriel, les utilisateurs sélectionnés à visiter ce workspace"
   },
   "81": {
     "other": "ne pas surveiller"
@@ -837,7 +837,7 @@
     "other": "Choisir de recevoir ou non des alertes lorsque le fichier est téléchargé"
   },
   "83b": {
-    "other": "Changer le statut de surveillance pour recevoir ou non une alerte lorsque le dépôt est consulté."
+    "other": "Changer le statut de surveillance pour recevoir ou non une alerte lorsque le workspace est consulté."
   },
   "84": {
     "other": "mot de passe"
@@ -846,7 +846,7 @@
     "other": "Une protection par mot de passe est présente sur ce lien"
   },
   "86": {
-    "other": "expire"
+    "other": "expirera"
   },
   "87": {
     "other": "Le lien expirera à la date suivante..."

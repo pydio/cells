@@ -27,7 +27,7 @@
     "other": "Identificatore Univoco"
   },
   "107": {
-    "other": "Configuazioni Plugin"
+    "other": "Configurazioni Plugin"
   },
   "108": {
     "other": "Documentazione"
@@ -39,13 +39,13 @@
     "other": "Aggiungi attributo"
   },
   "110": {
-    "other": "Workspaces \u0026 Utenti"
+    "other": "Workspaces & Utenti"
   },
   "111": {
-    "other": "Logs \u0026 Altri Dati"
+    "other": "Logs & Altri Dati"
   },
   "112": {
-    "other": "\u003cb\u003eApplica questo ruolo di default\u003c/b\u003e per tutti i nuovi utenti."
+    "other": "<b>Applica questo ruolo di default</b> per tutti i nuovi utenti."
   },
   "113": {
     "other": "Status del ruolo correttamente aggiornato"
@@ -96,7 +96,7 @@
     "other": "ATTENZIONE: non utilizzare caratteri speciali. L'utente verrebbe creato con la login '%s'"
   },
   "128": {
-    "other": "Gruppo cancellato correttamenteSuccessfully deleted group"
+    "other": "Gruppo cancellato correttamente"
   },
   "129": {
     "other": "Aggiorna cache plugin"
@@ -201,7 +201,7 @@
     "other": "Ospite"
   },
   "16": {
-    "other": "Data Fle"
+    "other": "Fle Date"
   },
   "160": {
     "other": "Gruppo creato con successo"
@@ -248,6 +248,18 @@
   "173": {
     "other": "Pydio Backend Services and their running status"
   },
+  "174": {
+    "other": "Identity Management"
+  },
+  "175": {
+    "other": "Data Management"
+  },
+  "176": {
+    "other": "Security Policies"
+  },
+  "177": {
+    "other": "Security Policies"
+  },
   "18": {
     "other": "I.P."
   },
@@ -255,7 +267,7 @@
     "other": "Livello"
   },
   "2": {
-    "other": "Utenti \u0026 Gruppi"
+    "other": "Utenti & Gruppi"
   },
   "20": {
     "other": "Utente"
@@ -315,7 +327,7 @@
     "other": "Hai omesso alcuni campi obbligatori!"
   },
   "37": {
-    "other": "ATTENZIONE: le due password differiscono!"
+    "other": "Attenzione: le due password differiscono!"
   },
   "38": {
     "other": "Riempi il campo login!"

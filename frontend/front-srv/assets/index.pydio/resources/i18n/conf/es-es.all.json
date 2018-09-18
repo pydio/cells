@@ -9,7 +9,7 @@
     "other": "Añade automáticamente * al final de la consulta para ampliar la búsqueda"
   },
   "For the sake of performances, it is not recommanded to use wildcard as a very first character of a query string. Lucene recommends asking the user minimum 3 characters before wildcard. Still, you can set it to 0 if necessary for your usecases.": {
-    "other": "Por cuestión de rendimiento, no es recomendable usar wildcards como el primer carácter de la consulta. Lucene recomienda pedir al usario tres carácteres como mínimo. Aun así, se puede configurar como 0 si es necesario."
+    "other": "Por cuestión de rendimiento, no es recomendable usar wildcards como el primer carácter de la consulta. Lucene recomienda pedir al usuario tres carácteres como mínimo. Aun así, se puede configurar como 0 si es necesario."
   },
   "Full path on the server to the 'pdftotext' binary": {
     "other": "Ruta completa en el servidor al binario 'pdftotext'"
@@ -48,7 +48,7 @@
     "other": "Leer Contenido Hasta"
   },
   "Parses the file when possible and index its content (see plugin global options)": {
-    "other": "Lee los archvis cuando es posible e indexa su contenido (mira las opciones globales del plugin)"
+    "other": "Lee los archivos cuando es posible e indexa su contenido (mira las opciones globales del plugin)"
   },
   "PdftoText Path": {
     "other": "Ruta a PdftoText"

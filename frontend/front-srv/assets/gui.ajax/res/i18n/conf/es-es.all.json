@@ -48,7 +48,7 @@
     "other": "Atributos del Fondo (Baja Resolución)"
   },
   "Browser-based rich interface. Contains configurations for theming, custom welcome message, etc.": {
-    "other": "Interfaz para navegador. Contiene la configuación para el tema, mensajes de bienvenida personalizados, etc."
+    "other": "Interfaz para navegador. Contiene la configuración para el tema, mensajes de bienvenida personalizados, etc."
   },
   "Center in Page (no-repeat)": {
     "other": "Centrado (sin repetir)"
@@ -60,7 +60,7 @@
     "other": "Configuración de Sesión del Cliente"
   },
   "Client Timeout": {
-    "other": "Tiempo de Expiración"
+    "other": "Tiempo de expiración"
   },
   "Custom Background (1)": {
     "other": "Fondo personalizado (1)"
@@ -183,7 +183,7 @@
     "other": "Minisite"
   },
   "Minisite Logo": {
-    "other": "Logo de Minisite"
+    "other": "Logo de Minisitio"
   },
   "Number of MINUTES before the session expiration for issuing an alert to the user": {
     "other": "Número de MINUTOS antes de que la sesión expiré para avisar al usuario."
@@ -192,7 +192,7 @@
     "other": "Sobreescribe los estilos y colores por defecto por los definidos en la herramienta de estilo. Recargar la interfaz después de activar esta opción."
   },
   "Page Background Images": {
-    "other": "Imágenes de Fondo de la Página"
+    "other": "Imagenes de Fondo de la Página"
   },
   "Replace the logo displayed in the welcome page": {
     "other": "Reemplaza el logo de la página de bienvenida"
@@ -228,7 +228,7 @@
     "other": "Tema para mostrar"
   },
   "Tile (repeat both directions)": {
-    "other": "Mosáico"
+    "other": "Mosaico"
   },
   "Title": {
     "other": "Título"
@@ -240,7 +240,7 @@
     "other": "Barra Superior"
   },
   "Top-right logo displayed on minisite page": {
-    "other": "El logo mostrado en el minisite"
+    "other": "El logo mostrado en el minisitio"
   },
   "URI to a custom image to be used as start up logo": {
     "other": "URI de la imagen personalizada usada como logo en el inicio"
@@ -255,7 +255,7 @@
     "other": "Logo Carpeta Personal"
   },
   "Warning Before": {
-    "other": "Aviso de Expiración"
+    "other": "Aviso de expiración"
   },
   "Web Session": {
     "other": "Sesión Web"

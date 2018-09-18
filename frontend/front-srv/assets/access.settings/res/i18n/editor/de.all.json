@@ -30,7 +30,7 @@
     "other": "Erweiterungs-Einstellungen"
   },
   "19": {
-    "other": "Immer überschreiben"
+    "other": "immer überschreiben"
   },
   "2": {
     "other": "Aktiviert"
@@ -39,7 +39,7 @@
     "other": "+ Rolle hinzufügen"
   },
   "21": {
-    "other": "Lade neu..."
+    "other": "lade neu..."
   },
   "22": {
     "other": "Aktionen werden in den Zwischenspeicher geladen, bitte warten. Diese Aktion wird nur einmal durchgeführt..."
@@ -69,7 +69,7 @@
     "other": "Deaktiviert"
   },
   "30": {
-    "other": "Profile \u0026 Rollen"
+    "other": "Profile & Rollen"
   },
   "31": {
     "other": "Eindeutiger Identifier des Benutzers. Dieser Wert kann nicht geändert werden."
@@ -125,9 +125,6 @@
   "47": {
     "other": "Überschreiben Sie Parameter oder Aktionen für alle Arbeitsumgebungen."
   },
-  "48": {
-    "other": "Überschreiben Sie Arbeitsumgebungs-Parameter oder Aktionen für eine bestimmte Arbeitsumgebung. Im vorherigen Tab können Sie Einstellungen für alle Arbeitsumgebungen überschreiben."
-  },
   "49": {
     "other": "Zugriff auf Freigaben"
   },
@@ -135,7 +132,7 @@
     "other": "Wert überschreiben"
   },
   "50": {
-    "other": "Freigegebene Dateien \u0026 Ordner"
+    "other": "Freigegebene Dateien & Ordner"
   },
   "51": {
     "other": "Für diesen Benutzer"
@@ -159,7 +156,7 @@
     "other": "Aktion %s"
   },
   "8": {
-    "other": "Lesen \u0026 Schreiben"
+    "other": "Lesen & Schreiben"
   },
   "9": {
     "other": "Nur lesen"

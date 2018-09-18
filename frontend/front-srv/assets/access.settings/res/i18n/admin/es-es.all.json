@@ -483,7 +483,7 @@
     "other": "Usuarios"
   },
   "home.getting_started": {
-    "other": "Bienvenido al Panel de Administración. Este es tu centro de mandos para controlar todos los aspectos de la aplicación. Explora el navegador\n                        a la izquierda para gestionar usuarios, workspaces y parámetros de la aplicación. Puede personalizar este panel\n                        con gráficos para hacer más eficiente la gestión. Abra el Constructor del Panel pulsando\n                        en el botón naranja de abajo a la derecha y adaña o elimine sus widgets. Puede reorganizar\n                        las insignias simplemente pulsando y arrastrándolas.\u003cbr/\u003e\n                        Si necesita ayuda para rellenar los formularios, cuando vea el símbolo \u003cspan class='icon-question-sign'\u003e\u003c/span\u003e,\n                        púlselo para abrir Pydio Companion.\n    "
+    "other": "Bienvenido al Panel de Administración. Este es tu centro de mandos para controlar todos los aspectos de la aplicación. Explora el navegador\n                        a la izquierda para gestionar usuarios, workspaces y parámetros de la aplicación. Puede personalizar este panel\n                        con gráficos para hacer más eficiente la gestión. Abra el Constructor del Panel pulsando\n                        en el botón naranja de abajo a la derecha y adaña o elimine sus widgets. Puede reorganizar\n                        las insignias simplemente pulsando y arrastrándolas.<br/>\n                        Si necesita ayuda para rellenar los formularios, cuando vea el símbolo <span class='icon-question-sign'></span>,\n                        púlselo para abrir Pydio Companion.\n    "
   },
   "logs.1": {
     "other": "Registro del Servidor"
@@ -549,7 +549,7 @@
     "other": "Pydio Booster"
   },
   "menu.17": {
-    "other": "Mesajería instantánea y acelerador externo"
+    "other": "Mensajería instantánea y acelerador externo"
   },
   "menu.18": {
     "other": "Todos los Plugins"
@@ -780,7 +780,7 @@
     "other": "Controlador Secundario"
   },
   "plugins.4": {
-    "other": "Los plugins de edición son visores/editores asociados a un tipo de archivo en la aplicación.\n                    Estos plugins son gestionados especificamente en la interfaz (extensiones) y pueden declarar el mimetype que soportan.\n                    Se puede ordenar la prioridad de los plugins para la acción 'abrir con...'."
+    "other": "Los plugins de edición son visores/editores asociados a un tipo de archivo en la aplicación.\n                    Estos plugins son gestionados específicamente en la interfaz (extensiones) y pueden declarar el mimetype que soportan.\n                    Se puede ordenar la prioridad de los plugins para la acción 'abrir con...'."
   },
   "plugins.5": {
     "other": "Guardar Cambios"
@@ -831,7 +831,7 @@
     "other": "Vaciar Permisos"
   },
   "react.12": {
-    "other": "Limpar Permisos"
+    "other": "Limpiar Permisos"
   },
   "react.13": {
     "other": "Mostrar permisos completos"
@@ -864,7 +864,7 @@
     "other": "Crear regla"
   },
   "react.8": {
-    "other": "Empezará a gestionar los permisos a bajo nivel. Este directorio será leido\n                        por defecto y podrá gestionar los permisos selectivamente en los directorios hijos. Elija\n                        si desea copiar los permisos actuales a los hijos o limpiar sus permisos, esto último los haría\n                        inaccesibles por defecto."
+    "other": "Empezará a gestionar los permisos a bajo nivel. Este directorio será leído\n                        por defecto y podrá gestionar los permisos selectivamente en los directorios hijos. Elija\n                        si desea copiar los permisos actuales a los hijos o limpiar sus permisos, esto último los haría\n                        inaccesibles por defecto."
   },
   "react.9": {
     "other": "Está a punto de dehabilitar los permisos de gestión en el sub-nivel:\n                        todos los hijos heredarán los permisos de este directorio y su configuración actual\n                        para los hijos se perderá. ¿Está seguro?"
@@ -927,10 +927,10 @@
     "other": "Confirmar contraseña"
   },
   "user.24": {
-    "other": "Grupo Raiz"
+    "other": "Grupo Raíz"
   },
   "user.25": {
-    "other": "Rol del Grupo Raiz"
+    "other": "Rol del Grupo Raíz"
   },
   "user.26": {
     "other": "%s Rol del Grupo"
@@ -1086,7 +1086,7 @@
     "other": "Opciones Generales"
   },
   "ws.31": {
-    "other": "Eliminar Funcion"
+    "other": "Eliminar Function"
   },
   "ws.32": {
     "other": "Añadir una función..."
@@ -1128,7 +1128,7 @@
     "other": "Especifique aquí los permisos de acceso por defecto para las carpetas del workspace.\n                                Para activar la gestión de permisos en subniveles, seleccione 'HIJOS' en la carpeta seleccionada.\n                                Esto hará la carpeta actual de sólo lectura por defecto y podrá seleccionar permisos de acceso\n                                selectivamente en las subcarpetas."
   },
   "ws.44": {
-    "other": "Asegúrese que esta es la unica máscara: si modificar las carpetas reales directamente, tendrá\n                                que editar esta máscara en concordancia. Además, estos permisos pueden estar limitados por 'Permisos por Defecto'\n                                seleccionados para este workspace (ver pestaña General)."
+    "other": "Asegúrese que esta es la única máscara: si modificar las carpetas reales directamente, tendrá\n                                que editar esta máscara en concordancia. Además, estos permisos pueden estar limitados por 'Permisos por Defecto'\n                                seleccionados para este workspace (ver pestaña General)."
   },
   "ws.45": {
     "other": "Dado que se está usando 'PYDIO_USER' o 'PYDIO_GROUP_*', el contenido de\n                                este workspace variará dependiendo del usuario autenticado. Por esta razón, no puede navegar\n                                directamente por las carpetas y asignarles permisos, pero puede definir rutas genéricas que se usarán como máscaras."
@@ -1200,7 +1200,7 @@
     "other": "Limpiados %s eventos"
   },
   "ws.65": {
-    "other": "Manteniemiento del Workspace"
+    "other": "Mantenimiento del Workspace"
   },
   "ws.66": {
     "other": "Lanzando Tareas"

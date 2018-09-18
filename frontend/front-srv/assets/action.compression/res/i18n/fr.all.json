@@ -3,13 +3,13 @@
     "other": "Archiver"
   },
   "10": {
-    "other": "Extraire les archives selectionnées"
+    "other": "Extraire les archives sélectionnées"
   },
   "11": {
     "other": "Chemin de destination des fichiers extraits"
   },
   "12": {
-    "other": "Demarrage de l' extraction..."
+    "other": "Démarrage de l' extraction..."
   },
   "13": {
     "other": "Extraction des fichiers ... %s "
@@ -18,7 +18,7 @@
     "other": "Extraction terminée avec succès dans le dossier '%s'"
   },
   "15": {
-    "other": "Le fichier selectionné n'est pas une archive TAR, TAR.GZ ou TAR.BZ2."
+    "other": "Le fichier sélectionné n'est pas une archive TAR, TAR.GZ ou TAR.BZ2."
   },
   "16": {
     "other": "Vous ne pouvez compresser qu'en TAR, TAR.GZ ou en TAR.BZ2."
@@ -36,7 +36,7 @@
     "other": "Nom de l'archive"
   },
   "5": {
-    "other": "Demarrage de la compression..."
+    "other": "Démarrage de la compression..."
   },
   "6": {
     "other": "Ajout de fichiers dans l'archive... %s "
@@ -45,7 +45,7 @@
     "other": "Compression en %s ..."
   },
   "8": {
-    "other": "Votre archive a ete créée avec succès."
+    "other": "Votre archive a été créée avec succès."
   },
   "9": {
     "other": "Extraire"

@@ -12,7 +12,7 @@
     "other": "Le workspace n'est pas indexé pour le moment, veuillez lancer l'indexation manuellement!"
   },
   "13": {
-    "other": "Content"
+    "other": "Contenu"
   },
   "2": {
     "other": "Indexer le contenu du répertoire"
@@ -27,7 +27,7 @@
     "other": "Indexation terminée"
   },
   "6": {
-    "other": "Attention, le dépôt est en cours d'indexation, veuillez réessayer ultérieurement. Pour forcer une ré-indexation, effacez manuellement le fichier \".ajxp_lock\" situé dans \"data/cache/indexes\"."
+    "other": "Attention, le workspace est en cours d'indexation, veuillez réessayer ultérieurement. Pour forcer une ré-indexation, effacez manuellement le fichier \".ajxp_lock\" situé dans \"data/cache/indexes\"."
   },
   "7": {
     "other": "Lancement de la première indexation, veuillez attendre puis relancer votre recherche."
@@ -36,6 +36,6 @@
     "other": "Indexation (%s) en arrière-plan."
   },
   "9": {
-    "other": "Impossible de trouver un index pour ce dépôt, vous devrez déclencher l'indexation d'abord !"
+    "other": "Impossible de trouver un index pour ce workspace, vous devrez déclencher l'indexation d'abord !"
   }
 }

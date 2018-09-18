@@ -3,13 +3,13 @@
     "other": "Lista asociada de etiquetas, ¡asegurate de definir tantas como campos hay!"
   },
   "Comma separated list of fields, use syntax 'EXIF_SECTION.ExifName'.": {
-    "other": "Lista de campos separados por comas, usar sintáxis 'EXIF_SECTION.ExifName'."
+    "other": "Lista de campos separados por comas, usar sintaxis 'EXIF_SECTION.ExifName'."
   },
   "Exif Metadata": {
     "other": "Metadatos Exif"
   },
   "Extracts the EXIF metadata of a JPG image. Used in conjunction with editor.exif": {
-    "other": "Extrae los metadatos EXIF de una imágen JPG. Usado junto al editor.exif"
+    "other": "Extrae los metadatos EXIF de una imagen JPG. Usado junto al editor.exif"
   },
   "Info Panel Fields": {
     "other": "Campos de Información"

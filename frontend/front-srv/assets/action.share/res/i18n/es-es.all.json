@@ -33,7 +33,7 @@
     "other": "Use un lector de códigos QR para escanear la imagen "
   },
   "109": {
-    "other": "Minisitio de usario"
+    "other": "Minisitio de usuario"
   },
   "11": {
     "other": "Expiración"
@@ -159,10 +159,10 @@
     "other": "Ocultar parámetros"
   },
   "143": {
-    "other": "Use \u003ckbd\u003eCtrl\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e para copiar el enlace"
+    "other": "Use <kbd>Ctrl</kbd>+<kbd>C</kbd> para copiar el enlace"
   },
   "144": {
-    "other": "Use \u003ckbd\u003e\u0026#8984;\u003c/kbd\u003e+\u003ckbd\u003eC\u003c/kbd\u003e para copiar el enlace"
+    "other": "Use <kbd>&#8984;</kbd>+<kbd>C</kbd> para copiar el enlace"
   },
   "145": {
     "other": "Descripción"
@@ -195,7 +195,7 @@
     "other": "Estándar (listado de archivos con cabecera de aplicación)"
   },
   "154": {
-    "other": "Tira de película (ideal para galería de imágenes)"
+    "other": "Tira de película (ideal para galería de imagenes)"
   },
   "155": {
     "other": "Incrustado (pequeña cabecera, para widgets)"
@@ -222,7 +222,7 @@
     "other": "Enlace obsoleto"
   },
   "162": {
-    "other": "Tiene uno o mas enlaces antiguos en este archivo. Por favor, reemplácelo con un nuevo enlace deteniendo este intercambio y recreando una nueva. Copie el 'hash' del intercambio (la útima parte del enlace, p.e. http://yourpydio.com/data/public/\u003cem style='color:red;'\u003e206a51\u003c/em\u003e.php) y úselo en el nuevo diálogo de intercambio para estar seguro de que el enlace seguirá activo tras la migración."
+    "other": "Tiene uno o mas enlaces antiguos en este archivo. Por favor, reemplácelo con un nuevo enlace deteniendo este intercambio y recreando una nueva. Copie el 'hash' del intercambio (la útima parte del enlace, p.e. http://yourpydio.com/data/public/<em style='color:red;'>206a51</em>.php) y úselo en el nuevo diálogo de intercambio para estar seguro de que el enlace seguirá activo tras la migración."
   },
   "163": {
     "other": "Arrastre archivos aquí (para minisitios con carga de archivos habilitada)"
@@ -345,7 +345,7 @@
     "other": "Visibilidad"
   },
   "2": {
-    "other": "Haz clic en la imagen para descargar %s a tu disco duro"
+    "other": "Haz clic en la imagen para descargar <b>%s</b> a tu disco duro"
   },
   "20": {
     "other": "Ooops, el archivo requerido no fue encontrado. Tal vez fue eliminado o ya no está compartido."
@@ -372,7 +372,7 @@
     "other": "Transferir a... (identificador de usuario)"
   },
   "206": {
-    "other": "Los intercambio son 'privados' por defecto: sólo tú los puedes ver. Si quieres que otro usario tenga acceso para ver y modificar el uso compartido cambia la visibilidad."
+    "other": "Los intercambio son 'privados' por defecto: sólo tú los puedes ver. Si quieres que otro usuario tenga acceso para ver y modificar el uso compartido cambia la visibilidad."
   },
   "207": {
     "other": "Usuarios Remotos"
@@ -420,7 +420,7 @@
     "other": "Expira en"
   },
   "22": {
-    "other": "Descargas permitidas: "
+    "other": "Descargas permitidas"
   },
   "220": {
     "other": "No tienes permisos para crear usuarios."
@@ -456,13 +456,13 @@
     "other": "No más descargas"
   },
   "23": {
-    "other": "Contraseña opcional: "
+    "other": "Contraseña opcional"
   },
   "230": {
     "other": "Por favor, guarda antes de enviar el enlace"
   },
   "231": {
-    "other": "Pulse para empezar a descagar"
+    "other": "Pulse para empezar a descargar"
   },
   "232": {
     "other": "No se encontró nada para compartir, ¿borraste a algún usuario?"
@@ -672,7 +672,7 @@
     "other": "Ver la actividad de este archivo"
   },
   "4": {
-    "other": "Introduce la contraseña correcta y haz clic en la imagen para descargar %s a tu disco duro"
+    "other": "Introduce la contraseña correcta y haz clic en la imagen para descargar <b>%s</b> a tu disco duro."
   },
   "40": {
     "other": "Invitaciones"
@@ -708,7 +708,7 @@
     "other": "No se le permite acceder a estos datos"
   },
   "49": {
-    "other": "crear usario"
+    "other": "crear usuario"
   },
   "5": {
     "other": "contraseña"
@@ -786,7 +786,7 @@
     "other": "Use las casillas de verificación para conceder permisos a esta carpeta para el público. Si selecciona solamente 'Cargar' esta carpeta aparecerá vacía para que los usuarios puedan dejar archivos en ella."
   },
   "70r": {
-    "other": "Etiquetas y permisos asginados a usuarios que acceden al minisitio"
+    "other": "Etiquetas y permisos asignados a usuarios que acceden al minisitio"
   },
   "71": {
     "other": "Permisos"
@@ -849,13 +849,13 @@
     "other": "expira"
   },
   "87": {
-    "other": "Este enlace expirará automáticamente en ..."
+    "other": "Este enlace expirará automáticamente en..."
   },
   "88": {
     "other": "descargas"
   },
   "89": {
-    "other": "Número de descarags / descargas autorizadas. Click para restablecer el contador de descargas."
+    "other": "Número de descargas / descargas autorizadas. Click para restablecer el contador de descargas."
   },
   "9": {
     "other": "Usa este botón para dejar de compartir esta carpeta"
@@ -876,10 +876,10 @@
     "other": "Código QR"
   },
   "95": {
-    "other": "código QR"
+    "other": "Código QR"
   },
   "96": {
-    "other": "Dejar de compartir"
+    "other": "dejar de compartir"
   },
   "97": {
     "other": "Dejar de compartir esta carpeta con otros usuarios"

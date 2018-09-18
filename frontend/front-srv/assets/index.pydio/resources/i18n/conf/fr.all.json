@@ -1,6 +1,6 @@
 {
   "Analyzer used by Zend to parse the queries. Warning, the UTF8 analyzers require the php mbstring extension.": {
-    "other": "Analyzeur utilisé par zend pour analyser les requêtes. Attention, les analysuers UTF8 requierent l'extension php mbstring."
+    "other": "Analyseur utilisé par zend pour analyser les requêtes. Attention, les analyseurs UTF8 requièrent l'extension php mbstring."
   },
   "Auto-Wildcard": {
     "other": "Auto-Joker"

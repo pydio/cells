@@ -45,13 +45,13 @@
     "other": "Registro y otros datos"
   },
   "112": {
-    "other": "\u003cb\u003eAplicar este rol por defecto\u003c/b\u003e para todos los usuarios nuevos."
+    "other": "<b>Aplicar este rol por defecto</b> para todos los usuarios nuevos."
   },
   "113": {
     "other": "El estado del rol ha sido modificado correctamente"
   },
   "114": {
-    "other": "Aplicar a "
+    "other": "Aplicar a"
   },
   "115": {
     "other": "Esquema"
@@ -111,7 +111,7 @@
     "other": "¡Los archivos de los plugins se borraron correctamente!"
   },
   "132": {
-    "other": "Actualizado, aunque está usando el modo SKIP_CACHE (ver bootstrap_context.php)"
+    "other": "Actualizado, aunque está usando el modo SKIP_CACHE (ver bootstrap_context.php)."
   },
   "133": {
     "other": "Parámetros del Núcleo de la Aplicación"
@@ -248,6 +248,18 @@
   "173": {
     "other": "Pydio Backend Services and their running status"
   },
+  "174": {
+    "other": "Identity Management"
+  },
+  "175": {
+    "other": "Data Management"
+  },
+  "176": {
+    "other": "Security Policies"
+  },
+  "177": {
+    "other": "Security Policies"
+  },
   "18": {
     "other": "I.P."
   },
@@ -369,10 +381,10 @@
     "other": "Error: ya existe una carpeta con ese nombre"
   },
   "51": {
-    "other": "No puede escribirse en el directorio CONF"
+    "other": "No puede escribirse en el directorio conf."
   },
   "52": {
-    "other": "¡Carpeta creada correctamente! Ahora puede añadir metadatos para completar la información, añadir índices automáticos, etc"
+    "other": "¡Carpeta creada correctamente! Ahora puede añadir metadatos para completar la información, añadir índices automáticos, etc."
   },
   "53": {
     "other": "Error editando la carpeta"
@@ -381,7 +393,7 @@
     "other": "Carpeta editada correctamente"
   },
   "55": {
-    "other": "Atención, en este momento solo puede añadir una instacia de cada plugin."
+    "other": "Atención, en este momento solo puede añadir una instancia de cada plugin."
   },
   "56": {
     "other": "Meta Fuente añadida satisfactoriamente"

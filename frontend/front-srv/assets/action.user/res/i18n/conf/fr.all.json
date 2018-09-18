@@ -1,0 +1,14 @@
+{
+  "Disable Address Book": {
+    "other": "Désactiver le carnet d'adresses"
+  },
+  "Do not display address book in user account panel.": {
+    "other": "Ne pas afficher le carnet d'adresse dans le menu utilisateur."
+  },
+  "User Dashboard": {
+    "other": "Profil Utilisateur"
+  },
+  "User home dashboard, can be displayed before accessing to workspaces": {
+    "other": "User home dashboard, can be displayed before accessing to workspaces"
+  }
+}

@@ -11,23 +11,8 @@
   "Authorizations": {
     "other": "Autorisations"
   },
-  "Autocomplete minimum chars": {
-    "other": "Nombre de caractères requis pour activer l'auto-complétion"
-  },
-  "Autocompletion results limit": {
-    "other": "Limitation des résultats de l'auto-complétion"
-  },
   "Avoid labels duplication": {
     "other": "Prévenir la duplication des intitulés"
-  },
-  "Background Attributes(1)": {
-    "other": "Attributs de l'arrière-plan(1)"
-  },
-  "Background Attributes(2)": {
-    "other": "Attributs de l'arrière-plan(2)"
-  },
-  "Background Attributes(3)": {
-    "other": "Attributs de l'arrière-plan(3)"
   },
   "Background Color": {
     "other": "Couleur d'arrière-plan"
@@ -38,23 +23,14 @@
   "Create and display QRCode for shared link": {
     "other": "Créer et afficher un QRCode pour le lien de partage"
   },
-  "Custom Background (1)": {
-    "other": "Arrière-plan personnalisé (1)"
-  },
-  "Custom Background (2)": {
-    "other": "Arrière-plan personnalisé (2)"
-  },
-  "Custom Background (3)": {
-    "other": "Arrière-plan personnalisé (3)"
-  },
   "Disable Folder Sharing": {
     "other": "Désactiver le partage de répertoire"
   },
   "Disallow users to create shared folders if a workspace already exists with the same label": {
-    "other": "Empêcher la création, par les utilisateurs, de répertoires partagés si des dépôts existent déjà avec le même intitulé"
+    "other": "Empêcher la création, par les utilisateurs, de répertoires partagés si des workspaces existent déjà avec le même intitulé"
   },
   "Do not allow users to create public links, only private links (password-protected)": {
-    "other": "Do not allow users to create public links, only private links (password-protected)"
+    "other": "Ne pas autoriser les utilisateurs à créer des liens publics (seulement des liens avec mot de passe)"
   },
   "Download Button": {
     "other": "Bouton de téléchargement"
@@ -69,7 +45,7 @@
     "other": "Activer le partage de répertoire"
   },
   "Enable folder sharing (workspace and minisite)": {
-    "other": "Activer le partage de répertoire (dépôt et minisite)"
+    "other": "Activer le partage de répertoire (workspace et minisite)"
   },
   "Enable internal file sharing (sharing with users existing or temporary users)": {
     "other": "Autoriser le partage de fichier entre utilisateurs"
@@ -82,9 +58,6 @@
   },
   "Enable public links for files": {
     "other": "Liens publics pour les fichiers"
-  },
-  "File location": {
-    "other": "Emplacement du fichier"
   },
   "Files: enable internal sharing": {
     "other": "Fichiers: autoriser le partage interne"
@@ -113,23 +86,14 @@
   "Hash user-editable": {
     "other": "Personnalisation du lien"
   },
-  "Hidden file containing shared metadata": {
-    "other": "Nom du fichier caché contenant les métadonnées de partage"
-  },
   "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
     "other": "En cas de problème de performances lors de modifications dans des arbres profonds, activer cette options. Attention, ceci va déclencher de nombreux process PHP sur le serveur."
-  },
-  "Image used as a background": {
-    "other": "Image utilisée comme arrière-plan"
   },
   "Image used as a button for downloading the file": {
     "other": "Image utilisée en tant que bouton permettant de télécharger le fichier"
   },
   "Internal Sharing": {
     "other": "Partage interne"
-  },
-  "Limit the number of results returned by the auto-completion feature when sharing a folder with other users": {
-    "other": "Limiter le nombre de résultats retournés par l'auto-complétion lors du partage d'un répertoire avec d'autres utilisateurs"
   },
   "Link Generation": {
     "other": "Génération du lien"
@@ -149,23 +113,11 @@
   "Maximum share expiration limit for file, 0 = unlimited": {
     "other": "Durée maximale du partage avant son expiration, 0 = illimitée"
   },
-  "Metadata File": {
-    "other": "Fichier de métadonnées"
-  },
-  "Metadata Files": {
-    "other": "Fichiers de métadonnées"
-  },
   "Minimum length of the generated hash": {
     "other": "Longueur minimale du hash généré"
   },
-  "Minimum number of characters to start getting results by auto-completion when sharing a folder with other users": {
-    "other": "Nombre de caractères requis pour activer l'auto-complétion lors du partage d'un répertoire avec d'autres utilisateurs"
-  },
   "Minisite": {
     "other": "Minisite"
-  },
-  "Minisite Logo": {
-    "other": "Logo du minisite"
   },
   "Minisites and Workspaces": {
     "other": "Minisites et Workspaces"
@@ -173,14 +125,11 @@
   "Minisites only": {
     "other": "Minisites seulement"
   },
-  "Page Background Images": {
-    "other": "Images d'arrière-plan"
-  },
   "Page Title": {
     "other": "Titre de la page"
   },
   "Set password mandatory": {
-    "other": "Set password mandatory"
+    "other": "Password obligatoire"
   },
   "Share Center actions and hooks": {
     "other": "Centre de partage et hooks"
@@ -209,9 +158,6 @@
   "Tmp users prefix": {
     "other": "Préfixe utilisateurs temporaires"
   },
-  "Top-right logo displayed on minisite page": {
-    "other": "Logo affiché en haut à droite du minisite"
-  },
   "Use Rewrite Rule": {
     "other": "Utiliser les règles de ré-écriture"
   },
@@ -223,9 +169,6 @@
   },
   "Weblink Page": {
     "other": "Page de Weblink"
-  },
-  "Where to store the metadata file : LOCAL means a hidden file will be created in each folder, GLOBAL means that one file will be created in DATA_PATH/plugins/action.share folder.": {
-    "other": "Où stocker le fichier de métadonnées : 'LOCAL' signifie qu'un fichier caché sera créé dans chaque répertoire, 'GLOBAL' signifie qu'un seul fichier sera créé dans le répertoire DATA_PATH/plugins/action.share ."
   },
   "Workspaces only": {
     "other": "Workspaces seulement"

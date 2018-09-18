@@ -1,6 +1,6 @@
 {
   "Additional JS frameworks": {
-    "other": "Framework JS additionel"
+    "other": "Framework JS additionnel"
   },
   "Additional JS frameworks description": {
     "other": "Liste de chemins vers des fichiers javascripts qui doivent être chargés AVANT que la framework pydio soit chargé. Utiliser plutôt les plugins."
@@ -21,7 +21,7 @@
     "other": "Ajouter un titre à l'image du logo"
   },
   "Application Title": {
-    "other": "Application Title"
+    "other": "Titre de l'application"
   },
   "Attributes of the image used as a background": {
     "other": "Attributs de positionnement du fond"
@@ -84,10 +84,10 @@
     "other": "Icône personnalisée"
   },
   "Detected Encoding": {
-    "other": "Detected Encoding"
+    "other": "Encodage détecté"
   },
   "Detected Server Path": {
-    "other": "Detected Server Path"
+    "other": "Chemin du serveur détecté"
   },
   "Display Branding Tool": {
     "other": "Afficher l'outil de branding"
@@ -102,7 +102,7 @@
     "other": "Couvrir la fenêtre (no repeat)"
   },
   "Fetch Window (repeat vertically)": {
-    "other": "Couvrir la fenêtre (répeter verticalement)"
+    "other": "Couvrir la fenêtre (répéter verticalement)"
   },
   "Font sized used for the title in the start up screen": {
     "other": "Taille de la police du titre sur la page d'accueil"
@@ -111,13 +111,13 @@
     "other": "Google Analytics"
   },
   "Google Analytics Analytics Domain": {
-    "other": "Google Analytics Analytics Domain"
+    "other": "Domaine Analytique Google Analytique"
   },
   "Google Analytics Analytics Events": {
-    "other": "Google Analytics Analytics Events"
+    "other": "Evénements Google Analytique"
   },
   "Google Analytics Analytics ID": {
-    "other": "Google Analytics Analytics ID"
+    "other": "ID de tracking Google Analytics"
   },
   "Height of the custom icon (with the px mention)": {
     "other": "Hauteur de l'icône personnalisée (avec la mention px)"
@@ -207,7 +207,7 @@
     "other": "Domaine pour le rapport analytics (optionnel)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
-    "other": "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured."
+    "other": "Paramètres de l'application. Si vous mettez en place les emails, utiliser le bouton de Test pour vérifier la configuration."
   },
   "Show the palette on the interface to change the interface colors and logos. Make sure to reload the interface if you toggle this option.": {
     "other": "Afficher la palette sur l'interface permettant de modifier les couleurs et les logos. Recharger complètement la fenêtre après changement de cette option."
@@ -228,7 +228,7 @@
     "other": "Thème d'affichage"
   },
   "Tile (repeat both directions)": {
-    "other": "Mosaique (répeter dans 2 directions)"
+    "other": "Mosaique (répéter dans 2 directions)"
   },
   "Title": {
     "other": "Titre"

@@ -8,15 +8,6 @@
   "Column visibility": {
     "other": "Visibilité de la colonne"
   },
-  "Columns visibility": {
-    "other": "Visibilité des colonnes"
-  },
-  "Comma separated list of fields, use standard characters here.": {
-    "other": "Liste des champs, séparés par des virgules. N'utilisez que des caractères standards."
-  },
-  "Comma separated list of labels, be sure to define as many as fields!": {
-    "other": "Liste des libellés séparés par des virgules, à associer aux champs. Attention à utiliser le même nombre."
-  },
   "Created by...": {
     "other": "Créé par..."
   },
@@ -39,7 +30,7 @@
     "other": "Id des champs. N'utilisez que des caractères standards."
   },
   "Label": {
-    "other": "Label"
+    "other": "Libellé"
   },
   "Label of the field, human friendly": {
     "other": "Label du champ, lisible par un humain"
@@ -50,20 +41,11 @@
   "Long text": {
     "other": "Texte long"
   },
-  "Meta Fields": {
-    "other": "Champs méta"
-  },
   "Meta File": {
     "other": "Fichier méta"
   },
-  "Meta Labels": {
-    "other": "Libellés méta"
-  },
   "Selection (set choices in Additional Info)": {
     "other": "Sélection (définir les valeurs dans 'Info. complémentaires')"
-  },
-  "Set default visibility for each columns. Either by columns, using commas, or one value that will be applied to all columns. Value can be 'visible' or 'hidden'.": {
-    "other": "Visibilité par défaut de chaque colonne. Soit par colonnes, en utilisant des virgules, ou une seule valeur qui sera appliquée à l'ensemble des colonnes. Utiliser 'visible' ou 'hidden'."
   },
   "Set default visibility.": {
     "other": "Définir la visibilité par défaut."

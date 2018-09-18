@@ -15,13 +15,13 @@
     "other": "Estrazione file ... %s "
   },
   "14": {
-    "other": "Estrazione avvenuta correttamente nella cartella '%s'!!"
+    "other": "Estrazione avvenuta correttamente nella cartella '%s'."
   },
   "15": {
-    "other": "I file selezionati non sono archivi TAR, TAR.GZ o TAR.BZ2!!"
+    "other": "I file selezionati non sono archivi TAR, TAR.GZ o TAR.BZ2."
   },
   "16": {
-    "other": "E' possibile comprimere solo in TAR, TAR.GZ o TAR.BZ2!!"
+    "other": "E' possibile comprimere solo in TAR, TAR.GZ o TAR.BZ2."
   },
   "17": {
     "other": "Non è possibile comprire una cartella vuota."
@@ -30,7 +30,7 @@
     "other": "Comprimi i file selezionati"
   },
   "3": {
-    "other": "Comprimi in "
+    "other": "Comprimi in"
   },
   "4": {
     "other": "Nome archivio"

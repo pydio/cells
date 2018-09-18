@@ -45,7 +45,7 @@
     "other": "Lucene"
   },
   "Parse Content Until": {
-    "other": "Maximale Dateigrösse"
+    "other": "Maximale Dateigröße"
   },
   "Parses the file when possible and index its content (see plugin global options)": {
     "other": "Falls möglich den Inhalt der Dateien analysieren und indexieren (siehe globale Einstellungen)"

@@ -24,16 +24,16 @@
     "other": "Sólo puedes comprimir en formato TAR, TAR.GZ o TAR.BZ2."
   },
   "17": {
-    "other": "No puedes comprimir carpetas vacías"
+    "other": "No puedes comprimir carpetas vacías."
   },
   "2": {
     "other": "Comprimir Selección"
   },
   "3": {
-    "other": "Selecciona el formato del archivo:"
+    "other": "Selecciona el formato del archivo"
   },
   "4": {
-    "other": "Nombre del archivo:"
+    "other": "Nombre del archivo"
   },
   "5": {
     "other": "Comprimiendo..."

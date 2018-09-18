@@ -153,7 +153,7 @@
     "other": "Sprache die vorausgewählt ist, wenn der Benutzer keine abweichende konfiguriert."
   },
   "Default realm for authentication. Please READ THE DOC to safely use this feature.": {
-    "other": "Standard  Authentifizierungs-Realm. Bitte lesen Sie die Dokumentation, bevor diese Funktion aktiviert wird."
+    "other": "Standard Authentifizierungs-Realm. Bitte lesen Sie die Dokumentation, bevor diese Funktion aktiviert wird."
   },
   "Default sorting direction": {
     "other": "Standard-Reihenfolge in der die Daten angezeigt werden"
@@ -225,7 +225,7 @@
     "other": "Größe"
   },
   "Filename length": {
-    "other": "Dateinamen länge"
+    "other": "Dateinamen Länge"
   },
   "Filesystem Commons": {
     "other": "Dateisystem Allgemein"
@@ -336,7 +336,7 @@
     "other": "Passwort"
   },
   "Prefilled label for the new repository, you can use the PYDIO_USER keyworkd in it.": {
-    "other": "Standard-Beschreibung der Arbeitsumgebung (Es ist möglich, den Platzhalter 'PYDIO_USER' zu verwenden)"
+    "other": "Standard-Beschreibung der Arbeitsumgebung (Es ist möglich, den Platzhalter 'PYDIO_USER' zu verwenden)."
   },
   "Public Base URI": {
     "other": "Base-URI für öffentliche Links"

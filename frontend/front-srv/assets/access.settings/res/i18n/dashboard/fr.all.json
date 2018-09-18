@@ -93,7 +93,7 @@
     "other": "Si vous ne savez pas où commencer, le Guide Administrateur est sans doute un bon endroit pour débuter:"
   },
   "welc.intro": {
-    "other": "C'est votre tableau de bord pour administrer Pydio Cells. Naviguez dans le menu à gauche pour créer des \u003ca class=\"doc-link\" data-path=\"/data/workspaces\"\u003eworkspaces\u003c/a\u003e and des \u003ca class=\"doc-link\" data-path=\"/idm/users\"\u003eutilisateurs\u003c/a\u003e,\n                            surveiller les \u003ca class=\"doc-link\" data-path=\"/admin/logs\"\u003eévénements\u003c/a\u003e sur les fichiers, et gérer les \u003ca class=\"doc-link\" data-path=\"/parameters/core\"\u003econfigurations\u003c/a\u003e et les \u003ca class=\"doc-link\" data-path=\"/plugins/manager\"\u003eplugins\u003c/a\u003e."
+    "other": "C'est votre tableau de bord pour administrer Pydio Cells. Naviguez dans le menu à gauche pour créer des <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> and des <a class=\"doc-link\" data-path=\"/idm/users\">utilisateurs</a>,\n                            surveiller les <a class=\"doc-link\" data-path=\"/admin/logs\">événements</a> sur les fichiers, et gérer les <a class=\"doc-link\" data-path=\"/parameters/core\">configurations</a> et les <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
   },
   "welc.subtitle": {
     "other": "Administrez et surveillez l'activité de la plateforme"

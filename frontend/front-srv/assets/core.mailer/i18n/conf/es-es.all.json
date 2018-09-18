@@ -12,7 +12,7 @@
     "other": "Diseño Cuerpo"
   },
   "Choose your mail frequency (like 9:00 or 9:00,14:00 or Wednesday)": {
-    "other": "Elige una fecuencia de envio de correos (por ejemplo: '9:00' o '9:00,14:00' o 'Wednesday')"
+    "other": "Elige una frecuencia de envío de correos (por ejemplo: '9:00' o '9:00,14:00' o 'Wednesday')"
   },
   "Content": {
     "other": "Contenido"
@@ -84,7 +84,7 @@
     "other": "Nombre del remitente"
   },
   "Store emails in a queue and batch-process them. Users can choose the sending frequency. Make sure to set up a CRON on consume_mail_queue action if you use this option.": {
-    "other": "Almacena los correos en una cola para procesarlos en grupo. Los usuarios pueden seleccionar la frecuencia de envio. Asegurate de configurar un trabajo CRON para usar consume_mail_queue si seleccionas esta opción."
+    "other": "Almacena los correos en una cola para procesarlos en grupo. Los usuarios pueden seleccionar la frecuencia de envío. Asegurate de configurar un trabajo CRON para usar consume_mail_queue si seleccionas esta opción."
   },
   "String automatically added at the beginning of the mail subject": {
     "other": "Esta frase se añade automáticamente antes del asunto del correo"
@@ -99,7 +99,7 @@
     "other": "Prefijo del Asunto"
   },
   "Twice a day (every day at and)": {
-    "other": "Dos veces al dia (cada día a X y X)"
+    "other": "Dos veces al día (cada día a X y X)"
   },
   "Unique Sender": {
     "other": "Remitente único"

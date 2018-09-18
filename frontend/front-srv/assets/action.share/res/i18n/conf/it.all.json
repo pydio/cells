@@ -11,23 +11,8 @@
   "Authorizations": {
     "other": "Authorizations"
   },
-  "Autocomplete minimum chars": {
-    "other": "Caratteri Minimi Autocompletamento"
-  },
-  "Autocompletion results limit": {
-    "other": "Limite Risultati Autocompletamento"
-  },
   "Avoid labels duplication": {
     "other": "Previeni Duplicazione Etichette"
-  },
-  "Background Attributes(1)": {
-    "other": "Attributi Sfondo(1)"
-  },
-  "Background Attributes(2)": {
-    "other": "Attributi Sfondo(2)"
-  },
-  "Background Attributes(3)": {
-    "other": "Attributi Sfondo(3)"
   },
   "Background Color": {
     "other": "Colore Sfondo"
@@ -37,15 +22,6 @@
   },
   "Create and display QRCode for shared link": {
     "other": "Crea e visualizza QRCode per i link condivisi"
-  },
-  "Custom Background (1)": {
-    "other": "Sfondo Personalizzato (1)"
-  },
-  "Custom Background (2)": {
-    "other": "Sfondo Personalizzato (2)"
-  },
-  "Custom Background (3)": {
-    "other": "Sfondo Personalizzato (3)"
   },
   "Disable Folder Sharing": {
     "other": "Disable Folder Sharing"
@@ -83,9 +59,6 @@
   "Enable public links for files": {
     "other": "Enable public links for files"
   },
-  "File location": {
-    "other": "Ubicazione File"
-  },
   "Files: enable internal sharing": {
     "other": "Files: enable internal sharing"
   },
@@ -113,23 +86,14 @@
   "Hash user-editable": {
     "other": "Hash user-editable"
   },
-  "Hidden file containing shared metadata": {
-    "other": "File nascosto che contiene i Metadati condivisi"
-  },
   "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server.": {
     "other": "If you detect performances issues while modifiyng files under deep trees, try activating that one. Please be sure of what you do, this may trigger a whole lot of php processes on the server."
-  },
-  "Image used as a background": {
-    "other": "Immagine usata come sfondo"
   },
   "Image used as a button for downloading the file": {
     "other": "Immagine usata come pulsante per il download dei file"
   },
   "Internal Sharing": {
     "other": "Internal Sharing"
-  },
-  "Limit the number of results returned by the auto-completion feature when sharing a folder with other users": {
-    "other": "Limita il numero di risultati restituiti dall'auto-completamento quando si condivide una cartella con altri utenti"
   },
   "Link Generation": {
     "other": "Generazione Link"
@@ -149,32 +113,17 @@
   "Maximum share expiration limit for file, 0 = unlimited": {
     "other": "Limite massimo scadenza per file condivisi; 0 = senza limite"
   },
-  "Metadata File": {
-    "other": "File Metadati"
-  },
-  "Metadata Files": {
-    "other": "File Metadati"
-  },
   "Minimum length of the generated hash": {
     "other": "Lunghezza minima dell'hash generato"
   },
-  "Minimum number of characters to start getting results by auto-completion when sharing a folder with other users": {
-    "other": "Numero minimo di caratteri per avviare l'auto-completamento del nomi utente durante la condivisione di una cartella"
-  },
   "Minisite": {
     "other": "Minisito"
-  },
-  "Minisite Logo": {
-    "other": "Logo Minisito"
   },
   "Minisites and Workspaces": {
     "other": "Minisites and Workspaces"
   },
   "Minisites only": {
     "other": "Minisites only"
-  },
-  "Page Background Images": {
-    "other": "Immagini di sfondo della pagina"
   },
   "Page Title": {
     "other": "Titolo Pagina"
@@ -209,9 +158,6 @@
   "Tmp users prefix": {
     "other": "Prefisso Utenti Temp"
   },
-  "Top-right logo displayed on minisite page": {
-    "other": "Logo visualizzato in alto a destra nella pagina del minisito"
-  },
   "Use Rewrite Rule": {
     "other": "Usa Regola Rewrite"
   },
@@ -223,9 +169,6 @@
   },
   "Weblink Page": {
     "other": "Pagina Weblink"
-  },
-  "Where to store the metadata file : LOCAL means a hidden file will be created in each folder, GLOBAL means that one file will be created in DATA_PATH/plugins/action.share folder.": {
-    "other": "Dove immagazinare il file metadati: LOCAL significa che un file nascosto verrà creato in ogni cartella; GLOBAL significa che un file verrà creato nella cartella DATA_PATH/plugins/action.share."
   },
   "Workspaces only": {
     "other": "Workspaces only"

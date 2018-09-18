@@ -12,7 +12,7 @@
     "other": "Options d'affichage"
   },
   "tour.globsearch.1": {
-    "other": "Utilisez ce moteur de recherche pour trouver des fichiers dans tous les workspaces. Seuls les 5 premiers résultats  sont affichés, entrez dans un workspace pour affiner votre recherche et avoir plus de résultats."
+    "other": "Utilisez ce moteur de recherche pour trouver des fichiers dans tous les workspaces. Seuls les 5 premiers résultats sont affichés, entrez dans un workspace pour affiner votre recherche et avoir plus de résultats."
   },
   "tour.globsearch.2": {
     "other": "Quand il n'y a pas de recherche, ici s'affiche l'historique récent des fichiers et dossiers que vous avez accédé."
@@ -90,7 +90,7 @@
     "other": "Vous pouvez ajouter ou retirer des widgets. Vous pouvez aussi les ré-ordonner pas glisser-déposer."
   },
   "tour.widget-cards.title": {
-    "other": "Widgets"
+    "other": "Gadgets"
   },
   "tour.workspaces.1": {
     "other": "Les workspaces regroupent les fichiers pour vous permettre d'organiser vos données. Ils peuvent être accessible seulement par vous ou partagés par plusieurs utilisateurs. "
@@ -99,6 +99,6 @@
     "other": "Les cellules sont des espaces de collaboration partagés entre utilisateurs. Créez vos propres cellules autour d'un répertoire, d'une équipe, ou de n'importe quel autre sujet."
   },
   "tour.workspaces.title": {
-    "other": "Workspaces \u0026 Cellules"
+    "other": "Workspaces & Cellules"
   }
 }

@@ -1,92 +1,88 @@
 {
-  "Job.Version.Title":{
-    "other":"Job basé sur les évenements pour créer des versions des documents"
+  "Job.Version.Title": {
+    "other": "Job basé sur les événements pour créer des versions des documents"
   },
-  "Job.Version.StatusFile":{
-    "other":"La version {{.Uuid}} a été créée dans le bucket de versioning"
+  "Job.Version.StatusFile": {
+    "other": "La version {{.Uuid}} a été créée dans le bucket de versioning"
   },
-  "Job.Version.StatusMeta":{
-    "other":"Les métadonnées ont été stockées pour la version {{.Uuid}}"
+  "Job.Version.StatusMeta": {
+    "other": "Les métadonnées ont été stockées pour la version {{.Uuid}}"
   },
-  "Job.Version.StatusPrune":{
-    "one":"{{.Count}} version a été supprimée",
-    "other":"{{.Count}} versions ont été supprimées"
+  "Job.Version.StatusPrune": {
+    "one": "{{.Count}} version a été supprimée",
+    "other": "{{.Count}} versions ont été supprimées"
   },
-  "Job.Pruning.Title":{
-    "other":"Suppression des versions pour les documents supprimés"
+  "Job.Pruning.Title": {
+    "other": "Suppression des versions pour les documents supprimés"
   },
   "Job.Pruning.StatusDone": {
-    "one" :"{{.Count}} version a été supprimée avec succès",
-    "other":"{{.Count}} versions ont été supprimées avec succès"
+    "one": "{{.Count}} version a été supprimée avec succès",
+    "other": "{{.Count}} versions ont été supprimées avec succès."
   },
-
   "Config.GroupPolicy.Title": {
-    "other":"Stratégie"
+    "other": "Stratégie"
   },
   "Config.GroupPolicy.Name.Label": {
-    "other":"Nom"
+    "other": "Nom"
   },
   "Config.GroupPolicy.Name.Description": {
-    "other":"Nom de la stratégie"
+    "other": "Nom de la stratégie"
   },
   "Config.GroupPolicy.Description.Label": {
-    "other":"Description"
+    "other": "Description"
   },
   "Config.GroupPolicy.Description.Description": {
-    "other":"Description de la stratégie"
+    "other": "Description de la stratégie"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Label": {
-    "other":"Stockage"
+    "other": "Stockage"
   },
   "Config.GroupPolicy.VersionsDataSourceName.Description": {
-    "other":"DataSource utilisée pour stocker la version"
+    "other": "Datasource utilisée pour stocker la version"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Label": {
-    "other":"Bucket"
+    "other": "Bucket"
   },
   "Config.GroupPolicy.VersionsDataSourceBucket.Description": {
-    "other":"Bucket utilisé dans cette DataSource"
+    "other": "Bucket utilisé dans cette Datasource"
   },
-
   "Config.GroupSizes.Title": {
-    "other":"Limitations de l'espace"
+    "other": "Limitations de l'espace"
   },
   "Config.GroupSizes.MaxTotalSize.Label": {
-    "other":"Taille totale maximum occupée par toutes les versions"
+    "other": "Taille totale maximum occupée par toutes les versions"
   },
   "Config.GroupSizes.MaxTotalSize.Description": {
-    "other":"Limiter la taille totale des versions. Si la limite est atteinte, les versions les plus anciennes sont supprimées. Utiliser -1 pour pas de limite"
+    "other": "Limiter la taille totale des versions. Si la limite est atteinte, les versions les plus anciennes sont supprimées. Utiliser -1 pour pas de limite"
   },
   "Config.GroupSizes.MaxSizePerFile.Label": {
-    "other":"Taille totale des versions par fichier"
+    "other": "Taille totale des versions par fichier"
   },
   "Config.GroupSizes.MaxSizePerFile.Description": {
-    "other":"Limiter la taille des versions pour un fichier. Si la limite est atteinte, les versions les plus anciennes sont supprimées. Utiliser -1 pour pas de limite"
+    "other": "Limiter la taille des versions pour un fichier. Si la limite est atteinte, les versions les plus anciennes sont supprimées. Utiliser -1 pour pas de limite"
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Label": {
-    "other":"Ignorer les fichiers plus gros que..."
+    "other": "Ignorer les fichiers plus gros que..."
   },
   "Config.GroupSizes.IgnoreFilesGreaterThan.Description": {
-    "other":"Ne PAS versioner les fichiers dont la taille dépasse cette valeur. Utiliser -1 pour pas de limite"
+    "other": "Ne PAS versioner les fichiers dont la taille dépasse cette valeur. Utiliser -1 pour pas de limite"
   },
-
   "Config.GroupRetention.Title": {
-    "other":"Périodes de rétentions"
+    "other": "Périodes de rétentions"
   },
   "Config.GroupRetention.Description": {
-    "other":"Nombre de versions à garder par périodes"
+    "other": "Nombre de versions à garder par périodes"
   },
   "Config.GroupRetention.IntervalStart.Name": {
-    "other":"Début de période"
+    "other": "Début de période"
   },
   "Config.GroupRetention.IntervalStart.Description": {
-    "other":"Point de départ pour calculer la période. 0 correspond à la dernière version créée, ajouter une période pour mettre une limite"
+    "other": "Point de départ pour calculer la période. 0 correspond à la dernière version créée, ajouter une période pour mettre une limite"
   },
   "Config.GroupRetention.MaxNumber.Name": {
-    "other":"Nombre maximal de versions"
+    "other": "Nombre maximal de versions"
   },
   "Config.GroupRetention.MaxNumber.Description": {
-    "other":"Nombre maximal à garder sur la période. Utiliser -1 pour garder toutes les versions, 0 pour supprimer toutes les versions."
+    "other": "Nombre maximal à garder sur la période. Utiliser -1 pour garder toutes les versions, 0 pour supprimer toutes les versions."
   }
-
 }

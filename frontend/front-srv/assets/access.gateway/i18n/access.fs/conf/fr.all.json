@@ -1,6 +1,6 @@
 {
   "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path.": {
-    "other": "Absolute path to the folder on the server. You can use PYDIO_DATA_PATH and PYDIO_INSTALL_PATH to point to Pydio default data path and root install path."
+    "other": "Chemin absolu vers le dossier sur le serveur. Vous pouvez utiliser PYDIO_DATA_PATH et PYDIO_INSTALL_PATH pour pointer vers le chemin de données par défaut Pydio et racine chemin_installation."
   },
   "Create": {
     "other": "Création"
@@ -36,7 +36,7 @@
     "other": "Purger tous les documents après un certain nombre de jours. Nécessite la mise en place manuelle d'une tâche CRON. Laisser à 0 pour ne pas utiliser."
   },
   "Optionnaly apply a chmod operation. Value must be numeric, like 0777, 0644, etc.": {
-    "other": "Optionnelemen définir les droits d'accès. Valeur numérique, de type 0777, 0644, ..."
+    "other": "Optionnellement définir les droits d'accès. Valeur numérique, de type 0777, 0644, ..."
   },
   "Path": {
     "other": "Chemin"

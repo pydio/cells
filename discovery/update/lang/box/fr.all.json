@@ -1,0 +1,47 @@
+{
+  "Update.Config.Title": {
+    "other": "Mise à jour de la configuration"
+  },
+  "Update.Config.Url.Label": {
+    "other": "Serveur des mise à jour"
+  },
+  "Update.Config.Url.Description": {
+    "other": "Adresse HTTP du serveur des mises à jour"
+  },
+  "Update.Config.PublicKey.Label": {
+    "other": "Clé publique"
+  },
+  "Update.Config.PublicKey.Description": {
+    "other": "Clé publique permettant la vérification de la signature des binaires."
+  },
+  "Update.Config.Channel.Label": {
+    "other": "Canal de mise à jour"
+  },
+  "Update.Config.Channel.Description": {
+    "other": "Canal utilisé pour recevoir les mises à jour. Laisser \"Stable\" si vous n'êtes pas sûr."
+  },
+  "Update.Config.Channel.ValueStable": {
+    "other": "Stable"
+  },
+  "Update.Config.Channel.ValueDev": {
+    "other": "Dev (à vos risques et périls)"
+  },
+  "Update.Config.ProxyHost.Label": {
+    "other": "Proxy"
+  },
+  "Update.Config.ProxyHost.Description": {
+    "other": "Hôte du serveur proxy s'il est nécessaire pour se connecter vers l'extérieur"
+  },
+  "Update.Config.ProxyUser.Label": {
+    "other": "Utilisateur Proxy"
+  },
+  "Update.Config.ProxyUser.Description": {
+    "other": "Identifiant de l'utilisateur pour s'authentifier auprès du proxy"
+  },
+  "Update.Config.ProxyPassword.Label": {
+    "other": "Mot de passe"
+  },
+  "Update.Config.ProxyPassword.Description": {
+    "other": "Mot de passe de l'utilisateur pour s'authentifier auprès du proxy"
+  }
+}

@@ -69,7 +69,7 @@
     "other": "Désactivé"
   },
   "30": {
-    "other": "Profil \u0026 Rôles"
+    "other": "Profil & Rôles"
   },
   "31": {
     "other": "Identifiant unique de l'utilisateur. Vous ne pouvez pas le modifier."
@@ -84,7 +84,7 @@
     "other": "Contrôle d'accès"
   },
   "35": {
-    "other": "Accès aux dépôts"
+    "other": "Accès aux workspaces"
   },
   "36": {
     "other": "Pages de l'application"
@@ -96,22 +96,22 @@
     "other": "Paramètres de l'application"
   },
   "39": {
-    "other": "Paramètres des dépôts"
+    "other": "Paramètres des workspaces"
   },
   "4": {
     "other": "Effacer la valeur"
   },
   "40": {
-    "other": "Paramètres par dépôts"
+    "other": "Paramètres par workspaces"
   },
   "41": {
     "other": "Paramètres supplémentaires"
   },
   "42": {
-    "other": "Vous pouvez ici personnaliser la valeur d'un paramètre ou désactiver une action.\n            Ceux-ci concernent les aspects génériques de l'application (configuration, authentification, interface, etc).\n            Pour changer des paramètres liés aux dépôts, voir les autres onglets."
+    "other": "Vous pouvez ici personnaliser la valeur d'un paramètre ou désactiver une action. Ceux-ci concernent les aspects génériques de l'application (configuration, authentification, interface, etc). Pour changer des paramètres liés aux workspaces, voir les autres onglets."
   },
   "43": {
-    "other": "Gestion des accès aux dépôts."
+    "other": "Gestion des accès aux workspaces"
   },
   "44": {
     "other": "Pages principles de l'application"
@@ -124,9 +124,6 @@
   },
   "47": {
     "other": "Personnaliser la valeur d'un paramètre ou désactiver une action pour des workspaces spécifiques."
-  },
-  "48": {
-    "other": "Vous pouvez ici personnaliser la valeur d'un paramètre ou désactiver une action pour chaque dépôt."
   },
   "49": {
     "other": "Cellules et Liens Publics"
@@ -144,7 +141,7 @@
     "other": "Partagés par cet utilisateur"
   },
   "53": {
-    "other": "Partagé par %1 depuis le dépôt %2"
+    "other": "Partagé par %1 depuis le workspace %2"
   },
   "54": {
     "other": "Informations du compte. Utilisez le bouton sur la droite pour plus d'actions."
@@ -159,7 +156,7 @@
     "other": "Action %s"
   },
   "8": {
-    "other": "Lecture \u0026 Ecriture"
+    "other": "Lecture & Ecriture"
   },
   "9": {
     "other": "Lecture seule"

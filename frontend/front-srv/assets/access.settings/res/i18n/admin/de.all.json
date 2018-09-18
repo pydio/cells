@@ -447,7 +447,7 @@
     "other": "Am aktivsten"
   },
   "home.70": {
-    "other": "Leer lassen für alle Arbeitsumgebungen oder auf eine bestimmte einschränken"
+    "other": "Leer lassen für alle Arbeitsumgebungen oder auf eine bestimmte einschränken."
   },
   "home.71": {
     "other": "Datei-Filter"
@@ -483,7 +483,7 @@
     "other": "Benutzer"
   },
   "home.getting_started": {
-    "other": "Willkommen auf dem Administrations-Dashboard. Über das Menü auf der linken Seite können Sie alle Einstellungen sowie Benutzer und Arbeitsumgebungen verwalten.\n                        Personalisieren Sie dieses Dashboard um Pydio noch effizienter zu verwalten.\n                        Klicken Sie dafür auf den orangen Button rechts unten um Widgets hinzuzufügen oder zu entfernen.\n                        Die Widgets können anschließend mit gedrückter linker Maustaste verschoben werden.\u003cbr/\u003e\n                        In Konfigurations-Masken erhalten Sie weitere Hilfe, indem Sie auf das \u003cspan class='icon-question-sign'\u003e\u003c/span\u003e-Symbol klicken.\n    "
+    "other": "Willkommen auf dem Administrations-Dashboard. Über das Menü auf der linken Seite können Sie alle Einstellungen sowie Benutzer und Arbeitsumgebungen verwalten.\n                        Personalisieren Sie dieses Dashboard um Pydio noch effizienter zu verwalten.\n                        Klicken Sie dafür auf den orangen Button rechts unten um Widgets hinzuzufügen oder zu entfernen.\n                        Die Widgets können anschließend mit gedrückter linker Maustaste verschoben werden.<br/>\n                        In Konfigurations-Masken erhalten Sie weitere Hilfe, indem Sie auf das <span class='icon-question-sign'></span>-Symbol klicken.\n    "
   },
   "logs.1": {
     "other": "Protokolle"
@@ -849,13 +849,13 @@
     "other": "Suchergebnisse schließen"
   },
   "react.5": {
-    "other": "Verweigern"
+    "other": "verweigern"
   },
   "react.5a": {
-    "other": "Lesen"
+    "other": "lesen"
   },
   "react.5b": {
-    "other": "Schreiben"
+    "other": "schreiben"
   },
   "react.6": {
     "other": "Kinder"
@@ -945,7 +945,7 @@
     "other": "Rollen"
   },
   "user.5": {
-    "other": "Benutzer \u0026 Gruppen"
+    "other": "Benutzer & Gruppen"
   },
   "user.6": {
     "other": "+ Rolle"

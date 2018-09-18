@@ -5,6 +5,9 @@
   "10": {
     "other": "C'est un \"essai\". Veuillez vérifier les journaux de toutes les actions qui vont-être effectuées, si tout est correct, cliquez sur le bouton \"Effectuer l'import maintenant\"."
   },
+  "11": {
+    "other": "Migrate meta.serial"
+  },
   "12": {
     "other": "L'ancien plugin meta.serial a été supprimé et divisé dans metastore.serial et meta.user"
   },
@@ -36,10 +39,10 @@
     "other": "Vérifier maintenant"
   },
   "21": {
-    "other": "Currently in development mode."
+    "other": "Actuellement en développement."
   },
   "22": {
-    "other": "Current version is %1 (%2)."
+    "other": "Version actuelle %1 (%2)."
   },
   "3": {
     "other": "Cliquez sur le bouton pour démarrer la mise à jour. Veuillez vérifier que le répertoire de l'application est accessible en écriture avant de démarrer."

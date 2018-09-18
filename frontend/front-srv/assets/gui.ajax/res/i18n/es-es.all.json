@@ -1,6 +1,6 @@
 {
   "tour.create-menu": {
-    "other": "Empiece a añadir nuevos archivos o carpetas al workpsace actual."
+    "other": "Empiece a añadir nuevos archivos o carpetas al workspace actual."
   },
   "tour.create-menu.title": {
     "other": "Añadir archivos"
@@ -99,6 +99,6 @@
     "other": "Otros usuarios pueden compartir sus carpetas con usted: también apareceran como Cells aquí."
   },
   "tour.workspaces.title": {
-    "other": "Workspaces \u0026 Cells"
+    "other": "Workspaces & Cells"
   }
 }

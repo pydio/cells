@@ -93,7 +93,7 @@
     "other": "Si no sabe por dónde empezar, la Administrator Guide es un buen sitio:"
   },
   "welc.intro": {
-    "other": "Este es su panel para gestionar Pydio. Usando el menu de la izquierda puede crear \u003ca class=\"doc-link\" data-path=\"/data/workspaces\"\u003eworkspaces\u003c/a\u003e y \u003ca class=\"doc-link\" data-path=\"/idm/users\"\u003eusuarios\u003c/a\u003e,\n                            compruebe todos los \u003ca class=\"doc-link\" data-path=\"/admin/logs\"\u003eeventos\u003c/a\u003e que ocurren en la plataforma y gestione la \u003ca class=\"doc-link\" data-path=\"/parameters/core\"\u003econfiguración\u003c/a\u003e y los \u003ca class=\"doc-link\" data-path=\"/plugins/manager\"\u003eplugins\u003c/a\u003e."
+    "other": "Este es su panel para gestionar Pydio. Usando el menu de la izquierda puede crear <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> y <a class=\"doc-link\" data-path=\"/idm/users\">usuarios</a>,\n                            compruebe todos los <a class=\"doc-link\" data-path=\"/admin/logs\">eventos</a> que ocurren en la plataforma y gestione la <a class=\"doc-link\" data-path=\"/parameters/core\">configuración</a> y los <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
   },
   "welc.subtitle": {
     "other": "El lugar para administrar y monitorizar la actividad de su plataforma"
