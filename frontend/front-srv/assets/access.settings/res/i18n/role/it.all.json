@@ -157,5 +157,17 @@
   },
   "9": {
     "other": "Seleziona i workspaces ai quali gli utenti con questo ruolo avranno accesso. Usa il 'Nega' per sovrascrivere un valore impostato in un ruolo precedente, oppure per negare definitivamente l'accesso a questo workspace, anche per i ruoli ereditati."
+  },
+  "dashboard.description": {
+    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+  },
+  "dashboard.technical.hide": {
+    "other": "Hide technical roles"
+  },
+  "dashboard.technical.show": {
+    "other": "Show technical roles"
+  },
+  "last_update": {
+    "other": "Last updated"
   }
 }

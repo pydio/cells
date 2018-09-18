@@ -17,6 +17,7 @@ class DataSourceEditor extends React.Component{
             valid: observable.isValid(),
             encryptionKeys: [],
             versioningPolicies: [],
+            m: (id) => props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id
         };
         DataSource.loadEncryptionKeys().then(res => {
             this.setState({encryptionKeys: res.Keys || []});
@@ -59,7 +60,8 @@ class DataSourceEditor extends React.Component{
     }
 
     deleteSource(){
-        if(confirm('Are you sure you want to delete this datasource? This is undoable, and you may loose all data linked to these nodes!')){
+        const {m} = this.state;
+        if(confirm(m('delete.warning'))){
             this.state.observable.deleteSource().then(() => {
                 this.props.closeEditor();
                 this.props.reloadList();
@@ -93,7 +95,7 @@ class DataSourceEditor extends React.Component{
     }
 
     render(){
-        const {model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue} = this.state;
+        const {model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, m} = this.state;
 
         let titleActionBarButtons = [];
         if(!create){
@@ -115,12 +117,11 @@ class DataSourceEditor extends React.Component{
                 <div>
                     <Divider/>
                     <div style={{padding: 16}}>
-                        File System datasources serve files via an object storage server, that is starting on the <b>parent folder</b> and serving the target as an <b>s3 bucket</b>.
-                        For this reason, the selected folder must meet the following requirements:
+                        {m('legend.local')}
                         <ul>
-                            <li style={{listStyle:'disc', marginLeft: 20}}>At least two-levels deep.</li>
-                            <li style={{listStyle:'disc', marginLeft: 20}}>The parent must be writeable by the application service user</li>
-                            <li style={{listStyle:'disc', marginLeft: 20}}>The target must comply with DNS names (lowercase, no spaces or special chars).</li>
+                            <li style={{listStyle:'disc', marginLeft: 20}}>{m('legend.local.li.1')}</li>
+                            <li style={{listStyle:'disc', marginLeft: 20}}>{m('legend.local.li.2')}</li>
+                            <li style={{listStyle:'disc', marginLeft: 20}}>{m('legend.local.li.3')}</li>
                         </ul>
                     </div>
                 </div>
@@ -129,8 +130,9 @@ class DataSourceEditor extends React.Component{
                 <div>
                     <Divider/>
                     <div style={{padding: 16}}>
-                        Remote Storage datasources will serve files from a remote, s3-compatible storage by proxying all requests. <br/>
-                        Use the standard API Key / Api Secret to authenticate, leave endpoint URL empty for AmazonS3 or use your storage URL for other on-premise solutions.
+                        {m('legend.s3.1')}
+                        <br/>
+                        {m('legend.s3.2')}
                     </div>
                 </div>
                 }
@@ -138,10 +140,9 @@ class DataSourceEditor extends React.Component{
                     <div>
                         <Divider/>
                         <div style={{padding: 16}}>
-                            Resynchronization will scan the underlying storage and detect changes that are not currently
-                            indexed in Pydio.
+                            {m('legend.resync')}
                             <div style={{textAlign:'center', marginTop: 10}}>
-                                <RaisedButton label={"Re-Synchronize"} onClick={this.launchResync.bind(this)}/>
+                                <RaisedButton label={m('legend.resync.button')} onClick={this.launchResync.bind(this)}/>
                             </div>
                         </div>
                     </div>
@@ -150,12 +151,10 @@ class DataSourceEditor extends React.Component{
                     <div>
                         <Divider/>
                         <div style={{padding: 16}}>
-                            Deleting datasource is a destructive operation : although it will NOT remove the data inside
-                            the underlying storage, it will destroy existing index and unlink all ACLs linked to the indexed
-                            nodes.
-                            <br/>Make sure to first remove all workspaces that are pointing to this datasource before deleting it.
+                            {m('legend.delete.1')}
+                            <br/>{m('legend.delete.2')}
                             <div style={{textAlign:'center', marginTop: 10}}>
-                                <RaisedButton secondary={true} label={"Delete DataSource"} onClick={this.deleteSource.bind(this)} style={{marginTop: 16}}/>
+                                <RaisedButton secondary={true} label={m('legend.delete.button')} onClick={this.deleteSource.bind(this)} style={{marginTop: 16}}/>
                             </div>
                         </div>
                     </div>
@@ -163,7 +162,7 @@ class DataSourceEditor extends React.Component{
             </div>
         );
 
-        const title = model.Name ? "DataSource " + model.Name : 'New Data Source';
+        const title = model.Name ? m('title').replace('%s', model.Name) : m('new');
         let storageConfig = model.StorageConfiguration;
         const styles = {
             title: {
@@ -186,69 +185,69 @@ class DataSourceEditor extends React.Component{
             >
                 <Dialog
                     open={showDialog}
-                    title={"Warning!"}
+                    title={m('enc.warning')}
                     onRequestClose={()=>{this.confirmEncryption(!dialogTargetValue)}}
                     actions={[
                         <FlatButton label={"Cancel"} onTouchTap={()=>{this.confirmEncryption(!dialogTargetValue)}}/>,
-                        <FlatButton label={"I Understand"} onTouchTap={()=>{this.confirmEncryption(dialogTargetValue)}}/>
+                        <FlatButton label={m('enc.validate')} onTouchTap={()=>{this.confirmEncryption(dialogTargetValue)}}/>
                     ]}
                 >
                     {showDialog === 'enableEncryption' &&
                         <div>
-                            <p>Enabling encryption on a datasource will start cyphering the data on the storage using the encryption key you provide.</p>
-                            <p>Please be aware that if you do not export and backup your master key, and if you have to reinstall the server for any reason, <b>all data will be lost!</b>.</p>
-                            <p>You must also be aware that it may require more CPU for a smooth on-the-fly encrypting/decrypting of the data.</p>
+                            <p>{m('enc.dialog.enable.1')}</p>
+                            <p>{m('enc.dialog.enable.2')} <b>{m('enc.dialog.enable.2bold')}</b></p>
+                            <p>{m('enc.dialog.enable.3')}</p>
                         </div>
                     }
                     {showDialog === 'disableEncryption' &&
                         <div>
-                            If you have previously enabled encrytion on this datasource, all the encrypted data will be unreadable! Are you sure you want to do that?
+                            {m('enc.dialog.disable')}
                         </div>
                     }
                 </Dialog>
                 <div style={styles.section}>
-                    <div style={styles.title}>Main Options</div>
-                    <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={"DataSource Identifier"} disabled={!create} value={model.Name} onChange={(e,v)=>{model.Name = v}}/>
+                    <div style={styles.title}>{m('options')}</div>
+                    <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('options.id')} disabled={!create} value={model.Name} onChange={(e,v)=>{model.Name = v}}/>
                     {!create &&
-                        <div style={styles.toggleDiv}><Toggle label={"Enabled"} toggled={!model.Disabled} onToggle={(e,v) =>{model.Disabled = !v}} /></div>
+                        <div style={styles.toggleDiv}><Toggle label={m('options.enabled')} toggled={!model.Disabled} onToggle={(e,v) =>{model.Disabled = !v}} /></div>
                     }
-                    <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={"Internal Port"} type={"number"} value={model.ObjectsPort} onChange={(e,v)=>{model.ObjectsPort = v}}/>
+                    <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('options.port')} type={"number"} value={model.ObjectsPort} onChange={(e,v)=>{model.ObjectsPort = v}}/>
                 </div>
                 <Divider/>
                 <div style={styles.section}>
-                    <div style={styles.title}>Storage</div>
-                    <SelectField fullWidth={true} floatingLabelText={"Storage Type"} value={model.StorageType} onChange={(e,i,v)=>{model.StorageType = v}}>
-                        <MenuItem value={"LOCAL"} primaryText={"Local File System"}/>
-                        <MenuItem value={"S3"} primaryText={"Remote Object Storage (S3)"}/>
+                    <div style={styles.title}>{this.context.getMessage('ds.storage.title', 'ajxp_admin')}</div>
+                    <SelectField fullWidth={true} floatingLabelText={this.context.getMessage('ds.storage', 'ajxp_admin')} value={model.StorageType} onChange={(e,i,v)=>{model.StorageType = v}}>
+                        <MenuItem value={"LOCAL"} primaryText={this.context.getMessage('ds.storage.fs', 'ajxp_admin')}/>
+                        <MenuItem value={"S3"} primaryText={this.context.getMessage('ds.storage.s3', 'ajxp_admin')}/>
                     </SelectField>
                     {model.StorageType === 'S3' &&
                         <div>
-                            <TextField fullWidth={true}  floatingLabelFixed={true} floatingLabelText={"Bucket Name"} value={model.ObjectsBucket} onChange={(e,v)=>{model.ObjectsBucket = v}}/>
-                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={"S3 Api Key"} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
-                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={"S3 Api Secret"} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
-                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={"Internal Path"} value={model.ObjectsBaseFolder} onChange={(e,v)=>{model.ObjectsBaseFolder = v}}/>
-                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={"Custom Endpoint"} value={model.StorageConfiguration.customEndpoint} onChange={(e,v)=>{model.StorageConfiguration.customEndpoint = v}}/>
+                            <TextField fullWidth={true}  floatingLabelFixed={true} floatingLabelText={m('storage.s3.bucket')} value={model.ObjectsBucket} onChange={(e,v)=>{model.ObjectsBucket = v}}/>
+                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.api')} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
+                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.secret')} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
+                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.path')} value={model.ObjectsBaseFolder} onChange={(e,v)=>{model.ObjectsBaseFolder = v}}/>
+                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.endpoint')} value={model.StorageConfiguration.customEndpoint} onChange={(e,v)=>{model.StorageConfiguration.customEndpoint = v}}/>
                         </div>
                     }
                     {model.StorageType === 'LOCAL' &&
                         <div>
-                            <DataSourceLocalSelector model={model}/>
-                            <div style={styles.toggleDiv}><Toggle label={"Storage is MacOS"} toggled={storageConfig.normalize === "true"} onToggle={(e,v)=>{storageConfig.normalize = (v?"true":"false")}}/></div>
+                            <DataSourceLocalSelector model={model} pydio={this.props.pydio}/>
+                            <div style={styles.toggleDiv}><Toggle label={m('storage.fs.macos')} toggled={storageConfig.normalize === "true"} onToggle={(e,v)=>{storageConfig.normalize = (v?"true":"false")}}/></div>
                         </div>
                     }
                 </div>
                 <Divider/>
                 <div style={styles.section}>
                     <div style={styles.title}>Data Management</div>
-                    <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={"Versioning Policy"} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
-                        <MenuItem value={undefined} primaryText={"Do not enable versioning"}/>
+                    <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('versioning')} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
+                        <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
                         {versioningPolicies.map(key => {
                             return <MenuItem value={key.Uuid} primaryText={key.Name}/>
                         })}
                     </SelectField>
-                    <div style={styles.toggleDiv}><Toggle label={"Use Encryption"} toggled={model.EncryptionMode === "MASTER"} onToggle={(e,v)=>{this.toggleEncryption(v)}}/></div>
+                    <div style={styles.toggleDiv}><Toggle label={m('enc')} toggled={model.EncryptionMode === "MASTER"} onToggle={(e,v)=>{this.toggleEncryption(v)}}/></div>
                     {model.EncryptionMode === "MASTER" &&
-                        <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={"Encryption Key"} value={model.EncryptionKey} onChange={(e,i,v)=>{model.EncryptionKey = v}}>
+                        <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('enc.key')} value={model.EncryptionKey} onChange={(e,i,v)=>{model.EncryptionKey = v}}>
                             {encryptionKeys.map(key => {
                                 return <MenuItem value={key.ID} primaryText={key.Label}/>
                             })}

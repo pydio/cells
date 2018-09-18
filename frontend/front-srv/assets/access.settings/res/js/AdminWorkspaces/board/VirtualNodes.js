@@ -73,8 +73,9 @@ class VirtualNodes extends React.Component{
     };
 
     render(){
-        const {readonly} = this.props;
+        const {readonly, pydio} = this.props;
         const {nodes, dataSources, nodesLoaded, dataSourcesLoaded} = this.state;
+        const m  = (id) => pydio.MessageHash['ajxp_admin.virtual.' + id] || id;
         let vNodes = [];
         nodes.map((node) => {
             vNodes.push(<NodeCard dataSources={dataSources} node={node} reloadList={this.reload.bind(this)} readonly={readonly}/>);
@@ -82,13 +83,13 @@ class VirtualNodes extends React.Component{
 
         let headerActions = [];
         if(!readonly){
-            headerActions.push(<FlatButton primary={true} label={"+ Template Path"} onTouchTap={this.handleTouchTap.bind(this)}/>);
+            headerActions.push(<FlatButton primary={true} label={m('create')} onTouchTap={this.handleTouchTap.bind(this)}/>);
         }
 
         return (
             <div className="vertical-layout workspaces-list layout-fill">
                 <AdminComponents.Header
-                    title={"Template Paths"}
+                    title={m('title')}
                     icon={"mdi mdi-help-network"}
                     actions={headerActions}
                     reloadAction={this.reload.bind(this)}
@@ -102,21 +103,19 @@ class VirtualNodes extends React.Component{
                     onRequestClose={this.handleRequestClose.bind(this)}
                 >
                     <div style={{margin:'0 10px'}}>
-                        <TextField ref="newNode" floatingLabelText={"Label"} value={this.state.newName} onChange={(e,v)=>{this.setState({newName:v})}} hintText={"Provide a label for this node"}/>
+                        <TextField ref="newNode" floatingLabelText={m('label')} value={this.state.newName} onChange={(e,v)=>{this.setState({newName:v})}} hintText={"Provide a label for this node"}/>
                     </div>
                     <Divider/>
                     <div style={{textAlign:'right', padding:'4px 10px'}}>
-                        <FlatButton label={"Cancel"}  onClick={this.handleRequestClose.bind(this)}/>
-                        <RaisedButton primary={true}  label={"Create"} onClick={this.createNode.bind(this)}/>
+                        <FlatButton label={pydio.MessageHash['54']}  onClick={this.handleRequestClose.bind(this)}/>
+                        <RaisedButton primary={true}  label={m('create.button')} onClick={this.createNode.bind(this)}/>
                     </div>
                 </Popover>
                 <div style={{padding: 20, paddingBottom: 0}}>
-                    Template Paths are dynamically computed depending on the context. They can be used as roots for workspaces in replacement of a fixed datasource path.
-                    They are used by default to create the Personal Files workspace that points to a different folder for each users, and for computing the location of the
-                    users Cells folders.<br/>
+                    {m('legend.1')}
+                    <br/>
                     {!readonly &&
-                        <span>Use Ctrl+Space inside the editor to get hint about the possible values. Current values supported are: User.Name (dynamically resolved to the current
-                    user logged login) and DataSources (to pick a datasource dynamically).</span>
+                        <span>{m('legend.2')}</span>
                     }
 
                 </div>
@@ -124,7 +123,7 @@ class VirtualNodes extends React.Component{
                     vNodes
                 }
                 {(!nodesLoaded || !dataSourcesLoaded) &&
-                    <div style={{margin:16, textAlign:'center', padding: 20}}>Loading...</div>
+                    <div style={{margin:16, textAlign:'center', padding: 20}}>{pydio.MessageHash['ajxp_admin.home.6']}</div>
                 }
             </div>
         );

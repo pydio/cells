@@ -174,7 +174,7 @@ exports['default'] = _react2['default'].createClass({
                     reloadAction: this.reloadWorkspaceList,
                     loading: this.state.loading
                 }),
-                _react2['default'].createElement(AdminComponents.SubHeader, { legend: 'Workspaces define the main access point to your data for the users. Make sure to define at least one datasource to be able to create a workspace that will point to a path of this datasource.' }),
+                _react2['default'].createElement(AdminComponents.SubHeader, { legend: this.context.getMessage('ws.dashboard', 'ajxp_admin') }),
                 _react2['default'].createElement(
                     'div',
                     { className: 'layout-fill' },
@@ -183,6 +183,7 @@ exports['default'] = _react2['default'].createClass({
                         { zDepth: 1, style: { margin: 16 } },
                         _react2['default'].createElement(_WorkspaceList2['default'], {
                             ref: 'workspacesList',
+                            pydio: this.props.pydio,
                             dataModel: this.props.dataModel,
                             rootNode: this.props.rootNode,
                             currentNode: this.props.currentNode,

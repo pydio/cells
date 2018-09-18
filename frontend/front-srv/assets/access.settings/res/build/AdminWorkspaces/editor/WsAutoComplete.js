@@ -139,6 +139,11 @@ var WsAutoComplete = (function (_React$Component) {
             var skipTemplates = _props.skipTemplates;
             var label = _props.label;
             var zDepth = _props.zDepth;
+            var pydio = _props.pydio;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.' + id] || id;
+            };
             var _state = this.state;
             var nodes = _state.nodes;
             var loading = _state.loading;
@@ -155,17 +160,17 @@ var WsAutoComplete = (function (_React$Component) {
                             // Skip hidden files
                             return;
                         }
-                        var data = WsAutoComplete.renderNode(node);
+                        var data = WsAutoComplete.renderNode(node, m);
                         if (!categs[data.categ]) {
                             categs[data.categ] = [];
                         }
                         categs[data.categ].push(data);
                     });
                     if (Object.keys(categs).length > 1) {
-                        dataSource.push({ key: "h1", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "DataSources and folders", style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
+                        dataSource.push({ key: "h1", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.complete.datasources'), style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
                         dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[0]]));
                         if (!skipTemplates) {
-                            dataSource.push({ key: "h2", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Preset Template Paths", style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
+                            dataSource.push({ key: "h2", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.complete.templates'), style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
                             dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[1]]));
                         }
                     } else if (Object.keys(categs).length === 1) {
@@ -202,7 +207,7 @@ var WsAutoComplete = (function (_React$Component) {
                         onUpdateInput: this.handleUpdateInput.bind(this),
                         onNewRequest: this.handleNewRequest.bind(this),
                         dataSource: dataSource,
-                        floatingLabelText: label || 'Select a folder or a predefined template path',
+                        floatingLabelText: label || m('ws.complete.label'),
                         floatingLabelStyle: { whiteSpace: 'nowrap' },
                         floatingLabelFixed: true,
                         filter: function (searchText, key) {
@@ -217,7 +222,7 @@ var WsAutoComplete = (function (_React$Component) {
         }
     }], [{
         key: 'renderNode',
-        value: function renderNode(node) {
+        value: function renderNode(node, m) {
             var label = _react2['default'].createElement(
                 'span',
                 null,
@@ -237,7 +242,9 @@ var WsAutoComplete = (function (_React$Component) {
                     _react2['default'].createElement(
                         'i',
                         { style: { color: '#9e9e9e' } },
-                        '- Resolves to ',
+                        '- ',
+                        m('ws.complete.resolves'),
+                        ' ',
                         resolutionPart
                     )
                 );

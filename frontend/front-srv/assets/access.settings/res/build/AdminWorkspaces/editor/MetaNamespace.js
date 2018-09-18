@@ -43,7 +43,12 @@ var MetaNamespace = (function (_React$Component) {
         _classCallCheck(this, MetaNamespace);
 
         _get(Object.getPrototypeOf(MetaNamespace.prototype), 'constructor', this).call(this, props);
-        this.state = { namespace: this.cloneNs(props.namespace) };
+        this.state = {
+            namespace: this.cloneNs(props.namespace),
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.metadata.' + id];
+            }
+        };
     }
 
     _createClass(MetaNamespace, [{
@@ -146,13 +151,15 @@ var MetaNamespace = (function (_React$Component) {
             var _this2 = this;
 
             var data = this.getSelectionData();
+            var m = this.state.m;
+
             return _react2['default'].createElement(
                 'div',
                 { style: { padding: 10, backgroundColor: '#f5f5f5', borderRadius: 2 } },
                 _react2['default'].createElement(
                     'div',
                     { style: { fontSize: 13 } },
-                    'Selection Values'
+                    m('editor.selection')
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -187,12 +194,12 @@ var MetaNamespace = (function (_React$Component) {
                     _react2['default'].createElement(
                         'span',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newkey', hintText: "Key", fullWidth: true })
+                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newkey', hintText: m('editor.selection.key'), fullWidth: true })
                     ),
                     _react2['default'].createElement(
                         'span',
                         { style: { marginLeft: 10 } },
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newvalue', hintText: "Value", fullWidth: true })
+                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newvalue', hintText: m('editor.selection.value'), fullWidth: true })
                     ),
                     _react2['default'].createElement(
                         'span',
@@ -231,13 +238,16 @@ var MetaNamespace = (function (_React$Component) {
             var _props = this.props;
             var create = _props.create;
             var namespaces = _props.namespaces;
-            var namespace = this.state.namespace;
+            var pydio = _props.pydio;
+            var _state = this.state;
+            var namespace = _state.namespace;
+            var m = _state.m;
 
             var title = undefined;
             if (namespace.Label) {
                 title = namespace.Label;
             } else {
-                title = "Create Namespace";
+                title = m('editor.title.create');
             }
             var type = 'string';
             if (namespace.JsonDefinition) {
@@ -249,18 +259,18 @@ var MetaNamespace = (function (_React$Component) {
                 labelError = undefined;
             if (!namespace.Namespace) {
                 invalid = true;
-                nameError = 'Choose a namespace for this metadata';
+                nameError = m('editor.ns.error');
             }
             if (!namespace.Label) {
                 invalid = true;
-                labelError = 'Metadata label cannot be empty';
+                labelError = m('editor.label.error');
             }
             if (create) {
                 if (namespaces.filter(function (n) {
                     return n.Namespace === namespace.Namespace;
                 }).length) {
                     invalid = true;
-                    nameError = 'Name already exists, please pick another one';
+                    nameError = m('editor.ns.exists');
                 }
             }
             if (type === 'choice' && Object.keys(this.getSelectionData()).length === 0) {
@@ -280,14 +290,14 @@ var MetaNamespace = (function (_React$Component) {
                 });
             }
 
-            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "Cancel", onTouchTap: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid, label: "Save", onTouchTap: function () {
+            var actions = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: pydio.MessageHash['54'], onTouchTap: this.props.onRequestClose }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, disabled: invalid, label: "Save", onTouchTap: function () {
                     _this4.save();
                 } })];
             if (type === 'tags') {
-                actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: "Reset Tags", onTouchTap: function () {
+                actions.unshift(_react2['default'].createElement(_materialUi.FlatButton, { primary: false, label: m('editor.tags.reset'), onTouchTap: function () {
                         var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
                         api.deleteUserMetaTags(namespace.Namespace, "*").then(function () {
-                            pydio.UI.displayMessage('SUCCESS', "Cleared tags for namespace " + namespace.Namespace);
+                            pydio.UI.displayMessage('SUCCESS', m('editor.tags.cleared').replace('%s', namespace.Namespace));
                         })['catch'](function (e) {
                             pydio.UI.displayMessage('ERROR', e.message);
                         });
@@ -306,7 +316,7 @@ var MetaNamespace = (function (_React$Component) {
                     autoScrollBodyContent: true
                 },
                 _react2['default'].createElement(_materialUi.TextField, {
-                    floatingLabelText: "Name",
+                    floatingLabelText: m('namespace'),
                     disabled: !create,
                     value: namespace.Namespace,
                     onChange: function (e, v) {
@@ -316,7 +326,7 @@ var MetaNamespace = (function (_React$Component) {
                     errorText: nameError
                 }),
                 _react2['default'].createElement(_materialUi.TextField, {
-                    floatingLabelText: "Label",
+                    floatingLabelText: m('label'),
                     value: namespace.Label,
                     onChange: function (e, v) {
                         namespace.Label = v;_this4.setState({ namespace: namespace });
@@ -325,7 +335,7 @@ var MetaNamespace = (function (_React$Component) {
                     errorText: labelError
                 }),
                 _react2['default'].createElement(_materialUi.TextField, {
-                    floatingLabelText: "Order",
+                    floatingLabelText: m('order'),
                     value: namespace.Order ? namespace.Order : '0',
                     onChange: function (e, v) {
                         namespace.Order = parseInt(v);_this4.setState({ namespace: namespace });
@@ -336,7 +346,7 @@ var MetaNamespace = (function (_React$Component) {
                 _react2['default'].createElement(
                     _materialUi.SelectField,
                     {
-                        floatingLabelText: "Type",
+                        floatingLabelText: m('type'),
                         value: type,
                         onChange: function (e, i, v) {
                             return _this4.updateType(v);
@@ -350,21 +360,21 @@ var MetaNamespace = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: "Index in search engine", labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
+                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.index'), labelPosition: "left", toggled: namespace.Indexable, onToggle: function (e, v) {
                             namespace.Indexable = v;_this4.setState({ namespace: namespace });
                         } })
                 ),
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: "Restrict visibility to admins", labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
+                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.read'), labelPosition: "left", toggled: adminRead, onToggle: function (e, v) {
                             _this4.togglePolicies('READ', v);
                         } })
                 ),
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: '20px 0 10px' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { label: "Restrict edition to admins", labelPosition: "left", disabled: adminRead, toggled: adminWrite, onToggle: function (e, v) {
+                    _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.write'), labelPosition: "left", disabled: adminRead, toggled: adminWrite, onToggle: function (e, v) {
                             _this4.togglePolicies('WRITE', v);
                         } })
                 )

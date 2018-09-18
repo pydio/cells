@@ -9,7 +9,10 @@ class MetaNamespace extends React.Component{
 
     constructor(props) {
         super(props);
-        this.state = {namespace: this.cloneNs(props.namespace)};
+        this.state = {
+            namespace: this.cloneNs(props.namespace),
+            m : (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id]
+        };
     }
 
     cloneNs(ns){
@@ -85,9 +88,10 @@ class MetaNamespace extends React.Component{
 
     renderSelectionBoard(){
         const data = this.getSelectionData();
+        const {m} = this.state;
         return (
             <div style={{padding: 10, backgroundColor: '#f5f5f5', borderRadius: 2}}>
-                <div style={{fontSize: 13}}>Selection Values</div>
+                <div style={{fontSize: 13}}>{m('editor.selection')}</div>
                 <div>{Object.keys(data).map(k => {
                     return (
                         <div style={{display:'flex'}}>
@@ -98,8 +102,8 @@ class MetaNamespace extends React.Component{
                     )
                 })}</div>
                 <div style={{display:'flex'}}>
-                    <span><TextField ref="newkey" hintText={"Key"} fullWidth={true}/></span>
-                    <span style={{marginLeft: 10}}><TextField ref="newvalue" hintText={"Value"} fullWidth={true}/></span>
+                    <span><TextField ref="newkey" hintText={m('editor.selection.key')} fullWidth={true}/></span>
+                    <span style={{marginLeft: 10}}><TextField ref="newvalue" hintText={m('editor.selection.value')} fullWidth={true}/></span>
                     <span><IconButton iconClassName={"mdi mdi-plus"} onTouchTap={()=>{this.addSelectionValue()}}/></span>
                 </div>
             </div>
@@ -122,13 +126,13 @@ class MetaNamespace extends React.Component{
     }
 
     render(){
-        const {create, namespaces} = this.props;
-        const {namespace} = this.state;
+        const {create, namespaces, pydio} = this.props;
+        const {namespace, m} = this.state;
         let title;
         if(namespace.Label){
             title = namespace.Label;
         } else {
-            title = "Create Namespace";
+            title = m('editor.title.create');
         }
         let type = 'string';
         if(namespace.JsonDefinition){
@@ -138,16 +142,16 @@ class MetaNamespace extends React.Component{
         let invalid = false, nameError, labelError;
         if(!namespace.Namespace){
             invalid = true;
-            nameError = 'Choose a namespace for this metadata'
+            nameError = m('editor.ns.error')
         }
         if(!namespace.Label){
             invalid = true;
-            labelError = 'Metadata label cannot be empty'
+            labelError = m('editor.label.error')
         }
         if(create){
             if (namespaces.filter(n => n.Namespace === namespace.Namespace).length){
                 invalid = true;
-                nameError = 'Name already exists, please pick another one';
+                nameError = m('editor.ns.exists');
             }
         }
         if (type === 'choice' && Object.keys(this.getSelectionData()).length === 0) {
@@ -167,14 +171,14 @@ class MetaNamespace extends React.Component{
         }
 
         const actions = [
-            <FlatButton primary={true} label={"Cancel"} onTouchTap={this.props.onRequestClose}/>,
+            <FlatButton primary={true} label={pydio.MessageHash['54']} onTouchTap={this.props.onRequestClose}/>,
             <FlatButton primary={true} disabled={invalid} label={"Save"} onTouchTap={() => {this.save()}}/>,
         ];
         if(type === 'tags'){
-            actions.unshift(<FlatButton primary={false} label={"Reset Tags"} onTouchTap={()=>{
+            actions.unshift(<FlatButton primary={false} label={m('editor.tags.reset')} onTouchTap={()=>{
                 const api = new UserMetaServiceApi(PydioApi.getRestClient());
                 api.deleteUserMetaTags(namespace.Namespace, "*").then(() => {
-                    pydio.UI.displayMessage('SUCCESS', "Cleared tags for namespace " + namespace.Namespace);
+                    pydio.UI.displayMessage('SUCCESS', m('editor.tags.cleared').replace('%s', namespace.Namespace));
                 }).catch(e => {
                     pydio.UI.displayMessage('ERROR', e.message);
                 });
@@ -193,7 +197,7 @@ class MetaNamespace extends React.Component{
                 autoScrollBodyContent={true}
             >
                 <TextField
-                    floatingLabelText={"Name"}
+                    floatingLabelText={m('namespace')}
                     disabled={!create}
                     value={namespace.Namespace}
                     onChange={(e,v) => {this.updateName(v)}}
@@ -201,21 +205,21 @@ class MetaNamespace extends React.Component{
                     errorText={nameError}
                 />
                 <TextField
-                    floatingLabelText={"Label"}
+                    floatingLabelText={m('label')}
                     value={namespace.Label}
                     onChange={(e,v) => {namespace.Label = v; this.setState({namespace})}}
                     fullWidth={true}
                     errorText={labelError}
                 />
                 <TextField
-                    floatingLabelText={"Order"}
+                    floatingLabelText={m('order')}
                     value={namespace.Order ? namespace.Order : '0'}
                     onChange={(e,v) => {namespace.Order = parseInt(v); this.setState({namespace})}}
                     fullWidth={true}
                     type={"number"}
                 />
                 <SelectField
-                    floatingLabelText={"Type"}
+                    floatingLabelText={m('type')}
                     value={type}
                     onChange={(e,i,v) => this.updateType(v)}
                     fullWidth={true}>
@@ -225,13 +229,13 @@ class MetaNamespace extends React.Component{
                 </SelectField>
                 {type === 'choice' && this.renderSelectionBoard()}
                 <div style={{padding:'20px 0 10px'}}>
-                    <Toggle label={"Index in search engine"} labelPosition={"left"} toggled={namespace.Indexable} onToggle={(e,v) => {namespace.Indexable = v; this.setState({namespace})}}/>
+                    <Toggle label={m('toggle.index')} labelPosition={"left"} toggled={namespace.Indexable} onToggle={(e,v) => {namespace.Indexable = v; this.setState({namespace})}}/>
                 </div>
                 <div style={{padding:'20px 0 10px'}}>
-                    <Toggle label={"Restrict visibility to admins"} labelPosition={"left"} toggled={adminRead} onToggle={(e,v) => {this.togglePolicies('READ', v)}}/>
+                    <Toggle label={m('toggle.read')} labelPosition={"left"} toggled={adminRead} onToggle={(e,v) => {this.togglePolicies('READ', v)}}/>
                 </div>
                 <div style={{padding:'20px 0 10px'}}>
-                    <Toggle label={"Restrict edition to admins"} labelPosition={"left"} disabled={adminRead} toggled={adminWrite} onToggle={(e,v) => {this.togglePolicies('WRITE', v)}}/>
+                    <Toggle label={m('toggle.write')} labelPosition={"left"} disabled={adminRead} toggled={adminWrite} onToggle={(e,v) => {this.togglePolicies('WRITE', v)}}/>
                 </div>
             </Dialog>
 

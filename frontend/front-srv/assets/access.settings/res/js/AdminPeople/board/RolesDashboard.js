@@ -144,8 +144,8 @@ let RolesDashboard = React.createClass({
                 desktop={true}
                 onChange={()=> {this.setState({showTechnical:!showTechnical}, ()=>{this.load();})}}
             >
-                <MenuItem primaryText={"Hide technical roles"} value={"hide"} rightIcon={showTechnical ? null : <FontIcon className={"mdi mdi-check"}/>}/>
-                <MenuItem primaryText={"Show technical roles"} value={"show"} rightIcon={showTechnical ? <FontIcon className={"mdi mdi-check"}/> : null}/>
+                <MenuItem primaryText={this.context.getMessage('dashboard.technical.hide', 'role_editor')} value={"hide"} rightIcon={showTechnical ? null : <FontIcon className={"mdi mdi-check"}/>}/>
+                <MenuItem primaryText={this.context.getMessage('dashboard.technical.show', 'role_editor')} value={"show"} rightIcon={showTechnical ? <FontIcon className={"mdi mdi-check"}/> : null}/>
             </IconMenu>
         ];
 
@@ -159,9 +159,9 @@ let RolesDashboard = React.createClass({
             fontSize: 20
         };
         const columns = [
-            {name:'roleLabel', label: 'Label', style:{width:'35%', fontSize:15}, headerStyle:{width:'35%'}},
-            {name:'roleSummary', label: 'Last Updated'},
-            {name:'isDefault', label: 'Applies to', style:{width:'20%'}, headerStyle:{width:'20%'}},
+            {name:'roleLabel', label: this.context.getMessage('32', 'role_editor'), style:{width:'35%', fontSize:15}, headerStyle:{width:'35%'}},
+            {name:'roleSummary', label: this.context.getMessage('last_update', 'role_editor')},
+            {name:'isDefault', label: this.context.getMessage('114', 'settings'), style:{width:'20%'}, headerStyle:{width:'20%'}},
             {name:'actions', label:'', style:{width:80}, headerStyle:{width:80}, renderCell:(row) => {
                 return <IconButton key="delete" iconClassName="mdi mdi-delete" onTouchTap={() => {this.deleteAction(row.roleId)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />
             }}
@@ -179,7 +179,7 @@ let RolesDashboard = React.createClass({
                     reloadAction={()=>{this.load()}}
                     loading={this.state.loading}
                 />
-                <AdminComponents.SubHeader legend="Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."/>
+                <AdminComponents.SubHeader legend={this.context.getMessage("dashboard.description", "role_editor")}/>
                 <Paper zDepth={1} style={{margin: 16}} className={"horizontal-layout layout-fill"}>
                     <MaterialTable
                         data={data}

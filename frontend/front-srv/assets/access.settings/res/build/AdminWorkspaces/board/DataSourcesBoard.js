@@ -103,7 +103,10 @@ var DataSourcesBoard = (function (_React$Component) {
             showImportKey: false,
             importResult: null,
             keyOperationError: null,
-            startedServices: []
+            startedServices: [],
+            m: function m(id) {
+                return props.pydio.MessageHash["ajxp_admin.ds." + id] || id;
+            }
         };
     }
 
@@ -159,6 +162,7 @@ var DataSourcesBoard = (function (_React$Component) {
                 COMPONENT: _editorDataSourceEditor2['default'],
                 PROPS: {
                     ref: "editor",
+                    pydio: pydio,
                     dataSource: dataSource,
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
@@ -168,10 +172,12 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'computeStatus',
         value: function computeStatus(dataSource) {
-            var startedServices = this.state.startedServices;
+            var _state = this.state;
+            var startedServices = _state.startedServices;
+            var m = _state.m;
 
             if (!startedServices.length) {
-                return 'N/A';
+                return m('status.na');
             }
             var index = undefined,
                 sync = undefined,
@@ -186,23 +192,23 @@ var DataSourcesBoard = (function (_React$Component) {
                 }
             });
             if (index && sync && object) {
-                return "All services running";
+                return m('status.ok');
             } else if (!index && !sync && !object) {
                 return _react2['default'].createElement(
                     'span',
                     { style: { color: '#e53935' } },
-                    'Services Stopped'
+                    m('status.ko')
                 );
             } else {
                 var services = [];
                 if (!index) {
-                    services.push('Index service down');
+                    services.push(m('status.index'));
                 }
                 if (!sync) {
-                    services.push('Sync service down');
+                    services.push(m('status.sync'));
                 }
                 if (!object) {
-                    services.push('Objects service down');
+                    services.push(m('status.object'));
                 }
                 return _react2['default'].createElement(
                     'span',
@@ -240,6 +246,7 @@ var DataSourcesBoard = (function (_React$Component) {
                     ref: "editor",
                     versionPolicy: versionPolicy,
                     create: create,
+                    pydio: this.props.pydio,
                     readonly: this.props.versioningReadonly,
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
@@ -254,6 +261,7 @@ var DataSourcesBoard = (function (_React$Component) {
                 PROPS: {
                     ref: "editor",
                     create: true,
+                    pydio: pydio,
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
                 }
@@ -264,9 +272,10 @@ var DataSourcesBoard = (function (_React$Component) {
         value: function render() {
             var _this3 = this;
 
-            var _state = this.state;
-            var dataSources = _state.dataSources;
-            var versioningPolicies = _state.versioningPolicies;
+            var _state2 = this.state;
+            var dataSources = _state2.dataSources;
+            var versioningPolicies = _state2.versioningPolicies;
+            var m = _state2.m;
 
             dataSources.sort(_pydioUtilLang2['default'].arraySorter('Name'));
             versioningPolicies.sort(_pydioUtilLang2['default'].arraySorter('Name'));
@@ -276,13 +285,13 @@ var DataSourcesBoard = (function (_React$Component) {
             var pydio = _props.pydio;
             var versioningReadonly = _props.versioningReadonly;
 
-            var dsColumns = [{ name: 'Name', label: 'Name', style: { fontSize: 15 } }, { name: 'StorageType', label: 'Storage Type', renderCell: function renderCell(row) {
-                    return row.StorageType === 'S3' ? 'Remote S3 Storage' : 'Local File System';
-                } }, { name: 'Status', label: 'Status', renderCell: function renderCell(row) {
-                    return row.Disabled ? 'Disabled' : _this3.computeStatus(row);
-                } }, { name: 'EncryptionMode', label: 'Encrypted', renderCell: function renderCell(row) {
-                    return row['EncryptionMode'] === 'MASTER' ? 'Yes' : 'No';
-                } }, { name: 'VersioningPolicyName', label: 'Versioning', renderCell: function renderCell(row) {
+            var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15 } }, { name: 'StorageType', label: m('storage'), renderCell: function renderCell(row) {
+                    return row.StorageType === 'S3' ? m('storage.s3') : m('storage.fs');
+                } }, { name: 'Status', label: m('status'), renderCell: function renderCell(row) {
+                    return row.Disabled ? m('status.disabled') : _this3.computeStatus(row);
+                } }, { name: 'EncryptionMode', label: m('encryption'), renderCell: function renderCell(row) {
+                    return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'];
+                } }, { name: 'VersioningPolicyName', label: m('versioning'), renderCell: function renderCell(row) {
                     var pol = versioningPolicies.find(function (obj) {
                         return obj.Uuid === row['VersioningPolicyName'];
                     });
@@ -300,8 +309,8 @@ var DataSourcesBoard = (function (_React$Component) {
                         _this3.openVersionPolicy();
                     } }));
             }
-            var policiesColumns = [{ name: 'Name', label: 'Name', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'Description', label: 'Description' }, { name: 'KeepPeriods', label: 'Retention Strategy', renderCell: function renderCell(row) {
-                    return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods });
+            var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', label: m('versioning.periods'), renderCell: function renderCell(row) {
+                    return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods, pydio: pydio });
                 } }];
 
             return _react2['default'].createElement(
@@ -320,7 +329,7 @@ var DataSourcesBoard = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { className: 'layout-fill' },
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: 'DataSources', legend: 'Datasources are concrete storage locations that are aggregated by Pydio into a global tree. They can be distributed accross many storage nodes as needed.' }),
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.ds.title'), legend: m('board.ds.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
                             { zDepth: 1, style: { margin: 16 } },
@@ -333,7 +342,7 @@ var DataSourcesBoard = (function (_React$Component) {
                                 emptyStateString: "No datasources created yet"
                             })
                         ),
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: 'Versioning Policies', legend: 'You can define how files will be versioned for each datasource, and how many versions the application will retain over the time.' }),
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.versioning.title'), legend: m('board.versioning.legend') }),
                         _react2['default'].createElement(
                             _materialUi.Paper,
                             { zDepth: 1, style: { margin: 16 } },
@@ -345,7 +354,7 @@ var DataSourcesBoard = (function (_React$Component) {
                                 showCheckboxes: false
                             })
                         ),
-                        _react2['default'].createElement(AdminComponents.SubHeader, { title: 'Encryption Master Keys', legend: 'Master keys are automatically generated by Pydio service and stored in the server protected keychain. Use the tools below to export/import these keys in case you need to reinstall or deploy on another server' }),
+                        _react2['default'].createElement(AdminComponents.SubHeader, { title: m('board.enc.title'), legend: m('board.enc.legend') }),
                         _react2['default'].createElement(_EncryptionKeys2['default'], { pydio: pydio, ref: "encKeys" })
                     )
                 )

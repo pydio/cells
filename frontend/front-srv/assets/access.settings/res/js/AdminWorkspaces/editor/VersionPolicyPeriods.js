@@ -5,7 +5,8 @@ class VersionPolicyPeriods extends React.Component{
 
     render(){
 
-        const {periods, rendering} = this.props || [];
+        const {periods, rendering, pydio} = this.props || [];
+        const m = id => pydio.MessageHash['ajxp_admin.versions.period.' + id] || id;
 
         if (rendering === 'short') {
 
@@ -13,17 +14,17 @@ class VersionPolicyPeriods extends React.Component{
             if(periods.length === 1){
                 const p = periods[0];
                 if(p.MaxNumber === -1){
-                    text = "Always keep all versions"
+                    text = m('keep-all.always')
                 } else {
-                    text = "Keep " + p.MaxNumber + " versions";
+                    text = m('keep-n').replace('%s', p.MaxNumber);
                 }
             } else {
-                text = periods.length + " retention periods.";
+                text = m('retentions-n').replace('%s', periods.length);
                 const last = periods[periods.length - 1];
                 if (last.MaxNumber === 0 || last.MaxNumber === undefined){
-                    text += " Remove all after " + last.IntervalStart;
+                    text += ' ' + m('remove-all-after').replace('%s', last.IntervalStart);
                 } else {
-                    text += " Keep " + last.MaxNumber + " versions after " + last.IntervalStart;
+                    text +=  '' + m('keep-n-after').replace('%1', last.MaxNumber).replace('%2', last.IntervalStart);
                 }
             }
 
@@ -41,13 +42,13 @@ class VersionPolicyPeriods extends React.Component{
                 timeLabel = <span style={{fontWeight: 500, fontSize:16}}>{p.IntervalStart}&nbsp;</span>;
             }
             if(p.MaxNumber === -1){
-                label = "Keep all";
+                label = m('keep-all');
             } else if(!p.MaxNumber) {
-                label = "Remove all";
+                label = m('remove-all');
                 icon = <FontIcon className="mdi mdi-delete" style={{color:'#c62828'}}/>;
                 style={color: '#c62828'};
             } else {
-                label = "Max. " + label + " versions"
+                label = m('max-n').replace('%s', label)
             }
             return (
                 <Step>

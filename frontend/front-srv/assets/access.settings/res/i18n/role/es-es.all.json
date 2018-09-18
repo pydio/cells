@@ -157,5 +157,17 @@
   },
   "9": {
     "other": "Selecciona los workspaces a los que este workspace va a tener acceso. Use el valor 'Denegar' para sobreescribir el valor de un rol anterior o denegar el acceso a este workspace incluso a roles heredados."
+  },
+  "dashboard.description": {
+    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+  },
+  "dashboard.technical.hide": {
+    "other": "Hide technical roles"
+  },
+  "dashboard.technical.show": {
+    "other": "Show technical roles"
+  },
+  "last_update": {
+    "other": "Last updated"
   }
 }

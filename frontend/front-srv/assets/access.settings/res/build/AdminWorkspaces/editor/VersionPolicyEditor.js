@@ -58,7 +58,10 @@ var VersionPolicyEditor = (function (_React$Component) {
             policy: props.versionPolicy,
             loaded: true,
             valid: true,
-            parameters: null
+            parameters: null,
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.versions.editor.' + id] || id;
+            }
         };
     }
 
@@ -93,7 +96,9 @@ var VersionPolicyEditor = (function (_React$Component) {
         value: function deleteSource() {
             var _this2 = this;
 
-            if (confirm('Are you sure you want to delete this policy? This is undoable!')) {
+            var m = this.state.m;
+
+            if (confirm(m('delete.confirm'))) {
                 _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function (sdk) {
                     var api = new sdk.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
                     api.deleteVersioningPolicy(_this2.state.policy.Uuid).then(function (r) {
@@ -128,6 +133,8 @@ var VersionPolicyEditor = (function (_React$Component) {
     }, {
         key: 'onFormChange',
         value: function onFormChange(values) {
+            var m = this.state.m;
+
             var newPolicy = VersionPolicyEditor.valuesToTreeVersioningPolicy(values);
             // Check periods
             var periods = newPolicy.KeepPeriods || [];
@@ -135,7 +142,7 @@ var VersionPolicyEditor = (function (_React$Component) {
                 return p.MaxNumber === 0;
             });
             if (deleteAll > -1 && deleteAll < periods.length - 1) {
-                pydio.UI.displayMessage('ERROR', 'The Last period is configured to delete all version, you cannot add a new one!');
+                pydio.UI.displayMessage('ERROR', m('error.lastdelete'));
                 var i = periods.length - 1 - deleteAll;
                 while (i > 0) {
                     periods.pop();i--;
@@ -158,11 +165,13 @@ var VersionPolicyEditor = (function (_React$Component) {
             var _props = this.props;
             var create = _props.create;
             var readonly = _props.readonly;
+            var pydio = _props.pydio;
             var _state = this.state;
             var loaded = _state.loaded;
             var parameters = _state.parameters;
             var policy = _state.policy;
             var saveValue = _state.saveValue;
+            var m = _state.m;
 
             var form = undefined;
             if (parameters && loaded) {
@@ -184,7 +193,7 @@ var VersionPolicyEditor = (function (_React$Component) {
             var titleActionBarButtons = [];
             if (!readonly) {
                 if (!create) {
-                    titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'delete', label: 'Delete Policy', secondary: true, onTouchTap: this.deleteSource.bind(this) }));
+                    titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'delete', label: m('delete'), secondary: true, onTouchTap: this.deleteSource.bind(this) }));
                     titleActionBarButtons.push(_react2['default'].createElement('div', { style: { display: 'inline', borderRight: '1px solid #757575', margin: '0 2px' }, key: 'separator' }));
                     titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'reset', label: this.context.getMessage('plugins.6'), onTouchTap: this.resetForm.bind(this), secondary: true, disabled: !this.state.dirty }));
                 }
@@ -200,7 +209,7 @@ var VersionPolicyEditor = (function (_React$Component) {
             return _react2['default'].createElement(
                 PydioComponents.PaperEditorLayout,
                 {
-                    title: loaded && parameters ? "Policy " + policyName : "Loading...",
+                    title: loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.home.6'],
                     titleActionBar: titleActionBarButtons,
                     className: 'workspace-editor',
                     contentFill: true
@@ -211,7 +220,7 @@ var VersionPolicyEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { overflowX: 'auto' } },
-                        _react2['default'].createElement(_VersionPolicyPeriods2['default'], { periods: saveValue ? saveValue.KeepPeriods : policy.KeepPeriods })
+                        _react2['default'].createElement(_VersionPolicyPeriods2['default'], { pydio: pydio, periods: saveValue ? saveValue.KeepPeriods : policy.KeepPeriods })
                     )
                 ),
                 form

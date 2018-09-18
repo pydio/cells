@@ -1,4 +1,256 @@
 {
+  "ds.board.ds.legend": {
+    "other": "Les datasources représentent concrètement les points d'accès à vos stockages, et sont aggregées dans un namespace global par Pydio. Elles peuvent être distribuées sur différents noeuds."
+  },
+  "ds.board.ds.title": {
+    "other": "Datasources"
+  },
+  "ds.board.enc.legend": {
+    "other": "Les clés d'encryption principales sont générées automatiquement par Pydio et stockées dans le Trousseau protégé du serveur. Utilisez les outils ci-dessous pour importer/exporter les clés en cas de redéploiement ou de réinstallation du serveur."
+  },
+  "ds.board.enc.title": {
+    "other": "Clés d'encryption maitre"
+  },
+  "ds.board.versioning.legend": {
+    "other": "Vous pouvez définir la manière dont les versions des fichiers sont gardées pour chaque datasource, et en particulier combien de versions le serveur garde en fonction du temps."
+  },
+  "ds.board.versioning.title": {
+    "other": "Stratégies de versioning"
+  },
+  "ds.editor.delete.warning": {
+    "other": "Etes-vous sûr de vouloir supprimer cette datasource? C'est irréversible, et vous perdrez les données associées aux fichiers!"
+  },
+  "ds.editor.enc": {
+    "other": "Activer le chiffrage du stockage"
+  },
+  "ds.editor.enc.dialog.disable": {
+    "other": "Si vous avez activé l'encryption sur cette datasource, toutes les données chiffrées seront illisibles! Etes-vous sûr de vouloir faire ça?"
+  },
+  "ds.editor.enc.dialog.enable.1": {
+    "other": "Activer l'encryption va commencer à chiffrer toutes les données stockées dans cette datasource."
+  },
+  "ds.editor.enc.dialog.enable.2": {
+    "other": "Vous devez être conscient que si vous n'exportez pas votre clé d'encryption principale et que vous ne la sauvez pas en lieu sûr, et que vous devez réinstaller votre serveur pour une raison quelconque,"
+  },
+  "ds.editor.enc.dialog.enable.2bold": {
+    "other": "toutes les données seront perdues!"
+  },
+  "ds.editor.enc.dialog.enable.3": {
+    "other": "Vous devez aussi être conscient que ceci consomme plus de CPU afin de chiffrer/déchiffrer les données à la volée."
+  },
+  "ds.editor.enc.key": {
+    "other": "Clé d'encryption"
+  },
+  "ds.editor.enc.validate": {
+    "other": "Je comprends"
+  },
+  "ds.editor.enc.warning": {
+    "other": "Attention!"
+  },
+  "ds.editor.legend.delete.1": {
+    "other": "La suppression d'une datasource est une opération irréversible: bien que ça ne supprime PAS les données sur le stockage sous-jacent, ça va casser les liens avec les index et les ACLs de Pydio Cells."
+  },
+  "ds.editor.legend.delete.2": {
+    "other": "Veuillez vous assurer de supprimer les workspaces qui pointent vers cette datasource avant de la supprimer."
+  },
+  "ds.editor.legend.delete.button": {
+    "other": "Supprimer la datasource"
+  },
+  "ds.editor.legend.local": {
+    "other": "Les fichiers seront exposés en interne via un service de type stockage objet. Le service pointe vers le répertoire parent et expose votre répertoire sélectionné comme un 'Bucket' S3. Pour cette raison, le répertoire doit se conformer aux exigences suivantes:"
+  },
+  "ds.editor.legend.local.li.1": {
+    "other": "Il doit se trouver à au moins 2 niveaux de profondeur par rapport à la racine du serveur."
+  },
+  "ds.editor.legend.local.li.2": {
+    "other": "Le répertoire parent doit être accessible en écriture à l'utilisateur sous lequel tourne l'application."
+  },
+  "ds.editor.legend.local.li.3": {
+    "other": "Le nom répertoire doit être conforme avec les règles de nommage des DNS (en minuscule, pas d'espaces ou de caractères spéciaux)."
+  },
+  "ds.editor.legend.resync": {
+    "other": "La resynchronisation scan les changements du stockage sous-jacent qui ne sont pas indexés."
+  },
+  "ds.editor.legend.resync.button": {
+    "other": "Re-synchroniser"
+  },
+  "ds.editor.legend.s3.1": {
+    "other": "Les datasource S3 fournissent une gateway vers tout stockage objet distant compatible avec les api Amazon S3."
+  },
+  "ds.editor.legend.s3.2": {
+    "other": "Utiliser les clés d'API pour l'authentification, laisser l'URL vide pour AmazonS3, ou entrer une URL pour un stockage déployé sur-site."
+  },
+  "ds.editor.new": {
+    "other": "Nouvelle Datasource"
+  },
+  "ds.editor.options": {
+    "other": "Options principales"
+  },
+  "ds.editor.options.enabled": {
+    "other": "Activée"
+  },
+  "ds.editor.options.id": {
+    "other": "Identifiant"
+  },
+  "ds.editor.options.port": {
+    "other": "Port interne"
+  },
+  "ds.editor.selector.completer": {
+    "other": "Choisir un répertoire"
+  },
+  "ds.editor.selector.error.depth": {
+    "other": "Veuillez vous assurer de sélectionner un répertoire à au moins 2 niveaux de profondeur."
+  },
+  "ds.editor.selector.error.dnsname": {
+    "other": "Le répertoire est exposé comme Bucket S3 et doit être compatible avec les noms de DNS."
+  },
+  "ds.editor.selector.folder": {
+    "other": "Répertoire local"
+  },
+  "ds.editor.selector.folder.hint": {
+    "other": "Sélectionnez un noeud pour charger les répertoires"
+  },
+  "ds.editor.selector.peer": {
+    "other": "Adresse du Noeud"
+  },
+  "ds.editor.storage.fs.macos": {
+    "other": "Le système d'exploitation est Mac OSX"
+  },
+  "ds.editor.storage.s3.api": {
+    "other": "Clé d'API s3"
+  },
+  "ds.editor.storage.s3.bucket": {
+    "other": "Nom du Bucket"
+  },
+  "ds.editor.storage.s3.endpoint": {
+    "other": "URL de stockage personnalisée"
+  },
+  "ds.editor.storage.s3.path": {
+    "other": "Chemin interne"
+  },
+  "ds.editor.storage.s3.secret": {
+    "other": "Clé Secret S3"
+  },
+  "ds.editor.title": {
+    "other": "Datasource %s"
+  },
+  "ds.editor.versioning": {
+    "other": "Stratégie de versioning"
+  },
+  "ds.editor.versioning.disabled": {
+    "other": "Ne pas activer le versioning"
+  },
+  "ds.encryption": {
+    "other": "Encryptée"
+  },
+  "ds.encryption.key.create": {
+    "other": "Nouvelle Clé"
+  },
+  "ds.encryption.key.created": {
+    "other": "Créée le"
+  },
+  "ds.encryption.key.delete": {
+    "other": "Supprimer la clé"
+  },
+  "ds.encryption.key.delete.warning": {
+    "other": "Si la clé est actuellement utilisée pour de la donnée chiffrée, cette opération est très dangereuse! Etes-vous sûr de vouloir faire ça?"
+  },
+  "ds.encryption.key.export": {
+    "other": "Exporter la clé"
+  },
+  "ds.encryption.key.export.confirm": {
+    "other": "Confirmer le mot de passe"
+  },
+  "ds.encryption.key.export.fail": {
+    "other": "Il y a eu une erreur durant l'export"
+  },
+  "ds.encryption.key.export.password": {
+    "other": "Veuillez créer un mot de passe fort"
+  },
+  "ds.encryption.key.export.result.copy": {
+    "other": "Copier le contenu dans un fichier pour le sauvegarder."
+  },
+  "ds.encryption.key.id": {
+    "other": "Identifiant"
+  },
+  "ds.encryption.key.import": {
+    "other": "Importer une clé"
+  },
+  "ds.encryption.key.import.content": {
+    "other": "Coller ici le contenu de votre fichier sauvegardé"
+  },
+  "ds.encryption.key.import.fail": {
+    "other": "Il y a eu une erreur à l'import"
+  },
+  "ds.encryption.key.import.id": {
+    "other": "Identifiant unique pour cette clé"
+  },
+  "ds.encryption.key.import.label": {
+    "other": "Libellé de la clé"
+  },
+  "ds.encryption.key.import.password": {
+    "other": "Mot de passe utilisé lors de l'export"
+  },
+  "ds.encryption.key.import.success": {
+    "other": "La clé a été importée avec succès"
+  },
+  "ds.encryption.key.label": {
+    "other": "Libellé"
+  },
+  "ds.encryption.key.owner": {
+    "other": "Propriétaire"
+  },
+  "ds.name": {
+    "other": "Nom"
+  },
+  "ds.status": {
+    "other": "Statut"
+  },
+  "ds.status.disabled": {
+    "other": "Désactivée"
+  },
+  "ds.status.index": {
+    "other": "Index HS"
+  },
+  "ds.status.ko": {
+    "other": "Services stoppés"
+  },
+  "ds.status.na": {
+    "other": "N/A"
+  },
+  "ds.status.object": {
+    "other": "Objets HS"
+  },
+  "ds.status.ok": {
+    "other": "Tous les services OK"
+  },
+  "ds.status.sync": {
+    "other": "Sync HS"
+  },
+  "ds.storage": {
+    "other": "Type de Stockage"
+  },
+  "ds.storage.fs": {
+    "other": "Fichiers locaux"
+  },
+  "ds.storage.s3": {
+    "other": "Stockage compatible S3"
+  },
+  "ds.storage.title": {
+    "other": "Stockage"
+  },
+  "ds.versioning": {
+    "other": "Versioning"
+  },
+  "ds.versioning.description": {
+    "other": "Description"
+  },
+  "ds.versioning.name": {
+    "other": "Nom"
+  },
+  "ds.versioning.periods": {
+    "other": "Rétention des fichiers"
+  },
   "home.1": {
     "other": "Raccourcis"
   },
@@ -276,16 +528,16 @@
     "other": "Extensions pour permettre l'envoi de fichier via le web"
   },
   "menu.11": {
-    "other": "--- Authentification"
+    "other": "Authentification"
   },
   "menu.11b": {
     "other": "Authentification"
   },
   "menu.12": {
-    "other": "--- Configurations"
+    "other": "Configurations"
   },
   "menu.13": {
-    "other": "--- Journalisation"
+    "other": "Journalisation"
   },
   "menu.14": {
     "other": "Notifications"
@@ -340,6 +592,81 @@
   },
   "menu.9": {
     "other": "Outils d'envoi"
+  },
+  "menu.metadata": {
+    "other": "Métadonnées"
+  },
+  "menu.metadata.description": {
+    "other": "Champs additionels éditables par les utilisateurs"
+  },
+  "metadata.definition": {
+    "other": "Définition"
+  },
+  "metadata.delete.confirm": {
+    "other": "Voulez vous vraiment supprimer cette métadonnée?"
+  },
+  "metadata.editor.label.error": {
+    "other": "Le libellé ne peut pas être vide!"
+  },
+  "metadata.editor.ns.error": {
+    "other": "Choisir un namespace pour cette métadonnée"
+  },
+  "metadata.editor.ns.exists": {
+    "other": "Le nom existe déjà, veuillez en choisir un autre"
+  },
+  "metadata.editor.selection": {
+    "other": "Valeurs autorisées"
+  },
+  "metadata.editor.selection.key": {
+    "other": "Clé"
+  },
+  "metadata.editor.selection.value": {
+    "other": "Valeur"
+  },
+  "metadata.editor.tags.cleared": {
+    "other": "Les tags pour le namespace %s ont été supprimés"
+  },
+  "metadata.editor.tags.reset": {
+    "other": "Effacer les tags"
+  },
+  "metadata.editor.title.create": {
+    "other": "Créer le namespace"
+  },
+  "metadata.empty": {
+    "other": "Pas de métadonnées définies"
+  },
+  "metadata.indexable": {
+    "other": "Indexé"
+  },
+  "metadata.label": {
+    "other": "Libellé"
+  },
+  "metadata.namespace": {
+    "other": "Nom"
+  },
+  "metadata.namespace.add": {
+    "other": "+ Namespace"
+  },
+  "metadata.namespaces": {
+    "other": "Namespaces"
+  },
+  "metadata.namespaces.legend": {
+    "other": "Les métadonnées sont attachées aux fichiers ou aux dossiers par les utilisateurs. Vous pouvez définir les métadonnées et leur type d'affichage, et choisir si ces métadonnées sont accessibles en lecture/écriture par tous les utilisateurs ou seulement par les administrateurs."
+  },
+  "metadata.order": {
+    "other": "Position"
+  },
+  "metadata.toggle.index": {
+    "other": "Indexer dans le moteur de recherche"
+  },
+  "metadata.toggle.read": {
+    "other": "Limiter la visibilité aux admins"
+  },
+  "metadata.toggle.write": {
+    "other": "Limiter l'édition aux admins"
+  },
+  "metadata.type": {
+    "other": "Type"
   },
   "perfs.booster.description": {
     "other": "Vérifie que Pydio Booster est actif et que la communication WebSocket fonctionne."
@@ -599,6 +926,60 @@
   "user.9": {
     "other": "Dernière connexion"
   },
+  "versions.editor.delete": {
+    "other": "Supprimer la stratégie"
+  },
+  "versions.editor.delete.confirm": {
+    "other": "Voulez vous vraiment supprimer cette stratégie? Ce n'est pas réversible!"
+  },
+  "versions.editor.error.lastdelete": {
+    "other": "La dernière période est configurée pour ne garder aucunes versions, vous ne pouvez pas en ajouter d'autre."
+  },
+  "versions.editor.title": {
+    "other": "Stratégie %s"
+  },
+  "versions.period.keep-all": {
+    "other": "Garder tout"
+  },
+  "versions.period.keep-all.always": {
+    "other": "Toujours garder toutes les versions"
+  },
+  "versions.period.keep-n": {
+    "other": "Garder %s versions"
+  },
+  "versions.period.keep-n-after": {
+    "other": "Garder %1 versions après %2"
+  },
+  "versions.period.max-n": {
+    "other": "%s versions maximum"
+  },
+  "versions.period.remove-all": {
+    "other": "Supprimer tout"
+  },
+  "versions.period.remove-all-after": {
+    "other": "Supprimer tout après %s"
+  },
+  "versions.period.retentions-n": {
+    "other": "%s périodes de rétention"
+  },
+  "virtual.create": {
+    "other": "+ Modèle prédéfini"
+  },
+  "virtual.create.button": {
+    "other": "Créer"
+  },
+  "virtual.label": {
+    "other": "Libellé"
+  },
+  "virtual.legend.1": {
+    "other": "Les modèles prédéfinis sont des chemins dans l'arborescence calculés dynamiquement en fonction du contexte. Ils sont utilisés comme racine de Workspaces à la place de chemins dans les Datasources. Par défaut, ils sont utilisés pour le workspace des fichiers personnels (qui pointe vers un dossier différent pour chaque utilisateur), et pour créer des répertoires uniques pour les Cellules créées par les utilisateurs."
+  },
+  "virtual.legend.2": {
+    "other": "Utiliser Ctrl+Espace dans l'éditeur pour ouvrir l'outil de suggestion sur les valeurs possibles. Les valeurs supportées actuellement son User.Name (résolu dynamiquement avec le login de l'utilisateur courant) et DataSources.XXX (pour choisir une datasource de destination dynamiquement)."
+  },
+  "virtual.title": {
+    "other": "Modèles prédéfinis"
+  },
   "ws.1": {
     "other": "Gérer les DataSources"
   },
@@ -829,5 +1210,89 @@
   },
   "ws.9": {
     "other": "Racines"
+  },
+  "ws.board.empty": {
+    "other": "Pas de workspaces définis"
+  },
+  "ws.board.summary": {
+    "other": "Racines du workspace"
+  },
+  "ws.complete.datasources": {
+    "other": "Datasources et répertoires"
+  },
+  "ws.complete.label": {
+    "other": "Sélectionnez un répertoire ou un modèle prédéfini"
+  },
+  "ws.complete.resolves": {
+    "other": "Résolu en"
+  },
+  "ws.complete.templates": {
+    "other": "Modèles prédéfinis"
+  },
+  "ws.dashboard": {
+    "other": "Les workspces définissent l'accès aux données pour vos utilisateurs. Assurez vous d'avoir au moins créé une datasource pour pouvoir créer un workspace qui pointe vers ce stockage."
+  },
+  "ws.editor.data.legend": {
+    "other": "Un workspace exposent une ou plusieurs 'racines' à l'utilisateur: sélectionner un chemin vers un dossier d'une datasource, ou un modèle prédéfini qui sera résolu en fonction de l'utilisateur du contexte."
+  },
+  "ws.editor.data.title": {
+    "other": "Accès aux données"
+  },
+  "ws.editor.default_rights": {
+    "other": "Choisissez les permissions par défaut pour ce workspace (elles seront appliquées à tous les utilisateurs internes). Vous pouvez écraser ces permissions en fonction des utilisateurs/roles/groupes dans la section Utilisateurs."
+  },
+  "ws.editor.default_rights.none": {
+    "other": "Pas d'accès"
+  },
+  "ws.editor.default_rights.read": {
+    "other": "Lecture seule"
+  },
+  "ws.editor.default_rights.readwrite": {
+    "other": "Lecture / Ecriture"
+  },
+  "ws.editor.default_rights.write": {
+    "other": "Ecriture seule"
+  },
+  "ws.editor.description": {
+    "other": "Description (optionnelle)"
+  },
+  "ws.editor.help.1": {
+    "other": "Les workspaces ouvrent les accès aux données à vos utilisateurs. Ils exposent un ou plusieurs répertoires racines de vos datasources."
+  },
+  "ws.editor.help.2": {
+    "other": "Il est important de bien organiser la manière dont les données sont présentées à vos utilisateurs. Vous pouvez créer des workspaces pour les différentes parties de votre organisation (finance, marketing, technique, etc.), ou par exemple par projet, ou par équipe, etc. Vous pouvez ensuite associer des droits d'accès aux workspaces par utilisateur, par groupe, ou par rôle."
+  },
+  "ws.editor.help.delete": {
+    "other": "Attention opération dangereuse! Ce n'est pas réversible."
+  },
+  "ws.editor.label.legend": {
+    "other": "Libellé pour ce workspace"
+  },
+  "ws.editor.options.legend": {
+    "other": "Le libellé et la description sont affichées aux utilisateurs, choisissez les de telle manière d'aider vos utilisateurs à organiser correctement leur données."
+  },
+  "ws.editor.other": {
+    "other": "Autres attributs"
+  },
+  "ws.editor.other.layout": {
+    "other": "Mise en page"
+  },
+  "ws.editor.other.layout.default": {
+    "other": "Par défaut"
+  },
+  "ws.editor.other.layout.easy": {
+    "other": "Easy Transfer (enterprise seulement)"
+  },
+  "ws.editor.other.sync": {
+    "other": "Autoriser la synchronisation (experimental)"
+  },
+  "ws.editor.path.folder": {
+    "other": "Chemin du dossier"
+  },
+  "ws.editor.path.template": {
+    "other": "Modèle prédéfini"
+  },
+  "ws.editor.slug.legend": {
+    "other": "Identifiant technique utilisé par exemple dans les URLs, calculé automatiquement à moins que vous ne le personnalisiez."
   }
 }

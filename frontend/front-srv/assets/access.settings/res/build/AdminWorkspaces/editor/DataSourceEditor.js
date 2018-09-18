@@ -46,7 +46,10 @@ var DataSourceEditor = (function (_React$Component) {
             loaded: false,
             valid: observable.isValid(),
             encryptionKeys: [],
-            versioningPolicies: []
+            versioningPolicies: [],
+            m: function m(id) {
+                return props.pydio.MessageHash['ajxp_admin.ds.editor.' + id] || id;
+            }
         };
         _modelDataSource2['default'].loadEncryptionKeys().then(function (res) {
             _this.setState({ encryptionKeys: res.Keys || [] });
@@ -106,7 +109,9 @@ var DataSourceEditor = (function (_React$Component) {
         value: function deleteSource() {
             var _this4 = this;
 
-            if (confirm('Are you sure you want to delete this datasource? This is undoable, and you may loose all data linked to these nodes!')) {
+            var m = this.state.m;
+
+            if (confirm(m('delete.warning'))) {
                 this.state.observable.deleteSource().then(function () {
                     _this4.props.closeEditor();
                     _this4.props.reloadList();
@@ -158,6 +163,7 @@ var DataSourceEditor = (function (_React$Component) {
             var versioningPolicies = _state.versioningPolicies;
             var showDialog = _state.showDialog;
             var dialogTargetValue = _state.dialogTargetValue;
+            var m = _state.m;
 
             var titleActionBarButtons = [];
             if (!create) {
@@ -187,36 +193,24 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: 16 } },
-                        'File System datasources serve files via an object storage server, that is starting on the ',
-                        _react2['default'].createElement(
-                            'b',
-                            null,
-                            'parent folder'
-                        ),
-                        ' and serving the target as an ',
-                        _react2['default'].createElement(
-                            'b',
-                            null,
-                            's3 bucket'
-                        ),
-                        '. For this reason, the selected folder must meet the following requirements:',
+                        m('legend.local'),
                         _react2['default'].createElement(
                             'ul',
                             null,
                             _react2['default'].createElement(
                                 'li',
                                 { style: { listStyle: 'disc', marginLeft: 20 } },
-                                'At least two-levels deep.'
+                                m('legend.local.li.1')
                             ),
                             _react2['default'].createElement(
                                 'li',
                                 { style: { listStyle: 'disc', marginLeft: 20 } },
-                                'The parent must be writeable by the application service user'
+                                m('legend.local.li.2')
                             ),
                             _react2['default'].createElement(
                                 'li',
                                 { style: { listStyle: 'disc', marginLeft: 20 } },
-                                'The target must comply with DNS names (lowercase, no spaces or special chars).'
+                                m('legend.local.li.3')
                             )
                         )
                     )
@@ -228,9 +222,9 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: 16 } },
-                        'Remote Storage datasources will serve files from a remote, s3-compatible storage by proxying all requests. ',
+                        m('legend.s3.1'),
                         _react2['default'].createElement('br', null),
-                        'Use the standard API Key / Api Secret to authenticate, leave endpoint URL empty for AmazonS3 or use your storage URL for other on-premise solutions.'
+                        m('legend.s3.2')
                     )
                 ),
                 !create && _react2['default'].createElement(
@@ -240,11 +234,11 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: 16 } },
-                        'Resynchronization will scan the underlying storage and detect changes that are not currently indexed in Pydio.',
+                        m('legend.resync'),
                         _react2['default'].createElement(
                             'div',
                             { style: { textAlign: 'center', marginTop: 10 } },
-                            _react2['default'].createElement(_materialUi.RaisedButton, { label: "Re-Synchronize", onClick: this.launchResync.bind(this) })
+                            _react2['default'].createElement(_materialUi.RaisedButton, { label: m('legend.resync.button'), onClick: this.launchResync.bind(this) })
                         )
                     )
                 ),
@@ -255,19 +249,19 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: 16 } },
-                        'Deleting datasource is a destructive operation : although it will NOT remove the data inside the underlying storage, it will destroy existing index and unlink all ACLs linked to the indexed nodes.',
+                        m('legend.delete.1'),
                         _react2['default'].createElement('br', null),
-                        'Make sure to first remove all workspaces that are pointing to this datasource before deleting it.',
+                        m('legend.delete.2'),
                         _react2['default'].createElement(
                             'div',
                             { style: { textAlign: 'center', marginTop: 10 } },
-                            _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: "Delete DataSource", onClick: this.deleteSource.bind(this), style: { marginTop: 16 } })
+                            _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: m('legend.delete.button'), onClick: this.deleteSource.bind(this), style: { marginTop: 16 } })
                         )
                     )
                 )
             );
 
-            var title = model.Name ? "DataSource " + model.Name : 'New Data Source';
+            var title = model.Name ? m('title').replace('%s', model.Name) : m('new');
             var storageConfig = model.StorageConfiguration;
             var styles = {
                 title: {
@@ -293,13 +287,13 @@ var DataSourceEditor = (function (_React$Component) {
                     _materialUi.Dialog,
                     {
                         open: showDialog,
-                        title: "Warning!",
+                        title: m('enc.warning'),
                         onRequestClose: function () {
                             _this6.confirmEncryption(!dialogTargetValue);
                         },
                         actions: [_react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: function () {
                                 _this6.confirmEncryption(!dialogTargetValue);
-                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: "I Understand", onTouchTap: function () {
+                            } }), _react2['default'].createElement(_materialUi.FlatButton, { label: m('enc.validate'), onTouchTap: function () {
                                 _this6.confirmEncryption(dialogTargetValue);
                             } })]
                     },
@@ -309,29 +303,29 @@ var DataSourceEditor = (function (_React$Component) {
                         _react2['default'].createElement(
                             'p',
                             null,
-                            'Enabling encryption on a datasource will start cyphering the data on the storage using the encryption key you provide.'
+                            m('enc.dialog.enable.1')
                         ),
                         _react2['default'].createElement(
                             'p',
                             null,
-                            'Please be aware that if you do not export and backup your master key, and if you have to reinstall the server for any reason, ',
+                            m('enc.dialog.enable.2'),
+                            ' ',
                             _react2['default'].createElement(
                                 'b',
                                 null,
-                                'all data will be lost!'
-                            ),
-                            '.'
+                                m('enc.dialog.enable.2bold')
+                            )
                         ),
                         _react2['default'].createElement(
                             'p',
                             null,
-                            'You must also be aware that it may require more CPU for a smooth on-the-fly encrypting/decrypting of the data.'
+                            m('enc.dialog.enable.3')
                         )
                     ),
                     showDialog === 'disableEncryption' && _react2['default'].createElement(
                         'div',
                         null,
-                        'If you have previously enabled encrytion on this datasource, all the encrypted data will be unreadable! Are you sure you want to do that?'
+                        m('enc.dialog.disable')
                     )
                 ),
                 _react2['default'].createElement(
@@ -340,19 +334,19 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Main Options'
+                        m('options')
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "DataSource Identifier", disabled: !create, value: model.Name, onChange: function (e, v) {
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('options.id'), disabled: !create, value: model.Name, onChange: function (e, v) {
                             model.Name = v;
                         } }),
                     !create && _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: "Enabled", toggled: !model.Disabled, onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { label: m('options.enabled'), toggled: !model.Disabled, onToggle: function (e, v) {
                                 model.Disabled = !v;
                             } })
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Internal Port", type: "number", value: model.ObjectsPort, onChange: function (e, v) {
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('options.port'), type: "number", value: model.ObjectsPort, onChange: function (e, v) {
                             model.ObjectsPort = v;
                         } })
                 ),
@@ -363,43 +357,43 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Storage'
+                        this.context.getMessage('ds.storage.title', 'ajxp_admin')
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelText: "Storage Type", value: model.StorageType, onChange: function (e, i, v) {
+                        { fullWidth: true, floatingLabelText: this.context.getMessage('ds.storage', 'ajxp_admin'), value: model.StorageType, onChange: function (e, i, v) {
                                 model.StorageType = v;
                             } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "LOCAL", primaryText: "Local File System" }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "S3", primaryText: "Remote Object Storage (S3)" })
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "LOCAL", primaryText: this.context.getMessage('ds.storage.fs', 'ajxp_admin') }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "S3", primaryText: this.context.getMessage('ds.storage.s3', 'ajxp_admin') })
                     ),
                     model.StorageType === 'S3' && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Bucket Name", value: model.ObjectsBucket, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.bucket'), value: model.ObjectsBucket, onChange: function (e, v) {
                                 model.ObjectsBucket = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "S3 Api Key", value: model.ApiKey, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.api'), value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "S3 Api Secret", value: model.ApiSecret, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.secret'), value: model.ApiSecret, onChange: function (e, v) {
                                 model.ApiSecret = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Internal Path", value: model.ObjectsBaseFolder, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
                                 model.ObjectsBaseFolder = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Custom Endpoint", value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.endpoint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
                                 model.StorageConfiguration.customEndpoint = v;
                             } })
                     ),
                     model.StorageType === 'LOCAL' && _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model }),
+                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model, pydio: this.props.pydio }),
                         _react2['default'].createElement(
                             'div',
                             { style: styles.toggleDiv },
-                            _react2['default'].createElement(_materialUi.Toggle, { label: "Storage is MacOS", toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
+                            _react2['default'].createElement(_materialUi.Toggle, { label: m('storage.fs.macos'), toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
                                     storageConfig.normalize = v ? "true" : "false";
                                 } })
                         )
@@ -416,10 +410,10 @@ var DataSourceEditor = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Versioning Policy", value: model.VersioningPolicyName, onChange: function (e, i, v) {
+                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('versioning'), value: model.VersioningPolicyName, onChange: function (e, i, v) {
                                 model.VersioningPolicyName = v;
                             } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: "Do not enable versioning" }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: undefined, primaryText: m('versioning.disabled') }),
                         versioningPolicies.map(function (key) {
                             return _react2['default'].createElement(_materialUi.MenuItem, { value: key.Uuid, primaryText: key.Name });
                         })
@@ -427,13 +421,13 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: "Use Encryption", toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { label: m('enc'), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
                                 _this6.toggleEncryption(v);
                             } })
                     ),
                     model.EncryptionMode === "MASTER" && _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: "Encryption Key", value: model.EncryptionKey, onChange: function (e, i, v) {
+                        { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('enc.key'), value: model.EncryptionKey, onChange: function (e, i, v) {
                                 model.EncryptionKey = v;
                             } },
                         encryptionKeys.map(function (key) {

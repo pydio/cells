@@ -157,5 +157,17 @@
   },
   "9": {
     "other": "Seleccione as Áreas de Trabalho a que este papel tem acesso. Use 'Negar' para substituir as definições estabelecidas por um papel anterior ou simplesmente para negar acesso à Área de Trabalho em questão mesmo com permissões herdadas pelos papéis."
+  },
+  "dashboard.description": {
+    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+  },
+  "dashboard.technical.hide": {
+    "other": "Hide technical roles"
+  },
+  "dashboard.technical.show": {
+    "other": "Show technical roles"
+  },
+  "last_update": {
+    "other": "Last updated"
   }
 }
