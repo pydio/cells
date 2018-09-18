@@ -30,24 +30,7 @@ import uuid from 'uuid4'
 
 import Policy from '../policies/Policy'
 
-const ResourceGroups = {
-    "acl"  : {
-        title: "Context-based ACLs",
-        legend: "These policies are used to dynamically provide read/write access to workspaces or nodes based on the request context and/or the node metadata. " +
-        "They are defined here and used in the Access Control Panel of the users and roles."
-    },
-    "rest" : {
-        title : "REST Resources",
-        legend : "These policies are protecting the REST APIs on a per-uri / per-method basis. They grant basic access to some specific APIs " +
-        "for public discovery, and a restriction access to many APIs to make sure they are accessed only by frontend application. You should generally " +
-        "not touch these unless you know exactly what you do.",
-    },
-    "oidc" : {
-        title: "OpenId Connect Resources",
-        legend: "OpenId Connect Service is used for authentication of the user, before any access to the APIs. As such, you can totally disable the login " +
-        "operation for a set of users based on the requests context, e.g. disable loging from a given set of IP or at a given time."
-    }
-};
+const ResourceGroups = ["acl", "rest", "oidc"];
 
 let PoliciesBoard = React.createClass({
 
@@ -73,8 +56,7 @@ let PoliciesBoard = React.createClass({
 
     groupByResourcesGroups(policies) {
         let result = [];
-
-        Object.keys(ResourceGroups).map((k) => {
+        ResourceGroups.map((k) => {
 
             const groupPolicies = policies.PolicyGroups.filter((pol) => {
                 const g = pol.ResourceGroup || 'rest';
@@ -187,9 +169,10 @@ let PoliciesBoard = React.createClass({
 
     render(){
 
-        const {muiTheme, readonly, currentNode} = this.props;
+        const {muiTheme, readonly, currentNode, pydio} = this.props;
         const {policies} = this.state;
         const {primary1Color} = muiTheme.palette;
+        const m = (id) => pydio.MessageHash['ajxp_admin.policies.' + id] || id;
 
         //let items = [];
 
@@ -205,8 +188,8 @@ let PoliciesBoard = React.createClass({
             if (readonly && k === 'acl') {
                 return null;
             }
-            const title = ResourceGroups[k].title;
-            const legend = ResourceGroups[k].legend;
+            const title = m('type.' + k + '.title');
+            const legend = m('type.' + k + '.legend');
             const data = policies[k];
             let items = [];
             data.map((policy) => {
@@ -238,7 +221,7 @@ let PoliciesBoard = React.createClass({
                 <FlatButton
                     primary={true}
                     onTouchTap={this.openPopover.bind(this)}
-                    label="+ New Policy"
+                    label={m('policy.new')}
                 />
                 <Popover
                     open={this.state.popoverOpen}
@@ -249,23 +232,23 @@ let PoliciesBoard = React.createClass({
                 >
                     <div>
                         <div style={{padding : '0 12px'}}>
-                            <TextField floatingLabelText={"Policy Name"} ref="newPolicyName"/>
+                            <TextField floatingLabelText={m('policy.name')} ref="newPolicyName"/>
                             <br/>
-                            <TextField floatingLabelText={"Policy Description"} ref="newPolicyDescription"/>
+                            <TextField floatingLabelText={m('policy.description')} ref="newPolicyDescription"/>
                             <br/>
                             <SelectField
-                                floatingLabelText="Policy Type"
+                                floatingLabelText={m('policy.type')}
                                 ref="newPolicyType"
                                 value={this.state.newPolicyType || 'rest'}
                                 onChange={this.handleChangePolicyType.bind(this)}
                             >
-                                {Object.keys(ResourceGroups).map((k) => <MenuItem value={k} primaryText={ResourceGroups[k].title}/>)}
+                                {ResourceGroups.map((k) => <MenuItem value={k} primaryText={m('type.' + k + '.title')}/>)}
                             </SelectField>
                             </div>
                         <Divider/>
                         <div style={{textAlign: 'right', padding: '6px 12px'}}>
-                            <FlatButton label={"Cancel"} onTouchTap={this.handleRequestClose.bind(this)}/>
-                            <FlatButton label={"Create"} onTouchTap={this.createPolicy.bind(this)}/>
+                            <FlatButton label={pydio.MessageHash['54']} onTouchTap={this.handleRequestClose.bind(this)}/>
+                            <FlatButton label={m('policy.create')} onTouchTap={this.createPolicy.bind(this)}/>
                         </div>
                     </div>
                 </Popover>

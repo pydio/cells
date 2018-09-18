@@ -22987,20 +22987,7 @@ var _policiesPolicy = require('../policies/Policy');
 
 var _policiesPolicy2 = _interopRequireDefault(_policiesPolicy);
 
-var ResourceGroups = {
-    "acl": {
-        title: "Context-based ACLs",
-        legend: "These policies are used to dynamically provide read/write access to workspaces or nodes based on the request context and/or the node metadata. " + "They are defined here and used in the Access Control Panel of the users and roles."
-    },
-    "rest": {
-        title: "REST Resources",
-        legend: "These policies are protecting the REST APIs on a per-uri / per-method basis. They grant basic access to some specific APIs " + "for public discovery, and a restriction access to many APIs to make sure they are accessed only by frontend application. You should generally " + "not touch these unless you know exactly what you do."
-    },
-    "oidc": {
-        title: "OpenId Connect Resources",
-        legend: "OpenId Connect Service is used for authentication of the user, before any access to the APIs. As such, you can totally disable the login " + "operation for a set of users based on the requests context, e.g. disable loging from a given set of IP or at a given time."
-    }
-};
+var ResourceGroups = ["acl", "rest", "oidc"];
 
 var PoliciesBoard = _react2['default'].createClass({
     displayName: 'PoliciesBoard',
@@ -23027,8 +23014,7 @@ var PoliciesBoard = _react2['default'].createClass({
 
     groupByResourcesGroups: function groupByResourcesGroups(policies) {
         var result = [];
-
-        Object.keys(ResourceGroups).map(function (k) {
+        ResourceGroups.map(function (k) {
 
             var groupPolicies = policies.PolicyGroups.filter(function (pol) {
                 var g = pol.ResourceGroup || 'rest';
@@ -23158,8 +23144,13 @@ var PoliciesBoard = _react2['default'].createClass({
         var muiTheme = _props.muiTheme;
         var readonly = _props.readonly;
         var currentNode = _props.currentNode;
+        var pydio = _props.pydio;
         var policies = this.state.policies;
         var primary1Color = muiTheme.palette.primary1Color;
+
+        var m = function m(id) {
+            return pydio.MessageHash['ajxp_admin.policies.' + id] || id;
+        };
 
         //let items = [];
 
@@ -23175,8 +23166,8 @@ var PoliciesBoard = _react2['default'].createClass({
             if (readonly && k === 'acl') {
                 return null;
             }
-            var title = ResourceGroups[k].title;
-            var legend = ResourceGroups[k].legend;
+            var title = m('type.' + k + '.title');
+            var legend = m('type.' + k + '.legend');
             var data = policies[k];
             var items = [];
             data.map(function (policy) {
@@ -23221,7 +23212,7 @@ var PoliciesBoard = _react2['default'].createClass({
             _react2['default'].createElement(_materialUi.FlatButton, {
                 primary: true,
                 onTouchTap: this.openPopover.bind(this),
-                label: '+ New Policy'
+                label: m('policy.new')
             }),
             _react2['default'].createElement(
                 _materialUi.Popover,
@@ -23238,20 +23229,20 @@ var PoliciesBoard = _react2['default'].createClass({
                     _react2['default'].createElement(
                         'div',
                         { style: { padding: '0 12px' } },
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Policy Name", ref: 'newPolicyName' }),
+                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('policy.name'), ref: 'newPolicyName' }),
                         _react2['default'].createElement('br', null),
-                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: "Policy Description", ref: 'newPolicyDescription' }),
+                        _react2['default'].createElement(_materialUi.TextField, { floatingLabelText: m('policy.description'), ref: 'newPolicyDescription' }),
                         _react2['default'].createElement('br', null),
                         _react2['default'].createElement(
                             _materialUi.SelectField,
                             {
-                                floatingLabelText: 'Policy Type',
+                                floatingLabelText: m('policy.type'),
                                 ref: 'newPolicyType',
                                 value: this.state.newPolicyType || 'rest',
                                 onChange: this.handleChangePolicyType.bind(this)
                             },
-                            Object.keys(ResourceGroups).map(function (k) {
-                                return _react2['default'].createElement(_materialUi.MenuItem, { value: k, primaryText: ResourceGroups[k].title });
+                            ResourceGroups.map(function (k) {
+                                return _react2['default'].createElement(_materialUi.MenuItem, { value: k, primaryText: m('type.' + k + '.title') });
                             })
                         )
                     ),
@@ -23259,8 +23250,8 @@ var PoliciesBoard = _react2['default'].createClass({
                     _react2['default'].createElement(
                         'div',
                         { style: { textAlign: 'right', padding: '6px 12px' } },
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: "Cancel", onTouchTap: this.handleRequestClose.bind(this) }),
-                        _react2['default'].createElement(_materialUi.FlatButton, { label: "Create", onTouchTap: this.createPolicy.bind(this) })
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash['54'], onTouchTap: this.handleRequestClose.bind(this) }),
+                        _react2['default'].createElement(_materialUi.FlatButton, { label: m('policy.create'), onTouchTap: this.createPolicy.bind(this) })
                     )
                 )
             )

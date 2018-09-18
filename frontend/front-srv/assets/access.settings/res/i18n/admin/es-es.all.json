@@ -788,6 +788,39 @@
   "plugins.6": {
     "other": "Revertir"
   },
+  "policies.policy.create": {
+    "other": "Create"
+  },
+  "policies.policy.description": {
+    "other": "Policy Description"
+  },
+  "policies.policy.name": {
+    "other": "Policy Name"
+  },
+  "policies.policy.new": {
+    "other": "+ New Policy"
+  },
+  "policies.policy.type": {
+    "other": "Policy Type"
+  },
+  "policies.type.acl.legend": {
+    "other": "These policies are used to dynamically provide read/write access to workspaces or nodes based on the request context and/or the node metadata. They are defined here and used in the Access Control Panel of the users and roles."
+  },
+  "policies.type.acl.title": {
+    "other": "Context-based ACLs"
+  },
+  "policies.type.oidc.legend": {
+    "other": "OpenId Connect Service is used for authentication of the user, before any access to the APIs. As such, you can totally disable the login operation for a set of users based on the requests context, e.g. disable loging from a given set of IP or at a given time."
+  },
+  "policies.type.oidc.title": {
+    "other": "OpenId Connect Resources"
+  },
+  "policies.type.rest.legend": {
+    "other": "These policies are protecting the REST APIs on a per-uri / per-method basis. They grant basic access to some specific APIs for public discovery, and a restriction access to many APIs to make sure they are accessed only by frontend application. You should generally not touch these unless you know exactly what you do."
+  },
+  "policies.type.rest.title": {
+    "other": "REST Resources"
+  },
   "react.1": {
     "other": "directorio anterior"
   },

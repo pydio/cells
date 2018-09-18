@@ -788,6 +788,39 @@
   "plugins.6": {
     "other": "Revenir"
   },
+  "policies.policy.create": {
+    "other": "Créer"
+  },
+  "policies.policy.description": {
+    "other": "Description"
+  },
+  "policies.policy.name": {
+    "other": "Nom de la stratégie"
+  },
+  "policies.policy.new": {
+    "other": "+ Stratégie"
+  },
+  "policies.policy.type": {
+    "other": "Type"
+  },
+  "policies.type.acl.legend": {
+    "other": "Ces stratégies permettent de calculer dymaniquement des droits d'accès en lecture/écriture à des workspaces ou des répertoires à partir du context. Elles sont définies ici, et vous pouvez les utiliser dans le panneau d'assignation des droits d'accès (via les users / roles) en remplacement des valeurs basiques lecture/écriture."
+  },
+  "policies.type.acl.title": {
+    "other": "ACLs Dynamiques"
+  },
+  "policies.type.oidc.legend": {
+    "other": "Les service OpenId Connect est utilisé pour l'authentification des utilisateurs, en amont de l'accès aux APIs. Ces stratégies permettent donc d'activer/désactiver complètement l'accès à la plateform pour un utilisateur en se basant sur les informations de contexte de la requête, telles que l'adresse IP d'origine, l'heure de connexion, etc."
+  },
+  "policies.type.oidc.title": {
+    "other": "Ressources OpenId Connect"
+  },
+  "policies.type.rest.legend": {
+    "other": "Ces stratégies permettent de protéger l'accès à chaque API REST basé sur l'URI et la méthode HTTP. Les valeurs par défauts ne doivent pas être changées : elles ouvrent les accès de base aux API publiques de découverte des services, ouvrent tous les droits aux profils administrateurs, etc. A manipuler avec précaution!"
+  },
+  "policies.type.rest.title": {
+    "other": "API REST"
+  },
   "react.1": {
     "other": "répertoire parent"
   },
