@@ -54,110 +54,65 @@ var _utils = require('./utils');
 
 var counter = 0;
 
-var DEFAULT_ANIMATION = { stiffness: 200, damping: 22, precision: 0.1 };
+var DEFAULT_ANIMATION = { stiffness: 120, damping: 22, precision: 0.01 };
 
-var makeTransition = function makeTransition(originStyles, targetStyles, enter, leave) {
+var makeMotion = function makeMotion(originStyle, targetStyle) {
+    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+    var _options$check = options.check;
+    var check = _options$check === undefined ? function () {
+        return true;
+    } : _options$check;
+    var _options$style = options.style;
+    var transformStyle = _options$style === undefined ? function () {} : _options$style;
+
     return function (Target) {
-        var TransitionGroup = (function (_React$PureComponent) {
-            _inherits(TransitionGroup, _React$PureComponent);
+        return (function (_React$PureComponent) {
+            _inherits(_class, _React$PureComponent);
 
-            function TransitionGroup(props) {
-                _classCallCheck(this, TransitionGroup);
+            function _class(props) {
+                _classCallCheck(this, _class);
 
                 _React$PureComponent.call(this, props);
+
                 this.state = {
-                    styles: this.build(props)
+                    ended: false
                 };
             }
 
-            TransitionGroup.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
-                this.setState({
-                    styles: this.build(nextProps)
-                });
-            };
-
-            TransitionGroup.prototype.build = function build(props) {
-                return _react2['default'].Children.toArray(props.children).filter(function (child) {
-                    return child;
-                }) // Removing null values
-                .map(function (child) {
-                    return !props.ready ? null : {
-                        key: child.key || 't' + counter++,
-                        data: { element: child },
-                        style: _utils.springify(targetStyles, enter || DEFAULT_ANIMATION)
-                    };
-                }).filter(function (child) {
-                    return child;
-                }); // Removing null values
-            };
-
-            TransitionGroup.prototype.willEnter = function willEnter(transitionStyle) {
-
-                return _extends({}, _reactMotionLibStripStyle2['default'](transitionStyle.style), originStyles);
-            };
-
-            TransitionGroup.prototype.willLeave = function willLeave(transitionStyle) {
-                return _extends({}, transitionStyle.style, _utils.springify(originStyles, leave || DEFAULT_ANIMATION));
-            };
-
-            TransitionGroup.prototype.render = function render() {
+            _class.prototype.render = function render() {
 
                 // Making sure we fliter out properties
-                var _props = this.props;
-                var ready = _props.ready;
 
-                var props = _objectWithoutProperties(_props, ['ready']);
+                var props = _objectWithoutProperties(this.props, []);
+
+                var ended = this.state.ended;
+
+                if (!check(props)) {
+                    return _react2['default'].createElement(Target, props);
+                }
 
                 return _react2['default'].createElement(
-                    _reactMotion.TransitionMotion,
+                    _reactMotion.Motion,
                     {
-                        styles: this.state.styles,
-                        willLeave: this.willEnter.bind(this),
-                        willEnter: this.willEnter.bind(this)
+                        defaultStyle: originStyle,
+                        style: _utils.springify(targetStyle, DEFAULT_ANIMATION)
                     },
-                    function (styles) {
-                        return _react2['default'].createElement(
-                            Target,
-                            props,
-                            styles.map(function (_ref) {
-                                var key = _ref.key;
-                                var style = _ref.style;
-                                var data = _ref.data;
+                    function (style) {
+                        var transform = _utils.buildTransform(style, {
+                            length: 'px', angle: 'deg'
+                        });
 
-                                var Child = data.element.type;
-                                var itemProps = data.element.props;
+                        console.log(_extends({}, props.style, { transform: transform }, transformStyle(props)));
 
-                                var transform = _utils.buildTransform(style, {
-                                    length: 'px', angle: 'deg'
-                                });
-
-                                return _react2['default'].createElement(Child, _extends({
-                                    key: data.element.key
-                                }, itemProps, {
-                                    style: _extends({}, itemProps.style, style, {
-                                        transform: transform
-                                    })
-                                }));
-                            })
-                        );
+                        return _react2['default'].createElement(Target, _extends({}, props, { style: _extends({}, props.style, { transform: transform }, transformStyle(props)), motionEnded: ended }));
                     }
                 );
             };
 
-            return TransitionGroup;
+            return _class;
         })(_react2['default'].PureComponent);
-
-        TransitionGroup.propTypes = {
-            ready: _react2['default'].PropTypes.bool.isRequired
-        };
-
-        TransitionGroup.defaultProps = {
-            ready: true
-        };
-
-        return TransitionGroup;
     };
 };
 
-exports['default'] = makeTransition;
+exports['default'] = makeMotion;
 module.exports = exports['default'];

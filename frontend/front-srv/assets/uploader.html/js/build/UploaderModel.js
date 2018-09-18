@@ -1,52 +1,100 @@
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x11, _x12, _x13) { var _again = true; _function: while (_again) { var object = _x11, property = _x12, receiver = _x13; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x11 = parent; _x12 = property; _x13 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 (function (global) {
+    var _require = require('pydio/http/rest-api');
 
-    const { TreeServiceApi, RestCreateNodesRequest, RestGetBulkMetaRequest, TreeNode, TreeNodeType } = require('pydio/http/rest-api');
+    var TreeServiceApi = _require.TreeServiceApi;
+    var RestCreateNodesRequest = _require.RestCreateNodesRequest;
+    var RestGetBulkMetaRequest = _require.RestGetBulkMetaRequest;
+    var TreeNode = _require.TreeNode;
+    var TreeNodeType = _require.TreeNodeType;
 
-    class StatusItem extends Observable {
-        constructor(type) {
-            super();
+    var StatusItem = (function (_Observable) {
+        _inherits(StatusItem, _Observable);
+
+        function StatusItem(type) {
+            _classCallCheck(this, StatusItem);
+
+            _get(Object.getPrototypeOf(StatusItem.prototype), 'constructor', this).call(this);
             this._status = 'new';
             this._type = type;
             this._id = Math.random();
             this._errorMessage = null;
         }
-        getId() {
-            return this._id;
-        }
-        getLabel() {}
-        getType() {
-            return this._type;
-        }
-        getStatus() {
-            return this._status;
-        }
-        setStatus(status) {
-            this._status = status;
-            this.notify('status');
-        }
-        updateRepositoryId(repositoryId) {
-            this._repositoryId = repositoryId;
-        }
-        getErrorMessage() {
-            return this._errorMessage || '';
-        }
-        onError(errorMessage) {
-            this._errorMessage = errorMessage;
-            this.setStatus('error');
-        }
-        process(completeCallback) {
-            this._doProcess(completeCallback);
-        }
-        abort(completeCallback) {
-            if (this._status !== 'loading') return;
-            this._doAbort(completeCallback);
-        }
-    }
 
-    class UploadItem extends StatusItem {
+        _createClass(StatusItem, [{
+            key: 'getId',
+            value: function getId() {
+                return this._id;
+            }
+        }, {
+            key: 'getLabel',
+            value: function getLabel() {}
+        }, {
+            key: 'getType',
+            value: function getType() {
+                return this._type;
+            }
+        }, {
+            key: 'getStatus',
+            value: function getStatus() {
+                return this._status;
+            }
+        }, {
+            key: 'setStatus',
+            value: function setStatus(status) {
+                this._status = status;
+                this.notify('status');
+            }
+        }, {
+            key: 'updateRepositoryId',
+            value: function updateRepositoryId(repositoryId) {
+                this._repositoryId = repositoryId;
+            }
+        }, {
+            key: 'getErrorMessage',
+            value: function getErrorMessage() {
+                return this._errorMessage || '';
+            }
+        }, {
+            key: 'onError',
+            value: function onError(errorMessage) {
+                this._errorMessage = errorMessage;
+                this.setStatus('error');
+            }
+        }, {
+            key: 'process',
+            value: function process(completeCallback) {
+                this._doProcess(completeCallback);
+            }
+        }, {
+            key: 'abort',
+            value: function abort(completeCallback) {
+                if (this._status !== 'loading') return;
+                this._doAbort(completeCallback);
+            }
+        }]);
 
-        constructor(file, targetNode, relativePath = null) {
-            super('file');
+        return StatusItem;
+    })(Observable);
+
+    var UploadItem = (function (_StatusItem) {
+        _inherits(UploadItem, _StatusItem);
+
+        function UploadItem(file, targetNode) {
+            var relativePath = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+            _classCallCheck(this, UploadItem);
+
+            _get(Object.getPrototypeOf(UploadItem.prototype), 'constructor', this).call(this, 'file');
             this._file = file;
             this._status = 'new';
             this._progress = 0;
@@ -54,204 +102,318 @@
             this._repositoryId = global.pydio.user.activeRepository;
             this._relativePath = relativePath;
         }
-        getMqConfigs() {
-            return global.pydio.getPluginConfigs('mq');
-        }
-        getFile() {
-            return this._file;
-        }
-        getSize() {
-            return this._file.size;
-        }
-        getLabel() {
-            return this._relativePath ? this._relativePath : this._file.name;
-        }
-        getProgress() {
-            return this._progress;
-        }
-        setProgress(newValue, bytes = null) {
-            this._progress = newValue;
-            this.notify('progress', newValue);
-            if (bytes !== null) {
-                this.notify('bytes', bytes);
-            }
-        }
-        getRelativePath() {
-            return this._relativePath;
-        }
-        _parseXHRResponse() {
-            if (!this.xhr) return;
-            if (this.xhr.responseXML) {
-                var result = PydioApi.getClient().parseXmlMessage(this.xhr.responseXML);
-                if (!result) this.onError('Empty response');
-            } else if (this.xhr.responseText && this.xhr.responseText != 'OK') {
-                this.onError('Unexpected response: ' + this.xhr.responseText);
-            }
-        }
-        _doProcess(completeCallback) {
-            let complete = function () {
-                this.setStatus('loaded');
-                this._parseXHRResponse();
-                completeCallback();
-            }.bind(this);
 
-            let progress = function (computableEvent) {
-                if (this._status === 'error') {
-                    return;
+        _createClass(UploadItem, [{
+            key: 'getMqConfigs',
+            value: function getMqConfigs() {
+                return global.pydio.getPluginConfigs('mq');
+            }
+        }, {
+            key: 'getFile',
+            value: function getFile() {
+                return this._file;
+            }
+        }, {
+            key: 'getSize',
+            value: function getSize() {
+                return this._file.size;
+            }
+        }, {
+            key: 'getLabel',
+            value: function getLabel() {
+                return this._relativePath ? this._relativePath : this._file.name;
+            }
+        }, {
+            key: 'getProgress',
+            value: function getProgress() {
+                return this._progress;
+            }
+        }, {
+            key: 'setProgress',
+            value: function setProgress(newValue) {
+                var bytes = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+                this._progress = newValue;
+                this.notify('progress', newValue);
+                if (bytes !== null) {
+                    this.notify('bytes', bytes);
                 }
-                let percentage = Math.round(computableEvent.loaded * 100 / computableEvent.total);
-                let bytesLoaded = computableEvent.loaded;
-                this.setProgress(percentage, bytesLoaded);
-            }.bind(this);
-
-            this.setStatus('loading');
-
-            let maxUpload = parseFloat(UploaderConfigs.getInstance().getOption('UPLOAD_MAX_SIZE'));
-
-            try {
-                UploaderConfigs.getInstance().extensionAllowed(this);
-            } catch (e) {
-                this.onError(e.message);
-                completeCallback();
-                return;
             }
-
-            this.uploadPresigned(complete, progress, function (e) {
-                this.onError(global.pydio.MessageHash[210] + ": " + e.message);
-                completeCallback();
-            }.bind(this));
-        }
-
-        _doAbort(completeCallback) {
-            if (this.xhr) {
-                try {
-                    this.xhr.abort();
-                } catch (e) {}
+        }, {
+            key: 'getRelativePath',
+            value: function getRelativePath() {
+                return this._relativePath;
             }
-            this.setStatus('error');
-        }
-
-        file_newpath(fullpath) {
-            return new Promise(async function (resolve) {
-                const lastSlash = fullpath.lastIndexOf('/');
-                const pos = fullpath.lastIndexOf('.');
-                let path = fullpath;
-                let ext = '';
-
-                if (pos > -1 && lastSlash < pos) {
-                    path = fullpath.substring(0, pos);
-                    ext = fullpath.substring(pos);
+        }, {
+            key: '_parseXHRResponse',
+            value: function _parseXHRResponse() {
+                if (!this.xhr) return;
+                if (this.xhr.responseXML) {
+                    var result = PydioApi.getClient().parseXmlMessage(this.xhr.responseXML);
+                    if (!result) this.onError('Empty response');
+                } else if (this.xhr.responseText && this.xhr.responseText != 'OK') {
+                    this.onError('Unexpected response: ' + this.xhr.responseText);
                 }
+            }
+        }, {
+            key: '_doProcess',
+            value: function _doProcess(completeCallback) {
+                var complete = (function () {
+                    this.setStatus('loaded');
+                    this._parseXHRResponse();
+                    completeCallback();
+                }).bind(this);
 
-                let newPath = fullpath;
-                let counter = 0;
-
-                let exists = await this._fileExists(newPath);
-                while (exists) {
-                    newPath = path + '_' + counter + ext;
-                    counter++;
-                    exists = await this._fileExists(newPath);
-                }
-
-                resolve(newPath);
-            }.bind(this));
-        }
-
-        _fileExists(fullpath) {
-            return new Promise(resolve => {
-                const api = new TreeServiceApi(PydioApi.getRestClient());
-
-                api.headNode(fullpath).then(node => {
-                    if (node.Node) {
-                        resolve(true);
-                    } else {
-                        resolve(false);
+                var progress = (function (computableEvent) {
+                    if (this._status === 'error') {
+                        return;
                     }
-                }).catch(() => resolve(false));
-            });
-        }
+                    var percentage = Math.round(computableEvent.loaded * 100 / computableEvent.total);
+                    var bytesLoaded = computableEvent.loaded;
+                    this.setProgress(percentage, bytesLoaded);
+                }).bind(this);
 
-        async uploadPresigned(completeCallback, progressCallback, errorCallback) {
+                this.setStatus('loading');
 
-            const slug = global.pydio.user.getActiveRepositoryObject().getSlug();
+                var maxUpload = parseFloat(UploaderConfigs.getInstance().getOption('UPLOAD_MAX_SIZE'));
 
-            let fullPath = this._targetNode.getPath();
-            if (this._relativePath) {
-                fullPath += PathUtils.getDirname(this._relativePath);
-            }
-            fullPath = fullPath + '/' + PathUtils.getBasename(this._file.name);
-            fullPath = fullPath.replace('//', '/');
-            if (fullPath.normalize) {
-                fullPath = fullPath.normalize('NFC');
-            }
-
-            // Checking file already exists or not
-            let overwriteStatus = UploaderConfigs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
-
-            if (overwriteStatus === 'rename') {
-                fullPath = await this.file_newpath(slug + fullPath);
-
-                fullPath = fullPath.replace(slug, '');
-            } else if (overwriteStatus === 'alert') {
-                if (!global.confirm(global.pydio.MessageHash[124])) {
-                    errorCallback(new Error(global.pydio.MessageHash[71]));
+                try {
+                    UploaderConfigs.getInstance().extensionAllowed(this);
+                } catch (e) {
+                    this.onError(e.message);
+                    completeCallback();
                     return;
                 }
+
+                this.uploadPresigned(complete, progress, (function (e) {
+                    this.onError(global.pydio.MessageHash[210] + ": " + e.message);
+                    completeCallback();
+                }).bind(this));
             }
+        }, {
+            key: '_doAbort',
+            value: function _doAbort(completeCallback) {
+                if (this.xhr) {
+                    try {
+                        this.xhr.abort();
+                    } catch (e) {}
+                }
+                this.setStatus('error');
+            }
+        }, {
+            key: 'file_newpath',
+            value: function file_newpath(fullpath) {
+                return new Promise((function callee$3$0(resolve) {
+                    var lastSlash, pos, path, ext, newPath, counter, exists;
+                    return regeneratorRuntime.async(function callee$3$0$(context$4$0) {
+                        while (1) switch (context$4$0.prev = context$4$0.next) {
+                            case 0:
+                                lastSlash = fullpath.lastIndexOf('/');
+                                pos = fullpath.lastIndexOf('.');
+                                path = fullpath;
+                                ext = '';
 
-            PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(xhr => {
-                this.xhr = xhr;
-            });
-        }
-    }
+                                if (pos > -1 && lastSlash < pos) {
+                                    path = fullpath.substring(0, pos);
+                                    ext = fullpath.substring(pos);
+                                }
 
-    class FolderItem extends StatusItem {
-        constructor(path, targetNode) {
-            super('folder');
+                                newPath = fullpath;
+                                counter = 0;
+                                context$4$0.next = 9;
+                                return regeneratorRuntime.awrap(this._fileExists(newPath));
+
+                            case 9:
+                                exists = context$4$0.sent;
+
+                            case 10:
+                                if (!exists) {
+                                    context$4$0.next = 18;
+                                    break;
+                                }
+
+                                newPath = path + '_' + counter + ext;
+                                counter++;
+                                context$4$0.next = 15;
+                                return regeneratorRuntime.awrap(this._fileExists(newPath));
+
+                            case 15:
+                                exists = context$4$0.sent;
+                                context$4$0.next = 10;
+                                break;
+
+                            case 18:
+
+                                resolve(newPath);
+
+                            case 19:
+                            case 'end':
+                                return context$4$0.stop();
+                        }
+                    }, null, this);
+                }).bind(this));
+            }
+        }, {
+            key: '_fileExists',
+            value: function _fileExists(fullpath) {
+                return new Promise(function (resolve) {
+                    var api = new TreeServiceApi(PydioApi.getRestClient());
+
+                    api.headNode(fullpath).then(function (node) {
+                        if (node.Node) {
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    })['catch'](function () {
+                        return resolve(false);
+                    });
+                });
+            }
+        }, {
+            key: 'uploadPresigned',
+            value: function uploadPresigned(completeCallback, progressCallback, errorCallback) {
+                var slug, fullPath, overwriteStatus;
+                return regeneratorRuntime.async(function uploadPresigned$(context$3$0) {
+                    var _this = this;
+
+                    while (1) switch (context$3$0.prev = context$3$0.next) {
+                        case 0:
+                            slug = global.pydio.user.getActiveRepositoryObject().getSlug();
+                            fullPath = this._targetNode.getPath();
+
+                            if (this._relativePath) {
+                                fullPath += PathUtils.getDirname(this._relativePath);
+                            }
+                            fullPath = fullPath + '/' + PathUtils.getBasename(this._file.name);
+                            fullPath = fullPath.replace('//', '/');
+                            if (fullPath.normalize) {
+                                fullPath = fullPath.normalize('NFC');
+                            }
+
+                            // Checking file already exists or not
+                            overwriteStatus = UploaderConfigs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
+
+                            if (!(overwriteStatus === 'rename')) {
+                                context$3$0.next = 14;
+                                break;
+                            }
+
+                            context$3$0.next = 10;
+                            return regeneratorRuntime.awrap(this.file_newpath(slug + fullPath));
+
+                        case 10:
+                            fullPath = context$3$0.sent;
+
+                            fullPath = fullPath.replace(slug, '');
+                            context$3$0.next = 18;
+                            break;
+
+                        case 14:
+                            if (!(overwriteStatus === 'alert')) {
+                                context$3$0.next = 18;
+                                break;
+                            }
+
+                            if (global.confirm(global.pydio.MessageHash[124])) {
+                                context$3$0.next = 18;
+                                break;
+                            }
+
+                            errorCallback(new Error(global.pydio.MessageHash[71]));
+                            return context$3$0.abrupt('return');
+
+                        case 18:
+
+                            PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(function (xhr) {
+                                _this.xhr = xhr;
+                            });
+
+                        case 19:
+                        case 'end':
+                            return context$3$0.stop();
+                    }
+                }, null, this);
+            }
+        }]);
+
+        return UploadItem;
+    })(StatusItem);
+
+    var FolderItem = (function (_StatusItem2) {
+        _inherits(FolderItem, _StatusItem2);
+
+        function FolderItem(path, targetNode) {
+            _classCallCheck(this, FolderItem);
+
+            _get(Object.getPrototypeOf(FolderItem.prototype), 'constructor', this).call(this, 'folder');
             this._path = path;
             this._targetNode = targetNode;
         }
-        getPath() {
-            return this._path;
-        }
-        getLabel() {
-            return PathUtils.getBasename(this._path);
-        }
-        _doProcess(completeCallback) {
-            const slug = global.pydio.user.getActiveRepositoryObject().getSlug();
 
-            let fullPath = this._targetNode.getPath();
-            fullPath = fullPath + '/' + this._path;
-            fullPath = fullPath.replace('//', '/');
-            if (fullPath.normalize) {
-                fullPath = fullPath.normalize('NFC');
+        _createClass(FolderItem, [{
+            key: 'getPath',
+            value: function getPath() {
+                return this._path;
             }
-            fullPath = "/" + slug + fullPath;
+        }, {
+            key: 'getLabel',
+            value: function getLabel() {
+                return PathUtils.getBasename(this._path);
+            }
+        }, {
+            key: '_doProcess',
+            value: function _doProcess(completeCallback) {
+                var _this2 = this;
 
-            const api = new TreeServiceApi(PydioApi.getRestClient());
-            const request = new RestCreateNodesRequest();
-            const node = new TreeNode();
+                var slug = global.pydio.user.getActiveRepositoryObject().getSlug();
 
-            node.Path = fullPath;
-            node.Type = TreeNodeType.constructFromObject('COLLECTION');
-            request.Nodes = [node];
-            api.createNodes(request).then(collection => {
-                this.setStatus('loaded');
-                completeCallback();
-            });
-        }
-        _doAbort(completeCallback) {
-            if (global.console) global.console.log(global.pydio.MessageHash['html_uploader.6']);
-        }
-    }
+                var fullPath = this._targetNode.getPath();
+                fullPath = fullPath + '/' + this._path;
+                fullPath = fullPath.replace('//', '/');
+                if (fullPath.normalize) {
+                    fullPath = fullPath.normalize('NFC');
+                }
+                fullPath = "/" + slug + fullPath;
 
-    const { JobsJob, JobsTask, JobsTaskStatus } = require('pydio/http/rest-api');
-    const { JobsStore } = Pydio.requireLib("boot");
+                var api = new TreeServiceApi(PydioApi.getRestClient());
+                var request = new RestCreateNodesRequest();
+                var node = new TreeNode();
 
-    class UploadTask {
+                node.Path = fullPath;
+                node.Type = TreeNodeType.constructFromObject('COLLECTION');
+                request.Nodes = [node];
+                api.createNodes(request).then(function (collection) {
+                    _this2.setStatus('loaded');
+                    completeCallback();
+                });
+            }
+        }, {
+            key: '_doAbort',
+            value: function _doAbort(completeCallback) {
+                if (global.console) global.console.log(global.pydio.MessageHash['html_uploader.6']);
+            }
+        }]);
 
-        constructor() {
-            const { pydio } = global;
+        return FolderItem;
+    })(StatusItem);
+
+    var _require2 = require('pydio/http/rest-api');
+
+    var JobsJob = _require2.JobsJob;
+    var JobsTask = _require2.JobsTask;
+    var JobsTaskStatus = _require2.JobsTaskStatus;
+
+    var _Pydio$requireLib = Pydio.requireLib("boot");
+
+    var JobsStore = _Pydio$requireLib.JobsStore;
+
+    var UploadTask = (function () {
+        function UploadTask() {
+            _classCallCheck(this, UploadTask);
+
+            var pydio = global.pydio;
+
             this.job = new JobsJob();
             this.job.ID = 'local-upload-task';
             this.job.Owner = pydio.user.id;
@@ -262,52 +424,67 @@
             this.task.HasProgress = true;
             this.task.ID = "upload";
             this.task.Status = JobsTaskStatus.constructFromObject('Idle');
-            this.job.openDetailPane = () => {
+            this.job.openDetailPane = function () {
                 pydio.Controller.fireAction("upload");
             };
             JobsStore.getInstance().enqueueLocalJob(this.job);
         }
 
-        setProgress(progress) {
-            this.task.Progress = progress;
-            this.task.Status = JobsTaskStatus.constructFromObject('Running');
-            this.notifyMainStore();
-        }
-        setPending(queueSize) {
-            this.task.StatusMessage = global.pydio.MessageHash['html_uploader.1'].replace('%s', queueSize);
-            this.task.Status = JobsTaskStatus.constructFromObject('Idle');
-            this.notifyMainStore();
-        }
-        setRunning(queueSize) {
-            this.task.Status = JobsTaskStatus.constructFromObject('Running');
-            this.task.StatusMessage = global.pydio.MessageHash['html_uploader.2'].replace('%s', queueSize);
-            this.notifyMainStore();
-        }
-        setIdle() {
-            this.task.Status = JobsTaskStatus.constructFromObject('Idle');
-            this.task.StatusMessage = '';
-            this.notifyMainStore();
-        }
-
-        notifyMainStore() {
-            this.task.startTime = new Date().getTime() / 1000;
-            this.job.Tasks = [this.task];
-            JobsStore.getInstance().enqueueLocalJob(this.job);
-        }
-
-        static getInstance() {
-            if (!UploadTask.__INSTANCE) {
-                UploadTask.__INSTANCE = new UploadTask();
+        _createClass(UploadTask, [{
+            key: 'setProgress',
+            value: function setProgress(progress) {
+                this.task.Progress = progress;
+                this.task.Status = JobsTaskStatus.constructFromObject('Running');
+                this.notifyMainStore();
             }
-            return UploadTask.__INSTANCE;
-        }
+        }, {
+            key: 'setPending',
+            value: function setPending(queueSize) {
+                this.task.StatusMessage = global.pydio.MessageHash['html_uploader.1'].replace('%s', queueSize);
+                this.task.Status = JobsTaskStatus.constructFromObject('Idle');
+                this.notifyMainStore();
+            }
+        }, {
+            key: 'setRunning',
+            value: function setRunning(queueSize) {
+                this.task.Status = JobsTaskStatus.constructFromObject('Running');
+                this.task.StatusMessage = global.pydio.MessageHash['html_uploader.2'].replace('%s', queueSize);
+                this.notifyMainStore();
+            }
+        }, {
+            key: 'setIdle',
+            value: function setIdle() {
+                this.task.Status = JobsTaskStatus.constructFromObject('Idle');
+                this.task.StatusMessage = '';
+                this.notifyMainStore();
+            }
+        }, {
+            key: 'notifyMainStore',
+            value: function notifyMainStore() {
+                this.task.startTime = new Date().getTime() / 1000;
+                this.job.Tasks = [this.task];
+                JobsStore.getInstance().enqueueLocalJob(this.job);
+            }
+        }], [{
+            key: 'getInstance',
+            value: function getInstance() {
+                if (!UploadTask.__INSTANCE) {
+                    UploadTask.__INSTANCE = new UploadTask();
+                }
+                return UploadTask.__INSTANCE;
+            }
+        }]);
 
-    }
+        return UploadTask;
+    })();
 
-    class UploaderStore extends Observable {
+    var UploaderStore = (function (_Observable2) {
+        _inherits(UploaderStore, _Observable2);
 
-        constructor() {
-            super();
+        function UploaderStore() {
+            _classCallCheck(this, UploaderStore);
+
+            _get(Object.getPrototypeOf(UploaderStore.prototype), 'constructor', this).call(this);
             this._folders = [];
             this._uploads = [];
             this._processing = [];
@@ -317,363 +494,438 @@
             this._queueCounter = 0;
             this._maxQueueSize = 2;
         }
-        recomputeGlobalProgress() {
-            let totalCount = 0;
-            let totalProgress = 0;
-            this._uploads.concat(this._processing).concat(this._processed).forEach(function (item) {
-                if (!item.getProgress) {
-                    return;
-                }
-                totalCount += item.getSize();
-                totalProgress += item.getProgress() * item.getSize() / 100;
-            });
-            let progress;
-            if (totalCount) {
-                progress = totalProgress / totalCount;
-            } else {
-                progress = 0;
-            }
-            return progress;
-        }
-        getAutoStart() {
-            return UploaderConfigs.getInstance().getOptionAsBool("DEFAULT_AUTO_START", "upload_auto_send");
-        }
-        getAutoClose() {
-            return UploaderConfigs.getInstance().getOptionAsBool("DEFAULT_AUTO_CLOSE", "upload_auto_close");
-        }
-        pushFolder(folderItem) {
-            if (!this.getQueueSize()) {
-                this._processed = [];
-            }
-            this._folders.push(folderItem);
-            UploadTask.getInstance().setPending(this.getQueueSize());
-            if (this.getAutoStart() && !this._processing.length) {
-                this.processNext();
-            } // Autostart with queue was empty before
-            this.notify('update');
-            this.notify('item_added', folderItem);
-        }
-        pushFile(uploadItem) {
-            if (!this.getQueueSize()) {
-                this._processed = [];
-            }
-            this._uploads.push(uploadItem);
-            UploadTask.getInstance().setPending(this.getQueueSize());
-            uploadItem.observe("progress", function () {
-                let pg = this.recomputeGlobalProgress();
-                UploadTask.getInstance().setProgress(pg);
-            }.bind(this));
-            if (this.getAutoStart() && !this._processing.length) {
-                this.processNext();
-            } // Autostart with queue was empty before
-            this.notify('update');
-            this.notify('item_added', uploadItem);
-        }
-        log() {}
-        processQueue() {
-            let next = this.getNext();
-            while (next !== null) {
-                next.process(function () {
-                    if (next.getStatus() === 'error') {
-                        this._errors.push(next);
-                    } else {
-                        this._processed.push(next);
-                    }
-                    this.notify("update");
-                }.bind(this));
-                next = this.getNext();
-            }
-        }
-        getQueueSize() {
-            return this._folders.length + this._uploads.length + this._processing.length;
-        }
-        clearAll() {
-            this._folders = [];
-            this._uploads = [];
-            this._processing = [];
-            this._processed = [];
-            this._errors = [];
-            this.notify('update');
-            UploadTask.getInstance().setIdle();
-        }
-        processNext() {
-            let processables = this.getNexts();
-            if (processables.length) {
-                processables.map(processable => {
-                    this._processing.push(processable);
-                    UploadTask.getInstance().setRunning(this.getQueueSize());
-                    processable.process(function () {
-                        this._processing = LangUtils.arrayWithout(this._processing, this._processing.indexOf(processable));
-                        if (processable.getStatus() === 'error') {
-                            this._errors.push(processable);
-                        } else {
-                            this._processed.push(processable);
-                        }
-                        this.processNext();
-                        this.notify("update");
-                    }.bind(this));
-                });
-            } else {
-                UploadTask.getInstance().setIdle();
 
-                if (this.hasErrors()) {
-                    if (!pydio.getController().react_selector) {
-                        global.pydio.getController().fireAction("upload");
-                    }
-                } else if (this.getAutoClose()) {
-                    this.notify("auto_close");
-                }
-            }
-        }
-        getNexts(max = 3) {
-            if (this._folders.length) {
-                return [this._folders.shift()];
-            }
-            let items = [];
-            const processing = this._processing.length;
-            for (let i = 0; i < max - processing; i++) {
-                if (this._uploads.length) {
-                    items.push(this._uploads.shift());
-                }
-            }
-            console.log('Returning ' + items.length + ' items');
-            return items;
-        }
-        stopOrRemoveItem(item) {
-            item.abort();
-            ['_uploads', '_folders', '_processing', '_processed', '_errors'].forEach(function (key) {
-                let arr = this[key];
-                if (arr.indexOf(item) !== -1) {
-                    this[key] = LangUtils.arrayWithout(arr, arr.indexOf(item));
-                }
-            }.bind(this));
-            this.notify("update");
-        }
-        getItems() {
-            return {
-                processing: this._processing,
-                pending: this._folders.concat(this._uploads),
-                processed: this._processed,
-                errors: this._errors
-            };
-        }
-        hasErrors() {
-            return this._errors.length ? this._errors : false;
-        }
-        static getInstance() {
-            if (!UploaderStore.__INSTANCE) {
-                UploaderStore.__INSTANCE = new UploaderStore();
-            }
-            return UploaderStore.__INSTANCE;
-        }
-
-        handleFolderPickerResult(files, targetNode) {
-            var folders = {};
-            for (var i = 0; i < files.length; i++) {
-                var relPath = null;
-                if (files[i]['webkitRelativePath']) {
-                    relPath = '/' + files[i]['webkitRelativePath'];
-                    var folderPath = PathUtils.getDirname(relPath);
-                    if (!folders[folderPath]) {
-                        this.pushFolder(new FolderItem(folderPath, targetNode));
-                        folders[folderPath] = true;
-                    }
-                }
-                this.pushFile(new UploadItem(files[i], targetNode, relPath));
-            }
-        }
-
-        handleDropEventResults(items, files, targetNode, accumulator = null, filterFunction = null) {
-
-            let oThis = this;
-
-            if (items && items.length && (items[0].getAsEntry || items[0].webkitGetAsEntry)) {
-                let error = global.console ? global.console.log : function (err) {
-                    global.alert(err);
-                };
-                let length = items.length;
-                for (var i = 0; i < length; i++) {
-                    var entry;
-                    if (items[i].kind && items[i].kind != 'file') continue;
-                    if (items[0].getAsEntry) {
-                        entry = items[i].getAsEntry();
-                    } else {
-                        entry = items[i].webkitGetAsEntry();
-                    }
-                    if (entry.isFile) {
-                        entry.file(function (File) {
-                            if (File.size == 0) return;
-                            let uploadItem = new UploadItem(File, targetNode);
-                            if (filterFunction && !filterFunction(uploadItem)) return;
-                            if (!accumulator) oThis.pushFile(uploadItem);else accumulator.push(uploadItem);
-                        }, error);
-                    } else if (entry.isDirectory) {
-                        let folderItem = new FolderItem(entry.fullPath, targetNode);
-                        if (filterFunction && !filterFunction(folderItem)) continue;
-                        if (!accumulator) oThis.pushFolder(folderItem);else accumulator.push(folderItem);
-
-                        this.recurseDirectory(entry, function (fileEntry) {
-                            var relativePath = fileEntry.fullPath;
-                            fileEntry.file(function (File) {
-                                if (File.size == 0) return;
-                                let uploadItem = new UploadItem(File, targetNode, relativePath);
-                                if (filterFunction && !filterFunction(uploadItem)) return;
-                                if (!accumulator) oThis.pushFile(uploadItem);else accumulator.push(uploadItem);
-                            }, error);
-                        }, function (folderEntry) {
-                            let folderItem = new FolderItem(folderEntry.fullPath, targetNode);
-                            if (filterFunction && !filterFunction(uploadItem)) return;
-                            if (!accumulator) oThis.pushFolder(folderItem);else accumulator.push(folderItem);
-                        }, error);
-                    }
-                }
-            } else {
-                for (var j = 0; j < files.length; j++) {
-                    if (files[j].size === 0) {
-                        alert(global.pydio.MessageHash['html_uploader.8']);
+        _createClass(UploaderStore, [{
+            key: 'recomputeGlobalProgress',
+            value: function recomputeGlobalProgress() {
+                var totalCount = 0;
+                var totalProgress = 0;
+                this._uploads.concat(this._processing).concat(this._processed).forEach(function (item) {
+                    if (!item.getProgress) {
                         return;
                     }
-                    let uploadItem = new UploadItem(files[j], targetNode);
-                    if (filterFunction && !filterFunction(uploadItem)) continue;
-                    if (!accumulator) oThis.pushFile(uploadItem);else accumulator.push(uploadItem);
+                    totalCount += item.getSize();
+                    totalProgress += item.getProgress() * item.getSize() / 100;
+                });
+                var progress = undefined;
+                if (totalCount) {
+                    progress = totalProgress / totalCount;
+                } else {
+                    progress = 0;
+                }
+                return progress;
+            }
+        }, {
+            key: 'getAutoStart',
+            value: function getAutoStart() {
+                return UploaderConfigs.getInstance().getOptionAsBool("DEFAULT_AUTO_START", "upload_auto_send");
+            }
+        }, {
+            key: 'getAutoClose',
+            value: function getAutoClose() {
+                return UploaderConfigs.getInstance().getOptionAsBool("DEFAULT_AUTO_CLOSE", "upload_auto_close");
+            }
+        }, {
+            key: 'pushFolder',
+            value: function pushFolder(folderItem) {
+                if (!this.getQueueSize()) {
+                    this._processed = [];
+                }
+                this._folders.push(folderItem);
+                UploadTask.getInstance().setPending(this.getQueueSize());
+                if (this.getAutoStart() && !this._processing.length) {
+                    this.processNext();
+                } // Autostart with queue was empty before
+                this.notify('update');
+                this.notify('item_added', folderItem);
+            }
+        }, {
+            key: 'pushFile',
+            value: function pushFile(uploadItem) {
+                if (!this.getQueueSize()) {
+                    this._processed = [];
+                }
+                this._uploads.push(uploadItem);
+                UploadTask.getInstance().setPending(this.getQueueSize());
+                uploadItem.observe("progress", (function () {
+                    var pg = this.recomputeGlobalProgress();
+                    UploadTask.getInstance().setProgress(pg);
+                }).bind(this));
+                if (this.getAutoStart() && !this._processing.length) {
+                    this.processNext();
+                } // Autostart with queue was empty before
+                this.notify('update');
+                this.notify('item_added', uploadItem);
+            }
+        }, {
+            key: 'log',
+            value: function log() {}
+        }, {
+            key: 'processQueue',
+            value: function processQueue() {
+                var next = this.getNext();
+                while (next !== null) {
+                    next.process((function () {
+                        if (next.getStatus() === 'error') {
+                            this._errors.push(next);
+                        } else {
+                            this._processed.push(next);
+                        }
+                        this.notify("update");
+                    }).bind(this));
+                    next = this.getNext();
                 }
             }
-            UploaderStore.getInstance().log();
-        }
+        }, {
+            key: 'getQueueSize',
+            value: function getQueueSize() {
+                return this._folders.length + this._uploads.length + this._processing.length;
+            }
+        }, {
+            key: 'clearAll',
+            value: function clearAll() {
+                this._folders = [];
+                this._uploads = [];
+                this._processing = [];
+                this._processed = [];
+                this._errors = [];
+                this.notify('update');
+                UploadTask.getInstance().setIdle();
+            }
+        }, {
+            key: 'processNext',
+            value: function processNext() {
+                var _this3 = this;
 
-        recurseDirectory(item, fileHandler, folderHandler, errorHandler) {
-
-            let recurseDir = this.recurseDirectory.bind(this);
-            let dirReader = item.createReader();
-            let entries = [];
-
-            let toArray = function (list) {
-                return Array.prototype.slice.call(list || [], 0);
-            };
-
-            // Call the reader.readEntries() until no more results are returned.
-            var readEntries = function () {
-                dirReader.readEntries(function (results) {
-                    if (!results.length) {
-
-                        entries.map(function (e) {
-                            if (e.isDirectory) {
-                                folderHandler(e);
-                                recurseDir(e, fileHandler, folderHandler, errorHandler);
+                var processables = this.getNexts();
+                if (processables.length) {
+                    processables.map(function (processable) {
+                        _this3._processing.push(processable);
+                        UploadTask.getInstance().setRunning(_this3.getQueueSize());
+                        processable.process((function () {
+                            this._processing = LangUtils.arrayWithout(this._processing, this._processing.indexOf(processable));
+                            if (processable.getStatus() === 'error') {
+                                this._errors.push(processable);
                             } else {
-                                fileHandler(e);
+                                this._processed.push(processable);
                             }
-                        });
-                    } else {
-                        entries = entries.concat(toArray(results));
-                        readEntries();
+                            this.processNext();
+                            this.notify("update");
+                        }).bind(_this3));
+                    });
+                } else {
+                    UploadTask.getInstance().setIdle();
+
+                    if (this.hasErrors()) {
+                        if (!pydio.getController().react_selector) {
+                            global.pydio.getController().fireAction("upload");
+                        }
+                    } else if (this.getAutoClose()) {
+                        this.notify("auto_close");
                     }
-                }, errorHandler);
-            };
+                }
+            }
+        }, {
+            key: 'getNexts',
+            value: function getNexts() {
+                var max = arguments.length <= 0 || arguments[0] === undefined ? 3 : arguments[0];
 
-            readEntries(); // Start reading dirs.
-        }
-    }
+                if (this._folders.length) {
+                    return [this._folders.shift()];
+                }
+                var items = [];
+                var processing = this._processing.length;
+                for (var i = 0; i < max - processing; i++) {
+                    if (this._uploads.length) {
+                        items.push(this._uploads.shift());
+                    }
+                }
+                console.log('Returning ' + items.length + ' items');
+                return items;
+            }
+        }, {
+            key: 'stopOrRemoveItem',
+            value: function stopOrRemoveItem(item) {
+                item.abort();
+                ['_uploads', '_folders', '_processing', '_processed', '_errors'].forEach((function (key) {
+                    var arr = this[key];
+                    if (arr.indexOf(item) !== -1) {
+                        this[key] = LangUtils.arrayWithout(arr, arr.indexOf(item));
+                    }
+                }).bind(this));
+                this.notify("update");
+            }
+        }, {
+            key: 'getItems',
+            value: function getItems() {
+                return {
+                    processing: this._processing,
+                    pending: this._folders.concat(this._uploads),
+                    processed: this._processed,
+                    errors: this._errors
+                };
+            }
+        }, {
+            key: 'hasErrors',
+            value: function hasErrors() {
+                return this._errors.length ? this._errors : false;
+            }
+        }, {
+            key: 'handleFolderPickerResult',
+            value: function handleFolderPickerResult(files, targetNode) {
+                var folders = {};
+                for (var i = 0; i < files.length; i++) {
+                    var relPath = null;
+                    if (files[i]['webkitRelativePath']) {
+                        relPath = '/' + files[i]['webkitRelativePath'];
+                        var folderPath = PathUtils.getDirname(relPath);
+                        if (!folders[folderPath]) {
+                            this.pushFolder(new FolderItem(folderPath, targetNode));
+                            folders[folderPath] = true;
+                        }
+                    }
+                    this.pushFile(new UploadItem(files[i], targetNode, relPath));
+                }
+            }
+        }, {
+            key: 'handleDropEventResults',
+            value: function handleDropEventResults(items, files, targetNode) {
+                var _this4 = this;
 
-    class UploaderConfigs extends Observable {
+                var accumulator = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
+                var filterFunction = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
 
-        static getInstance() {
-            if (!UploaderConfigs.__INSTANCE) UploaderConfigs.__INSTANCE = new UploaderConfigs();
-            return UploaderConfigs.__INSTANCE;
-        }
+                var oThis = this;
 
-        constructor() {
-            super();
-            pydio.observe("registry_loaded", function () {
+                if (items && items.length && (items[0].getAsEntry || items[0].webkitGetAsEntry)) {
+                    var i;
+                    var entry;
+
+                    (function () {
+                        var error = global.console ? global.console.log : function (err) {
+                            global.alert(err);
+                        };
+                        var length = items.length;
+                        for (i = 0; i < length; i++) {
+                            if (items[i].kind && items[i].kind != 'file') continue;
+                            if (items[0].getAsEntry) {
+                                entry = items[i].getAsEntry();
+                            } else {
+                                entry = items[i].webkitGetAsEntry();
+                            }
+                            if (entry.isFile) {
+                                entry.file(function (File) {
+                                    if (File.size == 0) return;
+                                    var uploadItem = new UploadItem(File, targetNode);
+                                    if (filterFunction && !filterFunction(uploadItem)) return;
+                                    if (!accumulator) oThis.pushFile(uploadItem);else accumulator.push(uploadItem);
+                                }, error);
+                            } else if (entry.isDirectory) {
+                                var folderItem = new FolderItem(entry.fullPath, targetNode);
+                                if (filterFunction && !filterFunction(folderItem)) continue;
+                                if (!accumulator) oThis.pushFolder(folderItem);else accumulator.push(folderItem);
+
+                                _this4.recurseDirectory(entry, function (fileEntry) {
+                                    var relativePath = fileEntry.fullPath;
+                                    fileEntry.file(function (File) {
+                                        if (File.size == 0) return;
+                                        var uploadItem = new UploadItem(File, targetNode, relativePath);
+                                        if (filterFunction && !filterFunction(uploadItem)) return;
+                                        if (!accumulator) oThis.pushFile(uploadItem);else accumulator.push(uploadItem);
+                                    }, error);
+                                }, function (folderEntry) {
+                                    var folderItem = new FolderItem(folderEntry.fullPath, targetNode);
+                                    if (filterFunction && !filterFunction(uploadItem)) return;
+                                    if (!accumulator) oThis.pushFolder(folderItem);else accumulator.push(folderItem);
+                                }, error);
+                            }
+                        }
+                    })();
+                } else {
+                    for (var j = 0; j < files.length; j++) {
+                        if (files[j].size === 0) {
+                            alert(global.pydio.MessageHash['html_uploader.8']);
+                            return;
+                        }
+                        var _uploadItem = new UploadItem(files[j], targetNode);
+                        if (filterFunction && !filterFunction(_uploadItem)) continue;
+                        if (!accumulator) oThis.pushFile(_uploadItem);else accumulator.push(_uploadItem);
+                    }
+                }
+                UploaderStore.getInstance().log();
+            }
+        }, {
+            key: 'recurseDirectory',
+            value: function recurseDirectory(item, fileHandler, folderHandler, errorHandler) {
+
+                var recurseDir = this.recurseDirectory.bind(this);
+                var dirReader = item.createReader();
+                var entries = [];
+
+                var toArray = function toArray(list) {
+                    return Array.prototype.slice.call(list || [], 0);
+                };
+
+                // Call the reader.readEntries() until no more results are returned.
+                var readEntries = function readEntries() {
+                    dirReader.readEntries(function (results) {
+                        if (!results.length) {
+
+                            entries.map(function (e) {
+                                if (e.isDirectory) {
+                                    folderHandler(e);
+                                    recurseDir(e, fileHandler, folderHandler, errorHandler);
+                                } else {
+                                    fileHandler(e);
+                                }
+                            });
+                        } else {
+                            entries = entries.concat(toArray(results));
+                            readEntries();
+                        }
+                    }, errorHandler);
+                };
+
+                readEntries(); // Start reading dirs.
+            }
+        }], [{
+            key: 'getInstance',
+            value: function getInstance() {
+                if (!UploaderStore.__INSTANCE) {
+                    UploaderStore.__INSTANCE = new UploaderStore();
+                }
+                return UploaderStore.__INSTANCE;
+            }
+        }]);
+
+        return UploaderStore;
+    })(Observable);
+
+    var UploaderConfigs = (function (_Observable3) {
+        _inherits(UploaderConfigs, _Observable3);
+
+        _createClass(UploaderConfigs, null, [{
+            key: 'getInstance',
+            value: function getInstance() {
+                if (!UploaderConfigs.__INSTANCE) UploaderConfigs.__INSTANCE = new UploaderConfigs();
+                return UploaderConfigs.__INSTANCE;
+            }
+        }]);
+
+        function UploaderConfigs() {
+            _classCallCheck(this, UploaderConfigs);
+
+            _get(Object.getPrototypeOf(UploaderConfigs.prototype), 'constructor', this).call(this);
+            pydio.observe("registry_loaded", (function () {
                 this._global = null;
                 this._mq = null;
-            }.bind(this));
+            }).bind(this));
         }
 
-        _loadOptions() {
-            if (!this._global) {
-                this._global = global.pydio.getPluginConfigs("uploader");
-                this._mq = global.pydio.getPluginConfigs("mq");
-            }
-        }
-
-        extensionAllowed(uploadItem) {
-            let extString = this.getOption("ALLOWED_EXTENSIONS", '', '');
-            if (!extString) return true;
-            let extDescription = this.getOption("ALLOWED_EXTENSIONS_READABLE", '', '');
-            if (extDescription) extDescription = ' (' + extDescription + ')';
-            let itemExt = PathUtils.getFileExtension(uploadItem.getLabel());
-            if (extString.split(',').indexOf(itemExt) === -1) {
-                throw new Error(global.pydio.MessageHash[367] + extString + extDescription);
-            }
-        }
-
-        getOptionAsBool(name, userPref = '', defaultValue = undefined) {
-            let o = this.getOption(name, userPref, defaultValue);
-            return o === true || o === 'true';
-        }
-
-        getOption(name, userPref = '', defaultValue = undefined) {
-            this._loadOptions();
-            if (userPref) {
-                let test = this.getUserPreference('originalUploadForm_XHRUploader', userPref);
-                if (test !== undefined && test !== null) return test;
-            }
-            if (this._global.has(name)) {
-                return this._global.get(name);
-            }
-            if (this._mq.has(name)) {
-                return this._mq.get(name);
-            }
-            if (defaultValue !== undefined) {
-                return defaultValue;
-            }
-            return null;
-        }
-
-        updateOption(name, value, isBool = false) {
-            if (isBool) {
-                value = value ? "true" : "false";
-            }
-            this.setUserPreference('originalUploadForm_XHRUploader', name, value);
-            this.notify("change");
-        }
-
-        // TODO: SHOULD BE IN A "CORE" COMPONENT
-        getUserPreference(guiElementId, prefName) {
-            let pydio = global.pydio;
-            if (!pydio.user) return null;
-            var gui_pref = pydio.user.getPreference("gui_preferences", true);
-            if (!gui_pref || !gui_pref[guiElementId]) return null;
-            if (pydio.user.activeRepository && gui_pref[guiElementId]['repo-' + pydio.user.activeRepository]) {
-                return gui_pref[guiElementId]['repo-' + pydio.user.activeRepository][prefName];
-            }
-            return gui_pref[guiElementId][prefName];
-        }
-
-        setUserPreference(guiElementId, prefName, prefValue) {
-            let pydio = global.pydio;
-            if (!pydio || !pydio.user) return;
-            var guiPref = pydio.user.getPreference("gui_preferences", true);
-            if (!guiPref) guiPref = {};
-            if (!guiPref[guiElementId]) guiPref[guiElementId] = {};
-            if (pydio.user.activeRepository) {
-                var repokey = 'repo-' + pydio.user.activeRepository;
-                if (!guiPref[guiElementId][repokey]) guiPref[guiElementId][repokey] = {};
-                if (guiPref[guiElementId][repokey][prefName] && guiPref[guiElementId][repokey][prefName] == prefValue) {
-                    return;
+        _createClass(UploaderConfigs, [{
+            key: '_loadOptions',
+            value: function _loadOptions() {
+                if (!this._global) {
+                    this._global = global.pydio.getPluginConfigs("uploader");
+                    this._mq = global.pydio.getPluginConfigs("mq");
                 }
-                guiPref[guiElementId][repokey][prefName] = prefValue;
-            } else {
-                if (guiPref[guiElementId][prefName] && guiPref[guiElementId][prefName] == prefValue) {
-                    return;
-                }
-                guiPref[guiElementId][prefName] = prefValue;
             }
-            pydio.user.setPreference("gui_preferences", guiPref, true);
-            pydio.user.savePreference("gui_preferences");
-        }
-    }
+        }, {
+            key: 'extensionAllowed',
+            value: function extensionAllowed(uploadItem) {
+                var extString = this.getOption("ALLOWED_EXTENSIONS", '', '');
+                if (!extString) return true;
+                var extDescription = this.getOption("ALLOWED_EXTENSIONS_READABLE", '', '');
+                if (extDescription) extDescription = ' (' + extDescription + ')';
+                var itemExt = PathUtils.getFileExtension(uploadItem.getLabel());
+                if (extString.split(',').indexOf(itemExt) === -1) {
+                    throw new Error(global.pydio.MessageHash[367] + extString + extDescription);
+                }
+            }
+        }, {
+            key: 'getOptionAsBool',
+            value: function getOptionAsBool(name) {
+                var userPref = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+                var defaultValue = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
+
+                var o = this.getOption(name, userPref, defaultValue);
+                return o === true || o === 'true';
+            }
+        }, {
+            key: 'getOption',
+            value: function getOption(name) {
+                var userPref = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+                var defaultValue = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
+
+                this._loadOptions();
+                if (userPref) {
+                    var test = this.getUserPreference('originalUploadForm_XHRUploader', userPref);
+                    if (test !== undefined && test !== null) return test;
+                }
+                if (this._global.has(name)) {
+                    return this._global.get(name);
+                }
+                if (this._mq.has(name)) {
+                    return this._mq.get(name);
+                }
+                if (defaultValue !== undefined) {
+                    return defaultValue;
+                }
+                return null;
+            }
+        }, {
+            key: 'updateOption',
+            value: function updateOption(name, value) {
+                var isBool = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
+                if (isBool) {
+                    value = value ? "true" : "false";
+                }
+                this.setUserPreference('originalUploadForm_XHRUploader', name, value);
+                this.notify("change");
+            }
+
+            // TODO: SHOULD BE IN A "CORE" COMPONENT
+        }, {
+            key: 'getUserPreference',
+            value: function getUserPreference(guiElementId, prefName) {
+                var pydio = global.pydio;
+                if (!pydio.user) return null;
+                var gui_pref = pydio.user.getPreference("gui_preferences", true);
+                if (!gui_pref || !gui_pref[guiElementId]) return null;
+                if (pydio.user.activeRepository && gui_pref[guiElementId]['repo-' + pydio.user.activeRepository]) {
+                    return gui_pref[guiElementId]['repo-' + pydio.user.activeRepository][prefName];
+                }
+                return gui_pref[guiElementId][prefName];
+            }
+        }, {
+            key: 'setUserPreference',
+            value: function setUserPreference(guiElementId, prefName, prefValue) {
+                var pydio = global.pydio;
+                if (!pydio || !pydio.user) return;
+                var guiPref = pydio.user.getPreference("gui_preferences", true);
+                if (!guiPref) guiPref = {};
+                if (!guiPref[guiElementId]) guiPref[guiElementId] = {};
+                if (pydio.user.activeRepository) {
+                    var repokey = 'repo-' + pydio.user.activeRepository;
+                    if (!guiPref[guiElementId][repokey]) guiPref[guiElementId][repokey] = {};
+                    if (guiPref[guiElementId][repokey][prefName] && guiPref[guiElementId][repokey][prefName] == prefValue) {
+                        return;
+                    }
+                    guiPref[guiElementId][repokey][prefName] = prefValue;
+                } else {
+                    if (guiPref[guiElementId][prefName] && guiPref[guiElementId][prefName] == prefValue) {
+                        return;
+                    }
+                    guiPref[guiElementId][prefName] = prefValue;
+                }
+                pydio.user.setPreference("gui_preferences", guiPref, true);
+                pydio.user.savePreference("gui_preferences");
+            }
+        }]);
+
+        return UploaderConfigs;
+    })(Observable);
 
     var ns = global.UploaderModel || {};
     ns.Store = UploaderStore;

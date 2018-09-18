@@ -81,8 +81,7 @@ class EditionPanel extends React.Component {
                 editorSetActiveTab(tabId)
 
                 editorModify({
-                    open: true,
-                    isPanelActive: true
+                    isMinimised: false,
                 })
             }
         )
@@ -92,19 +91,8 @@ class EditionPanel extends React.Component {
     }
 
     render() {
-        let style = {
-            position: "fixed",
-            bottom: "50px",
-            right: "100px",
-            cursor: "pointer",
-            transform: "translate(50%, 50%)",
-            zIndex: 1400
-        }
-
         return (
-            <div style={{position: "relative", zIndex: 1400}}>
-                <Editor />
-            </div>
+            <Editor />
         )
     }
 }

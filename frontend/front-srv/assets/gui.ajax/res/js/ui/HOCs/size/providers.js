@@ -82,7 +82,9 @@ export const withContainerSize = (Component) => {
                 left: parseInt(dimensions.left),
                 right: parseInt(dimensions.right),
                 width: parseInt(dimensions.width),
-                height: parseInt(dimensions.height)
+                height: parseInt(dimensions.height),
+                documentWidth: document.documentElement.clientWidth,
+                documentHeight: document.documentElement.clientHeight,
             })
         }
 
@@ -93,7 +95,6 @@ export const withContainerSize = (Component) => {
         }
 
         componentWillReceiveProps() {
-            console.log("Received props")
             this.resize()
         }
 
@@ -102,12 +103,14 @@ export const withContainerSize = (Component) => {
         }
 
         render() {
-            const {top, bottom, left, right, width, height} = this.state;
+            const {top, bottom, left, right, width, height, documentWidth, documentHeight} = this.state;
 
             return (
                 <ContainerDimensions>
                     { ({ top: containerTop, bottom: containerBottom, left: containerLeft, right: containerRight, width: containerWidth, height: containerHeight }) => (
                         <Component
+                            documentWidth={documentWidth}
+                            documentHeight={documentHeight}
                             containerTop={containerTop}
                             containerBottom={containerBottom}
                             containerLeft={containerLeft}

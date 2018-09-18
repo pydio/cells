@@ -38,43 +38,6 @@ class Menu extends React.Component {
         const {editorModify} = props
 
         this.toggle = () => editorModify({isMenuActive: !this.props.isActive})
-        this.recalculate = this.recalculate.bind(this)
-    }
-
-    componentDidMount() {
-        window.addEventListener('resize', this.recalculate)
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.recalculate)
-    }
-
-
-    componentWillReceiveProps(nextProps) {
-
-        if (this.state.ready) return
-
-        const {translated} = nextProps
-
-        if (!translated) return
-
-        this.recalculate()
-
-        this.setState({ready: true})
-    }
-
-    recalculate() {
-        const {editorModify} = this.props
-
-        const element = ReactDOM.findDOMNode(this.refs.button)
-
-        if (!element) return
-
-        editorModify({
-            menu: {
-                rect: element.getBoundingClientRect()
-            }
-        })
     }
 
     renderChild() {
