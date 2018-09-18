@@ -21,8 +21,13 @@
 import { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { Toolbar, ToolbarGroup } from 'material-ui'
+import ContainerDimensions from 'react-container-dimensions';
+
+import {withContainerSize} from './size/providers';
 
 import {toTitleCase} from './utils'
+
+import _ from 'lodash';
 
 const getDisplayName = (WrappedComponent) => {
     return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -171,6 +176,93 @@ export function withDisabled(propName) {
                 )
             }
         }
+    }
+}
+
+export function withDimensions(WrappedComponent) {
+    return class extends Component {
+        static get displayName() {
+            return `WithContainerDimensions(${getDisplayName(WrappedComponent)})`
+        }
+
+        render() {
+            return (
+                <ContainerDimensions>
+                    <WrappedComponent {...this.props} />
+                </ContainerDimensions>
+            )
+        }
+    }
+}
+
+export function withMouseTracker() {
+    return (WrappedComponent) => {
+        return (
+            @withContainerSize
+            class extends Component {
+                constructor(props) {
+                    super(props)
+
+                    this.state = {
+                        isNearTop: false,
+                        isNearBottom: true,
+                        isNearLeft: false,
+                        isNearRight: false,
+                    }
+
+                    this._observer = _.throttle(this.onMouseMove.bind(this), 1000)
+                }
+
+                static get displayName() {
+                    return `WithMouseTracker(${getDisplayName(WrappedComponent)})`
+                }
+
+                onMouseMove(props) {
+
+                    const {top, bottom, left, right} = this.props
+
+                    let state = {
+                        isNearTop: false,
+                        isNearBottom: true,
+                        isNearLeft: false,
+                        isNearRight: false,
+                    }
+
+                    if (Math.abs(props.clientY - top) < 100) {
+                        state.isNearTop = true
+                    }
+
+                    if (Math.abs(props.clientY - bottom) < 100) {
+                        state.isNearBottom = true
+                    }
+
+                    if (Math.abs(props.clientX - left) < 100) {
+                        state.isNearLeft = true
+                    }
+
+                    if (Math.abs(props.clientX - right) < 100) {
+                        state.isNearRight = true
+                    }
+
+                    this.setState(state)
+                }
+
+                // Mounting
+                componentDidMount() {
+                    document.addEventListener('mousemove', this._observer)
+                }
+
+                componentWillUnmount() {
+                    document.removeEventListener('mousemove', this._observer)
+                }
+
+                render() {
+                    const {isNearTop, isNearBottom, isNearLeft, isNearRight} = this.state
+
+                    return <WrappedComponent {...this.props} isNearTop={isNearTop} isNearBottom={isNearBottom} isNearLeft={isNearLeft} isNearRight={isNearRight} />
+                }
+            }
+        )
     }
 }
 

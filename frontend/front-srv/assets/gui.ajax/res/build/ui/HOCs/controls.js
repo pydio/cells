@@ -28,6 +28,10 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 exports.withHideDisabled = withHideDisabled;
 exports.withDisabled = withDisabled;
+exports.withDimensions = withDimensions;
+exports.withMouseTracker = withMouseTracker;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -41,7 +45,17 @@ var _redux = require('redux');
 
 var _materialUi = require('material-ui');
 
+var _reactContainerDimensions = require('react-container-dimensions');
+
+var _reactContainerDimensions2 = _interopRequireDefault(_reactContainerDimensions);
+
+var _sizeProviders = require('./size/providers');
+
 var _utils = require('./utils');
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
 
 var getDisplayName = function getDisplayName(WrappedComponent) {
     return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -259,6 +273,122 @@ function withDisabled(propName) {
             }]);
 
             return _class4;
+        })(_react.Component);
+    };
+}
+
+function withDimensions(WrappedComponent) {
+    return (function (_Component5) {
+        _inherits(_class5, _Component5);
+
+        function _class5() {
+            _classCallCheck(this, _class5);
+
+            _Component5.apply(this, arguments);
+        }
+
+        _class5.prototype.render = function render() {
+            return React.createElement(
+                _reactContainerDimensions2['default'],
+                null,
+                React.createElement(WrappedComponent, this.props)
+            );
+        };
+
+        _createClass(_class5, null, [{
+            key: 'displayName',
+            get: function get() {
+                return 'WithContainerDimensions(' + getDisplayName(WrappedComponent) + ')';
+            }
+        }]);
+
+        return _class5;
+    })(_react.Component);
+}
+
+function withMouseTracker() {
+    return function (WrappedComponent) {
+        return (function (_Component6) {
+            _inherits(_class6, _Component6);
+
+            function _class6(props) {
+                _classCallCheck(this, _class62);
+
+                _Component6.call(this, props);
+
+                this.state = {
+                    isNearTop: false,
+                    isNearBottom: true,
+                    isNearLeft: false,
+                    isNearRight: false
+                };
+
+                this._observer = _lodash2['default'].throttle(this.onMouseMove.bind(this), 1000);
+            }
+
+            _class6.prototype.onMouseMove = function onMouseMove(props) {
+                var _props6 = this.props;
+                var top = _props6.top;
+                var bottom = _props6.bottom;
+                var left = _props6.left;
+                var right = _props6.right;
+
+                var state = {
+                    isNearTop: false,
+                    isNearBottom: true,
+                    isNearLeft: false,
+                    isNearRight: false
+                };
+
+                if (Math.abs(props.clientY - top) < 100) {
+                    state.isNearTop = true;
+                }
+
+                if (Math.abs(props.clientY - bottom) < 100) {
+                    state.isNearBottom = true;
+                }
+
+                if (Math.abs(props.clientX - left) < 100) {
+                    state.isNearLeft = true;
+                }
+
+                if (Math.abs(props.clientX - right) < 100) {
+                    state.isNearRight = true;
+                }
+
+                this.setState(state);
+            };
+
+            // Mounting
+
+            _class6.prototype.componentDidMount = function componentDidMount() {
+                document.addEventListener('mousemove', this._observer);
+            };
+
+            _class6.prototype.componentWillUnmount = function componentWillUnmount() {
+                document.removeEventListener('mousemove', this._observer);
+            };
+
+            _class6.prototype.render = function render() {
+                var _state = this.state;
+                var isNearTop = _state.isNearTop;
+                var isNearBottom = _state.isNearBottom;
+                var isNearLeft = _state.isNearLeft;
+                var isNearRight = _state.isNearRight;
+
+                return React.createElement(WrappedComponent, _extends({}, this.props, { isNearTop: isNearTop, isNearBottom: isNearBottom, isNearLeft: isNearLeft, isNearRight: isNearRight }));
+            };
+
+            _createClass(_class6, null, [{
+                key: 'displayName',
+                get: function get() {
+                    return 'WithMouseTracker(' + getDisplayName(WrappedComponent) + ')';
+                }
+            }]);
+
+            var _class62 = _class6;
+            _class6 = _sizeProviders.withContainerSize(_class6) || _class6;
+            return _class6;
         })(_react.Component);
     };
 }

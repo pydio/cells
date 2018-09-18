@@ -116,14 +116,23 @@ var withContainerSize = function withContainerSize(Component) {
             var dimensions = node && _utils.getBoundingRect(node) || {};
 
             this.setState({
-                containerWidth: parseInt(dimensions.width),
-                containerHeight: parseInt(dimensions.height)
+                top: parseInt(dimensions.top),
+                bottom: parseInt(dimensions.bottom),
+                left: parseInt(dimensions.left),
+                right: parseInt(dimensions.right),
+                width: parseInt(dimensions.width),
+                height: parseInt(dimensions.height)
             });
         };
 
         _class.prototype.componentDidMount = function componentDidMount() {
             DOMUtils.observeWindowResize(this._observer);
 
+            this.resize();
+        };
+
+        _class.prototype.componentWillReceiveProps = function componentWillReceiveProps() {
+            console.log("Received props");
             this.resize();
         };
 
@@ -135,16 +144,37 @@ var withContainerSize = function withContainerSize(Component) {
             var _this3 = this;
 
             var _state = this.state;
-            var containerWidth = _state.containerWidth;
-            var containerHeight = _state.containerHeight;
+            var top = _state.top;
+            var bottom = _state.bottom;
+            var left = _state.left;
+            var right = _state.right;
+            var width = _state.width;
+            var height = _state.height;
 
             return _react2['default'].createElement(
                 _reactContainerDimensions2['default'],
                 null,
                 function (_ref) {
-                    var width = _ref.width;
-                    var height = _ref.height;
-                    return _react2['default'].createElement(Component, _extends({ containerWidth: width, containerHeight: height }, _this3.props));
+                    var containerTop = _ref.top;
+                    var containerBottom = _ref.bottom;
+                    var containerLeft = _ref.left;
+                    var containerRight = _ref.right;
+                    var containerWidth = _ref.width;
+                    var containerHeight = _ref.height;
+                    return _react2['default'].createElement(Component, _extends({
+                        containerTop: containerTop,
+                        containerBottom: containerBottom,
+                        containerLeft: containerLeft,
+                        containerRight: containerRight,
+                        containerWidth: containerWidth,
+                        containerHeight: containerHeight,
+                        top: top,
+                        bottom: bottom,
+                        left: left,
+                        right: right,
+                        width: width,
+                        height: height
+                    }, _this3.props));
                 }
             );
         };

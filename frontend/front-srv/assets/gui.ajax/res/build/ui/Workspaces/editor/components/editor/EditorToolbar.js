@@ -36,15 +36,17 @@ var IconButton = _require.IconButton;
 
 var _Pydio$requireLib = Pydio.requireLib('hoc');
 
+var makeTransitionHOC = _Pydio$requireLib.makeTransitionHOC;
 var withResolutionControls = _Pydio$requireLib.withResolutionControls;
 
 // Display components
+// TODO - should be two motions for appearing and disappearing, based on a condition in the props
 
 var EditorToolbar = (function (_React$Component) {
     _inherits(EditorToolbar, _React$Component);
 
     function EditorToolbar() {
-        _classCallCheck(this, EditorToolbar);
+        _classCallCheck(this, _EditorToolbar);
 
         _React$Component.apply(this, arguments);
     }
@@ -80,6 +82,8 @@ var EditorToolbar = (function (_React$Component) {
         });
     };
 
+    var _EditorToolbar = EditorToolbar;
+    EditorToolbar = makeTransitionHOC({ translateY: -60, opacity: 0 }, { translateY: 0, opacity: 1 })(EditorToolbar) || EditorToolbar;
     return EditorToolbar;
 })(React.Component);
 

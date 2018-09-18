@@ -32,7 +32,7 @@ import makeMinimise from './make-minimise';
 const { EditorActions } = Pydio.requireLib('hoc');
 const MAX_ITEMS = 4;
 
-const { withSelectionControls, withContainerSize } = Pydio.requireLib('hoc');
+const { makeTransitionHOC, withMouseTracker, withSelectionControls, withContainerSize } = Pydio.requireLib('hoc');
 
 const styles = {
     selectionButtonLeft: {
@@ -56,6 +56,8 @@ const styles = {
 }
 
 // MAIN COMPONENT
+@makeTransitionHOC({translateY: 800}, {translateY: 0})
+@withMouseTracker()
 @withSelectionControls()
 @connect(mapStateToProps, EditorActions)
 export default class Editor extends React.Component {
@@ -176,7 +178,7 @@ export default class Editor extends React.Component {
     }
 
     render() {
-        const {style, activeTab, isActive, displayToolbar, prevSelectionDisabled, nextSelectionDisabled, onSelectPrev, onSelectNext} = this.props
+        const {style, activeTab, isActive, hideToolbar, hideSelectionControls, prevSelectionDisabled, nextSelectionDisabled, onSelectPrev, onSelectNext} = this.props
         const {minimisable} = this.state
 
         const title = activeTab ? activeTab.title : ""
@@ -204,15 +206,13 @@ export default class Editor extends React.Component {
         return (
             <div style={{display: "flex", ...style}}>
                 <AnimatedPaper ref={(container) => this.container = ReactDOM.findDOMNode(container)} onMinimise={this.props.onMinimise}  minimised={!isActive} zDepth={5} style={{display: "flex", flexDirection: "column", overflow: "hidden", width: "100%", height: "100%", transformOrigin: style.transformOrigin}}>
-                    {displayToolbar &&
-                        <Toolbar style={{flexShrink: 0}} title={title} onClose={onClose} onFullScreen={() => this.enterFullScreen()} onMinimise={onMinimise} />
-                    }
+                    {!hideToolbar && <Toolbar style={{position: "absolute", top: 0, left: 0, right: 0, flexShrink: 0}} title={title} onClose={onClose} onFullScreen={() => this.enterFullScreen()} onMinimise={onMinimise} />}
 
                     <div className="body" style={parentStyle}>
-                        {this.renderChild()}
+                        {this.props.transitionEnded && this.renderChild()}
                     </div>
 
-                    {onSelectPrev && (
+                    {!hideSelectionControls && onSelectPrev && (
                         <Button
                             iconClassName="mdi mdi-chevron-left"
                             style={styles.selectionButtonLeft}
@@ -221,7 +221,7 @@ export default class Editor extends React.Component {
                             onClick={() => onSelectPrev()}
                         />
                     )}
-                    {onSelectNext && (
+                    {!hideSelectionControls && onSelectNext && (
                         <Button
                             iconClassName="mdi mdi-chevron-right"
                             style={styles.selectionButtonRight}
@@ -247,7 +247,8 @@ function mapStateToProps(state, ownProps) {
 
     return  {
         style: {},
-        displayToolbar: !editor.fullscreen,
+        hideToolbar: !ownProps.isNearTop,
+        hideSelectionControls: !ownProps.isNearTop && !ownProps.isNearLeft && ! ownProps.isNearRight,
         ...ownProps,
         activeTab,
         tabs,

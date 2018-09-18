@@ -28,8 +28,6 @@ var mapStateToProps = function mapStateToProps(state, props) {
     var editor = state.editor;
     var tabs = state.tabs;
 
-    console.log(editor);
-
     var tab = tabs.reduce(function (current, tab) {
         return tab.id === editor.activeTabId ? tab : current;
     }, {});

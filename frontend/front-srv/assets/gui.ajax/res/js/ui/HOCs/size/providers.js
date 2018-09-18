@@ -77,8 +77,12 @@ export const withContainerSize = (Component) => {
             const dimensions = node && getBoundingRect(node) || {}
 
             this.setState({
-                containerWidth: parseInt(dimensions.width),
-                containerHeight: parseInt(dimensions.height)
+                top: parseInt(dimensions.top),
+                bottom: parseInt(dimensions.bottom),
+                left: parseInt(dimensions.left),
+                right: parseInt(dimensions.right),
+                width: parseInt(dimensions.width),
+                height: parseInt(dimensions.height)
             })
         }
 
@@ -88,16 +92,37 @@ export const withContainerSize = (Component) => {
             this.resize()
         }
 
+        componentWillReceiveProps() {
+            console.log("Received props")
+            this.resize()
+        }
+
         componentWillUnmount() {
             DOMUtils.stopObservingWindowResize(this._observer);
         }
 
         render() {
-            const {containerWidth, containerHeight} = this.state;
+            const {top, bottom, left, right, width, height} = this.state;
 
             return (
                 <ContainerDimensions>
-                    { ({ width, height }) => <Component containerWidth={width} containerHeight={height} {...this.props} /> }
+                    { ({ top: containerTop, bottom: containerBottom, left: containerLeft, right: containerRight, width: containerWidth, height: containerHeight }) => (
+                        <Component
+                            containerTop={containerTop}
+                            containerBottom={containerBottom}
+                            containerLeft={containerLeft}
+                            containerRight={containerRight}
+                            containerWidth={containerWidth}
+                            containerHeight={containerHeight}
+                            top={top}
+                            bottom={bottom}
+                            left={left}
+                            right={right}
+                            width={width}
+                            height={height}
+                            {...this.props}
+                        />
+                    )}
                 </ContainerDimensions>
             )
         }

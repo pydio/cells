@@ -20,10 +20,11 @@
 
 const {IconButton} = require('material-ui');
 
-const { withHideDisabled } = Pydio.requireLib('hoc');
+const { makeTransitionHOC, withHideDisabled } = Pydio.requireLib('hoc');
 
 // Display components
 @withHideDisabled()
+@makeTransitionHOC({opacity: 0}, {opacity: 1})
 export default class extends React.Component {
     render() {
         return (

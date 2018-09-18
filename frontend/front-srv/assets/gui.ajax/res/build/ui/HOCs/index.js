@@ -111,8 +111,8 @@ var PydioHOCs = _extends({
     withSelection: _selectionIndex.withSelection,
     withVerticalScroll: _scrollbarWithVerticalScroll2['default'],
     dropProvider: _dropDropProvider2['default'],
-    NativeFileDropProvider: _dropNativeFileDropProvider2['default'],
-    Animations: Animations,
+    NativeFileDropProvider: _dropNativeFileDropProvider2['default']
+}, Animations, {
     PaletteModifier: _PaletteModifier2['default'],
     URLProvider: _urls.URLProvider,
     SizeProviders: _sizeIndex.SizeProviders

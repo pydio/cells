@@ -40,7 +40,7 @@ class App extends React.Component {
 
         this.state = {
             editorMinimised: false,
-            fullBrowserScreen: pydio.UI.MOBILE_EXTENSIONS || false
+            fullBrowserScreen: pydio.UI.MOBILE_EXTENSIONS || true
         }
 
         this.onFullBrowserScreen = () => this.setState({fullBrowserScreen: !this.state.fullBrowserScreen})
@@ -111,22 +111,20 @@ class App extends React.Component {
         return (
             <div>
                 { display ? <div style={overlayStyle} /> : null }
-                <AnimationGroup>
-                    { display ? <Editor style={editorStyle} onFullBrowserScreen={this.onFullBrowserScreen.bind(this)} onMinimise={this.onEditorMinimise.bind(this)}  /> : null }
-                    { display ? <Menu style={menuStyle} /> : null }
-                </AnimationGroup>
+                { display ? <Editor style={editorStyle} onFullBrowserScreen={this.onFullBrowserScreen.bind(this)} onMinimise={this.onEditorMinimise.bind(this)}  /> : null }
+                { display ? <Menu style={menuStyle} /> : null }
             </div>
         )
     }
 }
 
-const Animation = (props) => {
+/*const Animation = (props) => {
     return (
         <div {...props} />
     );
 };
 
-const AnimationGroup = makeEditorOpen(Animation)
+const AnimationGroup = makeEditorOpen(Animation)*/
 
 // REDUX - Then connect the redux store
 function mapStateToProps(state, ownProps) {

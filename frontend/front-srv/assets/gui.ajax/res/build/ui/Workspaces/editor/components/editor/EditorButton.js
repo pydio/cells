@@ -32,6 +32,7 @@ var IconButton = _require.IconButton;
 
 var _Pydio$requireLib = Pydio.requireLib('hoc');
 
+var makeTransitionHOC = _Pydio$requireLib.makeTransitionHOC;
 var withHideDisabled = _Pydio$requireLib.withHideDisabled;
 
 // Display components
@@ -50,6 +51,7 @@ var _default = (function (_React$Component) {
     };
 
     var _default2 = _default;
+    _default = makeTransitionHOC({ opacity: 0 }, { opacity: 1 })(_default) || _default;
     _default = withHideDisabled()(_default) || _default;
     return _default;
 })(React.Component);
