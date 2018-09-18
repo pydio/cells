@@ -56,7 +56,7 @@ var MenuItem = (function (_React$PureComponent) {
         var editorModify = props.editorModify;
 
         this.onClick = function () {
-            editorModify({ isPanelActive: true });
+            editorModify({ isMinimised: false });
             editorSetActiveTab(_this.props.id);
         };
     }

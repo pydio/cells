@@ -1,40 +1,46 @@
+'use strict';
+
 (function (global) {
 
-    let DropUploader = React.createClass({
+    var DropUploader = React.createClass({
+        displayName: 'DropUploader',
 
         propTypes: {
             onDismiss: React.PropTypes.func
         },
 
-        getInitialState: function () {
+        getInitialState: function getInitialState() {
             return {
                 showOptions: false,
                 configs: UploaderModel.Configs.getInstance()
             };
         },
 
-        onDrop: function (files) {
-            let contextNode = global.pydio.getContextHolder().getContextNode();
+        onDrop: function onDrop(files) {
+            var contextNode = global.pydio.getContextHolder().getContextNode();
             UploaderModel.Store.getInstance().handleDropEventResults(null, files, contextNode);
         },
 
-        onFolderPicked: function (files) {
-            let contextNode = global.pydio.getContextHolder().getContextNode();
+        onFolderPicked: function onFolderPicked(files) {
+            var contextNode = global.pydio.getContextHolder().getContextNode();
             UploaderModel.Store.getInstance().handleFolderPickerResult(files, contextNode);
         },
 
-        start: function (e) {
+        start: function start(e) {
             e.preventDefault();
             UploaderModel.Store.getInstance().processNext();
         },
-        clear: function (e) {
+        clear: function clear(e) {
             e.preventDefault();
             UploaderModel.Store.getInstance().clearAll();
         },
-        toggleOptions: function (e) {
+        toggleOptions: function toggleOptions(e) {
             if (e.preventDefault) e.preventDefault();
 
-            const { showOptions = false, currentTarget } = this.state;
+            var _state = this.state;
+            var _state$showOptions = _state.showOptions;
+            var showOptions = _state$showOptions === undefined ? false : _state$showOptions;
+            var currentTarget = _state.currentTarget;
 
             this.setState({
                 showOptions: !showOptions,
@@ -42,33 +48,36 @@
             });
         },
 
-        openFilePicker: function (e) {
+        openFilePicker: function openFilePicker(e) {
             e.preventDefault();
             this.refs.dropzone.open();
         },
 
-        openFolderPicker: function (e) {
+        openFolderPicker: function openFolderPicker(e) {
             e.preventDefault();
             this.refs.dropzone.openFolderPicker();
         },
 
-        render: function () {
+        render: function render() {
 
-            let optionsEl;
-            let messages = global.pydio.MessageHash;
-            const connectDropTarget = this.props.connectDropTarget || (c => {
+            var optionsEl = undefined;
+            var messages = global.pydio.MessageHash;
+            var connectDropTarget = this.props.connectDropTarget || function (c) {
                 return c;
-            });
-            const { configs, showOptions } = this.state;
+            };
+            var _state2 = this.state;
+            var configs = _state2.configs;
+            var showOptions = _state2.showOptions;
 
-            let dismiss = function (e) {
+            var dismiss = (function (e) {
                 this.toggleOptions(e);
-            }.bind(this);
+            }).bind(this);
 
             optionsEl = React.createElement(UploadOptionsPane, { configs: configs, open: showOptions, anchorEl: this.state.optionsAnchorEl, onDismiss: dismiss });
 
-            let folderButton, startButton;
-            let e = global.document.createElement('input');
+            var folderButton = undefined,
+                startButton = undefined;
+            var e = global.document.createElement('input');
             e.setAttribute('type', 'file');
             if ('webkitdirectory' in e) {
                 folderButton = React.createElement(ReactMUI.RaisedButton, { style: { marginRight: 10 }, label: messages['html_uploader.5'], onClick: this.openFolderPicker });
@@ -127,43 +136,45 @@
 
     DropUploader = Pydio.requireLib('hoc').dropProvider(DropUploader);
 
-    const TransferFile = React.createClass({
+    var TransferFile = React.createClass({
+        displayName: 'TransferFile',
 
         propTypes: {
             item: React.PropTypes.object.isRequired,
             className: React.PropTypes.string
         },
 
-        componentDidMount: function () {
-            this.props.item.observe('progress', function (value) {
+        componentDidMount: function componentDidMount() {
+            this.props.item.observe('progress', (function (value) {
                 this.setState({ progress: value });
-            }.bind(this));
-            this.props.item.observe('status', function (value) {
+            }).bind(this));
+            this.props.item.observe('status', (function (value) {
                 this.setState({ status: value });
-            }.bind(this));
+            }).bind(this));
         },
 
-        getInitialState: function () {
+        getInitialState: function getInitialState() {
             return {
                 progress: this.props.item.getProgress(),
                 status: this.props.item.getStatus()
             };
         },
 
-        abortTransfer: function () {
+        abortTransfer: function abortTransfer() {
             UploaderModel.Store.getInstance().stopOrRemoveItem(this.props.item);
         },
 
-        render: function () {
-            let style, relativeMessage;
-            const messageIds = {
+        render: function render() {
+            var style = undefined,
+                relativeMessage = undefined;
+            var messageIds = {
                 "new": 433,
                 "loading": 434,
                 "loaded": 435,
                 "error": 436
             };
-            let statusMessage = this.props.item.getStatus();
-            let stopButton;
+            var statusMessage = this.props.item.getStatus();
+            var stopButton = undefined;
             if (statusMessage === 'loading') {
                 stopButton = React.createElement('span', { className: 'stop-button icon-stop', onClick: this.abortTransfer });
             } else {
@@ -203,14 +214,15 @@
         }
     });
 
-    const TransferFolder = React.createClass({
+    var TransferFolder = React.createClass({
+        displayName: 'TransferFolder',
 
         propTypes: {
             item: React.PropTypes.object.isRequired
         },
 
-        render: function () {
-            let statusMessage;
+        render: function render() {
+            var statusMessage = undefined;
             if (this.props.item.getStatus() === 'loaded') {
                 statusMessage = global.pydio.MessageHash['html_uploader.13'];
             }
@@ -230,46 +242,49 @@
         }
     });
 
-    const TransfersList = React.createClass({
+    var TransfersList = React.createClass({
+        displayName: 'TransfersList',
 
         propTypes: {
             autoStart: React.PropTypes.bool,
             onDismiss: React.PropTypes.func
         },
 
-        componentDidMount: function () {
-            let store = UploaderModel.Store.getInstance();
-            this._storeObserver = function () {
+        componentDidMount: function componentDidMount() {
+            var store = UploaderModel.Store.getInstance();
+            this._storeObserver = (function () {
                 if (!this.isMounted()) return;
                 this.setState({ items: store.getItems() });
-            }.bind(this);
+            }).bind(this);
             store.observe("update", this._storeObserver);
-            store.observe("auto_close", function () {
+            store.observe("auto_close", (function () {
                 if (this.props.onDismiss) {
                     this.props.onDismiss();
                 }
-            }.bind(this));
+            }).bind(this));
             this.setState({ items: store.getItems() });
         },
 
-        componentWillReceiveProps(nextProps) {
-
-            const { autoStart } = nextProps;
-            const { items } = this.state;
+        componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+            var autoStart = nextProps.autoStart;
+            var items = this.state.items;
 
             if (autoStart && items["pending"].length) {
                 UploaderModel.Store.getInstance().processNext();
             }
         },
 
-        componentWillUnmount: function () {
+        componentWillUnmount: function componentWillUnmount() {
             if (this._storeObserver) {
                 UploaderModel.Store.getInstance().stopObserving("update", this._storeObserver);
                 UploaderModel.Store.getInstance().stopObserving("auto_close");
             }
         },
 
-        renderSection: function (accumulator, items, title = "", className = "") {
+        renderSection: function renderSection(accumulator, items) {
+            var title = arguments.length <= 2 || arguments[2] === undefined ? "" : arguments[2];
+            var className = arguments.length <= 3 || arguments[3] === undefined ? "" : arguments[3];
+
             if (title && items.length) {
                 accumulator.push(React.createElement(
                     'div',
@@ -278,8 +293,8 @@
                 ));
             }
             items.sort(function (a, b) {
-                let aType = a instanceof UploaderModel.FolderItem ? 'folder' : 'file';
-                let bType = b instanceof UploaderModel.FolderItem ? 'folder' : 'file';
+                var aType = a instanceof UploaderModel.FolderItem ? 'folder' : 'file';
+                var bType = b instanceof UploaderModel.FolderItem ? 'folder' : 'file';
                 if (aType === bType) {
                     return 0;
                 } else {
@@ -295,8 +310,8 @@
             });
         },
 
-        render: function () {
-            let items = [];
+        render: function render() {
+            var items = [];
             if (this.state && this.state.items) {
                 this.renderSection(items, this.state.items.processing, global.pydio.MessageHash['html_uploader.14'], 'section-processing');
                 this.renderSection(items, this.state.items.pending, global.pydio.MessageHash['html_uploader.15'], 'section-pending');
@@ -311,7 +326,8 @@
         }
     });
 
-    const UploadOptionsPane = React.createClass({
+    var UploadOptionsPane = React.createClass({
+        displayName: 'UploadOptionsPane',
 
         propTypes: {
             open: React.PropTypes.boolean,
@@ -319,41 +335,42 @@
             onDismiss: React.PropTypes.func.isRequired
         },
 
-        updateField: function (fName, event) {
-
-            const { configs } = this.props;
+        updateField: function updateField(fName, event) {
+            var configs = this.props.configs;
 
             if (fName === 'autostart') {
-                let toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send', true);
+                var toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send', true);
                 toggleStart = !toggleStart;
                 configs.updateOption('upload_auto_send', toggleStart, true);
             } else if (fName === 'autoclose') {
-                let toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close', true);
+                var toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close', true);
                 toggleStart = !toggleStart;
                 configs.updateOption('upload_auto_close', toggleStart, true);
             } else if (fName === 'existing') {
                 configs.updateOption('upload_existing', event.target.getSelectedValue());
             } else if (fName === 'show_processed') {
-                let toggleShowProcessed = configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
+                var toggleShowProcessed = configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
                 toggleShowProcessed = !toggleShowProcessed;
                 configs.updateOption('upload_show_processed', toggleShowProcessed, true);
             }
             this.setState({ random: Math.random() });
         },
 
-        radioChange: function (e, newValue) {
-            const { configs } = this.props;
+        radioChange: function radioChange(e, newValue) {
+            var configs = this.props.configs;
 
             configs.updateOption('upload_existing', newValue);
             this.setState({ random: Math.random() });
         },
 
-        render: function () {
-            const { configs } = this.props;
+        render: function render() {
+            var _this = this;
 
-            let maxUploadMessage;
+            var configs = this.props.configs;
+
+            var maxUploadMessage = undefined;
             if (!global.pydio.getPluginConfigs('mq').get('UPLOAD_ACTIVE')) {
-                let maxUpload = configs.getOption('UPLOAD_MAX_SIZE');
+                var maxUpload = configs.getOption('UPLOAD_MAX_SIZE');
                 maxUploadMessage = global.pydio.MessageHash[282] + ': ' + PathUtils.roundFileSize(maxUpload, '');
                 maxUploadMessage = React.createElement(
                     'div',
@@ -361,10 +378,10 @@
                     maxUploadMessage
                 );
             }
-            let toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
-            let toggleClose = configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close');
-            let toggleShowProcessed = configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
-            let overwriteType = configs.getOption('DEFAULT_EXISTING', 'upload_existing');
+            var toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
+            var toggleClose = configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close');
+            var toggleShowProcessed = configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
+            var overwriteType = configs.getOption('DEFAULT_EXISTING', 'upload_existing');
 
             return React.createElement(
                 MaterialUI.Popover,
@@ -373,8 +390,8 @@
                     anchorEl: this.props.anchorEl,
                     anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
                     targetOrigin: { horizontal: 'right', vertical: 'top' },
-                    onRequestClose: e => {
-                        this.props.onDismiss(e);
+                    onRequestClose: function (e) {
+                        _this.props.onDismiss(e);
                     }
                 },
                 React.createElement(
@@ -407,9 +424,9 @@
     });
 
     global.UploaderView = {
-        DropUploader,
-        TransferFile,
-        TransfersList,
-        TransferFolder
+        DropUploader: DropUploader,
+        TransferFile: TransferFile,
+        TransfersList: TransfersList,
+        TransferFolder: TransferFolder
     };
 })(window);

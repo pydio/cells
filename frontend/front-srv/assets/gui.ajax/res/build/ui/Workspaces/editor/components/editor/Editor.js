@@ -61,18 +61,16 @@ var _makeMinimise = require('./make-minimise');
 
 var _makeMinimise2 = _interopRequireDefault(_makeMinimise);
 
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
-
-var EditorActions = _Pydio$requireLib.EditorActions;
-
 var MAX_ITEMS = 4;
 
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('hoc');
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
-var makeTransitionHOC = _Pydio$requireLib2.makeTransitionHOC;
-var withMouseTracker = _Pydio$requireLib2.withMouseTracker;
-var withSelectionControls = _Pydio$requireLib2.withSelectionControls;
-var withContainerSize = _Pydio$requireLib2.withContainerSize;
+var makeMotion = _Pydio$requireLib.makeMotion;
+var makeTransitionHOC = _Pydio$requireLib.makeTransitionHOC;
+var withMouseTracker = _Pydio$requireLib.withMouseTracker;
+var withSelectionControls = _Pydio$requireLib.withSelectionControls;
+var withContainerSize = _Pydio$requireLib.withContainerSize;
+var EditorActions = _Pydio$requireLib.EditorActions;
 
 var styles = {
     selectionButtonLeft: {
@@ -100,98 +98,33 @@ var styles = {
 var Editor = (function (_React$Component) {
     _inherits(Editor, _React$Component);
 
-    function Editor(props) {
-        var _this = this;
-
+    function Editor() {
         _classCallCheck(this, _Editor);
 
-        _React$Component.call(this, props);
-
-        var tabDelete = props.tabDelete;
-        var tabDeleteAll = props.tabDeleteAll;
-        var editorModify = props.editorModify;
-        var editorSetActiveTab = props.editorSetActiveTab;
-
-        this.state = {
-            minimisable: false
-        };
-
-        this.minimise = function () {
-            return editorModify({ isPanelActive: false });
-        };
-        this.setFullScreen = function () {
-            return editorModify({ fullscreen: typeof (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) !== 'undefined' });
-        };
-
-        this.closeActiveTab = function (e) {
-            var activeTab = _this.props.activeTab;
-
-            editorSetActiveTab(null);
-            tabDelete(activeTab.id);
-        };
-
-        this.close = function (e) {
-            editorModify({ open: false });
-            tabDeleteAll();
-        };
-
-        // By default, open it up
-        editorModify({ isPanelActive: true });
+        _React$Component.apply(this, arguments);
     }
 
-    Editor.prototype.componentDidMount = function componentDidMount() {
-        DOMUtils.observeWindowResize(this.setFullScreen);
-    };
-
-    Editor.prototype.componentWillUnmount = function componentWillUnmount() {
-        DOMUtils.stopObservingWindowResize(this.setFullScreen);
-    };
-
-    Editor.prototype.enterFullScreen = function enterFullScreen() {
-        if (this.props.onFullBrowserScreen) {
-            this.props.onFullBrowserScreen();
-            return;
-        }
-
-        if (this.container.requestFullscreen) {
-            this.container.requestFullscreen();
-        } else if (this.container.mozRequestFullScreen) {
-            this.container.mozRequestFullScreen();
-        } else if (this.container.webkitRequestFullscreen) {
-            this.container.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-        }
-    };
-
-    Editor.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
-
-        if (this.state.minimisable) return;
-
-        var translated = nextProps.translated;
-
-        if (!translated) return;
-
-        this.recalculate();
-
-        this.setState({ minimisable: true });
-    };
-
-    Editor.prototype.recalculate = function recalculate() {
+    Editor.prototype.handleBlurOnSelection = function handleBlurOnSelection(e) {
         var editorModify = this.props.editorModify;
 
-        if (!this.container) return;
+        editorModify({ focusOnSelection: false });
+    };
 
-        editorModify({
-            panel: {
-                rect: this.container.getBoundingClientRect()
-            }
-        });
+    Editor.prototype.handleFocusOnSelection = function handleFocusOnSelection(e) {
+        var editorModify = this.props.editorModify;
+
+        editorModify({ focusOnSelection: true });
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        return false;
     };
 
     Editor.prototype.renderChild = function renderChild() {
         var _props = this.props;
         var activeTab = _props.activeTab;
         var tabs = _props.tabs;
-        var editorSetActiveTab = _props.editorSetActiveTab;
 
         var filteredTabs = tabs.filter(function (_ref) {
             var editorData = _ref.editorData;
@@ -232,24 +165,17 @@ var Editor = (function (_React$Component) {
     };
 
     Editor.prototype.render = function render() {
-        var _this2 = this;
+        var _this = this;
 
         var _props2 = this.props;
         var style = _props2.style;
         var activeTab = _props2.activeTab;
-        var isActive = _props2.isActive;
         var hideToolbar = _props2.hideToolbar;
         var hideSelectionControls = _props2.hideSelectionControls;
         var prevSelectionDisabled = _props2.prevSelectionDisabled;
         var nextSelectionDisabled = _props2.nextSelectionDisabled;
         var onSelectPrev = _props2.onSelectPrev;
         var onSelectNext = _props2.onSelectNext;
-        var minimisable = this.state.minimisable;
-
-        var title = activeTab ? activeTab.title : "";
-        var onClose = activeTab ? this.closeActiveTab : this.close;
-        var onMinimise = minimisable ? this.minimise : null;
-        var onMaximise = this.maximise;
 
         var parentStyle = {
             display: "flex",
@@ -268,44 +194,48 @@ var Editor = (function (_React$Component) {
         }
 
         return React.createElement(
-            'div',
-            { style: _extends({ display: "flex" }, style) },
+            _materialUi.Paper,
+            { zDepth: 5, style: _extends({ display: "flex", flexDirection: "column", overflow: "hidden", width: "100%", height: "100%" }, style), onClick: function (e) {
+                    return _this.handleBlurOnSelection(e);
+                } },
+            !hideToolbar && React.createElement(_EditorToolbar2['default'], { style: { position: "absolute", top: 0, left: 0, right: 0, flexShrink: 0 } }),
             React.createElement(
-                AnimatedPaper,
-                { ref: function (container) {
-                        return _this2.container = ReactDOM.findDOMNode(container);
-                    }, onMinimise: this.props.onMinimise, minimised: !isActive, zDepth: 5, style: { display: "flex", flexDirection: "column", overflow: "hidden", width: "100%", height: "100%", transformOrigin: style.transformOrigin } },
-                !hideToolbar && React.createElement(_EditorToolbar2['default'], { style: { position: "absolute", top: 0, left: 0, right: 0, flexShrink: 0 }, title: title, onClose: onClose, onFullScreen: function () {
-                        return _this2.enterFullScreen();
-                    }, onMinimise: onMinimise }),
-                React.createElement(
-                    'div',
-                    { className: 'body', style: parentStyle },
-                    this.props.transitionEnded && this.renderChild()
-                ),
-                !hideSelectionControls && onSelectPrev && React.createElement(_EditorButton2['default'], {
-                    iconClassName: 'mdi mdi-chevron-left',
-                    style: styles.selectionButtonLeft,
-                    iconStyle: styles.iconSelectionButton,
-                    disabled: prevSelectionDisabled,
-                    onClick: function () {
-                        return onSelectPrev();
-                    }
-                }),
-                !hideSelectionControls && onSelectNext && React.createElement(_EditorButton2['default'], {
-                    iconClassName: 'mdi mdi-chevron-right',
-                    style: styles.selectionButtonRight,
-                    iconStyle: styles.iconSelectionButton,
-                    disabled: nextSelectionDisabled,
-                    onClick: function () {
-                        return onSelectNext();
-                    }
-                })
-            )
+                'div',
+                { className: 'body', style: parentStyle, onClick: function (e) {
+                        return _this.handleFocusOnSelection(e);
+                    } },
+                this.props.transitionEnded && this.renderChild()
+            ),
+            !hideSelectionControls && onSelectPrev && React.createElement(_EditorButton2['default'], {
+                iconClassName: 'mdi mdi-chevron-left',
+                style: styles.selectionButtonLeft,
+                iconStyle: styles.iconSelectionButton,
+                disabled: prevSelectionDisabled,
+                onClick: function () {
+                    return onSelectPrev();
+                }
+            }),
+            !hideSelectionControls && onSelectNext && React.createElement(_EditorButton2['default'], {
+                iconClassName: 'mdi mdi-chevron-right',
+                style: styles.selectionButtonRight,
+                iconStyle: styles.iconSelectionButton,
+                disabled: nextSelectionDisabled,
+                onClick: function () {
+                    return onSelectNext();
+                }
+            })
         );
     };
 
     var _Editor = Editor;
+    Editor = makeMotion({ scale: 1 }, { scale: 0 }, {
+        check: function check(props) {
+            return props.isMinimised;
+        },
+        style: function style(props) {
+            return props.minimiseStyle;
+        }
+    })(Editor) || Editor;
     Editor = _reactRedux.connect(mapStateToProps, EditorActions)(Editor) || Editor;
     Editor = withSelectionControls()(Editor) || Editor;
     Editor = withMouseTracker()(Editor) || Editor;
@@ -316,26 +246,29 @@ var Editor = (function (_React$Component) {
 exports['default'] = Editor;
 ;
 
-// ANIMATIONS
-var AnimatedPaper = _makeMinimise2['default'](_materialUi.Paper);
-
 // REDUX - Then connect the redux store
 function mapStateToProps(state, ownProps) {
-    var editor = state.editor;
-    var tabs = state.tabs;
+    var _state$editor = state.editor;
+    var editor = _state$editor === undefined ? {} : _state$editor;
+    var _state$tabs = state.tabs;
+    var tabs = _state$tabs === undefined ? [] : _state$tabs;
+    var _editor$activeTabId = editor.activeTabId;
+    var activeTabId = _editor$activeTabId === undefined ? -1 : _editor$activeTabId;
+    var _editor$isMinimised = editor.isMinimised;
+    var isMinimised = _editor$isMinimised === undefined ? false : _editor$isMinimised;
+    var _editor$focusOnSelection = editor.focusOnSelection;
+    var focusOnSelection = _editor$focusOnSelection === undefined ? false : _editor$focusOnSelection;
 
     var activeTab = tabs.filter(function (tab) {
-        return tab.id === editor.activeTabId;
+        return tab.id === activeTabId;
     })[0];
 
-    return _extends({
-        style: {},
-        hideToolbar: !ownProps.isNearTop,
-        hideSelectionControls: !ownProps.isNearTop && !ownProps.isNearLeft && !ownProps.isNearRight
-    }, ownProps, {
+    return _extends({}, ownProps, {
+        hideToolbar: focusOnSelection && !ownProps.isNearTop,
+        hideSelectionControls: focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && !ownProps.isNearRight,
         activeTab: activeTab,
         tabs: tabs,
-        isActive: editor.isPanelActive
+        isMinimised: isMinimised
     });
 }
 module.exports = exports['default'];

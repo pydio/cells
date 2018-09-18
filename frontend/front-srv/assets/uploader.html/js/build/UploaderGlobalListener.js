@@ -1,6 +1,8 @@
+'use strict';
+
 (function (global) {
 
-    var sendEventToUploader = function (items, files, el) {
+    var sendEventToUploader = function sendEventToUploader(items, files, el) {
 
         var passItems, contextNode;
         if (items.length && items[0] && (items[0].getAsEntry || items[0].webkitGetAsEntry)) {
@@ -17,26 +19,26 @@
         }
     };
 
-    var createWorkspaceMenu = function (event, items, files, el) {
+    var createWorkspaceMenu = function createWorkspaceMenu(event, items, files, el) {
 
-        let targetNode = new AjxpNode('/', false, '');
-        let data = [];
-        let uploaderStore = UploaderModel.Store.getInstance();
+        var targetNode = new AjxpNode('/', false, '');
+        var data = [];
+        var uploaderStore = UploaderModel.Store.getInstance();
         uploaderStore.handleDropEventResults(items, files, targetNode, data);
 
-        let menuItems = [];
+        var menuItems = [];
         global.pydio.user.getRepositoriesList().forEach(function (repository) {
 
             if (Repository.isInternal(repository.getId()) || !repository.allowCrossRepositoryCopy) return;
             if (repository.hasContentFilter() || repository.getOwner()) return;
             if (repository.getAccessStatus() === 'declined') return;
 
-            let repoId = repository.getId();
+            var repoId = repository.getId();
             menuItems.push({
                 name: repository.getLabel(),
                 alt: repository.getDescription(),
                 icon_class: 'mdi mdi-upload',
-                callback: function (e) {
+                callback: function callback(e) {
                     data.forEach(function (item) {
                         item.updateRepositoryId(repoId);
                         if (item instanceof UploaderModel.FolderItem) uploaderStore.pushFolder(item);else uploaderStore.pushFile(item);
@@ -45,7 +47,7 @@
             });
         });
 
-        let contextMenu = new Proto.Menu({
+        var contextMenu = new Proto.Menu({
             menuTitle: global.pydio.MessageHash['user_home.78'],
             selector: '', // context menu will be shown when element with class name of "contextmenu" is clicked
             className: 'menu desktop home_upload', // this is a class which will be attached to menu container (used for css styling)

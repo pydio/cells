@@ -22,22 +22,23 @@
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _reactRedux = require('react-redux');
+
+var _materialUi = require('material-ui');
+
 var _PydioComponents = PydioComponents;
 var ModalAppBar = _PydioComponents.ModalAppBar;
-
-var _require = require('material-ui');
-
-var ToolbarGroup = _require.ToolbarGroup;
-var IconButton = _require.IconButton;
 
 var _Pydio$requireLib = Pydio.requireLib('hoc');
 
 var makeTransitionHOC = _Pydio$requireLib.makeTransitionHOC;
-var withResolutionControls = _Pydio$requireLib.withResolutionControls;
+var EditorActions = _Pydio$requireLib.EditorActions;
 
 // Display components
 // TODO - should be two motions for appearing and disappearing, based on a condition in the props
@@ -51,14 +52,27 @@ var EditorToolbar = (function (_React$Component) {
         _React$Component.apply(this, arguments);
     }
 
+    // REDUX - Then connect the redux store
+
+    EditorToolbar.prototype.onClose = function onClose() {
+        var tabDeleteAll = this.props.tabDeleteAll;
+
+        tabDeleteAll();
+    };
+
+    EditorToolbar.prototype.onMinimise = function onMinimise() {
+        var editorModify = this.props.editorModify;
+
+        editorModify({ isMinimised: true });
+    };
+
     EditorToolbar.prototype.render = function render() {
+        var _this = this;
+
         var _props = this.props;
         var title = _props.title;
         var className = _props.className;
         var style = _props.style;
-        var onFullScreen = _props.onFullScreen;
-        var onMinimise = _props.onMinimise;
-        var onClose = _props.onClose;
 
         var innerStyle = { color: "#FFFFFF", fill: "#FFFFFF" };
 
@@ -71,21 +85,40 @@ var EditorToolbar = (function (_React$Component) {
                 title
             ),
             titleStyle: innerStyle,
-            iconElementLeft: React.createElement(IconButton, { iconClassName: 'mdi mdi-close', iconStyle: innerStyle, disabled: typeof onClose !== "function", touch: true, onTouchTap: onClose }),
+            iconElementLeft: React.createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-close', iconStyle: innerStyle, touch: true, onTouchTap: function () {
+                    return _this.onClose();
+                } }),
             iconElementRight: React.createElement(
-                ToolbarGroup,
+                _materialUi.ToolbarGroup,
                 null,
-                React.createElement(IconButton, { iconClassName: 'mdi mdi-window-minimize', iconStyle: innerStyle, disabled: typeof onMinimise !== "function", touch: true, onTouchTap: onMinimise }),
-                !pydio.UI.MOBILE_EXTENSIONS && React.createElement(IconButton, { iconClassName: 'mdi mdi-window-maximize', iconStyle: innerStyle,
-                    disabled: typeof onFullScreen !== "function", touch: true, onTouchTap: onFullScreen })
+                React.createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-window-minimize', iconStyle: innerStyle, touch: true, onTouchTap: function () {
+                        return _this.onMinimise();
+                    } })
             )
         });
     };
 
     var _EditorToolbar = EditorToolbar;
+    EditorToolbar = _reactRedux.connect(mapStateToProps, EditorActions)(EditorToolbar) || EditorToolbar;
     EditorToolbar = makeTransitionHOC({ translateY: -60, opacity: 0 }, { translateY: 0, opacity: 1 })(EditorToolbar) || EditorToolbar;
     return EditorToolbar;
 })(React.Component);
 
 exports['default'] = EditorToolbar;
+function mapStateToProps(state, ownProps) {
+    var _state$editor = state.editor;
+    var editor = _state$editor === undefined ? {} : _state$editor;
+    var _state$tabs = state.tabs;
+    var tabs = _state$tabs === undefined ? [] : _state$tabs;
+    var _editor$activeTabId = editor.activeTabId;
+    var activeTabId = _editor$activeTabId === undefined ? -1 : _editor$activeTabId;
+
+    var activeTab = tabs.filter(function (tab) {
+        return tab.id === activeTabId;
+    })[0];
+
+    return _extends({}, ownProps, {
+        title: activeTab.title
+    });
+}
 module.exports = exports['default'];

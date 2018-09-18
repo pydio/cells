@@ -115,8 +115,7 @@ var EditionPanel = (function (_React$Component) {
             editorSetActiveTab(tabId);
 
             editorModify({
-                open: true,
-                isPanelActive: true
+                isMinimised: false
             });
         });
     };
@@ -124,20 +123,7 @@ var EditionPanel = (function (_React$Component) {
     EditionPanel.prototype._handleNodeRemoved = function _handleNodeRemoved(index) {};
 
     EditionPanel.prototype.render = function render() {
-        var style = {
-            position: "fixed",
-            bottom: "50px",
-            right: "100px",
-            cursor: "pointer",
-            transform: "translate(50%, 50%)",
-            zIndex: 1400
-        };
-
-        return React.createElement(
-            'div',
-            { style: { position: "relative", zIndex: 1400 } },
-            React.createElement(_editor.Editor, null)
-        );
+        return React.createElement(_editor.Editor, null);
     };
 
     return EditionPanel;

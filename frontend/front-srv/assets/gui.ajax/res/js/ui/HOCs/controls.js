@@ -210,7 +210,7 @@ export function withMouseTracker() {
                         isNearRight: false,
                     }
 
-                    this._observer = _.throttle(this.onMouseMove.bind(this), 1000)
+                    this._moveObserver = _.throttle(this.onMouseMove.bind(this), 1000)
                 }
 
                 static get displayName() {
@@ -249,11 +249,11 @@ export function withMouseTracker() {
 
                 // Mounting
                 componentDidMount() {
-                    document.addEventListener('mousemove', this._observer)
+                    document.addEventListener('mousemove', this._moveObserver)
                 }
 
                 componentWillUnmount() {
-                    document.removeEventListener('mousemove', this._observer)
+                    document.removeEventListener('mousemove', this._moveObserver)
                 }
 
                 render() {
