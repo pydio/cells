@@ -28,6 +28,7 @@ import (
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
+	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/docstore"
@@ -76,6 +77,19 @@ func (h *HandlerEventRead) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 }
 
 func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+
+	var (
+		doc      *docstore.Document
+		linkData *docstore.ShareDocument
+	)
+
+	if doc, linkData = h.sharedLinkWithDownloadLimit(ctx); doc != nil && linkData != nil {
+		// Check download limit!
+		if linkData.DownloadCount >= linkData.DownloadLimit {
+			return nil, errors.Forbidden("MaxDownloadsReached", "You are not allowed to download this document")
+		}
+	}
+
 	reader, e := h.next.GetObject(ctx, node, requestData)
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
 		return reader, e
@@ -95,13 +109,29 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 				}))
 			}()
 		}
-		go h.IncrementLinkDownload(ctx)
+		if doc != nil && linkData != nil {
+			go func() {
+				bgContext := context.Background()
+				linkData.DownloadCount++
+				newData, _ := json.Marshal(linkData)
+				doc.Data = string(newData)
+				store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+				_, e3 := store.PutDocument(bgContext, &docstore.PutDocumentRequest{StoreID: "share", DocumentID: doc.ID, Document: doc})
+				if e3 == nil {
+					log.Logger(ctx).Debug("Updated share download count " + doc.ID)
+				} else {
+					log.Logger(ctx).Error("Docstore error while trying to increment link downloads count", zap.Error(e3))
+				}
+
+			}()
+		}
 	}
 	return reader, e
 
 }
 
-func (h *HandlerEventRead) IncrementLinkDownload(ctx context.Context) {
+func (h *HandlerEventRead) sharedLinkWithDownloadLimit(ctx context.Context) (doc *docstore.Document, linkData *docstore.ShareDocument) {
+
 	userLogin, claims := utils.FindUserNameInContext(ctx)
 	// TODO - Have the 'hidden' info directly in claims => could it be a profile instead ?
 	if claims.Profile != common.PYDIO_PROFILE_SHARED {
@@ -114,7 +144,6 @@ func (h *HandlerEventRead) IncrementLinkDownload(ctx context.Context) {
 	}
 	// This is a unique hidden user - search corresponding link and update download number
 	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
-	var doc *docstore.Document
 
 	// SEARCH WITH PRESET_LOGIN
 	stream, e := store.ListDocuments(bgContext, &docstore.ListDocumentsRequest{StoreID: "share", Query: &docstore.DocumentQuery{
@@ -153,18 +182,10 @@ func (h *HandlerEventRead) IncrementLinkDownload(ctx context.Context) {
 	}
 
 	if doc != nil {
-		var linkData *docstore.ShareDocument
-		if e2 := json.Unmarshal([]byte(doc.Data), &linkData); e2 == nil && linkData.DownloadLimit > 0 {
-			log.Logger(ctx).Debug("Loaded link width DownloadLimit "+doc.ID, zap.Any("link", linkData))
-			linkData.DownloadCount++
-			newData, _ := json.Marshal(linkData)
-			doc.Data = string(newData)
-			_, e3 := store.PutDocument(bgContext, &docstore.PutDocumentRequest{StoreID: "share", DocumentID: doc.ID, Document: doc})
-			if e3 == nil {
-				log.Logger(ctx).Debug("Updated share download count " + doc.ID)
-			} else {
-				log.Logger(ctx).Error("Docstore error while trying to increment link downloads count", zap.Error(e3))
-			}
+		var data *docstore.ShareDocument
+		if e2 := json.Unmarshal([]byte(doc.Data), &data); e2 == nil && data.DownloadLimit > 0 {
+			linkData = data
 		}
 	}
+	return
 }
