@@ -105,7 +105,8 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 	acls := []*idm.ACL{
 		{NodeID: rootUuid, Action: utils.ACL_READ, RoleID: "ROOT_GROUP", WorkspaceID: ws.UUID},
 		{NodeID: rootUuid, Action: utils.ACL_WRITE, RoleID: "ROOT_GROUP", WorkspaceID: ws.UUID},
-		{NodeID: rootUuid, Action: &idm.ACLAction{Name: "workspace-path", Value: rootPath}, WorkspaceID: ws.UUID},
+		{NodeID: rootUuid, Action: &idm.ACLAction{Name: utils.ACL_WSROOT_ACTION_NAME, Value: rootPath}, WorkspaceID: ws.UUID},
+		{NodeID: rootUuid, Action: utils.ACL_RECYCLE_ROOT, WorkspaceID: ws.UUID},
 	}
 	service2.Retry(func() error {
 		log.Logger(ctx).Info("Settings ACLS for workspace")
