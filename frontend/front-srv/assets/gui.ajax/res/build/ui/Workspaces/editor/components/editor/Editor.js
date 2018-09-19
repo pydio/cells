@@ -90,6 +90,20 @@ var styles = {
         lineHeight: "36px",
         backgroundColor: "rgb(0, 0, 0, 0.87)",
         color: "rgb(255, 255,255, 0.87)"
+    },
+    toolbar: {
+        'default': {
+            top: 0,
+            left: 0,
+            right: 0,
+            flexShrink: 0
+        },
+        fixed: {
+            position: "relative"
+        },
+        removable: {
+            position: "absolute"
+        }
     }
 };
 
@@ -170,6 +184,7 @@ var Editor = (function (_React$Component) {
         var _props2 = this.props;
         var style = _props2.style;
         var activeTab = _props2.activeTab;
+        var fixedToolbar = _props2.fixedToolbar;
         var hideToolbar = _props2.hideToolbar;
         var hideSelectionControls = _props2.hideSelectionControls;
         var prevSelectionDisabled = _props2.prevSelectionDisabled;
@@ -193,12 +208,19 @@ var Editor = (function (_React$Component) {
             });
         }
 
+        var toolbarStyle = styles.toolbar['default'];
+        if (fixedToolbar) {
+            toolbarStyle = _extends({}, toolbarStyle, styles.toolbar.fixed);
+        } else {
+            toolbarStyle = _extends({}, toolbarStyle, styles.toolbar.removable);
+        }
+
         return React.createElement(
             _materialUi.Paper,
             { zDepth: 5, style: _extends({ display: "flex", flexDirection: "column", overflow: "hidden", width: "100%", height: "100%" }, style), onClick: function (e) {
                     return _this.handleBlurOnSelection(e);
                 } },
-            !hideToolbar && React.createElement(_EditorToolbar2['default'], { style: { position: "absolute", top: 0, left: 0, right: 0, flexShrink: 0 } }),
+            !hideToolbar && React.createElement(_EditorToolbar2['default'], { style: toolbarStyle }),
             React.createElement(
                 'div',
                 { className: 'body', style: parentStyle, onClick: function (e) {
@@ -256,6 +278,8 @@ function mapStateToProps(state, ownProps) {
     var activeTabId = _editor$activeTabId === undefined ? -1 : _editor$activeTabId;
     var _editor$isMinimised = editor.isMinimised;
     var isMinimised = _editor$isMinimised === undefined ? false : _editor$isMinimised;
+    var _editor$fixedToolbar = editor.fixedToolbar;
+    var fixedToolbar = _editor$fixedToolbar === undefined ? false : _editor$fixedToolbar;
     var _editor$focusOnSelection = editor.focusOnSelection;
     var focusOnSelection = _editor$focusOnSelection === undefined ? false : _editor$focusOnSelection;
 
@@ -264,7 +288,8 @@ function mapStateToProps(state, ownProps) {
     })[0];
 
     return _extends({}, ownProps, {
-        hideToolbar: focusOnSelection && !ownProps.isNearTop,
+        fixedToolbar: fixedToolbar,
+        hideToolbar: !fixedToolbar && focusOnSelection && !ownProps.isNearTop,
         hideSelectionControls: focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && !ownProps.isNearRight,
         activeTab: activeTab,
         tabs: tabs,

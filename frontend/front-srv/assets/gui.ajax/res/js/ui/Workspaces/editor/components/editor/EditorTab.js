@@ -123,12 +123,12 @@ export default class Tab extends React.Component {
             <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={isActive} expanded={isActive} onExpandChange={!isActive ? select : null}>
                 <CardHeader title={id} actAsExpander={true} showExpandableButton={true} />
                 <CardMedia style={Tab.styles.child} mediaStyle={Tab.styles.child}>
-                    <Editor pydio={pydio} node={node} editorData={editorData} />
+                    <Editor pydio={pydio} node={node} editorData={editorData} isActive={isActive} />
                 </CardMedia>
             </AnimatedCard>
         ) : (
             <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={true} expanded={isActive} onExpandChange={!isActive ? select : null}>
-                <Editor pydio={pydio} node={node} editorData={editorData} />
+                <Editor pydio={pydio} node={node} editorData={editorData} isActive={isActive} />
                 {Controls && this.renderControls(Controls, Actions)}
             </AnimatedCard>
         )
