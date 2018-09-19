@@ -65,6 +65,7 @@ var BasePluginsBox = frontend.PluginBox{
 		"editor.diaporama",
 		"editor.exif",
 		"editor.infopanel",
+		"editor.libreoffice",
 		"editor.openlayer",
 		"editor.pdfjs",
 		"editor.soundmanager",

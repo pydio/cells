@@ -117,7 +117,7 @@ export default class Tab extends React.Component {
         const {node, editorData, Editor, Controls, Actions, id, isActive, editorSetActiveTab, style} = this.props
 
         const select = () => editorSetActiveTab(id)
-        const cardStyle = {backgroundColor:'transparent', ...style};
+        const cardStyle = {backgroundColor:'transparent', borderRadius: 0, ...style};
 
         return !isActive ? (
             <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={isActive} expanded={isActive} onExpandChange={!isActive ? select : null}>
@@ -164,7 +164,7 @@ class SnackBar extends React.Component {
 
     render() {
         const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false} = this.state
-        const {size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
+        const {size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, onSave, ...remaining} = this.props
 
         return (
             <Toolbar {...remaining}>

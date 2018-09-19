@@ -55,11 +55,13 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 var conf = pydio.getPluginConfigs('editor.diaporama');
 var sizes = conf && conf.get("PREVIEWER_LOWRES_SIZES").split(",") || [300, 700, 1000, 1300];
 
-var _PydioHOCs = PydioHOCs;
-var SizeProviders = _PydioHOCs.SizeProviders;
-var withResolution = _PydioHOCs.withResolution;
-var withSelection = _PydioHOCs.withSelection;
-var withResize = _PydioHOCs.withResize;
+var _Pydio$requireLib = Pydio.requireLib('hoc');
+
+var SizeProviders = _Pydio$requireLib.SizeProviders;
+var withResolution = _Pydio$requireLib.withResolution;
+var withSelection = _Pydio$requireLib.withSelection;
+var withResize = _Pydio$requireLib.withResize;
+var EditorActions = _Pydio$requireLib.EditorActions;
 var ImageSizeProvider = SizeProviders.ImageSizeProvider;
 var ContainerSizeProvider = SizeProviders.ContainerSizeProvider;
 
@@ -69,9 +71,9 @@ var Editor = (function (_PureComponent) {
     _inherits(Editor, _PureComponent);
 
     function Editor() {
-        _classCallCheck(this, Editor);
+        _classCallCheck(this, _Editor);
 
-        _get(Object.getPrototypeOf(Editor.prototype), 'constructor', this).apply(this, arguments);
+        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).apply(this, arguments);
     }
 
     _createClass(Editor, [{
@@ -83,6 +85,11 @@ var Editor = (function (_PureComponent) {
                 } else {
                     this.pe && this.pe.stop();
                 }
+            }
+            var editorModify = this.props.editorModify;
+
+            if (nextProps.isActive) {
+                editorModify({ fixedToolbar: false });
             }
         }
     }, {
@@ -128,7 +135,6 @@ var Editor = (function (_PureComponent) {
                 renderOnChange: true,
                 passOnProps: true,
                 imgClassName: imageClassName.join(" "),
-                style: { backgroundColor: '#424242' },
                 imgStyle: { boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px' }
             });
         }
@@ -141,6 +147,8 @@ var Editor = (function (_PureComponent) {
         }
     }]);
 
+    var _Editor = Editor;
+    Editor = (0, _reactRedux.connect)(null, EditorActions)(Editor) || Editor;
     return Editor;
 })(_react.PureComponent);
 

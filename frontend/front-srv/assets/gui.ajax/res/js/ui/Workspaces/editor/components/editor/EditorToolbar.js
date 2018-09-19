@@ -43,20 +43,33 @@ export default class EditorToolbar extends React.Component {
     }
 
     render() {
-        const {title, className, style} = this.props
+        const {title, className, style, display} = this.props
+        let mainStyle =  {}, innerStyle = {}, spanStyle;
+        if (display === "fixed") {
+            mainStyle = {
+                position:'relative',
+                backgroundColor: '#424242',
+                boxShadow: 'none',
+                ...style
+            }
+            innerStyle = {color: "#FFFFFF", fill: "#FFFFFF"}
+            spanStyle = {color: "#FFFFFF"}
+        } else {
+            mainStyle = {
+                position:'absolute',
+                background:'linear-gradient(to bottom,rgba(0,0,0,0.65) 0%,transparent 100%)',
+                boxShadow: 'none',
+                ...style
+            }
+            innerStyle = {color: "#FFFFFF", fill: "#FFFFFF"}
+        }
 
-        const mainStyle = {
-            background:'linear-gradient(to bottom,rgba(0,0,0,0.65) 0%,transparent 100%)',
-            boxShadow: 'none',
-            ...style
-        };
-        const innerStyle = {color: "#FFFFFF", fill: "#FFFFFF"}
 
         return (
             <ModalAppBar
                 className={className}
                 style={mainStyle}
-                title={<span>{title}</span>}
+                title={<span style={spanStyle}>{title}</span>}
                 titleStyle={{innerStyle, fontSize:16}}
                 iconElementLeft={<IconButton iconClassName="mdi mdi-arrow-left" iconStyle={innerStyle} touch={true} onTouchTap={() => this.onClose()}/>}
                 iconElementRight={

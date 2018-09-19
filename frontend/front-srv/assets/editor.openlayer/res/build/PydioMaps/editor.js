@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -34,11 +33,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
 var _redux = require('redux');
+
+var _reactRedux = require('react-redux');
 
 var _materialUi = require('material-ui');
 
@@ -46,18 +51,40 @@ var _map = require('./map');
 
 var _map2 = _interopRequireDefault(_map);
 
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var EditorActions = _Pydio$requireLib.EditorActions;
+
 var Editor = (function (_React$Component) {
     _inherits(Editor, _React$Component);
 
     function Editor(props) {
-        _classCallCheck(this, Editor);
+        _classCallCheck(this, _Editor);
 
-        _get(Object.getPrototypeOf(Editor.prototype), 'constructor', this).call(this, props);
+        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).call(this, props);
 
         this.state = {};
     }
 
     _createClass(Editor, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var editorModify = this.props.editorModify;
+
+            if (this.props.isActive) {
+                editorModify({ fixedToolbar: false });
+            }
+        }
+    }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            var editorModify = this.props.editorModify;
+
+            if (nextProps.isActive) {
+                editorModify({ fixedToolbar: false });
+            }
+        }
+    }, {
         key: 'onMapLoaded',
         value: function onMapLoaded(map) {
             var error = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
@@ -78,19 +105,43 @@ var Editor = (function (_React$Component) {
         value: function render() {
             var _this = this;
 
-            return _react2['default'].createElement(_map2['default'], {
-                ref: 'mapObject',
-                style: this.props.style,
-                //controls={[<ToolbarTitle text={<span ref={(input) => this.input = input} />} />]}
-                error: this.state.error,
-                centerNode: this.props.node,
-                onMapLoaded: function (map, error) {
-                    return _this.onMapLoaded(map, error);
-                }
-            });
+            var error = this.state.error;
+            var _props = this.props;
+            var style = _props.style;
+            var node = _props.node;
+
+            if (error) {
+                var cont = {
+                    margin: "auto",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    flex: 1
+                };
+                return _react2['default'].createElement(
+                    'div',
+                    { style: cont },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { margin: 'auto', color: 'white' } },
+                        error
+                    )
+                );
+            } else {
+                return _react2['default'].createElement(_map2['default'], {
+                    ref: 'mapObject',
+                    style: style,
+                    centerNode: node,
+                    onMapLoaded: function (map, error) {
+                        return _this.onMapLoaded(map, error);
+                    }
+                });
+            }
         }
     }]);
 
+    var _Editor = Editor;
+    Editor = (0, _reactRedux.connect)(null, EditorActions)(Editor) || Editor;
     return Editor;
 })(_react2['default'].Component);
 

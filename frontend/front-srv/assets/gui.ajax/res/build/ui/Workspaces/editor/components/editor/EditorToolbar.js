@@ -73,19 +73,38 @@ var EditorToolbar = (function (_React$Component) {
         var title = _props.title;
         var className = _props.className;
         var style = _props.style;
+        var display = _props.display;
 
-        var innerStyle = { color: "#FFFFFF", fill: "#FFFFFF" };
+        var mainStyle = {},
+            innerStyle = {},
+            spanStyle = undefined;
+        if (display === "fixed") {
+            mainStyle = _extends({
+                position: 'relative',
+                backgroundColor: '#424242',
+                boxShadow: 'none'
+            }, style);
+            innerStyle = { color: "#FFFFFF", fill: "#FFFFFF" };
+            spanStyle = { color: "#FFFFFF" };
+        } else {
+            mainStyle = _extends({
+                position: 'absolute',
+                background: 'linear-gradient(to bottom,rgba(0,0,0,0.65) 0%,transparent 100%)',
+                boxShadow: 'none'
+            }, style);
+            innerStyle = { color: "#FFFFFF", fill: "#FFFFFF" };
+        }
 
         return React.createElement(ModalAppBar, {
             className: className,
-            style: style,
+            style: mainStyle,
             title: React.createElement(
                 'span',
-                null,
+                { style: spanStyle },
                 title
             ),
-            titleStyle: innerStyle,
-            iconElementLeft: React.createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-close', iconStyle: innerStyle, touch: true, onTouchTap: function () {
+            titleStyle: { innerStyle: innerStyle, fontSize: 16 },
+            iconElementLeft: React.createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-arrow-left', iconStyle: innerStyle, touch: true, onTouchTap: function () {
                     return _this.onClose();
                 } }),
             iconElementRight: React.createElement(

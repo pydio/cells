@@ -25,9 +25,21 @@ const { EditorActions } = Pydio.requireLib('hoc')
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-
 import CKEditor from './CKEditor';
+const mapStateToProps = (state, props) => {
+    const {tabs} = state
 
+    const tab = tabs.filter(({editorData, node}) => (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath())[0] || {}
+
+    return {
+        id: tab.id,
+        tab,
+        ...props
+    }
+}
+
+
+@connect(null, EditorActions)
 class Editor extends React.Component {
     static get propTypes() {
         return {
@@ -94,9 +106,21 @@ class Editor extends React.Component {
 
         const {id} = tab
 
+        const {editorModify} = this.props
+        if (editorModify && this.props.isActive) {
+            editorModify({fixedToolbar: true})
+        }
+
         pydio.ApiClient.getPlainContent(node, responseText => {
             dispatch(EditorActions.tabModify({id, content: responseText}))
         })
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const {editorModify} = this.props
+        if (editorModify && nextProps.isActive) {
+            editorModify({fixedToolbar: true})
+        }
     }
 
     render() {
@@ -120,16 +144,5 @@ class Editor extends React.Component {
 CKEDITOR.basePath = Editor.config.basePath
 CKEDITOR.contentsCss = Editor.config.basePath + '../../res/css/ckeditor.css'
 
-const mapStateToProps = (state, props) => {
-    const {tabs} = state
-
-    const tab = tabs.filter(({editorData, node}) => (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath())[0] || {}
-
-    return {
-        id: tab.id,
-        tab,
-        ...props
-    }
-}
 
 export default connect(mapStateToProps)(Editor)

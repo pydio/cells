@@ -19,12 +19,14 @@
  */
 
 
-
+import Pydio from 'pydio'
+import PydioApi from 'pydio/http/api'
 import React, {Component} from 'react'
 import {compose} from 'redux'
+import {connect} from 'react-redux'
 
-const configs = pydio.getPluginConfigs("editor.libreoffice");
-const {withMenu, withLoader, withErrors, withControls} = PydioHOCs;
+const configs = Pydio.getInstance().getPluginConfigs("editor.libreoffice");
+const {withMenu, withLoader, withErrors, EditorActions} = Pydio.requireLib('hoc');
 
 const Viewer = compose(
     withMenu,
@@ -32,6 +34,7 @@ const Viewer = compose(
     withErrors
 )(({url, style}) => <iframe src={url} style={{...style, width: "100%", height: "100%", border: 0, flex: 1}}></iframe>)
 
+@connect(null, EditorActions)
 class Editor extends React.Component {
 
     constructor(props) {
@@ -40,7 +43,19 @@ class Editor extends React.Component {
         this.state = {}
     }
 
-    componentWillMount() {
+    componentWillReceiveProps(nextProps) {
+        const {editorModify} = this.props;
+        if (nextProps.isActive) {
+            editorModify({fixedToolbar: true})
+        }
+    }
+
+    componentDidMount() {
+        const {editorModify} = this.props;
+        if (this.props.isActive) {
+            editorModify({fixedToolbar: true})
+        }
+
         let iframeUrl = configs.get('LIBREOFFICE_IFRAME_URL'),
             webSocketSecure = configs.get('LIBREOFFICE_WEBSOCKET_SECURE'),
             webSocketHost = configs.get('LIBREOFFICE_WEBSOCKET_HOST'),
@@ -56,14 +71,12 @@ class Editor extends React.Component {
         let webSocketProtocol = webSocketSecure ? 'wss' : 'ws',
         webSocketUrl = encodeURIComponent(`${webSocketProtocol}://${webSocketHost}:${webSocketPort}`);
 
-        let fileName = this.props.node.getPath();
-        pydio.ApiClient.request({
-            get_action: 'libreoffice_get_file_url',
-            file: fileName
-        }, ({responseJSON = {}}) => {
-            //was (see above): let {host, uri, permission, jwt} = responseJSON;
-            let {uri, permission, jwt} = responseJSON;
-            let fileSrcUrl = encodeURIComponent(`${host}${uri}`);
+        // Check current action state for permission
+        const readonly = Pydio.getInstance().getController().getActionByName("move").deny;
+        const permission = readonly ? "readonly" : "edit"
+        const uri = "/wopi/files/" + this.props.node.getMetadata().get("uuid");
+        const fileSrcUrl = encodeURIComponent(`${host}${uri}`);
+        PydioApi.getRestClient().getOrUpdateJwt(jwt => {
             this.setState({url: `${iframeUrl}?host=${webSocketUrl}&WOPISrc=${fileSrcUrl}&access_token=${jwt}&permission=${permission}`});
         });
     }

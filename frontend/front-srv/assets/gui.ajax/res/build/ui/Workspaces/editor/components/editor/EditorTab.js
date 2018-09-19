@@ -159,10 +159,11 @@ var Tab = (function (_React$Component) {
         var select = function select() {
             return editorSetActiveTab(id);
         };
+        var cardStyle = _extends({ backgroundColor: 'transparent', borderRadius: 0 }, style);
 
         return !isActive ? React.createElement(
             AnimatedCard,
-            { style: style, containerStyle: Tab.styles.container, maximised: isActive, expanded: isActive, onExpandChange: !isActive ? select : null },
+            { style: cardStyle, containerStyle: Tab.styles.container, maximised: isActive, expanded: isActive, onExpandChange: !isActive ? select : null },
             React.createElement(_materialUi.CardHeader, { title: id, actAsExpander: true, showExpandableButton: true }),
             React.createElement(
                 _materialUi.CardMedia,
@@ -171,7 +172,7 @@ var Tab = (function (_React$Component) {
             )
         ) : React.createElement(
             AnimatedCard,
-            { style: style, containerStyle: Tab.styles.container, maximised: true, expanded: isActive, onExpandChange: !isActive ? select : null },
+            { style: cardStyle, containerStyle: Tab.styles.container, maximised: true, expanded: isActive, onExpandChange: !isActive ? select : null },
             React.createElement(Editor, { pydio: pydio, node: node, editorData: editorData, isActive: isActive }),
             Controls && this.renderControls(Controls, Actions)
         );
@@ -185,9 +186,9 @@ var Tab = (function (_React$Component) {
                     display: "flex",
                     flex: 1,
                     flexFlow: "column nowrap",
-                    overflow: "auto",
-                    backgroundColor: "rgb(66, 66, 66)"
+                    overflow: "auto"
                 },
+                /*backgroundColor: "rgb(66, 66, 66)"*/
                 child: {
                     display: "flex",
                     flex: 1
@@ -200,7 +201,10 @@ var Tab = (function (_React$Component) {
                     position: "absolute",
                     left: 0,
                     right: 0,
-                    bottom: 0
+                    bottom: 24,
+                    height: 48,
+                    padding: '0 8px',
+                    borderRadius: 3
                 }
             };
         }
@@ -260,8 +264,9 @@ var SnackBar = (function (_React$Component2) {
         var onAutoPlayToggle = _props3.onAutoPlayToggle;
         var onSizeChange = _props3.onSizeChange;
         var onResolutionToggle = _props3.onResolutionToggle;
+        var onSave = _props3.onSave;
 
-        var remaining = _objectWithoutProperties(_props3, ['size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle']);
+        var remaining = _objectWithoutProperties(_props3, ['size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle', 'onSave']);
 
         return React.createElement(
             _materialUi.Toolbar,

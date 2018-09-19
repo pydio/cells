@@ -58,12 +58,6 @@ const styles = {
             left: 0,
             right: 0,
             flexShrink: 0
-        },
-        fixed: {
-            position: "relative"
-        },
-        removable: {
-            position: "absolute"
         }
     }
 }
@@ -161,27 +155,16 @@ export default class Editor extends React.Component {
             width: "100%",
             height: "100%",
             backgroundColor: 'transparent',
+            borderRadius: 0,
             ...style
         };
 
         let toolbarStyle = styles.toolbar.default
-        if (fixedToolbar) {
-            toolbarStyle = {
-                ...toolbarStyle,
-                ...styles.toolbar.fixed
-            }
-        } else {
-            toolbarStyle = {
-                ...toolbarStyle,
-                ...styles.toolbar.removable
-            }
-        }
-
 
         return (
-            <Paper zDepth={5} style={{display: "flex", flexDirection: "column", overflow: "hidden", width: "100%", height: "100%", ...style}} onClick={(e) => this.handleBlurOnSelection(e)}>
+            <Paper zDepth={5} style={paperStyle} onClick={(e) => this.handleBlurOnSelection(e)}>
                 {!hideToolbar && (
-                    <EditorToolbar style={toolbarStyle} />
+                    <EditorToolbar style={toolbarStyle} display={fixedToolbar ? "fixed" : "removable"} />
                 )}
 
                 <div className="body" style={parentStyle} onClick={(e) => this.handleFocusOnSelection(e)}>

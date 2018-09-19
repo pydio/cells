@@ -97,12 +97,6 @@ var styles = {
             left: 0,
             right: 0,
             flexShrink: 0
-        },
-        fixed: {
-            position: "relative"
-        },
-        removable: {
-            position: "absolute"
         }
     }
 };
@@ -208,19 +202,24 @@ var Editor = (function (_React$Component) {
             });
         }
 
+        var paperStyle = _extends({
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            width: "100%",
+            height: "100%",
+            backgroundColor: 'transparent',
+            borderRadius: 0
+        }, style);
+
         var toolbarStyle = styles.toolbar['default'];
-        if (fixedToolbar) {
-            toolbarStyle = _extends({}, toolbarStyle, styles.toolbar.fixed);
-        } else {
-            toolbarStyle = _extends({}, toolbarStyle, styles.toolbar.removable);
-        }
 
         return React.createElement(
             _materialUi.Paper,
-            { zDepth: 5, style: _extends({ display: "flex", flexDirection: "column", overflow: "hidden", width: "100%", height: "100%" }, style), onClick: function (e) {
+            { zDepth: 5, style: paperStyle, onClick: function (e) {
                     return _this.handleBlurOnSelection(e);
                 } },
-            !hideToolbar && React.createElement(_EditorToolbar2['default'], { style: toolbarStyle }),
+            !hideToolbar && React.createElement(_EditorToolbar2['default'], { style: toolbarStyle, display: fixedToolbar ? "fixed" : "removable" }),
             React.createElement(
                 'div',
                 { className: 'body', style: parentStyle, onClick: function (e) {

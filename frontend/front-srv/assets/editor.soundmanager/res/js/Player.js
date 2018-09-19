@@ -42,6 +42,10 @@ class Player extends React.Component {
         // enable some spectrum stuffs
         threeSixtyPlayer.config.useWaveformData = true;
         threeSixtyPlayer.config.useEQData = true;
+        const {onFinish} = props;
+        if(onFinish){
+            threeSixtyPlayer.config.onfinish = onFinish;
+        }
 
         // enable this in SM2 as well, as needed
         if (threeSixtyPlayer.config.useWaveformData) {
@@ -70,31 +74,26 @@ class Player extends React.Component {
         }
     }
 
-    componentWillMount() {
-
-        //soundManager.createSound()
+    componentDidMount() {
+        soundManager.onready(threeSixtyPlayer.init)
     }
 
-
-    componentDidMount() {
-        //soundManager.onready(() => React.Children.map(this.props.children, (child) => soundManager.createSound({url: child.href})))
-        soundManager.onready(threeSixtyPlayer.init)
-
-        // soundManager.onready(nextProps.onReady)
-        // soundManager.beginDelayedInit()
+    componentWillUnmount(){
+        if(this.props.onFinish){
+            threeSixtyPlayer.config.onfinish = null;
+        }
+        soundManager.stopAll();
     }
 
     componentWillReceiveProps(nextProps) {
-        //soundManager.onready(() => React.Children.map(nextProps.children, (child) => soundManager.createSound({url: child.href})))
+        if(this.props.onFinish){
+            threeSixtyPlayer.config.onfinish = this.props.onFinish;
+        }
         soundManager.onready(threeSixtyPlayer.init)
     }
 
-    /*componentWillUnmount() {
-        soundManager.reboot()
-    }*/
-
     render() {
-        let className="ui360"
+        let className="ui360";
         if (this.props.rich) {
             className += " ui360-vis"
         }
@@ -112,11 +111,11 @@ Player.propTypes = {
     autoPlay: React.PropTypes.bool,
     rich: React.PropTypes.bool.isRequired,
     onReady: React.PropTypes.func
-}
+};
 
 Player.defaultProps = {
     autoPlay: false,
     rich: true
-}
+};
 
 export default Player

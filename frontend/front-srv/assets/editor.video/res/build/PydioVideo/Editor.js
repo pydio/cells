@@ -34,6 +34,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -46,7 +50,42 @@ var _Player = require('./Player');
 
 var _Player2 = _interopRequireDefault(_Player);
 
-var PydioApi = require('pydio/http/api');
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var EditorActions = _Pydio$requireLib.EditorActions;
+var withSelection = _Pydio$requireLib.withSelection;
+
+var editors = _pydio2['default'].getInstance().Registry.getActiveExtensionByType("editor");
+var conf = editors.filter(function (_ref) {
+    var id = _ref.id;
+    return id === 'editor.video';
+})[0];
+
+var getSelectionFilter = function getSelectionFilter(node) {
+    return conf.mimes.indexOf(node.getAjxpMime()) > -1;
+};
+
+var getSelection = function getSelection(node) {
+    return new Promise(function (resolve, reject) {
+        var selection = [];
+
+        node.getParent().getChildren().forEach(function (child) {
+            return selection.push(child);
+        });
+        selection = selection.filter(getSelectionFilter);
+
+        resolve({
+            selection: selection,
+            currentIndex: selection.reduce(function (currentIndex, current, index) {
+                return current === node && index || currentIndex;
+            }, 0)
+        });
+    });
+};
 
 var Viewer = (function (_React$Component) {
     _inherits(Viewer, _React$Component);
@@ -61,12 +100,22 @@ var Viewer = (function (_React$Component) {
         key: 'componentDidMount',
         value: function componentDidMount() {
             this.loadNode(this.props);
+            var editorModify = this.props.editorModify;
+
+            if (editorModify && this.props.isActive) {
+                editorModify({ fixedToolbar: false });
+            }
         }
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
             if (nextProps.node !== this.props.node) {
                 this.loadNode(nextProps);
+            }
+            var editorModify = this.props.editorModify;
+
+            if (editorModify && nextProps.isActive) {
+                editorModify({ fixedToolbar: false });
             }
         }
     }, {
@@ -76,7 +125,7 @@ var Viewer = (function (_React$Component) {
 
             var node = props.node;
 
-            PydioApi.getClient().buildPresignedGetUrl(node, function (url) {
+            _pydioHttpApi2['default'].getClient().buildPresignedGetUrl(node, function (url) {
                 _this.setState({
                     url: url
                 });
@@ -87,9 +136,9 @@ var Viewer = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _ref = this.state || {};
+            var _ref2 = this.state || {};
 
-            var url = _ref.url;
+            var url = _ref2.url;
 
             // Only display the video when we know the URL
             var editor = url ? _react2['default'].createElement(_Player2['default'], { url: url }) : null;
@@ -120,7 +169,7 @@ var Viewer = (function (_React$Component) {
         get: function get() {
             return {
                 node: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-                pydio: _react2['default'].PropTypes.instanceOf(Pydio).isRequired,
+                pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default']).isRequired,
 
                 preview: _react2['default'].PropTypes.bool.isRequired
             };
@@ -137,39 +186,30 @@ var Viewer = (function (_React$Component) {
     return Viewer;
 })(_react2['default'].Component);
 
-var _PydioHOCs = PydioHOCs;
-var withSelection = _PydioHOCs.withSelection;
-
-var editors = pydio.Registry.getActiveExtensionByType("editor");
-var conf = editors.filter(function (_ref2) {
-    var id = _ref2.id;
-    return id === 'editor.video';
-})[0];
-
-var getSelectionFilter = function getSelectionFilter(node) {
-    return conf.mimes.indexOf(node.getAjxpMime()) > -1;
-};
-
-var getSelection = function getSelection(node) {
-    return new Promise(function (resolve, reject) {
-        var selection = [];
-
-        node.getParent().getChildren().forEach(function (child) {
-            return selection.push(child);
-        });
-        selection = selection.filter(getSelectionFilter);
-
-        resolve({
-            selection: selection,
-            currentIndex: selection.reduce(function (currentIndex, current, index) {
-                return current === node && index || currentIndex;
-            }, 0)
-        });
-    });
-};
-
 var Panel = Viewer;
 
 exports.Panel = Panel;
-var Editor = (0, _redux.compose)(withSelection(getSelection), (0, _reactRedux.connect)())(Viewer);
+
+var Editor = (function (_React$Component2) {
+    _inherits(Editor, _React$Component2);
+
+    function Editor() {
+        _classCallCheck(this, _Editor);
+
+        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(Editor, [{
+        key: 'render',
+        value: function render() {
+            return _react2['default'].createElement(Viewer, this.props);
+        }
+    }]);
+
+    var _Editor = Editor;
+    Editor = withSelection(getSelection)(Editor) || Editor;
+    Editor = (0, _reactRedux.connect)(null, EditorActions)(Editor) || Editor;
+    return Editor;
+})(_react2['default'].Component);
+
 exports.Editor = Editor;

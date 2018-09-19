@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -33,6 +32,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _react = require('react');
 
@@ -50,139 +53,18 @@ var _Player2 = _interopRequireDefault(_Player);
 
 var PydioApi = require('pydio/http/api');
 
-var Editor = (function (_Component) {
-    _inherits(Editor, _Component);
+var _Pydio$requireLib = _pydio2['default'].requireLib("hoc");
 
-    function Editor() {
-        _classCallCheck(this, Editor);
+var withSelection = _Pydio$requireLib.withSelection;
+var EditorActions = _Pydio$requireLib.EditorActions;
+var withMenu = _Pydio$requireLib.withMenu;
+var withLoader = _Pydio$requireLib.withLoader;
+var withErrors = _Pydio$requireLib.withErrors;
+var withControls = _Pydio$requireLib.withControls;
 
-        _get(Object.getPrototypeOf(Editor.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(Editor, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.loadNode(this.props);
-        }
-    }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.node !== this.props.node) {
-                this.loadNode(nextProps);
-            }
-        }
-    }, {
-        key: 'loadNode',
-        value: function loadNode(props) {
-            var _this = this;
-
-            var node = props.node;
-
-            PydioApi.getClient().buildPresignedGetUrl(node, function (url) {
-                _this.setState({
-                    url: url,
-                    mimeType: "audio/" + node.getAjxpMime()
-                });
-            }, "audio/" + node.getAjxpMime());
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _ref = this.state || {};
-
-            var mimeType = _ref.mimeType;
-            var url = _ref.url;
-
-            if (!url) return null;
-
-            return _react2['default'].createElement(
-                'div',
-                { style: Editor.styles.container },
-                _react2['default'].createElement(
-                    _Player2['default'],
-                    { style: Editor.styles.player, autoPlay: true, rich: !this.props.icon && this.props.rich, onReady: this.props.onLoad },
-                    _react2['default'].createElement('a', { type: mimeType, href: url })
-                ),
-                _react2['default'].createElement(
-                    _materialUi.Table,
-                    {
-                        style: Editor.styles.table,
-                        selectable: true,
-                        multiSelectable: true
-                    },
-                    _react2['default'].createElement(
-                        _materialUi.TableBody,
-                        {
-                            displayRowCheckbox: false,
-                            stripedRows: false
-                        },
-                        this.props.selection && this.props.selection.selection.map(function (node, index) {
-                            return _react2['default'].createElement(
-                                _materialUi.TableRow,
-                                { key: index },
-                                _react2['default'].createElement(
-                                    _materialUi.TableRowColumn,
-                                    null,
-                                    index
-                                ),
-                                _react2['default'].createElement(
-                                    _materialUi.TableRowColumn,
-                                    null,
-                                    node.getLabel()
-                                )
-                            );
-                        })
-                    )
-                )
-            );
-        }
-    }], [{
-        key: 'styles',
-        get: function get() {
-            return {
-                container: {
-                    margin: "auto",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    flex: 1
-                },
-                player: {
-                    margin: "auto"
-                },
-                table: {
-                    width: "100%"
-                }
-            };
-        }
-    }]);
-
-    return Editor;
-})(_react.Component);
-
-function guid() {
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-}
-
-function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-}
-
-var _PydioHOCs = PydioHOCs;
-var withSelection = _PydioHOCs.withSelection;
-var withMenu = _PydioHOCs.withMenu;
-var withLoader = _PydioHOCs.withLoader;
-var withErrors = _PydioHOCs.withErrors;
-var withControls = _PydioHOCs.withControls;
-
-// let ExtendedPlayer = compose(
-//     withMenu,
-//     withErrors
-// )(props => <Player {...props} />)
-
-var editors = pydio.Registry.getActiveExtensionByType("editor");
-var conf = editors.filter(function (_ref2) {
-    var id = _ref2.id;
+var editors = _pydio2['default'].getInstance().Registry.getActiveExtensionByType("editor");
+var conf = editors.filter(function (_ref) {
+    var id = _ref.id;
     return id === 'editor.soundmanager';
 })[0];
 
@@ -208,5 +90,182 @@ var getSelection = function getSelection(node) {
     });
 };
 
-exports['default'] = (0, _redux.compose)(withSelection(getSelection), (0, _reactRedux.connect)())(Editor);
+var styles = {
+    container: {
+        margin: "auto",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        flex: 1
+    },
+    player: {
+        margin: "auto"
+    },
+    table: {
+        width: 320
+    }
+};
+
+var Editor = (function (_Component) {
+    _inherits(Editor, _Component);
+
+    function Editor() {
+        _classCallCheck(this, _Editor);
+
+        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(Editor, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.loadNode(this.props);
+            var editorModify = this.props.editorModify;
+
+            if (this.props.isActive) {
+                editorModify({ fixedToolbar: false });
+            }
+        }
+    }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            var _this = this;
+
+            var editorModify = this.props.editorModify;
+
+            if (nextProps.isActive) {
+                editorModify({ fixedToolbar: false });
+            }
+            if (nextProps.node !== this.props.node) {
+                this.setState({ url: '' }, function () {
+                    _this.loadNode(nextProps);
+                });
+            }
+        }
+    }, {
+        key: 'loadNode',
+        value: function loadNode(props) {
+            var _this2 = this;
+
+            var node = props.node;
+
+            PydioApi.getClient().buildPresignedGetUrl(node, function (url) {
+                _this2.setState({
+                    node: node,
+                    url: url,
+                    mimeType: "audio/" + node.getAjxpMime()
+                });
+            }, "audio/" + node.getAjxpMime());
+        }
+    }, {
+        key: 'playNext',
+        value: function playNext() {
+            var selection = this.props.selection;
+            var node = this.state.node;
+
+            var index = selection.selection.indexOf(node);
+            if (index < selection.selection.length - 1) {
+                this.onRowSelection([index + 1]);
+            }
+        }
+    }, {
+        key: 'onRowSelection',
+        value: function onRowSelection(data) {
+            var _this3 = this;
+
+            if (!data.length) return;
+            var selection = this.props.selection;
+
+            if (!selection) return;
+            this.setState({ url: null }, function () {
+                _this3.loadNode({ node: selection.selection[data[0]] });
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this4 = this;
+
+            var _ref2 = this.state || {};
+
+            var mimeType = _ref2.mimeType;
+            var url = _ref2.url;
+            var node = _ref2.node;
+
+            return _react2['default'].createElement(
+                'div',
+                { style: styles.container },
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 3, style: styles.player },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: '0 60px' } },
+                        url && _react2['default'].createElement(
+                            _Player2['default'],
+                            { autoPlay: true, rich: !this.props.icon && this.props.rich, onReady: this.props.onLoad, onFinish: function () {
+                                    _this4.playNext();
+                                } },
+                            _react2['default'].createElement('a', { type: mimeType, href: url })
+                        )
+                    ),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { clear: 'both' } },
+                        _react2['default'].createElement(
+                            _materialUi.Table,
+                            {
+                                style: styles.table,
+                                selectable: true,
+                                multiSelectable: false,
+                                height: 250,
+                                onRowSelection: function (data) {
+                                    _this4.onRowSelection(data);
+                                }
+                            },
+                            _react2['default'].createElement(
+                                _materialUi.TableBody,
+                                {
+                                    displayRowCheckbox: false,
+                                    stripedRows: false,
+                                    deselectOnClickaway: false
+                                },
+                                this.props.selection && this.props.selection.selection.map(function (n, index) {
+                                    return _react2['default'].createElement(
+                                        _materialUi.TableRow,
+                                        { key: index },
+                                        _react2['default'].createElement(
+                                            _materialUi.TableRowColumn,
+                                            { style: { width: 16, backgroundColor: 'white' } },
+                                            n.getPath() === node.getPath() ? _react2['default'].createElement('span', { className: "mdi mdi-play" }) : index
+                                        ),
+                                        _react2['default'].createElement(
+                                            _materialUi.TableRowColumn,
+                                            { style: { backgroundColor: 'white' } },
+                                            n.getLabel()
+                                        )
+                                    );
+                                })
+                            )
+                        )
+                    )
+                )
+            );
+        }
+    }]);
+
+    var _Editor = Editor;
+    Editor = (0, _reactRedux.connect)(null, EditorActions)(Editor) || Editor;
+    Editor = withSelection(getSelection)(Editor) || Editor;
+    return Editor;
+})(_react.Component);
+
+function guid() {
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+}
+
+function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+}
+
+exports['default'] = Editor;
 module.exports = exports['default'];

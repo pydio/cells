@@ -36,6 +36,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -46,17 +50,47 @@ var _redux = require('redux');
 
 var _materialUi = require('material-ui');
 
-var _PydioHOCs = PydioHOCs;
-var withSelection = _PydioHOCs.withSelection;
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var withSelection = _Pydio$requireLib.withSelection;
+var withMenu = _Pydio$requireLib.withMenu;
+var withLoader = _Pydio$requireLib.withLoader;
+var withErrors = _Pydio$requireLib.withErrors;
+var EditorActions = _Pydio$requireLib.EditorActions;
+
+var Viewer = (0, _redux.compose)(withMenu, withLoader, withErrors)(function (props) {
+    return _react2['default'].createElement('div', props);
+});
+
+var getSelectionFilter = function getSelectionFilter(node) {
+    return node.getMetadata().get('is_image') === '1';
+};
+
+var getSelection = function getSelection(node) {
+    return new Promise(function (resolve, reject) {
+        var selection = [];
+
+        node.getParent().getChildren().forEach(function (child) {
+            return selection.push(child);
+        });
+        selection = selection.filter(getSelectionFilter);
+
+        resolve({
+            selection: selection,
+            currentIndex: selection.reduce(function (currentIndex, current, index) {
+                return current === node && index || currentIndex;
+            }, 0)
+        });
+    });
+};
 
 var Editor = (function (_Component) {
     _inherits(Editor, _Component);
 
     function Editor(props) {
-        _classCallCheck(this, Editor);
+        _classCallCheck(this, _Editor);
 
-        _get(Object.getPrototypeOf(Editor.prototype), 'constructor', this).call(this, props);
-
+        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).call(this, props);
         this.state = {
             data: {}
         };
@@ -68,12 +102,22 @@ var Editor = (function (_Component) {
             if (this.props.node) {
                 this.loadNodeContent(this.props);
             }
+            var editorModify = this.props.editorModify;
+
+            if (this.props.isActive) {
+                editorModify({ fixedToolbar: true });
+            }
         }
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
             if (nextProps.node && nextProps.node !== this.props.node) {
                 this.loadNodeContent(nextProps);
+            }
+            var editorModify = this.props.editorModify;
+
+            if (nextProps.isActive) {
+                editorModify({ fixedToolbar: true });
             }
         }
     }, {
@@ -164,40 +208,11 @@ var Editor = (function (_Component) {
         }
     }]);
 
+    var _Editor = Editor;
+    Editor = (0, _reactRedux.connect)(null, EditorActions)(Editor) || Editor;
+    Editor = withSelection(getSelection)(Editor) || Editor;
     return Editor;
 })(_react.Component);
 
-var _PydioHOCs2 = PydioHOCs;
-var withMenu = _PydioHOCs2.withMenu;
-var withLoader = _PydioHOCs2.withLoader;
-var withErrors = _PydioHOCs2.withErrors;
-var withControls = _PydioHOCs2.withControls;
-
-var Viewer = (0, _redux.compose)(withMenu, withLoader, withErrors)(function (props) {
-    return _react2['default'].createElement('div', props);
-});
-
-var getSelectionFilter = function getSelectionFilter(node) {
-    return node.getMetadata().get('is_image') === '1';
-};
-
-var getSelection = function getSelection(node) {
-    return new Promise(function (resolve, reject) {
-        var selection = [];
-
-        node.getParent().getChildren().forEach(function (child) {
-            return selection.push(child);
-        });
-        selection = selection.filter(getSelectionFilter);
-
-        resolve({
-            selection: selection,
-            currentIndex: selection.reduce(function (currentIndex, current, index) {
-                return current === node && index || currentIndex;
-            }, 0)
-        });
-    });
-};
-
-exports['default'] = (0, _redux.compose)(withSelection(getSelection), (0, _reactRedux.connect)())(Editor);
+exports['default'] = Editor;
 module.exports = exports['default'];

@@ -28,6 +28,7 @@ import CodeMirrorLoader from './CodeMirrorLoader';
 
 const {EditorActions} = Pydio.requireLib('hoc');
 
+@connect(null, EditorActions)
 class Editor extends React.Component {
 
     constructor(props) {
@@ -47,6 +48,13 @@ class Editor extends React.Component {
             dispatch(EditorActions.tabModify({id: id || node.getLabel(), lineNumbers: true, content: content}));
         });
 
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const {editorModify} = this.props
+        if (editorModify && nextProps.isActive) {
+            editorModify({fixedToolbar: true})
+        }
     }
 
     render() {

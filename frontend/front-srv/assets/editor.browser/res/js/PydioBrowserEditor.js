@@ -17,12 +17,12 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-
-
 import React, {Component} from 'react';
 const PydioApi = require("pydio/http/api");
+import {connect} from 'react-redux'
+const {EditorActions} = Pydio.requireLib('hoc');
 
+@connect(null, EditorActions)
 class Editor extends Component {
 
     static get styles() {
@@ -43,16 +43,27 @@ class Editor extends Component {
     }
 
     componentDidMount(){
-        const {pydio, node} = this.props;
+        const {pydio, node, editorModify, isActive} = this.props;
         const configs = pydio.getPluginConfigs("editor.browser");
 
-        if (node.getAjxpMime() == "url" || node.getAjxpMime() == "website") {
+        if (node.getAjxpMime() === "url" || node.getAjxpMime() === "website") {
             this.openBookmark(node, configs);
         } else {
             this.openNode(node, configs);
         }
+        if (editorModify && isActive) {
+            editorModify({fixedToolbar: false})
+        }
+
     }
 
+    componentWillReceiveProps(nextProps) {
+        const {editorModify} = this.props
+        if (editorModify && nextProps.isActive) {
+            editorModify({fixedToolbar: false})
+        }
+    }
+    
     openBookmark(node, configs) {
 
         let alwaysOpenLinksInBrowser = (configs.get('OPEN_LINK_IN_TAB') === 'browser');

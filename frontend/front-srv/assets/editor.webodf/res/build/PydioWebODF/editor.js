@@ -44,6 +44,16 @@ var _reactRedux = require('react-redux');
 
 var _redux = require('redux');
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var EditorActions = _Pydio$requireLib.EditorActions;
+var withLoader = _Pydio$requireLib.withLoader;
+var withErrors = _Pydio$requireLib.withErrors;
+
 var Viewer = (function (_React$Component) {
     _inherits(Viewer, _React$Component);
 
@@ -83,9 +93,9 @@ var Editor = (function (_React$Component2) {
     _inherits(Editor, _React$Component2);
 
     function Editor() {
-        _classCallCheck(this, Editor);
+        _classCallCheck(this, _Editor);
 
-        _get(Object.getPrototypeOf(Editor.prototype), 'constructor', this).apply(this, arguments);
+        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).apply(this, arguments);
     }
 
     // Define HOCs
@@ -94,12 +104,22 @@ var Editor = (function (_React$Component2) {
         key: 'componentWillMount',
         value: function componentWillMount() {
             this.loadNode(this.props);
+            var editorModify = this.props.editorModify;
+
+            if (this.props.isActive) {
+                editorModify({ fixedToolbar: true });
+            }
         }
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
             if (nextProps.node !== this.props.node) {
                 this.loadNode(nextProps);
+            }
+            var editorModify = this.props.editorModify;
+
+            if (nextProps.isActive) {
+                editorModify({ fixedToolbar: true });
             }
         }
     }, {
@@ -116,13 +136,13 @@ var Editor = (function (_React$Component2) {
         }
     }]);
 
+    var _Editor = Editor;
+    Editor = (0, _reactRedux.connect)(null, EditorActions)(Editor) || Editor;
     return Editor;
 })(_react2['default'].Component);
 
-if (typeof PydioHOCs !== "undefined") {
-    Viewer = PydioHOCs.withLoader(Viewer);
-    Viewer = PydioHOCs.withErrors(Viewer);
-}
+Viewer = withLoader(Viewer);
+Viewer = withErrors(Viewer);
 
-exports['default'] = (0, _redux.compose)((0, _reactRedux.connect)())(Editor);
+exports['default'] = Editor;
 module.exports = exports['default'];

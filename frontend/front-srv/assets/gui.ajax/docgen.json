@@ -6909,6 +6909,11 @@
             "returns": null
           }
         ]
+      },
+      {
+        "description": "",
+        "displayName": "Editor",
+        "methods": []
       }
     ]
   },
@@ -6984,21 +6989,31 @@
         "displayName": "Editor",
         "methods": [
           {
-            "name": "styles",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          },
-          {
             "name": "loadNode",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
                 "name": "props",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "playNext",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onRowSelection",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "data",
                 "type": null
               }
             ],
@@ -7166,6 +7181,11 @@
             }
           }
         }
+      },
+      {
+        "description": "",
+        "displayName": "Editor",
+        "methods": []
       }
     ],
     "Media.js": [

@@ -18,10 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import XMLUtils from '../util/XMLUtils'
-import LangUtils from '../util/LangUtils'
+import PathUtils from '../util/PathUtils'
 import RestClient from './RestClient'
 import AWS from 'aws-sdk'
-import IdmUser from "./gen/model/IdmUser";
 
 /**
  * API Client
@@ -212,7 +211,7 @@ class PydioApi{
                 longExpire = true;
                 break;
             case 'detect':
-                cType = node.getAjxpMimeType();
+                cType = PathUtils.getAjxpMimeType(node);
                 cDisposition = 'inline';
             default:
                 break;
