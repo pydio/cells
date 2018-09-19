@@ -484,7 +484,7 @@ const FileMinisite = React.createClass({
 
         return (
             <StandardLayout {...this.props} uniqueNode={true} skipDisplayToolbar={true}>
-                <div className="editor_container vertical_layout vertical_fit" style={{backgroundColor:'white'}}>
+                <div className="editor_container vertical_layout vertical_fit" style={{backgroundColor:'#424242'}}>
                     <Editor displayToolbar={false} style={{display: "flex", flex: 1}}/>
                     <Copyright mode={"overlay"} {...this.props}/>
                 </div>

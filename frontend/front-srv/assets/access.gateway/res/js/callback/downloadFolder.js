@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import PydioDataModel from 'pydio/model/data-model'
 import PydioApi from 'pydio/http/api'
 import Node from 'pydio/model/node'
 
@@ -29,7 +29,7 @@ export default function (pydio) {
         const parentPath = folderNode.getParent().getPath();
         const basename = folderNode.getLabel();
         const newNode = new Node(parentPath + "/" + basename + ".zip", true);
-        const newSelection = new PydioDataMode();
+        const newSelection = new PydioDataModel();
         newSelection.setSelectedNodes([newNode]);
         PydioApi.getClient().downloadSelection(newSelection, 'download');
     }

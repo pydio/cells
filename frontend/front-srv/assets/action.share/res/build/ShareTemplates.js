@@ -641,7 +641,7 @@ var FileMinisite = React.createClass({
             _extends({}, this.props, { uniqueNode: true, skipDisplayToolbar: true }),
             React.createElement(
                 'div',
-                { className: 'editor_container vertical_layout vertical_fit', style: { backgroundColor: 'white' } },
+                { className: 'editor_container vertical_layout vertical_fit', style: { backgroundColor: '#424242' } },
                 React.createElement(Editor, { displayToolbar: false, style: { display: "flex", flex: 1 } }),
                 React.createElement(Copyright, _extends({ mode: "overlay" }, this.props))
             )
