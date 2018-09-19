@@ -167,12 +167,12 @@ var Tab = (function (_React$Component) {
             React.createElement(
                 _materialUi.CardMedia,
                 { style: Tab.styles.child, mediaStyle: Tab.styles.child },
-                React.createElement(Editor, { pydio: pydio, node: node, editorData: editorData })
+                React.createElement(Editor, { pydio: pydio, node: node, editorData: editorData, isActive: isActive })
             )
         ) : React.createElement(
             AnimatedCard,
             { style: style, containerStyle: Tab.styles.container, maximised: true, expanded: isActive, onExpandChange: !isActive ? select : null },
-            React.createElement(Editor, { pydio: pydio, node: node, editorData: editorData }),
+            React.createElement(Editor, { pydio: pydio, node: node, editorData: editorData, isActive: isActive }),
             Controls && this.renderControls(Controls, Actions)
         );
     };

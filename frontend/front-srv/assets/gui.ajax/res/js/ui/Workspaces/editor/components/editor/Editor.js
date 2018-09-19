@@ -51,6 +51,20 @@ const styles = {
         lineHeight: "36px",
         backgroundColor: "rgb(0, 0, 0, 0.87)",
         color: "rgb(255, 255,255, 0.87)"
+    },
+    toolbar: {
+        default: {
+            top: 0,
+            left: 0,
+            right: 0,
+            flexShrink: 0
+        },
+        fixed: {
+            position: "relative"
+        },
+        removable: {
+            position: "absolute"
+        }
     }
 }
 
@@ -121,7 +135,7 @@ export default class Editor extends React.Component {
     }
 
     render() {
-        const {style, activeTab, hideToolbar, hideSelectionControls, prevSelectionDisabled, nextSelectionDisabled, onSelectPrev, onSelectNext} = this.props
+        const {style, activeTab, fixedToolbar, hideToolbar, hideSelectionControls, prevSelectionDisabled, nextSelectionDisabled, onSelectPrev, onSelectNext} = this.props
 
         let parentStyle = {
             display: "flex",
@@ -140,9 +154,25 @@ export default class Editor extends React.Component {
             }
         }
 
+        let toolbarStyle = styles.toolbar.default
+        if (fixedToolbar) {
+            toolbarStyle = {
+                ...toolbarStyle,
+                ...styles.toolbar.fixed
+            }
+        } else {
+            toolbarStyle = {
+                ...toolbarStyle,
+                ...styles.toolbar.removable
+            }
+        }
+
+
         return (
             <Paper zDepth={5} style={{display: "flex", flexDirection: "column", overflow: "hidden", width: "100%", height: "100%", ...style}} onClick={(e) => this.handleBlurOnSelection(e)}>
-                {!hideToolbar && <EditorToolbar style={{position: "absolute", top: 0, left: 0, right: 0, flexShrink: 0}} />}
+                {!hideToolbar && (
+                    <EditorToolbar style={toolbarStyle} />
+                )}
 
                 <div className="body" style={parentStyle} onClick={(e) => this.handleFocusOnSelection(e)}>
                     {this.props.transitionEnded && this.renderChild()}
@@ -174,13 +204,14 @@ export default class Editor extends React.Component {
 // REDUX - Then connect the redux store
 function mapStateToProps(state, ownProps) {
     const { editor = {}, tabs = [] } = state
-    const { activeTabId = -1, isMinimised = false, focusOnSelection = false } = editor
+    const { activeTabId = -1, isMinimised = false, fixedToolbar = false, focusOnSelection = false } = editor
 
     const activeTab = tabs.filter(tab => tab.id === activeTabId)[0]
 
     return  {
         ...ownProps,
-        hideToolbar: focusOnSelection && !ownProps.isNearTop,
+        fixedToolbar: fixedToolbar,
+        hideToolbar: !fixedToolbar && focusOnSelection && !ownProps.isNearTop,
         hideSelectionControls: focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && ! ownProps.isNearRight,
         activeTab,
         tabs,
