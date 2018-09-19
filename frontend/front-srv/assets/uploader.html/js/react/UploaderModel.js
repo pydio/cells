@@ -140,17 +140,18 @@
                 let path = fullpath;
                 let ext = '';
 
-                if (pos  > -1 && lastSlash < pos) {
+                // NOTE: the position lastSlash + 1 corresponds to hidden files (ex: .DS_STORE)
+                if (pos  > -1 && lastSlash < pos && pos > lastSlash + 1) {
                     path = fullpath.substring(0, pos);
                     ext = fullpath.substring(pos);
                 }
 
                 let newPath = fullpath;
-                let counter = 0;
+                let counter = 1;
 
                 let exists = await this._fileExists(newPath);
                 while (exists) {
-                    newPath = path + '_' + counter + ext;
+                    newPath = path + '-' + counter + ext;
                     counter++;
                     exists = await this._fileExists(newPath)
                 }
