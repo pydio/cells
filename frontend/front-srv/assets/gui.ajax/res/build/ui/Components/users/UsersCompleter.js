@@ -203,15 +203,15 @@ var UsersLoader = _react2['default'].createClass({
                     }
                     if (userObject.IdmUser && userObject.IdmUser.IsGroup) {
                         return excludes.filter(function (e) {
-                            return e.Group && e.Group.Uuid === userObject.IdmUser.Uuid;
+                            return e === userObject.IdmUser.Uuid;
                         }).length === 0;
                     } else if (userObject.IdmUser) {
                         return excludes.filter(function (e) {
-                            return e.User && e.User.Uuid === userObject.IdmUser.Uuid;
+                            return e === userObject.IdmUser.Login;
                         }).length === 0;
                     } else {
                         return excludes.filter(function (e) {
-                            return e.Role && e.Role.Uuid === userObject.IdmRole.Uuid;
+                            return e === userObject.IdmRole.Uuid;
                         }).length === 0;
                     }
                 }).map(function (userObject) {
