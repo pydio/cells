@@ -140,8 +140,18 @@ export default class Editor extends React.Component {
             }
         }
 
+        const paperStyle = {
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            width: "100%",
+            height: "100%",
+            backgroundColor: 'transparent',
+            ...style
+        };
+
         return (
-            <Paper zDepth={5} style={{display: "flex", flexDirection: "column", overflow: "hidden", width: "100%", height: "100%", ...style}} onClick={(e) => this.handleBlurOnSelection(e)}>
+            <Paper zDepth={5} style={paperStyle} onClick={(e) => this.handleBlurOnSelection(e)}>
                 {!hideToolbar && <EditorToolbar style={{position: "absolute", top: 0, left: 0, right: 0, flexShrink: 0}} />}
 
                 <div className="body" style={parentStyle} onClick={(e) => this.handleFocusOnSelection(e)}>

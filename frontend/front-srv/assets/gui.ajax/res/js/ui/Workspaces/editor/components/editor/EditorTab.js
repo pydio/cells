@@ -49,7 +49,7 @@ export default class Tab extends React.Component {
                 flex: 1,
                 flexFlow: "column nowrap",
                 overflow: "auto",
-                backgroundColor: "rgb(66, 66, 66)"
+                /*backgroundColor: "rgb(66, 66, 66)"*/
             },
             child: {
                 display: "flex",
@@ -63,7 +63,10 @@ export default class Tab extends React.Component {
                 position: "absolute",
                 left: 0,
                 right: 0,
-                bottom: 0,
+                bottom: 24,
+                height: 48,
+                padding: '0 8px',
+                borderRadius: 3
             }
         }
     }
@@ -114,16 +117,17 @@ export default class Tab extends React.Component {
         const {node, editorData, Editor, Controls, Actions, id, isActive, editorSetActiveTab, style} = this.props
 
         const select = () => editorSetActiveTab(id)
+        const cardStyle = {backgroundColor:'transparent', ...style};
 
         return !isActive ? (
-            <AnimatedCard style={style} containerStyle={Tab.styles.container} maximised={isActive} expanded={isActive} onExpandChange={!isActive ? select : null}>
+            <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={isActive} expanded={isActive} onExpandChange={!isActive ? select : null}>
                 <CardHeader title={id} actAsExpander={true} showExpandableButton={true} />
                 <CardMedia style={Tab.styles.child} mediaStyle={Tab.styles.child}>
                     <Editor pydio={pydio} node={node} editorData={editorData} />
                 </CardMedia>
             </AnimatedCard>
         ) : (
-            <AnimatedCard style={style} containerStyle={Tab.styles.container} maximised={true} expanded={isActive} onExpandChange={!isActive ? select : null}>
+            <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={true} expanded={isActive} onExpandChange={!isActive ? select : null}>
                 <Editor pydio={pydio} node={node} editorData={editorData} />
                 {Controls && this.renderControls(Controls, Actions)}
             </AnimatedCard>
