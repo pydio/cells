@@ -795,7 +795,7 @@
           color: rgba(0, 0, 0, 0.53);
           white-space: nowrap;
           overflow: hidden;
-          text-overflow: ellipsis;
+          /*text-overflow: ellipsis;*/
         }
 
       }
@@ -812,7 +812,6 @@
         /* ICONS */
         .material-list-icon {
           .mui-font-icon {
-            /*margin: 16px 0 0 17px;*/
             margin: 9px 0 0 16px;
             width: 35px;
             height: 35px;
@@ -824,7 +823,12 @@
         opacity: 0;
       }
       &:hover {
-        /*background-color: rgba(0, 0, 0, 0.03) !important;*/
+        .material-list-text{
+          .material-list-line-2 {
+            color: rgba(0,0,0,.33);
+            text-overflow: ellipsis;
+          }
+        }
       }
       &.selected {
         color: @accent-1-color;
@@ -833,6 +837,12 @@
         }
         span.letter_badge {
           background-color: @accent-1-color;
+        }
+        .material-list-text{
+          .material-list-line-2 {
+            color: white;
+            text-overflow: ellipsis;
+          }
         }
       }
 
