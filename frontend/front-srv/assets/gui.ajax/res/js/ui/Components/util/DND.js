@@ -18,6 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import PydioDataModel from "../../../core/model/PydioDataModel";
+
 const FuncUtils = require("pydio/util/func")
 const ResourcesManager = require("pydio/http/resources-manager")
 
@@ -75,7 +77,16 @@ let applyDNDAction = function(source, target, step){
     const dnd = Controller.defaultActions.get("dragndrop");
     if(dnd){
         const dndAction = Controller.getActionByName(dnd);
-        dndAction.enable();
+        if(dndAction.deny){
+            // Maybe it has to be enabled by current selection
+            const dm = new PydioDataModel();
+            dm.setSelectedNodes([source]);
+            dndAction.fireSelectionChange(dm);
+            if(dndAction.deny){
+                throw new Error("DND action disabled");
+            }
+        }
+        //dndAction.enable();
         const params = new DNDActionParameter(source, target, step);
         const checkModule = dndAction.options.dragndropCheckModule;
         if(step === DNDActionParameter.STEP_CAN_DROP && checkModule){
