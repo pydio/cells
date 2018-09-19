@@ -275,7 +275,7 @@ var FSTemplate = _react2['default'].createClass({
 
         return connectDropTarget(_react2['default'].createElement(
             'div',
-            { style: style, className: classes.join(' '), onTouchTap: this.closeDrawer, onContextMenu: this.props.onContextMenu },
+            { style: _extends({}, style, { overflow: 'hidden' }), className: classes.join(' '), onTouchTap: this.closeDrawer, onContextMenu: this.props.onContextMenu },
             wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] && _react2['default'].createElement(_WelcomeTour2['default'], { ref: 'welcome', pydio: this.props.pydio }),
             _react2['default'].createElement(_leftnavLeftPanel2['default'], { className: 'left-panel', pydio: props.pydio }),
             _react2['default'].createElement(

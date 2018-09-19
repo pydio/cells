@@ -248,6 +248,7 @@ var PydioApi = (function () {
         var slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
         var cType = '',
             cDisposition = undefined;
+        var longExpire = false;
 
         switch (presetType) {
             case 'image/png':
@@ -263,9 +264,11 @@ var PydioApi = (function () {
                 break;
             case 'audio/mp3':
                 cType = presetType;
+                longExpire = true;
                 break;
             case 'video/mp4':
                 cType = presetType;
+                longExpire = true;
                 break;
             case 'detect':
                 cType = node.getAjxpMimeType();
@@ -276,7 +279,8 @@ var PydioApi = (function () {
 
         var params = {
             Bucket: 'io',
-            Key: slug + node.getPath()
+            Key: slug + node.getPath(),
+            Expires: longExpire ? 6000 : 600
         };
         if (bucketParams !== null) {
             params = bucketParams;

@@ -116,6 +116,17 @@ let SharedUsers = React.createClass({
             );
         }
         if(!this.props.isReadonly() && !this.props.readonly){
+            const excludes = Object.values(cellAcls).map(a => {
+                if(a.User) {
+                    return a.User.Login;
+                } else if(a.Group) {
+                    return a.Group.Uuid;
+                } else if(a.Role) {
+                    return a.Role.Uuid
+                } else {
+                    return null
+                }
+            }).filter(k => !!k);
             usersInput = (
                 <UsersCompleter
                     className="share-form-users"
@@ -124,7 +135,7 @@ let SharedUsers = React.createClass({
                     pydio={this.props.pydio}
                     showAddressBook={true}
                     usersFrom="local"
-                    excludes={Object.values(cellAcls)}
+                    excludes={excludes}
                 />
             );
         }

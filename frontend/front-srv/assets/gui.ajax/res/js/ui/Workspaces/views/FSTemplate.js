@@ -192,7 +192,7 @@ let FSTemplate = React.createClass({
         const {style, ...props} = this.props;
 
         return ( connectDropTarget(
-            <div style={style} className={classes.join(' ')} onTouchTap={this.closeDrawer} onContextMenu={this.props.onContextMenu}>
+            <div style={{...style, overflow:'hidden'}} className={classes.join(' ')} onTouchTap={this.closeDrawer} onContextMenu={this.props.onContextMenu}>
                 {wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] && <WelcomeTour ref="welcome" pydio={this.props.pydio}/>}
                 <LeftPanel className="left-panel" pydio={props.pydio}/>
                 <div className="desktop-container vertical_layout vertical_fit">

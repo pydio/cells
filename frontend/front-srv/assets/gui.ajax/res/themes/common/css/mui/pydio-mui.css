@@ -3390,7 +3390,7 @@
   color: rgba(0, 0, 0, 0.53);
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  /*text-overflow: ellipsis;*/
 }
 .react-mui-context .material-list .material-list-entry .material-list-actions {
   padding: 8px 4px 0 16px;
@@ -3404,7 +3404,6 @@
   /* ICONS */
 }
 .react-mui-context .material-list .material-list-entry.material-list-entry-1-lines .material-list-icon .mui-font-icon {
-  /*margin: 16px 0 0 17px;*/
   margin: 9px 0 0 16px;
   width: 35px;
   height: 35px;
@@ -3413,8 +3412,9 @@
 .react-mui-context .material-list .material-list-entry.list-show-selectors .material-list-actions {
   opacity: 0;
 }
-.react-mui-context .material-list .material-list-entry:hover {
-  /*background-color: rgba(0, 0, 0, 0.03) !important;*/
+.react-mui-context .material-list .material-list-entry:hover .material-list-text .material-list-line-2 {
+  color: rgba(0, 0, 0, 0.33);
+  text-overflow: ellipsis;
 }
 .react-mui-context .material-list .material-list-entry.selected {
   color: #ff6e40;
@@ -3424,6 +3424,10 @@
 }
 .react-mui-context .material-list .material-list-entry.selected span.letter_badge {
   background-color: #ff6e40;
+}
+.react-mui-context .material-list .material-list-entry.selected .material-list-text .material-list-line-2 {
+  color: white;
+  text-overflow: ellipsis;
 }
 .react-mui-context .material-list.table-mode .material-list-entry {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
