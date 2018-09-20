@@ -16620,13 +16620,20 @@ var AdminDashboard = _react2['default'].createClass({
 
     getInitialState: function getInitialState() {
         var dm = this.props.pydio.getContextHolder();
+        var showAdvanced = undefined;
+        if (localStorage.getItem("cells.dashboard.advanced") !== null) {
+            showAdvanced = localStorage.getItem("cells.dashboard.advanced");
+        }
+        if (!showAdvanced && dm.getContextNode().getMetadata().get("advanced")) {
+            showAdvanced = true;
+        }
         return {
             contextNode: dm.getContextNode(),
             selectedNodes: dm.getSelectedNodes(),
             contextStatus: dm.getContextNode().isLoaded(),
             openLeftNav: false,
             leftDocked: true,
-            showAdvanced: dm.getContextNode().getMetadata().get("advanced")
+            showAdvanced: showAdvanced
         };
     },
 
@@ -16814,23 +16821,6 @@ var AdminDashboard = _react2['default'].createClass({
         if (rightPanel) {
             rPanelContent = _react2['default'].createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        var advancedToggle = _react2['default'].createElement(
-            'div',
-            { style: { minWidth: 250 } },
-            _react2['default'].createElement(_materialUi.Toggle, {
-                labelPosition: "right",
-                label: "Advanced Menus",
-                labelStyle: { fontSize: 16, color: 'white' },
-                onToggle: function (e, v) {
-                    _this2.setState({ showAdvanced: v });
-                },
-                thumbStyle: { backgroundColor: 'white' },
-                trackStyle: { backgroundColor: 'rgba(255,255,255,.6)' },
-                trackSwitchedStyle: { backgroundColor: 'rgba(255,255,255,.9)' },
-                toggled: showAdvanced
-            })
-        );
-
         var styles = {
             appBar: {
                 zIndex: 10,
@@ -16879,33 +16869,6 @@ var AdminDashboard = _react2['default'].createClass({
                 marginRight: 16
             }
         };
-
-        var appBarRight = undefined;
-        if (this.props.iconElementRight) {
-            appBarRight = this.props.iconElementRight;
-        } else {
-            var style = {
-                color: 'white',
-                fontSize: 20,
-                display: 'flex',
-                alignItems: 'center',
-                height: 50
-            };
-            appBarRight = _react2['default'].createElement(
-                'div',
-                { style: style },
-                advancedToggle,
-                logo
-            );
-        }
-        var oldAppBar = _react2['default'].createElement(_materialUi.AppBar, {
-            showMenuIconButton: !leftDocked,
-            onLeftIconButtonTouchTap: function () {
-                _this2.setState({ openLeftNav: !openLeftNav });
-            },
-            iconElementRight: appBarRight,
-            style: leftDocked ? { paddingLeft: 0 } : null
-        });
         var leftIcon = "mdi mdi-tune-vertical";
         var leftIconClick = undefined;
         var homeIconButton = undefined,
@@ -16968,6 +16931,7 @@ var AdminDashboard = _react2['default'].createClass({
                     tooltip: "Toggle Advanced Parameters",
                     onTouchTap: function () {
                         _this2.setState({ showAdvanced: !showAdvanced });
+                        localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
                     }
                 }),
                 _react2['default'].createElement(_materialUi.IconButton, {

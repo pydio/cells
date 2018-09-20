@@ -39,13 +39,20 @@ let AdminDashboard = React.createClass({
 
     getInitialState(){
         const dm = this.props.pydio.getContextHolder();
+        let showAdvanced;
+        if(localStorage.getItem("cells.dashboard.advanced") !== null){
+            showAdvanced = localStorage.getItem("cells.dashboard.advanced");
+        }
+        if(!showAdvanced && dm.getContextNode().getMetadata().get("advanced")){
+            showAdvanced = true;
+        }
         return {
             contextNode:dm.getContextNode(),
             selectedNodes:dm.getSelectedNodes(),
             contextStatus:dm.getContextNode().isLoaded(),
             openLeftNav: false,
             leftDocked: true,
-            showAdvanced: dm.getContextNode().getMetadata().get("advanced"),
+            showAdvanced: showAdvanced,
         };
     },
 
@@ -216,21 +223,6 @@ let AdminDashboard = React.createClass({
         if(rightPanel){
             rPanelContent = React.createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        const advancedToggle = (
-            <div style={{minWidth: 250}}>
-                <Toggle
-                    labelPosition={"right"}
-                    label={"Advanced Menus"}
-                    labelStyle={{fontSize: 16, color:'white'}}
-                    onToggle={(e,v) => {this.setState({showAdvanced:v})}}
-                    thumbStyle={{backgroundColor: 'white'}}
-                    trackStyle={{backgroundColor: 'rgba(255,255,255,.6)'}}
-                    trackSwitchedStyle={{backgroundColor:'rgba(255,255,255,.9)'}}
-                    toggled={showAdvanced}
-                />
-            </div>
-        );
-
         let styles = {
             appBar: {
                 zIndex: 10,
@@ -279,29 +271,6 @@ let AdminDashboard = React.createClass({
                 marginRight: 16
             }
         };
-
-        let appBarRight;
-        if(this.props.iconElementRight){
-            appBarRight = this.props.iconElementRight;
-        }else{
-            const style = {
-                color: 'white',
-                fontSize: 20,
-                display:'flex',
-                alignItems:'center',
-                height: 50
-            };
-            appBarRight = (
-                <div style={style}>{advancedToggle}{logo}</div>
-            );
-
-        }
-        const oldAppBar = <AppBar
-            showMenuIconButton={!leftDocked}
-            onLeftIconButtonTouchTap={() => {this.setState({openLeftNav: !openLeftNav})}}
-            iconElementRight={appBarRight}
-            style={leftDocked ? {paddingLeft: 0} : null}
-        />;
         let leftIcon = "mdi mdi-tune-vertical";
         let leftIconClick;
         let homeIconButton, searchIconButton;
@@ -348,7 +317,10 @@ let AdminDashboard = React.createClass({
                         style={styles.appBarButton}
                         iconStyle={styles.appBarButtonIcon}
                         tooltip={"Toggle Advanced Parameters"}
-                        onTouchTap={() => {this.setState({showAdvanced: !showAdvanced})}}
+                        onTouchTap={() => {
+                            this.setState({showAdvanced: !showAdvanced});
+                            localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
+                        }}
                     />
                     <IconButton
                         iconClassName={"icomoon-cells"}
