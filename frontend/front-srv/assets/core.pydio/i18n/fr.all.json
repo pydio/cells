@@ -951,10 +951,10 @@
     "other": "Très fort"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "Veuillez n'utiliser que des minuscules pour les identifiants"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "Veuillez n'utiliser que des caractères alpha-numériques ou des emails valides"
   },
   "386": {
     "other": "Vous avez échoué l'authentification trois fois.\\nPour votre sécurité, veuillez lire et recopier le code qui s'affiche."
