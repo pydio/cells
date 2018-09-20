@@ -950,6 +950,12 @@
   "385": {
     "other": "Très fort"
   },
+  "validation.login.lowercase": {
+    "other": "Veuillez n'utiliser que des minuscules pour les identifiants"
+  },
+  "validation.login.format": {
+    "other": "Veuillez n'utiliser que des caractères alpha-numériques ou des emails valides"
+  },
   "386": {
     "other": "Vous avez échoué l'authentification trois fois.\\nPour votre sécurité, veuillez lire et recopier le code qui s'affiche."
   },
