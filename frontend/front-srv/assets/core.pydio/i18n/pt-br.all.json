@@ -950,6 +950,12 @@
   "385": {
     "other": "Muito forte"
   },
+  "validation.login.lowercase": {
+    "other": "Please use only lowercase characters for logins"
+  },
+  "validation.login.format": {
+    "other": "Please use alphanumeric characters or valid emails for logins"
+  },
   "386": {
     "other": "Seu login falhou por três tentativas.\nPara sua segurança, por favor preencha o código que aparece na imagem."
   },
