@@ -577,7 +577,8 @@ InstallForm = reduxForm({
         const errors = {};
         if(values['frontendLogin']){
             const v = values['frontendLogin'];
-            if(!(validator.isEmail(v) || validator.isAlphanumeric(v)) || !validator.isLowercase(v)){
+            const re = new RegExp(/^[0-9A-Z\-_.:\+]+$/i);
+            if(!(validator.isEmail(v) || re.test(v)) || !validator.isLowercase(v)){
                 errors['frontendLogin'] = 'Please use lowercase alphanumeric characters or valid emails for logins';
             }
         }

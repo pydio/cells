@@ -928,7 +928,8 @@ InstallForm = (0, _reduxForm.reduxForm)({
         var errors = {};
         if (values['frontendLogin']) {
             var v = values['frontendLogin'];
-            if (!(_validator2.default.isEmail(v) || _validator2.default.isAlphanumeric(v)) || !_validator2.default.isLowercase(v)) {
+            var re = new RegExp(/^[0-9A-Z\-_.:\+]+$/i);
+            if (!(_validator2.default.isEmail(v) || re.test(v)) || !_validator2.default.isLowercase(v)) {
                 errors['frontendLogin'] = 'Please use lowercase alphanumeric characters or valid emails for logins';
             }
         }
