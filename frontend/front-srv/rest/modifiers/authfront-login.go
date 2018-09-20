@@ -16,8 +16,6 @@ import (
 
 	"context"
 
-	"runtime/debug"
-
 	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -69,11 +67,15 @@ func JwtFromSession(ctx context.Context, session *sessions.Session) (jwt string,
 		ref := time.Now()
 		if refresh, refOk := session.Values["refresh_token"]; refOk && (expTime.Before(ref) || expTime.Equal(ref)) {
 			// Refresh token
-			log.Logger(ctx).Debug("Refreshing Token Now", zap.Any("refresh", refresh), zap.Any("nonce", session.Values["nonce"]))
+			log.Logger(ctx).Debug("Refreshing Token Now", zap.Any("refresh", refresh), zap.Any("nonce", session.Values["nonce"]), zap.Any("jwt", session.Values["jwt"]))
 			refreshResponse, err := GrantTypeAccess(ctx, session.Values["nonce"].(string), refresh.(string), "", "")
 			if err != nil {
-				// Silently return : refresh_token is invalid
-				//e = err
+				// Refresh_token is invalid: clear session
+				e = err
+				delete(session.Values, "refresh_token")
+				delete(session.Values, "nonce")
+				delete(session.Values, "jwt")
+				delete(session.Values, "expiry")
 				return
 			}
 			expiry := refreshResponse["expires_in"].(float64)
@@ -106,7 +108,6 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 
 	data := url.Values{}
 	if refreshToken != "" {
-		debug.PrintStack()
 		data.Set("grant_type", "refresh_token")
 		data.Add("refresh_token", refreshToken)
 		data.Add("scope", "email profile pydio")

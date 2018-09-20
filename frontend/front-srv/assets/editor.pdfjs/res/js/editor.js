@@ -22,6 +22,9 @@
 import PydioApi from 'pydio/http/api'
 import DOMUtils from 'pydio/util/dom'
 import React, {Component} from 'react'
+import { connect } from 'react-redux'
+
+const { EditorActions } = PydioHOCs;
 
 class Viewer extends Component {
     componentDidMount() {
@@ -103,4 +106,19 @@ const getSelection = (node) => new Promise((resolve, reject) => {
 const {withSelection} = PydioHOCs;
 
 export const Panel = Viewer
-export const Editor = withSelection(getSelection)(Viewer)
+
+@withSelection(getSelection)
+@connect(null, EditorActions)
+export class Editor extends React.Component {
+    componentWillReceiveProps(nextProps) {
+        const {editorModify} = this.props
+
+        if (nextProps.isActive) {
+            editorModify({fixedToolbar: true})
+        }
+    }
+
+    render() {
+        return <Viewer {...this.props} />
+    }
+}

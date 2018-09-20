@@ -22,7 +22,13 @@
 
 exports.__esModule = true;
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _coreModelPydioDataModel = require("../../../core/model/PydioDataModel");
+
+var _coreModelPydioDataModel2 = _interopRequireDefault(_coreModelPydioDataModel);
 
 var FuncUtils = require("pydio/util/func");
 var ResourcesManager = require("pydio/http/resources-manager");
@@ -89,7 +95,16 @@ var applyDNDAction = function applyDNDAction(source, target, step) {
     var dnd = Controller.defaultActions.get("dragndrop");
     if (dnd) {
         var dndAction = Controller.getActionByName(dnd);
-        dndAction.enable();
+        if (dndAction.deny) {
+            // Maybe it has to be enabled by current selection
+            var dm = new _coreModelPydioDataModel2["default"]();
+            dm.setSelectedNodes([source]);
+            dndAction.fireSelectionChange(dm);
+            if (dndAction.deny) {
+                throw new Error("DND action disabled");
+            }
+        }
+        //dndAction.enable();
         var params = new DNDActionParameter(source, target, step);
         var checkModule = dndAction.options.dragndropCheckModule;
         if (step === DNDActionParameter.STEP_CAN_DROP && checkModule) {

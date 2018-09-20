@@ -85,7 +85,7 @@ const makeTransition = (originStyles, targetStyles, enter, leave) => {
                                 length: 'px', angle: 'deg'
                             })
 
-                            return <Target {...props} style={{...props.style, transform}} transitionEnded={true} />
+                            return <Target {...props} style={{...props.style, transform, transition: 'none'}} transitionEnded={true} />
                         }}
                     </TransitionMotion>
                 );

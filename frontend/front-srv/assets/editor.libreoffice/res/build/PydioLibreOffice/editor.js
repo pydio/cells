@@ -36,18 +36,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpApi = require('pydio/http/api');
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
 var _redux = require('redux');
 
+var _reactRedux = require('react-redux');
+
 var configs = pydio.getPluginConfigs("editor.libreoffice");
-var _PydioHOCs = PydioHOCs;
-var withMenu = _PydioHOCs.withMenu;
-var withLoader = _PydioHOCs.withLoader;
-var withErrors = _PydioHOCs.withErrors;
-var withControls = _PydioHOCs.withControls;
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var withMenu = _Pydio$requireLib.withMenu;
+var withLoader = _Pydio$requireLib.withLoader;
+var withErrors = _Pydio$requireLib.withErrors;
+var EditorActions = _Pydio$requireLib.EditorActions;
 
 var Viewer = (0, _redux.compose)(withMenu, withLoader, withErrors)(function (_ref) {
     var url = _ref.url;
@@ -59,17 +71,32 @@ var Editor = (function (_React$Component) {
     _inherits(Editor, _React$Component);
 
     function Editor(props) {
-        _classCallCheck(this, Editor);
+        _classCallCheck(this, _Editor);
 
-        _get(Object.getPrototypeOf(Editor.prototype), 'constructor', this).call(this, props);
+        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).call(this, props);
 
         this.state = {};
     }
 
     _createClass(Editor, [{
-        key: 'componentWillMount',
-        value: function componentWillMount() {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            var editorModify = this.props.editorModify;
+
+            if (nextProps.isActive) {
+                editorModify({ fixedToolbar: true });
+            }
+        }
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
             var _this = this;
+
+            var editorModify = this.props.editorModify;
+
+            if (this.props.isActive) {
+                editorModify({ fixedToolbar: true });
+            }
 
             var iframeUrl = configs.get('LIBREOFFICE_IFRAME_URL'),
                 webSocketSecure = configs.get('LIBREOFFICE_WEBSOCKET_SECURE'),
@@ -86,20 +113,12 @@ var Editor = (function (_React$Component) {
             var webSocketProtocol = webSocketSecure ? 'wss' : 'ws',
                 webSocketUrl = encodeURIComponent(webSocketProtocol + '://' + webSocketHost + ':' + webSocketPort);
 
-            var fileName = this.props.node.getPath();
-            pydio.ApiClient.request({
-                get_action: 'libreoffice_get_file_url',
-                file: fileName
-            }, function (_ref2) {
-                var _ref2$responseJSON = _ref2.responseJSON;
-                var responseJSON = _ref2$responseJSON === undefined ? {} : _ref2$responseJSON;
-
-                //was (see above): let {host, uri, permission, jwt} = responseJSON;
-                var uri = responseJSON.uri;
-                var permission = responseJSON.permission;
-                var jwt = responseJSON.jwt;
-
-                var fileSrcUrl = encodeURIComponent('' + host + uri);
+            // Check current action state for permission
+            var readonly = _pydio2['default'].getInstance().getController().getActionByName("move").deny;
+            var permission = readonly ? "readonly" : "edit";
+            var uri = "/wopi/files/" + this.props.node.getMetadata().get("uuid");
+            var fileSrcUrl = encodeURIComponent('' + host + uri);
+            _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt(function (jwt) {
                 _this.setState({ url: iframeUrl + '?host=' + webSocketUrl + '&WOPISrc=' + fileSrcUrl + '&access_token=' + jwt + '&permission=' + permission });
             });
         }
@@ -110,6 +129,8 @@ var Editor = (function (_React$Component) {
         }
     }]);
 
+    var _Editor = Editor;
+    Editor = (0, _reactRedux.connect)(null, EditorActions)(Editor) || Editor;
     return Editor;
 })(_react2['default'].Component);
 

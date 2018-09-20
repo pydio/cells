@@ -157,11 +157,11 @@ const UsersLoader = React.createClass({
                         return true;
                     }
                     if(userObject.IdmUser && userObject.IdmUser.IsGroup){
-                        return excludes.filter(e => e.Group && e.Group.Uuid === userObject.IdmUser.Uuid).length === 0;
+                        return excludes.filter(e => e === userObject.IdmUser.Uuid).length === 0;
                     } else if(userObject.IdmUser){
-                        return excludes.filter(e => e.User && e.User.Uuid === userObject.IdmUser.Uuid).length === 0;
+                        return excludes.filter(e => e === userObject.IdmUser.Login).length === 0;
                     } else {
-                        return excludes.filter(e => e.Role && e.Role.Uuid === userObject.IdmRole.Uuid).length === 0;
+                        return excludes.filter(e => e === userObject.IdmRole.Uuid).length === 0;
                     }
                 }).map(userObject => {
                     let identifier, icon, label;

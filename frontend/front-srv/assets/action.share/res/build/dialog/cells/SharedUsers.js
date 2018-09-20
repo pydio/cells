@@ -168,6 +168,19 @@ var SharedUsers = _react2['default'].createClass({
             );
         }
         if (!this.props.isReadonly() && !this.props.readonly) {
+            var excludes = Object.values(cellAcls).map(function (a) {
+                if (a.User) {
+                    return a.User.Login;
+                } else if (a.Group) {
+                    return a.Group.Uuid;
+                } else if (a.Role) {
+                    return a.Role.Uuid;
+                } else {
+                    return null;
+                }
+            }).filter(function (k) {
+                return !!k;
+            });
             usersInput = _react2['default'].createElement(UsersCompleter, {
                 className: 'share-form-users',
                 fieldLabel: this.props.getMessage('34'),
@@ -175,7 +188,7 @@ var SharedUsers = _react2['default'].createClass({
                 pydio: this.props.pydio,
                 showAddressBook: true,
                 usersFrom: 'local',
-                excludes: Object.values(cellAcls)
+                excludes: excludes
             });
         }
 

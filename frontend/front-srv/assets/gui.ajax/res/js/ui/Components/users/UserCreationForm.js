@@ -41,7 +41,7 @@ class UserCreationForm extends React.Component{
             label           : MessageHash['522'],
             name            : (editMode ? "existing_user_id" : "new_user_id"),
             scope           : "user",
-            type            : "string",
+            type            : "valid-login",
             mandatory       : true,
             "default"       : prefix ? prefix : ''
         },{

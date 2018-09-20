@@ -17,20 +17,35 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-
-
+import Pydio from 'pydio'
 import React, {Component} from 'react'
 import {compose} from 'redux'
+import {connect} from 'react-redux'
 import {ToolbarTitle} from 'material-ui'
 import Map from './map'
+const {EditorActions} = Pydio.requireLib('hoc')
 
+@connect(null, EditorActions)
 export default class Editor extends React.Component {
 
     constructor(props) {
         super(props)
 
         this.state = {}
+    }
+
+    componentDidMount() {
+        const {editorModify} = this.props;
+        if (this.props.isActive) {
+            editorModify({fixedToolbar: false})
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const {editorModify} = this.props;
+        if (nextProps.isActive) {
+            editorModify({fixedToolbar: false})
+        }
     }
 
     onMapLoaded(map, error = null) {
@@ -47,15 +62,31 @@ export default class Editor extends React.Component {
     }
 
     render() {
-        return (
-            <Map
-                ref="mapObject"
-                style={this.props.style}
-                //controls={[<ToolbarTitle text={<span ref={(input) => this.input = input} />} />]}
-                error={this.state.error}
-                centerNode={this.props.node}
-                onMapLoaded={(map, error) => this.onMapLoaded(map, error)}
-            />
-        );
+        const {error} = this.state;
+        const {style, node} = this.props;
+
+        if(error) {
+            const cont = {
+                margin: "auto",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                flex: 1
+            };
+            return (
+                <div style={cont}>
+                    <div style={{margin:'auto', color:'white'}}>{error}</div>
+                </div>
+            );
+        } else {
+            return (
+                <Map
+                    ref="mapObject"
+                    style={style}
+                    centerNode={node}
+                    onMapLoaded={(map, error) => this.onMapLoaded(map, error)}
+                />
+            );
+        }
     }
 }

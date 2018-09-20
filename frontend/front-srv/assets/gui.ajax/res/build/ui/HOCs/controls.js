@@ -323,7 +323,7 @@ function withMouseTracker() {
                     isNearRight: false
                 };
 
-                this._observer = _lodash2['default'].throttle(this.onMouseMove.bind(this), 1000);
+                this._moveObserver = _lodash2['default'].throttle(this.onMouseMove.bind(this), 1000);
             }
 
             _class6.prototype.onMouseMove = function onMouseMove(props) {
@@ -362,11 +362,11 @@ function withMouseTracker() {
             // Mounting
 
             _class6.prototype.componentDidMount = function componentDidMount() {
-                document.addEventListener('mousemove', this._observer);
+                document.addEventListener('mousemove', this._moveObserver);
             };
 
             _class6.prototype.componentWillUnmount = function componentWillUnmount() {
-                document.removeEventListener('mousemove', this._observer);
+                document.removeEventListener('mousemove', this._moveObserver);
             };
 
             _class6.prototype.render = function render() {

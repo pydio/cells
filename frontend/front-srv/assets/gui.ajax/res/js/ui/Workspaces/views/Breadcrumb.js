@@ -27,40 +27,49 @@ const {Textfit} = require('react-textfit')
 
 let Breadcrumb = React.createClass({
 
-    getInitialState: function(){
-        return {node: null};
+    getInitialState(){
+        return {node: null, minFit: false};
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
         let n = this.props.pydio.getContextHolder().getContextNode();
         if(n){
             this.setState({node: n});
         }
         this._observer = function(event){
-            this.setState({node: event.memo});
+            this.setState({node: event.memo, minFit: false});
         }.bind(this);
         this.props.pydio.getContextHolder().observe("context_changed", this._observer);
     },
 
-    componentWillUnmount: function(){
+    componentWillUnmount(){
         this.props.pydio.getContextHolder().stopObserving("context_changed", this._observer);
     },
 
-    goTo: function(target, event){
+    goTo(target, event){
         const targetNode = new PydioNode(target);
         this.props.pydio.getContextHolder().requireContextChange(targetNode);
     },
 
-    render: function(){
-        const pydio = this.props.pydio;
+    toggleMinFit(font){
+        const {minFit} = this.state;
+        const newMinFit = (font === 12);
+        if(newMinFit !== minFit) {
+            this.setState({minFit: newMinFit});
+        }
+    },
+
+    render(){
+        const {pydio, muiTheme, rootStyle} = this.props;
+        const {node, minFit} = this.state;
         const styles = {
             main: {
                 fontSize: 22,
                 lineHeight:'24px',
                 padding: 20,
-                color: this.props.muiTheme.appBar.textColor,
-                maxWidth: '70%',
-                flex:1
+                color: muiTheme.appBar.textColor,
+                maxWidth: '72%',
+                flex:6
             }
         };
         if(!pydio.user){
@@ -71,11 +80,14 @@ let Breadcrumb = React.createClass({
             repoLabel = pydio.user.repositories.get(pydio.user.activeRepository).getLabel();
         }
         let segments = [];
-        const path = this.state.node ? LangUtils.trimLeft(this.state.node.getPath(), '/') : '';
-        const label = this.state.node ? this.state.node.getLabel() : '';
+        const path = node ? LangUtils.trimLeft(node.getPath(), '/') : '';
+        const label = node ? node.getLabel() : '';
         let rebuilt = '';
-        let mainStyle = this.props.rootStyle || {};
+        let mainStyle = rootStyle || {};
         mainStyle = {...styles.main, ...mainStyle};
+        if(minFit){
+            mainStyle = {...mainStyle, overflow:'hidden'}
+        }
         const parts = path.split('/');
         parts.forEach(function(seg, i){
             if(!seg) return;
@@ -84,7 +96,7 @@ let Breadcrumb = React.createClass({
             segments.push(<span key={'bread_' + i} className="segment" onClick={this.goTo.bind(this, rebuilt)}>{i===parts.length-1 ? label : seg}</span>);
         }.bind(this));
         return (
-            <Textfit mode="single" perfectFit={false} min={12} max={22} className="react_breadcrumb" style={mainStyle}>
+            <Textfit mode="single" perfectFit={false} min={12} max={22} className="react_breadcrumb" style={mainStyle} onReady={(f) => {this.toggleMinFit(f)}}>
                  {this.props.startWithSeparator && <span className="separator"> / </span>}
                 <span className="segment first" onClick={this.goTo.bind(this, '/')}>{repoLabel}</span>
                 {segments}

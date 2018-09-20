@@ -15,7 +15,7 @@ module.exports = function(grunt){
         },
         styles_material: {
             files: ['res/themes/material/css/**/*.less', 'res/themes/common/css/**/*.less'],
-                tasks: ['less', 'cssmin'],
+                tasks: ['less', 'cssmin', 'compress:css'],
                 options: {
                 nospawn: true
             }

@@ -121,7 +121,9 @@ var withContainerSize = function withContainerSize(Component) {
                 left: parseInt(dimensions.left),
                 right: parseInt(dimensions.right),
                 width: parseInt(dimensions.width),
-                height: parseInt(dimensions.height)
+                height: parseInt(dimensions.height),
+                documentWidth: document.documentElement.clientWidth,
+                documentHeight: document.documentElement.clientHeight
             });
         };
 
@@ -132,7 +134,6 @@ var withContainerSize = function withContainerSize(Component) {
         };
 
         _class.prototype.componentWillReceiveProps = function componentWillReceiveProps() {
-            console.log("Received props");
             this.resize();
         };
 
@@ -150,6 +151,8 @@ var withContainerSize = function withContainerSize(Component) {
             var right = _state.right;
             var width = _state.width;
             var height = _state.height;
+            var documentWidth = _state.documentWidth;
+            var documentHeight = _state.documentHeight;
 
             return _react2['default'].createElement(
                 _reactContainerDimensions2['default'],
@@ -162,6 +165,8 @@ var withContainerSize = function withContainerSize(Component) {
                     var containerWidth = _ref.width;
                     var containerHeight = _ref.height;
                     return _react2['default'].createElement(Component, _extends({
+                        documentWidth: documentWidth,
+                        documentHeight: documentHeight,
                         containerTop: containerTop,
                         containerBottom: containerBottom,
                         containerLeft: containerLeft,

@@ -69,5 +69,5 @@ func RestError401(req *restful.Request, resp *restful.Response, err error) {
 		Title:  err.Error(),
 		Detail: err.Error(),
 	}
-	resp.WriteHeaderAndEntity(404, e)
+	resp.WriteHeaderAndEntity(401, e)
 }

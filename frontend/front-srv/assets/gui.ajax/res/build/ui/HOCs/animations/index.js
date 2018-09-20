@@ -28,6 +28,10 @@ var _makeAsync = require('./make-async');
 
 exports.makeAsync = _interopRequire(_makeAsync);
 
+var _makeMotion = require('./make-motion');
+
+exports.makeMotion = _interopRequire(_makeMotion);
+
 var _makeTransition = require('./make-transition');
 
 exports.makeTransition = _interopRequire(_makeTransition);

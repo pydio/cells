@@ -5429,6 +5429,10 @@
               {
                 "name": "node",
                 "type": null
+              },
+              {
+                "name": "m",
+                "type": null
               }
             ],
             "returns": null
@@ -6905,6 +6909,11 @@
             "returns": null
           }
         ]
+      },
+      {
+        "description": "",
+        "displayName": "Editor",
+        "methods": []
       }
     ]
   },
@@ -6980,21 +6989,31 @@
         "displayName": "Editor",
         "methods": [
           {
-            "name": "styles",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          },
-          {
             "name": "loadNode",
             "docblock": null,
             "modifiers": [],
             "params": [
               {
                 "name": "props",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "playNext",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onRowSelection",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "data",
                 "type": null
               }
             ],
@@ -7162,6 +7181,11 @@
             }
           }
         }
+      },
+      {
+        "description": "",
+        "displayName": "Editor",
+        "methods": []
       }
     ],
     "Media.js": [
@@ -36870,11 +36894,6 @@
         "displayName": "App",
         "methods": [],
         "require": "const {App} = require('pydio').requireLib('workspaces')"
-      },
-      {
-        "description": "",
-        "displayName": "Animation",
-        "methods": []
       }
     ],
     "Workspaces/editor/components/editor/Editor.js": [
@@ -36883,17 +36902,27 @@
         "displayName": "Editor",
         "methods": [
           {
-            "name": "enterFullScreen",
+            "name": "handleBlurOnSelection",
             "docblock": null,
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
             "returns": null
           },
           {
-            "name": "recalculate",
+            "name": "handleFocusOnSelection",
             "docblock": null,
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
             "returns": null
           },
           {
@@ -36957,7 +36986,22 @@
       {
         "description": "",
         "displayName": "EditorToolbar",
-        "methods": [],
+        "methods": [
+          {
+            "name": "onClose",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "onMinimise",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
         "require": "const {EditorToolbar} = require('pydio').requireLib('workspaces')"
       }
     ],
@@ -36974,13 +37018,6 @@
         "description": "",
         "displayName": "Menu",
         "methods": [
-          {
-            "name": "recalculate",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
           {
             "name": "renderChild",
             "docblock": null,

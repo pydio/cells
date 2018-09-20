@@ -23,6 +23,8 @@
 import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
+import Pydio from 'pydio'
+const {EditorActions, withLoader, withErrors} = Pydio.requireLib('hoc');
 
 class Viewer extends React.Component{
 
@@ -65,15 +67,23 @@ class Viewer extends React.Component{
     }
 }
 
-
+@connect(null, EditorActions)
 class Editor extends React.Component {
-    componentWillMount() {
+    componentDidMount() {
         this.loadNode(this.props)
+        const {editorModify} = this.props;
+        if (this.props.isActive) {
+            editorModify({fixedToolbar: true})
+        }
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.node !== this.props.node) {
             this.loadNode(nextProps)
+        }
+        const {editorModify} = this.props;
+        if (nextProps.isActive) {
+            editorModify({fixedToolbar: true})
         }
     }
 
@@ -90,11 +100,7 @@ class Editor extends React.Component {
 }
 
 // Define HOCs
-if (typeof PydioHOCs !== "undefined") {
-    Viewer = PydioHOCs.withLoader(Viewer)
-    Viewer = PydioHOCs.withErrors(Viewer)
-}
+Viewer = withLoader(Viewer);
+Viewer = withErrors(Viewer);
 
-export default compose(
-    connect()
-)(Editor)
+export default Editor

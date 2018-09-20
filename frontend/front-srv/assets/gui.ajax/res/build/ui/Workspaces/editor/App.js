@@ -46,6 +46,7 @@ var _makeEditorOpen2 = _interopRequireDefault(_makeEditorOpen);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
+var withContainerSize = _Pydio$requireLib.withContainerSize;
 var EditorActions = _Pydio$requireLib.EditorActions;
 
 var App = (function (_React$Component) {
@@ -54,22 +55,17 @@ var App = (function (_React$Component) {
     function App(props) {
         var _this = this;
 
-        _classCallCheck(this, App);
+        _classCallCheck(this, _App);
 
         _React$Component.call(this, props);
 
         var editorModify = props.editorModify;
         var editorSetActiveTab = props.editorSetActiveTab;
 
-        editorModify({ open: false });
+        editorModify({ isOpen: false });
         editorSetActiveTab(null);
 
-        this.onEditorMinimise = function () {
-            return _this.setState({ editorMinimised: !_this.props.displayPanel });
-        };
-
         this.state = {
-            editorMinimised: false,
             fullBrowserScreen: pydio.UI.MOBILE_EXTENSIONS || true
         };
 
@@ -78,114 +74,84 @@ var App = (function (_React$Component) {
         };
     }
 
-    /*const Animation = (props) => {
-        return (
-            <div {...props} />
-        );
-    };
-    
-    const AnimationGroup = makeEditorOpen(Animation)*/
-
     // REDUX - Then connect the redux store
-
-    App.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
-        var editorModify = nextProps.editorModify;
-        var tabs = nextProps.tabs;
-        var displayPanel = nextProps.displayPanel;
-        var positionOrigin = nextProps.positionOrigin;
-        var positionTarget = nextProps.positionTarget;
-
-        editorModify({ open: tabs.filter(function (_ref) {
-                var editorData = _ref.editorData;
-                return editorData;
-            }).length > 0 });
-
-        if (displayPanel) {
-
-            this.setState({
-                editorMinimised: false
-            });
-
-            var transformOrigin = "";
-            if (positionOrigin && positionTarget) {
-                var x = parseInt(positionTarget.left - positionOrigin.left + (positionTarget.right - positionTarget.left) / 2);
-                var y = parseInt(positionTarget.top - positionOrigin.top + (positionTarget.bottom - positionTarget.top) / 2);
-
-                this.setState({
-                    transformOrigin: x + 'px ' + y + 'px'
-                });
-            }
-        }
-    };
 
     App.prototype.render = function render() {
         var _props = this.props;
-        var display = _props.display;
-        var displayPanel = _props.displayPanel;
-        var _state = this.state;
-        var editorMinimised = _state.editorMinimised;
-        var fullBrowserScreen = _state.fullBrowserScreen;
+        var isOpen = _props.isOpen;
+        var isMinimised = _props.isMinimised;
+        var documentWidth = _props.documentWidth;
+        var documentHeight = _props.documentHeight;
+        var fullBrowserScreen = this.state.fullBrowserScreen;
+
+        if (!isOpen) {
+            return null;
+        }
 
         var editorStyle = {
-            display: "none"
+            position: "fixed",
+            top: fullBrowserScreen ? 0 : "1%",
+            left: fullBrowserScreen ? 0 : "1%",
+            right: fullBrowserScreen ? 0 : "15%",
+            bottom: fullBrowserScreen ? 0 : "1%"
         };
 
         var overlayStyle = {
-            display: "none"
+            position: "fixed",
+            top: 0,
+            bottom: 0,
+            right: 0,
+            left: 0,
+            background: "#000000",
+            opacity: "0.8",
+            transition: "opacity .5s ease-in"
         };
 
-        if (!editorMinimised) {
-            editorStyle = {
-                position: "fixed",
-                top: fullBrowserScreen ? 0 : "1%",
-                left: fullBrowserScreen ? 0 : "1%",
-                right: fullBrowserScreen ? 0 : "15%",
-                bottom: fullBrowserScreen ? 0 : "1%",
-                transformOrigin: this.state.transformOrigin
-            };
-
-            overlayStyle = { position: "fixed", top: 0, bottom: 0, right: 0, left: 0, background: "#000000", opacity: "0.5", transition: "opacity .5s ease-in" };
-        }
-
-        if (!displayPanel) {
-            overlayStyle = { opacity: 0, transition: "opacity .5s ease-in" };
-        }
+        var buttonCenterPositionTop = documentHeight - 50;
+        var buttonCenterPositionLeft = documentWidth - 50;
 
         var menuStyle = {
             position: "fixed",
-            bottom: "50px",
-            right: "50px",
+            top: buttonCenterPositionTop,
+            left: buttonCenterPositionLeft,
             cursor: "pointer",
-            transform: "translate(50%, 50%)",
+            transform: "translate(-50%, -50%)",
             zIndex: 5
         };
 
         return React.createElement(
             'div',
-            null,
-            display ? React.createElement('div', { style: overlayStyle }) : null,
-            display ? React.createElement(_componentsEditor.Editor, { style: editorStyle, onFullBrowserScreen: this.onFullBrowserScreen.bind(this), onMinimise: this.onEditorMinimise.bind(this) }) : null,
-            display ? React.createElement(_componentsMenu.Menu, { style: menuStyle }) : null
+            { style: { position: "fixed", top: 0, left: 0, zIndex: 1400 } },
+            !isMinimised && React.createElement('div', { style: overlayStyle }),
+            React.createElement(_componentsEditor.Editor, { style: editorStyle, minimiseStyle: { transformOrigin: buttonCenterPositionLeft + "px " + buttonCenterPositionTop + "px" } }),
+            isMinimised && React.createElement(_componentsMenu.Menu, { style: menuStyle })
         );
     };
 
+    var _App = App;
+    App = _reactRedux.connect(mapStateToProps, EditorActions)(App) || App;
+    App = withContainerSize(App) || App;
     return App;
 })(React.Component);
 
+exports['default'] = App;
 function mapStateToProps(state, ownProps) {
     var editor = state.editor;
     var tabs = state.tabs;
+    var _editor$isMinimised = editor.isMinimised;
+    var isMinimised = _editor$isMinimised === undefined ? false : _editor$isMinimised;
 
     return _extends({}, ownProps, {
         tabs: tabs,
-        display: editor.open,
+        isOpen: tabs.filter(function (_ref) {
+            var editorData = _ref.editorData;
+            return editorData;
+        }).length > 0,
+        isMinimised: isMinimised,
         displayPanel: editor.isPanelActive,
         displayMenu: editor.isMenuActive,
         positionOrigin: editor.panel && editor.panel.rect,
         positionTarget: editor.menu && editor.menu.rect
     });
 }
-var ConnectedApp = _reactRedux.connect(mapStateToProps, EditorActions)(App);
-
-exports['default'] = ConnectedApp;
 module.exports = exports['default'];

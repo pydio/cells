@@ -29,9 +29,9 @@ var _utilXMLUtils = require('../util/XMLUtils');
 
 var _utilXMLUtils2 = _interopRequireDefault(_utilXMLUtils);
 
-var _utilLangUtils = require('../util/LangUtils');
+var _utilPathUtils = require('../util/PathUtils');
 
-var _utilLangUtils2 = _interopRequireDefault(_utilLangUtils);
+var _utilPathUtils2 = _interopRequireDefault(_utilPathUtils);
 
 var _RestClient = require('./RestClient');
 
@@ -40,10 +40,6 @@ var _RestClient2 = _interopRequireDefault(_RestClient);
 var _awsSdk = require('aws-sdk');
 
 var _awsSdk2 = _interopRequireDefault(_awsSdk);
-
-var _genModelIdmUser = require("./gen/model/IdmUser");
-
-var _genModelIdmUser2 = _interopRequireDefault(_genModelIdmUser);
 
 /**
  * API Client
@@ -248,6 +244,7 @@ var PydioApi = (function () {
         var slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
         var cType = '',
             cDisposition = undefined;
+        var longExpire = false;
 
         switch (presetType) {
             case 'image/png':
@@ -263,12 +260,14 @@ var PydioApi = (function () {
                 break;
             case 'audio/mp3':
                 cType = presetType;
+                longExpire = true;
                 break;
             case 'video/mp4':
                 cType = presetType;
+                longExpire = true;
                 break;
             case 'detect':
-                cType = node.getAjxpMimeType();
+                cType = _utilPathUtils2['default'].getAjxpMimeType(node);
                 cDisposition = 'inline';
             default:
                 break;
@@ -276,7 +275,8 @@ var PydioApi = (function () {
 
         var params = {
             Bucket: 'io',
-            Key: slug + node.getPath()
+            Key: slug + node.getPath(),
+            Expires: longExpire ? 6000 : 600
         };
         if (bucketParams !== null) {
             params = bucketParams;

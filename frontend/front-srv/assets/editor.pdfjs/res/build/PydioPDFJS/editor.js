@@ -48,6 +48,11 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _reactRedux = require('react-redux');
+
+var _PydioHOCs = PydioHOCs;
+var EditorActions = _PydioHOCs.EditorActions;
+
 var Viewer = (function (_Component) {
     _inherits(Viewer, _Component);
 
@@ -155,9 +160,41 @@ var getSelection = function getSelection(node) {
     });
 };
 
-var _PydioHOCs = PydioHOCs;
-var withSelection = _PydioHOCs.withSelection;
+var _PydioHOCs2 = PydioHOCs;
+var withSelection = _PydioHOCs2.withSelection;
 var Panel = Viewer;
+
 exports.Panel = Panel;
-var Editor = withSelection(getSelection)(Viewer);
+
+var Editor = (function (_React$Component) {
+    _inherits(Editor, _React$Component);
+
+    function Editor() {
+        _classCallCheck(this, _Editor);
+
+        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(Editor, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            var editorModify = this.props.editorModify;
+
+            if (nextProps.isActive) {
+                editorModify({ fixedToolbar: true });
+            }
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            return _react2['default'].createElement(Viewer, this.props);
+        }
+    }]);
+
+    var _Editor = Editor;
+    Editor = (0, _reactRedux.connect)(null, EditorActions)(Editor) || Editor;
+    Editor = withSelection(getSelection)(Editor) || Editor;
+    return Editor;
+})(_react2['default'].Component);
+
 exports.Editor = Editor;

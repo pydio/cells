@@ -119,7 +119,7 @@ var makeTransition = function makeTransition(originStyles, targetStyles, enter, 
                             length: 'px', angle: 'deg'
                         });
 
-                        return _react2['default'].createElement(Target, _extends({}, props, { style: _extends({}, props.style, { transform: transform }), transitionEnded: true }));
+                        return _react2['default'].createElement(Target, _extends({}, props, { style: _extends({}, props.style, { transform: transform, transition: 'none' }), transitionEnded: true }));
                     }
                 );
             };

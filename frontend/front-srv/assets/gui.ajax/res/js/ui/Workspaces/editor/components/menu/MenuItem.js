@@ -32,7 +32,7 @@ class MenuItem extends React.PureComponent {
         const {editorSetActiveTab, editorModify} = props
 
         this.onClick = () => {
-            editorModify({isPanelActive: true})
+            editorModify({isMinimised: false})
             editorSetActiveTab(this.props.id)
         }
     }

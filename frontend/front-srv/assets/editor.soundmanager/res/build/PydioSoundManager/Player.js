@@ -64,6 +64,11 @@ var Player = (function (_React$Component) {
         // enable some spectrum stuffs
         _sm360PlayerScript360player.threeSixtyPlayer.config.useWaveformData = true;
         _sm360PlayerScript360player.threeSixtyPlayer.config.useEQData = true;
+        var onFinish = props.onFinish;
+
+        if (onFinish) {
+            _sm360PlayerScript360player.threeSixtyPlayer.config.onfinish = onFinish;
+        }
 
         // enable this in SM2 as well, as needed
         if (_sm360PlayerScript360player.threeSixtyPlayer.config.useWaveformData) {
@@ -93,31 +98,26 @@ var Player = (function (_React$Component) {
     }
 
     _createClass(Player, [{
-        key: 'componentWillMount',
-        value: function componentWillMount() {
-
-            //soundManager.createSound()
-        }
-    }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
-            //soundManager.onready(() => React.Children.map(this.props.children, (child) => soundManager.createSound({url: child.href})))
             _soundmanager2.soundManager.onready(_sm360PlayerScript360player.threeSixtyPlayer.init);
-
-            // soundManager.onready(nextProps.onReady)
-            // soundManager.beginDelayedInit()
+        }
+    }, {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            if (this.props.onFinish) {
+                _sm360PlayerScript360player.threeSixtyPlayer.config.onfinish = null;
+            }
+            _soundmanager2.soundManager.stopAll();
         }
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            //soundManager.onready(() => React.Children.map(nextProps.children, (child) => soundManager.createSound({url: child.href})))
+            if (this.props.onFinish) {
+                _sm360PlayerScript360player.threeSixtyPlayer.config.onfinish = this.props.onFinish;
+            }
             _soundmanager2.soundManager.onready(_sm360PlayerScript360player.threeSixtyPlayer.init);
         }
-
-        /*componentWillUnmount() {
-            soundManager.reboot()
-        }*/
-
     }, {
         key: 'render',
         value: function render() {

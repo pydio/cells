@@ -22,6 +22,10 @@ var _client = require('./client');
 
 var _client2 = _interopRequireDefault(_client);
 
+var _validator = require('validator');
+
+var _validator2 = _interopRequireDefault(_validator);
+
 var _InstallInstallConfig = require('./gen/model/InstallInstallConfig');
 
 var _InstallInstallConfig2 = _interopRequireDefault(_InstallInstallConfig);
@@ -88,7 +92,8 @@ var renderPassField = function renderPassField(_ref2) {
         floatingLabelFixed: true,
         errorText: error,
         fullWidth: true,
-        type: "password"
+        type: "password",
+        autoComplete: "new-password"
     }, input, custom));
 };
 
@@ -352,7 +357,8 @@ var InstallForm = function (_React$Component) {
                 installError = _props2.installError,
                 initialChecks = _props2.initialChecks,
                 licenseRequired = _props2.licenseRequired,
-                licenseString = _props2.licenseString;
+                licenseString = _props2.licenseString,
+                frontendPassword = _props2.frontendPassword;
             var _state = this.state,
                 stepIndex = _state.stepIndex,
                 licenseAgreed = _state.licenseAgreed,
@@ -598,7 +604,7 @@ var InstallForm = function (_React$Component) {
                                     _react2.default.createElement(
                                         'div',
                                         { style: { flex: 1, marginLeft: 2 } },
-                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPPassword', component: renderTextField, floatingLabel: 'Database Password', label: 'Leave blank if not required' })
+                                        _react2.default.createElement(_reduxForm.Field, { name: 'dbTCPPassword', component: renderPassField, floatingLabel: 'Database Password', label: 'Leave blank if not required' })
                                     )
                                 )
                             ),
@@ -669,7 +675,7 @@ var InstallForm = function (_React$Component) {
                             ),
                             _react2.default.createElement(_reduxForm.Field, { name: 'frontendLogin', component: renderTextField, floatingLabel: 'Login of the admin user', label: 'Skip this if an admin is already created in the database.' }),
                             _react2.default.createElement(_reduxForm.Field, { name: 'frontendPassword', component: renderPassField, floatingLabel: 'Password of the admin user', label: 'Skip this if an admin is already created in the database.' }),
-                            _react2.default.createElement(_reduxForm.Field, { name: 'frontendRepeatPassword', component: renderPassField, floatingLabel: 'Please confirm password', label: 'Skip this if an admin is already created in the database.' })
+                            frontendPassword && _react2.default.createElement(_reduxForm.Field, { name: 'frontendRepeatPassword', component: renderPassField, floatingLabel: 'Please confirm password', label: 'Type again the admin password' })
                         )
                     ),
                     this.renderStepActions(3 + stepOffset)
@@ -831,6 +837,26 @@ var InstallForm = function (_React$Component) {
                                 );
                             })
                         ),
+                        installPerformed && !serverRestarted && _react2.default.createElement(
+                            'div',
+                            null,
+                            'Install was succesful and services are now starting, this installer will reload the page when services are started.',
+                            _react2.default.createElement('br', null),
+                            _react2.default.createElement(
+                                'b',
+                                null,
+                                'Please note'
+                            ),
+                            ' that if you have configured the server with a self-signed certificate, browser security will prevent automatic reloading. In that case, please wait and manually ',
+                            _react2.default.createElement(
+                                'a',
+                                { style: { textDecoration: 'underline', cursor: 'pointer' }, onClick: function onClick() {
+                                        window.location.reload();
+                                    } },
+                                'reload the page'
+                            ),
+                            '.'
+                        ),
                         installPerformed && serverRestarted && _react2.default.createElement(
                             'div',
                             null,
@@ -900,6 +926,13 @@ InstallForm = (0, _reduxForm.reduxForm)({
     form: 'install',
     validate: function validate(values) {
         var errors = {};
+        if (values['frontendLogin']) {
+            var v = values['frontendLogin'];
+            var re = new RegExp(/^[0-9A-Z\-_.:\+]+$/i);
+            if (!(_validator2.default.isEmail(v) || re.test(v)) || !_validator2.default.isLowercase(v)) {
+                errors['frontendLogin'] = 'Please use lowercase alphanumeric characters or valid emails for logins';
+            }
+        }
         if (values['frontendPassword'] && values['frontendRepeatPassword'] !== values['frontendPassword']) {
             errors['frontendRepeatPassword'] = 'Passwords differ!';
         }
@@ -916,7 +949,7 @@ InstallForm = (0, _reactRedux.connect)(function (state) {
     var initialChecks = selector(state, 'CheckResults');
     var licenseRequired = selector(state, 'licenseRequired');
     var licenseString = selector(state, 'licenseString');
-    var fpmAddress = selector(state, 'fpmAddress');
+    var frontendPassword = selector(state, 'frontendPassword');
 
     // Make a request to retrieve those values
     return {
@@ -925,7 +958,7 @@ InstallForm = (0, _reactRedux.connect)(function (state) {
         dbConfig: dbConfig,
         initialChecks: initialChecks,
         licenseRequired: licenseRequired,
-        licenseString: licenseString, fpmAddress: fpmAddress
+        licenseString: licenseString, frontendPassword: frontendPassword
     };
 }, { load: _config.load })(InstallForm);
 

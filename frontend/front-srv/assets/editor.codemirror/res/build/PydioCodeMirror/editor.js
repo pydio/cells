@@ -60,9 +60,9 @@ var Editor = (function (_React$Component) {
     _inherits(Editor, _React$Component);
 
     function Editor(props) {
-        _classCallCheck(this, Editor);
+        _classCallCheck(this, _Editor);
 
-        _get(Object.getPrototypeOf(Editor.prototype), 'constructor', this).call(this, props);
+        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).call(this, props);
 
         var _props = this.props;
         var node = _props.node;
@@ -86,6 +86,15 @@ var Editor = (function (_React$Component) {
             pydio.ApiClient.getPlainContent(node, function (content) {
                 dispatch(EditorActions.tabModify({ id: id || node.getLabel(), lineNumbers: true, content: content }));
             });
+        }
+    }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            var editorModify = this.props.editorModify;
+
+            if (editorModify && nextProps.isActive) {
+                editorModify({ fixedToolbar: true });
+            }
         }
     }, {
         key: 'render',
@@ -123,6 +132,8 @@ var Editor = (function (_React$Component) {
         }
     }]);
 
+    var _Editor = Editor;
+    Editor = (0, _reactRedux.connect)(null, EditorActions)(Editor) || Editor;
     return Editor;
 })(_react2['default'].Component);
 

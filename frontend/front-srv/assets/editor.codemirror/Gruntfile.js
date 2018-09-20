@@ -4,7 +4,9 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         babel: {
-            options: {},
+            options: {
+                optional: ['es7.decorators']
+            },
 
             dist: {
                 files: [

@@ -18,10 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import XMLUtils from '../util/XMLUtils'
-import LangUtils from '../util/LangUtils'
+import PathUtils from '../util/PathUtils'
 import RestClient from './RestClient'
 import AWS from 'aws-sdk'
-import IdmUser from "./gen/model/IdmUser";
 
 /**
  * API Client
@@ -189,6 +188,7 @@ class PydioApi{
         const url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
         const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
         let cType = '', cDisposition;
+        let longExpire = false;
 
         switch (presetType){
             case 'image/png':
@@ -204,12 +204,14 @@ class PydioApi{
                 break;
             case 'audio/mp3':
                 cType = presetType;
+                longExpire = true;
                 break;
             case 'video/mp4':
                 cType = presetType;
+                longExpire = true;
                 break;
             case 'detect':
-                cType = node.getAjxpMimeType();
+                cType = PathUtils.getAjxpMimeType(node);
                 cDisposition = 'inline';
             default:
                 break;
@@ -217,7 +219,8 @@ class PydioApi{
 
         let params = {
             Bucket: 'io',
-            Key: slug + node.getPath()
+            Key: slug + node.getPath(),
+            Expires: longExpire ? 6000 : 600
         };
         if (bucketParams !== null) {
             params = bucketParams;

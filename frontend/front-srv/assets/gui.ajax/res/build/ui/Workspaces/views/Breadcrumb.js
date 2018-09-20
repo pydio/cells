@@ -41,7 +41,7 @@ var Breadcrumb = React.createClass({
     displayName: 'Breadcrumb',
 
     getInitialState: function getInitialState() {
-        return { node: null };
+        return { node: null, minFit: false };
     },
 
     componentDidMount: function componentDidMount() {
@@ -50,7 +50,7 @@ var Breadcrumb = React.createClass({
             this.setState({ node: n });
         }
         this._observer = (function (event) {
-            this.setState({ node: event.memo });
+            this.setState({ node: event.memo, minFit: false });
         }).bind(this);
         this.props.pydio.getContextHolder().observe("context_changed", this._observer);
     },
@@ -64,16 +64,34 @@ var Breadcrumb = React.createClass({
         this.props.pydio.getContextHolder().requireContextChange(targetNode);
     },
 
+    toggleMinFit: function toggleMinFit(font) {
+        var minFit = this.state.minFit;
+
+        var newMinFit = font === 12;
+        if (newMinFit !== minFit) {
+            this.setState({ minFit: newMinFit });
+        }
+    },
+
     render: function render() {
-        var pydio = this.props.pydio;
+        var _this = this;
+
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var muiTheme = _props.muiTheme;
+        var rootStyle = _props.rootStyle;
+        var _state = this.state;
+        var node = _state.node;
+        var minFit = _state.minFit;
+
         var styles = {
             main: {
                 fontSize: 22,
                 lineHeight: '24px',
                 padding: 20,
-                color: this.props.muiTheme.appBar.textColor,
-                maxWidth: '70%',
-                flex: 1
+                color: muiTheme.appBar.textColor,
+                maxWidth: '72%',
+                flex: 6
             }
         };
         if (!pydio.user) {
@@ -84,11 +102,14 @@ var Breadcrumb = React.createClass({
             repoLabel = pydio.user.repositories.get(pydio.user.activeRepository).getLabel();
         }
         var segments = [];
-        var path = this.state.node ? LangUtils.trimLeft(this.state.node.getPath(), '/') : '';
-        var label = this.state.node ? this.state.node.getLabel() : '';
+        var path = node ? LangUtils.trimLeft(node.getPath(), '/') : '';
+        var label = node ? node.getLabel() : '';
         var rebuilt = '';
-        var mainStyle = this.props.rootStyle || {};
+        var mainStyle = rootStyle || {};
         mainStyle = _extends({}, styles.main, mainStyle);
+        if (minFit) {
+            mainStyle = _extends({}, mainStyle, { overflow: 'hidden' });
+        }
         var parts = path.split('/');
         parts.forEach((function (seg, i) {
             if (!seg) return;
@@ -106,7 +127,9 @@ var Breadcrumb = React.createClass({
         }).bind(this));
         return React.createElement(
             Textfit,
-            { mode: 'single', perfectFit: false, min: 12, max: 22, className: 'react_breadcrumb', style: mainStyle },
+            { mode: 'single', perfectFit: false, min: 12, max: 22, className: 'react_breadcrumb', style: mainStyle, onReady: function (f) {
+                    _this.toggleMinFit(f);
+                } },
             this.props.startWithSeparator && React.createElement(
                 'span',
                 { className: 'separator' },

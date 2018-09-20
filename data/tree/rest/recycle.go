@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
@@ -69,5 +70,8 @@ func findRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*t
 		}
 	}
 
+	if recycle == nil {
+		err = errors.NotFound("RecycleNotFound", "cannot find recycle root on this branch")
+	}
 	return
 }

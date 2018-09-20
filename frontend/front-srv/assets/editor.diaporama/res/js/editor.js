@@ -29,10 +29,11 @@ import PydioApi from 'pydio/http/api'
 const conf = pydio.getPluginConfigs('editor.diaporama')
 const sizes = conf && conf.get("PREVIEWER_LOWRES_SIZES").split(",") || [300, 700, 1000, 1300];
 
-const { SizeProviders, withResolution, withSelection, withResize } = PydioHOCs;
+const { SizeProviders, withResolution, withSelection, withResize, EditorActions } = Pydio.requireLib('hoc');
 const { ImageSizeProvider, ContainerSizeProvider } = SizeProviders;
 const ExtendedImageContainer = withResize(ImageContainer);
 
+@connect(null, EditorActions)
 class Editor extends PureComponent {
 
     static get propTypes() {
@@ -48,6 +49,10 @@ class Editor extends PureComponent {
             } else {
                 this.pe && this.pe.stop()
             }
+        }
+        const {editorModify} = this.props;
+        if (nextProps.isActive) {
+            editorModify({fixedToolbar: false})
         }
     }
 
@@ -93,7 +98,6 @@ class Editor extends PureComponent {
                 renderOnChange={true}
                 passOnProps={true}
                 imgClassName={imageClassName.join(" ")}
-                style={{backgroundColor:'#424242'}}
                 imgStyle={{boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px'}}
             />
         )

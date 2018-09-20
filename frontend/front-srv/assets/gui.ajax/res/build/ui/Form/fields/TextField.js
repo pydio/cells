@@ -28,13 +28,14 @@ var _mixinsFormMixin = require('../mixins/FormMixin');
 
 var _mixinsFormMixin2 = _interopRequireDefault(_mixinsFormMixin);
 
-var React = require('react');
-var ReactMUI = require('material-ui-legacy');
+var _materialUi = require('material-ui');
 
 /**
  * Text input, can be single line, multiLine, or password, depending on the
  * attributes.type key.
  */
+
+var React = require('react');
 exports['default'] = React.createClass({
     displayName: 'TextField',
 
@@ -54,16 +55,17 @@ exports['default'] = React.createClass({
                 !value ? 'Empty' : value
             );
         } else {
-            var field = React.createElement(ReactMUI.TextField, {
+            var field = React.createElement(_materialUi.TextField, {
                 floatingLabelText: this.isDisplayForm() ? this.props.attributes.label : null,
                 value: this.state.value || "",
                 onChange: this.onChange,
                 onKeyDown: this.enterToToggle,
-                type: this.props.attributes['type'] == 'password' ? 'password' : null,
-                multiLine: this.props.attributes['type'] == 'textarea',
+                type: this.props.attributes['type'] === 'password' ? 'password' : null,
+                multiLine: this.props.attributes['type'] === 'textarea',
                 disabled: this.props.disabled,
                 errorText: this.props.errorText,
-                autoComplete: 'off'
+                autoComplete: 'off',
+                fullWidth: true
             });
             if (this.props.attributes['type'] === 'password') {
                 return React.createElement(

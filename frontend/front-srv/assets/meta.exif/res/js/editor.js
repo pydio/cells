@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
 import React, {Component} from 'react';
 
 import { connect } from 'react-redux';
@@ -25,13 +26,34 @@ import { compose } from 'redux';
 
 import { IconButton, Card, CardTitle, CardText, Table, TableBody, TableRow, TableRowColumn} from 'material-ui'
 
-const { withSelection } = PydioHOCs;
+const { withSelection, withMenu, withLoader, withErrors, EditorActions} = Pydio.requireLib('hoc');
 
+const Viewer = compose(
+    withMenu,
+    withLoader,
+    withErrors
+)(props => <div {...props} />)
+
+const getSelectionFilter = (node) => node.getMetadata().get('is_image') === '1'
+
+const getSelection = (node) => new Promise((resolve, reject) => {
+    let selection = [];
+
+    node.getParent().getChildren().forEach((child) => selection.push(child));
+    selection = selection.filter(getSelectionFilter)
+
+    resolve({
+        selection,
+        currentIndex: selection.reduce((currentIndex, current, index) => current === node && index || currentIndex, 0)
+    })
+})
+
+@withSelection(getSelection)
+@connect(null, EditorActions)
 class Editor extends Component {
 
     constructor(props) {
         super(props)
-
         this.state = {
             data: {},
         }
@@ -49,11 +71,19 @@ class Editor extends Component {
         if(this.props.node){
             this.loadNodeContent(this.props);
         }
+        const {editorModify} = this.props;
+        if (this.props.isActive) {
+            editorModify({fixedToolbar: true})
+        }
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.node && nextProps.node !== this.props.node) {
             this.loadNodeContent(nextProps)
+        }
+        const {editorModify} = this.props;
+        if (nextProps.isActive) {
+            editorModify({fixedToolbar: true})
         }
     }
 
@@ -105,29 +135,4 @@ class Editor extends Component {
     }
 }
 
-const {withMenu, withLoader, withErrors, withControls} = PydioHOCs;
-
-const Viewer = compose(
-    withMenu,
-    withLoader,
-    withErrors
-)(props => <div {...props} />)
-
-const getSelectionFilter = (node) => node.getMetadata().get('is_image') === '1'
-
-const getSelection = (node) => new Promise((resolve, reject) => {
-    let selection = [];
-
-    node.getParent().getChildren().forEach((child) => selection.push(child));
-    selection = selection.filter(getSelectionFilter)
-
-    resolve({
-        selection,
-        currentIndex: selection.reduce((currentIndex, current, index) => current === node && index || currentIndex, 0)
-    })
-})
-
-export default compose(
-    withSelection(getSelection),
-    connect()
-)(Editor)
+export default Editor

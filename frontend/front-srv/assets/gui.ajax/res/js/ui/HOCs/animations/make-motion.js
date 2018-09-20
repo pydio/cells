@@ -21,112 +21,58 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import shallowCompare from 'react/lib/shallowCompare';
-import { TransitionMotion } from 'react-motion';
+import { spring, Motion } from 'react-motion';
 import stripStyle from 'react-motion/lib/stripStyle';
 import {springify, buildTransform} from './utils';
 
 let counter=0
 
-const DEFAULT_ANIMATION={stiffness: 200, damping: 22, precision: 0.1}
+const DEFAULT_ANIMATION={stiffness: 120, damping: 22, precision: 0.01}
 
-const makeTransition = (originStyles, targetStyles, enter, leave) => {
+const makeMotion = (originStyle, targetStyle, options = {}) => {
+
+    const {check = () => true, style: transformStyle = () => {} } = options
+
     return (Target) => {
-        class TransitionGroup extends React.PureComponent {
-
+        return class extends React.PureComponent {
             constructor(props) {
-                super(props);
+                super(props)
+
                 this.state = {
-                    styles: this.build(props)
-                };
-            }
-
-            componentWillReceiveProps(nextProps) {
-                this.setState({
-                    styles: this.build(nextProps)
-                });
-            }
-
-            build(props) {
-                return React.Children
-                    .toArray(props.children)
-                    .filter(child => child) // Removing null values
-                    .map(child => {
-                        return !props.ready
-                            ? null : {
-                                key: child.key || `t${counter++}`,
-                                data: {element: child},
-                                style: springify(targetStyles, enter || DEFAULT_ANIMATION)
-                            }
-                    })
-                    .filter(child => child); // Removing null values
-            }
-
-            willEnter(transitionStyle) {
-
-                return {
-                    ...stripStyle(transitionStyle.style),
-                    ...originStyles
-                };
-            }
-
-            willLeave(transitionStyle) {
-                return {
-                    ...transitionStyle.style,
-                    ...springify(originStyles, leave || DEFAULT_ANIMATION)
+                    ended: false
                 }
             }
 
             render() {
 
                 // Making sure we fliter out properties
-                const {ready, ...props} = this.props
+                const {...props} = this.props
+                const {ended} = this.state
+
+                if (!check(props)) {
+                    return <Target {...props} />
+                }
+
 
                 return (
-                    <TransitionMotion
-                        styles={this.state.styles}
-                        willLeave={this.willEnter.bind(this)}
-                        willEnter={this.willEnter.bind(this)}
-                        >
-                        {styles =>
-                            <Target {...props}>
-                            {styles.map(({key, style, data}) => {
+                    <Motion
+                        defaultStyle={originStyle}
+                        style={springify(targetStyle, DEFAULT_ANIMATION)}
+                    >
+                        {style => {
+                            const transform = buildTransform(style, {
+                                length: 'px', angle: 'deg'
+                            })
 
-                                const Child = data.element.type
-                                const itemProps = data.element.props
+                            console.log({...props.style, transform, ...transformStyle(props)})
 
-                                const transform = buildTransform(style, {
-                                    length: 'px', angle: 'deg'
-                                });
-
-                                return (
-                                    <Child
-                                        key={data.element.key}
-                                        {...itemProps}
-                                        style={{
-                                            ...itemProps.style,
-                                            ...style,
-                                            transform
-                                        }}
-                                    />
-                                );
-                            })}
-                            </Target>
-                        }
-                    </TransitionMotion>
+                            return <Target {...props} style={{...props.style, transform, ...transformStyle(props)}} motionEnded={ended} />
+                        }}
+                    </Motion>
                 );
             }
         }
-
-        TransitionGroup.propTypes = {
-            ready: React.PropTypes.bool.isRequired
-        }
-
-        TransitionGroup.defaultProps = {
-            ready: true
-        }
-
-        return TransitionGroup
     }
 };
 
-export default makeTransition;
+export default makeMotion;

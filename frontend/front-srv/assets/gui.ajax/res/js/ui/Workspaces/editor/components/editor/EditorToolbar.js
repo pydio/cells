@@ -18,35 +18,63 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const {ModalAppBar} = PydioComponents
-const {ToolbarGroup, IconButton} = require('material-ui');
+import { connect } from 'react-redux';
+import { ToolbarGroup, IconButton } from 'material-ui';
 
-const { makeTransitionHOC, withResolutionControls } = Pydio.requireLib('hoc');
+const { ModalAppBar } = PydioComponents
+const { makeTransitionHOC, EditorActions } = Pydio.requireLib('hoc');
 
 // Display components
 // TODO - should be two motions for appearing and disappearing, based on a condition in the props
 @makeTransitionHOC({translateY: -60, opacity: 0}, {translateY: 0, opacity: 1})
-class EditorToolbar extends React.Component {
+@connect(mapStateToProps, EditorActions)
+export default class EditorToolbar extends React.Component {
+
+    onClose() {
+        const {tabDeleteAll} = this.props
+
+        tabDeleteAll()
+    }
+
+    onMinimise() {
+        const {editorModify} = this.props
+
+        editorModify({isMinimised: true})
+    }
 
     render() {
-        const {title, className, style, onFullScreen, onMinimise, onClose} = this.props
+        const {title, className, style, display} = this.props
+        let mainStyle =  {}, innerStyle = {}, spanStyle;
+        if (display === "fixed") {
+            mainStyle = {
+                position:'relative',
+                backgroundColor: '#424242',
+                boxShadow: 'none',
+                ...style
+            }
+            innerStyle = {color: "#FFFFFF", fill: "#FFFFFF"}
+            spanStyle = {color: "#FFFFFF"}
+        } else {
+            mainStyle = {
+                position:'absolute',
+                background:'linear-gradient(to bottom,rgba(0,0,0,0.65) 0%,transparent 100%)',
+                boxShadow: 'none',
+                ...style
+            }
+            innerStyle = {color: "#FFFFFF", fill: "#FFFFFF"}
+        }
 
-        const innerStyle = {color: "#FFFFFF", fill: "#FFFFFF"}
 
         return (
             <ModalAppBar
                 className={className}
-                style={style}
-                title={<span>{title}</span>}
-                titleStyle={innerStyle}
-                iconElementLeft={<IconButton iconClassName="mdi mdi-close" iconStyle={innerStyle} disabled={typeof onClose !== "function"} touch={true} onTouchTap={onClose}/>}
+                style={mainStyle}
+                title={<span style={spanStyle}>{title}</span>}
+                titleStyle={{innerStyle, fontSize:16}}
+                iconElementLeft={<IconButton iconClassName="mdi mdi-arrow-left" iconStyle={innerStyle} touch={true} onTouchTap={() => this.onClose()}/>}
                 iconElementRight={
                     <ToolbarGroup>
-                        <IconButton iconClassName="mdi mdi-window-minimize" iconStyle={innerStyle} disabled={typeof onMinimise !== "function"} touch={true} onTouchTap={onMinimise}/>
-                        {!pydio.UI.MOBILE_EXTENSIONS &&
-                            <IconButton iconClassName="mdi mdi-window-maximize" iconStyle={innerStyle}
-                                    disabled={typeof onFullScreen !== "function"} touch={true} onTouchTap={onFullScreen}/>
-                        }
+                        <IconButton iconClassName="mdi mdi-window-minimize" iconStyle={innerStyle} touch={true} onTouchTap={() => this.onMinimise()}/>
                     </ToolbarGroup>
                 }
             />
@@ -54,4 +82,15 @@ class EditorToolbar extends React.Component {
     }
 }
 
-export default EditorToolbar
+// REDUX - Then connect the redux store
+function mapStateToProps(state, ownProps) {
+    const { editor = {}, tabs = [] } = state
+    const { activeTabId = -1} = editor
+
+    const activeTab = tabs.filter(tab => tab.id === activeTabId)[0]
+
+    return  {
+        ...ownProps,
+        title: activeTab.title
+    }
+}

@@ -20,7 +20,7 @@
 
 import FormMixin from '../mixins/FormMixin'
 const React = require('react')
-const ReactMUI = require('material-ui-legacy')
+import {TextField} from 'material-ui'
 
 /**
  * Text input, can be single line, multiLine, or password, depending on the
@@ -41,16 +41,17 @@ export default React.createClass({
             return <div onClick={this.props.disabled?function(){}:this.toggleEditMode} className={value?'':'paramValue-empty'}>{!value?'Empty':value}</div>;
         }else{
             let field = (
-                <ReactMUI.TextField
+                <TextField
                     floatingLabelText={this.isDisplayForm()?this.props.attributes.label:null}
                     value={this.state.value || ""}
                     onChange={this.onChange}
                     onKeyDown={this.enterToToggle}
-                    type={this.props.attributes['type'] == 'password'?'password':null}
-                    multiLine={this.props.attributes['type'] == 'textarea'}
+                    type={this.props.attributes['type'] === 'password'?'password':null}
+                    multiLine={this.props.attributes['type'] === 'textarea'}
                     disabled={this.props.disabled}
                     errorText={this.props.errorText}
                     autoComplete="off"
+                    fullWidth={true}
                 />
             );
             if(this.props.attributes['type'] === 'password'){

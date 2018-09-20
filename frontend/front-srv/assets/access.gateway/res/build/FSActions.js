@@ -374,7 +374,6 @@ module.exports = exports['default'];
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -382,6 +381,10 @@ Object.defineProperty(exports, '__esModule', {
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydioModelDataModel = require('pydio/model/data-model');
+
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
 
 var _pydioHttpApi = require('pydio/http/api');
 
@@ -399,7 +402,7 @@ exports['default'] = function (pydio) {
         var parentPath = folderNode.getParent().getPath();
         var basename = folderNode.getLabel();
         var newNode = new _pydioModelNode2['default'](parentPath + "/" + basename + ".zip", true);
-        var newSelection = new PydioDataMode();
+        var newSelection = new _pydioModelDataModel2['default']();
         newSelection.setSelectedNodes([newNode]);
         _pydioHttpApi2['default'].getClient().downloadSelection(newSelection, 'download');
     };
@@ -407,7 +410,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node"}],8:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node"}],8:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

@@ -26,6 +26,21 @@ import { compose } from 'redux'
 
 const {EditorActions} = Pydio.requireLib('hoc')
 
+const mapStateToProps = (state, props) => {
+    const {tabs} = state
+
+    const tab = tabs.filter(({editorData, node}) => (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath())[0] || {}
+
+    return {
+        id: tab.id,
+        tab,
+        ...props
+    }
+}
+
+
+@connect(mapStateToProps)
+@connect(null, EditorActions)
 class Editor extends Component {
 
     static get styles() {
@@ -39,11 +54,19 @@ class Editor extends Component {
         }
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.loadNode(this.props)
+        const {editorModify} = this.props;
+        if (this.props.isActive) {
+            editorModify({fixedToolbar: true})
+        }
     }
 
     compomentWillReceiveProps(nextProps) {
+        const {editorModify} = this.props;
+        if (nextProps.isActive) {
+            editorModify({fixedToolbar: true})
+        }
         if (this.props.node !== nextProps.node) {
             this.loadNode(nextProps)
         }
@@ -73,19 +96,9 @@ class Editor extends Component {
     }
 }
 
-const {withMenu, withLoader, withErrors, withControls} = PydioHOCs;
-const mapStateToProps = (state, props) => {
-    const {tabs} = state
-
-    const tab = tabs.filter(({editorData, node}) => (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath())[0] || {}
-
-    return {
-        id: tab.id,
-        tab,
-        ...props
-    }
-}
-
+export default Editor
+/*
 export default compose(
     connect(mapStateToProps)
 )(Editor)
+*/

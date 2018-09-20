@@ -73,43 +73,7 @@ var Menu = (function (_React$Component) {
         this.toggle = function () {
             return editorModify({ isMenuActive: !_this.props.isActive });
         };
-        this.recalculate = this.recalculate.bind(this);
     }
-
-    Menu.prototype.componentDidMount = function componentDidMount() {
-        window.addEventListener('resize', this.recalculate);
-    };
-
-    Menu.prototype.componentWillUnmount = function componentWillUnmount() {
-        window.removeEventListener('resize', this.recalculate);
-    };
-
-    Menu.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
-
-        if (this.state.ready) return;
-
-        var translated = nextProps.translated;
-
-        if (!translated) return;
-
-        this.recalculate();
-
-        this.setState({ ready: true });
-    };
-
-    Menu.prototype.recalculate = function recalculate() {
-        var editorModify = this.props.editorModify;
-
-        var element = ReactDOM.findDOMNode(this.refs.button);
-
-        if (!element) return;
-
-        editorModify({
-            menu: {
-                rect: element.getBoundingClientRect()
-            }
-        });
-    };
 
     Menu.prototype.renderChild = function renderChild() {
         var _props = this.props;

@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25,6 +24,10 @@ Object.defineProperty(exports, '__esModule', {
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydioModelDataModel = require('pydio/model/data-model');
+
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
 
 var _pydioHttpApi = require('pydio/http/api');
 
@@ -42,7 +45,7 @@ exports['default'] = function (pydio) {
         var parentPath = folderNode.getParent().getPath();
         var basename = folderNode.getLabel();
         var newNode = new _pydioModelNode2['default'](parentPath + "/" + basename + ".zip", true);
-        var newSelection = new PydioDataMode();
+        var newSelection = new _pydioModelDataModel2['default']();
         newSelection.setSelectedNodes([newNode]);
         _pydioHttpApi2['default'].getClient().downloadSelection(newSelection, 'download');
     };

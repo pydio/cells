@@ -19,11 +19,30 @@
  */
 
 
+import Pydio from 'pydio'
 import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
 import Player from './Player';
-const PydioApi = require('pydio/http/api');
+import PydioApi from 'pydio/http/api';
+const {EditorActions, withSelection} = Pydio.requireLib('hoc');
+
+const editors = Pydio.getInstance().Registry.getActiveExtensionByType("editor")
+const conf = editors.filter(({id}) => id === 'editor.video')[0]
+
+const getSelectionFilter = (node) => conf.mimes.indexOf(node.getAjxpMime()) > -1
+
+const getSelection = (node) => new Promise((resolve, reject) => {
+    let selection = [];
+
+    node.getParent().getChildren().forEach((child) => selection.push(child));
+    selection = selection.filter(getSelectionFilter)
+
+    resolve({
+        selection,
+        currentIndex: selection.reduce((currentIndex, current, index) => current === node && index || currentIndex, 0)
+    })
+});
 
 class Viewer extends React.Component {
 
@@ -58,11 +77,19 @@ class Viewer extends React.Component {
 
     componentDidMount() {
         this.loadNode(this.props)
+        const {editorModify} = this.props;
+        if (editorModify && this.props.isActive) {
+            editorModify({fixedToolbar: false})
+        }
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.node !== this.props.node) {
             this.loadNode(nextProps)
+        }
+        const {editorModify} = this.props;
+        if (editorModify && nextProps.isActive) {
+            editorModify({fixedToolbar: false})
         }
     }
 
@@ -77,7 +104,7 @@ class Viewer extends React.Component {
 
     // Plugin Main Editor rendering
     render() {
-        const {url} = this.state || {}
+        const {url} = this.state || {};
         // Only display the video when we know the URL
         const editor = url ? <Player url={url} /> : null;
 
@@ -87,28 +114,12 @@ class Viewer extends React.Component {
     }
 }
 
-const {withSelection} = PydioHOCs;
+export const Panel = Viewer;
 
-const editors = pydio.Registry.getActiveExtensionByType("editor")
-const conf = editors.filter(({id}) => id === 'editor.video')[0]
-
-const getSelectionFilter = (node) => conf.mimes.indexOf(node.getAjxpMime()) > -1
-
-const getSelection = (node) => new Promise((resolve, reject) => {
-    let selection = [];
-
-    node.getParent().getChildren().forEach((child) => selection.push(child));
-    selection = selection.filter(getSelectionFilter)
-
-    resolve({
-        selection,
-        currentIndex: selection.reduce((currentIndex, current, index) => current === node && index || currentIndex, 0)
-    })
-})
-
-export const Panel = Viewer
-
-export const Editor = compose(
-    withSelection(getSelection),
-    connect()
-)(Viewer)
+@connect(null, EditorActions)
+@withSelection(getSelection)
+export class Editor extends React.Component{
+    render(){
+        return <Viewer {...this.props}/>
+    }
+}

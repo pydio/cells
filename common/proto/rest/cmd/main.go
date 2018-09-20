@@ -42,13 +42,13 @@ var SwaggerJson = ` + "`%s`"
       }
     },
     "403":{
-      "description":"User has no permissions to access this particular resource",
+      "description":"User has no permission to access this particular resource",
       "schema":{
         "$ref": "#/definitions/restError"
       }
     },
     "404":{
-      "description":"Resource does not exists in the system",
+      "description":"Resource does not exist in the system",
       "schema":{
         "$ref": "#/definitions/restError"
       }
