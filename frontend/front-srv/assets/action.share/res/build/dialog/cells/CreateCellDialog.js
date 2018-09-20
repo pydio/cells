@@ -231,8 +231,8 @@ var CreateCellDialog = _react2['default'].createClass({
             { style: { width: 380, fontSize: 13, color: 'rgba(0,0,0,.87)', display: 'flex', flexDirection: 'column', minHeight: 300 } },
             _react2['default'].createElement(
                 'div',
-                { style: { backgroundColor: primary1Color, color: 'white', display: 'flex', alignItems: 'center', paddingLeft: 20 } },
-                _react2['default'].createElement(_materialUi.FontIcon, { className: "icomoon-cells-full-plus", color: "white" }),
+                { style: { display: 'flex', alignItems: 'center', paddingLeft: 20 } },
+                _react2['default'].createElement(_materialUi.FontIcon, { className: "icomoon-cells-full-plus" }),
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 20, fontSize: 22 } },

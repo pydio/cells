@@ -171,8 +171,8 @@ let CreateCellDialog = React.createClass({
 
         return (
             <div style={{width: 380, fontSize: 13, color: 'rgba(0,0,0,.87)', display:'flex', flexDirection:'column', minHeight: 300}}>
-                <div style={{backgroundColor: primary1Color, color: 'white', display:'flex', alignItems:'center', paddingLeft: 20}}>
-                    <FontIcon className={"icomoon-cells-full-plus"} color={"white"}/>
+                <div style={{display:'flex', alignItems:'center', paddingLeft: 20}}>
+                    <FontIcon className={"icomoon-cells-full-plus"}/>
                     <div style={{padding: 20, fontSize: 22}}>{pydio.MessageHash['418']}</div>
                 </div>
                 <div style={{padding: '20px 20px 10px', flex:1}}>
