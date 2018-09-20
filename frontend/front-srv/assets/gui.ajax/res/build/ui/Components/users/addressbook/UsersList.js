@@ -207,7 +207,7 @@ var UsersList = (function (_React$Component) {
                 } }),
             mode === 'book' && item.actions && item.actions.remove && this.state.select && _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: getMessage(item.actions.remove), disabled: !this.state.selection.length, onTouchTap: deleteAction }),
             !this.state.select && actionsPanel,
-            enableSearch && !bookColumn && _react2['default'].createElement(_SearchForm2['default'], { searchLabel: this.props.searchLabel, onSearch: this.props.onSearch, style: { flex: 1, minWidth: 200 } }),
+            enableSearch && !bookColumn && _react2['default'].createElement(_SearchForm2['default'], { searchLabel: this.props.searchLabel, onSearch: this.props.onSearch, style: { flex: 1, minWidth: 110 } }),
             reloadAction && (mode === 'book' || mode === 'selector' && bookColumn) && _react2['default'].createElement(_materialUi.IconButton, { style: stylesProps.button, iconStyle: stylesProps.icon, iconClassName: "mdi mdi-refresh", tooltipPosition: "bottom-left", tooltip: pydio.MessageHash['149'], onTouchTap: reloadAction, disabled: loading })
         );
         // PARENT NODE

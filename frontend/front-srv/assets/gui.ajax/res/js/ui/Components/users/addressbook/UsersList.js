@@ -134,7 +134,7 @@ class UsersList extends React.Component{
                 {bookColumn && !item._parent && <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-window-restore"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['411']} onTouchTap={()=>{pydio.Controller.fireAction('open_address_book')}}/>}
                 {mode === 'book' && item.actions && item.actions.remove && this.state.select && <RaisedButton secondary={true} label={getMessage(item.actions.remove)} disabled={!this.state.selection.length} onTouchTap={deleteAction}/>}
                 {!this.state.select && actionsPanel}
-                {enableSearch && !bookColumn && <SearchForm searchLabel={this.props.searchLabel} onSearch={this.props.onSearch} style={{flex:1, minWidth: 200}}/>}
+                {enableSearch && !bookColumn && <SearchForm searchLabel={this.props.searchLabel} onSearch={this.props.onSearch} style={{flex:1, minWidth: 110}}/>}
                 {reloadAction && (mode === 'book' || (mode === 'selector' && bookColumn)) && <IconButton style={stylesProps.button} iconStyle={stylesProps.icon} iconClassName={"mdi mdi-refresh"} tooltipPosition={"bottom-left"} tooltip={pydio.MessageHash['149']} onTouchTap={reloadAction} disabled={loading}/>}
             </div>
         );
