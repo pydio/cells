@@ -22,8 +22,6 @@
   },
   "dependencies": {
     "babelify": "^8.0.0",
-    "google-protobuf": "^3.5.0",
-    "grpc-web-client": "^0.5.0",
     "grunt": "^1.0.1",
     "grunt-babel": "^7.0.0",
     "grunt-browserify": "^5.2.0",
@@ -33,6 +31,7 @@
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
-    "redux-form": "^7.2.3"
+    "redux-form": "^7.2.3",
+    "validator": "^10.7.1"
   }
 }

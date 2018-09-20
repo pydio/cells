@@ -4,6 +4,7 @@ import {Paper, TextField, FontIcon, RadioButtonGroup, Checkbox, SelectField, Men
 import {connect} from 'react-redux';
 import {Field, reduxForm, formValueSelector} from 'redux-form';
 import Client from './client';
+import validator from 'validator';
 import InstallInstallConfig from './gen/model/InstallInstallConfig';
 import InstallServiceApi from './gen/api/InstallServiceApi';
 import InstallCheckResult from './gen/model/InstallCheckResult';
@@ -33,6 +34,7 @@ const renderPassField = ({input, label, floatingLabel, meta: {touched, error}, .
     errorText={error}
     fullWidth={true}
     type={"password"}
+    autoComplete={"new-password"}
     {...input}
     {...custom}
   />
@@ -244,7 +246,7 @@ class InstallForm extends React.Component {
 
     render() {
 
-        const {dbConnectionType, handleSubmit, installPerformed, installError, initialChecks, licenseRequired, licenseString} = this.props;
+        const {dbConnectionType, handleSubmit, installPerformed, installError, initialChecks, licenseRequired, licenseString, frontendPassword} = this.props;
         const {stepIndex, licenseAgreed, showAdvanced, installEvents, installProgress, serverRestarted, willReloadIn, agreementText, dbCheckError, licCheckFailed} = this.state;
 
         const flexContainer = {
@@ -389,7 +391,7 @@ class InstallForm extends React.Component {
                                     <Field name="dbTCPName" component={renderTextField} floatingLabel="Database Name" label="Database to use (created it if does not exist)" />
                                     <div style={{display:'flex'}}>
                                         <div style={{flex: 1, marginRight: 2}}><Field name="dbTCPUser" component={renderTextField} floatingLabel="Database User" label="Leave blank if not required" /></div>
-                                        <div style={{flex: 1, marginLeft: 2}}><Field name="dbTCPPassword" component={renderTextField} floatingLabel="Database Password" label="Leave blank if not required" /></div>
+                                        <div style={{flex: 1, marginLeft: 2}}><Field name="dbTCPPassword" component={renderPassField} floatingLabel="Database Password" label="Leave blank if not required" /></div>
                                     </div>
                                 </div>
                             )}
@@ -437,7 +439,9 @@ class InstallForm extends React.Component {
                             </Field>
                             <Field name="frontendLogin" component={renderTextField} floatingLabel="Login of the admin user" label="Skip this if an admin is already created in the database." />
                             <Field name="frontendPassword" component={renderPassField} floatingLabel="Password of the admin user" label="Skip this if an admin is already created in the database." />
-                            <Field name="frontendRepeatPassword" component={renderPassField} floatingLabel="Please confirm password" label="Skip this if an admin is already created in the database." />
+                            {frontendPassword &&
+                                <Field name="frontendRepeatPassword" component={renderPassField} floatingLabel="Please confirm password" label="Type again the admin password" />
+                            }
                         </div>
                     </div>
                     {this.renderStepActions(3 + stepOffset)}
@@ -513,6 +517,13 @@ class InstallForm extends React.Component {
                                 return <div key={i} style={{display:'flex', alignItems:'center', height: 40}}><div style={{flex: 1}}>{e.data.Message}</div>{icon}</div>
                             })}
                         </div>
+                        {installPerformed && !serverRestarted &&
+                        <div>
+                            Install was succesful and services are now starting, this installer will reload the page when services are started.
+                            <br/><b>Please note</b> that if you have configured the server with a self-signed certificate, browser security will prevent automatic reloading.
+                            In that case, please wait and manually <a style={{textDecoration:'underline', cursor:'pointer'}} onClick={()=>{window.location.reload()}}>reload the page</a>.
+                        </div>
+                        }
                         {installPerformed && serverRestarted &&
                         <div>
                             Install was succesful and services are now started, please reload the page now (it will be automatically reloaded in {willReloadIn}s)
@@ -564,6 +575,12 @@ InstallForm = reduxForm({
     form: 'install',
     validate:values => {
         const errors = {};
+        if(values['frontendLogin']){
+            const v = values['frontendLogin'];
+            if(!(validator.isEmail(v) || validator.isAlphanumeric(v)) || !validator.isLowercase(v)){
+                errors['frontendLogin'] = 'Please use lowercase alphanumeric characters or valid emails for logins';
+            }
+        }
         if(values['frontendPassword'] && values['frontendRepeatPassword'] !== values['frontendPassword']) {
             errors['frontendRepeatPassword'] = 'Passwords differ!'
         }
@@ -580,7 +597,7 @@ InstallForm = connect(state => {
     const initialChecks = selector(state, 'CheckResults');
     const licenseRequired = selector(state, 'licenseRequired');
     const licenseString = selector(state, 'licenseString');
-    const fpmAddress = selector(state, 'fpmAddress');
+    const frontendPassword = selector(state, 'frontendPassword');
 
 
     // Make a request to retrieve those values
@@ -590,7 +607,7 @@ InstallForm = connect(state => {
         dbConfig: dbConfig,
         initialChecks: initialChecks,
         licenseRequired,
-        licenseString, fpmAddress
+        licenseString, frontendPassword
     }
 }, { load: loadConfig } )(InstallForm);
 
