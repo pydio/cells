@@ -30,6 +30,14 @@ var _httpResourcesManager = require('../http/ResourcesManager');
 
 var _httpResourcesManager2 = _interopRequireDefault(_httpResourcesManager);
 
+var _validator = require('validator');
+
+var _validator2 = _interopRequireDefault(_validator);
+
+var _Pydio = require('../Pydio');
+
+var _Pydio2 = _interopRequireDefault(_Pydio);
+
 /**
  *
  * Utils to compute password strength
@@ -40,6 +48,23 @@ var PassUtils = (function () {
     function PassUtils() {
         _classCallCheck(this, PassUtils);
     }
+
+    /**
+     * Check if loginString is lowercase, a valid email or just alphanumeric
+     * @param loginString
+     * @return {string} Error string or empty string
+     */
+
+    PassUtils.isValidLogin = function isValidLogin(loginString) {
+        var messages = _Pydio2['default'].getMessages();
+        var re = new RegExp(/^[0-9A-Z\-_.:\+]+$/i);
+        if (!_validator2['default'].isLowercase(loginString)) {
+            return messages['validation.login.lowercase'] || "only lowercase";
+        } else if (!(re.test(loginString) || _validator2['default'].isEmail(loginString))) {
+            return messages['validation.login.format'] || 'only alphanumeric characters or valid emails';
+        }
+        return '';
+    };
 
     PassUtils.getState = function getState() {
         var passValue = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
@@ -66,10 +91,10 @@ var PassUtils = (function () {
             });
             if (!confirmValue) {
                 state.valid = false;
-                state.confirmErrorText = global.pydio.MessageHash[621];
+                state.confirmErrorText = _Pydio2['default'].getMessages()[621];
             } else if (confirmValue !== passValue) {
                 state.valid = false;
-                state.confirmErrorText = global.pydio.MessageHash[238];
+                state.confirmErrorText = _Pydio2['default'].getMessages()[238];
             }
         }
         if (crtState.valid !== state.valid) {
@@ -112,13 +137,13 @@ var PassUtils = (function () {
         // Update with Pydio options
         var options = PassUtils.getOptions();
         if (options.minchar && value.length < options.minchar) {
-            callback(false, global.pydio.MessageHash[380]);
+            callback(false, _Pydio2['default'].getMessages()[380]);
             return;
         }
         var wrappedCallback = function wrappedCallback(msgId, percent) {
             var s = options.messages[msgId];
             try {
-                s = global.pydio.MessageHash[options.pydioMessages[msgId]];
+                s = _Pydio2['default'].getMessages()[options.pydioMessages[msgId]];
             } catch (e) {}
             callback(percent > 1, s);
         };

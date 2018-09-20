@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import ValidLogin from '../fields/ValidLogin'
 const XMLUtils = require('pydio/util/xml');
 const InputBoolean = require('./../fields/InputBoolean');
 const InputText = require('./../fields/TextField');
@@ -121,6 +122,9 @@ export default class Manager{
                 break;
             case 'valid-password':
                 value = <ValidPassword {...props}/>;
+                break;
+            case 'valid-login':
+                value = <ValidLogin {...props}/>;
                 break;
             case 'integer':
                 value = <InputInteger {...props}/>;

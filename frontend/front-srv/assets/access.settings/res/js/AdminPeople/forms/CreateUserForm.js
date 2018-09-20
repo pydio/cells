@@ -59,9 +59,15 @@ const CreateUserForm = React.createClass({
         this.setState(PassUtils.getState(value1, value2, this.state));
     },
 
+    // Check valid login
+    checkLogin(e, v){
+        const err = PassUtils.isValidLogin(v);
+        this.setState({loginErrorText: err});
+    },
+
     submit(){
-        if(!this.state.valid){
-            this.props.pydio.UI.displayMessage('ERROR', this.state.passErrorText || this.state.confirmErrorText);
+        if(!this.state.valid || this.state.loginErrorText){
+            this.props.pydio.UI.displayMessage('ERROR', this.state.passErrorText || this.state.confirmErrorText || this.state.loginErrorText);
             return;
         }
 
@@ -99,8 +105,10 @@ const CreateUserForm = React.createClass({
                 <div style={{width:'100%'}}>
                     <TextField
                         ref="user_id"
+                        onChange={this.checkLogin}
                         fullWidth={true}
                         floatingLabelText={this.context.getMessage('ajxp_admin.user.21')}
+                        errorText={this.state.loginErrorText}
                     />
                 </div>
                 <div>
