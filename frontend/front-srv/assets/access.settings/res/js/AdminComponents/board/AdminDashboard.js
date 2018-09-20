@@ -21,14 +21,15 @@ import React from 'react';
 import Pydio from 'pydio';
 import {MessagesProviderMixin, PydioProviderMixin} from '../util/Mixins'
 import AdminLeftNav from './AdminLeftNav'
-import {AppBar, Paper} from 'material-ui'
+import {AppBar, Paper, Toggle, FontIcon, IconButton, IconMenu, MenuItems} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 import PydioDataModel from 'pydio/model/data-model'
 const {UserWidget} = Pydio.requireLib('workspaces');
 const {AsyncComponent} = Pydio.requireLib('boot');
 import ResourcesManager from 'pydio/http/resources-manager'
 import DOMUtils from 'pydio/util/dom'
 
-const AdminDashboard = React.createClass({
+let AdminDashboard = React.createClass({
 
     mixins:[MessagesProviderMixin, PydioProviderMixin],
 
@@ -36,7 +37,7 @@ const AdminDashboard = React.createClass({
         pydio: React.PropTypes.instanceOf(Pydio).isRequired
     },
 
-    getInitialState: function(){
+    getInitialState(){
         const dm = this.props.pydio.getContextHolder();
         return {
             contextNode:dm.getContextNode(),
@@ -44,23 +45,28 @@ const AdminDashboard = React.createClass({
             contextStatus:dm.getContextNode().isLoaded(),
             openLeftNav: false,
             leftDocked: true,
+            showAdvanced: dm.getContextNode().getMetadata().get("advanced"),
         };
     },
 
-    dmChangesToState: function(){
+    dmChangesToState(){
         const dm = this.props.pydio.getContextHolder();
         this.setState({
             contextNode:dm.getContextNode(),
             selectedNodes:dm.getSelectedNodes(),
             contextStatus:dm.getContextNode().isLoaded()
         });
+        const {showAdvanced} = this.state;
+        if(!showAdvanced && dm.getContextNode().getMetadata().get("advanced")){
+            this.setState({showAdvanced: true});
+        }
         dm.getContextNode().observe("loaded", this.dmChangesToState);
         if(dm.getUniqueNode()){
             dm.getUniqueNode().observe("loaded", this.dmChangesToState);
         }
     },
 
-    openEditor: function(node){
+    openEditor(node){
         this.openRightPane({
             COMPONENT:PydioComponents.ReactEditorOpener,
             PROPS:{
@@ -73,7 +79,7 @@ const AdminDashboard = React.createClass({
         });
     },
 
-    openRightPane: function(serializedComponent){
+    openRightPane(serializedComponent){
         serializedComponent['PROPS']['registerCloseCallback'] = this.registerRightPaneCloseCallback;
         serializedComponent['PROPS']['closeEditorContainer'] = this.closeRightPane;
         // Do not open on another already opened
@@ -98,7 +104,7 @@ const AdminDashboard = React.createClass({
         }
     },
 
-    registerRightPaneCloseCallback: function(callback){
+    registerRightPaneCloseCallback(callback){
         this.setState({rightPanelCloseCallback:callback});
     },
 
@@ -110,7 +116,7 @@ const AdminDashboard = React.createClass({
         return true;
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
         const dm = this.props.pydio.getContextHolder();
         dm.observe("context_changed", this.dmChangesToState);
         dm.observe("selection_changed", this.dmChangesToState);
@@ -136,7 +142,7 @@ const AdminDashboard = React.createClass({
         this.computeLeftIsDocked();
     },
 
-    componentWillUnmount: function(){
+    componentWillUnmount(){
         const dm = this.props.pydio.getContextHolder();
         dm.stopObserving("context_changed", this.dmChangesToState);
         dm.stopObserving("selection_changed", this.dmChangesToState);
@@ -157,7 +163,7 @@ const AdminDashboard = React.createClass({
         this.setState({leftDocked: w > 780});
     },
 
-    routeMasterPanel: function(node, selectedNode){
+    routeMasterPanel(node, selectedNode){
         const path = node.getPath();
         if(!selectedNode) selectedNode = node;
 
@@ -184,14 +190,16 @@ const AdminDashboard = React.createClass({
             />);
     },
 
-    backToHome: function(){
+    backToHome(){
         //this.props.pydio.triggerRepositoryChange("homepage");
         window.open('https://pydio.com');
     },
 
-    render: function(){
-        const dm = this.props.pydio.getContextHolder();
-        let params = this.props.pydio.Parameters;
+    render(){
+        const {showAdvanced, rightPanel, leftDocked, openLeftNav} = this.state;
+        const {pydio, muiTheme} = this.props;
+
+        const dm = pydio.getContextHolder();
         let img = ResourcesManager.resolveImageSource('white_logo.png');
         const logo = (
             <img
@@ -205,14 +213,72 @@ const AdminDashboard = React.createClass({
             />
         );
         let rPanelContent;
-        if(this.state.rightPanel){
-            rPanelContent = React.createElement(this.state.rightPanel.COMPONENT, this.state.rightPanel.PROPS, this.state.rightPanel.CHILDREN);
+        if(rightPanel){
+            rPanelContent = React.createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        const rightPanel = (
-            <Paper zDepth={2} className={"paper-editor layout-fill vertical-layout" + (this.state.rightPanel?' visible':'')}>
-                {rPanelContent}
-            </Paper>
+        const advancedToggle = (
+            <div style={{minWidth: 250}}>
+                <Toggle
+                    labelPosition={"right"}
+                    label={"Advanced Menus"}
+                    labelStyle={{fontSize: 16, color:'white'}}
+                    onToggle={(e,v) => {this.setState({showAdvanced:v})}}
+                    thumbStyle={{backgroundColor: 'white'}}
+                    trackStyle={{backgroundColor: 'rgba(255,255,255,.6)'}}
+                    trackSwitchedStyle={{backgroundColor:'rgba(255,255,255,.9)'}}
+                    toggled={showAdvanced}
+                />
+            </div>
         );
+
+        let styles = {
+            appBar: {
+                zIndex: 10,
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                backgroundColor:muiTheme.palette.primary1Color,
+                color: 'white',
+                display:'flex',
+                alignItems:'center'
+            },
+            appBarTitle: {
+                flex: 1,
+                fontSize: 18,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+            },
+            appBarButton: {
+                padding: 14
+            },
+            appBarButtonIcon: {
+                color: 'white',
+                fontSize: 20
+            },
+            appBarLeftIcon: {
+                color: 'white',
+            },
+            mainPanel : {
+                position: 'absolute',
+                top: 56,
+                left: leftDocked ? 256 : 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor:'#eceff1'
+            },
+            userWidget: {
+                height: 56,
+                lineHeight: '16px',
+                backgroundColor: 'transparent',
+                boxShadow: 'none',
+                display:'flex',
+                alignItems:'center',
+                width: 'auto',
+                marginRight: 16
+            }
+        };
 
         let appBarRight;
         if(this.props.iconElementRight){
@@ -226,28 +292,39 @@ const AdminDashboard = React.createClass({
                 height: 50
             };
             appBarRight = (
-                <div style={style}>{logo}</div>
+                <div style={style}>{advancedToggle}{logo}</div>
             );
 
         }
-        const userWidgetStyle = {
-            height: 64,
-            lineHeight: '16px',
-            backgroundColor: 'transparent',
-            boxShadow: 'none',
-            display:'flex',
-            alignItems:'center'
-        };
-        const title = <UserWidget pydio={this.props.pydio} style={userWidgetStyle} hideActionBar={true} userTouchBackHome={true}/>
-
-        let mainPanelStyle = {
-            position: 'absolute',
-            top: 64,
-            left: this.state.leftDocked ? 256 : 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor:'#eceff1'
-        };
+        const oldAppBar = <AppBar
+            showMenuIconButton={!leftDocked}
+            onLeftIconButtonTouchTap={() => {this.setState({openLeftNav: !openLeftNav})}}
+            iconElementRight={appBarRight}
+            style={leftDocked ? {paddingLeft: 0} : null}
+        />;
+        let leftIcon = "mdi mdi-tune-vertical";
+        let leftIconClick;
+        let homeIconButton, searchIconButton;
+        if(!leftDocked){
+            leftIcon = "mdi mdi-view-headline";
+            leftIconClick = () => {this.setState({openLeftNav: !openLeftNav})};
+        }
+        if(pydio.user && pydio.user.getRepositoriesList().has('homepage')){
+            homeIconButton = <IconButton
+                tooltip={pydio.MessageHash['ajxp_admin.home.68']}
+                iconClassName={"mdi mdi-home-variant"}
+                onTouchTap={()=>{pydio.triggerRepositoryChange('homepage')}}
+                style={styles.appBarButton}
+                iconStyle={styles.appBarButtonIcon}
+            />;
+        }
+        if(this.props.searchActive){
+            searchIconButton = <IconButton
+                iconClassName={"mdi mdi-magnify"}
+                style={styles.appBarButton}
+                iconStyle={styles.appBarButtonIcon}
+            />;
+        }
 
         return (
             <div className="app-canvas">
@@ -256,23 +333,48 @@ const AdminDashboard = React.createClass({
                     dataModel={dm}
                     rootNode={dm.getRootNode()}
                     contextNode={dm.getContextNode()}
-                    open={this.state.leftDocked || this.state.openLeftNav}
+                    open={leftDocked || openLeftNav}
+                    showAdvanced={showAdvanced}
                 />
-                <AppBar
-                    title={title}
-                    zDepth={1}
-                    showMenuIconButton={!this.state.leftDocked}
-                    onLeftIconButtonTouchTap={() => {this.setState({openLeftNav: !this.state.openLeftNav})}}
-                    iconElementRight={appBarRight}
-                    style={this.state.leftDocked ? {paddingLeft: 0} : null}
-                />
-                <Paper zDepth={0} className="main-panel" style={mainPanelStyle}>
+                <Paper zDepth={1} rounded={false} style={styles.appBar}>
+                    <div style={{margin: '0 12px'}}>
+                        <IconButton iconClassName={leftIcon} onTouchTap={leftIconClick} iconStyle={styles.appBarLeftIcon}/>
+                    </div>
+                    <span style={styles.appBarTitle}>Cells Console</span>
+                    {homeIconButton}
+                    {searchIconButton}
+                    <IconButton
+                        iconClassName={"mdi mdi-toggle-switch" + (showAdvanced ? "" : "-off")}
+                        style={styles.appBarButton}
+                        iconStyle={styles.appBarButtonIcon}
+                        tooltip={"Toggle Advanced Parameters"}
+                        onTouchTap={() => {this.setState({showAdvanced: !showAdvanced})}}
+                    />
+                    <IconButton
+                        iconClassName={"icomoon-cells"}
+                        onTouchTap={()=>{window.open('https://pydio.com')}}
+                        tooltip={"Learn more about Pydio Cells"}
+                        style={styles.appBarButton}
+                        iconStyle={styles.appBarButtonIcon}
+                    />
+                    <UserWidget
+                        pydio={pydio}
+                        style={styles.userWidget}
+                        hideActionBar={true}
+                        displayLabel={false}
+                        mergeButtonInAvatar={true}
+                    />
+                </Paper>
+                <Paper zDepth={0} className="main-panel" style={styles.mainPanel}>
                     {this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())}
                 </Paper>
-                {rightPanel}
+                <Paper zDepth={2} className={"paper-editor layout-fill vertical-layout" + (rightPanel?' visible':'')}>
+                    {rPanelContent}
+                </Paper>
             </div>
         )
     }
 });
 
+AdminDashboard = muiThemeable()(AdminDashboard);
 export {AdminDashboard as default}

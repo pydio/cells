@@ -20,7 +20,7 @@
 
 const {MenuItem, Divider, Subheader, FontIcon} = require('material-ui')
 
-function renderItem(palette, node, text = null, noIcon = false){
+function renderItem(palette, node, text = null, noIcon = false, advanced = false){
 
     const iconStyle = {
         fontSize: 22,
@@ -36,6 +36,10 @@ function renderItem(palette, node, text = null, noIcon = false){
         padding: '0 5px',
         marginLeft: 5
     };
+    let mainStyle = {};
+    if (advanced){
+        mainStyle = {opacity: .7};
+    }
 
     let label = text || node.getLabel();
     if(node.getMetadata().get('flag')){
@@ -44,6 +48,7 @@ function renderItem(palette, node, text = null, noIcon = false){
 
     return (
         <MenuItem
+            style={mainStyle}
             value={node}
             primaryText={label}
             leftIcon={!noIcon && <FontIcon className={node.getMetadata().get('icon_class')} style={iconStyle}/>}
@@ -53,7 +58,7 @@ function renderItem(palette, node, text = null, noIcon = false){
 
 class NavigationHelper{
 
-    static buildNavigationItems(pydio, rootNode, palette, noIcon = false){
+    static buildNavigationItems(pydio, rootNode, palette, showAdvanced = false, noIcon = false){
 
         let items = [];
 
@@ -70,14 +75,23 @@ class NavigationHelper{
             if(!header.getChildren().size && header.getMetadata().get('component')) {
                 items.push(renderItem(palette, header, null, noIcon));
             }else{
+                let children = [];
+                header.getChildren().forEach(function(child) {
+                    if (!child.getLabel() || (!showAdvanced && child.getMetadata().get('advanced'))) {
+                        return;
+                    }
+                    children.push(renderItem(palette, child, null, noIcon, child.getMetadata().get('advanced')));
+                });
+                if(!children.length){
+                    return;
+                }
                 if(header.getLabel()){
                     items.push(<Divider/>);
-                    items.push(<Subheader style={headerStyle}>{header.getLabel()}</Subheader>)
+                    //if(showAdvanced){
+                        items.push(<Subheader style={headerStyle}>{header.getLabel()}</Subheader>)
+                    //}
                 }
-                header.getChildren().forEach(function(child){
-                    if(!child.getLabel()) return;
-                    items.push(renderItem(palette, child, null, noIcon));
-                });
+                items.push(...children);
             }
         });
 

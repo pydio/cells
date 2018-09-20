@@ -72,6 +72,7 @@ var IconButtonMenu = (function (_React$Component) {
         var className = _props.className;
         var buttonTitle = _props.buttonTitle;
         var buttonClassName = _props.buttonClassName;
+        var containerStyle = _props.containerStyle;
         var buttonStyle = _props.buttonStyle;
         var popoverDirection = _props.popoverDirection;
         var popoverTargetPosition = _props.popoverTargetPosition;
@@ -82,7 +83,7 @@ var IconButtonMenu = (function (_React$Component) {
         }
         return React.createElement(
             'span',
-            { className: "toolbars-button-menu " + (className ? className : '') },
+            { className: "toolbars-button-menu " + (className ? className : ''), style: containerStyle },
             React.createElement(IconButton, {
                 ref: 'menuButton',
                 tooltip: buttonTitle,
