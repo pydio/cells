@@ -26,6 +26,11 @@ var SampleConfig = `{
     "ports":{
         "nats": 4222
     },
+    "frontend":{
+        "secureHeaders":{
+			"X-XSS-Protection": "1; mode=block"
+		}
+    },
     "services":{
         "consul": {
             "data_dir": "/tmp/consul",
