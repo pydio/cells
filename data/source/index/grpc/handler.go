@@ -140,6 +140,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				return errors.InternalServerError(name, "Error while inserting node", err)
 			}
 		} else {
+			fmt.Println(reqPath)
 			return errors.Forbidden(name, "Node path already in use", 401)
 		}
 	} else if len(created) > 1 && !update && req.IndexationSession == "" {
