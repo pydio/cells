@@ -602,12 +602,23 @@ var PluginEditor = _react2['default'].createClass({
         actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !this.state.dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
         actions.push(closeButton);
 
-        var icon = undefined;
+        var titleLabel = undefined,
+            titleIcon = undefined;
+        var label = this.state.label;
+        var currentNode = this.props.currentNode;
+
+        if (currentNode) {
+            titleLabel = currentNode.getLabel();
+            titleIcon = currentNode.getMetadata().get("icon_class");
+        } else {
+            titleLabel = label;
+        }
+
         // Building  a form
         return _react2['default'].createElement(
             'div',
             { className: (this.props.className ? this.props.className + " " : "") + "main-layout-nav-to-stack vertical-layout plugin-board" + scrollingClassName, style: this.props.style },
-            _react2['default'].createElement(AdminComponents.Header, { title: this.state.label, actions: actions, scrolling: this.state && this.state.mainPaneScrolled, icon: icon }),
+            _react2['default'].createElement(AdminComponents.Header, { title: titleLabel, actions: actions, scrolling: this.state && this.state.mainPaneScrolled, icon: titleIcon }),
             _react2['default'].createElement(PydioForm.FormPanel, {
                 ref: 'formPanel',
                 className: 'row-flex',
