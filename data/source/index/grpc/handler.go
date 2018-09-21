@@ -23,6 +23,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"runtime/debug"
 	"strings"
 	"time"
@@ -112,7 +113,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				return errors.Forbidden(name, "Could not replace previous node", err)
 			}
 		} else if node != nil {
-			return errors.New(name, fmt.Sprintf("A node with same UUID already exists. Pass updateIfExists parameter if you are sure to override. %v", err), 409)
+			return errors.New(name, fmt.Sprintf("A node with same UUID already exists. Pass updateIfExists parameter if you are sure to override. %v", err), http.StatusConflict)
 		}
 	}
 
@@ -140,8 +141,7 @@ func (s *TreeServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 				return errors.InternalServerError(name, "Error while inserting node", err)
 			}
 		} else {
-			fmt.Println(reqPath)
-			return errors.Forbidden(name, "Node path already in use", 401)
+			return errors.New(name, "Node path already in use", http.StatusConflict)
 		}
 	} else if len(created) > 1 && !update && req.IndexationSession == "" {
 		// Special case : when not in indexation mode, if node creation

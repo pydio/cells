@@ -235,11 +235,18 @@
             const request = new RestCreateNodesRequest();
             const node = new TreeNode();
 
+            // We're not creating the folder as it will be handled by children files
+            // NOTE : empty folders will not be created so we will need to figure out a way of creating only empty folders
+            // Creating folder was causing a race concurrence issue on the server side
+            // completeCallback();
+
             node.Path = fullPath;
             node.Type = TreeNodeType.constructFromObject('COLLECTION');
             request.Nodes = [node];
             api.createNodes(request).then(collection => {
+
                 this.setStatus('loaded');
+
                 completeCallback();
             });
 

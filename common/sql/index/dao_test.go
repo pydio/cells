@@ -679,13 +679,14 @@ func TestArborescenceNoFolder(t *testing.T) {
 		wg := &sync.WaitGroup{}
 		for _, path := range arborescence {
 			wg.Add(1)
-			go func() {
-				_, _, err := getDAO(ctxNoCache).Path(path, true)
+			go func(p string) {
+				_, created, err := getDAO(ctxNoCache).Path(p, true)
 
 				c.So(err, ShouldBeNil)
+				c.So(len(created), ShouldBeGreaterThan, 0)
 
 				wg.Done()
-			}()
+			}(path)
 		}
 
 		wg.Wait()
