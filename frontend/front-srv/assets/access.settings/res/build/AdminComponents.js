@@ -16601,10 +16601,6 @@ var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
 
-var _GlobalSearch = require('./GlobalSearch');
-
-var _GlobalSearch2 = _interopRequireDefault(_GlobalSearch);
-
 var _Pydio$requireLib = _pydio2['default'].requireLib('workspaces');
 
 var UserWidget = _Pydio$requireLib.UserWidget;
@@ -16988,7 +16984,7 @@ exports['default'] = AdminDashboard = (0, _materialUiStyles.muiThemeable)()(Admi
 exports['default'] = AdminDashboard;
 module.exports = exports['default'];
 
-},{"../util/Mixins":44,"./AdminLeftNav":22,"./GlobalSearch":24,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/util/dom":"pydio/util/dom","react":"react"}],22:[function(require,module,exports){
+},{"../util/Mixins":43,"./AdminLeftNav":22,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/util/dom":"pydio/util/dom","react":"react"}],22:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17135,7 +17131,7 @@ exports['default'] = AdminLeftNav = muiThemeable()(AdminLeftNav);
 exports['default'] = AdminLeftNav;
 module.exports = exports['default'];
 
-},{"../util/MenuItemListener":43,"../util/NavigationHelper":45,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],23:[function(require,module,exports){
+},{"../util/MenuItemListener":42,"../util/NavigationHelper":44,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -17376,298 +17372,6 @@ exports['default'] = AdvancedDashboard;
 module.exports = exports['default'];
 
 },{"pydio":"pydio","react":"react"}],24:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var _pydioUtilXml = require('pydio/util/xml');
-
-var _pydioUtilXml2 = _interopRequireDefault(_pydioUtilXml);
-
-var _pydioUtilDom = require('pydio/util/dom');
-
-var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
-
-var _pydioModelNode = require('pydio/model/node');
-
-var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
-
-var GlobalSearch = (function (_React$Component) {
-    _inherits(GlobalSearch, _React$Component);
-
-    function GlobalSearch(props) {
-        _classCallCheck(this, GlobalSearch);
-
-        _get(Object.getPrototypeOf(GlobalSearch.prototype), 'constructor', this).call(this, props);
-        this.state = {
-            open: false,
-            datasource: [],
-            currentSearch: '',
-            index: []
-        };
-    }
-
-    _createClass(GlobalSearch, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.buildIndex();
-        }
-
-        /**
-         *
-         * @param node AjxpNode
-         * @param index array
-         * @param pluginsNodes object
-         */
-    }, {
-        key: 'browseNode',
-        value: function browseNode(node, index, pluginsNodes) {
-            var _this = this;
-
-            var pydio = this.props.pydio;
-            var MessageHash = pydio.MessageHash;
-
-            if (node.getMetadata().has('component')) {
-                index.push({ text: node.getLabel(), target: node });
-                if (node.getMetadata().has('description')) {
-                    index.push({ text: node.getMetadata().get('description'), target: node });
-                }
-                if (node.getMetadata().has('indexed')) {
-                    node.getMetadata().get('indexed').forEach(function (msgId) {
-                        if (MessageHash[msgId]) {
-                            index.push({ text: MessageHash[msgId], target: node });
-                        }
-                    });
-                }
-                if (node.getMetadata().get('component') === 'AdminPlugins.PluginsManager') {
-                    pluginsNodes['all'] = node;
-                }
-                if (node.getMetadata().has('props')) {
-                    var props = JSON.parse(node.getMetadata().get('props'));
-                    if (props && props.pluginId) {
-                        pluginsNodes[props.pluginId] = node;
-                    }
-                }
-            }
-            node.getChildren().forEach(function (child) {
-                _this.browseNode(child, index, pluginsNodes);
-            });
-        }
-    }, {
-        key: 'buildIndex',
-        value: function buildIndex() {
-            var _this2 = this;
-
-            var pydio = this.props.pydio;
-
-            var dm = pydio.getContextHolder();
-            // Browse nodes and gather infos
-            var index = [];
-            var pluginsNodes = {};
-            this.browseNode(dm.getRootNode(), index, pluginsNodes);
-            this.setState({ index: index });
-            console.log(pluginsNodes);
-            AdminComponents.PluginsLoader.getInstance(pydio).loadPlugins().then(function (xmlPlugins) {
-                _pydioUtilXml2['default'].XPathSelectNodes(xmlPlugins, "plugin").forEach(function (p) {
-                    var id = p.getAttribute("id");
-                    var target = undefined;
-                    if (pluginsNodes[id]) {
-                        target = pluginsNodes[id];
-                    } else if (pluginsNodes["all"]) {
-                        target = pluginsNodes["all"];
-                        target = new _pydioModelNode2['default'](target.getPath(), false, p.getAttribute("label"));
-                    } else {
-                        return; // cannot find targetNode
-                    }
-                    index.push({ text: p.getAttribute("label"), target: target });
-                    index.push({ text: p.getAttribute("description"), target: target });
-                    var groups = {};
-                    _pydioUtilXml2['default'].XPathSelectNodes(p, "server_settings/global_param").forEach(function (param) {
-                        if (param.getAttribute("group")) {
-                            groups[param.getAttribute("group")] = param.getAttribute("group");
-                        }
-                        index.push({ text: param.getAttribute("label"), target: target });
-                        index.push({ text: param.getAttribute("description"), target: target });
-                    });
-                    Object.keys(groups).forEach(function (groupLabel) {
-                        index.push({ text: groupLabel, target: target });
-                    });
-                });
-                _this2.setState({ index: index });
-            });
-        }
-    }, {
-        key: 'dataSourceFromIndex',
-        value: function dataSourceFromIndex() {
-            var _state = this.state;
-            var index = _state.index;
-            var currentSearch = _state.currentSearch;
-
-            return index.map(function (object) {
-                var t = object.text;
-                var highlighted = t;
-                if (currentSearch) {
-                    var parts = [];
-                    var start = t.toLowerCase().indexOf(currentSearch.toLowerCase());
-                    if (start === -1) {
-                        highlighted = t;
-                    } else {
-                        var end = start + currentSearch.length;
-                        if (start > 0) {
-                            var sPart = t.substr(0, start);
-                            if (sPart.length > 15) {
-                                sPart = "..." + sPart.substr(-15);
-                            }
-                            parts.push(_react2['default'].createElement(
-                                'span',
-                                null,
-                                sPart
-                            ));
-                        }
-                        parts.push(_react2['default'].createElement(
-                            'span',
-                            { style: { backgroundColor: 'yellow' } },
-                            t.substr(start, currentSearch.length)
-                        ));
-                        if (end <= t.length) {
-                            var endPart = t.substr(end);
-                            parts.push(_react2['default'].createElement(
-                                'span',
-                                null,
-                                endPart
-                            ));
-                        }
-                        highlighted = _react2['default'].createElement(
-                            'span',
-                            null,
-                            parts
-                        );
-                    }
-                }
-                var primaryBlock = highlighted;
-                if (object.target.getLabel() !== t) {
-                    // Test is something else, put item on two lines
-                    primaryBlock = _react2['default'].createElement(
-                        'div',
-                        { style: { lineHeight: '26px', paddingTop: 6, paddingBottom: 6 } },
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
-                            object.target.getLabel()
-                        ),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { color: 'rgba(0,0,0,.33)', fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }, title: t },
-                            highlighted
-                        )
-                    );
-                }
-                return _extends({}, object, { value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: primaryBlock }) });
-            });
-        }
-    }, {
-        key: 'onCompleterRequest',
-        value: function onCompleterRequest(value, index) {
-            var pydio = this.props.pydio;
-
-            if (value instanceof Object) {
-                var target = value.target;
-                pydio.goTo(target);
-                this.setState({ currentSearch: '', open: false });
-            }
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this3 = this;
-
-            var appBarStyles = this.props.appBarStyles;
-            var _state2 = this.state;
-            var currentSearch = _state2.currentSearch;
-            var open = _state2.open;
-
-            var datasource = this.dataSourceFromIndex();
-            var styles = {
-                container: {
-                    backgroundColor: open ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-                    borderRadius: 2,
-                    paddingLeft: 10,
-                    display: 'flex',
-                    alignItems: 'center',
-                    height: 38,
-                    transition: _pydioUtilDom2['default'].getBeziersTransition(),
-                    width: open ? 320 : 48,
-                    overflow: open ? 'hidden' : 'visible'
-                }
-            };
-            return _react2['default'].createElement(
-                'div',
-                { style: styles.container },
-                open && _react2['default'].createElement(_materialUi.AutoComplete, {
-                    style: { flex: 1 },
-                    className: "global-search-autocomplete",
-                    hintText: _react2['default'].createElement(
-                        'span',
-                        { style: { color: 'rgba(255,255,255,0.43)' } },
-                        'Search console'
-                    ),
-                    filter: _materialUi.AutoComplete.caseInsensitiveFilter,
-                    dataSource: datasource,
-                    maxSearchResults: 5,
-                    onNewRequest: this.onCompleterRequest.bind(this),
-                    searchText: currentSearch,
-                    onUpdateInput: function (s) {
-                        _this3.setState({ currentSearch: s });
-                    },
-                    underlineShow: false,
-                    fullWidth: true,
-                    ref: "autocomplete"
-                }),
-                _react2['default'].createElement(_materialUi.IconButton, {
-                    iconClassName: open ? "mdi mdi-close" : "mdi mdi-magnify",
-                    style: appBarStyles.appBarButton,
-                    iconStyle: appBarStyles.appBarButtonIcon,
-                    tooltip: open ? "Close" : "Search console",
-                    onTouchTap: function () {
-                        _this3.setState({ open: !open }, function () {
-                            if (_this3.refs.autocomplete && _this3.refs.autocomplete.refs.searchTextField) {
-                                _this3.refs.autocomplete.refs.searchTextField.focus();
-                            }
-                        });
-                    }
-                }),
-                _react2['default'].createElement('style', { type: 'text/css', dangerouslySetInnerHTML: { __html: '.global-search-autocomplete input{color:white !important;}' } })
-            );
-        }
-    }]);
-
-    return GlobalSearch;
-})(_react2['default'].Component);
-
-exports['default'] = GlobalSearch;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","pydio/model/node":"pydio/model/node","pydio/util/dom":"pydio/util/dom","pydio/util/xml":"pydio/util/xml","react":"react"}],25:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17777,7 +17481,7 @@ var GroupAdminDashboard = _react2['default'].createClass({
 exports['default'] = GroupAdminDashboard;
 module.exports = exports['default'];
 
-},{"../util/Mixins":44,"material-ui":"material-ui","react":"react"}],26:[function(require,module,exports){
+},{"../util/Mixins":43,"material-ui":"material-ui","react":"react"}],25:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -17986,7 +17690,7 @@ exports['default'] = Header = (0, _materialUiStyles.muiThemeable)()(Header);
 exports['default'] = Header;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/util/dom":"pydio/util/dom","react":"react"}],27:[function(require,module,exports){
+},{"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/util/dom":"pydio/util/dom","react":"react"}],26:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18310,7 +18014,7 @@ exports['default'] = Dashboard = muiThemeable()(Dashboard);
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"../util/Mixins":44,"lodash.shuffle":12,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","react":"react"}],28:[function(require,module,exports){
+},{"../util/Mixins":43,"lodash.shuffle":12,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","react":"react"}],27:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -18414,7 +18118,7 @@ exports['default'] = SubHeader = (0, _materialUiStyles.muiThemeable)()(SubHeader
 exports['default'] = SubHeader;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","material-ui/styles":"material-ui/styles","react":"react"}],29:[function(require,module,exports){
+},{"material-ui":"material-ui","material-ui/styles":"material-ui/styles","react":"react"}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -18542,7 +18246,7 @@ var TabBoard = (function (_React$Component) {
 exports['default'] = TabBoard;
 module.exports = exports['default'];
 
-},{"./AdvancedDashboard":23,"./Header":26,"./SimpleDashboard":27,"pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],30:[function(require,module,exports){
+},{"./AdvancedDashboard":23,"./Header":25,"./SimpleDashboard":26,"pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],29:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -18733,7 +18437,7 @@ exports['default'] = GraphBadge;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../graph/RemoteGraphLine":39,"../util/ReloadWrapper":47,"material-ui":"material-ui","pydio":"pydio","react":"react"}],31:[function(require,module,exports){
+},{"../graph/RemoteGraphLine":38,"../util/ReloadWrapper":46,"material-ui":"material-ui","pydio":"pydio","react":"react"}],30:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -18909,7 +18613,7 @@ exports['default'] = GraphCard;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../graph/GraphPaginator":38,"../graph/RemoteGraphLine":39,"../util/ReloadWrapper":47,"material-ui":"material-ui","pydio":"pydio","react":"react"}],32:[function(require,module,exports){
+},{"../graph/GraphPaginator":37,"../graph/RemoteGraphLine":38,"../util/ReloadWrapper":46,"material-ui":"material-ui","pydio":"pydio","react":"react"}],31:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19135,7 +18839,7 @@ exports['default'] = QuickLinks;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/NavigationHelper":45,"material-ui":"material-ui","pydio":"pydio","react":"react"}],33:[function(require,module,exports){
+},{"../util/NavigationHelper":44,"material-ui":"material-ui","pydio":"pydio","react":"react"}],32:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19304,7 +19008,7 @@ exports['default'] = RecentLogs;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/ReloadWrapper":47,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],34:[function(require,module,exports){
+},{"../util/ReloadWrapper":46,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],33:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19448,7 +19152,7 @@ exports['default'] = ServicesStatus;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/ReloadWrapper":47,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],35:[function(require,module,exports){
+},{"../util/ReloadWrapper":46,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],34:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -19662,7 +19366,7 @@ exports['default'] = ToDoList;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],36:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],35:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -19753,7 +19457,7 @@ exports['default'] = WelcomePanel = asGridItem(WelcomePanel, globalMessages['ajx
 exports['default'] = WelcomePanel;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","react":"react","react-chartjs":"react-chartjs"}],37:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","react":"react","react-chartjs":"react-chartjs"}],36:[function(require,module,exports){
 /**
  * PROTO FOR one point for a graph
  message TimeRangeResult{
@@ -19929,7 +19633,7 @@ var GraphModel = (function () {
 exports['default'] = GraphModel;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],38:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -20029,7 +19733,7 @@ var GraphPaginator = _react2['default'].createClass({
 exports['default'] = GraphPaginator;
 module.exports = exports['default'];
 
-},{"../util/Mixins":44,"material-ui":"material-ui","react":"react"}],39:[function(require,module,exports){
+},{"../util/Mixins":43,"material-ui":"material-ui","react":"react"}],38:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -20274,7 +19978,7 @@ exports['default'] = RemoteGraphLine;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../util/Mixins":44,"./GraphModel":37,"react":"react","react-chartjs":"react-chartjs"}],40:[function(require,module,exports){
+},{"../util/Mixins":43,"./GraphModel":36,"react":"react","react-chartjs":"react-chartjs"}],39:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20398,7 +20102,7 @@ window.AdminComponents = {
     WelcomePanel: _cardsWelcomePanel2['default']
 };
 
-},{"./board/AdminDashboard":21,"./board/GroupAdminDashboard":25,"./board/Header":26,"./board/SimpleDashboard":27,"./board/SubHeader":28,"./board/TabBoard":29,"./cards/GraphBadge":30,"./cards/GraphCard":31,"./cards/QuickLinks":32,"./cards/RecentLogs":33,"./cards/ServicesStatus":34,"./cards/ToDoList":35,"./cards/WelcomePanel":36,"./util/CodeMirrorField":41,"./util/DNDActionsManager":42,"./util/MenuItemListener":43,"./util/Mixins":44,"./util/NavigationHelper":45,"./util/PluginsLoader":46}],41:[function(require,module,exports){
+},{"./board/AdminDashboard":21,"./board/GroupAdminDashboard":24,"./board/Header":25,"./board/SimpleDashboard":26,"./board/SubHeader":27,"./board/TabBoard":28,"./cards/GraphBadge":29,"./cards/GraphCard":30,"./cards/QuickLinks":31,"./cards/RecentLogs":32,"./cards/ServicesStatus":33,"./cards/ToDoList":34,"./cards/WelcomePanel":35,"./util/CodeMirrorField":40,"./util/DNDActionsManager":41,"./util/MenuItemListener":42,"./util/Mixins":43,"./util/NavigationHelper":44,"./util/PluginsLoader":45}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -20507,7 +20211,7 @@ var CodeEditorField = (function (_React$Component) {
 exports['default'] = CodeEditorField;
 module.exports = exports['default'];
 
-},{"codemirror/addon/hint/javascript-hint":1,"codemirror/addon/hint/show-hint":2,"codemirror/mode/javascript/javascript":4,"react":"react","react-codemirror":20}],42:[function(require,module,exports){
+},{"codemirror/addon/hint/javascript-hint":1,"codemirror/addon/hint/show-hint":2,"codemirror/mode/javascript/javascript":4,"react":"react","react-codemirror":20}],41:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20625,7 +20329,7 @@ var DNDActionsManager = (function () {
 exports['default'] = DNDActionsManager;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path"}],43:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path"}],42:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20684,7 +20388,7 @@ var MenuItemListener = (function (_Observable) {
 exports["default"] = MenuItemListener;
 module.exports = exports["default"];
 
-},{}],44:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20764,7 +20468,7 @@ exports.MessagesProviderMixin = MessagesProviderMixin;
 exports.PydioConsumerMixin = PydioConsumerMixin;
 exports.PydioProviderMixin = PydioProviderMixin;
 
-},{}],45:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -20916,7 +20620,7 @@ var NavigationHelper = (function () {
 exports['default'] = NavigationHelper;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui"}],46:[function(require,module,exports){
+},{"material-ui":"material-ui"}],45:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -21145,7 +20849,7 @@ var PluginsLoader = (function () {
 exports['default'] = PluginsLoader;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml"}],47:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml"}],46:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -21218,4 +20922,4 @@ exports['default'] = function (PydioComponent) {
 ;
 module.exports = exports['default'];
 
-},{"react":"react"}]},{},[40]);
+},{"react":"react"}]},{},[39]);

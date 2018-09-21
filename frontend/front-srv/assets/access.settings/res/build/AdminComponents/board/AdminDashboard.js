@@ -59,10 +59,6 @@ var _pydioUtilDom = require('pydio/util/dom');
 
 var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
 
-var _GlobalSearch = require('./GlobalSearch');
-
-var _GlobalSearch2 = _interopRequireDefault(_GlobalSearch);
-
 var _Pydio$requireLib = _pydio2['default'].requireLib('workspaces');
 
 var UserWidget = _Pydio$requireLib.UserWidget;
