@@ -80,7 +80,9 @@ class MetadataBoard extends React.Component{
         });
         const {currentNode, pydio} = this.props;
         const columns = [
-            {name:'Order', label:m('order'), style:{width: 30}, headerStyle:{width:30}},
+            {name:'Order', label:m('order'), style:{width: 30}, headerStyle:{width:30}, renderCell:row => {
+                return row.Order || '0';
+            }},
             {name:'Namespace', label:m('namespace'), style:{fontSize: 15}},
             {name:'Label', label:m('label'), style:{width:'25%'}, headerStyle:{width:'25%'}},
             {name:'Indexable', label:m('indexable'), style:{width:'25%'}, headerStyle:{width:'25%'}, renderCell:(row => {
