@@ -28,7 +28,6 @@ const {UserWidget} = Pydio.requireLib('workspaces');
 const {AsyncComponent} = Pydio.requireLib('boot');
 import ResourcesManager from 'pydio/http/resources-manager'
 import DOMUtils from 'pydio/util/dom'
-import GlobalSearch from './GlobalSearch'
 
 const styles = {
     appBar: {
