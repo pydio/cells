@@ -99,6 +99,15 @@ var settingsNode = &rest.SettingsMenuResponse{
 			Description: "settings.141",
 			Children: []*rest.SettingsEntry{
 				{
+					Key:         "services",
+					Label:       "settings.172",
+					Description: "settings.173",
+					Metadata: &rest.SettingsEntryMeta{
+						IconClass: "mdi mdi-access-point-network",
+						Component: "AdminServices.Dashboard",
+					},
+				},
+				{
 					Key:         "logs",
 					Label:       "settings.4",
 					Description: "settings.142",
@@ -115,16 +124,6 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-update",
 						Component: "AdminPlugins.UpdaterDashboard",
-					},
-				},
-				{
-					Key:         "services",
-					Label:       "settings.172",
-					Description: "settings.173",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-access-point-network",
-						Component: "AdminServices.Dashboard",
-						Advanced:  true,
 					},
 				},
 				{
@@ -155,6 +154,16 @@ var settingsNode = &rest.SettingsMenuResponse{
 					},
 				},
 				{
+					Key:         "mailer",
+					Label:       "plugtype.title.mailer",
+					Description: "plugtype.desc.mailer",
+					Metadata: &rest.SettingsEntryMeta{
+						IconClass: "mdi mdi-email",
+						Component: "AdminPlugins.ServiceEditor",
+						Props:     `{"serviceName":"pydio.grpc.mailer","pluginId":"core.mailer"}`,
+					},
+				},
+				{
 					Key:         "core.auth",
 					Label:       "ajxp_admin.menu.11",
 					Description: "plugtype.desc.auth",
@@ -173,21 +182,12 @@ var settingsNode = &rest.SettingsMenuResponse{
 						IconClass: "mdi mdi-upload",
 						Component: "AdminPlugins.CoreAndPluginsDashboard",
 						Props:     "{\"pluginId\":\"core.uploader\"}",
-					},
-				},
-				{
-					Key:         "mailer",
-					Label:       "plugtype.title.mailer",
-					Description: "plugtype.desc.mailer",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-email",
-						Component: "AdminPlugins.ServiceEditor",
-						Props:     `{"serviceName":"pydio.grpc.mailer","pluginId":"core.mailer"}`,
+						Advanced:  true,
 					},
 				},
 				{
 					Key:         "manager",
-					Label:       "ajxp_admin.menu.19",
+					Label:       "ajxp_admin.menu.18",
 					Description: "ajxp_admin.menu.19",
 					Alias:       "/config/all",
 					Metadata: &rest.SettingsEntryMeta{

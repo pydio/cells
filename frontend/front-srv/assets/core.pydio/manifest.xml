@@ -5,12 +5,6 @@
           xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd"
         enabled="always"
         >
-    <plugin_info>
-        <plugin_author>Charles du Jeu</plugin_author>
-        <plugin_version>follow</plugin_version>
-        <plugin_uri>https://pydio.com/plugins/core/pydio</plugin_uri>
-        <core_relation packaged="true" tested_version="follow_core"/>
-    </plugin_info>
     <client_settings>
         <resources>
             <i18n namespace="" remote="plug/core.pydio/i18n"/>
@@ -19,17 +13,7 @@
 	<server_settings>
 		<global_param name="APPLICATION_TITLE" group="CONF_MESSAGE[Main]" type="string" label="CONF_MESSAGE[App Title]" description="CONF_MESSAGE[Your application title]" mandatory="true" default="Pydio" expose="true"/>
         <global_param name="DEFAULT_LANGUAGE" group="CONF_MESSAGE[Main]" type="select" choices="PYDIO_AVAILABLE_LANGUAGES" label="CONF_MESSAGE[Default Language]" description="CONF_MESSAGE[Default language when a user does not have set his/her own.]" mandatory="true" default="en"/>
-
-        <!-- MAKE SURE NOT TO CHANGE ORDER OF name AND default ATTRIBUTES, CAN BE REPLACED BY INSTALLERS -->
-        <!-- TODO: Remove / replace with backend service options -->
-        <global_param name="DISABLE_ZIP_BROWSING" group="CONF_MESSAGE[Compression Features]" type="boolean" label="CONF_MESSAGE[Disable Zip browsing]" description="CONF_MESSAGE[Disable Zip files inline browsing. This can be necessary if you always store huge zip archives: it can have some impact on performance.]" mandatory="false" default="false"/>
-        <global_param name="ZIP_CREATION" expose="true" group="CONF_MESSAGE[Compression Features]" type="boolean" label="CONF_MESSAGE[Zip Creation]" description="CONF_MESSAGE[If you encounter problems with online zip creation or multiple files downloading, you can disable the feature.]" mandatory="false" default="true"/>
-        <global_param name="ZIP_ENCODING" expose="false" group="CONF_MESSAGE[Compression Features]" type="string" label="CONF_MESSAGE[Zip Encoding]" description="CONF_MESSAGE[Set up a specific encoding (try IBM850 or CP437) for filenames to fix characters problems during Zip creation. This may create OS-incompatible archives (Win/Mac).]" mandatory="false"/>
-
-        <!-- Downloads Group -->
-		<global_param name="NODENAME_MAX_LENGTH" expose="true" group="CONF_MESSAGE[Miscellaneous]" type="integer" label="CONF_MESSAGE[Filename length]" description="CONF_MESSAGE[Maximum characters length of new files or folders]" mandatory="false" default="255"/>
 	</server_settings>
-
 
     <registry_contributions>
         <extensions>

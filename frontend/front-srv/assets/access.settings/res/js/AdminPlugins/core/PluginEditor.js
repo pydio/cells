@@ -233,11 +233,20 @@ const PluginEditor = React.createClass({
         actions.push(<FlatButton secondary={true} disabled={!this.state.dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
         actions.push(closeButton);
 
-        let icon;
+        let titleLabel, titleIcon;
+        const {label} = this.state;
+        const {currentNode} = this.props;
+        if(currentNode){
+            titleLabel = currentNode.getLabel();
+            titleIcon = currentNode.getMetadata().get("icon_class");
+        } else {
+            titleLabel = label;
+        }
+
         // Building  a form
         return (
             <div className={(this.props.className?this.props.className+" ":"") + "main-layout-nav-to-stack vertical-layout plugin-board" + scrollingClassName} style={this.props.style}>
-                <AdminComponents.Header title={this.state.label} actions={actions} scrolling={this.state && this.state.mainPaneScrolled} icon={icon}/>
+                <AdminComponents.Header title={titleLabel} actions={actions} scrolling={this.state && this.state.mainPaneScrolled} icon={titleIcon}/>
                 <PydioForm.FormPanel
                     ref="formPanel"
                     className="row-flex"

@@ -12,7 +12,6 @@
             <i18n namespace="ajxp_admin" remote="plug/access.settings/res/i18n/admin" />
             <i18n namespace="admin_dashboard" remote="plug/access.settings/res/i18n/dashboard" />
             <i18n namespace="action.scheduler" remote="plug/access.settings/res/i18n/scheduler" />
-            <i18n namespace="license" remote="plug/access.settings/res/i18n/license" />
             <i18n namespace="updater" remote="plug/access.settings/res/i18n/updater" />
             <i18n namespace="ldap" remote="plug/access.settings/res/i18n/ldap" />
 
