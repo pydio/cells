@@ -115,7 +115,7 @@ class QuickLinks extends Component{
         if(this.state.edit){
             let menuItems = [<MenuItem primaryText={this.props.getMessage('home.43')} value="-1"/>];
             const rootNode = pydio.getContextHolder().getRootNode();
-            menuItems = menuItems.concat(NavigationHelper.buildNavigationItems(pydio, rootNode, muiTheme.palette, true));
+            menuItems = menuItems.concat(NavigationHelper.buildNavigationItems(pydio, rootNode, muiTheme.palette, true, true));
             dropDown = (
                 <div>
                     <DropDownMenu

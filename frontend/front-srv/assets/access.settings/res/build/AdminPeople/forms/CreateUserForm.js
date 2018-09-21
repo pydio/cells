@@ -76,11 +76,17 @@ var CreateUserForm = _react2['default'].createClass({
         this.setState(_pydioUtilPass2['default'].getState(value1, value2, this.state));
     },
 
+    // Check valid login
+    checkLogin: function checkLogin(e, v) {
+        var err = _pydioUtilPass2['default'].isValidLogin(v);
+        this.setState({ loginErrorText: err });
+    },
+
     submit: function submit() {
         var _this = this;
 
-        if (!this.state.valid) {
-            this.props.pydio.UI.displayMessage('ERROR', this.state.passErrorText || this.state.confirmErrorText);
+        if (!this.state.valid || this.state.loginErrorText) {
+            this.props.pydio.UI.displayMessage('ERROR', this.state.passErrorText || this.state.confirmErrorText || this.state.loginErrorText);
             return;
         }
 
@@ -125,8 +131,10 @@ var CreateUserForm = _react2['default'].createClass({
                 { style: { width: '100%' } },
                 _react2['default'].createElement(_materialUi.TextField, {
                     ref: 'user_id',
+                    onChange: this.checkLogin,
                     fullWidth: true,
-                    floatingLabelText: this.context.getMessage('ajxp_admin.user.21')
+                    floatingLabelText: this.context.getMessage('ajxp_admin.user.21'),
+                    errorText: this.state.loginErrorText
                 })
             ),
             _react2['default'].createElement(

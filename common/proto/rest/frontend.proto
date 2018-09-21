@@ -8,6 +8,7 @@ message SettingsEntryMeta{
     string IconClass = 1 [json_name="icon_class"];
     string Component = 2 [json_name="component"];
     string Props = 3 [json_name="props"];
+    bool Advanced = 4 [json_name="advanced"];
 }
 
 message SettingsEntry {

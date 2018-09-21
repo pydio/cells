@@ -30,10 +30,11 @@ export default React.createClass({
         pydio: React.PropTypes.instanceOf(Pydio),
         style: React.PropTypes.object,
         avatarStyle: React.PropTypes.object,
-        actionBarStyle: React.PropTypes.object
+        actionBarStyle: React.PropTypes.object,
+        avatarOnly: React.PropTypes.bool,
     },
 
-    applyAction: function(actionName){
+    applyAction(actionName){
         switch (actionName){
             case 'home':
                 this.props.pydio.triggerRepositoryChange('homepage');
@@ -49,33 +50,43 @@ export default React.createClass({
         }
     },
 
-    render: function() {
+    render() {
 
         const messages = this.props.pydio.MessageHash;
 
         let avatar;
         let homeButton, notificationsButton, currentIsSettings, bookmarksButton;
-        let avatarStyle = this.props.avatarStyle || {};
-        if(this.props.pydio.user){
+        let {pydio, displayLabel, mergeButtonInAvatar, avatarStyle} = this.props;
+        if(pydio.user){
             const user = this.props.pydio.user;
             currentIsSettings = user.activeRepository === 'settings';
+            let buttonStyle = {color: 'white'};
+            let avatarSize;
+            if(mergeButtonInAvatar){
+                avatarStyle = {...avatarStyle, position:'relative'};
+                buttonStyle = {...buttonStyle, opacity: 0};
+                avatarSize = 30
+            }
             avatar = (
                 <UserAvatar
-                    pydio={this.props.pydio}
+                    pydio={pydio}
                     userId={user.id}
                     style={avatarStyle}
                     className="user-display"
                     labelClassName="userLabel"
+                    displayLabel={displayLabel}
                     labelStyle={{flex: 1, marginLeft: 5}}
+                    avatarSize={avatarSize}
                 >
                     <IconButtonMenu
                         {...this.props}
                         buttonClassName={'mdi mdi-dots-vertical'}
-                        buttonStyle={{color: 'white'}}
+                        containerStyle={mergeButtonInAvatar?{position:'absolute', left: 4}:{}}
+                        buttonStyle={buttonStyle}
                         buttonTitle={messages['165']}
                         toolbars={["user", "zlogin"]}
                         controller={this.props.pydio.Controller}
-                        popoverDirection={"left"}
+                        popoverDirection={mergeButtonInAvatar ? "right" : "left"}
                         popoverTargetPosition={"top"}
                         menuProps={{display:'right', width:160, desktop:true}}
                     />
@@ -123,11 +134,13 @@ export default React.createClass({
         const actionBarStyle = this.props.actionBarStyle || {};
         let actionBar;
         if(currentIsSettings){
+            /*
             actionBar = (
                 <div className="action_bar" style={{display:'flex', ...actionBarStyle}}>
                     {homeButton}
                 </div>
             );
+            */
         }else{
             actionBar = (
                 <div className="action_bar" style={{display:'flex', ...actionBarStyle}}>

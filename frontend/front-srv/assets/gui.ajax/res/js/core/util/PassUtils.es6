@@ -19,6 +19,8 @@
  *
  */
 import ResourcesManager from '../http/ResourcesManager'
+import validator from 'validator'
+import Pydio from '../Pydio'
 
 /**
  *
@@ -26,6 +28,22 @@ import ResourcesManager from '../http/ResourcesManager'
  *
  */
 export default class PassUtils{
+
+    /**
+     * Check if loginString is lowercase, a valid email or just alphanumeric
+     * @param loginString
+     * @return {string} Error string or empty string
+     */
+    static isValidLogin(loginString) {
+        const messages = Pydio.getMessages();
+        const re = new RegExp(/^[0-9A-Z\-_.:\+]+$/i);
+        if (!validator.isLowercase(loginString)){
+            return messages['validation.login.lowercase'] || "only lowercase";
+        } else if(!(re.test(loginString) || validator.isEmail(loginString))){
+            return messages['validation.login.format'] || 'only alphanumeric characters or valid emails';
+        }
+        return ''
+    }
 
     static getState(passValue = '', confirmValue = '', crtState={valid: false}, onChange = (status)=>{}){
         let state = {
@@ -47,10 +65,10 @@ export default class PassUtils{
             });
             if(!confirmValue) {
                 state.valid = false;
-                state.confirmErrorText = global.pydio.MessageHash[621];
+                state.confirmErrorText = Pydio.getMessages()[621];
             } else if (confirmValue !== passValue) {
                 state.valid = false;
-                state.confirmErrorText = global.pydio.MessageHash[238];
+                state.confirmErrorText = Pydio.getMessages()[238];
             }
         }
         if(crtState.valid !== state.valid){
@@ -92,13 +110,13 @@ export default class PassUtils{
         // Update with Pydio options
         const options = PassUtils.getOptions();
         if(options.minchar && value.length < options.minchar){
-            callback(false, global.pydio.MessageHash[380]);
+            callback(false, Pydio.getMessages()[380]);
             return;
         }
         const wrappedCallback = (msgId, percent) => {
             let s = options.messages[msgId];
             try{
-                s = global.pydio.MessageHash[options.pydioMessages[msgId]];
+                s = Pydio.getMessages()[options.pydioMessages[msgId]];
             }catch(e){}
             callback(percent > 1, s);
         };

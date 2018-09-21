@@ -138,6 +138,9 @@ func (h *PublicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf8")
+	for hK, hV := range config.Get("frontend", "secureHeaders").StringMap(map[string]string{}) {
+		w.Header().Set(hK, hV)
+	}
 	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 		out := gzip.NewWriter(w)
 		defer out.Close()

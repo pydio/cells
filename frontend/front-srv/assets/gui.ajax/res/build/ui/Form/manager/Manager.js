@@ -24,7 +24,13 @@ exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _fieldsValidLogin = require('../fields/ValidLogin');
+
+var _fieldsValidLogin2 = _interopRequireDefault(_fieldsValidLogin);
 
 var XMLUtils = require('pydio/util/xml');
 var InputBoolean = require('./../fields/InputBoolean');
@@ -133,6 +139,9 @@ var Manager = (function () {
                 break;
             case 'valid-password':
                 value = React.createElement(ValidPassword, props);
+                break;
+            case 'valid-login':
+                value = React.createElement(_fieldsValidLogin2['default'], props);
                 break;
             case 'integer':
                 value = React.createElement(InputInteger, props);

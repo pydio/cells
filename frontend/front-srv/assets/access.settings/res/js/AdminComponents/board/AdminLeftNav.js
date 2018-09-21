@@ -55,7 +55,7 @@ let AdminLeftNav = React.createClass({
 
     render(){
 
-        const {pydio, rootNode, muiTheme, open} = this.props;
+        const {pydio, rootNode, muiTheme, open, showAdvanced} = this.props;
 
         // Fix for ref problems on context node
         let {contextNode} = this.props;
@@ -71,13 +71,13 @@ let AdminLeftNav = React.createClass({
             }
         });
 
-        const menuItems = NavigationHelper.buildNavigationItems(pydio, rootNode, muiTheme.palette);
+        const menuItems = NavigationHelper.buildNavigationItems(pydio, rootNode, muiTheme.palette, showAdvanced, false);
 
         let pStyle = {
             height: '100%',
             position: 'fixed',
             width:256,
-            paddingTop: 64,
+            paddingTop: 56,
             zIndex: 9,
         };
         if(!open){
@@ -91,7 +91,13 @@ let AdminLeftNav = React.createClass({
                 ref="leftNav"
             >
                 <div style={{height:'100%', overflowY: 'auto'}}>
-                    <Menu onChange={this.onMenuChange} autoWidth={false} width={256} listStyle={{display:'block', maxWidth:256}} value={contextNode}>{menuItems}</Menu>
+                    <Menu
+                        onChange={this.onMenuChange}
+                        autoWidth={false}
+                        width={256}
+                        listStyle={{display:'block', maxWidth:256}}
+                        value={contextNode}
+                    >{menuItems}</Menu>
                 </div>
             </Paper>
         );

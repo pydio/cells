@@ -45,6 +45,8 @@ var _AdminLeftNav2 = _interopRequireDefault(_AdminLeftNav);
 
 var _materialUi = require('material-ui');
 
+var _materialUiStyles = require('material-ui/styles');
+
 var _pydioModelDataModel = require('pydio/model/data-model');
 
 var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
@@ -76,12 +78,20 @@ var AdminDashboard = _react2['default'].createClass({
 
     getInitialState: function getInitialState() {
         var dm = this.props.pydio.getContextHolder();
+        var showAdvanced = undefined;
+        if (localStorage.getItem("cells.dashboard.advanced") !== null) {
+            showAdvanced = localStorage.getItem("cells.dashboard.advanced");
+        }
+        if (!showAdvanced && dm.getContextNode().getMetadata().get("advanced")) {
+            showAdvanced = true;
+        }
         return {
             contextNode: dm.getContextNode(),
             selectedNodes: dm.getSelectedNodes(),
             contextStatus: dm.getContextNode().isLoaded(),
             openLeftNav: false,
-            leftDocked: true
+            leftDocked: true,
+            showAdvanced: showAdvanced
         };
     },
 
@@ -92,6 +102,11 @@ var AdminDashboard = _react2['default'].createClass({
             selectedNodes: dm.getSelectedNodes(),
             contextStatus: dm.getContextNode().isLoaded()
         });
+        var showAdvanced = this.state.showAdvanced;
+
+        if (!showAdvanced && dm.getContextNode().getMetadata().get("advanced")) {
+            this.setState({ showAdvanced: true });
+        }
         dm.getContextNode().observe("loaded", this.dmChangesToState);
         if (dm.getUniqueNode()) {
             dm.getUniqueNode().observe("loaded", this.dmChangesToState);
@@ -240,8 +255,16 @@ var AdminDashboard = _react2['default'].createClass({
     render: function render() {
         var _this2 = this;
 
-        var dm = this.props.pydio.getContextHolder();
-        var params = this.props.pydio.Parameters;
+        var _state = this.state;
+        var showAdvanced = _state.showAdvanced;
+        var rightPanel = _state.rightPanel;
+        var leftDocked = _state.leftDocked;
+        var openLeftNav = _state.openLeftNav;
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var muiTheme = _props.muiTheme;
+
+        var dm = pydio.getContextHolder();
         var img = _pydioHttpResourcesManager2['default'].resolveImageSource('white_logo.png');
         var logo = _react2['default'].createElement('img', {
             className: 'custom_logo_image linked',
@@ -253,50 +276,85 @@ var AdminDashboard = _react2['default'].createClass({
             onClick: this.backToHome
         });
         var rPanelContent = undefined;
-        if (this.state.rightPanel) {
-            rPanelContent = _react2['default'].createElement(this.state.rightPanel.COMPONENT, this.state.rightPanel.PROPS, this.state.rightPanel.CHILDREN);
+        if (rightPanel) {
+            rPanelContent = _react2['default'].createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        var rightPanel = _react2['default'].createElement(
-            _materialUi.Paper,
-            { zDepth: 2, className: "paper-editor layout-fill vertical-layout" + (this.state.rightPanel ? ' visible' : '') },
-            rPanelContent
-        );
-
-        var appBarRight = undefined;
-        if (this.props.iconElementRight) {
-            appBarRight = this.props.iconElementRight;
-        } else {
-            var style = {
+        var styles = {
+            appBar: {
+                zIndex: 10,
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: muiTheme.palette.primary1Color,
                 color: 'white',
-                fontSize: 20,
+                display: 'flex',
+                alignItems: 'center'
+            },
+            appBarTitle: {
+                flex: 1,
+                fontSize: 18,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+            },
+            appBarButton: {
+                padding: 14
+            },
+            appBarButtonIcon: {
+                color: 'white',
+                fontSize: 20
+            },
+            appBarLeftIcon: {
+                color: 'white'
+            },
+            mainPanel: {
+                position: 'absolute',
+                top: 56,
+                left: leftDocked ? 256 : 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: '#eceff1'
+            },
+            userWidget: {
+                height: 56,
+                lineHeight: '16px',
+                backgroundColor: 'transparent',
+                boxShadow: 'none',
                 display: 'flex',
                 alignItems: 'center',
-                height: 50
+                width: 'auto',
+                marginRight: 16
+            }
+        };
+        var leftIcon = "mdi mdi-tune-vertical";
+        var leftIconClick = undefined;
+        var homeIconButton = undefined,
+            searchIconButton = undefined;
+        if (!leftDocked) {
+            leftIcon = "mdi mdi-view-headline";
+            leftIconClick = function () {
+                _this2.setState({ openLeftNav: !openLeftNav });
             };
-            appBarRight = _react2['default'].createElement(
-                'div',
-                { style: style },
-                logo
-            );
         }
-        var userWidgetStyle = {
-            height: 64,
-            lineHeight: '16px',
-            backgroundColor: 'transparent',
-            boxShadow: 'none',
-            display: 'flex',
-            alignItems: 'center'
-        };
-        var title = _react2['default'].createElement(UserWidget, { pydio: this.props.pydio, style: userWidgetStyle, hideActionBar: true, userTouchBackHome: true });
-
-        var mainPanelStyle = {
-            position: 'absolute',
-            top: 64,
-            left: this.state.leftDocked ? 256 : 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: '#eceff1'
-        };
+        if (pydio.user && pydio.user.getRepositoriesList().has('homepage')) {
+            homeIconButton = _react2['default'].createElement(_materialUi.IconButton, {
+                tooltip: pydio.MessageHash['ajxp_admin.home.68'],
+                iconClassName: "mdi mdi-home-variant",
+                onTouchTap: function () {
+                    pydio.triggerRepositoryChange('homepage');
+                },
+                style: styles.appBarButton,
+                iconStyle: styles.appBarButtonIcon
+            });
+        }
+        if (this.props.searchActive) {
+            searchIconButton = _react2['default'].createElement(_materialUi.IconButton, {
+                iconClassName: "mdi mdi-magnify",
+                style: styles.appBarButton,
+                iconStyle: styles.appBarButtonIcon
+            });
+        }
 
         return _react2['default'].createElement(
             'div',
@@ -306,27 +364,65 @@ var AdminDashboard = _react2['default'].createClass({
                 dataModel: dm,
                 rootNode: dm.getRootNode(),
                 contextNode: dm.getContextNode(),
-                open: this.state.leftDocked || this.state.openLeftNav
-            }),
-            _react2['default'].createElement(_materialUi.AppBar, {
-                title: title,
-                zDepth: 1,
-                showMenuIconButton: !this.state.leftDocked,
-                onLeftIconButtonTouchTap: function () {
-                    _this2.setState({ openLeftNav: !_this2.state.openLeftNav });
-                },
-                iconElementRight: appBarRight,
-                style: this.state.leftDocked ? { paddingLeft: 0 } : null
+                open: leftDocked || openLeftNav,
+                showAdvanced: showAdvanced
             }),
             _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 0, className: 'main-panel', style: mainPanelStyle },
+                { zDepth: 1, rounded: false, style: styles.appBar },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { margin: '0 12px' } },
+                    _react2['default'].createElement(_materialUi.IconButton, { iconClassName: leftIcon, onTouchTap: leftIconClick, iconStyle: styles.appBarLeftIcon })
+                ),
+                _react2['default'].createElement(
+                    'span',
+                    { style: styles.appBarTitle },
+                    'Cells Console'
+                ),
+                homeIconButton,
+                searchIconButton,
+                _react2['default'].createElement(_materialUi.IconButton, {
+                    iconClassName: "mdi mdi-toggle-switch" + (showAdvanced ? "" : "-off"),
+                    style: styles.appBarButton,
+                    iconStyle: styles.appBarButtonIcon,
+                    tooltip: "Toggle Advanced Parameters",
+                    onTouchTap: function () {
+                        _this2.setState({ showAdvanced: !showAdvanced });
+                        localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
+                    }
+                }),
+                _react2['default'].createElement(_materialUi.IconButton, {
+                    iconClassName: "icomoon-cells",
+                    onTouchTap: function () {
+                        window.open('https://pydio.com');
+                    },
+                    tooltip: "Learn more about Pydio Cells",
+                    style: styles.appBarButton,
+                    iconStyle: styles.appBarButtonIcon
+                }),
+                _react2['default'].createElement(UserWidget, {
+                    pydio: pydio,
+                    style: styles.userWidget,
+                    hideActionBar: true,
+                    displayLabel: false,
+                    mergeButtonInAvatar: true
+                })
+            ),
+            _react2['default'].createElement(
+                _materialUi.Paper,
+                { zDepth: 0, className: 'main-panel', style: styles.mainPanel },
                 this.routeMasterPanel(dm.getContextNode(), dm.getUniqueNode())
             ),
-            rightPanel
+            _react2['default'].createElement(
+                _materialUi.Paper,
+                { zDepth: 2, className: "paper-editor layout-fill vertical-layout" + (rightPanel ? ' visible' : '') },
+                rPanelContent
+            )
         );
     }
 });
 
+exports['default'] = AdminDashboard = (0, _materialUiStyles.muiThemeable)()(AdminDashboard);
 exports['default'] = AdminDashboard;
 module.exports = exports['default'];

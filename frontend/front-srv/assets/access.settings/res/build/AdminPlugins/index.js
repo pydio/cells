@@ -62,10 +62,6 @@ var _docsOpenApiDashboard = require('./docs/OpenApiDashboard');
 
 var _docsOpenApiDashboard2 = _interopRequireDefault(_docsOpenApiDashboard);
 
-var _licenseLicenseBoard = require('./license/LicenseBoard');
-
-var _licenseLicenseBoard2 = _interopRequireDefault(_licenseLicenseBoard);
-
 window.AdminPlugins = {
 
   PluginsManager: _coreManager2['default'],
@@ -77,7 +73,6 @@ window.AdminPlugins = {
   UpdaterDashboard: _updaterUpdaterDashboard2['default'],
   JSDocsDashboard: _docsJSDocsDashboard2['default'],
   OpenApiDashboard: _docsOpenApiDashboard2['default'],
-  ServiceEditor: _coreServiceEditor2['default'],
-  LicenseDashboard: _licenseLicenseBoard2['default']
+  ServiceEditor: _coreServiceEditor2['default']
 
 };
