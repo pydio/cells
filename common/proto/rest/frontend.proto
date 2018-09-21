@@ -9,6 +9,7 @@ message SettingsEntryMeta{
     string Component = 2 [json_name="component"];
     string Props = 3 [json_name="props"];
     bool Advanced = 4 [json_name="advanced"];
+    repeated string Indexed = 5 [json_name="indexed"];
 }
 
 message SettingsEntry {

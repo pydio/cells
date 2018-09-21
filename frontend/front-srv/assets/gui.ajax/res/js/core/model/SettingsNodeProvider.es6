@@ -205,6 +205,9 @@ export default class SettingsNodeProvider{
                 }
             }
         }
+        if(section.Description){
+            sectionNode.getMetadata().set("description", section.Description);
+        }
         if (section.CHILDREN) {
             section.CHILDREN.map(c => {
                 sectionNode.addChild(SettingsNodeProvider.parseSection(parentPath + section.Key + '/', c, childCallback));

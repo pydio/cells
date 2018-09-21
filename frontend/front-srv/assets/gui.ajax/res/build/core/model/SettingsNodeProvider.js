@@ -247,6 +247,9 @@ var SettingsNodeProvider = (function () {
                 }
             }
         }
+        if (section.Description) {
+            sectionNode.getMetadata().set("description", section.Description);
+        }
         if (section.CHILDREN) {
             section.CHILDREN.map(function (c) {
                 sectionNode.addChild(SettingsNodeProvider.parseSection(parentPath + section.Key + '/', c, childCallback));

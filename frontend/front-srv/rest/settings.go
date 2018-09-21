@@ -161,6 +161,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-account-key",
 						Component: "AdminPlugins.AuthenticationPluginsDashboard",
+						Props:     `{"pluginId":"core.auth"}`,
 					},
 				},
 				{
@@ -181,7 +182,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-email",
 						Component: "AdminPlugins.ServiceEditor",
-						Props:     `{"serviceName":"pydio.grpc.mailer"}`,
+						Props:     `{"serviceName":"pydio.grpc.mailer","pluginId":"core.mailer"}`,
 					},
 				},
 				{

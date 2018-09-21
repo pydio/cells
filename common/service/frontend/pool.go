@@ -168,7 +168,11 @@ func (p *PluginsPool) AllPluginsManifests(ctx context.Context, lang string) *Cpl
 	for _, plugin := range p.Plugins {
 		var enabled = "false"
 		if plugin.PluginEnabled(emptyStatus) {
-			enabled = "true"
+			if plugin.AlwaysEnabled() {
+				enabled = "always"
+			} else {
+				enabled = "true"
+			}
 		}
 		if p, ok := plugin.(*Cuploader); ok {
 			clone := &Cuploader{}

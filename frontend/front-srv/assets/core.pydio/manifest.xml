@@ -3,6 +3,7 @@
           description="CONF_MESSAGE[Main container for core Pydio settings (application title, sharing, webdav server config, etc...)]"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd"
+        enabled="always"
         >
     <plugin_info>
         <plugin_author>Charles du Jeu</plugin_author>

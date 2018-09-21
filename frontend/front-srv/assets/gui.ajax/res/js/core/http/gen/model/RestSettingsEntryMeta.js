@@ -68,6 +68,9 @@ export default class RestSettingsEntryMeta {
             if (data.hasOwnProperty('Advanced')) {
                 obj['Advanced'] = ApiClient.convertToType(data['Advanced'], 'Boolean');
             }
+            if (data.hasOwnProperty('Indexed')) {
+                obj['Indexed'] = ApiClient.convertToType(data['Indexed'], ['String']);
+            }
         }
         return obj;
     }
@@ -88,6 +91,10 @@ export default class RestSettingsEntryMeta {
     * @member {Boolean} Advanced
     */
     Advanced = undefined;
+    /**
+    * @member {Array.<String>} Indexed
+    */
+    Indexed = undefined;
 
 
 

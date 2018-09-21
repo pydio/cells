@@ -42,6 +42,8 @@ var RestSettingsEntryMeta = (function () {
         this.IconClass = undefined;
         this.Component = undefined;
         this.Props = undefined;
+        this.Advanced = undefined;
+        this.Indexed = undefined;
     }
 
     /**
@@ -65,6 +67,12 @@ var RestSettingsEntryMeta = (function () {
             if (data.hasOwnProperty('Props')) {
                 obj['Props'] = _ApiClient2['default'].convertToType(data['Props'], 'String');
             }
+            if (data.hasOwnProperty('Advanced')) {
+                obj['Advanced'] = _ApiClient2['default'].convertToType(data['Advanced'], 'Boolean');
+            }
+            if (data.hasOwnProperty('Indexed')) {
+                obj['Indexed'] = _ApiClient2['default'].convertToType(data['Indexed'], ['String']);
+            }
         }
         return obj;
     };
@@ -84,4 +92,12 @@ module.exports = exports['default'];
 
 /**
 * @member {String} Props
+*/
+
+/**
+* @member {Boolean} Advanced
+*/
+
+/**
+* @member {Array.<String>} Indexed
 */

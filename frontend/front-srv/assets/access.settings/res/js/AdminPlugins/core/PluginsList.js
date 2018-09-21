@@ -94,40 +94,45 @@ const PluginsList = React.createClass({
     render(){
 
         const {displaySmall} = this.props;
-
         let columns;
+        const renderEnabled = (row) => {
+            return (<Toggle
+                toggled={row.xmlNode.getAttribute("enabled") !== "false"}
+                onToggle={(e,v) => this.togglePluginEnable(row.xmlNode, v)}
+                onClick={(e)=> e.stopPropagation()}
+                disabled={row.xmlNode.getAttribute("enabled") === "always"}
+            />);
+        };
+        const renderEditButton = (row) => {
+            if(XMLUtils.XPathSelectNodes(row.xmlNode, "server_settings/global_param").length){
+                return (
+                    <IconButton
+                        iconStyle={{color: 'rgba(0,0,0,0.33)', fontSize:21}}
+                        iconClassName="mdi mdi-pencil"
+                        tooltip={"Edit plugin parameters"}
+                        onTouchTap={()=>this.openTableRows([row])}
+                    />);
+            } else {
+                return <span/>;
+            }
+        };
+
+
         if(displaySmall) {
             columns = [
-                {name:'enabled', label: 'Enabled', style:{width:80}, headerStyle:{width:80}, renderCell: (row) => {
-                        return <Toggle
-                            toggled={row.xmlNode.getAttribute("enabled") !== "false"}
-                            onToggle={(e,v) => this.togglePluginEnable(row.xmlNode, v)}
-                            onClick={(e)=> e.stopPropagation()}
-                        />
-                    }},
+                {name:'enabled', label: 'Enabled', style:{width:80}, headerStyle:{width:80}, renderCell: renderEnabled},
                 {name:'label', label: 'Label', style:{fontSize:15}},
-                {name:'action', label: '', style:{width:80}, headerStyle:{width:80}, renderCell: (row) => {
-                        return <IconButton iconStyle={{color: 'rgba(0,0,0,0.33)', fontSize:21}} iconClassName="mdi mdi-pencil" onTouchTap={()=>this.openTableRows([row])}/>
-                    }}
+                {name:'action', label: '', style:{width:80}, headerStyle:{width:80}, renderCell: renderEditButton}
             ];
 
         } else {
             columns = [
-                {name:'enabled', label: 'Enabled', style:{width:80}, headerStyle:{width:80}, renderCell: (row) => {
-                        return <Toggle
-                            toggled={row.xmlNode.getAttribute("enabled") !== "false"}
-                            onToggle={(e,v) => this.togglePluginEnable(row.xmlNode, v)}
-                            onClick={(e)=> e.stopPropagation()}
-                        />
-                    }},
+                {name:'enabled', label: 'Enabled', style:{width:80}, headerStyle:{width:80}, renderCell: renderEnabled},
                 {name:'label', label: 'Label', style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
                 {name:'id', label: 'Id', style:{width:'15%'}, headerStyle:{width:'15%'}},
                 {name:'description', label: 'Description'},
-                {name:'action', label: '', style:{width:80}, headerStyle:{width:80}, renderCell: (row) => {
-                        return <IconButton iconStyle={{color: 'rgba(0,0,0,0.33)', fontSize:21}} iconClassName="mdi mdi-pencil" onTouchTap={()=>this.openTableRows([row])}/>
-                    }}
+                {name:'action', label: '', style:{width:80}, headerStyle:{width:80}, renderCell: renderEditButton}
             ];
-
         }
 
         const data = this.computeTableData();
@@ -136,7 +141,6 @@ const PluginsList = React.createClass({
             <MaterialTable
                 data={data}
                 columns={columns}
-                onSelectRows={this.openTableRows.bind(this)}
                 deselectOnClickAway={true}
                 showCheckboxes={false}
             />

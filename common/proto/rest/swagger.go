@@ -6109,6 +6109,12 @@ var SwaggerJson = `{
         "Advanced": {
           "type": "boolean",
           "format": "boolean"
+        },
+        "Indexed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
