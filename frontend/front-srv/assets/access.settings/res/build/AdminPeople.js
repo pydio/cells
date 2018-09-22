@@ -29276,6 +29276,17 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
         return this.props.onDismiss();
     },
 
+    getInitialState: function getInitialState() {
+        return {
+            groupId: '',
+            groupIdError: this.context.getMessage('ajxp_admin.user.16.empty'),
+            groupLabel: '',
+            groupLabelError: this.context.getMessage('ajxp_admin.user.17.empty'),
+            roleId: '',
+            roleIdError: this.context.getMessage('ajxp_admin.user.18.empty')
+        };
+    },
+
     submit: function submit() {
         var _this = this;
 
@@ -29285,10 +29296,16 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
         var reload = _props.reload;
 
         var currentNode = undefined;
+        var _state = this.state;
+        var groupId = _state.groupId;
+        var groupIdError = _state.groupIdError;
+        var groupLabel = _state.groupLabel;
+        var groupLabelError = _state.groupLabelError;
+        var roleId = _state.roleId;
+        var roleIdError = _state.roleIdError;
+
         if (type === "group") {
-            var gId = this.refs.group_id.getValue();
-            var gLabel = this.refs.group_label.getValue();
-            if (!gId || !gLabel) {
+            if (groupIdError || groupLabelError) {
                 return;
             }
             if (pydio.getContextHolder().getSelectedNodes().length) {
@@ -29297,14 +29314,16 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
                 currentNode = pydio.getContextNode();
             }
             var currentPath = currentNode.getPath().replace('/idm/users', '');
-            _pydioHttpApi2['default'].getRestClient().getIdmApi().createGroup(currentPath || '/', gId, gLabel).then(function () {
+            _pydioHttpApi2['default'].getRestClient().getIdmApi().createGroup(currentPath || '/', groupId, groupLabel).then(function () {
                 _this.dismiss();
                 currentNode.reload();
             });
         } else if (type === "role") {
-            var label = this.refs.role_id.getValue();
+            if (roleIdError) {
+                return;
+            }
             currentNode = this.props.roleNode;
-            _pydioHttpApi2['default'].getRestClient().getIdmApi().createRole(label).then(function () {
+            _pydioHttpApi2['default'].getRestClient().getIdmApi().createRole(roleId).then(function () {
                 _this.dismiss();
                 if (reload) {
                     reload();
@@ -29313,18 +29332,62 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
         }
     },
 
+    update: function update(state) {
+        if (state.groupId !== undefined) {
+            var re = new RegExp(/^[0-9A-Z\-_.:\+]+$/i);
+            if (!re.test(state.groupId)) {
+                state.groupIdError = this.context.getMessage('ajxp_admin.user.16.format');
+            } else if (state.groupId === '') {
+                state.groupIdError = this.context.getMessage('ajxp_admin.user.16.empty');
+            } else {
+                state.groupIdError = '';
+            }
+        } else if (state.groupLabel !== undefined) {
+            if (state.groupLabel === '') {
+                state.groupLabelError = this.context.getMessage('ajxp_admin.user.17.empty');
+            } else {
+                state.groupLabelError = '';
+            }
+        } else if (state.roleId !== undefined) {
+            if (state.roleId === '') {
+                state.roleIdError = this.context.getMessage('ajxp_admin.user.18.empty');
+            } else {
+                state.roleIdError = '';
+            }
+        }
+        this.setState(state);
+    },
+
     render: function render() {
+        var _this2 = this;
+
+        var _state2 = this.state;
+        var groupId = _state2.groupId;
+        var groupIdError = _state2.groupIdError;
+        var groupLabel = _state2.groupLabel;
+        var groupLabelError = _state2.groupLabelError;
+        var roleId = _state2.roleId;
+        var roleIdError = _state2.roleIdError;
+
         if (this.props.type === 'group') {
             return _react2['default'].createElement(
                 'div',
                 { style: { width: '100%' } },
                 _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'group_id',
+                    value: groupId,
+                    errorText: groupIdError,
+                    onChange: function (e, v) {
+                        _this2.update({ groupId: v });
+                    },
                     fullWidth: true,
                     floatingLabelText: this.context.getMessage('ajxp_admin.user.16')
                 }),
                 _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'group_label',
+                    value: groupLabel,
+                    errorText: groupLabelError,
+                    onChange: function (e, v) {
+                        _this2.update({ groupLabel: v });
+                    },
                     fullWidth: true,
                     floatingLabelText: this.context.getMessage('ajxp_admin.user.17')
                 })
@@ -29334,7 +29397,11 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
                 'div',
                 { style: { width: '100%' } },
                 _react2['default'].createElement(_materialUi.TextField, {
-                    ref: 'role_id',
+                    value: roleId,
+                    errorText: roleIdError,
+                    onChange: function (e, v) {
+                        _this2.update({ roleId: v });
+                    },
                     floatingLabelText: this.context.getMessage('ajxp_admin.user.18')
                 })
             );

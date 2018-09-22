@@ -56,13 +56,23 @@ const CreateRoleOrGroupForm = React.createClass({
         return this.props.onDismiss();
     },
 
+    getInitialState(){
+        return {
+            groupId:'',
+            groupIdError:this.context.getMessage('ajxp_admin.user.16.empty'),
+            groupLabel:'',
+            groupLabelError:this.context.getMessage('ajxp_admin.user.17.empty'),
+            roleId:'',
+            roleIdError: this.context.getMessage('ajxp_admin.user.18.empty')
+        }
+    },
+
     submit() {
         const {type, pydio, reload} = this.props;
         let currentNode;
+        const {groupId, groupIdError, groupLabel, groupLabelError, roleId, roleIdError} = this.state;
         if( type === "group"){
-            const gId = this.refs.group_id.getValue();
-            const gLabel = this.refs.group_label.getValue();
-            if(!gId || !gLabel){
+            if(groupIdError || groupLabelError){
                 return;
             }
             if(pydio.getContextHolder().getSelectedNodes().length){
@@ -71,15 +81,17 @@ const CreateRoleOrGroupForm = React.createClass({
                 currentNode = pydio.getContextNode();
             }
             const currentPath = currentNode.getPath().replace('/idm/users', '');
-            PydioApi.getRestClient().getIdmApi().createGroup(currentPath || '/', gId, gLabel).then(() => {
+            PydioApi.getRestClient().getIdmApi().createGroup(currentPath || '/', groupId, groupLabel).then(() => {
                 this.dismiss();
                 currentNode.reload();
             });
 
         }else if (type === "role"){
-            const label = this.refs.role_id.getValue();
+            if(roleIdError){
+                return;
+            }
             currentNode = this.props.roleNode;
-            PydioApi.getRestClient().getIdmApi().createRole(label).then(() => {
+            PydioApi.getRestClient().getIdmApi().createRole(roleId).then(() => {
                 this.dismiss();
                 if(reload) {
                     reload();
@@ -89,17 +101,48 @@ const CreateRoleOrGroupForm = React.createClass({
 
     },
 
+    update(state){
+        if(state.groupId !== undefined){
+            const re = new RegExp(/^[0-9A-Z\-_.:\+]+$/i);
+            if(!re.test(state.groupId)){
+                state.groupIdError = this.context.getMessage('ajxp_admin.user.16.format')
+            } else if (state.groupId === ''){
+                state.groupIdError = this.context.getMessage('ajxp_admin.user.16.empty')
+            } else {
+                state.groupIdError = '';
+            }
+        } else if(state.groupLabel !== undefined){
+            if(state.groupLabel === ''){
+                state.groupLabelError = this.context.getMessage('ajxp_admin.user.17.empty')
+            } else {
+                state.groupLabelError = '';
+            }
+        } else if(state.roleId !== undefined) {
+            if(state.roleId === ''){
+                state.roleIdError = this.context.getMessage('ajxp_admin.user.18.empty')
+            } else {
+                state.roleIdError = '';
+            }
+        }
+        this.setState(state);
+    },
+
     render(){
+        const {groupId, groupIdError, groupLabel, groupLabelError, roleId, roleIdError} = this.state;
         if(this.props.type === 'group'){
             return (
                 <div style={{width:'100%'}}>
                     <TextField
-                        ref="group_id"
+                        value={groupId}
+                        errorText={groupIdError}
+                        onChange={(e,v)=>{this.update({groupId:v})}}
                         fullWidth={true}
                         floatingLabelText={this.context.getMessage('ajxp_admin.user.16')}
                     />
                     <TextField
-                        ref="group_label"
+                        value={groupLabel}
+                        errorText={groupLabelError}
+                        onChange={(e,v)=>{this.update({groupLabel:v})}}
                         fullWidth={true}
                         floatingLabelText={this.context.getMessage('ajxp_admin.user.17')}
                     />
@@ -109,7 +152,9 @@ const CreateRoleOrGroupForm = React.createClass({
             return (
                 <div style={{width:'100%'}}>
                     <TextField
-                        ref="role_id"
+                        value={roleId}
+                        errorText={roleIdError}
+                        onChange={(e,v)=>{this.update({roleId:v})}}
                         floatingLabelText={this.context.getMessage('ajxp_admin.user.18')}
                     />
                 </div>
