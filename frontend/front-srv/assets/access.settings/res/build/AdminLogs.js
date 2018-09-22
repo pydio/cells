@@ -673,7 +673,10 @@ var LogTable = (function (_React$Component) {
                 this.setState({ loading: true });
                 onLoadingStatusChange(true, logs.length);
             }
+            _pydio2['default'].startLoading();
             _modelLog2['default'].loadLogs(service, query, page, size, contentType).then(function (data) {
+                _pydio2['default'].endLoading();
+
                 var _initRootSpans = _this.initRootSpans(data.Logs);
 
                 var logs = _initRootSpans.logs;
@@ -685,6 +688,7 @@ var LogTable = (function (_React$Component) {
                     }
                 });
             })['catch'](function (reason) {
+                _pydio2['default'].endLoading();
                 if (onLoadingStatusChange) {
                     _this.setState({ loading: false });
                     onLoadingStatusChange(false, logs.length);

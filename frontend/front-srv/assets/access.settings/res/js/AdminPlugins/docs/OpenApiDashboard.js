@@ -34,12 +34,15 @@ class OpenApiDashboard extends React.Component {
 
         return(
 
-            <div className={"main-layout-nav-to-stack vertical-layout people-dashboard"}>
+            <div className={"main-layout-nav-to-stack vertical-layout"}>
                 <AdminComponents.Header
                     title={"Rest APIs Documentation"}
                     icon="mdi mdi-routes"
                 />
                 <div className={"layout-fill"} style={{overflowY:'scroll'}}>
+                    <div style={{margin:20}}>
+                        Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT.&nbsp;
+                        See the <a href={"https://pydio.com/en/docs/administration-guides"} target={"_blank"}>online administrator guide</a> to learn more.</div>
                     <Paper zDepth={1} style={{margin:16}}>
                         <SwaggerUI url={this.state.specUrl}/>
                     </Paper>

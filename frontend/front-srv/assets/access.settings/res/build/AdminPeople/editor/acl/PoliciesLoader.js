@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -33,6 +32,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _pydioHttpApi = require('pydio/http/api');
 
@@ -63,7 +66,9 @@ var PoliciesLoader = (function (_Observable) {
 
             this._loading = true;
             var api = new _pydioHttpRestApi.PolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
+            _pydio2['default'].startLoading();
             api.listPolicies(new _pydioHttpRestApi.IdmListPolicyGroupsRequest()).then(function (data) {
+                _pydio2['default'].endLoading();
                 _this._policies = [];
                 if (data.PolicyGroups) {
                     data.PolicyGroups.map(function (pGroup) {
@@ -75,6 +80,8 @@ var PoliciesLoader = (function (_Observable) {
                 _this._loaded = true;
                 _this._loading = false;
                 _this.notify('loaded');
+            })['catch'](function () {
+                _pydio2['default'].endLoading();
             });
         }
     }, {

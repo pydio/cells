@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
 import Observable from 'pydio/lang/observable'
 import PydioApi from 'pydio/http/api'
@@ -30,7 +30,9 @@ class VirtualNode extends Observable {
 
     static loadNodes(callback){
         const api = new ConfigServiceApi(PydioApi.getRestClient());
+        Pydio.startLoading();
         api.listVirtualNodes().then(response => {
+            Pydio.endLoading();
             let result = [];
             if(response.Children){
                 response.Children.map(treeNode => {
@@ -38,6 +40,8 @@ class VirtualNode extends Observable {
                 })
             }
             callback(result);
+        }).catch(()=>{
+            Pydio.endLoading();
         });
     };
 

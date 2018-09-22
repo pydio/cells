@@ -355,7 +355,7 @@ var AdminDashboard = _react2['default'].createClass({
         if (pydio.user && pydio.user.getRepositoriesList().has('homepage')) {
             homeIconButton = _react2['default'].createElement(_materialUi.IconButton, {
                 tooltip: pydio.MessageHash['ajxp_admin.home.68'],
-                iconClassName: "mdi mdi-home-variant",
+                iconClassName: "mdi mdi-folder-open",
                 onTouchTap: function () {
                     pydio.triggerRepositoryChange('homepage');
                 },

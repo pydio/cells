@@ -204,6 +204,7 @@ var CoreAndPluginsDashboard = (function (_React$Component) {
                 title: this.props.rootNode.getLabel()
             }));
             return _react2['default'].createElement(_PluginEditor2['default'], {
+                currentNode: this.props.currentNode,
                 pydio: this.props.pydio,
                 pluginId: pluginId,
                 additionalPanes: { top: [], bottom: [pluginsList] }
@@ -1399,30 +1400,38 @@ var JSDocsPanel = (function (_Component) {
             });
             return React.createElement(
                 'div',
-                { style: { width: '100%', height: '100%', display: 'flex' } },
-                React.createElement(
-                    _materialUi.Paper,
-                    { zDepth: 1, style: { width: 256, overflowY: 'scroll', display: 'flex', flexDirection: 'column' } },
-                    React.createElement(
-                        'div',
-                        { style: { padding: 16, paddingBottom: 0, paddingTop: 8 } },
-                        React.createElement(_materialUi.TextField, { fullWidth: true, value: search, onChange: this.onSearch.bind(this), hintText: 'Search for a class...', underlineShow: false })
-                    ),
-                    error && React.createElement(
-                        'div',
-                        { style: { padding: 16 } },
-                        error
-                    ),
-                    React.createElement(
-                        _materialUi.List,
-                        { style: { flex: 1 } },
-                        items
-                    )
-                ),
+                { className: "main-layout-nav-to-stack vertical-layout" },
+                React.createElement(AdminComponents.Header, {
+                    title: "Javascript SDK Documentation",
+                    icon: 'mdi mdi-nodejs'
+                }),
                 React.createElement(
                     'div',
-                    { style: { flex: 1, overflowY: 'scroll' } },
-                    selection && React.createElement(ClassPanel, { path: selection, data: data[selection][0] })
+                    { className: "layout-fill", style: { display: 'flex', backgroundColor: 'white' } },
+                    React.createElement(
+                        _materialUi.Paper,
+                        { zDepth: 1, style: { width: 256, overflowY: 'scroll', display: 'flex', flexDirection: 'column' } },
+                        React.createElement(
+                            'div',
+                            { style: { padding: 16, paddingBottom: 0, paddingTop: 8 } },
+                            React.createElement(_materialUi.TextField, { fullWidth: true, value: search, onChange: this.onSearch.bind(this), hintText: 'Search for a class...', underlineShow: false })
+                        ),
+                        error && React.createElement(
+                            'div',
+                            { style: { padding: 16 } },
+                            error
+                        ),
+                        React.createElement(
+                            _materialUi.List,
+                            { style: { flex: 1 } },
+                            items
+                        )
+                    ),
+                    React.createElement(
+                        'div',
+                        { style: { flex: 1, overflowY: 'scroll' } },
+                        selection && React.createElement(ClassPanel, { path: selection, data: data[selection][0] })
+                    )
                 )
             );
         }
@@ -1523,7 +1532,7 @@ var ClassPanel = (function (_Component2) {
 
             return React.createElement(
                 'div',
-                null,
+                { style: { paddingBottom: 16 } },
                 React.createElement(_materialUi.CardTitle, { title: title, subtitle: classPath }),
                 React.createElement(
                     'div',
@@ -1710,7 +1719,7 @@ var OpenApiDashboard = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 'div',
-                { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
+                { className: "main-layout-nav-to-stack vertical-layout" },
                 _react2['default'].createElement(AdminComponents.Header, {
                     title: "Rest APIs Documentation",
                     icon: 'mdi mdi-routes'
@@ -1718,6 +1727,17 @@ var OpenApiDashboard = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { className: "layout-fill", style: { overflowY: 'scroll' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { margin: 20 } },
+                        'Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT.  See the ',
+                        _react2['default'].createElement(
+                            'a',
+                            { href: "https://pydio.com/en/docs/administration-guides", target: "_blank" },
+                            'online administrator guide'
+                        ),
+                        ' to learn more.'
+                    ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
                         { zDepth: 1, style: { margin: 16 } },
@@ -1956,7 +1976,9 @@ var UpdaterDashboard = _react2['default'].createClass({
         this.setState({ loading: true });
 
         var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+        _pydio2['default'].startLoading();
         api.updateRequired().then(function (res) {
+            _pydio2['default'].endLoading();
             var hasBinary = 0;
             if (res.AvailableBinaries) {
                 hasBinary = res.AvailableBinaries.length;
@@ -1969,6 +1991,7 @@ var UpdaterDashboard = _react2['default'].createClass({
             AdminComponents.MenuItemListener.getInstance().notify("item_changed");
             _this.setState({ loading: false });
         })['catch'](function () {
+            _pydio2['default'].endLoading();
             _this.setState({ loading: false });
         });
     },

@@ -289,7 +289,7 @@ let AdminDashboard = React.createClass({
         if(pydio.user && pydio.user.getRepositoriesList().has('homepage')){
             homeIconButton = <IconButton
                 tooltip={pydio.MessageHash['ajxp_admin.home.68']}
-                iconClassName={"mdi mdi-home-variant"}
+                iconClassName={"mdi mdi-folder-open"}
                 onTouchTap={()=>{pydio.triggerRepositoryChange('homepage')}}
                 style={styles.appBarButton}
                 iconStyle={styles.appBarButtonIcon}

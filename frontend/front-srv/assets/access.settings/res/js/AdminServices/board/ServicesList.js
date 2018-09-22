@@ -17,7 +17,8 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-const React = require('react');
+import Pydio from 'pydio'
+import React from "react";
 import PydioApi from 'pydio/http/api'
 import {ConfigServiceApi} from 'pydio/http/rest-api'
 import {Paper, List, ListItem, Checkbox, FontIcon, Divider} from 'material-ui'
@@ -112,8 +113,12 @@ export default React.createClass({
 
     load(){
         const api = new ConfigServiceApi(PydioApi.getRestClient());
+        Pydio.startLoading();
         api.listServices().then((servicesCollection) => {
+            Pydio.endLoading();
             this.setState({services: servicesCollection.Services});
+        }).catch(()=>{
+            Pydio.endLoading();
         });
     },
     /**

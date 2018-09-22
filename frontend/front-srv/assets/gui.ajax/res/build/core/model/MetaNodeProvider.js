@@ -144,7 +144,9 @@ var MetaNodeProvider = (function () {
             request.Versions = true;
             request.NodePaths = [slug + this.properties.get('file')];
         }
+        _pydio2['default'].startLoading();
         api.getBulkMeta(request).then(function (res) {
+            _pydio2['default'].endLoading();
             var origNode = undefined;
             var childrenNodes = [];
             res.Nodes.map(function (n) {
@@ -176,16 +178,18 @@ var MetaNodeProvider = (function () {
                 }
                 node.replaceBy(origNode);
             }
-            childrenNodes.map(function (child) {
-                if (_this.properties.has("versions")) {
+            if (_this.properties.has("versions")) {
+                childrenNodes = childrenNodes.map(function (child) {
                     child._path = child.getMetadata().get('versionId');
-                }
-                node.addChild(child);
-            });
+                    return child;
+                });
+            }
+            node.setChildren(childrenNodes);
             if (nodeCallback !== null) {
                 nodeCallback(node);
             }
         })['catch'](function (e) {
+            _pydio2['default'].endLoading();
             console.log(e);
         });
     };

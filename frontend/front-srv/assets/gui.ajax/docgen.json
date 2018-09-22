@@ -3091,6 +3091,22 @@
             "returns": null
           },
           {
+            "name": "checkLogin",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              },
+              {
+                "name": "v",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "submit",
             "docblock": null,
             "modifiers": [],
@@ -4146,38 +4162,6 @@
         "description": "",
         "displayName": "OpenApiDashboard",
         "methods": []
-      }
-    ],
-    "AdminPlugins/license/LicenseBoard.js": [
-      {
-        "description": "",
-        "displayName": "AboutPanel",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "Dashboard",
-        "methods": [
-          {
-            "name": "load",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "getMessage",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "id",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
       }
     ],
     "AdminPlugins/updater/UpdaterDashboard.js": [
@@ -29839,6 +29823,27 @@
         "displayName": "PassUtils",
         "methods": [
           {
+            "name": "isValidLogin",
+            "docblock": "Check if loginString is lowercase, a valid email or just alphanumeric\n@param loginString\n@return {string} Error string or empty string",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "loginString",
+                "description": null,
+                "type": null
+              }
+            ],
+            "returns": {
+              "description": "Error string or empty string",
+              "type": {
+                "name": "string"
+              }
+            },
+            "description": "Check if loginString is lowercase, a valid email or just alphanumeric"
+          },
+          {
             "name": "getState",
             "docblock": null,
             "modifiers": [
@@ -35337,6 +35342,30 @@
         "require": "const {TextField} = require('pydio').requireLib('form')"
       }
     ],
+    "Form/fields/ValidLogin.js": [
+      {
+        "description": "Text input, can be single line, multiLine, or password, depending on the\nattributes.type key.",
+        "methods": [
+          {
+            "name": "textValueChanged",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "require": "const {ValidLogin} = require('pydio').requireLib('form')"
+      }
+    ],
     "Form/fields/ValidPassword.js": [
       {
         "description": "",
@@ -37205,6 +37234,13 @@
             },
             "required": false,
             "description": ""
+          },
+          "avatarOnly": {
+            "type": {
+              "name": "bool"
+            },
+            "required": false,
+            "description": ""
           }
         },
         "require": "const {UserWidget} = require('pydio').requireLib('workspaces')"
@@ -37569,6 +37605,18 @@
               },
               {
                 "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "toggleMinFit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "font",
                 "type": null
               }
             ],

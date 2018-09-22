@@ -79,6 +79,7 @@ var CoreAndPluginsDashboard = (function (_React$Component) {
                 title: this.props.rootNode.getLabel()
             }));
             return _react2['default'].createElement(_PluginEditor2['default'], {
+                currentNode: this.props.currentNode,
                 pydio: this.props.pydio,
                 pluginId: pluginId,
                 additionalPanes: { top: [], bottom: [pluginsList] }

@@ -661,12 +661,38 @@ var Pydio = (function (_Observable) {
         return require('pydio/http/resources-manager').requireLib(module, promise);
     };
 
+    /**
+     * Return unique instance of pydio object
+     * @return {*|null}
+     */
+
     Pydio.getInstance = function getInstance() {
         return Pydio.instance;
     };
 
+    /**
+     * Direct access to unique instance MessageHash
+     * @return {{}}
+     */
+
     Pydio.getMessages = function getMessages() {
         return Pydio.instance ? Pydio.instance.MessageHash : {};
+    };
+
+    /**
+     * Send notification to display loader
+     */
+
+    Pydio.startLoading = function startLoading() {
+        Pydio.instance.notify("connection-start");
+    };
+
+    /**
+     * Send notification to hide loader
+     */
+
+    Pydio.endLoading = function endLoading() {
+        Pydio.instance.notify("connection-end");
     };
 
     return Pydio;

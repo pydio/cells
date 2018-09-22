@@ -22942,7 +22942,6 @@ module.exports = exports['default'];
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -22952,6 +22951,10 @@ Object.defineProperty(exports, '__esModule', {
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _react = require('react');
 
@@ -23036,10 +23039,13 @@ var PoliciesBoard = _react2['default'].createClass({
 
         this.setState({ loading: true });
         var api = new _pydioHttpRestApi.PolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
+        _pydio2['default'].startLoading();
         api.listPolicies(new _pydioHttpRestApi.IdmListPolicyGroupsRequest()).then(function (data) {
+            _pydio2['default'].endLoading();
             var grouped = _this.groupByResourcesGroups(data);
             _this.setState({ policies: grouped, loading: false });
         })['catch'](function (reason) {
+            _pydio2['default'].endLoading();
             _this.setState({ error: reason, loading: false });
         });
     },
@@ -23281,7 +23287,7 @@ exports['default'] = PoliciesBoard = (0, _materialUiStyles.muiThemeable)()(Polic
 exports['default'] = PoliciesBoard;
 module.exports = exports['default'];
 
-},{"../policies/Policy":195,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":155}],161:[function(require,module,exports){
+},{"../policies/Policy":195,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":155}],161:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23349,9 +23355,12 @@ var RolesDashboard = _react2['default'].createClass({
         var showTechnical = this.state.showTechnical;
 
         this.setState({ loading: true });
+        _pydio2['default'].startLoading();
         _pydioHttpApi2['default'].getRestClient().getIdmApi().listRoles(showTechnical, 0, 1000).then(function (roles) {
+            _pydio2['default'].endLoading();
             _this.setState({ roles: roles, loading: false });
         })['catch'](function (e) {
+            _pydio2['default'].endLoading();
             _this.setState({ loading: false });
         });
     },
@@ -24722,7 +24731,6 @@ module.exports = exports['default'];
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -24738,6 +24746,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _pydioHttpApi = require('pydio/http/api');
 
@@ -24768,7 +24780,9 @@ var PoliciesLoader = (function (_Observable) {
 
             this._loading = true;
             var api = new _pydioHttpRestApi.PolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
+            _pydio2['default'].startLoading();
             api.listPolicies(new _pydioHttpRestApi.IdmListPolicyGroupsRequest()).then(function (data) {
+                _pydio2['default'].endLoading();
                 _this._policies = [];
                 if (data.PolicyGroups) {
                     data.PolicyGroups.map(function (pGroup) {
@@ -24780,6 +24794,8 @@ var PoliciesLoader = (function (_Observable) {
                 _this._loaded = true;
                 _this._loading = false;
                 _this.notify('loaded');
+            })['catch'](function () {
+                _pydio2['default'].endLoading();
             });
         }
     }, {
@@ -24825,7 +24841,7 @@ PoliciesLoader.INSTANCE = null;
 exports['default'] = PoliciesLoader;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}],168:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}],168:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
