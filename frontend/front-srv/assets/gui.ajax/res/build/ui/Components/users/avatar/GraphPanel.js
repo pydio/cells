@@ -77,7 +77,7 @@ var GraphPanel = (function (_Component) {
                 var _this = this;
 
                 PydioApi.getRestClient().getIdmApi().removeUserFromTeam(team[0].id, this.props.userId, function (response) {
-                    if (response.message) {
+                    if (response && response.message) {
                         pydio.UI.displayMessage('SUCCESS', response.message);
                     }
                     _this.props.reloadAction();
