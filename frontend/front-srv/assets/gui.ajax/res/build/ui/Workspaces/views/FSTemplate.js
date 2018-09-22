@@ -116,6 +116,9 @@ var FSTemplate = _react2['default'].createClass({
             if (name !== 'info-panel') {
                 infoPanelOpen = true;
             }
+            localStorage.setItem('pydio.layout.rightColumnState', name);
+            localStorage.setItem('pydio.layout.infoPanelToggle', 'open');
+            localStorage.setItem('pydio.layout.infoPanelOpen', infoPanelOpen ? 'open' : 'closed');
             _this.setState({ infoPanelToggle: true, infoPanelOpen: infoPanelOpen }, function () {
                 return _this.resizeAfterTransition();
             });
@@ -128,14 +131,22 @@ var FSTemplate = _react2['default'].createClass({
         this.setState({ infoPanelToggle: false }, function () {
             _this2.resizeAfterTransition();
         });
+        localStorage.setItem('pydio.layout.rightColumnState', '');
+        localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
     },
 
     getInitialState: function getInitialState() {
+        var rState = 'info-panel';
+        if (localStorage.getItem('pydio.layout.rightColumnState') !== undefined && localStorage.getItem('pydio.layout.rightColumnState')) {
+            rState = localStorage.getItem('pydio.layout.rightColumnState');
+        }
+        var closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
+        var closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
         return {
-            infoPanelOpen: false,
-            infoPanelToggle: true,
+            infoPanelOpen: !closedInfo,
+            infoPanelToggle: !closedToggle,
             drawerOpen: false,
-            rightColumnState: 'info-panel'
+            rightColumnState: rState
         };
     },
 
@@ -241,7 +252,7 @@ var FSTemplate = _react2['default'].createClass({
 
         var mainToolbars = ["info_panel", "info_panel_share"];
         var mainToolbarsOthers = ["change", "other"];
-        if (infoPanelOpen && infoPanelToggle) {
+        if (infoPanelOpen && infoPanelToggle && rightColumnState === 'info-panel') {
             mainToolbars = ["change_main"];
             mainToolbarsOthers = ["get", "change", "other"];
         }
