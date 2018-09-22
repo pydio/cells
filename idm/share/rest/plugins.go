@@ -32,7 +32,6 @@ func init() {
 		service.Tag(common.SERVICE_TAG_IDM),
 		service.Description("REST access to shared rooms"),
 		service.RouterDependencies(),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_SHARE, []string{}),
 		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
 		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
 		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),

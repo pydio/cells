@@ -50,7 +50,7 @@ func init() {
 		}),
 		service.WithMicro(func(m micro.Service) error {
 			ctx := m.Options().Context
-			server := new(Handler)
+			server := NewHandler()
 			m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
 
 			idm.RegisterUserMetaServiceHandler(m.Options().Server, server)

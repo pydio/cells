@@ -25,11 +25,18 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/auth"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/idm/acl"
 )
 
@@ -37,6 +44,7 @@ import (
 func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderStreamer_ReadNodeStreamStream) error {
 
 	dao := servicecontext.GetDAO(ctx).(acl.DAO)
+	workspaceClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
 	defer stream.Close()
 
 	for {
@@ -54,14 +62,67 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 			NodeIDs: []string{node.Uuid},
 			Actions: []*idm.ACLAction{
 				{Name: "content_lock"},
+				utils.ACL_READ,
+				utils.ACL_WRITE,
 			},
 		})
 		dao.Search(&service.Query{SubQueries: []*any.Any{q}}, acls)
+		var contentLock string
+		nodeAcls := map[string][]*idm.ACL{}
 		for _, in := range *acls {
-			val, _ := in.(*idm.ACL)
-			node.SetMeta("content_lock", val.Action.Value)
-			break
+			a, _ := in.(*idm.ACL)
+			if a.Action.Name == "content_lock" {
+				contentLock = a.Action.Value
+			} else if a.WorkspaceID != "" {
+				if _, exists := nodeAcls[a.WorkspaceID]; !exists {
+					nodeAcls[a.WorkspaceID] = []*idm.ACL{}
+				}
+				nodeAcls[a.WorkspaceID] = append(nodeAcls[a.WorkspaceID], a)
+			}
 		}
+
+		if contentLock != "" {
+			node.SetMeta("content_lock", contentLock)
+		}
+
+		var shares []*idm.Workspace
+		for wsId, _ := range nodeAcls {
+			roomQuery, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+				Uuid:  wsId,
+				Scope: idm.WorkspaceScope_ROOM,
+			})
+			linkQuery, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+				Uuid:  wsId,
+				Scope: idm.WorkspaceScope_LINK,
+			})
+			subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, &rest.ResourcePolicyQuery{Type: rest.ResourcePolicyQuery_CONTEXT})
+			wsClient, err := workspaceClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{
+				Query: &service.Query{
+					SubQueries:          []*any.Any{roomQuery, linkQuery},
+					ResourcePolicyQuery: &service.ResourcePolicyQuery{Subjects: subjects},
+					Operation:           service.OperationType_OR,
+				},
+			})
+			if err == nil {
+				defer wsClient.Close()
+				for {
+					wsResp, er := wsClient.Recv()
+					if er != nil {
+						break
+					}
+					if wsResp == nil {
+						continue
+					}
+					shares = append(shares, wsResp.Workspace)
+				}
+			}
+		}
+
+		if len(shares) > 0 {
+			log.Logger(ctx).Debug("Read Node Stream for Shares : found workspaces owned by user", zap.Any("s", shares), zap.Any("n", nodeAcls), zap.Any("acls", *acls))
+			node.SetMeta("workspaces_shares", shares)
+		}
+
 		stream.Send(&tree.ReadNodeResponse{Node: node})
 	}
 

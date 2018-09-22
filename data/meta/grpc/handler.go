@@ -24,16 +24,18 @@ import (
 	"context"
 	"encoding/json"
 
-	"go.uber.org/zap"
-
+	"github.com/allegro/bigcache"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/event"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/data/meta"
 )
 
@@ -41,6 +43,13 @@ import (
 type MetaServer struct {
 	//	Dao           DAO
 	eventsChannel chan *event.EventWithContext
+	cache         *bigcache.BigCache
+}
+
+func NewMetaServer() *MetaServer {
+	m := &MetaServer{}
+	m.cache, _ = bigcache.NewBigCache(utils.DefaultBigCacheConfig())
+	return m
 }
 
 // CreateNodeChangeSubscriber that will treat events for the meta server
@@ -117,17 +126,45 @@ func (s *MetaServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent) 
 
 // ReadNode information off the meta server
 func (s *MetaServer) ReadNode(ctx context.Context, req *tree.ReadNodeRequest, resp *tree.ReadNodeResponse) (err error) {
+	if req.Node == nil || req.Node.Uuid == "" {
+		return errors.BadRequest(common.SERVICE_META, "Please provide a Node with a Uuid")
+	}
+
+	if s.cache != nil {
+		data, e := s.cache.Get(req.Node.Uuid)
+		if e == nil {
+			var metaD map[string]string
+			if er := json.Unmarshal(data, &metaD); er == nil {
+				//log.Logger(ctx).Info("META / Reading from cache for " + req.Node.Uuid)
+				resp.Success = true
+				respNode := req.Node
+				for k, v := range metaD {
+					var metaValue interface{}
+					json.Unmarshal([]byte(v), &metaValue)
+					respNode.SetMeta(k, metaValue)
+				}
+				resp.Node = respNode
+				return nil
+			}
+		}
+	}
+
 	if servicecontext.GetDAO(ctx) == nil {
 		return errors.InternalServerError(common.SERVICE_META, "No DAO found Wrong initialization")
 	}
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
 
-	if req.Node == nil || req.Node.Uuid == "" {
-		return errors.BadRequest(common.SERVICE_META, "Please provide a Node with a Uuid")
-	}
 	metadata, err := dao.GetMetadata(req.Node.Uuid)
 	if metadata == nil || err != nil {
 		return errors.NotFound(common.SERVICE_META, "Node with Uuid "+req.Node.Uuid+" not found")
+	}
+
+	if s.cache != nil {
+		value, e := json.Marshal(metadata)
+		if e == nil {
+			//log.Logger(ctx).Info("META / Setting cache for " + req.Node.Uuid)
+			s.cache.Set(req.Node.Uuid, value)
+		}
 	}
 
 	resp.Success = true
@@ -158,7 +195,6 @@ func (s *MetaServer) ReadNodeStream(ctx context.Context, streamer tree.NodeProvi
 		response := &tree.ReadNodeResponse{}
 
 		log.Logger(ctx).Debug("ReadNodeStream", zap.String("path", request.Node.Path))
-
 		e := s.ReadNode(ctx, &tree.ReadNodeRequest{Node: request.Node}, response)
 		if e != nil {
 			if errors.Parse(e.Error()).Code == 404 {
@@ -193,6 +229,11 @@ func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 		author = claims.Name
 	}
 
+	if s.cache != nil {
+		//log.Logger(ctx).Info("META / Clearing cache for " + req.Node.Uuid)
+		s.cache.Delete(req.Node.Uuid)
+	}
+
 	if err := dao.SetMetadata(req.Node.Uuid, author, s.filterMetaToStore(ctx, req.Node.MetaStore)); err != nil {
 		resp.Success = false
 	}
@@ -221,6 +262,11 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 		author = claims.Name
 	}
 
+	if s.cache != nil {
+		//log.Logger(ctx).Info("META / Clearing cache for " + req.To.Uuid)
+		s.cache.Delete(req.To.Uuid)
+	}
+
 	if err := dao.SetMetadata(req.To.Uuid, author, s.filterMetaToStore(ctx, req.To.MetaStore)); err != nil {
 		log.Logger(ctx).Error("failed to update meta node", zap.Any("error", err))
 		resp.Success = false
@@ -242,6 +288,11 @@ func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeReq
 
 	// Delete all meta for this node
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
+
+	if s.cache != nil {
+		//log.Logger(ctx).Info("META / Clearing cache for " + request.Node.Uuid)
+		s.cache.Delete(request.Node.Uuid)
+	}
 
 	if err = dao.SetMetadata(request.Node.Uuid, "", map[string]string{}); err != nil {
 		return err

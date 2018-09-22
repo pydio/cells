@@ -189,6 +189,12 @@
 			"revisionTime": "2017-08-10T21:33:27Z"
 		},
 		{
+			"checksumSHA1": "Kryyjoty7AOtYCkXqX2UDD3NruA=",
+			"path": "github.com/allegro/bigcache",
+			"revision": "5946793e3c8e05106dd56fbd87da9c60db1fc94a",
+			"revisionTime": "2018-09-10T06:37:04Z"
+		},
+		{
 			"checksumSHA1": "2rWSos1D+xqNSGkvEMOG3pntod8=",
 			"path": "github.com/andybalholm/cascadia",
 			"revision": "349dd0209470eabd9514242c688c403c0926d266",
