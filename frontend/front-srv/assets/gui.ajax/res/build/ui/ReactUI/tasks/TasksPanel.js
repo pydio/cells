@@ -64,7 +64,7 @@ var TasksPanel = (function (_React$Component) {
         _React$Component.call(this, props);
         this.state = {
             jobs: new Map(),
-            folded: false,
+            folded: true,
             innerScroll: 0
         };
         this.recomputeInnerScrollDebounced = _lodashDebounce2['default'](this.recomputeInnerScroll.bind(this), 100);

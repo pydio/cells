@@ -88,7 +88,7 @@ class PydioWebSocket {
 
         this.ws.addEventListener('open', () => {
             this.connOpen = true;
-            PydioWebSocket.subscribeJWT(this.ws);
+            PydioWebSocket.subscribeJWT(this.ws, true);
         });
         this.ws.addEventListener('message', this.parseWebsocketMessage.bind(this));
         this.ws.addEventListener('close', (event) => {
@@ -183,79 +183,21 @@ class PydioWebSocket {
     }
 
     /**
-     * @return AjxpNode | null
-     * @param obj
-     * @param currentRepoId string
-     * @param currentRepoSlug string
-     */
-    static parseJSONNode(obj, currentRepoId, currentRepoSlug) {
-
-        if (!obj){
-            return null;
-        }
-
-        let wsId = JSON.parse(obj.MetaStore.EventWorkspaceId);
-        let nodeName;
-        if (obj.MetaStore.name){
-            nodeName = JSON.parse(obj.MetaStore.name);
-        } else{
-            nodeName = PathUtils.getBasename(obj.Path);
-        }
-        if (wsId === currentRepoId) {
-            obj.Path = obj.Path.substr(currentRepoSlug.length + 1)
-        } else {
-            return null;
-        }
-
-        let node = new AjxpNode('/' + obj.Path, obj.Type === "LEAF", nodeName, '', null);
-
-        let meta = obj.MetaStore;
-        for (let k in meta){
-            if (meta.hasOwnProperty(k)) {
-                let metaValue = JSON.parse(meta[k]);
-                node.getMetadata().set(k, metaValue);
-                if (typeof metaValue === 'object') {
-                    for (let kSub in metaValue) {
-                        if (metaValue.hasOwnProperty(kSub)) {
-                            node.getMetadata().set(kSub, metaValue[kSub]);
-                        }
-                    }
-                }
-            }
-        }
-        node.getMetadata().set('filename', node.getPath());
-        if(node.isLeaf() && pydio && pydio.Registry){
-            const ext = PathUtils.getFileExtension(node.getPath());
-            const registered = pydio.Registry.getFilesExtensions();
-            if(registered.has(ext)){
-                const {messageId, fontIcon} = registered.get(ext);
-                node.getMetadata().set('fonticon',fontIcon);
-                node.getMetadata().set('mimestring_id',messageId);
-            }
-        }
-        if (obj.Size !== undefined){
-            node.getMetadata().set('bytesize', obj.Size);
-        }
-        if (obj.MTime !== undefined){
-            node.getMetadata().set('ajxp_modiftime', obj.MTime);
-        }
-        if (obj.Etag !== undefined){
-            node.getMetadata().set('etag', obj.Etag);
-        }
-        if (obj.Uuid !== undefined){
-            node.getMetadata().set('uuid', obj.Uuid);
-        }
-        return node;
-
-    }
-
-    /**
      *
-     * @param ws
+     * @param ws {ReconnectingWebSocket}
+     * @param withRetries bool
+     * @param retry integer
      * @return {*|Promise.<string>}
      */
-    static subscribeJWT(ws) {
+    static subscribeJWT(ws, withRetries = false, retry = 0) {
         return PydioApi.getRestClient().getOrUpdateJwt().then((jwt) =>{
+            if(!jwt && withRetries && retry < 3){
+                console.log('WebSocket connected but without valid JWT, retry in 10 seconds');
+                setTimeout(()=>{
+                    PydioWebSocket.subscribeJWT(ws, withRetries, retry + 1);
+                }, 10000);
+                return;
+            }
             ws.send(JSON.stringify({
                 "@type":"subscribe",
                 "jwt"  : jwt
@@ -310,7 +252,7 @@ class PydioWebSocket {
                 break;
         }
         if (event.code > 1000 && console) {
-            console.error("WebSocket Closed Connection:" + reason + " (code " + event.code + ")");
+            console.log("WebSocket Closed Connection:" + reason + " (code " + event.code + ")");
         }
     }
 
