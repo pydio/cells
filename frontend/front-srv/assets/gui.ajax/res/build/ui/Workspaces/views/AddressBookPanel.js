@@ -182,7 +182,7 @@ var AddressBookPanel = (function (_React$Component) {
             'div',
             { id: "info_panel", style: _extends({}, columnStyle, { display: 'flex', flexDirection: 'column' }) },
             cellInfo,
-            _react2['default'].createElement(AddressBook, {
+            pydio.Controller.getActionByName("open_address_book") && _react2['default'].createElement(AddressBook, {
                 mode: 'selector',
                 bookColumn: true,
                 pydio: pydio,

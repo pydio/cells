@@ -72,10 +72,17 @@ var ParametersPanel = (function (_React$Component) {
 
             var aclKey = type + ':' + pluginName + ':' + paramName;
             var value = undefined;
+            console.log(scope, type, pluginName, paramName, attributes);
             if (type === 'action') {
                 value = false;
-            } else {
-                value = attributes && attributes["default"] ? attributes["default"] : "";
+            } else if (attributes && attributes.xmlNode) {
+                var xmlNode = attributes.xmlNode;
+                value = xmlNode.getAttribute('default') ? xmlNode.getAttribute('default') : "";
+                if (xmlNode.getAttribute('type') === 'boolean') {
+                    value = value === "true";
+                } else if (xmlNode.getAttribute('type') === 'integer') {
+                    value = parseInt(value);
+                }
             }
             role.setParameter(aclKey, value, scope);
         }
