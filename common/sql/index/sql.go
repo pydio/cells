@@ -1504,7 +1504,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (u
 		}
 	}
 
-	fmt.Println(path, created, err, strpath)
+	//fmt.Println(path, created, err, strpath)
 	return path, created, err
 }
 
