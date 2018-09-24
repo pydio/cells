@@ -139,7 +139,6 @@ var Role = (function (_Observable) {
                 } else {
                     _this3.acls = collection.ACLs || [];
                 }
-                console.log(_this3);
                 if (!parentsOnly) {
                     _this3.makeSnapshot();
                 }

@@ -97,10 +97,13 @@ var GroupInfo = (function (_React$Component) {
                     // Compute values
                     var idmUser = group.getIdmUser();
                     var role = group.getRole();
-
+                    var label = idmUser.GroupLabel;
+                    if (idmUser.Attributes && idmUser.Attributes['displayName']) {
+                        label = idmUser.Attributes['displayName'];
+                    }
                     values = {
-                        groupPath: idmUser.GroupPath,
-                        groupLabel: idmUser.GroupLabel
+                        groupPath: LangUtils.trimRight(idmUser.GroupPath, '/') + '/' + idmUser.GroupLabel,
+                        displayName: label
                     };
                     parameters.map(function (p) {
                         if (p.aclKey && role.getParameterValue(p.aclKey)) {
@@ -109,7 +112,7 @@ var GroupInfo = (function (_React$Component) {
                     });
                 })();
             }
-            var params = [{ "name": "groupPath", label: this.getPydioRoleMessage('34'), "type": "string", readonly: true }, { "name": "groupLabel", label: this.getPydioRoleMessage('35'), "type": "string" }].concat(_toConsumableArray(parameters));
+            var params = [{ "name": "groupPath", label: this.getPydioRoleMessage('34'), "type": "string", readonly: true }, { "name": "displayName", label: this.getPydioRoleMessage('35'), "type": "string" }].concat(_toConsumableArray(parameters));
 
             return _react2['default'].createElement(
                 'div',

@@ -82,7 +82,6 @@ class Role extends Observable{
             }else{
                 this.acls = collection.ACLs || [];
             }
-            console.log(this);
             if(!parentsOnly){
                 this.makeSnapshot();
             }

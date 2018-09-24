@@ -286,6 +286,9 @@ var Editor = (function (_React$Component) {
                 infoTitle = this.getMessage('26'); // group information
                 infoMenuTitle = this.getMessage('27');
                 title = observableUser.getIdmUser().GroupLabel;
+                if (observableUser.getIdmUser().Attributes && observableUser.getIdmUser().Attributes['displayName']) {
+                    title = observableUser.getIdmUser().Attributes['displayName'];
+                }
                 otherForm = _react2['default'].createElement(_infoGroupInfo2['default'], { group: observableUser, pydio: pydio, pluginsRegistry: pluginsRegistry });
             } else if (this.state.roleType === 'role') {
 

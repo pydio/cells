@@ -24013,6 +24013,9 @@ var Editor = (function (_React$Component) {
                 infoTitle = this.getMessage('26'); // group information
                 infoMenuTitle = this.getMessage('27');
                 title = observableUser.getIdmUser().GroupLabel;
+                if (observableUser.getIdmUser().Attributes && observableUser.getIdmUser().Attributes['displayName']) {
+                    title = observableUser.getIdmUser().Attributes['displayName'];
+                }
                 otherForm = _react2['default'].createElement(_infoGroupInfo2['default'], { group: observableUser, pydio: pydio, pluginsRegistry: pluginsRegistry });
             } else if (this.state.roleType === 'role') {
 
@@ -24313,7 +24316,7 @@ var MaskNodesProvider = (function (_MetaNodeProvider) {
             var depth = arguments.length <= 4 || arguments[4] === undefined ? -1 : arguments[4];
             var optionalParameters = arguments.length <= 5 || arguments[5] === undefined ? null : arguments[5];
 
-            console.log('MaskNodes', node);
+            //console.log('MaskNodes', node);
             var api = new _pydioHttpRestApi.AdminTreeServiceApi(_pydioHttpApi2['default'].getRestClient());
 
             var listRequest = new _pydioHttpRestApi.TreeListNodesRequest();
@@ -24574,7 +24577,7 @@ var PermissionMaskEditor = _react2['default'].createClass({
 
     onCheckboxCheck: function onCheckboxCheck(node, checkboxName, value) {
 
-        console.log(node, checkboxName, value);
+        //console.log(node, checkboxName, value);
         var role = this.props.role;
 
         var nodeUuid = node.getMetadata().get('uuid');
@@ -25370,10 +25373,13 @@ var GroupInfo = (function (_React$Component) {
                     // Compute values
                     var idmUser = group.getIdmUser();
                     var role = group.getRole();
-
+                    var label = idmUser.GroupLabel;
+                    if (idmUser.Attributes && idmUser.Attributes['displayName']) {
+                        label = idmUser.Attributes['displayName'];
+                    }
                     values = {
-                        groupPath: idmUser.GroupPath,
-                        groupLabel: idmUser.GroupLabel
+                        groupPath: LangUtils.trimRight(idmUser.GroupPath, '/') + '/' + idmUser.GroupLabel,
+                        displayName: label
                     };
                     parameters.map(function (p) {
                         if (p.aclKey && role.getParameterValue(p.aclKey)) {
@@ -25382,7 +25388,7 @@ var GroupInfo = (function (_React$Component) {
                     });
                 })();
             }
-            var params = [{ "name": "groupPath", label: this.getPydioRoleMessage('34'), "type": "string", readonly: true }, { "name": "groupLabel", label: this.getPydioRoleMessage('35'), "type": "string" }].concat(_toConsumableArray(parameters));
+            var params = [{ "name": "groupPath", label: this.getPydioRoleMessage('34'), "type": "string", readonly: true }, { "name": "displayName", label: this.getPydioRoleMessage('35'), "type": "string" }].concat(_toConsumableArray(parameters));
 
             return _react2['default'].createElement(
                 'div',
@@ -25528,7 +25534,7 @@ var RoleInfo = (function (_React$Component) {
                     }
                 });
             }
-            console.log(values);
+            //console.log(values);
 
             return _react2['default'].createElement(FormPanel, {
                 parameters: params,
@@ -27250,7 +27256,6 @@ var Role = (function (_Observable) {
                 } else {
                     _this3.acls = collection.ACLs || [];
                 }
-                console.log(_this3);
                 if (!parentsOnly) {
                     _this3.makeSnapshot();
                 }
@@ -28432,7 +28437,7 @@ var ParametersPanel = (function (_React$Component) {
 
             var aclKey = type + ':' + pluginName + ':' + paramName;
             var value = undefined;
-            console.log(scope, type, pluginName, paramName, attributes);
+            //console.log(scope, type, pluginName, paramName, attributes);
             if (type === 'action') {
                 value = false;
             } else if (attributes && attributes.xmlNode) {

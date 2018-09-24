@@ -72,7 +72,7 @@ var ParametersPanel = (function (_React$Component) {
 
             var aclKey = type + ':' + pluginName + ':' + paramName;
             var value = undefined;
-            console.log(scope, type, pluginName, paramName, attributes);
+            //console.log(scope, type, pluginName, paramName, attributes);
             if (type === 'action') {
                 value = false;
             } else if (attributes && attributes.xmlNode) {
