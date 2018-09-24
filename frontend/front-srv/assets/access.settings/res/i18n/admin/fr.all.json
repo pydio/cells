@@ -690,7 +690,7 @@
     "other": "Pydio peut utiliser un cache mémoire ou un serveur externe comme Redis ou Memcache pour accéder plus rapidement aux configurations utilisateurs ainsi qu'aux listing des fichiers."
   },
   "perfs.cache.title": {
-    "other": "Pydio Cache"
+    "other": "Cache Pydio"
   },
   "perfs.cli.description": {
     "other": "Déleguer les tâches qui prennent du temps à la ligne de commande."
@@ -885,7 +885,7 @@
     "other": "Accès à %i workspaces"
   },
   "user.11": {
-    "other": "%i roles"
+    "other": "%i rôles"
   },
   "user.12": {
     "other": "Chemin"
@@ -902,11 +902,23 @@
   "user.16": {
     "other": "Identifiant"
   },
+  "user.16.empty": {
+    "other": "Veuillez choisir un identifiant unique"
+  },
+  "user.16.format": {
+    "other": "Veuillez n'utiliser que des caractères alphanumériques"
+  },
   "user.17": {
     "other": "Libellé"
   },
+  "user.17.empty": {
+    "other": "Donnez un libellé à ce groupe"
+  },
   "user.18": {
     "other": "Identifiant"
+  },
+  "user.18.empty": {
+    "other": "Donnez un libellé à ce rôle"
   },
   "user.19": {
     "other": "Nouvel utilisateur"
@@ -942,13 +954,13 @@
     "other": "Groupes"
   },
   "user.4": {
-    "other": "Roles"
+    "other": "Rôles"
   },
   "user.5": {
     "other": "Groupes & Utilisateurs"
   },
   "user.6": {
-    "other": "+ Role"
+    "other": "+ Rôle"
   },
   "user.7": {
     "other": "Chercher un utilisateur"
@@ -1113,7 +1125,7 @@
     "other": "Propriétaire"
   },
   "ws.4": {
-    "other": "+ datasource"
+    "other": "+ Datasource"
   },
   "ws.40": {
     "other": "Type de partage"
@@ -1327,5 +1339,83 @@
   },
   "ws.editor.slug.legend": {
     "other": "Identifiant technique utilisé par exemple dans les URLs, calculé automatiquement à moins que vous ne le personnalisiez."
+  },
+  "services.filter.nofilter": {
+    "other": "Tous les services"
+  },
+  "services.filter.started": {
+    "other": "En fonctionnement"
+  },
+  "services.filter.stopped": {
+    "other": "Arrêtés"
+  },
+  "services.toggle.details": {
+    "other": "Voir les détails"
+  },
+  "services.tag.gateway.title": {
+    "other": "Passerelles"
+  },
+  "services.tag.gateway.description": {
+    "other": "Services de passerelles entre le monde extérieur et les micro-services de Cells"
+  },
+  "services.tag.datasource.title": {
+    "other": "Datasources"
+  },
+  "services.tag.datasource.description": {
+    "other": "Points d'accès aux stockages des fichiers. Services principaux en charge de démarrer les sous-services (par datasource)."
+  },
+  "services.tag.data.title": {
+    "other": "Données"
+  },
+  "services.tag.data.description": {
+    "other": "Services pour la gestion des données et des métadonnées."
+  },
+  "services.tag.idm.title": {
+    "other": "Gestion des identités"
+  },
+  "services.tag.idm.description": {
+    "other": "Tous les services liés à l’authentification et les autorisations, les rôles, les stratégies de sécurité, etc."
+  },
+  "services.tag.scheduler.title": {
+    "other": "Planificateur"
+  },
+  "services.tag.scheduler.description": {
+    "other": "Services de gestion des tâches en arrière-plan. Le serveur de tâches peut être distribué sur différents nœuds pour de meilleurs performances."
+  },
+  "services.tag.broker.title": {
+    "other": "Courtier"
+  },
+  "services.tag.broker.description": {
+    "other": "Services génériques de traitement des événements dans l’application."
+  },
+  "services.tag.frontend.title": {
+    "other": "Interface Utilisateur"
+  },
+  "services.tag.frontend.description": {
+    "other": "Services Web pour les interfaces utilisateur dans le navigateur"
+  },
+  "services.tag.discovery.title": {
+    "other": "Configuration automatique"
+  },
+  "services.tag.discovery.description": {
+    "other": "Registre des services et services de base appelées par tous les autres."
+  },
+  "services.service.ip": {
+    "other": "En cours d’exécution sur %s"
+  },
+  "services.service.datasource.sync": {
+    "other": "Synchro"
+  },
+  "services.service.datasource.objects": {
+    "other": "Objets"
+  },
+  "services.service.datasource.objects.legend": {
+    "other": "Couche de type objet pour servir les données au protocole s3"
+  },
+  "services.service.datasource.legend": {
+    "other": "La datasource synchronise les données de la couche d’objets vers la DB d'index."
+  },
+  "services.service.datasource.index": {
+    "other": "Indexation"
   }
 }

@@ -902,11 +902,23 @@
   "user.16": {
     "other": "Group Identifier"
   },
+  "user.16.empty": {
+    "other": "Please provide a unique identifier"
+  },
+  "user.16.format": {
+    "other": "Please use only alphanumeric characters"
+  },
   "user.17": {
     "other": "Group Label"
   },
+  "user.17.empty": {
+    "other": "Please provide a label for this group"
+  },
   "user.18": {
     "other": "Role Identifier"
+  },
+  "user.18.empty": {
+    "other": "Please provide a label for this role"
   },
   "user.19": {
     "other": "Create a new user"
@@ -1327,5 +1339,83 @@
   },
   "ws.editor.slug.legend": {
     "other": "Technical name used for example in URLs, automatically computed but you can customize it."
+  },
+  "services.filter.nofilter": {
+    "other": "All Services"
+  },
+  "services.filter.started": {
+    "other": "Running Only"
+  },
+  "services.filter.stopped": {
+    "other": "Stopped Only"
+  },
+  "services.toggle.details": {
+    "other": "Show Details"
+  },
+  "services.tag.gateway.title": {
+    "other": "Gateways"
+  },
+  "services.tag.gateway.description": {
+    "other": "World-facing services for accessing the platform"
+  },
+  "services.tag.datasource.title": {
+    "other": "Data Sources"
+  },
+  "services.tag.datasource.description": {
+    "other": "Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource)."
+  },
+  "services.tag.data.title": {
+    "other": "Data"
+  },
+  "services.tag.data.description": {
+    "other": "Services handling data and metadata."
+  },
+  "services.tag.idm.title": {
+    "other": "Identity Management"
+  },
+  "services.tag.idm.description": {
+    "other": "All services related to authentication and authorizations, roles, security policies, etc."
+  },
+  "services.tag.scheduler.title": {
+    "other": "Scheduler"
+  },
+  "services.tag.scheduler.description": {
+    "other": "Services for managing background jobs. The tasks server can be dispatched accross various peers."
+  },
+  "services.tag.broker.title": {
+    "other": "Broker"
+  },
+  "services.tag.broker.description": {
+    "other": "Services dispatching and processing events (generally toward users) accross the application."
+  },
+  "services.tag.frontend.title": {
+    "other": "Frontend"
+  },
+  "services.tag.frontend.description": {
+    "other": "Web services for user interfaces in the browser"
+  },
+  "services.tag.discovery.title": {
+    "other": "Discovery"
+  },
+  "services.tag.discovery.description": {
+    "other": "Basic configurations and services registries called by all other services."
+  },
+  "services.service.ip": {
+    "other": "Running on %s"
+  },
+  "services.service.datasource.sync": {
+    "other": "Sync"
+  },
+  "services.service.datasource.objects": {
+    "other": "Objects"
+  },
+  "services.service.datasource.objects.legend": {
+    "other": "S3 layer to serve data as object storage"
+  },
+  "services.service.datasource.legend": {
+    "other": "Datasource is synchronizing data from objects layer to index DB."
+  },
+  "services.service.datasource.index": {
+    "other": "Indexation"
   }
 }
