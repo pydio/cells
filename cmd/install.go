@@ -177,7 +177,7 @@ var installCmd = &cobra.Command{
 		// Installing the JS data
 		dir, err := assets.GetAssets("../discovery/install/assets/src")
 		if err != nil {
-			dir := filepath.Join(config.ApplicationDataDir(), "static", "install")
+			dir = filepath.Join(config.ApplicationDataDir(), "static", "install")
 
 			if err, _, _ := assets.RestoreAssets(dir, assets.PydioInstallBox, nil); err != nil {
 				cmd.Println("Could not restore install package", err)
