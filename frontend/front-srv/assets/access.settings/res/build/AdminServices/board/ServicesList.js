@@ -189,7 +189,11 @@ exports['default'] = _react2['default'].createClass({
         var pydio = this.props.pydio;
         var services = this.state.services;
 
-        var blockStyle = { margin: 20, backgroundColor: 'rgba(207, 216, 220, 0.59)', borderRadius: 3, padding: 3, display: 'flex', flexWrap: 'wrap' };
+        var blockStyle = {
+            margin: 16,
+            display: 'flex',
+            flexWrap: 'wrap'
+        };
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.services.tag.' + id] || id;
         };
@@ -211,7 +215,7 @@ exports['default'] = _react2['default'].createClass({
                 // Regroup by type
                 subBlocks.push(_react2['default'].createElement(
                     'div',
-                    { style: _extends({}, blockStyle, { marginBottom: 5 }) },
+                    { style: _extends({}, blockStyle, { margin: '0 16px' }) },
                     Object.keys(services).map(function (id) {
                         if (!id.startsWith('main -')) return null;
                         return _react2['default'].createElement(_ServiceCard2['default'], { pydio: pydio, showDescription: _this2.props.details, title: id.replace('main - ', ''), tagId: tag, services: services[id] });
@@ -219,7 +223,7 @@ exports['default'] = _react2['default'].createClass({
                 ));
                 subBlocks.push(_react2['default'].createElement(
                     'div',
-                    { style: _extends({}, blockStyle, { margin: '5px 20px' }) },
+                    { style: _extends({}, blockStyle, { margin: '0 16px' }) },
                     Object.keys(services).map(function (id) {
                         if (!id.startsWith('datasource -')) return null;
                         return _react2['default'].createElement(_ServiceCard2['default'], { pydio: pydio, showDescription: _this2.props.details, title: id.replace('datasource - ', ''), tagId: tag, services: services[id] });
@@ -227,7 +231,7 @@ exports['default'] = _react2['default'].createClass({
                 ));
                 subBlocks.push(_react2['default'].createElement(
                     'div',
-                    { style: _extends({}, blockStyle, { marginTop: 5 }) },
+                    { style: _extends({}, blockStyle, { margin: '0 16px' }) },
                     Object.keys(services).map(function (id) {
                         if (!id.startsWith('objects -')) return null;
                         return _react2['default'].createElement(_ServiceCard2['default'], { pydio: pydio, showDescription: _this2.props.details, title: id.replace('objects - ', ''), tagId: tag, services: services[id] });

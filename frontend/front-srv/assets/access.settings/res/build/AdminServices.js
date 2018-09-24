@@ -168,10 +168,11 @@ var ServiceCard = (function (_React$Component) {
          *
          * @param service Object
          * @param tag String
+         * @param showDescription boolean
          * @param m Function
          * @return {*}
          */
-        value: function renderServiceLine(service, tag, m) {
+        value: function renderServiceLine(service, tag, showDescription, m) {
             var iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
 
             var isGrpc = service.Name.startsWith('pydio.grpc.');
@@ -198,23 +199,27 @@ var ServiceCard = (function (_React$Component) {
                 peers.push('N/A');
             }
 
+            var style = {
+                display: 'flex', alignItems: 'center',
+                margin: '6px 8px',
+                backgroundColor: '#F5F5F5',
+                padding: '8px 6px',
+                borderRadius: 2
+            };
+
             return _react2['default'].createElement(
                 'div',
-                { style: { padding: '8px' } },
+                { style: style },
+                _react2['default'].createElement(_materialUi.FontIcon, { style: { margin: '0 9px 0 4px', fontSize: 20 }, className: "mdi-traffic-light", color: iconColor }),
                 _react2['default'].createElement(
-                    'div',
-                    { style: { fontWeight: 500, color: '#9e9e9e' } },
-                    legend
+                    'span',
+                    { style: { flex: 1 } },
+                    peers.join(', ')
                 ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { display: 'flex', alignItems: 'center', marginTop: 6 } },
-                    _react2['default'].createElement(_materialUi.FontIcon, { style: { margin: '0 9px 0 4px', fontSize: 20 }, className: "mdi-traffic-light", color: iconColor }),
-                    _react2['default'].createElement(
-                        'span',
-                        null,
-                        peers.join(', ')
-                    )
+                showDescription && _react2['default'].createElement(
+                    'span',
+                    { style: { fontStyle: 'italic', paddingRight: 6, fontWeight: 500, color: '#9e9e9e' } },
+                    legend
                 )
             );
         }
@@ -253,13 +258,13 @@ var ServiceCard = (function (_React$Component) {
 
             var styles = {
                 container: {
-                    width: 200, margin: 8, display: 'flex', flexDirection: 'column'
+                    flex: 1, minWidth: 200, margin: 4, display: 'flex', flexDirection: 'column'
                 },
                 title: {
-                    padding: 8, fontSize: 16, backgroundColor: '#607D8B', color: 'white'
+                    padding: 8, fontSize: 16, fontWeight: 500, borderBottom: '1px solid #eee'
                 },
                 description: {
-                    padding: 8, color: 'rgba(0,0,0,0.53)', borderTop: '1px solid #eee'
+                    padding: 8, flex: 1
                 }
             };
 
@@ -271,17 +276,17 @@ var ServiceCard = (function (_React$Component) {
                     { style: styles.title },
                     title
                 ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { flex: 1 } },
-                    services.map(function (service) {
-                        return _this.renderServiceLine(service, tagId, m);
-                    })
-                ),
                 showDescription && _react2['default'].createElement(
                     'div',
                     { style: styles.description },
                     description
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    null,
+                    services.map(function (service) {
+                        return _this.renderServiceLine(service, tagId, showDescription, m);
+                    })
                 )
             );
         }
@@ -485,7 +490,11 @@ exports['default'] = _react2['default'].createClass({
         var pydio = this.props.pydio;
         var services = this.state.services;
 
-        var blockStyle = { margin: 20, backgroundColor: 'rgba(207, 216, 220, 0.59)', borderRadius: 3, padding: 3, display: 'flex', flexWrap: 'wrap' };
+        var blockStyle = {
+            margin: 16,
+            display: 'flex',
+            flexWrap: 'wrap'
+        };
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.services.tag.' + id] || id;
         };
@@ -507,7 +516,7 @@ exports['default'] = _react2['default'].createClass({
                 // Regroup by type
                 subBlocks.push(_react2['default'].createElement(
                     'div',
-                    { style: _extends({}, blockStyle, { marginBottom: 5 }) },
+                    { style: _extends({}, blockStyle, { margin: '0 16px' }) },
                     Object.keys(services).map(function (id) {
                         if (!id.startsWith('main -')) return null;
                         return _react2['default'].createElement(_ServiceCard2['default'], { pydio: pydio, showDescription: _this2.props.details, title: id.replace('main - ', ''), tagId: tag, services: services[id] });
@@ -515,7 +524,7 @@ exports['default'] = _react2['default'].createClass({
                 ));
                 subBlocks.push(_react2['default'].createElement(
                     'div',
-                    { style: _extends({}, blockStyle, { margin: '5px 20px' }) },
+                    { style: _extends({}, blockStyle, { margin: '0 16px' }) },
                     Object.keys(services).map(function (id) {
                         if (!id.startsWith('datasource -')) return null;
                         return _react2['default'].createElement(_ServiceCard2['default'], { pydio: pydio, showDescription: _this2.props.details, title: id.replace('datasource - ', ''), tagId: tag, services: services[id] });
@@ -523,7 +532,7 @@ exports['default'] = _react2['default'].createClass({
                 ));
                 subBlocks.push(_react2['default'].createElement(
                     'div',
-                    { style: _extends({}, blockStyle, { marginTop: 5 }) },
+                    { style: _extends({}, blockStyle, { margin: '0 16px' }) },
                     Object.keys(services).map(function (id) {
                         if (!id.startsWith('objects -')) return null;
                         return _react2['default'].createElement(_ServiceCard2['default'], { pydio: pydio, showDescription: _this2.props.details, title: id.replace('objects - ', ''), tagId: tag, services: services[id] });

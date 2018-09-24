@@ -7,10 +7,11 @@ class ServiceCard extends React.Component {
      *
      * @param service Object
      * @param tag String
+     * @param showDescription boolean
      * @param m Function
      * @return {*}
      */
-    renderServiceLine(service, tag, m){
+    renderServiceLine(service, tag, showDescription, m){
         const iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
 
         const isGrpc = service.Name.startsWith('pydio.grpc.');
@@ -37,13 +38,21 @@ class ServiceCard extends React.Component {
             peers.push('N/A');
         }
 
+        let style = {
+            display: 'flex', alignItems: 'center',
+            margin: '6px 8px',
+            backgroundColor: '#F5F5F5',
+            padding: '8px 6px',
+            borderRadius: 2
+        };
+
         return (
-            <div style={{padding:'8px'}}>
-                <div style={{fontWeight:500, color:'#9e9e9e'}}>{legend}</div>
-                <div style={{display:'flex', alignItems: 'center', marginTop: 6}}>
-                    <FontIcon style={{margin:'0 9px 0 4px', fontSize: 20}} className={"mdi-traffic-light"} color={iconColor}/>
-                    <span>{peers.join(', ')}</span>
-                </div>
+            <div style={style}>
+                <FontIcon style={{margin:'0 9px 0 4px', fontSize: 20}} className={"mdi-traffic-light"} color={iconColor}/>
+                <span style={{flex: 1}}>{peers.join(', ')}</span>
+                {showDescription &&
+                    <span style={{fontStyle:'italic', paddingRight: 6, fontWeight:500, color:'#9e9e9e'}}>{legend}</span>
+                }
             </div>
         );
     }
@@ -72,23 +81,23 @@ class ServiceCard extends React.Component {
 
         const styles = {
             container: {
-                width: 200, margin: 8, display:'flex', flexDirection:'column',
+                flex: 1, minWidth: 200, margin: 4, display:'flex', flexDirection:'column',
             },
             title : {
-                padding: 8, fontSize: 16, backgroundColor: '#607D8B', color: 'white',
+                padding: 8, fontSize: 16, fontWeight: 500, borderBottom:'1px solid #eee'
             },
             description: {
-                padding: 8, color: 'rgba(0,0,0,0.53)', borderTop:'1px solid #eee'
+                padding: 8, flex: 1
             }
         };
 
         return (
             <Paper zDepth={1} style={styles.container}>
                 <div style={styles.title}>{title}</div>
-                <div style={{flex: 1}} >
-                    {services.map(service => this.renderServiceLine(service, tagId, m))}
-                </div>
                 {showDescription && <div style={styles.description}>{description}</div>}
+                <div>
+                    {services.map(service => this.renderServiceLine(service, tagId, showDescription, m))}
+                </div>
             </Paper>
         )
     }
