@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
@@ -27,6 +26,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _httpPydioApi = require('../http/PydioApi');
 
@@ -128,7 +131,7 @@ var CellModel = (function (_Observable) {
 
         return Object.keys(this.cell.ACLs).map(function (roleId) {
             var acl = _this2.cell.ACLs[roleId];
-            return _IdmObjectHelper2['default'].extractLabel(pydio, acl);
+            return _IdmObjectHelper2['default'].extractLabel(_pydio2['default'].getInstance(), acl);
         }).join(', ');
     };
 
@@ -213,9 +216,10 @@ var CellModel = (function (_Observable) {
      */
 
     CellModel.prototype.addRootNode = function addRootNode(node) {
+        var pydio = _pydio2['default'].getInstance();
         var treeNode = new _httpGenIndex.TreeNode();
         treeNode.Uuid = node.getMetadata().get('uuid');
-        treeNode.Path = node.getPath();
+        treeNode.Path = pydio.user.getActiveRepositoryObject().getSlug() + node.getPath();
         treeNode.MetaStore = { selection: true };
         this.cell.RootNodes.push(treeNode);
         this.notifyDirty();
@@ -363,8 +367,8 @@ var CellModel = (function (_Observable) {
                 _this4.originalCell = _this4.clone(_this4.cell);
                 _this4.notify('update');
             } else {
-                pydio.observeOnce('repository_list_refreshed', function () {
-                    pydio.triggerRepositoryChange(response.Uuid);
+                _pydio2['default'].getInstance().observeOnce('repository_list_refreshed', function () {
+                    _pydio2['default'].getInstance().triggerRepositoryChange(response.Uuid);
                 });
             }
         });
@@ -395,7 +399,7 @@ var CellModel = (function (_Observable) {
     };
 
     /**
-     *
+     * @param confirmMessage String
      * @return {Promise}
      */
 
@@ -410,6 +414,7 @@ var CellModel = (function (_Observable) {
         if (confirm(confirmMessage)) {
             var _ret = (function () {
                 var api = new _httpGenIndex.ShareServiceApi(_httpPydioApi2['default'].getRestClient());
+                var pydio = _pydio2['default'].getInstance();
                 if (pydio.user.activeRepository === _this6.cell.Uuid) {
                     (function () {
                         var switchToOther = undefined;

@@ -42,6 +42,7 @@ class CoreAndPluginsDashboard extends React.Component{
         />;
         return (
             <PluginEditor
+                currentNode={this.props.currentNode}
                 pydio={this.props.pydio}
                 pluginId={pluginId}
                 additionalPanes={{top:[], bottom:[pluginsList]}}

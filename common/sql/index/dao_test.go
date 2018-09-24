@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"sync"
 	"testing"
 	"time"
 
@@ -43,6 +44,9 @@ var (
 )
 
 func init() {
+
+	SetDefaultFailureMode(FailureContinues)
+
 	// Running first without a cache
 	sqlDAO := sql.NewDAO("sqlite3", "file::memnocache:?mode=memory&cache=shared", "test")
 	if sqlDAO == nil {
@@ -464,111 +468,115 @@ func TestStreams(t *testing.T) {
 }
 
 func TestArborescence(t *testing.T) {
-	arborescence := []string{
-		"__MACOSX",
-		"__MACOSX/personal",
-		"__MACOSX/personal/admin",
-		"__MACOSX/personal/admin/._.DS_Store",
-		"personal",
-		"personal/.pydio",
-		"personal/admin",
-		"personal/admin/.DS_Store",
-		"personal/admin/.pydio",
-		"personal/admin/Archive",
-		"personal/admin/Archive/.pydio",
-		"personal/admin/Archive/__MACOSX",
-		"personal/admin/Archive/__MACOSX/.pydio",
-		"personal/admin/Archive/EventsDarwin.txt",
-		"personal/admin/Archive/photographie.jpg",
-		"personal/admin/Archive.zip",
-		"personal/admin/download.png",
-		"personal/admin/EventsDarwin.txt",
-		"personal/admin/Labellized",
-		"personal/admin/Labellized/.pydio",
-		"personal/admin/Labellized/Dossier Chateau de Vaux - Dossier diag -.zip",
-		"personal/admin/Labellized/photographie.jpg",
-		"personal/admin/PydioCells",
-		"personal/admin/PydioCells/.DS_Store",
-		"personal/admin/PydioCells/.pydio",
-		"personal/admin/PydioCells/4c7f2f-EventsDarwin.txt",
-		"personal/admin/PydioCells/download1.png",
-		"personal/admin/PydioCells/icomoon (1)",
-		"personal/admin/PydioCells/icomoon (1)/.DS_Store",
-		"personal/admin/PydioCells/icomoon (1)/.pydio",
-		"personal/admin/PydioCells/icomoon (1)/demo-files",
-		"personal/admin/PydioCells/icomoon (1)/demo-files/.pydio",
-		"personal/admin/PydioCells/icomoon (1)/demo-files/demo.css",
-		"personal/admin/PydioCells/icomoon (1)/demo-files/demo.js",
-		"personal/admin/PydioCells/icomoon (1)/demo.html",
-		"personal/admin/PydioCells/icomoon (1)/Read Me.txt",
-		"personal/admin/PydioCells/icomoon (1)/selection.json",
-		"personal/admin/PydioCells/icomoon (1)/style.css",
-		"personal/admin/PydioCells/icomoon (1).zip",
-		"personal/admin/PydioCells/icons-signs.svg",
-		"personal/admin/PydioCells/Pydio-cells0.ai",
-		"personal/admin/PydioCells/Pydio-cells1-Mod.ai",
-		"personal/admin/PydioCells/Pydio-cells1.ai",
-		"personal/admin/PydioCells/Pydio-cells2.ai",
-		"personal/admin/PydioCells/PydioCells Logos.zip",
-		"personal/admin/recycle_bin",
-		"personal/admin/recycle_bin/.ajxp_recycle_cache.ser",
-		"personal/admin/recycle_bin/.pydio",
-		"personal/admin/recycle_bin/Archive.zip",
-		"personal/admin/recycle_bin/cells-clear-minus.svg",
-		"personal/admin/recycle_bin/cells-clear-plus.svg",
-		"personal/admin/recycle_bin/cells-full-minus.svg",
-		"personal/admin/recycle_bin/cells-full-plus.svg",
-		"personal/admin/recycle_bin/cells.svg",
-		"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -",
-		"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/.pydio",
-		"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -",
-		"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -/.pydio",
-		"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -.zip",
-		"personal/admin/recycle_bin/STACK.txt",
-		"personal/admin/recycle_bin/Synthèse des pathologies et urgences sanitaires.doc",
-		"personal/admin/STACK.txt",
-		"personal/admin/Test Toto",
-		"personal/admin/Test Toto/.pydio",
-		"personal/admin/Test Toto/download1 very long name test with me please.png",
-		"personal/admin/Test Toto/Pydio-color-logo-4.png",
-		"personal/admin/Test Toto/PydioCells Logos.zip",
-		"personal/admin/Test Toto/STACK.txt",
-		"personal/admin/Up",
-		"personal/admin/Up/.DS_Store",
-		"personal/admin/Up/.pydio",
-		"personal/admin/Up/2018 03 08 - Pydio Cells.key",
-		"personal/admin/Up/2018 03 08 - Pydio Cells.pdf",
-		"personal/admin/Up/Pydio-color-logo-2.png",
-		"personal/admin/Up/Pydio-color-logo-4.png",
-		"personal/admin/Up/Pydio20180201.mm",
-		"personal/admin/Up/Repair Result to pydio-logs-2018-3-13 06348.xml",
-		"personal/external",
-		"personal/external/.pydio",
-		"personal/external/Pydio-color-logo-4.png",
-		"personal/external/recycle_bin",
-		"personal/external/recycle_bin/.pydio",
-		"personal/recycle_bin",
-		"personal/recycle_bin/.ajxp_recycle_cache.ser",
-		"personal/recycle_bin/.pydio",
-		"personal/toto",
-		"personal/toto/.pydio",
-		"personal/toto/recycle_bin",
-		"personal/toto/recycle_bin/.pydio",
-		"personal/user",
-		"personal/user/.pydio",
-		"personal/user/recycle_bin",
-		"personal/user/recycle_bin/.pydio",
-		"personal/user/User Folder",
-		"personal/user/User Folder/.pydio",
-	}
+	Convey("Creating an arborescence in the index", t, func() {
+		arborescence := []string{
+			"__MACOSX",
+			"__MACOSX/personal",
+			"__MACOSX/personal/admin",
+			"__MACOSX/personal/admin/._.DS_Store",
+			"personal",
+			"personal/.pydio",
+			"personal/admin",
+			"personal/admin/.DS_Store",
+			"personal/admin/.pydio",
+			"personal/admin/Archive",
+			"personal/admin/Archive/.pydio",
+			"personal/admin/Archive/__MACOSX",
+			"personal/admin/Archive/__MACOSX/.pydio",
+			"personal/admin/Archive/EventsDarwin.txt",
+			"personal/admin/Archive/photographie.jpg",
+			"personal/admin/Archive.zip",
+			"personal/admin/download.png",
+			"personal/admin/EventsDarwin.txt",
+			"personal/admin/Labellized",
+			"personal/admin/Labellized/.pydio",
+			"personal/admin/Labellized/Dossier Chateau de Vaux - Dossier diag -.zip",
+			"personal/admin/Labellized/photographie.jpg",
+			"personal/admin/PydioCells",
+			"personal/admin/PydioCells/.DS_Store",
+			"personal/admin/PydioCells/.pydio",
+			"personal/admin/PydioCells/4c7f2f-EventsDarwin.txt",
+			"personal/admin/PydioCells/download1.png",
+			"personal/admin/PydioCells/icomoon (1)",
+			"personal/admin/PydioCells/icomoon (1)/.DS_Store",
+			"personal/admin/PydioCells/icomoon (1)/.pydio",
+			"personal/admin/PydioCells/icomoon (1)/demo-files",
+			"personal/admin/PydioCells/icomoon (1)/demo-files/.pydio",
+			"personal/admin/PydioCells/icomoon (1)/demo-files/demo.css",
+			"personal/admin/PydioCells/icomoon (1)/demo-files/demo.js",
+			"personal/admin/PydioCells/icomoon (1)/demo.html",
+			"personal/admin/PydioCells/icomoon (1)/Read Me.txt",
+			"personal/admin/PydioCells/icomoon (1)/selection.json",
+			"personal/admin/PydioCells/icomoon (1)/style.css",
+			"personal/admin/PydioCells/icomoon (1).zip",
+			"personal/admin/PydioCells/icons-signs.svg",
+			"personal/admin/PydioCells/Pydio-cells0.ai",
+			"personal/admin/PydioCells/Pydio-cells1-Mod.ai",
+			"personal/admin/PydioCells/Pydio-cells1.ai",
+			"personal/admin/PydioCells/Pydio-cells2.ai",
+			"personal/admin/PydioCells/PydioCells Logos.zip",
+			"personal/admin/recycle_bin",
+			"personal/admin/recycle_bin/.ajxp_recycle_cache.ser",
+			"personal/admin/recycle_bin/.pydio",
+			"personal/admin/recycle_bin/Archive.zip",
+			"personal/admin/recycle_bin/cells-clear-minus.svg",
+			"personal/admin/recycle_bin/cells-clear-plus.svg",
+			"personal/admin/recycle_bin/cells-full-minus.svg",
+			"personal/admin/recycle_bin/cells-full-plus.svg",
+			"personal/admin/recycle_bin/cells.svg",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/.pydio",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -/.pydio",
+			"personal/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -.zip",
+			"personal/admin/recycle_bin/STACK.txt",
+			"personal/admin/recycle_bin/Synthèse des pathologies et urgences sanitaires.doc",
+			"personal/admin/STACK.txt",
+			"personal/admin/Test Toto",
+			"personal/admin/Test Toto/.pydio",
+			"personal/admin/Test Toto/download1 very long name test with me please.png",
+			"personal/admin/Test Toto/Pydio-color-logo-4.png",
+			"personal/admin/Test Toto/PydioCells Logos.zip",
+			"personal/admin/Test Toto/STACK.txt",
+			"personal/admin/Up",
+			"personal/admin/Up/.DS_Store",
+			"personal/admin/Up/.pydio",
+			"personal/admin/Up/2018 03 08 - Pydio Cells.key",
+			"personal/admin/Up/2018 03 08 - Pydio Cells.pdf",
+			"personal/admin/Up/Pydio-color-logo-2.png",
+			"personal/admin/Up/Pydio-color-logo-4.png",
+			"personal/admin/Up/Pydio20180201.mm",
+			"personal/admin/Up/Repair Result to pydio-logs-2018-3-13 06348.xml",
+			"personal/external",
+			"personal/external/.pydio",
+			"personal/external/Pydio-color-logo-4.png",
+			"personal/external/recycle_bin",
+			"personal/external/recycle_bin/.pydio",
+			"personal/recycle_bin",
+			"personal/recycle_bin/.ajxp_recycle_cache.ser",
+			"personal/recycle_bin/.pydio",
+			"personal/toto",
+			"personal/toto/.pydio",
+			"personal/toto/recycle_bin",
+			"personal/toto/recycle_bin/.pydio",
+			"personal/user",
+			"personal/user/.pydio",
+			"personal/user/recycle_bin",
+			"personal/user/recycle_bin/.pydio",
+			"personal/user/User Folder",
+			"personal/user/User Folder/.pydio",
+		}
 
-	for _, path := range arborescence {
-		getDAO(ctxNoCache).Path(path, true)
-	}
+		for _, path := range arborescence {
+			_, _, err := getDAO(ctxNoCache).Path(path, true)
 
-	getDAO(ctxNoCache).Flush(true)
+			So(err, ShouldBeNil)
+		}
 
-	printTree(ctxNoCache)
+		getDAO(ctxNoCache).Flush(true)
+
+		printTree(ctxNoCache)
+	})
 }
 
 func TestSmallArborescence(t *testing.T) {
@@ -584,6 +592,108 @@ func TestSmallArborescence(t *testing.T) {
 	getDAO(ctxNoCache).Flush(true)
 
 	printTree(ctxNoCache)
+}
+
+func TestArborescenceNoFolder(t *testing.T) {
+	Convey("Creating an arborescence without folders in the index", t, func(c C) {
+		arborescence := []string{
+			"__MACOSX/arbo_no_folder/admin",
+			"__MACOSX/arbo_no_folder/admin/._.DS_Store",
+			"arbo_no_folder/.pydio",
+			"arbo_no_folder/admin/.DS_Store",
+			"arbo_no_folder/admin/.pydio",
+			"arbo_no_folder/admin/Archive/__MACOSX",
+			"arbo_no_folder/admin/Archive/__MACOSX/.pydio",
+			"arbo_no_folder/admin/Archive/EventsDarwin.txt",
+			"arbo_no_folder/admin/Archive/photographie.jpg",
+			"arbo_no_folder/admin/Archive.zip",
+			"arbo_no_folder/admin/download.png",
+			"arbo_no_folder/admin/EventsDarwin.txt",
+			"arbo_no_folder/admin/Labellized/.pydio",
+			"arbo_no_folder/admin/Labellized/Dossier Chateau de Vaux - Dossier diag -.zip",
+			"arbo_no_folder/admin/Labellized/photographie.jpg",
+			"arbo_no_folder/admin/PydioCells/.DS_Store",
+			"arbo_no_folder/admin/PydioCells/.pydio",
+			"arbo_no_folder/admin/PydioCells/4c7f2f-EventsDarwin.txt",
+			"arbo_no_folder/admin/PydioCells/download1.png",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/.DS_Store",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/.pydio",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/demo-files",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/demo-files/.pydio",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/demo-files/demo.css",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/demo-files/demo.js",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/demo.html",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/Read Me.txt",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/selection.json",
+			"arbo_no_folder/admin/PydioCells/icomoon (1)/style.css",
+			"arbo_no_folder/admin/PydioCells/icomoon (1).zip",
+			"arbo_no_folder/admin/PydioCells/icons-signs.svg",
+			"arbo_no_folder/admin/PydioCells/Pydio-cells0.ai",
+			"arbo_no_folder/admin/PydioCells/Pydio-cells1-Mod.ai",
+			"arbo_no_folder/admin/PydioCells/Pydio-cells1.ai",
+			"arbo_no_folder/admin/PydioCells/Pydio-cells2.ai",
+			"arbo_no_folder/admin/PydioCells/PydioCells Logos.zip",
+			"arbo_no_folder/admin/recycle_bin/.ajxp_recycle_cache.ser",
+			"arbo_no_folder/admin/recycle_bin/.pydio",
+			"arbo_no_folder/admin/recycle_bin/Archive.zip",
+			"arbo_no_folder/admin/recycle_bin/cells-clear-minus.svg",
+			"arbo_no_folder/admin/recycle_bin/cells-clear-plus.svg",
+			"arbo_no_folder/admin/recycle_bin/cells-full-minus.svg",
+			"arbo_no_folder/admin/recycle_bin/cells-full-plus.svg",
+			"arbo_no_folder/admin/recycle_bin/cells.svg",
+			"arbo_no_folder/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -",
+			"arbo_no_folder/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/.pydio",
+			"arbo_no_folder/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -",
+			"arbo_no_folder/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -/Dossier Chateau de Vaux - Dossier diag -/.pydio",
+			"arbo_no_folder/admin/recycle_bin/Dossier Chateau de Vaux - Dossier diag -.zip",
+			"arbo_no_folder/admin/recycle_bin/STACK.txt",
+			"arbo_no_folder/admin/recycle_bin/Synthèse des pathologies et urgences sanitaires.doc",
+			"arbo_no_folder/admin/STACK.txt",
+			"arbo_no_folder/admin/Test Toto/.pydio",
+			"arbo_no_folder/admin/Test Toto/download1 very long name test with me please.png",
+			"arbo_no_folder/admin/Test Toto/Pydio-color-logo-4.png",
+			"arbo_no_folder/admin/Test Toto/PydioCells Logos.zip",
+			"arbo_no_folder/admin/Test Toto/STACK.txt",
+			"arbo_no_folder/admin/Up/.DS_Store",
+			"arbo_no_folder/admin/Up/.pydio",
+			"arbo_no_folder/admin/Up/2018 03 08 - Pydio Cells.key",
+			"arbo_no_folder/admin/Up/2018 03 08 - Pydio Cells.pdf",
+			"arbo_no_folder/admin/Up/Pydio-color-logo-2.png",
+			"arbo_no_folder/admin/Up/Pydio-color-logo-4.png",
+			"arbo_no_folder/admin/Up/Pydio20180201.mm",
+			"arbo_no_folder/admin/Up/Repair Result to pydio-logs-2018-3-13 06348.xml",
+			"arbo_no_folder/external/.pydio",
+			"arbo_no_folder/external/Pydio-color-logo-4.png",
+			"arbo_no_folder/external/recycle_bin",
+			"arbo_no_folder/external/recycle_bin/.pydio",
+			"arbo_no_folder/recycle_bin/.ajxp_recycle_cache.ser",
+			"arbo_no_folder/recycle_bin/.pydio",
+			"arbo_no_folder/toto/.pydio",
+			"arbo_no_folder/toto/recycle_bin/.pydio",
+			"arbo_no_folder/user/.pydio",
+			"arbo_no_folder/user/recycle_bin/.pydio",
+			"arbo_no_folder/user/User Folder/.pydio",
+		}
+
+		wg := &sync.WaitGroup{}
+		for _, path := range arborescence {
+			wg.Add(1)
+			go func() {
+				_, _, err := getDAO(ctxNoCache).Path(path, true)
+
+				c.So(err, ShouldBeNil)
+
+				wg.Done()
+			}()
+		}
+
+		wg.Wait()
+
+		getDAO(ctxNoCache).Flush(true)
+
+		printTree(ctxNoCache)
+	})
 }
 
 func TestMoveNodeTree(t *testing.T) {

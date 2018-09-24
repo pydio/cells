@@ -3,7 +3,14 @@ import {Paper, FontIcon} from 'material-ui'
 
 class ServiceCard extends React.Component {
 
-    renderServiceLine(service, tag){
+    /**
+     *
+     * @param service Object
+     * @param tag String
+     * @param m Function
+     * @return {*}
+     */
+    renderServiceLine(service, tag, m){
         const iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
 
         const isGrpc = service.Name.startsWith('pydio.grpc.');
@@ -13,11 +20,11 @@ class ServiceCard extends React.Component {
             legend = service.Name.split('.').pop();
         } else if (tag === 'datasource') {
             if(service.Name.startsWith('pydio.grpc.data.sync.')){
-                legend="Sync"
+                legend=m('datasource.sync')
             } else if(service.Name.startsWith('pydio.grpc.data.objects.')){
-                legend="S3"
+                legend=m('datasource.objects')
             } else if(service.Name.startsWith('pydio.grpc.data.index.')){
-                legend="Indexation"
+                legend=m('datasource.index')
             }
         }
 
@@ -43,7 +50,8 @@ class ServiceCard extends React.Component {
 
     render() {
 
-        const {title, services, tagId, showDescription} = this.props;
+        const {title, services, tagId, showDescription, pydio} = this.props;
+        const m = id => pydio.MessageHash['ajxp_admin.services.service.' + id] || id;
 
         let grpcDescription;
         if(services.length > 1) {
@@ -56,9 +64,9 @@ class ServiceCard extends React.Component {
         let description = grpcDescription || services[0].Description;
         if(!description && tagId === 'datasource') {
             if(services[0].Name.startsWith('pydio.grpc.data.objects.')){
-                description="S3 layer to serve data from storage"
+                description=m('datasource.objects.legend')
             } else {
-                description="Datasource is synchronizing data from objects to index"
+                description=m('datasource.legend')
             }
         }
 
@@ -78,7 +86,7 @@ class ServiceCard extends React.Component {
             <Paper zDepth={1} style={styles.container}>
                 <div style={styles.title}>{title}</div>
                 <div style={{flex: 1}} >
-                    {services.map(service => this.renderServiceLine(service, tagId))}
+                    {services.map(service => this.renderServiceLine(service, tagId, m))}
                 </div>
                 {showDescription && <div style={styles.description}>{description}</div>}
             </Paper>

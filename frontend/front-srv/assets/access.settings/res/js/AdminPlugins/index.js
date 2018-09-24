@@ -29,7 +29,6 @@ import EditorsDashboard from './editors/EditorsDashboard'
 import UpdaterDashboard from './updater/UpdaterDashboard'
 import JSDocsDashboard from './docs/JSDocsDashboard'
 import OpenApiDashboard from './docs/OpenApiDashboard'
-import LicenseDashboard from './license/LicenseBoard'
 
 window.AdminPlugins = {
 
@@ -43,6 +42,5 @@ window.AdminPlugins = {
     JSDocsDashboard,
     OpenApiDashboard,
     ServiceEditor,
-    LicenseDashboard,
 
 };

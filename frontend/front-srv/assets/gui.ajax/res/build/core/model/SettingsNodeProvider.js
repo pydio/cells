@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
@@ -25,6 +24,10 @@ exports.__esModule = true;
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _Pydio = require('../Pydio');
+
+var _Pydio2 = _interopRequireDefault(_Pydio);
 
 var _httpPydioApi = require('../http/PydioApi');
 
@@ -105,7 +108,9 @@ var SettingsNodeProvider = (function () {
                     newPage = pData.get('new_page');
                     offset = (newPage - 1) * limit;
                 }
+                _Pydio2['default'].startLoading();
                 _httpPydioApi2['default'].getRestClient().getIdmApi().listUsersGroups(basePath, recursive, offset, limit).then(function (collection) {
+                    _Pydio2['default'].endLoading();
                     var childrenNodes = [];
                     var count = 0;
                     if (collection.Groups) {
@@ -138,6 +143,8 @@ var SettingsNodeProvider = (function () {
                         node.replaceBy(node);
                         nodeCallback(node);
                     }
+                })['catch'](function () {
+                    _Pydio2['default'].endLoading();
                 });
                 return {
                     v: undefined
@@ -246,6 +253,9 @@ var SettingsNodeProvider = (function () {
                     sectionNode.getMetadata().set(k, section.METADATA[k]);
                 }
             }
+        }
+        if (section.Description) {
+            sectionNode.getMetadata().set("description", section.Description);
         }
         if (section.CHILDREN) {
             section.CHILDREN.map(function (c) {

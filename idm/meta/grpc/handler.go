@@ -22,7 +22,11 @@ package grpc
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
 
+	"github.com/allegro/bigcache"
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
@@ -33,20 +37,29 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
+	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/idm/meta"
 )
 
 // Handler definition.
-type Handler struct{}
+type Handler struct {
+	searchCache *bigcache.BigCache
+}
+
+func NewHandler() *Handler {
+	h := &Handler{}
+	h.searchCache, _ = bigcache.NewBigCache(utils.DefaultBigCacheConfig())
+	return h
+}
 
 // UpdateUserMeta adds, updates or deletes user meta.
 func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMetaRequest, response *idm.UpdateUserMetaResponse) error {
 
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
-
 	namespaces, _ := dao.GetNamespaceDao().List()
 	indexableMetas := make(map[string]map[string]string)
 	for _, metadata := range request.MetaDatas {
+		h.clearCacheForNode(metadata.NodeUuid)
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
 			// ADD / UPDATE
 			if newMeta, _, err := dao.Set(metadata); err == nil {
@@ -130,11 +143,19 @@ func (h *Handler) ReadNodeStream(ctx context.Context, stream tree.NodeProviderSt
 			return er
 		}
 		node := req.Node
-
-		results, err := dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
-			Subjects: subjects,
-		})
-		log.Logger(ctx).Debug("Got Results For Node", node.ZapUuid(), zap.Any("results", results))
+		var results []*idm.UserMeta
+		var err error
+		if r, ok := h.resultsFromCache(node.Uuid, subjects); ok {
+			results = r
+		} else {
+			results, err = dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
+				Subjects: subjects,
+			})
+			log.Logger(ctx).Debug("Got Results For Node", node.ZapUuid(), zap.Any("results", results))
+			if err == nil {
+				h.resultsToCache(node.Uuid, subjects, results)
+			}
+		}
 		if err == nil && len(results) > 0 {
 			for _, result := range results {
 				node.MetaStore[result.Namespace] = result.JsonValue
@@ -178,4 +199,55 @@ func (h *Handler) ListUserMetaNamespace(ctx context.Context, request *idm.ListUs
 		}
 	}
 	return nil
+}
+
+func (h *Handler) resultsToCache(nodeId string, searchSubjects []string, results []*idm.UserMeta) {
+	if h.searchCache == nil {
+		return
+	}
+	key := fmt.Sprintf("%s-%s", nodeId, strings.Join(searchSubjects, "-"))
+	//log.Logger(context.Background()).Info("User-Meta - Store Cache Key: " + key)
+	if data, e := json.Marshal(results); e == nil {
+		h.searchCache.Set(key, data)
+	}
+}
+
+func (h *Handler) resultsFromCache(nodeId string, searchSubjects []string) (results []*idm.UserMeta, found bool) {
+	if h.searchCache == nil {
+		return
+	}
+	key := fmt.Sprintf("%s-%s", nodeId, strings.Join(searchSubjects, "-"))
+	if data, e := h.searchCache.Get(key); e == nil {
+		if er := json.Unmarshal(data, &results); er == nil {
+			//log.Logger(context.Background()).Info("User-Meta - Got Cache Key: " + key)
+			return results, true
+		}
+	}
+
+	return
+}
+
+func (h *Handler) clearCacheForNode(nodeId string) {
+	if h.searchCache == nil {
+		return
+	}
+	it := h.searchCache.Iterator()
+	var clears []string
+	for {
+		if !it.SetNext() {
+			break
+		}
+		info, e := it.Value()
+		if e != nil {
+			break
+		}
+		if strings.HasPrefix(info.Key(), fmt.Sprintf("%s-", nodeId)) {
+			clears = append(clears, info.Key())
+		}
+	}
+	for _, k := range clears {
+		//log.Logger(context.Background()).Info("User-Meta - Clear Cache Key: " + k)
+		h.searchCache.Delete(k)
+	}
+
 }

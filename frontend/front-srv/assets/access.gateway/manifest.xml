@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ajxpdriver name="gateway" label="CONF_MESSAGE[Gateway]" description="CONF_MESSAGE[Pydio S3 Gateway]" mixins="slug_provider,template_provider">
+<ajxpdriver enabled="always" name="gateway" label="CONF_MESSAGE[Gateway]" description="CONF_MESSAGE[Pydio S3 Gateway]" mixins="slug_provider,template_provider">
 
     <client_settings icon="plug/access.fs/icon.png" iconClass="icon-sitemap">
         <resources>

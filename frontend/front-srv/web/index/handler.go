@@ -95,6 +95,9 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	for hK, hV := range config.Get("frontend", "secureHeaders").StringMap(map[string]string{}) {
+		w.Header().Set(hK, hV)
+	}
 	var tpl *template.Template
 	if !h.detectFrontendService() {
 		tpl = h.loadingTpl

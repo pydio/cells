@@ -67,7 +67,10 @@ let Dashboard = React.createClass({
 
     welcomeClick: function(e){
         if(e.target.getAttribute('data-path')){
-            const p = e.target.getAttribute('data-path');
+            let p = e.target.getAttribute('data-path');
+            if(p === '/plugins/manager'){
+                p = '/parameters/manager';
+            }
             this.props.pydio.goTo(p);
         }
     },
@@ -77,12 +80,9 @@ let Dashboard = React.createClass({
         const horizontalFlex = {display:'flex', width:'100%'};
         const verticalFlex = {display:'flex', flexDirection:'column', height: '100%'};
         const flexFill = {flex:1};
-        const flexFillNo = {width:120};
-
-        const paperStyle = {width:500, marginLeft:12, marginTop: 12};
+        const paperStyle = {flex: 1, minWidth: 450, margin: 5};
         const flexContainerStyle = {...verticalFlex};
-        const {primary1Color, accent1Color, accent2Color} = this.props.muiTheme.palette;
-        const textLinkStyle = {cursor: 'pointer', color: accent1Color};
+        const {accent1Color, accent2Color} = this.props.muiTheme.palette;
 
         const MEDIA_TEST_CARD = (
             <Card style={paperStyle}>
@@ -210,8 +210,12 @@ let Dashboard = React.createClass({
         );
 
         return (
-            <div style={{flex:'1', overflow: 'auto', height: '100%', paddingBottom: 10}}>
-                <div style={{display:'flex', alignItems:'top', flexWrap:'wrap'}}>
+            <div className={"main-layout-nav-to-stack vertical-layout"}>
+                <AdminComponents.Header
+                    title={message('welc.title')}
+                    icon="icomoon-cells"
+                />
+                <div className={"layout-fill"} style={{display:'flex', alignItems:'top', flexWrap:'wrap', padding: 5}}>
                     {WELCOME_COMMUNITY_CARD}
                     {DISCOVER_ENTERPRISE_CARD}
                     {PAY_IT_FORWARD_CARD}

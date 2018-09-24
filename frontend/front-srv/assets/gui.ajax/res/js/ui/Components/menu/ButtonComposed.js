@@ -71,7 +71,7 @@ const ButtonComposed = React.createClass({
             secondary: secondary,
             disabled: disabled,
             label: buttonTitle,
-            style:buttonStyle,
+            style: {...buttonStyle, minWidth: 60},
             labelStyle:{...buttonLabelStyle, paddingRight: 8},
             onTouchTap: masterAction,
             onClick:(e=>e.stopPropagation())

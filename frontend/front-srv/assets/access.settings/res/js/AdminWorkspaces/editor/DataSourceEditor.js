@@ -110,7 +110,7 @@ class DataSourceEditor extends React.Component{
                     <i className="mdi mdi-database"/>
                 </div>
                 <div style={{padding: 16}}>
-                    {this.context.getMessage('ws.75')}
+                    {this.context.getMessage('ws.75')}&nbsp;
                     {this.context.getMessage('ws.76')}
                 </div>
                 {create && model.StorageType === 'LOCAL' &&

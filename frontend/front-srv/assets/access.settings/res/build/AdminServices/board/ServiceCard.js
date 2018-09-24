@@ -31,7 +31,15 @@ var ServiceCard = (function (_React$Component) {
 
     _createClass(ServiceCard, [{
         key: 'renderServiceLine',
-        value: function renderServiceLine(service, tag) {
+
+        /**
+         *
+         * @param service Object
+         * @param tag String
+         * @param m Function
+         * @return {*}
+         */
+        value: function renderServiceLine(service, tag, m) {
             var iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
 
             var isGrpc = service.Name.startsWith('pydio.grpc.');
@@ -41,11 +49,11 @@ var ServiceCard = (function (_React$Component) {
                 legend = service.Name.split('.').pop();
             } else if (tag === 'datasource') {
                 if (service.Name.startsWith('pydio.grpc.data.sync.')) {
-                    legend = "Sync";
+                    legend = m('datasource.sync');
                 } else if (service.Name.startsWith('pydio.grpc.data.objects.')) {
-                    legend = "S3";
+                    legend = m('datasource.objects');
                 } else if (service.Name.startsWith('pydio.grpc.data.index.')) {
-                    legend = "Indexation";
+                    legend = m('datasource.index');
                 }
             }
 
@@ -88,6 +96,11 @@ var ServiceCard = (function (_React$Component) {
             var services = _props.services;
             var tagId = _props.tagId;
             var showDescription = _props.showDescription;
+            var pydio = _props.pydio;
+
+            var m = function m(id) {
+                return pydio.MessageHash['ajxp_admin.services.service.' + id] || id;
+            };
 
             var grpcDescription = undefined;
             if (services.length > 1) {
@@ -100,9 +113,9 @@ var ServiceCard = (function (_React$Component) {
             var description = grpcDescription || services[0].Description;
             if (!description && tagId === 'datasource') {
                 if (services[0].Name.startsWith('pydio.grpc.data.objects.')) {
-                    description = "S3 layer to serve data from storage";
+                    description = m('datasource.objects.legend');
                 } else {
-                    description = "Datasource is synchronizing data from objects to index";
+                    description = m('datasource.legend');
                 }
             }
 
@@ -130,7 +143,7 @@ var ServiceCard = (function (_React$Component) {
                     'div',
                     { style: { flex: 1 } },
                     services.map(function (service) {
-                        return _this.renderServiceLine(service, tagId);
+                        return _this.renderServiceLine(service, tagId, m);
                     })
                 ),
                 showDescription && _react2['default'].createElement(

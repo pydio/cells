@@ -40,6 +40,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-security",
 						Component: "AdminPeople.PoliciesBoard",
+						Advanced:  true,
 						Props:     `{"readonly":true}`,
 					},
 				},
@@ -71,22 +72,23 @@ var settingsNode = &rest.SettingsMenuResponse{
 					},
 				},
 				{
-					Key:         "template-paths",
-					Label:       "settings.3c",
-					Description: "settings.3c",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-file-tree",
-						Component: "AdminWorkspaces.VirtualNodes",
-						Props:     `{"readonly":true}`,
-					},
-				},
-				{
 					Key:         "metadata",
 					Label:       "ajxp_admin.menu.metadata",
 					Description: "ajxp_admin.menu.metadata.description",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-tag-multiple",
 						Component: "AdminWorkspaces.MetadataBoard",
+					},
+				},
+				{
+					Key:         "template-paths",
+					Label:       "settings.3c",
+					Description: "settings.3c",
+					Metadata: &rest.SettingsEntryMeta{
+						IconClass: "mdi mdi-file-tree",
+						Component: "AdminWorkspaces.VirtualNodes",
+						Advanced:  true,
+						Props:     `{"readonly":true}`,
 					},
 				},
 			},
@@ -131,6 +133,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-timetable",
 						Component: "AdminScheduler.Dashboard",
+						Advanced:  true,
 					},
 				},
 			},
@@ -151,12 +154,23 @@ var settingsNode = &rest.SettingsMenuResponse{
 					},
 				},
 				{
+					Key:         "mailer",
+					Label:       "plugtype.title.mailer",
+					Description: "plugtype.desc.mailer",
+					Metadata: &rest.SettingsEntryMeta{
+						IconClass: "mdi mdi-email",
+						Component: "AdminPlugins.ServiceEditor",
+						Props:     `{"serviceName":"pydio.grpc.mailer","pluginId":"core.mailer"}`,
+					},
+				},
+				{
 					Key:         "core.auth",
 					Label:       "ajxp_admin.menu.11",
 					Description: "plugtype.desc.auth",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-account-key",
 						Component: "AdminPlugins.AuthenticationPluginsDashboard",
+						Props:     `{"pluginId":"core.auth"}`,
 					},
 				},
 				{
@@ -168,35 +182,27 @@ var settingsNode = &rest.SettingsMenuResponse{
 						IconClass: "mdi mdi-upload",
 						Component: "AdminPlugins.CoreAndPluginsDashboard",
 						Props:     "{\"pluginId\":\"core.uploader\"}",
+						Advanced:  true,
 					},
 				},
-				{
-					Key:         "mailer",
-					Label:       "plugtype.title.mailer",
-					Description: "plugtype.desc.mailer",
-					Metadata: &rest.SettingsEntryMeta{
-						IconClass: "mdi mdi-email",
-						Component: "AdminPlugins.ServiceEditor",
-						Props:     `{"serviceName":"pydio.grpc.mailer"}`,
-					},
-				},
-			},
-		},
-		{
-			Key:         "plugins",
-			Label:       "ajxp_admin.menu.18",
-			Description: "ajxp_admin.menu.18",
-			Children: []*rest.SettingsEntry{
 				{
 					Key:         "manager",
-					Label:       "ajxp_admin.menu.19",
+					Label:       "ajxp_admin.menu.18",
 					Description: "ajxp_admin.menu.19",
 					Alias:       "/config/all",
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-google-circles-group",
 						Component: "AdminPlugins.PluginsManager",
+						Advanced:  true,
 					},
 				},
+			},
+		},
+		{
+			Key:         "developer",
+			Label:       "settings.144",
+			Description: "settings.144",
+			Children: []*rest.SettingsEntry{
 				{
 					Key:         "apis",
 					Label:       "Rest APIs",
@@ -204,6 +210,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-routes",
 						Component: "AdminPlugins.OpenApiDashboard",
+						Advanced:  true,
 					},
 				},
 				{
@@ -213,6 +220,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-nodejs",
 						Component: "AdminPlugins.JSDocsDashboard",
+						Advanced:  true,
 					},
 				},
 			},

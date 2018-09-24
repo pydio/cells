@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
 import PydioApi from '../http/PydioApi'
 import Observable from '../lang/Observable'
 import PathUtils from '../util/PathUtils'
@@ -97,7 +97,7 @@ class CellModel extends Observable{
     getAclsSubjects(){
         return Object.keys(this.cell.ACLs).map(roleId => {
             const acl = this.cell.ACLs[roleId];
-            return IdmObjectHelper.extractLabel(pydio, acl);
+            return IdmObjectHelper.extractLabel(Pydio.getInstance(), acl);
         }).join(', ');
     }
 
@@ -177,9 +177,10 @@ class CellModel extends Observable{
      * @param node Node
      */
     addRootNode(node){
+        const pydio = Pydio.getInstance();
         let treeNode = new TreeNode();
         treeNode.Uuid = node.getMetadata().get('uuid');
-        treeNode.Path = node.getPath();
+        treeNode.Path = pydio.user.getActiveRepositoryObject().getSlug() + node.getPath();
         treeNode.MetaStore = {selection:true};
         this.cell.RootNodes.push(treeNode);
         this.notifyDirty();
@@ -314,8 +315,8 @@ class CellModel extends Observable{
                 this.originalCell = this.clone(this.cell);
                 this.notify('update');
             } else {
-                pydio.observeOnce('repository_list_refreshed', ()=>{
-                    pydio.triggerRepositoryChange(response.Uuid);
+                Pydio.getInstance().observeOnce('repository_list_refreshed', ()=>{
+                    Pydio.getInstance().triggerRepositoryChange(response.Uuid);
                 });
             }
         });
@@ -345,7 +346,7 @@ class CellModel extends Observable{
     }
 
     /**
-     *
+     * @param confirmMessage String
      * @return {Promise}
      */
     deleteCell(confirmMessage = ''){
@@ -354,6 +355,7 @@ class CellModel extends Observable{
         }
         if (confirm(confirmMessage)){
             const api = new ShareServiceApi(PydioApi.getRestClient());
+            const pydio = Pydio.getInstance();
             if(pydio.user.activeRepository === this.cell.Uuid){
                 let switchToOther;
                 pydio.user.getRepositoriesList().forEach((v, k) => {

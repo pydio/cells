@@ -38,6 +38,7 @@ var FontIcon = _require.FontIcon;
 function renderItem(palette, node) {
     var text = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
     var noIcon = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+    var advanced = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
 
     var iconStyle = {
         fontSize: 22,
@@ -53,6 +54,10 @@ function renderItem(palette, node) {
         padding: '0 5px',
         marginLeft: 5
     };
+    var mainStyle = {};
+    if (advanced) {
+        mainStyle = { opacity: .7 };
+    }
 
     var label = text || node.getLabel();
     if (node.getMetadata().get('flag')) {
@@ -71,6 +76,7 @@ function renderItem(palette, node) {
     }
 
     return React.createElement(MenuItem, {
+        style: mainStyle,
         value: node,
         primaryText: label,
         leftIcon: !noIcon && React.createElement(FontIcon, { className: node.getMetadata().get('icon_class'), style: iconStyle })
@@ -85,7 +91,8 @@ var NavigationHelper = (function () {
     _createClass(NavigationHelper, null, [{
         key: 'buildNavigationItems',
         value: function buildNavigationItems(pydio, rootNode, palette) {
-            var noIcon = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+            var showAdvanced = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+            var noIcon = arguments.length <= 4 || arguments[4] === undefined ? false : arguments[4];
 
             var items = [];
 
@@ -102,18 +109,33 @@ var NavigationHelper = (function () {
                 if (!header.getChildren().size && header.getMetadata().get('component')) {
                     items.push(renderItem(palette, header, null, noIcon));
                 } else {
-                    if (header.getLabel()) {
-                        items.push(React.createElement(Divider, null));
-                        items.push(React.createElement(
-                            Subheader,
-                            { style: headerStyle },
-                            header.getLabel()
-                        ));
-                    }
-                    header.getChildren().forEach(function (child) {
-                        if (!child.getLabel()) return;
-                        items.push(renderItem(palette, child, null, noIcon));
-                    });
+                    var _ret = (function () {
+                        var children = [];
+                        header.getChildren().forEach(function (child) {
+                            if (!child.getLabel() || !showAdvanced && child.getMetadata().get('advanced')) {
+                                return;
+                            }
+                            children.push(renderItem(palette, child, null, noIcon, child.getMetadata().get('advanced')));
+                        });
+                        if (!children.length) {
+                            return {
+                                v: undefined
+                            };
+                        }
+                        if (header.getLabel()) {
+                            items.push(React.createElement(Divider, null));
+                            //if(showAdvanced){
+                            items.push(React.createElement(
+                                Subheader,
+                                { style: headerStyle },
+                                header.getLabel()
+                            ));
+                            //}
+                        }
+                        items.push.apply(items, children);
+                    })();
+
+                    if (typeof _ret === 'object') return _ret.v;
                 }
             });
 

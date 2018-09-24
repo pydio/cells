@@ -170,7 +170,7 @@ var QuickLinks = (function (_Component) {
             if (this.state.edit) {
                 var menuItems = [React.createElement(MenuItem, { primaryText: this.props.getMessage('home.43'), value: '-1' })];
                 var rootNode = pydio.getContextHolder().getRootNode();
-                menuItems = menuItems.concat(_utilNavigationHelper2['default'].buildNavigationItems(pydio, rootNode, muiTheme.palette, true));
+                menuItems = menuItems.concat(_utilNavigationHelper2['default'].buildNavigationItems(pydio, rootNode, muiTheme.palette, true, true));
                 dropDown = React.createElement(
                     'div',
                     null,

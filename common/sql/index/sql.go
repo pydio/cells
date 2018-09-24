@@ -1399,10 +1399,14 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (u
 		}, []uint64{1}, []string{""})
 
 		if err = dao.AddNode(node); err != nil {
-			return path, created, err
+			// Has it been created elsewhere ?
+			node, err = dao.GetNode(path[0:1])
+			if err != nil || node == nil {
+				return path, created, err
+			}
+		} else {
+			created = append(created, node)
 		}
-
-		created = append(created, node)
 	}
 
 	parents[0] = node
@@ -1458,7 +1462,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (u
 				}
 
 				if node.Uuid == "" {
-					node.Uuid = uuid.NewUUID().String()
+					node.Uuid = uuid.New()
 				}
 
 				if node.Etag == "" {
@@ -1500,6 +1504,7 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (u
 		}
 	}
 
+	//fmt.Println(path, created, err, strpath)
 	return path, created, err
 }
 

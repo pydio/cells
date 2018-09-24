@@ -42,30 +42,30 @@ class IconButtonMenu extends React.Component{
     }
 
     render(){
-        const {menuItems, className, buttonTitle, buttonClassName, buttonStyle, popoverDirection, popoverTargetPosition, menuProps} = this.props;
+        const {menuItems, className, buttonTitle, buttonClassName, containerStyle, buttonStyle, popoverDirection, popoverTargetPosition, menuProps} = this.props;
         if(!menuItems.length) {
             return null;
         }
         return (
-            <span className={"toolbars-button-menu " + (className ? className  : '')}>
-                    <IconButton
-                        ref="menuButton"
-                        tooltip={buttonTitle}
-                        iconClassName={buttonClassName}
-                        onTouchTap={this.showMenu.bind(this)}
-                        iconStyle={buttonStyle}
-                    />
-                    <Popover
-                        open={this.state.showMenu}
-                        anchorEl={this.state.anchor}
-                        anchorOrigin={{horizontal: popoverDirection || 'right', vertical: popoverTargetPosition || 'bottom'}}
-                        targetOrigin={{horizontal: popoverDirection || 'right', vertical: 'top'}}
-                        onRequestClose={() => {this.setState({showMenu: false})}}
-                        useLayerForClickAway={false}
-                    >
-                        {Utils.itemsToMenu(menuItems, this.closeMenu.bind(this), false, menuProps || undefined)}
-                    </Popover>
-                </span>
+            <span className={"toolbars-button-menu " + (className ? className  : '')} style={containerStyle}>
+                <IconButton
+                    ref="menuButton"
+                    tooltip={buttonTitle}
+                    iconClassName={buttonClassName}
+                    onTouchTap={this.showMenu.bind(this)}
+                    iconStyle={buttonStyle}
+                />
+                <Popover
+                    open={this.state.showMenu}
+                    anchorEl={this.state.anchor}
+                    anchorOrigin={{horizontal: popoverDirection || 'right', vertical: popoverTargetPosition || 'bottom'}}
+                    targetOrigin={{horizontal: popoverDirection || 'right', vertical: 'top'}}
+                    onRequestClose={() => {this.setState({showMenu: false})}}
+                    useLayerForClickAway={false}
+                >
+                    {Utils.itemsToMenu(menuItems, this.closeMenu.bind(this), false, menuProps || undefined)}
+                </Popover>
+            </span>
         );
     }
 }

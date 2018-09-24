@@ -65,9 +65,12 @@ var RolesDashboard = _react2['default'].createClass({
         var showTechnical = this.state.showTechnical;
 
         this.setState({ loading: true });
+        _pydio2['default'].startLoading();
         _pydioHttpApi2['default'].getRestClient().getIdmApi().listRoles(showTechnical, 0, 1000).then(function (roles) {
+            _pydio2['default'].endLoading();
             _this.setState({ roles: roles, loading: false });
         })['catch'](function (e) {
+            _pydio2['default'].endLoading();
             _this.setState({ loading: false });
         });
     },

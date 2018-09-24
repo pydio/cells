@@ -110,7 +110,7 @@ var ButtonComposed = _react2['default'].createClass({
             secondary: secondary,
             disabled: disabled,
             label: buttonTitle,
-            style: buttonStyle,
+            style: _extends({}, buttonStyle, { minWidth: 60 }),
             labelStyle: _extends({}, buttonLabelStyle, { paddingRight: 8 }),
             onTouchTap: masterAction,
             onClick: function onClick(e) {

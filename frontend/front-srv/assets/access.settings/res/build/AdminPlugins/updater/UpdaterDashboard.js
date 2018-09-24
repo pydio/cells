@@ -72,7 +72,9 @@ var UpdaterDashboard = _react2['default'].createClass({
         this.setState({ loading: true });
 
         var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+        _pydio2['default'].startLoading();
         api.updateRequired().then(function (res) {
+            _pydio2['default'].endLoading();
             var hasBinary = 0;
             if (res.AvailableBinaries) {
                 hasBinary = res.AvailableBinaries.length;
@@ -85,6 +87,7 @@ var UpdaterDashboard = _react2['default'].createClass({
             AdminComponents.MenuItemListener.getInstance().notify("item_changed");
             _this.setState({ loading: false });
         })['catch'](function () {
+            _pydio2['default'].endLoading();
             _this.setState({ loading: false });
         });
     },

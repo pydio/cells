@@ -118,8 +118,13 @@ func (c *ChatHandler) InitHandlers(serviceCtx context.Context) {
 			var userName string
 			if userData, ok := session.Get(SessionUsernameKey); !ok && userData != nil {
 				log.Logger(ctx).Error("Chat Message requires ws subscription first")
+				return
 			} else {
-				userName = userData.(string)
+				userName, ok = userData.(string)
+				if !ok {
+					log.Logger(ctx).Error("Chat Message requires ws subscription first")
+					return
+				}
 			}
 
 			switch chatMsg.Type {

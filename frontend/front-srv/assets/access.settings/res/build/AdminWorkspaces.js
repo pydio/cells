@@ -22959,7 +22959,9 @@ var MetadataBoard = (function (_React$Component) {
             var currentNode = _props.currentNode;
             var pydio = _props.pydio;
 
-            var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'Indexable', label: m('indexable'), style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
+            var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 }, renderCell: function renderCell(row) {
+                    return row.Order || '0';
+                } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'Indexable', label: m('indexable'), style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
                     return row.Indexable ? 'Yes' : 'No';
                 } }, { name: 'JsonDefinition', label: m('definition'), renderCell: function renderCell(row) {
                     var def = row.JsonDefinition;
@@ -23781,6 +23783,7 @@ var DataSourceEditor = (function (_React$Component) {
                     'div',
                     { style: { padding: 16 } },
                     this.context.getMessage('ws.75'),
+                    ' ',
                     this.context.getMessage('ws.76')
                 ),
                 create && model.StorageType === 'LOCAL' && _react2['default'].createElement(
@@ -26456,7 +26459,6 @@ module.exports = exports['default'];
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26472,6 +26474,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _pydioUtilLang = require('pydio/util/lang');
 
@@ -26498,7 +26504,9 @@ var VirtualNode = (function (_Observable) {
         key: 'loadNodes',
         value: function loadNodes(callback) {
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
+            _pydio2['default'].startLoading();
             api.listVirtualNodes().then(function (response) {
+                _pydio2['default'].endLoading();
                 var result = [];
                 if (response.Children) {
                     response.Children.map(function (treeNode) {
@@ -26506,6 +26514,8 @@ var VirtualNode = (function (_Observable) {
                     });
                 }
                 callback(result);
+            })['catch'](function () {
+                _pydio2['default'].endLoading();
             });
         }
     }]);
@@ -26584,7 +26594,7 @@ var VirtualNode = (function (_Observable) {
 exports['default'] = VirtualNode;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],175:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],175:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26601,14 +26611,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpApi = require("pydio/http/api");
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
 var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _pydioLangObservable = require("pydio/lang/observable");
 
-var Observable = require('pydio/lang/observable');
-var PydioApi = require('pydio/http/api');
+var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var Workspace = (function (_Observable) {
     _inherits(Workspace, _Observable);
@@ -26738,7 +26757,7 @@ var Workspace = (function (_Observable) {
             // If Policies are not set, REST service will add default policies
             console.log('Saving model', this.model);
             this.model.Attributes = JSON.stringify(this.internalAttributes);
-            var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
+            var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.putWorkspace(this.model.Slug, this.model).then(function (ws) {
                 _this4.initModel(ws);
                 _this4.observableModel = _this4.buildProxy(_this4.model);
@@ -26752,12 +26771,12 @@ var Workspace = (function (_Observable) {
     }, {
         key: 'remove',
         value: function remove() {
-            var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
+            var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.deleteWorkspace(this.model.Slug);
         }
 
         /**
-         *
+         * Revert state
          */
     }, {
         key: 'revert',
@@ -26794,22 +26813,27 @@ var Workspace = (function (_Observable) {
     }, {
         key: 'listWorkpsaces',
         value: function listWorkpsaces() {
-            var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
+            var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
             var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
             var single = new _pydioHttpRestApi.IdmWorkspaceSingleQuery();
             single.scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
             request.Queries = [single];
-            return api.searchWorkspaces(request);
+            _pydio2['default'].startLoading();
+            return api.searchWorkspaces(request).then(function () {
+                _pydio2['default'].endLoading();
+            })['catch'](function () {
+                _pydio2['default'].endLoading();
+            });
         }
     }]);
 
     return Workspace;
-})(Observable);
+})(_pydioLangObservable2['default']);
 
 exports['default'] = Workspace;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],176:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],176:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

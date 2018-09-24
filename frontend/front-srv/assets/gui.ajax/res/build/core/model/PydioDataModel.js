@@ -203,7 +203,7 @@ var PydioDataModel = (function (_Observable) {
 				if (paginationPage) {
 					ajxpNode.getMetadata().get('paginationData').set('current', paginationPage);
 				}
-				ajxpNode.reload(this._iAjxpNodeProvider);
+				ajxpNode.reload(this._iAjxpNodeProvider, true);
 			} else {
 				ajxpNode.load(this._iAjxpNodeProvider);
 			}
@@ -220,7 +220,7 @@ var PydioDataModel = (function (_Observable) {
 		if (this._selectedNodes.length) {
 			var found = -1;
 			this._selectedNodes.map(function (node, key) {
-				if (node.getPath() == nodeOrPath.getPath()) found = key;
+				if (node.getPath() === nodeOrPath.getPath()) found = key;
 			});
 			if (found !== -1) {
 				// MAKE SURE SELECTION IS OK AFTER RELOAD

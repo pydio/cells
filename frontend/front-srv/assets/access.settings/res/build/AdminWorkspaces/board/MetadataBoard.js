@@ -137,7 +137,9 @@ var MetadataBoard = (function (_React$Component) {
             var currentNode = _props.currentNode;
             var pydio = _props.pydio;
 
-            var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'Indexable', label: m('indexable'), style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
+            var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 }, renderCell: function renderCell(row) {
+                    return row.Order || '0';
+                } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'Indexable', label: m('indexable'), style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
                     return row.Indexable ? 'Yes' : 'No';
                 } }, { name: 'JsonDefinition', label: m('definition'), renderCell: function renderCell(row) {
                     var def = row.JsonDefinition;

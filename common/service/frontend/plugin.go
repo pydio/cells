@@ -28,6 +28,7 @@ type Plugin interface {
 	ListDependencies() (ids []string)
 	DefaultParameters() map[string]interface{}
 	DefaultEnabled() bool
+	AlwaysEnabled() bool
 	ExposeConfigs(map[string]interface{})
 	PluginEnabled(status RequestStatus) bool
 	FilterActions(status RequestStatus, pool *PluginsPool, actions []*Caction) (output []*Caction)
@@ -143,6 +144,10 @@ func (plugin *Cplugin) ListDependencies() (ids []string) {
 
 func (plugin *Cplugin) DefaultEnabled() bool {
 	return plugin.Attrenabled != "false"
+}
+
+func (plugin *Cplugin) AlwaysEnabled() bool {
+	return plugin.Attrenabled == "always"
 }
 
 func (plugin *Cplugin) DefaultParameters() map[string]interface{} {

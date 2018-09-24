@@ -75,11 +75,13 @@ var PluginsLoader = (function () {
                         lang = _this.pydio.user.getPreference('lang');
                     }
                     var url = _this.pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/plugins/' + lang;
+                    _pydio2['default'].startLoading();
                     window.fetch(url, {
                         method: 'GET',
                         credentials: 'same-origin',
                         headers: headers
                     }).then(function (response) {
+                        _pydio2['default'].endLoading();
                         _this.loading = false;
                         response.text().then(function (text) {
                             _this.plugins = _pydioUtilXml2['default'].parseXml(text).documentElement;
@@ -87,6 +89,7 @@ var PluginsLoader = (function () {
                             resolve(_this.plugins);
                         });
                     })['catch'](function (e) {
+                        _pydio2['default'].endLoading();
                         _this.pLoad = null;
                         reject(e);
                     });

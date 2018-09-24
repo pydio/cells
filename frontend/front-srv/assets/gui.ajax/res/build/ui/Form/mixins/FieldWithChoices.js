@@ -41,6 +41,8 @@ exports['default'] = function (PydioComponent) {
         _inherits(FieldWithChoices, _Component);
 
         FieldWithChoices.prototype.loadExternalValues = function loadExternalValues(choices) {
+            var _this = this;
+
             var pydio = this.props.pydio;
 
             var parsed = true;
@@ -56,17 +58,27 @@ exports['default'] = function (PydioComponent) {
                 parsed = false;
                 list_action = choices.replace('json_file:', '');
                 output.set('0', pydio.MessageHash['ajxp_admin.home.6']);
-                PydioApi.getClient().loadFile(list_action, (function (transport) {
-                    var _this = this;
-
+                PydioApi.getClient().loadFile(list_action, function (transport) {
                     var newOutput = new Map();
-                    transport.responseJSON.map(function (entry) {
-                        newOutput.set(entry.key, entry.label);
+                    if (transport.responseJSON) {
+                        transport.responseJSON.forEach(function (entry) {
+                            newOutput.set(entry.key, entry.label);
+                        });
+                    } else if (transport.responseText) {
+                        try {
+                            JSON.parse(transport.responseText).forEach(function (entry) {
+                                newOutput.set(entry.key, entry.label);
+                            });
+                        } catch (e) {
+                            console.log('Error while parsing list ' + choices, e);
+                        }
+                    }
+                    _this.setState({ choices: newOutput }, function () {
+                        if (_this.onChoicesLoaded) {
+                            _this.onChoicesLoaded(newOutput);
+                        }
                     });
-                    this.setState({ choices: newOutput }, function () {
-                        if (_this.onChoicesLoaded) _this.onChoicesLoaded(newOutput);
-                    });
-                }).bind(this));
+                });
             } else if (choices === "PYDIO_AVAILABLE_LANGUAGES") {
                 pydio.listLanguagesWithCallback(function (key, label) {
                     output.set(key, label);
@@ -75,7 +87,9 @@ exports['default'] = function (PydioComponent) {
             } else if (choices === "PYDIO_AVAILABLE_REPOSITORIES") {
                 if (pydio.user) {
                     pydio.user.repositories.forEach(function (repository) {
-                        output.set(repository.getId(), repository.getLabel());
+                        if (repository.getRepositoryType() !== "cell") {
+                            output.set(repository.getId(), repository.getLabel());
+                        }
                     });
                 }
                 if (this.onChoicesLoaded) this.onChoicesLoaded(output);

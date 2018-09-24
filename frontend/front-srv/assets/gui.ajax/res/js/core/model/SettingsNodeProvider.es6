@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from '../Pydio'
 import PydioApi from '../http/PydioApi'
 import LangUtils from '../util/LangUtils'
 import AjxpNode from './AjxpNode'
@@ -73,7 +73,9 @@ export default class SettingsNodeProvider{
                 newPage = pData.get('new_page');
                 offset = (newPage - 1) * limit;
             }
+            Pydio.startLoading();
             PydioApi.getRestClient().getIdmApi().listUsersGroups(basePath, recursive, offset, limit).then(collection => {
+                Pydio.endLoading();
                 let childrenNodes = [];
                 let count = 0;
                 if(collection.Groups){
@@ -106,6 +108,8 @@ export default class SettingsNodeProvider{
                     node.replaceBy(node);
                     nodeCallback(node);
                 }
+            }).catch(()=>{
+                Pydio.endLoading();
             });
             return;
         }
@@ -204,6 +208,9 @@ export default class SettingsNodeProvider{
                     sectionNode.getMetadata().set(k, section.METADATA[k]);
                 }
             }
+        }
+        if(section.Description){
+            sectionNode.getMetadata().set("description", section.Description);
         }
         if (section.CHILDREN) {
             section.CHILDREN.map(c => {

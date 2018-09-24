@@ -17,7 +17,9 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
+import PydioDataModel from 'pydio/model/data-model'
+import AjxpNode from 'pydio/model/node'
 import React from 'react'
 import ServicesList from './ServicesList'
 import {Toggle, DropDownMenu, MenuItem, IconButton, Paper} from 'material-ui'
@@ -32,33 +34,37 @@ export default React.createClass({
         currentNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
         openEditor:React.PropTypes.func.isRequired,
         openRightPane:React.PropTypes.func.isRequired,
-        closeRightPane:React.PropTypes.func.isRequired
+        closeRightPane:React.PropTypes.func.isRequired,
+        pydio:React.PropTypes.instanceOf(Pydio)
     },
 
-    getInitialState:function(){
+    getInitialState(){
         return {details: true, filter:''}
     },
 
-    onDetailsChange: function(event, value){
+    onDetailsChange(event, value){
         this.setState({details: value});
     },
 
-    onFilterChange: function(event, index, value){
+    onFilterChange(event, index, value){
         this.setState({filter: value});
     },
 
-    reloadList:function(){
+    reloadList(){
         this.refs.servicesList.reload();
     },
 
-    render:function(){
+    render(){
+        const {pydio} = this.props;
+        const m = id => pydio.MessageHash['ajxp_admin.services.' + id] || id;
+
         const buttonContainer = (
-            <div style={{display: 'flex', alignItems: 'baseline', padding: '0 20px', width: '100%'}}>
-                <Toggle label={"Show Details"} toggled={this.state.details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 150}}/>
-                <DropDownMenu underlineStyle={{display:'none'}} value={this.state.filter} onChange={this.onFilterChange}>
-                    <MenuItem value={''} primaryText="No filter" />
-                    <MenuItem value={'STARTED'} primaryText="Running Only" />
-                    <MenuItem value={'STOPPED'} primaryText="Stopped Only" />
+            <div style={{display: 'flex', alignItems: 'center', padding: '0 20px', width: '100%'}}>
+                <Toggle label={m('toggle.details')} toggled={this.state.details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 150}}/>
+                <DropDownMenu style={{marginTop: -10}} underlineStyle={{display:'none'}} value={this.state.filter} onChange={this.onFilterChange}>
+                    <MenuItem value={''} primaryText={m('filter.nofilter')} />
+                    <MenuItem value={'STARTED'} primaryText={m('filter.started')} />
+                    <MenuItem value={'STOPPED'} primaryText={m('filter.stopped')} />
                 </DropDownMenu>
             </div>
         );
@@ -74,6 +80,7 @@ export default React.createClass({
                     />
                     <ServicesList
                         ref="servicesList"
+                        pydio={pydio}
                         className="layout-fill"
                         style={{paddingBottom: 16}}
                         dataModel={this.props.dataModel}

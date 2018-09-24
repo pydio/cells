@@ -83,6 +83,7 @@ var AdminLeftNav = React.createClass({
         var rootNode = _props2.rootNode;
         var muiTheme = _props2.muiTheme;
         var open = _props2.open;
+        var showAdvanced = _props2.showAdvanced;
 
         // Fix for ref problems on context node
         var contextNode = this.props.contextNode;
@@ -99,13 +100,13 @@ var AdminLeftNav = React.createClass({
             }
         });
 
-        var menuItems = _utilNavigationHelper2['default'].buildNavigationItems(pydio, rootNode, muiTheme.palette);
+        var menuItems = _utilNavigationHelper2['default'].buildNavigationItems(pydio, rootNode, muiTheme.palette, showAdvanced, false);
 
         var pStyle = {
             height: '100%',
             position: 'fixed',
             width: 256,
-            paddingTop: 64,
+            paddingTop: 56,
             zIndex: 9
         };
         if (!open) {
@@ -124,7 +125,13 @@ var AdminLeftNav = React.createClass({
                 { style: { height: '100%', overflowY: 'auto' } },
                 React.createElement(
                     Menu,
-                    { onChange: this.onMenuChange, autoWidth: false, width: 256, listStyle: { display: 'block', maxWidth: 256 }, value: contextNode },
+                    {
+                        onChange: this.onMenuChange,
+                        autoWidth: false,
+                        width: 256,
+                        listStyle: { display: 'block', maxWidth: 256 },
+                        value: contextNode
+                    },
                     menuItems
                 )
             )

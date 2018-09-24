@@ -54,6 +54,9 @@ let FSTemplate = React.createClass({
             if(name !== 'info-panel'){
                 infoPanelOpen = true;
             }
+            localStorage.setItem('pydio.layout.rightColumnState', name);
+            localStorage.setItem('pydio.layout.infoPanelToggle', 'open');
+            localStorage.setItem('pydio.layout.infoPanelOpen', infoPanelOpen?'open':'closed');
             this.setState({infoPanelToggle:true, infoPanelOpen}, () => this.resizeAfterTransition())
         });
     },
@@ -62,14 +65,22 @@ let FSTemplate = React.createClass({
         this.setState({infoPanelToggle: false}, () => {
             this.resizeAfterTransition();
         });
+        localStorage.setItem('pydio.layout.rightColumnState', '');
+        localStorage.setItem('pydio.layout.infoPanelToggle', 'closed');
     },
 
     getInitialState(){
+        let rState = 'info-panel';
+        if(localStorage.getItem('pydio.layout.rightColumnState') !== undefined && localStorage.getItem('pydio.layout.rightColumnState')){
+            rState = localStorage.getItem('pydio.layout.rightColumnState');
+        }
+        const closedToggle = localStorage.getItem('pydio.layout.infoPanelToggle') === 'closed';
+        const closedInfo = localStorage.getItem('pydio.layout.infoPanelOpen') === 'closed';
         return {
-            infoPanelOpen: false,
-            infoPanelToggle: true,
+            infoPanelOpen: !closedInfo,
+            infoPanelToggle: !closedToggle,
             drawerOpen: false,
-            rightColumnState: 'info-panel'
+            rightColumnState: rState
         };
     },
 
@@ -163,7 +174,7 @@ let FSTemplate = React.createClass({
 
         let mainToolbars = ["info_panel", "info_panel_share"];
         let mainToolbarsOthers = ["change", "other"];
-        if(infoPanelOpen && infoPanelToggle){
+        if(infoPanelOpen && infoPanelToggle && (rightColumnState === 'info-panel')){
             mainToolbars = ["change_main"];
             mainToolbarsOthers = ["get", "change", "other"];
         }

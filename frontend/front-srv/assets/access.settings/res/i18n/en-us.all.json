@@ -539,6 +539,15 @@
   "99": {
     "other": "Feature plugins"
   },
+  "topbar.title":{
+    "other": "Cells Console"
+  },
+  "topbar.button.advanced":{
+    "other": "Show/hide advanced parameters"
+  },
+  "topbar.button.about":{
+    "other": "Learn more about Pydio Cells"
+  },
   "group_access": {
     "other": "g"
   },

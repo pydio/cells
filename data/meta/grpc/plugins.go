@@ -40,7 +40,7 @@ func init() {
 
 			ctx := m.Options().Context
 
-			engine := &MetaServer{}
+			engine := NewMetaServer()
 
 			tree.RegisterNodeProviderHandler(m.Options().Server, engine)
 			tree.RegisterNodeProviderStreamerHandler(m.Options().Server, engine)

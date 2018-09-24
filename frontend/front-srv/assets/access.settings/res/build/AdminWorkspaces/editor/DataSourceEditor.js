@@ -184,6 +184,7 @@ var DataSourceEditor = (function (_React$Component) {
                     'div',
                     { style: { padding: 16 } },
                     this.context.getMessage('ws.75'),
+                    ' ',
                     this.context.getMessage('ws.76')
                 ),
                 create && model.StorageType === 'LOCAL' && _react2['default'].createElement(

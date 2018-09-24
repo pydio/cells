@@ -88,18 +88,24 @@ class JSDocsPanel extends Component{
             );
         });
         return (
-            <div style={{width:'100%', height:'100%', display:'flex'}}>
-                <Paper zDepth={1} style={{width:256, overflowY:'scroll', display:'flex', flexDirection:'column'}}>
-                    <div style={{padding:16, paddingBottom: 0, paddingTop: 8}}>
-                        <TextField fullWidth={true} value={search} onChange={this.onSearch.bind(this)} hintText="Search for a class..." underlineShow={false}/>
+            <div className={"main-layout-nav-to-stack vertical-layout"}>
+                <AdminComponents.Header
+                    title={"Javascript SDK Documentation"}
+                    icon="mdi mdi-nodejs"
+                />
+                <div className={"layout-fill"} style={{display:'flex', backgroundColor:'white'}}>
+                    <Paper zDepth={1} style={{width:256, overflowY:'scroll', display:'flex', flexDirection:'column'}}>
+                        <div style={{padding:16, paddingBottom: 0, paddingTop: 8}}>
+                            <TextField fullWidth={true} value={search} onChange={this.onSearch.bind(this)} hintText="Search for a class..." underlineShow={false}/>
+                        </div>
+                        {error && <div style={{padding:16}}>{error}</div>}
+                        <List style={{flex:1}}>{items}</List>
+                    </Paper>
+                    <div style={{flex:1, overflowY: 'scroll'}}>
+                        {selection &&
+                            <ClassPanel path={selection} data={data[selection][0]}/>
+                        }
                     </div>
-                    {error && <div style={{padding:16}}>{error}</div>}
-                    <List style={{flex:1}}>{items}</List>
-                </Paper>
-                <div style={{flex:1, overflowY: 'scroll'}}>
-                    {selection &&
-                        <ClassPanel path={selection} data={data[selection][0]}/>
-                    }
                 </div>
             </div>
         );
@@ -150,7 +156,7 @@ class ClassPanel extends Component{
         const pStyle = {margin: '0 16px'};
 
         return (
-            <div>
+            <div style={{paddingBottom:16}}>
                 <CardTitle title={title} subtitle={classPath}/>
                 <div style={dStyle}>{data.description}</div>
                 {data.require &&

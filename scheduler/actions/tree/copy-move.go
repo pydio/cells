@@ -155,7 +155,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		}
 
 		if len(children) > 0 {
-			log.Logger(ctx).Info(fmt.Sprintf("There are %v children to move", len(children)), zap.Any("c", children))
+			log.Logger(ctx).Info(fmt.Sprintf("There are %v children to move", len(children)))
 		}
 		total := len(children)
 
