@@ -46,7 +46,7 @@ class LogTools extends React.Component{
         const {service} = this.props;
         const dateString = (date? date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate() : '');
         const query = Log.buildQuery(filter, date, endDate);
-        Log.downloadLogs(service || 'syslog', query, format).then(blob => {
+        Log.downloadLogs(service || 'sys', query, format).then(blob => {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             let filename = 'cells-logs-';

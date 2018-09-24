@@ -915,7 +915,7 @@ var LogTools = (function (_React$Component) {
 
             var dateString = date ? date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() : '';
             var query = _modelLog2['default'].buildQuery(filter, date, endDate);
-            _modelLog2['default'].downloadLogs(service || 'syslog', query, format).then(function (blob) {
+            _modelLog2['default'].downloadLogs(service || 'sys', query, format).then(function (blob) {
                 var url = window.URL.createObjectURL(blob);
                 var link = document.createElement('a');
                 var filename = 'cells-logs-';
