@@ -46,9 +46,7 @@ func init() {
 			idm.RegisterWorkspaceServiceHandler(m.Options().Server, h)
 
 			// Register a cleaner for removing a workspace when there are no more ACLs on it.
-			wsCleaner := &WsCleaner{
-				Handler: h,
-			}
+			wsCleaner := NewWsCleaner(h, ctx)
 			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, wsCleaner)); err != nil {
 				return err
 			}
