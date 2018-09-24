@@ -120,26 +120,35 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 		var hasData bool
 
 		for _, workspace := range workspaces {
-			n1, t1 := w.EventRouter.WorkspaceCanSeeNode(ctx, workspace, event.Target, true)
-			n2, t2 := w.EventRouter.WorkspaceCanSeeNode(ctx, workspace, event.Source, false)
+			nTarget, t1 := w.EventRouter.WorkspaceCanSeeNode(ctx, workspace, event.Target, true)
+			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(ctx, workspace, event.Source, false)
 			// Depending on node, broadcast now
 			if t1 || t2 {
-				log.Logger(ctx).Debug("Broadcasting event to this session for workspace", zap.Any("target", n1), zap.Any("source", n2), zap.Any("ws", workspace))
+				log.Logger(ctx).Debug("Broadcasting event to this session for workspace", zap.Any("target", nTarget), zap.Any("source", nSource), zap.Any("ws", workspace))
 
-				if n1 != nil {
-					n1.SetMeta("EventWorkspaceId", workspace.UUID)
-					n1 = n1.WithoutReservedMetas()
+				if nTarget != nil {
+					nTarget.SetMeta("EventWorkspaceId", workspace.UUID)
+					nTarget = nTarget.WithoutReservedMetas()
 				}
-				if n2 != nil {
-					n2.SetMeta("EventWorkspaceId", workspace.UUID)
-					n2 = n2.WithoutReservedMetas()
+				if nSource != nil {
+					nSource.SetMeta("EventWorkspaceId", workspace.UUID)
+					nSource = nSource.WithoutReservedMetas()
+				}
+				eType := event.Type
+				// Eventually update event type if one node is out of scope
+				if eType == tree.NodeChangeEvent_UPDATE_PATH {
+					if nSource == nil {
+						eType = tree.NodeChangeEvent_CREATE
+					} else if nTarget == nil {
+						eType = tree.NodeChangeEvent_DELETE
+					}
 				}
 				// We have to filter the event for this context
 				marshaler := &jsonpb.Marshaler{}
 				s, _ := marshaler.MarshalToString(&tree.NodeChangeEvent{
-					Type:   event.Type,
-					Target: n1,
-					Source: n2,
+					Type:   eType,
+					Target: nTarget,
+					Source: nSource,
 				})
 				data := []byte(s)
 
