@@ -24,16 +24,7 @@ import {ConfigServiceApi} from 'pydio/http/rest-api'
 import {Paper, List, ListItem, Checkbox, FontIcon, Divider} from 'material-ui'
 import ServiceCard from './ServiceCard'
 
-const tags = {
-    "gateway":{label:'Gateways', description:'World-facing services for accessing the platform'},
-    "datasource":{label:'Data Sources', description:'Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource).'},
-    "data":{label:'Data', description:'Services handling data and metadata.'},
-    "idm":{label:'Identity Management', description:'All services related to authentication and authorizations, roles, security policies, etc.'},
-    "scheduler":{label:'Scheduler', description:'Services for managing background jobs. The "tasks" server can be dispatched accross various peers.'},
-    "broker":{label:'Broker', description:'Services dispatching and processing events (generally toward users) accross the application.'},
-    "frontend":{label:'Frontend', description:'Frontend oriented services'},
-    "discovery":{label:'Discovery', description:'Basic configurations and services registries called by all other services.'},
-};
+const tags = ['gateway', 'datasource', 'data', 'idm', 'scheduler', 'broker', 'frontend', 'discovery'];
 
 function groupAndSortServices(services) {
 
@@ -45,22 +36,27 @@ function groupAndSortServices(services) {
     });
     // First detect peers
     services.map(service => {
-        if(!service.RunningPeers) return;
+        if(!service.RunningPeers) {
+            return;
+        }
         service.RunningPeers.map(peer => {
             Peers[peer.Address] = peer.Address;
         });
     });
     // Now split services on various tags
-    Object.keys(tags).map(tagName => {
+    tags.forEach(tagName => {
         Tags[tagName] = {
-            tagData: tags[tagName],
             services:{}
         };
         services.map(service => {
             if(tagName === service.Tag) {
                 let genericId = service.Name;
-                if(genericId.startsWith('pydio.grpc.')) genericId = genericId.replace('pydio.grpc.', '');
-                else if(genericId.startsWith('pydio.rest.')) genericId = genericId.replace('pydio.rest.', '');
+                if(genericId.startsWith('pydio.grpc.')) {
+                    genericId = genericId.replace('pydio.grpc.', '');
+                }
+                else if(genericId.startsWith('pydio.rest.')) {
+                    genericId = genericId.replace('pydio.rest.', '');
+                }
                 if(tagName === 'datasource' && genericId.startsWith('data.')){
                     genericId = genericId.replace('data.', '');
                     if(genericId === 'index' || genericId === 'sync' || genericId === 'objects'){
@@ -125,9 +121,10 @@ export default React.createClass({
      * @param service RestService
      * @returns {XML}
      */
-    renderListItem: function(service){
+    renderListItem(service){
         let description = [];
-        if(this.props.details) {
+        const {details, pydio} = this.props;
+        if(details) {
             if(service.Description){
                 description.push(service.Description)
             }
@@ -137,7 +134,7 @@ export default React.createClass({
                 metaNode.map(Peer => {
                     strings.push(Peer.Address);
                 });
-                description.push('Running on ' + strings.join(','));
+                description.push(pydio.MessageHash['ajxp_admin.services.service.ip'].replace('%s', strings.join(',')));
             }
         }
         return (
@@ -149,7 +146,7 @@ export default React.createClass({
     },
 
 
-    filterNodes:function(service){
+    filterNodes(service){
         if(service.Name.indexOf('.(.+)') !== -1){
             return false;
         }
@@ -159,46 +156,17 @@ export default React.createClass({
         return service.Status === this.props.filter;
     },
 
-    render:function(){
+    render(){
+        const {pydio} = this.props;
         const {services} = this.state;
-        /*
-        let tags = new Map();
-        services.forEach((service) => {
-            if (!this.filterNodes(service)){
-                return;
-            }
-            const tag = service.Tag || 'General';
-            if(!tags.has(tag)) {
-                tags.set(tag, []);
-            }
-            tags.get(tag).push(service);
-        });
-        let blocks = [];
-        tags.forEach((items, tag) => {
-            const title = tag.charAt(0).toUpperCase() + tag.substr(1);
-            let listItems = [];
-            for(let i=0; i < items.length; i++){
-                listItems.push(this.renderListItem(items[i]));
-                listItems.push(<Divider inset={true}/>)
-            }
-            listItems.pop();
-            blocks.push(
-                <div>
-                    <AdminComponents.SubHeader title={title}/>
-                    <Paper style={{margin:'0 16px'}}>
-                        <List>{listItems}</List>
-                    </Paper>
-                </div>
-            );
-        });
-        */
         const blockStyle = {margin:20, backgroundColor: 'rgba(207, 216, 220, 0.59)', borderRadius: 3, padding: 3, display:'flex', flexWrap:'wrap'};
+        const m = id => pydio.MessageHash['ajxp_admin.services.tag.' + id] || id;
 
-        const {Peers, Tags} = groupAndSortServices(services.filter(s => this.filterNodes(s)));
+
+        const {Peers, Tags} = groupAndSortServices(services.filter(s => this.filterNodes(s)), pydio);
         const blocks = Object.keys(Tags).map(tag => {
-            const tagData = Tags[tag].tagData;
             const services = Tags[tag].services;
-            const srvComps = Object.keys(services).map(id => <ServiceCard showDescription={this.props.details} title={id} tagId={tag} services={services[id]}/> );
+            const srvComps = Object.keys(services).map(id => <ServiceCard pydio={pydio} showDescription={this.props.details} title={id} tagId={tag} services={services[id]}/> );
             let subBlocks = [];
             if(tag === 'datasource') {
                 // Regroup by type
@@ -206,7 +174,7 @@ export default React.createClass({
                     <div style={{...blockStyle, marginBottom: 5}} >
                         {Object.keys(services).map(id => {
                             if(!id.startsWith('main -')) return null;
-                            return <ServiceCard showDescription={this.props.details} title={id.replace('main - ', '')} tagId={tag} services={services[id]}/>
+                            return <ServiceCard pydio={pydio} showDescription={this.props.details} title={id.replace('main - ', '')} tagId={tag} services={services[id]}/>
                         })}
                     </div>
                 );
@@ -214,7 +182,7 @@ export default React.createClass({
                     <div style={{...blockStyle, margin:'5px 20px'}} >
                         {Object.keys(services).map(id => {
                             if(!id.startsWith('datasource -')) return null;
-                            return <ServiceCard showDescription={this.props.details} title={id.replace('datasource - ', '')} tagId={tag} services={services[id]}/>
+                            return <ServiceCard pydio={pydio} showDescription={this.props.details} title={id.replace('datasource - ', '')} tagId={tag} services={services[id]}/>
                         })}
                     </div>
                 );
@@ -222,7 +190,7 @@ export default React.createClass({
                     <div style={{...blockStyle, marginTop:5}} >
                         {Object.keys(services).map(id => {
                             if(!id.startsWith('objects -')) return null;
-                            return <ServiceCard showDescription={this.props.details} title={id.replace('objects - ', '')} tagId={tag} services={services[id]}/>
+                            return <ServiceCard pydio={pydio} showDescription={this.props.details} title={id.replace('objects - ', '')} tagId={tag} services={services[id]}/>
                         })}
                     </div>
                 );
@@ -230,7 +198,7 @@ export default React.createClass({
             } else {
                 subBlocks.push(
                     <div style={blockStyle} >
-                        {Object.keys(services).map(id => <ServiceCard showDescription={this.props.details} title={id} tagId={tag} services={services[id]}/>)}
+                        {Object.keys(services).map(id => <ServiceCard pydio={pydio} showDescription={this.props.details} title={id} tagId={tag} services={services[id]}/>)}
                     </div>
                 )
             }
@@ -239,7 +207,7 @@ export default React.createClass({
             }
             return (
                 <div>
-                    <AdminComponents.SubHeader title={tagData.label} legend={tagData.description}/>
+                    <AdminComponents.SubHeader title={m(tag + '.title')} legend={m(tag + '.description')}/>
                     {subBlocks}
                 </div>
             );

@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25,6 +24,18 @@ Object.defineProperty(exports, '__esModule', {
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioModelDataModel = require('pydio/model/data-model');
+
+var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
 var _react = require('react');
 
@@ -42,12 +53,13 @@ exports['default'] = _react2['default'].createClass({
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(PydioDataModel).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(AjxpNode).isRequired,
+        dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
+        rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
+        currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
         openEditor: _react2['default'].PropTypes.func.isRequired,
         openRightPane: _react2['default'].PropTypes.func.isRequired,
-        closeRightPane: _react2['default'].PropTypes.func.isRequired
+        closeRightPane: _react2['default'].PropTypes.func.isRequired,
+        pydio: _react2['default'].PropTypes.instanceOf(_pydio2['default'])
     },
 
     getInitialState: function getInitialState() {
@@ -67,16 +79,22 @@ exports['default'] = _react2['default'].createClass({
     },
 
     render: function render() {
+        var pydio = this.props.pydio;
+
+        var m = function m(id) {
+            return pydio.MessageHash['ajxp_admin.services.' + id] || id;
+        };
+
         var buttonContainer = _react2['default'].createElement(
             'div',
-            { style: { display: 'flex', alignItems: 'baseline', padding: '0 20px', width: '100%' } },
-            _react2['default'].createElement(_materialUi.Toggle, { label: "Show Details", toggled: this.state.details, onToggle: this.onDetailsChange, labelPosition: "right", style: { width: 150 } }),
+            { style: { display: 'flex', alignItems: 'center', padding: '0 20px', width: '100%' } },
+            _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.details'), toggled: this.state.details, onToggle: this.onDetailsChange, labelPosition: "right", style: { width: 150 } }),
             _react2['default'].createElement(
                 _materialUi.DropDownMenu,
-                { underlineStyle: { display: 'none' }, value: this.state.filter, onChange: this.onFilterChange },
-                _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: 'No filter' }),
-                _react2['default'].createElement(_materialUi.MenuItem, { value: 'STARTED', primaryText: 'Running Only' }),
-                _react2['default'].createElement(_materialUi.MenuItem, { value: 'STOPPED', primaryText: 'Stopped Only' })
+                { style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: this.state.filter, onChange: this.onFilterChange },
+                _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('filter.nofilter') }),
+                _react2['default'].createElement(_materialUi.MenuItem, { value: 'STARTED', primaryText: m('filter.started') }),
+                _react2['default'].createElement(_materialUi.MenuItem, { value: 'STOPPED', primaryText: m('filter.stopped') })
             )
         );
         return _react2['default'].createElement(
@@ -94,6 +112,7 @@ exports['default'] = _react2['default'].createClass({
                 }),
                 _react2['default'].createElement(_ServicesList2['default'], {
                     ref: 'servicesList',
+                    pydio: pydio,
                     className: 'layout-fill',
                     style: { paddingBottom: 16 },
                     dataModel: this.props.dataModel,

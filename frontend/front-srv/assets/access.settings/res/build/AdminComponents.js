@@ -16915,7 +16915,7 @@ var AdminDashboard = _react2['default'].createClass({
             iconClassName: "mdi mdi-toggle-switch" + (showAdvanced ? "" : "-off"),
             style: styles.appBarButton,
             iconStyle: styles.appBarButtonIcon,
-            tooltip: "Toggle Advanced Parameters",
+            tooltip: pydio.MessageHash['settings.topbar.button.advanced'],
             onTouchTap: function () {
                 _this3.setState({ showAdvanced: !showAdvanced });
                 localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
@@ -16927,7 +16927,7 @@ var AdminDashboard = _react2['default'].createClass({
             onTouchTap: function () {
                 window.open('https://pydio.com');
             },
-            tooltip: "Learn more about Pydio Cells",
+            tooltip: pydio.MessageHash['settings.topbar.button.about'],
             style: styles.appBarButton,
             iconStyle: styles.appBarButtonIcon
         });
@@ -16952,7 +16952,7 @@ var AdminDashboard = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'span',
                     { style: styles.appBarTitle },
-                    'Cells Console'
+                    pydio.MessageHash['settings.topbar.title']
                 ),
                 searchIconButton,
                 toggleAdvancedButton,

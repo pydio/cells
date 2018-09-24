@@ -41,15 +41,27 @@ export default function (PydioComponent){
                 parsed = false;
                 list_action = choices.replace('json_file:', '');
                 output.set('0', pydio.MessageHash['ajxp_admin.home.6']);
-                PydioApi.getClient().loadFile(list_action, function (transport) {
+                PydioApi.getClient().loadFile(list_action, (transport) => {
                     let newOutput = new Map();
-                    transport.responseJSON.map(function (entry) {
-                        newOutput.set(entry.key, entry.label);
-                    });
+                    if(transport.responseJSON){
+                        transport.responseJSON.forEach(entry => {
+                            newOutput.set(entry.key, entry.label);
+                        });
+                    } else if(transport.responseText){
+                        try{
+                            JSON.parse(transport.responseText).forEach(entry => {
+                                newOutput.set(entry.key, entry.label);
+                            });
+                        }catch (e){
+                            console.log('Error while parsing list ' + choices, e);
+                        }
+                    }
                     this.setState({choices: newOutput}, () => {
-                        if (this.onChoicesLoaded) this.onChoicesLoaded(newOutput);
+                        if (this.onChoicesLoaded) {
+                            this.onChoicesLoaded(newOutput);
+                        }
                     });
-                }.bind(this));
+                });
             } else if (choices === "PYDIO_AVAILABLE_LANGUAGES") {
                 pydio.listLanguagesWithCallback(function (key, label) {
                     output.set(key, label);

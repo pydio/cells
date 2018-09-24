@@ -427,7 +427,7 @@ var ResourcesManager = (function () {
     };
 
     /**
-     * Load class and return as a promise
+     * Load class and return as a promise - do not catch error
      * @param className
      * @return {*|Promise|PromiseLike<T>|Promise<T>}
      */
@@ -436,9 +436,7 @@ var ResourcesManager = (function () {
         if (!ResourcesManager.__configsParsed) {
             ResourcesManager.loadAutoLoadResources();
         }
-        return SystemJS['import'](className)['catch'](function (e) {
-            console.error('Failed loading class ' + className, e);
-        });
+        return SystemJS['import'](className);
     };
 
     ResourcesManager.detectModuleToLoadAndApply = function detectModuleToLoadAndApply(callbackString, callbackFunc) {

@@ -47,16 +47,7 @@ var _ServiceCard = require('./ServiceCard');
 
 var _ServiceCard2 = _interopRequireDefault(_ServiceCard);
 
-var tags = {
-    "gateway": { label: 'Gateways', description: 'World-facing services for accessing the platform' },
-    "datasource": { label: 'Data Sources', description: 'Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource).' },
-    "data": { label: 'Data', description: 'Services handling data and metadata.' },
-    "idm": { label: 'Identity Management', description: 'All services related to authentication and authorizations, roles, security policies, etc.' },
-    "scheduler": { label: 'Scheduler', description: 'Services for managing background jobs. The "tasks" server can be dispatched accross various peers.' },
-    "broker": { label: 'Broker', description: 'Services dispatching and processing events (generally toward users) accross the application.' },
-    "frontend": { label: 'Frontend', description: 'Frontend oriented services' },
-    "discovery": { label: 'Discovery', description: 'Basic configurations and services registries called by all other services.' }
-};
+var tags = ['gateway', 'datasource', 'data', 'idm', 'scheduler', 'broker', 'frontend', 'discovery'];
 
 function groupAndSortServices(services) {
 
@@ -68,21 +59,26 @@ function groupAndSortServices(services) {
     });
     // First detect peers
     services.map(function (service) {
-        if (!service.RunningPeers) return;
+        if (!service.RunningPeers) {
+            return;
+        }
         service.RunningPeers.map(function (peer) {
             Peers[peer.Address] = peer.Address;
         });
     });
     // Now split services on various tags
-    Object.keys(tags).map(function (tagName) {
+    tags.forEach(function (tagName) {
         Tags[tagName] = {
-            tagData: tags[tagName],
             services: {}
         };
         services.map(function (service) {
             if (tagName === service.Tag) {
                 var genericId = service.Name;
-                if (genericId.startsWith('pydio.grpc.')) genericId = genericId.replace('pydio.grpc.', '');else if (genericId.startsWith('pydio.rest.')) genericId = genericId.replace('pydio.rest.', '');
+                if (genericId.startsWith('pydio.grpc.')) {
+                    genericId = genericId.replace('pydio.grpc.', '');
+                } else if (genericId.startsWith('pydio.rest.')) {
+                    genericId = genericId.replace('pydio.rest.', '');
+                }
                 if (tagName === 'datasource' && genericId.startsWith('data.')) {
                     genericId = genericId.replace('data.', '');
                     if (genericId === 'index' || genericId === 'sync' || genericId === 'objects') {
@@ -151,7 +147,11 @@ exports['default'] = _react2['default'].createClass({
      */
     renderListItem: function renderListItem(service) {
         var description = [];
-        if (this.props.details) {
+        var _props = this.props;
+        var details = _props.details;
+        var pydio = _props.pydio;
+
+        if (details) {
             if (service.Description) {
                 description.push(service.Description);
             }
@@ -162,7 +162,7 @@ exports['default'] = _react2['default'].createClass({
                     metaNode.map(function (Peer) {
                         strings.push(Peer.Address);
                     });
-                    description.push('Running on ' + strings.join(','));
+                    description.push(pydio.MessageHash['ajxp_admin.services.service.ip'].replace('%s', strings.join(',')));
                 })();
             }
         }
@@ -186,53 +186,25 @@ exports['default'] = _react2['default'].createClass({
     render: function render() {
         var _this2 = this;
 
+        var pydio = this.props.pydio;
         var services = this.state.services;
 
-        /*
-        let tags = new Map();
-        services.forEach((service) => {
-            if (!this.filterNodes(service)){
-                return;
-            }
-            const tag = service.Tag || 'General';
-            if(!tags.has(tag)) {
-                tags.set(tag, []);
-            }
-            tags.get(tag).push(service);
-        });
-        let blocks = [];
-        tags.forEach((items, tag) => {
-            const title = tag.charAt(0).toUpperCase() + tag.substr(1);
-            let listItems = [];
-            for(let i=0; i < items.length; i++){
-                listItems.push(this.renderListItem(items[i]));
-                listItems.push(<Divider inset={true}/>)
-            }
-            listItems.pop();
-            blocks.push(
-                <div>
-                    <AdminComponents.SubHeader title={title}/>
-                    <Paper style={{margin:'0 16px'}}>
-                        <List>{listItems}</List>
-                    </Paper>
-                </div>
-            );
-        });
-        */
         var blockStyle = { margin: 20, backgroundColor: 'rgba(207, 216, 220, 0.59)', borderRadius: 3, padding: 3, display: 'flex', flexWrap: 'wrap' };
+        var m = function m(id) {
+            return pydio.MessageHash['ajxp_admin.services.tag.' + id] || id;
+        };
 
         var _groupAndSortServices = groupAndSortServices(services.filter(function (s) {
             return _this2.filterNodes(s);
-        }));
+        }), pydio);
 
         var Peers = _groupAndSortServices.Peers;
         var Tags = _groupAndSortServices.Tags;
 
         var blocks = Object.keys(Tags).map(function (tag) {
-            var tagData = Tags[tag].tagData;
             var services = Tags[tag].services;
             var srvComps = Object.keys(services).map(function (id) {
-                return _react2['default'].createElement(_ServiceCard2['default'], { showDescription: _this2.props.details, title: id, tagId: tag, services: services[id] });
+                return _react2['default'].createElement(_ServiceCard2['default'], { pydio: pydio, showDescription: _this2.props.details, title: id, tagId: tag, services: services[id] });
             });
             var subBlocks = [];
             if (tag === 'datasource') {
@@ -242,7 +214,7 @@ exports['default'] = _react2['default'].createClass({
                     { style: _extends({}, blockStyle, { marginBottom: 5 }) },
                     Object.keys(services).map(function (id) {
                         if (!id.startsWith('main -')) return null;
-                        return _react2['default'].createElement(_ServiceCard2['default'], { showDescription: _this2.props.details, title: id.replace('main - ', ''), tagId: tag, services: services[id] });
+                        return _react2['default'].createElement(_ServiceCard2['default'], { pydio: pydio, showDescription: _this2.props.details, title: id.replace('main - ', ''), tagId: tag, services: services[id] });
                     })
                 ));
                 subBlocks.push(_react2['default'].createElement(
@@ -250,7 +222,7 @@ exports['default'] = _react2['default'].createClass({
                     { style: _extends({}, blockStyle, { margin: '5px 20px' }) },
                     Object.keys(services).map(function (id) {
                         if (!id.startsWith('datasource -')) return null;
-                        return _react2['default'].createElement(_ServiceCard2['default'], { showDescription: _this2.props.details, title: id.replace('datasource - ', ''), tagId: tag, services: services[id] });
+                        return _react2['default'].createElement(_ServiceCard2['default'], { pydio: pydio, showDescription: _this2.props.details, title: id.replace('datasource - ', ''), tagId: tag, services: services[id] });
                     })
                 ));
                 subBlocks.push(_react2['default'].createElement(
@@ -258,7 +230,7 @@ exports['default'] = _react2['default'].createClass({
                     { style: _extends({}, blockStyle, { marginTop: 5 }) },
                     Object.keys(services).map(function (id) {
                         if (!id.startsWith('objects -')) return null;
-                        return _react2['default'].createElement(_ServiceCard2['default'], { showDescription: _this2.props.details, title: id.replace('objects - ', ''), tagId: tag, services: services[id] });
+                        return _react2['default'].createElement(_ServiceCard2['default'], { pydio: pydio, showDescription: _this2.props.details, title: id.replace('objects - ', ''), tagId: tag, services: services[id] });
                     })
                 ));
             } else {
@@ -266,7 +238,7 @@ exports['default'] = _react2['default'].createClass({
                     'div',
                     { style: blockStyle },
                     Object.keys(services).map(function (id) {
-                        return _react2['default'].createElement(_ServiceCard2['default'], { showDescription: _this2.props.details, title: id, tagId: tag, services: services[id] });
+                        return _react2['default'].createElement(_ServiceCard2['default'], { pydio: pydio, showDescription: _this2.props.details, title: id, tagId: tag, services: services[id] });
                     })
                 ));
             }
@@ -276,7 +248,7 @@ exports['default'] = _react2['default'].createClass({
             return _react2['default'].createElement(
                 'div',
                 null,
-                _react2['default'].createElement(AdminComponents.SubHeader, { title: tagData.label, legend: tagData.description }),
+                _react2['default'].createElement(AdminComponents.SubHeader, { title: m(tag + '.title'), legend: m(tag + '.description') }),
                 subBlocks
             );
         });
