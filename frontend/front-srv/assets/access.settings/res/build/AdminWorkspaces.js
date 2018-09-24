@@ -23324,9 +23324,12 @@ exports['default'] = _react2['default'].createClass({
         var _this = this;
 
         this.setState({ loading: true });
-        _modelWs2['default'].listWorkpsaces().then(function (response) {
+        _pydio2['default'].startLoading();
+        _modelWs2['default'].listWorkspaces().then(function (response) {
+            _pydio2['default'].endLoading();
             _this.setState({ loading: false, workspaces: response.Workspaces || [] });
         })['catch'](function (e) {
+            _pydio2['default'].endLoading();
             _this.setState({ loading: false });
         });
     },
@@ -26811,19 +26814,14 @@ var Workspace = (function (_Observable) {
             return !!(node.MetaStore && node.MetaStore['resolution']);
         }
     }, {
-        key: 'listWorkpsaces',
-        value: function listWorkpsaces() {
+        key: 'listWorkspaces',
+        value: function listWorkspaces() {
             var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
             var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
             var single = new _pydioHttpRestApi.IdmWorkspaceSingleQuery();
             single.scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
             request.Queries = [single];
-            _pydio2['default'].startLoading();
-            return api.searchWorkspaces(request).then(function () {
-                _pydio2['default'].endLoading();
-            })['catch'](function () {
-                _pydio2['default'].endLoading();
-            });
+            return api.searchWorkspaces(request);
         }
     }]);
 

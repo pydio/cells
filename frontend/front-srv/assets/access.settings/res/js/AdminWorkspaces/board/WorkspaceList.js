@@ -44,9 +44,12 @@ export default React.createClass({
 
     reload(){
         this.setState({loading: true});
-        Workspace.listWorkpsaces().then(response => {
+        Pydio.startLoading();
+        Workspace.listWorkspaces().then(response => {
+            Pydio.endLoading();
             this.setState({loading: false, workspaces: response.Workspaces || []});
         }).catch(e => {
+            Pydio.endLoading();
             this.setState({loading: false});
         });
     },
