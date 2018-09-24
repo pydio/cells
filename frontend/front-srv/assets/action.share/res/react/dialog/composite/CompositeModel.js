@@ -138,20 +138,26 @@ class CompositeModel extends Observable {
     }
 
     save(){
+        const proms = [];
         this.cells.map(r => {
             if(r.isDirty()){
-                r.save();
+                proms.push(r.save());
             }
         });
         this.links.map(l => {
             if(l.isDirty()){
-                l.save();
+                proms.push(l.save());
             }
         });
-        // Remove cells that don't have this node anymore
-        const nodeId = this.node.getMetadata().get('uuid');
-        this.cells = this.cells.filter(r => r.hasRootNode(nodeId));
-        this.updateUnderlyingNode();
+        // Wait that all save are finished
+        Promise.all(proms).then(() =>{
+            // Remove cells that don't have this node anymore
+            const nodeId = this.node.getMetadata().get('uuid');
+            this.cells = this.cells.filter(r => r.hasRootNode(nodeId));
+            this.updateUnderlyingNode();
+        }).catch(e => {
+            this.updateUnderlyingNode();
+        })
     }
 
     deleteAll(){

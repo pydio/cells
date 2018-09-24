@@ -213,22 +213,30 @@ var CompositeModel = (function (_Observable) {
     }, {
         key: 'save',
         value: function save() {
+            var _this6 = this;
+
+            var proms = [];
             this.cells.map(function (r) {
                 if (r.isDirty()) {
-                    r.save();
+                    proms.push(r.save());
                 }
             });
             this.links.map(function (l) {
                 if (l.isDirty()) {
-                    l.save();
+                    proms.push(l.save());
                 }
             });
-            // Remove cells that don't have this node anymore
-            var nodeId = this.node.getMetadata().get('uuid');
-            this.cells = this.cells.filter(function (r) {
-                return r.hasRootNode(nodeId);
+            // Wait that all save are finished
+            Promise.all(proms).then(function () {
+                // Remove cells that don't have this node anymore
+                var nodeId = _this6.node.getMetadata().get('uuid');
+                _this6.cells = _this6.cells.filter(function (r) {
+                    return r.hasRootNode(nodeId);
+                });
+                _this6.updateUnderlyingNode();
+            })['catch'](function (e) {
+                _this6.updateUnderlyingNode();
             });
-            this.updateUnderlyingNode();
         }
     }, {
         key: 'deleteAll',
@@ -296,13 +304,13 @@ var CompositeModel = (function (_Observable) {
     }, {
         key: 'getCells',
         value: function getCells() {
-            var _this6 = this;
+            var _this7 = this;
 
             if (this.node) {
                 var _ret = (function () {
-                    var nodeId = _this6.node.getMetadata().get('uuid');
+                    var nodeId = _this7.node.getMetadata().get('uuid');
                     return {
-                        v: _this6.cells.filter(function (r) {
+                        v: _this7.cells.filter(function (r) {
                             return r.hasRootNode(nodeId);
                         })
                     };
