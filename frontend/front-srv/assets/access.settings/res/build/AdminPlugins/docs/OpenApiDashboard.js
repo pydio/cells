@@ -58,7 +58,7 @@ var OpenApiDashboard = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 'div',
-                { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
+                { className: "main-layout-nav-to-stack vertical-layout" },
                 _react2['default'].createElement(AdminComponents.Header, {
                     title: "Rest APIs Documentation",
                     icon: 'mdi mdi-routes'
@@ -66,6 +66,17 @@ var OpenApiDashboard = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { className: "layout-fill", style: { overflowY: 'scroll' } },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { margin: 20 } },
+                        'Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT.  See the ',
+                        _react2['default'].createElement(
+                            'a',
+                            { href: "https://pydio.com/en/docs/administration-guides", target: "_blank" },
+                            'online administrator guide'
+                        ),
+                        ' to learn more.'
+                    ),
                     _react2['default'].createElement(
                         _materialUi.Paper,
                         { zDepth: 1, style: { margin: 16 } },

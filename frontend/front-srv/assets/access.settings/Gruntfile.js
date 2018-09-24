@@ -94,7 +94,7 @@ module.exports = function(grunt) {
                     "res/css/ajxp_admin.css": "res/css/ajxp_admin.less",
                     "res/css/codemirror.css": "res/css/codemirror.less",
                     "res/css/codemirror-hints.css": "res/css/codemirror-hints.less",
-
+                    "res/css/swagger-custom.css": "res/css/swagger-custom.less"
                 }
             }
         },

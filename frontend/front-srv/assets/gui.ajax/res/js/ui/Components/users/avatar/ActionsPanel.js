@@ -46,7 +46,7 @@ class ActionsPanel extends React.Component{
     }
     
     onUserSelected(item){
-        this.setState({showPicker: false});
+        //this.setState({showPicker: false});
         PydioApi.getRestClient().getIdmApi().addUserToTeam(this.props.team.id, item.IdmUser.Login, this.props.reloadAction);
     }
 

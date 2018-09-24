@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
 import React from 'react'
 import PydioDataModel from 'pydio/model/data-model'
 import Node from 'pydio/model/node'
@@ -76,10 +76,13 @@ let PoliciesBoard = React.createClass({
 
         this.setState({loading: true});
         const api = new PolicyServiceApi(PydioApi.getRestClient());
+        Pydio.startLoading();
         api.listPolicies(new IdmListPolicyGroupsRequest()).then((data) => {
+            Pydio.endLoading();
             const grouped = this.groupByResourcesGroups(data);
             this.setState({policies:grouped, loading: false});
         }).catch((reason) => {
+            Pydio.endLoading();
             this.setState({error: reason, loading: false});
         });
 

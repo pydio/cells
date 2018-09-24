@@ -25,6 +25,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _Pydio = require('../Pydio');
+
+var _Pydio2 = _interopRequireDefault(_Pydio);
+
 var _httpResourcesManager = require('../http/ResourcesManager');
 
 var _httpResourcesManager2 = _interopRequireDefault(_httpResourcesManager);
@@ -123,6 +127,11 @@ var Repository = (function () {
    */
 
   Repository.prototype.getLabel = function getLabel() {
+    if (this.accessType === 'homepage') {
+      return _Pydio2['default'].getMessages()['user_home.title'] || 'Homepage';
+    } else if (this.accessType === 'settings') {
+      return _Pydio2['default'].getMessages()['165'] || 'Settings';
+    }
     return this.label;
   };
 

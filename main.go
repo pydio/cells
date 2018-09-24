@@ -78,7 +78,6 @@ import (
 	_ "github.com/pydio/cells/idm/policy/rest"
 	_ "github.com/pydio/cells/idm/role/grpc"
 	_ "github.com/pydio/cells/idm/role/rest"
-	_ "github.com/pydio/cells/idm/share/grpc"
 	_ "github.com/pydio/cells/idm/share/rest"
 	_ "github.com/pydio/cells/idm/user/grpc"
 	_ "github.com/pydio/cells/idm/user/rest"

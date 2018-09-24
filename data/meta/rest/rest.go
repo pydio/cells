@@ -31,6 +31,8 @@ import (
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
 
+	"time"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
@@ -78,9 +80,9 @@ func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) {
 	}
 
 	//log.Logger(ctx).Debug("BEFORE META PROVIDERS", zap.String("NodePath", path), zap.Any("n", node))
-	streamers, closer := h.initMetaProviderClients(ctx)
+	streamers, closer, names := h.initMetaProviderClients(ctx)
 	defer closer()
-	h.EnrichMetaFromProviders(ctx, streamers, node)
+	h.EnrichMetaFromProviders(ctx, streamers, names, node)
 
 	//log.Logger(ctx).Debug("AFTER META PROVIDERS", zap.Any("n", node))
 	resp.WriteEntity(node.WithoutReservedMetas())
@@ -147,9 +149,9 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 
 	if len(folderNodes) == 0 {
 		if len(output.Nodes) > 0 {
-			streamers, closer := h.initMetaProviderClients(ctx)
+			streamers, closer, names := h.initMetaProviderClients(ctx)
 			defer closer()
-			h.EnrichMetaFromProviders(ctx, streamers, output.Nodes...)
+			h.EnrichMetaFromProviders(ctx, streamers, names, output.Nodes...)
 		}
 		reservedOutput := &rest.BulkMetaResponse{}
 		for _, n := range output.Nodes {
@@ -159,7 +161,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
-	streamers, closer := h.initMetaProviderClients(ctx)
+	streamers, closer, names := h.initMetaProviderClients(ctx)
 	defer closer()
 
 	for _, folderNode := range folderNodes {
@@ -176,6 +178,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 		if err != nil {
 			continue
 		}
+		var eTimes []time.Duration
 		for {
 			r, er := streamer.Recv()
 			if er != nil {
@@ -185,11 +188,20 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 			if r == nil {
 				continue
 			}
+			s := time.Now()
 			if !bulkRequest.Versions {
-				h.EnrichMetaFromProviders(ctx, streamers, r.Node)
+				h.EnrichMetaFromProviders(ctx, streamers, names, r.Node)
 			}
+			eTimes = append(eTimes, time.Now().Sub(s))
 			output.Nodes = append(output.Nodes, r.Node.WithoutReservedMetas())
 		}
+		l := float64(len(eTimes))
+		var t time.Duration
+		for _, d := range eTimes {
+			t += d
+		}
+		avg := time.Duration(float64(t.Nanoseconds()) / l)
+		log.Logger(ctx).Info("EnrichMetaProvider", zap.Duration("Average time spent to load node additional metadata", avg))
 		streamer.Close()
 
 		if !bulkRequest.Versions {
@@ -323,9 +335,9 @@ func (h *Handler) DeleteMeta(req *restful.Request, resp *restful.Response) {
 
 type closer func()
 
-func (h *Handler) initMetaProviderClients(ctx context.Context) ([]tree.NodeProviderStreamer_ReadNodeStreamClient, closer) {
+func (h *Handler) initMetaProviderClients(ctx context.Context) ([]tree.NodeProviderStreamer_ReadNodeStreamClient, closer, []string) {
 
-	metaProviders := h.GetMetaProviderStreamers()
+	metaProviders, names := h.GetMetaProviderStreamers()
 	streamers := []tree.NodeProviderStreamer_ReadNodeStreamClient{}
 	for _, cli := range metaProviders {
 		metaStreamer, metaE := cli.ReadNodeStream(ctx)
@@ -339,22 +351,27 @@ func (h *Handler) initMetaProviderClients(ctx context.Context) ([]tree.NodeProvi
 			streamer.Close()
 		}
 	}
-	return streamers, outCloser
+	return streamers, outCloser, names
 
 }
 
-func (h *Handler) EnrichMetaFromProviders(ctx context.Context, streamers []tree.NodeProviderStreamer_ReadNodeStreamClient, nodes ...*tree.Node) {
+func (h *Handler) EnrichMetaFromProviders(ctx context.Context, streamers []tree.NodeProviderStreamer_ReadNodeStreamClient, names []string, nodes ...*tree.Node) {
+
+	profiles := make(map[string][]time.Duration)
 
 	for _, node := range nodes {
 
-		for _, metaStreamer := range streamers {
+		for i, metaStreamer := range streamers {
 
+			name := names[i]
+			start := time.Now()
 			sendError := metaStreamer.Send(&tree.ReadNodeRequest{Node: node})
 			if sendError != nil {
 				log.Logger(ctx).Error("Error while sending to metaStreamer", zap.Error(sendError))
 			}
 			metaResponse, err := metaStreamer.Recv()
 			if err == nil {
+
 				if node.MetaStore == nil {
 					node.MetaStore = make(map[string]string, len(metaResponse.Node.MetaStore))
 				}
@@ -362,30 +379,44 @@ func (h *Handler) EnrichMetaFromProviders(ctx context.Context, streamers []tree.
 					node.MetaStore[k] = v
 				}
 			}
+			profiles[name] = append(profiles[name], time.Now().Sub(start))
 
 		}
 	}
 
+	for n, p := range profiles {
+		l := len(p)
+		var total time.Duration
+		for _, d := range p {
+			total += d
+		}
+		avgNano := float64(total.Nanoseconds()) / float64(l)
+		avg := time.Duration(avgNano)
+		log.Logger(ctx).Debug("EnrichMetaProvider - Average time spent", zap.Duration(n, avg))
+	}
+
 }
 
-func (h *Handler) GetMetaProviderStreamers() []tree.NodeProviderStreamerClient {
+func (h *Handler) GetMetaProviderStreamers() ([]tree.NodeProviderStreamerClient, []string) {
 
 	// Init with Meta Grpc Service
 	result := []tree.NodeProviderStreamerClient{
 		tree.NewNodeProviderStreamerClient(registry.GetClient(common.SERVICE_META)),
 	}
+	names := []string{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_META}
 
 	// Other Meta Providers (running services only)
 	services, err := registry.ListServicesWithMicroMeta("MetaProvider", "stream")
 	if err != nil {
-		return nil
+		return nil, names
 	}
 
 	for _, srv := range services {
 		result = append(result, tree.NewNodeProviderStreamerClient(srv.Name(), defaults.NewClient()))
+		names = append(names, srv.Name())
 	}
 
-	return result
+	return result, names
 
 }
 

@@ -1,8 +1,8 @@
-const Observable = require('pydio/lang/observable');
-const PydioApi = require('pydio/http/api');
+import Pydio from 'pydio'
+import PydioApi from "pydio/http/api";
 import LangUtils from 'pydio/util/lang'
+import Observable from "pydio/lang/observable";
 import {WorkspaceServiceApi, RestSearchWorkspaceRequest, IdmWorkspaceSingleQuery, IdmWorkspaceScope, IdmWorkspace} from 'pydio/http/rest-api';
-
 
 class Workspace extends Observable{
 
@@ -124,7 +124,7 @@ class Workspace extends Observable{
     }
 
     /**
-     *
+     * Revert state
      */
     revert(){
         const revert = IdmWorkspace.constructFromObject(this.snapshot || {});
@@ -158,7 +158,12 @@ class Workspace extends Observable{
         let single = new IdmWorkspaceSingleQuery();
         single.scope = IdmWorkspaceScope.constructFromObject('ADMIN');
         request.Queries = [single];
-        return api.searchWorkspaces(request);
+        Pydio.startLoading();
+        return api.searchWorkspaces(request).then(()=>{
+            Pydio.endLoading();
+        }).catch(()=>{
+            Pydio.endLoading();
+        });
     }
 
 }

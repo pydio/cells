@@ -44,7 +44,9 @@ const UpdaterDashboard = React.createClass({
         this.setState({loading:true});
 
         const api = new UpdateServiceApi(PydioApi.getRestClient());
+        Pydio.startLoading();
         api.updateRequired().then(res => {
+            Pydio.endLoading();
             let hasBinary = 0;
             if (res.AvailableBinaries) {
                 hasBinary = res.AvailableBinaries.length;
@@ -57,6 +59,7 @@ const UpdaterDashboard = React.createClass({
             AdminComponents.MenuItemListener.getInstance().notify("item_changed");
             this.setState({loading: false});
         }).catch(() => {
+            Pydio.endLoading();
             this.setState({loading: false});
         });
 

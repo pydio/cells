@@ -88,9 +88,14 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	}
 	log.Logger(ctx).Debug("Received Share.Cell API request", zap.Any("input", &shareRequest))
 
-	err, cellNodeCreated := h.ParseRootNodes(ctx, &shareRequest)
+	// Init Root Nodes and check permissions
+	err, createdCellNode, readonly := h.ParseRootNodes(ctx, &shareRequest)
 	if err != nil {
-		service.RestError500(req, rsp, err)
+		if errors.Parse(err.Error()).Code == 403 {
+			service.RestError403(req, rsp, err)
+		} else {
+			service.RestError500(req, rsp, err)
+		}
 		return
 	}
 
@@ -105,8 +110,6 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	}
 
 	// Now set ACLs on Workspace
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	userId, _ := claims.DecodeUserUuid()
 	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
 	var currentAcls []*idm.ACL
 	var currentRoots []string
@@ -128,10 +131,11 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 				},
 			})
 		}
-		if cellNodeCreated != nil {
+		// For new specific CellNode, set this node as a RecycleRoot
+		if createdCellNode != nil {
 			aclClient.CreateACL(ctx, &idm.CreateACLRequest{
 				ACL: &idm.ACL{
-					NodeID:      cellNodeCreated.Uuid,
+					NodeID:      createdCellNode.Uuid,
 					WorkspaceID: workspace.UUID,
 					Action:      utils.ACL_RECYCLE_ROOT,
 				},
@@ -139,39 +143,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 	log.Logger(ctx).Debug("Current Roots", zap.Any("crt", currentRoots))
-	var targetAcls []*idm.ACL
-	for _, node := range shareRequest.Room.RootNodes {
-		userInAcls := false
-		for _, acl := range shareRequest.Room.ACLs {
-			for _, action := range acl.Actions {
-				targetAcls = append(targetAcls, &idm.ACL{
-					NodeID:      node.Uuid,
-					RoleID:      acl.RoleId,
-					WorkspaceID: workspace.UUID,
-					Action:      action,
-				})
-			}
-			if acl.RoleId == userId {
-				userInAcls = true
-			}
-		}
-		// Make sure that the current user has at least READ permissions
-		if !userInAcls {
-			targetAcls = append(targetAcls, &idm.ACL{
-				NodeID:      node.Uuid,
-				RoleID:      userId,
-				WorkspaceID: workspace.UUID,
-				Action:      utils.ACL_READ,
-			})
-			targetAcls = append(targetAcls, &idm.ACL{
-				NodeID:      node.Uuid,
-				RoleID:      userId,
-				WorkspaceID: workspace.UUID,
-				Action:      utils.ACL_WRITE,
-			})
-		}
-	}
-
+	targetAcls := h.ComputeTargetAcls(ctx, &shareRequest, workspace.UUID, readonly)
 	log.Logger(ctx).Debug("Share ACLS", zap.Any("current", currentAcls), zap.Any("target", targetAcls))
 	add, remove := h.DiffAcls(ctx, currentAcls, targetAcls)
 	log.Logger(ctx).Info("Diff ACLS", zap.Any("add", add), zap.Any("remove", remove))
@@ -302,6 +274,11 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 		return
 	}
 	link := putRequest.ShareLink
+	if e := h.CheckLinkRootNodes(ctx, link); e != nil {
+		service.RestErrorDetect(req, rsp, e)
+		return
+	}
+
 	var workspace *idm.Workspace
 	var user *idm.User
 	var err error
@@ -758,6 +735,52 @@ func (h *SharesHandler) DiffReadRoles(ctx context.Context, initial []*idm.ACL, n
 	return
 }
 
+// ComputeTargetAcls create ACL objects that should be applied for this cell.
+func (h *SharesHandler) ComputeTargetAcls(ctx context.Context, shareRequest *rest.PutCellRequest, workspaceId string, readonly bool) []*idm.ACL {
+
+	claims := ctx.Value(claim.ContextKey).(claim.Claims)
+	userId, _ := claims.DecodeUserUuid()
+	var targetAcls []*idm.ACL
+	for _, node := range shareRequest.Room.RootNodes {
+		userInAcls := false
+		for _, acl := range shareRequest.Room.ACLs {
+			for _, action := range acl.Actions {
+				// Recheck just in case
+				if readonly && action.Name == utils.ACL_WRITE.Name {
+					continue
+				}
+				targetAcls = append(targetAcls, &idm.ACL{
+					NodeID:      node.Uuid,
+					RoleID:      acl.RoleId,
+					WorkspaceID: workspaceId,
+					Action:      action,
+				})
+			}
+			if acl.RoleId == userId {
+				userInAcls = true
+			}
+		}
+		// Make sure that the current user has at least READ permissions
+		if !userInAcls {
+			targetAcls = append(targetAcls, &idm.ACL{
+				NodeID:      node.Uuid,
+				RoleID:      userId,
+				WorkspaceID: workspaceId,
+				Action:      utils.ACL_READ,
+			})
+			if !readonly {
+				targetAcls = append(targetAcls, &idm.ACL{
+					NodeID:      node.Uuid,
+					RoleID:      userId,
+					WorkspaceID: workspaceId,
+					Action:      utils.ACL_WRITE,
+				})
+			}
+		}
+	}
+	return targetAcls
+}
+
 // UpdatePoliciesFromAcls recomputes the required policies from acl changes.
 func (h *SharesHandler) UpdatePoliciesFromAcls(ctx context.Context, workspace *idm.Workspace, initial []*idm.ACL, target []*idm.ACL) bool {
 
@@ -802,35 +825,43 @@ func (h *SharesHandler) UpdatePoliciesFromAcls(ctx context.Context, workspace *i
 
 // ParseRootNodes reads the request property to either create a new node using the "rooms" Virtual node,
 // or just verify that the root nodes are not empty.
-func (h *SharesHandler) ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (error, *tree.Node) {
+func (h *SharesHandler) ParseRootNodes(ctx context.Context, shareRequest *rest.PutCellRequest) (error, *tree.Node, bool) {
 
 	var createdNode *tree.Node
+	router := views.NewStandardRouter(views.RouterOptions{})
+	for i, n := range shareRequest.Room.RootNodes {
+		r, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n})
+		if e != nil {
+			return e, nil, false
+		}
+		shareRequest.Room.RootNodes[i] = r.Node
+	}
 	if shareRequest.CreateEmptyRoot {
 
 		manager := views.GetVirtualNodesManager()
-		router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false, AdminView: true})
+		internalRouter := views.NewStandardRouter(views.RouterOptions{WatchRegistry: false, AdminView: true})
 		if root, exists := manager.ByUuid("cells"); exists {
-			parentNode, err := manager.ResolveInContext(ctx, root, router.GetClientsPool(), true)
+			parentNode, err := manager.ResolveInContext(ctx, root, internalRouter.GetClientsPool(), true)
 			if err != nil {
-				return err, nil
+				return err, nil, false
 			}
 			index := 0
 			labelSlug := slug.Make(shareRequest.Room.Label)
 			baseSlug := labelSlug
 			for {
-				if existingResp, err := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parentNode.Path + "/" + labelSlug}}); err == nil && existingResp.Node != nil {
+				if existingResp, err := internalRouter.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: parentNode.Path + "/" + labelSlug}}); err == nil && existingResp.Node != nil {
 					index++
 					labelSlug = fmt.Sprintf("%s-%v", baseSlug, index)
 				} else {
 					break
 				}
 			}
-			createResp, err := router.CreateNode(ctx, &tree.CreateNodeRequest{
+			createResp, err := internalRouter.CreateNode(ctx, &tree.CreateNodeRequest{
 				Node: &tree.Node{Path: parentNode.Path + "/" + labelSlug},
 			})
 			if err != nil {
 				log.Logger(ctx).Error("share/cells : create empty root", zap.Error(err))
-				return err, nil
+				return err, nil, false
 			}
 			// Update node meta
 			createResp.Node.SetMeta("CellNode", true)
@@ -839,13 +870,31 @@ func (h *SharesHandler) ParseRootNodes(ctx context.Context, shareRequest *rest.P
 			shareRequest.Room.RootNodes = append(shareRequest.Room.RootNodes, createResp.Node)
 			createdNode = createResp.Node
 		} else {
-			return errors.BadRequest(common.SERVICE_SHARE, "Wrong configuration, missing rooms virtual node"), nil
+			return errors.InternalServerError(common.SERVICE_SHARE, "Wrong configuration, missing rooms virtual node"), nil, false
 		}
 	}
 	if len(shareRequest.Room.RootNodes) == 0 {
-		return errors.BadRequest(common.SERVICE_SHARE, "Wrong configuration, missing RootNodes in CellRequest"), nil
+		return errors.BadRequest(common.SERVICE_SHARE, "Wrong configuration, missing RootNodes in CellRequest"), nil, false
 	}
-	return nil, createdNode
+
+	// First check of incoming ACLs
+	var hasReadonly bool
+	for _, root := range shareRequest.Room.RootNodes {
+		if root.GetStringMeta(common.META_FLAG_READONLY) != "" {
+			hasReadonly = true
+		}
+	}
+	if hasReadonly {
+		for _, a := range shareRequest.Room.GetACLs() {
+			for _, action := range a.GetActions() {
+				if action.Name == utils.ACL_WRITE.Name {
+					return errors.Forbidden(common.SERVICE_SHARE, "One of the resource you are sharing is readonly. You cannot assign write permission on this Cell."), nil, true
+				}
+			}
+		}
+	}
+	log.Logger(ctx).Info("ParseRootNodes", zap.Any("r", shareRequest.Room.RootNodes), zap.Bool("readonly", hasReadonly))
+	return nil, createdNode, hasReadonly
 
 }
 
@@ -1037,6 +1086,37 @@ func (h *SharesHandler) OwnerResourcePolicies(ctx context.Context, resourceId st
 			Effect:   service2.ResourcePolicy_allow,
 		},
 	}
+
+}
+
+// CheckLinkRootNodes loads the root nodes and check if one of the is readonly. If so, check that
+// link permissions do not try to set the Upload mode.
+func (h *SharesHandler) CheckLinkRootNodes(ctx context.Context, link *rest.ShareLink) error {
+
+	router := views.NewUuidRouter(views.RouterOptions{})
+	var hasReadonly bool
+	for i, r := range link.RootNodes {
+		resp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: r})
+		if e != nil {
+			return e
+		}
+		if resp.Node == nil {
+			return errors.NotFound(common.SERVICE_SHARE, "cannot find root node")
+		}
+		link.RootNodes[i] = resp.Node
+		if resp.Node.GetStringMeta(common.META_FLAG_READONLY) != "" {
+			hasReadonly = true
+		}
+	}
+	if hasReadonly {
+		for _, p := range link.Permissions {
+			if p == rest.ShareLinkAccessType_Upload {
+				return errors.Forbidden(common.SERVICE_SHARE, "This resource is not writeable, you are not allowed to set this permission.")
+			}
+		}
+	}
+
+	return nil
 
 }
 

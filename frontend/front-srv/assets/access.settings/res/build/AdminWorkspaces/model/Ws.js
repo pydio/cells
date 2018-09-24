@@ -14,14 +14,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioHttpApi = require("pydio/http/api");
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
 var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
-var _pydioHttpRestApi = require('pydio/http/rest-api');
+var _pydioLangObservable = require("pydio/lang/observable");
 
-var Observable = require('pydio/lang/observable');
-var PydioApi = require('pydio/http/api');
+var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var Workspace = (function (_Observable) {
     _inherits(Workspace, _Observable);
@@ -151,7 +160,7 @@ var Workspace = (function (_Observable) {
             // If Policies are not set, REST service will add default policies
             console.log('Saving model', this.model);
             this.model.Attributes = JSON.stringify(this.internalAttributes);
-            var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
+            var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.putWorkspace(this.model.Slug, this.model).then(function (ws) {
                 _this4.initModel(ws);
                 _this4.observableModel = _this4.buildProxy(_this4.model);
@@ -165,12 +174,12 @@ var Workspace = (function (_Observable) {
     }, {
         key: 'remove',
         value: function remove() {
-            var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
+            var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
             return api.deleteWorkspace(this.model.Slug);
         }
 
         /**
-         *
+         * Revert state
          */
     }, {
         key: 'revert',
@@ -207,17 +216,22 @@ var Workspace = (function (_Observable) {
     }, {
         key: 'listWorkpsaces',
         value: function listWorkpsaces() {
-            var api = new _pydioHttpRestApi.WorkspaceServiceApi(PydioApi.getRestClient());
+            var api = new _pydioHttpRestApi.WorkspaceServiceApi(_pydioHttpApi2['default'].getRestClient());
             var request = new _pydioHttpRestApi.RestSearchWorkspaceRequest();
             var single = new _pydioHttpRestApi.IdmWorkspaceSingleQuery();
             single.scope = _pydioHttpRestApi.IdmWorkspaceScope.constructFromObject('ADMIN');
             request.Queries = [single];
-            return api.searchWorkspaces(request);
+            _pydio2['default'].startLoading();
+            return api.searchWorkspaces(request).then(function () {
+                _pydio2['default'].endLoading();
+            })['catch'](function () {
+                _pydio2['default'].endLoading();
+            });
         }
     }]);
 
     return Workspace;
-})(Observable);
+})(_pydioLangObservable2['default']);
 
 exports['default'] = Workspace;
 module.exports = exports['default'];

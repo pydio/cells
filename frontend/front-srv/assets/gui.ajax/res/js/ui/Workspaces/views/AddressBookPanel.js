@@ -127,14 +127,16 @@ class AddressBookPanel extends React.Component{
         return (
             <div id={"info_panel"} style={{...columnStyle, display:'flex', flexDirection:'column'}}>
                 {cellInfo}
-                <AddressBook
-                    mode="selector"
-                    bookColumn={true}
-                    pydio={pydio}
-                    disableSearch={false}
-                    style={{height: null,flex: 1}}
-                    actionsForCell={!noCell && cellModel ? cellModel : true}
-                />
+                {pydio.Controller.getActionByName("open_address_book") &&
+                    <AddressBook
+                        mode="selector"
+                        bookColumn={true}
+                        pydio={pydio}
+                        disableSearch={false}
+                        style={{height: null,flex: 1}}
+                        actionsForCell={!noCell && cellModel ? cellModel : true}
+                    />
+                }
             </div>
         );
 

@@ -103,7 +103,9 @@ export default class MetaNodeProvider{
             request.Versions = true;
             request.NodePaths = [slug + this.properties.get('file')];
         }
+        Pydio.startLoading();
         api.getBulkMeta(request).then(res => {
+            Pydio.endLoading();
             let origNode;
             let childrenNodes = [];
             res.Nodes.map(n => {
@@ -135,16 +137,18 @@ export default class MetaNodeProvider{
                 }
                 node.replaceBy(origNode);
             }
-            childrenNodes.map(child => {
-                if(this.properties.has("versions")){
+            if(this.properties.has("versions")){
+                childrenNodes = childrenNodes.map(child => {
                     child._path = child.getMetadata().get('versionId');
-                }
-                node.addChild(child);
-            });
+                    return child;
+                })
+            }
+            node.setChildren(childrenNodes);
             if(nodeCallback !== null){
                 nodeCallback(node);
             }
         }).catch(e => {
+            Pydio.endLoading();
             console.log(e);
         });
     }

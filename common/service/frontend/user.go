@@ -69,6 +69,7 @@ func (u *User) GetActiveScopes() (scopes []string) {
 	}
 	ws := u.Workspaces[u.ActiveWorkspace]
 	if ws.Scope != idm.WorkspaceScope_ADMIN {
+		scopes = append(scopes, "PYDIO_REPO_SCOPE_ALL")
 		scopes = append(scopes, "PYDIO_REPO_SCOPE_SHARED")
 	} else {
 		scopes = append(scopes, "PYDIO_REPO_SCOPE_ALL")

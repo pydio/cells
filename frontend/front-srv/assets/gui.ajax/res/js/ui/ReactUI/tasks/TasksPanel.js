@@ -35,7 +35,7 @@ class TasksPanel extends React.Component{
         super(props);
         this.state = {
             jobs    : new Map(),
-            folded  : false,
+            folded  : true,
             innerScroll: 0
         };
         this.recomputeInnerScrollDebounced = debounce(this.recomputeInnerScroll.bind(this), 100);

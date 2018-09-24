@@ -3,6 +3,15 @@
 }
 
 /*# sourceMappingURL=swagger-ui.css.map*/
+.react-mui-context #swaggerContainer > h4 {
+  display: none;
+}
+.react-mui-context .swagger-ui {
+  padding-top: 10px;
+}
+.react-mui-context .swagger-ui .scheme-container {
+  display: none;
+}
 .react-mui-context .swagger-ui .information-container {
   display: none;
 }

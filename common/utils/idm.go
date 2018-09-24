@@ -31,6 +31,8 @@ import (
 	"github.com/micro/go-micro/metadata"
 	"go.uber.org/zap"
 
+	"time"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
@@ -188,7 +190,7 @@ func GetACLsForRoles(ctx context.Context, roles []*idm.Role, actions ...*idm.ACL
 	if err != nil {
 		return acls
 	}
-
+	s := time.Now()
 	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
 	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{
 		Query: &service.Query{
@@ -214,7 +216,7 @@ func GetACLsForRoles(ctx context.Context, roles []*idm.Role, actions ...*idm.ACL
 		acls = append(acls, response.GetACL())
 	}
 
-	//log.Logger(ctx).Debug("GetACLsForRoles", zap.Any("acls", acls), zap.Any("roles", roles), zap.Any("actions", actions))
+	log.Logger(ctx).Debug("GetACLsForRoles", zap.Any("acls", acls), zap.Any("roles", roles), zap.Any("actions", actions), zap.Duration("t", time.Now().Sub(s)))
 
 	return acls
 }

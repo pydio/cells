@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api';
 import Observable from 'pydio/lang/observable';
 import {PolicyServiceApi, IdmListPolicyGroupsRequest} from 'pydio/http/rest-api';
@@ -35,7 +35,9 @@ class PoliciesLoader extends Observable {
 
         this._loading = true;
         const api = new PolicyServiceApi(PydioApi.getRestClient());
+        Pydio.startLoading();
         api.listPolicies(new IdmListPolicyGroupsRequest()).then((data) => {
+            Pydio.endLoading();
             this._policies = [];
             if(data.PolicyGroups) {
                 data.PolicyGroups.map((pGroup) => {
@@ -47,6 +49,8 @@ class PoliciesLoader extends Observable {
             this._loaded = true;
             this._loading = false;
             this.notify('loaded');
+        }).catch(()=>{
+            Pydio.endLoading();
         });
 
     }

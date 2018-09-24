@@ -902,11 +902,23 @@
   "user.16": {
     "other": "Group Identifier"
   },
+  "user.16.empty": {
+    "other": "Please provide a unique identifier"
+  },
+  "user.16.format": {
+    "other": "Please use only alphanumeric characters"
+  },
   "user.17": {
     "other": "Group Label"
   },
+  "user.17.empty": {
+    "other": "Please provide a label for this group"
+  },
   "user.18": {
     "other": "Role Identifier"
+  },
+  "user.18.empty": {
+    "other": "Please provide a label for this role"
   },
   "user.19": {
     "other": "Create a new user"

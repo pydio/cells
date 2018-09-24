@@ -109,6 +109,9 @@ var Dashboard = React.createClass({
     welcomeClick: function welcomeClick(e) {
         if (e.target.getAttribute('data-path')) {
             var p = e.target.getAttribute('data-path');
+            if (p === '/plugins/manager') {
+                p = '/parameters/manager';
+            }
             this.props.pydio.goTo(p);
         }
     },
@@ -119,16 +122,11 @@ var Dashboard = React.createClass({
         var horizontalFlex = { display: 'flex', width: '100%' };
         var verticalFlex = { display: 'flex', flexDirection: 'column', height: '100%' };
         var flexFill = { flex: 1 };
-        var flexFillNo = { width: 120 };
-
-        var paperStyle = { width: 500, marginLeft: 12, marginTop: 12 };
+        var paperStyle = { flex: 1, minWidth: 450, margin: 5 };
         var flexContainerStyle = _extends({}, verticalFlex);
         var _props$muiTheme$palette = this.props.muiTheme.palette;
-        var primary1Color = _props$muiTheme$palette.primary1Color;
         var accent1Color = _props$muiTheme$palette.accent1Color;
         var accent2Color = _props$muiTheme$palette.accent2Color;
-
-        var textLinkStyle = { cursor: 'pointer', color: accent1Color };
 
         var MEDIA_TEST_CARD = React.createElement(
             Card,
@@ -304,10 +302,14 @@ var Dashboard = React.createClass({
 
         return React.createElement(
             'div',
-            { style: { flex: '1', overflow: 'auto', height: '100%', paddingBottom: 10 } },
+            { className: "main-layout-nav-to-stack vertical-layout" },
+            React.createElement(AdminComponents.Header, {
+                title: message('welc.title'),
+                icon: 'icomoon-cells'
+            }),
             React.createElement(
                 'div',
-                { style: { display: 'flex', alignItems: 'top', flexWrap: 'wrap' } },
+                { className: "layout-fill", style: { display: 'flex', alignItems: 'top', flexWrap: 'wrap', padding: 5 } },
                 WELCOME_COMMUNITY_CARD,
                 DISCOVER_ENTERPRISE_CARD,
                 PAY_IT_FORWARD_CARD

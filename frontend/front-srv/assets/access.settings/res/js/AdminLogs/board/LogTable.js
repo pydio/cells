@@ -102,7 +102,9 @@ class LogTable extends React.Component {
             this.setState({loading: true});
             onLoadingStatusChange(true, logs.length);
         }
+        Pydio.startLoading();
         Log.loadLogs(service, query, page, size, contentType).then((data) => {
+            Pydio.endLoading();
             const {logs, rootSpans} = this.initRootSpans(data.Logs);
             this.setState({logs, rootSpans, loading: false}, () => {
                 if(onLoadingStatusChange) {
@@ -110,6 +112,7 @@ class LogTable extends React.Component {
                 }
             });
         }).catch(reason => {
+            Pydio.endLoading();
             if(onLoadingStatusChange) {
                 this.setState({loading: false});
                 onLoadingStatusChange(false, logs.length);

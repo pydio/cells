@@ -58,7 +58,9 @@ export default function (PydioComponent){
             } else if (choices === "PYDIO_AVAILABLE_REPOSITORIES") {
                 if (pydio.user) {
                     pydio.user.repositories.forEach(function (repository) {
-                        output.set(repository.getId(), repository.getLabel());
+                        if(repository.getRepositoryType() !== "cell"){
+                            output.set(repository.getId(), repository.getLabel());
+                        }
                     });
                 }
                 if (this.onChoicesLoaded) this.onChoicesLoaded(output);

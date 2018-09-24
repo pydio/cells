@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27,6 +26,10 @@ Object.defineProperty(exports, '__esModule', {
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _react = require('react');
 
@@ -111,10 +114,13 @@ var PoliciesBoard = _react2['default'].createClass({
 
         this.setState({ loading: true });
         var api = new _pydioHttpRestApi.PolicyServiceApi(_pydioHttpApi2['default'].getRestClient());
+        _pydio2['default'].startLoading();
         api.listPolicies(new _pydioHttpRestApi.IdmListPolicyGroupsRequest()).then(function (data) {
+            _pydio2['default'].endLoading();
             var grouped = _this.groupByResourcesGroups(data);
             _this.setState({ policies: grouped, loading: false });
         })['catch'](function (reason) {
+            _pydio2['default'].endLoading();
             _this.setState({ error: reason, loading: false });
         });
     },

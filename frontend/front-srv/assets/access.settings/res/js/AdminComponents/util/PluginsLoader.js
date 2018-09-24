@@ -39,11 +39,13 @@ class PluginsLoader {
                     lang = this.pydio.user.getPreference('lang');
                 }
                 const url = this.pydio.Parameters.get('ENDPOINT_REST_API') + '/frontend/plugins/' + lang;
+                Pydio.startLoading();
                 window.fetch(url, {
                     method:'GET',
                     credentials:'same-origin',
                     headers:headers,
                 }).then((response) => {
+                    Pydio.endLoading();
                     this.loading = false;
                     response.text().then((text) => {
                         this.plugins = XMLUtils.parseXml(text).documentElement;
@@ -51,6 +53,7 @@ class PluginsLoader {
                         resolve(this.plugins);
                     });
                 }).catch(e=> {
+                    Pydio.endLoading();
                     this.pLoad = null;
                     reject(e);
                 });

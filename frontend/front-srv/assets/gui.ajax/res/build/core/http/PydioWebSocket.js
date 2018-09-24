@@ -117,7 +117,7 @@ var PydioWebSocket = (function () {
 
         this.ws.addEventListener('open', function () {
             _this2.connOpen = true;
-            PydioWebSocket.subscribeJWT(_this2.ws);
+            PydioWebSocket.subscribeJWT(_this2.ws, true);
         });
         this.ws.addEventListener('message', this.parseWebsocketMessage.bind(this));
         this.ws.addEventListener('close', function (event) {
@@ -212,84 +212,25 @@ var PydioWebSocket = (function () {
     };
 
     /**
-     * @return AjxpNode | null
-     * @param obj
-     * @param currentRepoId string
-     * @param currentRepoSlug string
-     */
-
-    PydioWebSocket.parseJSONNode = function parseJSONNode(obj, currentRepoId, currentRepoSlug) {
-
-        if (!obj) {
-            return null;
-        }
-
-        var wsId = JSON.parse(obj.MetaStore.EventWorkspaceId);
-        var nodeName = undefined;
-        if (obj.MetaStore.name) {
-            nodeName = JSON.parse(obj.MetaStore.name);
-        } else {
-            nodeName = _utilPathUtils2['default'].getBasename(obj.Path);
-        }
-        if (wsId === currentRepoId) {
-            obj.Path = obj.Path.substr(currentRepoSlug.length + 1);
-        } else {
-            return null;
-        }
-
-        var node = new _modelAjxpNode2['default']('/' + obj.Path, obj.Type === "LEAF", nodeName, '', null);
-
-        var meta = obj.MetaStore;
-        for (var k in meta) {
-            if (meta.hasOwnProperty(k)) {
-                var metaValue = JSON.parse(meta[k]);
-                node.getMetadata().set(k, metaValue);
-                if (typeof metaValue === 'object') {
-                    for (var kSub in metaValue) {
-                        if (metaValue.hasOwnProperty(kSub)) {
-                            node.getMetadata().set(kSub, metaValue[kSub]);
-                        }
-                    }
-                }
-            }
-        }
-        node.getMetadata().set('filename', node.getPath());
-        if (node.isLeaf() && pydio && pydio.Registry) {
-            var ext = _utilPathUtils2['default'].getFileExtension(node.getPath());
-            var registered = pydio.Registry.getFilesExtensions();
-            if (registered.has(ext)) {
-                var _registered$get = registered.get(ext);
-
-                var messageId = _registered$get.messageId;
-                var fontIcon = _registered$get.fontIcon;
-
-                node.getMetadata().set('fonticon', fontIcon);
-                node.getMetadata().set('mimestring_id', messageId);
-            }
-        }
-        if (obj.Size !== undefined) {
-            node.getMetadata().set('bytesize', obj.Size);
-        }
-        if (obj.MTime !== undefined) {
-            node.getMetadata().set('ajxp_modiftime', obj.MTime);
-        }
-        if (obj.Etag !== undefined) {
-            node.getMetadata().set('etag', obj.Etag);
-        }
-        if (obj.Uuid !== undefined) {
-            node.getMetadata().set('uuid', obj.Uuid);
-        }
-        return node;
-    };
-
-    /**
      *
-     * @param ws
+     * @param ws {ReconnectingWebSocket}
+     * @param withRetries bool
+     * @param retry integer
      * @return {*|Promise.<string>}
      */
 
     PydioWebSocket.subscribeJWT = function subscribeJWT(ws) {
+        var withRetries = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+        var retry = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+
         return _PydioApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
+            if (!jwt && withRetries && retry < 3) {
+                console.log('WebSocket connected but without valid JWT, retry in 10 seconds');
+                setTimeout(function () {
+                    PydioWebSocket.subscribeJWT(ws, withRetries, retry + 1);
+                }, 10000);
+                return;
+            }
             ws.send(JSON.stringify({
                 "@type": "subscribe",
                 "jwt": jwt
@@ -345,7 +286,7 @@ var PydioWebSocket = (function () {
                 break;
         }
         if (event.code > 1000 && console) {
-            console.error("WebSocket Closed Connection:" + reason + " (code " + event.code + ")");
+            console.log("WebSocket Closed Connection:" + reason + " (code " + event.code + ")");
         }
     };
 

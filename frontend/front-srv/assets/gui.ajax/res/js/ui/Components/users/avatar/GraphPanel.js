@@ -38,7 +38,7 @@ class GraphPanel extends Component{
         if(graph.teams && graph.teams.length){
             const onDeleteAction = function(parentItem, team){
                 PydioApi.getRestClient().getIdmApi().removeUserFromTeam(team[0].id, this.props.userId, (response) => {
-                    if(response.message) {
+                    if(response && response.message) {
                         pydio.UI.displayMessage('SUCCESS', response.message);
                     }
                     this.props.reloadAction();

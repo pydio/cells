@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from '../Pydio'
 import ResourcesManager from '../http/ResourcesManager'
 import CellModel from './CellModel'
 
@@ -95,6 +96,11 @@ export default class Repository {
 	 * @returns String
 	 */
 	getLabel(){
+	    if(this.accessType === 'homepage'){
+	        return Pydio.getMessages()['user_home.title'] || 'Homepage'
+        } else if(this.accessType === 'settings'){
+            return Pydio.getMessages()['165'] || 'Settings'
+        }
 		return this.label;
 	}
 	/**

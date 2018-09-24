@@ -566,12 +566,34 @@ class Pydio extends Observable{
         return require('pydio/http/resources-manager').requireLib(module, promise);
     }
 
+    /**
+     * Return unique instance of pydio object
+     * @return {*|null}
+     */
     static getInstance(){
         return Pydio.instance;
     }
 
+    /**
+     * Direct access to unique instance MessageHash
+     * @return {{}}
+     */
     static getMessages(){
         return Pydio.instance ? Pydio.instance.MessageHash : {};
+    }
+
+    /**
+     * Send notification to display loader
+     */
+    static startLoading(){
+        Pydio.instance.notify("connection-start");
+    }
+
+    /**
+     * Send notification to hide loader
+     */
+    static endLoading(){
+        Pydio.instance.notify("connection-end");
     }
 
 }

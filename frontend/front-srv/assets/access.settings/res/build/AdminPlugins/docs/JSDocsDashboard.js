@@ -137,30 +137,38 @@ var JSDocsPanel = (function (_Component) {
             });
             return React.createElement(
                 'div',
-                { style: { width: '100%', height: '100%', display: 'flex' } },
-                React.createElement(
-                    _materialUi.Paper,
-                    { zDepth: 1, style: { width: 256, overflowY: 'scroll', display: 'flex', flexDirection: 'column' } },
-                    React.createElement(
-                        'div',
-                        { style: { padding: 16, paddingBottom: 0, paddingTop: 8 } },
-                        React.createElement(_materialUi.TextField, { fullWidth: true, value: search, onChange: this.onSearch.bind(this), hintText: 'Search for a class...', underlineShow: false })
-                    ),
-                    error && React.createElement(
-                        'div',
-                        { style: { padding: 16 } },
-                        error
-                    ),
-                    React.createElement(
-                        _materialUi.List,
-                        { style: { flex: 1 } },
-                        items
-                    )
-                ),
+                { className: "main-layout-nav-to-stack vertical-layout" },
+                React.createElement(AdminComponents.Header, {
+                    title: "Javascript SDK Documentation",
+                    icon: 'mdi mdi-nodejs'
+                }),
                 React.createElement(
                     'div',
-                    { style: { flex: 1, overflowY: 'scroll' } },
-                    selection && React.createElement(ClassPanel, { path: selection, data: data[selection][0] })
+                    { className: "layout-fill", style: { display: 'flex', backgroundColor: 'white' } },
+                    React.createElement(
+                        _materialUi.Paper,
+                        { zDepth: 1, style: { width: 256, overflowY: 'scroll', display: 'flex', flexDirection: 'column' } },
+                        React.createElement(
+                            'div',
+                            { style: { padding: 16, paddingBottom: 0, paddingTop: 8 } },
+                            React.createElement(_materialUi.TextField, { fullWidth: true, value: search, onChange: this.onSearch.bind(this), hintText: 'Search for a class...', underlineShow: false })
+                        ),
+                        error && React.createElement(
+                            'div',
+                            { style: { padding: 16 } },
+                            error
+                        ),
+                        React.createElement(
+                            _materialUi.List,
+                            { style: { flex: 1 } },
+                            items
+                        )
+                    ),
+                    React.createElement(
+                        'div',
+                        { style: { flex: 1, overflowY: 'scroll' } },
+                        selection && React.createElement(ClassPanel, { path: selection, data: data[selection][0] })
+                    )
                 )
             );
         }
@@ -261,7 +269,7 @@ var ClassPanel = (function (_Component2) {
 
             return React.createElement(
                 'div',
-                null,
+                { style: { paddingBottom: 16 } },
                 React.createElement(_materialUi.CardTitle, { title: title, subtitle: classPath }),
                 React.createElement(
                     'div',
