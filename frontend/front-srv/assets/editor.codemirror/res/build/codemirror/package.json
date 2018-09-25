@@ -1,53 +1,31 @@
 {
-  "_args": [
-    [
-      {
-        "raw": "codemirror@^5.24.2",
-        "scope": null,
-        "escapedName": "codemirror",
-        "name": "codemirror",
-        "rawSpec": "^5.24.2",
-        "spec": ">=5.24.2 <6.0.0",
-        "type": "range"
-      },
-      "/Users/charles/Sources/go/src/github.com/pydio/cells/frontend/front-srv/assets/editor.codemirror"
-    ]
-  ],
-  "_from": "codemirror@>=5.24.2 <6.0.0",
-  "_id": "codemirror@5.39.0",
-  "_inCache": true,
+  "_from": "codemirror@^5.24.2",
+  "_id": "codemirror@5.40.2",
+  "_inBundle": false,
+  "_integrity": "sha512-yoWuvEiD3v5vTwdoMc/wu/Ld6dh9K/yEiEBTKOPGM+/pN0gTAqFNtrLHv1IJ1UJvzFpNRvMi92XCi3+8/iIaEw==",
   "_location": "/codemirror",
-  "_nodeVersion": "10.3.0",
-  "_npmOperationalInternal": {
-    "host": "s3://npm-registry-packages",
-    "tmp": "tmp/codemirror_5.39.0_1529476746689_0.8167230200257147"
-  },
-  "_npmUser": {
-    "name": "marijn",
-    "email": "marijnh@gmail.com"
-  },
-  "_npmVersion": "6.1.0",
   "_phantomChildren": {},
   "_requested": {
+    "type": "range",
+    "registry": true,
     "raw": "codemirror@^5.24.2",
-    "scope": null,
-    "escapedName": "codemirror",
     "name": "codemirror",
+    "escapedName": "codemirror",
     "rawSpec": "^5.24.2",
-    "spec": ">=5.24.2 <6.0.0",
-    "type": "range"
+    "saveSpec": null,
+    "fetchSpec": "^5.24.2"
   },
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/codemirror/-/codemirror-5.39.0.tgz",
-  "_shasum": "4654f7d2f7e525e04a62e72d9482348ccb37dce5",
-  "_shrinkwrap": null,
+  "_resolved": "https://registry.npmjs.org/codemirror/-/codemirror-5.40.2.tgz",
+  "_shasum": "f4a41fee2d84e679543591b3680af259d903330b",
   "_spec": "codemirror@^5.24.2",
-  "_where": "/Users/charles/Sources/go/src/github.com/pydio/cells/frontend/front-srv/assets/editor.codemirror",
+  "_where": "/Users/ghecquet/go/src/github.com/pydio/cells/frontend/front-srv/assets/editor.codemirror",
   "bugs": {
     "url": "http://github.com/codemirror/CodeMirror/issues"
   },
+  "bundleDependencies": false,
   "contributors": [
     {
       "name": "List of CodeMirror contributors. Updated before every release."
@@ -63,6 +41,9 @@
     },
     {
       "name": "Abdelouahab"
+    },
+    {
+      "name": "Abdussalam Abdurrahman"
     },
     {
       "name": "Abe Fettig"
@@ -305,7 +286,13 @@
       "name": "Axel Lewenhaupt"
     },
     {
+      "name": "Baptiste Augrain"
+    },
+    {
       "name": "Barret Rennie"
+    },
+    {
+      "name": "Bartosz Dziewoński"
     },
     {
       "name": "Basarat Ali Syed"
@@ -542,6 +529,9 @@
       "name": "Daniel Faust"
     },
     {
+      "name": "Daniel Hanggi"
+    },
+    {
       "name": "Daniel Huigens"
     },
     {
@@ -572,6 +562,9 @@
       "name": "Darius Roberts"
     },
     {
+      "name": "databricks-david-lewis"
+    },
+    {
       "name": "Dave Brondsema"
     },
     {
@@ -588,6 +581,9 @@
     },
     {
       "name": "David Pathakjee"
+    },
+    {
+      "name": "David Santana"
     },
     {
       "name": "David Vázquez"
@@ -720,6 +716,9 @@
     },
     {
       "name": "Filype Pereira"
+    },
+    {
+      "name": "finalfantasia"
     },
     {
       "name": "flack"
@@ -1203,6 +1202,9 @@
       "name": "Kevin Ushey"
     },
     {
+      "name": "Kier Darby"
+    },
+    {
       "name": "Klaus Silveira"
     },
     {
@@ -1282,6 +1284,9 @@
     },
     {
       "name": "lochel"
+    },
+    {
+      "name": "Lorenzo Simionato"
     },
     {
       "name": "Lorenzo Stoakes"
@@ -1521,6 +1526,9 @@
       "name": "mihailik"
     },
     {
+      "name": "Mika Andrianarijaona"
+    },
+    {
       "name": "Mike"
     },
     {
@@ -1652,6 +1660,9 @@
       "name": "Nikita Vasilyev"
     },
     {
+      "name": "Nikolaj Kappler"
+    },
+    {
       "name": "Nikolay Kostov"
     },
     {
@@ -1761,6 +1772,9 @@
     },
     {
       "name": "Philipp A"
+    },
+    {
+      "name": "Philipp Markovics"
     },
     {
       "name": "Philip Stadermann"
@@ -2306,7 +2320,7 @@
       "name": "魏鹏刚"
     }
   ],
-  "dependencies": {},
+  "deprecated": false,
   "description": "Full-featured in-browser code editor",
   "devDependencies": {
     "blint": "^1",
@@ -2319,16 +2333,7 @@
   "directories": {
     "lib": "./lib"
   },
-  "dist": {
-    "integrity": "sha512-vpJRray/0ZCt9FiS7UcVr1JAm6OBdUt6TA/94Q7MScr8TnutVdQWh/WPr0migzaBPQmYvY7I9UZNvbsaLESIuQ==",
-    "shasum": "4654f7d2f7e525e04a62e72d9482348ccb37dce5",
-    "tarball": "https://registry.npmjs.org/codemirror/-/codemirror-5.39.0.tgz",
-    "fileCount": 322,
-    "unpackedSize": 2736631,
-    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJbKfaKCRA9TVsSAnZWagAAiYcP/3P/VIJ3cHcYrnH3CBCe\neniKaIs7tJFfh7UZHDRboESFrSOpeL6eEFH5S0DLpGLieDlNmYSwyd82Z0ju\ndps1uN4Pj+36e8ZN6aEAujzqYZMxZJ8VV5ZN6UBQun9Ulbv5N7YovPej02nT\nugskCRI/tylnDn3eV8Q/fGtHYXQ1tG1a4gRC/ZkcpaXE7FqkPunDSlnb6Jvk\n8jG/YRq4NLa8V+0kn//VtyUOPUm5MDtfL1bIJk+jHHivfvBf6ytPHP+bk3+0\niidbEvd3vH4n7AyPn8Rkzl5+zQjhaewd19KtrBLfBu+K035OnbvHvcVSKZU9\n68b7vxKqVGWnJKRRyyVu74Vw8iLgCpki0sfk7T3FFer2fpu6GTNsaEp0YNo5\ng+7NqzuwL6Nnf+DX7f67JSxvYe1pxYRl8zeAPCUZ9EKFZGV5QoDyGQVfOkzk\na688FEOWlRY/FdSvNCboucYvoenZJnq9O19dCDGXN1syGTX8U0qc+lcUiNl/\nRbtIpq7VBGjdzX+BZiMoLRidYsMtKMjUONADl46qg8pcuAC+gZguMNlOY344\noB5AzP9M663V55ox1DcRSpnizBbw459Q3yvsIJKRix2Kncl5x8onarubu/WO\nnlKEArz4Ab8Jv1s6eTWzO1TZ8B7RSa+2UUTP5rPm1eDI9yN+yRqEjCCqyZ8H\nKvzL\r\n=v7lU\r\n-----END PGP SIGNATURE-----\r\n"
-  },
-  "gitHead": "d32c5d35a6d0730c21717faaf5d37cfe1f7073ce",
-  "homepage": "http://codemirror.net",
+  "homepage": "https://codemirror.net",
   "jspm": {
     "directories": {},
     "dependencies": {},
@@ -2343,13 +2348,12 @@
   "main": "lib/codemirror.js",
   "maintainers": [
     {
-      "name": "marijn",
-      "email": "marijnh@gmail.com"
+      "name": "Marijn Haverbeke",
+      "email": "marijnh@gmail.com",
+      "url": "http://marijnhaverbeke.nl"
     }
   ],
   "name": "codemirror",
-  "optionalDependencies": {},
-  "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/codemirror/CodeMirror.git"
@@ -2362,5 +2366,5 @@
     "watch": "rollup -w -c"
   },
   "style": "lib/codemirror.css",
-  "version": "5.39.0"
+  "version": "5.40.2"
 }

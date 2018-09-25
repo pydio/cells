@@ -40,7 +40,7 @@ var _utils = require('./utils');
 
 var _utils2 = require('../utils');
 
-var withSelectionControls = function withSelectionControls() {
+var withSelectionControls = function withSelectionControls(check) {
     return function (Component) {
         return (function (_React$Component) {
             _inherits(_class, _React$Component);
@@ -59,7 +59,7 @@ var withSelectionControls = function withSelectionControls() {
 
                 var selection = tab.selection;
 
-                if (!selection || selection.length() == 0) {
+                if (!selection || selection.length() == 0 || !check(this.props)) {
                     return React.createElement(Component, remaining);
                 }
 
@@ -92,7 +92,7 @@ var withSelectionControls = function withSelectionControls() {
 };
 
 exports.withSelectionControls = withSelectionControls;
-var withAutoPlayControls = function withAutoPlayControls() {
+var withAutoPlayControls = function withAutoPlayControls(check) {
     return function (Component) {
         return (function (_React$Component2) {
             _inherits(_class3, _React$Component2);
@@ -104,6 +104,10 @@ var withAutoPlayControls = function withAutoPlayControls() {
             }
 
             _class3.prototype.render = function render() {
+                if (!check(this.props)) {
+                    return React.createElement(Component, this.props);
+                }
+
                 var _props2 = this.props;
                 var tab = _props2.tab;
 

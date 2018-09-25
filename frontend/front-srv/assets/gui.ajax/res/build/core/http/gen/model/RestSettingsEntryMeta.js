@@ -43,7 +43,10 @@ var RestSettingsEntryMeta = (function () {
         this.Component = undefined;
         this.Props = undefined;
         this.Advanced = undefined;
+<<<<<<< Updated upstream
         this.Indexed = undefined;
+=======
+>>>>>>> Stashed changes
     }
 
     /**
@@ -70,9 +73,12 @@ var RestSettingsEntryMeta = (function () {
             if (data.hasOwnProperty('Advanced')) {
                 obj['Advanced'] = _ApiClient2['default'].convertToType(data['Advanced'], 'Boolean');
             }
+<<<<<<< Updated upstream
             if (data.hasOwnProperty('Indexed')) {
                 obj['Indexed'] = _ApiClient2['default'].convertToType(data['Indexed'], ['String']);
             }
+=======
+>>>>>>> Stashed changes
         }
         return obj;
     };
@@ -97,7 +103,10 @@ module.exports = exports['default'];
 /**
 * @member {Boolean} Advanced
 */
+<<<<<<< Updated upstream
 
 /**
 * @member {Array.<String>} Indexed
 */
+=======
+>>>>>>> Stashed changes

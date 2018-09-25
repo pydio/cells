@@ -18,6 +18,11 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+// export const mapStateToProps = (state, props) => ({
+//     ...state.tabs.filter(({editorData, node}) => editorData && props.editorData && editorData.id === props.editorData.id && node.getPath() === props.node.getPath())[0],
+//     ...props
+// })
+
 "use strict";
 
 exports.__esModule = true;
@@ -25,10 +30,15 @@ exports.__esModule = true;
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var mapStateToProps = function mapStateToProps(state, props) {
-  return _extends({}, state.tabs.filter(function (_ref) {
-    var editorData = _ref.editorData;
-    var node = _ref.node;
-    return editorData && props.editorData && editorData.id === props.editorData.id && node.getPath() === props.node.getPath();
-  })[0], props);
+    var editor = state.editor;
+    var tabs = state.tabs;
+
+    var tab = tabs.reduce(function (current, tab) {
+        return tab.id === editor.activeTabId ? tab : current;
+    }, {});
+
+    return _extends({}, props, {
+        tab: tab
+    });
 };
 exports.mapStateToProps = mapStateToProps;

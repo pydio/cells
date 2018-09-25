@@ -46,86 +46,49 @@ var _utils = require('./utils');
 
 var _utils2 = require('../utils');
 
-var withSizeControls = function withSizeControls(Component) {
-    return (function (_React$Component) {
-        _inherits(_class, _React$Component);
+var withSizeControls = function withSizeControls(check) {
+    return function (Component) {
+        return (function (_React$Component) {
+            _inherits(_class, _React$Component);
 
-        function _class() {
-            _classCallCheck(this, _class2);
+            function _class() {
+                _classCallCheck(this, _class2);
 
-            _React$Component.apply(this, arguments);
-        }
-
-        _class.prototype.render = function render() {
-            var _props = this.props;
-            var size = _props.size;
-            var scale = _props.scale;
-
-            var remaining = _objectWithoutProperties(_props, ['size', 'scale']);
-
-            var fn = _utils2.handler("onSizeChange", this.props);
-
-            return React.createElement(Component, _extends({
-                size: size,
-                scale: scale,
-                onSizeChange: function (sizeProps) {
-                    return fn(sizeProps);
-                }
-            }, remaining));
-        };
-
-        _createClass(_class, null, [{
-            key: 'displayName',
-            get: function get() {
-                return 'WithSizeControls(' + _utils2.getDisplayName(Component) + ')';
+                _React$Component.apply(this, arguments);
             }
-        }]);
 
-        var _class2 = _class;
-        _class = _reactRedux.connect(_utils.mapStateToProps)(_class) || _class;
-        return _class;
-    })(React.Component);
+            _class.prototype.render = function render() {
+                if (!check(this.props)) {
+                    return React.createElement(Component, this.props);
+                }
+                var _props = this.props;
+                var size = _props.size;
+                var scale = _props.scale;
+
+                var remaining = _objectWithoutProperties(_props, ['size', 'scale']);
+
+                var fn = _utils2.handler("onSizeChange", this.props);
+
+                return React.createElement(Component, _extends({
+                    size: size,
+                    scale: scale,
+                    onSizeChange: function (sizeProps) {
+                        return fn(sizeProps);
+                    }
+                }, remaining));
+            };
+
+            _createClass(_class, null, [{
+                key: 'displayName',
+                get: function get() {
+                    return 'WithSizeControls(' + _utils2.getDisplayName(Component) + ')';
+                }
+            }]);
+
+            var _class2 = _class;
+            _class = _reactRedux.connect(_utils.mapStateToProps)(_class) || _class;
+            return _class;
+        })(React.Component);
+    };
 };
-
 exports.withSizeControls = withSizeControls;
-var styles = {
-    sliderContainer: {
-        width: "100%",
-        height: 150,
-        display: "flex",
-        justifyContent: "center"
-    },
-    slider: {
-        margin: 0
-    }
-};
-
-var AspectRatio = _reactRedux.connect(_utils.mapStateToProps)(function (props) {
-    return React.createElement(
-        _materialUi.IconButton,
-        { onClick: function () {
-                return _utils2.handler("onSizeChange", props)({ size: "contain" });
-            } },
-        React.createElement(_materialUiSvgIconsActionAspectRatio2['default'], null)
-    );
-});
-
-exports.AspectRatio = AspectRatio;
-var Scale = _reactRedux.connect(_utils.mapStateToProps)(function (props) {
-    return React.createElement(
-        _materialUi.DropDownMenu,
-        null,
-        React.createElement(_materialUi.MenuItem, { primaryText: parseInt(props.scale * 100) + '%' }),
-        React.createElement(_materialUi.Slider, {
-            axis: 'y',
-            style: styles.sliderContainer,
-            sliderStyle: styles.slider,
-            value: props.scale,
-            min: 0.01,
-            max: 4,
-            onChange: function (_, scale) {
-                return _utils2.handler("onSizeChange", props)({ size: "auto", scale: scale });
-            } })
-    );
-});
-exports.Scale = Scale;

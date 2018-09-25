@@ -24,12 +24,18 @@ import { mapStateToProps } from './utils';
 import { handler } from '../utils';
 import { withDisabled } from '../controls';
 
-export const withResolutionControls = () => {
+export const withResolutionControls = (check) => {
     return (Component) => {
         return (
             @connect(mapStateToProps)
             class ResolutionControls extends React.Component {
                 render() {
+                    if (!check(this.props)) {
+                        return (
+                            <Component {...this.props} />
+                        )
+                    }
+
                     const {tab = {}, ...remaining} = this.props;
                     const {resolution = "hi"} = tab;
 

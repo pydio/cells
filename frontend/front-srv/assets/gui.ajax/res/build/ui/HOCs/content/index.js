@@ -26,10 +26,11 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var _controls = require('./controls');
 
+var Controls = _interopRequireWildcard(_controls);
+
 var _actions = require('./actions');
 
 var ContentActions = _interopRequireWildcard(_actions);
 
 exports.ContentActions = ContentActions;
-exports.ContentControls = _controls.ContentControls;
-exports.ContentSearchControls = _controls.ContentSearchControls;
+exports.Controls = Controls;

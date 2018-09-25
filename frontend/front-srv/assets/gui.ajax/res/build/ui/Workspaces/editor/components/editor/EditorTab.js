@@ -61,11 +61,23 @@ var SizeActions = _Pydio$requireLib.SizeActions;
 var SelectionActions = _Pydio$requireLib.SelectionActions;
 var LocalisationActions = _Pydio$requireLib.LocalisationActions;
 var withMenu = _Pydio$requireLib.withMenu;
+var withContentEditionControls = _Pydio$requireLib.withContentEditionControls;
+var withContentSearchControls = _Pydio$requireLib.withContentSearchControls;
 var withSizeControls = _Pydio$requireLib.withSizeControls;
 var withAutoPlayControls = _Pydio$requireLib.withAutoPlayControls;
 var withResolutionControls = _Pydio$requireLib.withResolutionControls;
 
 var styles = {
+    textField: {
+        width: 150,
+        marginRight: 40
+    },
+    textInput: {
+        color: "rgb(255, 255,255, 0.87)"
+    },
+    textHint: {
+        color: "rgb(255, 255,255, 0.67)"
+    },
     iconButton: {
         backgroundColor: "rgb(0, 0, 0, 0.87)",
         color: "rgb(255, 255,255, 0.87)"
@@ -264,9 +276,15 @@ var SnackBar = (function (_React$Component2) {
         var onAutoPlayToggle = _props3.onAutoPlayToggle;
         var onSizeChange = _props3.onSizeChange;
         var onResolutionToggle = _props3.onResolutionToggle;
-        var onSave = _props3.onSave;
+        var onContentSave = _props3.onContentSave;
+        var onContentUndo = _props3.onContentUndo;
+        var onContentRedo = _props3.onContentRedo;
+        var onContentToggleLineNumbers = _props3.onContentToggleLineNumbers;
+        var onContentToggleLineWrapping = _props3.onContentToggleLineWrapping;
+        var onContentSearch = _props3.onContentSearch;
+        var onContentJumpTo = _props3.onContentJumpTo;
 
-        var remaining = _objectWithoutProperties(_props3, ['size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle', 'onSave']);
+        var remaining = _objectWithoutProperties(_props3, ['size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle', 'onContentSave', 'onContentUndo', 'onContentRedo', 'onContentToggleLineNumbers', 'onContentToggleLineWrapping', 'onContentSearch', 'onContentJumpTo']);
 
         return React.createElement(
             _materialUi.Toolbar,
@@ -330,15 +348,92 @@ var SnackBar = (function (_React$Component2) {
                         return onResolutionToggle();
                     }
                 })
+            ),
+            (onAutoPlayToggle || onSizeChange || onResolutionToggle) && onContentSave && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+            onContentSave && React.createElement(
+                _materialUi.ToolbarGroup,
+                null,
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-content-save',
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onContentSave();
+                    }
+                }),
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-undo',
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onContentUndo();
+                    }
+                }),
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-redo',
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onContentRedo();
+                    }
+                })
+            ),
+            (onAutoPlayToggle || onSizeChange || onResolutionToggle || onContentSave) && onContentToggleLineNumbers && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+            onContentToggleLineNumbers && React.createElement(
+                _materialUi.ToolbarGroup,
+                null,
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-format-list-numbers',
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onContentToggleLineNumbers();
+                    }
+                }),
+                React.createElement(_materialUi.IconButton, {
+                    iconClassName: 'mdi mdi-wrap',
+                    iconStyle: styles.iconButton,
+                    onClick: function () {
+                        return onContentToggleLineWrapping();
+                    }
+                })
+            ),
+            (onAutoPlayToggle || onSizeChange || onResolutionToggle || onContentSave || onContentToggleLineNumbers) && onContentSearch && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+            onContentSearch && React.createElement(
+                _materialUi.ToolbarGroup,
+                null,
+                React.createElement(_materialUi.TextField, { onKeyUp: function (_ref) {
+                        var key = _ref.key;
+                        var target = _ref.target;
+                        return key === 'Enter' && onContentJumpTo(target.value);
+                    }, hintText: 'Jump to Line', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput }),
+                React.createElement(_materialUi.TextField, { onKeyUp: function (_ref2) {
+                        var key = _ref2.key;
+                        var target = _ref2.target;
+                        return key === 'Enter' && onContentSearch(target.value);
+                    }, hintText: 'Search...', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput })
             )
         );
     };
 
     var _SnackBar = SnackBar;
     SnackBar = _reactRedux.connect(mapStateToProps)(SnackBar) || SnackBar;
-    SnackBar = withResolutionControls()(SnackBar) || SnackBar;
-    SnackBar = withSizeControls(SnackBar) || SnackBar;
-    SnackBar = withAutoPlayControls()(SnackBar) || SnackBar;
+    SnackBar = withResolutionControls(function (_ref3) {
+        var tab = _ref3.tab;
+        return tab.hdable;
+    })(SnackBar) || SnackBar;
+    SnackBar = withSizeControls(function (_ref4) {
+        var tab = _ref4.tab;
+        return tab.resizeable;
+    })(SnackBar) || SnackBar;
+    SnackBar = withAutoPlayControls(function (_ref5) {
+        var tab = _ref5.tab;
+        return tab.playable;
+    })(SnackBar) || SnackBar;
+    SnackBar = withContentEditionControls(function (_ref6) {
+        var tab = _ref6.tab;
+        return tab.editable;
+    })(SnackBar) || SnackBar;
+    SnackBar = withContentSearchControls(function (_ref7) {
+        var tab = _ref7.tab;
+        return tab.searchable;
+    })(SnackBar) || SnackBar;
     return SnackBar;
 })(React.Component);
 

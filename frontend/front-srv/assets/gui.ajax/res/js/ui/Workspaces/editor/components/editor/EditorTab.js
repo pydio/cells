@@ -19,15 +19,25 @@
  */
 
 import Pydio from 'pydio'
-import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton } from 'material-ui';
+import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton, TextField } from 'material-ui';
 import { connect } from 'react-redux';
 import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
 
-const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
+const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu, withContentEditionControls, withContentSearchControls, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
 
 const styles = {
+    textField: {
+        width: 150,
+        marginRight: 40
+    },
+    textInput: {
+        color: "rgb(255, 255,255, 0.87)"
+    },
+    textHint: {
+        color: "rgb(255, 255,255, 0.67)"
+    },
     iconButton: {
         backgroundColor: "rgb(0, 0, 0, 0.87)",
         color: "rgb(255, 255,255, 0.87)"
@@ -135,9 +145,11 @@ export default class Tab extends React.Component {
     }
 }
 
-@withAutoPlayControls()
-@withSizeControls
-@withResolutionControls()
+@withContentSearchControls(({tab}) => tab.searchable)
+@withContentEditionControls(({tab}) => tab.editable)
+@withAutoPlayControls(({tab}) => tab.playable)
+@withSizeControls(({tab}) => tab.resizeable)
+@withResolutionControls(({tab}) => tab.hdable)
 @connect(mapStateToProps)
 class SnackBar extends React.Component {
     constructor(props) {
@@ -164,7 +176,7 @@ class SnackBar extends React.Component {
 
     render() {
         const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false} = this.state
-        const {size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, onSave, ...remaining} = this.props
+        const {size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, onContentSave, onContentUndo, onContentRedo, onContentToggleLineNumbers, onContentToggleLineWrapping, onContentSearch, onContentJumpTo, ...remaining} = this.props
 
         return (
             <Toolbar {...remaining}>
@@ -220,6 +232,54 @@ class SnackBar extends React.Component {
                             iconStyle={styles.iconButton}
                             onClick={() => onResolutionToggle()}
                         />
+                    </ToolbarGroup>
+                )}
+                {(onAutoPlayToggle || onSizeChange || onResolutionToggle) && onContentSave && (
+                    <ToolbarSeparator style={styles.divider} />
+                )}
+                {onContentSave && (
+                    <ToolbarGroup>
+                        <IconButton
+                            iconClassName="mdi mdi-content-save"
+                            iconStyle={styles.iconButton}
+                            onClick={() => onContentSave()}
+                        />
+                        <IconButton
+                            iconClassName="mdi mdi-undo"
+                            iconStyle={styles.iconButton}
+                            onClick={() => onContentUndo()}
+                        />
+                        <IconButton
+                            iconClassName="mdi mdi-redo"
+                            iconStyle={styles.iconButton}
+                            onClick={() => onContentRedo()}
+                        />
+                    </ToolbarGroup>
+                )}
+                {(onAutoPlayToggle || onSizeChange || onResolutionToggle || onContentSave) && onContentToggleLineNumbers && (
+                    <ToolbarSeparator style={styles.divider} />
+                )}
+                {onContentToggleLineNumbers && (
+                    <ToolbarGroup>
+                        <IconButton
+                            iconClassName="mdi mdi-format-list-numbers"
+                            iconStyle={styles.iconButton}
+                            onClick={() => onContentToggleLineNumbers()}
+                        />
+                        <IconButton
+                            iconClassName="mdi mdi-wrap"
+                            iconStyle={styles.iconButton}
+                            onClick={() => onContentToggleLineWrapping()}
+                        />
+                    </ToolbarGroup>
+                )}
+                {(onAutoPlayToggle || onSizeChange || onResolutionToggle || onContentSave || onContentToggleLineNumbers) && onContentSearch && (
+                    <ToolbarSeparator style={styles.divider} />
+                )}
+                {onContentSearch && (
+                    <ToolbarGroup>
+                        <TextField onKeyUp={({key, target}) => key === 'Enter' && onContentJumpTo(target.value)} hintText="Jump to Line" style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
+                        <TextField onKeyUp={({key, target}) => key === 'Enter' && onContentSearch(target.value)} hintText="Search..." style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
                     </ToolbarGroup>
                 )}
             </Toolbar>
