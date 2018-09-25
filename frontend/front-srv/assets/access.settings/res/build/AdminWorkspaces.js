@@ -23616,6 +23616,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -23629,6 +23633,10 @@ var _materialUi = require('material-ui');
 var _DataSourceLocalSelector = require('./DataSourceLocalSelector');
 
 var _DataSourceLocalSelector2 = _interopRequireDefault(_DataSourceLocalSelector);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
 
 var DataSourceEditor = (function (_React$Component) {
     _inherits(DataSourceEditor, _React$Component);
@@ -23769,10 +23777,13 @@ var DataSourceEditor = (function (_React$Component) {
 
             var titleActionBarButtons = [];
             if (!create) {
-                titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'reset', label: this.context.getMessage('plugins.6'), onTouchTap: this.resetForm.bind(this), secondary: true, disabled: !this.state.dirty }));
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
+                    _this6.resetForm();
+                }, !this.state.dirty));
             }
-            titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'save', label: this.context.getMessage('53', ''), onTouchTap: this.saveSource.bind(this), secondary: true, disabled: !observable.isValid() || !this.state.dirty }));
-            titleActionBarButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { key: 'close', label: this.context.getMessage('86', ''), onTouchTap: this.props.closeEditor }));
+            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
+                _this6.saveSource();
+            }, !observable.isValid() || !this.state.dirty));
 
             var leftNav = _react2['default'].createElement(
                 'div',
@@ -23882,6 +23893,7 @@ var DataSourceEditor = (function (_React$Component) {
                 {
                     title: title,
                     titleActionBar: titleActionBarButtons,
+                    closeAction: this.props.closeEditor,
                     leftNav: leftNav,
                     className: 'workspace-editor',
                     contentFill: false
@@ -24053,7 +24065,7 @@ DataSourceEditor.contextTypes = {
 exports['default'] = DataSourceEditor;
 module.exports = exports['default'];
 
-},{"../model/DataSource":172,"./DataSourceLocalSelector":163,"material-ui":"material-ui","react":"react"}],163:[function(require,module,exports){
+},{"../model/DataSource":172,"./DataSourceLocalSelector":163,"material-ui":"material-ui","pydio":"pydio","react":"react"}],163:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -24845,6 +24857,10 @@ var _VersionPolicyPeriods2 = _interopRequireDefault(_VersionPolicyPeriods);
 
 var PydioForm = _pydio2['default'].requireLib('form');
 
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
+
 var VersionPolicyEditor = (function (_React$Component) {
     _inherits(VersionPolicyEditor, _React$Component);
 
@@ -24961,6 +24977,8 @@ var VersionPolicyEditor = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this4 = this;
+
             var _props = this.props;
             var create = _props.create;
             var readonly = _props.readonly;
@@ -24992,13 +25010,17 @@ var VersionPolicyEditor = (function (_React$Component) {
             var titleActionBarButtons = [];
             if (!readonly) {
                 if (!create) {
-                    titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'delete', label: m('delete'), secondary: true, onTouchTap: this.deleteSource.bind(this) }));
-                    titleActionBarButtons.push(_react2['default'].createElement('div', { style: { display: 'inline', borderRight: '1px solid #757575', margin: '0 2px' }, key: 'separator' }));
-                    titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'reset', label: this.context.getMessage('plugins.6'), onTouchTap: this.resetForm.bind(this), secondary: true, disabled: !this.state.dirty }));
+                    titleActionBarButtons.push(PaperEditorLayout.actionButton(m('delete'), 'mdi mdi-delete', function () {
+                        _this4.deleteSource();
+                    }));
+                    titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
+                        _this4.resetForm();
+                    }, !this.state.dirty));
                 }
-                titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'save', label: this.context.getMessage('53', ''), onTouchTap: this.saveSource.bind(this), secondary: true, disabled: !this.state.valid || !this.state.dirty }));
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
+                    _this4.saveSource();
+                }, !this.state.valid || !this.state.dirty));
             }
-            titleActionBarButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { key: 'close', label: this.context.getMessage('86', ''), onTouchTap: this.props.closeEditor }));
 
             var policyName = saveValue ? saveValue.Name : policy.Name;
             if (!policyName) {
@@ -25006,10 +25028,11 @@ var VersionPolicyEditor = (function (_React$Component) {
             }
 
             return _react2['default'].createElement(
-                PydioComponents.PaperEditorLayout,
+                PaperEditorLayout,
                 {
                     title: loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.home.6'],
                     titleActionBar: titleActionBarButtons,
+                    closeAction: this.props.closeEditor,
                     className: 'workspace-editor',
                     contentFill: true
                 },
@@ -25497,6 +25520,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -25510,6 +25537,10 @@ var _modelWs2 = _interopRequireDefault(_modelWs);
 var _WsAutoComplete = require('./WsAutoComplete');
 
 var _WsAutoComplete2 = _interopRequireDefault(_WsAutoComplete);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
 
 var WsEditor = (function (_React$Component) {
     _inherits(WsEditor, _React$Component);
@@ -25549,23 +25580,35 @@ var WsEditor = (function (_React$Component) {
             var _this3 = this;
 
             var container = this.state.container;
-            var reloadList = this.props.reloadList;
+            var _props = this.props;
+            var reloadList = _props.reloadList;
+            var closeEditor = _props.closeEditor;
+
+            this.setState({ saving: true });
+            var create = container.create;
 
             container.save().then(function () {
                 reloadList();
-                _this3.setState({ workspace: container.getModel() }, function () {
+                _this3.setState({
+                    workspace: container.getModel(),
+                    saving: false }, function () {
                     _this3.forceUpdate();
                 });
+                if (create) {
+                    closeEditor();
+                }
+            })['catch'](function () {
+                _this3.setState({ saving: false });
             });
         }
     }, {
         key: 'remove',
         value: function remove() {
             var container = this.state.container;
-            var _props = this.props;
-            var closeEditor = _props.closeEditor;
-            var reloadList = _props.reloadList;
-            var pydio = _props.pydio;
+            var _props2 = this.props;
+            var closeEditor = _props2.closeEditor;
+            var reloadList = _props2.reloadList;
+            var pydio = _props2.pydio;
 
             if (confirm(pydio.MessageHash['settings.35'])) {
                 container.remove().then(function () {
@@ -25579,13 +25622,14 @@ var WsEditor = (function (_React$Component) {
         value: function render() {
             var _this4 = this;
 
-            var _props2 = this.props;
-            var closeEditor = _props2.closeEditor;
-            var pydio = _props2.pydio;
+            var _props3 = this.props;
+            var closeEditor = _props3.closeEditor;
+            var pydio = _props3.pydio;
             var _state = this.state;
             var workspace = _state.workspace;
             var container = _state.container;
             var newFolderKey = _state.newFolderKey;
+            var saving = _state.saving;
 
             var m = function m(id) {
                 return pydio.MessageHash['ajxp_admin.' + id] || id;
@@ -25596,14 +25640,13 @@ var WsEditor = (function (_React$Component) {
 
             var buttons = [];
             if (!container.create) {
-                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "Revert", secondary: true, disabled: !container.isDirty(), onTouchTap: function () {
-                        _this4.revert();
-                    } }));
+                buttons.push(PaperEditorLayout.actionButton(m('plugins.6'), "mdi mdi-undo", function () {
+                    _this4.revert();
+                }, !container.isDirty()));
             }
-            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { label: "Save", secondary: true, disabled: !(container.isDirty() && container.isValid()), onTouchTap: function () {
-                    _this4.save();
-                } }));
-            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { label: "Close", onTouchTap: closeEditor }));
+            buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", function () {
+                _this4.save();
+            }, saving || !(container.isDirty() && container.isValid())));
 
             var delButton = undefined;
             if (!container.create) {
@@ -25687,10 +25730,11 @@ var WsEditor = (function (_React$Component) {
             }
 
             return _react2['default'].createElement(
-                PydioComponents.PaperEditorLayout,
+                PaperEditorLayout,
                 {
                     title: workspace.Label || mS('90'),
                     titleActionBar: buttons,
+                    closeAction: closeEditor,
                     leftNav: leftNav,
                     className: 'workspace-editor',
                     contentFill: false
@@ -25799,7 +25843,7 @@ var WsEditor = (function (_React$Component) {
 exports['default'] = WsEditor;
 module.exports = exports['default'];
 
-},{"../model/Ws":175,"./WsAutoComplete":167,"material-ui":"material-ui","react":"react"}],169:[function(require,module,exports){
+},{"../model/Ws":175,"./WsAutoComplete":167,"material-ui":"material-ui","pydio":"pydio","react":"react"}],169:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

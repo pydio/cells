@@ -14,6 +14,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -27,6 +31,10 @@ var _materialUi = require('material-ui');
 var _DataSourceLocalSelector = require('./DataSourceLocalSelector');
 
 var _DataSourceLocalSelector2 = _interopRequireDefault(_DataSourceLocalSelector);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
 
 var DataSourceEditor = (function (_React$Component) {
     _inherits(DataSourceEditor, _React$Component);
@@ -167,10 +175,13 @@ var DataSourceEditor = (function (_React$Component) {
 
             var titleActionBarButtons = [];
             if (!create) {
-                titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'reset', label: this.context.getMessage('plugins.6'), onTouchTap: this.resetForm.bind(this), secondary: true, disabled: !this.state.dirty }));
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
+                    _this6.resetForm();
+                }, !this.state.dirty));
             }
-            titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'save', label: this.context.getMessage('53', ''), onTouchTap: this.saveSource.bind(this), secondary: true, disabled: !observable.isValid() || !this.state.dirty }));
-            titleActionBarButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { key: 'close', label: this.context.getMessage('86', ''), onTouchTap: this.props.closeEditor }));
+            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
+                _this6.saveSource();
+            }, !observable.isValid() || !this.state.dirty));
 
             var leftNav = _react2['default'].createElement(
                 'div',
@@ -280,6 +291,7 @@ var DataSourceEditor = (function (_React$Component) {
                 {
                     title: title,
                     titleActionBar: titleActionBarButtons,
+                    closeAction: this.props.closeEditor,
                     leftNav: leftNav,
                     className: 'workspace-editor',
                     contentFill: false
