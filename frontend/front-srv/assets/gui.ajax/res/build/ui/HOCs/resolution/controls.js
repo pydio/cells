@@ -40,7 +40,7 @@ var _utils2 = require('../utils');
 
 var _controls = require('../controls');
 
-var withResolutionControls = function withResolutionControls() {
+var withResolutionControls = function withResolutionControls(check) {
     return function (Component) {
         return (function (_React$Component) {
             _inherits(ResolutionControls, _React$Component);
@@ -52,6 +52,10 @@ var withResolutionControls = function withResolutionControls() {
             }
 
             ResolutionControls.prototype.render = function render() {
+                if (!check(this.props)) {
+                    return React.createElement(Component, this.props);
+                }
+
                 var _props = this.props;
                 var _props$tab = _props.tab;
                 var tab = _props$tab === undefined ? {} : _props$tab;

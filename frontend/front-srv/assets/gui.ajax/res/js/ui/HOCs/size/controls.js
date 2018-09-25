@@ -24,60 +24,33 @@ import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
 import { handler, getDisplayName } from '../utils';
 
-export const withSizeControls = (Component) => {
-    return (
-        @connect(mapStateToProps)
-        class extends React.Component {
-            static get displayName() {
-                return `WithSizeControls(${getDisplayName(Component)})`
+export const withSizeControls = (check) => {
+    return (Component) => {
+        return (
+            @connect(mapStateToProps)
+            class extends React.Component {
+                static get displayName() {
+                    return `WithSizeControls(${getDisplayName(Component)})`
+                }
+
+                render() {
+                    if (!check(this.props)) {
+                        return <Component {...this.props} />
+                    }
+                    const {size, scale, ...remaining} = this.props;
+
+                    const fn = handler("onSizeChange", this.props)
+
+                    return (
+                        <Component
+                            size={size}
+                            scale={scale}
+                            onSizeChange={(sizeProps) => fn(sizeProps)}
+                            {...remaining}
+                        />
+                    )
+                }
             }
-
-            render() {
-                const {size, scale, ...remaining} = this.props;
-
-                const fn = handler("onSizeChange", this.props)
-
-                return (
-                    <Component
-                        size={size}
-                        scale={scale}
-                        onSizeChange={(sizeProps) => fn(sizeProps)}
-                        {...remaining}
-                    />
-                )
-            }
-        }
-    )
-}
-
-const styles = {
-    sliderContainer: {
-        width: "100%",
-        height: 150,
-        display: "flex",
-        justifyContent: "center"
-    },
-    slider: {
-        margin: 0
+        )
     }
 }
-
-export const AspectRatio = connect(mapStateToProps)((props) =>
-    <IconButton onClick={() => handler("onSizeChange", props)({size: "contain"})}>
-        <ActionAspectRatio />
-    </IconButton>
-);
-
-export const Scale = connect(mapStateToProps)((props) =>
-    <DropDownMenu>
-        <MenuItem primaryText={`${parseInt(props.scale * 100)}%`} />
-        <Slider
-            axis="y"
-            style={styles.sliderContainer}
-            sliderStyle={styles.slider}
-            value={props.scale}
-            min={0.01}
-            max={4}
-            onChange={(_, scale) => handler("onSizeChange", props)({size: "auto", scale})} />
-    </DropDownMenu>
-);

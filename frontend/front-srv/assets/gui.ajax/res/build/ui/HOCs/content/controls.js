@@ -34,7 +34,7 @@ var _utils = require('./utils');
 
 var _utils2 = require('../utils');
 
-var withContentControls = function withContentControls() {
+var withContentEditionControls = function withContentEditionControls(check) {
     return function (Component) {
         return (function (_React$Component) {
             _inherits(ContentControls, _React$Component);
@@ -46,9 +46,15 @@ var withContentControls = function withContentControls() {
             }
 
             ContentControls.prototype.render = function render() {
+                if (!check(this.props)) {
+                    return React.createElement(Component, this.props);
+                }
+
                 var fnSave = _utils2.handler("onSave", this.props);
                 var fnUndo = _utils2.handler("onUndo", this.props);
                 var fnRedo = _utils2.handler("onRedo", this.props);
+                var fnToggleLineNumbers = _utils2.handler("onToggleLineNumbers", this.props);
+                var fnToggleLineWrapping = _utils2.handler("onToggleLineWrapping", this.props);
 
                 return React.createElement(Component, _extends({
                     onContentSave: function () {
@@ -59,8 +65,14 @@ var withContentControls = function withContentControls() {
                     },
                     onContentRedo: function () {
                         return fnRedo();
+                    },
+                    onContentToggleLineNumbers: function () {
+                        return fnToggleLineNumbers();
+                    },
+                    onContentToggleLineWrapping: function () {
+                        return fnToggleLineWrapping();
                     }
-                }, remaining));
+                }, this.props));
             };
 
             var _ContentControls = ContentControls;
@@ -69,4 +81,41 @@ var withContentControls = function withContentControls() {
         })(React.Component);
     };
 };
-exports.withContentControls = withContentControls;
+
+exports.withContentEditionControls = withContentEditionControls;
+var withContentSearchControls = function withContentSearchControls(check) {
+    return function (Component) {
+        return (function (_React$Component2) {
+            _inherits(ContentControls, _React$Component2);
+
+            function ContentControls() {
+                _classCallCheck(this, _ContentControls2);
+
+                _React$Component2.apply(this, arguments);
+            }
+
+            ContentControls.prototype.render = function render() {
+                if (!check(this.props)) {
+                    return React.createElement(Component, this.props);
+                }
+
+                var fnSearch = _utils2.handler("onSearch", this.props);
+                var fnJumpTo = _utils2.handler("onJumpTo", this.props);
+
+                return React.createElement(Component, _extends({
+                    onContentSearch: function (value) {
+                        return fnSearch(value);
+                    },
+                    onContentJumpTo: function (value) {
+                        return fnJumpTo(value);
+                    }
+                }, this.props));
+            };
+
+            var _ContentControls2 = ContentControls;
+            ContentControls = _reactRedux.connect(_utils.mapStateToProps)(ContentControls) || ContentControls;
+            return ContentControls;
+        })(React.Component);
+    };
+};
+exports.withContentSearchControls = withContentSearchControls;

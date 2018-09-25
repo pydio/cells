@@ -22,22 +22,64 @@ import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
 import { handler } from '../utils';
 
-export const withContentControls = () => {
+export const withContentEditionControls = (check) => {
     return (Component) => {
         return (
             @connect(mapStateToProps)
             class ContentControls extends React.Component {
                 render() {
+                    if (!check(this.props)) {
+                        return (
+                            <Component
+                                {...this.props}
+                            />
+                        )
+                    }
+
                     const fnSave = handler("onSave", this.props)
                     const fnUndo = handler("onUndo", this.props)
                     const fnRedo = handler("onRedo", this.props)
+                    const fnToggleLineNumbers = handler("onToggleLineNumbers", this.props)
+                    const fnToggleLineWrapping = handler("onToggleLineWrapping", this.props)
 
                     return (
                         <Component
                             onContentSave={() => fnSave()}
                             onContentUndo={() => fnUndo()}
                             onContentRedo={() => fnRedo()}
-                            {...remaining}
+                            onContentToggleLineNumbers={() => fnToggleLineNumbers()}
+                            onContentToggleLineWrapping={() => fnToggleLineWrapping()}
+                            {...this.props}
+                        />
+                    )
+                }
+            }
+        )
+    }
+}
+
+export const withContentSearchControls = (check) => {
+    return (Component) => {
+        return (
+            @connect(mapStateToProps)
+            class ContentControls extends React.Component {
+                render() {
+                    if (!check(this.props)) {
+                        return (
+                            <Component
+                                {...this.props}
+                            />
+                        )
+                    }
+
+                    const fnSearch = handler("onSearch", this.props)
+                    const fnJumpTo = handler("onJumpTo", this.props)
+
+                    return (
+                        <Component
+                            onContentSearch={(value) => fnSearch(value)}
+                            onContentJumpTo={(value) => fnJumpTo(value)}
+                            {...this.props}
                         />
                     )
                 }

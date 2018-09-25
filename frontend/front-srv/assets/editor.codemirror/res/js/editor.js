@@ -45,7 +45,7 @@ class Editor extends React.Component {
         const {id} = tab;
 
         pydio.ApiClient.getPlainContent(node, (content) => {
-            dispatch(EditorActions.tabModify({id: id || node.getLabel(), lineNumbers: true, content: content}));
+            dispatch(EditorActions.tabModify({id: id || node.getLabel(), editable: true, searchable: true, content: content}));
         });
 
     }

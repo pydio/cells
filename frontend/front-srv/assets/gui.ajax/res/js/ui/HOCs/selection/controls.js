@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
 import { handler, getDisplayName } from '../utils';
 
-export const withSelectionControls = () => {
+export const withSelectionControls = (check) => {
     return (Component) => {
         return (
             @connect(mapStateToProps)
@@ -36,7 +36,7 @@ export const withSelectionControls = () => {
                     const {tab, ...remaining} = this.props;
                     const {selection} = tab;
 
-                    if (!selection || selection.length() == 0) {
+                    if (!selection || selection.length() == 0 || !check(this.props)) {
                         return (
                             <Component {...remaining} />
                         )
@@ -59,7 +59,7 @@ export const withSelectionControls = () => {
     }
 }
 
-export const withAutoPlayControls = () => {
+export const withAutoPlayControls = (check) => {
     return (Component) => {
         return (
             @connect(mapStateToProps)
@@ -69,6 +69,12 @@ export const withAutoPlayControls = () => {
                 }
 
                 render() {
+                    if (!check(this.props)) {
+                        return (
+                            <Component {...this.props} />
+                        )
+                    }
+
                     const {tab, ...remaining} = this.props;
                     const {playing = false} = tab;
 
