@@ -184,8 +184,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 				response.Groups = append(response.Groups, u)
 			} else {
 				u.Roles = utils.GetRolesForUser(ctx, u, false)
-				u.PoliciesContextEditable = s.IsContextEditable(ctx, u.Uuid, u.Policies)
-				response.Users = append(response.Users, u)
+				response.Users = append(response.Users, u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
 			}
 		}
 	}
@@ -356,7 +355,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			continue
 		}
 		if strings.HasPrefix(k, "parameter:") {
-			if !allowedAclKey(k) {
+			if !allowedAclKey(k, true) {
 				continue
 			}
 			var acl = &idm.ACL{
@@ -472,7 +471,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		u = resp.User
 		if !resp.User.IsGroup {
 			u.Roles = utils.GetRolesForUser(ctx, u, false)
-			u.PoliciesContextEditable = s.IsContextEditable(ctx, u.Uuid, u.Policies)
+			u = u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies))
 			paramsAclsToAttributes(ctx, []*idm.User{u})
 		} else if len(u.Roles) == 0 {
 			u.Roles = append(u.Roles, &idm.Role{Uuid: u.Uuid, GroupRole: true})
@@ -544,7 +543,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 			log.GetAuditId(common.AUDIT_USER_UPDATE),
 			response.User.ZapUuid(),
 		)
-		rsp.WriteEntity(u)
+		rsp.WriteEntity(u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
 	}
 }
 
@@ -656,13 +655,6 @@ func (s *UserHandler) userById(ctx context.Context, userId string, cli idm.UserS
 func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 	var roles []*idm.Role
 	for _, user := range users {
-		if user.Attributes != nil {
-			for k, _ := range user.Attributes {
-				if strings.HasPrefix(k, "pydio:") {
-					delete(user.Attributes, k)
-				}
-			}
-		}
 		var role *idm.Role
 		for _, r := range user.Roles {
 			if r.UserRole {
@@ -682,7 +674,7 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 	}
 	for _, acl := range utils.GetACLsForRoles(ctx, roles, &idm.ACLAction{Name: "parameter:*"}) {
 		for _, user := range users {
-			if allowedAclKey(acl.Action.Name) && user.Uuid == acl.RoleID {
+			if allowedAclKey(acl.Action.Name, user.PoliciesContextEditable) && user.Uuid == acl.RoleID {
 				user.Attributes[acl.Action.Name] = acl.Action.Value
 			}
 		}
@@ -690,7 +682,7 @@ func paramsAclsToAttributes(ctx context.Context, users []*idm.User) {
 
 }
 
-func allowedAclKey(k string) bool {
+func allowedAclKey(k string, contextEditable bool) bool {
 	pool, e := frontend.GetPluginsPool()
 	if e != nil {
 		log.Logger(context.Background()).Error("Cannot read plugins pool", zap.Error(e))
@@ -701,19 +693,12 @@ func allowedAclKey(k string) bool {
 		if param.Attrscope == "user" {
 			continue
 		}
+		if !contextEditable && k != "parameter:core.conf:lang" && k != "parameter:core.conf:country" {
+			continue
+		}
 		if k == "parameter:"+param.PluginId+":"+param.Attrname {
 			return true
 		}
 	}
 	return false
-
-	/*
-		allowedAclKeysAsAttributes := []string{"parameter:core.conf:lang", "parameter:core.conf:country"}
-		for _, v := range allowedAclKeysAsAttributes {
-			if v == k {
-				return true
-			}
-		}
-		return false
-	*/
 }
