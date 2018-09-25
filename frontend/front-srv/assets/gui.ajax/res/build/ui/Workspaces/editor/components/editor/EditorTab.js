@@ -61,8 +61,7 @@ var SizeActions = _Pydio$requireLib.SizeActions;
 var SelectionActions = _Pydio$requireLib.SelectionActions;
 var LocalisationActions = _Pydio$requireLib.LocalisationActions;
 var withMenu = _Pydio$requireLib.withMenu;
-var withContentEditionControls = _Pydio$requireLib.withContentEditionControls;
-var withContentSearchControls = _Pydio$requireLib.withContentSearchControls;
+var withContentControls = _Pydio$requireLib.withContentControls;
 var withSizeControls = _Pydio$requireLib.withSizeControls;
 var withAutoPlayControls = _Pydio$requireLib.withAutoPlayControls;
 var withResolutionControls = _Pydio$requireLib.withResolutionControls;
@@ -128,26 +127,9 @@ var Tab = (function (_React$Component) {
             });
         };
 
-        // {ResolutionControls && <ToolbarGroup>{controls(ResolutionControls)}</ToolbarGroup>}
-        // {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
         return React.createElement(
             SnackBar,
             { id: id, style: Tab.styles.toolbar },
-            SizeControls && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                controls(SizeControls)
-            ),
-            ContentControls && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                controls(ContentControls)
-            ),
-            ContentSearchControls && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                controls(ContentSearchControls)
-            ),
             LocalisationControls && React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
@@ -186,7 +168,7 @@ var Tab = (function (_React$Component) {
             AnimatedCard,
             { style: cardStyle, containerStyle: Tab.styles.container, maximised: true, expanded: isActive, onExpandChange: !isActive ? select : null },
             React.createElement(Editor, { pydio: pydio, node: node, editorData: editorData, isActive: isActive }),
-            Controls && this.renderControls(Controls, Actions)
+            React.createElement(SnackBar, { id: id, style: Tab.styles.toolbar })
         );
     };
 
@@ -276,20 +258,46 @@ var SnackBar = (function (_React$Component2) {
         var onAutoPlayToggle = _props3.onAutoPlayToggle;
         var onSizeChange = _props3.onSizeChange;
         var onResolutionToggle = _props3.onResolutionToggle;
-        var onContentSave = _props3.onContentSave;
-        var onContentUndo = _props3.onContentUndo;
-        var onContentRedo = _props3.onContentRedo;
-        var onContentToggleLineNumbers = _props3.onContentToggleLineNumbers;
-        var onContentToggleLineWrapping = _props3.onContentToggleLineWrapping;
-        var onContentSearch = _props3.onContentSearch;
-        var onContentJumpTo = _props3.onContentJumpTo;
 
-        var remaining = _objectWithoutProperties(_props3, ['size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle', 'onContentSave', 'onContentUndo', 'onContentRedo', 'onContentToggleLineNumbers', 'onContentToggleLineWrapping', 'onContentSearch', 'onContentJumpTo']);
+        var remaining = _objectWithoutProperties(_props3, ['size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle']);
+
+        // Content functions
+        var _props4 = this.props;
+        var saveable = _props4.saveable;
+        var undoable = _props4.undoable;
+        var redoable = _props4.redoable;
+        var onSave = _props4.onSave;
+        var onUndo = _props4.onUndo;
+        var onRedo = _props4.onRedo;
+        var _props5 = this.props;
+        var onToggleLineNumbers = _props5.onToggleLineNumbers;
+        var onToggleLineWrapping = _props5.onToggleLineWrapping;
+        var _props6 = this.props;
+        var onSearch = _props6.onSearch;
+        var onJumpTo = _props6.onJumpTo;
+
+        var editable = saveable || undoable || redoable;
+        var _props7 = this.props;
+        var editortools = _props7.editortools;
+        var searchable = _props7.searchable;
+
+        // Resolution functions
+        var hdable = this.props.hdable;
+
+        // Selection functions
+        var playable = this.props.playable;
+
+        // Size functions
+        var resizable = this.props.resizable;
+
+        if (!editable && !hdable && !playable && !resizable) {
+            return null;
+        }
 
         return React.createElement(
             _materialUi.Toolbar,
             remaining,
-            onAutoPlayToggle && React.createElement(
+            playable && React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
                 React.createElement(_materialUi.IconButton, {
@@ -300,8 +308,8 @@ var SnackBar = (function (_React$Component2) {
                     }
                 })
             ),
-            onAutoPlayToggle && onSizeChange && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            onSizeChange && React.createElement(
+            playable && resizable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+            resizable && React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
                 React.createElement(_materialUi.IconButton, {
@@ -337,8 +345,8 @@ var SnackBar = (function (_React$Component2) {
                     disabled: plusDisabled
                 })
             ),
-            (onAutoPlayToggle || onSizeChange) && onResolutionToggle && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            onResolutionToggle && React.createElement(
+            (playable || resizable) && hdable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+            hdable && React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
                 React.createElement(_materialUi.IconButton, {
@@ -349,64 +357,64 @@ var SnackBar = (function (_React$Component2) {
                     }
                 })
             ),
-            (onAutoPlayToggle || onSizeChange || onResolutionToggle) && onContentSave && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            onContentSave && React.createElement(
+            (playable || resizable || hdable) && editable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+            editable && React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
-                React.createElement(_materialUi.IconButton, {
+                saveable && React.createElement(_materialUi.IconButton, {
                     iconClassName: 'mdi mdi-content-save',
                     iconStyle: styles.iconButton,
                     onClick: function () {
-                        return onContentSave();
+                        return onSave();
                     }
                 }),
-                React.createElement(_materialUi.IconButton, {
+                undoable && React.createElement(_materialUi.IconButton, {
                     iconClassName: 'mdi mdi-undo',
                     iconStyle: styles.iconButton,
                     onClick: function () {
-                        return onContentUndo();
+                        return onUndo();
                     }
                 }),
-                React.createElement(_materialUi.IconButton, {
+                redoable && React.createElement(_materialUi.IconButton, {
                     iconClassName: 'mdi mdi-redo',
                     iconStyle: styles.iconButton,
                     onClick: function () {
-                        return onContentRedo();
+                        return onRedo();
                     }
                 })
             ),
-            (onAutoPlayToggle || onSizeChange || onResolutionToggle || onContentSave) && onContentToggleLineNumbers && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            onContentToggleLineNumbers && React.createElement(
+            (playable || resizable || hdable || editable) && editortools && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+            editortools && React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
-                React.createElement(_materialUi.IconButton, {
+                onToggleLineNumbers && React.createElement(_materialUi.IconButton, {
                     iconClassName: 'mdi mdi-format-list-numbers',
                     iconStyle: styles.iconButton,
                     onClick: function () {
-                        return onContentToggleLineNumbers();
+                        return onToggleLineNumbers();
                     }
                 }),
-                React.createElement(_materialUi.IconButton, {
+                onToggleLineWrapping && React.createElement(_materialUi.IconButton, {
                     iconClassName: 'mdi mdi-wrap',
                     iconStyle: styles.iconButton,
                     onClick: function () {
-                        return onContentToggleLineWrapping();
+                        return onToggleLineWrapping();
                     }
                 })
             ),
-            (onAutoPlayToggle || onSizeChange || onResolutionToggle || onContentSave || onContentToggleLineNumbers) && onContentSearch && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            onContentSearch && React.createElement(
+            (playable || resizable || hdable || editable || editortools) && searchable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+            searchable && React.createElement(
                 _materialUi.ToolbarGroup,
                 null,
                 React.createElement(_materialUi.TextField, { onKeyUp: function (_ref) {
                         var key = _ref.key;
                         var target = _ref.target;
-                        return key === 'Enter' && onContentJumpTo(target.value);
+                        return key === 'Enter' && onJumpTo(target.value);
                     }, hintText: 'Jump to Line', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput }),
                 React.createElement(_materialUi.TextField, { onKeyUp: function (_ref2) {
                         var key = _ref2.key;
                         var target = _ref2.target;
-                        return key === 'Enter' && onContentSearch(target.value);
+                        return key === 'Enter' && onSearch(target.value);
                     }, hintText: 'Search...', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput })
             )
         );
@@ -414,26 +422,10 @@ var SnackBar = (function (_React$Component2) {
 
     var _SnackBar = SnackBar;
     SnackBar = _reactRedux.connect(mapStateToProps)(SnackBar) || SnackBar;
-    SnackBar = withResolutionControls(function (_ref3) {
-        var tab = _ref3.tab;
-        return tab.hdable;
-    })(SnackBar) || SnackBar;
-    SnackBar = withSizeControls(function (_ref4) {
-        var tab = _ref4.tab;
-        return tab.resizeable;
-    })(SnackBar) || SnackBar;
-    SnackBar = withAutoPlayControls(function (_ref5) {
-        var tab = _ref5.tab;
-        return tab.playable;
-    })(SnackBar) || SnackBar;
-    SnackBar = withContentEditionControls(function (_ref6) {
-        var tab = _ref6.tab;
-        return tab.editable;
-    })(SnackBar) || SnackBar;
-    SnackBar = withContentSearchControls(function (_ref7) {
-        var tab = _ref7.tab;
-        return tab.searchable;
-    })(SnackBar) || SnackBar;
+    SnackBar = withResolutionControls(SnackBar) || SnackBar;
+    SnackBar = withSizeControls(SnackBar) || SnackBar;
+    SnackBar = withAutoPlayControls(SnackBar) || SnackBar;
+    SnackBar = withContentControls(SnackBar) || SnackBar;
     return SnackBar;
 })(React.Component);
 

@@ -36,10 +36,5 @@ var _actions = require('./actions');
 
 var Actions = _interopRequireWildcard(_actions);
 
-var _controls = require('./controls');
-
-var Controls = _interopRequireWildcard(_controls);
-
 exports.Editor = _editor2['default'];
 exports.Actions = Actions;
-exports.Controls = Controls;

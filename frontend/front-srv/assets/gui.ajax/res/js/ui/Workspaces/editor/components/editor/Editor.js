@@ -65,7 +65,7 @@ const styles = {
 // MAIN COMPONENT
 @makeTransitionHOC({translateY: 800}, {translateY: 0})
 @withMouseTracker()
-@withSelectionControls(({tab}) => tab.browseable)
+@withSelectionControls
 @connect(mapStateToProps, EditorActions)
 @makeMotion({scale: 1}, {scale: 0}, {
     check: (props) => props.isMinimised,

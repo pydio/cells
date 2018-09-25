@@ -24,33 +24,29 @@ import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
 import { handler, getDisplayName } from '../utils';
 
-export const withSizeControls = (check) => {
-    return (Component) => {
-        return (
-            @connect(mapStateToProps)
-            class extends React.Component {
-                static get displayName() {
-                    return `WithSizeControls(${getDisplayName(Component)})`
-                }
-
-                render() {
-                    if (!check(this.props)) {
-                        return <Component {...this.props} />
-                    }
-                    const {size, scale, ...remaining} = this.props;
-
-                    const fn = handler("onSizeChange", this.props)
-
-                    return (
-                        <Component
-                            size={size}
-                            scale={scale}
-                            onSizeChange={(sizeProps) => fn(sizeProps)}
-                            {...remaining}
-                        />
-                    )
-                }
+export const withSizeControls = (Component) => {
+    return (
+        @connect(mapStateToProps)
+        class extends React.Component {
+            static get displayName() {
+                return `WithSizeControls(${getDisplayName(Component)})`
             }
-        )
-    }
+
+            render() {
+                const {size, scale, ...remaining} = this.props;
+
+                const fn = handler("onSizeChange", this.props)
+
+                return (
+                    <Component
+                        resizable={typeof fn === "function"}
+                        size={size}
+                        scale={scale}
+                        onSizeChange={(sizeProps) => fn(sizeProps)}
+                        {...remaining}
+                    />
+                )
+            }
+        }
+    )
 }

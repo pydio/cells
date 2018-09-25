@@ -96,7 +96,7 @@ var Editor = (function (_React$Component) {
             }
 
             pydio.ApiClient.getPlainContent(node, function (responseText) {
-                dispatch(EditorActions.tabModify({ id: id, content: responseText }));
+                dispatch(EditorActions.tabModify({ id: id, editable: true, content: responseText }));
             });
         }
     }, {

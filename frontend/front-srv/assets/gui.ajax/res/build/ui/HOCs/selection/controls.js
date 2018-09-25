@@ -40,102 +40,96 @@ var _utils = require('./utils');
 
 var _utils2 = require('../utils');
 
-var withSelectionControls = function withSelectionControls(check) {
-    return function (Component) {
-        return (function (_React$Component) {
-            _inherits(_class, _React$Component);
+var withSelectionControls = function withSelectionControls(Component) {
+    return (function (_React$Component) {
+        _inherits(_class, _React$Component);
 
-            function _class() {
-                _classCallCheck(this, _class2);
+        function _class() {
+            _classCallCheck(this, _class2);
 
-                _React$Component.apply(this, arguments);
+            _React$Component.apply(this, arguments);
+        }
+
+        _class.prototype.render = function render() {
+            var _props = this.props;
+            var tab = _props.tab;
+
+            var remaining = _objectWithoutProperties(_props, ['tab']);
+
+            var selection = tab.selection;
+
+            if (!selection || selection.length() == 0) {
+                return React.createElement(Component, remaining);
             }
 
-            _class.prototype.render = function render() {
-                var _props = this.props;
-                var tab = _props.tab;
+            var fn = _utils2.handler("onSelectionChange", this.props);
 
-                var remaining = _objectWithoutProperties(_props, ['tab']);
-
-                var selection = tab.selection;
-
-                if (!selection || selection.length() == 0 || !check(this.props)) {
-                    return React.createElement(Component, remaining);
+            return React.createElement(Component, _extends({
+                browseable: typeof fn === "function",
+                prevSelectionDisabled: !selection.hasPrevious(),
+                nextSelectionDisabled: !selection.hasNext(),
+                onSelectPrev: function () {
+                    return fn(selection.previous());
+                },
+                onSelectNext: function () {
+                    return fn(selection.next());
                 }
+            }, remaining));
+        };
 
-                var fn = _utils2.handler("onSelectionChange", this.props);
+        _createClass(_class, null, [{
+            key: 'displayName',
+            get: function get() {
+                return 'WithSelectionControls(' + _utils2.getDisplayName(Component) + ')';
+            }
+        }]);
 
-                return React.createElement(Component, _extends({
-                    prevSelectionDisabled: !selection.hasPrevious(),
-                    nextSelectionDisabled: !selection.hasNext(),
-                    onSelectPrev: function () {
-                        return fn(selection.previous());
-                    },
-                    onSelectNext: function () {
-                        return fn(selection.next());
-                    }
-                }, remaining));
-            };
-
-            _createClass(_class, null, [{
-                key: 'displayName',
-                get: function get() {
-                    return 'WithSelectionControls(' + _utils2.getDisplayName(Component) + ')';
-                }
-            }]);
-
-            var _class2 = _class;
-            _class = _reactRedux.connect(_utils.mapStateToProps)(_class) || _class;
-            return _class;
-        })(React.Component);
-    };
+        var _class2 = _class;
+        _class = _reactRedux.connect(_utils.mapStateToProps)(_class) || _class;
+        return _class;
+    })(React.Component);
 };
 
 exports.withSelectionControls = withSelectionControls;
-var withAutoPlayControls = function withAutoPlayControls(check) {
-    return function (Component) {
-        return (function (_React$Component2) {
-            _inherits(_class3, _React$Component2);
+var withAutoPlayControls = function withAutoPlayControls(Component) {
+    return (function (_React$Component2) {
+        _inherits(_class3, _React$Component2);
 
-            function _class3() {
-                _classCallCheck(this, _class32);
+        function _class3() {
+            _classCallCheck(this, _class32);
 
-                _React$Component2.apply(this, arguments);
+            _React$Component2.apply(this, arguments);
+        }
+
+        _class3.prototype.render = function render() {
+            var _props2 = this.props;
+            var tab = _props2.tab;
+
+            var remaining = _objectWithoutProperties(_props2, ['tab']);
+
+            var _tab$playing = tab.playing;
+            var playing = _tab$playing === undefined ? false : _tab$playing;
+
+            var fn = _utils2.handler("onTogglePlaying", this.props);
+
+            return React.createElement(Component, _extends({
+                playable: typeof fn === "function",
+                onAutoPlayToggle: function () {
+                    return fn(!playing);
+                }
+            }, remaining));
+        };
+
+        _createClass(_class3, null, [{
+            key: 'displayName',
+            get: function get() {
+                return 'WithSelectionControls(' + _utils2.getDisplayName(Component) + ')';
             }
+        }]);
 
-            _class3.prototype.render = function render() {
-                if (!check(this.props)) {
-                    return React.createElement(Component, this.props);
-                }
-
-                var _props2 = this.props;
-                var tab = _props2.tab;
-
-                var remaining = _objectWithoutProperties(_props2, ['tab']);
-
-                var _tab$playing = tab.playing;
-                var playing = _tab$playing === undefined ? false : _tab$playing;
-
-                var fn = _utils2.handler("onTogglePlaying", this.props);
-
-                return React.createElement(Component, _extends({
-                    onAutoPlayToggle: function () {
-                        return fn(!playing);
-                    }
-                }, remaining));
-            };
-
-            _createClass(_class3, null, [{
-                key: 'displayName',
-                get: function get() {
-                    return 'WithSelectionControls(' + _utils2.getDisplayName(Component) + ')';
-                }
-            }]);
-
-            var _class32 = _class3;
-            _class3 = _reactRedux.connect(_utils.mapStateToProps)(_class3) || _class3;
-            return _class3;
-        })(React.Component);
-    };
+        var _class32 = _class3;
+        _class3 = _reactRedux.connect(_utils.mapStateToProps)(_class3) || _class3;
+        return _class3;
+    })(React.Component);
 };
 exports.withAutoPlayControls = withAutoPlayControls;

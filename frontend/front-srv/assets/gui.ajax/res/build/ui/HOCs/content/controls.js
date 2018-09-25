@@ -34,88 +34,50 @@ var _utils = require('./utils');
 
 var _utils2 = require('../utils');
 
-var withContentEditionControls = function withContentEditionControls(check) {
-    return function (Component) {
-        return (function (_React$Component) {
-            _inherits(ContentControls, _React$Component);
+var withContentControls = function withContentControls(Component) {
+    return (function (_React$Component) {
+        _inherits(ContentControls, _React$Component);
 
-            function ContentControls() {
-                _classCallCheck(this, _ContentControls);
+        function ContentControls() {
+            _classCallCheck(this, _ContentControls);
 
-                _React$Component.apply(this, arguments);
-            }
+            _React$Component.apply(this, arguments);
+        }
 
-            ContentControls.prototype.render = function render() {
-                if (!check(this.props)) {
-                    return React.createElement(Component, this.props);
+        ContentControls.prototype.render = function render() {
+            console.log(this.props);
+            var fnSave = _utils2.handler("onSave", this.props);
+            var fnUndo = _utils2.handler("onUndo", this.props);
+            var fnRedo = _utils2.handler("onRedo", this.props);
+            var fnToggleLineNumbers = _utils2.handler("onToggleLineNumbers", this.props);
+            var fnToggleLineWrapping = _utils2.handler("onToggleLineWrapping", this.props);
+            var fnSearch = _utils2.handler("onSearch", this.props);
+            var fnJumpTo = _utils2.handler("onJumpTo", this.props);
+
+            return React.createElement(Component, _extends({
+                editable: typeof fnSave === "function" || typeof fnUndo === "function" || typeof fnRedo === "function",
+                saveable: typeof fnSave === "function",
+                undoable: typeof fnUndo === "function",
+                redoable: typeof fnRedo === "function",
+                editortools: typeof fnToggleLineNumbers === "function" || typeof fnToggleLineWrapping === "function",
+                searchable: typeof fnSearch === "function" || typeof fnJumpTo === "function",
+                onSave: fnSave,
+                onUndo: fnUndo,
+                onRedo: fnRedo,
+                onToggleLineNumbers: fnToggleLineNumbers,
+                onToggleLineWrapping: fnToggleLineWrapping,
+                onSearch: function (value) {
+                    return fnSearch(value);
+                },
+                onJumpTo: function (value) {
+                    return fnJumpTo(value);
                 }
+            }, this.props));
+        };
 
-                var fnSave = _utils2.handler("onSave", this.props);
-                var fnUndo = _utils2.handler("onUndo", this.props);
-                var fnRedo = _utils2.handler("onRedo", this.props);
-                var fnToggleLineNumbers = _utils2.handler("onToggleLineNumbers", this.props);
-                var fnToggleLineWrapping = _utils2.handler("onToggleLineWrapping", this.props);
-
-                return React.createElement(Component, _extends({
-                    onContentSave: function () {
-                        return fnSave();
-                    },
-                    onContentUndo: function () {
-                        return fnUndo();
-                    },
-                    onContentRedo: function () {
-                        return fnRedo();
-                    },
-                    onContentToggleLineNumbers: function () {
-                        return fnToggleLineNumbers();
-                    },
-                    onContentToggleLineWrapping: function () {
-                        return fnToggleLineWrapping();
-                    }
-                }, this.props));
-            };
-
-            var _ContentControls = ContentControls;
-            ContentControls = _reactRedux.connect(_utils.mapStateToProps)(ContentControls) || ContentControls;
-            return ContentControls;
-        })(React.Component);
-    };
+        var _ContentControls = ContentControls;
+        ContentControls = _reactRedux.connect(_utils.mapStateToProps)(ContentControls) || ContentControls;
+        return ContentControls;
+    })(React.Component);
 };
-
-exports.withContentEditionControls = withContentEditionControls;
-var withContentSearchControls = function withContentSearchControls(check) {
-    return function (Component) {
-        return (function (_React$Component2) {
-            _inherits(ContentControls, _React$Component2);
-
-            function ContentControls() {
-                _classCallCheck(this, _ContentControls2);
-
-                _React$Component2.apply(this, arguments);
-            }
-
-            ContentControls.prototype.render = function render() {
-                if (!check(this.props)) {
-                    return React.createElement(Component, this.props);
-                }
-
-                var fnSearch = _utils2.handler("onSearch", this.props);
-                var fnJumpTo = _utils2.handler("onJumpTo", this.props);
-
-                return React.createElement(Component, _extends({
-                    onContentSearch: function (value) {
-                        return fnSearch(value);
-                    },
-                    onContentJumpTo: function (value) {
-                        return fnJumpTo(value);
-                    }
-                }, this.props));
-            };
-
-            var _ContentControls2 = ContentControls;
-            ContentControls = _reactRedux.connect(_utils.mapStateToProps)(ContentControls) || ContentControls;
-            return ContentControls;
-        })(React.Component);
-    };
-};
-exports.withContentSearchControls = withContentSearchControls;
+exports.withContentControls = withContentControls;

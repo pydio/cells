@@ -22,68 +22,39 @@ import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
 import { handler } from '../utils';
 
-export const withContentEditionControls = (check) => {
-    return (Component) => {
-        return (
-            @connect(mapStateToProps)
-            class ContentControls extends React.Component {
-                render() {
-                    if (!check(this.props)) {
-                        return (
-                            <Component
-                                {...this.props}
-                            />
-                        )
-                    }
+export const withContentControls = (Component) => {
+    return (
+        @connect(mapStateToProps)
+        class ContentControls extends React.Component {
+            render() {
+                console.log(this.props)
+                const fnSave = handler("onSave", this.props)
+                const fnUndo = handler("onUndo", this.props)
+                const fnRedo = handler("onRedo", this.props)
+                const fnToggleLineNumbers = handler("onToggleLineNumbers", this.props)
+                const fnToggleLineWrapping = handler("onToggleLineWrapping", this.props)
+                const fnSearch = handler("onSearch", this.props)
+                const fnJumpTo = handler("onJumpTo", this.props)
 
-                    const fnSave = handler("onSave", this.props)
-                    const fnUndo = handler("onUndo", this.props)
-                    const fnRedo = handler("onRedo", this.props)
-                    const fnToggleLineNumbers = handler("onToggleLineNumbers", this.props)
-                    const fnToggleLineWrapping = handler("onToggleLineWrapping", this.props)
-
-                    return (
-                        <Component
-                            onContentSave={() => fnSave()}
-                            onContentUndo={() => fnUndo()}
-                            onContentRedo={() => fnRedo()}
-                            onContentToggleLineNumbers={() => fnToggleLineNumbers()}
-                            onContentToggleLineWrapping={() => fnToggleLineWrapping()}
-                            {...this.props}
-                        />
-                    )
-                }
+                return (
+                    <Component
+                        editable={typeof fnSave === "function" || typeof fnUndo === "function" || typeof fnRedo === "function"}
+                        saveable={typeof fnSave === "function"}
+                        undoable={typeof fnUndo === "function"}
+                        redoable={typeof fnRedo === "function"}
+                        editortools={typeof fnToggleLineNumbers === "function" || typeof fnToggleLineWrapping === "function"}
+                        searchable={typeof fnSearch === "function" || typeof fnJumpTo === "function"}
+                        onSave={fnSave}
+                        onUndo={fnUndo}
+                        onRedo={fnRedo}
+                        onToggleLineNumbers={fnToggleLineNumbers}
+                        onToggleLineWrapping={fnToggleLineWrapping}
+                        onSearch={(value) => fnSearch(value)}
+                        onJumpTo={(value) => fnJumpTo(value)}
+                        {...this.props}
+                    />
+                )
             }
-        )
-    }
-}
-
-export const withContentSearchControls = (check) => {
-    return (Component) => {
-        return (
-            @connect(mapStateToProps)
-            class ContentControls extends React.Component {
-                render() {
-                    if (!check(this.props)) {
-                        return (
-                            <Component
-                                {...this.props}
-                            />
-                        )
-                    }
-
-                    const fnSearch = handler("onSearch", this.props)
-                    const fnJumpTo = handler("onJumpTo", this.props)
-
-                    return (
-                        <Component
-                            onContentSearch={(value) => fnSearch(value)}
-                            onContentJumpTo={(value) => fnJumpTo(value)}
-                            {...this.props}
-                        />
-                    )
-                }
-            }
-        )
-    }
+        }
+    )
 }

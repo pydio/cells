@@ -258,10 +258,7 @@ var Editor = (function (_React$Component) {
         }
     })(Editor) || Editor;
     Editor = _reactRedux.connect(mapStateToProps, EditorActions)(Editor) || Editor;
-    Editor = withSelectionControls(function (_ref2) {
-        var tab = _ref2.tab;
-        return tab.browseable;
-    })(Editor) || Editor;
+    Editor = withSelectionControls(Editor) || Editor;
     Editor = withMouseTracker()(Editor) || Editor;
     Editor = makeTransitionHOC({ translateY: 800 }, { translateY: 0 })(Editor) || Editor;
     return Editor;

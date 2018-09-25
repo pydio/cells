@@ -112,7 +112,7 @@ class Editor extends React.Component {
         }
 
         pydio.ApiClient.getPlainContent(node, responseText => {
-            dispatch(EditorActions.tabModify({id, content: responseText}))
+            dispatch(EditorActions.tabModify({id, editable: true, content: responseText}))
         })
     }
 

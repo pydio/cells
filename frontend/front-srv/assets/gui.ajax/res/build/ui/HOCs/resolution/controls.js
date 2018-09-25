@@ -40,44 +40,39 @@ var _utils2 = require('../utils');
 
 var _controls = require('../controls');
 
-var withResolutionControls = function withResolutionControls(check) {
-    return function (Component) {
-        return (function (_React$Component) {
-            _inherits(ResolutionControls, _React$Component);
+var withResolutionControls = function withResolutionControls(Component) {
+    return (function (_React$Component) {
+        _inherits(ResolutionControls, _React$Component);
 
-            function ResolutionControls() {
-                _classCallCheck(this, _ResolutionControls);
+        function ResolutionControls() {
+            _classCallCheck(this, _ResolutionControls);
 
-                _React$Component.apply(this, arguments);
-            }
+            _React$Component.apply(this, arguments);
+        }
 
-            ResolutionControls.prototype.render = function render() {
-                if (!check(this.props)) {
-                    return React.createElement(Component, this.props);
+        ResolutionControls.prototype.render = function render() {
+            var _props = this.props;
+            var _props$tab = _props.tab;
+            var tab = _props$tab === undefined ? {} : _props$tab;
+
+            var remaining = _objectWithoutProperties(_props, ['tab']);
+
+            var _tab$resolution = tab.resolution;
+            var resolution = _tab$resolution === undefined ? "hi" : _tab$resolution;
+
+            var fn = _utils2.handler("onToggleResolution", this.props);
+
+            return React.createElement(Component, _extends({
+                hdable: typeof fn === "function",
+                onResolutionToggle: function () {
+                    return fn(!(resolution == "hi"));
                 }
+            }, remaining));
+        };
 
-                var _props = this.props;
-                var _props$tab = _props.tab;
-                var tab = _props$tab === undefined ? {} : _props$tab;
-
-                var remaining = _objectWithoutProperties(_props, ['tab']);
-
-                var _tab$resolution = tab.resolution;
-                var resolution = _tab$resolution === undefined ? "hi" : _tab$resolution;
-
-                var fn = _utils2.handler("onToggleResolution", this.props);
-
-                return React.createElement(Component, _extends({
-                    onResolutionToggle: function () {
-                        return fn(!(resolution == "hi"));
-                    }
-                }, remaining));
-            };
-
-            var _ResolutionControls = ResolutionControls;
-            ResolutionControls = _reactRedux.connect(_utils.mapStateToProps)(ResolutionControls) || ResolutionControls;
-            return ResolutionControls;
-        })(React.Component);
-    };
+        var _ResolutionControls = ResolutionControls;
+        ResolutionControls = _reactRedux.connect(_utils.mapStateToProps)(ResolutionControls) || ResolutionControls;
+        return ResolutionControls;
+    })(React.Component);
 };
 exports.withResolutionControls = withResolutionControls;

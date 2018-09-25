@@ -36,16 +36,14 @@ var EditorActions = _Pydio$requireLib.EditorActions;
 
 // Actions definitions
 var onSave = function onSave(_ref) {
-    var pydio = _ref.pydio;
-    var url = _ref.url;
-    var content = _ref.content;
+    var tab = _ref.tab;
     var dispatch = _ref.dispatch;
-    var id = _ref.id;
-
-    return pydio.ApiClient.postPlainTextContent(url, content, function (success) {
-        if (!success) {
-            dispatch(EditorActions.tabModify({ id: id, error: "There was an error while saving" }));
-        }
-    });
+    return function () {
+        return tab.pydio.ApiClient.postPlainTextContent(tab.url, tab.content, function (success) {
+            if (!success) {
+                dispatch(EditorActions.tabModify({ id: tab.id, error: "There was an error while saving" }));
+            }
+        });
+    };
 };
 exports.onSave = onSave;
