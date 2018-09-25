@@ -160,6 +160,7 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		}
 		if strings.HasPrefix(meta.Namespace, "usermeta-") && resp.Node.GetStringMeta(common.META_FLAG_READONLY) != "" {
 			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this node"))
+			return
 		}
 
 		if !s.MatchPolicies(ctx, meta.Namespace, ns.Policies, serviceproto.ResourcePolicyAction_WRITE) {
