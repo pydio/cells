@@ -71,9 +71,8 @@ export function onMouseDown(e) {
     }
     return
   }
-  let button = e_button(e)
-  if (button == 3 && captureRightClick ? contextMenuInGutter(cm, e) : clickInGutter(cm, e)) return
-  let pos = posFromMouse(cm, e), repeat = pos ? clickRepeat(pos, button) : "single"
+  if (clickInGutter(cm, e)) return
+  let pos = posFromMouse(cm, e), button = e_button(e), repeat = pos ? clickRepeat(pos, button) : "single"
   window.focus()
 
   // #3261: make sure, that we're not starting a second selection

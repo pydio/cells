@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: https://codemirror.net/LICENSE
+// Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -506,7 +506,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (ch === '[' && !state.image) {
-      if (state.linkText && stream.match(/^.*?\]/)) return getType(state)
       state.linkText = true;
       if (modeCfg.highlightFormatting) state.formatting = "link";
       return getType(state);
@@ -620,7 +619,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       }
     }
 
-    if (modeCfg.emoji && ch === ":" && stream.match(/^(?:[a-z_\d+][a-z_\d+-]*|\-[a-z_\d+][a-z_\d+-]*):/)) {
+    if (modeCfg.emoji && ch === ":" && stream.match(/^[a-z_\d+-]+:/)) {
       state.emoji = true;
       if (modeCfg.highlightFormatting) state.formatting = "emoji";
       var retType = getType(state);
@@ -869,8 +868,6 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     getType: getType,
 
-    blockCommentStart: "<!--",
-    blockCommentEnd: "-->",
     closeBrackets: "()[]{}''\"\"``",
     fold: "markdown"
   };
