@@ -19,8 +19,8 @@
  */
 
 import {Editor, Panel} from './Editor'
-import * as Controls from './controls'
+import * as Actions from './actions'
 
 export {Editor}
 export {Panel}
-export {Controls}
+export {Actions}

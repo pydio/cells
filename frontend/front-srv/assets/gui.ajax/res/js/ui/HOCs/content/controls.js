@@ -27,7 +27,6 @@ export const withContentControls = (Component) => {
         @connect(mapStateToProps)
         class ContentControls extends React.Component {
             render() {
-                console.log(this.props)
                 const fnSave = handler("onSave", this.props)
                 const fnUndo = handler("onUndo", this.props)
                 const fnRedo = handler("onRedo", this.props)

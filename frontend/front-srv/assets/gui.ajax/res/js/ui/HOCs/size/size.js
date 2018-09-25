@@ -31,7 +31,7 @@ export const withResize = (Component) => {
         @withImageSize
         @withContainerSize
         @connect(mapStateToProps)
-        @panAndZoomHoc
+        // @panAndZoomHoc
         class extends React.Component {
             constructor
             static get displayName() {
