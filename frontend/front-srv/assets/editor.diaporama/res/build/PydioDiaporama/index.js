@@ -28,9 +28,11 @@ function _interopRequire(obj) { return obj && obj.__esModule ? obj['default'] : 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
-var _controls = require('./controls');
+var _actions = require('./actions');
 
-var Controls = _interopRequireWildcard(_controls);
+var Actions = _interopRequireWildcard(_actions);
+
+exports.Actions = Actions;
 
 var _preview = require('./preview');
 
@@ -40,4 +42,3 @@ exports.Panel = _interopRequire(_preview);
 var _editor = require('./editor');
 
 exports.Editor = _interopRequire(_editor);
-exports.Controls = Controls;

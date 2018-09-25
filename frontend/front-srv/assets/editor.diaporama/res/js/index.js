@@ -18,10 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import * as Actions from './actions'
+
+export {Actions}
 export {default as Badge} from './preview'
 export {default as Panel} from './preview'
 export {default as Editor} from './editor'
-
-import * as Controls from './controls'
-
-export {Controls}
