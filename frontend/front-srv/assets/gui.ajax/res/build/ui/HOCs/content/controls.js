@@ -22,7 +22,11 @@
 
 exports.__esModule = true;
 
-var _materialUi = require('material-ui');
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _reactRedux = require('react-redux');
 
@@ -30,62 +34,39 @@ var _utils = require('./utils');
 
 var _utils2 = require('../utils');
 
-// Controls definitions
-var _Save = function _Save(props) {
-    return React.createElement(_materialUi.IconButton, { onClick: function () {
-            return _utils2.handler("onSave", props);
-        }, iconClassName: 'mdi mdi-content-save' });
-};
-var _Undo = function _Undo(props) {
-    return React.createElement(_materialUi.IconButton, { onClick: function () {
-            return _utils2.handler("onUndo", props);
-        }, iconClassName: 'mdi mdi-undo' });
-};
-var _Redo = function _Redo(props) {
-    return React.createElement(_materialUi.IconButton, { onClick: function () {
-            return _utils2.handler("onRedo", props);
-        }, iconClassName: 'mdi mdi-redo' });
-};
+var withContentControls = function withContentControls() {
+    return function (Component) {
+        return (function (_React$Component) {
+            _inherits(ContentControls, _React$Component);
 
-var _ToggleLineNumbers = function _ToggleLineNumbers(props) {
-    return React.createElement(_materialUi.IconButton, { onClick: function () {
-            return _utils2.handler("onToggleLineNumbers", props);
-        }, iconClassName: 'mdi mdi-format-list-numbers' });
-};
-var _ToggleLineWrapping = function _ToggleLineWrapping(props) {
-    return React.createElement(_materialUi.IconButton, { onClick: function () {
-            return _utils2.handler("onToggleLineWrapping", props);
-        }, iconClassName: 'mdi mdi-wrap' });
-};
+            function ContentControls() {
+                _classCallCheck(this, _ContentControls);
 
-var _JumpTo = function _JumpTo(props) {
-    return React.createElement(_materialUi.TextField, { onKeyUp: function (_ref) {
-            var key = _ref.key;
-            var target = _ref.target;
-            return key === 'Enter' && _utils2.handler("onJumpTo", props)(target.value);
-        }, hintText: 'Jump to Line', style: { width: 150, marginRight: 40 } });
-};
-var _Search = function _Search(props) {
-    return React.createElement(_materialUi.TextField, { onKeyUp: function (_ref2) {
-            var key = _ref2.key;
-            var target = _ref2.target;
-            return key === 'Enter' && _utils2.handler("onSearch", props)(target.value);
-        }, hintText: 'Search...' });
-};
+                _React$Component.apply(this, arguments);
+            }
 
-// Final export and connection
-var ContentControls = {
-    Save: _reactRedux.connect(_utils.mapStateToProps)(_Save),
-    Undo: _reactRedux.connect(_utils.mapStateToProps)(_Undo),
-    Redo: _reactRedux.connect(_utils.mapStateToProps)(_Redo),
-    ToggleLineNumbers: _reactRedux.connect(_utils.mapStateToProps)(_ToggleLineNumbers),
-    ToggleLineWrapping: _reactRedux.connect(_utils.mapStateToProps)(_ToggleLineWrapping)
-};
+            ContentControls.prototype.render = function render() {
+                var fnSave = _utils2.handler("onSave", this.props);
+                var fnUndo = _utils2.handler("onUndo", this.props);
+                var fnRedo = _utils2.handler("onRedo", this.props);
 
-var ContentSearchControls = {
-    JumpTo: _reactRedux.connect(_utils.mapStateToProps)(_JumpTo),
-    Search: _reactRedux.connect(_utils.mapStateToProps)(_Search)
-};
+                return React.createElement(Component, _extends({
+                    onContentSave: function () {
+                        return fnSave();
+                    },
+                    onContentUndo: function () {
+                        return fnUndo();
+                    },
+                    onContentRedo: function () {
+                        return fnRedo();
+                    }
+                }, remaining));
+            };
 
-exports.ContentControls = ContentControls;
-exports.ContentSearchControls = ContentSearchControls;
+            var _ContentControls = ContentControls;
+            ContentControls = _reactRedux.connect(_utils.mapStateToProps)(ContentControls) || ContentControls;
+            return ContentControls;
+        })(React.Component);
+    };
+};
+exports.withContentControls = withContentControls;

@@ -25,7 +25,7 @@ import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
 
-const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
+const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu, withContentControls, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
 
 const styles = {
     iconButton: {
@@ -135,6 +135,7 @@ export default class Tab extends React.Component {
     }
 }
 
+@withContentControls(({editable}) => editable)
 @withAutoPlayControls()
 @withSizeControls
 @withResolutionControls()

@@ -61,6 +61,7 @@ var SizeActions = _Pydio$requireLib.SizeActions;
 var SelectionActions = _Pydio$requireLib.SelectionActions;
 var LocalisationActions = _Pydio$requireLib.LocalisationActions;
 var withMenu = _Pydio$requireLib.withMenu;
+var withContentControls = _Pydio$requireLib.withContentControls;
 var withSizeControls = _Pydio$requireLib.withSizeControls;
 var withAutoPlayControls = _Pydio$requireLib.withAutoPlayControls;
 var withResolutionControls = _Pydio$requireLib.withResolutionControls;
@@ -339,6 +340,10 @@ var SnackBar = (function (_React$Component2) {
     SnackBar = withResolutionControls()(SnackBar) || SnackBar;
     SnackBar = withSizeControls(SnackBar) || SnackBar;
     SnackBar = withAutoPlayControls()(SnackBar) || SnackBar;
+    SnackBar = withContentControls(function (_ref) {
+        var editable = _ref.editable;
+        return editable;
+    })(SnackBar) || SnackBar;
     return SnackBar;
 })(React.Component);
 
