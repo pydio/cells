@@ -84,7 +84,7 @@ var Editor = (function (_React$Component) {
             var id = tab.id;
 
             pydio.ApiClient.getPlainContent(node, function (content) {
-                dispatch(EditorActions.tabModify({ id: id || node.getLabel(), editable: true, searchable: true, content: content }));
+                dispatch(EditorActions.tabModify({ id: id || node.getLabel(), editable: true, searchable: true, lineNumbers: true, content: content }));
             });
         }
     }, {

@@ -76,7 +76,7 @@ var styles = {
         color: "rgb(255, 255,255, 0.87)"
     },
     textHint: {
-        color: "rgb(255, 255,255, 0.87)"
+        color: "rgb(255, 255,255, 0.67)"
     },
     iconButton: {
         backgroundColor: "rgb(0, 0, 0, 0.87)",
