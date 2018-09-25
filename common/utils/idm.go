@@ -37,6 +37,7 @@ import (
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/service/proto"
 )
@@ -446,5 +447,42 @@ func AccessListLoadFrontValues(ctx context.Context, accessList *AccessList) erro
 	accessList.FrontPluginsValues = values
 	log.Logger(ctx).Debug("Frontend ACL Values", zap.Any("values", values), zap.Any("flattenedValues", accessList.FlattenedFrontValues()))
 
+	return nil
+}
+
+// CheckContentLock finds if there is a global lock registered in ACLs.
+func CheckContentLock(ctx context.Context, node *tree.Node) error {
+	if node.Uuid == "" {
+		return nil
+	}
+	var userName string
+	if claims, ok := ctx.Value(claim.ContextKey).(claim.Claims); ok {
+		userName = claims.Name
+	}
+
+	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	// Look for "quota" ACLs on this node
+	singleQ := &idm.ACLSingleQuery{NodeIDs: []string{node.Uuid}, Actions: []*idm.ACLAction{{Name: ACL_CONTENT_LOCK.Name}}}
+	log.Logger(ctx).Debug("SEARCHING FOR LOCKS IN ACLS", zap.Any("q", singleQ))
+	q, _ := ptypes.MarshalAny(singleQ)
+	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &service.Query{SubQueries: []*any.Any{q}}})
+	if err != nil {
+		return err
+	}
+	defer stream.Close()
+	for {
+		rsp, e := stream.Recv()
+		if e != nil {
+			break
+		}
+		if rsp == nil {
+			continue
+		}
+		acl := rsp.ACL
+		if userName == "" || acl.Action.Value != userName {
+			return errors.Forbidden("file.locked", "This file is locked by another user")
+		}
+		break
+	}
 	return nil
 }

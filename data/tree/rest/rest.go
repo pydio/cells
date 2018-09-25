@@ -155,6 +155,15 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	metaClient := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
 
 	for _, node := range input.Nodes {
+		read, er := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
+		if er != nil {
+			service.RestErrorDetect(req, resp, er)
+			return
+		}
+		if eLock := utils.CheckContentLock(ctx, read.Node); eLock != nil {
+			service.RestErrorDetect(req, resp, eLock)
+			return
+		}
 		e := router.WrapCallback(func(inputFilter views.NodeFilter, outputFilter views.NodeFilter) error {
 			ctx, filtered, _ := inputFilter(ctx, node, "in")
 			_, ancestors, e := views.AncestorsListFromContext(ctx, filtered, "in", router.GetClientsPool(), false)
