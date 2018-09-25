@@ -46,6 +46,10 @@ var _VersionPolicyPeriods2 = _interopRequireDefault(_VersionPolicyPeriods);
 
 var PydioForm = _pydio2['default'].requireLib('form');
 
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
+
+var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
+
 var VersionPolicyEditor = (function (_React$Component) {
     _inherits(VersionPolicyEditor, _React$Component);
 
@@ -162,6 +166,8 @@ var VersionPolicyEditor = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this4 = this;
+
             var _props = this.props;
             var create = _props.create;
             var readonly = _props.readonly;
@@ -193,13 +199,17 @@ var VersionPolicyEditor = (function (_React$Component) {
             var titleActionBarButtons = [];
             if (!readonly) {
                 if (!create) {
-                    titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'delete', label: m('delete'), secondary: true, onTouchTap: this.deleteSource.bind(this) }));
-                    titleActionBarButtons.push(_react2['default'].createElement('div', { style: { display: 'inline', borderRight: '1px solid #757575', margin: '0 2px' }, key: 'separator' }));
-                    titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'reset', label: this.context.getMessage('plugins.6'), onTouchTap: this.resetForm.bind(this), secondary: true, disabled: !this.state.dirty }));
+                    titleActionBarButtons.push(PaperEditorLayout.actionButton(m('delete'), 'mdi mdi-delete', function () {
+                        _this4.deleteSource();
+                    }));
+                    titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', function () {
+                        _this4.resetForm();
+                    }, !this.state.dirty));
                 }
-                titleActionBarButtons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'save', label: this.context.getMessage('53', ''), onTouchTap: this.saveSource.bind(this), secondary: true, disabled: !this.state.valid || !this.state.dirty }));
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', function () {
+                    _this4.saveSource();
+                }, !this.state.valid || !this.state.dirty));
             }
-            titleActionBarButtons.push(_react2['default'].createElement(_materialUi.RaisedButton, { key: 'close', label: this.context.getMessage('86', ''), onTouchTap: this.props.closeEditor }));
 
             var policyName = saveValue ? saveValue.Name : policy.Name;
             if (!policyName) {
@@ -207,10 +217,11 @@ var VersionPolicyEditor = (function (_React$Component) {
             }
 
             return _react2['default'].createElement(
-                PydioComponents.PaperEditorLayout,
+                PaperEditorLayout,
                 {
                     title: loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.home.6'],
                     titleActionBar: titleActionBarButtons,
+                    closeAction: this.props.closeEditor,
                     className: 'workspace-editor',
                     contentFill: true
                 },

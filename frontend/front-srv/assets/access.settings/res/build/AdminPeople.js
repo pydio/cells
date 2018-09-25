@@ -24047,15 +24047,7 @@ var Editor = (function (_React$Component) {
                 };
             }
 
-            var rightButtons = _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(_materialUi.FlatButton, { key: 'undo', disabled: saveDisabled, secondary: true, label: this.getMessage('plugins.6', 'ajxp_admin'), onTouchTap: revert }),
-                _react2['default'].createElement(_materialUi.FlatButton, { key: 'save', disabled: saveDisabled, secondary: true, label: this.getRootMessage('53'), onTouchTap: save }),
-                _react2['default'].createElement(_materialUi.RaisedButton, { key: 'close', label: this.getMessage('33'), onTouchTap: function () {
-                        _this6.props.onRequestTabClose();
-                    } })
-            );
+            var rightButtons = [PaperEditorLayout.actionButton(this.getMessage('plugins.6', 'ajxp_admin'), "mdi mdi-undo", revert, saveDisabled), PaperEditorLayout.actionButton(this.getRootMessage('53'), "mdi mdi-content-save", save, saveDisabled)];
 
             var leftNav = [_react2['default'].createElement(PaperEditorNavHeader, { key: '1', label: this.getMessage('ws.28', 'ajxp_admin') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'info', keyName: 'info', onClick: this.setSelectedPane.bind(this), label: infoMenuTitle, selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '2', label: this.getMessage('34') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'workspaces', keyName: 'workspaces', onClick: this.setSelectedPane.bind(this), label: this.getMessage('35'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'pages', keyName: 'pages', onClick: this.setSelectedPane.bind(this), label: this.getMessage('36'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '3', label: this.getMessage('37') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'params', keyName: 'params', onClick: this.setSelectedPane.bind(this), label: this.getMessage('38'), selectedKey: currentPane })];
 
@@ -24193,6 +24185,9 @@ var Editor = (function (_React$Component) {
                 {
                     title: title,
                     titleActionBar: rightButtons,
+                    closeAction: function () {
+                        _this6.props.onRequestTabClose();
+                    },
                     contentFill: true,
                     leftNav: leftNav,
                     className: "edit-object-" + this.state.roleType
@@ -31156,26 +31151,21 @@ var RuleEditor = (function (_React$Component) {
         value: function render() {
             var _this = this;
 
+            var messages = _pydio2['default'].getMessages();
             var _state = this.state;
             var rule = _state.rule;
             var dirty = _state.dirty;
             var valid = _state.valid;
 
-            var buttonMargin = { marginLeft: 6 };
             var actions = [];
             if (!this.isCreate()) {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, disabled: !dirty, label: "Revert", onTouchTap: this.revert.bind(this) }));
+                actions.push(PaperEditorLayout.actionButton(messages['ajxp_admin.plugins.6'], 'mdi mdi-undo', function () {
+                    _this.revert();
+                }, !dirty));
             }
-            actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, disabled: !dirty || !valid, label: "Save", onTouchTap: this.save.bind(this) }));
-            if (this.isCreate()) {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, label: "Cancel", onTouchTap: function () {
-                        return _this.props.onRequestTabClose(_this);
-                    } }));
-            } else {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, label: "Close", onTouchTap: function () {
-                        return _this.props.onRequestTabClose(_this);
-                    } }));
-            }
+            actions.push(PaperEditorLayout.actionButton(messages['53'], 'mdi mdi-content-save', function () {
+                _this.save();
+            }, !dirty || !valid));
             var containerStyle = { margin: 16, fontSize: 16 };
 
             return _react2['default'].createElement(
@@ -31183,6 +31173,9 @@ var RuleEditor = (function (_React$Component) {
                 {
                     title: rule.description || 'Please provide a label',
                     titleActionBar: actions,
+                    closeAction: function () {
+                        _this.props.onRequestTabClose();
+                    },
                     contentFill: false
                 },
                 _react2['default'].createElement(

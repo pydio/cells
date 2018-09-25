@@ -215,14 +215,10 @@ class Editor extends React.Component{
             revert = () => {observableRole.revert()};
         }
 
-
-        const rightButtons = (
-            <div>
-                <FlatButton key="undo" disabled={saveDisabled} secondary={true} label={this.getMessage('plugins.6', 'ajxp_admin')} onTouchTap={revert}/>
-                <FlatButton key="save" disabled={saveDisabled} secondary={true} label={this.getRootMessage('53')} onTouchTap={save}/>
-                <RaisedButton key="close" label={this.getMessage('33')} onTouchTap={() => { this.props.onRequestTabClose(); }}/>
-            </div>
-        );
+        const rightButtons = [
+            PaperEditorLayout.actionButton(this.getMessage('plugins.6', 'ajxp_admin'), "mdi mdi-undo", revert, saveDisabled),
+            PaperEditorLayout.actionButton(this.getRootMessage('53'), "mdi mdi-content-save", save, saveDisabled)
+        ];
 
         const leftNav = [
             <PaperEditorNavHeader key="1" label={this.getMessage('ws.28', 'ajxp_admin')}/>,
@@ -318,6 +314,7 @@ class Editor extends React.Component{
             <PaperEditorLayout
                 title={title}
                 titleActionBar={rightButtons}
+                closeAction={() => {this.props.onRequestTabClose();}}
                 contentFill={true}
                 leftNav={leftNav}
                 className={"edit-object-" + this.state.roleType }

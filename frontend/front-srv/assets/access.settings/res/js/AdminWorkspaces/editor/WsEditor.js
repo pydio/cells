@@ -1,7 +1,9 @@
+import Pydio from 'pydio'
 import React from 'react'
 import {FlatButton, RaisedButton, SelectField, Paper, TextField, Divider, Toggle, MenuItem, FontIcon, IconButton, Subheader} from 'material-ui'
 import Workspace from '../model/Ws'
 import WsAutoComplete from './WsAutoComplete'
+const {PaperEditorLayout} = Pydio.requireLib('components');
 
 class WsEditor extends React.Component {
 
@@ -26,10 +28,20 @@ class WsEditor extends React.Component {
 
     save(){
         const {container} = this.state;
-        const {reloadList} = this.props;
+        const {reloadList, closeEditor} = this.props;
+        this.setState({saving: true});
+        const {create} = container;
         container.save().then(() => {
             reloadList();
-            this.setState({workspace: container.getModel()}, () => {this.forceUpdate()});
+            this.setState({
+                workspace: container.getModel(),
+                saving: false}, () => {this.forceUpdate()
+            });
+            if(create){
+                closeEditor();
+            }
+        }).catch(()=>{
+            this.setState({saving: false});
         });
     }
 
@@ -47,16 +59,15 @@ class WsEditor extends React.Component {
     render(){
 
         const {closeEditor, pydio} = this.props;
-        const {workspace, container, newFolderKey} = this.state;
+        const {workspace, container, newFolderKey, saving} = this.state;
         const m = id => pydio.MessageHash['ajxp_admin.' + id] || id;
         const mS = id => pydio.MessageHash['settings.' + id] || id;
 
         let buttons = [];
         if(!container.create){
-            buttons.push(<FlatButton label={"Revert"} secondary={true} disabled={!container.isDirty()} onTouchTap={() => {this.revert()}}/>);
+            buttons.push(PaperEditorLayout.actionButton(m('plugins.6'), "mdi mdi-undo", () => {this.revert()}, !container.isDirty()));
         }
-        buttons.push(<FlatButton label={"Save"} secondary={true} disabled={!(container.isDirty() && container.isValid())} onTouchTap={() => {this.save()}}/>);
-        buttons.push(<RaisedButton label={"Close"} onTouchTap={closeEditor}/>);
+        buttons.push(PaperEditorLayout.actionButton(pydio.MessageHash['53'], "mdi mdi-content-save", ()=>{this.save()} ,saving || (!(container.isDirty() && container.isValid()))));
 
         let delButton;
         if(!container.create){
@@ -130,9 +141,10 @@ class WsEditor extends React.Component {
         }
 
         return (
-            <PydioComponents.PaperEditorLayout
+            <PaperEditorLayout
                 title={workspace.Label || mS('90')}
                 titleActionBar={buttons}
+                closeAction={closeEditor}
                 leftNav={leftNav}
                 className="workspace-editor"
                 contentFill={false}
@@ -182,7 +194,7 @@ class WsEditor extends React.Component {
                         <MenuItem primaryText={m('ws.editor.other.layout.easy')} value={"meta.layout_sendfile"}/>
                     </SelectField>
                 </div>
-            </PydioComponents.PaperEditorLayout>
+            </PaperEditorLayout>
         );
 
     }

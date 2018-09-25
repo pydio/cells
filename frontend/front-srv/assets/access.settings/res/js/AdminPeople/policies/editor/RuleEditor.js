@@ -76,23 +76,19 @@ class RuleEditor extends React.Component{
 
     render(){
 
+        const messages = Pydio.getMessages();
         const {rule, dirty, valid} = this.state;
-        const buttonMargin = {marginLeft: 6};
         let actions = [];
         if(!this.isCreate()){
-            actions.push(<RaisedButton style={buttonMargin} disabled={!dirty} label={"Revert"} onTouchTap={this.revert.bind(this)}/>);
+            actions.push(PaperEditorLayout.actionButton(messages['ajxp_admin.plugins.6'], 'mdi mdi-undo', ()=>{this.revert()}, !dirty));
         }
-        actions.push(<RaisedButton style={buttonMargin} disabled={!dirty || !valid} label={"Save"} onTouchTap={this.save.bind(this)}/>);
-        if(this.isCreate()){
-            actions.push(<RaisedButton style={buttonMargin} label={"Cancel"} onTouchTap={() => this.props.onRequestTabClose(this)}/>);
-        } else {
-            actions.push(<RaisedButton style={buttonMargin} label={"Close"} onTouchTap={() => this.props.onRequestTabClose(this)}/>);
-        }
+        actions.push(PaperEditorLayout.actionButton(messages['53'], 'mdi mdi-content-save', ()=>{this.save()}, !dirty || !valid));
         const containerStyle = {margin: 16, fontSize: 16};
 
         return <PaperEditorLayout
             title={rule.description || 'Please provide a label'}
             titleActionBar={actions}
+            closeAction={()=>{this.props.onRequestTabClose()}}
             contentFill={false}
         >
             <div>

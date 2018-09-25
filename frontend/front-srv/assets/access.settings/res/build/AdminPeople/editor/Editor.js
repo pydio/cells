@@ -320,15 +320,7 @@ var Editor = (function (_React$Component) {
                 };
             }
 
-            var rightButtons = _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(_materialUi.FlatButton, { key: 'undo', disabled: saveDisabled, secondary: true, label: this.getMessage('plugins.6', 'ajxp_admin'), onTouchTap: revert }),
-                _react2['default'].createElement(_materialUi.FlatButton, { key: 'save', disabled: saveDisabled, secondary: true, label: this.getRootMessage('53'), onTouchTap: save }),
-                _react2['default'].createElement(_materialUi.RaisedButton, { key: 'close', label: this.getMessage('33'), onTouchTap: function () {
-                        _this6.props.onRequestTabClose();
-                    } })
-            );
+            var rightButtons = [PaperEditorLayout.actionButton(this.getMessage('plugins.6', 'ajxp_admin'), "mdi mdi-undo", revert, saveDisabled), PaperEditorLayout.actionButton(this.getRootMessage('53'), "mdi mdi-content-save", save, saveDisabled)];
 
             var leftNav = [_react2['default'].createElement(PaperEditorNavHeader, { key: '1', label: this.getMessage('ws.28', 'ajxp_admin') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'info', keyName: 'info', onClick: this.setSelectedPane.bind(this), label: infoMenuTitle, selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '2', label: this.getMessage('34') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'workspaces', keyName: 'workspaces', onClick: this.setSelectedPane.bind(this), label: this.getMessage('35'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'pages', keyName: 'pages', onClick: this.setSelectedPane.bind(this), label: this.getMessage('36'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '3', label: this.getMessage('37') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'params', keyName: 'params', onClick: this.setSelectedPane.bind(this), label: this.getMessage('38'), selectedKey: currentPane })];
 
@@ -466,6 +458,9 @@ var Editor = (function (_React$Component) {
                 {
                     title: title,
                     titleActionBar: rightButtons,
+                    closeAction: function () {
+                        _this6.props.onRequestTabClose();
+                    },
                     contentFill: true,
                     leftNav: leftNav,
                     className: "edit-object-" + this.state.roleType

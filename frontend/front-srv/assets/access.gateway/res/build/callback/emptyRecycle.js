@@ -23,7 +23,14 @@
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
-var PydioApi = require('pydio/http/api');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydioHttpApi = require("pydio/http/api");
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 exports['default'] = function (pydio) {
     var MessageHash = pydio.MessageHash;
@@ -35,8 +42,18 @@ exports['default'] = function (pydio) {
             dialogTitleId: 220,
             validCallback: function validCallback() {
                 var slug = pydio.user.getActiveRepositoryObject().getSlug();
-                PydioApi.getRestClient().userJob("delete", { nodes: [slug + '/recycle_bin'], childrenOnly: true }).then(function (r) {
-                    pydio.UI.displayMessage('SUCCESS', 'Emptying recycle bin in background');
+                var deleteRequest = new _pydioHttpRestApi.RestDeleteNodesRequest();
+                var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var n = new _pydioHttpRestApi.TreeNode();
+                n.Path = slug + '/recycle_bin';
+                deleteRequest.Nodes = [n];
+                api.deleteNodes(deleteRequest).then(function (r) {
+                    if (r.DeleteJobs) {
+                        r.DeleteJobs.forEach(function (j) {
+                            pydio.UI.displayMessage('SUCCESS', j.Label);
+                        });
+                    }
+                    pydio.getContextHolder().requireContextChange(pydio.getContextHolder().getRootNode());
                 });
             }
         });
