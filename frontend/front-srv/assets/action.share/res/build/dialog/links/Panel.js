@@ -111,6 +111,10 @@ var PublicLinkPanel = _react2['default'].createClass({
         var pydio = _props2.pydio;
         var compositeModel = _props2.compositeModel;
 
+        var authorizations = _mainShareHelper2['default'].getAuthorizations(pydio);
+        var nodeLeaf = compositeModel.getNode().isLeaf();
+        var canEnable = nodeLeaf && authorizations.file_public_link || !nodeLeaf && authorizations.folder_public_link;
+
         var publicLinkPanes = undefined,
             publicLinkField = undefined;
         if (linkModel.getLinkUuid()) {
@@ -118,7 +122,7 @@ var PublicLinkPanel = _react2['default'].createClass({
                 pydio: pydio,
                 linkModel: linkModel,
                 showMailer: this.props.showMailer,
-                editAllowed: (!this.props.authorizations || this.props.authorizations.editable_hash) && linkModel.isEditable(),
+                editAllowed: authorizations.editable_hash && linkModel.isEditable(),
                 key: 'public-link'
             });
             publicLinkPanes = [_react2['default'].createElement(_materialUi.Divider, null), _react2['default'].createElement(_Permissions2['default'], {
@@ -153,8 +157,15 @@ var PublicLinkPanel = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     { style: { textAlign: 'center', marginTop: 20 } },
-                    _react2['default'].createElement(_materialUi.RaisedButton, { label: this.props.getMessage('92'), secondary: true, onClick: this.enableLinkWithPassword })
+                    _react2['default'].createElement(_materialUi.RaisedButton, { label: this.props.getMessage('92'), secondary: true,
+                        onClick: this.enableLinkWithPassword })
                 )
+            );
+        } else if (!canEnable) {
+            publicLinkField = _react2['default'].createElement(
+                'div',
+                { style: { fontSize: 13, fontWeight: 500, color: 'rgba(0,0,0,0.43)', paddingBottom: 16, paddingTop: 16 } },
+                this.props.getMessage(nodeLeaf ? '225' : '226')
             );
         } else {
             publicLinkField = _react2['default'].createElement(
@@ -170,7 +181,7 @@ var PublicLinkPanel = _react2['default'].createClass({
                 'div',
                 { style: { padding: '15px 10px 11px', backgroundColor: '#f5f5f5', borderBottom: '1px solid #e0e0e0', fontSize: 15 } },
                 _react2['default'].createElement(_materialUi.Toggle, {
-                    disabled: this.props.isReadonly() || this.state.disabled || !linkModel.isEditable(),
+                    disabled: this.props.isReadonly() || this.state.disabled || !linkModel.isEditable() || !linkModel.getLinkUuid() && !canEnable,
                     onToggle: this.toggleLink,
                     toggled: linkModel.getLinkUuid() || this.state.showTemporaryPassword,
                     label: this.props.getMessage('189')

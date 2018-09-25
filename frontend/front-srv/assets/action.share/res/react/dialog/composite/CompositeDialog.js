@@ -27,7 +27,7 @@ let CompositeDialog = React.createClass({
 
     mixins: [ActionDialogMixin],
 
-    getDefaultProps: function () {
+    getDefaultProps() {
         return {
             dialogTitle: '',
             dialogIsModal: false,
@@ -40,7 +40,6 @@ let CompositeDialog = React.createClass({
         pydio: React.PropTypes.instanceOf(Pydio).isRequired,
         selection: React.PropTypes.instanceOf(PydioDataModel),
         readonly: React.PropTypes.bool,
-        create: React.PropTypes.bool
     },
 
     childContextTypes: {
@@ -49,20 +48,20 @@ let CompositeDialog = React.createClass({
         isReadonly: React.PropTypes.func
     },
 
-    getChildContext: function () {
+    getChildContext() {
         const messages = this.props.pydio.MessageHash;
         return {
             messages: messages,
-            getMessage: function (messageId, namespace = 'share_center') {
+            getMessage: (messageId, namespace = 'share_center') => {
                 try {
                     return messages[namespace + (namespace ? "." : "") + messageId] || messageId;
                 } catch (e) {
                     return messageId;
                 }
             },
-            isReadonly: function () {
+            isReadonly: () => {
                 return this.props.readonly;
-            }.bind(this)
+            }
         };
     },
 

@@ -60,8 +60,7 @@ var CompositeDialog = React.createClass({
     propTypes: {
         pydio: React.PropTypes.instanceOf(_pydio2['default']).isRequired,
         selection: React.PropTypes.instanceOf(_pydioModelDataModel2['default']),
-        readonly: React.PropTypes.bool,
-        create: React.PropTypes.bool
+        readonly: React.PropTypes.bool
     },
 
     childContextTypes: {
@@ -71,6 +70,8 @@ var CompositeDialog = React.createClass({
     },
 
     getChildContext: function getChildContext() {
+        var _this = this;
+
         var messages = this.props.pydio.MessageHash;
         return {
             messages: messages,
@@ -83,9 +84,9 @@ var CompositeDialog = React.createClass({
                     return messageId;
                 }
             },
-            isReadonly: (function () {
-                return this.props.readonly;
-            }).bind(this)
+            isReadonly: function isReadonly() {
+                return _this.props.readonly;
+            }
         };
     },
 

@@ -31,6 +31,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _ShareContextConsumer = require('../ShareContextConsumer');
 
 var _ShareContextConsumer2 = _interopRequireDefault(_ShareContextConsumer);
@@ -71,12 +75,18 @@ var PublicLinkPermissions = _react2['default'].createClass({
             });
         }
         if (compositeModel.getNode().isLeaf()) {
+            var auth = _mainShareHelper2['default'].getAuthorizations(_pydio2['default'].getInstance());
+            var max = auth.max_downloads;
             // Readapt template depending on permissions
             if (linkModel.hasPermission('Preview')) {
                 link.ViewTemplateName = "pydio_unique_strip";
+                link.MaxDownloads = 0; // Clear Max Downloads if Preview enabled
             } else {
-                link.ViewTemplateName = "pydio_unique_dl";
-            }
+                    link.ViewTemplateName = "pydio_unique_dl";
+                    if (max && !link.MaxDownloads) {
+                        link.MaxDownloads = max;
+                    }
+                }
         }
         this.props.linkModel.updateLink(link);
     },
@@ -90,6 +100,7 @@ var PublicLinkPermissions = _react2['default'].createClass({
         var node = compositeModel.getNode();
         var perms = [],
             previewWarning = undefined;
+        var auth = _mainShareHelper2['default'].getAuthorizations(_pydio2['default'].getInstance());
 
         if (node.isLeaf()) {
             var _ShareHelper$nodeHasEditor = _mainShareHelper2['default'].nodeHasEditor(pydio, node);
@@ -102,7 +113,7 @@ var PublicLinkPermissions = _react2['default'].createClass({
                 LABEL: this.props.getMessage('73'),
                 DISABLED: !preview || !linkModel.hasPermission('Preview') // Download Only, cannot edit this
             });
-            if (preview) {
+            if (preview && !auth.max_downloads) {
                 perms.push({
                     NAME: 'Preview',
                     LABEL: this.props.getMessage('72'),

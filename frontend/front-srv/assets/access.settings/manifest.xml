@@ -128,7 +128,6 @@
                     <clientCallback module="PydioCoreActions.Navigation.openGoPro"/>
                 </processing>
             </action>
-            <action name="share_react" forbidOverride="true"></action>
 
             
         </actions>

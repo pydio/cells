@@ -74,6 +74,7 @@ var InfoPanelCard = (function (_React$Component) {
         var _this = this;
 
         var open = this.state.open;
+        var primaryToolbars = this.props.primaryToolbars;
 
         var icon = _react2['default'].createElement(
             'div',
@@ -133,7 +134,7 @@ var InfoPanelCard = (function (_React$Component) {
                 renderingType: 'button',
                 toolbars: this.props.primaryToolbars,
                 controller: this.props.pydio.getController(),
-                fabAction: "share_react",
+                fabAction: "share",
                 buttonMenuNoLabel: true,
                 buttonMenuPopoverDirection: "right"
             });

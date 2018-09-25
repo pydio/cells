@@ -53,6 +53,7 @@ class InfoPanelCard extends React.Component{
 
     render(){
         const {open} = this.state;
+        const {primaryToolbars} = this.props;
         const icon = <div className="panelIcon" style={{position: 'absolute', right: 2, top: open?8:2}}><IconButton onClick={()=>{this.toggle()}} iconClassName={"mdi mdi-chevron-" + (open?'up':'down')}/></div>;
 
         let openStyle;
@@ -88,7 +89,7 @@ class InfoPanelCard extends React.Component{
                     renderingType="button"
                     toolbars={this.props.primaryToolbars}
                     controller={this.props.pydio.getController()}
-                    fabAction={"share_react"}
+                    fabAction={"share"}
                     buttonMenuNoLabel={true}
                     buttonMenuPopoverDirection={"right"}
                 />

@@ -81,6 +81,7 @@ var CompositeModel = (function (_Observable) {
 
             var link = new _linksLinkModel2['default']();
             var treeNode = new _pydioHttpRestApi.TreeNode();
+            var auth = _mainShareHelper2['default'].getAuthorizations(_pydio2['default'].getInstance());
             treeNode.Uuid = node.getMetadata().get('uuid');
             link.getLink().Label = node.getLabel();
             link.getLink().Description = pydio.MessageHash['share_center.257'].replace('%s', moment(new Date()).format("YYYY/MM/DD"));
@@ -95,9 +96,12 @@ var CompositeModel = (function (_Observable) {
 
                 var preview = _ShareHelper$nodeHasEditor.preview;
 
-                if (preview) {
+                if (preview && !auth.max_downloads) {
                     defaultTemplate = "pydio_unique_strip";
                     defaultPermissions.push(_pydioHttpRestApi.RestShareLinkAccessType.constructFromObject('Preview'));
+                } else if (auth.max_downloads > 0) {
+                    // If DL only and auth has default max download, set it
+                    link.getLink().MaxDownloads = auth.max_downloads;
                 }
             } else {
                 defaultTemplate = "pydio_shared_folder";
@@ -105,6 +109,9 @@ var CompositeModel = (function (_Observable) {
             }
             link.getLink().ViewTemplateName = defaultTemplate;
             link.getLink().Permissions = defaultPermissions;
+            if (auth.max_expiration) {
+                link.getLink().AccessEnd = "" + (Math.round(new Date() / 1000) + parseInt(auth.max_expiration) * 60 * 60 * 24);
+            }
 
             link.observe("update", function () {
                 _this.notify("update");
