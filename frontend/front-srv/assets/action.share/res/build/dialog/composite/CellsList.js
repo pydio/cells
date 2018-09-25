@@ -22,6 +22,10 @@ var _CompositeModel = require('./CompositeModel');
 
 var _CompositeModel2 = _interopRequireDefault(_CompositeModel);
 
+var _mainShareHelper = require('../main/ShareHelper');
+
+var _mainShareHelper2 = _interopRequireDefault(_mainShareHelper);
+
 var _cellsSharedUsers = require('../cells/SharedUsers');
 
 var _cellsSharedUsers2 = _interopRequireDefault(_cellsSharedUsers);
@@ -209,6 +213,19 @@ var CellsList = (function (_React$Component) {
                         )
                     )
                 );
+            }
+
+            var auth = _mainShareHelper2['default'].getAuthorizations(pydio);
+            if (compositeModel.getNode()) {
+                var nodeLeaf = compositeModel.getNode().isLeaf();
+                var canShare = nodeLeaf && auth.file_workspaces || !nodeLeaf && auth.folder_workspaces;
+                if (!canShare) {
+                    return _react2['default'].createElement(
+                        'div',
+                        { style: { fontSize: 13, fontWeight: 500, color: 'rgba(0, 0, 0, 0.43)', padding: 8 } },
+                        m(nodeLeaf ? '227' : '228')
+                    );
+                }
             }
 
             return _react2['default'].createElement(
