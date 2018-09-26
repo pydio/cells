@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/lang"
 )
@@ -195,6 +196,11 @@ func dirCopy(ctx context.Context, selectedPathes []string, targetNodePath string
 			r, e := getRouter().GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: node.Path}})
 			if e != nil {
 				return e
+			}
+			if move {
+				if e := utils.CheckContentLock(ctx, r.Node); e != nil {
+					return e
+				}
 			}
 			loadedNodes = append(loadedNodes, r.Node)
 			selectedPathes[i] = node.Path
