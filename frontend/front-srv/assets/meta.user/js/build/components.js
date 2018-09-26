@@ -824,10 +824,23 @@ var InfoPanel = (function (_React$Component2) {
     _inherits(InfoPanel, _React$Component2);
 
     function InfoPanel(props) {
+        var _this10 = this;
+
         _classCallCheck(this, InfoPanel);
 
         _get(Object.getPrototypeOf(InfoPanel.prototype), 'constructor', this).call(this, props);
         this.state = { editMode: false };
+        this._nodeObserver = function () {
+            if (_this10.refs.panel) {
+                _this10.refs.panel.resetUpdateData();
+            }
+            _this10.setState({ editMode: false }, function () {
+                _this10.forceUpdate();
+            });
+        };
+        if (props.node) {
+            props.node.observe('node_replaced', this._nodeObserver);
+        }
     }
 
     _createClass(InfoPanel, [{
@@ -844,14 +857,25 @@ var InfoPanel = (function (_React$Component2) {
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(newProps) {
+            if (this.props.node) {
+                this.props.node.stopObserving('node_replaced', this._nodeObserver);
+            }
             if (newProps.node !== this.props.node && this.refs.panel) {
                 this.reset();
+                newProps.node.observe('node_replaced', this._nodeObserver);
+            }
+        }
+    }, {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            if (this.props.node) {
+                this.props.node.stopObserving('node_replaced', this._nodeObserver);
             }
         }
     }, {
         key: 'saveChanges',
         value: function saveChanges() {
-            var _this10 = this;
+            var _this11 = this;
 
             var values = this.refs.panel.getUpdateData();
             var params = {};
@@ -859,13 +883,13 @@ var InfoPanel = (function (_React$Component2) {
                 params[k] = v;
             });
             Renderer.getClient().saveMeta(this.props.pydio.getContextHolder().getSelectedNodes(), values).then(function () {
-                _this10.reset();
+                _this11.reset();
             });
         }
     }, {
         key: 'render',
         value: function render() {
-            var _this11 = this;
+            var _this12 = this;
 
             var actions = [];
             var MessageHash = this.props.pydio.MessageHash;
@@ -875,7 +899,7 @@ var InfoPanel = (function (_React$Component2) {
                     key: 'cancel',
                     label: MessageHash['54'],
                     onClick: function () {
-                        _this11.reset();
+                        _this12.reset();
                     }
                 }));
             }
@@ -884,7 +908,7 @@ var InfoPanel = (function (_React$Component2) {
                     key: 'edit',
                     label: this.state.editMode ? MessageHash['meta.user.15'] : MessageHash['meta.user.14'],
                     onClick: function () {
-                        !_this11.state.editMode ? _this11.openEditMode() : _this11.saveChanges();
+                        !_this12.state.editMode ? _this12.openEditMode() : _this12.saveChanges();
                     }
                 }));
             }

@@ -633,6 +633,16 @@ class InfoPanel extends React.Component{
     constructor(props){
         super(props);
         this.state = {editMode: false};
+        this._nodeObserver = () => {
+            if(this.refs.panel){
+                this.refs.panel.resetUpdateData();
+            }
+            this.setState({editMode: false}, ()=>{this.forceUpdate()});
+
+        };
+        if(props.node){
+            props.node.observe('node_replaced', this._nodeObserver)
+        }
     }
 
     openEditMode(){
@@ -645,8 +655,18 @@ class InfoPanel extends React.Component{
     }
 
     componentWillReceiveProps(newProps){
+        if(this.props.node){
+            this.props.node.stopObserving('node_replaced', this._nodeObserver)
+        }
         if(newProps.node !== this.props.node && this.refs.panel){
             this.reset();
+            newProps.node.observe('node_replaced', this._nodeObserver)
+        }
+    }
+
+    componentWillUnmount(){
+        if(this.props.node){
+            this.props.node.stopObserving('node_replaced', this._nodeObserver)
         }
     }
 
