@@ -37,6 +37,7 @@ const SessionRolesKey = "roles"
 const SessionWorkspacesKey = "workspaces"
 const SessionUsernameKey = "user"
 const SessionProfileKey = "profile"
+const SessionClaimsKey = "profile"
 
 func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool *views.ClientsPool) {
 
@@ -64,6 +65,7 @@ func UpdateSessionFromClaims(session *melody.Session, claims claim.Claims, pool 
 		session.Set(SessionWorkspacesKey, workspaces)
 		session.Set(SessionUsernameKey, claims.Name)
 		session.Set(SessionProfileKey, claims.Profile)
+		session.Set(SessionClaimsKey, claims)
 	} else {
 		log.Logger(ctx).Error("Error while setting workspaces in session", zap.Error(err))
 		ClearSession(session)
@@ -77,5 +79,6 @@ func ClearSession(session *melody.Session) {
 	session.Set(SessionWorkspacesKey, nil)
 	session.Set(SessionUsernameKey, nil)
 	session.Set(SessionProfileKey, nil)
+	session.Set(SessionClaimsKey, nil)
 
 }

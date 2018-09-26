@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/idm/meta"
 )
 
@@ -57,20 +58,14 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 
 	dao := servicecontext.GetDAO(ctx).(meta.DAO)
 	namespaces, _ := dao.GetNamespaceDao().List()
-	indexableMetas := make(map[string]map[string]string)
+	var reloadUuids []string
 	for _, metadata := range request.MetaDatas {
 		h.clearCacheForNode(metadata.NodeUuid)
 		if request.Operation == idm.UpdateUserMetaRequest_PUT {
 			// ADD / UPDATE
 			if newMeta, _, err := dao.Set(metadata); err == nil {
 				if ns, ok := namespaces[metadata.Namespace]; ok && ns.Indexable {
-					var nodesIndexes map[string]string
-					var has bool
-					if nodesIndexes, has = indexableMetas[metadata.NodeUuid]; !has {
-						nodesIndexes = make(map[string]string)
-						indexableMetas[metadata.NodeUuid] = nodesIndexes
-					}
-					nodesIndexes[metadata.Namespace] = metadata.JsonValue
+					reloadUuids = append(reloadUuids, metadata.NodeUuid)
 				}
 				response.MetaDatas = append(response.MetaDatas, newMeta)
 			} else {
@@ -82,27 +77,43 @@ func (h *Handler) UpdateUserMeta(ctx context.Context, request *idm.UpdateUserMet
 				return err
 			} else {
 				if ns, ok := namespaces[metadata.Namespace]; ok && ns.Indexable {
-					var nodesIndexes map[string]string
-					var has bool
-					if nodesIndexes, has = indexableMetas[metadata.NodeUuid]; !has {
-						nodesIndexes = make(map[string]string)
-						indexableMetas[metadata.NodeUuid] = nodesIndexes
-					}
-					nodesIndexes[metadata.Namespace] = ""
+					reloadUuids = append(reloadUuids, metadata.NodeUuid)
 				}
 			}
 		}
 	}
 
-	for nodeId, toIndex := range indexableMetas {
-		node := &tree.Node{Uuid: nodeId}
-		node.MetaStore = toIndex
-		log.Logger(ctx).Info("Publishing UPDATE META for node, shall we update the node, or switch to UPDATE_META_DELTA?", node.Zap())
-		client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
-			Type:   tree.NodeChangeEvent_UPDATE_META,
-			Target: node,
-		}))
-	}
+	subjects, _ := auth.SubjectsForResourcePolicyQuery(ctx, nil)
+	go func() {
+		router := views.NewUuidRouter(views.RouterOptions{AdminView: true})
+		bgCtx := context.Background()
+
+		for _, nodeId := range reloadUuids {
+			// Reload node
+			r, e := router.ReadNode(bgCtx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: nodeId}})
+			if e != nil {
+				continue
+			}
+			node := r.Node
+			// Reload Metas
+			metas, e := dao.Search([]string{}, []string{node.Uuid}, "", "", &service.ResourcePolicyQuery{
+				Subjects: subjects,
+			})
+			if e != nil {
+				continue
+			}
+			for _, val := range metas {
+				if ns, ok := namespaces[val.Namespace]; ok && ns.Indexable {
+					node.MetaStore[val.Namespace] = val.JsonValue
+				}
+			}
+			log.Logger(ctx).Debug("Publishing UPDATE META for node, shall we update the node, or switch to UPDATE_META_DELTA?", node.Zap())
+			client.Publish(bgCtx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+				Type:   tree.NodeChangeEvent_UPDATE_META,
+				Target: node,
+			}))
+		}
+	}()
 
 	return nil
 
