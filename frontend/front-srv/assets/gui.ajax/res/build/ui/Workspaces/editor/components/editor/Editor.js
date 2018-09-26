@@ -289,7 +289,7 @@ function mapStateToProps(state, ownProps) {
     return _extends({}, ownProps, {
         fixedToolbar: fixedToolbar,
         hideToolbar: !fixedToolbar && focusOnSelection && !ownProps.isNearTop,
-        hideSelectionControls: focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && !ownProps.isNearRight,
+        hideSelectionControls: !ownProps.browseable || focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && !ownProps.isNearRight,
         activeTab: activeTab,
         tabs: tabs,
         isMinimised: isMinimised

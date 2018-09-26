@@ -51,91 +51,93 @@ var _reactPanAndZoomHoc = require('react-pan-and-zoom-hoc');
 var _reactPanAndZoomHoc2 = _interopRequireDefault(_reactPanAndZoomHoc);
 
 var withResize = function withResize(Component) {
-    return (function (_React$Component) {
-        _inherits(_class, _React$Component);
+    return(
+        // @panAndZoomHoc
+        (function (_React$Component) {
+            _inherits(_class, _React$Component);
 
-        function _class() {
-            _classCallCheck(this, _class2);
+            function _class() {
+                _classCallCheck(this, _class2);
 
-            _React$Component.apply(this, arguments);
-        }
-
-        _class.prototype.componentDidMount = function componentDidMount() {
-            this.loadSize(this.props);
-        };
-
-        _class.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
-            var scale = nextProps.scale;
-            var size = nextProps.size;
-            var containerWidth = nextProps.containerWidth;
-            var width = nextProps.width;
-            var containerHeight = nextProps.containerHeight;
-            var height = nextProps.height;
-
-            if (size !== this.props.size || width !== this.props.width || height !== this.props.height || containerWidth !== this.props.containerWidth || containerHeight !== this.props.containerHeight) {
-                this.loadSize(nextProps);
+                _React$Component.apply(this, arguments);
             }
-        };
 
-        _class.prototype.loadSize = function loadSize(props) {
-            var _props$scale = props.scale;
-            var scale = _props$scale === undefined ? 1 : _props$scale;
-            var _props$size = props.size;
-            var size = _props$size === undefined ? "contain" : _props$size;
-            var dispatch = props.dispatch;
-            var containerWidth = props.containerWidth;
-            var width = props.width;
-            var containerHeight = props.containerHeight;
-            var height = props.height;
-
-            var state = {
-                size: size,
-                scale: _utils2.getRatio[size]({
-                    scale: scale,
-                    widthRatio: containerWidth / width,
-                    heightRatio: containerHeight / height
-                })
+            _class.prototype.componentDidMount = function componentDidMount() {
+                this.loadSize(this.props);
             };
 
-            dispatch(_utils2.EditorActions.editorModify(state));
-        };
+            _class.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+                var scale = nextProps.scale;
+                var size = nextProps.size;
+                var containerWidth = nextProps.containerWidth;
+                var width = nextProps.width;
+                var containerHeight = nextProps.containerHeight;
+                var height = nextProps.height;
 
-        _class.prototype.render = function render() {
-            var _props = this.props;
-            var scale = _props.scale;
-            var dispatch = _props.dispatch;
+                if (size !== this.props.size || width !== this.props.width || height !== this.props.height || containerWidth !== this.props.containerWidth || containerHeight !== this.props.containerHeight) {
+                    this.loadSize(nextProps);
+                }
+            };
 
-            var remainingProps = _objectWithoutProperties(_props, ['scale', 'dispatch']);
+            _class.prototype.loadSize = function loadSize(props) {
+                var _props$scale = props.scale;
+                var scale = _props$scale === undefined ? 1 : _props$scale;
+                var _props$size = props.size;
+                var size = _props$size === undefined ? "contain" : _props$size;
+                var dispatch = props.dispatch;
+                var containerWidth = props.containerWidth;
+                var width = props.width;
+                var containerHeight = props.containerHeight;
+                var height = props.height;
 
-            return _react2['default'].createElement(Component, _extends({}, remainingProps, {
-                scale: scale
-            }));
-        };
-
-        _createClass(_class, null, [{
-            key: 'displayName',
-            get: function get() {
-                return 'WithResize(' + _utils2.getDisplayName(Component) + ')';
-            }
-        }, {
-            key: 'propTypes',
-            get: function get() {
-                return {
-                    size: _react2['default'].PropTypes.oneOf(["contain", "cover", "auto"]).isRequired,
-                    containerWidth: _react2['default'].PropTypes.number.isRequired,
-                    containerHeight: _react2['default'].PropTypes.number.isRequired,
-                    width: _react2['default'].PropTypes.number.isRequired,
-                    height: _react2['default'].PropTypes.number.isRequired
+                var state = {
+                    size: size,
+                    scale: _utils2.getRatio[size]({
+                        scale: scale,
+                        widthRatio: containerWidth / width,
+                        heightRatio: containerHeight / height
+                    })
                 };
-            }
-        }]);
 
-        var _class2 = _class;
-        _class = _reactPanAndZoomHoc2['default'](_class) || _class;
-        _class = _reactRedux.connect(_utils.mapStateToProps)(_class) || _class;
-        _class = _providers.withContainerSize(_class) || _class;
-        _class = _providers.withImageSize(_class) || _class;
-        return _class;
-    })(_react2['default'].Component);
+                dispatch(_utils2.EditorActions.editorModify(state));
+            };
+
+            _class.prototype.render = function render() {
+                var _props = this.props;
+                var scale = _props.scale;
+                var dispatch = _props.dispatch;
+
+                var remainingProps = _objectWithoutProperties(_props, ['scale', 'dispatch']);
+
+                return _react2['default'].createElement(Component, _extends({}, remainingProps, {
+                    scale: scale
+                }));
+            };
+
+            _createClass(_class, null, [{
+                key: 'displayName',
+                get: function get() {
+                    return 'WithResize(' + _utils2.getDisplayName(Component) + ')';
+                }
+            }, {
+                key: 'propTypes',
+                get: function get() {
+                    return {
+                        size: _react2['default'].PropTypes.oneOf(["contain", "cover", "auto"]).isRequired,
+                        containerWidth: _react2['default'].PropTypes.number.isRequired,
+                        containerHeight: _react2['default'].PropTypes.number.isRequired,
+                        width: _react2['default'].PropTypes.number.isRequired,
+                        height: _react2['default'].PropTypes.number.isRequired
+                    };
+                }
+            }]);
+
+            var _class2 = _class;
+            _class = _reactRedux.connect(_utils.mapStateToProps)(_class) || _class;
+            _class = _providers.withContainerSize(_class) || _class;
+            _class = _providers.withImageSize(_class) || _class;
+            return _class;
+        })(_react2['default'].Component)
+    );
 };
 exports.withResize = withResize;

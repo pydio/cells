@@ -45,7 +45,6 @@ var withContentControls = function withContentControls(Component) {
         }
 
         ContentControls.prototype.render = function render() {
-            console.log(this.props);
             var fnSave = _utils2.handler("onSave", this.props);
             var fnUndo = _utils2.handler("onUndo", this.props);
             var fnRedo = _utils2.handler("onRedo", this.props);
