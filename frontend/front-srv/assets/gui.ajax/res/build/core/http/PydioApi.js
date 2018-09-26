@@ -204,10 +204,9 @@ var PydioApi = (function () {
             targetPath = targetPath.substring(1);
         }
         var url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
-        var slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
         var params = {
             Bucket: 'io',
-            Key: slug + '/' + targetPath,
+            Key: targetPath,
             ContentType: 'application/octet-stream'
         };
 

@@ -174,14 +174,18 @@
 
         async uploadPresigned(completeCallback, progressCallback, errorCallback) {
 
-            const slug = global.pydio.user.getActiveRepositoryObject().getSlug();
+            const repoList = global.pydio.user.getRepositoriesList();
+            if (!repoList.has(this._repositoryId)) {
+                errorCallback(new Error('Unauthorized workspace!'));
+                return;
+            }
+            const slug = repoList.get(this._repositoryId).getSlug();
 
             let fullPath = this._targetNode.getPath();
             if (this._relativePath) {
                 fullPath += PathUtils.getDirname(this._relativePath);
             }
-            fullPath = fullPath + '/' + PathUtils.getBasename(this._file.name);
-            fullPath = fullPath.replace('//', '/');
+            fullPath = slug + '/' + LangUtils.trim(fullPath, '/') + '/' + PathUtils.getBasename(this._file.name);
             if (fullPath.normalize) {
                 fullPath = fullPath.normalize('NFC');
             }
@@ -190,9 +194,7 @@
             let overwriteStatus = UploaderConfigs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
 
             if (overwriteStatus === 'rename') {
-                fullPath = await this.file_newpath(slug + fullPath);
-
-                fullPath = fullPath.replace(slug, '');
+                fullPath = await this.file_newpath(fullPath);
             } else if (overwriteStatus === 'alert') {
                 if (!global.confirm(global.pydio.MessageHash[124])) {
                     errorCallback(new Error(global.pydio.MessageHash[71]));
@@ -211,6 +213,7 @@
             super('folder');
             this._path = path;
             this._targetNode = targetNode;
+            this._repositoryId = global.pydio.user.activeRepository;
         }
         getPath() {
             return this._path;
@@ -219,11 +222,14 @@
             return PathUtils.getBasename(this._path);
         }
         _doProcess(completeCallback) {
-            const slug = global.pydio.user.getActiveRepositoryObject().getSlug();
-
+            const repoList = global.pydio.user.getRepositoriesList();
+            if (!repoList.has(this._repositoryId)) {
+                this.setStatus('error');
+                return;
+            }
+            const slug = repoList.get(this._repositoryId).getSlug();
             let fullPath = this._targetNode.getPath();
-            fullPath = fullPath + '/' + this._path;
-            fullPath = fullPath.replace('//', '/');
+            fullPath = LangUtils.trimRight(fullPath, '/') + '/' + LangUtils.trimLeft(this._path, '/');
             if (fullPath.normalize) {
                 fullPath = fullPath.normalize('NFC');
             }
