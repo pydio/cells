@@ -52,7 +52,6 @@ var BasePluginsBox = frontend.PluginBox{
 		"editor.libreoffice",
 		"gui.ajax",
 		"gui.mobile",
-		"index.pydio",
 		"meta.user",
 		"action.avatar",
 		"action.compression",
