@@ -204,7 +204,7 @@ function mapStateToProps(state, ownProps) {
     return  {
         ...ownProps,
         fixedToolbar: fixedToolbar,
-        hideToolbar: !fixedToolbar && focusOnSelection && !ownProps.isNearTop,
+        hideToolbar: !ownProps.displayToolbar || (!fixedToolbar && focusOnSelection && !ownProps.isNearTop),
         hideSelectionControls: !ownProps.browseable || (focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && ! ownProps.isNearRight),
         activeTab,
         tabs,

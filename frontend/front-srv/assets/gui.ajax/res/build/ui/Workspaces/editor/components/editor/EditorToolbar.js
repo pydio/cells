@@ -134,7 +134,7 @@ function mapStateToProps(state, ownProps) {
 
     var activeTab = tabs.filter(function (tab) {
         return tab.id === activeTabId;
-    })[0];
+    })[0] || {};
 
     return _extends({}, ownProps, {
         title: activeTab.title

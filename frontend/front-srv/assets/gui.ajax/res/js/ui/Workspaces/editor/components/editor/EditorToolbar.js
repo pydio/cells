@@ -87,7 +87,7 @@ function mapStateToProps(state, ownProps) {
     const { editor = {}, tabs = [] } = state
     const { activeTabId = -1} = editor
 
-    const activeTab = tabs.filter(tab => tab.id === activeTabId)[0]
+    const activeTab = tabs.filter(tab => tab.id === activeTabId)[0] || {}
 
     return  {
         ...ownProps,
