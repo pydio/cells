@@ -94,7 +94,7 @@ var NodesPicker = (function (_React$Component) {
             dm = _pydioModelDataModel2['default'].RemoteDataModelFactory({ tmp_repository_id: crtWs.getId() });
             var root = dm.getRootNode();
             root.getMetadata().set('repository_id', crtWs.getId());
-            root.load();
+            root.load(dm.getAjxpNodeProvider());
         }
 
         this.state = {
@@ -111,7 +111,7 @@ var NodesPicker = (function (_React$Component) {
             var dm = _pydioModelDataModel2['default'].RemoteDataModelFactory({ tmp_repository_id: ws.getId() });
             var root = dm.getRootNode();
             root.getMetadata().set('repository_id', ws.getId());
-            root.load();
+            root.load(dm.getAjxpNodeProvider());
             this.setState({ crtWs: ws, dataModel: dm });
         }
     }, {
@@ -135,15 +135,19 @@ var NodesPicker = (function (_React$Component) {
     }, {
         key: 'onValidateNode',
         value: function onValidateNode() {
-            var node = this.state.node;
+            var _state = this.state;
+            var node = _state.node;
+            var crtWs = _state.crtWs;
 
-            this.props.model.addRootNode(node);
+            this.props.model.addRootNode(node, crtWs.getId());
             this.handleRequestClose();
         }
     }, {
         key: 'onNodeSelected',
         value: function onNodeSelected(node) {
-            node.load();
+            var dataModel = this.state.dataModel;
+
+            node.load(dataModel.getAjxpNodeProvider());
             this.setState({ node: node });
         }
 
@@ -203,10 +207,10 @@ var NodesPicker = (function (_React$Component) {
                     );
                 }
             }
-            var _state = this.state;
-            var node = _state.node;
-            var availableWs = _state.availableWs;
-            var crtWs = _state.crtWs;
+            var _state2 = this.state;
+            var node = _state2.node;
+            var availableWs = _state2.availableWs;
+            var crtWs = _state2.crtWs;
 
             return _react2['default'].createElement(
                 'div',

@@ -76,7 +76,7 @@ var TreeDialog = _react2["default"].createClass({
     getInitialState: function getInitialState() {
         var dm = this.getCurrentDataModel();
         var root = dm.getRootNode();
-        root.load();
+        root.load(dm.getAjxpNodeProvider());
         return {
             dataModel: dm,
             selectedNode: root,
@@ -109,7 +109,9 @@ var TreeDialog = _react2["default"].createClass({
     },
 
     onNodeSelected: function onNodeSelected(n) {
-        n.load();
+        var dataModel = this.state.dataModel;
+
+        n.load(dataModel.getAjxpNodeProvider());
         this.setState({
             selectedNode: n
         });

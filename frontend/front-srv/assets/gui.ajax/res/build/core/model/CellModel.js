@@ -213,13 +213,22 @@ var CellModel = (function (_Observable) {
     /**
      *
      * @param node Node
+     * @param repositoryId String
      */
 
     CellModel.prototype.addRootNode = function addRootNode(node) {
+        var repositoryId = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
         var pydio = _pydio2['default'].getInstance();
         var treeNode = new _httpGenIndex.TreeNode();
         treeNode.Uuid = node.getMetadata().get('uuid');
-        treeNode.Path = pydio.user.getActiveRepositoryObject().getSlug() + node.getPath();
+        var slug = undefined;
+        if (repositoryId) {
+            slug = pydio.user.getRepositoriesList().get(repositoryId).getSlug();
+        } else {
+            slug = pydio.user.getActiveRepositoryObject().getSlug();
+        }
+        treeNode.Path = slug + node.getPath();
         treeNode.MetaStore = { selection: true };
         this.cell.RootNodes.push(treeNode);
         this.notifyDirty();
