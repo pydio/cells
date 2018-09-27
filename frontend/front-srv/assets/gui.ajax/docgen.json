@@ -6805,11 +6805,6 @@
     "editor.js": [
       {
         "description": "",
-        "displayName": "Viewer",
-        "methods": []
-      },
-      {
-        "description": "",
         "displayName": "Editor",
         "methods": []
       }
@@ -25479,12 +25474,17 @@
           },
           {
             "name": "addRootNode",
-            "docblock": "@param node Node",
+            "docblock": "@param node Node\n@param repositoryId String",
             "modifiers": [],
             "params": [
               {
                 "name": "node",
                 "description": "Node",
+                "type": null
+              },
+              {
+                "name": "repositoryId",
+                "description": "String",
                 "type": null
               }
             ],
