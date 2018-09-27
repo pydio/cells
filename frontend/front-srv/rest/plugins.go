@@ -45,7 +45,6 @@ var BasePluginsBox = frontend.PluginBox{
 		"core.auth",
 		"core.authfront",
 		"core.conf",
-		"core.index",
 		"core.mailer",
 		"core.pydio",
 		"core.uploader",
