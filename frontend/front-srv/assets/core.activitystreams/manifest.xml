@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin label="CONF_MESSAGE[Activity Center]" description="CONF_MESSAGE[Activity Streams 2.0]">
+<plugin enabled="always" label="CONF_MESSAGE[Activity Center]" description="CONF_MESSAGE[Activity Streams 2.0]">
     <client_settings>
         <resources>
             <i18n namespace="notification_center" remote="plug/core.activitystreams/res/i18n"/>
