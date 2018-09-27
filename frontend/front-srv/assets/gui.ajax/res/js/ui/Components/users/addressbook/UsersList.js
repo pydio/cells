@@ -205,6 +205,8 @@ class UsersList extends React.Component{
                             anchorOrigin={{horizontal:'right', vertical:'top'}}
                         >{menuItems}</IconMenu>
                     );
+                } else {
+                    rightIconButton = null;
                 }
             }
             const select = (e, checked) => {

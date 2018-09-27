@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin name="pydio" id="conf.pydio" label="CONF_MESSAGE[Pydio Backend]" description="CONF_MESSAGE[Stores the conf data inside the Pydio Backend.]"
+<plugin name="pydio" enabled="always" id="conf.pydio" label="CONF_MESSAGE[Pydio Backend]" description="CONF_MESSAGE[Stores the conf data inside the Pydio Backend.]"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd" >
 
 	<registry_contributions>
@@ -55,7 +55,7 @@
                 <rightsContext noUser="false" userLogged="only" read="true" write="false" adminOnly=""/>
             </action>
             <action name="switch_to_settings">
-                <gui text="165" title="506" accessKey="settings_access_key" hasAccessKey="true" iconClass="mdi mdi-settings" >
+                <gui text="165" title="506" accessKey="settings_access_key" hasAccessKey="true" iconClass="mdi mdi-tune-vertical" >
                     <context dir="false" recycle="true" selection="false" actionBar="true" actionBarGroup="zlogin"/>
                 </gui>
                 <rightsContext adminOnly="true" noUser="true" read="false" userLogged="only" write="false"/>

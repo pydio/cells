@@ -188,9 +188,14 @@ func (h *Handler) parseConf(conf config.Map) (queueName string, queueConfig conf
 			if k == forms.SwitchFieldValueKey {
 				name = v.(string)
 			} else {
+				// Special case for sendmail executable path
+				if k == "executable" && v == "other" {
+					v = config.Get("services", Name, "sendmail").String("sendmail")
+				}
 				senderConfig.Set(k, v)
 			}
 		}
+		log.Logger(context.Background()).Debug("Parsed config for mailer", zap.Any("c", senderConfig))
 		senderName = name
 	}
 	return

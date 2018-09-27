@@ -287,6 +287,8 @@ var UsersList = (function (_React$Component) {
                         },
                         menuItems
                     );
+                } else {
+                    rightIconButton = null;
                 }
             }
             var select = function select(e, checked) {

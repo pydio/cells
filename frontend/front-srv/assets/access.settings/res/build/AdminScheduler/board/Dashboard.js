@@ -61,12 +61,12 @@ var Dashboard = _react2['default'].createClass({
     mixins: [AdminComponents.MessagesConsumerMixin],
 
     eventsNames: {
-        '0': 'Create Node',
-        '1': 'Read Node',
-        '2': 'Update Path',
-        '3': 'Update Content',
-        '4': 'Update Metadata',
-        '5': 'Delete Node'
+        '0': 'trigger.create.node',
+        '1': 'trigger.read.node',
+        '2': 'trigger.update.path',
+        '3': 'trigger.update.content',
+        '4': 'trigger.update.metadata',
+        '5': 'trigger.delete.node'
     },
 
     getInitialState: function getInitialState() {
@@ -116,7 +116,7 @@ var Dashboard = _react2['default'].createClass({
 
     showTaskCreator: function showTaskCreator() {},
 
-    extractRowsInfo: function extractRowsInfo(jobs) {
+    extractRowsInfo: function extractRowsInfo(jobs, m) {
         var _this3 = this;
 
         var system = [];
@@ -184,19 +184,19 @@ var Dashboard = _react2['default'].createClass({
             }
 
             if (job.Schedule) {
-                data.Trigger = 'Periodic Schedule'; //job.Schedule.Iso8601Schedule;
+                data.Trigger = m('trigger.periodic');
                 data.TriggerValue = 1;
             } else if (job.EventNames) {
                 data.TriggerValue = 2;
-                data.Trigger = 'Events: ' + job.EventNames.map(function (e) {
+                data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(function (e) {
                     if (e.indexOf('NODE_CHANGE:') === 0) {
-                        return _this3.eventsNames[e.replace('NODE_CHANGE:', '')];
+                        return m(_this3.eventsNames[e.replace('NODE_CHANGE:', '')]);
                     } else {
                         return e;
                     }
                 }).join(', ');
             } else if (job.AutoStart) {
-                data.Trigger = 'Manual Trigger';
+                data.Trigger = m('trigger.manual');
                 data.TriggerValue = 0;
             } else {
                 data.Trigger = '-';
@@ -206,7 +206,9 @@ var Dashboard = _react2['default'].createClass({
                 data.Label = _react2['default'].createElement(
                     'span',
                     { style: { color: 'rgba(0,0,0,0.43)' } },
-                    '[disabled] ',
+                    '[',
+                    m('job.disabled'),
+                    '] ',
                     data.Label
                 );
             }
@@ -221,23 +223,14 @@ var Dashboard = _react2['default'].createClass({
         return { system: system, other: other };
     },
 
-    dotsButton: function dotsButton(job) {
-        return _react2['default'].createElement(
-            _materialUi.IconMenu,
-            {
-                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-dots-vertical' }),
-                anchorOrigin: { horizontal: 'right', vertical: 'top' },
-                targetOrigin: { horizontal: 'right', vertical: 'top' }
-            },
-            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Runs History" }),
-            (job.Schedule || job.AutoStart) && _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Run Now" }),
-            _react2['default'].createElement(_materialUi.Divider, null),
-            _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Edit Job" })
-        );
-    },
-
     render: function render() {
         var _this4 = this;
+
+        var pydio = this.props.pydio;
+
+        var m = function m(id) {
+            return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
+        };
 
         var keys = [{
             name: 'Label',
@@ -246,12 +239,12 @@ var Dashboard = _react2['default'].createClass({
             headerStyle: { width: '35%' }
         }, {
             name: 'Owner',
-            label: "Owner",
+            label: m('job.owner'),
             style: { width: '15%' },
             headerStyle: { width: '15%' }
         }, {
             name: 'Trigger',
-            label: "Trigger",
+            label: m('job.trigger'),
             style: { width: '15%' },
             headerStyle: { width: '15%' }
         }, {
@@ -283,19 +276,19 @@ var Dashboard = _react2['default'].createClass({
                 return j.ID === selectJob;
             });
             if (found.length) {
-                return _react2['default'].createElement(_JobBoard2['default'], { job: found[0], onRequestClose: function () {
+                return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], onRequestClose: function () {
                         return _this4.setState({ selectJob: null });
                     } });
             }
         }
 
-        var _extractRowsInfo = this.extractRowsInfo(result ? result.Jobs : []);
+        var _extractRowsInfo = this.extractRowsInfo(result ? result.Jobs : [], m);
 
         var system = _extractRowsInfo.system;
         var other = _extractRowsInfo.other;
 
         system.sort(function (a, b) {
-            return a.TriggerValue == b.TriggerValue ? 0 : a.TriggerValue > b.TriggerValue ? 1 : -1;
+            return a.TriggerValue === b.TriggerValue ? 0 : a.TriggerValue > b.TriggerValue ? 1 : -1;
         });
 
         var headerButtons = [];
@@ -314,8 +307,8 @@ var Dashboard = _react2['default'].createClass({
                 'div',
                 { style: { flex: 1, overflowY: 'auto' } },
                 _react2['default'].createElement(AdminComponents.SubHeader, {
-                    title: "System Jobs",
-                    legend: "These jobs are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
+                    title: m('system.title'),
+                    legend: m('system.legend')
                 }),
                 _react2['default'].createElement(
                     _materialUi.Paper,
@@ -327,12 +320,12 @@ var Dashboard = _react2['default'].createClass({
                             _this4.selectRows(rows);
                         },
                         showCheckboxes: false,
-                        emptyStateString: loading ? 'Loading jobs...' : 'No jobs found'
+                        emptyStateString: loading ? this.context.getMessage('33') : m('system.empty')
                     })
                 ),
                 _react2['default'].createElement(AdminComponents.SubHeader, {
-                    title: "Users Jobs",
-                    legend: "These jobs are dynamically created and trigged by user actions"
+                    title: m('users.title'),
+                    legend: m('users.legend')
                 }),
                 _react2['default'].createElement(
                     _materialUi.Paper,
@@ -344,7 +337,7 @@ var Dashboard = _react2['default'].createClass({
                             _this4.selectRows(rows);
                         },
                         showCheckboxes: false,
-                        emptyStateString: 'No Users Jobs'
+                        emptyStateString: m('users.empty')
                     })
                 )
             )
