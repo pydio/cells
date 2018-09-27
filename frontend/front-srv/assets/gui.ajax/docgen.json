@@ -399,6 +399,11 @@
             "description": ""
           }
         }
+      },
+      {
+        "description": "",
+        "displayName": "AdminLeftNav",
+        "methods": []
       }
     ],
     "AdminComponents/board/AdvancedDashboard.js": [
