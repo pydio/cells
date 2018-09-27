@@ -76,13 +76,13 @@ class PaperEditorLayout extends React.Component{
         return (
             <div className={"paper-editor-content layout-fill vertical-layout" + (className?' '+ className:'')}>
                 <div className="paper-editor-title" style={styles.title}>
-                    <h2 style={styles.titleH2}>{title} <div className="left-picker-toggle"><IconButton iconClassName="icon-caret-down" onClick={this.toggleMenu} /></div></h2>
+                    <h2 style={styles.titleH2}>{title} <div className="left-picker-toggle"><IconButton iconClassName="icon-caret-down" onClick={this.toggleMenu.bind(this)} /></div></h2>
                     <div style={styles.titleBar}>{titleActionBar}</div>
                     {closeButton}
                 </div>
                 <div className="layout-fill main-layout-nav-to-stack">
                     {leftNav &&
-                        <div className={"paper-editor-left" + (forceLeftOpen? ' picker-open':'')} onClick={this.toggleMenu} >
+                        <div className={"paper-editor-left" + (forceLeftOpen? ' picker-open':'')} onClick={this.toggleMenu.bind(this)} >
                             {leftNav}
                         </div>
                     }
@@ -125,7 +125,7 @@ const PaperEditorNavHeader = React.createClass({
         label:React.PropTypes.string
     },
 
-    render:function(){
+    render(){
 
         return (
             <div className={"mui-subheader"} style={{fontSize: 13, fontWeight: 500, color:'rgba(0, 0, 0, 0.25)', lineHeight:'48px', paddingLeft: 16}}>
@@ -155,11 +155,11 @@ const PaperEditorNavEntry = React.createClass({
         dropDownDefaultItems:React.PropTypes.array
     },
 
-    onClick:function(){
+    onClick(){
         this.props.onClick(this.props.keyName);
     },
 
-    captureDropDownClick: function(){
+    captureDropDownClick(){
         if(this.preventClick){
             this.preventClick = false;
             return;
@@ -167,17 +167,17 @@ const PaperEditorNavEntry = React.createClass({
         this.props.onClick(this.props.keyName);
     },
 
-    dropDownChange: function(event, index, item){
+    dropDownChange(event, index, item){
         this.preventClick = true;
         this.props.dropDownChange(item);
     },
 
-    render:function(){
+    render(){
 
         if(!this.props.dropDown || !this.props.dropDownData){
             return (
                 <div
-                    className={'menu-entry' + (this.props.keyName==this.props.selectedKey?' menu-entry-selected':'') + (this.props.isLast?' last':'')}
+                    className={'menu-entry' + (this.props.keyName===this.props.selectedKey?' menu-entry-selected':'') + (this.props.isLast?' last':'')}
                     onClick={this.onClick}>
                     {this.props.children}
                     {this.props.label}
@@ -194,7 +194,7 @@ const PaperEditorNavEntry = React.createClass({
             menuItemsTpl.push({text:v.label, payload:v});
         });
         return (
-            <div onClick={this.captureDropDownClick} className={'menu-entry-dropdown' + (this.props.keyName==this.props.selectedKey?' menu-entry-selected':'') + (this.props.isLast?' last':'')}>
+            <div onClick={this.captureDropDownClick} className={'menu-entry-dropdown' + (this.props.keyName===this.props.selectedKey?' menu-entry-selected':'') + (this.props.isLast?' last':'')}>
                 <DropDownMenu
                     menuItems={menuItemsTpl}
                     className="dropdown-full-width"

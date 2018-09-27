@@ -116,7 +116,7 @@ var PaperEditorLayout = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { className: 'left-picker-toggle' },
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'icon-caret-down', onClick: this.toggleMenu })
+                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'icon-caret-down', onClick: this.toggleMenu.bind(this) })
                     )
                 ),
                 _react2['default'].createElement(
@@ -131,7 +131,7 @@ var PaperEditorLayout = (function (_React$Component) {
                 { className: 'layout-fill main-layout-nav-to-stack' },
                 leftNav && _react2['default'].createElement(
                     'div',
-                    { className: "paper-editor-left" + (forceLeftOpen ? ' picker-open' : ''), onClick: this.toggleMenu },
+                    { className: "paper-editor-left" + (forceLeftOpen ? ' picker-open' : ''), onClick: this.toggleMenu.bind(this) },
                     leftNav
                 ),
                 _react2['default'].createElement(
@@ -230,7 +230,7 @@ var PaperEditorNavEntry = _react2['default'].createClass({
             return _react2['default'].createElement(
                 'div',
                 {
-                    className: 'menu-entry' + (this.props.keyName == this.props.selectedKey ? ' menu-entry-selected' : '') + (this.props.isLast ? ' last' : ''),
+                    className: 'menu-entry' + (this.props.keyName === this.props.selectedKey ? ' menu-entry-selected' : '') + (this.props.isLast ? ' last' : ''),
                     onClick: this.onClick },
                 this.props.children,
                 this.props.label
@@ -247,7 +247,7 @@ var PaperEditorNavEntry = _react2['default'].createClass({
         });
         return _react2['default'].createElement(
             'div',
-            { onClick: this.captureDropDownClick, className: 'menu-entry-dropdown' + (this.props.keyName == this.props.selectedKey ? ' menu-entry-selected' : '') + (this.props.isLast ? ' last' : '') },
+            { onClick: this.captureDropDownClick, className: 'menu-entry-dropdown' + (this.props.keyName === this.props.selectedKey ? ' menu-entry-selected' : '') + (this.props.isLast ? ' last' : '') },
             _react2['default'].createElement(_materialUi.DropDownMenu, {
                 menuItems: menuItemsTpl,
                 className: 'dropdown-full-width',

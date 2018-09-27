@@ -175,12 +175,19 @@ class CellModel extends Observable{
     /**
      *
      * @param node Node
+     * @param repositoryId String
      */
-    addRootNode(node){
+    addRootNode(node, repositoryId = null){
         const pydio = Pydio.getInstance();
         let treeNode = new TreeNode();
         treeNode.Uuid = node.getMetadata().get('uuid');
-        treeNode.Path = pydio.user.getActiveRepositoryObject().getSlug() + node.getPath();
+        let slug;
+        if(repositoryId){
+            slug = pydio.user.getRepositoriesList().get(repositoryId).getSlug();
+        } else {
+            slug = pydio.user.getActiveRepositoryObject().getSlug();
+        }
+        treeNode.Path = slug + node.getPath();
         treeNode.MetaStore = {selection:true};
         this.cell.RootNodes.push(treeNode);
         this.notifyDirty();
