@@ -12,10 +12,10 @@
     "other": "Accès anonyme aux API de réinitialisation de mot de passe (PUT, POST)"
   },
   "PolicyGroup.PublicAccess.Rule3": {
-    "other": "Anonymous access to load frontend state (GET)"
+    "other": "Accès public pour charger l'état de l'interface (GET)"
   },
   "PolicyGroup.PublicAccess.Rule4": {
-    "other": "Anonymous access to init frontend session (POST)"
+    "other": "Accès public pour charger la session (POST)"
   },
   "PolicyGroup.PublicInstall.Title": {
     "other": "Installation (premier démarrage)"
@@ -39,7 +39,7 @@
     "other": "Accès par défaut pour les utilisateurs identifiés"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "User-meta prevent deleting tags"
+    "other": "Interdiction d'éditer les namespaces de métadonnées"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "Opérations OpenIdConnect"

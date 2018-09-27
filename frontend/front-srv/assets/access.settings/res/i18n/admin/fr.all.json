@@ -87,7 +87,7 @@
     "other": "Options principales"
   },
   "ds.editor.datamanagement": {
-    "other": "Data Management"
+    "other": "Gestion des données"
   },
   "ds.editor.options.enabled": {
     "other": "Activée"
@@ -147,7 +147,7 @@
     "other": "Encryptée"
   },
   "ds.encryption.key.emptyState": {
-    "other": "No master key created"
+    "other": "Pas de clés crées"
   },
   "ds.encryption.key.create": {
     "other": "Nouvelle Clé"
@@ -504,22 +504,22 @@
     "other": "Choisir un jour"
   },
   "logs.filter.legend": {
-    "other": "Filter by..."
+    "other": "Filtrer par..."
   },
   "logs.export.disabled": {
-    "other": "Pick a date or filter result"
+    "other": "Filtrer les résultats"
   },
   "logs.filter.period": {
-    "other": "Time Period"
+    "other": "Période"
   },
   "logs.filter.fulltext": {
-    "other": "Full-text search"
+    "other": "Recherche dans le texte"
   },
   "logs.sys.note": {
-    "other": "Please Note:"
+    "other": "Notez:"
   },
   "logs.sys.note.content": {
-    "other": "Empty logs entries may mean that the server is not running in production mode. Make sure to set this log level by passing the --log=production argument or setting the environment variable PYDIO_LOGS_LEVEL=production."
+    "other": "Si les logs sont vides, votre serveur ne tourne probablement pas en mode production. Assurez-vous de choisir ce mode en passant --log=production en paramètre ou la variable d'environnement PYDIO_LOGS_LEVEL=production."
   },
   "logs.3": {
     "other": "Filtrer les logs"
@@ -549,10 +549,10 @@
     "other": "Message"
   },
   "logs.noentries": {
-    "other": "No entries"
+    "other": "Pas d'entrées"
   },
   "logs.noresults": {
-    "other": "No results"
+    "other": "Pas de résultats"
   },
   "menu.0": {
     "other": "Tableau de bord"
@@ -1455,129 +1455,129 @@
     "other": "Indexation"
   },
   "scheduler.system.title": {
-    "other": "System Jobs"
+    "other": "Jobs systèmes"
   },
   "scheduler.system.legend": {
-    "other": "These jobs are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
+    "other": "Ces jobs sont enregistrés par défaut. Ils sont en charge de l'extraction d'information des fichiers en tâche de fond, et d'opérations de nettoyage."
   },
   "scheduler.system.empty": {
-    "other": "No jobs scheduled."
+    "other": "Pas de jobs programmés."
   },
   "scheduler.users.title": {
-    "other": "Users Jobs"
+    "other": "Jobs Utilisateurs"
   },
   "scheduler.users.legend": {
-    "other": "These jobs are dynamically created and trigged by user actions."
+    "other": "Ces jobs sont générés dynamiquement par des actions des utilisateurs."
   },
   "scheduler.users.empty": {
-    "other": "No jobs launched by users"
+    "other": "Pas de jobs lancés"
   },
   "scheduler.job.owner": {
-    "other": "Owner"
+    "other": "Propriétaire"
   },
   "scheduler.job.trigger": {
-    "other": "Trigger"
+    "other": "Déclencheur"
   },
   "scheduler.trigger.create.node": {
-    "other": "Create Node"
+    "other": "Création"
   },
   "scheduler.trigger.read.node": {
-    "other": "Read Node"
+    "other": "Lecture"
   },
   "scheduler.trigger.update.path": {
-    "other": "Update Path"
+    "other": "Déplacement"
   },
   "scheduler.trigger.update.content": {
-    "other": "Update Content"
+    "other": "Contenu"
   },
   "scheduler.trigger.update.metadata": {
-    "other": "Update Metadata"
+    "other": "Métadonnées"
   },
   "scheduler.trigger.delete.node": {
-    "other": "Delete Node"
+    "other": "Suppression"
   },
   "scheduler.trigger.events": {
-    "other": "Events"
+    "other": "Evénements"
   },
   "scheduler.trigger.manual": {
-    "other": "Manual Trigger"
+    "other": "Manuel"
   },
   "scheduler.trigger.periodic": {
-    "other": "Periodic Schedule"
+    "other": "Périodique"
   },
   "scheduler.job.disabled": {
-    "other": "disabled"
+    "other": "désactivé"
   },
   "scheduler.tasks.running.count": {
-    "other": "%s tasks running"
+    "other": "%s tâches en cours"
   },
   "scheduler.task.action.pause": {
-    "other": "Pause Task"
+    "other": "Suspendre"
   },
   "scheduler.task.action.resume": {
-    "other": "Resumse Task"
+    "other": "Redémarrer"
   },
   "scheduler.task.action.stop": {
-    "other": "Stop Now"
+    "other": "Arrêter maintenant"
   },
   "scheduler.task.action.delete": {
-    "other": "Delete"
+    "other": "Supprimer"
   },
   "scheduler.task.action.enable": {
-    "other": "Enable Job"
+    "other": "Activer le job"
   },
   "scheduler.task.action.run": {
-    "other": "Run Now"
+    "other": "Démarrer maintenant"
   },
   "scheduler.task.action.disable": {
-    "other": "Disable Job"
+    "other": "Désactiver le job"
   },
   "scheduler.task.id": {
     "other": "ID"
   },
   "scheduler.task.start": {
-    "other": "Start"
+    "other": "Début"
   },
   "scheduler.task.end": {
-    "other": "End"
+    "other": "Fin"
   },
   "scheduler.task.status": {
-    "other": "Status"
+    "other": "Statut"
   },
   "scheduler.task.message": {
     "other": "Message"
   },
   "scheduler.tasks.running": {
-    "other": "Running Tasks"
+    "other": "Tâches en cours"
   },
   "scheduler.tasks.history": {
-    "other": "Tasks History"
+    "other": "Historique des tâches"
   },
   "scheduler.tasks.history.empty": {
-    "other": "No tasks have run yet"
+    "other": "Aucune tâche n’a encore été exécutée"
   },
   "scheduler.tasks.history.more": {
-    "other": "%s other tasks not shown..."
+    "other": "Il y a %s autres tâches..."
   },
   "scheduler.tasks.running.empty": {
-    "other": "No tasks currently running"
+    "other": "Aucune tâche en cours d’exécution"
   },
   "scheduler.tasks.bulk.delete": {
-    "other": "Delete Tasks"
+    "other": "Supprimer les tâches"
   },
   "scheduler.tasks.bulk.enable": {
-    "other": "Enable Multiple"
+    "other": "Activer sélection"
   },
   "scheduler.tasks.bulk.disable": {
-    "other": "Disable Multiple"
+    "other": "Désactiver sélection"
   },
   "scheduler.tasks.bulk.clear": {
-    "other": "Clear All"
+    "other": "Supprimer tout"
   },
   "developer.rest.apis": {
-    "other": "Rest APIs Documentation"
+    "other": "Documentation de l'API REST"
   },
   "developer.rest.apis.legend": {
-    "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."
+    "other": "Voici toutes les API disponibles dans Pydio Cells. Pour utiliser ces API, vous devez tout d’abord vous authentifier auprès du service OpenID Connect afin d'obtenir un JWT valide. Consultez le guide de l’administrateur en ligne pour en savoir plus."
   }
 }
