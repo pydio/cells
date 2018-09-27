@@ -11,6 +11,12 @@
   "PolicyGroup.PublicAccess.Rule2": {
     "other": "Accès anonyme aux API de réinitialisation de mot de passe (PUT, POST)"
   },
+  "PolicyGroup.PublicAccess.Rule3": {
+    "other": "Anonymous access to load frontend state (GET)"
+  },
+  "PolicyGroup.PublicAccess.Rule4": {
+    "other": "Anonymous access to init frontend session (POST)"
+  },
   "PolicyGroup.PublicInstall.Title": {
     "other": "Installation (premier démarrage)"
   },
@@ -19,18 +25,6 @@
   },
   "PolicyGroup.PublicInstall.Rule1": {
     "other": "Accès anonyme à /install (GET, POST)"
-  },
-  "PolicyGroup.FrontendAccess.Title": {
-    "other": "Accès restreint à l'interface"
-  },
-  "PolicyGroup.FrontendAccess.Description": {
-    "other": "Points d'accès qui peuvent être accédés anonymement mais seulement par le frontend"
-  },
-  "PolicyGroup.FrontendAccess.Rule1": {
-    "other": "GET/POST accès restreint à l'IP du frontend"
-  },
-  "PolicyGroup.FrontendAccess.Rule2": {
-    "other": "PUT accès restreint à l'IP du frontend"
   },
   "PolicyGroup.LoggedUsers.Title": {
     "other": "Accès des utilisateurs identifiés et administrateurs"
@@ -45,7 +39,7 @@
     "other": "Accès par défaut pour les utilisateurs identifiés"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "Accès pour incrémenter les téléchargements des liens partagés"
+    "other": "User-meta prevent deleting tags"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "Opérations OpenIdConnect"

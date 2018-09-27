@@ -184,5 +184,8 @@
   },
   "Mail.Config.Sendmail.Executable.Description": {
     "other": "Chemin complet vers le binaire sur le serveur"
+  },
+  "Mail.Config.Sendmail.Executable.Other": {
+    "other": "Other path (set manually in pydio.json config file)"
   }
 }

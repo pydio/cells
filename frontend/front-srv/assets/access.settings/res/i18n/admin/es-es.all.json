@@ -86,6 +86,9 @@
   "ds.editor.options": {
     "other": "Main Options"
   },
+  "ds.editor.datamanagement": {
+    "other": "Data Management"
+  },
   "ds.editor.options.enabled": {
     "other": "Enabled"
   },
@@ -142,6 +145,9 @@
   },
   "ds.encryption": {
     "other": "Encrypted"
+  },
+  "ds.encryption.key.emptyState": {
+    "other": "No master key created"
   },
   "ds.encryption.key.create": {
     "other": "Create Key"
@@ -492,10 +498,28 @@
     "other": "Exportar y descargar"
   },
   "logs.11": {
-    "other": "Exportar..."
+    "other": "Export as..."
   },
   "logs.2": {
     "other": "Seleccione un día"
+  },
+  "logs.filter.legend": {
+    "other": "Filter by..."
+  },
+  "logs.export.disabled": {
+    "other": "Pick a date or filter result"
+  },
+  "logs.filter.period": {
+    "other": "Time Period"
+  },
+  "logs.filter.fulltext": {
+    "other": "Full-text search"
+  },
+  "logs.sys.note": {
+    "other": "Please Note:"
+  },
+  "logs.sys.note.content": {
+    "other": "Empty logs entries may mean that the server is not running in production mode. Make sure to set this log level by passing the --log=production argument or setting the environment variable PYDIO_LOGS_LEVEL=production."
   },
   "logs.3": {
     "other": "Filtrar Registros"
@@ -517,6 +541,18 @@
   },
   "logs.9": {
     "other": "El archivo se exportará en formato CSV con semi-columnas separadas por (;) y campos entre comillas (\")."
+  },
+  "logs.service": {
+    "other": "Service"
+  },
+  "logs.message": {
+    "other": "Message"
+  },
+  "logs.noentries": {
+    "other": "No entries"
+  },
+  "logs.noresults": {
+    "other": "No results"
   },
   "menu.0": {
     "other": "Panel"
@@ -1417,5 +1453,131 @@
   },
   "services.service.datasource.index": {
     "other": "Indexation"
+  },
+  "scheduler.system.title": {
+    "other": "System Jobs"
+  },
+  "scheduler.system.legend": {
+    "other": "These jobs are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
+  },
+  "scheduler.system.empty": {
+    "other": "No jobs scheduled."
+  },
+  "scheduler.users.title": {
+    "other": "Users Jobs"
+  },
+  "scheduler.users.legend": {
+    "other": "These jobs are dynamically created and trigged by user actions."
+  },
+  "scheduler.users.empty": {
+    "other": "No jobs launched by users"
+  },
+  "scheduler.job.owner": {
+    "other": "Owner"
+  },
+  "scheduler.job.trigger": {
+    "other": "Trigger"
+  },
+  "scheduler.trigger.create.node": {
+    "other": "Create Node"
+  },
+  "scheduler.trigger.read.node": {
+    "other": "Read Node"
+  },
+  "scheduler.trigger.update.path": {
+    "other": "Update Path"
+  },
+  "scheduler.trigger.update.content": {
+    "other": "Update Content"
+  },
+  "scheduler.trigger.update.metadata": {
+    "other": "Update Metadata"
+  },
+  "scheduler.trigger.delete.node": {
+    "other": "Delete Node"
+  },
+  "scheduler.trigger.events": {
+    "other": "Events"
+  },
+  "scheduler.trigger.manual": {
+    "other": "Manual Trigger"
+  },
+  "scheduler.trigger.periodic": {
+    "other": "Periodic Schedule"
+  },
+  "scheduler.job.disabled": {
+    "other": "disabled"
+  },
+  "scheduler.tasks.running.count": {
+    "other": "%s tasks running"
+  },
+  "scheduler.task.action.pause": {
+    "other": "Pause Task"
+  },
+  "scheduler.task.action.resume": {
+    "other": "Resumse Task"
+  },
+  "scheduler.task.action.stop": {
+    "other": "Stop Now"
+  },
+  "scheduler.task.action.delete": {
+    "other": "Delete"
+  },
+  "scheduler.task.action.enable": {
+    "other": "Enable Job"
+  },
+  "scheduler.task.action.run": {
+    "other": "Run Now"
+  },
+  "scheduler.task.action.disable": {
+    "other": "Disable Job"
+  },
+  "scheduler.task.id": {
+    "other": "ID"
+  },
+  "scheduler.task.start": {
+    "other": "Start"
+  },
+  "scheduler.task.end": {
+    "other": "End"
+  },
+  "scheduler.task.status": {
+    "other": "Status"
+  },
+  "scheduler.task.message": {
+    "other": "Message"
+  },
+  "scheduler.tasks.running": {
+    "other": "Running Tasks"
+  },
+  "scheduler.tasks.history": {
+    "other": "Tasks History"
+  },
+  "scheduler.tasks.history.empty": {
+    "other": "No tasks have run yet"
+  },
+  "scheduler.tasks.history.more": {
+    "other": "%s other tasks not shown..."
+  },
+  "scheduler.tasks.running.empty": {
+    "other": "No tasks currently running"
+  },
+  "scheduler.tasks.bulk.delete": {
+    "other": "Delete Tasks"
+  },
+  "scheduler.tasks.bulk.enable": {
+    "other": "Enable Multiple"
+  },
+  "scheduler.tasks.bulk.disable": {
+    "other": "Disable Multiple"
+  },
+  "scheduler.tasks.bulk.clear": {
+    "other": "Clear All"
+  },
+  "developer.rest.apis": {
+    "other": "Rest APIs Documentation"
+  },
+  "developer.rest.apis.legend": {
+    "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."
   }
 }
