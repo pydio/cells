@@ -233,9 +233,10 @@ var LogBoard = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'u',
                                     null,
-                                    'Note'
+                                    pydio.MessageHash['ajxp_admin.sys.note']
                                 ),
-                                ': empty logs entries may mean that the server is not running in production mode. Make sure to set this log level by passing the environment variable PYDIO_LOGS_LEVEL=production at startup.'
+                                ' ',
+                                pydio.MessageHash['ajxp_admin.sys.note.content']
                             )
                         )
                     )
@@ -739,6 +740,7 @@ var LogTable = (function (_React$Component) {
             var date = _props2.date;
 
             var logs = this.openSpans();
+            var MessageHash = pydio.MessageHash;
 
             var columns = [{
                 name: 'Root',
@@ -779,9 +781,9 @@ var LogTable = (function (_React$Component) {
                         );
                     }
                     return dateString;
-                }, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Logger', label: 'Service', renderCell: function renderCell(row) {
+                }, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Logger', label: MessageHash['ajxp_admin.logs.service'], renderCell: function renderCell(row) {
                     return row['Logger'] ? row['Logger'].replace('pydio.', '') : '';
-                }, style: { width: 110, padding: '12px 0' }, headerStyle: { width: 110, padding: '12px 0' } }, { name: 'UserName', label: pydio.MessageHash["settings.20"], style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Msg', label: 'Message' }];
+                }, style: { width: 110, padding: '12px 0' }, headerStyle: { width: 110, padding: '12px 0' } }, { name: 'UserName', label: pydio.MessageHash["settings.20"], style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Msg', label: MessageHash['ajxp_admin.logs.message'] }];
 
             return _react2['default'].createElement(MaterialTable, {
                 data: logs,
@@ -793,7 +795,7 @@ var LogTable = (function (_React$Component) {
                 },
                 deselectOnClickAway: true,
                 showCheckboxes: false,
-                emptyStateString: loading ? 'Loading...' : filter || date ? "No Results" : "No entries",
+                emptyStateString: loading ? MessageHash['settings.33'] : filter || date ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries'],
                 computeRowStyle: function (row) {
                     var style = {};
                     if (row.HasRoot) {
@@ -951,19 +953,20 @@ var LogTools = (function (_React$Component) {
             var filter = _state3.filter;
             var date = _state3.date;
             var filterMode = _state3.filterMode;
+            var MessageHash = pydio.MessageHash;
 
             var hasFilter = filter || date;
             var checkIcon = _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-check" });
             return _react2['default'].createElement(
                 'div',
                 { style: { display: 'flex', alignItems: 'center', width: '100%' } },
-                filterMode === 'fulltext' && _react2['default'].createElement(_materialUi.TextField, { hintText: pydio.MessageHash["ajxp_admin.logs.3"], onChange: function (e) {
+                filterMode === 'fulltext' && _react2['default'].createElement(_materialUi.TextField, { hintText: MessageHash["ajxp_admin.logs.3"], onChange: function (e) {
                         return _this.handleFilterChange(e.target.value);
                     }, style: { margin: '0 5px', width: 180 } }),
                 filterMode === 'oneday' && _react2['default'].createElement(
                     'div',
                     { style: { display: 'flex', alignItems: 'center' } },
-                    _react2['default'].createElement(_materialUi.DatePicker, { hintText: pydio.MessageHash["ajxp_admin.logs.2"], onChange: function (e, date) {
+                    _react2['default'].createElement(_materialUi.DatePicker, { hintText: MessageHash["ajxp_admin.logs.2"], onChange: function (e, date) {
                             return _this.handleDateChange(date);
                         },
                         autoOk: true, maxDate: new Date(), value: this.state.date,
@@ -992,7 +995,7 @@ var LogTools = (function (_React$Component) {
                 _react2['default'].createElement(
                     _materialUi.IconMenu,
                     {
-                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-filter-variant", tooltip: "Filter Logs" }),
+                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-filter-variant", tooltip: MessageHash['ajxp_admin.logs.3'] }),
                         anchorOrigin: { vertical: 'top', horizontal: 'right' },
                         targetOrigin: { vertical: 'top', horizontal: 'right' },
                         desktop: true
@@ -1000,22 +1003,22 @@ var LogTools = (function (_React$Component) {
                     _react2['default'].createElement(
                         _materialUi.Subheader,
                         null,
-                        'Filter by...'
+                        MessageHash['ajxp_admin.logs.filter.legend']
                     ),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'Full-text search', rightIcon: filterMode === 'fulltext' ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.fulltext'], rightIcon: filterMode === 'fulltext' ? checkIcon : null, onTouchTap: function () {
                             _this.handleFilterMode('fulltext');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'Pick one day', rightIcon: filterMode === 'oneday' ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.2'], rightIcon: filterMode === 'oneday' ? checkIcon : null, onTouchTap: function () {
                             _this.handleFilterMode('oneday');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'Time Period', rightIcon: filterMode === 'period' ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.period'], rightIcon: filterMode === 'period' ? checkIcon : null, onTouchTap: function () {
                             _this.handleFilterMode('period');
                         } })
                 ),
                 !disableExport && _react2['default'].createElement(
                     _materialUi.IconMenu,
                     {
-                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-download", tooltip: pydio.MessageHash["ajxp_admin.logs.11"] }),
+                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-download", tooltip: MessageHash["ajxp_admin.logs.11"] }),
                         anchorOrigin: { vertical: 'top', horizontal: 'right' },
                         targetOrigin: { vertical: 'top', horizontal: 'right' },
                         desktop: true
@@ -1023,12 +1026,12 @@ var LogTools = (function (_React$Component) {
                     !hasFilter && _react2['default'].createElement(
                         _materialUi.Subheader,
                         null,
-                        'Pick a date or filter results'
+                        MessageHash['ajxp_admin.logs.export.disabled']
                     ),
                     hasFilter && _react2['default'].createElement(
                         _materialUi.Subheader,
                         null,
-                        'Export as...'
+                        MessageHash['ajxp_admin.logs.11']
                     ),
                     _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'CSV', rightIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-file-delimited" }), onTouchTap: function () {
                             _this.handleExport('CSV');

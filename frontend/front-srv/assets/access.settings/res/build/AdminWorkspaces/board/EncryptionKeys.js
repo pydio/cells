@@ -305,7 +305,8 @@ var EncryptionKeys = (function (_React$Component) {
                     data: keys,
                     columns: columns,
                     onSelectRows: function () {},
-                    showCheckboxes: false
+                    showCheckboxes: false,
+                    emptyStateString: m('key.emptyState')
                 })
             );
         }

@@ -187,7 +187,7 @@
 	<registry_contributions>
 		<actions>
             <action name="up_dir">
-                <gui text="148" title="24" iconClass="icon-chevron-left" hasAccessKey="true"
+                <gui text="148" title="24" iconClass="mdi mdi-folder-upload" hasAccessKey="true"
                      accessKey="parent_access_key">
                     <context selection="false" dir="false" recycle="false"
                              actionBar="true" contextMenu="true" infoPanel="false" actionBarGroup="00_navigation">

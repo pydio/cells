@@ -142,6 +142,7 @@ class LogTable extends React.Component {
         const {loading, rootSpans} = this.state;
         const {pydio, onSelectLog, filter, date} = this.props;
         const logs = this.openSpans();
+        const {MessageHash} = pydio;
 
         const columns = [
             {
@@ -177,9 +178,9 @@ class LogTable extends React.Component {
                 }
                 return dateString;
             }, style:{width: 100, padding: 12}, headerStyle:{width: 100, padding: 12}},
-            {name:'Logger', label:'Service', renderCell:(row) => {return row['Logger'] ? row['Logger'].replace('pydio.', '') : ''}, style:{width: 110, padding: '12px 0'}, headerStyle:{width: 110, padding: '12px 0'}},
+            {name:'Logger', label:MessageHash['ajxp_admin.logs.service'], renderCell:(row) => {return row['Logger'] ? row['Logger'].replace('pydio.', '') : ''}, style:{width: 110, padding: '12px 0'}, headerStyle:{width: 110, padding: '12px 0'}},
             {name:'UserName', label: pydio.MessageHash["settings.20"], style:{width: 100, padding: 12}, headerStyle:{width: 100, padding: 12}},
-            {name:'Msg', label:'Message'},
+            {name:'Msg', label:MessageHash['ajxp_admin.logs.message']},
         ];
 
         return (
@@ -189,7 +190,7 @@ class LogTable extends React.Component {
                 onSelectRows={(rows) => {if(rows.length && onSelectLog){onSelectLog(rows[0])}}}
                 deselectOnClickAway={true}
                 showCheckboxes={false}
-                emptyStateString={loading ? 'Loading...': (filter || date) ? "No Results" : "No entries"}
+                emptyStateString={loading ? MessageHash['settings.33']: (filter || date) ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries']}
                 computeRowStyle={(row) => {
                     let style = {};
                     if (row.HasRoot){

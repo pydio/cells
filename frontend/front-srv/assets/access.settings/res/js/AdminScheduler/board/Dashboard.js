@@ -31,14 +31,13 @@ const Dashboard = React.createClass({
     mixins:[AdminComponents.MessagesConsumerMixin],
 
     eventsNames: {
-        '0':'Create Node',
-        '1':'Read Node',
-        '2':'Update Path',
-        '3':'Update Content',
-        '4':'Update Metadata',
-        '5':'Delete Node',
+        '0':'trigger.create.node',
+        '1':'trigger.read.node',
+        '2':'trigger.update.path',
+        '3':'trigger.update.content',
+        '4':'trigger.update.metadata',
+        '5':'trigger.delete.node'
     },
-
 
     getInitialState(){
         return {
@@ -59,27 +58,29 @@ const Dashboard = React.createClass({
         })
     },
 
-    componentDidMount: function(){
+    componentDidMount(){
         this.load();
         this._loadDebounced = debounce(()=>{this.load(true)}, 500);
         JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
     },
 
-    componentWillUnmount: function(){
+    componentWillUnmount(){
         JobsStore.getInstance().stopObserving("tasks_updated");
     },
 
-    selectRows: function(rows){
+    selectRows(rows){
         if(rows.length){
             this.setState({selectJob: rows[0].ID});
         }
     },
 
-    showTaskCreator: function(){
+    showTaskCreator(){
 
     },
 
-    extractRowsInfo: function(jobs){
+    extractRowsInfo(jobs, m){
+
+
         let system = [];
         let other = [];
         if (jobs === undefined) {
@@ -123,26 +124,26 @@ const Dashboard = React.createClass({
             }
 
             if(job.Schedule) {
-                data.Trigger = 'Periodic Schedule';//job.Schedule.Iso8601Schedule;
+                data.Trigger = m('trigger.periodic');
                 data.TriggerValue = 1;
             } else if(job.EventNames) {
                 data.TriggerValue = 2;
-                data.Trigger = 'Events: ' + job.EventNames.map(e => {
+                data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(e => {
                     if(e.indexOf('NODE_CHANGE:') === 0){
-                        return this.eventsNames[e.replace('NODE_CHANGE:', '')];
+                        return m(this.eventsNames[e.replace('NODE_CHANGE:', '')]);
                     }else {
                         return e;
                     }
                 }).join(', ');
             } else if(job.AutoStart) {
-                data.Trigger = 'Manual Trigger';
+                data.Trigger = m('trigger.manual');
                 data.TriggerValue = 0;
             } else {
                 data.Trigger = '-';
                 data.TriggerValue = 3;
             }
             if (job.Inactive) {
-                data.Label = <span style={{color: 'rgba(0,0,0,0.43)'}}>[disabled] {data.Label}</span>;
+                data.Label = <span style={{color: 'rgba(0,0,0,0.43)'}}>[{m('job.disabled')}] {data.Label}</span>;
             }
 
             if (job.Owner === 'pydio.system.user') {
@@ -156,22 +157,10 @@ const Dashboard = React.createClass({
         return {system, other};
     },
 
-    dotsButton: function(job){
-        return (
-            <IconMenu
-                iconButtonElement={<IconButton iconClassName="mdi mdi-dots-vertical"/>}
-                anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-                targetOrigin={{horizontal: 'right', vertical: 'top'}}
-            >
-                <MenuItem primaryText={"Runs History"}/>
-                {(job.Schedule || job.AutoStart) &&  <MenuItem primaryText={"Run Now"}/>}
-                <Divider/>
-                <MenuItem primaryText={"Edit Job"}/>
-            </IconMenu>
-        );
-    },
+    render(){
 
-    render: function(){
+        const {pydio} = this.props;
+        const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
 
         const keys = [
             {
@@ -182,13 +171,13 @@ const Dashboard = React.createClass({
             },
             {
                 name:'Owner',
-                label:"Owner",
+                label:m('job.owner'),
                 style:{width:'15%'},
                 headerStyle:{width:'15%'},
             },
             {
                 name:'Trigger',
-                label:"Trigger",
+                label:m('job.trigger'),
                 style:{width:'15%'},
                 headerStyle:{width:'15%'},
             },
@@ -214,12 +203,12 @@ const Dashboard = React.createClass({
         if(selectJob && result && result.Jobs){
             const found = result.Jobs.filter((j) => j.ID === selectJob);
             if(found.length){
-                return <JobBoard job={found[0]} onRequestClose={()=>this.setState({selectJob: null})}/>;
+                return <JobBoard pydio={pydio} job={found[0]} onRequestClose={()=>this.setState({selectJob: null})}/>;
             }
         }
-        let {system, other} = this.extractRowsInfo(result ? result.Jobs : []);
+        let {system, other} = this.extractRowsInfo(result ? result.Jobs : [], m);
         system.sort((a,b) => {
-            return a.TriggerValue == b.TriggerValue ? 0 : (a.TriggerValue > b.TriggerValue ? 1 : -1 );
+            return a.TriggerValue === b.TriggerValue ? 0 : (a.TriggerValue > b.TriggerValue ? 1 : -1 );
         });
 
         const headerButtons = [];
@@ -235,8 +224,8 @@ const Dashboard = React.createClass({
                 />
                 <div style={{flex:1, overflowY: 'auto'}}>
                     <AdminComponents.SubHeader
-                        title={"System Jobs"}
-                        legend={"These jobs are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."}
+                        title={m('system.title')}
+                        legend={m('system.legend')}
                     />
                     <Paper style={{margin: 20}}>
                         <MaterialTable
@@ -244,12 +233,12 @@ const Dashboard = React.createClass({
                             columns={keys}
                             onSelectRows={(rows)=>{this.selectRows(rows)}}
                             showCheckboxes={false}
-                            emptyStateString={loading ? 'Loading jobs...' : 'No jobs found'}
+                            emptyStateString={loading ? this.context.getMessage('33') : m('system.empty')}
                         />
                     </Paper>
                     <AdminComponents.SubHeader
-                        title={"Users Jobs"}
-                        legend={"These jobs are dynamically created and trigged by user actions"}
+                        title={m('users.title')}
+                        legend={m('users.legend')}
                     />
                     <Paper style={{margin: 20}}>
                         <MaterialTable
@@ -257,7 +246,7 @@ const Dashboard = React.createClass({
                             columns={keys}
                             onSelectRows={(rows)=>{this.selectRows(rows)}}
                             showCheckboxes={false}
-                            emptyStateString="No Users Jobs"
+                            emptyStateString={m('users.empty')}
                         />
                     </Paper>
                 </div>

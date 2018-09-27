@@ -240,7 +240,7 @@ class DataSourceEditor extends React.Component{
                 </div>
                 <Divider/>
                 <div style={styles.section}>
-                    <div style={styles.title}>Data Management</div>
+                    <div style={styles.title}>{m('datamanagement')}</div>
                     <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('versioning')} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
                         <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
                         {versioningPolicies.map(key => {

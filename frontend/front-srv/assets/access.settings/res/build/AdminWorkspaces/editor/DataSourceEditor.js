@@ -419,7 +419,7 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.title },
-                        'Data Management'
+                        m('datamanagement')
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,

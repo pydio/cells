@@ -73,16 +73,17 @@ class LogTools extends React.Component{
     render(){
         const {pydio, disableExport} = this.props;
         const {filter, date, filterMode} = this.state;
+        const {MessageHash} = pydio;
         const hasFilter = filter || date;
         const checkIcon = <FontIcon style={{top: 0}} className={"mdi mdi-check"}/>;
         return (
             <div style={{display: 'flex', alignItems: 'center', width: '100%'}}>
                 {filterMode === 'fulltext' &&
-                    <TextField hintText={pydio.MessageHash["ajxp_admin.logs.3"]} onChange={(e) => this.handleFilterChange(e.target.value)} style={{margin: '0 5px', width: 180}} />
+                    <TextField hintText={MessageHash["ajxp_admin.logs.3"]} onChange={(e) => this.handleFilterChange(e.target.value)} style={{margin: '0 5px', width: 180}} />
                 }
                 {filterMode === 'oneday' &&
                     <div style={{display:'flex', alignItems:'center'}}>
-                        <DatePicker hintText={pydio.MessageHash["ajxp_admin.logs.2"]} onChange={(e, date) => this.handleDateChange(date)}
+                        <DatePicker hintText={MessageHash["ajxp_admin.logs.2"]} onChange={(e, date) => this.handleDateChange(date)}
                                     autoOk={true} maxDate={new Date()} value={this.state.date}
                                     showYearSelector={true} style={{margin: '0 5px', width: 100}} textFieldStyle={{width: 80}} />
                         <IconButton iconClassName={"mdi mdi-close"} tooltip={"Clear"} onTouchTap={() => {this.handleDateChange(undefined)}}/>
@@ -100,26 +101,26 @@ class LogTools extends React.Component{
                     </div>
                 }
                 <IconMenu
-                    iconButtonElement={<IconButton iconClassName={"mdi mdi-filter-variant"} tooltip={"Filter Logs"}/>}
+                    iconButtonElement={<IconButton iconClassName={"mdi mdi-filter-variant"} tooltip={MessageHash['ajxp_admin.logs.3']}/>}
                     anchorOrigin={{vertical:'top', horizontal:'right'}}
                     targetOrigin={{vertical:'top', horizontal:'right'}}
                     desktop={true}
                 >
-                    {<Subheader>Filter by...</Subheader>}
-                    <MenuItem primaryText="Full-text search" rightIcon={filterMode === 'fulltext' ? checkIcon : null} onTouchTap={()=>{this.handleFilterMode('fulltext')}}/>
-                    <MenuItem primaryText="Pick one day"  rightIcon={filterMode === 'oneday' ? checkIcon : null} onTouchTap={()=>{this.handleFilterMode('oneday')}}/>
-                    <MenuItem primaryText="Time Period"  rightIcon={filterMode === 'period' ? checkIcon : null} onTouchTap={()=>{this.handleFilterMode('period')}}/>
+                    {<Subheader>{MessageHash['ajxp_admin.logs.filter.legend']}</Subheader>}
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.filter.fulltext']} rightIcon={filterMode === 'fulltext' ? checkIcon : null} onTouchTap={()=>{this.handleFilterMode('fulltext')}}/>
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.2']}  rightIcon={filterMode === 'oneday' ? checkIcon : null} onTouchTap={()=>{this.handleFilterMode('oneday')}}/>
+                    <MenuItem primaryText={MessageHash['ajxp_admin.logs.filter.period']}  rightIcon={filterMode === 'period' ? checkIcon : null} onTouchTap={()=>{this.handleFilterMode('period')}}/>
                 </IconMenu>
 
                 {!disableExport &&
                     <IconMenu
-                        iconButtonElement={<IconButton iconClassName={"mdi mdi-download"} tooltip={pydio.MessageHash["ajxp_admin.logs.11"]}/>}
+                        iconButtonElement={<IconButton iconClassName={"mdi mdi-download"} tooltip={MessageHash["ajxp_admin.logs.11"]}/>}
                         anchorOrigin={{vertical:'top', horizontal:'right'}}
                         targetOrigin={{vertical:'top', horizontal:'right'}}
                         desktop={true}
                     >
-                        {!hasFilter && <Subheader>Pick a date or filter results</Subheader>}
-                        {hasFilter && <Subheader>Export as...</Subheader>}
+                        {!hasFilter && <Subheader>{MessageHash['ajxp_admin.logs.export.disabled']}</Subheader>}
+                        {hasFilter && <Subheader>{MessageHash['ajxp_admin.logs.11']}</Subheader>}
                         <MenuItem primaryText="CSV" rightIcon={<FontIcon style={{top: 0}} className={"mdi mdi-file-delimited"}/>} onTouchTap={()=>{this.handleExport('CSV')}} disabled={!hasFilter} />
                         <MenuItem primaryText="XLSX" rightIcon={<FontIcon style={{top: 0}} className={"mdi mdi-file-excel"}/>} onTouchTap={()=>{this.handleExport('XLSX')}} disabled={!hasFilter} />
                     </IconMenu>
