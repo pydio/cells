@@ -1,5 +1,6 @@
 import React from "react"
 import CompositeModel from './CompositeModel'
+import ShareHelper from '../main/ShareHelper'
 import SharedUsers from '../cells/SharedUsers'
 import Pydio from 'pydio'
 import {muiThemeable} from 'material-ui/styles'
@@ -132,6 +133,19 @@ class CellsList extends React.Component {
                     <Menu>{addCellItems}</Menu>
                 </Popover>
             </span>
+        }
+
+        const auth = ShareHelper.getAuthorizations(pydio);
+        if(compositeModel.getNode()){
+            const nodeLeaf = compositeModel.getNode().isLeaf();
+            const canShare = (nodeLeaf && auth.file_workspaces) || (!nodeLeaf && auth.folder_workspaces);
+            if(!canShare){
+                return (
+                    <div style={{fontSize: 13, fontWeight: 500, color: 'rgba(0, 0, 0, 0.43)', padding: 8}}>
+                        {m(nodeLeaf?'227':'228')}
+                    </div>
+                );
+            }
         }
 
         return (

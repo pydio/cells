@@ -399,6 +399,11 @@
             "description": ""
           }
         }
+      },
+      {
+        "description": "",
+        "displayName": "AdminLeftNav",
+        "methods": []
       }
     ],
     "AdminComponents/board/AdvancedDashboard.js": [
@@ -2469,6 +2474,11 @@
     "AdminPeople/editor/params/ParameterCreate.js": [
       {
         "description": "",
+        "displayName": "ThemedTitle",
+        "methods": []
+      },
+      {
+        "description": "",
         "methods": [
           {
             "name": "setSelection",
@@ -3036,6 +3046,18 @@
             "docblock": null,
             "modifiers": [],
             "params": [],
+            "returns": null
+          },
+          {
+            "name": "update",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "state",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ],
@@ -4414,6 +4436,14 @@
             },
             "required": true,
             "description": ""
+          },
+          "pydio": {
+            "type": {
+              "name": "instanceOf",
+              "value": "Pydio"
+            },
+            "required": false,
+            "description": ""
           }
         }
       }
@@ -4425,19 +4455,37 @@
         "methods": [
           {
             "name": "renderServiceLine",
-            "docblock": null,
+            "docblock": "@param service Object\n@param tag String\n@param showDescription boolean\n@param m Function\n@return {*}",
             "modifiers": [],
             "params": [
               {
                 "name": "service",
+                "description": "Object",
                 "type": null
               },
               {
                 "name": "tag",
+                "description": "String",
+                "type": null
+              },
+              {
+                "name": "showDescription",
+                "description": "boolean",
+                "type": null
+              },
+              {
+                "name": "m",
+                "description": "Function",
                 "type": null
               }
             ],
-            "returns": null
+            "returns": {
+              "description": null,
+              "type": {
+                "name": "mixed"
+              }
+            },
+            "description": null
           }
         ]
       }
@@ -7577,406 +7625,6 @@
     ]
   },
   "gui.ajax": {
-    "core/Pydio.es6": [
-      {
-        "description": "This is the main class for launching the whole framework,\nwith or without a UI.\nIt can be launched by PydioBootstrap or directly by giving the right parameters.",
-        "displayName": "Pydio",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Pydio Constructor takes a Map of start parameters.\n\n@param parameters {Map}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "parameters",
-                "description": "{Map}",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Pydio Constructor takes a Map of start parameters."
-          },
-          {
-            "name": "fire",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "eventName",
-                "type": null
-              },
-              {
-                "name": "data",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "updateUser",
-            "docblock": "@param {User|null} userObject\n@param skipEvent bool",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "userObject",
-                "description": null,
-                "type": {
-                  "name": "union",
-                  "value": [
-                    "User",
-                    null
-                  ]
-                }
-              },
-              {
-                "name": "skipEvent",
-                "description": "bool",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": null
-          },
-          {
-            "name": "getUser",
-            "docblock": "@returns {null|User}",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": null,
-              "type": {
-                "name": "union",
-                "value": [
-                  null,
-                  "User"
-                ]
-              }
-            },
-            "description": null
-          },
-          {
-            "name": "refreshUserData",
-            "docblock": "Refresh user/preferences registry part",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Refresh user/preferences registry part"
-          },
-          {
-            "name": "init",
-            "docblock": "Real initialisation sequence. Will Trigger the whole GUI building.",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Real initialisation sequence. Will Trigger the whole GUI building."
-          },
-          {
-            "name": "loadXmlRegistry",
-            "docblock": "Loads the XML Registry, an image of the application in its current state\nsent by the server.\n@param xPath String An XPath to load only a subpart of the registry\n@param completeFunc\n@param targetRepositoryId",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "xPath",
-                "description": "String An XPath to load only a subpart of the registry",
-                "type": null
-              },
-              {
-                "name": "completeFunc",
-                "description": null,
-                "type": null
-              },
-              {
-                "name": "targetRepositoryId",
-                "description": null,
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Loads the XML Registry, an image of the application in its current state\nsent by the server."
-          },
-          {
-            "name": "getXmlRegistry",
-            "docblock": "Get the XML Registry\n@returns Document",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "Document",
-              "type": null
-            },
-            "description": "Get the XML Registry"
-          },
-          {
-            "name": "loadActiveRepository",
-            "docblock": "Find the current repository (from the current user) and load it.",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Find the current repository (from the current user) and load it."
-          },
-          {
-            "name": "reloadRepositoriesList",
-            "docblock": "Refresh the repositories list for the current user",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Refresh the repositories list for the current user"
-          },
-          {
-            "name": "loadRepository",
-            "docblock": "Load a Repository instance\n@param repository Repository",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "repository",
-                "description": "Repository",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Load a Repository instance"
-          },
-          {
-            "name": "goTo",
-            "docblock": "Require a context change to the given path\n@param nodeOrPath AjxpNode|String A node or a path",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "nodeOrPath",
-                "description": "AjxpNode|String A node or a path",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Require a context change to the given path"
-          },
-          {
-            "name": "triggerRepositoryChange",
-            "docblock": "Change the repository of the current user and reload list and current.\n@param repositoryId String Id of the new repository\n@param callback Function",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "repositoryId",
-                "description": "String Id of the new repository",
-                "type": null
-              },
-              {
-                "name": "callback",
-                "description": "Function",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Change the repository of the current user and reload list and current."
-          },
-          {
-            "name": "getPluginConfigs",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "pluginQuery",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "listLanguagesWithCallback",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "callback",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "loadI18NMessages",
-            "docblock": "Reload all messages from server and trigger updateI18nTags\n@param newLanguage String\n@param reloadRegistry bool",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "newLanguage",
-                "description": "String",
-                "type": null
-              },
-              {
-                "name": "reloadRegistry",
-                "description": "bool",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Reload all messages from server and trigger updateI18nTags"
-          },
-          {
-            "name": "getController",
-            "docblock": "Get the main controller\n@returns ActionManager",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "ActionManager",
-              "type": null
-            },
-            "description": "Get the main controller"
-          },
-          {
-            "name": "displayMessage",
-            "docblock": "Display an information or error message to the user\n@param messageType String ERROR or SUCCESS\n@param message String the message",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "messageType",
-                "description": "String ERROR or SUCCESS",
-                "type": null
-              },
-              {
-                "name": "message",
-                "description": "String the message",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Display an information or error message to the user"
-          },
-          {
-            "name": "updateContextData",
-            "docblock": "Accessor for updating the datamodel context\n@param ajxpContextNode AjxpNode\n@param ajxpSelectedNodes AjxpNode[]\n@param selectionSource String",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "ajxpContextNode",
-                "description": "AjxpNode",
-                "type": null
-              },
-              {
-                "name": "ajxpSelectedNodes",
-                "description": "AjxpNode[]",
-                "type": null
-              },
-              {
-                "name": "selectionSource",
-                "description": "String",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Accessor for updating the datamodel context"
-          },
-          {
-            "name": "getContextHolder",
-            "docblock": "@returns PydioDataModel",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "PydioDataModel",
-              "type": null
-            },
-            "description": null
-          },
-          {
-            "name": "getContextNode",
-            "docblock": "@returns AjxpNode",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "AjxpNode",
-              "type": null
-            },
-            "description": null
-          },
-          {
-            "name": "getUserSelection",
-            "docblock": "@returns PydioDataModel",
-            "modifiers": [],
-            "params": [],
-            "returns": {
-              "description": "PydioDataModel",
-              "type": null
-            },
-            "description": null
-          },
-          {
-            "name": "fireContextRefresh",
-            "docblock": "Accessor for datamodel.requireContextChange()",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Accessor for datamodel.requireContextChange()"
-          },
-          {
-            "name": "fireNodeRefresh",
-            "docblock": "Accessor for datamodel.requireContextChange()",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "nodePathOrNode"
-              },
-              {
-                "name": "completeCallback"
-              }
-            ],
-            "returns": null,
-            "description": "Accessor for datamodel.requireContextChange()"
-          },
-          {
-            "name": "fireContextUp",
-            "docblock": "Accessor for datamodel.requireContextChange()",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Accessor for datamodel.requireContextChange()"
-          },
-          {
-            "name": "requireLib",
-            "docblock": "Proxy to ResourcesManager.requireLib for ease of writing\n@param module\n@param promise\n@returns {*}",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "module",
-                "description": null,
-                "type": null
-              },
-              {
-                "name": "promise",
-                "description": null,
-                "type": null
-              }
-            ],
-            "returns": {
-              "description": null,
-              "type": {
-                "name": "mixed"
-              }
-            },
-            "description": "Proxy to ResourcesManager.requireLib for ease of writing"
-          },
-          {
-            "name": "getInstance",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "getMessages",
-            "docblock": null,
-            "modifiers": [
-              "static"
-            ],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "require": "const Pydio = require('pydio')"
-      }
-    ],
     "core/PydioBootstrap.es6": [
       {
         "description": "Main BootLoader.",
@@ -10068,44 +9716,25 @@
             "returns": null
           },
           {
-            "name": "parseJSONNode",
-            "docblock": "@return AjxpNode | null\n@param obj\n@param currentRepoId string\n@param currentRepoSlug string",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "obj",
-                "description": null,
-                "type": null
-              },
-              {
-                "name": "currentRepoId",
-                "description": "string",
-                "type": null
-              },
-              {
-                "name": "currentRepoSlug",
-                "description": "string",
-                "type": null
-              }
-            ],
-            "returns": {
-              "description": "AjxpNode | null",
-              "type": null
-            },
-            "description": null
-          },
-          {
             "name": "subscribeJWT",
-            "docblock": "@param ws\n@return {*|Promise.<string>}",
+            "docblock": "@param ws {ReconnectingWebSocket}\n@param withRetries bool\n@param retry integer\n@return {*|Promise.<string>}",
             "modifiers": [
               "static"
             ],
             "params": [
               {
                 "name": "ws",
-                "description": null,
+                "description": "{ReconnectingWebSocket}",
+                "type": null
+              },
+              {
+                "name": "withRetries",
+                "description": "bool",
+                "type": null
+              },
+              {
+                "name": "retry",
+                "description": "integer",
                 "type": null
               }
             ],
@@ -10449,7 +10078,7 @@
           },
           {
             "name": "loadClass",
-            "docblock": "Load class and return as a promise\n@param className\n@return {*|Promise|PromiseLike<T>|Promise<T>}",
+            "docblock": "Load class and return as a promise - do not catch error\n@param className\n@return {*|Promise|PromiseLike<T>|Promise<T>}",
             "modifiers": [
               "static"
             ],
@@ -10472,7 +10101,7 @@
                 ]
               }
             },
-            "description": "Load class and return as a promise"
+            "description": "Load class and return as a promise - do not catch error"
           },
           {
             "name": "detectModuleToLoadAndApply",
@@ -25845,12 +25474,17 @@
           },
           {
             "name": "addRootNode",
-            "docblock": "@param node Node",
+            "docblock": "@param node Node\n@param repositoryId String",
             "modifiers": [],
             "params": [
               {
                 "name": "node",
                 "description": "Node",
+                "type": null
+              },
+              {
+                "name": "repositoryId",
+                "description": "String",
                 "type": null
               }
             ],
@@ -26007,11 +25641,13 @@
           },
           {
             "name": "deleteCell",
-            "docblock": "@return {Promise}",
+            "docblock": "@param confirmMessage String\n@return {Promise}",
             "modifiers": [],
             "params": [
               {
-                "name": "confirmMessage"
+                "name": "confirmMessage",
+                "description": "String",
+                "type": null
               }
             ],
             "returns": {
@@ -30626,175 +30262,6 @@
         "description": "",
         "methods": [],
         "require": "const {GridItemMixin} = require('pydio').requireLib('components')"
-      }
-    ],
-    "Components/editor/PaperEditor.js": [
-      {
-        "description": "Two columns layout used for Workspaces and Plugins editors",
-        "methods": [
-          {
-            "name": "toggleMenu",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
-        "props": {
-          "title": {
-            "type": {
-              "name": "any"
-            },
-            "required": false,
-            "description": ""
-          },
-          "titleActionBar": {
-            "type": {
-              "name": "any"
-            },
-            "required": false,
-            "description": ""
-          },
-          "leftNav": {
-            "type": {
-              "name": "any"
-            },
-            "required": false,
-            "description": ""
-          },
-          "contentFill": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "className": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
-        "require": "const {PaperEditor} = require('pydio').requireLib('components')"
-      },
-      {
-        "description": "Navigation subheader used by PaperEditorLayout",
-        "methods": [],
-        "props": {
-          "label": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
-      },
-      {
-        "description": "Navigation entry used by PaperEditorLayout.",
-        "methods": [
-          {
-            "name": "onClick",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "captureDropDownClick",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
-          {
-            "name": "dropDownChange",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "event",
-                "type": null
-              },
-              {
-                "name": "index",
-                "type": null
-              },
-              {
-                "name": "item",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ],
-        "props": {
-          "keyName": {
-            "type": {
-              "name": "string"
-            },
-            "required": true,
-            "description": ""
-          },
-          "onClick": {
-            "type": {
-              "name": "func"
-            },
-            "required": true,
-            "description": ""
-          },
-          "label": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "selectedKey": {
-            "type": {
-              "name": "string"
-            },
-            "required": false,
-            "description": ""
-          },
-          "isLast": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "dropDown": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "dropDownData": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "dropDownChange": {
-            "type": {
-              "name": "func"
-            },
-            "required": false,
-            "description": ""
-          },
-          "dropDownDefaultItems": {
-            "type": {
-              "name": "array"
-            },
-            "required": false,
-            "description": ""
-          }
-        }
       }
     ],
     "Components/editor/ReactEditorOpener.js": [
@@ -36077,44 +35544,6 @@
         "require": "const {ReplicationPanel} = require('pydio').requireLib('form')"
       }
     ],
-    "HOCs/content/controls.js": [
-      {
-        "description": "",
-        "displayName": "_Save",
-        "methods": [],
-        "require": "const {controls} = require('pydio').requireLib('hoc')"
-      },
-      {
-        "description": "",
-        "displayName": "_Undo",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "_Redo",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "_ToggleLineNumbers",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "_ToggleLineWrapping",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "_JumpTo",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "_Search",
-        "methods": []
-      }
-    ],
     "HOCs/errors.js": [
       {
         "description": "",
@@ -39652,13 +39081,6 @@
             "description": ""
           },
           "readonly": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          },
-          "create": {
             "type": {
               "name": "bool"
             },

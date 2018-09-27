@@ -81,6 +81,7 @@ var CompositeModel = (function (_Observable) {
 
             var link = new _linksLinkModel2['default']();
             var treeNode = new _pydioHttpRestApi.TreeNode();
+            var auth = _mainShareHelper2['default'].getAuthorizations(_pydio2['default'].getInstance());
             treeNode.Uuid = node.getMetadata().get('uuid');
             link.getLink().Label = node.getLabel();
             link.getLink().Description = pydio.MessageHash['share_center.257'].replace('%s', moment(new Date()).format("YYYY/MM/DD"));
@@ -95,9 +96,12 @@ var CompositeModel = (function (_Observable) {
 
                 var preview = _ShareHelper$nodeHasEditor.preview;
 
-                if (preview) {
+                if (preview && !auth.max_downloads) {
                     defaultTemplate = "pydio_unique_strip";
                     defaultPermissions.push(_pydioHttpRestApi.RestShareLinkAccessType.constructFromObject('Preview'));
+                } else if (auth.max_downloads > 0) {
+                    // If DL only and auth has default max download, set it
+                    link.getLink().MaxDownloads = auth.max_downloads;
                 }
             } else {
                 defaultTemplate = "pydio_shared_folder";
@@ -105,6 +109,9 @@ var CompositeModel = (function (_Observable) {
             }
             link.getLink().ViewTemplateName = defaultTemplate;
             link.getLink().Permissions = defaultPermissions;
+            if (auth.max_expiration) {
+                link.getLink().AccessEnd = "" + (Math.round(new Date() / 1000) + parseInt(auth.max_expiration) * 60 * 60 * 24);
+            }
 
             link.observe("update", function () {
                 _this.notify("update");
@@ -213,22 +220,30 @@ var CompositeModel = (function (_Observable) {
     }, {
         key: 'save',
         value: function save() {
+            var _this6 = this;
+
+            var proms = [];
             this.cells.map(function (r) {
                 if (r.isDirty()) {
-                    r.save();
+                    proms.push(r.save());
                 }
             });
             this.links.map(function (l) {
                 if (l.isDirty()) {
-                    l.save();
+                    proms.push(l.save());
                 }
             });
-            // Remove cells that don't have this node anymore
-            var nodeId = this.node.getMetadata().get('uuid');
-            this.cells = this.cells.filter(function (r) {
-                return r.hasRootNode(nodeId);
+            // Wait that all save are finished
+            Promise.all(proms).then(function () {
+                // Remove cells that don't have this node anymore
+                var nodeId = _this6.node.getMetadata().get('uuid');
+                _this6.cells = _this6.cells.filter(function (r) {
+                    return r.hasRootNode(nodeId);
+                });
+                _this6.updateUnderlyingNode();
+            })['catch'](function (e) {
+                _this6.updateUnderlyingNode();
             });
-            this.updateUnderlyingNode();
         }
     }, {
         key: 'deleteAll',
@@ -296,13 +311,13 @@ var CompositeModel = (function (_Observable) {
     }, {
         key: 'getCells',
         value: function getCells() {
-            var _this6 = this;
+            var _this7 = this;
 
             if (this.node) {
                 var _ret = (function () {
-                    var nodeId = _this6.node.getMetadata().get('uuid');
+                    var nodeId = _this7.node.getMetadata().get('uuid');
                     return {
-                        v: _this6.cells.filter(function (r) {
+                        v: _this7.cells.filter(function (r) {
                             return r.hasRootNode(nodeId);
                         })
                     };

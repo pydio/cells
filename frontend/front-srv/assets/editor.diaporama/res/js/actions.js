@@ -17,19 +17,10 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio';
+const { EditorActions } = Pydio.requireLib('hoc');
 
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-var _PydioHOCs$ContentControls = PydioHOCs.ContentControls;
-var Save = _PydioHOCs$ContentControls.Save;
-
-var _ = _objectWithoutProperties(_PydioHOCs$ContentControls, ["Save"]);
-
-var ContentControls = { Save: Save };
-exports.ContentControls = ContentControls;
+export const onSelectionChange = ({dispatch, tab}) => (node) => dispatch(EditorActions.tabModify({id: tab.id, title: node.getLabel(), node}))
+export const onToggleResolution = ({dispatch, tab}) => (high) => dispatch(EditorActions.tabModify({id: tab.id, resolution: high ? "hi": "lo"}))
+export const onTogglePlaying = ({dispatch, tab}) => (playing) => dispatch(EditorActions.tabModify({id: tab.id, playing}))
+export const onSizeChange = ({dispatch}) => (data) => dispatch(EditorActions.editorModify(data))

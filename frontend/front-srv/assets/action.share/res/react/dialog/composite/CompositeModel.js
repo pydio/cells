@@ -43,6 +43,7 @@ class CompositeModel extends Observable {
     emptyLink(node){
         const link = new LinkModel();
         const treeNode = new TreeNode();
+        const auth = ShareHelper.getAuthorizations(Pydio.getInstance());
         treeNode.Uuid = node.getMetadata().get('uuid');
         link.getLink().Label = node.getLabel();
         link.getLink().Description = pydio.MessageHash['share_center.257'].replace('%s', moment(new Date()).format("YYYY/MM/DD"));
@@ -53,9 +54,12 @@ class CompositeModel extends Observable {
         if(node.isLeaf()){
             defaultTemplate = "pydio_unique_dl";
             const {preview} = ShareHelper.nodeHasEditor(pydio, node);
-            if(preview){
+            if(preview && !auth.max_downloads){
                 defaultTemplate = "pydio_unique_strip";
                 defaultPermissions.push(RestShareLinkAccessType.constructFromObject('Preview'));
+            } else if(auth.max_downloads > 0){
+                // If DL only and auth has default max download, set it
+                link.getLink().MaxDownloads = auth.max_downloads;
             }
         } else {
             defaultTemplate = "pydio_shared_folder";
@@ -63,6 +67,9 @@ class CompositeModel extends Observable {
         }
         link.getLink().ViewTemplateName = defaultTemplate;
         link.getLink().Permissions = defaultPermissions;
+        if(auth.max_expiration){
+            link.getLink().AccessEnd = "" + (Math.round(new Date() / 1000) + parseInt(auth.max_expiration) * 60 * 60 * 24);
+        }
 
         link.observe("update", ()=> {this.notify("update")});
         link.observe("save", ()=> {this.updateUnderlyingNode()});
@@ -138,20 +145,26 @@ class CompositeModel extends Observable {
     }
 
     save(){
+        const proms = [];
         this.cells.map(r => {
             if(r.isDirty()){
-                r.save();
+                proms.push(r.save());
             }
         });
         this.links.map(l => {
             if(l.isDirty()){
-                l.save();
+                proms.push(l.save());
             }
         });
-        // Remove cells that don't have this node anymore
-        const nodeId = this.node.getMetadata().get('uuid');
-        this.cells = this.cells.filter(r => r.hasRootNode(nodeId));
-        this.updateUnderlyingNode();
+        // Wait that all save are finished
+        Promise.all(proms).then(() =>{
+            // Remove cells that don't have this node anymore
+            const nodeId = this.node.getMetadata().get('uuid');
+            this.cells = this.cells.filter(r => r.hasRootNode(nodeId));
+            this.updateUnderlyingNode();
+        }).catch(e => {
+            this.updateUnderlyingNode();
+        })
     }
 
     deleteAll(){

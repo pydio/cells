@@ -29,6 +29,8 @@ import (
 	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"
 
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
@@ -42,6 +44,7 @@ import (
 	"github.com/pydio/cells/common/service/defaults"
 	serviceproto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
+	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/idm/meta/namespace"
 )
@@ -70,6 +73,51 @@ func (s *UserMetaHandler) Filter() func(string) string {
 	return nil
 }
 
+// Handle special case for "content_lock" meta => store in ACL instead of user metadatas
+func (s *UserMetaHandler) updateLock(ctx context.Context, meta *idm.UserMeta, operation idm.UpdateUserMetaRequest_UserMetaOp) error {
+	log.Logger(ctx).Info("Should update content lock in ACLs", zap.Any("meta", meta), zap.Any("operation", operation))
+	nodeUuid := meta.NodeUuid
+	aclClient := idm.NewACLServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, defaults.NewClient())
+	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		NodeIDs: []string{nodeUuid},
+		Actions: []*idm.ACLAction{{Name: utils.ACL_CONTENT_LOCK.Name}},
+	})
+	userName, _ := utils.FindUserNameInContext(ctx)
+	stream, err := aclClient.SearchACL(ctx, &idm.SearchACLRequest{Query: &serviceproto.Query{SubQueries: []*any.Any{q}}})
+	if err != nil {
+		return err
+	}
+	defer stream.Close()
+	for {
+		rsp, e := stream.Recv()
+		if e != nil {
+			break
+		}
+		if rsp == nil {
+			continue
+		}
+		acl := rsp.ACL
+		if userName == "" || acl.Action.Value != userName {
+			return errors.Forbidden("lock.update.forbidden", "This file is locked by another user")
+		}
+		break
+	}
+	if operation == idm.UpdateUserMetaRequest_PUT {
+		if _, e := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: &idm.ACL{
+			NodeID: nodeUuid,
+			Action: &idm.ACLAction{Name: "content_lock", Value: meta.JsonValue},
+		}}); e != nil {
+			return e
+		}
+	} else {
+		req := &idm.DeleteACLRequest{Query: &serviceproto.Query{SubQueries: []*any.Any{q}}}
+		if _, e := aclClient.DeleteACL(ctx, req); e != nil {
+			return e
+		}
+	}
+	return nil
+}
+
 // Will check for namespace policies before updating / deleting
 func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Response) {
 
@@ -86,16 +134,35 @@ func (s *UserMetaHandler) UpdateUserMeta(req *restful.Request, rsp *restful.Resp
 		return
 	}
 	var loadUuids []string
-	// TODO: CHECK RIGHTS FOR NODE UUID WITH ROUTER ?
+	router := views.NewUuidRouter(views.RouterOptions{})
 
 	// First check if the namespaces are globally accessible
 	for _, meta := range input.MetaDatas {
 		var ns *idm.UserMetaNamespace
 		var exists bool
+		resp, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Uuid: meta.NodeUuid}})
+		if e != nil {
+			service.RestError404(req, rsp, e)
+			return
+		}
+		if meta.Namespace == utils.ACL_CONTENT_LOCK.Name {
+			e := s.updateLock(ctx, meta, input.Operation)
+			if e != nil {
+				service.RestErrorDetect(req, rsp, e)
+			} else {
+				rsp.WriteEntity(&idm.UpdateUserMetaResponse{MetaDatas: []*idm.UserMeta{meta}})
+			}
+			return
+		}
 		if ns, exists = nsList[meta.Namespace]; !exists {
 			service.RestError404(req, rsp, errors.NotFound(common.SERVICE_USER_META, "Namespace "+meta.Namespace+" is not defined!"))
 			return
 		}
+		if strings.HasPrefix(meta.Namespace, "usermeta-") && resp.Node.GetStringMeta(common.META_FLAG_READONLY) != "" {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to edit this node"))
+			return
+		}
+
 		if !s.MatchPolicies(ctx, meta.Namespace, ns.Policies, serviceproto.ResourcePolicyAction_WRITE) {
 			service.RestError403(req, rsp, errors.Forbidden(common.SERVICE_USER_META, "You are not authorized to write on namespace "+meta.Namespace))
 			return

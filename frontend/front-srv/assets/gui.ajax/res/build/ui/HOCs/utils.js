@@ -57,13 +57,15 @@ var defaultActions = _extends({}, contentActions, resolutionActions, selectionAc
 // Helper functions
 var getActions = function getActions(_ref) {
     var editorData = _ref.editorData;
-    return editorData.editorActions && _extends({}, defaultActions, FuncUtils.getFunctionByName(editorData.editorActions, window)) || _extends({}, defaultActions);
+    return editorData.editorActions && FuncUtils.getFunctionByName(editorData.editorActions, window) || {};
 };
 
 var handler = function handler(func, _ref2) {
     var dispatch = _ref2.dispatch;
     var tab = _ref2.tab;
-    return getActions(tab)[func]({ dispatch: dispatch, tab: tab });
+
+    var fn = getActions(tab)[func];
+    return typeof fn === "function" && fn({ dispatch: dispatch, tab: tab });
 };
 
 exports.handler = handler;

@@ -33,6 +33,7 @@ class ShareHelper {
             file_public_link : pluginConfigs.get("ENABLE_FILE_PUBLIC_LINK"),
             file_workspaces : pluginConfigs.get("ENABLE_FILE_INTERNAL_SHARING"),
             editable_hash : pluginConfigs.get("HASH_USER_EDITABLE"),
+            hash_min_length : pluginConfigs.get("HASH_MIN_LENGTH") || 6,
             password_mandatory: false,
             max_expiration : pluginConfigs.get("FILE_MAX_EXPIRATION"),
             max_downloads : pluginConfigs.get("FILE_MAX_DOWNLOAD")

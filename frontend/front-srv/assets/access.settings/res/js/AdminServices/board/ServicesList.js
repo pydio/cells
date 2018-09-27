@@ -159,7 +159,11 @@ export default React.createClass({
     render(){
         const {pydio} = this.props;
         const {services} = this.state;
-        const blockStyle = {margin:20, backgroundColor: 'rgba(207, 216, 220, 0.59)', borderRadius: 3, padding: 3, display:'flex', flexWrap:'wrap'};
+        const blockStyle = {
+            margin:16,
+            display:'flex',
+            flexWrap:'wrap'
+        };
         const m = id => pydio.MessageHash['ajxp_admin.services.tag.' + id] || id;
 
 
@@ -171,7 +175,7 @@ export default React.createClass({
             if(tag === 'datasource') {
                 // Regroup by type
                 subBlocks.push(
-                    <div style={{...blockStyle, marginBottom: 5}} >
+                    <div style={{...blockStyle, margin: '0 16px'}} >
                         {Object.keys(services).map(id => {
                             if(!id.startsWith('main -')) return null;
                             return <ServiceCard pydio={pydio} showDescription={this.props.details} title={id.replace('main - ', '')} tagId={tag} services={services[id]}/>
@@ -179,7 +183,7 @@ export default React.createClass({
                     </div>
                 );
                 subBlocks.push(
-                    <div style={{...blockStyle, margin:'5px 20px'}} >
+                    <div style={{...blockStyle, margin: '0 16px'}} >
                         {Object.keys(services).map(id => {
                             if(!id.startsWith('datasource -')) return null;
                             return <ServiceCard pydio={pydio} showDescription={this.props.details} title={id.replace('datasource - ', '')} tagId={tag} services={services[id]}/>
@@ -187,7 +191,7 @@ export default React.createClass({
                     </div>
                 );
                 subBlocks.push(
-                    <div style={{...blockStyle, marginTop:5}} >
+                    <div style={{...blockStyle, margin: '0 16px'}} >
                         {Object.keys(services).map(id => {
                             if(!id.startsWith('objects -')) return null;
                             return <ServiceCard pydio={pydio} showDescription={this.props.details} title={id.replace('objects - ', '')} tagId={tag} services={services[id]}/>

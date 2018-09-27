@@ -56,7 +56,7 @@ const TreeDialog = React.createClass({
     getInitialState(){
         const dm = this.getCurrentDataModel();
         const root = dm.getRootNode();
-        root.load();
+        root.load(dm.getAjxpNodeProvider());
         return{
             dataModel: dm,
             selectedNode: root,
@@ -86,7 +86,8 @@ const TreeDialog = React.createClass({
     },
 
     onNodeSelected(n){
-        n.load();
+        const {dataModel} = this.state;
+        n.load(dataModel.getAjxpNodeProvider());
         this.setState({
             selectedNode: n
         })

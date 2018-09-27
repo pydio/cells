@@ -91,12 +91,14 @@ var SimpleTreeNode = _react2['default'].createClass({
         }).bind(this);
         node.observe("child_added", this._childrenListener);
         node.observe("child_removed", this._childrenListener);
+        node.observe("loaded", this._childrenListener);
         node.observe("node_replaced", this._nodeListener);
     },
 
     stopListening: function stopListening(node) {
         node.stopObserving("child_added", this._childrenListener);
         node.stopObserving("child_removed", this._childrenListener);
+        node.stopObserving("loaded", this._childrenListener);
         node.stopObserving("node_replaced", this._nodeListener);
     },
 

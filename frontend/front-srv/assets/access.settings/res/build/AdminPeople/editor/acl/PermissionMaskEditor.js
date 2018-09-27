@@ -142,7 +142,7 @@ var PermissionMaskEditor = _react2['default'].createClass({
 
     onCheckboxCheck: function onCheckboxCheck(node, checkboxName, value) {
 
-        console.log(node, checkboxName, value);
+        //console.log(node, checkboxName, value);
         var role = this.props.role;
 
         var nodeUuid = node.getMetadata().get('uuid');

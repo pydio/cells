@@ -18,7 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const PydioApi = require('pydio/http/api');
+import PydioApi from "pydio/http/api";
+import {RestDeleteNodesRequest, TreeServiceApi, TreeNode} from 'pydio/http/rest-api'
 
 export default function (pydio) {
 
@@ -28,10 +29,20 @@ export default function (pydio) {
         pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
             message:MessageHash[177],
             dialogTitleId: 220,
-            validCallback:function(){
+            validCallback:()=>{
                 const slug = pydio.user.getActiveRepositoryObject().getSlug();
-                PydioApi.getRestClient().userJob("delete", {nodes: [slug + '/recycle_bin'], childrenOnly:true}).then(r => {
-                    pydio.UI.displayMessage('SUCCESS', 'Emptying recycle bin in background');
+                const deleteRequest = new RestDeleteNodesRequest();
+                const api = new TreeServiceApi(PydioApi.getRestClient());
+                const n = new TreeNode();
+                n.Path = slug + '/recycle_bin';
+                deleteRequest.Nodes = [n];
+                api.deleteNodes(deleteRequest).then(r => {
+                    if (r.DeleteJobs){
+                        r.DeleteJobs.forEach(j => {
+                            pydio.UI.displayMessage('SUCCESS', j.Label);
+                        })
+                    }
+                    pydio.getContextHolder().requireContextChange(pydio.getContextHolder().getRootNode());
                 });
             }
         });

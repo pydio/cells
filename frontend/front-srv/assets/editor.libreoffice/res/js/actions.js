@@ -18,54 +18,103 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-class Callbacks {
+const {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} = require('pydio/http/rest-api');
 
+export const dynamicBuilder = (controller) => {
 
-    static dynamicBuilder(controller) {
+    const pydio = window.pydio;
+    const MessageHash = pydio.MessageHash;
+    const exts = {
+        doc:'file-word',
+        docx:'file-word',
+        odt:'file-word',
+        odg:'file-chart',
+        odp:'file-powerpoint',
+        ods:'file-excel',
+        pot:'file-powerpoint',
+        pptx:'file-powerpoint',
+        rtf:'file-word',
+        xls:'file-excel',
+        xlsx:'file-excel'
+    };
 
-        const pydio = window.pydio;
-        const MessageHash = pydio.MessageHash;
-        const exts = {
-            doc:'file-word',
-            docx:'file-word',
-            odt:'file-word',
-            odg:'file-chart',
-            odp:'file-powerpoint',
-            ods:'file-excel',
-            pot:'file-powerpoint',
-            pptx:'file-powerpoint',
-            rtf:'file-word',
-            xls:'file-excel',
-            xlsx:'file-excel'
-        };
+    const dir = pydio.getContextHolder().getContextNode().getPath();
 
-        const dir = pydio.getContextHolder().getContextNode().getPath();
+    let builderMenuItems = [];
 
-        let builderMenuItems = [];
+    Object.keys(exts).forEach((k) => {
 
-        Object.keys(exts).forEach((k) => {
+        if(!MessageHash['libreoffice.ext.' + k]) return;
 
-            if(!MessageHash['libreoffice.ext.' + k]) return;
+        builderMenuItems.push({
+            name:MessageHash['libreoffice.ext.' + k],
+            alt:MessageHash['libreoffice.ext.' + k],
+            icon_class:'mdi mdi-' + exts[k],
+            callback: async function(e) {
+                const repoList = pydio.user.getRepositoriesList()
+                const api = new TreeServiceApi(PydioApi.getRestClient());
+                const request = new RestCreateNodesRequest();
+                const node = new TreeNode();
 
-            builderMenuItems.push({
-                name:MessageHash['libreoffice.ext.' + k],
-                alt:MessageHash['libreoffice.ext.' + k],
-                icon_class:'mdi mdi-' + exts[k],
-                callback:function(e){
-                    PydioApi.getClient().request({
-                        get_action: 'libreoffice_mkempty_file',
-                        dir       : dir,
-                        format    : k
-                    });
-                }.bind(this)
-            });
+                const slug = repoList.get(pydio.user.activeRepository).getSlug();
 
+                let path = slug + dir + (dir ? "/" : "") + "Untitled Document." + k;
+                path = await file_newpath(path)
+
+                node.Path = path
+                node.Type = TreeNodeType.constructFromObject('LEAF');
+                request.Nodes = [node];
+
+                api.createNodes(request).then(leaf => {
+                    // Success - We should probably select the nodes
+                    // pydio.getContextHolder().setSelectedNodes([node])
+                });
+            }.bind(this)
         });
 
-        return builderMenuItems;
+    });
 
-    }
-
+    return builderMenuItems;
 }
 
-window.PydioLibreOfficeActions = {Callbacks};
+function file_newpath(fullpath) {
+    return new Promise(async function (resolve) {
+        const lastSlash = fullpath.lastIndexOf('/')
+        const pos = fullpath.lastIndexOf('.')
+        let path = fullpath;
+        let ext = '';
+
+        // NOTE: the position lastSlash + 1 corresponds to hidden files (ex: .DS_STORE)
+        if (pos  > -1 && lastSlash < pos && pos > lastSlash + 1) {
+            path = fullpath.substring(0, pos);
+            ext = fullpath.substring(pos);
+        }
+
+        let newPath = fullpath;
+        let counter = 1;
+
+        let exists = await file_exists(newPath);
+
+        while (exists) {
+            newPath = path + '-' + counter + ext;
+            counter++;
+            exists = await file_exists(newPath)
+        }
+
+        resolve(newPath);
+    }.bind(this))
+}
+
+function file_exists(fullpath) {
+    return new Promise(resolve => {
+        const api = new TreeServiceApi(PydioApi.getRestClient());
+
+        api.headNode(fullpath).then(node => {
+            if (node.Node) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        }).catch(() => resolve(false))
+    })
+}

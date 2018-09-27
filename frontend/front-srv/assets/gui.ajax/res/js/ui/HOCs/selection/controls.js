@@ -23,65 +23,63 @@ import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
 import { handler, getDisplayName } from '../utils';
 
-export const withSelectionControls = () => {
-    return (Component) => {
-        return (
-            @connect(mapStateToProps)
-            class extends React.Component {
-                static get displayName() {
-                    return `WithSelectionControls(${getDisplayName(Component)})`
-                }
+export const withSelectionControls = (Component) => {
+    return (
+        @connect(mapStateToProps)
+        class extends React.Component {
+            static get displayName() {
+                return `WithSelectionControls(${getDisplayName(Component)})`
+            }
 
-                render() {
-                    const {tab, ...remaining} = this.props;
-                    const {selection} = tab;
+            render() {
+                const {tab, ...remaining} = this.props;
+                const {selection} = tab;
 
-                    if (!selection || selection.length() == 0) {
-                        return (
-                            <Component {...remaining} />
-                        )
-                    }
-
-                    const fn = handler("onSelectionChange", this.props)
-
+                if (!selection || selection.length() == 0) {
                     return (
-                        <Component
-                            prevSelectionDisabled={!selection.hasPrevious()}
-                            nextSelectionDisabled={!selection.hasNext()}
-                            onSelectPrev={() => fn(selection.previous())}
-                            onSelectNext={() => fn(selection.next())}
-                            {...remaining}
-                        />
+                        <Component {...remaining} />
                     )
                 }
+
+                const fn = handler("onSelectionChange", this.props)
+
+                return (
+                    <Component
+                        browseable={typeof fn === "function"}
+                        prevSelectionDisabled={!selection.hasPrevious()}
+                        nextSelectionDisabled={!selection.hasNext()}
+                        onSelectPrev={() => fn(selection.previous())}
+                        onSelectNext={() => fn(selection.next())}
+                        {...remaining}
+                    />
+                )
             }
-        )
-    }
+        }
+    )
 }
 
-export const withAutoPlayControls = () => {
-    return (Component) => {
-        return (
-            @connect(mapStateToProps)
-            class extends React.Component {
-                static get displayName() {
-                    return `WithSelectionControls(${getDisplayName(Component)})`
-                }
-
-                render() {
-                    const {tab, ...remaining} = this.props;
-                    const {playing = false} = tab;
-
-                    const fn = handler("onTogglePlaying", this.props)
-
-                    return (
-                        <Component
-                            onAutoPlayToggle={() => fn(!playing)}
-                            {...remaining}
-                        />
-                    )
-                }
+export const withAutoPlayControls = (Component) => {
+    return (
+        @connect(mapStateToProps)
+        class extends React.Component {
+            static get displayName() {
+                return `WithSelectionControls(${getDisplayName(Component)})`
             }
-        )
-    }
+
+            render() {
+                const {tab, ...remaining} = this.props;
+                const {playing = false} = tab;
+
+                const fn = handler("onTogglePlaying", this.props)
+
+                return (
+                    <Component
+                        playable={typeof fn === "function"}
+                        onAutoPlayToggle={() => fn(!playing)}
+                        {...remaining}
+                    />
+                )
+            }
+        }
+    )
 }

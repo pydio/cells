@@ -170,9 +170,12 @@ class AdvancedMetaFields extends Component {
 
         // Looping through the options to check if we have a special renderer for any
         const specialRendererKeys = Object.keys({...reactColumnsRenderers})
-        const standardRendererKeys = Object.keys({...metaColumns}).filter((key) => specialRendererKeys.indexOf(standardRendererKeys) > -1)
+        const standardRendererKeys = Object.keys({...metaColumns}).filter((key) => specialRendererKeys.indexOf(key) === -1)
 
-        const columns = standardRendererKeys.map((key) => {key: metaColumns[key]}).reduce((obj, current) => obj = {...obj, ...current}, [])
+        const textFields = {};
+        standardRendererKeys.forEach(k => {
+            textFields[k] = metaColumns[k];
+        });
 
         const renderers = Object.keys({...reactColumnsRenderers}).map((key) => {
             const renderer = reactColumnsRenderers[key]
@@ -194,9 +197,9 @@ class AdvancedMetaFields extends Component {
 
         const fields = {
             ...generic,
-            ...columns,
+            ...textFields,
             ...renderers
-        }
+        };
 
         this.setState({
             fields

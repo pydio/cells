@@ -90,7 +90,11 @@ class CellActionsRenderer {
         }
         // Special case cellModel is "TRUE", not a real cell model
         if(cellModel === true){
-            return [<MenuItem primaryText={m['640'].replace('%s', label)} onTouchTap={this.createCell.bind(this)}/>];
+            if(pydio.getPluginConfigs("auth").get("USER_CREATE_CELLS")){
+                return [<MenuItem primaryText={m['640'].replace('%s', label)} onTouchTap={this.createCell.bind(this)}/>];
+            } else {
+                return [];
+            }
         }
 
         const canWrite = cellModel.isEditable();
@@ -122,10 +126,12 @@ class CellActionsRenderer {
         } else {
             items.push(<MenuItem primaryText={m['642']} disabled={!canWrite} onTouchTap={this.addToCell.bind(this)}/>);
         }
-        items.push(
-            <Divider/>,
-            <MenuItem primaryText={m['640'].replace('%s', label)} onTouchTap={this.createCell.bind(this)}/>,
-        );
+        if (pydio.getPluginConfigs("auth").get("USER_CREATE_CELLS")){
+            items.push(
+                <Divider/>,
+                <MenuItem primaryText={m['640'].replace('%s', label)} onTouchTap={this.createCell.bind(this)}/>,
+            );
+        }
 
         return items;
     }

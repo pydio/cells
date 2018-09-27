@@ -103,7 +103,7 @@ class Mailer extends React.Component {
         if(this.state.mailerData){
             const {mailerData} = this.state;
             let customizeMessagePane;
-            if(mailerData.linkModel){
+            if(false && mailerData.linkModel){
                 const style = mailerData.enableIdentification ? {padding:'10px 20px', backgroundColor: '#ECEFF1', fontSize: 14} : {padding:'10px 20px 0', fontSize: 14};
                 const letUserChooseCripple = this.props.pydio.getPluginConfigs('action.share').get('EMAIL_PERSONAL_LINK_SEND_CLEAR');
                 customizeMessagePane = (

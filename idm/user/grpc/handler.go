@@ -38,6 +38,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/proto"
@@ -92,7 +93,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 
 	passChange := req.User.Password
 	// Create or update user
-	newUser, update, err := dao.Add(req.User)
+	newUser, createdNodes, err := dao.Add(req.User)
 	if err != nil {
 		log.Logger(ctx).Error("cannot put user "+req.User.Login, req.User.ZapUuid(), zap.Error(err))
 		return err
@@ -135,9 +136,18 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 		}
 		req.User.Policies = userPolicies
 	}
-	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Any("p", req.User.Policies))
-	if err := dao.AddPolicies(update, out.Uuid, req.User.Policies); err != nil {
+	log.Logger(ctx).Debug("ADDING POLICIES NOW", zap.Any("p", req.User.Policies), zap.Any("createdNodes", createdNodes))
+	if err := dao.AddPolicies(len(createdNodes) == 0, out.Uuid, req.User.Policies); err != nil {
 		return err
+	}
+	for _, g := range createdNodes {
+		if g.Uuid != out.Uuid && g.Type == tree.NodeType_COLLECTION {
+			// Groups where created in the process, add default policies on them
+			log.Logger(ctx).Info("Setting Default Policies on groups that were created automatically", zap.Any("groupPath", g.Path))
+			if err := dao.AddPolicies(false, g.Uuid, defaultPolicies); err != nil {
+				return err
+			}
+		}
 	}
 
 	// Propagate creation event
@@ -145,7 +155,7 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 		Type: idm.ChangeEventType_UPDATE,
 		User: out,
 	}))
-	if update {
+	if len(createdNodes) == 0 {
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
 				fmt.Sprintf("Group [%s] has been updated", out.GroupLabel),

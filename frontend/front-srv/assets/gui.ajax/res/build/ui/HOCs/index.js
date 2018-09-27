@@ -87,9 +87,8 @@ var _dropNativeFileDropProvider2 = _interopRequireDefault(_dropNativeFileDropPro
 var PydioHOCs = _extends({
     EditorActions: actions,
     EditorReducers: _editorReducersIndex2['default'],
-    ContentActions: _contentIndex.ContentActions,
-    ContentControls: _contentIndex.ContentControls,
-    ContentSearchControls: _contentIndex.ContentSearchControls,
+    ContentActions: _contentIndex.ContentActions
+}, _contentIndex.Controls, {
     ResolutionActions: _resolutionIndex.ResolutionActions,
     ResolutionControls: _resolutionIndex.ResolutionControls,
     SizeActions: _sizeIndex.SizeActions,

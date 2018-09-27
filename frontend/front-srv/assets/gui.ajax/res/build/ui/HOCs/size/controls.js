@@ -66,6 +66,7 @@ var withSizeControls = function withSizeControls(Component) {
             var fn = _utils2.handler("onSizeChange", this.props);
 
             return React.createElement(Component, _extends({
+                resizable: typeof fn === "function",
                 size: size,
                 scale: scale,
                 onSizeChange: function (sizeProps) {
@@ -86,46 +87,4 @@ var withSizeControls = function withSizeControls(Component) {
         return _class;
     })(React.Component);
 };
-
 exports.withSizeControls = withSizeControls;
-var styles = {
-    sliderContainer: {
-        width: "100%",
-        height: 150,
-        display: "flex",
-        justifyContent: "center"
-    },
-    slider: {
-        margin: 0
-    }
-};
-
-var AspectRatio = _reactRedux.connect(_utils.mapStateToProps)(function (props) {
-    return React.createElement(
-        _materialUi.IconButton,
-        { onClick: function () {
-                return _utils2.handler("onSizeChange", props)({ size: "contain" });
-            } },
-        React.createElement(_materialUiSvgIconsActionAspectRatio2['default'], null)
-    );
-});
-
-exports.AspectRatio = AspectRatio;
-var Scale = _reactRedux.connect(_utils.mapStateToProps)(function (props) {
-    return React.createElement(
-        _materialUi.DropDownMenu,
-        null,
-        React.createElement(_materialUi.MenuItem, { primaryText: parseInt(props.scale * 100) + '%' }),
-        React.createElement(_materialUi.Slider, {
-            axis: 'y',
-            style: styles.sliderContainer,
-            sliderStyle: styles.slider,
-            value: props.scale,
-            min: 0.01,
-            max: 4,
-            onChange: function (_, scale) {
-                return _utils2.handler("onSizeChange", props)({ size: "auto", scale: scale });
-            } })
-    );
-});
-exports.Scale = Scale;

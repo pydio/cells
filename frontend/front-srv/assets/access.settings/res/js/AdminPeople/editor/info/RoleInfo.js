@@ -73,7 +73,7 @@ class RoleInfo extends React.Component {
                 }
             });
         }
-        console.log(values);
+        //console.log(values);
 
         return (
             <FormPanel

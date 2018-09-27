@@ -17,73 +17,105 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
+import Pydio from 'pydio'
 import React from 'react'
 import {IconButton, DropDownMenu} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
 
 /**
  * Two columns layout used for Workspaces and Plugins editors
  */
-const PaperEditorLayout = React.createClass({
+class PaperEditorLayout extends React.Component{
 
-    propTypes:{
-        title:React.PropTypes.any,
-        titleActionBar:React.PropTypes.any,
-        leftNav:React.PropTypes.any,
-        contentFill:React.PropTypes.bool,
-        className:React.PropTypes.string
-    },
+    constructor(props){
+        super(props);
+        this.state = {forceLeftOpen:false};
+    }
 
-
-    toggleMenu:function(){
+    toggleMenu(){
         const crtLeftOpen = (this.state && this.state.forceLeftOpen);
         this.setState({forceLeftOpen:!crtLeftOpen});
-    },
+    }
 
-    render:function(){
+    render(){
+        const {muiTheme, closeAction, className, title, titleActionBar, leftNav, contentFill, children} = this.props;
+        const {forceLeftOpen} = this.state;
 
         const styles={
             title: {
-                backgroundColor: '#455A64',
+                backgroundColor: muiTheme.palette.primary1Color,
                 borderRadius: '2px 2px 0 0',
                 display:'flex',
+                alignItems: 'center',
+                padding: '6px 12px'
             },
             titleH2: {
                 color: 'white',
                 flex: 1,
-                fontSize: 26,
-                padding: '14px 12px 10px',
-                marginBottom: 0,
+                fontSize: 22,
+                padding: 0,
+                margin: 0,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
             },
             titleBar: {
-                marginTop: 15,
-                marginRight: 16
+                display: 'flex',
+                alignItems: 'center',
             }
         };
-
+        let closeButton;
+        if(closeAction){
+            closeButton = <IconButton
+                tooltip={Pydio.getMessages()[86]}
+                iconClassName={'mdi mdi-close'}
+                onTouchTap={closeAction}
+                iconStyle={{color:'white'}}
+            />
+        }
         return (
-            <div className={"paper-editor-content layout-fill vertical-layout" + (this.props.className?' '+ this.props.className:'')}>
+            <div className={"paper-editor-content layout-fill vertical-layout" + (className?' '+ className:'')}>
                 <div className="paper-editor-title" style={styles.title}>
-                    <h2 style={styles.titleH2}>{this.props.title} <div className="left-picker-toggle"><IconButton iconClassName="icon-caret-down" onClick={this.toggleMenu} /></div></h2>
-                    <div style={styles.titleBar}>{this.props.titleActionBar}</div>
+                    <h2 style={styles.titleH2}>{title} <div className="left-picker-toggle"><IconButton iconClassName="icon-caret-down" onClick={this.toggleMenu.bind(this)} /></div></h2>
+                    <div style={styles.titleBar}>{titleActionBar}</div>
+                    {closeButton}
                 </div>
                 <div className="layout-fill main-layout-nav-to-stack">
-                    {this.props.leftNav &&
-                        <div className={"paper-editor-left" + (this.state && this.state.forceLeftOpen? ' picker-open':'')} onClick={this.toggleMenu} >
-                            {this.props.leftNav}
+                    {leftNav &&
+                        <div className={"paper-editor-left" + (forceLeftOpen? ' picker-open':'')} onClick={this.toggleMenu.bind(this)} >
+                            {leftNav}
                         </div>
                     }
-                    <div className={"layout-fill paper-editor-right" + (this.props.contentFill?' vertical-layout':'')} style={this.props.contentFill?{}:{overflowY: 'auto'}}>
-                        {this.props.children}
+                    <div className={"layout-fill paper-editor-right" + (contentFill?' vertical-layout':'')} style={contentFill?{}:{overflowY: 'auto'}}>
+                        {children}
                     </div>
                 </div>
             </div>
         );
     }
-});
+}
+
+PaperEditorLayout.propTypes = {
+    title:React.PropTypes.any,
+    titleActionBar:React.PropTypes.any,
+    closeAction: React.PropTypes.func,
+    leftNav:React.PropTypes.any,
+    contentFill:React.PropTypes.bool,
+    className:React.PropTypes.string
+};
+PaperEditorLayout = muiThemeable()(PaperEditorLayout);
+PaperEditorLayout.actionButton = (label, icon, action, disabled=false)=> {
+    return (
+        <IconButton
+            tooltip={label}
+            iconClassName={icon}
+            disabled={disabled}
+            onTouchTap={action}
+            iconStyle={{color:disabled?'rgba(255,255,255,0.5)':'white'}}
+        />
+    );
+};
+
 /**
  * Navigation subheader used by PaperEditorLayout
  */
@@ -93,7 +125,7 @@ const PaperEditorNavHeader = React.createClass({
         label:React.PropTypes.string
     },
 
-    render:function(){
+    render(){
 
         return (
             <div className={"mui-subheader"} style={{fontSize: 13, fontWeight: 500, color:'rgba(0, 0, 0, 0.25)', lineHeight:'48px', paddingLeft: 16}}>
@@ -123,11 +155,11 @@ const PaperEditorNavEntry = React.createClass({
         dropDownDefaultItems:React.PropTypes.array
     },
 
-    onClick:function(){
+    onClick(){
         this.props.onClick(this.props.keyName);
     },
 
-    captureDropDownClick: function(){
+    captureDropDownClick(){
         if(this.preventClick){
             this.preventClick = false;
             return;
@@ -135,17 +167,17 @@ const PaperEditorNavEntry = React.createClass({
         this.props.onClick(this.props.keyName);
     },
 
-    dropDownChange: function(event, index, item){
+    dropDownChange(event, index, item){
         this.preventClick = true;
         this.props.dropDownChange(item);
     },
 
-    render:function(){
+    render(){
 
         if(!this.props.dropDown || !this.props.dropDownData){
             return (
                 <div
-                    className={'menu-entry' + (this.props.keyName==this.props.selectedKey?' menu-entry-selected':'') + (this.props.isLast?' last':'')}
+                    className={'menu-entry' + (this.props.keyName===this.props.selectedKey?' menu-entry-selected':'') + (this.props.isLast?' last':'')}
                     onClick={this.onClick}>
                     {this.props.children}
                     {this.props.label}
@@ -162,7 +194,7 @@ const PaperEditorNavEntry = React.createClass({
             menuItemsTpl.push({text:v.label, payload:v});
         });
         return (
-            <div onClick={this.captureDropDownClick} className={'menu-entry-dropdown' + (this.props.keyName==this.props.selectedKey?' menu-entry-selected':'') + (this.props.isLast?' last':'')}>
+            <div onClick={this.captureDropDownClick} className={'menu-entry-dropdown' + (this.props.keyName===this.props.selectedKey?' menu-entry-selected':'') + (this.props.isLast?' last':'')}>
                 <DropDownMenu
                     menuItems={menuItemsTpl}
                     className="dropdown-full-width"

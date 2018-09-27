@@ -42,6 +42,10 @@ var _InfoPanelCard = require('./InfoPanelCard');
 
 var _InfoPanelCard2 = _interopRequireDefault(_InfoPanelCard);
 
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
@@ -49,11 +53,34 @@ var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 var FileInfoCard = (function (_React$Component) {
     _inherits(FileInfoCard, _React$Component);
 
-    function FileInfoCard() {
+    function FileInfoCard(props) {
+        var _this = this;
+
         _classCallCheck(this, FileInfoCard);
 
-        _React$Component.apply(this, arguments);
+        _React$Component.call(this, props);
+        this._observer = function () {
+            _this.forceUpdate();
+        };
+        if (props.node) {
+            props.node.observe('node_replaced', this._observer);
+        }
     }
+
+    FileInfoCard.prototype.componentWillReceiveProps = function componentWillReceiveProps(newProps) {
+        if (this.props.node) {
+            this.props.node.stopObserving('node_replaced', this._observer);
+        }
+        if (newProps.node) {
+            newProps.node.observe('node_replaced', this._observer);
+        }
+    };
+
+    FileInfoCard.prototype.componentWillUnmount = function componentWillUnmount() {
+        if (this.props.node) {
+            this.props.node.stopObserving('node_replaced', this._observer);
+        }
+    };
 
     FileInfoCard.prototype.render = function render() {
         var _props = this.props;
@@ -63,11 +90,10 @@ var FileInfoCard = (function (_React$Component) {
         var meta = node.getMetadata();
 
         var size = meta.get('bytesize');
-        var hSize = PathUtils.roundFileSize(parseInt(size));
-        var time = meta.get('ajxp_modiftime');
+        var hSize = _pydioUtilPath2['default'].roundFileSize(parseInt(size));
         var date = new Date();
         date.setTime(parseInt(meta.get('ajxp_modiftime')) * 1000);
-        var formattedDate = PathUtils.formatModifDate(date);
+        var formattedDate = _pydioUtilPath2['default'].formatModifDate(date);
 
         var data = [{ key: 'size', label: getMessage('2'), value: hSize }, { key: 'date', label: getMessage('4'), value: formattedDate }];
 

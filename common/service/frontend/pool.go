@@ -87,12 +87,13 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 	for _, plugin := range plugins {
 
 		configs := plugin.PluginConfigs(status)
-
+		var contribs *Cregistry_contributions
 		if p, ok := plugin.(*Cuploader); ok {
 			clone := &Cuploader{}
 			copier.Copy(&clone, p)
 			clone.ExposeConfigs(configs)
 			clone.Translate(messages)
+			contribs = clone.GetRegistryContributions()
 			clone.Cregistry_contributions = nil
 			registry.Cplugins.Cuploader = append(registry.Cplugins.Cuploader, clone)
 		} else if p, ok := plugin.(*Ceditor); ok {
@@ -100,6 +101,7 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 			copier.Copy(&clone, p)
 			clone.ExposeConfigs(configs)
 			clone.Translate(messages)
+			contribs = clone.GetRegistryContributions()
 			clone.Cregistry_contributions = nil
 			registry.Cplugins.Ceditor = append(registry.Cplugins.Ceditor, clone)
 		} else if p, ok := plugin.(*Cmeta); ok {
@@ -107,6 +109,7 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 			copier.Copy(&clone, p)
 			clone.ExposeConfigs(configs)
 			clone.Translate(messages)
+			contribs = clone.GetRegistryContributions()
 			clone.Cregistry_contributions = nil
 			registry.Cplugins.Cmeta = append(registry.Cplugins.Cmeta, clone)
 		} else if p, ok := plugin.(*Cajxpdriver); ok {
@@ -114,6 +117,7 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 			copier.Copy(&clone, p)
 			clone.ExposeConfigs(configs)
 			clone.Translate(messages)
+			contribs = clone.GetRegistryContributions()
 			clone.Cregistry_contributions = nil
 			registry.Cplugins.Cajxpdriver = append(registry.Cplugins.Cajxpdriver, clone)
 		} else if p, ok := plugin.(*Cplugin); ok {
@@ -121,10 +125,10 @@ func (p *PluginsPool) RegistryForStatus(ctx context.Context, status RequestStatu
 			copier.Copy(&clone, p)
 			clone.ExposeConfigs(configs)
 			clone.Translate(messages)
+			contribs = clone.GetRegistryContributions()
 			clone.Cregistry_contributions = nil
 			registry.Cplugins.Cplugin = append(registry.Cplugins.Cplugin, clone)
 		}
-		contribs := plugin.GetRegistryContributions()
 		if contribs != nil && contribs.Cactions != nil {
 			actions := plugin.FilterActions(status, p, plugin.GetRegistryContributions().Cactions.Caction)
 			registry.Cactions.MergeActions(actions)

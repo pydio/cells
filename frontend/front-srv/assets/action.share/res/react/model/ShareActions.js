@@ -5,11 +5,10 @@
     class Callbacks{
 
         static share(){
-            pydio.UI.openComponentInModal('ShareDialog', 'CompositeDialog', {pydio:pydio, selection:pydio.getUserSelection(), create:true});
+            pydio.UI.openComponentInModal('ShareDialog', 'CompositeDialog', {pydio:pydio, selection:pydio.getUserSelection()});
         }
         
         static editShare(){
-            const node = pydio.getUserSelection().getUniqueNode();
             pydio.UI.openComponentInModal('ShareDialog', 'CompositeDialog', {pydio:pydio, selection:pydio.getUserSelection()});
         }
 
@@ -20,7 +19,7 @@
         }
         
         static editFromList(){
-            var dataModel;
+            let dataModel;
             if(window.actionArguments && window.actionArguments.length){
                 dataModel = window.actionArguments[0];
             }else if(window.actionManager){

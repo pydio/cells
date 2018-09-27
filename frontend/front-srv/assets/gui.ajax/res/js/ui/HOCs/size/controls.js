@@ -39,6 +39,7 @@ export const withSizeControls = (Component) => {
 
                 return (
                     <Component
+                        resizable={typeof fn === "function"}
                         size={size}
                         scale={scale}
                         onSizeChange={(sizeProps) => fn(sizeProps)}
@@ -49,35 +50,3 @@ export const withSizeControls = (Component) => {
         }
     )
 }
-
-const styles = {
-    sliderContainer: {
-        width: "100%",
-        height: 150,
-        display: "flex",
-        justifyContent: "center"
-    },
-    slider: {
-        margin: 0
-    }
-}
-
-export const AspectRatio = connect(mapStateToProps)((props) =>
-    <IconButton onClick={() => handler("onSizeChange", props)({size: "contain"})}>
-        <ActionAspectRatio />
-    </IconButton>
-);
-
-export const Scale = connect(mapStateToProps)((props) =>
-    <DropDownMenu>
-        <MenuItem primaryText={`${parseInt(props.scale * 100)}%`} />
-        <Slider
-            axis="y"
-            style={styles.sliderContainer}
-            sliderStyle={styles.slider}
-            value={props.scale}
-            min={0.01}
-            max={4}
-            onChange={(_, scale) => handler("onSizeChange", props)({size: "auto", scale})} />
-    </DropDownMenu>
-);

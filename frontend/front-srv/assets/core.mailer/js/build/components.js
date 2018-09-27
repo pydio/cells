@@ -44,6 +44,8 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _materialUi = require('material-ui');
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var styles = {
@@ -106,26 +108,38 @@ var UserChip = (function (_React$Component2) {
     }
 
     _createClass(UserChip, [{
-        key: 'remove',
-        value: function remove() {
-            this.props.onRemove(this.props.user.getId());
-        }
-    }, {
         key: 'render',
         value: function render() {
-            var tmp = this.props.user.getTemporary();
-            var icon = _react2['default'].createElement(MaterialUI.FontIcon, { className: "icon-" + (tmp ? "envelope" : "user") });
-            var colors = MaterialUI.Style.colors;
+            var _props = this.props;
+            var user = _props.user;
+            var onRemove = _props.onRemove;
+
+            var tmp = user.FreeValue;
+            var label = undefined;
+            if (tmp) {
+                label = user.FreeValue;
+            } else {
+                if (user.Attributes && user.Attributes['displayName']) {
+                    label = user.Attributes['displayName'];
+                } else {
+                    label = user.Login;
+                }
+            }
+
+            var icon = _react2['default'].createElement(_materialUi.FontIcon, { className: "icon-" + (tmp ? "envelope" : "user") });
+            var colors = _materialUi.Style.colors;
 
             return _react2['default'].createElement(
-                MaterialUI.Chip,
+                _materialUi.Chip,
                 {
                     backgroundColor: tmp ? colors.lightBlue100 : colors.blueGrey100,
-                    onRequestDelete: this.remove.bind(this),
+                    onRequestDelete: function () {
+                        onRemove();
+                    },
                     style: styles.chip
                 },
-                _react2['default'].createElement(MaterialUI.Avatar, { icon: icon, color: tmp ? 'white' : colors.blueGrey600, backgroundColor: tmp ? colors.lightBlue300 : colors.blueGrey300 }),
-                this.props.user.getLabel()
+                _react2['default'].createElement(_materialUi.Avatar, { icon: icon, color: tmp ? 'white' : colors.blueGrey600, backgroundColor: tmp ? colors.lightBlue300 : colors.blueGrey300 }),
+                label
             );
         }
     }]);
@@ -216,7 +230,6 @@ var Email = (function () {
             }
             var templateData = _extends({}, this.templateData);
             var proms = [];
-            // Todo : Handle links?
 
             if (this._messages.length > 1 && this._messages.length === this._targets.length && this._subjects.length === this._targets.length) {
                 // Send as many emails as targets with their own messages
@@ -273,7 +286,11 @@ var Pane = (function (_React$Component3) {
         value: function addUser(userObject) {
             var users = this.state.users;
 
-            users[userObject.getId()] = userObject;
+            if (userObject.FreeValue) {
+                users[userObject.FreeValue] = userObject;
+            } else if (userObject.IdmUser) {
+                users[userObject.IdmUser.Login] = userObject.IdmUser;
+            }
             this.setState({ users: users, errorMessage: null });
         }
     }, {
@@ -323,10 +340,10 @@ var Pane = (function (_React$Component3) {
                 this.setState({ errorMessage: this.getMessage(2) });
                 return;
             }
-            var _props = this.props;
-            var link = _props.link;
-            var templateId = _props.templateId;
-            var templateData = _props.templateData;
+            var _props2 = this.props;
+            var link = _props2.link;
+            var templateId = _props2.templateId;
+            var templateData = _props2.templateData;
 
             var callback = function callback(res) {
                 if (res) {
@@ -350,11 +367,15 @@ var Pane = (function (_React$Component3) {
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             var className = [this.props.className, "react-mailer", "reset-pydio-forms"].join(" ");
             var users = Object.keys(this.state.users).map((function (uId) {
-                return _react2['default'].createElement(UserChip, { key: uId, user: this.state.users[uId], onRemove: this.removeUser.bind(this) });
+                var _this3 = this;
+
+                return _react2['default'].createElement(UserChip, { key: uId, user: this.state.users[uId], onRemove: function () {
+                        _this3.removeUser(uId);
+                    } });
             }).bind(this));
             var errorDiv = undefined;
             if (this.state.errorMessage) {
@@ -368,7 +389,7 @@ var Pane = (function (_React$Component3) {
                 margin: this.props.uniqueUserStyle ? 0 : 8
             }, this.props.style);
             var content = _react2['default'].createElement(
-                MaterialUI.Paper,
+                _materialUi.Paper,
                 { zDepth: this.props.zDepth !== undefined ? this.props.zDepth : 2, className: className, style: style },
                 _react2['default'].createElement(
                     'h3',
@@ -401,17 +422,17 @@ var Pane = (function (_React$Component3) {
                         users
                     )
                 ),
-                !this.props.uniqueUserStyle && _react2['default'].createElement(MaterialUI.Divider, null),
+                !this.props.uniqueUserStyle && _react2['default'].createElement(_materialUi.Divider, null),
                 !this.props.templateId && _react2['default'].createElement(
                     'div',
                     { style: { padding: '0 20px' } },
-                    _react2['default'].createElement(MaterialUI.TextField, { fullWidth: true, underlineShow: false, floatingLabelText: this.getMessage('6'), value: this.state.subject, onChange: this.updateSubject.bind(this) })
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, underlineShow: false, floatingLabelText: this.getMessage('6'), value: this.state.subject, onChange: this.updateSubject.bind(this) })
                 ),
-                !this.props.templateId && _react2['default'].createElement(MaterialUI.Divider, null),
+                !this.props.templateId && _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: '0 20px' } },
-                    _react2['default'].createElement(MaterialUI.TextField, {
+                    _react2['default'].createElement(_materialUi.TextField, {
                         fullWidth: true,
                         underlineShow: false,
                         floatingLabelText: this.getMessage('7'),
@@ -422,13 +443,13 @@ var Pane = (function (_React$Component3) {
                     })
                 ),
                 this.props.additionalPaneBottom,
-                _react2['default'].createElement(MaterialUI.Divider, null),
+                _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(
                     'div',
                     { style: { textAlign: 'right', padding: '8px 20px' } },
-                    _react2['default'].createElement(MaterialUI.FlatButton, { label: this.getMessage('54', ''), onTouchTap: this.props.onDismiss }),
-                    _react2['default'].createElement(MaterialUI.FlatButton, { primary: true, label: this.getMessage('77', ''), onTouchTap: function (e) {
-                            return _this3.postEmail();
+                    _react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('54', ''), onTouchTap: this.props.onDismiss }),
+                    _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.getMessage('77', ''), onTouchTap: function (e) {
+                            return _this4.postEmail();
                         } })
                 )
             );

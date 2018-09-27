@@ -120,7 +120,11 @@ var CellActionsRenderer = (function () {
         }
         // Special case cellModel is "TRUE", not a real cell model
         if (cellModel === true) {
-            return [React.createElement(_materialUi.MenuItem, { primaryText: m['640'].replace('%s', label), onTouchTap: this.createCell.bind(this) })];
+            if (pydio.getPluginConfigs("auth").get("USER_CREATE_CELLS")) {
+                return [React.createElement(_materialUi.MenuItem, { primaryText: m['640'].replace('%s', label), onTouchTap: this.createCell.bind(this) })];
+            } else {
+                return [];
+            }
         }
 
         var canWrite = cellModel.isEditable();
@@ -146,7 +150,9 @@ var CellActionsRenderer = (function () {
         } else {
             items.push(React.createElement(_materialUi.MenuItem, { primaryText: m['642'], disabled: !canWrite, onTouchTap: this.addToCell.bind(this) }));
         }
-        items.push(React.createElement(_materialUi.Divider, null), React.createElement(_materialUi.MenuItem, { primaryText: m['640'].replace('%s', label), onTouchTap: this.createCell.bind(this) }));
+        if (pydio.getPluginConfigs("auth").get("USER_CREATE_CELLS")) {
+            items.push(React.createElement(_materialUi.Divider, null), React.createElement(_materialUi.MenuItem, { primaryText: m['640'].replace('%s', label), onTouchTap: this.createCell.bind(this) }));
+        }
 
         return items;
     };

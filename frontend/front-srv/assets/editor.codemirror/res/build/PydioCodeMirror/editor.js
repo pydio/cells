@@ -24,11 +24,11 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -56,35 +56,52 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var EditorActions = _Pydio$requireLib.EditorActions;
 
+function mapStateToProps(state, props) {
+    var tabs = state.tabs;
+
+    var tab = tabs.filter(function (_ref) {
+        var editorData = _ref.editorData;
+        var node = _ref.node;
+        return (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath();
+    })[0] || {};
+
+    return _extends({
+        id: tab.id,
+        tab: tab
+    }, props);
+}
+
 var Editor = (function (_React$Component) {
     _inherits(Editor, _React$Component);
 
-    function Editor(props) {
+    function Editor() {
         _classCallCheck(this, _Editor);
 
-        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).call(this, props);
-
-        var _props = this.props;
-        var node = _props.node;
-        var tab = _props.tab;
-        var dispatch = _props.dispatch;
-        var id = tab.id;
-
-        if (!id) dispatch(EditorActions.tabCreate({ id: node.getLabel(), node: node }));
+        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).apply(this, arguments);
     }
 
     _createClass(Editor, [{
         key: 'componentDidMount',
+
+        // constructor(props) {
+        //     super(props)
+        //
+        //     const {node, tab = {}, tabCreate} = this.props
+        //     const {id} = tab
+        //
+        //     if (!id) tabCreate({id: node.getLabel(), node})
+        // }
+
         value: function componentDidMount() {
-            var _props2 = this.props;
-            var pydio = _props2.pydio;
-            var node = _props2.node;
-            var tab = _props2.tab;
-            var dispatch = _props2.dispatch;
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var node = _props.node;
+            var tab = _props.tab;
+            var tabModify = _props.tabModify;
             var id = tab.id;
 
             pydio.ApiClient.getPlainContent(node, function (content) {
-                dispatch(EditorActions.tabModify({ id: id || node.getLabel(), lineNumbers: true, content: content }));
+                tabModify({ id: id || node.getLabel(), editable: true, searchable: true, lineNumbers: true, content: content });
             });
         }
     }, {
@@ -99,11 +116,11 @@ var Editor = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _props3 = this.props;
-            var node = _props3.node;
-            var tab = _props3.tab;
-            var error = _props3.error;
-            var dispatch = _props3.dispatch;
+            var _props2 = this.props;
+            var node = _props2.node;
+            var tab = _props2.tab;
+            var error = _props2.error;
+            var tabModify = _props2.tabModify;
 
             if (!tab) return null;
 
@@ -120,37 +137,22 @@ var Editor = (function (_React$Component) {
                 error: error,
 
                 onLoad: function (codemirror) {
-                    return dispatch(EditorActions.tabModify({ id: id, codemirror: codemirror }));
+                    return tabModify({ id: id, codemirror: codemirror });
                 },
                 onChange: function (content) {
-                    return dispatch(EditorActions.tabModify({ id: id, content: content }));
+                    return tabModify({ id: id, content: content });
                 },
                 onCursorChange: function (cursor) {
-                    return dispatch(EditorActions.tabModify({ id: id, cursor: cursor }));
+                    return tabModify({ id: id, cursor: cursor });
                 }
             }));
         }
     }]);
 
     var _Editor = Editor;
-    Editor = (0, _reactRedux.connect)(null, EditorActions)(Editor) || Editor;
+    Editor = (0, _reactRedux.connect)(mapStateToProps, EditorActions)(Editor) || Editor;
     return Editor;
 })(_react2['default'].Component);
 
-var mapStateToProps = function mapStateToProps(state, props) {
-    var tabs = state.tabs;
-
-    var tab = tabs.filter(function (_ref) {
-        var editorData = _ref.editorData;
-        var node = _ref.node;
-        return (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath();
-    })[0] || {};
-
-    return _extends({
-        id: tab.id,
-        tab: tab
-    }, props);
-};
-
-exports.mapStateToProps = mapStateToProps;
-exports['default'] = (0, _reactRedux.connect)(mapStateToProps)(Editor);
+exports['default'] = Editor;
+module.exports = exports['default'];

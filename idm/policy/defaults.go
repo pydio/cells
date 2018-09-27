@@ -66,7 +66,7 @@ var (
 				}),
 				LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "frontend-auth",
-					Description: "PolicyGroup.PublicAccess.Rule3",
+					Description: "PolicyGroup.PublicAccess.Rule4",
 					Subjects:    []string{"profile:anon"},
 					Resources:   []string{"rest:/frontend/session"},
 					Actions:     []string{"POST"},
@@ -112,8 +112,6 @@ var (
 					Description: "PolicyGroup.LoggedUsers.Rule2",
 					Subjects:    []string{"profile:standard", "profile:shared"},
 					Resources: []string{
-						"rest:/acl",
-						"rest:/acl/<.+>",
 						"rest:/user",
 						"rest:/user/<.+>",
 						"rest:/workspace",
@@ -121,8 +119,6 @@ var (
 						"rest:/role",
 						"rest:/role/<.+>",
 						"rest:/graph<.+>",
-						"rest:/docstore/bulk_delete/keystore",
-						"rest:/docstore/keystore<.+>",
 						"rest:/jobs/user",
 						"rest:/jobs/user<.+>",
 						"rest:/meta<.+>",
@@ -140,16 +136,8 @@ var (
 					Effect:  ladon.AllowAccess,
 				}),
 				LadonToProtoPolicy(&ladon.DefaultPolicy{
-					ID:          "shares-default-policy",
-					Description: "PolicyGroup.LoggedUsers.Rule3",
-					Subjects:    []string{"profile:standard", "profile:shared"},
-					Resources:   []string{"rest:/docstore/share/<.+>"},
-					Actions:     []string{"GET", "PUT"},
-					Effect:      ladon.AllowAccess,
-				}),
-				LadonToProtoPolicy(&ladon.DefaultPolicy{
 					ID:          "user-meta-tags-no-delete",
-					Description: "Prevent clearing user meta tags for non admins",
+					Description: "PolicyGroup.LoggedUsers.Rule3",
 					Subjects:    []string{"profile:standard", "profile:shared"},
 					Resources: []string{
 						"rest:/user-meta/tags<.+>",

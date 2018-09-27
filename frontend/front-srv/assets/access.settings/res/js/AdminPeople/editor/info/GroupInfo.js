@@ -48,10 +48,13 @@ class GroupInfo extends React.Component {
             // Compute values
             const idmUser = group.getIdmUser();
             const role = group.getRole();
-
+            let label = idmUser.GroupLabel;
+            if(idmUser.Attributes && idmUser.Attributes['displayName']){
+                label = idmUser.Attributes['displayName'];
+            }
             values = {
-                groupPath: idmUser.GroupPath,
-                groupLabel: idmUser.GroupLabel
+                groupPath: LangUtils.trimRight(idmUser.GroupPath, '/') + '/' + idmUser.GroupLabel,
+                displayName: label
             };
             parameters.map(p => {
                 if(p.aclKey && role.getParameterValue(p.aclKey)){
@@ -61,7 +64,7 @@ class GroupInfo extends React.Component {
         }
         const params = [
             {"name":"groupPath",label:this.getPydioRoleMessage('34'),"type":"string", readonly:true},
-            {"name":"groupLabel",label:this.getPydioRoleMessage('35'),"type":"string", },
+            {"name":"displayName",label:this.getPydioRoleMessage('35'),"type":"string", },
             ...parameters
         ];
 

@@ -47,7 +47,7 @@ let PublicLinkPanel = React.createClass({
         this.setState({temporaryPassword:value});
     },
 
-    enableLinkWithPassword:function(){
+    enableLinkWithPassword(){
         const {linkModel} = this.props;
         if(!this.refs['valid-pass'].isValid()){
             this.props.pydio.UI.displayMessage('ERROR', 'Invalid Password');
@@ -65,6 +65,9 @@ let PublicLinkPanel = React.createClass({
     render(){
 
         const {linkModel, pydio, compositeModel} = this.props;
+        const authorizations = ShareHelper.getAuthorizations(pydio);
+        const nodeLeaf = compositeModel.getNode().isLeaf();
+        const canEnable = (nodeLeaf && authorizations.file_public_link) || (!nodeLeaf && authorizations.folder_public_link);
 
         let publicLinkPanes, publicLinkField;
         if(linkModel.getLinkUuid()) {
@@ -72,7 +75,7 @@ let PublicLinkPanel = React.createClass({
                 pydio={pydio}
                 linkModel={linkModel}
                 showMailer={this.props.showMailer}
-                editAllowed={(!this.props.authorizations || this.props.authorizations.editable_hash) && linkModel.isEditable()}
+                editAllowed={authorizations.editable_hash && linkModel.isEditable()}
                 key="public-link"
             />);
             publicLinkPanes = [
@@ -89,24 +92,30 @@ let PublicLinkPanel = React.createClass({
                 publicLinkPanes.push(<TargetedUsers linkModel={linkModel} pydio={pydio}/>);
             }
 
-        }else if(this.state.showTemporaryPassword){
+        }else if(this.state.showTemporaryPassword) {
             publicLinkField = (
                 <div>
-                    <div className="section-legend" style={{marginTop:20}}>{this.props.getMessage('215')}</div>
-                    <div style={{width:'100%'}}>
+                    <div className="section-legend" style={{marginTop: 20}}>{this.props.getMessage('215')}</div>
+                    <div style={{width: '100%'}}>
                         <ValidPassword
-                            attributes={{label:this.props.getMessage('23')}}
+                            attributes={{label: this.props.getMessage('23')}}
                             value={this.state.temporaryPassword}
                             onChange={this.updateTemporaryPassword}
                             ref={"valid-pass"}
                         />
                     </div>
-                    <div style={{textAlign:'center',marginTop: 20}}>
-                        <RaisedButton label={this.props.getMessage('92')} secondary={true} onClick={this.enableLinkWithPassword}/>
+                    <div style={{textAlign: 'center', marginTop: 20}}>
+                        <RaisedButton label={this.props.getMessage('92')} secondary={true}
+                                      onClick={this.enableLinkWithPassword}/>
                     </div>
                 </div>
             );
-
+        } else if (!canEnable) {
+            publicLinkField = (
+                <div style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)', paddingBottom: 16, paddingTop: 16}}>
+                    {this.props.getMessage(nodeLeaf ? '225' : '226')}
+                </div>
+            );
         }else{
             publicLinkField = (
                 <div style={{fontSize:13, fontWeight:500, color:'rgba(0,0,0,0.43)', paddingBottom: 16, paddingTop: 16}}>{this.props.getMessage('190')}</div>
@@ -116,7 +125,7 @@ let PublicLinkPanel = React.createClass({
             <div style={this.props.style}>
                 <div style={{padding:'15px 10px 11px', backgroundColor:'#f5f5f5', borderBottom:'1px solid #e0e0e0', fontSize: 15}}>
                     <Toggle
-                        disabled={this.props.isReadonly() || this.state.disabled || !linkModel.isEditable()}
+                        disabled={this.props.isReadonly() || this.state.disabled || !linkModel.isEditable() || (!linkModel.getLinkUuid() && !canEnable)}
                         onToggle={this.toggleLink}
                         toggled={linkModel.getLinkUuid() || this.state.showTemporaryPassword}
                         label={this.props.getMessage('189')}

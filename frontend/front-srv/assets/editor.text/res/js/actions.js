@@ -22,10 +22,10 @@ import Pydio from 'pydio'
 const { EditorActions } = Pydio.requireLib('hoc')
 
 // Actions definitions
-export const onSave = ({pydio, url, content, dispatch, id}) => {
-    return pydio.ApiClient.postPlainTextContent(url, content, (success) => {
+export const onSave = ({tab, dispatch}) => () => {
+    return tab.pydio.ApiClient.postPlainTextContent(tab.url, tab.content, (success) => {
         if (!success) {
-            dispatch(EditorActions.tabModify({id, error: "There was an error while saving"}))
+            dispatch(EditorActions.tabModify({id: tab.id, error: "There was an error while saving"}))
         }
     })
 }

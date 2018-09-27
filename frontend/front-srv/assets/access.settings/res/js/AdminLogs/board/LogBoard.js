@@ -149,8 +149,9 @@ class LogBoard extends React.Component {
                         <div className="layout-fill">
                             {mainContent}
                             {(!service || service === 'syslog') &&
-                            <div style={{padding: '0 26px', color: '#9e9e9e', fontWeight: 500}}><u>Note</u>: empty logs entries may mean that the server is not
-                                running in production mode. Make sure to set this log level by passing the environment variable PYDIO_LOGS_LEVEL=production at startup.</div>
+                                <div style={{padding: '0 26px', color: '#9e9e9e', fontWeight: 500}}>
+                                    <u>{pydio.MessageHash['ajxp_admin.sys.note']}</u> {pydio.MessageHash['ajxp_admin.sys.note.content']}
+                                </div>
                             }
                         </div>
                     </div>
