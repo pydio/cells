@@ -11,6 +11,12 @@
   "PolicyGroup.PublicAccess.Rule2": {
     "other": "Anonymous access to reset-password endpoints (PUT, POST)"
   },
+  "PolicyGroup.PublicAccess.Rule3": {
+    "other": "Anonymous access to load frontend state (GET)"
+  },
+  "PolicyGroup.PublicAccess.Rule4": {
+    "other": "Anonymous access to init frontend session (POST)"
+  },
   "PolicyGroup.PublicInstall.Title": {
     "other": "Installation Endpoints (first run)"
   },
@@ -19,18 +25,6 @@
   },
   "PolicyGroup.PublicInstall.Rule1": {
     "other": "Anonymous access to install endpoints (GET, POST)"
-  },
-  "PolicyGroup.FrontendAccess.Title": {
-    "other": "Frontend-restricted Access"
-  },
-  "PolicyGroup.FrontendAccess.Description": {
-    "other": "Endpoints that must be accessible anonymously but only by frontend services"
-  },
-  "PolicyGroup.FrontendAccess.Rule1": {
-    "other": "GET/POST access restricted to frontend IP"
-  },
-  "PolicyGroup.FrontendAccess.Rule2": {
-    "other": "PUT access restricted to frontend IP"
   },
   "PolicyGroup.LoggedUsers.Title": {
     "other": "Logged User and Admin User accesses"
@@ -45,7 +39,7 @@
     "other": "Default REST accesses for a logged user"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "REST accesses for incrementing shares downloads"
+    "other": "User-meta prevent deleting tags"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "OpenIdConnect Operations"
