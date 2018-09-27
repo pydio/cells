@@ -19,8 +19,7 @@
  */
 
 import * as Actions from './actions'
-import Loader from './CodeMirrorLoader'
 
-export {Editor} from './editor'
-export {Actions} 
-export {Loader} from './CodeMirrorLoader'
+export {default as Editor} from './editor'
+export {default as Loader} from './CodeMirrorLoader'
+export {Actions}

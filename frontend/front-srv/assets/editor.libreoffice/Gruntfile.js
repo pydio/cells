@@ -5,7 +5,8 @@ module.exports = function(grunt) {
     grunt.initConfig({
         babel: {
             options: {
-                optional: ['es7.decorators'],
+                plugins: ['transform-react-jsx', 'transform-decorators-legacy'],
+                presets: ["es2015"]
             },
 
             dist: {
@@ -14,7 +15,8 @@ module.exports = function(grunt) {
                         expand: true,
                         cwd: 'res/js/',
                         src: ['**/*.js'],
-                        dest: 'res/build/PydioLibreOffice/'
+                        dest: 'res/build/PydioLibreOffice/',
+                        ext: '.js'
                     }
                 ]
             }
@@ -22,7 +24,7 @@ module.exports = function(grunt) {
         browserify: {
             ui : {
                 options: {
-                    external:Externals,
+                    external: Externals,
                     browserifyOptions: {
                         standalone: 'PydioLibreOffice',
                         debug:true
@@ -30,7 +32,6 @@ module.exports = function(grunt) {
                 },
                 files: {
                     'res/build/PydioLibreOffice.js':'res/build/PydioLibreOffice/index.js',
-                    'res/build/PydioLibreOfficeActions.js':'res/build/PydioLibreOffice/actions.js'
                 }
             }
         },

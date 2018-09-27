@@ -399,6 +399,11 @@
             "description": ""
           }
         }
+      },
+      {
+        "description": "",
+        "displayName": "AdminLeftNav",
+        "methods": []
       }
     ],
     "AdminComponents/board/AdvancedDashboard.js": [
@@ -6798,6 +6803,11 @@
   },
   "editor.libreoffice": {
     "editor.js": [
+      {
+        "description": "",
+        "displayName": "Viewer",
+        "methods": []
+      },
       {
         "description": "",
         "displayName": "Editor",
