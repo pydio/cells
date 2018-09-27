@@ -117,6 +117,7 @@ func InitRoles(ctx context.Context) error {
 				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
 				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:open_user_shares", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
 				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.user:open_address_book", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "parameter:core.auth:USER_CREATE_CELLS", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
 			},
 		},
 		{
