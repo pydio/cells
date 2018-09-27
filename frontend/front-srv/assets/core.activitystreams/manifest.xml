@@ -7,11 +7,6 @@
             <js className="PydioActivityStreams" file="plug/core.activitystreams/res/build/PydioActivityStreams.js" depends="React,PydioComponents,PydioWorkspaces"/>
         </resources>
     </client_settings>
-    <server_settings>
-        <!--<param name="activate_notifications" scope="user" description="CONF_MESSAGE[Activate desktop notifications]" label="CONF_MESSAGE[Desktop Notifications]" type="button" choices="run_client_action:activateDesktopNotifications" expose="true" editable="true"/>-->
-        <global_param name="USER_EVENTS" description="CONF_MESSAGE[Display a new entry with all events happening on a user workspaces, and alerts. An SQL database must be setup for the FEED_DRIVER configuration.]" label="CONF_MESSAGE[User events and alerts]" type="boolean" default="false"/>
-        <global_param name="SHOW_WORKSPACES_ACTIVITY" label="CONF_MESSAGE[Display Workspaces Activity]" description="CONF_MESSAGE[Display workspaces activity to the users in the right-hand information panel]" type="boolean" default="true"/>
-    </server_settings>
     <registry_contributions>
         <client_configs>
             <component_config component="InfoPanel">
