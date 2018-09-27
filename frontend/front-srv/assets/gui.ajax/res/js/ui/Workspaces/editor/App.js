@@ -46,7 +46,7 @@ export default class App extends React.Component {
     }
 
     render() {
-        const {isOpen, isMinimised, documentWidth, documentHeight} = this.props
+        const {isOpen, isMinimised, displayToolbar, documentWidth, documentHeight} = this.props
         const {fullBrowserScreen} = this.state
 
         if (!isOpen) {
@@ -87,7 +87,7 @@ export default class App extends React.Component {
         return (
             <div style={{position: "fixed", top: 0, left: 0,  zIndex: 1400}}>
                 { !isMinimised && <div style={overlayStyle} /> }
-                { <Editor style={editorStyle} minimiseStyle={{transformOrigin: buttonCenterPositionLeft + "px " + buttonCenterPositionTop + "px"}} /> }
+                { <Editor displayToolbar={displayToolbar} style={editorStyle} minimiseStyle={{transformOrigin: buttonCenterPositionLeft + "px " + buttonCenterPositionTop + "px"}} /> }
                 { isMinimised && <Menu style={menuStyle} /> }
             </div>
         )
@@ -98,15 +98,13 @@ export default class App extends React.Component {
 function mapStateToProps(state, ownProps) {
     const {editor, tabs} = state
     const {isMinimised = false} = editor
+    const {displayToolbar = true, ...remaining} = ownProps
 
     return {
-        ...ownProps,
+        ...remaining,
         tabs,
         isOpen: tabs.filter(({editorData}) => editorData).length > 0,
         isMinimised: isMinimised,
-        displayPanel: editor.isPanelActive,
-        displayMenu: editor.isMenuActive,
-        positionOrigin: editor.panel && editor.panel.rect,
-        positionTarget: editor.menu && editor.menu.rect
+        displayToolbar: displayToolbar,
     }
 }
