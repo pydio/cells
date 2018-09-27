@@ -6805,6 +6805,11 @@
     "editor.js": [
       {
         "description": "",
+        "displayName": "Viewer",
+        "methods": []
+      },
+      {
+        "description": "",
         "displayName": "Editor",
         "methods": []
       }

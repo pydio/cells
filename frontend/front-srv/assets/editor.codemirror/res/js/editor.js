@@ -28,24 +28,36 @@ import CodeMirrorLoader from './CodeMirrorLoader';
 
 const {EditorActions} = Pydio.requireLib('hoc');
 
-@connect(null, EditorActions)
-class Editor extends React.Component {
+function mapStateToProps (state, props) {
+    const {tabs} = state
+
+    const tab = tabs.filter(({editorData, node}) => (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath())[0] || {}
+
+    return {
+        id: tab.id,
+        tab,
+        ...props
+    }
+}
+
+@connect(mapStateToProps, EditorActions)
+export default class Editor extends React.Component {
 
     constructor(props) {
         super(props)
 
-        const {node, tab, dispatch} = this.props
+        const {node, tab = {}, tabCreate} = this.props
         const {id} = tab
 
-        if (!id) dispatch(EditorActions.tabCreate({id: node.getLabel(), node}))
+        if (!id) tabCreate({id: node.getLabel(), node})
     }
 
     componentDidMount() {
-        const {pydio, node, tab, dispatch} = this.props;
+        const {pydio, node, tab, tabModify} = this.props;
         const {id} = tab;
 
         pydio.ApiClient.getPlainContent(node, (content) => {
-            dispatch(EditorActions.tabModify({id: id || node.getLabel(), editable: true, searchable: true, lineNumbers: true, content: content}));
+            tabModify({id: id || node.getLabel(), editable: true, searchable: true, lineNumbers: true, content: content});
         });
 
     }
@@ -58,7 +70,7 @@ class Editor extends React.Component {
     }
 
     render() {
-        const {node, tab, error, dispatch} = this.props
+        const {node, tab, error, tabModify} = this.props
 
         if (!tab) return null
 
@@ -72,24 +84,10 @@ class Editor extends React.Component {
                 options={{lineNumbers: lineNumbers, lineWrapping: lineWrapping}}
                 error={error}
 
-                onLoad={codemirror => dispatch(EditorActions.tabModify({id, codemirror}))}
-                onChange={content => dispatch(EditorActions.tabModify({id, content}))}
-                onCursorChange={cursor => dispatch(EditorActions.tabModify({id, cursor}))}
+                onLoad={codemirror => tabModify({id, codemirror})}
+                onChange={content => tabModify({id, content})}
+                onCursorChange={cursor => tabModify({id, cursor})}
             />
         )
     }
 }
-
-export const mapStateToProps = (state, props) => {
-    const {tabs} = state
-
-    const tab = tabs.filter(({editorData, node}) => (!editorData || editorData.id === props.editorData.id) && node.getPath() === props.node.getPath())[0] || {}
-
-    return {
-        id: tab.id,
-        tab,
-        ...props
-    }
-}
-
-export default connect(mapStateToProps)(Editor)

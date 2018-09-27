@@ -28,15 +28,14 @@ import {connect} from 'react-redux'
 const configs = Pydio.getInstance().getPluginConfigs("editor.libreoffice");
 const {withMenu, withLoader, withErrors, EditorActions} = Pydio.requireLib('hoc');
 
-const Viewer = compose(
-    withMenu,
-    withLoader,
-    withErrors
-)(({url, style}) => <iframe src={url} style={{...style, width: "100%", height: "100%", border: 0, flex: 1}}></iframe>)
+// const Viewer = compose(
+//     withMenu,
+//     withLoader,
+//     withErrors
+// )(({url, style}) => <iframe src={url} style={{...style, width: "100%", height: "100%", border: 0, flex: 1}}></iframe>)
 
 @connect(null, EditorActions)
-class Editor extends React.Component {
-
+export default class Editor extends React.Component {
     constructor(props) {
         super(props)
 
@@ -59,14 +58,14 @@ class Editor extends React.Component {
         let iframeUrl = configs.get('LIBREOFFICE_IFRAME_URL'),
             webSocketSecure = configs.get('LIBREOFFICE_WEBSOCKET_SECURE'),
             webSocketHost = configs.get('LIBREOFFICE_WEBSOCKET_HOST'),
-            webSocketPort = configs.get('LIBREOFFICE_WEBSOCKET_PORT');        
-        
-        // FIXME: was retrieved from the response JSON before, we manually add the prefix otherwise collabora cannot get the doc. 
+            webSocketPort = configs.get('LIBREOFFICE_WEBSOCKET_PORT');
+
+        // FIXME: was retrieved from the response JSON before, we manually add the prefix otherwise collabora cannot get the doc.
         let host = 'http://'+webSocketHost;
-        // TODO also manage backend port when we have found a solution for the collabora container 
+        // TODO also manage backend port when we have found a solution for the collabora container
         // to call the backend on a specific port. For the time being, all request that are sent to:
         // mypydiohost.example.com/wopi/... must be proxied to the correct host, f.i. mypydiohost.example.com:5014/wopi
-        // via a reverse proxy. 
+        // via a reverse proxy.
 
         let webSocketProtocol = webSocketSecure ? 'wss' : 'ws',
         webSocketUrl = encodeURIComponent(`${webSocketProtocol}://${webSocketHost}:${webSocketPort}`);
@@ -76,16 +75,16 @@ class Editor extends React.Component {
         const permission = readonly ? "readonly" : "edit"
         const uri = "/wopi/files/" + this.props.node.getMetadata().get("uuid");
         const fileSrcUrl = encodeURIComponent(`${host}${uri}`);
-        PydioApi.getRestClient().getOrUpdateJwt(jwt => {
+
+        PydioApi.getRestClient().getOrUpdateJwt().then((jwt) => {
             this.setState({url: `${iframeUrl}?host=${webSocketUrl}&WOPISrc=${fileSrcUrl}&access_token=${jwt}&permission=${permission}`});
         });
     }
 
     render() {
+        const {url} = this.state
         return (
-            <Viewer {...this.props} url={this.state.url} />
+            <iframe src={url} style={{backgroundColor: "white", width: "100%", height: "100%", border: 0, flex: 1}}></iframe>
         );
     }
 }
-
-export default Editor

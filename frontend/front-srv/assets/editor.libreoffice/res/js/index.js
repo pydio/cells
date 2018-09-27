@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Editor from './editor'
+import * as Actions from './actions'
 
-export const Actions = {}
-export { Editor }
+export {default as Editor} from './editor'
+export {Actions}
