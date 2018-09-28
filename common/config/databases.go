@@ -50,7 +50,7 @@ func loadDatabases() {
 
 	// If no database is found, stop everything, there's a config issue!
 	if defaultDriver == "" {
-		log.Fatal("Cannot find default database! Please make sure that databases are correctly configured!")
+		log.Fatal("Cannot find default database! Please make sure that databases are correctly configured and started.")
 	}
 }
 

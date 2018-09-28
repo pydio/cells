@@ -186,6 +186,7 @@ func (p *pydioWrapperConnector) getConnectorList(logger logrus.FieldLogger) (con
 		connConnector, er := createConnector(logger, connConfig.Type, connConfig)
 		if er != nil {
 			logger.Errorf(er.Error())
+			continue
 		}
 		connConnectorFull := ConnectorList{
 			Type: connConfig.Type,

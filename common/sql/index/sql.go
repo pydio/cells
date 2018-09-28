@@ -352,8 +352,6 @@ func (dao *IndexSQL) AddNode(node *utils.TreeNode) error {
 	insertNode := dao.GetStmt("insertNode")
 	insertTree := dao.GetStmt("insertTree")
 
-	fmt.Println("Inserting node ", node)
-
 	if stmt := tx.Stmt(insertNode); stmt != nil {
 		defer stmt.Close()
 

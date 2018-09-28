@@ -334,6 +334,8 @@
             // Todo
             this._queueCounter = 0;
             this._maxQueueSize = 2;
+
+            this._blacklist = [".ds_store", ".pydio"]
         }
         recomputeGlobalProgress(){
             let totalCount      = 0;
@@ -375,6 +377,18 @@
             if(!this.getQueueSize()){
                 this._processed = [];
             }
+
+            const name = uploadItem.getFile().name.toLowerCase()
+
+            const isBlacklisted = this._blacklist.reduce((current, val) => current || name == val, false)
+
+            console.log(name, isBlacklisted)
+
+            if (isBlacklisted) {
+                this.processNext();
+                return
+            }
+
             this._uploads.push(uploadItem);
             UploadTask.getInstance().setPending(this.getQueueSize());
             uploadItem.observe("progress", function(){
