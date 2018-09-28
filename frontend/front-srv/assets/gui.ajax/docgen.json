@@ -4266,17 +4266,9 @@
               {
                 "name": "jobs",
                 "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "dotsButton",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
+              },
               {
-                "name": "job",
+                "name": "m",
                 "type": null
               }
             ],
