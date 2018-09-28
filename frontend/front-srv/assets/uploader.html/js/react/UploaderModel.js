@@ -185,13 +185,13 @@
 
             let fullPath = this._targetNode.getPath();
             if(this._relativePath) {
-                fullPath += PathUtils.getDirname(this._relativePath);
+                fullPath = LangUtils.trimRight(fullPath, '/') + LangUtils.trimLeft(PathUtils.getDirname(this._relativePath), '/');
             }
-            fullPath = slug + '/' + LangUtils.trim(fullPath, '/') + '/' + PathUtils.getBasename(this._file.name);
+            fullPath = slug + '/' + LangUtils.trim(fullPath, '/');
+            fullPath = LangUtils.trimRight(fullPath, '/') + '/' + PathUtils.getBasename(this._file.name);
             if (fullPath.normalize) {
                 fullPath = fullPath.normalize('NFC');
             }
-
 
             // Checking file already exists or not
             let overwriteStatus = UploaderConfigs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
