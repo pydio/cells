@@ -2179,5 +2179,14 @@
   },
   "public_link_user": {
     "other": "Public access"
+  },
+  "background.move.file": {
+    "other": "Moving file in background ..."
+  },
+  "background.move.folder": {
+    "other": "Moving folder in background ..."
+  },
+  "background.copy.selection": {
+    "other": "Copying selection in background ..."
   }
 }
