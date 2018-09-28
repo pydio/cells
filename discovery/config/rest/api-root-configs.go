@@ -70,7 +70,7 @@ func (s *Handler) GetConfig(req *restful.Request, resp *restful.Response) {
 
 	ctx := req.Request.Context()
 	fullPath := req.PathParameter("FullPath")
-	log.Logger(ctx).Info("Config.Get FullPath : " + fullPath)
+	log.Logger(ctx).Debug("Config.Get FullPath : " + fullPath)
 
 	path := strings.Split(strings.Trim(fullPath, "/"), "/")
 

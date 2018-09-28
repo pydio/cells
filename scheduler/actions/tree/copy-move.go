@@ -109,7 +109,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		targetNode.Path = filepath.Join(targetNode.Path, filepath.Base(sourceNode.Path))
 	}
 
-	log.Logger(ctx).Info("Copy/Move target path is", targetNode.ZapPath(), zap.Bool("targetIsParent", c.TargetIsParent))
+	log.Logger(ctx).Debug("Copy/Move target path is", targetNode.ZapPath(), zap.Bool("targetIsParent", c.TargetIsParent))
 
 	if targetNode.Path == input.Nodes[0].Path {
 		// Do not copy on itself, ignore
@@ -173,7 +173,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 			folderExists := false
 			if !childNode.IsLeaf() || filepath.Base(targetPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
 				if cResp, cE := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: targetPath}}); cE == nil && cResp.Node != nil {
-					log.Logger(ctx).Info("-- Ignoring folder move/copy as it already exists")
+					log.Logger(ctx).Debug("-- Ignoring folder move/copy as it already exists")
 					folderExists = true
 				}
 			}
@@ -191,10 +191,10 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 					meta["X-Pydio-Session"] = session
 					_, e := c.Client.CopyObject(ctx, childNode, &tree.Node{Path: targetPath}, &views.CopyRequestData{Metadata: meta})
 					if e != nil {
-						log.Logger(ctx).Info("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
+						log.Logger(ctx).Error("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
 						return output.WithError(e), e
 					}
-					log.Logger(ctx).Info("-- Copy Success: " + childNode.Path)
+					log.Logger(ctx).Debug("-- Copy Success: " + childNode.Path)
 
 				} else {
 
@@ -205,10 +205,10 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 					}
 					_, e := c.Client.CreateNode(ctx, &tree.CreateNodeRequest{Node: folderNode, IndexationSession: session})
 					if e != nil {
-						log.Logger(ctx).Info("-- Create Folder ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
+						log.Logger(ctx).Error("-- Create Folder ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
 						return output.WithError(e), e
 					}
-					log.Logger(ctx).Info("-- Create Folder Success " + childNode.Path)
+					log.Logger(ctx).Debug("-- Create Folder Success " + childNode.Path)
 
 				}
 			}
@@ -223,10 +223,10 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 				_, moveErr := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: childNode, IndexationSession: session})
 				if moveErr != nil {
-					log.Logger(ctx).Info("-- Delete Error")
+					log.Logger(ctx).Error("-- Delete Error", zap.Error(moveErr))
 					return output.WithError(moveErr), moveErr
 				}
-				log.Logger(ctx).Info("-- Delete Success " + childNode.Path)
+				log.Logger(ctx).Debug("-- Delete Success " + childNode.Path)
 				output.AppendOutput(&jobs.ActionOutput{
 					StringBody: "Moved file " + childPath + " to " + targetPath,
 				})
@@ -305,6 +305,5 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		Success: true,
 	})
 
-	log.Logger(ctx).Info("Should now exit copy/move action")
 	return output, nil
 }
