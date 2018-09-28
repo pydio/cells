@@ -26,7 +26,7 @@ import NavigationHelper from '../util/NavigationHelper'
 import MenuItemListener from '../util/MenuItemListener'
 const AjxpNode = require('pydio/model/node');
 const PydioDataModel = require('pydio/model/data-model');
-const {withVerticalScroll} = Pydio.requireLib('hoc');
+//const {withVerticalScroll} = Pydio.requireLib('hoc');
 
 let AdminMenu = React.createClass({
 
@@ -88,7 +88,7 @@ let AdminMenu = React.createClass({
 
 });
 
-AdminMenu = withVerticalScroll(AdminMenu);
+//AdminMenu = withVerticalScroll(AdminMenu, {id:'settings-menu'});
 AdminMenu = muiThemeable()(AdminMenu);
 
 class AdminLeftNav extends React.Component {
@@ -98,15 +98,17 @@ class AdminLeftNav extends React.Component {
             height: '100%',
             position: 'fixed',
             width:256,
-            paddingTop: 56,
+            marginTop: 56,
             zIndex: 9,
+            overflowX: 'hidden',
+            overflowY: 'auto'
         };
         if(!open){
             pStyle.transform = 'translateX(-256px)';
         }
         return (
             <Paper zDepth={2} className={"admin-main-nav"} style={pStyle}>
-                <AdminMenu {...this.props} style={{height:'100%'}}/>
+                <AdminMenu {...this.props}/>
             </Paper>
         );
     }

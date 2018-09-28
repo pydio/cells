@@ -54,6 +54,11 @@ function renderItem(palette, node) {
         padding: '0 5px',
         marginLeft: 5
     };
+    var ellispsis = {
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+    };
     var mainStyle = {};
     if (advanced) {
         mainStyle = { opacity: .7 };
@@ -62,8 +67,8 @@ function renderItem(palette, node) {
     var label = text || node.getLabel();
     if (node.getMetadata().get('flag')) {
         label = React.createElement(
-            'span',
-            null,
+            'div',
+            { style: ellispsis },
             node.getLabel(),
             ' ',
             React.createElement(
@@ -72,6 +77,12 @@ function renderItem(palette, node) {
                 node.getMetadata().get('flag')
             ),
             ' '
+        );
+    } else {
+        label = React.createElement(
+            'div',
+            { style: ellispsis },
+            label
         );
     }
 

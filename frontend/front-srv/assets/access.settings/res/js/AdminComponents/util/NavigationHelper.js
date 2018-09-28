@@ -36,6 +36,11 @@ function renderItem(palette, node, text = null, noIcon = false, advanced = false
         padding: '0 5px',
         marginLeft: 5
     };
+    const ellispsis = {
+        whiteSpace:'nowrap',
+        overflow:'hidden',
+        textOverflow:'ellipsis'
+    };
     let mainStyle = {};
     if (advanced){
         mainStyle = {opacity: .7};
@@ -43,7 +48,9 @@ function renderItem(palette, node, text = null, noIcon = false, advanced = false
 
     let label = text || node.getLabel();
     if(node.getMetadata().get('flag')){
-        label = <span>{node.getLabel()} <span style={flagStyle}>{node.getMetadata().get('flag')}</span> </span>;
+        label = <div style={ellispsis}>{node.getLabel()} <span style={flagStyle}>{node.getMetadata().get('flag')}</span> </div>;
+    } else {
+        label = <div style={ellispsis}>{label}</div>
     }
 
     return (
