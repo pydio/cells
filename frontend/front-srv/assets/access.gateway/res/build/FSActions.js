@@ -100,8 +100,8 @@ exports['default'] = function (pydio) {
                 targetSlug = target.getSlug();
             }
         }
-
-        var paths = selection.getSelectedNodes().map(function (n) {
+        var nodes = selection.getSelectedNodes();
+        var paths = nodes.map(function (n) {
             return slug + n.getPath();
         });
         var jobParams = {
@@ -110,7 +110,15 @@ exports['default'] = function (pydio) {
             targetParent: true
         };
         PydioApi.getRestClient().userJob(type, jobParams).then(function (r) {
-            pydio.UI.displayMessage('SUCCESS', type === 'move' ? 'Move operation in background' : 'Copy operation in background');
+            if (type === 'move') {
+                nodes.forEach(function (n) {
+                    var m = pydio.MessageHash['background.move.' + (n.isLeaf() ? 'file' : 'folder')];
+                    n.getMetadata().set('pending_operation', m);
+                    n.notify('meta_replaced', n);
+                });
+            } else {
+                pydio.UI.displayMessage('SUCCESS', pydio.MessageHash['background.copy.selection']);
+            }
             pydio.getContextHolder().setSelectedNodes([]);
         });
     };
@@ -206,42 +214,30 @@ exports['default'] = function (pydio) {
     var MessageHash = pydio.MessageHash;
 
     return function () {
-        var move = false;
-        var message = MessageHash[177];
-
-        var repoHasRecycle = pydio.getContextHolder().getRootNode().getMetadata().get("repo_has_recycle") || pydio.getContextHolder().getRootNode().getChildren().has('/recycle_bin');
-        if (repoHasRecycle && pydio.getContextNode().getAjxpMime() !== "ajxp_recycle") {
-            message = MessageHash[176];
+        var message = MessageHash[176];
+        if (pydio.getContextHolder().getContextNode().getPath().indexOf('/recycle_bin') === 0) {
+            message = MessageHash[177];
         }
-        // Detect shared node
-        if (pydio.getPluginConfigs('action.share').size) {
-            (function () {
-                var shared = [];
-                pydio.getContextHolder().getSelectedNodes().forEach(function (n) {
-                    if (n.getMetadata().get('pydio_is_shared')) {
-                        shared.push(n);
-                    }
-                });
-                if (shared.length) {
-                    var n = shared[0];
-                    message = React.createElement(
-                        'div',
-                        null,
-                        React.createElement(
-                            'div',
-                            null,
-                            message
-                        ),
-                        React.createElement(
-                            'div',
-                            { style: { color: '#D32F2F', marginTop: 10 } },
-                            React.createElement('span', { className: 'mdi mdi-alert' }),
-                            MessageHash['share_center.' + (n.isLeaf() ? '158' : '157')]
-                        )
-                    );
+        // Detect shared node - Disabled for now as this is NOT disabled by the delete action
+        /*
+        if(pydio.getPluginConfigs('action.share').size){
+            let shared = [];
+            pydio.getContextHolder().getSelectedNodes().forEach((n) => {
+                if(n.getMetadata().get('pydio_is_shared')){
+                    shared.push(n);
                 }
-            })();
+            });
+            if(shared.length){
+                const n = shared[0];
+                message = (
+                    <div>
+                        <div>{message}</div>
+                        <div style={{color:'#D32F2F', marginTop: 10}}><span className="mdi mdi-alert"/>{MessageHash['share_center.' + (n.isLeaf()?'158':'157')]}</div>
+                    </div>
+                );
+            }
         }
+        */
         pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
             message: message,
             dialogTitleId: 7,
@@ -256,9 +252,10 @@ exports['default'] = function (pydio) {
                     return t;
                 });
                 api.deleteNodes(deleteRequest).then(function (r) {
-                    if (r.DeleteJobs) {
-                        r.DeleteJobs.forEach(function (j) {
-                            pydio.UI.displayMessage('SUCCESS', j.Label);
+                    if (r.DeleteJobs && r.DeleteJobs.length) {
+                        nodes.forEach(function (n) {
+                            n.getMetadata().set('pending_operation', r.DeleteJobs[0].Label);
+                            n.notify('meta_replaced', n);
                         });
                     }
                     pydio.getContextHolder().setSelectedNodes([]);
@@ -1047,9 +1044,10 @@ exports['default'] = function (pydio) {
             return t;
         });
         api.restoreNodes(restoreRequest).then(function (r) {
-            if (r.RestoreJobs) {
-                r.RestoreJobs.forEach(function (j) {
-                    pydio.UI.displayMessage('SUCCESS', j.Label);
+            if (r.RestoreJobs && r.RestoreJobs.length) {
+                nodes.forEach(function (n) {
+                    n.getMetadata().set('pending_operation', r.RestoreJobs[0].Label);
+                    n.notify('meta_replaced', n);
                 });
             }
             pydio.getContextHolder().setSelectedNodes([]);

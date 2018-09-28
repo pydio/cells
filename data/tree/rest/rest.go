@@ -177,7 +177,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 			} else if recycleRoot, e := findRecycleForSource(ctx, filtered, ancestors); e == nil {
 				// MOVE TO RECYCLE INSTEAD OF DELETING
 				log.Logger(ctx).Info("Delete Node / found RecycleRoot : ", zap.Any("n", recycleRoot))
-				rPath := recycleRoot.Path + "/" + common.RECYCLE_BIN_NAME
+				rPath := strings.TrimSuffix(recycleRoot.Path, "/") + "/" + common.RECYCLE_BIN_NAME
 				// If moving to recycle, save current path as metadata for later restore operation
 				metaNode := &tree.Node{Uuid: ancestors[0].Uuid}
 				metaNode.SetMeta(common.META_NAMESPACE_RECYCLE_RESTORE, ancestors[0].Path)
@@ -185,6 +185,9 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 					log.Logger(ctx).Error("Could not store recycle_restore metadata for node", zap.Error(e))
 				}
 				deleteJobs.RecycleMoves[rPath] = append(deleteJobs.RecycleMoves[rPath], filtered.Path)
+				if _, ok := deleteJobs.RecyclesNodes[rPath]; !ok {
+					deleteJobs.RecyclesNodes[rPath] = &tree.Node{Path: rPath, Type: tree.NodeType_COLLECTION}
+				}
 			} else {
 				// we don't know what to do!
 				return fmt.Errorf("cannot find proper root for recycling: %s", e.Error())
@@ -198,8 +201,20 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	}
 
 	cli := jobs.NewJobServiceClient(registry.GetClient(common.SERVICE_JOBS))
-	moveLabel := T("Jobs.User.MultipleMove")
+	moveLabel := T("Jobs.User.MoveRecycle")
+	fullPathRouter := views.NewStandardRouter(views.RouterOptions{AdminView: true})
 	for recyclePath, selectedPaths := range deleteJobs.RecycleMoves {
+
+		// Create recycle bins now, to make sure user is notified correctly
+		recycleNode := deleteJobs.RecyclesNodes[recyclePath]
+		if _, e := fullPathRouter.ReadNode(ctx, &tree.ReadNodeRequest{Node: recycleNode}); e != nil {
+			_, e := fullPathRouter.CreateNode(ctx, &tree.CreateNodeRequest{Node: recycleNode})
+			if e != nil {
+				log.Logger(ctx).Error("Could not create recycle node, it will be created during the move but may not appear to the user")
+			} else {
+				log.Logger(ctx).Info("Recycle bin created before launching move task", recycleNode.ZapPath())
+			}
+		}
 
 		jobUuid := uuid.New()
 		job := &jobs.Job{
@@ -306,8 +321,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 			currentFullPath := filtered.Path
 			originalFullPath := r.GetNode().GetStringMeta(common.META_NAMESPACE_RECYCLE_RESTORE)
 			if originalFullPath == "" {
-				log.Logger(ctx).Error("[restore] Cannot find recycle_restore data", r.GetNode().Zap())
-				continue
+				return fmt.Errorf("cannot find restore location for selected node")
 			}
 			if r.GetNode().IsLeaf() {
 				moveLabel = T("Jobs.User.FileMove")

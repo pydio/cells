@@ -59,7 +59,7 @@ var AjxpNode = (function (_Observable) {
         _Observable.call(this);
         this._path = path;
         if (this._path && this._path.length && this._path.length > 1) {
-            if (this._path[this._path.length - 1] == "/") {
+            if (this._path[this._path.length - 1] === "/") {
                 this._path = this._path.substring(0, this._path.length - 1);
             }
         }

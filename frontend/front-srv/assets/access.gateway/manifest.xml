@@ -171,7 +171,7 @@
             </action>
             <action name="move" dragndropDefault="true">
                 <gui text="70" title="160" iconClass="mdi mdi-folder-move" accessKey="move_access_key" hasAccessKey="true">
-                    <context selection="true" dir="" recycle="hidden"
+                    <context selection="true" dir=""
                              actionBar="true" contextMenu="true" infoPanel="false"
                              actionBarGroup="change,change_main" inZip="false">
                     </context>
