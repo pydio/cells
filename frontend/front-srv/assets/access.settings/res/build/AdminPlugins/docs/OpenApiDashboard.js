@@ -55,12 +55,13 @@ var OpenApiDashboard = (function (_React$Component) {
     _createClass(OpenApiDashboard, [{
         key: 'render',
         value: function render() {
+            var pydio = this.props.pydio;
 
             return _react2['default'].createElement(
                 'div',
                 { className: "main-layout-nav-to-stack vertical-layout" },
                 _react2['default'].createElement(AdminComponents.Header, {
-                    title: "Rest APIs Documentation",
+                    title: pydio.MessageHash['ajxp_admin.developer.rest.apis'],
                     icon: 'mdi mdi-routes'
                 }),
                 _react2['default'].createElement(
@@ -69,13 +70,10 @@ var OpenApiDashboard = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: { margin: 20 } },
-                        'Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT.  See the ',
-                        _react2['default'].createElement(
-                            'a',
-                            { href: "https://pydio.com/en/docs/administration-guides", target: "_blank" },
-                            'online administrator guide'
-                        ),
-                        ' to learn more.'
+                        pydio.MessageHash['ajxp_admin.developer.rest.apis.legend'],
+                        _react2['default'].createElement('span', { style: { cursor: 'pointer' }, className: "mdi mdi-open-in-new", onClick: function () {
+                                open('https://pydio.com/en/docs/administration-guides');
+                            } })
                     ),
                     _react2['default'].createElement(
                         _materialUi.Paper,

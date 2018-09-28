@@ -2,14 +2,6 @@
 <editor id="editor.pdfjs" openable="true" iconClass="mdi mdi-file-pdf-box" order="9" text="pdf_viewer.1" title="pdf_viewer.2" previewProvider="true"
         className="PydioPDFJS" mimes="pdf" label="CONF_MESSAGE[PDF Viewer]"
         description="CONF_MESSAGE[JavaScript PDF viewer]">
-    <plugin_info>
-        <core_relation packaged="true" tested_version="follow_core"/>
-        <plugin_author>Garnetius</plugin_author>
-    </plugin_info>
-    <server_settings>
-        <global_param name="PDFJS_USE_PREVIEW" type="boolean" label="CONF_MESSAGE[Use for previews]"
-                      description="CONF_MESSAGE[If set to true, a small viewer will be open in the right-hand panel. Can be disabled in favor of Imagick previews]" default="true" expose="true"/>
-    </server_settings>
 	<client_settings>
 		<resources>
 			<js file="plug/editor.pdfjs/res/build/PydioPDFJS.js" className="PydioPDFJS"/>

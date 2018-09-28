@@ -26,6 +26,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -80,6 +82,7 @@ var App = (function (_React$Component) {
         var _props = this.props;
         var isOpen = _props.isOpen;
         var isMinimised = _props.isMinimised;
+        var displayToolbar = _props.displayToolbar;
         var documentWidth = _props.documentWidth;
         var documentHeight = _props.documentHeight;
         var fullBrowserScreen = this.state.fullBrowserScreen;
@@ -123,7 +126,7 @@ var App = (function (_React$Component) {
             'div',
             { style: { position: "fixed", top: 0, left: 0, zIndex: 1400 } },
             !isMinimised && React.createElement('div', { style: overlayStyle }),
-            React.createElement(_componentsEditor.Editor, { style: editorStyle, minimiseStyle: { transformOrigin: buttonCenterPositionLeft + "px " + buttonCenterPositionTop + "px" } }),
+            React.createElement(_componentsEditor.Editor, { displayToolbar: displayToolbar, style: editorStyle, minimiseStyle: { transformOrigin: buttonCenterPositionLeft + "px " + buttonCenterPositionTop + "px" } }),
             isMinimised && React.createElement(_componentsMenu.Menu, { style: menuStyle })
         );
     };
@@ -140,18 +143,19 @@ function mapStateToProps(state, ownProps) {
     var tabs = state.tabs;
     var _editor$isMinimised = editor.isMinimised;
     var isMinimised = _editor$isMinimised === undefined ? false : _editor$isMinimised;
+    var _ownProps$displayToolbar = ownProps.displayToolbar;
+    var displayToolbar = _ownProps$displayToolbar === undefined ? true : _ownProps$displayToolbar;
 
-    return _extends({}, ownProps, {
+    var remaining = _objectWithoutProperties(ownProps, ['displayToolbar']);
+
+    return _extends({}, remaining, {
         tabs: tabs,
         isOpen: tabs.filter(function (_ref) {
             var editorData = _ref.editorData;
             return editorData;
         }).length > 0,
         isMinimised: isMinimised,
-        displayPanel: editor.isPanelActive,
-        displayMenu: editor.isMenuActive,
-        positionOrigin: editor.panel && editor.panel.rect,
-        positionTarget: editor.menu && editor.menu.rect
+        displayToolbar: displayToolbar
     });
 }
 module.exports = exports['default'];

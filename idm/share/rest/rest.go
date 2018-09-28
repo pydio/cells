@@ -648,7 +648,7 @@ func (h *SharesHandler) LoadCellAclsObjects(ctx context.Context, roomAcls map[st
 				if _, has := object.Attributes["preferences"]; has {
 					delete(object.Attributes, "preferences")
 				}
-				roomAcls[object.Uuid].User = object
+				roomAcls[object.Uuid].User = object.WithPublicData(ctx, h.IsContextEditable(ctx, object.Uuid, object.Policies))
 			}
 		}
 	}

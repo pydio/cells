@@ -306,7 +306,7 @@ let AdminDashboard = React.createClass({
                 iconClassName={"mdi mdi-toggle-switch" + (showAdvanced ? "" : "-off")}
                 style={styles.appBarButton}
                 iconStyle={styles.appBarButtonIcon}
-                tooltip={"Toggle Advanced Parameters"}
+                tooltip={pydio.MessageHash['settings.topbar.button.advanced']}
                 onTouchTap={() => {
                     this.setState({showAdvanced: !showAdvanced});
                     localStorage.setItem("cells.dashboard.advanced", !showAdvanced);
@@ -318,7 +318,7 @@ let AdminDashboard = React.createClass({
             <IconButton
                 iconClassName={"icomoon-cells"}
                 onTouchTap={()=>{window.open('https://pydio.com')}}
-                tooltip={"Learn more about Pydio Cells"}
+                tooltip={pydio.MessageHash['settings.topbar.button.about']}
                 style={styles.appBarButton}
                 iconStyle={styles.appBarButtonIcon}
             />
@@ -338,7 +338,7 @@ let AdminDashboard = React.createClass({
                 />
                 <Paper zDepth={1} rounded={false} style={appBarStyle}>
                     {leftIconButton}
-                    <span style={styles.appBarTitle}>Cells Console</span>
+                    <span style={styles.appBarTitle}>{pydio.MessageHash['settings.topbar.title']}</span>
                     {searchIconButton}
                     {toggleAdvancedButton}
                     {homeIconButton}

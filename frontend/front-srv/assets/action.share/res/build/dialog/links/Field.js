@@ -90,9 +90,16 @@ var PublicLinkField = _react2['default'].createClass({
         return { editLink: false, copyMessage: '', showQRCode: false };
     },
     toggleEditMode: function toggleEditMode() {
-        var linkModel = this.props.linkModel;
+        var _props = this.props;
+        var linkModel = _props.linkModel;
+        var pydio = _props.pydio;
 
         if (this.state.editLink && this.state.customLink) {
+            var auth = _mainShareHelper2['default'].getAuthorizations(pydio);
+            if (auth.hash_min_length && this.state.customLink.length < auth.hash_min_length) {
+                pydio.UI.displayMessage('ERROR', this.props.getMessage('223').replace('%s', auth.hash_min_length));
+                return;
+            }
             linkModel.setCustomLink(this.state.customLink);
             linkModel.save();
         }
@@ -110,9 +117,9 @@ var PublicLinkField = _react2['default'].createClass({
     },
 
     attachClipboard: function attachClipboard() {
-        var _props = this.props;
-        var linkModel = _props.linkModel;
-        var pydio = _props.pydio;
+        var _props2 = this.props;
+        var linkModel = _props2.linkModel;
+        var pydio = _props2.pydio;
 
         this.detachClipboard();
         if (this.refs['copy-button']) {
@@ -165,12 +172,13 @@ var PublicLinkField = _react2['default'].createClass({
     render: function render() {
         var _this = this;
 
-        var _props2 = this.props;
-        var linkModel = _props2.linkModel;
-        var pydio = _props2.pydio;
+        var _props3 = this.props;
+        var linkModel = _props3.linkModel;
+        var pydio = _props3.pydio;
 
         var publicLink = _mainShareHelper2['default'].buildPublicUrl(pydio, linkModel.getLink().LinkHash);
-        var editAllowed = this.props.editAllowed && !this.props.isReadonly() && linkModel.isEditable();
+        var auth = _mainShareHelper2['default'].getAuthorizations(pydio);
+        var editAllowed = this.props.editAllowed && auth.editable_hash && !this.props.isReadonly() && linkModel.isEditable();
         if (this.state.editLink && editAllowed) {
             return _react2['default'].createElement(
                 'div',

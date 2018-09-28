@@ -65,7 +65,6 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		sourceConf := proto.Clone(conf).(*object.DataSource)
 		sourceConf.Name = source
 		sourceConf.ObjectsBucket = source
-		sourceConf.VersioningPolicyName = "default-policy"
 		sourceConf.StorageConfiguration["folder"] = filepath.Join(storageFolder, source)
 		config.Set(sourceConf, "services", fmt.Sprintf(`pydio.grpc.data.sync.%s`, source))
 	}

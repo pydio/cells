@@ -38,49 +38,55 @@ var EditorActions = _Pydio$requireLib.EditorActions;
 
 // Actions definitions
 var onSave = function onSave(_ref) {
-    var pydio = _ref.pydio;
-    var url = _ref.url;
-    var content = _ref.content;
     var dispatch = _ref.dispatch;
-    var id = _ref.id;
-
-    return pydio.ApiClient.postPlainTextContent(url, content, function (success) {
-        if (!success) {
-            dispatch(EditorActions.tabModify({ id: id, error: "There was an error while saving" }));
-        }
-    });
+    var tab = _ref.tab;
+    return function () {
+        return pydio.ApiClient.postPlainTextContent(tab.url, tab.content, function (success) {
+            if (!success) {
+                dispatch(EditorActions.tabModify({ id: tab.id, error: "There was an error while saving" }));
+            }
+        });
+    };
 };
 
 exports.onSave = onSave;
 var onUndo = function onUndo(_ref2) {
-    var codemirror = _ref2.codemirror;
-    return codemirror.undo();
+    var tab = _ref2.tab;
+    return function () {
+        return tab.codemirror.undo();
+    };
 };
 exports.onUndo = onUndo;
 var onRedo = function onRedo(_ref3) {
-    var codemirror = _ref3.codemirror;
-    return codemirror.redo();
+    var tab = _ref3.tab;
+    return function () {
+        return tab.codemirror.redo();
+    };
 };
 exports.onRedo = onRedo;
 var onToggleLineNumbers = function onToggleLineNumbers(_ref4) {
     var dispatch = _ref4.dispatch;
-    var id = _ref4.id;
-    var lineNumbers = _ref4.lineNumbers;
-    return dispatch(EditorActions.tabModify({ id: id, lineNumbers: !lineNumbers }));
+    var tab = _ref4.tab;
+    return function () {
+        return dispatch(EditorActions.tabModify({ id: tab.id, lineNumbers: !tab.lineNumbers }));
+    };
 };
 exports.onToggleLineNumbers = onToggleLineNumbers;
 var onToggleLineWrapping = function onToggleLineWrapping(_ref5) {
     var dispatch = _ref5.dispatch;
-    var id = _ref5.id;
-    var lineWrapping = _ref5.lineWrapping;
-    return dispatch(EditorActions.tabModify({ id: id, lineWrapping: !lineWrapping }));
+    var tab = _ref5.tab;
+    return function () {
+        return dispatch(EditorActions.tabModify({ id: tab.id, lineWrapping: !tab.lineWrapping }));
+    };
 };
 
 exports.onToggleLineWrapping = onToggleLineWrapping;
 var onSearch = function onSearch(_ref6) {
-    var codemirror = _ref6.codemirror;
-    var cursor = _ref6.cursor;
+    var tab = _ref6.tab;
     return function (value) {
+        var codemirror = tab.codemirror;
+        var cursor = tab.cursor;
+
         var query = (0, _utils.parseQuery)(value);
 
         var cur = codemirror.getSearchCursor(query, cursor.to);
@@ -97,8 +103,10 @@ var onSearch = function onSearch(_ref6) {
 
 exports.onSearch = onSearch;
 var onJumpTo = function onJumpTo(_ref7) {
-    var codemirror = _ref7.codemirror;
+    var tab = _ref7.tab;
     return function (value) {
+        var codemirror = tab.codemirror;
+
         var line = parseInt(value);
         var cur = codemirror.getCursor();
 

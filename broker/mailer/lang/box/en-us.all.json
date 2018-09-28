@@ -193,6 +193,9 @@
   },
   "Mail.Config.Sendmail.Executable.Description" : {
     "other" : "Full path of the sendmail executable on the server"
+  },
+  "Mail.Config.Sendmail.Executable.Other" : {
+    "other" : "Other path (set manually in pydio.json config file)"
   }
 
 

@@ -20,7 +20,6 @@ The following elements are required to compile and run pydio on your machine
 
 - Go language v1.10 or higher (with a [correctly configured](https://golang.org/doc/install#testing) Go toolchain),
 - MySQL database 5.6 or higher (or MariaDB equivalent),
-- [Frontend] For running the PHP frontend, PHP-FPM is required as well (see pydio/cells-front repository).
 
 _Note: We have developped and tested Pydio Cells on MacOS, Ubuntu, Debian and CentOS. Windows version might still have unknown glitches and is not yet supported._
 
@@ -83,7 +82,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-See the list of [contributors](https://github.com/pydio/cells/graphs/contributors) who participated in this project. Pydio Cells is also a continuation of the Pydio project and many contributions were ported from [pydio-core](https://github.com/pydio/pydio-core) to the [cells-front](https://github.com/pydio/cells-front) code.
+See the list of [contributors](https://github.com/pydio/cells/graphs/contributors) who participated in this project. Pydio Cells is also a continuation of the Pydio project and many contributions were ported from [pydio-core](https://github.com/pydio/pydio-core) to the code that can be found under `frontend/front-srv/assets`.
 
 ## License
 

@@ -92,7 +92,7 @@ var LogTools = (function (_React$Component) {
 
             var dateString = date ? date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() : '';
             var query = _modelLog2['default'].buildQuery(filter, date, endDate);
-            _modelLog2['default'].downloadLogs(service || 'syslog', query, format).then(function (blob) {
+            _modelLog2['default'].downloadLogs(service || 'sys', query, format).then(function (blob) {
                 var url = window.URL.createObjectURL(blob);
                 var link = document.createElement('a');
                 var filename = 'cells-logs-';
@@ -128,19 +128,20 @@ var LogTools = (function (_React$Component) {
             var filter = _state3.filter;
             var date = _state3.date;
             var filterMode = _state3.filterMode;
+            var MessageHash = pydio.MessageHash;
 
             var hasFilter = filter || date;
             var checkIcon = _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-check" });
             return _react2['default'].createElement(
                 'div',
                 { style: { display: 'flex', alignItems: 'center', width: '100%' } },
-                filterMode === 'fulltext' && _react2['default'].createElement(_materialUi.TextField, { hintText: pydio.MessageHash["ajxp_admin.logs.3"], onChange: function (e) {
+                filterMode === 'fulltext' && _react2['default'].createElement(_materialUi.TextField, { hintText: MessageHash["ajxp_admin.logs.3"], onChange: function (e) {
                         return _this.handleFilterChange(e.target.value);
                     }, style: { margin: '0 5px', width: 180 } }),
                 filterMode === 'oneday' && _react2['default'].createElement(
                     'div',
                     { style: { display: 'flex', alignItems: 'center' } },
-                    _react2['default'].createElement(_materialUi.DatePicker, { hintText: pydio.MessageHash["ajxp_admin.logs.2"], onChange: function (e, date) {
+                    _react2['default'].createElement(_materialUi.DatePicker, { hintText: MessageHash["ajxp_admin.logs.2"], onChange: function (e, date) {
                             return _this.handleDateChange(date);
                         },
                         autoOk: true, maxDate: new Date(), value: this.state.date,
@@ -169,7 +170,7 @@ var LogTools = (function (_React$Component) {
                 _react2['default'].createElement(
                     _materialUi.IconMenu,
                     {
-                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-filter-variant", tooltip: "Filter Logs" }),
+                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-filter-variant", tooltip: MessageHash['ajxp_admin.logs.3'] }),
                         anchorOrigin: { vertical: 'top', horizontal: 'right' },
                         targetOrigin: { vertical: 'top', horizontal: 'right' },
                         desktop: true
@@ -177,22 +178,22 @@ var LogTools = (function (_React$Component) {
                     _react2['default'].createElement(
                         _materialUi.Subheader,
                         null,
-                        'Filter by...'
+                        MessageHash['ajxp_admin.logs.filter.legend']
                     ),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'Full-text search', rightIcon: filterMode === 'fulltext' ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.fulltext'], rightIcon: filterMode === 'fulltext' ? checkIcon : null, onTouchTap: function () {
                             _this.handleFilterMode('fulltext');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'Pick one day', rightIcon: filterMode === 'oneday' ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.2'], rightIcon: filterMode === 'oneday' ? checkIcon : null, onTouchTap: function () {
                             _this.handleFilterMode('oneday');
                         } }),
-                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'Time Period', rightIcon: filterMode === 'period' ? checkIcon : null, onTouchTap: function () {
+                    _react2['default'].createElement(_materialUi.MenuItem, { primaryText: MessageHash['ajxp_admin.logs.filter.period'], rightIcon: filterMode === 'period' ? checkIcon : null, onTouchTap: function () {
                             _this.handleFilterMode('period');
                         } })
                 ),
                 !disableExport && _react2['default'].createElement(
                     _materialUi.IconMenu,
                     {
-                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-download", tooltip: pydio.MessageHash["ajxp_admin.logs.11"] }),
+                        iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-download", tooltip: MessageHash["ajxp_admin.logs.11"] }),
                         anchorOrigin: { vertical: 'top', horizontal: 'right' },
                         targetOrigin: { vertical: 'top', horizontal: 'right' },
                         desktop: true
@@ -200,12 +201,12 @@ var LogTools = (function (_React$Component) {
                     !hasFilter && _react2['default'].createElement(
                         _materialUi.Subheader,
                         null,
-                        'Pick a date or filter results'
+                        MessageHash['ajxp_admin.logs.export.disabled']
                     ),
                     hasFilter && _react2['default'].createElement(
                         _materialUi.Subheader,
                         null,
-                        'Export as...'
+                        MessageHash['ajxp_admin.logs.11']
                     ),
                     _react2['default'].createElement(_materialUi.MenuItem, { primaryText: 'CSV', rightIcon: _react2['default'].createElement(_materialUi.FontIcon, { style: { top: 0 }, className: "mdi mdi-file-delimited" }), onTouchTap: function () {
                             _this.handleExport('CSV');

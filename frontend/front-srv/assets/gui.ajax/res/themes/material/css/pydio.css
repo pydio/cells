@@ -1477,8 +1477,8 @@ div#multiple_download_container div div a:hover {
 .react-mui-context .top_search_form.more .panel-header,
 .react-mui-context .top_search_form.advanced .panel-header {
   display: block;
-  height: 54px;
-  padding: 23px 6px 10px;
+  height: 44px;
+  padding: 13px 6px 10px;
 }
 .react-mui-context .top_search_form.more .search-advanced-button,
 .react-mui-context .top_search_form.advanced .search-advanced-button {
@@ -1493,8 +1493,8 @@ div#multiple_download_container div div a:hover {
   display: none;
 }
 .react-mui-context .top_search_form.advanced .search-input .panel-header {
-  padding: 63px 12px 10px;
-  height: 90px;
+  padding: 53px 12px 10px;
+  height: 80px;
 }
 .react-mui-context .top_search_form.advanced .search-input .mui-text-field {
   display: none;

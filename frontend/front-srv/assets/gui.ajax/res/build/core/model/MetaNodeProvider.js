@@ -137,7 +137,7 @@ var MetaNodeProvider = (function () {
             request.Offset = (inputPagination.get("current") - 1) * inputPagination.get("size");
             request.Limit = inputPagination.get("size");
         } else {
-            request.Limit = pydio.getPluginConfigs("access.gateway").get("LIST_NODES_PER_PAGE") || 500;
+            request.Limit = pydio.getPluginConfigs("access.gateway").get("LIST_NODES_PER_PAGE") || 200;
         }
         request.NodePaths = [slug + node.getPath(), slug + node.getPath() + '/*'];
         if (this.properties.has("versions")) {

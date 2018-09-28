@@ -28,6 +28,8 @@ import (
 	"github.com/micro/go-micro"
 	"go.uber.org/zap"
 
+	"strings"
+
 	"github.com/ory/ladon"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -55,6 +57,10 @@ func init() {
 			{
 				TargetVersion: service.ValidVersion("1.0.3"),
 				Up:            Upgrade103,
+			},
+			{
+				TargetVersion: service.ValidVersion("1.2.0"),
+				Up:            Upgrade120,
 			},
 		}),
 		service.WithMicro(func(m micro.Service) error {
@@ -148,5 +154,86 @@ func Upgrade103(ctx context.Context) error {
 		}
 	}
 	log.Logger(ctx).Info("Upgraded policy model to v1.0.3")
+	return nil
+}
+
+// Upgrade120 performs upgrade on policies starting at v1.2.0
+func Upgrade120(ctx context.Context) error {
+	dao := servicecontext.GetDAO(ctx).(policy.DAO)
+	if dao == nil {
+		return fmt.Errorf("cannot find DAO for policies initialization")
+	}
+	groups, e := dao.ListPolicyGroups(ctx)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.Uuid == "rest-apis-default-accesses" {
+			var updates []*idm.Policy
+			for _, p := range group.Policies {
+				if p.Id == "shares-default-policy" {
+					// Remove that one
+					continue
+				}
+				if p.Id == "user-default-policy" {
+					var newResources []string
+					for _, res := range p.Resources {
+						if strings.HasPrefix(res, "rest:/acl") || strings.HasPrefix(res, "rest:/docstore") {
+							// Remove those accesses
+							continue
+						}
+						newResources = append(newResources, res)
+					}
+					newResources = append(newResources, "rest:/frontend/<.*>", "rest:/tree/<.*>")
+					p.Resources = newResources
+				}
+				updates = append(updates, p)
+			}
+			updates = append(updates, policy.LadonToProtoPolicy(&ladon.DefaultPolicy{
+				ID:          "user-meta-tags-no-delete",
+				Description: "PolicyGroup.LoggedUsers.Rule3",
+				Subjects:    []string{"profile:standard", "profile:shared"},
+				Resources: []string{
+					"rest:/user-meta/tags<.+>",
+				},
+				Actions: []string{"DELETE"},
+				Effect:  ladon.DenyAccess,
+			}))
+			group.Policies = updates
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updated policy group " + group.Uuid)
+			}
+		} else if group.Uuid == "frontend-restricted-accesses" {
+			if err := dao.DeletePolicyGroup(ctx, group); err != nil {
+				log.Logger(ctx).Error("could not delete unused policy group "+group.Uuid, zap.Error(err))
+			} else {
+				log.Logger(ctx).Error("Deleted unused policy group "+group.Uuid, zap.Error(err))
+			}
+		} else if group.Uuid == "public-access" {
+			group.Policies = append(group.Policies, policy.LadonToProtoPolicy(&ladon.DefaultPolicy{
+				ID:          "frontend-state",
+				Description: "PolicyGroup.PublicAccess.Rule3",
+				Subjects:    []string{"profile:anon"},
+				Resources:   []string{"rest:/frontend/<.*>"},
+				Actions:     []string{"GET"},
+				Effect:      ladon.AllowAccess,
+			}), policy.LadonToProtoPolicy(&ladon.DefaultPolicy{
+				ID:          "frontend-auth",
+				Description: "PolicyGroup.PublicAccess.Rule4",
+				Subjects:    []string{"profile:anon"},
+				Resources:   []string{"rest:/frontend/session"},
+				Actions:     []string{"POST"},
+				Effect:      ladon.AllowAccess,
+			}))
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updated policy group " + group.Uuid)
+			}
+		}
+
+	}
 	return nil
 }

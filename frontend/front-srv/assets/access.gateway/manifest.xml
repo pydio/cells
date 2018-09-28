@@ -14,7 +14,7 @@
         <param name="ROOT_NODES" type="autocomplete-tree" choices="admin_list_tree" label="CONF_MESSAGE[Path]" description="CONF_MESSAGE[Path to the folder on the server]" mandatory="true"
                replicationGroup="CONF_MESSAGE[ROOTS]" replicationDescription="CONF_MESSAGE[Absolute path to one or more root nodes]"
                replicationMandatory="true" replicationTitle="CONF_MESSAGE[Root Nodes]"/>
-        <global_param name="LIST_NODES_PER_PAGE" type="integer" label="CONF_MESSAGE[#Items per page]" description="CONF_MESSAGE[Once in pagination mode, number of items to display per page.]" default="500" expose="true"/>
+        <global_param name="LIST_NODES_PER_PAGE" type="integer" label="CONF_MESSAGE[#Items per page]" description="CONF_MESSAGE[Once in pagination mode, number of items to display per page.]" default="200" expose="true"/>
 	</server_settings>
 
 	<registry_contributions>

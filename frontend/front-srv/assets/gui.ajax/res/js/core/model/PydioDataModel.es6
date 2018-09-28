@@ -393,8 +393,8 @@ export default class PydioDataModel extends Observable{
     updateNode(node, setSelectedAfterUpdate=false){
         var original = node.getMetadata().get("original_path");
         var fake, n;
-        if(original && original != node.getPath()
-            && PathUtils.getDirname(original) != PathUtils.getDirname(node.getPath())){
+        if(original && original !== node.getPath()
+            && PathUtils.getDirname(original) !== PathUtils.getDirname(node.getPath())){
             // Node was really moved to another folder
             fake = new AjxpNode(original);
             n = fake.findInArbo(this.getRootNode(), undefined);
@@ -403,7 +403,7 @@ export default class PydioDataModel extends Observable{
             }
             var parentFake = new AjxpNode(PathUtils.getDirname(node.getPath()));
             var parent = parentFake.findInArbo(this.getRootNode(), undefined);
-            if(!parent && PathUtils.getDirname(node.getPath()) == "") parent = this.getRootNode();
+            if(!parent && PathUtils.getDirname(node.getPath()) === "") parent = this.getRootNode();
             if(parent){
                 node.getMetadata().set("original_path", undefined);
                 parent.addChild(node);
@@ -412,7 +412,7 @@ export default class PydioDataModel extends Observable{
             if(node.getMetadata().get("original_path") === "/" && node.getPath() === "/"){
                 n = this.getRootNode();
                 n.replaceMetadata(node.getMetadata());
-                if(setSelectedAfterUpdate && this.getContextNode() == n) {
+                if(setSelectedAfterUpdate && this.getContextNode() === n) {
                     this.setSelectedNodes([n], {});
                 }
                 return;
@@ -422,7 +422,7 @@ export default class PydioDataModel extends Observable{
             if(n && !n.isMoreRecentThan(node)){
                 node._isLoaded = n._isLoaded;
                 n.replaceBy(node, "override");
-                if(setSelectedAfterUpdate && this.getContextNode() == n.getParent()) {
+                if(setSelectedAfterUpdate && this.getContextNode() === n.getParent()) {
                     this.setSelectedNodes([n], {});
                 }
             }

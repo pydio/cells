@@ -258,7 +258,7 @@ var Editor = (function (_React$Component) {
         }
     })(Editor) || Editor;
     Editor = _reactRedux.connect(mapStateToProps, EditorActions)(Editor) || Editor;
-    Editor = withSelectionControls()(Editor) || Editor;
+    Editor = withSelectionControls(Editor) || Editor;
     Editor = withMouseTracker()(Editor) || Editor;
     Editor = makeTransitionHOC({ translateY: 800 }, { translateY: 0 })(Editor) || Editor;
     return Editor;
@@ -288,8 +288,8 @@ function mapStateToProps(state, ownProps) {
 
     return _extends({}, ownProps, {
         fixedToolbar: fixedToolbar,
-        hideToolbar: !fixedToolbar && focusOnSelection && !ownProps.isNearTop,
-        hideSelectionControls: focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && !ownProps.isNearRight,
+        hideToolbar: !ownProps.displayToolbar || !fixedToolbar && focusOnSelection && !ownProps.isNearTop,
+        hideSelectionControls: !ownProps.browseable || focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && !ownProps.isNearRight,
         activeTab: activeTab,
         tabs: tabs,
         isMinimised: isMinimised

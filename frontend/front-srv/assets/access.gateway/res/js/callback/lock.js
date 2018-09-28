@@ -19,23 +19,26 @@
  */
 
 import PydioApi from 'pydio/http/api'
-import {ACLServiceApi, IdmACL, IdmACLAction} from 'pydio/http/rest-api'
+import {UserMetaServiceApi, IdmUpdateUserMetaRequest, IdmUserMeta} from 'pydio/http/rest-api'
 
 export default function (pydio) {
     return function(){
-        const api = new ACLServiceApi(PydioApi.getRestClient());
-        let acl = new IdmACL();
+        const api = new UserMetaServiceApi(PydioApi.getRestClient());
+        let req = new IdmUpdateUserMetaRequest();
         const node = pydio.getContextHolder().getUniqueNode();
-        acl.NodeID = node.getMetadata().get('uuid');
-        acl.Action = IdmACLAction.constructFromObject({Name:"content_lock", Value:pydio.user.id});
+        const meta = new IdmUserMeta();
+        meta.NodeUuid = node.getMetadata().get('uuid');
+        meta.Namespace = "content_lock";
+        meta.JsonValue = pydio.user.id;
         let p;
         const wasLocked = node.getMetadata().get("sl_locked");
         if(wasLocked){
-            p = api.deleteAcl(acl);
+            req.Operation = 'DELETE';
         }else {
-            p = api.putAcl(acl);
+            req.Operation = 'PUT';
         }
-        p.then(res => {
+        req.MetaDatas = [meta];
+        api.updateUserMeta(req).then(res => {
             pydio.getContextHolder().requireNodeReload(node);
         });
     }

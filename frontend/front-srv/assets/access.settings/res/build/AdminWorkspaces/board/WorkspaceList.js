@@ -72,9 +72,12 @@ exports['default'] = _react2['default'].createClass({
         var _this = this;
 
         this.setState({ loading: true });
-        _modelWs2['default'].listWorkpsaces().then(function (response) {
+        _pydio2['default'].startLoading();
+        _modelWs2['default'].listWorkspaces().then(function (response) {
+            _pydio2['default'].endLoading();
             _this.setState({ loading: false, workspaces: response.Workspaces || [] });
         })['catch'](function (e) {
+            _pydio2['default'].endLoading();
             _this.setState({ loading: false });
         });
     },

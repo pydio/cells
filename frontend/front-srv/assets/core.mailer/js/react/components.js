@@ -20,6 +20,7 @@
 
 import React from 'react'
 import PydioApi from 'pydio/http/api'
+import {FontIcon, Chip, Avatar, Style, Paper, Divider, TextField, FlatButton} from 'material-ui'
 import {MailerServiceApi, MailerMail, MailerUser} from 'pydio/http/rest-api'
 
 const styles = {
@@ -57,23 +58,31 @@ class DestBadge extends React.Component{
 
 class UserChip extends React.Component {
 
-    remove(){
-        this.props.onRemove(this.props.user.getId());
-    }
-
     render(){
-        const tmp = this.props.user.getTemporary();
-        const icon = <MaterialUI.FontIcon className={"icon-" + (tmp?"envelope":"user")} />;
-        const {colors} = MaterialUI.Style;
+        const {user, onRemove} = this.props;
+        const tmp = user.FreeValue;
+        let label;
+        if(tmp){
+            label = user.FreeValue;
+        } else {
+            if (user.Attributes && user.Attributes['displayName']){
+                label = user.Attributes['displayName'];
+            } else {
+                label = user.Login;
+            }
+        }
+
+        const icon = <FontIcon className={"icon-" + (tmp?"envelope":"user")} />;
+        const {colors} = Style;
         return (
-            <MaterialUI.Chip
+            <Chip
                 backgroundColor={tmp ? colors.lightBlue100 : colors.blueGrey100}
-                onRequestDelete={this.remove.bind(this)}
+                onRequestDelete={() => {onRemove()}}
                 style={styles.chip}
             >
-                <MaterialUI.Avatar icon={icon} color={tmp ? 'white' : colors.blueGrey600} backgroundColor={tmp ? colors.lightBlue300 : colors.blueGrey300}/>
-                {this.props.user.getLabel()}
-            </MaterialUI.Chip>
+                <Avatar icon={icon} color={tmp ? 'white' : colors.blueGrey600} backgroundColor={tmp ? colors.lightBlue300 : colors.blueGrey300}/>
+                {label}
+            </Chip>
         )
     }
 }
@@ -142,7 +151,6 @@ class Email {
         }
         let templateData = {...this.templateData};
         let proms = [];
-        // Todo : Handle links?
 
         if(this._messages.length > 1 && this._messages.length === this._targets.length && this._subjects.length === this._targets.length) {
             // Send as many emails as targets with their own messages
@@ -190,7 +198,11 @@ class Pane extends React.Component {
 
     addUser(userObject){
         let {users} = this.state;
-        users[userObject.getId()] = userObject;
+        if(userObject.FreeValue){
+            users[userObject.FreeValue] = userObject;
+        } else if(userObject.IdmUser){
+            users[userObject.IdmUser.Login] = userObject.IdmUser;
+        }
         this.setState({users:users, errorMessage:null});
     }
 
@@ -250,7 +262,7 @@ class Pane extends React.Component {
         const className = [this.props.className, "react-mailer", "reset-pydio-forms"].join(" ");
         const users = Object.keys(this.state.users).map(function(uId){
             return (
-                <UserChip key={uId} user={this.state.users[uId]} onRemove={this.removeUser.bind(this)}/>
+                <UserChip key={uId} user={this.state.users[uId]} onRemove={()=>{this.removeUser(uId)}}/>
             );
         }.bind(this));
         let errorDiv;
@@ -262,7 +274,7 @@ class Pane extends React.Component {
             ...this.props.style,
         };
         const content = (
-            <MaterialUI.Paper zDepth={this.props.zDepth !== undefined ? this.props.zDepth : 2} className={className} style={style}>
+            <Paper zDepth={this.props.zDepth !== undefined ? this.props.zDepth : 2} className={className} style={style}>
                 <h3  style={{padding:20, color:'rgba(0,0,0,0.87)', fontSize:25, marginBottom: 0, paddingBottom: 10}}>{this.props.panelTitle}</h3>
                 {errorDiv}
                 {this.props.additionalPaneTop}
@@ -284,17 +296,17 @@ class Pane extends React.Component {
                         <div style={styles.wrapper}>{users}</div>
                     </div>
                 }
-                {!this.props.uniqueUserStyle && <MaterialUI.Divider/>}
+                {!this.props.uniqueUserStyle && <Divider/>}
                 {!this.props.templateId &&
                     <div  style={{padding:'0 20px'}}>
-                        <MaterialUI.TextField fullWidth={true} underlineShow={false} floatingLabelText={this.getMessage('6')} value={this.state.subject} onChange={this.updateSubject.bind(this)}/>
+                        <TextField fullWidth={true} underlineShow={false} floatingLabelText={this.getMessage('6')} value={this.state.subject} onChange={this.updateSubject.bind(this)}/>
                     </div>
                 }
                 {!this.props.templateId &&
-                    <MaterialUI.Divider/>
+                    <Divider/>
                 }
                 <div style={{padding:'0 20px'}}>
-                    <MaterialUI.TextField
+                    <TextField
                         fullWidth={true}
                         underlineShow={false}
                         floatingLabelText={this.getMessage('7')}
@@ -305,12 +317,12 @@ class Pane extends React.Component {
                     />
                 </div>
                 {this.props.additionalPaneBottom}
-                <MaterialUI.Divider/>
+                <Divider/>
                 <div style={{textAlign:'right', padding: '8px 20px'}}>
-                    <MaterialUI.FlatButton label={this.getMessage('54', '')} onTouchTap={this.props.onDismiss}/>
-                    <MaterialUI.FlatButton primary={true} label={this.getMessage('77', '')} onTouchTap={(e)=>this.postEmail()}/>
+                    <FlatButton label={this.getMessage('54', '')} onTouchTap={this.props.onDismiss}/>
+                    <FlatButton primary={true} label={this.getMessage('77', '')} onTouchTap={(e)=>this.postEmail()}/>
                 </div>
-            </MaterialUI.Paper>
+            </Paper>
         );
         if(this.props.overlay){
             return (

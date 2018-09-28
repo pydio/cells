@@ -24,20 +24,22 @@ import { parseQuery } from './utils';
 const { EditorActions } = Pydio.requireLib('hoc');
 
 // Actions definitions
-export const onSave = ({pydio, url, content, dispatch, id}) => {
-    return pydio.ApiClient.postPlainTextContent(url, content, (success) => {
+export const onSave = ({dispatch, tab}) => () => {
+    return pydio.ApiClient.postPlainTextContent(tab.url, tab.content, (success) => {
         if (!success) {
-            dispatch(EditorActions.tabModify({id, error: "There was an error while saving"}))
+            dispatch(EditorActions.tabModify({id: tab.id, error: "There was an error while saving"}))
         }
     })
 }
 
-export const onUndo = ({codemirror}) => codemirror.undo()
-export const onRedo = ({codemirror}) => codemirror.redo()
-export const onToggleLineNumbers = ({dispatch, id, lineNumbers}) => dispatch(EditorActions.tabModify({id, lineNumbers: !lineNumbers}))
-export const onToggleLineWrapping = ({dispatch, id, lineWrapping}) => dispatch(EditorActions.tabModify({id, lineWrapping: !lineWrapping}))
+export const onUndo = ({tab}) => () => tab.codemirror.undo()
+export const onRedo = ({tab}) => () => tab.codemirror.redo()
+export const onToggleLineNumbers = ({dispatch, tab}) => () => dispatch(EditorActions.tabModify({id: tab.id, lineNumbers: !tab.lineNumbers}))
+export const onToggleLineWrapping = ({dispatch, tab}) => () => dispatch(EditorActions.tabModify({id: tab.id, lineWrapping: !tab.lineWrapping}))
 
-export const onSearch = ({codemirror, cursor}) => (value) => {
+export const onSearch = ({tab}) => (value) => {
+    const {codemirror, cursor} = tab
+
     const query = parseQuery(value)
 
     let cur = codemirror.getSearchCursor(query, cursor.to);
@@ -51,7 +53,9 @@ export const onSearch = ({codemirror, cursor}) => (value) => {
     codemirror.scrollIntoView({from: cur.from(), to: cur.to()}, 20);
 }
 
-export const onJumpTo = ({codemirror}) => (value) => {
+export const onJumpTo = ({tab}) => (value) => {
+    const {codemirror} = tab
+
     const line = parseInt(value)
     const cur = codemirror.getCursor();
 

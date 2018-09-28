@@ -1,7 +1,9 @@
+import Pydio from 'pydio'
 import React from 'react'
 import DataSource from '../model/DataSource'
 import {Dialog, Divider, Subheader, TextField, SelectField, Toggle, FlatButton, RaisedButton, MenuItem} from 'material-ui'
 import DataSourceLocalSelector from './DataSourceLocalSelector'
+const {PaperEditorLayout} = Pydio.requireLib('components');
 
 class DataSourceEditor extends React.Component{
 
@@ -99,10 +101,9 @@ class DataSourceEditor extends React.Component{
 
         let titleActionBarButtons = [];
         if(!create){
-            titleActionBarButtons.push(<FlatButton key="reset" label={this.context.getMessage('plugins.6')} onTouchTap={this.resetForm.bind(this)} secondary={true} disabled={!this.state.dirty}/>);
+            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
         }
-        titleActionBarButtons.push(<FlatButton key="save" label={this.context.getMessage('53', '')} onTouchTap={this.saveSource.bind(this)} secondary={true} disabled={!observable.isValid() || !this.state.dirty}/>);
-        titleActionBarButtons.push(<RaisedButton key="close" label={this.context.getMessage('86', '')} onTouchTap={this.props.closeEditor}/>);
+        titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', ()=>{this.saveSource()}, !observable.isValid() || !this.state.dirty));
 
         const leftNav = (
             <div style={{padding: '6px 0', color: '#9E9E9E', fontSize: 13}}>
@@ -179,6 +180,7 @@ class DataSourceEditor extends React.Component{
             <PydioComponents.PaperEditorLayout
                 title={title}
                 titleActionBar={titleActionBarButtons}
+                closeAction={this.props.closeEditor}
                 leftNav={leftNav}
                 className="workspace-editor"
                 contentFill={false}
@@ -238,7 +240,7 @@ class DataSourceEditor extends React.Component{
                 </div>
                 <Divider/>
                 <div style={styles.section}>
-                    <div style={styles.title}>Data Management</div>
+                    <div style={styles.title}>{m('datamanagement')}</div>
                     <SelectField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('versioning')} value={model.VersioningPolicyName} onChange={(e,i,v)=>{model.VersioningPolicyName = v}}>
                         <MenuItem value={undefined} primaryText={m('versioning.disabled')}/>
                         {versioningPolicies.map(key => {

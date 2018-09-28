@@ -232,9 +232,10 @@ var LogBoard = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'u',
                                     null,
-                                    'Note'
+                                    pydio.MessageHash['ajxp_admin.sys.note']
                                 ),
-                                ': empty logs entries may mean that the server is not running in production mode. Make sure to set this log level by passing the environment variable PYDIO_LOGS_LEVEL=production at startup.'
+                                ' ',
+                                pydio.MessageHash['ajxp_admin.sys.note.content']
                             )
                         )
                     )

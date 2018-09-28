@@ -133,26 +133,21 @@ var RuleEditor = (function (_React$Component) {
         value: function render() {
             var _this = this;
 
+            var messages = _pydio2['default'].getMessages();
             var _state = this.state;
             var rule = _state.rule;
             var dirty = _state.dirty;
             var valid = _state.valid;
 
-            var buttonMargin = { marginLeft: 6 };
             var actions = [];
             if (!this.isCreate()) {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, disabled: !dirty, label: "Revert", onTouchTap: this.revert.bind(this) }));
+                actions.push(PaperEditorLayout.actionButton(messages['ajxp_admin.plugins.6'], 'mdi mdi-undo', function () {
+                    _this.revert();
+                }, !dirty));
             }
-            actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, disabled: !dirty || !valid, label: "Save", onTouchTap: this.save.bind(this) }));
-            if (this.isCreate()) {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, label: "Cancel", onTouchTap: function () {
-                        return _this.props.onRequestTabClose(_this);
-                    } }));
-            } else {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, label: "Close", onTouchTap: function () {
-                        return _this.props.onRequestTabClose(_this);
-                    } }));
-            }
+            actions.push(PaperEditorLayout.actionButton(messages['53'], 'mdi mdi-content-save', function () {
+                _this.save();
+            }, !dirty || !valid));
             var containerStyle = { margin: 16, fontSize: 16 };
 
             return _react2['default'].createElement(
@@ -160,6 +155,9 @@ var RuleEditor = (function (_React$Component) {
                 {
                     title: rule.description || 'Please provide a label',
                     titleActionBar: actions,
+                    closeAction: function () {
+                        _this.props.onRequestTabClose();
+                    },
                     contentFill: false
                 },
                 _react2['default'].createElement(

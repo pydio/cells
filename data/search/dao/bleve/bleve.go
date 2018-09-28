@@ -127,6 +127,13 @@ func (i *IndexableNode) BleveType() string {
 	return "node"
 }
 
+func (s *BleveServer) getRouter() views.Handler {
+	if s.Router == nil {
+		s.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: true})
+	}
+	return s.Router
+}
+
 func (s *BleveServer) MakeIndexableNode(ctx context.Context, node *tree.Node) *IndexableNode {
 	indexNode := &IndexableNode{Node: *node}
 	indexNode.Meta = indexNode.AllMetaDeserialized()
@@ -143,11 +150,7 @@ func (s *BleveServer) MakeIndexableNode(ctx context.Context, node *tree.Node) *I
 	indexNode.GetMeta("GeoLocation", &indexNode.GeoPoint)
 
 	if s.IndexContent && indexNode.IsLeaf() {
-		if s.Router == nil {
-			s.Router = views.NewStandardRouter(views.RouterOptions{AdminView: false, WatchRegistry: false})
-		}
-		s.Router = views.NewStandardRouter(views.RouterOptions{AdminView: true, WatchRegistry: false})
-		reader, err := s.Router.GetObject(ctx, proto.Clone(node).(*tree.Node), &views.GetRequestData{Length: -1})
+		reader, err := s.getRouter().GetObject(ctx, proto.Clone(node).(*tree.Node), &views.GetRequestData{Length: -1})
 		//reader, err := node.ReadFile(ctx)
 		if err == nil {
 			convertResp, er := docconv.Convert(reader, docconv.MimeTypeByExtension(basename), true)

@@ -21,9 +21,35 @@
 import React from 'react'
 import Pydio from 'pydio'
 import InfoPanelCard from './InfoPanelCard'
+import PathUtils from 'pydio/util/path'
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 
 class FileInfoCard extends React.Component {
+
+    constructor(props){
+        super(props);
+        this._observer = () => {
+            this.forceUpdate();
+        };
+        if(props.node){
+            props.node.observe('node_replaced', this._observer)
+        }
+    }
+
+    componentWillReceiveProps(newProps){
+        if(this.props.node){
+            this.props.node.stopObserving('node_replaced', this._observer)
+        }
+        if(newProps.node){
+            newProps.node.observe('node_replaced', this._observer)
+        }
+    }
+
+    componentWillUnmount(){
+        if(this.props.node){
+            this.props.node.stopObserving('node_replaced', this._observer)
+        }
+    }
 
     render() {
 
@@ -32,8 +58,7 @@ class FileInfoCard extends React.Component {
 
         let size = meta.get('bytesize');
         let hSize = PathUtils.roundFileSize(parseInt(size));
-        let time = meta.get('ajxp_modiftime');
-        var date = new Date();
+        const date = new Date();
         date.setTime(parseInt(meta.get('ajxp_modiftime')) * 1000);
         let formattedDate = PathUtils.formatModifDate(date);
 

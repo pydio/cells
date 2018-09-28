@@ -26,18 +26,6 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequire(obj) { return obj && obj.__esModule ? obj['default'] : obj; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _editor = require('./editor');
-
-var _editor2 = _interopRequireDefault(_editor);
-
-var _controls = require('./controls');
-
-var Controls = _interopRequireWildcard(_controls);
-
 var _badge = require('./badge');
 
 exports.Badge = _interopRequire(_badge);
@@ -45,5 +33,7 @@ exports.Badge = _interopRequire(_badge);
 var _preview = require('./preview');
 
 exports.Panel = _interopRequire(_preview);
-exports.Editor = _editor2['default'];
-exports.Controls = Controls;
+
+var _editor = require('./editor');
+
+exports.Editor = _interopRequire(_editor);

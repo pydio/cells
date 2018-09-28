@@ -77,7 +77,7 @@ var MaskNodesProvider = (function (_MetaNodeProvider) {
             var depth = arguments.length <= 4 || arguments[4] === undefined ? -1 : arguments[4];
             var optionalParameters = arguments.length <= 5 || arguments[5] === undefined ? null : arguments[5];
 
-            console.log('MaskNodes', node);
+            //console.log('MaskNodes', node);
             var api = new _pydioHttpRestApi.AdminTreeServiceApi(_pydioHttpApi2['default'].getRestClient());
 
             var listRequest = new _pydioHttpRestApi.TreeListNodesRequest();

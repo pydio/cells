@@ -39,7 +39,7 @@ export default class MaskNodesProvider extends MetaNodeProvider{
      */
     loadNode (node, nodeCallback=null, childCallback=null, recursive=false, depth=-1, optionalParameters=null){
 
-        console.log('MaskNodes', node);
+        //console.log('MaskNodes', node);
         const api = new AdminTreeServiceApi(PydioApi.getRestClient());
 
         let listRequest = new TreeListNodesRequest();

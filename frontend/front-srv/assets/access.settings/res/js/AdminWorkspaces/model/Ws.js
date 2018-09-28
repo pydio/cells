@@ -152,18 +152,13 @@ class Workspace extends Observable{
         return !!(node.MetaStore && node.MetaStore['resolution']);
     }
 
-    static listWorkpsaces(){
+    static listWorkspaces(){
         const api = new WorkspaceServiceApi(PydioApi.getRestClient());
         let request = new RestSearchWorkspaceRequest();
         let single = new IdmWorkspaceSingleQuery();
         single.scope = IdmWorkspaceScope.constructFromObject('ADMIN');
         request.Queries = [single];
-        Pydio.startLoading();
-        return api.searchWorkspaces(request).then(()=>{
-            Pydio.endLoading();
-        }).catch(()=>{
-            Pydio.endLoading();
-        });
+        return api.searchWorkspaces(request);
     }
 
 }

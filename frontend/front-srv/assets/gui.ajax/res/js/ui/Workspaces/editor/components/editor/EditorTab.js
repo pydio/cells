@@ -19,15 +19,25 @@
  */
 
 import Pydio from 'pydio'
-import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton } from 'material-ui';
+import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton, TextField } from 'material-ui';
 import { connect } from 'react-redux';
 import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
 
-const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
+const { EditorActions, ResolutionActions, ContentActions, SizeActions, SelectionActions, LocalisationActions, withMenu, withContentControls, withSizeControls, withAutoPlayControls, withResolutionControls } = Pydio.requireLib('hoc');
 
 const styles = {
+    textField: {
+        width: 150,
+        marginRight: 40
+    },
+    textInput: {
+        color: "rgb(255, 255,255, 0.87)"
+    },
+    textHint: {
+        color: "rgb(255, 255,255, 0.67)"
+    },
     iconButton: {
         backgroundColor: "rgb(0, 0, 0, 0.87)",
         color: "rgb(255, 255,255, 0.87)"
@@ -101,13 +111,8 @@ export default class Tab extends React.Component {
                 })
         }
 
-        // {ResolutionControls && <ToolbarGroup>{controls(ResolutionControls)}</ToolbarGroup>}
-        // {SelectionControls && <ToolbarGroup>{controls(SelectionControls)}</ToolbarGroup>}
         return (
             <SnackBar id={id} style={Tab.styles.toolbar}>
-                {SizeControls && <ToolbarGroup>{controls(SizeControls)}</ToolbarGroup>}
-                {ContentControls && <ToolbarGroup>{controls(ContentControls)}</ToolbarGroup>}
-                {ContentSearchControls && <ToolbarGroup>{controls(ContentSearchControls)}</ToolbarGroup>}
                 {LocalisationControls && <ToolbarGroup>{controls(LocalisationControls)}</ToolbarGroup>}
             </SnackBar>
         )
@@ -129,15 +134,16 @@ export default class Tab extends React.Component {
         ) : (
             <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={true} expanded={isActive} onExpandChange={!isActive ? select : null}>
                 <Editor pydio={pydio} node={node} editorData={editorData} isActive={isActive} />
-                {Controls && this.renderControls(Controls, Actions)}
+                <SnackBar id={id} style={Tab.styles.toolbar} />
             </AnimatedCard>
         )
     }
 }
 
-@withAutoPlayControls()
+@withContentControls
+@withAutoPlayControls
 @withSizeControls
-@withResolutionControls()
+@withResolutionControls
 @connect(mapStateToProps)
 class SnackBar extends React.Component {
     constructor(props) {
@@ -164,11 +170,32 @@ class SnackBar extends React.Component {
 
     render() {
         const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false} = this.state
-        const {size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, onSave, ...remaining} = this.props
+        const {size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
+
+        // Content functions
+        const {saveable, undoable, redoable, onSave, onUndo, onRedo} = this.props
+        const {onToggleLineNumbers, onToggleLineWrapping} = this.props
+        const {onSearch, onJumpTo} = this.props
+
+        const editable = saveable || undoable || redoable
+        const {editortools, searchable} = this.props
+
+        // Resolution functions
+        const {hdable} = this.props
+
+        // Selection functions
+        const {playable} = this.props
+
+        // Size functions
+        const {resizable} = this.props
+
+        if (!editable && !hdable && !playable && !resizable) {
+            return null
+        }
 
         return (
             <Toolbar {...remaining}>
-                {onAutoPlayToggle && (
+                {playable && (
                     <ToolbarGroup>
                         <IconButton
                             iconClassName={"mdi " + (!playing ? "mdi-play" : "mdi-pause")}
@@ -177,10 +204,10 @@ class SnackBar extends React.Component {
                         />
                     </ToolbarGroup>
                 )}
-                {onAutoPlayToggle && onSizeChange && (
+                {playable && resizable && (
                     <ToolbarSeparator style={styles.divider} />
                 )}
-                {onSizeChange && (
+                {resizable && (
                     <ToolbarGroup>
                         <IconButton
                             iconClassName="mdi mdi-minus"
@@ -210,16 +237,74 @@ class SnackBar extends React.Component {
                         />
                     </ToolbarGroup>
                 )}
-                {(onAutoPlayToggle || onSizeChange) && onResolutionToggle && (
+                {(playable || resizable) && hdable && (
                     <ToolbarSeparator style={styles.divider} />
                 )}
-                {onResolutionToggle && (
+                {hdable && (
                     <ToolbarGroup>
                         <IconButton
                             iconClassName={"mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image")}
                             iconStyle={styles.iconButton}
                             onClick={() => onResolutionToggle()}
                         />
+                    </ToolbarGroup>
+                )}
+                {(playable || resizable || hdable) && editable && (
+                    <ToolbarSeparator style={styles.divider} />
+                )}
+                {editable && (
+                    <ToolbarGroup>
+                        {saveable && (
+                            <IconButton
+                                iconClassName="mdi mdi-content-save"
+                                iconStyle={styles.iconButton}
+                                onClick={() => onSave()}
+                            />
+                        )}
+                        {undoable && (
+                            <IconButton
+                                iconClassName="mdi mdi-undo"
+                                iconStyle={styles.iconButton}
+                                onClick={() => onUndo()}
+                            />
+                        )}
+                        {redoable && (
+                            <IconButton
+                                iconClassName="mdi mdi-redo"
+                                iconStyle={styles.iconButton}
+                                onClick={() => onRedo()}
+                            />
+                        )}
+                    </ToolbarGroup>
+                )}
+                {(playable || resizable || hdable || editable) && editortools && (
+                    <ToolbarSeparator style={styles.divider} />
+                )}
+                {editortools && (
+                    <ToolbarGroup>
+                        {onToggleLineNumbers && (
+                            <IconButton
+                                iconClassName="mdi mdi-format-list-numbers"
+                                iconStyle={styles.iconButton}
+                                onClick={() => onToggleLineNumbers()}
+                            />
+                        )}
+                        {onToggleLineWrapping && (
+                            <IconButton
+                                iconClassName="mdi mdi-wrap"
+                                iconStyle={styles.iconButton}
+                                onClick={() => onToggleLineWrapping()}
+                            />
+                        )}
+                    </ToolbarGroup>
+                )}
+                {(playable || resizable || hdable || editable || editortools) && searchable && (
+                    <ToolbarSeparator style={styles.divider} />
+                )}
+                {searchable && (
+                    <ToolbarGroup>
+                        <TextField onKeyUp={({key, target}) => key === 'Enter' && onJumpTo(target.value)} hintText="Jump to Line" style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
+                        <TextField onKeyUp={({key, target}) => key === 'Enter' && onSearch(target.value)} hintText="Search..." style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
                     </ToolbarGroup>
                 )}
             </Toolbar>

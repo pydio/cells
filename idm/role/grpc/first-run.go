@@ -113,11 +113,11 @@ func InitRoles(ctx context.Context) error {
 			},
 			Acls: []*idm.ACL{
 				{RoleID: "EXTERNAL_USERS", Action: utils.ACL_DENY, WorkspaceID: "homepage", NodeID: "homepage-ROOT"},
-				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
-				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share_react", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
-				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
-				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:open_user_shares", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.share:open_user_shares", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
 				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "action:action.user:open_address_book", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
+				{RoleID: "EXTERNAL_USERS", Action: &idm.ACLAction{Name: "parameter:core.auth:USER_CREATE_CELLS", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_ALL"},
 			},
 		},
 		{
@@ -128,7 +128,6 @@ func InitRoles(ctx context.Context) error {
 			},
 			Acls: []*idm.ACL{
 				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
-				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share_react", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
 				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
 			},
 		},
@@ -191,7 +190,6 @@ func UpgradeTo12(ctx context.Context) error {
 			},
 			Acls: []*idm.ACL{
 				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
-				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share_react", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
 				{RoleID: "MINISITE", Action: &idm.ACLAction{Name: "action:action.share:share-edit-shared", Value: "false"}, WorkspaceID: "PYDIO_REPO_SCOPE_SHARED"},
 			},
 		},

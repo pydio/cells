@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio'
 const React = require('react');
 const {Paper, Menu} = require('material-ui');
 const {muiThemeable} = require('material-ui/styles');
@@ -25,8 +26,9 @@ import NavigationHelper from '../util/NavigationHelper'
 import MenuItemListener from '../util/MenuItemListener'
 const AjxpNode = require('pydio/model/node');
 const PydioDataModel = require('pydio/model/data-model');
+const {withVerticalScroll} = Pydio.requireLib('hoc');
 
-let AdminLeftNav = React.createClass({
+let AdminMenu = React.createClass({
 
     propTypes:{
         rootNode        : React.PropTypes.instanceOf(AjxpNode),
@@ -55,7 +57,7 @@ let AdminLeftNav = React.createClass({
 
     render(){
 
-        const {pydio, rootNode, muiTheme, open, showAdvanced} = this.props;
+        const {pydio, rootNode, muiTheme, showAdvanced} = this.props;
 
         // Fix for ref problems on context node
         let {contextNode} = this.props;
@@ -73,6 +75,25 @@ let AdminLeftNav = React.createClass({
 
         const menuItems = NavigationHelper.buildNavigationItems(pydio, rootNode, muiTheme.palette, showAdvanced, false);
 
+        return(
+            <Menu
+                onChange={this.onMenuChange}
+                autoWidth={false}
+                width={256}
+                listStyle={{display:'block', maxWidth:256}}
+                value={contextNode}
+            >{menuItems}</Menu>
+        );
+    }
+
+});
+
+AdminMenu = withVerticalScroll(AdminMenu);
+AdminMenu = muiThemeable()(AdminMenu);
+
+class AdminLeftNav extends React.Component {
+    render(){
+        const {open} = this.props;
         let pStyle = {
             height: '100%',
             position: 'fixed',
@@ -83,27 +104,12 @@ let AdminLeftNav = React.createClass({
         if(!open){
             pStyle.transform = 'translateX(-256px)';
         }
-
-        return(
-            <Paper zDepth={2}
-               style={pStyle}
-                className="admin-main-nav"
-                ref="leftNav"
-            >
-                <div style={{height:'100%', overflowY: 'auto'}}>
-                    <Menu
-                        onChange={this.onMenuChange}
-                        autoWidth={false}
-                        width={256}
-                        listStyle={{display:'block', maxWidth:256}}
-                        value={contextNode}
-                    >{menuItems}</Menu>
-                </div>
+        return (
+            <Paper zDepth={2} className={"admin-main-nav"} style={pStyle}>
+                <AdminMenu {...this.props} style={{height:'100%'}}/>
             </Paper>
         );
     }
+}
 
-});
-
-AdminLeftNav = muiThemeable()(AdminLeftNav);
 export {AdminLeftNav as default}

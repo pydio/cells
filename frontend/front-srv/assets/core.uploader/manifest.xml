@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="core.uploader" label="CONF_MESSAGE[Uploaders Options]" description="CONF_MESSAGE[Options shared by all uploaders plugins]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
+<plugin  enabled="always" id="core.uploader" label="CONF_MESSAGE[Uploaders Options]" description="CONF_MESSAGE[Options shared by all uploaders plugins]" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="file:../core.pydio/pydio_registry.xsd">
     <client_settings>
         <resources>
             <i18n namespace="core_uploader" remote="plug/core.uploader/i18n"/>

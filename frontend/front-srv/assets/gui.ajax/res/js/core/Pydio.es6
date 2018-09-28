@@ -415,9 +415,9 @@ class Pydio extends Observable{
      * @param repositoryId String Id of the new repository
      * @param callback Function
      */
-    triggerRepositoryChange(repositoryId, callback){
+    triggerRepositoryChange(repositoryId, callback = null){
         this.fire("trigger_repository_switch");
-        this.Registry.load(null, null, repositoryId)
+        this.Registry.load(null, callback, repositoryId)
     }
 
     getPluginConfigs (pluginQuery){

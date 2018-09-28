@@ -89,7 +89,7 @@ func (s *SearchServer) processEvent(ctx context.Context, e *tree.NodeChangeEvent
 		break
 	case tree.NodeChangeEvent_UPDATE_META:
 		// Let's extract the basic information from the tree and store it
-		if utils.IgnoreNodeForOutput(ctx, e.Target) {
+		if e.Target.Path != "" && utils.IgnoreNodeForOutput(ctx, e.Target) {
 			break
 		}
 		s.Engine.IndexNode(ctx, e.Target)

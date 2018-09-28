@@ -498,9 +498,11 @@ var Pydio = (function (_Observable) {
      * @param callback Function
      */
 
-    Pydio.prototype.triggerRepositoryChange = function triggerRepositoryChange(repositoryId, callback) {
+    Pydio.prototype.triggerRepositoryChange = function triggerRepositoryChange(repositoryId) {
+        var callback = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
         this.fire("trigger_repository_switch");
-        this.Registry.load(null, null, repositoryId);
+        this.Registry.load(null, callback, repositoryId);
     };
 
     Pydio.prototype.getPluginConfigs = function getPluginConfigs(pluginQuery) {

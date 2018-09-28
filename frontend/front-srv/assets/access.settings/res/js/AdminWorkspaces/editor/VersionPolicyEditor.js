@@ -7,6 +7,7 @@ import XMLUtils from 'pydio/util/xml'
 import Pydio from 'pydio'
 import VersionPolicyPeriods from './VersionPolicyPeriods'
 const PydioForm = Pydio.requireLib('form');
+const {PaperEditorLayout} = Pydio.requireLib('components');
 
 class VersionPolicyEditor extends React.Component{
 
@@ -163,13 +164,11 @@ class VersionPolicyEditor extends React.Component{
         let titleActionBarButtons = [];
         if(!readonly){
             if(!create){
-                titleActionBarButtons.push(<FlatButton key="delete" label={m('delete')} secondary={true} onTouchTap={this.deleteSource.bind(this)}/>);
-                titleActionBarButtons.push(<div style={{display: 'inline', borderRight: '1px solid #757575', margin: '0 2px'}} key="separator"></div>);
-                titleActionBarButtons.push(<FlatButton key="reset" label={this.context.getMessage('plugins.6')} onTouchTap={this.resetForm.bind(this)} secondary={true} disabled={!this.state.dirty}/>);
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(m('delete'), 'mdi mdi-delete', ()=>{this.deleteSource()}));
+                titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('plugins.6'), 'mdi mdi-undo', ()=>{this.resetForm()}, !this.state.dirty));
             }
-            titleActionBarButtons.push(<FlatButton key="save" label={this.context.getMessage('53', '')} onTouchTap={this.saveSource.bind(this)} secondary={true} disabled={!this.state.valid || !this.state.dirty}/>);
+            titleActionBarButtons.push(PaperEditorLayout.actionButton(this.context.getMessage('53', ''), 'mdi mdi-content-save', ()=>{this.saveSource()}, !this.state.valid || !this.state.dirty));
         }
-        titleActionBarButtons.push(<RaisedButton key="close" label={this.context.getMessage('86', '')} onTouchTap={this.props.closeEditor}/>);
 
         let policyName = saveValue ? saveValue.Name : policy.Name;
         if(!policyName) {
@@ -177,9 +176,10 @@ class VersionPolicyEditor extends React.Component{
         }
 
         return (
-            <PydioComponents.PaperEditorLayout
+            <PaperEditorLayout
                 title={loaded && parameters ? m('title').replace('%s', policyName) : pydio.MessageHash['ajxp_admin.home.6']}
                 titleActionBar={titleActionBarButtons}
+                closeAction={this.props.closeEditor}
                 className="workspace-editor"
                 contentFill={true}
             >
@@ -189,7 +189,7 @@ class VersionPolicyEditor extends React.Component{
                     </div>
                 </Paper>
                 {form}
-            </PydioComponents.PaperEditorLayout>
+            </PaperEditorLayout>
         );
     }
 }

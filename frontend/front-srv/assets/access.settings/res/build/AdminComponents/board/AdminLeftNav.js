@@ -23,7 +23,21 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
 
 var _utilNavigationHelper = require('../util/NavigationHelper');
 
@@ -47,8 +61,12 @@ var muiThemeable = _require2.muiThemeable;
 var AjxpNode = require('pydio/model/node');
 var PydioDataModel = require('pydio/model/data-model');
 
-var AdminLeftNav = React.createClass({
-    displayName: 'AdminLeftNav',
+var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+
+var withVerticalScroll = _Pydio$requireLib.withVerticalScroll;
+
+var AdminMenu = React.createClass({
+    displayName: 'AdminMenu',
 
     propTypes: {
         rootNode: React.PropTypes.instanceOf(AjxpNode),
@@ -82,7 +100,6 @@ var AdminLeftNav = React.createClass({
         var pydio = _props2.pydio;
         var rootNode = _props2.rootNode;
         var muiTheme = _props2.muiTheme;
-        var open = _props2.open;
         var showAdvanced = _props2.showAdvanced;
 
         // Fix for ref problems on context node
@@ -102,44 +119,58 @@ var AdminLeftNav = React.createClass({
 
         var menuItems = _utilNavigationHelper2['default'].buildNavigationItems(pydio, rootNode, muiTheme.palette, showAdvanced, false);
 
-        var pStyle = {
-            height: '100%',
-            position: 'fixed',
-            width: 256,
-            paddingTop: 56,
-            zIndex: 9
-        };
-        if (!open) {
-            pStyle.transform = 'translateX(-256px)';
-        }
-
         return React.createElement(
-            Paper,
-            { zDepth: 2,
-                style: pStyle,
-                className: 'admin-main-nav',
-                ref: 'leftNav'
+            Menu,
+            {
+                onChange: this.onMenuChange,
+                autoWidth: false,
+                width: 256,
+                listStyle: { display: 'block', maxWidth: 256 },
+                value: contextNode
             },
-            React.createElement(
-                'div',
-                { style: { height: '100%', overflowY: 'auto' } },
-                React.createElement(
-                    Menu,
-                    {
-                        onChange: this.onMenuChange,
-                        autoWidth: false,
-                        width: 256,
-                        listStyle: { display: 'block', maxWidth: 256 },
-                        value: contextNode
-                    },
-                    menuItems
-                )
-            )
+            menuItems
         );
     }
 
 });
 
-exports['default'] = AdminLeftNav = muiThemeable()(AdminLeftNav);
+AdminMenu = withVerticalScroll(AdminMenu);
+AdminMenu = muiThemeable()(AdminMenu);
+
+var AdminLeftNav = (function (_React$Component) {
+    _inherits(AdminLeftNav, _React$Component);
+
+    function AdminLeftNav() {
+        _classCallCheck(this, AdminLeftNav);
+
+        _get(Object.getPrototypeOf(AdminLeftNav.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(AdminLeftNav, [{
+        key: 'render',
+        value: function render() {
+            var open = this.props.open;
+
+            var pStyle = {
+                height: '100%',
+                position: 'fixed',
+                width: 256,
+                paddingTop: 56,
+                zIndex: 9
+            };
+            if (!open) {
+                pStyle.transform = 'translateX(-256px)';
+            }
+            return React.createElement(
+                Paper,
+                { zDepth: 2, className: "admin-main-nav", style: pStyle },
+                React.createElement(AdminMenu, _extends({}, this.props, { style: { height: '100%' } }))
+            );
+        }
+    }]);
+
+    return AdminLeftNav;
+})(React.Component);
+
 exports['default'] = AdminLeftNav;
 module.exports = exports['default'];

@@ -30,11 +30,18 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/lpar/gzipped"
 
+	"path/filepath"
+
+	"os"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/frontend/front-srv/web/index"
+	"go.uber.org/zap"
 )
 
 var (
@@ -48,6 +55,12 @@ func init() {
 		service.Name(Name),
 		service.Tag(common.SERVICE_TAG_FRONTEND),
 		service.Description("REST service for providing additional plugins to PHP frontend"),
+		service.Migrations([]*service.Migration{
+			{
+				TargetVersion: service.ValidVersion("1.2.0"),
+				Up:            DropLegacyStatics,
+			},
+		}),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 			cfg := servicecontext.GetConfig(ctx)
 
@@ -86,4 +99,25 @@ func init() {
 				}), nil
 		}),
 	)
+}
+
+// DropLegacyStatics removes files and references to old PHP data in configuration
+func DropLegacyStatics(ctx context.Context) error {
+
+	frontRoot := config.Get("defaults", "frontRoot").String(filepath.Join(config.ApplicationDataDir(), "static", "pydio"))
+	if frontRoot != "" {
+		if er := os.RemoveAll(frontRoot); er != nil {
+			log.Logger(ctx).Error("Could not remove old PHP data from "+frontRoot+". You may safely delete this folder. Error was", zap.Error(er))
+		} else {
+			log.Logger(ctx).Info("Successfully removed old PHP data from " + frontRoot)
+		}
+	}
+
+	log.Logger(ctx).Info("Clearing unused configurations")
+	config.Del("defaults", "frontRoot")
+	config.Del("defaults", "fpm")
+	config.Del("defaults", "fronts")
+	config.Del("services", "pydio.frontends")
+
+	return nil
 }

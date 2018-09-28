@@ -22,7 +22,7 @@ import withContextMenu from './context-menu'
 import * as controls from './controls'
 import withErrors from './errors'
 import withLoader from './loader'
-import {ContentActions, ContentControls, ContentSearchControls} from './content/index'
+import {ContentActions, Controls as ContentControls} from './content/index'
 import {SelectionActions, SelectionControls, withSelection, withSelectionControls, withAutoPlayControls} from './selection/index'
 import {SizeActions, SizeControls, SizeProviders, withContainerSize, withResize, withSizeControls} from './size/index'
 import {ResolutionActions, ResolutionControls, withResolution, withResolutionControls} from './resolution/index'
@@ -40,8 +40,7 @@ const PydioHOCs = {
     EditorActions: actions,
     EditorReducers: reducers,
     ContentActions,
-    ContentControls,
-    ContentSearchControls,
+    ...ContentControls,
     ResolutionActions,
     ResolutionControls,
     SizeActions,

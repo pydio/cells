@@ -18,35 +18,42 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import { IconButton, TextField } from 'material-ui';
 import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
 import { handler } from '../utils';
 
-// Controls definitions
-const _Save = (props) => <IconButton onClick={() => handler("onSave", props)} iconClassName="mdi mdi-content-save" />
-const _Undo = (props) => <IconButton onClick={() => handler("onUndo", props)} iconClassName="mdi mdi-undo" />
-const _Redo = (props) => <IconButton onClick={() => handler("onRedo", props)} iconClassName="mdi mdi-redo" />
+export const withContentControls = (Component) => {
+    return (
+        @connect(mapStateToProps)
+        class ContentControls extends React.Component {
+            render() {
+                const fnSave = handler("onSave", this.props)
+                const fnUndo = handler("onUndo", this.props)
+                const fnRedo = handler("onRedo", this.props)
+                const fnToggleLineNumbers = handler("onToggleLineNumbers", this.props)
+                const fnToggleLineWrapping = handler("onToggleLineWrapping", this.props)
+                const fnSearch = handler("onSearch", this.props)
+                const fnJumpTo = handler("onJumpTo", this.props)
 
-const _ToggleLineNumbers = (props) => <IconButton onClick={() => handler("onToggleLineNumbers", props)} iconClassName="mdi mdi-format-list-numbers" />
-const _ToggleLineWrapping = (props) => <IconButton onClick={() => handler("onToggleLineWrapping", props)} iconClassName="mdi mdi-wrap" />
-
-const _JumpTo = (props) => <TextField onKeyUp={({key, target}) => key === 'Enter' && handler("onJumpTo", props)(target.value)} hintText="Jump to Line" style={{width: 150, marginRight: 40}}/>
-const _Search = (props) => <TextField onKeyUp={({key, target}) => key === 'Enter' && handler("onSearch", props)(target.value)} hintText="Search..." />
-
-// Final export and connection
-const ContentControls = {
-    Save: connect(mapStateToProps)(_Save),
-    Undo: connect(mapStateToProps)(_Undo),
-    Redo: connect(mapStateToProps)(_Redo),
-    ToggleLineNumbers: connect(mapStateToProps)(_ToggleLineNumbers),
-    ToggleLineWrapping: connect(mapStateToProps)(_ToggleLineWrapping)
+                return (
+                    <Component
+                        editable={typeof fnSave === "function" || typeof fnUndo === "function" || typeof fnRedo === "function"}
+                        saveable={typeof fnSave === "function"}
+                        undoable={typeof fnUndo === "function"}
+                        redoable={typeof fnRedo === "function"}
+                        editortools={typeof fnToggleLineNumbers === "function" || typeof fnToggleLineWrapping === "function"}
+                        searchable={typeof fnSearch === "function" || typeof fnJumpTo === "function"}
+                        onSave={fnSave}
+                        onUndo={fnUndo}
+                        onRedo={fnRedo}
+                        onToggleLineNumbers={fnToggleLineNumbers}
+                        onToggleLineWrapping={fnToggleLineWrapping}
+                        onSearch={(value) => fnSearch(value)}
+                        onJumpTo={(value) => fnJumpTo(value)}
+                        {...this.props}
+                    />
+                )
+            }
+        }
+    )
 }
-
-const ContentSearchControls = {
-    JumpTo: connect(mapStateToProps)(_JumpTo),
-    Search: connect(mapStateToProps)(_Search)
-}
-
-export { ContentControls }
-export { ContentSearchControls }

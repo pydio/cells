@@ -339,7 +339,7 @@
     "other": "Datasources"
   },
   "3c": {
-    "other": "Nœuds Dynamiques"
+    "other": "Modèles prédéfinis"
   },
   "4": {
     "other": "Journal"
@@ -538,6 +538,15 @@
   },
   "99": {
     "other": "Extensions importantes"
+  },
+  "topbar.title": {
+    "other": "Console d'administration"
+  },
+  "topbar.button.advanced": {
+    "other": "Afficher/cacher les paramètres avancés"
+  },
+  "topbar.button.about": {
+    "other": "En savoir plus sur Pydio Cells"
   },
   "group_access": {
     "other": "G"

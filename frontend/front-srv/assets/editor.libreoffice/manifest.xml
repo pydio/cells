@@ -13,7 +13,6 @@
     <client_settings>
         <resources>
             <js file="plug/editor.libreoffice/res/build/PydioLibreOffice.js" className="PydioLibreOffice"/>
-            <js file="plug/editor.libreoffice/res/build/PydioLibreOfficeActions.js" className="PydioLibreOfficeActions"/>
             <i18n namespace="libreoffice" remote="plug/editor.libreoffice/resources/i18n" />
         </resources>
     </client_settings>
@@ -22,14 +21,8 @@
 		<div id="libreoffice_box"  box_width="90%" box_height="90%" box_resize="true" box_padding="5" class="editor_container pdf_viewer"><div id="libreOfficeContainer"></div></div>
 	]]></clientForm>
 
-    <!--
     <registry_contributions>
         <actions>
-            <action name="libreoffice_list_formats">
-                <processing>
-                    <serverCallback methodName="listEmptyFormatsAction"/>
-                </processing>
-            </action>
             <action name="libreoffice_mkempty_file">
                 <gui text="libreoffice.10" title="libreoffice.10" iconClass="mdi mdi-file-document" hasAccessKey="false">
                     <context selection="false" dir="true" recycle="hidden" actionBar="true"
@@ -38,14 +31,9 @@
                 </gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
                 <subMenu>
-                    <dynamicBuilder module="PydioLibreOfficeActions.Callbacks.dynamicBuilder"/>
+                    <dynamicBuilder module="PydioLibreOffice.Actions.dynamicBuilder"/>
                 </subMenu>
-                <processing>
-
-                    <serverCallback methodName="createEmptyAction" restParams="/format/dir+"/>
-                </processing>
             </action>
         </actions>
     </registry_contributions>
-    -->
 </editor>

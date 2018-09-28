@@ -24013,6 +24013,9 @@ var Editor = (function (_React$Component) {
                 infoTitle = this.getMessage('26'); // group information
                 infoMenuTitle = this.getMessage('27');
                 title = observableUser.getIdmUser().GroupLabel;
+                if (observableUser.getIdmUser().Attributes && observableUser.getIdmUser().Attributes['displayName']) {
+                    title = observableUser.getIdmUser().Attributes['displayName'];
+                }
                 otherForm = _react2['default'].createElement(_infoGroupInfo2['default'], { group: observableUser, pydio: pydio, pluginsRegistry: pluginsRegistry });
             } else if (this.state.roleType === 'role') {
 
@@ -24044,15 +24047,7 @@ var Editor = (function (_React$Component) {
                 };
             }
 
-            var rightButtons = _react2['default'].createElement(
-                'div',
-                null,
-                _react2['default'].createElement(_materialUi.FlatButton, { key: 'undo', disabled: saveDisabled, secondary: true, label: this.getMessage('plugins.6', 'ajxp_admin'), onTouchTap: revert }),
-                _react2['default'].createElement(_materialUi.FlatButton, { key: 'save', disabled: saveDisabled, secondary: true, label: this.getRootMessage('53'), onTouchTap: save }),
-                _react2['default'].createElement(_materialUi.RaisedButton, { key: 'close', label: this.getMessage('33'), onTouchTap: function () {
-                        _this6.props.onRequestTabClose();
-                    } })
-            );
+            var rightButtons = [PaperEditorLayout.actionButton(this.getMessage('plugins.6', 'ajxp_admin'), "mdi mdi-undo", revert, saveDisabled), PaperEditorLayout.actionButton(this.getRootMessage('53'), "mdi mdi-content-save", save, saveDisabled)];
 
             var leftNav = [_react2['default'].createElement(PaperEditorNavHeader, { key: '1', label: this.getMessage('ws.28', 'ajxp_admin') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'info', keyName: 'info', onClick: this.setSelectedPane.bind(this), label: infoMenuTitle, selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '2', label: this.getMessage('34') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'workspaces', keyName: 'workspaces', onClick: this.setSelectedPane.bind(this), label: this.getMessage('35'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'pages', keyName: 'pages', onClick: this.setSelectedPane.bind(this), label: this.getMessage('36'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '3', label: this.getMessage('37') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'params', keyName: 'params', onClick: this.setSelectedPane.bind(this), label: this.getMessage('38'), selectedKey: currentPane })];
 
@@ -24190,6 +24185,9 @@ var Editor = (function (_React$Component) {
                 {
                     title: title,
                     titleActionBar: rightButtons,
+                    closeAction: function () {
+                        _this6.props.onRequestTabClose();
+                    },
                     contentFill: true,
                     leftNav: leftNav,
                     className: "edit-object-" + this.state.roleType
@@ -24313,7 +24311,7 @@ var MaskNodesProvider = (function (_MetaNodeProvider) {
             var depth = arguments.length <= 4 || arguments[4] === undefined ? -1 : arguments[4];
             var optionalParameters = arguments.length <= 5 || arguments[5] === undefined ? null : arguments[5];
 
-            console.log('MaskNodes', node);
+            //console.log('MaskNodes', node);
             var api = new _pydioHttpRestApi.AdminTreeServiceApi(_pydioHttpApi2['default'].getRestClient());
 
             var listRequest = new _pydioHttpRestApi.TreeListNodesRequest();
@@ -24574,7 +24572,7 @@ var PermissionMaskEditor = _react2['default'].createClass({
 
     onCheckboxCheck: function onCheckboxCheck(node, checkboxName, value) {
 
-        console.log(node, checkboxName, value);
+        //console.log(node, checkboxName, value);
         var role = this.props.role;
 
         var nodeUuid = node.getMetadata().get('uuid');
@@ -25370,10 +25368,13 @@ var GroupInfo = (function (_React$Component) {
                     // Compute values
                     var idmUser = group.getIdmUser();
                     var role = group.getRole();
-
+                    var label = idmUser.GroupLabel;
+                    if (idmUser.Attributes && idmUser.Attributes['displayName']) {
+                        label = idmUser.Attributes['displayName'];
+                    }
                     values = {
-                        groupPath: idmUser.GroupPath,
-                        groupLabel: idmUser.GroupLabel
+                        groupPath: LangUtils.trimRight(idmUser.GroupPath, '/') + '/' + idmUser.GroupLabel,
+                        displayName: label
                     };
                     parameters.map(function (p) {
                         if (p.aclKey && role.getParameterValue(p.aclKey)) {
@@ -25382,7 +25383,7 @@ var GroupInfo = (function (_React$Component) {
                     });
                 })();
             }
-            var params = [{ "name": "groupPath", label: this.getPydioRoleMessage('34'), "type": "string", readonly: true }, { "name": "groupLabel", label: this.getPydioRoleMessage('35'), "type": "string" }].concat(_toConsumableArray(parameters));
+            var params = [{ "name": "groupPath", label: this.getPydioRoleMessage('34'), "type": "string", readonly: true }, { "name": "displayName", label: this.getPydioRoleMessage('35'), "type": "string" }].concat(_toConsumableArray(parameters));
 
             return _react2['default'].createElement(
                 'div',
@@ -25528,7 +25529,7 @@ var RoleInfo = (function (_React$Component) {
                     }
                 });
             }
-            console.log(values);
+            //console.log(values);
 
             return _react2['default'].createElement(FormPanel, {
                 parameters: params,
@@ -27250,7 +27251,6 @@ var Role = (function (_Observable) {
                 } else {
                     _this3.acls = collection.ACLs || [];
                 }
-                console.log(_this3);
                 if (!parentsOnly) {
                     _this3.makeSnapshot();
                 }
@@ -28432,7 +28432,7 @@ var ParametersPanel = (function (_React$Component) {
 
             var aclKey = type + ':' + pluginName + ':' + paramName;
             var value = undefined;
-            console.log(scope, type, pluginName, paramName, attributes);
+            //console.log(scope, type, pluginName, paramName, attributes);
             if (type === 'action') {
                 value = false;
             } else if (attributes && attributes.xmlNode) {
@@ -31151,26 +31151,21 @@ var RuleEditor = (function (_React$Component) {
         value: function render() {
             var _this = this;
 
+            var messages = _pydio2['default'].getMessages();
             var _state = this.state;
             var rule = _state.rule;
             var dirty = _state.dirty;
             var valid = _state.valid;
 
-            var buttonMargin = { marginLeft: 6 };
             var actions = [];
             if (!this.isCreate()) {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, disabled: !dirty, label: "Revert", onTouchTap: this.revert.bind(this) }));
+                actions.push(PaperEditorLayout.actionButton(messages['ajxp_admin.plugins.6'], 'mdi mdi-undo', function () {
+                    _this.revert();
+                }, !dirty));
             }
-            actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, disabled: !dirty || !valid, label: "Save", onTouchTap: this.save.bind(this) }));
-            if (this.isCreate()) {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, label: "Cancel", onTouchTap: function () {
-                        return _this.props.onRequestTabClose(_this);
-                    } }));
-            } else {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, label: "Close", onTouchTap: function () {
-                        return _this.props.onRequestTabClose(_this);
-                    } }));
-            }
+            actions.push(PaperEditorLayout.actionButton(messages['53'], 'mdi mdi-content-save', function () {
+                _this.save();
+            }, !dirty || !valid));
             var containerStyle = { margin: 16, fontSize: 16 };
 
             return _react2['default'].createElement(
@@ -31178,6 +31173,9 @@ var RuleEditor = (function (_React$Component) {
                 {
                     title: rule.description || 'Please provide a label',
                     titleActionBar: actions,
+                    closeAction: function () {
+                        _this.props.onRequestTabClose();
+                    },
                     contentFill: false
                 },
                 _react2['default'].createElement(

@@ -6,12 +6,16 @@ import (
 	"encoding/json"
 	"strings"
 
+	"fmt"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/views"
+	"go.uber.org/zap"
 )
 
 type User struct {
@@ -171,7 +175,11 @@ func (u *User) LoadWorkspaces(ctx context.Context, accessList *utils.AccessList)
 			workspace.Workspace = *ws
 			u.Workspaces[wsId] = workspace
 		} else {
-			aclWs := accessList.Workspaces[wsId]
+			aclWs, ok := accessList.Workspaces[wsId]
+			if !ok {
+				log.Logger(ctx).Error("something went wrong, access list refers to unknown workspace", zap.Any("AccessList", accessList))
+				return fmt.Errorf("something went wrong, access list refers to unknown workspace")
+			}
 			access := workspacesAccesses[aclWs.UUID]
 			access = strings.Replace(access, "read", "r", -1)
 			access = strings.Replace(access, "write", "w", -1)

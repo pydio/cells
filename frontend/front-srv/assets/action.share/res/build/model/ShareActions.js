@@ -16,12 +16,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         _createClass(Callbacks, null, [{
             key: 'share',
             value: function share() {
-                pydio.UI.openComponentInModal('ShareDialog', 'CompositeDialog', { pydio: pydio, selection: pydio.getUserSelection(), create: true });
+                pydio.UI.openComponentInModal('ShareDialog', 'CompositeDialog', { pydio: pydio, selection: pydio.getUserSelection() });
             }
         }, {
             key: 'editShare',
             value: function editShare() {
-                var node = pydio.getUserSelection().getUniqueNode();
                 pydio.UI.openComponentInModal('ShareDialog', 'CompositeDialog', { pydio: pydio, selection: pydio.getUserSelection() });
             }
         }, {
@@ -34,7 +33,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'editFromList',
             value: function editFromList() {
-                var dataModel;
+                var dataModel = undefined;
                 if (window.actionArguments && window.actionArguments.length) {
                     dataModel = window.actionArguments[0];
                 } else if (window.actionManager) {

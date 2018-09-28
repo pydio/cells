@@ -262,17 +262,19 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 		}
 		jobUuid, err = dirCopy(ctx, nodes, target, targetIsParent, move, languages...)
 		break
-	case "delete":
-		var nodes []string
-		for _, i := range jsonParams["nodes"].([]interface{}) {
-			nodes = append(nodes, i.(string))
-		}
-		var childrenOnly bool
-		if c, ok := jsonParams["childrenOnly"]; ok {
-			childrenOnly = c.(bool)
-		}
-		jobUuid, err = backgroundDelete(ctx, nodes, childrenOnly, languages...)
-		break
+		/*
+			case "delete":
+				var nodes []string
+				for _, i := range jsonParams["nodes"].([]interface{}) {
+					nodes = append(nodes, i.(string))
+				}
+				var childrenOnly bool
+				if c, ok := jsonParams["childrenOnly"]; ok {
+					childrenOnly = c.(bool)
+				}
+				jobUuid, err = backgroundDelete(ctx, nodes, childrenOnly, languages...)
+				break
+		*/
 	case "datasource-resync":
 		dsName := jsonParams["dsName"].(string)
 		jobUuid, err = syncDatasource(ctx, dsName, languages...)

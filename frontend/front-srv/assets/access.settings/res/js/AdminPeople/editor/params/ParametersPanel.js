@@ -34,7 +34,7 @@ export default class ParametersPanel extends React.Component {
         const {role} = this.props;
         const aclKey = type + ':' + pluginName + ':' + paramName;
         let value;
-        console.log(scope, type, pluginName, paramName, attributes);
+        //console.log(scope, type, pluginName, paramName, attributes);
         if(type === 'action'){
             value = false;
         } else if (attributes && attributes.xmlNode) {

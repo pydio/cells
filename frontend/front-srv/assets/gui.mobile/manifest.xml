@@ -19,7 +19,7 @@
         </hooks>
         <actions>
             <action name="ls_inline" dirDefault="true">
-                <gui text="32" title="32" iconClass="icon-chevron-right"
+                <gui text="32" title="32" iconClass="mdi mdi-chevron-right"
                      accessKey="folder_access_key">
                     <context selection="true" dir="" recycle="false"
                              actionBar="true" actionBarGroup="inline" contextMenu="true" infoPanel="true">

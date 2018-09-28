@@ -59,7 +59,7 @@ class NodesPicker extends React.Component{
             dm = PydioDataModel.RemoteDataModelFactory({tmp_repository_id:crtWs.getId()});
             const root = dm.getRootNode();
             root.getMetadata().set('repository_id', crtWs.getId());
-            root.load();
+            root.load(dm.getAjxpNodeProvider());
         }
 
         this.state = {
@@ -74,7 +74,7 @@ class NodesPicker extends React.Component{
         const dm = PydioDataModel.RemoteDataModelFactory({tmp_repository_id:ws.getId()});
         const root = dm.getRootNode();
         root.getMetadata().set('repository_id', ws.getId());
-        root.load();
+        root.load(dm.getAjxpNodeProvider());
         this.setState({crtWs: ws, dataModel: dm});
 
     }
@@ -96,13 +96,14 @@ class NodesPicker extends React.Component{
     }
 
     onValidateNode(){
-        const {node} = this.state;
-        this.props.model.addRootNode(node);
+        const {node, crtWs} = this.state;
+        this.props.model.addRootNode(node, crtWs.getId());
         this.handleRequestClose();
     }
 
     onNodeSelected(node){
-        node.load();
+        const {dataModel} = this.state;
+        node.load(dataModel.getAjxpNodeProvider());
         this.setState({node: node});
     }
 

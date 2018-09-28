@@ -3,7 +3,15 @@ import {Paper, FontIcon} from 'material-ui'
 
 class ServiceCard extends React.Component {
 
-    renderServiceLine(service, tag){
+    /**
+     *
+     * @param service Object
+     * @param tag String
+     * @param showDescription boolean
+     * @param m Function
+     * @return {*}
+     */
+    renderServiceLine(service, tag, showDescription, m){
         const iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
 
         const isGrpc = service.Name.startsWith('pydio.grpc.');
@@ -13,11 +21,11 @@ class ServiceCard extends React.Component {
             legend = service.Name.split('.').pop();
         } else if (tag === 'datasource') {
             if(service.Name.startsWith('pydio.grpc.data.sync.')){
-                legend="Sync"
+                legend=m('datasource.sync')
             } else if(service.Name.startsWith('pydio.grpc.data.objects.')){
-                legend="S3"
+                legend=m('datasource.objects')
             } else if(service.Name.startsWith('pydio.grpc.data.index.')){
-                legend="Indexation"
+                legend=m('datasource.index')
             }
         }
 
@@ -30,20 +38,29 @@ class ServiceCard extends React.Component {
             peers.push('N/A');
         }
 
+        let style = {
+            display: 'flex', alignItems: 'center',
+            margin: '6px 8px',
+            backgroundColor: '#F5F5F5',
+            padding: '8px 6px',
+            borderRadius: 2
+        };
+
         return (
-            <div style={{padding:'8px'}}>
-                <div style={{fontWeight:500, color:'#9e9e9e'}}>{legend}</div>
-                <div style={{display:'flex', alignItems: 'center', marginTop: 6}}>
-                    <FontIcon style={{margin:'0 9px 0 4px', fontSize: 20}} className={"mdi-traffic-light"} color={iconColor}/>
-                    <span>{peers.join(', ')}</span>
-                </div>
+            <div style={style}>
+                <FontIcon style={{margin:'0 9px 0 4px', fontSize: 20}} className={"mdi-traffic-light"} color={iconColor}/>
+                <span style={{flex: 1}}>{peers.join(', ')}</span>
+                {showDescription &&
+                    <span style={{fontStyle:'italic', paddingRight: 6, fontWeight:500, color:'#9e9e9e'}}>{legend}</span>
+                }
             </div>
         );
     }
 
     render() {
 
-        const {title, services, tagId, showDescription} = this.props;
+        const {title, services, tagId, showDescription, pydio} = this.props;
+        const m = id => pydio.MessageHash['ajxp_admin.services.service.' + id] || id;
 
         let grpcDescription;
         if(services.length > 1) {
@@ -56,31 +73,31 @@ class ServiceCard extends React.Component {
         let description = grpcDescription || services[0].Description;
         if(!description && tagId === 'datasource') {
             if(services[0].Name.startsWith('pydio.grpc.data.objects.')){
-                description="S3 layer to serve data from storage"
+                description=m('datasource.objects.legend')
             } else {
-                description="Datasource is synchronizing data from objects to index"
+                description=m('datasource.legend')
             }
         }
 
         const styles = {
             container: {
-                width: 200, margin: 8, display:'flex', flexDirection:'column',
+                flex: 1, minWidth: 200, margin: 4, display:'flex', flexDirection:'column',
             },
             title : {
-                padding: 8, fontSize: 16, backgroundColor: '#607D8B', color: 'white',
+                padding: 8, fontSize: 16, fontWeight: 500, borderBottom:'1px solid #eee'
             },
             description: {
-                padding: 8, color: 'rgba(0,0,0,0.53)', borderTop:'1px solid #eee'
+                padding: 8, flex: 1
             }
         };
 
         return (
             <Paper zDepth={1} style={styles.container}>
                 <div style={styles.title}>{title}</div>
-                <div style={{flex: 1}} >
-                    {services.map(service => this.renderServiceLine(service, tagId))}
-                </div>
                 {showDescription && <div style={styles.description}>{description}</div>}
+                <div>
+                    {services.map(service => this.renderServiceLine(service, tagId, showDescription, m))}
+                </div>
             </Paper>
         )
     }

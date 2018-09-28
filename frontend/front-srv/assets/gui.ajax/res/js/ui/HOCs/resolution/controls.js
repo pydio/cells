@@ -24,25 +24,24 @@ import { mapStateToProps } from './utils';
 import { handler } from '../utils';
 import { withDisabled } from '../controls';
 
-export const withResolutionControls = () => {
-    return (Component) => {
-        return (
-            @connect(mapStateToProps)
-            class ResolutionControls extends React.Component {
-                render() {
-                    const {tab = {}, ...remaining} = this.props;
-                    const {resolution = "hi"} = tab;
+export const withResolutionControls = (Component) => {
+    return (
+        @connect(mapStateToProps)
+        class ResolutionControls extends React.Component {
+            render() {
+                const {tab = {}, ...remaining} = this.props;
+                const {resolution = "hi"} = tab;
 
-                    const fn = handler("onToggleResolution", this.props)
+                const fn = handler("onToggleResolution", this.props)
 
-                    return (
-                        <Component
-                            onResolutionToggle={() => fn(!(resolution == "hi"))}
-                            {...remaining}
-                        />
-                    )
-                }
+                return (
+                    <Component
+                        hdable={typeof fn === "function"}
+                        onResolutionToggle={() => fn(!(resolution == "hi"))}
+                        {...remaining}
+                    />
+                )
             }
-        )
-    }
+        }
+    )
 }

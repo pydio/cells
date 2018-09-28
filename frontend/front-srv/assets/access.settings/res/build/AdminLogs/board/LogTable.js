@@ -217,6 +217,7 @@ var LogTable = (function (_React$Component) {
             var date = _props2.date;
 
             var logs = this.openSpans();
+            var MessageHash = pydio.MessageHash;
 
             var columns = [{
                 name: 'Root',
@@ -257,9 +258,9 @@ var LogTable = (function (_React$Component) {
                         );
                     }
                     return dateString;
-                }, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Logger', label: 'Service', renderCell: function renderCell(row) {
+                }, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Logger', label: MessageHash['ajxp_admin.logs.service'], renderCell: function renderCell(row) {
                     return row['Logger'] ? row['Logger'].replace('pydio.', '') : '';
-                }, style: { width: 110, padding: '12px 0' }, headerStyle: { width: 110, padding: '12px 0' } }, { name: 'UserName', label: pydio.MessageHash["settings.20"], style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Msg', label: 'Message' }];
+                }, style: { width: 110, padding: '12px 0' }, headerStyle: { width: 110, padding: '12px 0' } }, { name: 'UserName', label: pydio.MessageHash["settings.20"], style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Msg', label: MessageHash['ajxp_admin.logs.message'] }];
 
             return _react2['default'].createElement(MaterialTable, {
                 data: logs,
@@ -271,7 +272,7 @@ var LogTable = (function (_React$Component) {
                 },
                 deselectOnClickAway: true,
                 showCheckboxes: false,
-                emptyStateString: loading ? 'Loading...' : filter || date ? "No Results" : "No entries",
+                emptyStateString: loading ? MessageHash['settings.33'] : filter || date ? MessageHash['ajxp_admin.logs.noresults'] : MessageHash['ajxp_admin.logs.noentries'],
                 computeRowStyle: function (row) {
                     var style = {};
                     if (row.HasRoot) {

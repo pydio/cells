@@ -65,7 +65,7 @@ const styles = {
 // MAIN COMPONENT
 @makeTransitionHOC({translateY: 800}, {translateY: 0})
 @withMouseTracker()
-@withSelectionControls()
+@withSelectionControls
 @connect(mapStateToProps, EditorActions)
 @makeMotion({scale: 1}, {scale: 0}, {
     check: (props) => props.isMinimised,
@@ -204,8 +204,8 @@ function mapStateToProps(state, ownProps) {
     return  {
         ...ownProps,
         fixedToolbar: fixedToolbar,
-        hideToolbar: !fixedToolbar && focusOnSelection && !ownProps.isNearTop,
-        hideSelectionControls: focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && ! ownProps.isNearRight,
+        hideToolbar: !ownProps.displayToolbar || (!fixedToolbar && focusOnSelection && !ownProps.isNearTop),
+        hideSelectionControls: !ownProps.browseable || (focusOnSelection && !ownProps.isNearTop && !ownProps.isNearLeft && ! ownProps.isNearRight),
         activeTab,
         tabs,
         isMinimised,

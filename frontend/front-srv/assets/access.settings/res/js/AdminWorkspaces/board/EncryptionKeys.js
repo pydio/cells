@@ -226,6 +226,7 @@ class EncryptionKeys extends React.Component{
                     columns={columns}
                     onSelectRows={()=>{}}
                     showCheckboxes={false}
+                    emptyStateString={m('key.emptyState')}
                 />
             </Paper>
         );

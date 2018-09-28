@@ -34,19 +34,22 @@ var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 exports['default'] = function (pydio) {
     return function () {
-        var api = new _pydioHttpRestApi.ACLServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var acl = new _pydioHttpRestApi.IdmACL();
+        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var req = new _pydioHttpRestApi.IdmUpdateUserMetaRequest();
         var node = pydio.getContextHolder().getUniqueNode();
-        acl.NodeID = node.getMetadata().get('uuid');
-        acl.Action = _pydioHttpRestApi.IdmACLAction.constructFromObject({ Name: "content_lock", Value: pydio.user.id });
+        var meta = new _pydioHttpRestApi.IdmUserMeta();
+        meta.NodeUuid = node.getMetadata().get('uuid');
+        meta.Namespace = "content_lock";
+        meta.JsonValue = pydio.user.id;
         var p = undefined;
         var wasLocked = node.getMetadata().get("sl_locked");
         if (wasLocked) {
-            p = api.deleteAcl(acl);
+            req.Operation = 'DELETE';
         } else {
-            p = api.putAcl(acl);
+            req.Operation = 'PUT';
         }
-        p.then(function (res) {
+        req.MetaDatas = [meta];
+        api.updateUserMeta(req).then(function (res) {
             pydio.getContextHolder().requireNodeReload(node);
         });
     };

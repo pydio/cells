@@ -116,7 +116,7 @@ var RoleInfo = (function (_React$Component) {
                     }
                 });
             }
-            console.log(values);
+            //console.log(values);
 
             return _react2['default'].createElement(FormPanel, {
                 parameters: params,

@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import React from 'react'
+import Pydio from 'pydio'
 import ShareContextConsumer from '../ShareContextConsumer'
 import {Checkbox} from 'material-ui'
 import LinkModel from './LinkModel'
@@ -44,11 +45,17 @@ let PublicLinkPermissions = React.createClass({
             })
         }
         if(compositeModel.getNode().isLeaf()){
+            const auth = ShareHelper.getAuthorizations(Pydio.getInstance());
+            const max = auth.max_downloads;
             // Readapt template depending on permissions
             if (linkModel.hasPermission('Preview')) {
                 link.ViewTemplateName = "pydio_unique_strip";
+                link.MaxDownloads = 0; // Clear Max Downloads if Preview enabled
             } else {
                 link.ViewTemplateName = "pydio_unique_dl";
+                if(max && !link.MaxDownloads) {
+                    link.MaxDownloads = max;
+                }
             }
         }
         this.props.linkModel.updateLink(link);
@@ -58,6 +65,7 @@ let PublicLinkPermissions = React.createClass({
         const {linkModel, compositeModel, pydio} = this.props;
         const node = compositeModel.getNode();
         let perms = [], previewWarning;
+        const auth = ShareHelper.getAuthorizations(Pydio.getInstance());
 
         if(node.isLeaf()){
             const {preview,writeable} = ShareHelper.nodeHasEditor(pydio, node);
@@ -66,7 +74,7 @@ let PublicLinkPermissions = React.createClass({
                 LABEL:this.props.getMessage('73'),
                 DISABLED:!preview || !linkModel.hasPermission('Preview') // Download Only, cannot edit this
             });
-            if(preview){
+            if(preview && !auth.max_downloads){
                 perms.push({
                     NAME:'Preview',
                     LABEL:this.props.getMessage('72'),

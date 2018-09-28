@@ -436,7 +436,14 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
-var PydioApi = require('pydio/http/api');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydioHttpApi = require("pydio/http/api");
+
+var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+
+var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 exports['default'] = function (pydio) {
     var MessageHash = pydio.MessageHash;
@@ -448,8 +455,18 @@ exports['default'] = function (pydio) {
             dialogTitleId: 220,
             validCallback: function validCallback() {
                 var slug = pydio.user.getActiveRepositoryObject().getSlug();
-                PydioApi.getRestClient().userJob("delete", { nodes: [slug + '/recycle_bin'], childrenOnly: true }).then(function (r) {
-                    pydio.UI.displayMessage('SUCCESS', 'Emptying recycle bin in background');
+                var deleteRequest = new _pydioHttpRestApi.RestDeleteNodesRequest();
+                var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2['default'].getRestClient());
+                var n = new _pydioHttpRestApi.TreeNode();
+                n.Path = slug + '/recycle_bin';
+                deleteRequest.Nodes = [n];
+                api.deleteNodes(deleteRequest).then(function (r) {
+                    if (r.DeleteJobs) {
+                        r.DeleteJobs.forEach(function (j) {
+                            pydio.UI.displayMessage('SUCCESS', j.Label);
+                        });
+                    }
+                    pydio.getContextHolder().requireContextChange(pydio.getContextHolder().getRootNode());
                 });
             }
         });
@@ -458,7 +475,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api"}],9:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],9:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -549,19 +566,22 @@ var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 exports['default'] = function (pydio) {
     return function () {
-        var api = new _pydioHttpRestApi.ACLServiceApi(_pydioHttpApi2['default'].getRestClient());
-        var acl = new _pydioHttpRestApi.IdmACL();
+        var api = new _pydioHttpRestApi.UserMetaServiceApi(_pydioHttpApi2['default'].getRestClient());
+        var req = new _pydioHttpRestApi.IdmUpdateUserMetaRequest();
         var node = pydio.getContextHolder().getUniqueNode();
-        acl.NodeID = node.getMetadata().get('uuid');
-        acl.Action = _pydioHttpRestApi.IdmACLAction.constructFromObject({ Name: "content_lock", Value: pydio.user.id });
+        var meta = new _pydioHttpRestApi.IdmUserMeta();
+        meta.NodeUuid = node.getMetadata().get('uuid');
+        meta.Namespace = "content_lock";
+        meta.JsonValue = pydio.user.id;
         var p = undefined;
         var wasLocked = node.getMetadata().get("sl_locked");
         if (wasLocked) {
-            p = api.deleteAcl(acl);
+            req.Operation = 'DELETE';
         } else {
-            p = api.putAcl(acl);
+            req.Operation = 'PUT';
         }
-        p.then(function (res) {
+        req.MetaDatas = [meta];
+        api.updateUserMeta(req).then(function (res) {
             pydio.getContextHolder().requireNodeReload(node);
         });
     };
@@ -1326,7 +1346,7 @@ var TreeDialog = _react2["default"].createClass({
     getInitialState: function getInitialState() {
         var dm = this.getCurrentDataModel();
         var root = dm.getRootNode();
-        root.load();
+        root.load(dm.getAjxpNodeProvider());
         return {
             dataModel: dm,
             selectedNode: root,
@@ -1359,7 +1379,9 @@ var TreeDialog = _react2["default"].createClass({
     },
 
     onNodeSelected: function onNodeSelected(n) {
-        n.load();
+        var dataModel = this.state.dataModel;
+
+        n.load(dataModel.getAjxpNodeProvider());
         this.setState({
             selectedNode: n
         });

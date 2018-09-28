@@ -86,6 +86,9 @@
   "ds.editor.options": {
     "other": "Options principales"
   },
+  "ds.editor.datamanagement": {
+    "other": "Gestion des données"
+  },
   "ds.editor.options.enabled": {
     "other": "Activée"
   },
@@ -142,6 +145,9 @@
   },
   "ds.encryption": {
     "other": "Encryptée"
+  },
+  "ds.encryption.key.emptyState": {
+    "other": "Pas de clés crées"
   },
   "ds.encryption.key.create": {
     "other": "Nouvelle Clé"
@@ -497,6 +503,24 @@
   "logs.2": {
     "other": "Choisir un jour"
   },
+  "logs.filter.legend": {
+    "other": "Filtrer par..."
+  },
+  "logs.export.disabled": {
+    "other": "Filtrer les résultats"
+  },
+  "logs.filter.period": {
+    "other": "Période"
+  },
+  "logs.filter.fulltext": {
+    "other": "Recherche dans le texte"
+  },
+  "logs.sys.note": {
+    "other": "Notez:"
+  },
+  "logs.sys.note.content": {
+    "other": "Si les logs sont vides, votre serveur ne tourne probablement pas en mode production. Assurez-vous de choisir ce mode en passant --log=production en paramètre ou la variable d'environnement PYDIO_LOGS_LEVEL=production."
+  },
   "logs.3": {
     "other": "Filtrer les logs"
   },
@@ -517,6 +541,18 @@
   },
   "logs.9": {
     "other": "Le fichier sera exporté au en CSV formaté avec des séparateurs point-virgules (;) et les valeurs encadrées de guillemets doubles (\")."
+  },
+  "logs.service": {
+    "other": "Service"
+  },
+  "logs.message": {
+    "other": "Message"
+  },
+  "logs.noentries": {
+    "other": "Pas d'entrées"
+  },
+  "logs.noresults": {
+    "other": "Pas de résultats"
   },
   "menu.0": {
     "other": "Tableau de bord"
@@ -690,7 +726,7 @@
     "other": "Pydio peut utiliser un cache mémoire ou un serveur externe comme Redis ou Memcache pour accéder plus rapidement aux configurations utilisateurs ainsi qu'aux listing des fichiers."
   },
   "perfs.cache.title": {
-    "other": "Pydio Cache"
+    "other": "Cache Pydio"
   },
   "perfs.cli.description": {
     "other": "Déleguer les tâches qui prennent du temps à la ligne de commande."
@@ -885,7 +921,7 @@
     "other": "Accès à %i workspaces"
   },
   "user.11": {
-    "other": "%i roles"
+    "other": "%i rôles"
   },
   "user.12": {
     "other": "Chemin"
@@ -902,11 +938,23 @@
   "user.16": {
     "other": "Identifiant"
   },
+  "user.16.empty": {
+    "other": "Veuillez choisir un identifiant unique"
+  },
+  "user.16.format": {
+    "other": "Veuillez n'utiliser que des caractères alphanumériques"
+  },
   "user.17": {
     "other": "Libellé"
   },
+  "user.17.empty": {
+    "other": "Donnez un libellé à ce groupe"
+  },
   "user.18": {
     "other": "Identifiant"
+  },
+  "user.18.empty": {
+    "other": "Donnez un libellé à ce rôle"
   },
   "user.19": {
     "other": "Nouvel utilisateur"
@@ -942,13 +990,13 @@
     "other": "Groupes"
   },
   "user.4": {
-    "other": "Roles"
+    "other": "Rôles"
   },
   "user.5": {
     "other": "Groupes & Utilisateurs"
   },
   "user.6": {
-    "other": "+ Role"
+    "other": "+ Rôle"
   },
   "user.7": {
     "other": "Chercher un utilisateur"
@@ -1113,7 +1161,7 @@
     "other": "Propriétaire"
   },
   "ws.4": {
-    "other": "+ datasource"
+    "other": "+ Datasource"
   },
   "ws.40": {
     "other": "Type de partage"
@@ -1327,5 +1375,209 @@
   },
   "ws.editor.slug.legend": {
     "other": "Identifiant technique utilisé par exemple dans les URLs, calculé automatiquement à moins que vous ne le personnalisiez."
+  },
+  "services.filter.nofilter": {
+    "other": "Tous les services"
+  },
+  "services.filter.started": {
+    "other": "En fonctionnement"
+  },
+  "services.filter.stopped": {
+    "other": "Arrêtés"
+  },
+  "services.toggle.details": {
+    "other": "Voir les détails"
+  },
+  "services.tag.gateway.title": {
+    "other": "Passerelles"
+  },
+  "services.tag.gateway.description": {
+    "other": "Services de passerelles entre le monde extérieur et les micro-services de Cells"
+  },
+  "services.tag.datasource.title": {
+    "other": "Datasources"
+  },
+  "services.tag.datasource.description": {
+    "other": "Points d'accès aux stockages des fichiers. Services principaux en charge de démarrer les sous-services (par datasource)."
+  },
+  "services.tag.data.title": {
+    "other": "Données"
+  },
+  "services.tag.data.description": {
+    "other": "Services pour la gestion des données et des métadonnées."
+  },
+  "services.tag.idm.title": {
+    "other": "Gestion des identités"
+  },
+  "services.tag.idm.description": {
+    "other": "Tous les services liés à l’authentification et les autorisations, les rôles, les stratégies de sécurité, etc."
+  },
+  "services.tag.scheduler.title": {
+    "other": "Planificateur"
+  },
+  "services.tag.scheduler.description": {
+    "other": "Services de gestion des tâches en arrière-plan. Le serveur de tâches peut être distribué sur différents nœuds pour de meilleurs performances."
+  },
+  "services.tag.broker.title": {
+    "other": "Courtier"
+  },
+  "services.tag.broker.description": {
+    "other": "Services génériques de traitement des événements dans l’application."
+  },
+  "services.tag.frontend.title": {
+    "other": "Interface Utilisateur"
+  },
+  "services.tag.frontend.description": {
+    "other": "Services Web pour les interfaces utilisateur dans le navigateur"
+  },
+  "services.tag.discovery.title": {
+    "other": "Configuration automatique"
+  },
+  "services.tag.discovery.description": {
+    "other": "Registre des services et services de base appelées par tous les autres."
+  },
+  "services.service.ip": {
+    "other": "En cours d’exécution sur %s"
+  },
+  "services.service.datasource.sync": {
+    "other": "Synchro"
+  },
+  "services.service.datasource.objects": {
+    "other": "Objets"
+  },
+  "services.service.datasource.objects.legend": {
+    "other": "Couche de type objet pour servir les données au protocole s3"
+  },
+  "services.service.datasource.legend": {
+    "other": "La datasource synchronise les données de la couche d’objets vers la DB d'index."
+  },
+  "services.service.datasource.index": {
+    "other": "Indexation"
+  },
+  "scheduler.system.title": {
+    "other": "Jobs systèmes"
+  },
+  "scheduler.system.legend": {
+    "other": "Ces jobs sont enregistrés par défaut. Ils sont en charge de l'extraction d'information des fichiers en tâche de fond, et d'opérations de nettoyage."
+  },
+  "scheduler.system.empty": {
+    "other": "Pas de jobs programmés."
+  },
+  "scheduler.users.title": {
+    "other": "Jobs Utilisateurs"
+  },
+  "scheduler.users.legend": {
+    "other": "Ces jobs sont générés dynamiquement par des actions des utilisateurs."
+  },
+  "scheduler.users.empty": {
+    "other": "Pas de jobs lancés"
+  },
+  "scheduler.job.owner": {
+    "other": "Propriétaire"
+  },
+  "scheduler.job.trigger": {
+    "other": "Déclencheur"
+  },
+  "scheduler.trigger.create.node": {
+    "other": "Création"
+  },
+  "scheduler.trigger.read.node": {
+    "other": "Lecture"
+  },
+  "scheduler.trigger.update.path": {
+    "other": "Déplacement"
+  },
+  "scheduler.trigger.update.content": {
+    "other": "Contenu"
+  },
+  "scheduler.trigger.update.metadata": {
+    "other": "Métadonnées"
+  },
+  "scheduler.trigger.delete.node": {
+    "other": "Suppression"
+  },
+  "scheduler.trigger.events": {
+    "other": "Evénements"
+  },
+  "scheduler.trigger.manual": {
+    "other": "Manuel"
+  },
+  "scheduler.trigger.periodic": {
+    "other": "Périodique"
+  },
+  "scheduler.job.disabled": {
+    "other": "désactivé"
+  },
+  "scheduler.tasks.running.count": {
+    "other": "%s tâches en cours"
+  },
+  "scheduler.task.action.pause": {
+    "other": "Suspendre"
+  },
+  "scheduler.task.action.resume": {
+    "other": "Redémarrer"
+  },
+  "scheduler.task.action.stop": {
+    "other": "Arrêter maintenant"
+  },
+  "scheduler.task.action.delete": {
+    "other": "Supprimer"
+  },
+  "scheduler.task.action.enable": {
+    "other": "Activer le job"
+  },
+  "scheduler.task.action.run": {
+    "other": "Démarrer maintenant"
+  },
+  "scheduler.task.action.disable": {
+    "other": "Désactiver le job"
+  },
+  "scheduler.task.id": {
+    "other": "ID"
+  },
+  "scheduler.task.start": {
+    "other": "Début"
+  },
+  "scheduler.task.end": {
+    "other": "Fin"
+  },
+  "scheduler.task.status": {
+    "other": "Statut"
+  },
+  "scheduler.task.message": {
+    "other": "Message"
+  },
+  "scheduler.tasks.running": {
+    "other": "Tâches en cours"
+  },
+  "scheduler.tasks.history": {
+    "other": "Historique des tâches"
+  },
+  "scheduler.tasks.history.empty": {
+    "other": "Aucune tâche n’a encore été exécutée"
+  },
+  "scheduler.tasks.history.more": {
+    "other": "Il y a %s autres tâches..."
+  },
+  "scheduler.tasks.running.empty": {
+    "other": "Aucune tâche en cours d’exécution"
+  },
+  "scheduler.tasks.bulk.delete": {
+    "other": "Supprimer les tâches"
+  },
+  "scheduler.tasks.bulk.enable": {
+    "other": "Activer sélection"
+  },
+  "scheduler.tasks.bulk.disable": {
+    "other": "Désactiver sélection"
+  },
+  "scheduler.tasks.bulk.clear": {
+    "other": "Supprimer tout"
+  },
+  "developer.rest.apis": {
+    "other": "Documentation de l'API REST"
+  },
+  "developer.rest.apis.legend": {
+    "other": "Voici toutes les API disponibles dans Pydio Cells. Pour utiliser ces API, vous devez tout d’abord vous authentifier auprès du service OpenID Connect afin d'obtenir un JWT valide. Consultez le guide de l’administrateur en ligne pour en savoir plus."
   }
 }

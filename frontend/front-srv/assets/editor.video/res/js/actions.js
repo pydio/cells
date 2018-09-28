@@ -17,7 +17,10 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from 'pydio';
+const { EditorActions } = Pydio.requireLib('hoc');
 
-const { ContentControls, ContentSearchControls } = PydioHOCs;
-
-export { ContentControls, ContentSearchControls }
+export const onToggleResolution = ({dispatch, tab}) => (high) => dispatch(EditorActions.tabModify({id: tab.id, resolution: high ? "hi": "lo"}))
+export const onSelectionChange = ({dispatch, tab}) => (node) => dispatch(EditorActions.tabModify({id: tab.id, title: node.getLabel(), node}))
+export const onTogglePlaying = ({dispatch, tab}) => (playing) => dispatch(EditorActions.tabModify({id: tab.id, playing}))
+export const onSizeChange = ({dispatch}) => (data) => dispatch(EditorActions.editorModify(data))

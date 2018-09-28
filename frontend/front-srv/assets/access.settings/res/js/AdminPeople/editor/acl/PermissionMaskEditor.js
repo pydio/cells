@@ -111,7 +111,7 @@ const PermissionMaskEditor = React.createClass({
 
     onCheckboxCheck(node, checkboxName, value){
 
-        console.log(node, checkboxName, value);
+        //console.log(node, checkboxName, value);
         const {role} = this.props;
         const nodeUuid = node.getMetadata().get('uuid');
         const {aclString, inherited} = role.getAclString(null, nodeUuid);

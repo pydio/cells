@@ -153,15 +153,16 @@ func safeGroupPath(gPath string) string {
 }
 
 // Add to the mysql DB
-func (s *sqlimpl) Add(in interface{}) (interface{}, bool, error) {
+func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 
 	// s.Lock()
 	// defer s.Unlock()
+	var createdNodes []*tree.Node
 
 	var user *idm.User
 	var ok bool
 	if user, ok = in.(*idm.User); !ok {
-		return nil, false, fmt.Errorf("invalid format, expecting idm.User")
+		return nil, createdNodes, fmt.Errorf("invalid format, expecting idm.User")
 	}
 
 	user.GroupPath = safeGroupPath(user.GroupPath)
@@ -187,33 +188,33 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, bool, error) {
 				var nodeFrom, nodeTo *utils.TreeNode
 
 				if pathFrom, _, err = s.IndexSQL.Path(reqFromPath, false); err != nil || pathFrom == nil {
-					return nil, false, err
+					return nil, createdNodes, err
 				}
 
 				if nodeFrom, err = s.IndexSQL.GetNode(pathFrom); err != nil {
-					return nil, false, err
+					return nil, createdNodes, err
 				}
 				if nodeFrom.IsLeaf() {
 					if err = s.IndexSQL.DelNode(nodeFrom); err != nil {
-						return nil, false, err
+						return nil, createdNodes, err
 					}
 					if pathTo, _, err = s.IndexSQL.Path(reqToPath, true, nodeFrom.Node); err != nil {
-						return nil, false, err
+						return nil, createdNodes, err
 					}
 				} else {
 					if pathTo, _, err = s.IndexSQL.Path(reqToPath, true); err != nil {
-						return nil, false, err
+						return nil, createdNodes, err
 					}
 				}
 
 				if nodeTo, err = s.IndexSQL.GetNode(pathTo); err != nil {
-					return nil, false, err
+					return nil, createdNodes, err
 				}
 
 				log.Logger(context.Background()).Debug("MOVE TREE", zap.Any("from", nodeFrom), zap.Any("to", nodeTo))
 				if !nodeFrom.IsLeaf() {
 					if err := s.IndexSQL.MoveNodeTree(nodeFrom, nodeTo); err != nil {
-						return nil, false, err
+						return nil, createdNodes, err
 					}
 				}
 			}
@@ -229,7 +230,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, bool, error) {
 	}
 	mPath, created, er := s.IndexSQL.Path(node.Path, true, node)
 	if er != nil {
-		return nil, false, er
+		return nil, createdNodes, er
 	}
 
 	if len(created) == 0 && node.Etag != "" {
@@ -237,11 +238,11 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, bool, error) {
 		updateNode := utils.NewTreeNode()
 		updateNode.SetMPath(mPath...)
 		if err := s.IndexSQL.DelNode(updateNode); err != nil {
-			return nil, false, err
+			return nil, createdNodes, err
 		}
 		_, _, err := s.IndexSQL.Path(node.Path, true, node)
 		if err != nil {
-			return nil, false, err
+			return nil, createdNodes, err
 		}
 	}
 	if user.Uuid == "" {
@@ -251,7 +252,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, bool, error) {
 
 	// Remove existing attributes, replace with new ones
 	if _, err := s.GetStmt("DeleteAttributes").Exec(user.Uuid); err != nil {
-		return nil, false, err
+		return nil, createdNodes, err
 	}
 	for attr, val := range user.Attributes {
 		if _, err := s.GetStmt("AddAttribute").Exec(
@@ -259,12 +260,12 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, bool, error) {
 			attr,
 			val,
 		); err != nil {
-			return nil, false, err
+			return nil, createdNodes, err
 		}
 	}
 
 	if _, err := s.GetStmt("DeleteRoles").Exec(user.Uuid); err != nil {
-		return nil, false, err
+		return nil, createdNodes, err
 	}
 	for _, role := range user.Roles {
 		if role.UserRole || role.GroupRole {
@@ -274,11 +275,14 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, bool, error) {
 			user.Uuid,
 			role.Uuid,
 		); err != nil {
-			return nil, false, err
+			return nil, createdNodes, err
 		}
 	}
+	for _, n := range created {
+		createdNodes = append(createdNodes, n.Node)
+	}
 
-	return user, len(created) == 0, nil
+	return user, createdNodes, nil
 }
 
 // Find a user in the DB, and verify that password is correct.

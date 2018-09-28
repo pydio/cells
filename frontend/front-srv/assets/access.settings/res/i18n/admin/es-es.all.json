@@ -86,6 +86,9 @@
   "ds.editor.options": {
     "other": "Main Options"
   },
+  "ds.editor.datamanagement": {
+    "other": "Data Management"
+  },
   "ds.editor.options.enabled": {
     "other": "Enabled"
   },
@@ -142,6 +145,9 @@
   },
   "ds.encryption": {
     "other": "Encrypted"
+  },
+  "ds.encryption.key.emptyState": {
+    "other": "No master key created"
   },
   "ds.encryption.key.create": {
     "other": "Create Key"
@@ -492,10 +498,28 @@
     "other": "Exportar y descargar"
   },
   "logs.11": {
-    "other": "Exportar..."
+    "other": "Export as..."
   },
   "logs.2": {
     "other": "Seleccione un día"
+  },
+  "logs.filter.legend": {
+    "other": "Filter by..."
+  },
+  "logs.export.disabled": {
+    "other": "Pick a date or filter result"
+  },
+  "logs.filter.period": {
+    "other": "Time Period"
+  },
+  "logs.filter.fulltext": {
+    "other": "Full-text search"
+  },
+  "logs.sys.note": {
+    "other": "Please Note:"
+  },
+  "logs.sys.note.content": {
+    "other": "Empty logs entries may mean that the server is not running in production mode. Make sure to set this log level by passing the --log=production argument or setting the environment variable PYDIO_LOGS_LEVEL=production."
   },
   "logs.3": {
     "other": "Filtrar Registros"
@@ -517,6 +541,18 @@
   },
   "logs.9": {
     "other": "El archivo se exportará en formato CSV con semi-columnas separadas por (;) y campos entre comillas (\")."
+  },
+  "logs.service": {
+    "other": "Service"
+  },
+  "logs.message": {
+    "other": "Message"
+  },
+  "logs.noentries": {
+    "other": "No entries"
+  },
+  "logs.noresults": {
+    "other": "No results"
   },
   "menu.0": {
     "other": "Panel"
@@ -902,11 +938,23 @@
   "user.16": {
     "other": "Identificador de Grupo"
   },
+  "user.16.empty": {
+    "other": "Please provide a unique identifier"
+  },
+  "user.16.format": {
+    "other": "Please use only alphanumeric characters"
+  },
   "user.17": {
     "other": "Etiqueta de Grupo"
   },
+  "user.17.empty": {
+    "other": "Please provide a label for this group"
+  },
   "user.18": {
     "other": "Identificador de Rol"
+  },
+  "user.18.empty": {
+    "other": "Please provide a label for this role"
   },
   "user.19": {
     "other": "Crear un nuevo usuario"
@@ -1327,5 +1375,209 @@
   },
   "ws.editor.slug.legend": {
     "other": "Technical name used for example in URLs, automatically computed but you can customize it."
+  },
+  "services.filter.nofilter": {
+    "other": "All Services"
+  },
+  "services.filter.started": {
+    "other": "Running Only"
+  },
+  "services.filter.stopped": {
+    "other": "Stopped Only"
+  },
+  "services.toggle.details": {
+    "other": "Show Details"
+  },
+  "services.tag.gateway.title": {
+    "other": "Gateways"
+  },
+  "services.tag.gateway.description": {
+    "other": "World-facing services for accessing the platform"
+  },
+  "services.tag.datasource.title": {
+    "other": "Data Sources"
+  },
+  "services.tag.datasource.description": {
+    "other": "Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource)."
+  },
+  "services.tag.data.title": {
+    "other": "Data"
+  },
+  "services.tag.data.description": {
+    "other": "Services handling data and metadata."
+  },
+  "services.tag.idm.title": {
+    "other": "Identity Management"
+  },
+  "services.tag.idm.description": {
+    "other": "All services related to authentication and authorizations, roles, security policies, etc."
+  },
+  "services.tag.scheduler.title": {
+    "other": "Scheduler"
+  },
+  "services.tag.scheduler.description": {
+    "other": "Services for managing background jobs. The tasks server can be dispatched accross various peers."
+  },
+  "services.tag.broker.title": {
+    "other": "Broker"
+  },
+  "services.tag.broker.description": {
+    "other": "Services dispatching and processing events (generally toward users) accross the application."
+  },
+  "services.tag.frontend.title": {
+    "other": "Frontend"
+  },
+  "services.tag.frontend.description": {
+    "other": "Web services for user interfaces in the browser"
+  },
+  "services.tag.discovery.title": {
+    "other": "Discovery"
+  },
+  "services.tag.discovery.description": {
+    "other": "Basic configurations and services registries called by all other services."
+  },
+  "services.service.ip": {
+    "other": "Running on %s"
+  },
+  "services.service.datasource.sync": {
+    "other": "Sync"
+  },
+  "services.service.datasource.objects": {
+    "other": "Objects"
+  },
+  "services.service.datasource.objects.legend": {
+    "other": "S3 layer to serve data as object storage"
+  },
+  "services.service.datasource.legend": {
+    "other": "Datasource is synchronizing data from objects layer to index DB."
+  },
+  "services.service.datasource.index": {
+    "other": "Indexation"
+  },
+  "scheduler.system.title": {
+    "other": "System Jobs"
+  },
+  "scheduler.system.legend": {
+    "other": "These jobs are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
+  },
+  "scheduler.system.empty": {
+    "other": "No jobs scheduled."
+  },
+  "scheduler.users.title": {
+    "other": "Users Jobs"
+  },
+  "scheduler.users.legend": {
+    "other": "These jobs are dynamically created and trigged by user actions."
+  },
+  "scheduler.users.empty": {
+    "other": "No jobs launched by users"
+  },
+  "scheduler.job.owner": {
+    "other": "Owner"
+  },
+  "scheduler.job.trigger": {
+    "other": "Trigger"
+  },
+  "scheduler.trigger.create.node": {
+    "other": "Create Node"
+  },
+  "scheduler.trigger.read.node": {
+    "other": "Read Node"
+  },
+  "scheduler.trigger.update.path": {
+    "other": "Update Path"
+  },
+  "scheduler.trigger.update.content": {
+    "other": "Update Content"
+  },
+  "scheduler.trigger.update.metadata": {
+    "other": "Update Metadata"
+  },
+  "scheduler.trigger.delete.node": {
+    "other": "Delete Node"
+  },
+  "scheduler.trigger.events": {
+    "other": "Events"
+  },
+  "scheduler.trigger.manual": {
+    "other": "Manual Trigger"
+  },
+  "scheduler.trigger.periodic": {
+    "other": "Periodic Schedule"
+  },
+  "scheduler.job.disabled": {
+    "other": "disabled"
+  },
+  "scheduler.tasks.running.count": {
+    "other": "%s tasks running"
+  },
+  "scheduler.task.action.pause": {
+    "other": "Pause Task"
+  },
+  "scheduler.task.action.resume": {
+    "other": "Resumse Task"
+  },
+  "scheduler.task.action.stop": {
+    "other": "Stop Now"
+  },
+  "scheduler.task.action.delete": {
+    "other": "Delete"
+  },
+  "scheduler.task.action.enable": {
+    "other": "Enable Job"
+  },
+  "scheduler.task.action.run": {
+    "other": "Run Now"
+  },
+  "scheduler.task.action.disable": {
+    "other": "Disable Job"
+  },
+  "scheduler.task.id": {
+    "other": "ID"
+  },
+  "scheduler.task.start": {
+    "other": "Start"
+  },
+  "scheduler.task.end": {
+    "other": "End"
+  },
+  "scheduler.task.status": {
+    "other": "Status"
+  },
+  "scheduler.task.message": {
+    "other": "Message"
+  },
+  "scheduler.tasks.running": {
+    "other": "Running Tasks"
+  },
+  "scheduler.tasks.history": {
+    "other": "Tasks History"
+  },
+  "scheduler.tasks.history.empty": {
+    "other": "No tasks have run yet"
+  },
+  "scheduler.tasks.history.more": {
+    "other": "%s other tasks not shown..."
+  },
+  "scheduler.tasks.running.empty": {
+    "other": "No tasks currently running"
+  },
+  "scheduler.tasks.bulk.delete": {
+    "other": "Delete Tasks"
+  },
+  "scheduler.tasks.bulk.enable": {
+    "other": "Enable Multiple"
+  },
+  "scheduler.tasks.bulk.disable": {
+    "other": "Disable Multiple"
+  },
+  "scheduler.tasks.bulk.clear": {
+    "other": "Clear All"
+  },
+  "developer.rest.apis": {
+    "other": "Rest APIs Documentation"
+  },
+  "developer.rest.apis.legend": {
+    "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."
   }
 }

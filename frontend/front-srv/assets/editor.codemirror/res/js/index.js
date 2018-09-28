@@ -18,12 +18,8 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Editor from './editor'
 import * as Actions from './actions'
-import * as Controls from './controls'
-import Loader from './CodeMirrorLoader'
 
-export {Editor}
+export {default as Editor} from './editor'
+export {default as Loader} from './CodeMirrorLoader'
 export {Actions}
-export {Controls}
-export {Loader}

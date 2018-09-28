@@ -24,27 +24,19 @@ Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
+function _interopRequire(obj) { return obj && obj.__esModule ? obj['default'] : obj; }
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _editor = require('./editor');
-
-var _editor2 = _interopRequireDefault(_editor);
 
 var _actions = require('./actions');
 
 var Actions = _interopRequireWildcard(_actions);
 
-var _controls = require('./controls');
+var _editor = require('./editor');
 
-var Controls = _interopRequireWildcard(_controls);
+exports.Editor = _interopRequire(_editor);
 
 var _CodeMirrorLoader = require('./CodeMirrorLoader');
 
-var _CodeMirrorLoader2 = _interopRequireDefault(_CodeMirrorLoader);
-
-exports.Editor = _editor2['default'];
+exports.Loader = _interopRequire(_CodeMirrorLoader);
 exports.Actions = Actions;
-exports.Controls = Controls;
-exports.Loader = _CodeMirrorLoader2['default'];
