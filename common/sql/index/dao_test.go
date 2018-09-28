@@ -574,8 +574,6 @@ func TestArborescence(t *testing.T) {
 		}
 
 		getDAO(ctxNoCache).Flush(true)
-
-		printTree(ctxNoCache)
 	})
 }
 
@@ -590,8 +588,6 @@ func TestSmallArborescence(t *testing.T) {
 	}
 
 	getDAO(ctxNoCache).Flush(true)
-
-	printTree(ctxNoCache)
 }
 
 func TestArborescenceNoFolder(t *testing.T) {
@@ -680,10 +676,9 @@ func TestArborescenceNoFolder(t *testing.T) {
 		for _, path := range arborescence {
 			wg.Add(1)
 			go func(p string) {
-				_, created, err := getDAO(ctxNoCache).Path(p, true)
+				_, _, err := getDAO(ctxNoCache).Path(p, true)
 
 				c.So(err, ShouldBeNil)
-				c.So(len(created), ShouldBeGreaterThan, 0)
 
 				wg.Done()
 			}(path)
@@ -693,7 +688,7 @@ func TestArborescenceNoFolder(t *testing.T) {
 
 		getDAO(ctxNoCache).Flush(true)
 
-		printTree(ctxNoCache)
+		// printTree(ctxNoCache)
 	})
 }
 
@@ -863,8 +858,7 @@ func TestMoveNodeTree(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		var i int
-		for node := range getDAO(ctxNoCache).GetNodeTree(pathTo) {
-			fmt.Println(node.MPath)
+		for _ = range getDAO(ctxNoCache).GetNodeTree(pathTo) {
 			i++
 		}
 
