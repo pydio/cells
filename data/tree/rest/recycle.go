@@ -15,13 +15,15 @@ import (
 )
 
 type deleteJobs struct {
-	RecycleMoves map[string][]string
-	RealDeletes  []string
+	RecyclesNodes map[string]*tree.Node
+	RecycleMoves  map[string][]string
+	RealDeletes   []string
 }
 
 func newDeleteJobs() *deleteJobs {
 	return &deleteJobs{
-		RecycleMoves: make(map[string][]string),
+		RecycleMoves:  make(map[string][]string),
+		RecyclesNodes: make(map[string]*tree.Node),
 	}
 }
 
