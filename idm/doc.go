@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-// ## Frontend-related services.
+// ## Identity management services.
 //
-// Services under this folder are called directly by the Http frontend
-package broker
+// Services under this folder are all related to Identity Management: Authentication, Authorizations, role-based acls, etc.
+package idm

@@ -20,5 +20,5 @@
 
 // ## Data Management services.
 //
-// Services under this folder are related to managing the data itself
+// Services under this folder are related to managing the data itself.
 package data
