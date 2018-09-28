@@ -23,8 +23,6 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -60,10 +58,7 @@ var muiThemeable = _require2.muiThemeable;
 
 var AjxpNode = require('pydio/model/node');
 var PydioDataModel = require('pydio/model/data-model');
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
-
-var withVerticalScroll = _Pydio$requireLib.withVerticalScroll;
+//const {withVerticalScroll} = Pydio.requireLib('hoc');
 
 var AdminMenu = React.createClass({
     displayName: 'AdminMenu',
@@ -134,7 +129,7 @@ var AdminMenu = React.createClass({
 
 });
 
-AdminMenu = withVerticalScroll(AdminMenu);
+//AdminMenu = withVerticalScroll(AdminMenu, {id:'settings-menu'});
 AdminMenu = muiThemeable()(AdminMenu);
 
 var AdminLeftNav = (function (_React$Component) {
@@ -155,8 +150,10 @@ var AdminLeftNav = (function (_React$Component) {
                 height: '100%',
                 position: 'fixed',
                 width: 256,
-                paddingTop: 56,
-                zIndex: 9
+                marginTop: 56,
+                zIndex: 9,
+                overflowX: 'hidden',
+                overflowY: 'auto'
             };
             if (!open) {
                 pStyle.transform = 'translateX(-256px)';
@@ -164,7 +161,7 @@ var AdminLeftNav = (function (_React$Component) {
             return React.createElement(
                 Paper,
                 { zDepth: 2, className: "admin-main-nav", style: pStyle },
-                React.createElement(AdminMenu, _extends({}, this.props, { style: { height: '100%' } }))
+                React.createElement(AdminMenu, this.props)
             );
         }
     }]);

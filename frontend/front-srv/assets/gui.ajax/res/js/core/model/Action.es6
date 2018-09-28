@@ -373,6 +373,7 @@ export default class Action extends Observable{
     getMenuData(){
         let menuItem = {
             name:this.getKeyedText(),
+            label_id: this.options.text_id,
             raw_name: this.options.text,
             alt:this.options.title,
             action_id:this.options.name,
@@ -423,7 +424,7 @@ export default class Action extends Observable{
                 var clientFormData = {};
 				for(j=0; j<node.childNodes.length; j++){
 					var processNode = node.childNodes[j];
-                    if(processNode.nodeName == "clientCallback"){
+                    if(processNode.nodeName === "clientCallback"){
 						if(processNode.getAttribute('module')){
                             let fName = processNode.getAttribute('module');
                             this.options.callback = function(manager, otherArguments){
@@ -437,7 +438,7 @@ export default class Action extends Observable{
                         }else if(processNode.firstChild){
 							this.options.callbackCode = processNode.firstChild.nodeValue.trim();
 						}
-					}else if(processNode.nodeName == "clientListener"){
+					}else if(processNode.nodeName === "clientListener"){
                         if(processNode.getAttribute('module')){
                             let moduleName = processNode.getAttribute('module');
                             this.options.listeners[processNode.getAttribute('name')] = function(){
@@ -449,11 +450,11 @@ export default class Action extends Observable{
                         }else if(processNode.firstChild){
     						this.options.listeners[processNode.getAttribute('name')] = processNode.firstChild.nodeValue.trim();
                         }
-					}else if(processNode.nodeName == "activeCondition" && processNode.firstChild){
+					}else if(processNode.nodeName === "activeCondition" && processNode.firstChild){
 						this.options.activeCondition = new Function(processNode.firstChild.nodeValue.trim());
 					}
 				}
-			}else if(node.nodeName == "gui"){
+			}else if(node.nodeName === "gui"){
 				this.options.text_id = node.getAttribute('text');
 				this.options.title_id = node.getAttribute('title');
 				this.options.text = this.manager.getMessage(node.getAttribute('text')) || 'not_found';
@@ -461,7 +462,7 @@ export default class Action extends Observable{
 				this.options.src = node.getAttribute('src');
 				this.options.icon_class = node.getAttribute('iconClass');
 				this.options.weight = node.getAttribute('weight') || 0;
-				if(node.getAttribute('hasAccessKey') && node.getAttribute('hasAccessKey') == "true"){
+				if(node.getAttribute('hasAccessKey') && node.getAttribute('hasAccessKey') === "true"){
 					this.options.accessKey = node.getAttribute('accessKey');
 					this.options.hasAccessKey = true;
 				}
@@ -469,7 +470,7 @@ export default class Action extends Observable{
 					this.options.specialAccessKey = node.getAttribute('specialAccessKey');
 				}
 				for(j=0; j<node.childNodes.length;j++){
-					if(node.childNodes[j].nodeName == "context"){
+					if(node.childNodes[j].nodeName === "context"){
 						this.attributesToObject(this.context, node.childNodes[j]);
 						if(this.context.ajxpWidgets){
 							this.context.ajxpWidgets = this.context.ajxpWidgets.split(',');
