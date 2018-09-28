@@ -321,8 +321,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 			currentFullPath := filtered.Path
 			originalFullPath := r.GetNode().GetStringMeta(common.META_NAMESPACE_RECYCLE_RESTORE)
 			if originalFullPath == "" {
-				log.Logger(ctx).Error("[restore] Cannot find recycle_restore data", r.GetNode().Zap())
-				continue
+				return fmt.Errorf("cannot find restore location for selected node")
 			}
 			if r.GetNode().IsLeaf() {
 				moveLabel = T("Jobs.User.FileMove")
