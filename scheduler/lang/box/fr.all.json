@@ -47,6 +47,9 @@
   "Jobs.User.MultipleMove": {
     "other": "Déplacement de la sélection en tâche de fond..."
   },
+  "Jobs.User.MoveRecycle": {
+    "other": "Déplacement dans la corbeille en tâche de fond..."
+  },
   "Jobs.User.ResyncDS": {
     "other": "Re-indexation de la DataSource {{.DsName}}..."
   },

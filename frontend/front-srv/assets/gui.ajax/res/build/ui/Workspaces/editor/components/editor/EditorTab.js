@@ -42,6 +42,10 @@ var _materialUi = require('material-ui');
 
 var _reactRedux = require('react-redux');
 
+var _reactDraggable = require('react-draggable');
+
+var _reactDraggable2 = _interopRequireDefault(_reactDraggable);
+
 var _reactPanAndZoomHoc = require('react-pan-and-zoom-hoc');
 
 var _reactPanAndZoomHoc2 = _interopRequireDefault(_reactPanAndZoomHoc);
@@ -296,127 +300,131 @@ var SnackBar = (function (_React$Component2) {
         }
 
         return React.createElement(
-            _materialUi.Toolbar,
-            remaining,
-            playable && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                React.createElement(_materialUi.IconButton, {
-                    iconClassName: "mdi " + (!playing ? "mdi-play" : "mdi-pause"),
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onAutoPlayToggle();
-                    }
-                })
-            ),
-            playable && resizable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            resizable && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-minus',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onSizeChange({
-                            size: "auto",
-                            scale: scale - 0.5
-                        });
-                    },
-                    disabled: minusDisabled
-                }),
-                React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-magnify-minus',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onSizeChange({
-                            size: "contain"
-                        });
-                    },
-                    disabled: magnifyDisabled
-                }),
-                React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-plus',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onSizeChange({
-                            size: "auto",
-                            scale: scale + 0.5
-                        });
-                    },
-                    disabled: plusDisabled
-                })
-            ),
-            (playable || resizable) && hdable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            hdable && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                React.createElement(_materialUi.IconButton, {
-                    iconClassName: "mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image"),
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onResolutionToggle();
-                    }
-                })
-            ),
-            (playable || resizable || hdable) && editable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            editable && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                saveable && React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-content-save',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onSave();
-                    }
-                }),
-                undoable && React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-undo',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onUndo();
-                    }
-                }),
-                redoable && React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-redo',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onRedo();
-                    }
-                })
-            ),
-            (playable || resizable || hdable || editable) && editortools && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            editortools && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                onToggleLineNumbers && React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-format-list-numbers',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onToggleLineNumbers();
-                    }
-                }),
-                onToggleLineWrapping && React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-wrap',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onToggleLineWrapping();
-                    }
-                })
-            ),
-            (playable || resizable || hdable || editable || editortools) && searchable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            searchable && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                React.createElement(_materialUi.TextField, { onKeyUp: function (_ref) {
-                        var key = _ref.key;
-                        var target = _ref.target;
-                        return key === 'Enter' && onJumpTo(target.value);
-                    }, hintText: 'Jump to Line', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput }),
-                React.createElement(_materialUi.TextField, { onKeyUp: function (_ref2) {
-                        var key = _ref2.key;
-                        var target = _ref2.target;
-                        return key === 'Enter' && onSearch(target.value);
-                    }, hintText: 'Search...', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput })
+            _reactDraggable2['default'],
+            null,
+            React.createElement(
+                _materialUi.Toolbar,
+                remaining,
+                playable && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    React.createElement(_materialUi.IconButton, {
+                        iconClassName: "mdi " + (!playing ? "mdi-play" : "mdi-pause"),
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onAutoPlayToggle();
+                        }
+                    })
+                ),
+                playable && resizable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+                resizable && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-minus',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onSizeChange({
+                                size: "auto",
+                                scale: scale - 0.5
+                            });
+                        },
+                        disabled: minusDisabled
+                    }),
+                    React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-magnify-minus',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onSizeChange({
+                                size: "contain"
+                            });
+                        },
+                        disabled: magnifyDisabled
+                    }),
+                    React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-plus',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onSizeChange({
+                                size: "auto",
+                                scale: scale + 0.5
+                            });
+                        },
+                        disabled: plusDisabled
+                    })
+                ),
+                (playable || resizable) && hdable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+                hdable && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    React.createElement(_materialUi.IconButton, {
+                        iconClassName: "mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image"),
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onResolutionToggle();
+                        }
+                    })
+                ),
+                (playable || resizable || hdable) && editable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+                editable && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    saveable && React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-content-save',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onSave();
+                        }
+                    }),
+                    undoable && React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-undo',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onUndo();
+                        }
+                    }),
+                    redoable && React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-redo',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onRedo();
+                        }
+                    })
+                ),
+                (playable || resizable || hdable || editable) && editortools && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+                editortools && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    onToggleLineNumbers && React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-format-list-numbers',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onToggleLineNumbers();
+                        }
+                    }),
+                    onToggleLineWrapping && React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-wrap',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onToggleLineWrapping();
+                        }
+                    })
+                ),
+                (playable || resizable || hdable || editable || editortools) && searchable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+                searchable && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    React.createElement(_materialUi.TextField, { onKeyUp: function (_ref) {
+                            var key = _ref.key;
+                            var target = _ref.target;
+                            return key === 'Enter' && onJumpTo(target.value);
+                        }, hintText: 'Jump to Line', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput }),
+                    React.createElement(_materialUi.TextField, { onKeyUp: function (_ref2) {
+                            var key = _ref2.key;
+                            var target = _ref2.target;
+                            return key === 'Enter' && onSearch(target.value);
+                        }, hintText: 'Search...', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput })
+                )
             )
         );
     };

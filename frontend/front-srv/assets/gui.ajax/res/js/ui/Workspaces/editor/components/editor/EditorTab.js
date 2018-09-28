@@ -21,6 +21,7 @@
 import Pydio from 'pydio'
 import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton, TextField } from 'material-ui';
 import { connect } from 'react-redux';
+import Draggable from 'react-draggable';
 import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
@@ -195,120 +196,122 @@ class SnackBar extends React.Component {
         }
 
         return (
-            <Toolbar {...remaining}>
-                {playable && (
-                    <ToolbarGroup>
-                        <IconButton
-                            iconClassName={"mdi " + (!playing ? "mdi-play" : "mdi-pause")}
-                            iconStyle={styles.iconButton}
-                            onClick={() => onAutoPlayToggle()}
-                        />
-                    </ToolbarGroup>
-                )}
-                {playable && resizable && (
-                    <ToolbarSeparator style={styles.divider} />
-                )}
-                {resizable && (
-                    <ToolbarGroup>
-                        <IconButton
-                            iconClassName="mdi mdi-minus"
-                            iconStyle={styles.iconButton}
-                            onClick={() => onSizeChange({
-                                size: "auto",
-                                scale: scale - 0.5
-                            })}
-                            disabled={minusDisabled}
-                        />
-                        <IconButton
-                            iconClassName="mdi mdi-magnify-minus"
-                            iconStyle={styles.iconButton}
-                            onClick={() => onSizeChange({
-                                size: "contain",
-                            })}
-                            disabled={magnifyDisabled}
-                        />
-                        <IconButton
-                            iconClassName="mdi mdi-plus"
-                            iconStyle={styles.iconButton}
-                            onClick={() => onSizeChange({
-                                size: "auto",
-                                scale: scale + 0.5
-                            })}
-                            disabled={plusDisabled}
-                        />
-                    </ToolbarGroup>
-                )}
-                {(playable || resizable) && hdable && (
-                    <ToolbarSeparator style={styles.divider} />
-                )}
-                {hdable && (
-                    <ToolbarGroup>
-                        <IconButton
-                            iconClassName={"mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image")}
-                            iconStyle={styles.iconButton}
-                            onClick={() => onResolutionToggle()}
-                        />
-                    </ToolbarGroup>
-                )}
-                {(playable || resizable || hdable) && editable && (
-                    <ToolbarSeparator style={styles.divider} />
-                )}
-                {editable && (
-                    <ToolbarGroup>
-                        {saveable && (
+            <Draggable>
+                <Toolbar {...remaining}>
+                    {playable && (
+                        <ToolbarGroup>
                             <IconButton
-                                iconClassName="mdi mdi-content-save"
+                                iconClassName={"mdi " + (!playing ? "mdi-play" : "mdi-pause")}
                                 iconStyle={styles.iconButton}
-                                onClick={() => onSave()}
+                                onClick={() => onAutoPlayToggle()}
                             />
-                        )}
-                        {undoable && (
+                        </ToolbarGroup>
+                    )}
+                    {playable && resizable && (
+                        <ToolbarSeparator style={styles.divider} />
+                    )}
+                    {resizable && (
+                        <ToolbarGroup>
                             <IconButton
-                                iconClassName="mdi mdi-undo"
+                                iconClassName="mdi mdi-minus"
                                 iconStyle={styles.iconButton}
-                                onClick={() => onUndo()}
+                                onClick={() => onSizeChange({
+                                    size: "auto",
+                                    scale: scale - 0.5
+                                })}
+                                disabled={minusDisabled}
                             />
-                        )}
-                        {redoable && (
                             <IconButton
-                                iconClassName="mdi mdi-redo"
+                                iconClassName="mdi mdi-magnify-minus"
                                 iconStyle={styles.iconButton}
-                                onClick={() => onRedo()}
+                                onClick={() => onSizeChange({
+                                    size: "contain",
+                                })}
+                                disabled={magnifyDisabled}
                             />
-                        )}
-                    </ToolbarGroup>
-                )}
-                {(playable || resizable || hdable || editable) && editortools && (
-                    <ToolbarSeparator style={styles.divider} />
-                )}
-                {editortools && (
-                    <ToolbarGroup>
-                        {onToggleLineNumbers && (
                             <IconButton
-                                iconClassName="mdi mdi-format-list-numbers"
+                                iconClassName="mdi mdi-plus"
                                 iconStyle={styles.iconButton}
-                                onClick={() => onToggleLineNumbers()}
+                                onClick={() => onSizeChange({
+                                    size: "auto",
+                                    scale: scale + 0.5
+                                })}
+                                disabled={plusDisabled}
                             />
-                        )}
-                        {onToggleLineWrapping && (
+                        </ToolbarGroup>
+                    )}
+                    {(playable || resizable) && hdable && (
+                        <ToolbarSeparator style={styles.divider} />
+                    )}
+                    {hdable && (
+                        <ToolbarGroup>
                             <IconButton
-                                iconClassName="mdi mdi-wrap"
+                                iconClassName={"mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image")}
                                 iconStyle={styles.iconButton}
-                                onClick={() => onToggleLineWrapping()}
+                                onClick={() => onResolutionToggle()}
                             />
-                        )}
-                    </ToolbarGroup>
-                )}
-                {(playable || resizable || hdable || editable || editortools) && searchable && (
-                    <ToolbarSeparator style={styles.divider} />
-                )}
-                {searchable && (
-                    <ToolbarGroup>
-                        <TextField onKeyUp={({key, target}) => key === 'Enter' && onJumpTo(target.value)} hintText="Jump to Line" style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
-                        <TextField onKeyUp={({key, target}) => key === 'Enter' && onSearch(target.value)} hintText="Search..." style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
-                    </ToolbarGroup>
-                )}
-            </Toolbar>
+                        </ToolbarGroup>
+                    )}
+                    {(playable || resizable || hdable) && editable && (
+                        <ToolbarSeparator style={styles.divider} />
+                    )}
+                    {editable && (
+                        <ToolbarGroup>
+                            {saveable && (
+                                <IconButton
+                                    iconClassName="mdi mdi-content-save"
+                                    iconStyle={styles.iconButton}
+                                    onClick={() => onSave()}
+                                />
+                            )}
+                            {undoable && (
+                                <IconButton
+                                    iconClassName="mdi mdi-undo"
+                                    iconStyle={styles.iconButton}
+                                    onClick={() => onUndo()}
+                                />
+                            )}
+                            {redoable && (
+                                <IconButton
+                                    iconClassName="mdi mdi-redo"
+                                    iconStyle={styles.iconButton}
+                                    onClick={() => onRedo()}
+                                />
+                            )}
+                        </ToolbarGroup>
+                    )}
+                    {(playable || resizable || hdable || editable) && editortools && (
+                        <ToolbarSeparator style={styles.divider} />
+                    )}
+                    {editortools && (
+                        <ToolbarGroup>
+                            {onToggleLineNumbers && (
+                                <IconButton
+                                    iconClassName="mdi mdi-format-list-numbers"
+                                    iconStyle={styles.iconButton}
+                                    onClick={() => onToggleLineNumbers()}
+                                />
+                            )}
+                            {onToggleLineWrapping && (
+                                <IconButton
+                                    iconClassName="mdi mdi-wrap"
+                                    iconStyle={styles.iconButton}
+                                    onClick={() => onToggleLineWrapping()}
+                                />
+                            )}
+                        </ToolbarGroup>
+                    )}
+                    {(playable || resizable || hdable || editable || editortools) && searchable && (
+                        <ToolbarSeparator style={styles.divider} />
+                    )}
+                    {searchable && (
+                        <ToolbarGroup>
+                            <TextField onKeyUp={({key, target}) => key === 'Enter' && onJumpTo(target.value)} hintText="Jump to Line" style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
+                            <TextField onKeyUp={({key, target}) => key === 'Enter' && onSearch(target.value)} hintText="Search..." style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
+                        </ToolbarGroup>
+                    )}
+                </Toolbar>
+            </Draggable>
         )
     }
 }
