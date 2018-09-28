@@ -36,42 +36,30 @@ exports['default'] = function (pydio) {
     var MessageHash = pydio.MessageHash;
 
     return function () {
-        var move = false;
-        var message = MessageHash[177];
-
-        var repoHasRecycle = pydio.getContextHolder().getRootNode().getMetadata().get("repo_has_recycle") || pydio.getContextHolder().getRootNode().getChildren().has('/recycle_bin');
-        if (repoHasRecycle && pydio.getContextNode().getAjxpMime() !== "ajxp_recycle") {
-            message = MessageHash[176];
+        var message = MessageHash[176];
+        if (pydio.getContextHolder().getContextNode().getPath().indexOf('/recycle_bin') === 0) {
+            message = MessageHash[177];
         }
-        // Detect shared node
-        if (pydio.getPluginConfigs('action.share').size) {
-            (function () {
-                var shared = [];
-                pydio.getContextHolder().getSelectedNodes().forEach(function (n) {
-                    if (n.getMetadata().get('pydio_is_shared')) {
-                        shared.push(n);
-                    }
-                });
-                if (shared.length) {
-                    var n = shared[0];
-                    message = React.createElement(
-                        'div',
-                        null,
-                        React.createElement(
-                            'div',
-                            null,
-                            message
-                        ),
-                        React.createElement(
-                            'div',
-                            { style: { color: '#D32F2F', marginTop: 10 } },
-                            React.createElement('span', { className: 'mdi mdi-alert' }),
-                            MessageHash['share_center.' + (n.isLeaf() ? '158' : '157')]
-                        )
-                    );
+        // Detect shared node - Disabled for now as this is NOT disabled by the delete action
+        /*
+        if(pydio.getPluginConfigs('action.share').size){
+            let shared = [];
+            pydio.getContextHolder().getSelectedNodes().forEach((n) => {
+                if(n.getMetadata().get('pydio_is_shared')){
+                    shared.push(n);
                 }
-            })();
+            });
+            if(shared.length){
+                const n = shared[0];
+                message = (
+                    <div>
+                        <div>{message}</div>
+                        <div style={{color:'#D32F2F', marginTop: 10}}><span className="mdi mdi-alert"/>{MessageHash['share_center.' + (n.isLeaf()?'158':'157')]}</div>
+                    </div>
+                );
+            }
         }
+        */
         pydio.UI.openComponentInModal('PydioReactUI', 'ConfirmDialog', {
             message: message,
             dialogTitleId: 7,
@@ -86,12 +74,18 @@ exports['default'] = function (pydio) {
                     return t;
                 });
                 api.deleteNodes(deleteRequest).then(function (r) {
-                    if (r.DeleteJobs) {
-                        r.DeleteJobs.forEach(function (j) {
-                            pydio.UI.displayMessage('SUCCESS', j.Label);
+                    if (r.DeleteJobs && r.DeleteJobs.length) {
+                        nodes.forEach(function (n) {
+                            n.getMetadata().set('pending_operation', r.DeleteJobs[0].Label);
+                            n.notify('meta_replaced', n);
                         });
                     }
                     pydio.getContextHolder().setSelectedNodes([]);
+                })['catch'](function (e) {
+                    nodes.forEach(function (n) {
+                        n.getMetadata()['delete']('pending_operation');
+                        n.notify('meta_replaced', n);
+                    });
                 });
             }
         });

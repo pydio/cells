@@ -352,6 +352,13 @@ var MainFilesList = _react2['default'].createClass({
     entryRenderSecondLine: function entryRenderSecondLine(node) {
         var metaData = node.getMetadata();
         var pieces = [];
+        if (metaData.has('pending_operation')) {
+            return _react2['default'].createElement(
+                'span',
+                { style: { fontStyle: 'italic' } },
+                metaData.get('pending_operation')
+            );
+        }
 
         if (metaData.get('ajxp_modiftime')) {
             var mDate = moment(parseFloat(metaData.get('ajxp_modiftime')) * 1000);
