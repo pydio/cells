@@ -209,7 +209,7 @@ func Upgrade120(ctx context.Context) error {
 			if err := dao.DeletePolicyGroup(ctx, group); err != nil {
 				log.Logger(ctx).Error("could not delete unused policy group "+group.Uuid, zap.Error(err))
 			} else {
-				log.Logger(ctx).Error("Deleted unused policy group "+group.Uuid, zap.Error(err))
+				log.Logger(ctx).Info("Deleted unused policy group "+group.Uuid, zap.Error(err))
 			}
 		} else if group.Uuid == "public-access" {
 			group.Policies = append(group.Policies, policy.LadonToProtoPolicy(&ladon.DefaultPolicy{
