@@ -147,10 +147,10 @@ var AdminLeftNav = (function (_React$Component) {
             var open = this.props.open;
 
             var pStyle = {
-                height: '100%',
                 position: 'fixed',
                 width: 256,
-                marginTop: 56,
+                top: 56,
+                bottom: 0,
                 zIndex: 9,
                 overflowX: 'hidden',
                 overflowY: 'auto'
@@ -158,6 +158,7 @@ var AdminLeftNav = (function (_React$Component) {
             if (!open) {
                 pStyle.transform = 'translateX(-256px)';
             }
+
             return React.createElement(
                 Paper,
                 { zDepth: 2, className: "admin-main-nav", style: pStyle },
