@@ -382,8 +382,6 @@
 
             const isBlacklisted = this._blacklist.reduce((current, val) => current || name == val, false)
 
-            console.log(name, isBlacklisted)
-
             if (isBlacklisted) {
                 this.processNext();
                 return
