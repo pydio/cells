@@ -17,36 +17,44 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _require = require('material-ui');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var Divider = _require.Divider;
-var Menu = _require.Menu;
-var MenuItem = _require.MenuItem;
-var FontIcon = _require.FontIcon;
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _materialUi = require('material-ui');
 
 function pydioActionsToItems() {
     var actions = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 
     var items = [];
     var lastIsSeparator = false;
-    actions.map((function (action, index) {
+    var messages = _pydio2['default'].getMessages();
+
+    actions.map((function (action) {
         if (action.separator) {
-            if (lastIsSeparator) return;
+            if (lastIsSeparator) {
+                return;
+            }
             items.push(action);
             lastIsSeparator = true;
             return;
         }
         lastIsSeparator = false;
-        var label = action.raw_name ? action.raw_name : action.name;
+        var label = undefined;
+        if (action.label_id && messages[action.label_id]) {
+            label = messages[action.label_id];
+        } else {
+            label = action.raw_name ? action.raw_name : action.name;
+        }
         var iconClass = action.icon_class;
-        var payload = undefined;
         if (action.subMenu) {
             var subItems = action.subMenuBeforeShow ? pydioActionsToItems(action.subMenuBeforeShow()) : action.subMenu;
             items.push({
@@ -84,7 +92,9 @@ function itemsToMenu(items, closeMenuCallback) {
 
     var menuItems = items.map(function (item, index) {
 
-        if (item.separator) return React.createElement(Divider, { key: "divider" + index });
+        if (item.separator) {
+            return React.createElement(_materialUi.Divider, { key: "divider" + index });
+        }
 
         var subItems = undefined,
             payload = undefined;
@@ -106,13 +116,13 @@ function itemsToMenu(items, closeMenuCallback) {
         }
 
         if (menuProps.display === 'normal') {
-            leftIcon = iconClassName ? React.createElement(FontIcon, { className: item.iconClassName + ' menu-icons', style: { fontSize: 16, padding: 5 } }) : null;
+            leftIcon = iconClassName ? React.createElement(_materialUi.FontIcon, { className: item.iconClassName + ' menu-icons', style: { fontSize: 16, padding: 5 } }) : null;
         } else if (menuProps.display === 'right') {
-            rightIcon = iconClassName ? React.createElement(FontIcon, { className: item.iconClassName + ' menu-icons', style: { fontSize: 16, padding: 5 } }) : null;
+            rightIcon = iconClassName ? React.createElement(_materialUi.FontIcon, { className: item.iconClassName + ' menu-icons', style: { fontSize: 16, padding: 5 } }) : null;
         }
-        rightIcon = subItems && subItems.length ? React.createElement(FontIcon, { className: 'mdi mdi-menu-right menu-icons' }) : rightIcon;
+        rightIcon = subItems && subItems.length ? React.createElement(_materialUi.FontIcon, { className: 'mdi mdi-menu-right menu-icons' }) : rightIcon;
 
-        return React.createElement(MenuItem, {
+        return React.createElement(_materialUi.MenuItem, {
             key: item.text,
             primaryText: item.text,
             insetChildren: inset,
@@ -127,7 +137,7 @@ function itemsToMenu(items, closeMenuCallback) {
         return menuItems;
     } else {
         return React.createElement(
-            Menu,
+            _materialUi.Menu,
             menuProps,
             menuItems
         );

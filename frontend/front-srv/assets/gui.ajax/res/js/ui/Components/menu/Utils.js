@@ -17,24 +17,31 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-
-const {Divider, Menu, MenuItem, FontIcon} = require('material-ui')
+import Pydio from 'pydio'
+import {Divider, Menu, MenuItem, FontIcon} from 'material-ui'
 
 function pydioActionsToItems(actions = []){
     let items = [];
     let lastIsSeparator = false;
-    actions.map(function(action, index){
+    const messages = Pydio.getMessages();
+
+    actions.map(function(action){
         if(action.separator) {
-            if(lastIsSeparator) return;
+            if(lastIsSeparator) {
+                return;
+            }
             items.push(action);
             lastIsSeparator = true;
             return;
         }
         lastIsSeparator = false;
-        const label = action.raw_name?action.raw_name:action.name;
+        let label;
+        if(action.label_id && messages[action.label_id]){
+            label = messages[action.label_id];
+        } else {
+            label = action.raw_name?action.raw_name:action.name;
+        }
         const iconClass = action.icon_class;
-        let payload;
         if(action.subMenu){
             const subItems = action.subMenuBeforeShow ? pydioActionsToItems(action.subMenuBeforeShow()) : action.subMenu;
             items.push({
@@ -71,7 +78,9 @@ function itemsToMenu(items, closeMenuCallback, subItemsOnly = false, menuProps =
 
     const menuItems = items.map((item, index) => {
 
-        if(item.separator) return <Divider key={"divider" + index}/>;
+        if(item.separator) {
+            return <Divider key={"divider" + index}/>;
+        }
 
         let subItems, payload;
         if(item.subItems){

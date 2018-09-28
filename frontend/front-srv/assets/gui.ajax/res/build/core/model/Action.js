@@ -399,6 +399,7 @@ var Action = (function (_Observable) {
 	Action.prototype.getMenuData = function getMenuData() {
 		var menuItem = {
 			name: this.getKeyedText(),
+			label_id: this.options.text_id,
 			raw_name: this.options.text,
 			alt: this.options.title,
 			action_id: this.options.name,
@@ -453,7 +454,7 @@ var Action = (function (_Observable) {
 				var clientFormData = {};
 				for (j = 0; j < node.childNodes.length; j++) {
 					var processNode = node.childNodes[j];
-					if (processNode.nodeName == "clientCallback") {
+					if (processNode.nodeName === "clientCallback") {
 						if (processNode.getAttribute('module')) {
 							(function () {
 								var fName = processNode.getAttribute('module');
@@ -469,7 +470,7 @@ var Action = (function (_Observable) {
 						} else if (processNode.firstChild) {
 							this.options.callbackCode = processNode.firstChild.nodeValue.trim();
 						}
-					} else if (processNode.nodeName == "clientListener") {
+					} else if (processNode.nodeName === "clientListener") {
 						if (processNode.getAttribute('module')) {
 							(function () {
 								var moduleName = processNode.getAttribute('module');
@@ -483,11 +484,11 @@ var Action = (function (_Observable) {
 						} else if (processNode.firstChild) {
 							this.options.listeners[processNode.getAttribute('name')] = processNode.firstChild.nodeValue.trim();
 						}
-					} else if (processNode.nodeName == "activeCondition" && processNode.firstChild) {
+					} else if (processNode.nodeName === "activeCondition" && processNode.firstChild) {
 						this.options.activeCondition = new Function(processNode.firstChild.nodeValue.trim());
 					}
 				}
-			} else if (node.nodeName == "gui") {
+			} else if (node.nodeName === "gui") {
 				this.options.text_id = node.getAttribute('text');
 				this.options.title_id = node.getAttribute('title');
 				this.options.text = this.manager.getMessage(node.getAttribute('text')) || 'not_found';
@@ -495,7 +496,7 @@ var Action = (function (_Observable) {
 				this.options.src = node.getAttribute('src');
 				this.options.icon_class = node.getAttribute('iconClass');
 				this.options.weight = node.getAttribute('weight') || 0;
-				if (node.getAttribute('hasAccessKey') && node.getAttribute('hasAccessKey') == "true") {
+				if (node.getAttribute('hasAccessKey') && node.getAttribute('hasAccessKey') === "true") {
 					this.options.accessKey = node.getAttribute('accessKey');
 					this.options.hasAccessKey = true;
 				}
@@ -503,7 +504,7 @@ var Action = (function (_Observable) {
 					this.options.specialAccessKey = node.getAttribute('specialAccessKey');
 				}
 				for (j = 0; j < node.childNodes.length; j++) {
-					if (node.childNodes[j].nodeName == "context") {
+					if (node.childNodes[j].nodeName === "context") {
 						this.attributesToObject(this.context, node.childNodes[j]);
 						if (this.context.ajxpWidgets) {
 							this.context.ajxpWidgets = this.context.ajxpWidgets.split(',');
