@@ -117,6 +117,14 @@ func (a *FrontendHandler) FrontPlugins(req *restful.Request, rsp *restful.Respon
 
 	lang := req.QueryParameter("lang")
 	if lang == "" {
+		user := &frontend.User{}
+		if e := user.Load(req.Request.Context()); e == nil {
+			if l := user.LoadActiveLanguage(""); l != "" {
+				lang = l
+			}
+		}
+	}
+	if lang == "" {
 		lang = "en-us"
 	}
 	plugins := pool.AllPluginsManifests(req.Request.Context(), lang)
