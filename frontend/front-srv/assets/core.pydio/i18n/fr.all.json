@@ -2179,5 +2179,14 @@
   },
   "public_link_user": {
     "other": "Accès public"
+  },
+  "background.move.file": {
+    "other": "Déplacement du fichier en tâche de fond..."
+  },
+  "background.move.folder": {
+    "other": "Déplacement du répertoire en tâche de fond..."
+  },
+  "background.copy.selection": {
+    "other": "Copie de la sélection en tâche de fond..."
   }
 }
