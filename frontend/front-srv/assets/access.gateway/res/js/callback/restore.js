@@ -34,9 +34,10 @@ export default function (pydio) {
             return t;
         });
         api.restoreNodes(restoreRequest).then(r => {
-            if (r.RestoreJobs){
-                r.RestoreJobs.forEach(j => {
-                   pydio.UI.displayMessage('SUCCESS', j.Label);
+            if (r.RestoreJobs && r.RestoreJobs.length){
+                nodes.forEach(n => {
+                    n.getMetadata().set('pending_operation', r.RestoreJobs[0].Label);
+                    n.notify('meta_replaced', n);
                 })
             }
             pydio.getContextHolder().setSelectedNodes([]);

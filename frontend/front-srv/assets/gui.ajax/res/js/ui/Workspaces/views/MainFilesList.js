@@ -298,7 +298,7 @@ let MainFilesList = React.createClass({
         let metaData = node.getMetadata();
         let pieces = [];
         if (metaData.has('pending_operation')){
-            return <span style={{fontStyle:'italic'}}>{metaData.get('pending_operation')}</span>
+            return <span style={{fontStyle:'italic', color:'rgba(0,0,0,.33)'}}>{metaData.get('pending_operation')}</span>
         }
 
         if(metaData.get('ajxp_modiftime')) {

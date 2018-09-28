@@ -71,11 +71,6 @@ export default function (pydio) {
                         })
                     }
                     pydio.getContextHolder().setSelectedNodes([]);
-                }).catch(e => {
-                    nodes.forEach(n => {
-                        n.getMetadata().delete('pending_operation');
-                        n.notify('meta_replaced', n);
-                    })
                 });
             }
         });

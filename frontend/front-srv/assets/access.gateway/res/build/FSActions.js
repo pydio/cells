@@ -100,8 +100,8 @@ exports['default'] = function (pydio) {
                 targetSlug = target.getSlug();
             }
         }
-
-        var paths = selection.getSelectedNodes().map(function (n) {
+        var nodes = selection.getSelectedNodes();
+        var paths = nodes.map(function (n) {
             return slug + n.getPath();
         });
         var jobParams = {
@@ -110,7 +110,15 @@ exports['default'] = function (pydio) {
             targetParent: true
         };
         PydioApi.getRestClient().userJob(type, jobParams).then(function (r) {
-            pydio.UI.displayMessage('SUCCESS', type === 'move' ? 'Move operation in background' : 'Copy operation in background');
+            if (type === 'move') {
+                nodes.forEach(function (n) {
+                    var m = pydio.MessageHash['background.move.' + (n.isLeaf() ? 'file' : 'folder')];
+                    n.getMetadata().set('pending_operation', m);
+                    n.notify('meta_replaced', n);
+                });
+            } else {
+                pydio.UI.displayMessage('SUCCESS', pydio.MessageHash['background.copy.selection']);
+            }
             pydio.getContextHolder().setSelectedNodes([]);
         });
     };
@@ -251,11 +259,6 @@ exports['default'] = function (pydio) {
                         });
                     }
                     pydio.getContextHolder().setSelectedNodes([]);
-                })['catch'](function (e) {
-                    nodes.forEach(function (n) {
-                        n.getMetadata()['delete']('pending_operation');
-                        n.notify('meta_replaced', n);
-                    });
                 });
             }
         });
@@ -1041,9 +1044,10 @@ exports['default'] = function (pydio) {
             return t;
         });
         api.restoreNodes(restoreRequest).then(function (r) {
-            if (r.RestoreJobs) {
-                r.RestoreJobs.forEach(function (j) {
-                    pydio.UI.displayMessage('SUCCESS', j.Label);
+            if (r.RestoreJobs && r.RestoreJobs.length) {
+                nodes.forEach(function (n) {
+                    n.getMetadata().set('pending_operation', r.RestoreJobs[0].Label);
+                    n.notify('meta_replaced', n);
                 });
             }
             pydio.getContextHolder().setSelectedNodes([]);

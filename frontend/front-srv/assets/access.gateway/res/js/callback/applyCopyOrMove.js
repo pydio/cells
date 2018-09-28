@@ -37,15 +37,23 @@ export default function (pydio) {
                 targetSlug = target.getSlug();
             }
         }
-
-        const paths = selection.getSelectedNodes().map(n => slug + n.getPath());
+        const nodes = selection.getSelectedNodes();
+        const paths = nodes.map(n => slug + n.getPath());
         const jobParams =  {
             nodes: paths,
             target: targetSlug + path,
             targetParent: true
         };
         PydioApi.getRestClient().userJob(type, jobParams).then(r => {
-            pydio.UI.displayMessage('SUCCESS', type === 'move' ? 'Move operation in background' : 'Copy operation in background');
+            if (type === 'move') {
+                nodes.forEach(n => {
+                    const m = pydio.MessageHash['background.move.' + (n.isLeaf() ? 'file' : 'folder')];
+                    n.getMetadata().set('pending_operation', m);
+                    n.notify('meta_replaced', n);
+                })
+            } else {
+                pydio.UI.displayMessage('SUCCESS', pydio.MessageHash['background.copy.selection']);
+            }
             pydio.getContextHolder().setSelectedNodes([]);
         });
     }

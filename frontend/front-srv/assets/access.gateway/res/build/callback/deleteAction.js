@@ -81,11 +81,6 @@ exports['default'] = function (pydio) {
                         });
                     }
                     pydio.getContextHolder().setSelectedNodes([]);
-                })['catch'](function (e) {
-                    nodes.forEach(function (n) {
-                        n.getMetadata()['delete']('pending_operation');
-                        n.notify('meta_replaced', n);
-                    });
                 });
             }
         });

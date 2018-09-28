@@ -355,7 +355,7 @@ var MainFilesList = _react2['default'].createClass({
         if (metaData.has('pending_operation')) {
             return _react2['default'].createElement(
                 'span',
-                { style: { fontStyle: 'italic' } },
+                { style: { fontStyle: 'italic', color: 'rgba(0,0,0,.33)' } },
                 metaData.get('pending_operation')
             );
         }

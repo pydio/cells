@@ -45,9 +45,10 @@ exports['default'] = function (pydio) {
             return t;
         });
         api.restoreNodes(restoreRequest).then(function (r) {
-            if (r.RestoreJobs) {
-                r.RestoreJobs.forEach(function (j) {
-                    pydio.UI.displayMessage('SUCCESS', j.Label);
+            if (r.RestoreJobs && r.RestoreJobs.length) {
+                nodes.forEach(function (n) {
+                    n.getMetadata().set('pending_operation', r.RestoreJobs[0].Label);
+                    n.notify('meta_replaced', n);
                 });
             }
             pydio.getContextHolder().setSelectedNodes([]);
