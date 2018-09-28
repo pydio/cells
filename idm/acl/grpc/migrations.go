@@ -25,6 +25,8 @@ import (
 func UpgradeTo120(ctx context.Context) error {
 
 	dao := servicecontext.GetDAO(ctx).(acl.DAO)
+
+	// REMOVE pydiogateway ACLs
 	log.Logger(ctx).Info("ACLS: remove pydiogateway ACLs")
 	q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		WorkspaceIDs: []string{"pydiogateway"},
@@ -35,6 +37,7 @@ func UpgradeTo120(ctx context.Context) error {
 		log.Logger(ctx).Info("Removed pydiogateway acls", zap.Int64("numRows", num))
 	}
 
+	// ADD recycle_root on workspaces
 	log.Logger(ctx).Info("Upgrading ACLs for recycle_root flags")
 	metaClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
@@ -82,6 +85,34 @@ func UpgradeTo120(ctx context.Context) error {
 			}
 		}
 	}
+
+	treeClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient())
+	// Special case for personal files: browse existing folders, assume they are users personal workspaces and add recycle root
+	service2.Retry(func() error {
+		stream, e := treeClient.ListNodes(ctx, &tree.ListNodesRequest{Node: &tree.Node{Path: "personal"}})
+		if e != nil {
+			return e
+		}
+		defer stream.Close()
+		for {
+			resp, er := stream.Recv()
+			if er != nil {
+				break
+			}
+			if resp == nil || resp.Node == nil || resp.Node.IsLeaf() {
+				continue
+			}
+			newAcl := &idm.ACL{
+				NodeID: resp.Node.Uuid,
+				Action: utils.ACL_RECYCLE_ROOT,
+			}
+			log.Logger(ctx).Info("Should insert new ACL for personal folder", resp.Node.ZapPath())
+			if e := dao.Add(newAcl); e != nil {
+				log.Logger(ctx).Error("-- Could not create recycle_root ACL", zap.Error(e))
+			}
+		}
+		return nil
+	}, 8*time.Second)
 
 	return nil
 }
