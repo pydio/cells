@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"time"
@@ -33,6 +34,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 
+	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/object"
@@ -103,6 +105,10 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 			return er
 		}
 		if r, er2 := m.next.CreateNode(ctx, &tree.CreateNodeRequest{Node: parentNode}); er2 != nil {
+			parsedErr := errors.Parse(er2.Error())
+			if parsedErr.Code == http.StatusConflict {
+				return nil
+			}
 			return er2
 		} else if r != nil {
 			log.Logger(ctx).Debug("[PUT HANDLER] > Created parent node in S3", r.Node.Zap())
@@ -119,6 +125,10 @@ func (m *PutHandler) CreateParent(ctx context.Context, node *tree.Node) error {
 			log.Logger(ctx).Debug("[PUT HANDLER] > Create Parent Node In Index", zap.String("UUID", tmpNode.Uuid), zap.String("Path", tmpNode.Path))
 			_, er := treeWriter.CreateNode(ctx, &tree.CreateNodeRequest{Node: tmpNode})
 			if er != nil {
+				parsedErr := errors.Parse(er.Error())
+				if parsedErr.Code == http.StatusConflict {
+					return nil
+				}
 				return er
 			}
 		}

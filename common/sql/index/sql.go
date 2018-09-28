@@ -352,6 +352,8 @@ func (dao *IndexSQL) AddNode(node *utils.TreeNode) error {
 	insertNode := dao.GetStmt("insertNode")
 	insertTree := dao.GetStmt("insertTree")
 
+	fmt.Println("Inserting node ", node)
+
 	if stmt := tx.Stmt(insertNode); stmt != nil {
 		defer stmt.Close()
 
@@ -600,8 +602,6 @@ func (dao *IndexSQL) PushCommit(node *utils.TreeNode) error {
 
 	db := dao.DB()
 
-	var err error
-
 	// Starting a transaction
 	tx, err := db.BeginTx(context.Background(), nil)
 	if err != nil {
@@ -816,39 +816,46 @@ func (dao *IndexSQL) ResyncDirtyEtags(rootNode *utils.TreeNode) error {
 // SetNodes returns a channel and waits for arriving nodes before updating them in batch
 func (dao *IndexSQL) SetNodes(etag string, deltaSize int64) sql.BatchSender {
 
-	db := dao.DB()
-
 	b := NewBatchSend()
 
 	go func() {
 		dao.Lock()
 		defer dao.Unlock()
 
-		tx, err := db.BeginTx(context.Background(), nil)
-		if err != nil {
-			b.out <- err
-		}
+		db := dao.DB()
 
 		defer func() {
-			if err != nil {
-				tx.Rollback()
-			} else {
-				tx.Commit()
-			}
-
 			close(b.out)
 		}()
 
 		insert := func(mpathes ...interface{}) {
-			stmt := dao.GetStmt("updateNodes", mpathes...)
-			defer stmt.Close()
-
-			if stmt == nil {
-				b.out <- fmt.Errorf("empty stmt")
+			// Starting a transaction
+			tx, err := db.BeginTx(context.Background(), &databasesql.TxOptions{
+				Isolation: databasesql.LevelReadUncommitted,
+			})
+			if err != nil {
 				return
 			}
-			if _, err = stmt.Exec(time.Now().Unix(), etag, deltaSize); err != nil {
-				b.out <- err
+
+			// Checking transaction went fine
+			defer func() {
+				if err != nil {
+					tx.Rollback()
+				} else {
+					tx.Commit()
+				}
+			}()
+
+			updateNodes := dao.GetStmt("updateNodes", mpathes...)
+
+			if stmt := tx.Stmt(updateNodes); stmt != nil {
+				defer stmt.Close()
+
+				if _, err = stmt.Exec(time.Now().Unix(), etag, deltaSize); err != nil {
+					b.out <- err
+				}
+			} else {
+				b.out <- fmt.Errorf("empty stmt")
 			}
 		}
 
@@ -1504,7 +1511,6 @@ func (dao *IndexSQL) Path(strpath string, create bool, reqNode ...*tree.Node) (u
 		}
 	}
 
-	//fmt.Println(path, created, err, strpath)
 	return path, created, err
 }
 

@@ -183,9 +183,10 @@
 
             let fullPath = this._targetNode.getPath();
             if (this._relativePath) {
-                fullPath += PathUtils.getDirname(this._relativePath);
+                fullPath = LangUtils.trimRight(fullPath, '/') + LangUtils.trimLeft(PathUtils.getDirname(this._relativePath), '/');
             }
-            fullPath = slug + '/' + LangUtils.trim(fullPath, '/') + '/' + PathUtils.getBasename(this._file.name);
+            fullPath = slug + '/' + LangUtils.trim(fullPath, '/');
+            fullPath = LangUtils.trimRight(fullPath, '/') + '/' + PathUtils.getBasename(this._file.name);
             if (fullPath.normalize) {
                 fullPath = fullPath.normalize('NFC');
             }
@@ -239,11 +240,18 @@
             const request = new RestCreateNodesRequest();
             const node = new TreeNode();
 
+            // We're not creating the folder as it will be handled by children files
+            // NOTE : empty folders will not be created so we will need to figure out a way of creating only empty folders
+            // Creating folder was causing a race concurrence issue on the server side
+            // completeCallback();
+
             node.Path = fullPath;
             node.Type = TreeNodeType.constructFromObject('COLLECTION');
             request.Nodes = [node];
             api.createNodes(request).then(collection => {
+
                 this.setStatus('loaded');
+
                 completeCallback();
             });
         }
