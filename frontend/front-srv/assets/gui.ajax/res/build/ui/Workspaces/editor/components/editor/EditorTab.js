@@ -72,17 +72,18 @@ var styles = {
         marginRight: 40
     },
     textInput: {
-        color: "rgb(255, 255,255, 0.87)"
+        color: "rgba(255, 255,255, 0.87)"
     },
     textHint: {
-        color: "rgb(255, 255,255, 0.67)"
+        color: "rgba(255, 255,255, 0.67)"
     },
     iconButton: {
-        backgroundColor: "rgb(0, 0, 0, 0.87)",
-        color: "rgb(255, 255,255, 0.87)"
+        backgroundColor: "rgba(0, 0, 0, 0.87)",
+        color: "rgba(255, 255, 255, 0.87)",
+        fill: "rgba(255, 255, 255, 0.87)"
     },
     divider: {
-        backgroundColor: "rgb(255, 255,255, 0.87)",
+        backgroundColor: "rgba(255, 255,255, 0.87)",
         marginLeft: "12px",
         marginRight: "12px",
         alignSelf: "center"
@@ -180,25 +181,25 @@ var Tab = (function (_React$Component) {
                     display: "flex",
                     flex: 1,
                     flexFlow: "column nowrap",
-                    overflow: "auto"
+                    overflow: "auto",
+                    alignItems: "center"
+                    /*backgroundColor: "rgb(66, 66, 66)"*/
                 },
-                /*backgroundColor: "rgb(66, 66, 66)"*/
                 child: {
                     display: "flex",
                     flex: 1
                 },
                 toolbar: {
-                    backgroundColor: "#000000",
-                    opacity: 0.8,
+                    backgroundColor: "rgb(0, 0, 0)",
+                    color: "rgba(255, 255, 255, 0.87)",
                     width: "min-content",
                     margin: "0 auto",
+                    padding: 0,
                     position: "absolute",
-                    left: 0,
-                    right: 0,
                     bottom: 24,
                     height: 48,
-                    padding: '0 8px',
-                    borderRadius: 3
+                    borderRadius: 3,
+                    alignSelf: "center"
                 }
             };
         }
