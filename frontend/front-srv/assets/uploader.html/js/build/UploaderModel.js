@@ -183,7 +183,7 @@
 
             let fullPath = this._targetNode.getPath();
             if (this._relativePath) {
-                fullPath = LangUtils.trimRight(fullPath, '/') + LangUtils.trimLeft(PathUtils.getDirname(this._relativePath), '/');
+                fullPath = LangUtils.trimRight(fullPath, '/') + '/' + LangUtils.trimLeft(PathUtils.getDirname(this._relativePath), '/');
             }
             fullPath = slug + '/' + LangUtils.trim(fullPath, '/');
             fullPath = LangUtils.trimRight(fullPath, '/') + '/' + PathUtils.getBasename(this._file.name);
