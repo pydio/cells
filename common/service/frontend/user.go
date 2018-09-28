@@ -9,9 +9,11 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/views"
+	"go.uber.org/zap"
 )
 
 type User struct {
@@ -151,6 +153,7 @@ func (u *User) FlattenedRolesConfigs() *config.Map {
 
 func (u *User) LoadWorkspaces(ctx context.Context, accessList *utils.AccessList) error {
 
+	log.Logger(ctx).Debug("Frontend/User: LoadWorkspaces", zap.Any("AccessList", accessList))
 	workspacesAccesses := accessList.GetAccessibleWorkspaces(ctx)
 	for wsId, _ := range workspacesAccesses {
 		if wsId == "settings" || wsId == "homepage" {
