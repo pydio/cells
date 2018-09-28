@@ -47,6 +47,9 @@
   "Jobs.User.MultipleMove": {
     "other": "Moving selection in background..."
   },
+  "Jobs.User.MoveRecycle": {
+    "other": "Moving to recycle bin in background..."
+  },
   "Jobs.User.ResyncDS": {
     "other": "Re-indexing datasource {{.DsName}}..."
   },
