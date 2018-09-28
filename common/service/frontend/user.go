@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"strings"
 
+	"fmt"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
@@ -153,7 +155,6 @@ func (u *User) FlattenedRolesConfigs() *config.Map {
 
 func (u *User) LoadWorkspaces(ctx context.Context, accessList *utils.AccessList) error {
 
-	log.Logger(ctx).Debug("Frontend/User: LoadWorkspaces", zap.Any("AccessList", accessList))
 	workspacesAccesses := accessList.GetAccessibleWorkspaces(ctx)
 	for wsId, _ := range workspacesAccesses {
 		if wsId == "settings" || wsId == "homepage" {
@@ -174,7 +175,11 @@ func (u *User) LoadWorkspaces(ctx context.Context, accessList *utils.AccessList)
 			workspace.Workspace = *ws
 			u.Workspaces[wsId] = workspace
 		} else {
-			aclWs := accessList.Workspaces[wsId]
+			aclWs, ok := accessList.Workspaces[wsId]
+			if !ok {
+				log.Logger(ctx).Error("something went wrong, access list refers to unknown workspace", zap.Any("AccessList", accessList))
+				return fmt.Errorf("something went wrong, access list refers to unknown workspace")
+			}
 			access := workspacesAccesses[aclWs.UUID]
 			access = strings.Replace(access, "read", "r", -1)
 			access = strings.Replace(access, "write", "w", -1)

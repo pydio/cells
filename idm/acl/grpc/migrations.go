@@ -24,9 +24,19 @@ import (
 // UpgradeTo120 looks for workspace roots and CellNode roots and set a "recycle_root" flag on them.
 func UpgradeTo120(ctx context.Context) error {
 
+	dao := servicecontext.GetDAO(ctx).(acl.DAO)
+	log.Logger(ctx).Info("ACLS: remove pydiogateway ACLs")
+	q1, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
+		WorkspaceIDs: []string{"pydiogateway"},
+	})
+	if num, e := dao.Del(&service.Query{SubQueries: []*any.Any{q1}}); e != nil {
+		log.Logger(ctx).Error("Could not delete pydiogateway acls, please manually remove them from ACLs!", zap.Error(e))
+	} else {
+		log.Logger(ctx).Info("Removed pydiogateway acls", zap.Int64("numRows", num))
+	}
+
 	log.Logger(ctx).Info("Upgrading ACLs for recycle_root flags")
 	metaClient := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient())
-	dao := servicecontext.GetDAO(ctx).(acl.DAO)
 	q, _ := ptypes.MarshalAny(&idm.ACLSingleQuery{
 		Actions: []*idm.ACLAction{
 			{Name: utils.ACL_WSROOT_ACTION_NAME},
