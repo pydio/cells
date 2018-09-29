@@ -27,7 +27,9 @@ const { EditorActions } = Pydio.requireLib('hoc');
 export const onSave = ({dispatch, tab}) => () => {
     return pydio.ApiClient.postPlainTextContent(tab.url, tab.content, (success) => {
         if (!success) {
-            dispatch(EditorActions.tabModify({id: tab.id, error: "There was an error while saving"}))
+            dispatch(EditorActions.tabModify({id: tab.id, message: "There was an error while saving"}))
+        } else {
+            dispatch(EditorActions.tabModify({id: tab.id, message: "Successfully saved file"}))
         }
     })
 }

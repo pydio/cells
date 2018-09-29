@@ -19,7 +19,7 @@
  */
 
 import Pydio from 'pydio'
-import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton, TextField } from 'material-ui';
+import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton, TextField, Snackbar } from 'material-ui';
 import { connect } from 'react-redux';
 import Draggable from 'react-draggable';
 import panAndZoomHoc from 'react-pan-and-zoom-hoc';
@@ -83,45 +83,8 @@ export default class Tab extends React.Component {
         }
     }
 
-    renderControls(Controls, Actions) {
-        const {id, node, editorData} = this.props
-        const {SelectionControls, ResolutionControls, SizeControls, ContentControls, ContentSearchControls, LocalisationControls} = Controls
-
-        let actions = {
-            ...SizeActions,
-            ...SelectionActions,
-            ...ResolutionActions,
-            ...ContentActions,
-            ...LocalisationActions
-        }
-
-        if (editorData.editorActions) {
-            actions = {
-                ...actions,
-                ...Actions
-            }
-        }
-
-        let boundActionCreators = bindActionCreators(actions)
-
-        const controls = (Controls) => {
-            return Object.keys(Controls)
-                .filter((key) => typeof Controls[key] === 'function')
-                .map((key) => {
-                    const Control = Controls[key]
-                    return <Control editorData={editorData} node={node} {...boundActionCreators} />
-                })
-        }
-
-        return (
-            <SnackBar id={id} style={Tab.styles.toolbar}>
-                {LocalisationControls && <ToolbarGroup>{controls(LocalisationControls)}</ToolbarGroup>}
-            </SnackBar>
-        )
-    }
-
     render() {
-        const {node, editorData, Editor, Controls, Actions, id, isActive, editorSetActiveTab, style} = this.props
+        const {node, displaySnackbar, snackbarMessage, editorData, Editor, Controls, Actions, id, isActive, editorSetActiveTab, style, tabModify} = this.props
 
         const select = () => editorSetActiveTab(id)
         const cardStyle = {backgroundColor:'transparent', borderRadius: 0, ...style};
@@ -136,7 +99,17 @@ export default class Tab extends React.Component {
         ) : (
             <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={true} expanded={isActive} onExpandChange={!isActive ? select : null}>
                 <Editor pydio={pydio} node={node} editorData={editorData} isActive={isActive} />
-                <SnackBar id={id} style={Tab.styles.toolbar} />
+                <BottomBar id={id} style={Tab.styles.toolbar} />
+                <Snackbar
+                    style={{
+                        left: "10%",
+                        bottom: 24
+                    }}
+                    open={snackbarMessage !== ""}
+                    autoHideDuration={3000}
+                    onRequestClose={() => tabModify({id, messsage: "HELLO"})}
+                    message={<span>{snackbarMessage}</span>}
+                />
             </AnimatedCard>
         )
     }
@@ -147,7 +120,7 @@ export default class Tab extends React.Component {
 @withSizeControls
 @withResolutionControls
 @connect(mapStateToProps)
-class SnackBar extends React.Component {
+class BottomBar extends React.Component {
     constructor(props) {
         super(props)
 
@@ -321,10 +294,13 @@ function mapStateToProps(state, ownProps) {
 
     let current = tabs.filter(tab => tab.id === ownProps.id)[0] || {}
 
+    const {message = ""} = current
+
     return  {
         ...ownProps,
         ...current,
-        isActive: editor.activeTabId === current.id
+        isActive: editor.activeTabId === current.id,
+        snackbarMessage: message
     }
 }
 
