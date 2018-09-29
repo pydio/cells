@@ -240,10 +240,12 @@ func (s *MetaServer) CreateNode(ctx context.Context, req *tree.CreateNodeRequest
 
 	resp.Success = true
 
-	client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
-		Type:   tree.NodeChangeEvent_UPDATE_META,
-		Target: req.Node,
-	}))
+	if !req.Silent {
+		client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+			Type:   tree.NodeChangeEvent_UPDATE_META,
+			Target: req.Node,
+		}))
+	}
 
 	return nil
 }
@@ -275,11 +277,12 @@ func (s *MetaServer) UpdateNode(ctx context.Context, req *tree.UpdateNodeRequest
 
 	resp.Success = true
 
-	client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
-		Type:   tree.NodeChangeEvent_UPDATE_META,
-		Target: req.To,
-	}))
-
+	if !req.Silent {
+		client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+			Type:   tree.NodeChangeEvent_UPDATE_META,
+			Target: req.To,
+		}))
+	}
 	return nil
 }
 
@@ -300,10 +303,12 @@ func (s *MetaServer) DeleteNode(ctx context.Context, request *tree.DeleteNodeReq
 
 	result.Success = true
 
-	client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
-		Type:   tree.NodeChangeEvent_DELETE,
-		Source: request.Node,
-	}))
+	if !request.Silent {
+		client.Publish(ctx, client.NewPublication(common.TOPIC_META_CHANGES, &tree.NodeChangeEvent{
+			Type:   tree.NodeChangeEvent_DELETE,
+			Source: request.Node,
+		}))
+	}
 
 	return nil
 }

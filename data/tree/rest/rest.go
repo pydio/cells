@@ -181,7 +181,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				// If moving to recycle, save current path as metadata for later restore operation
 				metaNode := &tree.Node{Uuid: ancestors[0].Uuid}
 				metaNode.SetMeta(common.META_NAMESPACE_RECYCLE_RESTORE, ancestors[0].Path)
-				if _, e := metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: metaNode}); e != nil {
+				if _, e := metaClient.CreateNode(ctx, &tree.CreateNodeRequest{Node: metaNode, Silent: true}); e != nil {
 					log.Logger(ctx).Error("Could not store recycle_restore metadata for node", zap.Error(e))
 				}
 				deleteJobs.RecycleMoves[rPath] = append(deleteJobs.RecycleMoves[rPath], filtered.Path)

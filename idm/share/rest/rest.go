@@ -540,7 +540,7 @@ func (h *SharesHandler) LoadDetectedRootNodes(ctx context.Context, detectedRoots
 			node := resp.Node
 			var multipleMeta []*tree.WorkspaceRelativePath
 			for _, ws := range accessList.Workspaces {
-				if filtered, ok := eventFilter.WorkspaceCanSeeNode(ctx, ws, resp.Node, false); ok {
+				if filtered, ok := eventFilter.WorkspaceCanSeeNode(ctx, ws, resp.Node); ok {
 					multipleMeta = append(multipleMeta, &tree.WorkspaceRelativePath{
 						WsLabel: ws.Label,
 						WsUuid:  ws.UUID,

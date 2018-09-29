@@ -21,10 +21,11 @@
 package websocket
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
-
-	"context"
+	"sync"
+	"time"
 
 	"github.com/micro/go-micro/metadata"
 	"github.com/micro/protobuf/jsonpb"
@@ -46,11 +47,33 @@ import (
 type WebsocketHandler struct {
 	Websocket   *melody.Melody
 	EventRouter *views.RouterEventFilter
+
+	batcherLock *sync.Mutex
+	batchers    map[string]*NodeEventsBatcher
+	dispatcher  chan *NodeChangeEventWithInfo
+	done        chan string
 }
 
 func NewWebSocketHandler(serviceCtx context.Context) *WebsocketHandler {
-	w := &WebsocketHandler{}
+	w := &WebsocketHandler{
+		batchers:    make(map[string]*NodeEventsBatcher),
+		dispatcher:  make(chan *NodeChangeEventWithInfo),
+		done:        make(chan string),
+		batcherLock: &sync.Mutex{},
+	}
 	w.InitHandlers(serviceCtx)
+	go func() {
+		for {
+			select {
+			case e := <-w.dispatcher:
+				w.BroadcastNodeChangeEvent(context.Background(), e)
+			case finished := <-w.done:
+				w.batcherLock.Lock()
+				delete(w.batchers, finished)
+				w.batcherLock.Unlock()
+			}
+		}
+	}()
 	return w
 }
 
@@ -109,12 +132,51 @@ func (w *WebsocketHandler) InitHandlers(serviceCtx context.Context) {
 
 }
 
-func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
+func (w *WebsocketHandler) getBatcherForUuid(uuid string) *NodeEventsBatcher {
+	var batcher *NodeEventsBatcher
+	w.batcherLock.Lock()
+	if b, ok := w.batchers[uuid]; ok {
+		batcher = b
+	} else {
+		batcher = NewEventsBatcher(1*time.Second, uuid, w.dispatcher, w.done)
+		w.batchers[uuid] = batcher
+	}
+	w.batcherLock.Unlock()
+	return batcher
+}
 
-	// Here events come with real full path
-	if event.Type == tree.NodeChangeEvent_READ {
+// HandleNodeChangeEvent listens to NodeChangeEvents and either broadcase them directly, or use NodeEventsBatcher
+// to buffer them and flatten them into one.
+func (w *WebsocketHandler) HandleNodeChangeEvent(ctx context.Context, event *tree.NodeChangeEvent) error {
+
+	switch event.Type {
+	case tree.NodeChangeEvent_UPDATE_META, tree.NodeChangeEvent_CREATE, tree.NodeChangeEvent_UPDATE_CONTENT:
+		if event.Target != nil {
+			batcher := w.getBatcherForUuid(event.Target.Uuid)
+			batcher.in <- event
+			return nil
+		} else {
+			e := &NodeChangeEventWithInfo{}
+			e.NodeChangeEvent = *event
+			return w.BroadcastNodeChangeEvent(ctx, e)
+		}
+	case tree.NodeChangeEvent_DELETE, tree.NodeChangeEvent_UPDATE_PATH:
+		e := &NodeChangeEventWithInfo{}
+		e.NodeChangeEvent = *event
+		e.refreshTarget = true
+		return w.BroadcastNodeChangeEvent(ctx, e)
+	case tree.NodeChangeEvent_READ:
+		// Ignore READ events
+		return nil
+	default:
 		return nil
 	}
+
+}
+
+// BroadcastNodeChangeEvent will browse the currently registered websocket sessions and decide whether to broadcast
+// the event or not.
+func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *NodeChangeEventWithInfo) error {
 
 	return w.Websocket.BroadcastFilter([]byte(`"dump"`), func(session *melody.Session) bool {
 
@@ -132,40 +194,46 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 			metaProvidersCloser meta.MetaProviderCloser
 		)
 
-		claims, _ := session.Get(SessionClaimsKey)
-		uName, _ := session.Get(SessionUsernameKey)
-		c, _ := json.Marshal(claims)
-		metaCtx = metadata.NewContext(context.Background(), map[string]string{
-			claim.MetadataContextKey:      string(c),
-			common.PYDIO_CONTEXT_USER_KEY: uName.(string),
-		})
-		metaProviderClients, metaProvidersCloser, metaProviderNames = meta.InitMetaProviderClients(metaCtx, false)
-		defer metaProvidersCloser()
+		if event.refreshTarget && event.Target != nil {
+			claims, _ := session.Get(SessionClaimsKey)
+			uName, _ := session.Get(SessionUsernameKey)
+			c, _ := json.Marshal(claims)
+			metaCtx = metadata.NewContext(context.Background(), map[string]string{
+				claim.MetadataContextKey:      string(c),
+				common.PYDIO_CONTEXT_USER_KEY: uName.(string),
+			})
+			metaProviderClients, metaProvidersCloser, metaProviderNames = meta.InitMetaProviderClients(metaCtx, false)
+			defer metaProvidersCloser()
+			if respNode, err := w.EventRouter.GetClientsPool().GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: event.Target}); err == nil {
+				event.Target = respNode.Node
+			}
+		}
 
 		enrichedNodes := make(map[string]*tree.Node)
-		for _, workspace := range workspaces {
-			nTarget, t1 := w.EventRouter.WorkspaceCanSeeNode(ctx, workspace, event.Target, true)
-			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(ctx, workspace, event.Source, false)
+		for wsId, workspace := range workspaces {
+			nTarget, t1 := w.EventRouter.WorkspaceCanSeeNode(ctx, workspace, event.Target)
+			nSource, t2 := w.EventRouter.WorkspaceCanSeeNode(ctx, workspace, event.Source)
 			// Depending on node, broadcast now
 			if t1 || t2 {
-				log.Logger(ctx).Debug("Broadcasting event to this session for workspace", zap.Any("target", nTarget), zap.Any("source", nSource), zap.Any("ws", workspace))
 				eType := event.Type
-
 				if nTarget != nil {
-					if metaNode, ok := enrichedNodes[nTarget.Uuid]; ok {
-						for k, v := range metaNode.MetaStore {
-							nTarget.MetaStore[k] = v
+					if event.refreshTarget {
+						if metaNode, ok := enrichedNodes[nTarget.Uuid]; ok {
+							for k, v := range metaNode.MetaStore {
+								nTarget.MetaStore[k] = v
+							}
+						} else {
+							metaNode = nTarget.Clone()
+							meta.EnrichNodesMetaFromProviders(metaCtx, metaProviderClients, metaProviderNames, metaNode)
+							for k, v := range metaNode.MetaStore {
+								nTarget.MetaStore[k] = v
+							}
+							enrichedNodes[nTarget.Uuid] = metaNode
 						}
-					} else {
-						metaNode = nTarget.Clone()
-						meta.EnrichNodesMetaFromProviders(metaCtx, metaProviderClients, metaProviderNames, metaNode)
-						for k, v := range metaNode.MetaStore {
-							nTarget.MetaStore[k] = v
-						}
-						enrichedNodes[nTarget.Uuid] = metaNode
 					}
 					nTarget.SetMeta("EventWorkspaceId", workspace.UUID)
 					nTarget = nTarget.WithoutReservedMetas()
+					log.Logger(ctx).Debug("Broadcasting event to this session for workspace", zap.Any("type", event.Type), zap.String("wsId", wsId), zap.Any("path", event.Target.Path))
 				}
 				if nSource != nil {
 					nSource.SetMeta("EventWorkspaceId", workspace.UUID)
@@ -198,6 +266,7 @@ func (w *WebsocketHandler) BroadcastNodeChangeEvent(ctx context.Context, event *
 
 }
 
+// BroadcastTaskChangeEvent listens to tasks events and broadcast them to sessions with the adequate user.
 func (w *WebsocketHandler) BroadcastTaskChangeEvent(ctx context.Context, event *jobs.TaskChangeEvent) error {
 
 	taskOwner := event.TaskUpdated.TriggerOwner
@@ -225,6 +294,8 @@ func (w *WebsocketHandler) BroadcastTaskChangeEvent(ctx context.Context, event *
 
 }
 
+// BroadcastIDMChangeEvent listens to ACL events and broadcast them to sessions if the Role, User, or Workspace is concerned
+// This triggers a registry reload in the UX (and eventually a change of permissions)
 func (w *WebsocketHandler) BroadcastIDMChangeEvent(ctx context.Context, event *idm.ChangeEvent) error {
 
 	marshaller := jsonpb.Marshaler{}
@@ -275,6 +346,7 @@ func (w *WebsocketHandler) BroadcastIDMChangeEvent(ctx context.Context, event *i
 
 }
 
+// BroadcastActivityEvent listens to activities and broadcast them to sessions with the adequate user.
 func (w *WebsocketHandler) BroadcastActivityEvent(ctx context.Context, event *activity.PostActivityEvent) error {
 
 	// Only handle "users inbox" events for now

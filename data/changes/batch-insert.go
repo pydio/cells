@@ -86,7 +86,7 @@ func (b *BatchInsert) Flush() {
 	if b.changes == nil {
 		return
 	}
-	BackgroundLogger().Info(fmt.Sprintf("Flushing batcher with %d changes", len(b.changes)))
+	BackgroundLogger().Debug(fmt.Sprintf("Flushing batcher with %d changes", len(b.changes)))
 	if err := b.dao.BulkPut(b.changes); err != nil {
 		BackgroundLogger().Error("Error while storing changes as bulk! Trying with Put method", zap.Error(err))
 		for _, c := range b.changes {

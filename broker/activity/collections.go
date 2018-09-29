@@ -77,14 +77,14 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 		for _, ac := range items {
 			if ac.Object != nil && ac.Object.Type == activity.ObjectType_Folder || ac.Object.Type == activity.ObjectType_Document {
 				node := &tree.Node{Uuid: ac.Object.Id, Path: ac.Object.Name}
-				if filtered, ok := r.WorkspaceCanSeeNode(ctx, workspace, node, false); ok {
+				if filtered, ok := r.WorkspaceCanSeeNode(ctx, workspace, node); ok {
 					wsColl := getOrCreateWorkspaceCollection(workspace, grouped)
 					filteredActivity := proto.Clone(ac).(*activity.Object)
 					filteredActivity.Object.Name = filtered.Path
 					// Filter Target Path
 					if filteredActivity.Target != nil {
 						targetNode := &tree.Node{Path: filteredActivity.Target.Name, Uuid: filteredActivity.Target.Id}
-						if targetFiltered, ok2 := r.WorkspaceCanSeeNode(ctx, workspace, targetNode, false); ok2 {
+						if targetFiltered, ok2 := r.WorkspaceCanSeeNode(ctx, workspace, targetNode); ok2 {
 							filteredActivity.Target.Name = targetFiltered.Path
 						} else {
 							filteredActivity.Target = nil
@@ -93,7 +93,7 @@ func Digest(ctx context.Context, items []*activity.Object) (*activity.Object, er
 					// Filter Origin Path
 					if filteredActivity.Origin != nil {
 						originNode := &tree.Node{Path: filteredActivity.Origin.Name, Uuid: filteredActivity.Origin.Id}
-						if originFiltered, ok2 := r.WorkspaceCanSeeNode(ctx, workspace, originNode, false); ok2 {
+						if originFiltered, ok2 := r.WorkspaceCanSeeNode(ctx, workspace, originNode); ok2 {
 							filteredActivity.Origin.Name = originFiltered.Path
 						} else {
 							filteredActivity.Origin = nil
