@@ -401,7 +401,7 @@ var PydioDataModel = (function (_Observable) {
 		var observer = this.nextNodeReloader.bind(this);
 		next.observeOnce("loaded", observer);
 		next.observeOnce("error", observer);
-		if (next == this._contextNode || next.isParentOf(this._contextNode)) {
+		if (next === this._contextNode || next.isParentOf(this._contextNode)) {
 			this.requireContextChange(next, true);
 		} else {
 			next.reload(this._iAjxpNodeProvider);
@@ -417,12 +417,23 @@ var PydioDataModel = (function (_Observable) {
 	PydioDataModel.prototype.addNode = function addNode(node) {
 		var setSelectedAfterAdd = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
+		// If it already exists, replace it
+		var existing = node.findInArbo(this.getRootNode(), undefined);
+		if (existing) {
+			existing.replaceBy(node, "override");
+			if (setSelectedAfterAdd && this.getContextNode() === existing.getParent()) {
+				this.setSelectedNodes([existing], {});
+			}
+		}
+
 		var parentFake = new _AjxpNode2['default'](_utilPathUtils2['default'].getDirname(node.getPath()));
 		var parent = parentFake.findInArbo(this.getRootNode(), undefined);
-		if (!parent && _utilPathUtils2['default'].getDirname(node.getPath()) == "") parent = this.getRootNode();
+		if (!parent && _utilPathUtils2['default'].getDirname(node.getPath()) === "") {
+			parent = this.getRootNode();
+		}
 		if (parent) {
 			var addedNode = parent.addChild(node);
-			if (addedNode && setSelectedAfterAdd && this.getContextNode() == parent) {
+			if (addedNode && setSelectedAfterAdd && this.getContextNode() === parent) {
 				this.setSelectedNodes([addedNode], {});
 			}
 		}

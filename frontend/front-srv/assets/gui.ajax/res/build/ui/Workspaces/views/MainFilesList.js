@@ -272,9 +272,10 @@ var MainFilesList = _react2['default'].createClass({
                 style: { cursor: 'pointer' }
             });
         } else {
+            var hasThumbnail = !!node.getMetadata().get("thumbnails");
             var processing = !!node.getMetadata().get('Processing');
             return _react2['default'].createElement(_FilePreview2['default'], {
-                loadThumbnail: !entryProps['parentIsScrolling'] && !processing,
+                loadThumbnail: !entryProps['parentIsScrolling'] && hasThumbnail && !processing,
                 node: node,
                 processing: processing
             });

@@ -228,10 +228,11 @@ let MainFilesList = React.createClass({
                 />
             );
         }else{
+            const hasThumbnail = !!node.getMetadata().get("thumbnails");
             const processing = !!node.getMetadata().get('Processing');
             return (
                 <FilePreview
-                    loadThumbnail={!entryProps['parentIsScrolling'] && !processing}
+                    loadThumbnail={!entryProps['parentIsScrolling'] && hasThumbnail && !processing}
                     node={node}
                     processing={processing}
                 />
