@@ -36406,29 +36406,13 @@
             ],
             "params": [],
             "returns": null
-          },
-          {
-            "name": "renderControls",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "Controls",
-                "type": null
-              },
-              {
-                "name": "Actions",
-                "type": null
-              }
-            ],
-            "returns": null
           }
         ],
         "require": "const {EditorTab} = require('pydio').requireLib('workspaces')"
       },
       {
         "description": "",
-        "displayName": "SnackBar",
+        "displayName": "BottomBar",
         "methods": []
       }
     ],

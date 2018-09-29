@@ -39,7 +39,7 @@ export class LineWidget {
     this.height = null
     let diff = widgetHeight(this) - oldH
     if (!diff) return
-    if (!lineIsHidden(this.doc, line)) updateLineHeight(line, line.height + diff)
+    updateLineHeight(line, line.height + diff)
     if (cm) {
       runInOp(cm, () => {
         cm.curOp.forceUpdate = true
