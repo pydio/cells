@@ -311,7 +311,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 			if err != nil {
 				log.Logger(ctx).Error("Error while calling PutObject", zap.Error(err), zap.Any("client", thumbsClient))
 			} else {
-				log.Logger(ctx).Info("Finished putting thumb for size", zap.Int64("written", written), zap.Int("size ", targetSize))
+				log.Logger(ctx).Debug("Finished putting thumb for size", zap.Int64("written", written), zap.Int("size ", targetSize))
 			}
 			displayMemStat(ctx, "SHOULD EXIT GO FUNC")
 		}()
