@@ -178,7 +178,10 @@ func (s *Subscriber) chanToStream(ch chan interface{}, requeue ...*jobs.Task) {
 					}
 					_, e = streamer.Recv()
 					if e != nil {
-						log.Logger(s.RootContext).Error("Error while posting task", zap.Error(e))
+						log.Logger(s.RootContext).Error("Error while posting task - reconnect streamer", zap.Error(e))
+						<-time.After(1 * time.Second)
+						s.chanToStream(ch, task)
+						return
 					}
 				} else {
 					log.Logger(s.RootContext).Error("Could not cast value to jobs.Task", zap.Any("val", val))

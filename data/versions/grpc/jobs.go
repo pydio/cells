@@ -42,11 +42,12 @@ func getDefaultJobs() []*jobs.Job {
 
 	return []*jobs.Job{
 		{
-			ID:             "versioning-job",
-			Owner:          common.PYDIO_SYSTEM_USERNAME,
-			Label:          T("Job.Version.Title"),
-			Inactive:       false,
-			MaxConcurrency: 10,
+			ID:                "versioning-job",
+			Owner:             common.PYDIO_SYSTEM_USERNAME,
+			Label:             T("Job.Version.Title"),
+			Inactive:          false,
+			MaxConcurrency:    10,
+			TasksSilentUpdate: true,
 			EventNames: []string{
 				jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
 				jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),
