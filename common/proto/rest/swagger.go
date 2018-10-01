@@ -4557,6 +4557,11 @@ var SwaggerJson = `{
           "format": "int32",
           "title": "Task properties"
         },
+        "TasksSilentUpdate": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Do not send notification on task update"
+        },
         "Tasks": {
           "type": "array",
           "items": {
