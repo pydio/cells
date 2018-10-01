@@ -282,7 +282,8 @@ class PydioApi{
             const params = {
                 Bucket: "io",
                 Key: slug + node.getPath(),
-                ResponseContentType: 'text/plain'
+                ResponseContentType: 'text/plain',
+                ResponseCacheControl: "no-cache",
             };
             const s3 = new AWS.S3({endpoint:url.replace('/io', '')});
             s3.getObject(params, (err,data) => {
