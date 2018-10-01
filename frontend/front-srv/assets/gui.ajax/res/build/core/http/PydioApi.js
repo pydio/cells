@@ -339,7 +339,8 @@ var PydioApi = (function () {
             var params = {
                 Bucket: "io",
                 Key: slug + node.getPath(),
-                ResponseContentType: 'text/plain'
+                ResponseContentType: 'text/plain',
+                ResponseCacheControl: "no-cache"
             };
             var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
             s3.getObject(params, function (err, data) {
