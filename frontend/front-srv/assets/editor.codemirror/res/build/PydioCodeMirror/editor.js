@@ -98,9 +98,10 @@ var Editor = (function (_React$Component) {
             var tab = _props2.tab;
             var tabModify = _props2.tabModify;
             var id = tab.id;
+            var codemirror = tab.codemirror;
 
             pydio.ApiClient.getPlainContent(node, function (content) {
-                tabModify({ id: id || node.getLabel(), editable: true, searchable: true, lineNumbers: true, content: content });
+                tabModify({ id: id || node.getLabel(), editable: true, editortools: true, searchable: true, lineNumbers: true, content: content });
             });
         }
     }, {
@@ -124,7 +125,6 @@ var Editor = (function (_React$Component) {
             if (!tab) return null;
 
             var id = tab.id;
-            var codemirror = tab.codemirror;
             var content = tab.content;
             var lineWrapping = tab.lineWrapping;
             var lineNumbers = tab.lineNumbers;

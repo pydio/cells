@@ -64,8 +64,6 @@ const makeMotion = (originStyle, targetStyle, options = {}) => {
                                 length: 'px', angle: 'deg'
                             })
 
-                            console.log({...props.style, transform, ...transformStyle(props)})
-
                             return <Target {...props} style={{...props.style, transform, ...transformStyle(props)}} motionEnded={ended} />
                         }}
                     </Motion>

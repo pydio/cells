@@ -145,7 +145,7 @@ var Tab = (function (_React$Component) {
                 open: snackbarMessage !== "",
                 autoHideDuration: 3000,
                 onRequestClose: function () {
-                    return tabModify({ id: id, messsage: "HELLO" });
+                    return tabModify({ id: id, message: "" });
                 },
                 message: React.createElement(
                     'span',
@@ -233,6 +233,7 @@ var BottomBar = (function (_React$Component2) {
         var _state$plusDisabled = _state.plusDisabled;
         var plusDisabled = _state$plusDisabled === undefined ? false : _state$plusDisabled;
         var _props2 = this.props;
+        var readonly = _props2.readonly;
         var size = _props2.size;
         var scale = _props2.scale;
         var _props2$playing = _props2.playing;
@@ -243,7 +244,7 @@ var BottomBar = (function (_React$Component2) {
         var onSizeChange = _props2.onSizeChange;
         var onResolutionToggle = _props2.onResolutionToggle;
 
-        var remaining = _objectWithoutProperties(_props2, ['size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle']);
+        var remaining = _objectWithoutProperties(_props2, ['readonly', 'size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle']);
 
         // Content functions
         var _props3 = this.props;
@@ -253,6 +254,9 @@ var BottomBar = (function (_React$Component2) {
         var onSave = _props3.onSave;
         var onUndo = _props3.onUndo;
         var onRedo = _props3.onRedo;
+        var saveDisabled = _props3.saveDisabled;
+        var undoDisabled = _props3.undoDisabled;
+        var redoDisabled = _props3.redoDisabled;
         var _props4 = this.props;
         var onToggleLineNumbers = _props4.onToggleLineNumbers;
         var onToggleLineWrapping = _props4.onToggleLineWrapping;
@@ -260,7 +264,7 @@ var BottomBar = (function (_React$Component2) {
         var onSearch = _props5.onSearch;
         var onJumpTo = _props5.onJumpTo;
 
-        var editable = saveable || undoable || redoable;
+        var editable = (saveable || undoable || redoable) && !readonly;
         var _props6 = this.props;
         var editortools = _props6.editortools;
         var searchable = _props6.searchable;
@@ -274,7 +278,7 @@ var BottomBar = (function (_React$Component2) {
         // Size functions
         var resizable = this.props.resizable;
 
-        if (!editable && !hdable && !playable && !resizable) {
+        if (!editable && !editortools && !searchable && !hdable && !playable && !resizable) {
             return null;
         }
 
@@ -353,21 +357,24 @@ var BottomBar = (function (_React$Component2) {
                         iconStyle: styles.iconButton,
                         onClick: function () {
                             return onSave();
-                        }
+                        },
+                        disabled: saveDisabled
                     }),
                     undoable && React.createElement(_materialUi.IconButton, {
                         iconClassName: 'mdi mdi-undo',
                         iconStyle: styles.iconButton,
                         onClick: function () {
                             return onUndo();
-                        }
+                        },
+                        disabled: undoDisabled
                     }),
                     redoable && React.createElement(_materialUi.IconButton, {
                         iconClassName: 'mdi mdi-redo',
                         iconStyle: styles.iconButton,
                         onClick: function () {
                             return onRedo();
-                        }
+                        },
+                        disabled: redoDisabled
                     })
                 ),
                 (playable || resizable || hdable || editable) && editortools && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
@@ -425,12 +432,14 @@ function mapStateToProps(state, ownProps) {
         return tab.id === ownProps.id;
     })[0] || {};
 
+    var node = current.node;
     var _current$message = current.message;
     var message = _current$message === undefined ? "" : _current$message;
 
     return _extends({}, ownProps, current, {
         isActive: editor.activeTabId === current.id,
-        snackbarMessage: message
+        snackbarMessage: message,
+        readonly: node.hasMetadataInBranch("node_readonly", "true")
     });
 }
 

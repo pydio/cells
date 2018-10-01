@@ -107,7 +107,7 @@ export default class Tab extends React.Component {
                     }}
                     open={snackbarMessage !== ""}
                     autoHideDuration={3000}
-                    onRequestClose={() => tabModify({id, messsage: "HELLO"})}
+                    onRequestClose={() => tabModify({id, message: ""})}
                     message={<span>{snackbarMessage}</span>}
                 />
             </AnimatedCard>
@@ -145,14 +145,14 @@ class BottomBar extends React.Component {
 
     render() {
         const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false} = this.state
-        const {size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
+        const {readonly, size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
 
         // Content functions
-        const {saveable, undoable, redoable, onSave, onUndo, onRedo} = this.props
+        const {saveable, undoable, redoable, onSave, onUndo, onRedo, saveDisabled, undoDisabled, redoDisabled} = this.props
         const {onToggleLineNumbers, onToggleLineWrapping} = this.props
         const {onSearch, onJumpTo} = this.props
 
-        const editable = saveable || undoable || redoable
+        const editable = (saveable || undoable || redoable) && !readonly
         const {editortools, searchable} = this.props
 
         // Resolution functions
@@ -164,7 +164,7 @@ class BottomBar extends React.Component {
         // Size functions
         const {resizable} = this.props
 
-        if (!editable && !hdable && !playable && !resizable) {
+        if (!editable && !editortools && !searchable && !hdable && !playable && !resizable) {
             return null
         }
 
@@ -235,6 +235,7 @@ class BottomBar extends React.Component {
                                     iconClassName="mdi mdi-content-save"
                                     iconStyle={styles.iconButton}
                                     onClick={() => onSave()}
+                                    disabled={saveDisabled}
                                 />
                             )}
                             {undoable && (
@@ -242,6 +243,7 @@ class BottomBar extends React.Component {
                                     iconClassName="mdi mdi-undo"
                                     iconStyle={styles.iconButton}
                                     onClick={() => onUndo()}
+                                    disabled={undoDisabled}
                                 />
                             )}
                             {redoable && (
@@ -249,6 +251,7 @@ class BottomBar extends React.Component {
                                     iconClassName="mdi mdi-redo"
                                     iconStyle={styles.iconButton}
                                     onClick={() => onRedo()}
+                                    disabled={redoDisabled}
                                 />
                             )}
                         </ToolbarGroup>
@@ -294,13 +297,14 @@ function mapStateToProps(state, ownProps) {
 
     let current = tabs.filter(tab => tab.id === ownProps.id)[0] || {}
 
-    const {message = ""} = current
+    const {node, message = ""} = current
 
     return  {
         ...ownProps,
         ...current,
         isActive: editor.activeTabId === current.id,
-        snackbarMessage: message
+        snackbarMessage: message,
+        readonly: node.hasMetadataInBranch("node_readonly", "true"),
     }
 }
 

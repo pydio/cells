@@ -45,6 +45,7 @@ var onSave = function onSave(_ref) {
             if (!success) {
                 dispatch(EditorActions.tabModify({ id: tab.id, message: "There was an error while saving" }));
             } else {
+                console.log("HERE ", tab.id);
                 dispatch(EditorActions.tabModify({ id: tab.id, message: "Successfully saved file" }));
             }
         });
