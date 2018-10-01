@@ -92,6 +92,9 @@ export default class JobsJob {
             if (data.hasOwnProperty('MaxConcurrency')) {
                 obj['MaxConcurrency'] = ApiClient.convertToType(data['MaxConcurrency'], 'Number');
             }
+            if (data.hasOwnProperty('TasksSilentUpdate')) {
+                obj['TasksSilentUpdate'] = ApiClient.convertToType(data['TasksSilentUpdate'], 'Boolean');
+            }
             if (data.hasOwnProperty('Tasks')) {
                 obj['Tasks'] = ApiClient.convertToType(data['Tasks'], [JobsTask]);
             }
@@ -143,6 +146,10 @@ export default class JobsJob {
     * @member {Number} MaxConcurrency
     */
     MaxConcurrency = undefined;
+    /**
+    * @member {Boolean} TasksSilentUpdate
+    */
+    TasksSilentUpdate = undefined;
     /**
     * @member {Array.<module:model/JobsTask>} Tasks
     */
