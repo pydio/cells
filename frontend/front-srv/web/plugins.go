@@ -118,6 +118,12 @@ func DropLegacyStatics(ctx context.Context) error {
 	config.Del("defaults", "fpm")
 	config.Del("defaults", "fronts")
 	config.Del("services", "pydio.frontends")
+	if config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("") == "" {
+		config.Set("Pydio Cells", "frontend", "plugin", "core.pydio", "APPLICATION_TITLE")
+	}
+	if e := config.Save(common.PYDIO_SYSTEM_USERNAME, "Upgrade to 1.2.0"); e == nil {
+		log.Logger(ctx).Info("[Upgrade] Cleaned unused configurations")
+	}
 
 	return nil
 }

@@ -128,7 +128,7 @@ class NodesPicker extends React.Component{
 
         const {model, muiTheme, mode, pydio} = this.props;
         const m = (id) => pydio.MessageHash['share_center.' + id];
-        const nodes = model.getRootNodes();
+        const nodes = model.getRootNodes() || [];
         let nodeLines = [], emptyStateString;
         nodes.map(node => {
             nodeLines.push(this.renderNodeLine(node));
