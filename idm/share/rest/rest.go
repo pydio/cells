@@ -86,7 +86,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		service.RestError500(req, rsp, err)
 		return
 	}
-	log.Logger(ctx).Debug("Received Share.Cell API request", zap.Any("input", &shareRequest))
+	log.Logger(ctx).Info("Received Share.Cell API request", zap.Any("input", &shareRequest))
 
 	// Init Root Nodes and check permissions
 	err, createdCellNode, readonly := h.ParseRootNodes(ctx, &shareRequest)
@@ -98,6 +98,8 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 		}
 		return
 	}
+
+	log.Logger(ctx).Info("Share.Cell - After ParseRootNodes", zap.Any("input", &shareRequest))
 
 	workspace, wsCreated, err := h.GetOrCreateWorkspace(ctx, shareRequest.Room.Uuid, idm.WorkspaceScope_ROOM, shareRequest.Room.Label, shareRequest.Room.Description, false)
 	if err != nil {
@@ -833,6 +835,10 @@ func (h *SharesHandler) ParseRootNodes(ctx context.Context, shareRequest *rest.P
 		r, e := router.ReadNode(ctx, &tree.ReadNodeRequest{Node: n})
 		if e != nil {
 			return e, nil, false
+		}
+		// If the virtual root is responded, it may miss the UUID ! Set up manually here
+		if r.Node.Uuid == "" {
+			r.Node.Uuid = n.Uuid
 		}
 		shareRequest.Room.RootNodes[i] = r.Node
 	}
