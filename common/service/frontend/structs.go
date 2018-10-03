@@ -131,6 +131,7 @@ type Ccomponent_config struct {
 	Attrcomponent string        `xml:"component,attr,omitempty"  json:",omitempty"`
 	Ccolumns      *Ccolumns     `xml:"columns,omitempty" json:"columns,omitempty"`
 	CinfoPanel    []*CinfoPanel `xml:"infoPanel,omitempty" json:"infoPanel,omitempty"`
+	Cmodifier     []*Cmodifier  `xml:"modifier,omitempty" json:"modifier,omitempty"`
 	Cproperty     []*Cproperty  `xml:"property,omitempty" json:"property,omitempty"`
 }
 
@@ -264,6 +265,11 @@ type CinfoPanel struct {
 	AttrreactComponent string   `xml:"reactComponent,attr,omitempty"  json:",omitempty"`
 	Attrtheme          string   `xml:"theme,attr,omitempty"  json:",omitempty"`
 	Attrweight         string   `xml:"weight,attr,omitempty"  json:",omitempty"`
+}
+
+type Cmodifier struct {
+	XMLName    xml.Name `xml:"modifier,omitempty" json:"modifier,omitempty"`
+	Attrmodule string   `xml:"module,attr,omitempty"  json:",omitempty"`
 }
 
 type Cjs struct {
