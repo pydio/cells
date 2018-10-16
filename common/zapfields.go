@@ -20,25 +20,23 @@
 
 package common
 
+// Define string used as keys.
 const (
-
-	// Meta keys
 	KEY_MSG_ID = "MsgId"
 	KEY_TS     = "Ts"
 	KEY_LEVEL  = "Level"
 	KEY_LOGGER = "Logger"
 	KEY_MSG    = "Msg"
+)
 
-	/* AUDIT MANAGEMENT */
-
-	// Known audit message IDs
-	// NOTE: also update the below label map when adding a new value
+// Known audit message IDs
+const (
+	// Login
 	AUDIT_LOGIN_SUCCEED       = "1"
 	AUDIT_LOGIN_FAILED        = "2"
 	AUDIT_LOGIN_POLICY_DENIAL = "3"
 	AUDIT_INVALID_JWT         = "4"
-	AUDIT_OBJECT_GET          = "21"
-	AUDIT_OBJECT_PUT          = "22"
+
 	// Tree events
 	AUDIT_NODE_CREATE = "11"
 	AUDIT_NODE_READ   = "12"
@@ -48,6 +46,11 @@ const (
 	AUDIT_WS_CREATE   = "16"
 	AUDIT_WS_UPDATE   = "17"
 	AUDIT_WS_DELETE   = "18"
+
+	// S3 Objects
+	AUDIT_OBJECT_GET = "21"
+	AUDIT_OBJECT_PUT = "22"
+
 	// Users, Group, Roles
 	AUDIT_USER_CREATE  = "41"
 	AUDIT_USER_READ    = "42"
@@ -61,11 +64,13 @@ const (
 	AUDIT_ROLE_READ    = "52"
 	AUDIT_ROLE_UPDATE  = "53"
 	AUDIT_ROLE_DELETE  = "54"
-	// POLICIES
+
+	// Policies
 	AUDIT_POLICY_GROUP_STORE  = "61"
 	AUDIT_POLICY_GROUP_DELETE = "62"
 	AUDIT_POLICY_STORE        = "63"
 	AUDIT_POLICY_DELETE       = "64"
+
 	// ShareLinks And Cells
 	AUDIT_CELL_CREATE = "71"
 	AUDIT_CELL_READ   = "72"
@@ -74,17 +79,16 @@ const (
 	AUDIT_LINK_CREATE = "75"
 	AUDIT_LINK_READ   = "76"
 	AUDIT_LINK_UPDATE = "77"
-	AUDIT_LINK_DELTE  = "78"
+	AUDIT_LINK_DELETE = "78"
+)
 
-	/* BACK END */
-
-	// CONTEXT
+// Known audit message IDs
+const (
 	KEY_CONTEXT          = "Context"
 	KEY_SPAN_UUID        = "SpanUuid"
 	KEY_SPAN_PARENT_UUID = "SpanParentUuid"
 	KEY_SPAN_ROOT_UUID   = "SpanRootUuid"
 
-	// NODE
 	KEY_NODE      = "Node"
 	KEY_NODE_UUID = "NodeUuid"
 	KEY_NODE_PATH = "NodePath"
@@ -102,7 +106,6 @@ const (
 	KEY_ACTIVITY_POST_EVENT     = "PostActivityEvent"
 	KEY_ACTIVITY_OBJECT         = "ActivityObject"
 
-	// USERS & IDM
 	KEY_ROLE      = "Role"
 	KEY_ROLE_UUID = "RoleUuid"
 	KEY_ROLES     = "Roles"
@@ -119,6 +122,7 @@ const (
 	// Should be ACL and ACLID if we use proto names, changed to stay homogeneous with the other fields
 	KEY_ACL    = "Acl"
 	KEY_ACL_ID = "AclId"
+
 	// Pydio internal merged representation of all ACLs that a user has access to
 	KEY_ACCESS_LIST = "AccessList"
 
@@ -128,31 +132,29 @@ const (
 	KEY_POLICY_ID         = "PolicyId"
 	KEY_POLICY_REQUEST    = "PolicyRequest"
 
-	// JOB
-	KEY_JOB    = "Job"
-	KEY_JOB_ID = "JobId"
-
+	// Scheduler
+	KEY_JOB       = "Job"
+	KEY_JOB_ID    = "JobId"
 	KEY_ACTION    = "Action"
 	KEY_ACTION_ID = "ActionId"
+	KEY_TASK      = "Task"
+	KEY_TASK_ID   = "TaskId"
 
-	KEY_TASK    = "Task"
-	KEY_TASK_ID = "TaskId"
-
-	// CELLS
+	// Cells
 	KEY_CELL      = "Cell"
 	KEY_CELL_UUID = "CellUuid"
 	KEY_LINK      = "ShareLink"
 	KEY_LINK_UUID = "ShareLinkUuid"
 
-	// CHAT
+	// Chat
 	KEY_CHAT_ROOM          = "ChatRoom"
 	KEY_CHAT_LIST_ROOM_REQ = "ChatListRoomRequest"
 	KEY_CHAT_LIST_MSG_REQ  = "ChatListMsgRequest"
 	KEY_CHAT_POST_MSG_REQ  = "ChatPostMsgRequest"
+)
 
-	/* FRONT END */
-
-	// FRONT LOGS
+// Keys for the front end
+const (
 	KEY_FRONT_IP      = "FrontIp"
 	KEY_FRONT_USERID  = "UserId"
 	KEY_FRONT_WKSID   = "WorkspaceId"
