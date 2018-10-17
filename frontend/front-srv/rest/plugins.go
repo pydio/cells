@@ -69,7 +69,6 @@ var BasePluginsBox = frontend.PluginBox{
 		"editor.soundmanager",
 		"editor.text",
 		"editor.video",
-		"editor.webodf",
 		"meta.comments",
 		"meta.exif",
 		"meta.simple_lock",
