@@ -58,6 +58,10 @@ var _CellsMessageToolbar = require('./CellsMessageToolbar');
 
 var _CellsMessageToolbar2 = _interopRequireDefault(_CellsMessageToolbar);
 
+var _OverlayIcon = require('./OverlayIcon');
+
+var _OverlayIcon2 = _interopRequireDefault(_OverlayIcon);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var SimpleList = _Pydio$requireLib.SimpleList;
@@ -283,17 +287,17 @@ var MainFilesList = _react2['default'].createClass({
     },
 
     entryRenderActions: function entryRenderActions(node) {
-        var _this2 = this;
-
         var content = null;
-        var mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
-        var dm = this.props.pydio.getContextHolder();
+        var pydio = this.props.pydio;
+
+        var mobile = pydio.UI.MOBILE_EXTENSIONS;
+        var dm = pydio.getContextHolder();
         if (mobile) {
             var _ret2 = (function () {
                 var ContextMenuModel = require('pydio/model/context-menu');
                 return {
                     v: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-dots-vertical', tooltip: 'Info', onClick: function (event) {
-                            _this2.props.pydio.observeOnce('actions_refreshed', function () {
+                            pydio.observeOnce('actions_refreshed', function () {
                                 ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
                             });
                             event.stopPropagation();
@@ -305,8 +309,10 @@ var MainFilesList = _react2['default'].createClass({
 
             if (typeof _ret2 === 'object') return _ret2.v;
         } else if (node.getMetadata().get('overlay_class')) {
-            var elements = node.getMetadata().get('overlay_class').split(',').map(function (c) {
-                return _react2['default'].createElement('span', { key: c, className: c + ' overlay-class-span' });
+            var elements = node.getMetadata().get('overlay_class').split(',').filter(function (c) {
+                return !!c;
+            }).map(function (c) {
+                return _react2['default'].createElement(_OverlayIcon2['default'], { node: node, key: c, overlay: c, pydio: pydio });
             });
             content = _react2['default'].createElement(
                 'div',

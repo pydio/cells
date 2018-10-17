@@ -198,6 +198,7 @@ var FSTemplate = _react2['default'].createClass({
 
         var Color = MaterialUI.Color;
         var appBarColor = Color(this.props.muiTheme.appBar.color);
+        var appBarTextColor = Color(this.props.muiTheme.appBar.textColor);
 
         var styles = {
             appBarStyle: {
@@ -206,14 +207,14 @@ var FSTemplate = _react2['default'].createClass({
                 height: 100
             },
             buttonsStyle: {
-                color: this.props.muiTheme.appBar.textColor
+                width: 42,
+                height: 42,
+                borderBottom: 0,
+                color: appBarTextColor.fade(0.03).toString()
             },
-            iconButtonsStyle: {
-                color: appBarColor.darken(0.5).toString()
-            },
-            rightButtonStyle: {
-                //color: 'rgba(255,255,255,0.73)'
-                color: appBarColor.darken(0.5).toString()
+            buttonsIconStyle: {
+                fontSize: 18,
+                color: appBarTextColor.fade(0.03).toString()
             },
             activeButtonStyle: {
                 borderBottom: '2px solid rgba(255,255,255,0.97)'
@@ -235,6 +236,10 @@ var FSTemplate = _react2['default'].createClass({
                 borderLeft: '1px solid #e0e0e0'
             }
         };
+
+        // Merge active styles
+        styles.activeButtonStyle = _extends({}, styles.buttonsStyle, styles.activeButtonStyle);
+        styles.activeButtonIconStyle = _extends({}, styles.buttonsIconStyle, styles.activeButtonIconStyle);
 
         var _state = this.state;
         var infoPanelOpen = _state.infoPanelOpen;
@@ -338,16 +343,16 @@ var FSTemplate = _react2['default'].createClass({
                             id: 'display-toolbar',
                             toolbars: ["display_toolbar"],
                             renderingType: 'icon-font',
-                            buttonStyle: styles.iconButtonsStyle
+                            buttonStyle: styles.buttonsIconStyle
                         })),
-                        _react2['default'].createElement('div', { style: { borderLeft: '1px solid ' + styles.iconButtonsStyle.color, margin: '0 10px' } }),
+                        _react2['default'].createElement('div', { style: { borderLeft: '1px solid ' + appBarTextColor.fade(0.77).toString(), margin: 10, marginBottom: 4 } }),
                         _react2['default'].createElement(
                             'div',
-                            { style: { marginTop: -8, display: 'flex' } },
+                            { style: { marginTop: -3, display: 'flex' } },
                             _react2['default'].createElement(_materialUi.IconButton, {
                                 iconClassName: "mdi mdi-information",
-                                style: rightColumnState === 'info-panel' ? styles.activeButtonStyle : { borderBottom: 0 },
-                                iconStyle: rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.rightButtonStyle,
+                                style: rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle,
+                                iconStyle: rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
                                 onTouchTap: function () {
                                     _this5.openRightPanel('info-panel');
                                 },
@@ -355,8 +360,8 @@ var FSTemplate = _react2['default'].createClass({
                             }),
                             showChatTab && _react2['default'].createElement(_materialUi.IconButton, {
                                 iconClassName: "mdi mdi-message-text",
-                                style: rightColumnState === 'chat' ? styles.activeButtonStyle : { borderBottom: 0 },
-                                iconStyle: rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.rightButtonStyle,
+                                style: rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle,
+                                iconStyle: rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
                                 onTouchTap: function () {
                                     _this5.openRightPanel('chat');
                                 },
@@ -364,8 +369,8 @@ var FSTemplate = _react2['default'].createClass({
                             }),
                             showAddressBook && _react2['default'].createElement(_materialUi.IconButton, {
                                 iconClassName: "mdi mdi-account-card-details",
-                                style: rightColumnState === 'address-book' ? styles.activeButtonStyle : { borderBottom: 0 },
-                                iconStyle: rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.rightButtonStyle,
+                                style: rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle,
+                                iconStyle: rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
                                 onTouchTap: function () {
                                     _this5.openRightPanel('address-book');
                                 },
@@ -373,7 +378,8 @@ var FSTemplate = _react2['default'].createClass({
                             }),
                             _react2['default'].createElement(_materialUi.IconButton, {
                                 iconClassName: "mdi mdi-close",
-                                iconStyle: styles.rightButtonStyle,
+                                style: styles.buttonsStyle,
+                                iconStyle: styles.buttonsIconStyle,
                                 onTouchTap: function () {
                                     _this5.closeRightPanel();
                                 },

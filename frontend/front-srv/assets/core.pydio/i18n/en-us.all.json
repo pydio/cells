@@ -2188,5 +2188,29 @@
   },
   "background.copy.selection": {
     "other": "Copying selection in background ..."
+  },
+  "overlay.lock.file" : {
+    "other": "File is locked"
+  },
+  "overlay.lock.folder" : {
+    "other": "Folder is locked"
+  },
+  "overlay.watch.file" : {
+    "other": "Currently watching this file"
+  },
+  "overlay.watch.folder" : {
+    "other": "Currently watching this folder"
+  },
+  "overlay.shared.file" : {
+    "other": "Shared file, click to edit"
+  },
+  "overlay.shared.folder" : {
+    "other": "Shared folder, click to edit"
+  },
+  "overlay.bookmark.file" : {
+    "other": "File is bookmarked"
+  },
+  "overlay.bookmark.folder" : {
+    "other": "Folder is bookmarked"
   }
 }

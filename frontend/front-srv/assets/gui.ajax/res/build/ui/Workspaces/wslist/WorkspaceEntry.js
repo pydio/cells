@@ -239,19 +239,35 @@ var WorkspaceEntry = React.createClass({
         this.setState({ openFoldersTree: !this.state.openFoldersTree });
     },
 
+    getRootItemStyle: function getRootItemStyle(node) {
+        var isContext = this.props.pydio.getContextHolder().getContextNode() === node;
+        var accent2 = this.props.muiTheme.palette.accent2Color;
+        if (isContext) {
+            return {
+                borderLeft: '4px solid ' + accent2,
+                paddingLeft: 12
+            };
+        } else {
+            return {};
+        }
+    },
+
     getItemStyle: function getItemStyle(node) {
         var isContext = this.props.pydio.getContextHolder().getContextNode() === node;
         var accent2 = this.props.muiTheme.palette.accent2Color;
         if (isContext) {
             return {
-                backgroundColor: accent2,
-                color: 'white'
+                color: 'rgba(0,0,0,.77)',
+                fontWeight: 500,
+                backgroundColor: _color2['default'](accent2).fade(.9).toString()
             };
         }
         var isSelected = this.props.pydio.getContextHolder().getSelectedNodes().indexOf(node) !== -1;
         if (isSelected) {
             return {
-                backgroundColor: _color2['default'](accent2).lightness(95).toString()
+                /*backgroundColor: Color(accent2).fade(.9).toString()*/
+                color: accent2,
+                fontWeight: 500
             };
         }
         return {};
@@ -304,13 +320,9 @@ var WorkspaceEntry = React.createClass({
 
         if (current) {
             currentClass += " workspace-current";
-            if (this.state.openFoldersTree) {
-                style = this.getItemStyle(pydio.getContextHolder().getRootNode());
-            } else {
-                style = this.getItemStyle(pydio.getContextHolder().getContextNode());
-            }
+            style = this.getRootItemStyle(pydio.getContextHolder().getContextNode());
         }
-        style = _extends({}, style, { paddingLeft: 16 });
+        style = _extends({ paddingLeft: 16 }, style);
 
         currentClass += " workspace-access-" + workspace.getAccessType();
 
@@ -351,13 +363,18 @@ var WorkspaceEntry = React.createClass({
             additionalAction = React.createElement(_materialUi.CircularProgress, { size: 20, thickness: 3, style: { marginTop: 2, marginRight: 6, opacity: .5 } });
         }
 
+        var accent2 = this.props.muiTheme.palette.accent2Color;
         var icon = "mdi mdi-folder";
-        var iconStyle = { fontSize: 20, marginRight: 10, opacity: 0.7 };
+        var iconStyle = {
+            fontSize: 20,
+            marginRight: 10,
+            opacity: 0.3
+        };
         if (workspace.getRepositoryType() === "workspace-personal") {
             icon = "mdi mdi-folder-account";
         } else if (workspace.getRepositoryType() === "cell") {
             icon = "icomoon-cells";
-            iconStyle = _extends({}, iconStyle, { fontSize: 22, opacity: 0.8 });
+            iconStyle = _extends({}, iconStyle, { fontSize: 22 });
         }
 
         var menuNode = undefined;
@@ -373,11 +390,12 @@ var WorkspaceEntry = React.createClass({
                 });
                 if (hasFolders) {
                     var toggleIcon = this.state.openFoldersTree ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right";
-                    treeToggle = React.createElement('span', { style: { opacity: 1 }, className: 'workspace-additional-action ' + toggleIcon, onClick: this.toggleFoldersPanelOpen });
+                    treeToggle = React.createElement('span', { style: { opacity: .3 }, className: 'workspace-additional-action ' + toggleIcon, onClick: this.toggleFoldersPanelOpen });
                 }
             }
-            icon = "mdi mdi-folder-open";
+            //icon = "mdi mdi-folder-open";
             iconStyle.opacity = 1;
+            iconStyle.color = accent2;
         } else {
             /*
             menuNode = new Node('/', false, workspace.getLabel());

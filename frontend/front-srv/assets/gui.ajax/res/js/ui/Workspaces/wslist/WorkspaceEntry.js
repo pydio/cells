@@ -198,19 +198,35 @@ let WorkspaceEntry =React.createClass({
         this.setState({openFoldersTree: !this.state.openFoldersTree});
     },
 
+    getRootItemStyle(node){
+        const isContext = this.props.pydio.getContextHolder().getContextNode() === node;
+        const accent2 = this.props.muiTheme.palette.accent2Color;
+        if(isContext){
+            return {
+                borderLeft: '4px solid ' + accent2,
+                paddingLeft: 12
+            };
+        } else {
+            return {};
+        }
+    },
+
     getItemStyle(node){
         const isContext = this.props.pydio.getContextHolder().getContextNode() === node;
         const accent2 = this.props.muiTheme.palette.accent2Color;
         if(isContext){
             return {
-                backgroundColor: accent2,
-                color: 'white'
+                color: 'rgba(0,0,0,.77)',
+                fontWeight: 500,
+                backgroundColor: Color(accent2).fade(.9).toString()
             };
         }
         const isSelected = this.props.pydio.getContextHolder().getSelectedNodes().indexOf(node) !== -1;
         if(isSelected){
             return {
-                backgroundColor: Color(accent2).lightness(95).toString()
+                /*backgroundColor: Color(accent2).fade(.9).toString()*/
+                color: accent2,
+                fontWeight: 500,
             }
         }
         return {};
@@ -248,13 +264,9 @@ let WorkspaceEntry =React.createClass({
 
         if (current) {
             currentClass +=" workspace-current";
-            if(this.state.openFoldersTree){
-                style = this.getItemStyle(pydio.getContextHolder().getRootNode());
-            }else{
-                style = this.getItemStyle(pydio.getContextHolder().getContextNode());
-            }
+            style = this.getRootItemStyle(pydio.getContextHolder().getContextNode());
         }
-        style = {...style, paddingLeft: 16};
+        style = {paddingLeft: 16, ...style};
 
         currentClass += " workspace-access-" + workspace.getAccessType();
 
@@ -297,13 +309,18 @@ let WorkspaceEntry =React.createClass({
             additionalAction = <CircularProgress size={20} thickness={3} style={{marginTop: 2, marginRight: 6, opacity: .5}}/>
         }
 
+        const accent2 = this.props.muiTheme.palette.accent2Color;
         let icon = "mdi mdi-folder";
-        let iconStyle = {fontSize: 20, marginRight: 10, opacity: 0.7};
+        let iconStyle = {
+            fontSize: 20,
+            marginRight: 10,
+            opacity: 0.3
+        };
         if(workspace.getRepositoryType() === "workspace-personal"){
             icon = "mdi mdi-folder-account"
         } else if(workspace.getRepositoryType() === "cell"){
             icon = "icomoon-cells";
-            iconStyle = {...iconStyle, fontSize: 22, opacity: 0.8};
+            iconStyle = {...iconStyle, fontSize: 22};
         }
 
         let menuNode;
@@ -319,11 +336,12 @@ let WorkspaceEntry =React.createClass({
                 });
                 if(hasFolders){
                     let toggleIcon = this.state.openFoldersTree ? "mdi mdi-chevron-down" : "mdi mdi-chevron-right";
-                    treeToggle = <span style={{opacity: 1}} className={'workspace-additional-action ' + toggleIcon} onClick={this.toggleFoldersPanelOpen}></span>;
+                    treeToggle = <span style={{opacity: .3}} className={'workspace-additional-action ' + toggleIcon} onClick={this.toggleFoldersPanelOpen}></span>;
                 }
             }
-            icon = "mdi mdi-folder-open";
+            //icon = "mdi mdi-folder-open";
             iconStyle.opacity = 1;
+            iconStyle.color = accent2;
         }else{
             /*
             menuNode = new Node('/', false, workspace.getLabel());

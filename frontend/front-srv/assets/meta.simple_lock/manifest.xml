@@ -8,7 +8,7 @@
    	<registry_contributions>
         <actions>
             <action name="sl_lock">
-                <gui iconClass="icon-lock" text="meta.simple_lock.1" title="meta.simple_lock.2">
+                <gui iconClass="mdi mdi-lock-outline" text="meta.simple_lock.1" title="meta.simple_lock.2">
                     <context dir="false" recycle="false" selection="true" contextMenu="true" actionBar="true"
                              actionBarGroup="change" />
                     <selectionContext dir="false" file="true" recycle="false" unique="true"/>

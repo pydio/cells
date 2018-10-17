@@ -102,8 +102,6 @@ var makeMotion = function makeMotion(originStyle, targetStyle) {
                             length: 'px', angle: 'deg'
                         });
 
-                        console.log(_extends({}, props.style, { transform: transform }, transformStyle(props)));
-
                         return _react2['default'].createElement(Target, _extends({}, props, { style: _extends({}, props.style, { transform: transform }, transformStyle(props)), motionEnded: ended }));
                     }
                 );

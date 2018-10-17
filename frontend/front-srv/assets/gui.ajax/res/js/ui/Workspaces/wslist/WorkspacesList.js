@@ -108,19 +108,19 @@ class WorkspacesList extends React.Component{
                     height: 36,
                     padding: 6,
                     position:'absolute',
-                    right: 8,
+                    right: 4,
                     top: 8
                 },
                 icon : {
                     fontSize: 22,
-                    color: muiTheme.palette.accent1Color //'rgba(0,0,0,.54)'
+                    color: muiTheme.palette.primary1Color //'rgba(0,0,0,.54)'
                 }
             };
             if(sharedEntries.length){
                 createAction = <IconButton
                     style={styles.button}
                     iconStyle={styles.icon}
-                    iconClassName={"icomoon-cells-clear-plus"}
+                    iconClassName={"mdi mdi-plus"}
                     tooltip={messages[417]}
                     tooltipPosition={"top-left"}
                     onTouchTap={createClick}
@@ -160,7 +160,7 @@ class WorkspacesList extends React.Component{
             let ret;
             sections.map(function(s){
                 if(filterByType && filterByType === s.k){
-                    ret = <div className={classNames.join(' ')} style={style}>{s.title}{s.content}</div>
+                    ret = <div className={classNames.join(' ')}>{s.title}{s.content}</div>
                 }
             });
             return ret;
@@ -172,7 +172,7 @@ class WorkspacesList extends React.Component{
             elements.push(s.content);
         });
         return (
-            <div className={classNames.join(' ')} style={style}>
+            <div className={classNames.join(' ')}>
                 {elements}
                 <Popover
                     open={this.state.popoverOpen}
