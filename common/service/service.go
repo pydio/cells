@@ -525,6 +525,7 @@ func (s *service) IsREST() bool {
 	return s.Options().Web != nil
 }
 
+// RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) RequiresFork() bool {
 	ctx := s.Options().Context
 	return servicecontext.GetConfig(ctx).Bool("fork")
