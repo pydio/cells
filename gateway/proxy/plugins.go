@@ -40,7 +40,7 @@ import (
 func init() {
 
 	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_GATEWAY_PROXY),
+		service.Name(common.SERVICE_GATEWAY_PROXY),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
 		service.Description("Main HTTP proxy for exposing a unique address to the world"),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {

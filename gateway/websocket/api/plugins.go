@@ -43,7 +43,7 @@ import (
 
 func init() {
 	service.NewService(
-		service.Name(common.SERVICE_API_NAMESPACE_+common.SERVICE_WEBSOCKET),
+		service.Name(common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_WEBSOCKET),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
 		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT, []string{}),
 		service.Description("WebSocket server pushing event to the clients"),

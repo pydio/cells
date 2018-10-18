@@ -241,8 +241,37 @@ func (c Map) Del(key string) error {
 // SaveConfigs sends configuration to a local file.
 func Save(ctxUser string, ctxMessage string) error {
 
+	return saveConfig(Default(), ctxUser, ctxMessage)
+	/*
+		var data map[string]interface{}
+		err := Default().Unmarshal(&data)
+		if err != nil {
+			return err
+		}
+
+		if err := file.Save(GetJsonPath(), data); err != nil {
+			return err
+		}
+
+		if VersionsStore != nil {
+			if err := VersionsStore.Put(&file.Version{
+				Date: time.Now(),
+				User: ctxUser,
+				Log:  ctxMessage,
+				Data: data,
+			}); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	*/
+}
+
+func saveConfig(config *Config, ctxUser string, ctxMessage string) error {
+
 	var data map[string]interface{}
-	err := Default().Unmarshal(&data)
+	err := config.Unmarshal(&data)
 	if err != nil {
 		return err
 	}

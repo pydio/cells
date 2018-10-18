@@ -25,10 +25,13 @@ import (
 
 	"github.com/emicklei/go-restful"
 
+	"strconv"
+
 	"github.com/micro/go-micro/client"
 	registry2 "github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/ctl"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
@@ -205,6 +208,7 @@ func (s *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	if !strings.HasPrefix(srv.Name(), "pydio") || srv.Name() == "pydio.grpc.config" {
 		controllable = false
 	}
+	configPort := config.Default().Get("services", srv.Name(), "port").String("")
 	protoSrv := &ctl.Service{
 		Name:         srv.Name(),
 		Status:       status,
@@ -215,9 +219,14 @@ func (s *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 		RunningPeers: []*ctl.Peer{},
 	}
 	for _, node := range srv.RunningNodes() {
+		p := int32(node.Port)
+		if configPort != "" {
+			i, _ := strconv.ParseInt(configPort, 10, 32)
+			p = int32(i)
+		}
 		protoSrv.RunningPeers = append(protoSrv.RunningPeers, &ctl.Peer{
 			Id:       node.Id,
-			Port:     int32(node.Port),
+			Port:     p,
 			Address:  node.Address,
 			Metadata: node.Metadata,
 		})

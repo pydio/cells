@@ -34,6 +34,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/envvar"
 	file2 "github.com/pydio/cells/common/config/file"
 )
@@ -83,8 +84,13 @@ func Default() *Config {
 			// config.WithSource(newEnvSource()),
 			config.WithSource(newLocalSource()),
 		)}
+		if save, e := UpgradeConfigsIfRequired(defaultConfig); e == nil && save {
+			saveConfig(defaultConfig, common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")
+			fmt.Println("[Configs] successfully saved config after upgrade")
+		} else if e != nil {
+			fmt.Errorf("[Configs] something whent wrong while upgrading configs: %s", e.Error())
+		}
 	})
-
 	return defaultConfig
 }
 

@@ -31,7 +31,7 @@ import (
 
 func init() {
 	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_GATEWAY_DAV),
+		service.Name(common.SERVICE_GATEWAY_DAV),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
 		service.RouterDependencies(),
 		service.Description("DAV Gateway to tree service"),

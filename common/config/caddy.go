@@ -80,6 +80,9 @@ var (
 	proxy /io   {{.Gateway.Host}} {
 		transparent
 	}
+	proxy /data {{.Gateway.Host}} {
+		transparent
+	}
 	proxy /ws   {{.WebSocket.Host}} {
 		websocket
 		without /ws
@@ -145,6 +148,7 @@ var (
 		if {path} not_starts_with "/a/"
 		if {path} not_starts_with "/auth/"
 		if {path} not_starts_with "/io"
+		if {path} not_starts_with "/data"
 		if {path} not_starts_with "/ws/"
 		if {path} not_starts_with "/plug/"
 		if {path} not_starts_with "/dav/"
@@ -217,43 +221,43 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 		}
 	}
 
-	if p, e := internalUrlFromConfig("micro.api", []string{"services", "micro.api", "port"}, servicesHost, tls); e == nil {
+	if p, e := internalUrlFromConfig("micro.api", []string{"services", common.SERVICE_MICRO_API, "port"}, servicesHost, tls); e == nil {
 		c.Micro = p
 	} else {
 		return c, e
 	}
 
-	if p, e := internalUrlFromConfig("dex", []string{"services", "pydio.grpc.auth", "dex", "web", "http"}, servicesHost, tls, true); e == nil {
+	if p, e := internalUrlFromConfig("dex", []string{"services", common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH, "dex", "web", "http"}, servicesHost, tls, true); e == nil {
 		c.Dex = p
 	} else {
 		return c, e
 	}
 
-	if p, e := internalUrlFromConfig("gateway.data", []string{"services", "pydio.grpc.gateway.data", "port"}, servicesHost, tls); e == nil {
+	if p, e := internalUrlFromConfig("gateway.data", []string{"services", common.SERVICE_GATEWAY_DATA, "port"}, servicesHost, tls); e == nil {
 		c.Gateway = p
 	} else {
 		return c, e
 	}
 
-	if p, e := internalUrlFromConfig("websocket", []string{"services", "pydio.api.websocket", "port"}, servicesHost, tls); e == nil {
+	if p, e := internalUrlFromConfig("websocket", []string{"services", common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET, "port"}, servicesHost, tls); e == nil {
 		c.WebSocket = p
 	} else {
 		return c, e
 	}
 
-	if p, e := internalUrlFromConfig("front plugins", []string{"services", "pydio.api.front-plugins", "port"}, servicesHost, tls); e == nil {
+	if p, e := internalUrlFromConfig("web statics", []string{"services", common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS, "port"}, servicesHost, tls); e == nil {
 		c.FrontPlugins = p
 	} else {
 		return c, e
 	}
 
-	if p, e := internalUrlFromConfig("dav", []string{"services", "pydio.rest.gateway.dav", "port"}, servicesHost, tls); e == nil {
+	if p, e := internalUrlFromConfig("dav", []string{"services", common.SERVICE_GATEWAY_DAV, "port"}, servicesHost, tls); e == nil {
 		c.DAV = p
 	} else {
 		return c, e
 	}
 
-	if p, e := internalUrlFromConfig("wopi", []string{"services", "pydio.rest.gateway.wopi", "port"}, servicesHost, tls); e == nil {
+	if p, e := internalUrlFromConfig("wopi", []string{"services", common.SERVICE_GATEWAY_WOPI, "port"}, servicesHost, tls); e == nil {
 		c.WOPI = p
 	} else {
 		return c, e
@@ -271,7 +275,7 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 func internalUrlFromConfig(name string, path []string, host string, tls bool, split ...bool) (*url.URL, error) {
 	port := Get(path...).String("")
 	if port == "" {
-		return nil, fmt.Errorf("cannot find port in config for %s", name)
+		return nil, fmt.Errorf("[caddy] cannot find port in config for %s", name)
 	}
 	if len(split) > 0 && split[0] {
 		parts := strings.Split(port, ":")

@@ -45,7 +45,7 @@ import (
 )
 
 var (
-	Name         = common.SERVICE_API_NAMESPACE_ + common.SERVICE_FRONTPLUGS
+	Name         = common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS
 	RobotsString = `User-agent: *
 Disallow: /`
 )
@@ -54,7 +54,7 @@ func init() {
 	service.NewService(
 		service.Name(Name),
 		service.Tag(common.SERVICE_TAG_FRONTEND),
-		service.Description("REST service for providing additional plugins to PHP frontend"),
+		service.Description("WEB service for serving statics"),
 		service.Migrations([]*service.Migration{
 			{
 				TargetVersion: service.ValidVersion("1.2.0"),

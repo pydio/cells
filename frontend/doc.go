@@ -22,7 +22,7 @@
 //
 // This package contains services required to serve the web interface. It is composed of the following services :
 //
-// ### pydio.api.front-plugins
+// ### pydio.web.statics
 // This is a simple HTTP server for accessing to the basic resources like
 // the interface index, serving the front plugins contents, and handling some specific URLs.
 //

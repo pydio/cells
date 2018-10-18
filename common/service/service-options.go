@@ -192,7 +192,7 @@ func RouterDependencies() ServiceOption {
 
 func PluginBoxes(boxes ...frontend.PluginBox) ServiceOption {
 	return func(o *ServiceOptions) {
-		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_FRONTPLUGS, []string{}})
+		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS, []string{}})
 		frontend.RegisterPluginBoxes(boxes...)
 	}
 }

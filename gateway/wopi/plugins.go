@@ -39,7 +39,7 @@ var (
 
 func init() {
 	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_GATEWAY_WOPI),
+		service.Name(common.SERVICE_GATEWAY_WOPI),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
 		service.RouterDependencies(),
 		service.Description("WOPI REST Gateway to tree service"),
