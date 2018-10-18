@@ -164,7 +164,8 @@ class PydioApi{
             PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
                 AWS.config.update({
                     accessKeyId: 'gateway',
-                    secretAccessKey: 'gatewaysecret'
+                    secretAccessKey: 'gatewaysecret',
+                    s3ForcePathStyle: true,
                 });
                 const s3 = new AWS.S3({endpoint:url.replace('/io', '')});
                 const signed = s3.getSignedUrl('putObject', params);
@@ -245,7 +246,8 @@ class PydioApi{
 
             AWS.config.update({
                 accessKeyId: 'gateway',
-                secretAccessKey: 'gatewaysecret'
+                secretAccessKey: 'gatewaysecret',
+                s3ForcePathStyle: true
             });
             const s3 = new AWS.S3({endpoint:url.replace('/io', '')});
             const signed = s3.getSignedUrl('getObject', params);
@@ -277,7 +279,8 @@ class PydioApi{
 
             AWS.config.update({
                 accessKeyId: jwt,
-                secretAccessKey: 'gatewaysecret'
+                secretAccessKey: 'gatewaysecret',
+                s3ForcePathStyle: true
             });
             const params = {
                 Bucket: "io",
@@ -305,7 +308,8 @@ class PydioApi{
 
             AWS.config.update({
                 accessKeyId: jwt,
-                secretAccessKey: 'gatewaysecret'
+                secretAccessKey: 'gatewaysecret',
+                s3ForcePathStyle: true
             });
             const params = {
                 Bucket: "io",
@@ -355,7 +359,8 @@ class PydioApi{
 
             AWS.config.update({
                 accessKeyId: jwt,
-                secretAccessKey: 'gatewaysecret'
+                secretAccessKey: 'gatewaysecret',
+                s3ForcePathStyle: true
             });
             const params = {
                 Bucket: "io",

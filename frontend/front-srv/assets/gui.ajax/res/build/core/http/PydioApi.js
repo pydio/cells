@@ -214,7 +214,8 @@ var PydioApi = (function () {
             PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
                 _awsSdk2['default'].config.update({
                     accessKeyId: 'gateway',
-                    secretAccessKey: 'gatewaysecret'
+                    secretAccessKey: 'gatewaysecret',
+                    s3ForcePathStyle: true
                 });
                 var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
                 var signed = s3.getSignedUrl('putObject', params);
@@ -301,7 +302,8 @@ var PydioApi = (function () {
 
             _awsSdk2['default'].config.update({
                 accessKeyId: 'gateway',
-                secretAccessKey: 'gatewaysecret'
+                secretAccessKey: 'gatewaysecret',
+                s3ForcePathStyle: true
             });
             var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
             var signed = s3.getSignedUrl('getObject', params);
@@ -334,7 +336,8 @@ var PydioApi = (function () {
 
             _awsSdk2['default'].config.update({
                 accessKeyId: jwt,
-                secretAccessKey: 'gatewaysecret'
+                secretAccessKey: 'gatewaysecret',
+                s3ForcePathStyle: true
             });
             var params = {
                 Bucket: "io",
@@ -362,7 +365,8 @@ var PydioApi = (function () {
 
             _awsSdk2['default'].config.update({
                 accessKeyId: jwt,
-                secretAccessKey: 'gatewaysecret'
+                secretAccessKey: 'gatewaysecret',
+                s3ForcePathStyle: true
             });
             var params = {
                 Bucket: "io",
@@ -411,7 +415,8 @@ var PydioApi = (function () {
 
             _awsSdk2['default'].config.update({
                 accessKeyId: jwt,
-                secretAccessKey: 'gatewaysecret'
+                secretAccessKey: 'gatewaysecret',
+                s3ForcePathStyle: true
             });
             var params = {
                 Bucket: "io",
