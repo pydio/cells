@@ -107,11 +107,12 @@ func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (stat
 	if linkData.TemplateName == "pydio_embed_template" {
 		linkData.TemplateName = "pydio_shared_folder"
 	}
+	bootConf := frontend.ComputeBootConf(pool)
 	startParameters := map[string]interface{}{
 		"BOOTER_URL":          "/frontend/bootconf",
 		"MAIN_ELEMENT":        linkData.TemplateName,
 		"REBASE":              url,
-		"PRELOADED_BOOT_CONF": frontend.ComputeBootConf(pool),
+		"PRELOADED_BOOT_CONF": bootConf,
 		"MINISITE":            linkId,
 		"START_REPOSITORY":    linkData.RepositoryId,
 	}
@@ -122,6 +123,7 @@ func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (stat
 		startParameters["PASSWORD_AUTH_ONLY"] = true
 	}
 	tplConf.StartParameters = startParameters
+	tplConf.LoadingString = GetLoadingString(bootConf.CurrentLanguage)
 
 	return
 }

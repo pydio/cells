@@ -99,8 +99,6 @@ var EditionPanel = (function (_React$Component) {
                 return;
             }
 
-            console.log(EditorClass);
-
             var tabId = tabCreate({
                 id: node.getLabel(),
                 title: node.getLabel(),

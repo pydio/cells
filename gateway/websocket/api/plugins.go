@@ -85,7 +85,7 @@ func init() {
 			// Register Subscribers
 
 			treeChangeListener := func(ctx context.Context, msg *tree.NodeChangeEvent) error {
-				return ws.BroadcastNodeChangeEvent(ctx, msg)
+				return ws.HandleNodeChangeEvent(ctx, msg)
 			}
 			taskChangeListener := func(ctx context.Context, msg *jobs.TaskChangeEvent) error {
 				return ws.BroadcastTaskChangeEvent(ctx, msg)

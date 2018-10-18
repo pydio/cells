@@ -23,7 +23,7 @@ PREVIOUS_TAG=${TAGS[1]}
 
 # If you want to specify your own two tags to compare, uncomment and enter them below
 LATEST_TAG=HEAD
-PREVIOUS_TAG=v1.0.3
+PREVIOUS_TAG=v1.0.4
 
 
 # Get a log of commits that occured between two tags

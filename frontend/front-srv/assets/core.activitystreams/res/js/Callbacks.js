@@ -47,11 +47,11 @@ class Callbacks{
                 let overlay = node.getMetadata().get('overlay_class') || '';
                 if(args === 'watch_stop') {
                     node.getMetadata().delete('meta_watched');
-                    node.getMetadata().set('overlay_class', overlay.replace('icon-eye-open', ''));
+                    node.getMetadata().set('overlay_class', overlay.replace('mdi mdi-rss', ''));
                 } else {
                     node.getMetadata().set('meta_watched', 'META_' + args.toUpperCase());
-                    let overlays = overlay.replace('icon-eye-open', '').split(',');
-                    overlays.push('icon-eye-open');
+                    let overlays = overlay.replace('mdi mdi-rss', '').split(',');
+                    overlays.push('mdi mdi-rss');
                     node.getMetadata().set('overlay_class', overlays.join(','));
                 }
                 node.notify('node_replaced');

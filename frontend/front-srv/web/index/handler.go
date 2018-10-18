@@ -24,17 +24,6 @@ type IndexHandler struct {
 	frontendDetected bool
 }
 
-type TplConf struct {
-	ApplicationTitle string
-	Rebase           string
-	ResourcesFolder  string
-	Theme            string
-	Version          string
-	ErrorMessage     string
-	Debug            bool
-	StartParameters  map[string]interface{}
-}
-
 func NewIndexHandler() *IndexHandler {
 	h := &IndexHandler{}
 	h.tpl, _ = template.New("index").Parse(page)
@@ -65,13 +54,14 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Request:       r,
 	}
 	registry := pool.RegistryForStatus(ctx, status)
+	bootConf := frontend.ComputeBootConf(pool)
 
 	url := config.Get("defaults", "url").String("")
 	startParameters := map[string]interface{}{
 		"BOOTER_URL":          "/frontend/bootconf",
 		"MAIN_ELEMENT":        "ajxp_desktop",
 		"REBASE":              url,
-		"PRELOADED_BOOT_CONF": frontend.ComputeBootConf(pool),
+		"PRELOADED_BOOT_CONF": bootConf,
 	}
 
 	if regXml, e := xml.Marshal(registry); e == nil {
@@ -85,6 +75,7 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Theme:            "material",
 		Version:          common.Version().String(),
 		Debug:            config.Get("frontend", "debug").Bool(false),
+		LoadingString:    GetLoadingString(bootConf.CurrentLanguage),
 		StartParameters:  startParameters,
 	}
 

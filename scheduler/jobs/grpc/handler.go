@@ -162,10 +162,12 @@ func (j *JobsHandler) PutTask(ctx context.Context, request *proto.PutTaskRequest
 	response.Task = request.Task
 	T := lang.Bundle().GetTranslationFunc()
 	job.Label = T(job.Label)
-	client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, &proto.TaskChangeEvent{
-		TaskUpdated: request.Task,
-		Job:         job,
-	}))
+	if !job.TasksSilentUpdate {
+		client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, &proto.TaskChangeEvent{
+			TaskUpdated: request.Task,
+			Job:         job,
+		}))
+	}
 
 	return nil
 }

@@ -328,7 +328,7 @@ export default class MetaNodeProvider{
             }
             if(value){
                 meta.set('meta_watched', value);
-                overlays.push('icon-eye-open');
+                overlays.push('mdi mdi-rss');
             }
         }
 
@@ -341,7 +341,7 @@ export default class MetaNodeProvider{
         // LOCKS
         if(meta.has('content_lock')){
             const lockUser = meta.get('content_lock');
-            overlays.push('icon-lock');
+            overlays.push('mdi mdi-lock-outline');
             meta.set('sl_locked', 'true');
             if(pydio && pydio.user && lockUser === pydio.user.id){
                 meta.set('sl_mylock', 'true');

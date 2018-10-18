@@ -42,6 +42,10 @@ var _materialUi = require('material-ui');
 
 var _reactRedux = require('react-redux');
 
+var _reactDraggable = require('react-draggable');
+
+var _reactDraggable2 = _interopRequireDefault(_reactDraggable);
+
 var _reactPanAndZoomHoc = require('react-pan-and-zoom-hoc');
 
 var _reactPanAndZoomHoc2 = _interopRequireDefault(_reactPanAndZoomHoc);
@@ -72,17 +76,18 @@ var styles = {
         marginRight: 40
     },
     textInput: {
-        color: "rgb(255, 255,255, 0.87)"
+        color: "rgba(255, 255,255, 0.87)"
     },
     textHint: {
-        color: "rgb(255, 255,255, 0.67)"
+        color: "rgba(255, 255,255, 0.67)"
     },
     iconButton: {
-        backgroundColor: "rgb(0, 0, 0, 0.87)",
-        color: "rgb(255, 255,255, 0.87)"
+        backgroundColor: "rgba(0, 0, 0, 0.87)",
+        color: "rgba(255, 255, 255, 0.87)",
+        fill: "rgba(255, 255, 255, 0.87)"
     },
     divider: {
-        backgroundColor: "rgb(255, 255,255, 0.87)",
+        backgroundColor: "rgba(255, 255,255, 0.87)",
         marginLeft: "12px",
         marginRight: "12px",
         alignSelf: "center"
@@ -98,57 +103,20 @@ var Tab = (function (_React$Component) {
         _React$Component.apply(this, arguments);
     }
 
-    Tab.prototype.renderControls = function renderControls(Controls, Actions) {
-        var _props = this.props;
-        var id = _props.id;
-        var node = _props.node;
-        var editorData = _props.editorData;
-        var SelectionControls = Controls.SelectionControls;
-        var ResolutionControls = Controls.ResolutionControls;
-        var SizeControls = Controls.SizeControls;
-        var ContentControls = Controls.ContentControls;
-        var ContentSearchControls = Controls.ContentSearchControls;
-        var LocalisationControls = Controls.LocalisationControls;
-
-        var actions = _extends({}, SizeActions, SelectionActions, ResolutionActions, ContentActions, LocalisationActions);
-
-        if (editorData.editorActions) {
-            actions = _extends({}, actions, Actions);
-        }
-
-        var boundActionCreators = _redux.bindActionCreators(actions);
-
-        var controls = function controls(Controls) {
-            return Object.keys(Controls).filter(function (key) {
-                return typeof Controls[key] === 'function';
-            }).map(function (key) {
-                var Control = Controls[key];
-                return React.createElement(Control, _extends({ editorData: editorData, node: node }, boundActionCreators));
-            });
-        };
-
-        return React.createElement(
-            SnackBar,
-            { id: id, style: Tab.styles.toolbar },
-            LocalisationControls && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                controls(LocalisationControls)
-            )
-        );
-    };
-
     Tab.prototype.render = function render() {
-        var _props2 = this.props;
-        var node = _props2.node;
-        var editorData = _props2.editorData;
-        var Editor = _props2.Editor;
-        var Controls = _props2.Controls;
-        var Actions = _props2.Actions;
-        var id = _props2.id;
-        var isActive = _props2.isActive;
-        var editorSetActiveTab = _props2.editorSetActiveTab;
-        var style = _props2.style;
+        var _props = this.props;
+        var node = _props.node;
+        var displaySnackbar = _props.displaySnackbar;
+        var snackbarMessage = _props.snackbarMessage;
+        var editorData = _props.editorData;
+        var Editor = _props.Editor;
+        var Controls = _props.Controls;
+        var Actions = _props.Actions;
+        var id = _props.id;
+        var isActive = _props.isActive;
+        var editorSetActiveTab = _props.editorSetActiveTab;
+        var style = _props.style;
+        var tabModify = _props.tabModify;
 
         var select = function select() {
             return editorSetActiveTab(id);
@@ -168,7 +136,23 @@ var Tab = (function (_React$Component) {
             AnimatedCard,
             { style: cardStyle, containerStyle: Tab.styles.container, maximised: true, expanded: isActive, onExpandChange: !isActive ? select : null },
             React.createElement(Editor, { pydio: pydio, node: node, editorData: editorData, isActive: isActive }),
-            React.createElement(SnackBar, { id: id, style: Tab.styles.toolbar })
+            React.createElement(BottomBar, { id: id, style: Tab.styles.toolbar }),
+            React.createElement(_materialUi.Snackbar, {
+                style: {
+                    left: "10%",
+                    bottom: 24
+                },
+                open: snackbarMessage !== "",
+                autoHideDuration: 3000,
+                onRequestClose: function () {
+                    return tabModify({ id: id, message: "" });
+                },
+                message: React.createElement(
+                    'span',
+                    null,
+                    snackbarMessage
+                )
+            })
         );
     };
 
@@ -180,25 +164,25 @@ var Tab = (function (_React$Component) {
                     display: "flex",
                     flex: 1,
                     flexFlow: "column nowrap",
-                    overflow: "auto"
+                    overflow: "auto",
+                    alignItems: "center"
+                    /*backgroundColor: "rgb(66, 66, 66)"*/
                 },
-                /*backgroundColor: "rgb(66, 66, 66)"*/
                 child: {
                     display: "flex",
                     flex: 1
                 },
                 toolbar: {
-                    backgroundColor: "#000000",
-                    opacity: 0.8,
+                    backgroundColor: "rgb(0, 0, 0)",
+                    color: "rgba(255, 255, 255, 0.87)",
                     width: "min-content",
                     margin: "0 auto",
+                    padding: 0,
                     position: "absolute",
-                    left: 0,
-                    right: 0,
                     bottom: 24,
                     height: 48,
-                    padding: '0 8px',
-                    borderRadius: 3
+                    borderRadius: 3,
+                    alignSelf: "center"
                 }
             };
         }
@@ -211,11 +195,11 @@ var Tab = (function (_React$Component) {
 
 exports['default'] = Tab;
 
-var SnackBar = (function (_React$Component2) {
-    _inherits(SnackBar, _React$Component2);
+var BottomBar = (function (_React$Component2) {
+    _inherits(BottomBar, _React$Component2);
 
-    function SnackBar(props) {
-        _classCallCheck(this, _SnackBar);
+    function BottomBar(props) {
+        _classCallCheck(this, _BottomBar);
 
         _React$Component2.call(this, props);
 
@@ -229,7 +213,7 @@ var SnackBar = (function (_React$Component2) {
         };
     }
 
-    SnackBar.prototype.componentWillReceiveProps = function componentWillReceiveProps(props) {
+    BottomBar.prototype.componentWillReceiveProps = function componentWillReceiveProps(props) {
         var size = props.size;
         var scale = props.scale;
 
@@ -240,7 +224,7 @@ var SnackBar = (function (_React$Component2) {
         });
     };
 
-    SnackBar.prototype.render = function render() {
+    BottomBar.prototype.render = function render() {
         var _state = this.state;
         var _state$minusDisabled = _state.minusDisabled;
         var minusDisabled = _state$minusDisabled === undefined ? false : _state$minusDisabled;
@@ -248,38 +232,42 @@ var SnackBar = (function (_React$Component2) {
         var magnifyDisabled = _state$magnifyDisabled === undefined ? false : _state$magnifyDisabled;
         var _state$plusDisabled = _state.plusDisabled;
         var plusDisabled = _state$plusDisabled === undefined ? false : _state$plusDisabled;
-        var _props3 = this.props;
-        var size = _props3.size;
-        var scale = _props3.scale;
-        var _props3$playing = _props3.playing;
-        var playing = _props3$playing === undefined ? false : _props3$playing;
-        var _props3$resolution = _props3.resolution;
-        var resolution = _props3$resolution === undefined ? "hi" : _props3$resolution;
-        var onAutoPlayToggle = _props3.onAutoPlayToggle;
-        var onSizeChange = _props3.onSizeChange;
-        var onResolutionToggle = _props3.onResolutionToggle;
+        var _props2 = this.props;
+        var readonly = _props2.readonly;
+        var size = _props2.size;
+        var scale = _props2.scale;
+        var _props2$playing = _props2.playing;
+        var playing = _props2$playing === undefined ? false : _props2$playing;
+        var _props2$resolution = _props2.resolution;
+        var resolution = _props2$resolution === undefined ? "hi" : _props2$resolution;
+        var onAutoPlayToggle = _props2.onAutoPlayToggle;
+        var onSizeChange = _props2.onSizeChange;
+        var onResolutionToggle = _props2.onResolutionToggle;
 
-        var remaining = _objectWithoutProperties(_props3, ['size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle']);
+        var remaining = _objectWithoutProperties(_props2, ['readonly', 'size', 'scale', 'playing', 'resolution', 'onAutoPlayToggle', 'onSizeChange', 'onResolutionToggle']);
 
         // Content functions
+        var _props3 = this.props;
+        var saveable = _props3.saveable;
+        var undoable = _props3.undoable;
+        var redoable = _props3.redoable;
+        var onSave = _props3.onSave;
+        var onUndo = _props3.onUndo;
+        var onRedo = _props3.onRedo;
+        var saveDisabled = _props3.saveDisabled;
+        var undoDisabled = _props3.undoDisabled;
+        var redoDisabled = _props3.redoDisabled;
         var _props4 = this.props;
-        var saveable = _props4.saveable;
-        var undoable = _props4.undoable;
-        var redoable = _props4.redoable;
-        var onSave = _props4.onSave;
-        var onUndo = _props4.onUndo;
-        var onRedo = _props4.onRedo;
+        var onToggleLineNumbers = _props4.onToggleLineNumbers;
+        var onToggleLineWrapping = _props4.onToggleLineWrapping;
         var _props5 = this.props;
-        var onToggleLineNumbers = _props5.onToggleLineNumbers;
-        var onToggleLineWrapping = _props5.onToggleLineWrapping;
-        var _props6 = this.props;
-        var onSearch = _props6.onSearch;
-        var onJumpTo = _props6.onJumpTo;
+        var onSearch = _props5.onSearch;
+        var onJumpTo = _props5.onJumpTo;
 
-        var editable = saveable || undoable || redoable;
-        var _props7 = this.props;
-        var editortools = _props7.editortools;
-        var searchable = _props7.searchable;
+        var editable = (saveable || undoable || redoable) && !readonly;
+        var _props6 = this.props;
+        var editortools = _props6.editortools;
+        var searchable = _props6.searchable;
 
         // Resolution functions
         var hdable = this.props.hdable;
@@ -290,143 +278,150 @@ var SnackBar = (function (_React$Component2) {
         // Size functions
         var resizable = this.props.resizable;
 
-        if (!editable && !hdable && !playable && !resizable) {
+        if (!editable && !editortools && !searchable && !hdable && !playable && !resizable) {
             return null;
         }
 
         return React.createElement(
-            _materialUi.Toolbar,
-            remaining,
-            playable && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                React.createElement(_materialUi.IconButton, {
-                    iconClassName: "mdi " + (!playing ? "mdi-play" : "mdi-pause"),
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onAutoPlayToggle();
-                    }
-                })
-            ),
-            playable && resizable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            resizable && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-minus',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onSizeChange({
-                            size: "auto",
-                            scale: scale - 0.5
-                        });
-                    },
-                    disabled: minusDisabled
-                }),
-                React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-magnify-minus',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onSizeChange({
-                            size: "contain"
-                        });
-                    },
-                    disabled: magnifyDisabled
-                }),
-                React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-plus',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onSizeChange({
-                            size: "auto",
-                            scale: scale + 0.5
-                        });
-                    },
-                    disabled: plusDisabled
-                })
-            ),
-            (playable || resizable) && hdable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            hdable && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                React.createElement(_materialUi.IconButton, {
-                    iconClassName: "mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image"),
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onResolutionToggle();
-                    }
-                })
-            ),
-            (playable || resizable || hdable) && editable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            editable && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                saveable && React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-content-save',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onSave();
-                    }
-                }),
-                undoable && React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-undo',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onUndo();
-                    }
-                }),
-                redoable && React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-redo',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onRedo();
-                    }
-                })
-            ),
-            (playable || resizable || hdable || editable) && editortools && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            editortools && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                onToggleLineNumbers && React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-format-list-numbers',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onToggleLineNumbers();
-                    }
-                }),
-                onToggleLineWrapping && React.createElement(_materialUi.IconButton, {
-                    iconClassName: 'mdi mdi-wrap',
-                    iconStyle: styles.iconButton,
-                    onClick: function () {
-                        return onToggleLineWrapping();
-                    }
-                })
-            ),
-            (playable || resizable || hdable || editable || editortools) && searchable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
-            searchable && React.createElement(
-                _materialUi.ToolbarGroup,
-                null,
-                React.createElement(_materialUi.TextField, { onKeyUp: function (_ref) {
-                        var key = _ref.key;
-                        var target = _ref.target;
-                        return key === 'Enter' && onJumpTo(target.value);
-                    }, hintText: 'Jump to Line', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput }),
-                React.createElement(_materialUi.TextField, { onKeyUp: function (_ref2) {
-                        var key = _ref2.key;
-                        var target = _ref2.target;
-                        return key === 'Enter' && onSearch(target.value);
-                    }, hintText: 'Search...', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput })
+            _reactDraggable2['default'],
+            null,
+            React.createElement(
+                _materialUi.Toolbar,
+                remaining,
+                playable && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    React.createElement(_materialUi.IconButton, {
+                        iconClassName: "mdi " + (!playing ? "mdi-play" : "mdi-pause"),
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onAutoPlayToggle();
+                        }
+                    })
+                ),
+                playable && resizable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+                resizable && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-minus',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onSizeChange({
+                                size: "auto",
+                                scale: scale - 0.5
+                            });
+                        },
+                        disabled: minusDisabled
+                    }),
+                    React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-magnify-minus',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onSizeChange({
+                                size: "contain"
+                            });
+                        },
+                        disabled: magnifyDisabled
+                    }),
+                    React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-plus',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onSizeChange({
+                                size: "auto",
+                                scale: scale + 0.5
+                            });
+                        },
+                        disabled: plusDisabled
+                    })
+                ),
+                (playable || resizable) && hdable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+                hdable && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    React.createElement(_materialUi.IconButton, {
+                        iconClassName: "mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image"),
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onResolutionToggle();
+                        }
+                    })
+                ),
+                (playable || resizable || hdable) && editable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+                editable && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    saveable && React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-content-save',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onSave();
+                        },
+                        disabled: saveDisabled
+                    }),
+                    undoable && React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-undo',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onUndo();
+                        },
+                        disabled: undoDisabled
+                    }),
+                    redoable && React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-redo',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onRedo();
+                        },
+                        disabled: redoDisabled
+                    })
+                ),
+                (playable || resizable || hdable || editable) && editortools && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+                editortools && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    onToggleLineNumbers && React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-format-list-numbers',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onToggleLineNumbers();
+                        }
+                    }),
+                    onToggleLineWrapping && React.createElement(_materialUi.IconButton, {
+                        iconClassName: 'mdi mdi-wrap',
+                        iconStyle: styles.iconButton,
+                        onClick: function () {
+                            return onToggleLineWrapping();
+                        }
+                    })
+                ),
+                (playable || resizable || hdable || editable || editortools) && searchable && React.createElement(_materialUi.ToolbarSeparator, { style: styles.divider }),
+                searchable && React.createElement(
+                    _materialUi.ToolbarGroup,
+                    null,
+                    React.createElement(_materialUi.TextField, { onKeyUp: function (_ref) {
+                            var key = _ref.key;
+                            var target = _ref.target;
+                            return key === 'Enter' && onJumpTo(target.value);
+                        }, hintText: 'Jump to Line', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput }),
+                    React.createElement(_materialUi.TextField, { onKeyUp: function (_ref2) {
+                            var key = _ref2.key;
+                            var target = _ref2.target;
+                            return key === 'Enter' && onSearch(target.value);
+                        }, hintText: 'Search...', style: styles.textField, hintStyle: styles.textHint, inputStyle: styles.textInput })
+                )
             )
         );
     };
 
-    var _SnackBar = SnackBar;
-    SnackBar = _reactRedux.connect(mapStateToProps)(SnackBar) || SnackBar;
-    SnackBar = withResolutionControls(SnackBar) || SnackBar;
-    SnackBar = withSizeControls(SnackBar) || SnackBar;
-    SnackBar = withAutoPlayControls(SnackBar) || SnackBar;
-    SnackBar = withContentControls(SnackBar) || SnackBar;
-    return SnackBar;
+    var _BottomBar = BottomBar;
+    BottomBar = _reactRedux.connect(mapStateToProps)(BottomBar) || BottomBar;
+    BottomBar = withResolutionControls(BottomBar) || BottomBar;
+    BottomBar = withSizeControls(BottomBar) || BottomBar;
+    BottomBar = withAutoPlayControls(BottomBar) || BottomBar;
+    BottomBar = withContentControls(BottomBar) || BottomBar;
+    return BottomBar;
 })(React.Component);
 
 function mapStateToProps(state, ownProps) {
@@ -437,8 +432,14 @@ function mapStateToProps(state, ownProps) {
         return tab.id === ownProps.id;
     })[0] || {};
 
+    var node = current.node;
+    var _current$message = current.message;
+    var message = _current$message === undefined ? "" : _current$message;
+
     return _extends({}, ownProps, current, {
-        isActive: editor.activeTabId === current.id
+        isActive: editor.activeTabId === current.id,
+        snackbarMessage: message,
+        readonly: node.hasMetadataInBranch("node_readonly", "true")
     });
 }
 

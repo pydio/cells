@@ -21,7 +21,7 @@
   "_resolved": "https://registry.npmjs.org/codemirror/-/codemirror-5.40.2.tgz",
   "_shasum": "f4a41fee2d84e679543591b3680af259d903330b",
   "_spec": "codemirror@^5.24.2",
-  "_where": "/Users/ghecquet/go/src/github.com/pydio/cells/frontend/front-srv/assets/editor.codemirror",
+  "_where": "/Users/gregory/work/src/github.com/pydio/cells/frontend/front-srv/assets/editor.codemirror",
   "bugs": {
     "url": "http://github.com/codemirror/CodeMirror/issues"
   },

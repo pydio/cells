@@ -144,6 +144,7 @@
         },
 
         render: function(){
+            const {item, progress, className} = this.props;
             let style, relativeMessage;
             const messageIds = {
                 "new" : 433,
@@ -151,28 +152,30 @@
                 "loaded":435,
                 "error":436
             };
-            let statusMessage = this.props.item.getStatus();
+            let statusMessage = item.getStatus();
             let stopButton;
-            if(statusMessage === 'loading'){
+            if(statusMessage === 'loading') {
                 stopButton = <span className="stop-button icon-stop" onClick={this.abortTransfer}/>;
+            } else if (statusMessage === 'error'){
+                stopButton = <span style={{fontWeight:500, marginBottom:0, color:'#e53935'}} className="stop-button" onClick={() => {item.process()}}>RETRY <span className="mdi mdi-restart"/></span>;
             }else{
                 stopButton = <span className="stop-button mdi mdi-close" onClick={this.abortTransfer}/>;
             }
-            if(statusMessage === 'error' && this.props.item.getErrorMessage()){
-                statusMessage = this.props.item.getErrorMessage();
+            if(statusMessage === 'error' && item.getErrorMessage()){
+                statusMessage = item.getErrorMessage();
             }
             if(global.pydio.MessageHash[messageIds[statusMessage]]){
                 statusMessage = global.pydio.MessageHash[messageIds[statusMessage]];
             }
-            if(this.props.item.getRelativePath()){
-                relativeMessage = <span className="path">{this.props.item.getRelativePath()}</span>;
+            if(item.getRelativePath()){
+                relativeMessage = <span className="path">{item.getRelativePath()}</span>;
             }
-            if(this.state && this.state.progress){
-                style = {width: this.state.progress + '%'};
+            if(progress){
+                style = {width: progress + '%'};
             }
             return (
-                <div className={"file-row upload-" + this.props.item.getStatus() + " " + (this.props.className?this.props.className:"")}>
-                    <span className="mdi mdi-file"/> {this.props.item.getFile().name}
+                <div className={"file-row upload-" + item.getStatus() + " " + (className?className:"")}>
+                    <span className="mdi mdi-file"/> {item.getFile().name}
                     {relativeMessage}
                     <span className="status">{statusMessage}</span>
                     {stopButton}
@@ -205,13 +208,16 @@
 
         propTypes: {
             autoStart: React.PropTypes.bool,
-            onDismiss: React.PropTypes.func
+            showAll: React.PropTypes.bool,
+            onDismiss: React.PropTypes.func,
         },
 
-        componentDidMount: function(){
+        componentDidMount(){
             let store = UploaderModel.Store.getInstance();
             this._storeObserver = function(){
-                if(!this.isMounted()) return;
+                if(!this.isMounted()) {
+                    return;
+                }
                 this.setState({items: store.getItems()});
             }.bind(this);
             store.observe("update", this._storeObserver);
@@ -233,14 +239,15 @@
             }
         },
 
-        componentWillUnmount: function(){
+        componentWillUnmount(){
             if(this._storeObserver){
                 UploaderModel.Store.getInstance().stopObserving("update", this._storeObserver);
                 UploaderModel.Store.getInstance().stopObserving("auto_close");
             }
         },
 
-        renderSection: function(accumulator, items, title = "", className=""){
+        renderSection(accumulator, items, title = "", className=""){
+            const {showAll} = this.state;
             if(title && items.length){
                 accumulator.push(<div className={className + " header"}>{title}</div>);
             }
@@ -253,16 +260,21 @@
                     return aType === 'folder' ? -1 : 1;
                 }
             });
-            items.forEach(function(f){
+            const limit = 50;
+            const sliced = showAll ? items : items.slice(0, limit);
+            sliced.forEach(function(f){
                 if(f instanceof UploaderModel.FolderItem){
                     accumulator.push( <TransferFolder key={f.getId()} item={f} className={className}/> );
                 }else{
                     accumulator.push( <TransferFile key={f.getId()} item={f} className={className}/> );
                 }
             });
+            if (!showAll && items.length > limit) {
+                accumulator.push(<div style={{cursor:'pointer'}} className={className} onClick={()=>{this.setState({showAll: true})}}>And {items.length - limit} more ...</div>)
+            }
         },
 
-        render: function(){
+        render(){
             let items = [];
             if(this.state && this.state.items){
                 this.renderSection(items, this.state.items.processing, global.pydio.MessageHash['html_uploader.14'], 'section-processing');

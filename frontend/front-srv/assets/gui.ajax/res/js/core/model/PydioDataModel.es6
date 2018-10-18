@@ -342,7 +342,7 @@ export default class PydioDataModel extends Observable{
 		var observer = this.nextNodeReloader.bind(this);
 		next.observeOnce("loaded", observer);
 		next.observeOnce("error", observer);
-		if(next == this._contextNode || next.isParentOf(this._contextNode)){
+		if(next === this._contextNode || next.isParentOf(this._contextNode)){
 			this.requireContextChange(next, true);
 		}else{
 			next.reload(this._iAjxpNodeProvider);
@@ -355,12 +355,23 @@ export default class PydioDataModel extends Observable{
      * @param setSelectedAfterAdd bool
      */
     addNode(node, setSelectedAfterAdd=false){
-        var parentFake = new AjxpNode(PathUtils.getDirname(node.getPath()));
-        var parent = parentFake.findInArbo(this.getRootNode(), undefined);
-        if(!parent && PathUtils.getDirname(node.getPath()) == "") parent = this.getRootNode();
+        // If it already exists, replace it
+        const existing = node.findInArbo(this.getRootNode(), undefined);
+        if(existing){
+            existing.replaceBy(node, "override");
+            if(setSelectedAfterAdd && this.getContextNode() === existing.getParent()) {
+                this.setSelectedNodes([existing], {});
+            }
+        }
+
+        const parentFake = new AjxpNode(PathUtils.getDirname(node.getPath()));
+        let parent = parentFake.findInArbo(this.getRootNode(), undefined);
+        if(!parent && PathUtils.getDirname(node.getPath()) === "") {
+            parent = this.getRootNode();
+        }
         if(parent){
             let addedNode = parent.addChild(node);
-            if(addedNode && setSelectedAfterAdd && this.getContextNode() == parent){
+            if(addedNode && setSelectedAfterAdd && this.getContextNode() === parent){
                 this.setSelectedNodes([addedNode], {});
             }
         }
@@ -373,8 +384,8 @@ export default class PydioDataModel extends Observable{
      * @param imTime integer|null
      */
     removeNodeByPath(path, imTime = null){
-        var fake = new AjxpNode(path);
-        var n = fake.findInArbo(this.getRootNode(), undefined);
+        const fake = new AjxpNode(path);
+        const n = fake.findInArbo(this.getRootNode(), undefined);
         if(n){
             if(imTime && n.getMetadata() && n.getMetadata().get("ajxp_im_time") && parseInt(n.getMetadata().get("ajxp_im_time")) >= imTime){
                 return false;

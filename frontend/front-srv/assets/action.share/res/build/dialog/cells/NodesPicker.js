@@ -184,7 +184,7 @@ var NodesPicker = (function (_React$Component) {
             var m = function m(id) {
                 return pydio.MessageHash['share_center.' + id];
             };
-            var nodes = model.getRootNodes();
+            var nodes = model.getRootNodes() || [];
             var nodeLines = [],
                 emptyStateString = undefined;
             nodes.map(function (node) {

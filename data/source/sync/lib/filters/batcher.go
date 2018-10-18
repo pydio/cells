@@ -98,7 +98,7 @@ func (ev *EventsBatcher) FilterBatch(batch *Batch) {
 		} else {
 			createEvent.Node = node
 		}
-		log.Logger(ev.globalContext).Info("Create Folder", zap.Any("node", createEvent.Node))
+		log.Logger(ev.globalContext).Debug("Create Folder", zap.Any("node", createEvent.Node))
 	}
 
 	for _, deleteEvent := range batch.Deletes {

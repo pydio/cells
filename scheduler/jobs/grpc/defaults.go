@@ -41,11 +41,12 @@ func getDefaultJobs() []*jobs.Job {
 	})
 
 	thumbnailsJob := &jobs.Job{
-		ID:             "thumbs-job",
-		Owner:          common.PYDIO_SYSTEM_USERNAME,
-		Label:          "Jobs.Default.Thumbs",
-		Inactive:       false,
-		MaxConcurrency: 5,
+		ID:                "thumbs-job",
+		Owner:             common.PYDIO_SYSTEM_USERNAME,
+		Label:             "Jobs.Default.Thumbs",
+		Inactive:          false,
+		MaxConcurrency:    5,
+		TasksSilentUpdate: true,
 		EventNames: []string{
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_CREATE),
 			jobs.NodeChangeEventName(tree.NodeChangeEvent_UPDATE_CONTENT),

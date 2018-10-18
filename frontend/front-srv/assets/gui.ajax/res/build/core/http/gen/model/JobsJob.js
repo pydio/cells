@@ -62,6 +62,7 @@ var JobsJob = (function () {
         this.AutoClean = undefined;
         this.Actions = undefined;
         this.MaxConcurrency = undefined;
+        this.TasksSilentUpdate = undefined;
         this.Tasks = undefined;
     }
 
@@ -109,6 +110,9 @@ var JobsJob = (function () {
             }
             if (data.hasOwnProperty('MaxConcurrency')) {
                 obj['MaxConcurrency'] = _ApiClient2['default'].convertToType(data['MaxConcurrency'], 'Number');
+            }
+            if (data.hasOwnProperty('TasksSilentUpdate')) {
+                obj['TasksSilentUpdate'] = _ApiClient2['default'].convertToType(data['TasksSilentUpdate'], 'Boolean');
             }
             if (data.hasOwnProperty('Tasks')) {
                 obj['Tasks'] = _ApiClient2['default'].convertToType(data['Tasks'], [_JobsTask2['default']]);
@@ -164,6 +168,10 @@ module.exports = exports['default'];
 
 /**
 * @member {Number} MaxConcurrency
+*/
+
+/**
+* @member {Boolean} TasksSilentUpdate
 */
 
 /**

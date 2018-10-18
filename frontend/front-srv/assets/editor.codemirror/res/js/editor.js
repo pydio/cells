@@ -54,16 +54,16 @@ export default class Editor extends React.Component {
 
     componentDidMount() {
         const {pydio, node, tab, tabModify} = this.props;
-        const {id} = tab;
+        const {id, codemirror} = tab;
 
         pydio.ApiClient.getPlainContent(node, (content) => {
-            tabModify({id: id || node.getLabel(), editable: true, searchable: true, lineNumbers: true, content: content});
+            tabModify({id: id || node.getLabel(), editable: true, editortools: true, searchable: true, lineNumbers: true, content: content});
         });
-
     }
 
     componentWillReceiveProps(nextProps) {
         const {editorModify} = this.props
+
         if (editorModify && nextProps.isActive) {
             editorModify({fixedToolbar: true})
         }
@@ -74,7 +74,7 @@ export default class Editor extends React.Component {
 
         if (!tab) return null
 
-        const {id, codemirror, content, lineWrapping, lineNumbers} = tab
+        const {id, content, lineWrapping, lineNumbers} = tab
 
         return (
             <CodeMirrorLoader
@@ -84,7 +84,7 @@ export default class Editor extends React.Component {
                 options={{lineNumbers: lineNumbers, lineWrapping: lineWrapping}}
                 error={error}
 
-                onLoad={codemirror => tabModify({id, codemirror})}
+                onLoad={(codemirror) => tabModify({id, codemirror})}
                 onChange={content => tabModify({id, content})}
                 onCursorChange={cursor => tabModify({id, cursor})}
             />

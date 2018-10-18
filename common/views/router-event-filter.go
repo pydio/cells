@@ -73,7 +73,7 @@ func NewRouterEventFilter(options RouterOptions) *RouterEventFilter {
 }
 
 // WorkspaceCanSeeNode will check workspaces roots to see if a node in below one of them
-func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, workspace *idm.Workspace, node *tree.Node, refresh bool) (*tree.Node, bool) {
+func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, workspace *idm.Workspace, node *tree.Node) (*tree.Node, bool) {
 	if node == nil {
 		return node, false
 	}
@@ -83,18 +83,8 @@ func (r *RouterEventFilter) WorkspaceCanSeeNode(ctx context.Context, workspace *
 	roots := workspace.RootUUIDs
 	for _, root := range roots {
 		if parent, ok := r.NodeIsChildOfRoot(ctx, node, root); ok {
-
 			//log.Logger(ctx).Debug("Before Filter", zap.Any("node", node))
-			var newNode *tree.Node
-			if refresh {
-				respNode, err := r.pool.GetTreeClient().ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
-				if err != nil {
-					return nil, false
-				}
-				newNode = respNode.Node
-			} else {
-				newNode = &tree.Node{Uuid: node.Uuid, Path: node.Path}
-			}
+			newNode := node.Clone()
 			r.WrapCallback(func(inputFilter NodeFilter, outputFilter NodeFilter) error {
 				branchInfo := BranchInfo{}
 				branchInfo.Workspace = *workspace

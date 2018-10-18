@@ -2188,5 +2188,29 @@
   },
   "background.copy.selection": {
     "other": "Copie de la sélection en tâche de fond..."
+  },
+  "overlay.lock.file" : {
+    "other": "Le fichier est vérouillé"
+  },
+  "overlay.lock.folder" : {
+    "other": "Le répertoire est vérouillé"
+  },
+  "overlay.watch.file" : {
+    "other": "Surveillance du fichier active"
+  },
+  "overlay.watch.folder" : {
+    "other": "Surveillance du répertoire active"
+  },
+  "overlay.shared.file" : {
+    "other": "Fichier partagé, cliquer pour éditer"
+  },
+  "overlay.shared.folder" : {
+    "other": "Répertoire partagé, cliquer pour éditer"
+  },
+  "overlay.bookmark.file" : {
+    "other": "Fichier favori"
+  },
+  "overlay.bookmark.folder" : {
+    "other": "Répertoire favori"
   }
 }

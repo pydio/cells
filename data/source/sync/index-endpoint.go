@@ -166,8 +166,6 @@ func (i *IndexEndpoint) MoveNode(ctx context.Context, oldPath string, newPath st
 		IndexationSession: i.indexationSession(),
 	})
 
-	log.Logger(ctx).Info("MoveNode Finished", zap.String("oldPath", oldPath), zap.String("newPath", newPath))
-
 	return err
 }
 

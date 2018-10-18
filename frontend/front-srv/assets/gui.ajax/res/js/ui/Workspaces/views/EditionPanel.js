@@ -65,8 +65,6 @@ class EditionPanel extends React.Component {
                     return
                 }
 
-                console.log(EditorClass)
-
                 let tabId = tabCreate({
                     id: node.getLabel(),
                     title: node.getLabel(),

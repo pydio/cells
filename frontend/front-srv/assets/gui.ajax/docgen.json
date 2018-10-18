@@ -7589,33 +7589,6 @@
       }
     ]
   },
-  "editor.webodf": {
-    "editor.js": [
-      {
-        "description": "",
-        "displayName": "Viewer",
-        "methods": []
-      },
-      {
-        "description": "",
-        "displayName": "Editor",
-        "methods": [
-          {
-            "name": "loadNode",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "props",
-                "type": null
-              }
-            ],
-            "returns": null
-          }
-        ]
-      }
-    ]
-  },
   "gui.ajax": {
     "core/PydioBootstrap.es6": [
       {
@@ -36406,29 +36379,13 @@
             ],
             "params": [],
             "returns": null
-          },
-          {
-            "name": "renderControls",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "Controls",
-                "type": null
-              },
-              {
-                "name": "Actions",
-                "type": null
-              }
-            ],
-            "returns": null
           }
         ],
         "require": "const {EditorTab} = require('pydio').requireLib('workspaces')"
       },
       {
         "description": "",
-        "displayName": "SnackBar",
+        "displayName": "BottomBar",
         "methods": []
       }
     ],
@@ -37458,6 +37415,22 @@
         "require": "const {MainFilesList} = require('pydio').requireLib('workspaces')"
       }
     ],
+    "Workspaces/views/OverlayIcon.js": [
+      {
+        "description": "",
+        "displayName": "OverlayIcon",
+        "methods": [
+          {
+            "name": "findAction",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "require": "const {OverlayIcon} = require('pydio').requireLib('workspaces')"
+      }
+    ],
     "Workspaces/views/TourGuide.js": [
       {
         "description": "",
@@ -37633,6 +37606,18 @@
             "params": [
               {
                 "name": "ev",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "getRootItemStyle",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
                 "type": null
               }
             ],

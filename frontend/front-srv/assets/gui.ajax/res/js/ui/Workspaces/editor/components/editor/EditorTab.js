@@ -19,8 +19,9 @@
  */
 
 import Pydio from 'pydio'
-import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton, TextField } from 'material-ui';
+import { Toolbar, ToolbarGroup, ToolbarSeparator, Card, CardHeader, CardMedia, DropDownMenu, MenuItem, Slider, IconButton, TextField, Snackbar } from 'material-ui';
 import { connect } from 'react-redux';
+import Draggable from 'react-draggable';
 import panAndZoomHoc from 'react-pan-and-zoom-hoc';
 import { compose, bindActionCreators } from 'redux';
 import makeMaximise from './make-maximise';
@@ -33,17 +34,18 @@ const styles = {
         marginRight: 40
     },
     textInput: {
-        color: "rgb(255, 255,255, 0.87)"
+        color: "rgba(255, 255,255, 0.87)"
     },
     textHint: {
-        color: "rgb(255, 255,255, 0.67)"
+        color: "rgba(255, 255,255, 0.67)"
     },
     iconButton: {
-        backgroundColor: "rgb(0, 0, 0, 0.87)",
-        color: "rgb(255, 255,255, 0.87)"
+        backgroundColor: "rgba(0, 0, 0, 0.87)",
+        color: "rgba(255, 255, 255, 0.87)",
+        fill: "rgba(255, 255, 255, 0.87)"
     },
     divider: {
-        backgroundColor: "rgb(255, 255,255, 0.87)",
+        backgroundColor: "rgba(255, 255,255, 0.87)",
         marginLeft: "12px",
         marginRight: "12px",
         alignSelf: "center"
@@ -59,6 +61,7 @@ export default class Tab extends React.Component {
                 flex: 1,
                 flexFlow: "column nowrap",
                 overflow: "auto",
+                alignItems: "center"
                 /*backgroundColor: "rgb(66, 66, 66)"*/
             },
             child: {
@@ -66,60 +69,22 @@ export default class Tab extends React.Component {
                 flex: 1
             },
             toolbar: {
-                backgroundColor: "#000000",
-                opacity: 0.8,
+                backgroundColor: "rgb(0, 0, 0)",
+                color: "rgba(255, 255, 255, 0.87)",
                 width: "min-content",
                 margin: "0 auto",
+                padding: 0,
                 position: "absolute",
-                left: 0,
-                right: 0,
                 bottom: 24,
                 height: 48,
-                padding: '0 8px',
-                borderRadius: 3
+                borderRadius: 3,
+                alignSelf: "center"
             }
         }
-    }
-
-    renderControls(Controls, Actions) {
-        const {id, node, editorData} = this.props
-        const {SelectionControls, ResolutionControls, SizeControls, ContentControls, ContentSearchControls, LocalisationControls} = Controls
-
-        let actions = {
-            ...SizeActions,
-            ...SelectionActions,
-            ...ResolutionActions,
-            ...ContentActions,
-            ...LocalisationActions
-        }
-
-        if (editorData.editorActions) {
-            actions = {
-                ...actions,
-                ...Actions
-            }
-        }
-
-        let boundActionCreators = bindActionCreators(actions)
-
-        const controls = (Controls) => {
-            return Object.keys(Controls)
-                .filter((key) => typeof Controls[key] === 'function')
-                .map((key) => {
-                    const Control = Controls[key]
-                    return <Control editorData={editorData} node={node} {...boundActionCreators} />
-                })
-        }
-
-        return (
-            <SnackBar id={id} style={Tab.styles.toolbar}>
-                {LocalisationControls && <ToolbarGroup>{controls(LocalisationControls)}</ToolbarGroup>}
-            </SnackBar>
-        )
     }
 
     render() {
-        const {node, editorData, Editor, Controls, Actions, id, isActive, editorSetActiveTab, style} = this.props
+        const {node, displaySnackbar, snackbarMessage, editorData, Editor, Controls, Actions, id, isActive, editorSetActiveTab, style, tabModify} = this.props
 
         const select = () => editorSetActiveTab(id)
         const cardStyle = {backgroundColor:'transparent', borderRadius: 0, ...style};
@@ -134,7 +99,17 @@ export default class Tab extends React.Component {
         ) : (
             <AnimatedCard style={cardStyle} containerStyle={Tab.styles.container} maximised={true} expanded={isActive} onExpandChange={!isActive ? select : null}>
                 <Editor pydio={pydio} node={node} editorData={editorData} isActive={isActive} />
-                <SnackBar id={id} style={Tab.styles.toolbar} />
+                <BottomBar id={id} style={Tab.styles.toolbar} />
+                <Snackbar
+                    style={{
+                        left: "10%",
+                        bottom: 24
+                    }}
+                    open={snackbarMessage !== ""}
+                    autoHideDuration={3000}
+                    onRequestClose={() => tabModify({id, message: ""})}
+                    message={<span>{snackbarMessage}</span>}
+                />
             </AnimatedCard>
         )
     }
@@ -145,7 +120,7 @@ export default class Tab extends React.Component {
 @withSizeControls
 @withResolutionControls
 @connect(mapStateToProps)
-class SnackBar extends React.Component {
+class BottomBar extends React.Component {
     constructor(props) {
         super(props)
 
@@ -170,14 +145,14 @@ class SnackBar extends React.Component {
 
     render() {
         const {minusDisabled= false, magnifyDisabled = false, plusDisabled = false} = this.state
-        const {size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
+        const {readonly, size, scale, playing = false, resolution = "hi", onAutoPlayToggle, onSizeChange, onResolutionToggle, ...remaining} = this.props
 
         // Content functions
-        const {saveable, undoable, redoable, onSave, onUndo, onRedo} = this.props
+        const {saveable, undoable, redoable, onSave, onUndo, onRedo, saveDisabled, undoDisabled, redoDisabled} = this.props
         const {onToggleLineNumbers, onToggleLineWrapping} = this.props
         const {onSearch, onJumpTo} = this.props
 
-        const editable = saveable || undoable || redoable
+        const editable = (saveable || undoable || redoable) && !readonly
         const {editortools, searchable} = this.props
 
         // Resolution functions
@@ -189,125 +164,130 @@ class SnackBar extends React.Component {
         // Size functions
         const {resizable} = this.props
 
-        if (!editable && !hdable && !playable && !resizable) {
+        if (!editable && !editortools && !searchable && !hdable && !playable && !resizable) {
             return null
         }
 
         return (
-            <Toolbar {...remaining}>
-                {playable && (
-                    <ToolbarGroup>
-                        <IconButton
-                            iconClassName={"mdi " + (!playing ? "mdi-play" : "mdi-pause")}
-                            iconStyle={styles.iconButton}
-                            onClick={() => onAutoPlayToggle()}
-                        />
-                    </ToolbarGroup>
-                )}
-                {playable && resizable && (
-                    <ToolbarSeparator style={styles.divider} />
-                )}
-                {resizable && (
-                    <ToolbarGroup>
-                        <IconButton
-                            iconClassName="mdi mdi-minus"
-                            iconStyle={styles.iconButton}
-                            onClick={() => onSizeChange({
-                                size: "auto",
-                                scale: scale - 0.5
-                            })}
-                            disabled={minusDisabled}
-                        />
-                        <IconButton
-                            iconClassName="mdi mdi-magnify-minus"
-                            iconStyle={styles.iconButton}
-                            onClick={() => onSizeChange({
-                                size: "contain",
-                            })}
-                            disabled={magnifyDisabled}
-                        />
-                        <IconButton
-                            iconClassName="mdi mdi-plus"
-                            iconStyle={styles.iconButton}
-                            onClick={() => onSizeChange({
-                                size: "auto",
-                                scale: scale + 0.5
-                            })}
-                            disabled={plusDisabled}
-                        />
-                    </ToolbarGroup>
-                )}
-                {(playable || resizable) && hdable && (
-                    <ToolbarSeparator style={styles.divider} />
-                )}
-                {hdable && (
-                    <ToolbarGroup>
-                        <IconButton
-                            iconClassName={"mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image")}
-                            iconStyle={styles.iconButton}
-                            onClick={() => onResolutionToggle()}
-                        />
-                    </ToolbarGroup>
-                )}
-                {(playable || resizable || hdable) && editable && (
-                    <ToolbarSeparator style={styles.divider} />
-                )}
-                {editable && (
-                    <ToolbarGroup>
-                        {saveable && (
+            <Draggable>
+                <Toolbar {...remaining}>
+                    {playable && (
+                        <ToolbarGroup>
                             <IconButton
-                                iconClassName="mdi mdi-content-save"
+                                iconClassName={"mdi " + (!playing ? "mdi-play" : "mdi-pause")}
                                 iconStyle={styles.iconButton}
-                                onClick={() => onSave()}
+                                onClick={() => onAutoPlayToggle()}
                             />
-                        )}
-                        {undoable && (
+                        </ToolbarGroup>
+                    )}
+                    {playable && resizable && (
+                        <ToolbarSeparator style={styles.divider} />
+                    )}
+                    {resizable && (
+                        <ToolbarGroup>
                             <IconButton
-                                iconClassName="mdi mdi-undo"
+                                iconClassName="mdi mdi-minus"
                                 iconStyle={styles.iconButton}
-                                onClick={() => onUndo()}
+                                onClick={() => onSizeChange({
+                                    size: "auto",
+                                    scale: scale - 0.5
+                                })}
+                                disabled={minusDisabled}
                             />
-                        )}
-                        {redoable && (
                             <IconButton
-                                iconClassName="mdi mdi-redo"
+                                iconClassName="mdi mdi-magnify-minus"
                                 iconStyle={styles.iconButton}
-                                onClick={() => onRedo()}
+                                onClick={() => onSizeChange({
+                                    size: "contain",
+                                })}
+                                disabled={magnifyDisabled}
                             />
-                        )}
-                    </ToolbarGroup>
-                )}
-                {(playable || resizable || hdable || editable) && editortools && (
-                    <ToolbarSeparator style={styles.divider} />
-                )}
-                {editortools && (
-                    <ToolbarGroup>
-                        {onToggleLineNumbers && (
                             <IconButton
-                                iconClassName="mdi mdi-format-list-numbers"
+                                iconClassName="mdi mdi-plus"
                                 iconStyle={styles.iconButton}
-                                onClick={() => onToggleLineNumbers()}
+                                onClick={() => onSizeChange({
+                                    size: "auto",
+                                    scale: scale + 0.5
+                                })}
+                                disabled={plusDisabled}
                             />
-                        )}
-                        {onToggleLineWrapping && (
+                        </ToolbarGroup>
+                    )}
+                    {(playable || resizable) && hdable && (
+                        <ToolbarSeparator style={styles.divider} />
+                    )}
+                    {hdable && (
+                        <ToolbarGroup>
                             <IconButton
-                                iconClassName="mdi mdi-wrap"
+                                iconClassName={"mdi " + (resolution == "hi" ? "mdi-quality-high" : "mdi-image")}
                                 iconStyle={styles.iconButton}
-                                onClick={() => onToggleLineWrapping()}
+                                onClick={() => onResolutionToggle()}
                             />
-                        )}
-                    </ToolbarGroup>
-                )}
-                {(playable || resizable || hdable || editable || editortools) && searchable && (
-                    <ToolbarSeparator style={styles.divider} />
-                )}
-                {searchable && (
-                    <ToolbarGroup>
-                        <TextField onKeyUp={({key, target}) => key === 'Enter' && onJumpTo(target.value)} hintText="Jump to Line" style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
-                        <TextField onKeyUp={({key, target}) => key === 'Enter' && onSearch(target.value)} hintText="Search..." style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
-                    </ToolbarGroup>
-                )}
-            </Toolbar>
+                        </ToolbarGroup>
+                    )}
+                    {(playable || resizable || hdable) && editable && (
+                        <ToolbarSeparator style={styles.divider} />
+                    )}
+                    {editable && (
+                        <ToolbarGroup>
+                            {saveable && (
+                                <IconButton
+                                    iconClassName="mdi mdi-content-save"
+                                    iconStyle={styles.iconButton}
+                                    onClick={() => onSave()}
+                                    disabled={saveDisabled}
+                                />
+                            )}
+                            {undoable && (
+                                <IconButton
+                                    iconClassName="mdi mdi-undo"
+                                    iconStyle={styles.iconButton}
+                                    onClick={() => onUndo()}
+                                    disabled={undoDisabled}
+                                />
+                            )}
+                            {redoable && (
+                                <IconButton
+                                    iconClassName="mdi mdi-redo"
+                                    iconStyle={styles.iconButton}
+                                    onClick={() => onRedo()}
+                                    disabled={redoDisabled}
+                                />
+                            )}
+                        </ToolbarGroup>
+                    )}
+                    {(playable || resizable || hdable || editable) && editortools && (
+                        <ToolbarSeparator style={styles.divider} />
+                    )}
+                    {editortools && (
+                        <ToolbarGroup>
+                            {onToggleLineNumbers && (
+                                <IconButton
+                                    iconClassName="mdi mdi-format-list-numbers"
+                                    iconStyle={styles.iconButton}
+                                    onClick={() => onToggleLineNumbers()}
+                                />
+                            )}
+                            {onToggleLineWrapping && (
+                                <IconButton
+                                    iconClassName="mdi mdi-wrap"
+                                    iconStyle={styles.iconButton}
+                                    onClick={() => onToggleLineWrapping()}
+                                />
+                            )}
+                        </ToolbarGroup>
+                    )}
+                    {(playable || resizable || hdable || editable || editortools) && searchable && (
+                        <ToolbarSeparator style={styles.divider} />
+                    )}
+                    {searchable && (
+                        <ToolbarGroup>
+                            <TextField onKeyUp={({key, target}) => key === 'Enter' && onJumpTo(target.value)} hintText="Jump to Line" style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
+                            <TextField onKeyUp={({key, target}) => key === 'Enter' && onSearch(target.value)} hintText="Search..." style={styles.textField} hintStyle={styles.textHint} inputStyle={styles.textInput} />
+                        </ToolbarGroup>
+                    )}
+                </Toolbar>
+            </Draggable>
         )
     }
 }
@@ -317,10 +297,14 @@ function mapStateToProps(state, ownProps) {
 
     let current = tabs.filter(tab => tab.id === ownProps.id)[0] || {}
 
+    const {node, message = ""} = current
+
     return  {
         ...ownProps,
         ...current,
-        isActive: editor.activeTabId === current.id
+        isActive: editor.activeTabId === current.id,
+        snackbarMessage: message,
+        readonly: node.hasMetadataInBranch("node_readonly", "true"),
     }
 }
 

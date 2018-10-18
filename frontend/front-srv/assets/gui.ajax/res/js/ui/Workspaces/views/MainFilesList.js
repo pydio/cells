@@ -29,6 +29,7 @@ import {IconButton} from 'material-ui'
 import CellsMessageToolbar from './CellsMessageToolbar'
 const {SimpleList} = Pydio.requireLib('components');
 const {moment} = Pydio.requireLib('boot');
+import OverlayIcon from './OverlayIcon'
 
 class ComponentConfigsParser {
 
@@ -228,10 +229,11 @@ let MainFilesList = React.createClass({
                 />
             );
         }else{
+            const hasThumbnail = !!node.getMetadata().get("thumbnails");
             const processing = !!node.getMetadata().get('Processing');
             return (
                 <FilePreview
-                    loadThumbnail={!entryProps['parentIsScrolling'] && !processing}
+                    loadThumbnail={!entryProps['parentIsScrolling'] && hasThumbnail && !processing}
                     node={node}
                     processing={processing}
                 />
@@ -239,14 +241,15 @@ let MainFilesList = React.createClass({
         }
     },
 
-    entryRenderActions: function(node){
+    entryRenderActions(node){
         let content = null;
-        const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
-        const dm = this.props.pydio.getContextHolder();
+        const {pydio} = this.props;
+        const mobile = pydio.UI.MOBILE_EXTENSIONS;
+        const dm = pydio.getContextHolder();
         if(mobile){
             const ContextMenuModel = require('pydio/model/context-menu');
             return <IconButton iconClassName="mdi mdi-dots-vertical" tooltip="Info" onClick={(event) => {
-                this.props.pydio.observeOnce('actions_refreshed', ()=>{
+                pydio.observeOnce('actions_refreshed', ()=>{
                     ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
                 });
                 event.stopPropagation();
@@ -254,8 +257,8 @@ let MainFilesList = React.createClass({
                 ContextMenuModel.getInstance().openNodeAtPosition(node, event.clientX, event.clientY);
             }}/>;
         }else if(node.getMetadata().get('overlay_class')){
-            let elements = node.getMetadata().get('overlay_class').split(',').map(function(c){
-                return <span key={c} className={c + ' overlay-class-span'}></span>;
+            let elements = node.getMetadata().get('overlay_class').split(',').filter(c=>!!c).map(function(c){
+                return <OverlayIcon node={node} key={c} overlay={c} pydio={pydio}/>;
             });
             content = <div className="overlay_icon_div">{elements}</div>;
         }

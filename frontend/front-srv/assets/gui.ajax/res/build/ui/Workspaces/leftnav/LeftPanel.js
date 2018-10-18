@@ -63,7 +63,8 @@ var LeftPanel = function LeftPanel(_ref) {
     };
     var wsListStyle = {
         backgroundColor: lightBg.toString(),
-        color: Color(palette.primary1Color).darken(0.1).alpha(0.87).toString()
+        color: Color(palette.primary1Color).darken(0.1).alpha(0.87).toString(),
+        borderRight: '1px solid #e0e0e0'
     };
     var wsSectionTitleStyle = {
         color: Color(palette.primary1Color).darken(0.1).alpha(0.50).toString()

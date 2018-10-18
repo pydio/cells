@@ -27,6 +27,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// Various custom types internally used by Pydio.
 type (
 	ServiceType   string
 	ServiceTag    string
@@ -34,6 +35,7 @@ type (
 	LogConfigType string
 )
 
+// Defines all strings used as keys.
 const (
 	SERVICE_CONSUL = "consul"
 	SERVICE_NATS   = "nats"
@@ -139,37 +141,49 @@ const (
 	META_FLAG_READONLY       = "node_readonly"
 	NODE_FLAG_ETAG_TEMPORARY = "temporary"
 
-	DB_MAX_OPEN_CONNS    = 30
-	DB_MAX_IDLE_CONNS    = 20
-	DB_CONN_MAX_LIFETIME = 5 * time.Minute
-
 	LogConfigConsole    LogConfigType = "console"
 	LogConfigProduction LogConfigType = "production"
 )
 
-var (
-	// Will be initialized by main
-	PackageType  string
-	PackageLabel string
+// Defaults for DB connexions.
+const (
+	DB_MAX_OPEN_CONNS    = 30
+	DB_MAX_IDLE_CONNS    = 20
+	DB_CONN_MAX_LIFETIME = 5 * time.Minute
+)
 
-	// The 3 below vars are initialized by the go linker directly
-	// in the resulting binary when doing 'make main'
-	version       = "0.1.0"
+// Main code information. Set by the go linker in the resulting binary when doing 'make main'
+var (
 	BuildStamp    string
 	BuildRevision string
+	version       = "0.1.0"
+)
 
-	// Update Server Default values
+// Package info. Initialised by main.
+var (
+	PackageType  string
+	PackageLabel string
+)
+
+// Update Server default values.
+var (
 	UpdateDefaultChannel   = "stable"
 	UpdateDefaultServerUrl = "https://updatecells.pydio.com/"
 	UpdateDefaultPublicKey = `-----BEGIN PUBLIC KEY-----\nMIIBCgKCAQEAwh/ofjZTITlQc4h/qDZMR3RquBxlG7UTunDKLG85JQwRtU7EL90v\nlWxamkpSQsaPeqho5Q6OGkhJvZkbWsLBJv6LZg+SBhk6ZSPxihD+Kfx8AwCcWZ46\nDTpKpw+mYnkNH1YEAedaSfJM8d1fyU1YZ+WM3P/j1wTnUGRgebK9y70dqZEo2dOK\nn98v3kBP7uEN9eP/wig63RdmChjCpPb5gK1/WKnY4NFLQ60rPAOBsXurxikc9N/3\nEvbIB/1vQNqm7yEwXk8LlOC6Fp8W/6A0DIxr2BnZAJntMuH2ulUfhJgw0yJalMNF\nDR0QNzGVktdLOEeSe8BSrASe9uZY2SDbTwIDAQAB\n-----END PUBLIC KEY-----`
+)
 
-	// Logging Levels
+// Logging Levels.
+var (
 	LogConfig        LogConfigType
 	LogLevel         zapcore.Level
 	LogCaptureStdOut bool
+)
 
+var (
+	// ServicesDiscovery lists known discovery server implementations.
 	ServicesDiscovery = []string{SERVICE_CONSUL, SERVICE_NATS}
-	// Profiles order reflects the level of authorizations
+
+	// PydioUserProfiles order reflects the level of authorizations
 	PydioUserProfiles = []string{
 		PYDIO_PROFILE_ANON,
 		PYDIO_PROFILE_SHARED,
@@ -178,6 +192,7 @@ var (
 	}
 )
 
+// Version returns the current code version as an object.
 func Version() *hashiversion.Version {
 	v, _ := hashiversion.NewVersion(version)
 	return v

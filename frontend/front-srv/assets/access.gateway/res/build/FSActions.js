@@ -1931,13 +1931,13 @@ exports["default"] = function (pydio) {
         if (action && n) {
             action.selectionContext.allowedMimes = [];
             if (n.getMetadata().get("sl_locked")) {
-                action.setIconClassName('icon-unlock');
+                action.setIconClassName('mdi mdi-lock-outline');
                 action.setLabel('meta.simple_lock.3');
                 if (!n.getMetadata().get("sl_mylock")) {
                     action.selectionContext.allowedMimes = ["fake_extension_that_never_exists"];
                 }
             } else {
-                action.setIconClassName('icon-lock');
+                action.setIconClassName('mdi mdi-lock-outline');
                 action.setLabel('meta.simple_lock.1');
             }
         }

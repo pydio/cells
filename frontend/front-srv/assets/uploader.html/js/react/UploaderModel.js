@@ -1,6 +1,6 @@
 (function(global){
 
-    const {TreeServiceApi, RestCreateNodesRequest, RestGetBulkMetaRequest, TreeNode, TreeNodeType} = require('pydio/http/rest-api');
+    const {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} = require('pydio/http/rest-api');
 
     class StatusItem extends Observable{
         constructor(type){
@@ -55,9 +55,6 @@
             this._targetNode = targetNode;
             this._repositoryId = global.pydio.user.activeRepository;
             this._relativePath = relativePath;
-        }
-        getMqConfigs(){
-            return global.pydio.getPluginConfigs('mq');
         }
         getFile(){
             return this._file;
@@ -381,8 +378,6 @@
             const name = uploadItem.getFile().name.toLowerCase()
 
             const isBlacklisted = this._blacklist.reduce((current, val) => current || name == val, false)
-
-            console.log(name, isBlacklisted)
 
             if (isBlacklisted) {
                 this.processNext();

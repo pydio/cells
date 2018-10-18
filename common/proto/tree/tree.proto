@@ -61,6 +61,7 @@ message CreateNodeRequest {
     Node Node = 1;
     bool UpdateIfExists = 2;
     string IndexationSession = 3;
+    bool Silent = 4;
 }
 
 message CreateNodeResponse {
@@ -72,6 +73,7 @@ message UpdateNodeRequest {
     Node From = 1;
     Node To = 2;
     string IndexationSession = 3;
+    bool Silent = 4;
 }
 
 message UpdateNodeResponse {
@@ -82,6 +84,7 @@ message UpdateNodeResponse {
 message DeleteNodeRequest {
     Node Node = 1;
     string IndexationSession = 2;
+    bool Silent = 3;
 }
 
 message DeleteNodeResponse {

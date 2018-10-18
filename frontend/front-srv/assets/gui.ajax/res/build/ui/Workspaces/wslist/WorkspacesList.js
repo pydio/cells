@@ -163,19 +163,19 @@ var WorkspacesList = (function (_React$Component) {
                     height: 36,
                     padding: 6,
                     position: 'absolute',
-                    right: 8,
+                    right: 4,
                     top: 8
                 },
                 icon: {
                     fontSize: 22,
-                    color: muiTheme.palette.accent1Color //'rgba(0,0,0,.54)'
+                    color: muiTheme.palette.primary1Color //'rgba(0,0,0,.54)'
                 }
             };
             if (sharedEntries.length) {
                 createAction = _react2['default'].createElement(_materialUi.IconButton, {
                     style: styles.button,
                     iconStyle: styles.icon,
-                    iconClassName: "icomoon-cells-clear-plus",
+                    iconClassName: "mdi mdi-plus",
                     tooltip: messages[417],
                     tooltipPosition: "top-left",
                     onTouchTap: createClick
@@ -234,7 +234,7 @@ var WorkspacesList = (function (_React$Component) {
                 if (filterByType && filterByType === s.k) {
                     ret = _react2['default'].createElement(
                         'div',
-                        { className: classNames.join(' '), style: style },
+                        { className: classNames.join(' ') },
                         s.title,
                         s.content
                     );
@@ -250,7 +250,7 @@ var WorkspacesList = (function (_React$Component) {
         });
         return _react2['default'].createElement(
             'div',
-            { className: classNames.join(' '), style: style },
+            { className: classNames.join(' ') },
             elements,
             _react2['default'].createElement(
                 _materialUi.Popover,

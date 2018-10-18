@@ -95,10 +95,10 @@ class AdminLeftNav extends React.Component {
     render(){
         const {open} = this.props;
         let pStyle = {
-            height: '100%',
             position: 'fixed',
             width:256,
-            marginTop: 56,
+            top: 56,
+            bottom: 0,
             zIndex: 9,
             overflowX: 'hidden',
             overflowY: 'auto'
@@ -106,6 +106,7 @@ class AdminLeftNav extends React.Component {
         if(!open){
             pStyle.transform = 'translateX(-256px)';
         }
+
         return (
             <Paper zDepth={2} className={"admin-main-nav"} style={pStyle}>
                 <AdminMenu {...this.props}/>

@@ -242,7 +242,7 @@ func (a *ActivityHandler) FilterActivity(ctx context.Context, workspaces map[str
 		node := &tree.Node{Path: obj.Name, Uuid: obj.Id}
 		count := 0
 		for _, workspace := range workspaces {
-			if filtered, ok := a.router.WorkspaceCanSeeNode(ctx, workspace, node, false); ok {
+			if filtered, ok := a.router.WorkspaceCanSeeNode(ctx, workspace, node); ok {
 				if obj.PartOf == nil {
 					obj.PartOf = &activity.Object{
 						Type:  activity.ObjectType_Collection,

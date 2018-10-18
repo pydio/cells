@@ -146,7 +146,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	targetAcls := h.ComputeTargetAcls(ctx, &shareRequest, workspace.UUID, readonly)
 	log.Logger(ctx).Debug("Share ACLS", zap.Any("current", currentAcls), zap.Any("target", targetAcls))
 	add, remove := h.DiffAcls(ctx, currentAcls, targetAcls)
-	log.Logger(ctx).Info("Diff ACLS", zap.Any("add", add), zap.Any("remove", remove))
+	log.Logger(ctx).Debug("Diff ACLS", zap.Any("add", add), zap.Any("remove", remove))
 
 	for _, acl := range add {
 		_, err := aclClient.CreateACL(ctx, &idm.CreateACLRequest{ACL: acl})
@@ -171,7 +171,7 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	h.UpdatePoliciesFromAcls(ctx, workspace, currentAcls, targetAcls)
 
 	// Now update workspace
-	log.Logger(ctx).Info("Updating workspace", zap.Any("workspace", workspace))
+	log.Logger(ctx).Debug("Updating workspace", zap.Any("workspace", workspace))
 	wsClient := idm.NewWorkspaceServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, defaults.NewClient())
 	if _, err := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: workspace}); err != nil {
 		service.RestError500(req, rsp, err)
@@ -266,7 +266,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	ctx := req.Request.Context()
 	start := time.Now()
 	track := func(msg string) {
-		log.Logger(ctx).Info(msg, zap.Duration("t", time.Since(start)))
+		log.Logger(ctx).Debug(msg, zap.Duration("t", time.Since(start)))
 	}
 	var putRequest rest.PutShareLinkRequest
 	if err := req.ReadEntity(&putRequest); err != nil {
@@ -540,7 +540,7 @@ func (h *SharesHandler) LoadDetectedRootNodes(ctx context.Context, detectedRoots
 			node := resp.Node
 			var multipleMeta []*tree.WorkspaceRelativePath
 			for _, ws := range accessList.Workspaces {
-				if filtered, ok := eventFilter.WorkspaceCanSeeNode(ctx, ws, resp.Node, false); ok {
+				if filtered, ok := eventFilter.WorkspaceCanSeeNode(ctx, ws, resp.Node); ok {
 					multipleMeta = append(multipleMeta, &tree.WorkspaceRelativePath{
 						WsLabel: ws.Label,
 						WsUuid:  ws.UUID,
@@ -834,6 +834,10 @@ func (h *SharesHandler) ParseRootNodes(ctx context.Context, shareRequest *rest.P
 		if e != nil {
 			return e, nil, false
 		}
+		// If the virtual root is responded, it may miss the UUID ! Set up manually here
+		if r.Node.Uuid == "" {
+			r.Node.Uuid = n.Uuid
+		}
 		shareRequest.Room.RootNodes[i] = r.Node
 	}
 	if shareRequest.CreateEmptyRoot {
@@ -893,7 +897,7 @@ func (h *SharesHandler) ParseRootNodes(ctx context.Context, shareRequest *rest.P
 			}
 		}
 	}
-	log.Logger(ctx).Info("ParseRootNodes", zap.Any("r", shareRequest.Room.RootNodes), zap.Bool("readonly", hasReadonly))
+	log.Logger(ctx).Debug("ParseRootNodes", zap.Any("r", shareRequest.Room.RootNodes), zap.Bool("readonly", hasReadonly))
 	return nil, createdNode, hasReadonly
 
 }
@@ -1023,7 +1027,7 @@ func (h *SharesHandler) DeleteWorkspace(ctx context.Context, scope idm.Workspace
 	if scope == idm.WorkspaceScope_ROOM {
 		// check if we must delete the room node
 		if output, err := h.WorkspaceToCellObject(ctx, workspace); err == nil {
-			log.Logger(ctx).Info("Will Delete Workspace for Room", zap.Any("room", output))
+			log.Logger(ctx).Debug("Will Delete Workspace for Room", zap.Any("room", output))
 			var roomNode *tree.Node
 			for _, node := range output.RootNodes {
 				var testVal bool
@@ -1291,7 +1295,7 @@ func (h *SharesHandler) GetTemplateACLsForMinisite(ctx context.Context, roleId s
 		if e != nil {
 			break
 		}
-		log.Logger(ctx).Info("Received ACL ", zap.Any("acls", resp.ACL))
+		log.Logger(ctx).Debug("Received ACL ", zap.Any("acls", resp.ACL))
 		if resp.ACL == nil || (!strings.HasPrefix(resp.ACL.Action.Name, "action:") && !strings.HasPrefix(resp.ACL.Action.Name, "parameter:")) {
 			continue
 		}
@@ -1318,7 +1322,7 @@ func (h *SharesHandler) GetTemplateACLsForMinisite(ctx context.Context, roleId s
 			if e != nil {
 				break
 			}
-			log.Logger(ctx).Info("Received ACL ", zap.Any("acls", resp.ACL))
+			log.Logger(ctx).Debug("Received ACL ", zap.Any("acls", resp.ACL))
 			if resp.ACL == nil || (!strings.HasPrefix(resp.ACL.Action.Name, "action:") && !strings.HasPrefix(resp.ACL.Action.Name, "parameter:")) {
 				continue
 			}

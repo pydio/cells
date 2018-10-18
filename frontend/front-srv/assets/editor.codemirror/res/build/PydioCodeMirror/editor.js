@@ -74,34 +74,34 @@ function mapStateToProps(state, props) {
 var Editor = (function (_React$Component) {
     _inherits(Editor, _React$Component);
 
-    function Editor() {
+    function Editor(props) {
         _classCallCheck(this, _Editor);
 
-        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).apply(this, arguments);
+        _get(Object.getPrototypeOf(_Editor.prototype), 'constructor', this).call(this, props);
+
+        var _props = this.props;
+        var node = _props.node;
+        var _props$tab = _props.tab;
+        var tab = _props$tab === undefined ? {} : _props$tab;
+        var tabCreate = _props.tabCreate;
+        var id = tab.id;
+
+        if (!id) tabCreate({ id: node.getLabel(), node: node });
     }
 
     _createClass(Editor, [{
         key: 'componentDidMount',
-
-        // constructor(props) {
-        //     super(props)
-        //
-        //     const {node, tab = {}, tabCreate} = this.props
-        //     const {id} = tab
-        //
-        //     if (!id) tabCreate({id: node.getLabel(), node})
-        // }
-
         value: function componentDidMount() {
-            var _props = this.props;
-            var pydio = _props.pydio;
-            var node = _props.node;
-            var tab = _props.tab;
-            var tabModify = _props.tabModify;
+            var _props2 = this.props;
+            var pydio = _props2.pydio;
+            var node = _props2.node;
+            var tab = _props2.tab;
+            var tabModify = _props2.tabModify;
             var id = tab.id;
+            var codemirror = tab.codemirror;
 
             pydio.ApiClient.getPlainContent(node, function (content) {
-                tabModify({ id: id || node.getLabel(), editable: true, searchable: true, lineNumbers: true, content: content });
+                tabModify({ id: id || node.getLabel(), editable: true, editortools: true, searchable: true, lineNumbers: true, content: content });
             });
         }
     }, {
@@ -116,16 +116,15 @@ var Editor = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _props2 = this.props;
-            var node = _props2.node;
-            var tab = _props2.tab;
-            var error = _props2.error;
-            var tabModify = _props2.tabModify;
+            var _props3 = this.props;
+            var node = _props3.node;
+            var tab = _props3.tab;
+            var error = _props3.error;
+            var tabModify = _props3.tabModify;
 
             if (!tab) return null;
 
             var id = tab.id;
-            var codemirror = tab.codemirror;
             var content = tab.content;
             var lineWrapping = tab.lineWrapping;
             var lineNumbers = tab.lineNumbers;

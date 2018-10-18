@@ -32,6 +32,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/disintegration/imaging"
 	"github.com/golang/protobuf/proto"
@@ -201,11 +202,13 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 
 	log.Logger(ctx).Debug("Thumbnails - Extracted dimension and saved in metadata", zap.Any("dimension", bounds))
 	meta := &ThumbnailsMeta{}
+	wg := &sync.WaitGroup{}
 
 	for _, size := range sizes {
 
+		wg.Add(1)
 		displayMemStat(ctx, "BEFORE WRITE SIZE FROM SRC")
-		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size)
+		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size, wg)
 		if err != nil {
 			return err
 		}
@@ -217,6 +220,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 			})
 		}
 	}
+	wg.Wait()
 
 	if (meta != &ThumbnailsMeta{}) {
 		node.SetMeta(METADATA_THUMBNAILS, meta)
@@ -224,13 +228,13 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		node.SetMeta(METADATA_THUMBNAILS, nil)
 	}
 
-	log.Logger(ctx).Debug("Updating Meta After Thumbs Generation", zap.Any("meta", meta))
+	log.Logger(ctx).Info("Updating Meta After Thumbs Generation", zap.Any("meta", meta))
 	_, err = t.metaClient.UpdateNode(ctx, &tree.UpdateNodeRequest{From: node, To: node})
 
 	return err
 }
 
-func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Image, node *tree.Node, targetSize int) (bool, error) {
+func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Image, node *tree.Node, targetSize int, wg *sync.WaitGroup) (bool, error) {
 
 	localTest := false
 	localFolder := ""
@@ -249,6 +253,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 		thumbsClient, thumbsBucket, e = views.GetGenericStoreClient(ctx, common.PYDIO_THUMBSTORE_NAMESPACE, t.Client)
 		if e != nil {
 			log.Logger(ctx).Error("Cannot find client for thumbstore", zap.Error(e))
+			wg.Done()
 			return false, e
 		}
 
@@ -265,6 +270,7 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 			if len(foundOriginal) > 0 && foundOriginal == node.Etag {
 				// No update necessary
 				log.Logger(ctx).Debug("Ignoring Resize: thumb already exists in store", zap.Any("original", oi))
+				wg.Done()
 				return false, nil
 			}
 		}
@@ -287,7 +293,10 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 		defer out.Close()
 
 		go func() {
-			defer reader.Close()
+			defer func() {
+				reader.Close()
+				wg.Done()
+			}()
 			displayMemStat(ctx, "BEGIN GOFUNC")
 			requestMeta := map[string]string{"X-Amz-Meta-Original-Etag": node.Etag}
 			options := minio.PutObjectOptions{
@@ -302,13 +311,14 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 			if err != nil {
 				log.Logger(ctx).Error("Error while calling PutObject", zap.Error(err), zap.Any("client", thumbsClient))
 			} else {
-				log.Logger(ctx).Info("Finished putting thumb for size", zap.Int64("written", written), zap.Int("size ", targetSize))
+				log.Logger(ctx).Debug("Finished putting thumb for size", zap.Int64("written", written), zap.Int("size ", targetSize))
 			}
 			displayMemStat(ctx, "SHOULD EXIT GO FUNC")
 		}()
 
 	} else {
 
+		defer wg.Done()
 		var e error
 		out, e = os.OpenFile(filepath.Join(localFolder, objectName), os.O_CREATE|os.O_WRONLY, 0755)
 		if e != nil {

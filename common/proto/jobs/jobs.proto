@@ -106,6 +106,9 @@ message Job {
     // Task properties
     int32 MaxConcurrency = 9;
 
+    // Do not send notification on task update
+    bool TasksSilentUpdate = 12;
+
     // Filled with currently running tasks
     repeated Task Tasks = 14;
 }

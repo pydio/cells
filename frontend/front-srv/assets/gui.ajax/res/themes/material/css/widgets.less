@@ -59,10 +59,6 @@ body,#ajxp_desktop,#background-imager{
 
       span.toolbars-button-menu{
         position: relative;
-        .mui-menu{
-          right: 5px;
-          top: 0;
-        }
       }
 
       .mui-flat-button-label{
@@ -73,14 +69,6 @@ body,#ajxp_desktop,#background-imager{
         margin-right: 5px;
         margin-left: 12px;
         margin-top: 3px;
-
-        @buttonHeight: 30px;
-        .mui-raised-button{
-          height: @buttonHeight;
-          .mui-raised-button-label{
-            line-height: @buttonHeight;
-          }
-        }
       }
 
       .mui-menu{
@@ -97,36 +85,14 @@ body,#ajxp_desktop,#background-imager{
       }
 
       #display-toolbar, #paginator-toolbar{
-        margin-top: -4px;
+        margin-top: 0px;
         display: flex;
-        .mui-tooltip{
-          z-index: 3;
+        button{
+          width: 42px !important;
+          height: 42px !important;
         }
-        .mui-font-icon, .mui-icon-button{
-          font-size: 24px;
-          color: darken(@applicationPrimaryColor, 18);
-        }
-      }
-
-      .mui-drop-down-menu{
-        color: rgba(255,255,255,0.87);
-        width: 135px !important;
-        margin-top: -6px;
-        text-transform: uppercase;
-        font-size: 14px;
-        font-weight: 500;
-        .mui-menu-control .mui-menu-control-bg{
-          background-color: rgba(255,255,255,0.1);
-        }
-        .mui-menu-drop-down-icon *{
-          fill: rgba(255,255,255,0.87);
-        }
-        .mui-menu-control-underline{
-          display: none;
-        }
-        .mui-menu{
-          width: 150px !important;
-          color: rgba(0,0,0,0.83);
+        span.mdi-chevron-right, span.mdi-chevron-left{
+          color: rgba(255,255,255,.97) !important;
         }
       }
 

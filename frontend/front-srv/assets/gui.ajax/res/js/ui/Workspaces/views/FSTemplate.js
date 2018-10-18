@@ -123,22 +123,23 @@ let FSTemplate = React.createClass({
 
         const Color = MaterialUI.Color;
         const appBarColor = Color(this.props.muiTheme.appBar.color);
+        const appBarTextColor = Color(this.props.muiTheme.appBar.textColor);
 
-        const styles = {
+        let styles = {
             appBarStyle : {
                 zIndex: 1,
                 backgroundColor: this.props.muiTheme.appBar.color,
                 height: 100,
             },
             buttonsStyle : {
-                color: this.props.muiTheme.appBar.textColor
+                width: 42,
+                height: 42,
+                borderBottom: 0,
+                color: appBarTextColor.fade(0.03).toString()
             },
-            iconButtonsStyle :{
-                color: appBarColor.darken(0.5).toString()
-            },
-            rightButtonStyle: {
-                //color: 'rgba(255,255,255,0.73)'
-                color: appBarColor.darken(0.5).toString()
+            buttonsIconStyle :{
+                fontSize: 18,
+                color: appBarTextColor.fade(0.03).toString()
             },
             activeButtonStyle: {
                 borderBottom: '2px solid rgba(255,255,255,0.97)'
@@ -160,6 +161,10 @@ let FSTemplate = React.createClass({
                 borderLeft: '1px solid #e0e0e0'
             }
         };
+
+        // Merge active styles
+        styles.activeButtonStyle = {...styles.buttonsStyle, ...styles.activeButtonStyle};
+        styles.activeButtonIconStyle = {...styles.buttonsIconStyle, ...styles.activeButtonIconStyle};
 
         const {infoPanelOpen, drawerOpen, infoPanelToggle} = this.state;
         let {rightColumnState} = this.state;
@@ -248,22 +253,22 @@ let FSTemplate = React.createClass({
                                 id="display-toolbar"
                                 toolbars={["display_toolbar"]}
                                 renderingType="icon-font"
-                                buttonStyle={styles.iconButtonsStyle}
+                                buttonStyle={styles.buttonsIconStyle}
                             />
-                            <div style={{borderLeft:'1px solid ' + styles.iconButtonsStyle.color, margin:'0 10px'}}/>
-                            <div style={{marginTop:-8, display:'flex'}}>
+                            <div style={{borderLeft:'1px solid ' + appBarTextColor.fade(0.77).toString(), margin:10, marginBottom: 4}}/>
+                            <div style={{marginTop:-3, display:'flex'}}>
                                 <IconButton
                                     iconClassName={"mdi mdi-information"}
-                                    style={rightColumnState === 'info-panel' ? styles.activeButtonStyle : {borderBottom:0}}
-                                    iconStyle={rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.rightButtonStyle}
+                                    style={rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle}
+                                    iconStyle={rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
                                     onTouchTap={()=>{this.openRightPanel('info-panel')}}
                                     tooltip={pydio.MessageHash['341']}
                                 />
                                 {showChatTab &&
                                     <IconButton
                                         iconClassName={"mdi mdi-message-text"}
-                                        style={rightColumnState === 'chat' ? styles.activeButtonStyle : {borderBottom:0}}
-                                        iconStyle={rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.rightButtonStyle}
+                                        style={rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle}
+                                        iconStyle={rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
                                         onTouchTap={()=>{this.openRightPanel('chat')}}
                                         tooltip={pydio.MessageHash['635']}
                                     />
@@ -271,15 +276,16 @@ let FSTemplate = React.createClass({
                                 {showAddressBook &&
                                     <IconButton
                                         iconClassName={"mdi mdi-account-card-details"}
-                                        style={rightColumnState === 'address-book' ? styles.activeButtonStyle : {borderBottom:0}}
-                                        iconStyle={rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.rightButtonStyle}
+                                        style={rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle}
+                                        iconStyle={rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
                                         onTouchTap={()=>{this.openRightPanel('address-book')}}
                                         tooltip={pydio.MessageHash['592']}
                                     />
                                 }
                                 <IconButton
                                     iconClassName={"mdi mdi-close"}
-                                    iconStyle={styles.rightButtonStyle}
+                                    style={styles.buttonsStyle}
+                                    iconStyle={styles.buttonsIconStyle}
                                     onTouchTap={()=>{this.closeRightPanel()}}
                                     disabled={!rightColumnState}
                                     tooltip={pydio.MessageHash['86']}
