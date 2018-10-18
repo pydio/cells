@@ -12,7 +12,7 @@
     "other": "Clés d'encryption maitre"
   },
   "ds.board.versioning.legend": {
-    "other": "Vous pouvez définir la manière dont les versions des fichiers sont gardées pour chaque datasource, et en particulier combien de versions le serveur garde en fonction du temps."
+    "other": "Vous pouvez définir la manière dont les versions des fichiers sont gardées pour chaque datasource. En particulier, combien de versions le serveur garde en fonction du temps."
   },
   "ds.board.versioning.title": {
     "other": "Stratégies de versioning"
@@ -747,7 +747,7 @@
     "other": "Attention, l'une des constante PYDIO_SERVER_DEBUG, PYDIO_CLIENT_DEBUG ou PYDIO_SKIP_CACHE a la valeur 'True'!"
   },
   "perfs.debug.help": {
-    "other": "Assurez vous de désactiver les modes Debug. Ceci se fait manuellement en éditant le fichier conf/booststrap_context.php (ou /etc/pydio/bootstrap_context.php)."
+    "other": "Assurez-vous de désactiver les modes Debug. Ceci se fait manuellement en éditant le fichier conf/booststrap_context.php (ou /etc/pydio/bootstrap_context.php)."
   },
   "perfs.debug.title": {
     "other": "Modes Debug"
@@ -1311,7 +1311,7 @@
     "other": "Modèles prédéfinis"
   },
   "ws.dashboard": {
-    "other": "Les workspaces définissent l'accès aux données pour vos utilisateurs. Assurez vous d'avoir au moins créé une datasource pour pouvoir créer un workspace qui pointe vers ce stockage."
+    "other": "Les workspaces définissent l'accès aux données pour vos utilisateurs. Assurez-vous d'avoir au moins créé une datasource pour pouvoir créer un workspace qui pointe vers ce stockage."
   },
   "ws.editor.data.legend": {
     "other": "Un workspace exposent une ou plusieurs 'racines' à l'utilisateur: sélectionner un chemin vers un dossier d'une datasource, ou un modèle prédéfini qui sera résolu en fonction de l'utilisateur du contexte."
@@ -1350,7 +1350,7 @@
     "other": "Libellé pour ce workspace"
   },
   "ws.editor.options.legend": {
-    "other": "Le libellé et la description sont affichées aux utilisateurs, choisissez les de telle manière d'aider vos utilisateurs à organiser correctement leur données."
+    "other": "Le libellé et la description sont affichées aux utilisateurs, choisissez les de telle manière d'aider vos utilisateurs à organiser correctement leurs données."
   },
   "ws.editor.other": {
     "other": "Autres attributs"
