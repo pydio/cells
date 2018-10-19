@@ -31,6 +31,14 @@ var _modelRestCreateNodesRequest = require('../model/RestCreateNodesRequest');
 
 var _modelRestCreateNodesRequest2 = _interopRequireDefault(_modelRestCreateNodesRequest);
 
+var _modelRestCreateSelectionRequest = require('../model/RestCreateSelectionRequest');
+
+var _modelRestCreateSelectionRequest2 = _interopRequireDefault(_modelRestCreateSelectionRequest);
+
+var _modelRestCreateSelectionResponse = require('../model/RestCreateSelectionResponse');
+
+var _modelRestCreateSelectionResponse2 = _interopRequireDefault(_modelRestCreateSelectionResponse);
+
 var _modelRestDeleteNodesRequest = require('../model/RestDeleteNodesRequest');
 
 var _modelRestDeleteNodesRequest2 = _interopRequireDefault(_modelRestDeleteNodesRequest);
@@ -155,6 +163,45 @@ var TreeServiceApi = (function () {
 
   TreeServiceApi.prototype.createNodes = function createNodes(body) {
     return this.createNodesWithHttpInfo(body).then(function (response_and_data) {
+      return response_and_data.data;
+    });
+  };
+
+  /**
+   * Create a temporary selection for further action (namely download)
+   * @param {module:model/RestCreateSelectionRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestCreateSelectionResponse} and HTTP response
+   */
+
+  TreeServiceApi.prototype.createSelectionWithHttpInfo = function createSelectionWithHttpInfo(body) {
+    var postBody = body;
+
+    // verify the required parameter 'body' is set
+    if (body === undefined || body === null) {
+      throw new Error("Missing the required parameter 'body' when calling createSelection");
+    }
+
+    var pathParams = {};
+    var queryParams = {};
+    var headerParams = {};
+    var formParams = {};
+
+    var authNames = [];
+    var contentTypes = ['application/json'];
+    var accepts = ['application/json'];
+    var returnType = _modelRestCreateSelectionResponse2['default'];
+
+    return this.apiClient.callApi('/tree/selection', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
+  };
+
+  /**
+   * Create a temporary selection for further action (namely download)
+   * @param {module:model/RestCreateSelectionRequest} body 
+   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestCreateSelectionResponse}
+   */
+
+  TreeServiceApi.prototype.createSelection = function createSelection(body) {
+    return this.createSelectionWithHttpInfo(body).then(function (response_and_data) {
       return response_and_data.data;
     });
   };

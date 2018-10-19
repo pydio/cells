@@ -36,7 +36,6 @@ var Callbacks = {
   move: require('./move')(pydio),
   upload: require('./upload')(pydio),
   download: require('./download')(pydio),
-  downloadFolder: require('./downloadFolder')(pydio),
   downloadAll: require('./downloadAll')(pydio),
   emptyRecycle: require('./emptyRecycle')(pydio),
   restore: require('./restore')(pydio),

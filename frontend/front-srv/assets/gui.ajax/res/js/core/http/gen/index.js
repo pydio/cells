@@ -115,6 +115,8 @@ import RestChangeRequest from './model/RestChangeRequest';
 import RestConfiguration from './model/RestConfiguration';
 import RestControlServiceRequest from './model/RestControlServiceRequest';
 import RestCreateNodesRequest from './model/RestCreateNodesRequest';
+import RestCreateSelectionRequest from './model/RestCreateSelectionRequest';
+import RestCreateSelectionResponse from './model/RestCreateSelectionResponse';
 import RestDataSourceCollection from './model/RestDataSourceCollection';
 import RestDeleteCellResponse from './model/RestDeleteCellResponse';
 import RestDeleteDataSourceResponse from './model/RestDeleteDataSourceResponse';
@@ -888,6 +890,18 @@ export {
      * @property {module:model/RestCreateNodesRequest}
      */
     RestCreateNodesRequest,
+
+    /**
+     * The RestCreateSelectionRequest model constructor.
+     * @property {module:model/RestCreateSelectionRequest}
+     */
+    RestCreateSelectionRequest,
+
+    /**
+     * The RestCreateSelectionResponse model constructor.
+     * @property {module:model/RestCreateSelectionResponse}
+     */
+    RestCreateSelectionResponse,
 
     /**
      * The RestDataSourceCollection model constructor.

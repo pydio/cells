@@ -31,6 +31,28 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+type mockSelectionProvider struct {
+	sel map[string][]*tree.Node
+}
+
+func newMockSelectionProvider() *mockSelectionProvider {
+	m := &mockSelectionProvider{}
+	m.sel = make(map[string][]*tree.Node)
+	return m
+}
+
+func (m *mockSelectionProvider) getSelectionByUuid(ctx context.Context, selectionUuid string) (bool, []*tree.Node, error) {
+	if nodes, ok := m.sel[selectionUuid]; ok {
+		return true, nodes, nil
+	}
+	return false, nil, nil
+}
+
+func (m *mockSelectionProvider) deleteSelectionByUuid(ctx context.Context, selectionUuid string) {
+	// Do NOT actually delete, or mockSelectionProvider cannot be reused for further testing
+	//delete(m.sel, selectionUuid)
+}
+
 func TestArchiveHandler_ReadNode(t *testing.T) {
 
 	mock := NewHandlerMock()
@@ -38,7 +60,13 @@ func TestArchiveHandler_ReadNode(t *testing.T) {
 	mock.Nodes["path/folder/file1"] = &tree.Node{Path: "path/folder/file1", Type: tree.NodeType_LEAF}
 	mock.Nodes["path/folder/file2"] = &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_LEAF}
 
-	zipHandler := &ArchiveHandler{}
+	selMock := newMockSelectionProvider()
+	selMock.sel["selection-uuid"] = append(selMock.sel["selection-uuid"], &tree.Node{Path: "path/folder/file1", Type: tree.NodeType_LEAF})
+	selMock.sel["selection-uuid"] = append(selMock.sel["selection-uuid"], &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_LEAF})
+
+	zipHandler := &ArchiveHandler{
+		selectionProvider: selMock,
+	}
 	zipHandler.SetNextHandler(mock)
 
 	Convey("Test Read Normal Node", t, func() {
@@ -49,6 +77,12 @@ func TestArchiveHandler_ReadNode(t *testing.T) {
 
 	Convey("Test Read Zip Node", t, func() {
 		resp, e := zipHandler.ReadNode(context.Background(), &tree.ReadNodeRequest{Node: &tree.Node{Path: "path/folder.zip"}})
+		So(e, ShouldBeNil)
+		So(resp.Node.Size, ShouldEqual, -1)
+	})
+
+	Convey("Test read zipped selection", t, func() {
+		resp, e := zipHandler.ReadNode(context.Background(), &tree.ReadNodeRequest{Node: &tree.Node{Path: "selection-uuid-selection.zip"}})
 		So(e, ShouldBeNil)
 		So(resp.Node.Size, ShouldEqual, -1)
 	})
@@ -64,7 +98,13 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 	mock.Nodes["path/folder/"+common.PYDIO_SYNC_HIDDEN_FILE_META] = &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_LEAF, Size: 10}
 	mock.Nodes["path/folder/subfolder_ignored"] = &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_COLLECTION}
 
-	zipHandler := &ArchiveHandler{}
+	selMock := newMockSelectionProvider()
+	selMock.sel["selection-uuid"] = append(selMock.sel["selection-uuid"], &tree.Node{Path: "path/folder/file1", Type: tree.NodeType_LEAF})
+	selMock.sel["selection-uuid"] = append(selMock.sel["selection-uuid"], &tree.Node{Path: "path/folder/file2", Type: tree.NodeType_LEAF})
+
+	zipHandler := &ArchiveHandler{
+		selectionProvider: selMock,
+	}
 	zipHandler.SetNextHandler(mock)
 
 	Convey("Test Get Zip Node", t, func() {
@@ -81,6 +121,20 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 		So(n, ShouldBeGreaterThan, 200)
 	})
 
+	Convey("Test Get Zip Selection", t, func() {
+		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
+			Path: "path/selection-uuid-selection.zip",
+		}, &GetRequestData{
+			Length: -1,
+		})
+		So(e, ShouldBeNil)
+		So(reader, ShouldNotBeNil)
+		data := []byte{}
+		n, _ := io.Copy(bytes.NewBuffer(data), reader)
+		reader.Close()
+		So(n, ShouldBeGreaterThan, 20)
+	})
+
 	Convey("Test Get Tar Node", t, func() {
 		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/folder.tar",
@@ -95,6 +149,20 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 		So(n, ShouldBeGreaterThan, 0)
 	})
 
+	Convey("Test Get Tar Selection", t, func() {
+		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
+			Path: "path/selection-uuid-selection.tar",
+		}, &GetRequestData{
+			Length: -1,
+		})
+		So(e, ShouldBeNil)
+		So(reader, ShouldNotBeNil)
+		data := []byte{}
+		n, _ := io.Copy(bytes.NewBuffer(data), reader)
+		reader.Close()
+		So(n, ShouldBeGreaterThan, 20)
+	})
+
 	Convey("Test Get Tar.gz Node", t, func() {
 		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
 			Path: "path/folder.tar.gz",
@@ -107,6 +175,29 @@ func TestArchiveHandler_GetObject(t *testing.T) {
 		n, _ := io.Copy(bytes.NewBuffer(data), reader)
 		reader.Close()
 		So(n, ShouldBeGreaterThan, 0)
+	})
+
+	Convey("Test Get Tar.gz Selection", t, func() {
+		reader, e := zipHandler.GetObject(context.Background(), &tree.Node{
+			Path: "path/selection-uuid-selection.tar.gz",
+		}, &GetRequestData{
+			Length: -1,
+		})
+		So(e, ShouldBeNil)
+		So(reader, ShouldNotBeNil)
+		data := []byte{}
+		n, _ := io.Copy(bytes.NewBuffer(data), reader)
+		reader.Close()
+		So(n, ShouldBeGreaterThan, 20)
+	})
+
+	Convey("Test Get Wrong Selection Uuid", t, func() {
+		_, e := zipHandler.GetObject(context.Background(), &tree.Node{
+			Path: "path/selection-uuid2-selection.zip",
+		}, &GetRequestData{
+			Length: -1,
+		})
+		So(e, ShouldNotBeNil)
 	})
 
 }

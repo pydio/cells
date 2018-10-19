@@ -29,9 +29,12 @@ import (
 
 	"fmt"
 
+	"encoding/json"
+
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
@@ -290,6 +293,39 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	}
 
 	resp.WriteEntity(output)
+
+}
+
+// Creates a temporary selection to be stored and used by a later action, currently only download
+func (h *Handler) CreateSelection(req *restful.Request, resp *restful.Response) {
+
+	var input rest.CreateSelectionRequest
+	if e := req.ReadEntity(&input); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	ctx := req.Request.Context()
+	username, _ := utils.FindUserNameInContext(ctx)
+	selectionUuid := uuid.New()
+	dcClient := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	data, _ := json.Marshal(input.Nodes)
+	if _, e := dcClient.PutDocument(ctx, &docstore.PutDocumentRequest{
+		StoreID:    common.DOCSTORE_ID_SELECTIONS,
+		DocumentID: selectionUuid,
+		Document: &docstore.Document{
+			Owner: username,
+			Data:  string(data),
+			ID:    selectionUuid,
+		},
+	}); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+	response := &rest.CreateSelectionResponse{
+		Nodes:         input.Nodes,
+		SelectionUUID: selectionUuid,
+	}
+	resp.WriteEntity(response)
 
 }
 

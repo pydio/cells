@@ -15,6 +15,7 @@
                replicationGroup="CONF_MESSAGE[ROOTS]" replicationDescription="CONF_MESSAGE[Absolute path to one or more root nodes]"
                replicationMandatory="true" replicationTitle="CONF_MESSAGE[Root Nodes]"/>
         <global_param name="LIST_NODES_PER_PAGE" type="integer" label="CONF_MESSAGE[#Items per page]" description="CONF_MESSAGE[Once in pagination mode, number of items to display per page.]" default="200" expose="true"/>
+        <global_param name="DOWNLOAD_ARCHIVE_FORMAT" type="select" choices="zip|Zip,tar|Tar,tar.gz|Tar.gz" label="CONF_MESSAGE[Default download format]" description="CONF_MESSAGE[When downloading a folder or a multiple selection, automatically create an archive using this format]" default="zip"/>
 	</server_settings>
 
 	<registry_contributions>
@@ -35,18 +36,18 @@
                     <clientCallback module="FSActions.Callbacks.ls"/>
                 </processing>
             </action>
-            <action name="download_folder">
+            <action name="download" fileDefault="false">
                 <gui text="88" title="88" iconClass="mdi mdi-download" accessKey="download_access_key" hasAccessKey="true">
                     <context selection="true" dir="" recycle="false"
                              actionBar="true" contextMenu="true" infoPanel="true"
                              actionBarGroup="0_get,inline,info_panel,minisite_toolbar">
                     </context>
-                    <selectionContext dir="true" file="false" recycle="false" unique="true" enableRoot="true"/>
-                </gui>
-                <processing>
-                    <clientCallback module="FSActions.Callbacks.downloadFolder"/>
-                </processing>
+                    <selectionContext dir="true" file="true" recycle="false" unique="false" enableRoot="false"/></gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
+                <processing>
+                    <clientCallback module="FSActions.Callbacks.download"/>
+                    <clientListener module="FSActions.Listeners.downloadSelectionChange" name="selectionChange"/>
+                </processing>
             </action>
             <action name="stat_hash">
                 <rightsContext adminOnly="false" noUser="false" read="true" userLogged="true" write="false"/>
@@ -89,19 +90,6 @@
                 <rightsContext noUser="true" userLogged="" read="true" write="true" adminOnly=""/>
                 <processing>
                     <clientCallback module="FSActions.Callbacks.emptyRecycle"/>
-                </processing>
-            </action>
-            <action name="download" fileDefault="false">
-                <gui text="88" title="88" iconClass="mdi mdi-download" accessKey="download_access_key" hasAccessKey="true">
-                    <context selection="true" dir="" recycle="false"
-                             actionBar="true" contextMenu="true" infoPanel="true"
-                             actionBarGroup="0_get,inline,info_panel,minisite_toolbar">
-                    </context>
-                    <selectionContext dir="false" file="true" recycle="false" unique="true" enableRoot="false"/></gui>
-                <rightsContext noUser="true" userLogged="only" read="true" write="false" adminOnly=""/>
-                <processing>
-                    <clientCallback module="FSActions.Callbacks.download"/>
-                    <clientListener module="FSActions.Listeners.downloadSelectionChange" name="selectionChange"/>
                 </processing>
             </action>
             <action name="open_with_unique">

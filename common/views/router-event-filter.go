@@ -56,7 +56,7 @@ func NewRouterEventFilter(options RouterOptions) *RouterEventFilter {
 	handlers = append(handlers,
 		NewWorkspaceRootResolver(),
 		NewPathDataSourceHandler(),
-		&ArchiveHandler{},    // Catch "GET" request on folder.zip and create archive on-demand
+		NewArchiveHandler(),  // Catch "GET" request on folder.zip and create archive on-demand
 		&PutHandler{},        // Handler adding a node precreation on PUT file request
 		&EncryptionHandler{}, // Handler retrieve encryption materials from encryption service
 		&VersionHandler{},

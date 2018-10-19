@@ -135,10 +135,14 @@ export default class WsAutoComplete extends React.Component{
             });
             if(Object.keys(categs).length > 1) {
                 dataSource.push({key: "h1", text: '', value: <MenuItem primaryText={m('ws.complete.datasources')} style={{fontSize: 13, fontWeight: 500}} disabled={true}/>});
-                dataSource.push(...categs[Object.keys(categs)[0]]);
+                const dValues = categs[Object.keys(categs)[0]];
+                dValues.sort(LangUtils.arraySorter("text"));
+                dataSource.push(...dValues);
                 if(!skipTemplates){
                     dataSource.push({key: "h2", text: '' , value: <MenuItem primaryText={m('ws.complete.templates')} style={{fontSize: 13, fontWeight: 500}} disabled={true}/>});
-                    dataSource.push(...categs[Object.keys(categs)[1]]);
+                    const tValues = categs[Object.keys(categs)[1]];
+                    tValues.sort(LangUtils.arraySorter("text"));
+                    dataSource.push(...tValues);
                 }
             } else if (Object.keys(categs).length === 1) {
                 dataSource.push(...categs[Object.keys(categs)[0]])

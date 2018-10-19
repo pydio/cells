@@ -25399,10 +25399,14 @@ var WsAutoComplete = (function (_React$Component) {
                     });
                     if (Object.keys(categs).length > 1) {
                         dataSource.push({ key: "h1", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.complete.datasources'), style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
-                        dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[0]]));
+                        var dValues = categs[Object.keys(categs)[0]];
+                        dValues.sort(LangUtils.arraySorter("text"));
+                        dataSource.push.apply(dataSource, _toConsumableArray(dValues));
                         if (!skipTemplates) {
                             dataSource.push({ key: "h2", text: '', value: _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('ws.complete.templates'), style: { fontSize: 13, fontWeight: 500 }, disabled: true }) });
-                            dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[1]]));
+                            var tValues = categs[Object.keys(categs)[1]];
+                            tValues.sort(LangUtils.arraySorter("text"));
+                            dataSource.push.apply(dataSource, _toConsumableArray(tValues));
                         }
                     } else if (Object.keys(categs).length === 1) {
                         dataSource.push.apply(dataSource, _toConsumableArray(categs[Object.keys(categs)[0]]));

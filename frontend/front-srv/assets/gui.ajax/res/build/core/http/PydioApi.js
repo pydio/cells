@@ -41,6 +41,22 @@ var _awsSdk = require('aws-sdk');
 
 var _awsSdk2 = _interopRequireDefault(_awsSdk);
 
+var _genModelRestCreateSelectionRequest = require('./gen/model/RestCreateSelectionRequest');
+
+var _genModelRestCreateSelectionRequest2 = _interopRequireDefault(_genModelRestCreateSelectionRequest);
+
+var _genModelTreeNode = require("./gen/model/TreeNode");
+
+var _genModelTreeNode2 = _interopRequireDefault(_genModelTreeNode);
+
+var _genApiTreeServiceApi = require("./gen/api/TreeServiceApi");
+
+var _genApiTreeServiceApi2 = _interopRequireDefault(_genApiTreeServiceApi);
+
+var _modelAjxpNode = require("../model/AjxpNode");
+
+var _modelAjxpNode2 = _interopRequireDefault(_modelAjxpNode);
+
 /**
  * API Client
  */
@@ -135,7 +151,9 @@ var PydioApi = (function () {
                 // Warning, avoid double error
                 var errorSent = false;
                 var localError = function localError(xhr) {
-                    if (!errorSent) onError('Request failed with status :' + xhr.status);
+                    if (!errorSent) {
+                        onError('Request failed with status :' + xhr.status);
+                    }
                     errorSent = true;
                 };
                 var c = new Connexion();
@@ -151,30 +169,62 @@ var PydioApi = (function () {
     /**
      *
      * @param userSelection UserSelection A Pydio DataModel with selected files
-     * @param dlActionName String Action name to trigger, download by default.
-     * @param additionalParameters Object Optional set of key/values to pass to the download.
      */
 
     PydioApi.prototype.downloadSelection = function downloadSelection(userSelection) {
         var _this = this;
 
-        var dlActionName = arguments.length <= 1 || arguments[1] === undefined ? 'download' : arguments[1];
-        var additionalParameters = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
+        var pydio = this.getPydioObject();
         var agent = navigator.userAgent || '';
         var agentIsMobile = agent.indexOf('iPhone') !== -1 || agent.indexOf('iPod') !== -1 || agent.indexOf('iPad') !== -1 || agent.indexOf('iOs') !== -1;
-        var hiddenForm = this._pydioObject && this._pydioObject.UI && this._pydioObject.UI.hasHiddenDownloadForm();
 
-        if (userSelection.getSelectedNodes().length === 1 && Object.keys(additionalParameters).length === 0) {
-            this.buildPresignedGetUrl(userSelection.getUniqueNode()).then(function (url) {
+        var hiddenForm = pydio.UI && pydio.UI.hasHiddenDownloadForm();
+        var archiveExt = pydio.getPluginConfigs("access.gateway").get("DOWNLOAD_ARCHIVE_FORMAT") || "zip";
+
+        if (userSelection.isUnique()) {
+            var downloadNode = undefined,
+                attachmentName = undefined;
+            var uniqueNode = userSelection.getUniqueNode();
+            if (uniqueNode.isLeaf()) {
+                downloadNode = uniqueNode;
+                attachmentName = uniqueNode.getLabel();
+            } else {
+                downloadNode = new _modelAjxpNode2['default'](uniqueNode.getPath() + '.' + archiveExt, false);
+                attachmentName = uniqueNode.getLabel() + '.' + archiveExt;
+            }
+
+            this.buildPresignedGetUrl(downloadNode, null, '', null, attachmentName).then(function (url) {
                 if (agentIsMobile || !hiddenForm) {
                     document.location.href = url;
                 } else {
-                    _this._pydioObject.UI.sendDownloadToHiddenForm(userSelection, { presignedUrl: url });
+                    _this.getPydioObject().UI.sendDownloadToHiddenForm(userSelection, { presignedUrl: url });
                 }
             });
         } else {
-            throw new Error('Multiple selection download is not supported yet.');
+            (function () {
+                var selection = new _genModelRestCreateSelectionRequest2['default']();
+                selection.Nodes = [];
+                var slug = _this.getPydioObject().user.getActiveRepositoryObject().getSlug();
+                selection.Nodes = userSelection.getSelectedNodes().map(function (node) {
+                    var tNode = new _genModelTreeNode2['default']();
+                    tNode.Path = slug + node.getPath();
+                    return tNode;
+                });
+                var api = new _genApiTreeServiceApi2['default'](PydioApi.getRestClient());
+                api.createSelection(selection).then(function (response) {
+                    var SelectionUUID = response.SelectionUUID;
+
+                    var fakeNodePath = _this.getPydioObject().getContextHolder().getContextNode().getPath() + "/" + SelectionUUID + '-selection.' + archiveExt;
+                    var fakeNode = new _modelAjxpNode2['default'](fakeNodePath, true);
+                    _this.buildPresignedGetUrl(fakeNode, null, '', null, 'selection.' + archiveExt).then(function (url) {
+                        if (agentIsMobile || !hiddenForm) {
+                            document.location.href = url;
+                        } else {
+                            _this.getPydioObject().UI.sendDownloadToHiddenForm(userSelection, { presignedUrl: url });
+                        }
+                    });
+                });
+            })();
         }
     };
 
@@ -239,6 +289,7 @@ var PydioApi = (function () {
         var callback = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
         var presetType = arguments.length <= 2 || arguments[2] === undefined ? '' : arguments[2];
         var bucketParams = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
+        var attachmentName = arguments.length <= 4 || arguments[4] === undefined ? '' : arguments[4];
 
         var url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
         var slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
@@ -269,6 +320,7 @@ var PydioApi = (function () {
             case 'detect':
                 cType = _utilPathUtils2['default'].getAjxpMimeType(node);
                 cDisposition = 'inline';
+                break;
             default:
                 break;
         }
@@ -286,6 +338,8 @@ var PydioApi = (function () {
         }
         if (cDisposition) {
             params['ResponseContentDisposition'] = cDisposition;
+        } else if (attachmentName) {
+            params['ResponseContentDisposition'] = 'attachment; filename=' + encodeURIComponent(attachmentName);
         }
 
         var resolver = function resolver(jwt, cb) {
