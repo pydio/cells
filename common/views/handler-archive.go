@@ -30,12 +30,34 @@ import (
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
+	"encoding/json"
+
+	"path"
+
+	"time"
+
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/tree"
+	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/utils"
 )
+
+type selectionProvider interface {
+	getSelectionByUuid(ctx context.Context, selectionUuid string) (bool, []*tree.Node, error)
+	deleteSelectionByUuid(ctx context.Context, selectionUuid string)
+}
 
 type ArchiveHandler struct {
 	AbstractHandler
+	selectionProvider selectionProvider
+}
+
+func NewArchiveHandler() *ArchiveHandler {
+	a := &ArchiveHandler{}
+	a.selectionProvider = a
+	return a
 }
 
 // Override the response of GetObject if it is sent on a folder key : create an archive on-the-fly.
@@ -66,13 +88,33 @@ func (a *ArchiveHandler) GetObject(ctx context.Context, node *tree.Node, request
 	}
 
 	readCloser, err := a.next.GetObject(ctx, node, requestData)
-	if testFolder := a.archiveFolderName(originalPath); err != nil && len(testFolder) > 0 {
-		r, w := io.Pipe()
-		go func() {
-			defer w.Close()
-			a.generateArchiveFromFolder(ctx, w, originalPath)
-		}()
-		return r, nil
+	if err != nil {
+		if selectionUuid := a.selectionFakeName(originalPath); selectionUuid != "" {
+			ok, nodes, er := a.selectionProvider.getSelectionByUuid(ctx, selectionUuid)
+			if er != nil {
+				return readCloser, er
+			}
+			if ok && len(nodes) > 0 {
+				ext := strings.Trim(path.Ext(originalPath), ".")
+				r, w := io.Pipe()
+				go func() {
+					defer w.Close()
+					defer func() {
+						// Delete selection after download
+						a.selectionProvider.deleteSelectionByUuid(context.Background(), selectionUuid)
+					}()
+					a.generateArchiveFromSelection(ctx, w, nodes, ext)
+				}()
+				return r, nil
+			}
+		} else if testFolder := a.archiveFolderName(originalPath); len(testFolder) > 0 {
+			r, w := io.Pipe()
+			go func() {
+				defer w.Close()
+				a.generateArchiveFromFolder(ctx, w, originalPath)
+			}()
+			return r, nil
+		}
 	}
 
 	return readCloser, err
@@ -110,13 +152,34 @@ func (a *ArchiveHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequest,
 	}
 
 	response, err := a.next.ReadNode(ctx, in, opts...)
-	if folderName := a.archiveFolderName(originalPath); folderName != "" && err != nil {
-		fakeNode, err := a.archiveFakeStat(ctx, originalPath)
-		if err == nil && fakeNode != nil {
-			response = &tree.ReadNodeResponse{
-				Node: fakeNode,
+	if err != nil {
+		// Check if it's a selection Uuid
+		if selectionUuid := a.selectionFakeName(originalPath); selectionUuid != "" {
+			ok, nodes, er := a.selectionProvider.getSelectionByUuid(ctx, selectionUuid)
+			if er != nil {
+				return response, er
 			}
-			return response, nil
+			if ok && len(nodes) > 0 {
+				// Send a fake stat
+				fakeNode := &tree.Node{
+					Path:      path.Dir(originalPath) + "selection.zip",
+					Type:      tree.NodeType_LEAF,
+					Size:      -1,
+					Etag:      selectionUuid,
+					MTime:     time.Now().Unix(),
+					MetaStore: map[string]string{"name": "selection.zip"},
+				}
+				return &tree.ReadNodeResponse{Node: fakeNode}, nil
+			}
+		} else if folderName := a.archiveFolderName(originalPath); folderName != "" {
+			// Check if it's a folder
+			fakeNode, err := a.archiveFakeStat(ctx, originalPath)
+			if err == nil && fakeNode != nil {
+				response = &tree.ReadNodeResponse{
+					Node: fakeNode,
+				}
+				return response, nil
+			}
 		}
 	}
 	return response, err
@@ -186,6 +249,14 @@ func (a *ArchiveHandler) isArchivePath(nodePath string) (ok bool, format string,
 	return false, "", "", ""
 }
 
+func (a *ArchiveHandler) selectionFakeName(nodePath string) string {
+	if strings.HasSuffix(nodePath, "-selection.zip") || strings.HasSuffix(nodePath, "-selection.tar") || strings.HasSuffix(nodePath, "-selection.tar.gz") {
+		fName := path.Base(nodePath)
+		return strings.TrimSuffix(strings.TrimSuffix(strings.TrimSuffix(fName, "-selection.zip"), "-selection.tar.gz"), "-selection.tar")
+	}
+	return ""
+}
+
 func (a *ArchiveHandler) archiveFolderName(nodePath string) string {
 	if strings.HasSuffix(nodePath, ".zip") || strings.HasSuffix(nodePath, ".tar") || strings.HasSuffix(nodePath, ".tar.gz") {
 		fName := strings.TrimSuffix(strings.TrimSuffix(strings.TrimSuffix(nodePath, ".zip"), ".gz"), ".tar")
@@ -220,25 +291,72 @@ func (a *ArchiveHandler) generateArchiveFromFolder(ctx context.Context, writer i
 
 		n, er := a.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: noExt}})
 		if er == nil && n != nil {
-			// This is a folder, trigger a zip download
-			archiveWriter := &ArchiveWriter{
-				Router: a,
-			}
-			selection := []*tree.Node{n.Node}
-			var err error
-			if strings.HasSuffix(nodePath, ".zip") {
-				log.Logger(ctx).Debug("This is a zip, create a zip on the fly")
-				_, err = archiveWriter.ZipSelection(ctx, writer, selection)
-			} else if strings.HasSuffix(nodePath, ".tar") {
-				log.Logger(ctx).Debug("This is a tar, create a tar on the fly")
-				_, err = archiveWriter.TarSelection(ctx, writer, false, selection)
-			} else if strings.HasSuffix(nodePath, ".tar.gz") {
-				log.Logger(ctx).Debug("This is a tar.gz, create a tar.gz on the fly")
-				_, err = archiveWriter.TarSelection(ctx, writer, true, selection)
-			}
+			ext := strings.Trim(path.Ext(nodePath), ".")
+			err := a.generateArchiveFromSelection(ctx, writer, []*tree.Node{n.Node}, ext)
 			return true, err
 		}
 	}
 
 	return false, nil
+}
+
+// generateArchiveFromSelection Create a zip/tar/tar.gz on the fly
+func (a *ArchiveHandler) generateArchiveFromSelection(ctx context.Context, writer io.Writer, selection []*tree.Node, format string) error {
+
+	archiveWriter := &ArchiveWriter{
+		Router: a,
+	}
+	var err error
+	if format == "zip" {
+		log.Logger(ctx).Debug("This is a zip, create a zip on the fly")
+		_, err = archiveWriter.ZipSelection(ctx, writer, selection)
+	} else if format == "tar" {
+		log.Logger(ctx).Debug("This is a tar, create a tar on the fly")
+		_, err = archiveWriter.TarSelection(ctx, writer, false, selection)
+	} else if format == "gz" {
+		log.Logger(ctx).Debug("This is a tar.gz, create a tar.gz on the fly")
+		_, err = archiveWriter.TarSelection(ctx, writer, true, selection)
+	}
+
+	return err
+
+}
+
+// getSelectionByUuid loads a selection stored in DocStore service by its id.
+func (a *ArchiveHandler) getSelectionByUuid(ctx context.Context, selectionUuid string) (bool, []*tree.Node, error) {
+
+	var data []*tree.Node
+	dcClient := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	if resp, e := dcClient.GetDocument(ctx, &docstore.GetDocumentRequest{
+		StoreID:    common.DOCSTORE_ID_SELECTIONS,
+		DocumentID: selectionUuid,
+	}); e == nil {
+		doc := resp.Document
+		username, _ := utils.FindUserNameInContext(ctx)
+		if username != doc.Owner {
+			return false, data, errors.Forbidden("selection.forbidden", "this selection does not belong to you")
+		}
+		if er := json.Unmarshal([]byte(doc.Data), &data); er != nil {
+			return false, data, er
+		} else {
+			return true, data, nil
+		}
+	} else {
+		return false, data, nil
+	}
+
+}
+
+// deleteSelectionByUuid Delete selection
+func (a *ArchiveHandler) deleteSelectionByUuid(ctx context.Context, selectionUuid string) {
+	dcClient := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
+	_, e := dcClient.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{
+		StoreID:    common.DOCSTORE_ID_SELECTIONS,
+		DocumentID: selectionUuid,
+	})
+	if e != nil {
+		log.Logger(ctx).Error("Could not delete selection")
+	} else {
+		log.Logger(ctx).Debug("Deleted selection after download " + selectionUuid)
+	}
 }

@@ -51,6 +51,8 @@ It has these top-level messages:
 	HeadNodeRequest
 	HeadNodeResponse
 	CreateNodesRequest
+	CreateSelectionRequest
+	CreateSelectionResponse
 	NodesCollection
 	DeleteNodesRequest
 	BackgroundJobResult

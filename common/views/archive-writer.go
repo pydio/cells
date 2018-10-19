@@ -43,6 +43,14 @@ type walkFunction func(node *tree.Node) error
 
 func (w *ArchiveWriter) walkObjectsWithCallback(ctx context.Context, nodePath string, cb walkFunction) error {
 
+	r, e := w.Router.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: nodePath}})
+	if e != nil {
+		return e
+	}
+	if r.Node.IsLeaf() {
+		cb(r.Node)
+		return nil
+	}
 	lNodeClient, err := w.Router.ListNodes(ctx, &tree.ListNodesRequest{
 		Node: &tree.Node{
 			Path: nodePath,

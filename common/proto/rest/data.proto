@@ -71,6 +71,17 @@ message CreateNodesRequest {
     bool Recursive = 2;
 }
 
+message CreateSelectionRequest {
+    repeated tree.Node Nodes = 1;
+    string TargetAction = 2;
+    bool Persist = 3;
+}
+
+message CreateSelectionResponse {
+    string SelectionUUID = 1;
+    repeated tree.Node Nodes = 2;
+}
+
 message NodesCollection {
     tree.Node Parent = 1;
     repeated tree.Node Children = 2;

@@ -147,7 +147,7 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 
 	// First try, without modifying ctx & node
 	_, _, err := m.updateInputBranch(ctx, &tree.Node{Path: in.Node.Path}, "in")
-	if err != nil && errors.Parse(err.Error()).Status == "Not Found" {
+	if err != nil && errors.Parse(err.Error()).Status == "Not Found" && (in.Node.Path == "/" || in.Node.Path == "") {
 
 		// Load root nodes and
 		// return a fake root node

@@ -88,10 +88,10 @@ func StoreHashDocument(ctx context.Context, link *rest.ShareLink, updateHash ...
 		Data:          string(hashDocMarshaled),
 		IndexableMeta: string(hashDocMarshaled),
 	}
-	_, e := store.PutDocument(ctx, &docstore.PutDocumentRequest{Document: doc, DocumentID: doc.ID, StoreID: "share"})
+	_, e := store.PutDocument(ctx, &docstore.PutDocumentRequest{Document: doc, DocumentID: doc.ID, StoreID: common.DOCSTORE_ID_SHARES})
 
 	if removeHash != "" {
-		_, e = store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: "share", DocumentID: removeHash})
+		_, e = store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DOCSTORE_ID_SHARES, DocumentID: removeHash})
 	}
 
 	return e
@@ -101,7 +101,7 @@ func StoreHashDocument(ctx context.Context, link *rest.ShareLink, updateHash ...
 func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls []*idm.ACL) error {
 
 	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
-	streamer, er := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: "share", Query: &docstore.DocumentQuery{
+	streamer, er := store.ListDocuments(ctx, &docstore.ListDocumentsRequest{StoreID: common.DOCSTORE_ID_SHARES, Query: &docstore.DocumentQuery{
 		MetaQuery: "+REPOSITORY:\"" + shareLink.Uuid + "\" +SHARE_TYPE:minisite",
 	}})
 	if er != nil {
@@ -170,7 +170,7 @@ func LoadHashDocumentData(ctx context.Context, shareLink *rest.ShareLink, acls [
 func DeleteHashDocument(ctx context.Context, shareId string) error {
 
 	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
-	resp, err := store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: "share", Query: &docstore.DocumentQuery{
+	resp, err := store.DeleteDocuments(ctx, &docstore.DeleteDocumentsRequest{StoreID: common.DOCSTORE_ID_SHARES, Query: &docstore.DocumentQuery{
 		MetaQuery: "+REPOSITORY:\"" + shareId + "\" +SHARE_TYPE:minisite",
 	}})
 	if err != nil {

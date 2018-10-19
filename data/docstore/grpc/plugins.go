@@ -62,11 +62,11 @@ func init() {
 			}
 
 			for id, json := range defaults() {
-				if doc, e := store.GetDocument("virtualnodes", id); e == nil && doc != nil {
+				if doc, e := store.GetDocument(common.DOCSTORE_ID_VIRTUALNODES, id); e == nil && doc != nil {
 					continue // Already defined
 				}
 				handler.PutDocument(context.Background(),
-					&proto.PutDocumentRequest{StoreID: "virtualnodes", DocumentID: id, Document: &proto.Document{
+					&proto.PutDocumentRequest{StoreID: common.DOCSTORE_ID_VIRTUALNODES, DocumentID: id, Document: &proto.Document{
 						ID:            id,
 						Owner:         common.PYDIO_SYSTEM_USERNAME,
 						Data:          json,

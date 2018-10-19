@@ -35,7 +35,7 @@ type (
 	LogConfigType string
 )
 
-// Defines all strings used as keys.
+// Defines all constants for services names.
 const (
 	SERVICE_CONSUL = "consul"
 	SERVICE_NATS   = "nats"
@@ -103,7 +103,10 @@ const (
 	SERVICE_GATEWAY_DAV   = SERVICE_GATEWAY_NAMESPACE_ + "dav"
 	SERVICE_GATEWAY_WOPI  = SERVICE_GATEWAY_NAMESPACE_ + "wopi"
 	SERVICE_MICRO_API     = SERVICE_GATEWAY_NAMESPACE_ + "rest"
+)
 
+// Define constants for Event Bus Topics
+const (
 	TOPIC_SERVICE_STOP     = "topic.pydio.service.stop"
 	TOPIC_INDEX_CHANGES    = "topic.pydio.index.nodes.changes"
 	TOPIC_TREE_CHANGES     = "topic.pydio.tree.nodes.changes"
@@ -115,7 +118,10 @@ const (
 	TOPIC_ACTIVITY_EVENT   = "topic.pydio.activity.event"
 	TOPIC_CHAT_EVENT       = "topic.pydio.chat.event"
 	TOPIC_DATASOURCE_EVENT = "topic.pydio.datasource.event"
+)
 
+// Define constants for metadata and fixed datasources
+const (
 	META_NAMESPACE_DATASOURCE_NAME        = "pydio:meta-data-source-name"
 	META_NAMESPACE_DATASOURCE_PATH        = "pydio:meta-data-source-path"
 	META_NAMESPACE_NODE_TEST_LOCAL_FOLDER = "pydio:test:local-folder-storage"
@@ -125,7 +131,10 @@ const (
 	PYDIO_THUMBSTORE_NAMESPACE        = "pydio-thumbstore"
 	PYDIO_DOCSTORE_BINARIES_NAMESPACE = "pydio-binaries"
 	PYDIO_VERSIONS_NAMESPACE          = "versions-store"
+)
 
+// Additional constants for authentication/authorization aspects
+const (
 	PYDIO_CONTEXT_USER_KEY      = "X-Pydio-User"
 	PYDIO_SYSTEM_USERNAME       = "pydio.system.user"
 	PYDIO_S3ANON_USERNAME       = "pydio.anon.user"
@@ -140,7 +149,19 @@ const (
 	KEYRING_MASTER_KEY       = "keyring.master"
 	META_FLAG_READONLY       = "node_readonly"
 	NODE_FLAG_ETAG_TEMPORARY = "temporary"
+)
 
+// DocStore constants for StoreID's
+const (
+	DOCSTORE_ID_SELECTIONS          = "selections"
+	DOCSTORE_ID_VIRTUALNODES        = "virtualnodes"
+	DOCSTORE_ID_VERSIONING_POLICIES = "versioningPolicies"
+	DOCSTORE_ID_SHARES              = "share"
+	DOCSTORE_ID_RESET_PASS_KEYS     = "resetPasswordKeys"
+)
+
+// Define constants for Loggging configuration
+const (
 	LogConfigConsole    LogConfigType = "console"
 	LogConfigProduction LogConfigType = "production"
 )

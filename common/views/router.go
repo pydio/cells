@@ -55,7 +55,7 @@ func NewStandardRouter(options RouterOptions) *Router {
 			AllowAnonRead: true,
 		},
 	}
-	handlers = append(handlers, &ArchiveHandler{})
+	handlers = append(handlers, NewArchiveHandler())
 	handlers = append(handlers, NewPathWorkspaceHandler())
 	handlers = append(handlers, NewPathMultipleRootsHandler())
 	if !options.BrowseVirtualNodes && !options.AdminView {

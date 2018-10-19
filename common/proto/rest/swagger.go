@@ -2194,6 +2194,33 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/tree/selection": {
+      "post": {
+        "summary": "Create a temporary selection for further action (namely download)",
+        "operationId": "CreateSelection",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restCreateSelectionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restCreateSelectionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TreeService"
+        ]
+      }
+    },
     "/tree/stat/{Node}": {
       "get": {
         "summary": "Return node meta without the node content itself",
@@ -5233,6 +5260,38 @@ var SwaggerJson = `{
         "Recursive": {
           "type": "boolean",
           "format": "boolean"
+        }
+      }
+    },
+    "restCreateSelectionRequest": {
+      "type": "object",
+      "properties": {
+        "Nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/treeNode"
+          }
+        },
+        "TargetAction": {
+          "type": "string"
+        },
+        "Persist": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "restCreateSelectionResponse": {
+      "type": "object",
+      "properties": {
+        "SelectionUUID": {
+          "type": "string"
+        },
+        "Nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/treeNode"
+          }
         }
       }
     },

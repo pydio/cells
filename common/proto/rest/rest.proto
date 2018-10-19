@@ -446,6 +446,14 @@ service TreeService {
             body: "*"
         };
     }
+
+    // Create a temporary selection for further action (namely download)
+    rpc CreateSelection(CreateSelectionRequest) returns (CreateSelectionResponse) {
+        option (google.api.http) = {
+            post: "/tree/selection"
+            body: "*"
+        };
+    }
 }
 
 

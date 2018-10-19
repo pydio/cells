@@ -41,7 +41,7 @@ func (s *Handler) ListVirtualNodes(req *restful.Request, resp *restful.Response)
 	//T := lang.Bundle().GetTranslationFunc(utils.UserLanguagesFromRestRequest(req)...)
 	dc := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 	docs, er := dc.ListDocuments(req.Request.Context(), &docstore.ListDocumentsRequest{
-		StoreID: "virtualnodes",
+		StoreID: common.DOCSTORE_ID_VIRTUALNODES,
 	})
 	if er != nil {
 		service.RestError500(req, resp, er)
