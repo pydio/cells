@@ -29,15 +29,7 @@ exports['default'] = function (pydio) {
 
     return function () {
         var userSelection = pydio.getUserSelection();
-        if (userSelection.isUnique() && !userSelection.hasDir() || pydio.Parameters.get('multipleFilesDownloadEnabled')) {
-            PydioApi.getClient().downloadSelection(userSelection, 'download');
-        } else {
-            pydio.UI.openComponentInModal('FSActions', 'MultiDownloadDialog', {
-                actionName: 'download',
-                selection: userSelection,
-                dialogTitleId: 88
-            });
-        }
+        PydioApi.getClient().downloadSelection(userSelection);
     };
 };
 

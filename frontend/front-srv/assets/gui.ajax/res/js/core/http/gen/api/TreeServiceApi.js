@@ -15,6 +15,8 @@
 import ApiClient from "../ApiClient";
 import RestBulkMetaResponse from '../model/RestBulkMetaResponse';
 import RestCreateNodesRequest from '../model/RestCreateNodesRequest';
+import RestCreateSelectionRequest from '../model/RestCreateSelectionRequest';
+import RestCreateSelectionResponse from '../model/RestCreateSelectionResponse';
 import RestDeleteNodesRequest from '../model/RestDeleteNodesRequest';
 import RestDeleteNodesResponse from '../model/RestDeleteNodesResponse';
 import RestGetBulkMetaRequest from '../model/RestGetBulkMetaRequest';
@@ -133,6 +135,54 @@ export default class TreeServiceApi {
      */
     createNodes(body) {
       return this.createNodesWithHttpInfo(body)
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * Create a temporary selection for further action (namely download)
+     * @param {module:model/RestCreateSelectionRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestCreateSelectionResponse} and HTTP response
+     */
+    createSelectionWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling createSelection");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestCreateSelectionResponse;
+
+      return this.apiClient.callApi(
+        '/tree/selection', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * Create a temporary selection for further action (namely download)
+     * @param {module:model/RestCreateSelectionRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestCreateSelectionResponse}
+     */
+    createSelection(body) {
+      return this.createSelectionWithHttpInfo(body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

@@ -14434,6 +14434,48 @@
             "description": "Create dirs or empty files inside the tree"
           },
           {
+            "name": "createSelectionWithHttpInfo",
+            "docblock": "Create a temporary selection for further action (namely download)\n@param {module:model/RestCreateSelectionRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestCreateSelectionResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestCreateSelectionRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestCreateSelectionResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Create a temporary selection for further action (namely download)"
+          },
+          {
+            "name": "createSelection",
+            "docblock": "Create a temporary selection for further action (namely download)\n@param {module:model/RestCreateSelectionRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestCreateSelectionResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestCreateSelectionRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestCreateSelectionResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "Create a temporary selection for further action (namely download)"
+          },
+          {
             "name": "deleteNodesWithHttpInfo",
             "docblock": "Handle nodes deletion\n@param {module:model/RestDeleteNodesRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteNodesResponse} and HTTP response",
             "modifiers": [],
@@ -19865,6 +19907,98 @@
               }
             },
             "description": "Constructs a <code>RestCreateNodesRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestCreateSelectionRequest.js": [
+      {
+        "description": "The RestCreateSelectionRequest model module.\n@module model/RestCreateSelectionRequest\n@version 1.0",
+        "displayName": "RestCreateSelectionRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestCreateSelectionRequest</code>.\n@alias module:model/RestCreateSelectionRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestCreateSelectionRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestCreateSelectionRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestCreateSelectionRequest} obj Optional instance to populate.\n@return {module:model/RestCreateSelectionRequest} The populated <code>RestCreateSelectionRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestCreateSelectionRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestCreateSelectionRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestCreateSelectionRequest"
+              }
+            },
+            "description": "Constructs a <code>RestCreateSelectionRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestCreateSelectionResponse.js": [
+      {
+        "description": "The RestCreateSelectionResponse model module.\n@module model/RestCreateSelectionResponse\n@version 1.0",
+        "displayName": "RestCreateSelectionResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestCreateSelectionResponse</code>.\n@alias module:model/RestCreateSelectionResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestCreateSelectionResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestCreateSelectionResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestCreateSelectionResponse} obj Optional instance to populate.\n@return {module:model/RestCreateSelectionResponse} The populated <code>RestCreateSelectionResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestCreateSelectionResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestCreateSelectionResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestCreateSelectionResponse"
+              }
+            },
+            "description": "Constructs a <code>RestCreateSelectionResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

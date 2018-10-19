@@ -21,6 +21,10 @@ import XMLUtils from '../util/XMLUtils'
 import PathUtils from '../util/PathUtils'
 import RestClient from './RestClient'
 import AWS from 'aws-sdk'
+import RestCreateSelectionRequest from './gen/model/RestCreateSelectionRequest'
+import TreeNode from "./gen/model/TreeNode";
+import TreeServiceApi from "./gen/api/TreeServiceApi";
+import AjxpNode from "../model/AjxpNode";
 
 /**
  * API Client
@@ -99,8 +103,10 @@ class PydioApi{
         if(window.Connexion){
             // Warning, avoid double error
             let errorSent = false;
-            let localError = function(xhr){
-                if(!errorSent) onError('Request failed with status :' + xhr.status);
+            let localError = (xhr) => {
+                if(!errorSent) {
+                    onError('Request failed with status :' + xhr.status);
+                }
                 errorSent = true;
             };
             let c = new Connexion();
@@ -113,25 +119,56 @@ class PydioApi{
     /**
      *
      * @param userSelection UserSelection A Pydio DataModel with selected files
-     * @param dlActionName String Action name to trigger, download by default.
-     * @param additionalParameters Object Optional set of key/values to pass to the download.
      */
-    downloadSelection(userSelection, dlActionName='download', additionalParameters = {}){
+    downloadSelection(userSelection){
 
+        const pydio = this.getPydioObject();
         const agent = navigator.userAgent || '';
         const agentIsMobile = (agent.indexOf('iPhone')!==-1||agent.indexOf('iPod')!==-1||agent.indexOf('iPad')!==-1||agent.indexOf('iOs')!==-1);
-        const hiddenForm = this._pydioObject && this._pydioObject.UI && this._pydioObject.UI.hasHiddenDownloadForm();
 
-        if (userSelection.getSelectedNodes().length === 1 && Object.keys(additionalParameters).length === 0) {
-            this.buildPresignedGetUrl(userSelection.getUniqueNode()).then(url => {
+        const hiddenForm = pydio.UI && pydio.UI.hasHiddenDownloadForm();
+        const archiveExt = pydio.getPluginConfigs("access.gateway").get("DOWNLOAD_ARCHIVE_FORMAT") || "zip";
+
+        if (userSelection.isUnique()) {
+            let downloadNode, attachmentName;
+            const uniqueNode = userSelection.getUniqueNode();
+            if(uniqueNode.isLeaf()){
+                downloadNode = uniqueNode;
+                attachmentName = uniqueNode.getLabel();
+            } else {
+                downloadNode = new AjxpNode(uniqueNode.getPath() + '.' + archiveExt, false);
+                attachmentName = uniqueNode.getLabel() + '.' + archiveExt;
+            }
+
+            this.buildPresignedGetUrl(downloadNode, null, '', null, attachmentName).then(url => {
                 if(agentIsMobile || !hiddenForm){
                     document.location.href = url;
                 } else {
-                    this._pydioObject.UI.sendDownloadToHiddenForm(userSelection, {presignedUrl: url});
+                    this.getPydioObject().UI.sendDownloadToHiddenForm(userSelection, {presignedUrl: url});
                 }
             });
         } else {
-            throw new Error('Multiple selection download is not supported yet.');
+            const selection = new RestCreateSelectionRequest();
+            selection.Nodes = [];
+            const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
+            selection.Nodes = userSelection.getSelectedNodes().map(node => {
+                const tNode = new TreeNode();
+                tNode.Path = slug + node.getPath();
+                return tNode;
+            });
+            const api = new TreeServiceApi(PydioApi.getRestClient());
+            api.createSelection(selection).then(response => {
+                const {SelectionUUID} = response;
+                const fakeNodePath = this.getPydioObject().getContextHolder().getContextNode().getPath() + "/" + SelectionUUID + '-selection.' + archiveExt;
+                const fakeNode = new AjxpNode(fakeNodePath, true);
+                this.buildPresignedGetUrl(fakeNode, null, '', null, 'selection.' + archiveExt).then(url => {
+                    if(agentIsMobile || !hiddenForm){
+                        document.location.href = url;
+                    } else {
+                        this.getPydioObject().UI.sendDownloadToHiddenForm(userSelection, {presignedUrl: url});
+                    }
+                });
+            })
         }
 
     }
@@ -184,7 +221,7 @@ class PydioApi{
      * @param bucketParams
      * @return {Promise}|null Return a Promise if callback is null, or call the callback
      */
-    buildPresignedGetUrl(node, callback = null, presetType = '', bucketParams = null) {
+    buildPresignedGetUrl(node, callback = null, presetType = '', bucketParams = null, attachmentName = '') {
         const url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
         const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
         let cType = '', cDisposition;
@@ -213,6 +250,7 @@ class PydioApi{
             case 'detect':
                 cType = PathUtils.getAjxpMimeType(node);
                 cDisposition = 'inline';
+                break;
             default:
                 break;
         }
@@ -230,6 +268,8 @@ class PydioApi{
         }
         if(cDisposition) {
             params['ResponseContentDisposition'] = cDisposition;
+        } else if (attachmentName ){
+            params['ResponseContentDisposition'] = 'attachment; filename=' + encodeURIComponent(attachmentName);
         }
 
         const resolver = (jwt, cb) => {

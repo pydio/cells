@@ -429,6 +429,14 @@ var _modelRestCreateNodesRequest = require('./model/RestCreateNodesRequest');
 
 var _modelRestCreateNodesRequest2 = _interopRequireDefault(_modelRestCreateNodesRequest);
 
+var _modelRestCreateSelectionRequest = require('./model/RestCreateSelectionRequest');
+
+var _modelRestCreateSelectionRequest2 = _interopRequireDefault(_modelRestCreateSelectionRequest);
+
+var _modelRestCreateSelectionResponse = require('./model/RestCreateSelectionResponse');
+
+var _modelRestCreateSelectionResponse2 = _interopRequireDefault(_modelRestCreateSelectionResponse);
+
 var _modelRestDataSourceCollection = require('./model/RestDataSourceCollection');
 
 var _modelRestDataSourceCollection2 = _interopRequireDefault(_modelRestDataSourceCollection);
@@ -1668,6 +1676,20 @@ exports.
  * @property {module:model/RestCreateNodesRequest}
  */
 RestCreateNodesRequest = _modelRestCreateNodesRequest2['default'];
+exports.
+
+/**
+ * The RestCreateSelectionRequest model constructor.
+ * @property {module:model/RestCreateSelectionRequest}
+ */
+RestCreateSelectionRequest = _modelRestCreateSelectionRequest2['default'];
+exports.
+
+/**
+ * The RestCreateSelectionResponse model constructor.
+ * @property {module:model/RestCreateSelectionResponse}
+ */
+RestCreateSelectionResponse = _modelRestCreateSelectionResponse2['default'];
 exports.
 
 /**
