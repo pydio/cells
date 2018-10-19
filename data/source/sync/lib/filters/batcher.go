@@ -218,6 +218,7 @@ func (ev *EventsBatcher) ProcessEvents(events []common.EventInfo) {
 	batch := NewBatch()
 
 	for _, event := range events {
+		log.Logger(ev.globalContext).Debug("[batcher]", zap.Any("type", event.Type), zap.Any("path", event.Path), zap.Any("sourceNode", event.ScanSourceNode))
 		key := event.Path
 		var bEvent = &BatchedEvent{
 			Source:    ev.Source,
@@ -235,9 +236,9 @@ func (ev *EventsBatcher) ProcessEvents(events []common.EventInfo) {
 			batch.Deletes[key] = bEvent
 		}
 	}
-	log.Logger(ev.globalContext).Debug("Batch Before Filtering", zap.Any("batch", batch))
+	log.Logger(ev.globalContext).Debug("Batch Before Filtering", batch.Zaps()...)
 	ev.FilterBatch(batch)
-	log.Logger(ev.globalContext).Debug("Batch After Filtering", zap.Any("batch", batch))
+	log.Logger(ev.globalContext).Debug("Batch After Filtering", batch.Zaps()...)
 	ev.batchOut <- batch
 
 }
@@ -257,6 +258,7 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 
 					ev.batchCacheMutex.Lock()
 					ev.batchCache[session] = append(ev.batchCache[session], event)
+					log.Logger(ev.globalContext).Debug("[batcher] Processing session")
 					go ev.ProcessEvents(ev.batchCache[session])
 					delete(ev.batchCache, session)
 					ev.batchCacheMutex.Unlock()
@@ -271,6 +273,7 @@ func (ev *EventsBatcher) BatchEvents(in chan common.EventInfo, out chan *Batch, 
 		case <-time.After(duration):
 			// Process Queue
 			if len(batch) > 0 {
+				log.Logger(ev.globalContext).Debug("[batcher] Processing batch after timeout")
 				go ev.ProcessEvents(batch)
 				batch = nil
 			}
