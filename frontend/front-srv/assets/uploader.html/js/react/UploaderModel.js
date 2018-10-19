@@ -88,13 +88,13 @@
             }
         }
         _doProcess(completeCallback){
-            let complete = function(){
+            const complete = function(){
                 this.setStatus('loaded');
                 this._parseXHRResponse();
                 completeCallback();
             }.bind(this);
 
-            let progress = function(computableEvent){
+            const progress = function(computableEvent){
                 if (this._status === 'error') {
                     return;
                 }
@@ -102,6 +102,22 @@
                 let bytesLoaded = computableEvent.loaded;
                 this.setProgress(percentage, bytesLoaded);
             }.bind(this);
+
+            const error = function(e){
+                this.onError(global.pydio.MessageHash[210]+": " +e.message);
+                completeCallback();
+            }.bind(this);
+
+            const MAX_RETRIES = 10
+            const retry = function(count){
+                return function(e) {
+                    if (count >= MAX_RETRIES) {
+                        error(e)
+                    } else {
+                        this.uploadPresigned(complete, progress, retry(++count));
+                    }
+                }.bind(this)
+            }.bind(this)
 
             this.setStatus('loading');
 
@@ -115,10 +131,7 @@
                 return;
             }
 
-            this.uploadPresigned(complete, progress, function(e){
-                this.onError(global.pydio.MessageHash[210]+": " +e.message);
-                completeCallback();
-            }.bind(this));
+            retry(0)()
         }
 
         _doAbort(completeCallback){
@@ -211,9 +224,13 @@
     class FolderItem extends StatusItem{
         constructor(path, targetNode){
             super('folder');
+            this._new = true;
             this._path = path;
             this._targetNode =  targetNode;
             this._repositoryId = global.pydio.user.activeRepository;
+        }
+        isNew() {
+            return this._new;
         }
         getPath(){
             return this._path;
@@ -239,21 +256,23 @@
             const request = new RestCreateNodesRequest();
             const node = new TreeNode();
 
-            // We're not creating the folder as it will be handled by children files
-            // NOTE : empty folders will not be created so we will need to figure out a way of creating only empty folders
-            // Creating folder was causing a race concurrence issue on the server side
-            // completeCallback();
-
             node.Path = fullPath;
             node.Type = TreeNodeType.constructFromObject('COLLECTION');
             request.Nodes = [node];
-            api.createNodes(request).then(collection => {
 
+            // api.headNode(fullPath).then(node => {
+            //     console.log(node)
+            //     if (node.Node) {
+            //         this._new = false;
+            //         this.setStatus('already_exists')
+            //     } else {
+            api.createNodes(request).then(collection => {
                 this.setStatus('loaded');
 
                 completeCallback();
             });
-
+            //     }
+            // })
         }
         _doAbort(completeCallback){
             if(global.console) global.console.log(global.pydio.MessageHash['html_uploader.6']);
@@ -367,6 +386,9 @@
             if(this.getAutoStart() && !this._processing.length) {
                 this.processNext();
             } // Autostart with queue was empty before
+            // folderItem.observe("status", function(status){
+            //     console.log("Status changed", folderItem.getStatus())
+            // })
             this.notify('update');
             this.notify('item_added', folderItem);
         }
@@ -464,7 +486,6 @@
                     items.push(this._uploads.shift());
                 }
             }
-            console.log('Returning ' + items.length + ' items');
             return items;
         }
         stopOrRemoveItem(item){
