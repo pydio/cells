@@ -20,6 +20,7 @@
 import Observable from 'pydio/lang/observable'
 import {JobsServiceApi, JobsListJobsRequest, JobsDeleteTasksRequest, JobsJob, JobsTask, JobsTaskStatus, JobsCtrlCommand, JobsCommand} from 'pydio/http/rest-api'
 import PydioApi from 'pydio/http/api'
+import Pydio from 'pydio'
 
 class JobsStore extends Observable {
 
@@ -208,6 +209,27 @@ class JobsStore extends Observable {
         }
         return JobsStore.STORE_INSTANCE;
     }
+
+    /**
+     * Post a fake job to open panel and work on component UX
+     */
+    static debugFakeJob(id = 'local-debug-fake-job'){
+        const pydio = Pydio.getInstance();
+        const job = new JobsJob();
+        job.ID = id;
+        job.Owner = pydio.user.id;
+        job.Label = 'Fake job title';
+        job.Stoppable = true;
+        const task = new JobsTask();
+        job.Tasks = [task];
+        task.HasProgress = true;
+        task.Progress = 0.7;
+        task.ID = "debug-task";
+        task.Status = JobsTaskStatus.constructFromObject('Running');
+        task.StatusMessage = 'this is my task currently running status... It may be a long text';
+        JobsStore.getInstance().enqueueLocalJob(job);
+    }
+
 
 }
 

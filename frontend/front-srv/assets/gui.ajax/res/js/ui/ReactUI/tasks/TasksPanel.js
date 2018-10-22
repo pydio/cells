@@ -67,7 +67,7 @@ class TasksPanel extends React.Component{
         for(let i=0; i<innerPane.children.length; i++){
             newScroll += innerPane.children.item(i).clientHeight + 8;
         }
-        if(newScroll && this.state.innerScroll != newScroll){
+        if(newScroll && this.state.innerScroll !== newScroll){
             this.setState({innerScroll: newScroll});
         }
     }
@@ -78,8 +78,11 @@ class TasksPanel extends React.Component{
 
     render(){
 
-        const {muiTheme} = this.props;
+        const {muiTheme, mode, panelStyle, headerStyle, pydio} = this.props;
         const {jobs, folded, innerScroll} = this.state;
+        const palette = muiTheme.palette;
+        const Color = require('color');
+        const headerColor = Color(palette.primary1Color).darken(0.1).alpha(0.50).toString();
 
         let filtered = [];
         jobs.forEach((j)=>{
@@ -118,21 +121,19 @@ class TasksPanel extends React.Component{
                 marginLeft: -200,
                 overflowX: 'hidden',
                 zIndex: 20001,
-                backgroundColor: '#e9e9e9',
                 height: height,
                 display:'flex',
                 flexDirection:'column',
-                borderRadius: 0,
-                borderTop: '2px solid ' + muiTheme.palette.accent1Color
+                ...panelStyle
             },
             header:{
-                backgroundColor: 'white',
-                color: 'rgba(0,0,0,.87)',
+                color: headerColor,
+                textTransform:'uppercase',
                 display: 'flex',
                 alignItems: 'center',
-                borderRadius: '2px 2px 0 0',
-                fontSize: 15,
-                fontWeight: 500
+                fontWeight: 500,
+                backgroundColor: 'transparent',
+                ...headerStyle
             },
             innerPane: {
                 flex: 1,
@@ -140,42 +141,66 @@ class TasksPanel extends React.Component{
             },
             iconButtonStyles:{
                 style:{width:30, height: 30, padding: 6, marginRight: 4},
-                iconStyle:{width:15, height: 15, fontSize: 15, color: 'rgba(0,0,0,.87)'}
+                iconStyle:{width:15, height: 15, fontSize: 15, color: palette.primary1Color}
             }
         };
-        let mainDepth = 2;
+        let mainDepth = 3;
         if (folded){
-            mainDepth = 1;
             styles.panel = {
                 ...styles.panel,
-                height: 36,
+                height: 33,
                 cursor: 'pointer',
-                borderRadius: '2px 2px 0 0',
             };
             styles.innerPane = {
                 display: 'none',
             }
         }
+        if (mode === 'flex') {
+            mainDepth = 0;
+            styles.panel = {...styles.panel,
+                position:null,
+                marginLeft: null,
+                left: null,
+                width: null
+            };
+        }
 
         if (!elements.length) {
-            styles.panel.bottom = -10000;
+            if(mode !== 'flex'){
+                styles.panel.bottom = -10000;
+            }
             styles.panel.height = 0;
-            styles.panel.borderTop = 0;
         }
 
         let mainTouchTap;
-        let title = 'Background Jobs';
+        const title = pydio.MessageHash['ajax_gui.background.jobs.running'] || 'Jobs Running';
+        let badge;
+        if(elements.length){
+            badge = <span style={{
+                display: 'inline-block',
+                backgroundColor: palette.accent1Color,
+                width: 18,
+                height: 18,
+                fontSize: 11,
+                lineHeight: '20px',
+                textAlign: 'center',
+                borderRadius: '50%',
+                color: 'white',
+                marginTop: -1
+            }}>{elements.length}</span>;
+        }
         if(folded){
             mainTouchTap = ()=>this.setState({folded: false});
-            title = <span>{elements.length} jobs running <span className="mdi mdi-timer-sand"></span></span>
         }
 
         return (
-            <Paper zDepth={mainDepth} style={styles.panel} onClick={mainTouchTap}>
-                    <Paper zDepth={1} style={styles.header} className="handle">
-                        <div style={{flex: 1, padding: 8}}>{title}</div>
-                        {!folded && <IconButton iconClassName={"mdi mdi-window-minimize"} {...styles.iconButtonStyles} onTouchTap={()=>this.setState({folded: true, innerScroll:300})} />}
-                        {folded && <IconButton iconClassName={"mdi mdi-arrow-expand"} {...styles.iconButtonStyles} onTouchTap={()=>this.setState({folded: false, innerScroll: 300})} />}
+            <Paper zDepth={mainDepth} style={styles.panel} onClick={mainTouchTap} rounded={false}>
+                    <Paper zDepth={0} style={styles.header} className="handle">
+                        <div style={{padding: '12px 8px 12px 16px'}}>{title}</div>
+                        {badge}
+                        <span style={{flex: 1}}/>
+                        {!folded && <IconButton iconClassName={"mdi mdi-chevron-down"} {...styles.iconButtonStyles} onTouchTap={()=>this.setState({folded: true, innerScroll:300})} />}
+                        {folded && <IconButton iconClassName={"mdi mdi-chevron-right"} {...styles.iconButtonStyles} onTouchTap={()=>this.setState({folded: false, innerScroll: 300})} />}
                     </Paper>
                 <div style={styles.innerPane} ref="innerPane">
                     {elements}

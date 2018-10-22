@@ -25,7 +25,7 @@ import {AppBar, Paper, Toggle, FontIcon, IconButton, IconMenu, MenuItems} from '
 import {muiThemeable} from 'material-ui/styles'
 import PydioDataModel from 'pydio/model/data-model'
 const {UserWidget} = Pydio.requireLib('workspaces');
-const {AsyncComponent} = Pydio.requireLib('boot');
+const {AsyncComponent, TasksPanel} = Pydio.requireLib('boot');
 import ResourcesManager from 'pydio/http/resources-manager'
 import DOMUtils from 'pydio/util/dom'
 
@@ -336,6 +336,7 @@ let AdminDashboard = React.createClass({
                     open={leftDocked || openLeftNav}
                     showAdvanced={showAdvanced}
                 />
+                <TasksPanel pydio={pydio} mode={"absolute"}/>
                 <Paper zDepth={1} rounded={false} style={appBarStyle}>
                     {leftIconButton}
                     <span style={styles.appBarTitle}>{pydio.MessageHash['settings.topbar.title']}</span>

@@ -99,7 +99,7 @@ var TasksPanel = (function (_React$Component) {
         for (var i = 0; i < innerPane.children.length; i++) {
             newScroll += innerPane.children.item(i).clientHeight + 8;
         }
-        if (newScroll && this.state.innerScroll != newScroll) {
+        if (newScroll && this.state.innerScroll !== newScroll) {
             this.setState({ innerScroll: newScroll });
         }
     };
@@ -111,11 +111,20 @@ var TasksPanel = (function (_React$Component) {
     TasksPanel.prototype.render = function render() {
         var _this2 = this;
 
-        var muiTheme = this.props.muiTheme;
+        var _props = this.props;
+        var muiTheme = _props.muiTheme;
+        var mode = _props.mode;
+        var panelStyle = _props.panelStyle;
+        var headerStyle = _props.headerStyle;
+        var pydio = _props.pydio;
         var _state = this.state;
         var jobs = _state.jobs;
         var folded = _state.folded;
         var innerScroll = _state.innerScroll;
+
+        var palette = muiTheme.palette;
+        var Color = require('color');
+        var headerColor = Color(palette.primary1Color).darken(0.1).alpha(0.50).toString();
 
         var filtered = [];
         jobs.forEach(function (j) {
@@ -148,7 +157,7 @@ var TasksPanel = (function (_React$Component) {
             height = Math.min(innerScroll, 300) + 38;
         }
         var styles = {
-            panel: {
+            panel: _extends({
                 position: 'absolute',
                 width: 400,
                 bottom: 0,
@@ -156,80 +165,98 @@ var TasksPanel = (function (_React$Component) {
                 marginLeft: -200,
                 overflowX: 'hidden',
                 zIndex: 20001,
-                backgroundColor: '#e9e9e9',
                 height: height,
                 display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 0,
-                borderTop: '2px solid ' + muiTheme.palette.accent1Color
-            },
-            header: {
-                backgroundColor: 'white',
-                color: 'rgba(0,0,0,.87)',
+                flexDirection: 'column'
+            }, panelStyle),
+            header: _extends({
+                color: headerColor,
+                textTransform: 'uppercase',
                 display: 'flex',
                 alignItems: 'center',
-                borderRadius: '2px 2px 0 0',
-                fontSize: 15,
-                fontWeight: 500
-            },
+                fontWeight: 500,
+                backgroundColor: 'transparent'
+            }, headerStyle),
             innerPane: {
                 flex: 1,
                 overflowY: 'auto'
             },
             iconButtonStyles: {
                 style: { width: 30, height: 30, padding: 6, marginRight: 4 },
-                iconStyle: { width: 15, height: 15, fontSize: 15, color: 'rgba(0,0,0,.87)' }
+                iconStyle: { width: 15, height: 15, fontSize: 15, color: palette.primary1Color }
             }
         };
-        var mainDepth = 2;
+        var mainDepth = 3;
         if (folded) {
-            mainDepth = 1;
             styles.panel = _extends({}, styles.panel, {
-                height: 36,
-                cursor: 'pointer',
-                borderRadius: '2px 2px 0 0'
+                height: 33,
+                cursor: 'pointer'
             });
             styles.innerPane = {
                 display: 'none'
             };
         }
+        if (mode === 'flex') {
+            mainDepth = 0;
+            styles.panel = _extends({}, styles.panel, {
+                position: null,
+                marginLeft: null,
+                left: null,
+                width: null
+            });
+        }
 
         if (!elements.length) {
-            styles.panel.bottom = -10000;
+            if (mode !== 'flex') {
+                styles.panel.bottom = -10000;
+            }
             styles.panel.height = 0;
-            styles.panel.borderTop = 0;
         }
 
         var mainTouchTap = undefined;
-        var title = 'Background Jobs';
+        var title = pydio.MessageHash['ajax_gui.background.jobs.running'] || 'Jobs Running';
+        var badge = undefined;
+        if (elements.length) {
+            badge = _react2['default'].createElement(
+                'span',
+                { style: {
+                        display: 'inline-block',
+                        backgroundColor: palette.accent1Color,
+                        width: 18,
+                        height: 18,
+                        fontSize: 11,
+                        lineHeight: '20px',
+                        textAlign: 'center',
+                        borderRadius: '50%',
+                        color: 'white',
+                        marginTop: -1
+                    } },
+                elements.length
+            );
+        }
         if (folded) {
             mainTouchTap = function () {
                 return _this2.setState({ folded: false });
             };
-            title = _react2['default'].createElement(
-                'span',
-                null,
-                elements.length,
-                ' jobs running ',
-                _react2['default'].createElement('span', { className: 'mdi mdi-timer-sand' })
-            );
         }
 
         return _react2['default'].createElement(
             _materialUi.Paper,
-            { zDepth: mainDepth, style: styles.panel, onClick: mainTouchTap },
+            { zDepth: mainDepth, style: styles.panel, onClick: mainTouchTap, rounded: false },
             _react2['default'].createElement(
                 _materialUi.Paper,
-                { zDepth: 1, style: styles.header, className: 'handle' },
+                { zDepth: 0, style: styles.header, className: 'handle' },
                 _react2['default'].createElement(
                     'div',
-                    { style: { flex: 1, padding: 8 } },
+                    { style: { padding: '12px 8px 12px 16px' } },
                     title
                 ),
-                !folded && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-window-minimize" }, styles.iconButtonStyles, { onTouchTap: function () {
+                badge,
+                _react2['default'].createElement('span', { style: { flex: 1 } }),
+                !folded && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-down" }, styles.iconButtonStyles, { onTouchTap: function () {
                         return _this2.setState({ folded: true, innerScroll: 300 });
                     } })),
-                folded && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-arrow-expand" }, styles.iconButtonStyles, { onTouchTap: function () {
+                folded && _react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-chevron-right" }, styles.iconButtonStyles, { onTouchTap: function () {
                         return _this2.setState({ folded: false, innerScroll: 300 });
                     } }))
             ),

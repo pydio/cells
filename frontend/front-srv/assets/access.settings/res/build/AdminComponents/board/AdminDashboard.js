@@ -66,6 +66,7 @@ var UserWidget = _Pydio$requireLib.UserWidget;
 var _Pydio$requireLib2 = _pydio2['default'].requireLib('boot');
 
 var AsyncComponent = _Pydio$requireLib2.AsyncComponent;
+var TasksPanel = _Pydio$requireLib2.TasksPanel;
 
 var styles = {
     appBar: {
@@ -403,6 +404,7 @@ var AdminDashboard = _react2['default'].createClass({
                 open: leftDocked || openLeftNav,
                 showAdvanced: showAdvanced
             }),
+            _react2['default'].createElement(TasksPanel, { pydio: pydio, mode: "absolute" }),
             _react2['default'].createElement(
                 _materialUi.Paper,
                 { zDepth: 1, rounded: false, style: appBarStyle },
