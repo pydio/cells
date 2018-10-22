@@ -51,16 +51,16 @@ const (
 
 var (
 	queries = map[string]string{
-		"AddAttribute":     `replace into idm_user_attributes (uuid, name, value) values (?, ?, ?)`,
-		"GetAttributes":    `select name, value from idm_user_attributes where uuid = ?`,
-		"DeleteAttribute":  `delete from idm_user_attributes where uuid = ? and name = ?`,
-		"DeleteAttributes": `delete from idm_user_attributes where uuid = ?`,
-		"AddRole":          `replace into idm_user_roles (uuid, role) values (?, ?)`,
-		"GetRoles":         `select role from idm_user_roles where uuid = ?`,
-		"DeleteRole":       `delete from idm_user_roles where uuid = ? and role = ?`,
-		"DeleteRoles":      `delete from idm_user_roles where uuid = ?`,
-		"DeleteRolesClean": `delete from idm_user_roles where uuid not in (select uuid from idm_user_idx_nodes)`,
-		"DeleteAttsClean":  `delete from idm_user_attributes where uuid not in (select uuid from idm_user_idx_nodes)`,
+		"AddAttribute":         `replace into idm_user_attributes (uuid, name, value) values (?, ?, ?)`,
+		"GetAttributes":        `select name, value from idm_user_attributes where uuid = ?`,
+		"DeleteAttribute":      `delete from idm_user_attributes where uuid = ? and name = ?`,
+		"DeleteAttributes":     `delete from idm_user_attributes where uuid = ?`,
+		"AddRole":              `replace into idm_user_roles (uuid, role) values (?, ?)`,
+		"GetRoles":             `select role from idm_user_roles where uuid = ?`,
+		"DeleteUserRoles":      `delete from idm_user_roles where uuid = ?`,
+		"DeleteUserRolesClean": `delete from idm_user_roles where uuid not in (select uuid from idm_user_idx_nodes)`,
+		"DeleteRoleById":       `delete from idm_user_roles where role = ?`,
+		"DeleteAttsClean":      `delete from idm_user_attributes where uuid not in (select uuid from idm_user_idx_nodes)`,
 	}
 
 	unPrepared = map[string]func(...interface{}) string{
@@ -264,7 +264,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		}
 	}
 
-	if _, err := s.GetStmt("DeleteRoles").Exec(user.Uuid); err != nil {
+	if _, err := s.GetStmt("DeleteUserRoles").Exec(user.Uuid); err != nil {
 		return nil, createdNodes, err
 	}
 	for _, role := range user.Roles {
@@ -483,7 +483,7 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 	}
 
 	// If some children have been deleted, remove them now
-	if _, err := s.GetStmt("DeleteRolesClean").Exec(); err != nil {
+	if _, err := s.GetStmt("DeleteUserRolesClean").Exec(); err != nil {
 		return rows, err
 	}
 
@@ -494,13 +494,20 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 	return rows, nil
 }
 
+func (s *sqlimpl) CleanRole(roleId string) error {
+
+	_, err := s.GetStmt("DeleteRoleById").Exec(roleId)
+	return err
+
+}
+
 func (s *sqlimpl) deleteNodeData(uuid string) error {
 
 	if _, err := s.GetStmt("DeleteAttributes").Exec(uuid); err != nil {
 		return err
 	}
 
-	if _, err := s.GetStmt("DeleteRoles").Exec(uuid); err != nil {
+	if _, err := s.GetStmt("DeleteUserRoles").Exec(uuid); err != nil {
 		return err
 	}
 
