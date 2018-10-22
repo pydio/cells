@@ -97,7 +97,8 @@ func (c *DeleteAction) Run(ctx context.Context, channels *actions.RunnableChanne
 				// Do not delete first .pydio!
 				continue
 			}
-			log.Logger(ctx).Info("Deleting node in background", resp.Node.ZapPath())
+			log.Logger(ctx).Debug("Deleting node in background", resp.Node.ZapPath())
+			channels.StatusMsg <- "Deleting " + resp.Node.GetPath()
 			_, er := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: resp.Node})
 			if er != nil {
 				return input.WithError(er), er
