@@ -23,13 +23,14 @@ package views
 import (
 	"context"
 	"io"
+	"io/ioutil"
 	"strings"
 	"time"
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/errors"
+	"github.com/pborman/uuid"
 	"github.com/pydio/minio-go"
-	uuid2 "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -67,9 +68,6 @@ func (e *Executor) ListNodes(ctx context.Context, in *tree.ListNodesRequest, opt
 func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...client.CallOption) (*tree.CreateNodeResponse, error) {
 	node := in.Node
 	if !node.IsLeaf() {
-		log.Logger(ctx).Debug("CREATE / Should Create A Hidden common.PYDIO_SYNC_HIDDEN_FILE_META", zap.String("path", node.Path))
-		// This should be in fact a PutObject
-		uuid := uuid2.NewV4().String()
 		dsPath := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_PATH)
 		newNode := &tree.Node{
 			Path: strings.TrimRight(node.Path, "/") + "/" + common.PYDIO_SYNC_HIDDEN_FILE_META,
@@ -79,12 +77,27 @@ func (e *Executor) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, o
 		if session := in.IndexationSession; session != "" {
 			meta["X-Pydio-Session"] = session
 		}
-		_, err := e.PutObject(ctx, newNode, strings.NewReader(uuid), &PutRequestData{Metadata: meta, Size: int64(len(uuid))})
+		if !in.UpdateIfExists {
+			if read, er := e.GetObject(ctx, newNode, &GetRequestData{StartOffset: 0, Length: 36}); er == nil {
+				bytes, _ := ioutil.ReadAll(read)
+				read.Close()
+				node.Uuid = string(bytes)
+				node.MTime = time.Now().Unix()
+				node.Size = 36
+				log.Logger(ctx).Debug("[handlerExec.CreateNode] Hidden file already created", node.ZapUuid(), zap.Any("in", in))
+				return &tree.CreateNodeResponse{Node: node}, nil
+			}
+		}
+		// Create new Node
+		nodeUuid := uuid.New()
+		_, err := e.PutObject(ctx, newNode, strings.NewReader(nodeUuid), &PutRequestData{Metadata: meta, Size: int64(len(nodeUuid))})
 		if err != nil {
 			return nil, err
 		}
-		node.Uuid = uuid
+		node.Uuid = nodeUuid
 		node.MTime = time.Now().Unix()
+		node.Size = 36
+		log.Logger(ctx).Debug("[handlerExec.CreateNode] Created A Hidden .pydio for folder", node.Zap())
 		return &tree.CreateNodeResponse{Node: node}, nil
 	}
 	log.Logger(ctx).Debug("Exec.CreateNode", zap.String("p", in.Node.Path))
@@ -172,7 +185,7 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 		log.Logger(ctx).Debug("Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers), zap.Any("request", requestData))
 		reader, _, err = writer.GetObject(info.ObjectsBucket, s3Path, headers)
 		if err != nil {
-			log.Logger(ctx).Error("Get Object", zap.Error(err))
+			//log.Logger(ctx).Error("Get Object", zap.Error(err))
 		}
 	}
 	return reader, err
