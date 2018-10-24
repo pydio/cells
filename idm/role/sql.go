@@ -22,6 +22,7 @@ package role
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -101,10 +102,15 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 
 	var update bool
 	if role.Uuid != "" {
-		exists := s.GetStmt("Exists").QueryRow(role.Uuid)
-		count := new(int)
-		if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
-			update = true
+		if stmt := s.GetStmt("Exists"); stmt != nil {
+			defer stmt.Close()
+			exists := stmt.QueryRow(role.Uuid)
+			count := new(int)
+			if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
+				update = true
+			}
+		} else {
+			return nil, false, fmt.Errorf("Cannot retrieve statement")
 		}
 	} else {
 		role.Uuid = uuid.NewUUID().String()
@@ -115,30 +121,43 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 	if role.LastUpdated == 0 {
 		role.LastUpdated = int32(time.Now().Unix())
 	}
-	var err error
+
 	if !update {
-		_, err = s.GetStmt("AddRole").Exec(
-			role.Uuid,
-			role.Label,
-			role.IsTeam,
-			role.GroupRole,
-			role.UserRole,
-			role.LastUpdated,
-			strings.Join(role.AutoApplies, ","),
-		)
+		if stmt := s.GetStmt("AddRole"); stmt != nil {
+			defer stmt.Close()
+
+			if _, err := stmt.Exec(
+				role.Uuid,
+				role.Label,
+				role.IsTeam,
+				role.GroupRole,
+				role.UserRole,
+				role.LastUpdated,
+				strings.Join(role.AutoApplies, ","),
+			); err != nil {
+				return nil, false, err
+			}
+		} else {
+			return nil, false, fmt.Errorf("Cannot retrieve statement")
+		}
 	} else {
-		_, err = s.GetStmt("UpdateRole").Exec(
-			role.Label,
-			role.IsTeam,
-			role.GroupRole,
-			role.UserRole,
-			role.LastUpdated,
-			strings.Join(role.AutoApplies, ","),
-			role.Uuid,
-		)
-	}
-	if err != nil {
-		return nil, false, err
+		if stmt := s.GetStmt("UpdateRole"); stmt != nil {
+			defer stmt.Close()
+
+			if _, err := stmt.Exec(
+				role.Label,
+				role.IsTeam,
+				role.GroupRole,
+				role.UserRole,
+				role.LastUpdated,
+				strings.Join(role.AutoApplies, ","),
+				role.Uuid,
+			); err != nil {
+				return nil, false, err
+			}
+		} else {
+			return nil, false, fmt.Errorf("Cannot retrieve statement")
+		}
 	}
 	return role, update, nil
 
@@ -174,7 +193,6 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 
 	// log.Logger(context.Background()).Debug("Decoded SQL query: " + queryString)
 	//log.Logger(context.Background()).Info("Search Roles: "+queryString, zap.Any("subjects", query.GetResourcePolicyQuery().GetSubjects()))
-
 	res, err := s.DB().Query(queryString)
 	if err != nil {
 		return err

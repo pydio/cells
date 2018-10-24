@@ -78,6 +78,11 @@ func (s *ResourcesSQL) Init(options config.Map) error {
 func (s *ResourcesSQL) AddPolicy(resourceId string, policy *service.ResourcePolicy) error {
 
 	prepared := s.GetStmt("AddRuleForResource")
+	if prepared == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	defer prepared.Close()
+
 	_, err := prepared.Exec(resourceId, policy.Action.String(), policy.Subject, policy.Effect.String(), policy.JsonConditions)
 	return err
 
@@ -102,12 +107,19 @@ func (s *ResourcesSQL) AddPolicies(update bool, resourceId string, policies []*s
 func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.ResourcePolicy, error) {
 
 	var res []*service.ResourcePolicy
+
 	prepared := s.GetStmt("SelectRulesForResource")
+	if prepared == nil {
+		return nil, fmt.Errorf("Unknown statement")
+	}
+	defer prepared.Close()
+
 	rows, err := prepared.Query(resourceId)
 	if err != nil {
 		return res, err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		rule := new(service.ResourcePolicy)
 		var actionString string
@@ -120,13 +132,17 @@ func (s *ResourcesSQL) GetPoliciesForResource(resourceId string) ([]*service.Res
 		res = append(res, rule)
 	}
 	return res, nil
-
 }
 
 // DeletePoliciesForResource removes all policies for a given resource
 func (s *ResourcesSQL) DeletePoliciesForResource(resourceId string) error {
 
 	prepared := s.GetStmt("DeleteRulesForResource")
+	if prepared == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	defer prepared.Close()
+
 	_, err := prepared.Exec(resourceId)
 	return err
 
@@ -136,6 +152,11 @@ func (s *ResourcesSQL) DeletePoliciesForResource(resourceId string) error {
 func (s *ResourcesSQL) DeletePoliciesBySubject(subject string) error {
 
 	prepared := s.GetStmt("DeleteRulesForSubject")
+	if prepared == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	defer prepared.Close()
+
 	_, err := prepared.Exec(subject)
 	return err
 
@@ -145,6 +166,11 @@ func (s *ResourcesSQL) DeletePoliciesBySubject(subject string) error {
 func (s *ResourcesSQL) DeletePoliciesForResourceAndAction(resourceId string, action service.ResourcePolicyAction) error {
 
 	prepared := s.GetStmt("DeleteRulesForResourceAndAction")
+	if prepared == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	defer prepared.Close()
+
 	_, err := prepared.Exec(resourceId, action.String())
 	return err
 

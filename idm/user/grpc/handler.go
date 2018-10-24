@@ -62,6 +62,7 @@ func (h *Handler) BindUser(ctx context.Context, req *idm.BindUserRequest, resp *
 	if servicecontext.GetDAO(ctx) == nil {
 		return fmt.Errorf("no DAO found, wrong initialization")
 	}
+
 	dao := servicecontext.GetDAO(ctx).(user.DAO)
 	autoApplies, e := h.loadAutoAppliesRoles(ctx)
 	if e != nil {

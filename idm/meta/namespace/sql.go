@@ -21,6 +21,8 @@
 package namespace
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/packr"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
@@ -95,7 +97,14 @@ func (dao *sqlimpl) Add(ns *idm.UserMetaNamespace) error {
 	if ns.Indexable {
 		indexableValue = 1
 	}
-	_, err := dao.GetStmt("Add").Exec(
+
+	stmt := dao.GetStmt("Add")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	defer stmt.Close()
+
+	_, err := stmt.Exec(
 		ns.Namespace,
 		ns.Label,
 		ns.Order,
@@ -115,7 +124,13 @@ func (dao *sqlimpl) Add(ns *idm.UserMetaNamespace) error {
 
 func (dao *sqlimpl) Del(ns *idm.UserMetaNamespace) (e error) {
 
-	if _, err := dao.GetStmt("Delete").Exec(ns.Namespace); err != nil {
+	stmt := dao.GetStmt("Delete")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(ns.Namespace); err != nil {
 		return err
 	}
 
@@ -128,7 +143,13 @@ func (dao *sqlimpl) Del(ns *idm.UserMetaNamespace) (e error) {
 
 func (dao *sqlimpl) List() (result map[string]*idm.UserMetaNamespace, err error) {
 
-	res, err := dao.GetStmt("List").Query()
+	stmt := dao.GetStmt("List")
+	if stmt == nil {
+		return nil, fmt.Errorf("Unknown statement")
+	}
+	defer stmt.Close()
+
+	res, err := stmt.Query()
 	if err != nil {
 		return nil, err
 	}

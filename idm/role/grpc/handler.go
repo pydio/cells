@@ -147,6 +147,8 @@ func (h *Handler) SearchRole(ctx context.Context, request *idm.SearchRoleRequest
 
 	var roles []*idm.Role
 
+	defer response.Close()
+
 	if err := dao.Search(request.Query, &roles); err != nil {
 		return err
 	}
@@ -154,8 +156,6 @@ func (h *Handler) SearchRole(ctx context.Context, request *idm.SearchRoleRequest
 	for _, r := range roles {
 		response.Send(&idm.SearchRoleResponse{Role: r})
 	}
-
-	response.Close()
 
 	return nil
 }

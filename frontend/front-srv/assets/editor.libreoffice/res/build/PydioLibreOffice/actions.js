@@ -71,7 +71,6 @@ var dynamicBuilder = exports.dynamicBuilder = function dynamicBuilder(controller
                 var path = slug + dir + (dir ? "/" : "") + "Untitled Document." + k;
                 path = await file_newpath(path);
 
-                console.log("New path is ", path);
                 node.Path = path;
                 node.Type = TreeNodeType.constructFromObject('LEAF');
                 request.Nodes = [node];
@@ -105,8 +104,6 @@ function file_newpath(fullpath) {
 
         var exists = await file_exists(newPath);
 
-        console.log("Exists ? ", exists);
-
         while (exists) {
             newPath = path + '-' + counter + ext;
             counter++;
@@ -122,7 +119,6 @@ function file_exists(fullpath) {
         var api = new TreeServiceApi(PydioApi.getRestClient());
 
         api.headNode(fullpath).then(function (node) {
-            console.log(node);
             if (node.Node) {
                 resolve(true);
             } else {

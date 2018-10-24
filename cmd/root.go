@@ -23,12 +23,9 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
 	"os"
 	"os/signal"
 	"regexp"
-	"runtime/pprof"
 	"strings"
 	"syscall"
 	"time"
@@ -190,7 +187,8 @@ func initServices() {
 func handleSignals() {
 	c := make(chan os.Signal, 1)
 
-	signal.Notify(c, syscall.SIGINT, syscall.SIGUSR1, syscall.SIGHUP)
+	// signal.Notify(c, syscall.SIGINT, syscall.SIGUSR1, syscall.SIGHUP)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGHUP)
 
 	go func() {
 		for sig := range c {
@@ -202,31 +200,31 @@ func handleSignals() {
 				}
 				<-time.After(500 * time.Millisecond)
 				os.Exit(0)
-			case syscall.SIGUSR1:
-				pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
-
-				if !profiling {
-					f, err := ioutil.TempFile("/tmp", "pydio-cpu-profile-")
-					if err != nil {
-						log.Fatal(err)
-					}
-
-					pprof.StartCPUProfile(f)
-					profile = f
-					profiling = true
-
-					fheap, err := ioutil.TempFile("/tmp", "pydio-cpu-heap-")
-					if err != nil {
-						log.Fatal(err)
-					}
-					pprof.WriteHeapProfile(fheap)
-				} else {
-					pprof.StopCPUProfile()
-					if err := profile.Close(); err != nil {
-						log.Fatal(err)
-					}
-					profiling = false
-				}
+			// case syscall.SIGUSR1:
+			// 	pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
+			//
+			// 	if !profiling {
+			// 		f, err := ioutil.TempFile("/tmp", "pydio-cpu-profile-")
+			// 		if err != nil {
+			// 			log.Fatal(err)
+			// 		}
+			//
+			// 		pprof.StartCPUProfile(f)
+			// 		profile = f
+			// 		profiling = true
+			//
+			// 		fheap, err := ioutil.TempFile("/tmp", "pydio-cpu-heap-")
+			// 		if err != nil {
+			// 			log.Fatal(err)
+			// 		}
+			// 		pprof.WriteHeapProfile(fheap)
+			// 	} else {
+			// 		pprof.StopCPUProfile()
+			// 		if err := profile.Close(); err != nil {
+			// 			log.Fatal(err)
+			// 		}
+			// 		profiling = false
+			// 	}
 
 			case syscall.SIGHUP:
 				// Stop all services

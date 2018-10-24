@@ -22,6 +22,7 @@ package dex
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/coreos/dex/connector"
 	"github.com/golang/protobuf/ptypes"
@@ -115,12 +116,11 @@ func (p *pydioAPIConnector) loadUserInfo(ctx context.Context, identity *connecto
 
 func (p *pydioAPIConnector) Login(ctx context.Context, s connector.Scopes, username, password string) (identity connector.Identity, validPassword bool, err error) {
 
-	// if p.UserServiceClient == nil {
-	// 	p.UserServiceClient = idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, p.client)
-	// }
+	c := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
 
-	resp, err := p.UserServiceClient.BindUser(ctx, &idm.BindUserRequest{UserName: username, Password: password})
+	resp, err := c.BindUser(ctx, &idm.BindUserRequest{UserName: username, Password: password})
 	if err != nil {
+		fmt.Println("Error Binding user ")
 		log.Logger(ctx).Error("cannot bind user "+username, zap.Error(err))
 		return connector.Identity{}, false, err
 	}

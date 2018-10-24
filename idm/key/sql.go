@@ -21,6 +21,7 @@
 package key
 
 import (
+	"fmt"
 	"sync/atomic"
 
 	"github.com/gobuffalo/packr"
@@ -78,6 +79,11 @@ func (s *sqlimpl) Init(options config.Map) error {
 
 func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
 	insertStmt := dao.GetStmt("insert")
+	if insertStmt == nil {
+		return fmt.Errorf("Unknown stmt")
+	}
+	defer insertStmt.Close()
+
 	var bytes = []byte{}
 	var err error
 
@@ -91,6 +97,11 @@ func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
 	_, err = insertStmt.Exec(key.Owner, key.ID, key.Label, key.Content, key.CreationDate, bytes)
 	if err != nil {
 		updateStmt := dao.GetStmt("update")
+		if updateStmt == nil {
+			return fmt.Errorf("Unknown stmt")
+		}
+		defer updateStmt.Close()
+
 		_, err = updateStmt.Exec(key.Content, bytes, key.Owner, key.ID)
 	}
 	return err
@@ -98,6 +109,11 @@ func (dao *sqlimpl) SaveKey(key *encryption.Key) error {
 
 func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) {
 	getStmt := dao.GetStmt("get")
+	if getStmt == nil {
+		return nil, fmt.Errorf("Unknown stmt")
+	}
+	defer getStmt.Close()
+
 	rows, err := getStmt.Query(owner, KeyID)
 	if err != nil {
 		return nil, err
@@ -127,6 +143,11 @@ func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) 
 
 func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {
 	getStmt := dao.GetStmt("list")
+	if getStmt == nil {
+		return nil, fmt.Errorf("Unknown stmt")
+	}
+	defer getStmt.Close()
+
 	rows, err := getStmt.Query(owner)
 
 	if err != nil {
@@ -159,6 +180,11 @@ func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {
 
 func (dao *sqlimpl) DeleteKey(owner string, keyID string) error {
 	delStmt := dao.GetStmt("delete")
+	if delStmt == nil {
+		return fmt.Errorf("Unknown stmt")
+	}
+	defer delStmt.Close()
+
 	_, err := delStmt.Exec(owner, keyID)
 	return err
 }

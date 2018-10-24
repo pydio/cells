@@ -257,32 +257,56 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	} else if user.Login != "" {
 		user.Attributes["pydio:labelLike"] = user.Login
 	}
-	if _, err := s.GetStmt("DeleteAttributes").Exec(user.Uuid); err != nil {
-		return nil, createdNodes, err
+	if stmt := s.GetStmt("DeleteAttributes"); stmt != nil {
+		defer stmt.Close()
+
+		if _, err := stmt.Exec(user.Uuid); err != nil {
+			return nil, createdNodes, err
+		}
+	} else {
+		return nil, createdNodes, fmt.Errorf("Unknown statement")
 	}
 	for attr, val := range user.Attributes {
-		if _, err := s.GetStmt("AddAttribute").Exec(
-			user.Uuid,
-			attr,
-			val,
-		); err != nil {
-			return nil, createdNodes, err
+		if stmt := s.GetStmt("AddAttribute"); stmt != nil {
+			defer stmt.Close()
+
+			if _, err := stmt.Exec(
+				user.Uuid,
+				attr,
+				val,
+			); err != nil {
+				return nil, createdNodes, err
+			}
+		} else {
+			return nil, createdNodes, fmt.Errorf("Unknown statement")
 		}
 	}
 
-	// TODO: should we put these two operations (delete / insert) inside a transaction?
-	if _, err := s.GetStmt("DeleteUserRoles").Exec(user.Uuid); err != nil {
-		return nil, createdNodes, err
+	if stmt := s.GetStmt("DeleteUserRoles"); stmt != nil {
+		defer stmt.Close()
+
+		if _, err := stmt.Exec(user.Uuid); err != nil {
+			return nil, createdNodes, err
+		}
+	} else {
+		return nil, createdNodes, fmt.Errorf("Unknown statement")
 	}
 	for _, role := range user.Roles {
 		if role.UserRole || role.GroupRole {
 			continue
 		}
-		if _, err := s.GetStmt("AddRole").Exec(
-			user.Uuid,
-			role.Uuid,
-		); err != nil {
-			return nil, createdNodes, err
+
+		if stmt := s.GetStmt("AddRole"); stmt != nil {
+			defer stmt.Close()
+
+			if _, err := stmt.Exec(
+				user.Uuid,
+				role.Uuid,
+			); err != nil {
+				return nil, createdNodes, err
+			}
+		} else {
+			return nil, createdNodes, fmt.Errorf("Unknown statement")
 		}
 	}
 	for _, n := range created {
