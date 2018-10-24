@@ -100,7 +100,11 @@ func initLogger() *zap.Logger {
 			common.LogLevel,
 		)
 
-		logger = zap.New(core)
+		if common.LogLevel == zap.DebugLevel {
+			logger = zap.New(core, zap.AddStacktrace(zap.ErrorLevel))
+		} else {
+			logger = zap.New(core)
+		}
 	}
 	nop := zap.NewNop()
 	_ = zap.RedirectStdLog(logger)
