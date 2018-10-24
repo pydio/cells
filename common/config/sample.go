@@ -29,7 +29,14 @@ var SampleConfig = `{
     "frontend":{
         "secureHeaders":{
 			"X-XSS-Protection": "1; mode=block"
-		}
+		},
+        "plugin": {
+            "editor.libreoffice": {
+                "LIBREOFFICE_HOST": "localhost",
+                "LIBREOFFICE_PORT": "9980",
+                "LIBREOFFICE_SSL": true
+            }
+        }
     },
     "services":{
         "consul": {

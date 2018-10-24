@@ -27,6 +27,7 @@ var (
 
 func init() {
 	configsMigrations = append(configsMigrations, renameServices1)
+	configsMigrations = append(configsMigrations, setDefaultConfig)
 }
 
 // UpgradeConfigsIfRequired applies all registered configMigration functions
@@ -58,5 +59,29 @@ func renameServices1(config *Config) (bool, error) {
 			save = true
 		}
 	}
+	return save, nil
+}
+
+func setDefaultConfig(config *Config) (bool, error) {
+	var save bool
+
+	configKeys := map[string]interface{}{
+		"frontend/plugin/editor.libreoffice/LIBREOFFICE_HOST": "localhost",
+		"frontend/plugin/editor.libreoffice/LIBREOFFICE_PORT": "9980",
+		"frontend/plugin/editor.libreoffice/LIBREOFFICE_SSL":  true,
+	}
+
+	for path, def := range configKeys {
+		paths := strings.Split(path, "/")
+		val := config.Get(paths...)
+		var data interface{}
+		if e := val.Scan(&data); e == nil && data == nil {
+			fmt.Printf("[Configs] Upgrading: setting default config %s to %v\n", path, def)
+			config.Set(def, paths...)
+			save = true
+
+		}
+	}
+
 	return save, nil
 }
