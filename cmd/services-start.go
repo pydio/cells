@@ -131,7 +131,7 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 	},
 
 	Run: func(cmd *cobra.Command, args []string) {
-		//var err error
+		//var err errors
 
 		if !IsFork {
 			if e := checkFdlimit(); e != nil {
