@@ -1034,9 +1034,8 @@ func (dao *IndexSQL) GetNodes(mpathes ...utils.MPath) chan *utils.TreeNode {
 		}()
 
 		get := func(mpathes ...interface{}) {
-			fmt.Println("Here we are 1")
 			if stmt := dao.GetStmt("selectNodes", mpathes...); stmt != nil {
-				fmt.Println("Here we are 2")
+
 				defer stmt.Close()
 
 				rows, err := stmt.Query()
@@ -1044,8 +1043,6 @@ func (dao *IndexSQL) GetNodes(mpathes ...utils.MPath) chan *utils.TreeNode {
 					return
 				}
 				defer rows.Close()
-
-				fmt.Println("Here we are 3")
 
 				for rows.Next() {
 					node, err := dao.scanDbRowToTreeNode(rows)

@@ -115,23 +115,28 @@ export default React.createClass({
     },
 
     onDrop(files, event, dropzone){
-        console.log('uploading now');
         if(PydioApi.supportsUpload()){
             this.setState({loading:true});
-            PydioApi.getClient().uploadFile(files[0], "userfile", '',
-                function(transport){
-                    const result = JSON.parse(transport.responseText);
-                    if(result && result.binary){
-                        this.uploadComplete(result.binary);
-                    }
-                    this.setState({loading:false});
-                }.bind(this), function(transport){
-                    // error
-                    this.setState({loading:false});
-                }.bind(this), function(computableEvent){
-                    // progress
-                    // console.log(computableEvent);
-                }, this.getUploadUrl())
+            PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+                const xhrSettings = {customHeaders:{Authorization: 'Bearer ' + jwt}};
+                PydioApi.getClient().uploadFile(files[0], "userfile", '',
+                    function(transport){
+                        const result = JSON.parse(transport.responseText);
+                        if(result && result.binary){
+                            this.uploadComplete(result.binary);
+                        }
+                        this.setState({loading:false});
+                    }.bind(this), function(transport){
+                        // error
+                        this.setState({loading:false});
+                    }.bind(this), function(computableEvent){
+                        // progress
+                        // console.log(computableEvent);
+                    },
+                    this.getUploadUrl(),
+                    xhrSettings
+                );
+            })
         }else{
             this.htmlUpload();
         }

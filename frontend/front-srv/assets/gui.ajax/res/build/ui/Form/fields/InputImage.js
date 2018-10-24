@@ -143,39 +143,43 @@ exports['default'] = _react2['default'].createClass({
     },
 
     onDrop: function onDrop(files, event, dropzone) {
-        console.log('uploading now');
+        var _this = this;
+
         if (_pydioHttpApi2['default'].supportsUpload()) {
             this.setState({ loading: true });
-            _pydioHttpApi2['default'].getClient().uploadFile(files[0], "userfile", '', (function (transport) {
-                var result = JSON.parse(transport.responseText);
-                if (result && result.binary) {
-                    this.uploadComplete(result.binary);
-                }
-                this.setState({ loading: false });
-            }).bind(this), (function (transport) {
-                // error
-                this.setState({ loading: false });
-            }).bind(this), function (computableEvent) {
-                // progress
-                // console.log(computableEvent);
-            }, this.getUploadUrl());
+            _pydioHttpApi2['default'].getRestClient().getOrUpdateJwt().then(function (jwt) {
+                var xhrSettings = { customHeaders: { Authorization: 'Bearer ' + jwt } };
+                _pydioHttpApi2['default'].getClient().uploadFile(files[0], "userfile", '', (function (transport) {
+                    var result = JSON.parse(transport.responseText);
+                    if (result && result.binary) {
+                        this.uploadComplete(result.binary);
+                    }
+                    this.setState({ loading: false });
+                }).bind(_this), (function (transport) {
+                    // error
+                    this.setState({ loading: false });
+                }).bind(_this), function (computableEvent) {
+                    // progress
+                    // console.log(computableEvent);
+                }, _this.getUploadUrl(), xhrSettings);
+            });
         } else {
             this.htmlUpload();
         }
     },
 
     clearImage: function clearImage() {
-        var _this = this;
+        var _this2 = this;
 
         if (global.confirm('Do you want to remove the current image?')) {
             (function () {
-                var prevValue = _this.state.value;
-                _this.setState({
+                var prevValue = _this2.state.value;
+                _this2.setState({
                     value: null,
                     reset: true
                 }, (function () {
                     this.props.onChange('', prevValue, { type: 'binary' });
-                }).bind(_this));
+                }).bind(_this2));
             })();
         }
     },

@@ -96,6 +96,7 @@ func init() {
 		}),
 	)
 	// Make sure to have the WebSession wrapper happen before the policies
-	s.Init(service.WithWebSession())
+	// Exclude POST binaries for using Cookies as it's the only one subject to possible CSRF
+	s.Init(service.WithWebSession("POST:/frontend/binaries"))
 
 }

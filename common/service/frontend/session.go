@@ -50,11 +50,25 @@ func GetSessionStore() sessions.Store {
 	return sessionStore
 }
 
-func NewSessionWrapper(h http.Handler) http.Handler {
+// NewSessionWrapper creates a Http middleware checking if a cookie is passed
+// along and if this cookie contains a proper JWT.
+// The excludes parameter may be used to namely ignore specific "METHOD:/URI“ for this check.
+func NewSessionWrapper(h http.Handler, excludes ...string) http.Handler {
 
 	jwtVerifier := auth.DefaultJWTVerifier()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		for _, excluded := range excludes {
+			split := strings.Split(excluded, ":")
+			method := split[0]
+			uri := split[1]
+			if strings.ToLower(method) == strings.ToLower(r.Method) && strings.HasPrefix(r.RequestURI, uri) {
+				log.Logger(r.Context()).Debug("Skipping session wrapper by exclusion:" + excluded)
+				h.ServeHTTP(w, r)
+				return
+			}
+		}
 
 		sessionName := "pydio"
 		if h, ok := r.Header["X-Pydio-Minisite"]; ok {

@@ -8878,22 +8878,12 @@
           },
           {
             "name": "downloadSelection",
-            "docblock": "@param userSelection UserSelection A Pydio DataModel with selected files\n@param dlActionName String Action name to trigger, download by default.\n@param additionalParameters Object Optional set of key/values to pass to the download.",
+            "docblock": "@param userSelection UserSelection A Pydio DataModel with selected files",
             "modifiers": [],
             "params": [
               {
                 "name": "userSelection",
                 "description": "UserSelection A Pydio DataModel with selected files",
-                "type": null
-              },
-              {
-                "name": "dlActionName",
-                "description": "String Action name to trigger, download by default.",
-                "type": null
-              },
-              {
-                "name": "additionalParameters",
-                "description": "Object Optional set of key/values to pass to the download.",
                 "type": null
               }
             ],
@@ -8963,6 +8953,9 @@
                 "name": "bucketParams",
                 "description": null,
                 "type": null
+              },
+              {
+                "name": "attachmentName"
               }
             ],
             "returns": {

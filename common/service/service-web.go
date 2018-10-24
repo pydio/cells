@@ -190,10 +190,10 @@ func WithWebAuth() ServiceOption {
 	}
 }
 
-func WithWebSession() ServiceOption {
+func WithWebSession(excludes ...string) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
-			return frontend.NewSessionWrapper(handler)
+			return frontend.NewSessionWrapper(handler, excludes...)
 		})
 	}
 }
