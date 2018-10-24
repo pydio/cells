@@ -41,6 +41,16 @@ class Preview extends Component {
 
     render(){
         const {node, ...remainingProps} = this.props;
+        let orientation;
+        if(node && node.getMetadata().get("image_exif_orientation")){
+            orientation = node.getMetadata().get("image_exif_orientation");
+            if(remainingProps.className){
+                remainingProps.className += ' ort-rotate-' + orientation
+            } else {
+                remainingProps.className = 'ort-rotate-' + orientation
+            }
+        }
+
         const {src} = this.state;
         if (!src) {
             return null;

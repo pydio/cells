@@ -78,6 +78,16 @@ var Preview = (function (_Component) {
 
             var remainingProps = _objectWithoutProperties(_props, ['node']);
 
+            var orientation = undefined;
+            if (node && node.getMetadata().get("image_exif_orientation")) {
+                orientation = node.getMetadata().get("image_exif_orientation");
+                if (remainingProps.className) {
+                    remainingProps.className += ' ort-rotate-' + orientation;
+                } else {
+                    remainingProps.className = 'ort-rotate-' + orientation;
+                }
+            }
+
             var src = this.state.src;
 
             if (!src) {
