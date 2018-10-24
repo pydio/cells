@@ -168,7 +168,7 @@ const (
 
 // Defaults for DB connexions.
 const (
-	DB_MAX_OPEN_CONNS    = 30
+	DB_MAX_OPEN_CONNS    = 0
 	DB_MAX_IDLE_CONNS    = 20
 	DB_CONN_MAX_LIFETIME = 5 * time.Minute
 )

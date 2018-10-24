@@ -51,6 +51,7 @@ func NewTreeNode() *TreeNode {
 
 // SetMeta sets a meta using a lock
 func (t *TreeNode) SetMeta(name string, value interface{}) {
+
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
 

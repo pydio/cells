@@ -55,20 +55,9 @@ export default class Editor extends React.Component {
             editorModify({fixedToolbar: true})
         }
 
-        let iframeUrl = configs.get('LIBREOFFICE_IFRAME_URL'),
-            webSocketSecure = configs.get('LIBREOFFICE_WEBSOCKET_SECURE'),
-            webSocketHost = configs.get('LIBREOFFICE_WEBSOCKET_HOST'),
-            webSocketPort = configs.get('LIBREOFFICE_WEBSOCKET_PORT');
-
-        // FIXME: was retrieved from the response JSON before, we manually add the prefix otherwise collabora cannot get the doc.
-        let host = 'http://'+webSocketHost;
-        // TODO also manage backend port when we have found a solution for the collabora container
-        // to call the backend on a specific port. For the time being, all request that are sent to:
-        // mypydiohost.example.com/wopi/... must be proxied to the correct host, f.i. mypydiohost.example.com:5014/wopi
-        // via a reverse proxy.
-
-        let webSocketProtocol = webSocketSecure ? 'wss' : 'ws',
-        webSocketUrl = encodeURIComponent(`${webSocketProtocol}://${webSocketHost}:${webSocketPort}`);
+        const iframeUrl = configs.get('LIBREOFFICE_IFRAME_URL');
+        const host = Pydio.Parameters('FRONTEND_URL');
+        const webSocketUrl = host.replace(/^http/gi, 'ws');
 
         // Check current action state for permission
         const readonly = Pydio.getInstance().getController().getActionByName("move").deny;

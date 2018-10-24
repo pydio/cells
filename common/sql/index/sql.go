@@ -350,7 +350,16 @@ func (dao *IndexSQL) AddNode(node *utils.TreeNode) error {
 	}
 
 	insertNode := dao.GetStmt("insertNode")
+	if insertNode == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	defer insertNode.Close()
+
 	insertTree := dao.GetStmt("insertTree")
+	if insertTree == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	defer insertTree.Close()
 
 	if stmt := tx.Stmt(insertNode); stmt != nil {
 		defer stmt.Close()
@@ -437,7 +446,16 @@ func (dao *IndexSQL) AddNodeStream(max int) (chan *utils.TreeNode, chan error) {
 			}()
 
 			insertNode := dao.GetStmt("insertNode", num)
+			if insertNode == nil {
+				return fmt.Errorf("Unknown statement")
+			}
+			defer insertNode.Close()
+
 			insertTree := dao.GetStmt("insertTree", num)
+			if insertTree == nil {
+				return fmt.Errorf("Unknown statement")
+			}
+			defer insertTree.Close()
 
 			if stmt := tx.Stmt(insertNode); stmt != nil {
 				defer stmt.Close()
@@ -546,7 +564,16 @@ func (dao *IndexSQL) SetNode(node *utils.TreeNode) error {
 	// TODO : Transaction is not really used here as stmts are taken from dao.
 	// It is disabled as it can create locks when updating nodes in batch
 	updateTree := dao.GetStmt("updateTree")
+	if updateTree == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	defer updateTree.Close()
+
 	updateNode := dao.GetStmt("updateNode")
+	if updateNode == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	defer updateNode.Close()
 
 	if stmt := tx.Stmt(updateTree); stmt != nil {
 		defer stmt.Close()
@@ -1007,7 +1034,9 @@ func (dao *IndexSQL) GetNodes(mpathes ...utils.MPath) chan *utils.TreeNode {
 		}()
 
 		get := func(mpathes ...interface{}) {
+			fmt.Println("Here we are 1")
 			if stmt := dao.GetStmt("selectNodes", mpathes...); stmt != nil {
+				fmt.Println("Here we are 2")
 				defer stmt.Close()
 
 				rows, err := stmt.Query()
@@ -1015,6 +1044,8 @@ func (dao *IndexSQL) GetNodes(mpathes ...utils.MPath) chan *utils.TreeNode {
 					return
 				}
 				defer rows.Close()
+
+				fmt.Println("Here we are 3")
 
 				for rows.Next() {
 					node, err := dao.scanDbRowToTreeNode(rows)
@@ -1025,6 +1056,7 @@ func (dao *IndexSQL) GetNodes(mpathes ...utils.MPath) chan *utils.TreeNode {
 					c <- node
 				}
 			} else {
+				fmt.Errorf("Unknown statement")
 				return
 			}
 		}

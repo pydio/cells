@@ -96,7 +96,13 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 		return false, errors.BadRequest(common.SERVICE_WORKSPACE, "Wrong type")
 	}
 	update := false
-	exists := s.GetStmt("ExistsWorkspace").QueryRow(workspace.UUID)
+	stmt := s.GetStmt("ExistsWorkspace")
+	if stmt == nil {
+		return false, fmt.Errorf("Unknown statement")
+	}
+	defer stmt.Close()
+
+	exists := stmt.QueryRow(workspace.UUID)
 	count := new(int)
 	if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
 		update = true
@@ -114,7 +120,13 @@ func (s *sqlimpl) Add(in interface{}) (bool, error) {
 		}
 		workspace.Slug = testSlug
 	}
-	_, err := s.GetStmt("AddWorkspace").Exec(workspace.UUID, workspace.Label, workspace.Description, workspace.Attributes, workspace.Slug, workspace.Scope, time.Now().Unix())
+	stmt = s.GetStmt("AddWorkspace")
+	if stmt == nil {
+		return false, fmt.Errorf("Unknown statement")
+	}
+	defer stmt.Close()
+
+	_, err := stmt.Exec(workspace.UUID, workspace.Label, workspace.Description, workspace.Attributes, workspace.Slug, workspace.Scope, time.Now().Unix())
 	if err != nil {
 		return update, err
 	}
@@ -126,7 +138,14 @@ func (s *sqlimpl) slugExists(slug string) bool {
 	if slug == common.PYDIO_DOCSTORE_BINARIES_NAMESPACE || slug == common.PYDIO_THUMBSTORE_NAMESPACE || slug == common.PYDIO_VERSIONS_NAMESPACE {
 		return true
 	}
-	exists := s.GetStmt("ExistsWorkspaceWithSlug").QueryRow(slug)
+
+	stmt := s.GetStmt("ExistsWorkspaceWithSlug")
+	if stmt == nil {
+		return false
+	}
+	defer stmt.Close()
+
+	exists := stmt.QueryRow(slug)
 	count := new(int)
 	if err := exists.Scan(&count); err != sql.ErrNoRows && *count > 0 {
 		return true

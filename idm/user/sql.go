@@ -251,31 +251,56 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	}
 
 	// Remove existing attributes, replace with new ones
-	if _, err := s.GetStmt("DeleteAttributes").Exec(user.Uuid); err != nil {
-		return nil, createdNodes, err
+	if stmt := s.GetStmt("DeleteAttributes"); stmt != nil {
+		defer stmt.Close()
+
+		if _, err := stmt.Exec(user.Uuid); err != nil {
+			return nil, createdNodes, err
+		}
+	} else {
+		return nil, createdNodes, fmt.Errorf("Unknown statement")
 	}
 	for attr, val := range user.Attributes {
-		if _, err := s.GetStmt("AddAttribute").Exec(
-			user.Uuid,
-			attr,
-			val,
-		); err != nil {
-			return nil, createdNodes, err
+		if stmt := s.GetStmt("AddAttribute"); stmt != nil {
+			defer stmt.Close()
+
+			if _, err := stmt.Exec(
+				user.Uuid,
+				attr,
+				val,
+			); err != nil {
+				return nil, createdNodes, err
+			}
+		} else {
+			return nil, createdNodes, fmt.Errorf("Unknown statement")
 		}
 	}
 
-	if _, err := s.GetStmt("DeleteRoles").Exec(user.Uuid); err != nil {
-		return nil, createdNodes, err
+	if stmt := s.GetStmt("DeleteRoles"); stmt != nil {
+		defer stmt.Close()
+
+		if _, err := stmt.Exec(user.Uuid); err != nil {
+			return nil, createdNodes, err
+		}
+	} else {
+		return nil, createdNodes, fmt.Errorf("Unknown statement")
 	}
 	for _, role := range user.Roles {
 		if role.UserRole || role.GroupRole {
 			continue
 		}
-		if _, err := s.GetStmt("AddRole").Exec(
-			user.Uuid,
-			role.Uuid,
-		); err != nil {
-			return nil, createdNodes, err
+
+		if stmt := s.GetStmt("AddRole"); stmt != nil {
+			defer stmt.Close()
+
+			if _, err := stmt.Exec(
+				user.Uuid,
+				role.Uuid,
+			); err != nil {
+				return nil, createdNodes, err
+			}
+		} else {
+			return nil, createdNodes, fmt.Errorf("Unknown statement")
 		}
 	}
 	for _, n := range created {
@@ -391,7 +416,12 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 			node.Node.Type = tree.NodeType_LEAF
 			userOrGroup = nodeToUser(node)
 
-			if resRoles, err := s.GetStmt("GetRoles").Query(userOrGroup.Uuid); err != nil {
+			stmt := s.GetStmt("GetRoles")
+			if stmt == nil {
+				return fmt.Errorf("Unknown statement")
+			}
+			defer stmt.Close()
+			if resRoles, err := stmt.Query(userOrGroup.Uuid); err != nil {
 				return err
 			} else {
 				for resRoles.Next() {
@@ -406,7 +436,12 @@ func (s *sqlimpl) Search(query sql.Enquirer, users *[]interface{}, withParents .
 		}
 
 		userOrGroup.Attributes = make(map[string]string)
-		if resAttributes, err := s.GetStmt("GetAttributes").Query(userOrGroup.Uuid); err != nil {
+		stmt := s.GetStmt("GetAttributes")
+		if stmt == nil {
+			return fmt.Errorf("Unknown statement")
+		}
+		defer stmt.Close()
+		if resAttributes, err := stmt.Query(userOrGroup.Uuid); err != nil {
 			return err
 		} else {
 			for resAttributes.Next() {
@@ -483,12 +518,24 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 	}
 
 	// If some children have been deleted, remove them now
-	if _, err := s.GetStmt("DeleteRolesClean").Exec(); err != nil {
-		return rows, err
+	if stmt := s.GetStmt("DeleteRolesClean"); stmt != nil {
+		defer stmt.Close()
+
+		if _, err := stmt.Exec(); err != nil {
+			return rows, err
+		}
+	} else {
+		return rows, fmt.Errorf("Unknown statement")
 	}
 
-	if _, err := s.GetStmt("DeleteAttsClean").Exec(); err != nil {
-		return rows, err
+	if stmt := s.GetStmt("DeleteAttsClean"); stmt != nil {
+		defer stmt.Close()
+
+		if _, err := stmt.Exec(); err != nil {
+			return rows, err
+		}
+	} else {
+		return rows, fmt.Errorf("Unknown statement")
 	}
 
 	return rows, nil
@@ -496,12 +543,23 @@ func (s *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 func (s *sqlimpl) deleteNodeData(uuid string) error {
 
-	if _, err := s.GetStmt("DeleteAttributes").Exec(uuid); err != nil {
-		return err
+	if stmt := s.GetStmt("DeleteAttributes"); stmt != nil {
+		defer stmt.Close()
+
+		if _, err := stmt.Exec(uuid); err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("Unknown statement")
 	}
 
-	if _, err := s.GetStmt("DeleteRoles").Exec(uuid); err != nil {
-		return err
+	if stmt := s.GetStmt("DeleteRoles"); stmt != nil {
+		defer stmt.Close()
+		if _, err := stmt.Exec(uuid); err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("Unknown statement")
 	}
 
 	return nil

@@ -125,9 +125,18 @@ func (dao *sqlimpl) Add(in interface{}) error {
 		}
 		roleID = id
 	}
+
 	log.Logger(context.Background()).Debug("AddACL",
 		zap.String("r", roleID), zap.String("w", workspaceID), zap.String("n", nodeID), zap.Any("value", val))
-	res, err := dao.GetStmt("AddACL").Exec(val.Action.Name, val.Action.Value, roleID, workspaceID, nodeID)
+
+	stmt := dao.GetStmt("AddACL")
+	if stmt != nil {
+		return fmt.Errorf("Unknown statement")
+	}
+
+	defer stmt.Close()
+
+	res, err := stmt.Exec(val.Action.Name, val.Action.Value, roleID, workspaceID, nodeID)
 	if err != nil {
 		return err
 	}
@@ -228,9 +237,26 @@ func (dao *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 	if rows > 0 {
 		// Perform clean up
-		dao.GetStmt("CleanWorkspaces").Exec()
-		dao.GetStmt("CleanRoles").Exec()
-		dao.GetStmt("CleanNodes").Exec()
+		if stmt := dao.GetStmt("CleanWorkspaces"); stmt != nil {
+			defer stmt.Close()
+			stmt.Exec()
+		} else {
+			return 0, fmt.Errorf("Unknown statement")
+		}
+
+		if stmt := dao.GetStmt("CleanRoles"); stmt != nil {
+			defer stmt.Close()
+			stmt.Exec()
+		} else {
+			return 0, fmt.Errorf("Unknown statement")
+		}
+
+		if stmt := dao.GetStmt("CleanNodes"); stmt != nil {
+			defer stmt.Close()
+			stmt.Exec()
+		} else {
+			return 0, fmt.Errorf("Unknown statement")
+		}
 	}
 
 	return rows, nil
@@ -238,92 +264,123 @@ func (dao *sqlimpl) Del(query sql.Enquirer) (int64, error) {
 
 func (dao *sqlimpl) addWorkspace(uuid string) (string, error) {
 
-	res, err := dao.GetStmt("AddACLWorkspace").Exec(uuid)
-	if err == nil {
-		rows, err := res.RowsAffected()
-		if err != nil {
-			return "", err
-		}
+	if stmt := dao.GetStmt("AddACLWorkspace"); stmt != nil {
+		defer stmt.Close()
 
-		if rows > 0 {
-			id, err := res.LastInsertId()
+		res, err := stmt.Exec(uuid)
+		if err == nil {
+			rows, err := res.RowsAffected()
 			if err != nil {
 				return "", err
 			}
 
-			return fmt.Sprintf("%d", id), nil
-		}
-	}
+			if rows > 0 {
+				id, err := res.LastInsertId()
+				if err != nil {
+					return "", err
+				}
 
-	row := dao.GetStmt("GetACLWorkspace").QueryRow(uuid)
-	if row == nil {
-		return "", err
+				return fmt.Sprintf("%d", id), nil
+			}
+		}
+	} else {
+		return "", fmt.Errorf("Unknown statement")
 	}
 
 	var id string
-	row.Scan(&id)
+	if stmt := dao.GetStmt("GetACLWorkspace"); stmt != nil {
+		defer stmt.Close()
+
+		row := stmt.QueryRow(uuid)
+		if row == nil {
+			return "", fmt.Errorf("Did not found workspace")
+		}
+		row.Scan(&id)
+	} else {
+		return "", fmt.Errorf("Unknown statement")
+	}
 
 	return id, nil
 }
 
 func (dao *sqlimpl) addNode(uuid string) (string, error) {
 
-	res, err := dao.GetStmt("AddACLNode").Exec(uuid)
-	if err == nil {
-		rows, err := res.RowsAffected()
-		if err != nil {
-			return "", err
-		}
+	if stmt := dao.GetStmt("AddACLNode"); stmt != nil {
+		defer stmt.Close()
 
-		if rows > 0 {
-			id, err := res.LastInsertId()
+		res, err := stmt.Exec(uuid)
+		if err == nil {
+			rows, err := res.RowsAffected()
 			if err != nil {
 				return "", err
 			}
 
-			return fmt.Sprintf("%d", id), nil
+			if rows > 0 {
+				id, err := res.LastInsertId()
+				if err != nil {
+					return "", err
+				}
+
+				return fmt.Sprintf("%d", id), nil
+			}
 		}
+	} else {
+		return "", fmt.Errorf("Unknown statement")
 	}
 
 	// Checking we didn't have a duplicate
-	row := dao.GetStmt("GetACLNode").QueryRow(uuid)
-	if row == nil {
-		return "", err
-	}
-
 	var id string
-	row.Scan(&id)
+	if stmt := dao.GetStmt("GetACLNode"); stmt != nil {
+		defer stmt.Close()
+
+		row := stmt.QueryRow(uuid)
+		if row == nil {
+			return "", fmt.Errorf("Did not found acl node")
+		}
+		row.Scan(&id)
+	} else {
+		return "", fmt.Errorf("Unknown statement")
+	}
 
 	return id, nil
 }
 
 func (dao *sqlimpl) addRole(uuid string) (string, error) {
 
-	res, err := dao.GetStmt("AddACLRole").Exec(uuid)
-	if err == nil {
-		rows, err := res.RowsAffected()
-		if err != nil {
-			return "", err
-		}
+	if stmt := dao.GetStmt("AddACLRole"); stmt != nil {
+		defer stmt.Close()
 
-		if rows > 0 {
-			id, err := res.LastInsertId()
+		res, err := stmt.Exec(uuid)
+		if err == nil {
+			rows, err := res.RowsAffected()
 			if err != nil {
 				return "", err
 			}
 
-			return fmt.Sprintf("%d", id), nil
+			if rows > 0 {
+				id, err := res.LastInsertId()
+				if err != nil {
+					return "", err
+				}
+
+				return fmt.Sprintf("%d", id), nil
+			}
 		}
 	}
 
 	// Checking we didn't have a duplicate
-	row := dao.GetStmt("GetACLRole").QueryRow(uuid)
-	if row == nil {
-		return "", err
-	}
-
 	var id string
-	row.Scan(&id)
+	if stmt := dao.GetStmt("GetACLRole"); stmt != nil {
+		defer stmt.Close()
+
+		row := stmt.QueryRow(uuid)
+		if row == nil {
+			return "", fmt.Errorf("Did not found acl role")
+		}
+		row.Scan(&id)
+	} else {
+		return "", fmt.Errorf("Unknown statement")
+	}
 
 	return id, nil
 }

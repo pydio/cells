@@ -22,6 +22,7 @@ package meta
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/packr"
@@ -108,18 +109,33 @@ func (s *sqlimpl) Init(options config.Map) error {
 
 // Add or Update a UserMeta to the DB
 func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
-	var update bool
+	var (
+		update bool
+		metaId string
+	)
+
 	owner := dao.extractOwner(meta.Policies)
-	exists := dao.GetStmt("Exists").QueryRow(meta.NodeUuid, meta.Namespace, owner)
-	var metaId string
-	if err := exists.Scan(&metaId); err == nil && metaId != "" {
-		update = true
-	} else {
-		metaId = uuid.NewUUID().String()
+
+	if stmt := dao.GetStmt("Exists"); stmt != nil {
+		defer stmt.Close()
+
+		exists := stmt.QueryRow(meta.NodeUuid, meta.Namespace, owner)
+		if err := exists.Scan(&metaId); err == nil && metaId != "" {
+			update = true
+		} else {
+			metaId = uuid.NewUUID().String()
+		}
 	}
+
 	var err error
 	if update {
-		_, err = dao.GetStmt("UpdateMeta").Exec(
+		stmt := dao.GetStmt("UpdateMeta")
+		if stmt == nil {
+			return nil, false, fmt.Errorf("Unknown statement")
+		}
+		defer stmt.Close()
+
+		if _, err := stmt.Exec(
 			meta.NodeUuid,
 			meta.Namespace,
 			owner,
@@ -127,9 +143,17 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 			"json",
 			meta.JsonValue,
 			&metaId,
-		)
+		); err != nil {
+			return meta, update, err
+		}
 	} else {
-		_, err = dao.GetStmt("AddMeta").Exec(
+		stmt := dao.GetStmt("AddMeta")
+		if stmt == nil {
+			return nil, false, fmt.Errorf("Unknown statement")
+		}
+		defer stmt.Close()
+
+		if _, err := stmt.Exec(
 			metaId,
 			meta.NodeUuid,
 			meta.Namespace,
@@ -137,7 +161,10 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 			time.Now().Unix(),
 			"json",
 			meta.JsonValue,
-		)
+		); err != nil {
+			return meta, update, err
+		}
+
 		meta.Uuid = metaId
 	}
 
@@ -153,7 +180,13 @@ func (dao *sqlimpl) Set(meta *idm.UserMeta) (*idm.UserMeta, bool, error) {
 
 // Delete meta by their Id
 func (dao *sqlimpl) Del(meta *idm.UserMeta) (e error) {
-	if _, e := dao.GetStmt("DeleteMeta").Exec(meta.Uuid); e != nil {
+	stmt := dao.GetStmt("DeleteMeta")
+	if stmt == nil {
+		return fmt.Errorf("Unknown statement")
+	}
+	defer stmt.Close()
+
+	if _, e := stmt.Exec(meta.Uuid); e != nil {
 		return e
 	} else if e := dao.DeletePoliciesForResource(meta.Uuid); e != nil {
 		return e

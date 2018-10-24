@@ -52,7 +52,7 @@ type DAO interface {
 type Handler struct {
 	dao.DAO
 
-	stmts    map[string]*sql.Stmt
+	stmts    map[string]string
 	ifuncs   map[string]func(...interface{}) string // TODO - replace next with this
 	funcs    map[string]func(...string) string      // Queries that need to be run before we get a statement
 	mu       atomic.Value
@@ -71,7 +71,7 @@ func NewDAO(driver string, dsn string, prefix string) DAO {
 	}
 	return &Handler{
 		DAO:      dao.NewDAO(conn, driver, prefix),
-		stmts:    make(map[string]*sql.Stmt),
+		stmts:    make(map[string]string),
 		ifuncs:   make(map[string]func(...interface{}) string),
 		funcs:    make(map[string]func(...string) string),
 		replacer: strings.NewReplacer("%%PREFIX%%", prefix, "%PREFIX%", prefix),
@@ -97,21 +97,21 @@ func (h *Handler) Prepare(key string, query interface{}) error {
 		h.funcs[key] = v
 	case string:
 		v = h.replacer.Replace(v)
-		stmt, err := h.DB().Prepare(v)
-		if err != nil {
-			return fmt.Errorf("Preparing statement : %v, %v", query, err)
-		}
-
-		h.stmts[key] = stmt
+		h.stmts[key] = v
 	}
 
 	return nil
 }
 
-// GetStmts returns a list of all statements used by the dao
+// GetStmt returns a list of all statements used by the dao
 func (h *Handler) GetStmt(key string, args ...interface{}) *sql.Stmt {
 	if v, ok := h.stmts[key]; ok {
-		return v
+		stmt, err := h.DB().Prepare(v)
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+		return stmt
 	}
 	if v, ok := h.ifuncs[key]; ok {
 

@@ -34,6 +34,8 @@ func (s *dexSql) DexPruneOfflineSessions(c Config) (pruned int64, e error) {
 		return 0, e
 	}
 
+	defer stmt.Close()
+
 	rows, e := stmt.Query()
 	if e != nil {
 		return 0, e
@@ -86,10 +88,13 @@ func (s *dexSql) DexDeleteOfflineSessions(c Config, userUuid string, sessionUuid
 	if e != nil {
 		return e
 	}
+	defer offline.Close()
+
 	refresh, e := s.DB().Prepare(`DELETE FROM dex_refresh_token WHERE claims_user_id=? AND nonce=?`)
 	if e != nil {
 		return e
 	}
+	defer refresh.Close()
 
 	// This session needs deletion. Delete offline session and refresh_token
 	if _, e1 := offline.Exec(userUuid, sessionUuid); e1 == nil {

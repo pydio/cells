@@ -5,10 +5,9 @@
         formId="libreoffice_box" label="CONF_MESSAGE[Collabora Online]" description="CONF_MESSAGE[Collabora Online Editor for office documents]">
 
     <server_settings>
-        <global_param name="LIBREOFFICE_IFRAME_URL" type="string" label="CONF_MESSAGE[URL to the Libre Office Editor Iframe]" description="CONF_MESSAGE[URL to the Libre Office Editor Iframe...]" mandatory="true" expose="true"/>
-        <global_param name="LIBREOFFICE_WEBSOCKET_SECURE" type="boolean" label="CONF_MESSAGE[Websocket Uses TLS]" description="CONF_MESSAGE[Web Socket Uses TLS...]" default="false" mandatory="true"  expose="true"/>
-        <global_param name="LIBREOFFICE_WEBSOCKET_HOST" type="string" label="CONF_MESSAGE[Web Socket Connector Host]" description="CONF_MESSAGE[Host of the Web Socket Connector...]" default="localhost" mandatory="true"  expose="true"/>
-        <global_param name="LIBREOFFICE_WEBSOCKET_PORT" type="string" label="CONF_MESSAGE[Web Socket Connector Port]" description="CONF_MESSAGE[Host of the Web Socket Connector...]" default="9980" mandatory="true"  expose="true"/>
+        <global_param name="LIBREOFFICE_IFRAME_URL" type="string" label="CONF_MESSAGE[Libre Office Editor Iframe URL]" description="CONF_MESSAGE[Libre Office Editor Iframe URL...]" default="/loleaflet/dist/loleaflet.html" mandatory="true" expose="true"/>
+        <global_param name="LIBREOFFICE_HOST" type="string" label="CONF_MESSAGE[Libre Office Host]" description="CONF_MESSAGE[Host of the Web Socket Connector...]" default="localhost" mandatory="true" expose="true"/>
+        <global_param name="LIBREOFFICE_PORT" type="string" label="CONF_MESSAGE[Libre Office Port]" description="CONF_MESSAGE[Host of the Web Socket Connector...]" default="9980" mandatory="true" expose="true"/>
     </server_settings>
     <client_settings>
         <resources>
