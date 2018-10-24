@@ -209,6 +209,11 @@ func (s *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 		controllable = false
 	}
 	configPort := config.Default().Get("services", srv.Name(), "port").String("")
+	configAddress := ""
+	c := config.Default().Get("defaults", "url").String("")
+	if srv.Name() == common.SERVICE_GATEWAY_PROXY && c != "" {
+		configAddress = c
+	}
 	protoSrv := &ctl.Service{
 		Name:         srv.Name(),
 		Status:       status,
@@ -220,14 +225,19 @@ func (s *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	}
 	for _, node := range srv.RunningNodes() {
 		p := int32(node.Port)
+		a := node.Address
 		if configPort != "" {
 			i, _ := strconv.ParseInt(configPort, 10, 32)
 			p = int32(i)
 		}
+		if configAddress != "" {
+			a = configAddress
+			p = 0
+		}
 		protoSrv.RunningPeers = append(protoSrv.RunningPeers, &ctl.Peer{
 			Id:       node.Id,
 			Port:     p,
-			Address:  node.Address,
+			Address:  a,
 			Metadata: node.Metadata,
 		})
 	}

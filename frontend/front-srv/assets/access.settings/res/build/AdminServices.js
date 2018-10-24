@@ -174,6 +174,9 @@ var ServiceCard = (function (_React$Component) {
          */
         value: function renderServiceLine(service, tag, showDescription, m) {
             var iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
+            if (service.Status !== 'STARTED' && (service.Name === "consul" || service.Name === "pydio.rest.install" || service.Name === "nats")) {
+                iconColor = '#9E9E9E';
+            }
 
             var isGrpc = service.Name.startsWith('pydio.grpc.');
             var legend = isGrpc ? "Grpc" : "Rest";
@@ -193,7 +196,11 @@ var ServiceCard = (function (_React$Component) {
             var peers = [];
             if (service.Status === 'STARTED' && service.RunningPeers) {
                 service.RunningPeers.map(function (p) {
-                    peers.push(p.Address + ':' + p.Port);
+                    if (p.Port) {
+                        peers.push(p.Address + ':' + p.Port);
+                    } else {
+                        peers.push(p.Address);
+                    }
                 });
             } else {
                 peers.push('N/A');
@@ -261,7 +268,7 @@ var ServiceCard = (function (_React$Component) {
                     flex: 1, minWidth: 200, margin: 4, display: 'flex', flexDirection: 'column'
                 },
                 title: {
-                    padding: 8, fontSize: 16, fontWeight: 500, borderBottom: '1px solid #eee'
+                    padding: 8, fontSize: 15, fontWeight: 500, borderBottom: '1px solid #eee'
                 },
                 description: {
                     padding: 8, flex: 1
