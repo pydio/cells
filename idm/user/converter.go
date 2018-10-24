@@ -108,6 +108,7 @@ type queryConverter struct {
 func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, bool) {
 
 	var expressions []goqu.Expression
+	var attributeOrLogin bool
 
 	q := new(idm.UserSingleQuery)
 	// Basic joint
@@ -123,9 +124,16 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 	}
 
 	if q.Login != "" {
-		expressions = append(expressions, sql.GetExpressionForString(q.Not, "n.name", q.Login))
-		if !q.Not {
-			expressions = append(expressions, goqu.I("n.leaf").Eq(1))
+		if strings.Contains(q.Login, "*") && !q.Not {
+			// Special case for searching on "login LIKE" => use dedicated attribute instead
+			q.AttributeName = "pydio:labelLike"
+			q.AttributeValue = q.Login
+			attributeOrLogin = true
+		} else {
+			expressions = append(expressions, sql.GetExpressionForString(q.Not, "n.name", q.Login))
+			if !q.Not {
+				expressions = append(expressions, goqu.I("n.leaf").Eq(1))
+			}
 		}
 	}
 
@@ -206,7 +214,11 @@ func (c *queryConverter) Convert(val *any.Any, driver string) (goqu.Expression, 
 		} else {
 			attQ = "EXISTS (" + attQ + ")"
 		}
-		expressions = append(expressions, goqu.L(attQ))
+		if attributeOrLogin {
+			expressions = append(expressions, goqu.Or(goqu.L(attQ), sql.GetExpressionForString(false, "n.name", q.Login)))
+		} else {
+			expressions = append(expressions, goqu.L(attQ))
+		}
 	}
 
 	if len(q.HasRole) > 0 {

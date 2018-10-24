@@ -174,9 +174,9 @@ func GetExpressionForString(neq bool, field string, values ...string) (expressio
 		v := values[0]
 		if strings.Contains(v, "*") {
 			if neq {
-				expression = goqu.I(field).NotLike(strings.Replace(v, "*", "%", -1))
+				expression = goqu.I(field).NotILike(strings.Replace(v, "*", "%", -1))
 			} else {
-				expression = goqu.I(field).Like(strings.Replace(v, "*", "%", -1))
+				expression = goqu.I(field).ILike(strings.Replace(v, "*", "%", -1))
 			}
 		} else {
 			if neq {
