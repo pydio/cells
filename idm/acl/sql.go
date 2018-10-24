@@ -130,7 +130,7 @@ func (dao *sqlimpl) Add(in interface{}) error {
 		zap.String("r", roleID), zap.String("w", workspaceID), zap.String("n", nodeID), zap.Any("value", val))
 
 	stmt := dao.GetStmt("AddACL")
-	if stmt != nil {
+	if stmt == nil {
 		return fmt.Errorf("Unknown statement")
 	}
 
