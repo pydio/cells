@@ -253,8 +253,14 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 	// Remove existing attributes, replace with new ones
 	// TODO: should we put these two operations (delete / insert) inside a transaction?
 	if user.GroupLabel != "" {
+		if user.Attributes == nil {
+			user.Attributes = make(map[string]string, 1)
+		}
 		user.Attributes["pydio:labelLike"] = user.GroupLabel
 	} else if user.Login != "" {
+		if user.Attributes == nil {
+			user.Attributes = make(map[string]string, 1)
+		}
 		user.Attributes["pydio:labelLike"] = user.Login
 	}
 	if stmt := s.GetStmt("DeleteAttributes"); stmt != nil {
