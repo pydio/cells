@@ -64,6 +64,13 @@ func init() {
 		service.WithMicro(func(m micro.Service) error {
 			idm.RegisterUserServiceHandler(m.Options().Server, new(Handler))
 
+			// Register a cleaner for removing a workspace when there are no more ACLs on it.
+			dao := servicecontext.GetDAO(m.Options().Context).(user.DAO)
+			cleaner := &rolesCleaner{Dao: dao}
+			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
+				return err
+			}
+
 			return nil
 		}),
 	)

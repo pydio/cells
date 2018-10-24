@@ -67,29 +67,31 @@ var JobEntry = (function (_React$Component) {
 
         var progress = undefined;
         if (task && task.HasProgress && task.Status !== 'Error' && task.Progress < 1) {
-            progress = _react2['default'].createElement(_materialUi.LinearProgress, { mode: 'determinate', min: 0, max: 100, value: task.Progress * 100, style: { width: '100%' } });
+            progress = _react2['default'].createElement(_materialUi.LinearProgress, { mode: 'determinate', min: 0, max: 100, value: task.Progress * 100, style: { width: '100%', height: 2 } });
         }
 
         var styles = {
             paper: _extends({
-                margin: 8,
-                padding: 8
+                margin: '0 8px 8px',
+                padding: '0 8px 8px',
+                backgroundColor: 'transparent',
+                color: 'inherit'
             }, clickStyle),
             title: {
-                fontSize: 15,
-                color: 'rgba(0,0,0,0.87)',
+                fontSize: 14,
+                fontWeight: 500,
                 flex: 1
             },
             status: {
                 fontSize: 13,
-                color: 'rgba(0,0,0,0.54)',
-                padding: '8px 0'
+                color: 'rgba(0,0,0,0.33)',
+                padding: '4px 0 8px'
             }
         };
 
         return _react2['default'].createElement(
             _materialUi.Paper,
-            { zDepth: 1, style: styles.paper, onClick: click },
+            { zDepth: 0, style: styles.paper, onClick: click },
             _react2['default'].createElement(
                 'div',
                 { style: { display: 'flex', alignItems: 'center' } },

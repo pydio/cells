@@ -23,6 +23,7 @@ package tree
 import (
 	"context"
 	"fmt"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -43,6 +44,7 @@ import (
 type CopyMoveAction struct {
 	Client            views.Handler
 	Move              bool
+	Copy              bool
 	Recursive         bool
 	TargetPlaceholder string
 	CreateFolder      bool
@@ -77,6 +79,7 @@ func (c *CopyMoveAction) Init(job *jobs.Job, cl client.Client, action *jobs.Acti
 	if actionType, ok := action.Parameters["type"]; ok && actionType == "move" {
 		c.Move = true
 	}
+	c.Copy = !c.Move
 
 	if createParam, ok := action.Parameters["create"]; ok {
 		c.CreateFolder, _ = strconv.ParseBool(createParam)
@@ -101,7 +104,6 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 	sourceNode := input.Nodes[0]
 
-	// Todo - handle target already existing with -X suffix?
 	targetNode := &tree.Node{
 		Path: c.TargetPlaceholder,
 	}
@@ -111,10 +113,13 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 
 	log.Logger(ctx).Debug("Copy/Move target path is", targetNode.ZapPath(), zap.Bool("targetIsParent", c.TargetIsParent))
 
+	// Do not copy on itself, ignore
 	if targetNode.Path == input.Nodes[0].Path {
-		// Do not copy on itself, ignore
 		return input, nil
 	}
+
+	// Handle already existing
+	c.suffixPathIfNecessary(ctx, targetNode)
 
 	readR, readE := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: sourceNode})
 	if readE != nil {
@@ -125,7 +130,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	output := input
 	childrenMoved := 0
 
-	session := uuid.NewUUID().String()
+	session := uuid.New()
 
 	if c.Recursive && !sourceNode.IsLeaf() {
 
@@ -140,7 +145,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 			log.Logger(ctx).Error("List Nodes", zap.Error(err))
 			return input.WithError(readE), readE
 		}
-		children := []*tree.Node{}
+		var children []*tree.Node
 		defer streamer.Close()
 
 		for {
@@ -159,68 +164,66 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 		}
 		total := len(children)
 
+		// For Copy case, first create new folders with fresh UUID
+		if c.Copy {
+			for _, childNode := range children {
+				if childNode.IsLeaf() {
+					continue
+				}
+
+				childPath := childNode.Path
+				relativePath := strings.TrimPrefix(childPath, prefixPathSrc+"/")
+				targetPath := prefixPathTarget + "/" + relativePath
+				channels.StatusMsg <- "Copying " + childPath
+
+				folderNode := childNode.Clone()
+				folderNode.Path = targetPath
+				folderNode.Uuid = uuid.New()
+				_, e := c.Client.CreateNode(ctx, &tree.CreateNodeRequest{Node: folderNode, IndexationSession: session, UpdateIfExists: true})
+				if e != nil {
+					log.Logger(ctx).Error("-- Create Folder ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
+					return output.WithError(e), e
+				}
+				log.Logger(ctx).Debug("-- Copy Folder Success ", zap.String("to", targetPath), childNode.Zap())
+			}
+		}
+
 		for idx, childNode := range children {
 
 			childPath := childNode.Path
 			relativePath := strings.TrimPrefix(childPath, prefixPathSrc+"/")
 			targetPath := prefixPathTarget + "/" + relativePath
 
-			channels.StatusMsg <- "Copying " + childPath
+			// Copy files - For "Copy" operation, do NOT copy .pydio files
+			if childNode.IsLeaf() && (c.Move || path.Base(childPath) != common.PYDIO_SYNC_HIDDEN_FILE_META) {
 
-			// CREATE NEW FILES - DO NOT HANDLE PYDIO_SYNC_HIDDEN_FILE_META, HANDLE FOLDERS INSTEAD
+				log.Logger(ctx).Debug("Copy " + childNode.Path + " to " + targetPath)
 
-			log.Logger(ctx).Info("Copy/Move " + childNode.Path + " to " + targetPath)
-			folderExists := false
-			if !childNode.IsLeaf() || filepath.Base(targetPath) == common.PYDIO_SYNC_HIDDEN_FILE_META {
-				if cResp, cE := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: &tree.Node{Path: targetPath}}); cE == nil && cResp.Node != nil {
-					log.Logger(ctx).Debug("-- Ignoring folder move/copy as it already exists")
-					folderExists = true
-				}
-			}
+				channels.StatusMsg <- "Copying " + childPath
 
-			if !folderExists {
-
-				if childNode.IsLeaf() {
-
-					meta := make(map[string]string, 1)
-					if c.Move {
-						meta["X-Amz-Metadata-Directive"] = "COPY"
-					} else {
-						meta["X-Amz-Metadata-Directive"] = "REPLACE"
-					}
-					meta["X-Pydio-Session"] = session
-					_, e := c.Client.CopyObject(ctx, childNode, &tree.Node{Path: targetPath}, &views.CopyRequestData{Metadata: meta})
-					if e != nil {
-						log.Logger(ctx).Error("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
-						return output.WithError(e), e
-					}
-					log.Logger(ctx).Debug("-- Copy Success: " + childNode.Path)
-
+				meta := make(map[string]string, 1)
+				if c.Move {
+					meta["X-Amz-Metadata-Directive"] = "COPY"
 				} else {
-
-					folderNode := childNode.Clone()
-					folderNode.Path = targetPath
-					if !c.Move {
-						folderNode.Uuid = uuid.NewUUID().String()
-					}
-					_, e := c.Client.CreateNode(ctx, &tree.CreateNodeRequest{Node: folderNode, IndexationSession: session})
-					if e != nil {
-						log.Logger(ctx).Error("-- Create Folder ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
-						return output.WithError(e), e
-					}
-					log.Logger(ctx).Debug("-- Create Folder Success " + childNode.Path)
-
+					meta["X-Amz-Metadata-Directive"] = "REPLACE"
 				}
+				meta["X-Pydio-Session"] = session
+				_, e := c.Client.CopyObject(ctx, childNode, &tree.Node{Path: targetPath}, &views.CopyRequestData{Metadata: meta})
+				if e != nil {
+					log.Logger(ctx).Error("-- Copy ERROR", zap.Error(e), zap.Any("from", childNode.Path), zap.Any("to", targetPath))
+					return output.WithError(e), e
+				}
+				log.Logger(ctx).Debug("-- Copy Success: ", zap.String("to", targetPath), childNode.Zap())
+
 			}
 
-			// REMOVE SOURCE IF NECESSARY - DO REMOVE PYDIO_SYNC_HIDDEN_FILE_META
+			// Remove original for move case
 			if c.Move {
 
 				// If we're sending the last Delete here - then we close the session at the same time
 				if idx == len(children)-1 {
 					session = "close-" + session
 				}
-
 				_, moveErr := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: childNode, IndexationSession: session})
 				if moveErr != nil {
 					log.Logger(ctx).Error("-- Delete Error", zap.Error(moveErr))
@@ -243,7 +246,7 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	}
 
 	if childrenMoved > 0 {
-		log.Logger(ctx).Info(fmt.Sprintf("Successfully moved %v, now moving parent node", childrenMoved))
+		log.Logger(ctx).Info(fmt.Sprintf("Successfully copied or moved %v, now moving parent node", childrenMoved))
 	}
 
 	// Now Copy/Move initial node
@@ -267,38 +270,14 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 			}
 		}
 
-	} else if !c.Move {
-		// Create PYDIO_SYNC_HIDDEN_FILE_META - Original ones are already deleted in previous step
-		/*
-			if c.Move {
-				log.Logger(ctx).Info("-- Moving sourceNode " + sourceNode.Path + " with uuid " + sourceNode.Uuid)
-				targetNode.Uuid = sourceNode.Uuid
-			} else {
-			}
-		*/
+	} else if c.Copy {
 		session = "close-" + session
-
 		log.Logger(ctx).Info("-- Copying sourceNode with empty Uuid")
 		targetNode.Type = tree.NodeType_COLLECTION
-		_, e := c.Client.CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode, IndexationSession: session})
+		_, e := c.Client.CreateNode(ctx, &tree.CreateNodeRequest{Node: targetNode, IndexationSession: session, UpdateIfExists: true})
 		if e != nil {
 			return output.WithError(e), e
 		}
-
-		/*
-			if c.Move {
-				log.Logger(ctx).Info("-- Remove original PYDIO_SYNC_HIDDEN_FILE_META")
-				_, e2 := c.Client.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: &tree.Node{
-					Path:sourceNode.Path + "/" + common.PYDIO_SYNC_HIDDEN_FILE_META,
-					Type: tree.NodeType_LEAF,
-				}})
-				if e2 != nil {
-					log.Logger(ctx).Info("-- Could not delete ", zap.String("p", sourceNode.Path + "/" + common.PYDIO_SYNC_HIDDEN_FILE_META))
-					return output.WithError(e2), e2
-				}
-			}
-		*/
-
 	}
 
 	output.AppendOutput(&jobs.ActionOutput{
@@ -306,4 +285,23 @@ func (c *CopyMoveAction) Run(ctx context.Context, channels *actions.RunnableChan
 	})
 
 	return output, nil
+}
+
+func (c *CopyMoveAction) suffixPathIfNecessary(ctx context.Context, targetNode *tree.Node) {
+	exists := func(node *tree.Node) bool {
+		t, e := c.Client.ReadNode(ctx, &tree.ReadNodeRequest{Node: node})
+		return e == nil && t.Node != nil
+	}
+	i := 1
+	ext := path.Ext(targetNode.Path)
+	noExt := strings.TrimSuffix(targetNode.Path, ext)
+	for {
+		if exists(targetNode) {
+			targetNode.Path = fmt.Sprintf("%s-%d%s", noExt, i, ext)
+			targetNode.SetMeta("name", path.Base(targetNode.Path))
+			i++
+		} else {
+			break
+		}
+	}
 }

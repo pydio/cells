@@ -46,6 +46,7 @@ type DAO interface {
 	Search(sql.Enquirer, *[]interface{}, ...bool) error
 	Count(sql.Enquirer) (int, error)
 	Bind(userName string, password string) (*idm.User, error)
+	CleanRole(roleId string) error
 }
 
 // NewDAO wraps passed DAO with specific Pydio implementation of User DAO and returns it.

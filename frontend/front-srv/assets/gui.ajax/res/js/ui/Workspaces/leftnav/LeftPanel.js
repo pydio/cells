@@ -23,6 +23,7 @@ const Pydio = require('pydio')
 const {muiThemeable} = require('material-ui/styles')
 import UserWidget from './UserWidget'
 import WorkspacesList from '../wslist/WorkspacesList'
+const {TasksPanel} = Pydio.requireLib("boot");
 
 let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydio}) => {
 
@@ -30,6 +31,7 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
         const Color = require('color');
         const colorHue = Color(palette.primary1Color).hsl().array()[0];
         const lightBg = new Color({h:colorHue,s:35,l:98});
+        const taskBg = new Color({h:colorHue,s:30,l:96});
 
         style = {
             backgroundColor: lightBg.toString(),
@@ -65,6 +67,7 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
                     showTreeForWorkspace={pydio.user?pydio.user.activeRepository:false}
                     {...wsListProps}
                 />
+                <TasksPanel pydio={pydio} mode={"flex"} panelStyle={{...wsListStyle, backgroundColor: taskBg.toString()}}/>
             </div>
         );
 };

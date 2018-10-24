@@ -41,6 +41,10 @@ var _require = require('material-ui/styles');
 
 var muiThemeable = _require.muiThemeable;
 
+var _Pydio$requireLib = Pydio.requireLib("boot");
+
+var TasksPanel = _Pydio$requireLib.TasksPanel;
+
 var LeftPanel = function LeftPanel(_ref) {
     var muiTheme = _ref.muiTheme;
     var _ref$style = _ref.style;
@@ -53,6 +57,7 @@ var LeftPanel = function LeftPanel(_ref) {
     var Color = require('color');
     var colorHue = Color(palette.primary1Color).hsl().array()[0];
     var lightBg = new Color({ h: colorHue, s: 35, l: 98 });
+    var taskBg = new Color({ h: colorHue, s: 30, l: 96 });
 
     style = _extends({
         backgroundColor: lightBg.toString()
@@ -85,7 +90,8 @@ var LeftPanel = function LeftPanel(_ref) {
             sectionTitleStyle: wsSectionTitleStyle,
             pydio: pydio,
             showTreeForWorkspace: pydio.user ? pydio.user.activeRepository : false
-        }, wsListProps))
+        }, wsListProps)),
+        React.createElement(TasksPanel, { pydio: pydio, mode: "flex", panelStyle: _extends({}, wsListStyle, { backgroundColor: taskBg.toString() }) })
     );
 };
 

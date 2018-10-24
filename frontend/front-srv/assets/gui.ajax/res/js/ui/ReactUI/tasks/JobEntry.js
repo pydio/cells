@@ -41,29 +41,31 @@ class JobEntry extends React.Component {
 
         let progress;
         if(task && task.HasProgress && task.Status !== 'Error' && task.Progress < 1){
-            progress = (<LinearProgress mode="determinate" min={0} max={100} value={task.Progress * 100} style={{width:'100%'}}/>);
+            progress = (<LinearProgress mode="determinate" min={0} max={100} value={task.Progress * 100} style={{width:'100%', height: 2}}/>);
         }
 
         const styles = {
             paper: {
-                margin: 8,
-                padding: 8,
+                margin: '0 8px 8px',
+                padding: '0 8px 8px',
+                backgroundColor: 'transparent',
+                color: 'inherit',
                 ...clickStyle
             },
             title: {
-                fontSize: 15,
-                color: 'rgba(0,0,0,0.87)',
+                fontSize: 14,
+                fontWeight: 500,
                 flex: 1
             },
             status: {
                 fontSize: 13,
-                color: 'rgba(0,0,0,0.54)',
-                padding: '8px 0'
+                color: 'rgba(0,0,0,0.33)',
+                padding: '4px 0 8px'
             }
         };
 
         return (
-            <Paper zDepth={1} style={styles.paper} onClick={click}>
+            <Paper zDepth={0} style={styles.paper} onClick={click}>
                 <div style={{display:'flex', alignItems: 'center'}}>
                     <div style={styles.title}>{job.Label}</div>
                     <TaskAction {...this.props} task={task}/>

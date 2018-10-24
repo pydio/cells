@@ -243,7 +243,9 @@
             <template name="material_router" element="ajxp_desktop" position="bottom" namespace="PydioReactUI" component="Router" props='{"containerId":"pydio_router"}'/>
             <template name="network_loader" element="body" position="bottom" namespace="PydioReactUI" component="NetworkLoader" props='{}'/>
             <template name="hidden_download" element="body" position="bottom" namespace="PydioReactUI" component="HiddenDownloadForm" props='{}'/>
+            <!--
             <template name="pydio-tasks-panel" element="ajxp_desktop" position="bottom" namespace="PydioReactUI" component="TasksPanel" props='{}'/>
+            -->
 			<component_config component="FilesList">
 				<property name="thumbSize" value="128"/>
 			</component_config>

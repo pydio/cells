@@ -37,6 +37,10 @@ var _pydioHttpApi = require('pydio/http/api');
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var JobsStore = (function (_Observable) {
     _inherits(JobsStore, _Observable);
 
@@ -248,6 +252,29 @@ var JobsStore = (function (_Observable) {
             JobsStore.STORE_INSTANCE = new JobsStore(pydio);
         }
         return JobsStore.STORE_INSTANCE;
+    };
+
+    /**
+     * Post a fake job to open panel and work on component UX
+     */
+
+    JobsStore.debugFakeJob = function debugFakeJob() {
+        var id = arguments.length <= 0 || arguments[0] === undefined ? 'local-debug-fake-job' : arguments[0];
+
+        var pydio = _pydio2['default'].getInstance();
+        var job = new _pydioHttpRestApi.JobsJob();
+        job.ID = id;
+        job.Owner = pydio.user.id;
+        job.Label = 'Fake job title';
+        job.Stoppable = true;
+        var task = new _pydioHttpRestApi.JobsTask();
+        job.Tasks = [task];
+        task.HasProgress = true;
+        task.Progress = 0.7;
+        task.ID = "debug-task";
+        task.Status = _pydioHttpRestApi.JobsTaskStatus.constructFromObject('Running');
+        task.StatusMessage = 'this is my task currently running status... It may be a long text';
+        JobsStore.getInstance().enqueueLocalJob(job);
     };
 
     return JobsStore;
