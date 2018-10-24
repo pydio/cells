@@ -97,8 +97,8 @@ var Editor = (_dec = (0, _reactRedux.connect)(null, EditorActions), _dec(_class 
                 editorModify({ fixedToolbar: true });
             }
 
-            var iframeUrl = configs.get('LIBREOFFICE_IFRAME_URL');
-            var host = _pydio2.default.Parameters('FRONTEND_URL');
+            var iframeUrl = "/loleaflet/dist/loleaflet.html";
+            var host = pydio.Parameters.get('FRONTEND_URL');
             var webSocketUrl = host.replace(/^http/gi, 'ws');
 
             // Check current action state for permission

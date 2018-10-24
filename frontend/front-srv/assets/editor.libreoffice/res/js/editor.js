@@ -55,8 +55,8 @@ export default class Editor extends React.Component {
             editorModify({fixedToolbar: true})
         }
 
-        const iframeUrl = configs.get('LIBREOFFICE_IFRAME_URL');
-        const host = Pydio.Parameters('FRONTEND_URL');
+        const iframeUrl = "/loleaflet/dist/loleaflet.html";
+        const host = pydio.Parameters.get('FRONTEND_URL');
         const webSocketUrl = host.replace(/^http/gi, 'ws');
 
         // Check current action state for permission

@@ -124,19 +124,19 @@ var (
 		transparent
 	}
 
-	proxy /loleaflet/ {{if .TLS}}https://{{else}}http://{{end}}{{.Collabora.Host}}/loleaflet {
+	proxy /loleaflet/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/loleaflet {
 		transparent
 		insecure_skip_verify
 		without /loleaflet/
 	}
 
-	proxy /hosting/discovery {{if .TLS}}https://{{else}}http://{{end}}{{.Collabora.Host}}/hosting/discovery {
+	proxy /hosting/discovery {{.Collabora.Scheme}}://{{.Collabora.Host}}/hosting/discovery {
 		transparent
 		insecure_skip_verify
 		without /hosting/discovery
 	}
 
-	proxy /lool/ {{if .TLS}}https://{{else}}http://{{end}}{{.Collabora.Host}}/lool/ {
+	proxy /lool/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/lool/ {
 		transparent
 		insecure_skip_verify
 		websocket
@@ -263,7 +263,7 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 		return c, e
 	}
 
-	if p, e := internalUrlFromConfig("collabora", []string{"frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_WEBSOCKET_PORT"}, servicesHost, tls); e == nil {
+	if p, e := internalUrlFromConfig("collabora", []string{"frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_PORT"}, Get("frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_HOST").String(""), Get("frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_SSL").Bool(true)); e == nil {
 		c.Collabora = p
 	} else {
 		c.Collabora = nil
