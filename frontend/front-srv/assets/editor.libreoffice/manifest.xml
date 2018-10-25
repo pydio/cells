@@ -5,9 +5,9 @@
         formId="libreoffice_box" label="CONF_MESSAGE[Collabora Online]" description="CONF_MESSAGE[Collabora Online Editor for office documents]">
 
     <server_settings>
-        <global_param name="LIBREOFFICE_IFRAME_URL" type="string" label="CONF_MESSAGE[Libre Office Editor Iframe URL]" description="CONF_MESSAGE[Libre Office Editor Iframe URL...]" default="/loleaflet/dist/loleaflet.html" mandatory="true" expose="true"/>
-        <global_param name="LIBREOFFICE_HOST" type="string" label="CONF_MESSAGE[Libre Office Host]" description="CONF_MESSAGE[Host of the Web Socket Connector...]" default="localhost" mandatory="true" expose="true"/>
-        <global_param name="LIBREOFFICE_PORT" type="string" label="CONF_MESSAGE[Libre Office Port]" description="CONF_MESSAGE[Host of the Web Socket Connector...]" default="9980" mandatory="true" expose="true"/>
+        <global_param name="LIBREOFFICE_SSL" type="boolean" label="CONF_MESSAGE[Libre Office SSL]" description="CONF_MESSAGE[Libre Office uses ssl...]" default="true" mandatory="true" expose="true"/>
+        <global_param name="LIBREOFFICE_HOST" type="string" label="CONF_MESSAGE[Libre Office Host]" description="CONF_MESSAGE[Host for Libre Office...]" default="localhost" mandatory="true" expose="true"/>
+        <global_param name="LIBREOFFICE_PORT" type="string" label="CONF_MESSAGE[Libre Office Port]" description="CONF_MESSAGE[Port for Libre Office...]" default="9980" mandatory="true" expose="true"/>
     </server_settings>
     <client_settings>
         <resources>
