@@ -6,7 +6,8 @@ module.exports = function(grunt) {
         babel: {
             options: {
                 "plugins": ["transform-react-jsx"],
-                "presets":["env"]
+                "presets":["env"],
+                "comments": false
             },
             dist: {
                 files: [
