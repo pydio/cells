@@ -27,11 +27,11 @@ import (
 )
 
 // rolesCleaner listen for roles deletion and clear the users accordingly
-type rolesCleaner struct {
+type RolesCleaner struct {
 	Dao user.DAO
 }
 
-func (c *rolesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
+func (c *RolesCleaner) Handle(ctx context.Context, msg *idm.ChangeEvent) error {
 
 	if msg.Type == idm.ChangeEventType_DELETE && msg.Role != nil {
 
