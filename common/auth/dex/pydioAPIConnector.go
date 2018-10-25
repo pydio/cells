@@ -122,6 +122,11 @@ func (p *pydioAPIConnector) Login(ctx context.Context, s connector.Scopes, usern
 	if err != nil {
 		fmt.Println("Error Binding user ")
 		log.Logger(ctx).Error("cannot bind user "+username, zap.Error(err))
+		log.Auditer(ctx).Error(
+			err.Error(),
+			log.GetAuditId(common.AUDIT_LOGIN_FAILED),
+			zap.String(common.KEY_USERNAME, username),
+		)
 		return connector.Identity{}, false, err
 	}
 
