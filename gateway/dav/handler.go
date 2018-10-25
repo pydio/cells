@@ -63,6 +63,7 @@ func startHttpServer(ctx context.Context, port int) {
 
 	dav := &webdav.Handler{
 		FileSystem: fs,
+		Prefix:     "/dav",
 		LockSystem: webdav.NewMemLS(),
 		Logger: func(r *http.Request, err error) {
 			switch r.Method {

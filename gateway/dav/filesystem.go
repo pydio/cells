@@ -361,9 +361,7 @@ func (fs *FileSystem) Rename(ctx context.Context, oldName, newName string) error
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 
-	if fs.Debug {
-		log.Logger(ctx).Debug("FileSystem.Rename", zap.String("from", oldName), zap.String("to", newName))
-	}
+	log.Logger(ctx).Debug("FileSystem.Rename", zap.String("from", oldName), zap.String("to", newName))
 
 	var err error
 	if oldName, err = clearName(oldName); err != nil {
@@ -375,7 +373,7 @@ func (fs *FileSystem) Rename(ctx context.Context, oldName, newName string) error
 
 	of, err := fs.stat(ctx, oldName)
 	if err != nil {
-		return os.ErrExist
+		return os.ErrNotExist
 	}
 
 	if of.IsDir() && !strings.HasSuffix(oldName, "/") {
@@ -403,6 +401,7 @@ func (fs *FileSystem) Stat(ctx context.Context, name string) (os.FileInfo, error
 		log.Logger(ctx).Debug("FileSystem.Stat", zap.String("name", name), zap.String("fi", (fi.(*FileInfo)).String()), zap.Error(err))
 	} else {
 		log.Logger(ctx).Error("FileSystem.Stat - Not Found", zap.String("name", name))
+		err = os.ErrNotExist
 	}
 	return fi, err
 }

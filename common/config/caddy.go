@@ -93,7 +93,6 @@ var (
 	}
 	proxy /dav/ {{.DAV.Host}} {
 		transparent
-		without /dav/
 	}
 
 	proxy /public/ {{.FrontPlugins.Host}}/public {
