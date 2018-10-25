@@ -56,6 +56,11 @@ class Store extends Observable{
         return progress;
     }
 
+    // Required for backward compat
+    getAutoStart(){
+        return Configs.getInstance().getAutoStart();
+    }
+
     pushFolder(folderItem){
         if(!this.getQueueSize()){
             this._processed = [];

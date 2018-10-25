@@ -81,6 +81,11 @@ var Store = function (_Observable) {
             return progress;
         }
     }, {
+        key: 'getAutoStart',
+        value: function getAutoStart() {
+            return _Configs2.default.getInstance().getAutoStart();
+        }
+    }, {
         key: 'pushFolder',
         value: function pushFolder(folderItem) {
             if (!this.getQueueSize()) {
