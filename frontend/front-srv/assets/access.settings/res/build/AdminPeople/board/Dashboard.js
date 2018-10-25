@@ -293,9 +293,9 @@ var Dashboard = _react2['default'].createClass({
 
         switch (filterValue) {
             case 1:
-                return profile !== "shared";
+                return profile !== "shared" && profile !== "anon";
             case 2:
-                return profile === "shared";
+                return profile === "shared" && profile !== "anon";
             case 3:
                 return isAdmin;
             default:
