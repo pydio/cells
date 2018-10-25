@@ -9,8 +9,10 @@
     "@babel/plugin-transform-react-jsx": "^7.0.0",
     "babel-core": "^6.26.3",
     "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
     "grunt": "^1.0.3",
     "grunt-babel": "^7.0.0",
+    "grunt-browserify": "~4.0.1",
     "grunt-contrib-compress": "^1.4.3",
     "grunt-contrib-watch": "^1.1.0"
   }
