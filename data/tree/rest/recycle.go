@@ -7,6 +7,7 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/defaults"
@@ -73,6 +74,19 @@ func findRecycleForSource(ctx context.Context, source *tree.Node, ancestors []*t
 	}
 
 	if recycle == nil {
+		l := len(ancestors)
+		if l > 3 && ancestors[l-2].Uuid == "DATASOURCE:personal" {
+			personalFolder := ancestors[l-3]
+			// This is a "personal files" case, where the recycle root may not have been created for various reasons, add it now
+			log.Logger(ctx).Info("Recycle not found inside a personal files, create ACL now on ", ancestors[l-3].Zap())
+			newAcl := &idm.ACL{
+				NodeID: personalFolder.Uuid,
+				Action: utils.ACL_RECYCLE_ROOT,
+			}
+			if _, e := cl.CreateACL(ctx, &idm.CreateACLRequest{ACL: newAcl}); e == nil {
+				return personalFolder, nil
+			}
+		}
 		err = errors.NotFound("RecycleNotFound", "cannot find recycle root on this branch")
 	}
 	return
