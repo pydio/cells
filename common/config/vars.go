@@ -85,8 +85,17 @@ func Default() *Config {
 			config.WithSource(newLocalSource()),
 		)}
 		if save, e := UpgradeConfigsIfRequired(defaultConfig); e == nil && save {
-			saveConfig(defaultConfig, common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")
-			fmt.Println("[Configs] successfully saved config after upgrade")
+			e2 := saveConfig(defaultConfig, common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")
+			if e2 != nil {
+				fmt.Println("[Configs] Error while saving upgraded configs")
+			} else {
+				fmt.Println("[Configs] successfully saved config after upgrade - Reloading from source")
+			}
+			// RELOAD FULLY FROM SOURCE, TO MAKE SURE IT IS IN SYNC WITH JSON
+			defaultConfig = &Config{config.NewConfig(
+				// config.WithSource(newEnvSource()),
+				config.WithSource(newLocalSource()),
+			)}
 		} else if e != nil {
 			fmt.Errorf("[Configs] something whent wrong while upgrading configs: %s", e.Error())
 		}
