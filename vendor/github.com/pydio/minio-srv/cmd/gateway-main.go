@@ -397,8 +397,10 @@ func gatewayMain(ctx *cli.Context, backendType gatewayBackend) {
 		servicecontext.HttpSpanHandlerWrapper,
 	}
 
-	if backendType == pydioBackend || backendType == s3Backend {
+	if backendType == pydioBackend {
 		handlerFns = append(handlerFns, getPydioAuthHandlerFunc(true))
+	} else if backendType == s3Backend {
+		handlerFns = append(handlerFns, getPydioAuthHandlerFunc(false))
 	}
 
 	globalHTTPServer = miniohttp.NewServer([]string{gatewayAddr}, registerHandlers(router, handlerFns...), globalTLSCertificate)

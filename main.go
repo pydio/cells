@@ -97,6 +97,9 @@ import (
 	_ "github.com/pydio/cells/scheduler/actions/scheduler"
 	_ "github.com/pydio/cells/scheduler/actions/tree"
 
+	// Conformance Test Services
+	_ "github.com/pydio/cells/data/source/test"
+
 	"github.com/pydio/cells/common"
 )
 

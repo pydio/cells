@@ -470,6 +470,16 @@ func (fs fsObjects) getObjectInfo(bucket, object string) (oi ObjectInfo, e error
 				fsMeta = testMeta
 			}
 		}
+	} else if fsMeta.Meta != nil {
+		if _, ok := fsMeta.Meta["etag"]; !ok{
+			fs.rwPool.Close(fsMetaPath)
+			testMeta, err := fs.computeFileEtag(bucket, object)
+			if err == nil {
+				if eTag, ok := testMeta.Meta["etag"]; ok {
+					fsMeta.Meta["etag"] = eTag
+				}
+			}
+		}
 	}
 
 	// Stat the file to get file size.
