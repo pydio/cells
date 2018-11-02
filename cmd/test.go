@@ -1,3 +1,5 @@
+// +build dev
+
 /*
  * Copyright (c) 2018. Abstrium SAS <team (at) pydio.com>
  * This file is part of Pydio Cells.
