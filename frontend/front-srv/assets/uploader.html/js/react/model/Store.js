@@ -20,11 +20,14 @@
 
 import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
+import PathUtils from 'pydio/util/path'
 import Observable from 'pydio/lang/observable'
 import Task from './Task'
 import Configs from './Configs'
 import UploadItem from './UploadItem'
 import FolderItem from './FolderItem'
+import Session from './Session'
+import {debounce} from 'lodash'
 
 class Store extends Observable{
 
@@ -35,7 +38,9 @@ class Store extends Observable{
         this._processing = [];
         this._processed = [];
         this._errors = [];
+        this._sessions = [];
         this._blacklist = [".ds_store", ".pydio"]
+        this._pause = true;
     }
     recomputeGlobalProgress(){
         let totalCount      = 0;
@@ -64,6 +69,7 @@ class Store extends Observable{
     pushFolder(folderItem){
         if(!this.getQueueSize()){
             this._processed = [];
+            this._pause = true;
         }
         this._folders.push(folderItem);
         Task.getInstance().setPending(this.getQueueSize());
@@ -77,12 +83,12 @@ class Store extends Observable{
     pushFile(uploadItem){
         if(!this.getQueueSize()){
             this._processed = [];
+            this._pause = true;
         }
 
         const name = uploadItem.getFile().name.toLowerCase();
-        const isBlacklisted = name.length >= 1 && name[0] === "."; //this._blacklist.reduce((current, val) => current || name === val, false);
+        const isBlacklisted = name.length >= 1 && name[0] === ".";
         if (isBlacklisted) {
-            //this.processNext();
             return
         }
 
@@ -99,22 +105,19 @@ class Store extends Observable{
         this.notify('item_added', uploadItem);
     }
 
-    log(){
+    pushSession(session) {
+        Task.getInstance().setSessionPending(session);
+        this._sessions.push(session);
+        this.notify('update');
+        session.observe('update', ()=> {
+            if(!session.pending){
+                this._sessions = this._sessions.filter(s => s !== session);
+            }
+            this.notify('update');
+        });
     }
 
-    processQueue(){
-        let next = this.getNext();
-        while(next !== null){
-            next.process(function(){
-                if(next.getStatus() === 'error') {
-                    this._errors.push(next);
-                } else {
-                    this._processed.push(next);
-                }
-                this.notify("update");
-            }.bind(this));
-            next = this.getNext();
-        }
+    log(){
     }
 
     getQueueSize(){
@@ -127,6 +130,8 @@ class Store extends Observable{
         this._processing = [];
         this._processed = [];
         this._errors = [];
+        this._sessions = [];
+        this._pause = false;
         this.notify('update');
         Task.getInstance().setIdle();
     }
@@ -144,11 +149,14 @@ class Store extends Observable{
                     } else {
                         this._processed.push(processable);
                     }
-                    this.processNext();
+                    if(!this._pause){
+                        this.processNext();
+                    }
                     this.notify("update");
                 });
             });
         }else{
+            this._pause = false;
             Task.getInstance().setIdle();
 
             if(this.hasErrors()){
@@ -162,6 +170,9 @@ class Store extends Observable{
     }
 
     getNexts(max = 3){
+        if(this._pause){
+            return [];
+        }
         if(this._folders.length){
             return [this._folders.shift()];
         }
@@ -191,12 +202,28 @@ class Store extends Observable{
             processing: this._processing,
             pending: this._folders.concat(this._uploads),
             processed: this._processed,
-            errors: this._errors
+            errors: this._errors,
+            sessions: this._sessions,
         };
     }
 
     hasErrors(){
         return this._errors.length ? this._errors : false;
+    }
+
+    isPaused(){
+        return this._pause && this.getQueueSize() > 0;
+    }
+
+    pause(){
+        this._pause = true;
+        this.notify('update');
+    }
+
+    resume(){
+        this._pause = false;
+        this.notify('update');
+        this.processNext();
     }
 
     static getInstance(){
@@ -207,115 +234,195 @@ class Store extends Observable{
     }
 
     handleFolderPickerResult(files, targetNode){
-        var folders = {};
+
+        const session = new Session();
+        this.pushSession(session);
+
+        let folders = {};
         for (var i=0; i<files.length; i++) {
-            var relPath = null;
+            let relPath = null;
             if (files[i]['webkitRelativePath']) {
                 relPath = '/' + files[i]['webkitRelativePath'];
-                var folderPath = PathUtils.getDirname(relPath);
+                const folderPath = PathUtils.getDirname(relPath);
                 if (!folders[folderPath]) {
-                    this.pushFolder(new FolderItem(folderPath, targetNode));
+                    session.pushFolder(new FolderItem(folderPath, targetNode));
                     folders[folderPath] = true;
                 }
             }
-            this.pushFile(new UploadItem(files[i], targetNode, relPath));
+            session.pushFile(new UploadItem(files[i], targetNode, relPath));
         }
+        session.computeStatuses().then(() => {
+            Object.keys(session.folders).forEach(k => {
+                this.pushFolder(session.folders[k]);
+            });
+            Object.keys(session.files).forEach(k => {
+                this.pushFile(session.files[k]);
+            })
+        }).catch((e) => {
+
+        }) ;
+
     }
 
     handleDropEventResults(items, files, targetNode, accumulator = null, filterFunction = null ){
 
-        let oThis = this;
+        const session = new Session();
+        this.pushSession(session);
+
+        const enqueue = (item, isFolder=false) => {
+            if(filterFunction && !filterFunction(item)){
+                return;
+            }
+            if(accumulator){
+                accumulator.push(item)
+            } else if (isFolder) {
+                //this.pushFolder(item);
+                session.pushFolder(item);
+            } else {
+                //this.pushFile(item);
+                session.pushFile(item);
+            }
+        };
 
         if (items && items.length && (items[0].getAsEntry || items[0].webkitGetAsEntry)) {
             let error = (global.console ? global.console.log : function(err){global.alert(err); }) ;
             let length = items.length;
-            for (var i = 0; i < length; i++) {
-                var entry;
-                if(items[i].kind && items[i].kind !== 'file') continue;
+            const promises = [];
+            for (let i = 0; i < length; i++) {
+                let entry;
+                if(items[i].kind && items[i].kind !== 'file') {
+                    continue;
+                }
                 if(items[0].getAsEntry){
                     entry = items[i].getAsEntry();
                 }else{
                     entry = items[i].webkitGetAsEntry();
                 }
+
                 if (entry.isFile) {
-                    entry.file(function(File) {
-                        if(File.size === 0) return;
-                        let uploadItem = new UploadItem(File, targetNode);
-                        if(filterFunction && !filterFunction(uploadItem)) return;
-                        if(!accumulator) oThis.pushFile(uploadItem);
-                        else accumulator.push(uploadItem);
-                    }, error );
+
+                    promises.push(new Promise((resolve, reject) => {
+                        entry.file(function(File) {
+                            if(File.size > 0) {
+                                enqueue(new UploadItem(File, targetNode));
+                            }
+                            resolve();
+                        }, () => { reject(); error();} );
+                    }));
+
                 } else if (entry.isDirectory) {
-                    let folderItem = new FolderItem(entry.fullPath, targetNode);
-                    if(filterFunction && !filterFunction(folderItem)) continue;
-                    if(!accumulator) oThis.pushFolder(folderItem);
-                    else accumulator.push(folderItem);
 
-                    this.recurseDirectory(entry, function(fileEntry) {
-                        var relativePath = fileEntry.fullPath;
-                        fileEntry.file(function(File) {
-                            if(File.size === 0) return;
-                            let uploadItem = new UploadItem(File, targetNode, relativePath);
-                            if(filterFunction && !filterFunction(uploadItem)) return;
-                            if(!accumulator) oThis.pushFile(uploadItem);
-                            else accumulator.push(uploadItem);
+                    enqueue(new FolderItem(entry.fullPath, targetNode), true);
 
-                        }, error );
+                    promises.push(this.recurseDirectory(entry, (fileEntry) => {
+                        const relativePath = fileEntry.fullPath;
+                        return new Promise((resolve, reject) => {
+                            fileEntry.file((File) => {
+                                if(File.size > 0) {
+                                    enqueue(new UploadItem(File, targetNode, relativePath));
+                                }
+                                resolve();
+                            }, e => {reject(e); error();});
+                        });
                     }, function(folderEntry){
-                        let folderItem = new FolderItem(folderEntry.fullPath, targetNode);
-                        if(filterFunction && !filterFunction(uploadItem)) return;
-                        if(!accumulator) oThis.pushFolder(folderItem);
-                        else accumulator.push(folderItem);
-                    }, error );
+                        return Promise.resolve(enqueue(new FolderItem(folderEntry.fullPath, targetNode), true));
+                    }, error));
+
                 }
             }
+
+            Promise.all(promises).then(() => {
+                return session.computeStatuses();
+            }).then(() => {
+                Object.keys(session.folders).forEach(k => {
+                    this.pushFolder(session.folders[k]);
+                });
+                Object.keys(session.files).forEach(k => {
+                    this.pushFile(session.files[k]);
+                })
+            }).catch((e) => {
+
+            }) ;
+
         }else{
-            for(var j=0;j<files.length;j++){
+            for(let j=0;j<files.length;j++){
                 if(files[j].size === 0){
                     alert(Pydio.getInstance().MessageHash['html_uploader.8']);
                     return;
                 }
-                let uploadItem = new UploadItem(files[j], targetNode);
-                if(filterFunction && !filterFunction(uploadItem)) continue;
-                if(!accumulator) oThis.pushFile(uploadItem);
-                else accumulator.push(uploadItem);
+                enqueue(new UploadItem(files[j], targetNode));
             }
+            session.computeStatuses().then(() => {
+                Object.keys(session.folders).forEach(k => {
+                    this.pushFolder(session.folders[k]);
+                });
+                Object.keys(session.files).forEach(k => {
+                    this.pushFile(session.files[k]);
+                })
+            }).catch((e) => {
+
+            }) ;
         }
-        Store.getInstance().log();
+
     }
 
-    recurseDirectory(item, fileHandler, folderHandler, errorHandler) {
+    recurseDirectory(item, promiseFile, promiseFolder, errorHandler) {
 
-        let recurseDir = this.recurseDirectory.bind(this);
-        let dirReader = item.createReader();
+        return new Promise(resolve => {
+            this.dirEntries(item).then((entries) => {
+                const promises = [];
+                entries.forEach(entry => {
+                    if(entry.isDirectory){
+                        promises.push(promiseFolder(entry));
+                    } else {
+                        promises.push(promiseFile(entry));
+                    }
+                });
+                Promise.all(promises).then(() => {
+                    resolve();
+                });
+            });
+        });
+
+    }
+
+    dirEntries(item){
+        const reader = item.createReader();
         let entries = [];
-
-        let toArray = function(list){
+        const toArray = function(list){
             return Array.prototype.slice.call(list || [], 0);
         };
-
-        // Call the reader.readEntries() until no more results are returned.
-        var readEntries = function() {
-            dirReader.readEntries (function(results) {
-                if (!results.length) {
-
-                    entries.map(function(e){
-                        if(e.isDirectory){
-                            folderHandler(e);
-                            recurseDir(e, fileHandler, folderHandler, errorHandler);
-                        }else{
-                            fileHandler(e);
+        return new Promise((resolve,reject) => {
+            const next = () => {
+                reader.readEntries(results => {
+                    if(results.length){
+                        entries = entries.concat(toArray(results));
+                        next();
+                    } else {
+                        let promises = [];
+                        entries.forEach(entry => {
+                            if(entry.isDirectory){
+                                promises.push(this.dirEntries(entry).then(children => {
+                                    entries = entries.concat(children);
+                                }));
+                            }
+                        });
+                        if(promises.length){
+                            Promise.all(promises).then(()=> {
+                                resolve(entries);
+                            })
+                        } else {
+                            resolve(entries);
                         }
-                    });
-                } else {
-                    entries = entries.concat(toArray(results));
-                    readEntries();
-                }
-            }, errorHandler);
-        };
-
-        readEntries(); // Start reading dirs.
+                    }
+                }, (e) => {
+                    reject(e);
+                })
+            };
+            next();
+        });
     }
+
 }
 
 

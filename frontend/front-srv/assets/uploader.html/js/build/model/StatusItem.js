@@ -11,6 +11,10 @@ var _observable = require('pydio/lang/observable');
 
 var _observable2 = _interopRequireDefault(_observable);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -31,6 +35,9 @@ var StatusItem = function (_Observable) {
         _this._type = type;
         _this._id = Math.random();
         _this._errorMessage = null;
+        var pydio = _pydio2.default.getInstance();
+        _this._repositoryId = pydio.user.activeRepository;
+        _this._exists = false;
         return _this;
     }
 
@@ -42,6 +49,19 @@ var StatusItem = function (_Observable) {
     }, {
         key: 'getLabel',
         value: function getLabel() {}
+    }, {
+        key: 'getFullPath',
+        value: function getFullPath() {}
+    }, {
+        key: 'setExists',
+        value: function setExists() {
+            this._exists = true;
+        }
+    }, {
+        key: 'getExists',
+        value: function getExists() {
+            return this._exists;
+        }
     }, {
         key: 'getType',
         value: function getType() {

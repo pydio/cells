@@ -32,8 +32,6 @@ class FolderItem extends StatusItem{
         this._new = true;
         this._path = path;
         this._targetNode =  targetNode;
-        const pydio = Pydio.getInstance();
-        this._repositoryId = pydio.user.activeRepository;
     }
 
     isNew() {
@@ -48,13 +46,12 @@ class FolderItem extends StatusItem{
         return PathUtils.getBasename(this._path);
     }
 
-    _doProcess(completeCallback) {
+    getFullPath(){
         const pydio = Pydio.getInstance();
-        
+
         const repoList = pydio.user.getRepositoriesList();
         if(!repoList.has(this._repositoryId)){
-            this.setStatus('error');
-            return;
+            throw new Error("Repository disconnected?");
         }
         const slug = repoList.get(this._repositoryId).getSlug();
         let fullPath = this._targetNode.getPath();
@@ -62,7 +59,18 @@ class FolderItem extends StatusItem{
         if (fullPath.normalize) {
             fullPath = fullPath.normalize('NFC');
         }
-        fullPath = "/" + slug + fullPath;
+        fullPath = slug + fullPath;
+        return fullPath;
+    }
+
+    _doProcess(completeCallback) {
+        let fullPath;
+        try{
+            fullPath = this.getFullPath()
+        } catch (e) {
+            this.setStatus('error');
+            return;
+        }
 
         const api = new TreeServiceApi(PydioApi.getRestClient());
         const request = new RestCreateNodesRequest();

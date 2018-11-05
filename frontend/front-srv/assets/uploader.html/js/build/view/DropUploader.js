@@ -25,6 +25,8 @@ var _TransfersList2 = _interopRequireDefault(_TransfersList);
 
 var _materialUi = require('material-ui');
 
+var _lodash = require('lodash');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -47,14 +49,49 @@ var DropUploader = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (DropUploader.__proto__ || Object.getPrototypeOf(DropUploader)).call(this, props));
 
+        var store = UploaderModel.Store.getInstance();
+        _this._storeObserver = function () {
+            _this.setState({
+                items: store.getItems(),
+                storePaused: store.isPaused()
+            });
+        };
+        store.observe("update", _this._storeObserver);
+        store.observe("auto_close", function () {
+            if (_this.props.onDismiss) {
+                _this.props.onDismiss();
+            }
+        });
+
         _this.state = {
             showOptions: false,
-            configs: UploaderModel.Configs.getInstance()
+            configs: UploaderModel.Configs.getInstance(),
+            items: store.getItems(),
+            storePaused: store.isPaused()
         };
         return _this;
     }
 
     _createClass(DropUploader, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+
+            var autoStart = this.state.configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
+            var store = UploaderModel.Store.getInstance();
+            var items = store.getItems();
+            if (autoStart && items["pending"].length) {
+                UploaderModel.Store.getInstance().processNext();
+            }
+        }
+    }, {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            if (this._storeObserver) {
+                UploaderModel.Store.getInstance().stopObserving("update", this._storeObserver);
+                UploaderModel.Store.getInstance().stopObserving("auto_close");
+            }
+        }
+    }, {
         key: 'onDrop',
         value: function onDrop(files) {
             var contextNode = _pydio2.default.getInstance().getContextHolder().getContextNode();
@@ -70,7 +107,12 @@ var DropUploader = function (_React$Component) {
         key: 'start',
         value: function start(e) {
             e.preventDefault();
-            UploaderModel.Store.getInstance().processNext();
+            UploaderModel.Store.getInstance().resume();
+        }
+    }, {
+        key: 'pause',
+        value: function pause(e) {
+            UploaderModel.Store.getInstance().pause();
         }
     }, {
         key: 'clear',
@@ -118,8 +160,11 @@ var DropUploader = function (_React$Component) {
             };
             var _state2 = this.state,
                 configs = _state2.configs,
-                showOptions = _state2.showOptions;
+                showOptions = _state2.showOptions,
+                items = _state2.items,
+                storePaused = _state2.storePaused;
 
+            var store = UploaderModel.Store.getInstance();
 
             optionsEl = _react2.default.createElement(_UploadOptionsPane2.default, { configs: configs, open: showOptions, anchorEl: this.state.optionsAnchorEl, onDismiss: function onDismiss(e) {
                     _this2.toggleOptions(e);
@@ -134,8 +179,14 @@ var DropUploader = function (_React$Component) {
             }
             e = null;
 
-            if (!configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send', true)) {
-                startButton = _react2.default.createElement(_materialUi.FlatButton, { style: { marginRight: 10 }, label: messages['html_uploader.11'], onTouchTap: this.start.bind(this), secondary: true });
+            if (store.getQueueSize()) {
+                if (storePaused) {
+                    startButton = _react2.default.createElement(_materialUi.FlatButton, { style: { marginRight: 10 }, label: messages['html_uploader.11'],
+                        onTouchTap: this.start.bind(this), secondary: true });
+                } else {
+                    startButton = _react2.default.createElement(_materialUi.FlatButton, { style: { marginRight: 10 }, label: "Pause", onTouchTap: this.pause.bind(this),
+                        secondary: true });
+                }
             }
             return connectDropTarget(_react2.default.createElement(
                 'div',
@@ -157,7 +208,7 @@ var DropUploader = function (_React$Component) {
                         _react2.default.createElement(
                             'div',
                             { style: { display: 'flex', alignItems: 'center', marginRight: '-48px' } },
-                            _react2.default.createElement(_materialUi.FlatButton, { style: { float: 'right' }, label: messages['html_uploader.22'], onTouchTap: this.toggleOptions.bind(this) })
+                            _react2.default.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-settings", iconStyle: { color: '#9e9e9e' }, style: { float: 'right' }, tooltip: messages['html_uploader.22'], onTouchTap: this.toggleOptions.bind(this) })
                         )
                     )
                 ),
@@ -175,6 +226,7 @@ var DropUploader = function (_React$Component) {
                         style: { width: '100%', height: 300 }
                     },
                     _react2.default.createElement(_TransfersList2.default, {
+                        items: items,
                         autoStart: configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send'),
                         onDismiss: this.props.onDismiss
                     })

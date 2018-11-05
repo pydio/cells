@@ -47,6 +47,11 @@ class Task {
         this.task.Status = JobsTaskStatus.constructFromObject('Running');
         this.notifyMainStore();
     }
+    setSessionPending(session){
+        this.task.StatusMessage = 'Analyzing files and folders (' + session.sessionStatus() + ')';
+        this.task.Status = JobsTaskStatus.constructFromObject('Running');
+        this.notifyMainStore();
+    }
     setPending(queueSize){
         this.task.StatusMessage = Pydio.getInstance().MessageHash['html_uploader.1'].replace('%s', queueSize);
         this.task.Status = JobsTaskStatus.constructFromObject('Idle');

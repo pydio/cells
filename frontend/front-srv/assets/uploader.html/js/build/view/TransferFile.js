@@ -15,6 +15,8 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _materialUi = require('material-ui');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -58,8 +60,8 @@ var TransferFile = function (_React$Component) {
         value: function render() {
             var _props = this.props,
                 item = _props.item,
-                progress = _props.progress,
                 className = _props.className;
+            var progress = this.state.progress;
 
             var pydio = _pydio2.default.getInstance();
             var style = void 0,
@@ -73,49 +75,40 @@ var TransferFile = function (_React$Component) {
             var statusMessage = item.getStatus();
             var stopButton = void 0;
             if (statusMessage === 'loading') {
-                stopButton = _react2.default.createElement('span', { className: 'stop-button icon-stop', onClick: this.abortTransfer });
+                stopButton = _react2.default.createElement('span', { className: 'mdi mdi-stop', onClick: this.abortTransfer });
             } else if (statusMessage === 'error') {
                 stopButton = _react2.default.createElement(
                     'span',
-                    { style: { fontWeight: 500, marginBottom: 0, color: '#e53935' }, className: 'stop-button', onClick: function onClick() {
+                    { style: { fontWeight: 500, marginBottom: 0, color: '#e53935' }, onClick: function onClick() {
                             item.process();
                         } },
                     'RETRY ',
                     _react2.default.createElement('span', { className: 'mdi mdi-restart' })
                 );
             } else {
-                stopButton = _react2.default.createElement('span', { className: 'stop-button mdi mdi-close', onClick: this.abortTransfer });
+                stopButton = _react2.default.createElement('span', { className: 'mdi mdi-close', onClick: this.abortTransfer.bind(this) });
             }
             if (statusMessage === 'error' && item.getErrorMessage()) {
                 statusMessage = item.getErrorMessage();
             }
-            if (pydio.MessageHash[messageIds[statusMessage]]) {
-                statusMessage = pydio.MessageHash[messageIds[statusMessage]];
-            }
-            if (item.getRelativePath()) {
-                relativeMessage = _react2.default.createElement(
-                    'span',
-                    { className: 'path' },
-                    item.getRelativePath()
-                );
-            }
-            if (progress) {
-                style = { width: progress + '%' };
-            }
+            if (pydio.MessageHash[messageIds[statusMessage]]) {}
             return _react2.default.createElement(
                 'div',
-                { className: "file-row upload-" + item.getStatus() + " " + (className ? className : "") },
-                _react2.default.createElement('span', { className: 'mdi mdi-file' }),
-                ' ',
+                { style: { paddingTop: 3, paddingBottom: 3, paddingLeft: 20, display: 'flex', alignItems: 'center' }, className: "upload-" + item.getStatus() + " " + (className ? className : "") },
+                _react2.default.createElement('span', { className: 'mdi mdi-file', style: { display: 'inline-block', width: 26, textAlign: 'center' } }),
                 item.getFile().name,
-                relativeMessage,
                 _react2.default.createElement(
                     'span',
                     { className: 'status' },
                     statusMessage
                 ),
-                stopButton,
-                _react2.default.createElement('div', { className: 'uploader-pgbar', style: style })
+                _react2.default.createElement('span', { style: { flex: 1 } }),
+                _react2.default.createElement(
+                    'div',
+                    { style: { width: 60, position: 'relative' } },
+                    _react2.default.createElement(_materialUi.LinearProgress, { style: { backgroundColor: '#eeeeee' }, min: 0, max: 100, value: progress, mode: "determinate" })
+                ),
+                stopButton
             );
         }
     }]);

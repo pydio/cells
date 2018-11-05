@@ -35,8 +35,6 @@ var _restApi = require('pydio/http/rest-api');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -57,7 +55,6 @@ var UploadItem = function (_StatusItem) {
         _this._status = 'new';
         _this._progress = 0;
         _this._targetNode = targetNode;
-        _this._repositoryId = _pydio2.default.getInstance().user.activeRepository;
         _this._relativePath = relativePath;
         return _this;
     }
@@ -99,6 +96,11 @@ var UploadItem = function (_StatusItem) {
             return this._relativePath;
         }
     }, {
+        key: 'setRelativePath',
+        value: function setRelativePath(newPath) {
+            this._relativePath = newPath;
+        }
+    }, {
         key: '_parseXHRResponse',
         value: function _parseXHRResponse() {
             if (this.xhr && this.xhr.responseText && this.xhr.responseText !== 'OK') {
@@ -118,6 +120,9 @@ var UploadItem = function (_StatusItem) {
 
             var progress = function progress(computableEvent) {
                 if (_this2._status === 'error') {
+                    return;
+                }
+                if (!computableEvent.total) {
                     return;
                 }
                 var percentage = Math.round(computableEvent.loaded * 100 / computableEvent.total);
@@ -164,168 +169,44 @@ var UploadItem = function (_StatusItem) {
             this.setStatus('error');
         }
     }, {
-        key: 'file_newpath',
-        value: function file_newpath(fullpath) {
-            var _this3 = this;
+        key: 'getFullPath',
+        value: function getFullPath() {
+            var repoList = _pydio2.default.getInstance().user.getRepositoriesList();
+            if (!repoList.has(this._repositoryId)) {
+                throw new Error('repository.unknown');
+            }
+            var slug = repoList.get(this._repositoryId).getSlug();
 
-            return new Promise(function () {
-                var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(resolve) {
-                    var lastSlash, pos, path, ext, newPath, counter, exists;
-                    return regeneratorRuntime.wrap(function _callee$(_context) {
-                        while (1) {
-                            switch (_context.prev = _context.next) {
-                                case 0:
-                                    lastSlash = fullpath.lastIndexOf('/');
-                                    pos = fullpath.lastIndexOf('.');
-                                    path = fullpath;
-                                    ext = '';
-
-                                    if (pos > -1 && lastSlash < pos && pos > lastSlash + 1) {
-                                        path = fullpath.substring(0, pos);
-                                        ext = fullpath.substring(pos);
-                                    }
-
-                                    newPath = fullpath;
-                                    counter = 1;
-                                    _context.next = 9;
-                                    return _this3._fileExists(newPath);
-
-                                case 9:
-                                    exists = _context.sent;
-
-                                case 10:
-                                    if (!exists) {
-                                        _context.next = 18;
-                                        break;
-                                    }
-
-                                    newPath = path + '-' + counter + ext;
-                                    counter++;
-                                    _context.next = 15;
-                                    return _this3._fileExists(newPath);
-
-                                case 15:
-                                    exists = _context.sent;
-                                    _context.next = 10;
-                                    break;
-
-                                case 18:
-
-                                    resolve(newPath);
-
-                                case 19:
-                                case 'end':
-                                    return _context.stop();
-                            }
-                        }
-                    }, _callee, _this3);
-                }));
-
-                return function (_x3) {
-                    return _ref.apply(this, arguments);
-                };
-            }());
-        }
-    }, {
-        key: '_fileExists',
-        value: function _fileExists(fullpath) {
-            return new Promise(function (resolve) {
-                var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
-
-                api.headNode(fullpath).then(function (node) {
-                    if (node.Node) {
-                        resolve(true);
-                    } else {
-                        resolve(false);
-                    }
-                }).catch(function () {
-                    return resolve(false);
-                });
-            });
+            var fullPath = this._targetNode.getPath();
+            var baseName = _path2.default.getBasename(this._file.name);
+            if (this._relativePath) {
+                fullPath = _lang2.default.trimRight(fullPath, '/') + '/' + _lang2.default.trimLeft(_path2.default.getDirname(this._relativePath), '/');
+                baseName = _path2.default.getBasename(this._relativePath);
+            }
+            fullPath = slug + '/' + _lang2.default.trim(fullPath, '/');
+            fullPath = _lang2.default.trimRight(fullPath, '/') + '/' + baseName;
+            if (fullPath.normalize) {
+                fullPath = fullPath.normalize('NFC');
+            }
+            return fullPath;
         }
     }, {
         key: 'uploadPresigned',
-        value: function () {
-            var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(completeCallback, progressCallback, errorCallback) {
-                var _this4 = this;
+        value: function uploadPresigned(completeCallback, progressCallback, errorCallback) {
+            var _this3 = this;
 
-                var repoList, slug, fullPath, overwriteStatus;
-                return regeneratorRuntime.wrap(function _callee2$(_context2) {
-                    while (1) {
-                        switch (_context2.prev = _context2.next) {
-                            case 0:
-                                repoList = _pydio2.default.getInstance().user.getRepositoriesList();
-
-                                if (repoList.has(this._repositoryId)) {
-                                    _context2.next = 4;
-                                    break;
-                                }
-
-                                errorCallback(new Error('Unauthorized workspace!'));
-                                return _context2.abrupt('return');
-
-                            case 4:
-                                slug = repoList.get(this._repositoryId).getSlug();
-                                fullPath = this._targetNode.getPath();
-
-                                if (this._relativePath) {
-                                    fullPath = _lang2.default.trimRight(fullPath, '/') + '/' + _lang2.default.trimLeft(_path2.default.getDirname(this._relativePath), '/');
-                                }
-                                fullPath = slug + '/' + _lang2.default.trim(fullPath, '/');
-                                fullPath = _lang2.default.trimRight(fullPath, '/') + '/' + _path2.default.getBasename(this._file.name);
-                                if (fullPath.normalize) {
-                                    fullPath = fullPath.normalize('NFC');
-                                }
-
-                                overwriteStatus = _Configs2.default.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
-
-                                if (!(overwriteStatus === 'rename')) {
-                                    _context2.next = 17;
-                                    break;
-                                }
-
-                                _context2.next = 14;
-                                return this.file_newpath(fullPath);
-
-                            case 14:
-                                fullPath = _context2.sent;
-                                _context2.next = 21;
-                                break;
-
-                            case 17:
-                                if (!(overwriteStatus === 'alert')) {
-                                    _context2.next = 21;
-                                    break;
-                                }
-
-                                if (global.confirm(_pydio2.default.getInstance().MessageHash[124])) {
-                                    _context2.next = 21;
-                                    break;
-                                }
-
-                                errorCallback(new Error(_pydio2.default.getInstance().MessageHash[71]));
-                                return _context2.abrupt('return');
-
-                            case 21:
-
-                                _api2.default.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(function (xhr) {
-                                    _this4.xhr = xhr;
-                                });
-
-                            case 22:
-                            case 'end':
-                                return _context2.stop();
-                        }
-                    }
-                }, _callee2, this);
-            }));
-
-            function uploadPresigned(_x4, _x5, _x6) {
-                return _ref2.apply(this, arguments);
+            var fullPath = void 0;
+            try {
+                fullPath = this.getFullPath();
+            } catch (e) {
+                this.setStatus('error');
+                return;
             }
 
-            return uploadPresigned;
-        }()
+            _api2.default.getClient().uploadMultipart(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(function (managed) {
+                _this3.xhr = managed;
+            });
+        }
     }]);
 
     return UploadItem;

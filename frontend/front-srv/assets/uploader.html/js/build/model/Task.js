@@ -52,6 +52,13 @@ var Task = function () {
             this.notifyMainStore();
         }
     }, {
+        key: 'setSessionPending',
+        value: function setSessionPending(session) {
+            this.task.StatusMessage = 'Analyzing files and folders (' + session.sessionStatus() + ')';
+            this.task.Status = JobsTaskStatus.constructFromObject('Running');
+            this.notifyMainStore();
+        }
+    }, {
         key: 'setPending',
         value: function setPending(queueSize) {
             this.task.StatusMessage = _pydio2.default.getInstance().MessageHash['html_uploader.1'].replace('%s', queueSize);

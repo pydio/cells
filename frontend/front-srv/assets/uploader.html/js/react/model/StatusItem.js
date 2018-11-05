@@ -19,6 +19,7 @@
  */
 
 import Observable from 'pydio/lang/observable'
+import Pydio from 'pydio'
 
 class StatusItem extends Observable {
     constructor(type){
@@ -27,12 +28,24 @@ class StatusItem extends Observable {
         this._type = type;
         this._id = Math.random();
         this._errorMessage = null;
+        const pydio = Pydio.getInstance();
+        this._repositoryId = pydio.user.activeRepository;
+        this._exists = false;
     }
     getId(){
         return this._id;
     }
     getLabel(){
-
+        // To be implemented by children
+    }
+    getFullPath(){
+        // To be implemented by children
+    }
+    setExists(){
+        this._exists = true;
+    }
+    getExists(){
+        return this._exists;
     }
     getType(){
         return this._type;

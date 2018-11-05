@@ -35,7 +35,6 @@ class UploadItem extends StatusItem {
         this._status = 'new';
         this._progress = 0;
         this._targetNode = targetNode;
-        this._repositoryId = Pydio.getInstance().user.activeRepository;
         this._relativePath = relativePath;
     }
     getFile(){
@@ -60,6 +59,9 @@ class UploadItem extends StatusItem {
     getRelativePath(){
         return this._relativePath;
     }
+    setRelativePath(newPath){
+        this._relativePath = newPath;
+    }
     _parseXHRResponse(){
         if (this.xhr && this.xhr.responseText && this.xhr.responseText !== 'OK') {
             this.onError('Unexpected response: ' + this.xhr.responseText);
@@ -74,6 +76,9 @@ class UploadItem extends StatusItem {
 
         const progress = (computableEvent)=>{
             if (this._status === 'error') {
+                return;
+            }
+            if(!computableEvent.total){
                 return;
             }
             let percentage = Math.round((computableEvent.loaded * 100) / computableEvent.total);
@@ -119,81 +124,48 @@ class UploadItem extends StatusItem {
         this.setStatus('error');
     }
 
-    file_newpath(fullpath) {
-        return new Promise(async (resolve) => {
-            const lastSlash = fullpath.lastIndexOf('/');
-            const pos = fullpath.lastIndexOf('.');
-            let path = fullpath;
-            let ext = '';
-
-            // NOTE: the position lastSlash + 1 corresponds to hidden files (ex: .DS_STORE)
-            if (pos  > -1 && lastSlash < pos && pos > lastSlash + 1) {
-                path = fullpath.substring(0, pos);
-                ext = fullpath.substring(pos);
-            }
-
-            let newPath = fullpath;
-            let counter = 1;
-
-            let exists = await this._fileExists(newPath);
-            while (exists) {
-                newPath = path + '-' + counter + ext;
-                counter++;
-                exists = await this._fileExists(newPath)
-            }
-
-            resolve(newPath);
-        });
-    }
-
-    _fileExists(fullpath) {
-        return new Promise(resolve => {
-            const api = new TreeServiceApi(PydioApi.getRestClient());
-
-            api.headNode(fullpath).then(node => {
-                if (node.Node) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            }).catch(() => resolve(false))
-        })
-    }
-
-    async uploadPresigned(completeCallback, progressCallback, errorCallback){
-
+    /**
+     * @return {String}
+     */
+    getFullPath(){
         const repoList = Pydio.getInstance().user.getRepositoriesList();
         if(!repoList.has(this._repositoryId)){
-            errorCallback(new Error('Unauthorized workspace!'));
-            return;
+            throw new Error('repository.unknown');
         }
         const slug = repoList.get(this._repositoryId).getSlug();
 
         let fullPath = this._targetNode.getPath();
+        let baseName = PathUtils.getBasename(this._file.name);
         if(this._relativePath) {
             fullPath = LangUtils.trimRight(fullPath, '/') + '/' + LangUtils.trimLeft(PathUtils.getDirname(this._relativePath), '/');
+            baseName = PathUtils.getBasename(this._relativePath);
         }
         fullPath = slug + '/' + LangUtils.trim(fullPath, '/');
-        fullPath = LangUtils.trimRight(fullPath, '/') + '/' + PathUtils.getBasename(this._file.name);
+        fullPath = LangUtils.trimRight(fullPath, '/') + '/' + baseName;
         if (fullPath.normalize) {
             fullPath = fullPath.normalize('NFC');
         }
+        return fullPath;
+    }
 
-        // Checking file already exists or not
-        let overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
+    uploadPresigned(completeCallback, progressCallback, errorCallback){
 
-        if (overwriteStatus === 'rename') {
-            fullPath = await this.file_newpath(fullPath)
-        } else if (overwriteStatus === 'alert') {
-            if (!global.confirm(Pydio.getInstance().MessageHash[124])) {
-                errorCallback(new Error(Pydio.getInstance().MessageHash[71]));
-                return;
-            }
+        let fullPath;
+        try{
+            fullPath = this.getFullPath();
+        }catch (e) {
+            this.setStatus('error');
+            return;
         }
-
+        /*
         PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(xhr => {
             this.xhr = xhr;
         });
+        */
+        PydioApi.getClient().uploadMultipart(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(managed => {
+            this.xhr = managed;
+        });
+
     }
 }
 

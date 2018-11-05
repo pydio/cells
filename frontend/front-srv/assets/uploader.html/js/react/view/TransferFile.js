@@ -20,6 +20,7 @@
 
 import React from 'react'
 import Pydio from 'pydio'
+import {LinearProgress} from 'material-ui'
 
 class TransferFile extends React.Component {
     
@@ -45,7 +46,8 @@ class TransferFile extends React.Component {
     }
 
     render(){
-        const {item, progress, className} = this.props;
+        const {item, className} = this.props;
+        const {progress} = this.state;
         const pydio = Pydio.getInstance();
         let style, relativeMessage;
         const messageIds = {
@@ -57,31 +59,27 @@ class TransferFile extends React.Component {
         let statusMessage = item.getStatus();
         let stopButton;
         if(statusMessage === 'loading') {
-            stopButton = <span className="stop-button icon-stop" onClick={this.abortTransfer}/>;
+            stopButton = <span className="mdi mdi-stop" onClick={this.abortTransfer}/>;
         } else if (statusMessage === 'error'){
-            stopButton = <span style={{fontWeight:500, marginBottom:0, color:'#e53935'}} className="stop-button" onClick={() => {item.process()}}>RETRY <span className="mdi mdi-restart"/></span>;
+            stopButton = <span style={{fontWeight:500, marginBottom:0, color:'#e53935'}} onClick={() => {item.process()}}>RETRY <span className="mdi mdi-restart"/></span>;
         }else{
-            stopButton = <span className="stop-button mdi mdi-close" onClick={this.abortTransfer}/>;
+            stopButton = <span className="mdi mdi-close" onClick={this.abortTransfer.bind(this)}/>;
         }
         if(statusMessage === 'error' && item.getErrorMessage()){
             statusMessage = item.getErrorMessage();
         }
         if(pydio.MessageHash[messageIds[statusMessage]]){
-            statusMessage = pydio.MessageHash[messageIds[statusMessage]];
-        }
-        if(item.getRelativePath()){
-            relativeMessage = <span className="path">{item.getRelativePath()}</span>;
-        }
-        if(progress){
-            style = {width: progress + '%'};
+            //statusMessage = pydio.MessageHash[messageIds[statusMessage]];
         }
         return (
-            <div className={"file-row upload-" + item.getStatus() + " " + (className?className:"")}>
-                <span className="mdi mdi-file"/> {item.getFile().name}
-                {relativeMessage}
+            <div style={{paddingTop: 3, paddingBottom: 3, paddingLeft: 20, display:'flex', alignItems:'center'}} className={"upload-" + item.getStatus() + " " + (className?className:"")}>
+                <span className="mdi mdi-file" style={{display: 'inline-block', width: 26, textAlign: 'center'}}/>{item.getFile().name}
                 <span className="status">{statusMessage}</span>
+                <span style={{flex: 1}}/>
+                <div style={{width: 60, position:'relative'}}>
+                    <LinearProgress style={{backgroundColor:'#eeeeee'}} min={0} max={100} value={progress} mode={"determinate"}/>
+                </div>
                 {stopButton}
-                <div className="uploader-pgbar" style={style}/>
             </div>
         );
     }

@@ -48,8 +48,6 @@ var FolderItem = function (_StatusItem) {
         _this._new = true;
         _this._path = path;
         _this._targetNode = targetNode;
-        var pydio = _pydio2.default.getInstance();
-        _this._repositoryId = pydio.user.activeRepository;
         return _this;
     }
 
@@ -69,16 +67,13 @@ var FolderItem = function (_StatusItem) {
             return _path2.default.getBasename(this._path);
         }
     }, {
-        key: '_doProcess',
-        value: function _doProcess(completeCallback) {
-            var _this2 = this;
-
+        key: 'getFullPath',
+        value: function getFullPath() {
             var pydio = _pydio2.default.getInstance();
 
             var repoList = pydio.user.getRepositoriesList();
             if (!repoList.has(this._repositoryId)) {
-                this.setStatus('error');
-                return;
+                throw new Error("Repository disconnected?");
             }
             var slug = repoList.get(this._repositoryId).getSlug();
             var fullPath = this._targetNode.getPath();
@@ -86,7 +81,21 @@ var FolderItem = function (_StatusItem) {
             if (fullPath.normalize) {
                 fullPath = fullPath.normalize('NFC');
             }
-            fullPath = "/" + slug + fullPath;
+            fullPath = slug + fullPath;
+            return fullPath;
+        }
+    }, {
+        key: '_doProcess',
+        value: function _doProcess(completeCallback) {
+            var _this2 = this;
+
+            var fullPath = void 0;
+            try {
+                fullPath = this.getFullPath();
+            } catch (e) {
+                this.setStatus('error');
+                return;
+            }
 
             var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
             var request = new _restApi.RestCreateNodesRequest();

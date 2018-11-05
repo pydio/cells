@@ -20,17 +20,75 @@
 
 import React from 'react'
 import Pydio from 'pydio'
+import PathUtils from 'pydio/util/path'
+import TransferFile from './TransferFile'
+import {LinearProgress} from 'material-ui'
 
 class TransferFolder extends React.Component{
 
+    constructor(props){
+        super(props);
+        this.state = {open: false};
+    }
+
+    recursivePg(children, accu = []){
+        if(!children.length) {
+            return;
+        }
+        children.forEach((entry) => {
+            if(entry.item instanceof UploaderModel.FolderItem){
+                this.recursivePg(entry.children, accu);
+            } else {
+                accu.push(entry.item.getProgress());
+            }
+        });
+    }
+
     render(){
-        let statusMessage;
-        if(this.props.item.getStatus() === 'loaded'){
+        const {item, children, className, style, showAll, limit} = this.props;
+        const {open} = this.state;
+
+        let statusMessage, childComps = [], folderProgress;
+
+        if(children && children.length){
+            if(open || !item){
+                const sliced = showAll ? children : children.slice(0, limit);
+                sliced.forEach(entry => {
+                    if(entry.item instanceof UploaderModel.FolderItem){
+                        childComps.push(<TransferFolder key={entry.item.getId()} item={entry.item} children={entry.children} showAll={showAll} limit={limit}/>);
+                    } else {
+                        childComps.push(<TransferFile key={entry.item.getId()} item={entry.item}/>);
+                    }
+                })
+            } else if(!open) {
+                // Compute recursive progress !
+                const accu = [];
+                this.recursivePg(children, accu);
+                if(accu.length){
+                    const sum = accu.reduce(function(a, b) { return a + b; });
+                    const avg = sum / accu.length;
+                    folderProgress = <div style={{width: 60}}><LinearProgress style={{backgroundColor:'#eeeeee'}} mode={"determinate"} min={0} max={100} value={avg}/></div>;
+                }
+            }
+        }
+        if(!item){ // Root Folder
+            return <div style={style}>{childComps}</div>
+        }
+
+        if(item.getStatus() === 'loaded'){
             statusMessage = Pydio.getInstance().MessageHash['html_uploader.13'];
         }
         return (
-            <div className={"folder-row upload-" + this.props.item.getStatus() + " " + (this.props.className?this.props.className:"")}>
-                <span className="mdi mdi-folder"/> {this.props.item.getPath()} <span className="status">{statusMessage}</span>
+            <div style={{paddingLeft: 20, ...style, fontSize:14, color:'#424242'}} className={"upload-" + item.getStatus() + " " + (className?className:"")}>
+                <div style={{display:'flex', alignItems: 'center', paddingTop:3, paddingBottom:3}} onClick={()=>{this.setState({open:!open})}}>
+                    <span className={"mdi mdi-folder"} style={{display: 'inline-block', width: 26, textAlign: 'center'}}/>
+                    <span>{PathUtils.getBasename(item.getPath())}</span>
+                    <span className={"mdi mdi-chevron-" + (open?"down":"right")}/>
+                    <span className="status">{statusMessage}</span>
+                    <span style={{flex: 1}}/>
+                    {folderProgress}
+                </div>
+                {childComps}
             </div>
         );
     }

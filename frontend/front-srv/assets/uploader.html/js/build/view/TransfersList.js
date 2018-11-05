@@ -23,7 +23,15 @@ var _TransferFile = require('./TransferFile');
 
 var _TransferFile2 = _interopRequireDefault(_TransferFile);
 
+var _lang = require('pydio/util/lang');
+
+var _lang2 = _interopRequireDefault(_lang);
+
+var _materialUi = require('material-ui');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -34,45 +42,27 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var TransfersList = function (_React$Component) {
     _inherits(TransfersList, _React$Component);
 
-    function TransfersList() {
+    function TransfersList(props) {
         _classCallCheck(this, TransfersList);
 
-        return _possibleConstructorReturn(this, (TransfersList.__proto__ || Object.getPrototypeOf(TransfersList)).apply(this, arguments));
+        var _this = _possibleConstructorReturn(this, (TransfersList.__proto__ || Object.getPrototypeOf(TransfersList)).call(this, props));
+
+        _this.state = { showAll: false };
+        return _this;
     }
 
     _createClass(TransfersList, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            var store = UploaderModel.Store.getInstance();
-            this._storeObserver = function () {
-                this.setState({ items: store.getItems() });
-            }.bind(this);
-            store.observe("update", this._storeObserver);
-            store.observe("auto_close", function () {
-                if (this.props.onDismiss) {
-                    this.props.onDismiss();
+        key: 'sortItems',
+        value: function sortItems(items) {
+            items.sort(function (a, b) {
+                var aType = a instanceof UploaderModel.FolderItem ? 'folder' : 'file';
+                var bType = b instanceof UploaderModel.FolderItem ? 'folder' : 'file';
+                if (aType === bType) {
+                    if (a.getFullPath() === b.getFullPath()) return 0;else return a.getFullPath() > b.getFullPath() ? 1 : -1;
+                } else {
+                    return aType === 'folder' ? -1 : 1;
                 }
-            }.bind(this));
-            this.setState({ items: store.getItems() });
-        }
-    }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(nextProps) {
-            var autoStart = nextProps.autoStart;
-            var items = this.state.items;
-
-
-            if (autoStart && items["pending"].length) {
-                UploaderModel.Store.getInstance().processNext();
-            }
-        }
-    }, {
-        key: 'componentWillUnmount',
-        value: function componentWillUnmount() {
-            if (this._storeObserver) {
-                UploaderModel.Store.getInstance().stopObserving("update", this._storeObserver);
-                UploaderModel.Store.getInstance().stopObserving("auto_close");
-            }
+            });
         }
     }, {
         key: 'renderSection',
@@ -121,19 +111,98 @@ var TransfersList = function (_React$Component) {
             }
         }
     }, {
+        key: 'renderSessionSection',
+        value: function renderSessionSection(accumulator, sessions) {
+            var title = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "";
+            var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "";
+
+            if (sessions && sessions.length) {
+                accumulator.push(_react2.default.createElement(
+                    'div',
+                    { className: className + " header" },
+                    title
+                ));
+                sessions.forEach(function (session, i) {
+                    accumulator.push(_react2.default.createElement(
+                        'div',
+                        { key: "session-" + i, style: { display: 'flex', alignItems: 'center' } },
+                        _react2.default.createElement('span', { className: "mdi mdi-timer-sand", style: { margin: '0 6px' } }),
+                        _react2.default.createElement(
+                            'span',
+                            { style: { flex: 1 } },
+                            session.sessionStatus()
+                        )
+                    ));
+                });
+            }
+        }
+    }, {
+        key: 'treeView',
+        value: function treeView(merged) {
+            var tree = [];
+            Object.keys(merged).forEach(function (path) {
+
+                var pathParts = path.split('/');
+                pathParts.shift();
+                var currentLevel = tree;
+                pathParts.forEach(function (part) {
+                    var existingPath = currentLevel.find(function (data) {
+                        return data.name === part;
+                    });
+                    if (existingPath) {
+                        currentLevel = existingPath.children;
+                    } else {
+                        var newPart = {
+                            name: part,
+                            item: merged[path],
+                            children: []
+                        };
+                        currentLevel.push(newPart);
+                        currentLevel = newPart.children;
+                    }
+                });
+            });
+            return tree;
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var items = [];
-            if (this.state && this.state.items) {
-                this.renderSection(items, this.state.items.processing, _pydio2.default.getInstance().MessageHash['html_uploader.14'], 'section-processing');
-                this.renderSection(items, this.state.items.pending, _pydio2.default.getInstance().MessageHash['html_uploader.15'], 'section-pending');
-                this.renderSection(items, this.state.items.errors, _pydio2.default.getInstance().MessageHash['html_uploader.23'], 'section-errors');
-                this.renderSection(items, this.state.items.processed, _pydio2.default.getInstance().MessageHash['html_uploader.16'], 'section-processed');
+            var components = [];
+            var items = this.props.items;
+            var showAll = this.state.showAll;
+
+            if (items) {
+
+                this.renderSessionSection(components, items.sessions, 'Processing files', 'section-processing');
+
+
+                var merged = {};
+                var all = [].concat(_toConsumableArray(items.processing), _toConsumableArray(items.pending), _toConsumableArray(items.errors), _toConsumableArray(items.processed));
+                this.sortItems(all);
+                all.forEach(function (item) {
+                    merged[item.getFullPath()] = item;
+                });
+
+                var tree = this.treeView(merged);
+                console.log(tree);
+
+                if (tree.length) {
+                    components.push(_react2.default.createElement(_TransferFolder2.default, { children: tree, style: { paddingLeft: 0, marginLeft: -20 }, showAll: false, limit: 10 }));
+                }
             }
+
+            var container = {
+                height: '100%',
+                overflowY: 'auto',
+                margin: '0 -10px',
+                backgroundColor: '#FAFAFA',
+                padding: 16
+            };
+
             return _react2.default.createElement(
                 'div',
-                { id: 'upload_files_list', style: { height: '100%' }, className: UploaderModel.Configs.getInstance().getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false) ? 'show-processed' : '' },
-                items
+                { style: container, className: UploaderModel.Configs.getInstance().getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false) ? 'show-processed' : '' },
+                components
             );
         }
     }]);
