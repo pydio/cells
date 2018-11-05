@@ -7650,22 +7650,6 @@
             ],
             "returns": null,
             "description": "Loads a CSS file"
-          },
-          {
-            "name": "testDataFolderAccess",
-            "docblock": "Try to load something under data/cache/\n@param onError Function",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "onError",
-                "description": "Function",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Try to load something under data/cache/"
           }
         ]
       }
@@ -7722,39 +7706,6 @@
             "returns": null
           },
           {
-            "name": "addParameter",
-            "docblock": "Add a parameter to the query\n@param paramName String\n@param paramValue String",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "paramName",
-                "description": "String",
-                "type": null
-              },
-              {
-                "name": "paramValue",
-                "description": "String",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Add a parameter to the query"
-          },
-          {
-            "name": "setParameters",
-            "docblock": "Sets the whole parameter as a bunch\n@param hParameters Map",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "hParameters",
-                "description": "Map",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Sets the whole parameter as a bunch"
-          },
-          {
             "name": "setMethod",
             "docblock": "Set the query method (get post)\n@param method String",
             "modifiers": [],
@@ -7767,21 +7718,6 @@
             ],
             "returns": null,
             "description": "Set the query method (get post)"
-          },
-          {
-            "name": "addSecureToken",
-            "docblock": "Add the secure token parameter",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Add the secure token parameter"
-          },
-          {
-            "name": "addServerPermanentParams",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
           },
           {
             "name": "showLoader",
@@ -7800,32 +7736,11 @@
             "description": "Hide a small loader"
           },
           {
-            "name": "_send",
+            "name": "send",
             "docblock": null,
             "modifiers": [],
-            "params": [
-              {
-                "name": "aSync",
-                "type": null
-              }
-            ],
+            "params": [],
             "returns": null
-          },
-          {
-            "name": "sendAsync",
-            "docblock": "Send Asynchronously",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Send Asynchronously"
-          },
-          {
-            "name": "sendSync",
-            "docblock": "Send synchronously",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Send synchronously"
           },
           {
             "name": "applyComplete",
@@ -8785,30 +8700,6 @@
             "returns": null
           },
           {
-            "name": "request",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "parameters",
-                "type": null
-              },
-              {
-                "name": "onComplete",
-                "type": null
-              },
-              {
-                "name": "onError",
-                "type": null
-              },
-              {
-                "name": "settings",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
             "name": "loadFile",
             "docblock": null,
             "modifiers": [],
@@ -8830,7 +8721,7 @@
           },
           {
             "name": "uploadFile",
-            "docblock": "@param file\n@param fileParameterName\n@param queryStringParams\n@param onComplete\n@param onError\n@param onProgress\n@returns XHR Handle to abort transfer",
+            "docblock": "@param file\n@param fileParameterName\n@param queryStringParams\n@param onComplete\n@param onError\n@param onProgress\n@param uploadUrl\n@param xhrSettings\n@returns XHR Handle to abort transfer",
             "modifiers": [],
             "params": [
               {
@@ -8864,10 +8755,14 @@
                 "type": null
               },
               {
-                "name": "uploadUrl"
+                "name": "uploadUrl",
+                "description": null,
+                "type": null
               },
               {
-                "name": "xhrSettings"
+                "name": "xhrSettings",
+                "description": null,
+                "type": null
               }
             ],
             "returns": {
@@ -8931,7 +8826,7 @@
           },
           {
             "name": "buildPresignedGetUrl",
-            "docblock": "Send a request to the server to get a usable presigned url.\n\n@param node AjxpNode\n@param callback Function\n@param presetType String\n@param bucketParams\n@return {Promise}|null Return a Promise if callback is null, or call the callback",
+            "docblock": "Send a request to the server to get a usable presigned url.\n\n@param node AjxpNode\n@param callback Function\n@param presetType String\n@param bucketParams\n@param attachmentName\n@return {Promise}|null Return a Promise if callback is null, or call the callback",
             "modifiers": [],
             "params": [
               {
@@ -8955,7 +8850,9 @@
                 "type": null
               },
               {
-                "name": "attachmentName"
+                "name": "attachmentName",
+                "description": null,
+                "type": null
               }
             ],
             "returns": {
@@ -9124,54 +9021,6 @@
               }
             ],
             "returns": null
-          },
-          {
-            "name": "applyCheckHook",
-            "docblock": "@param node\n@param hookName\n@param hookArg\n@param completeCallback\n@param additionalParams",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "description": null,
-                "type": null
-              },
-              {
-                "name": "hookName",
-                "description": null,
-                "type": null
-              },
-              {
-                "name": "hookArg",
-                "description": null,
-                "type": null
-              },
-              {
-                "name": "completeCallback",
-                "description": null,
-                "type": null
-              },
-              {
-                "name": "additionalParams",
-                "description": null,
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": null
-          },
-          {
-            "name": "parseXmlMessage",
-            "docblock": "Standard parser for server XML answers\n@param xmlResponse DOMDocument",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "xmlResponse",
-                "description": "DOMDocument",
-                "type": null
-              }
-            ],
-            "returns": null,
-            "description": "Standard parser for server XML answers"
           }
         ],
         "require": "const PydioApi = require('pydio/http/api')"
@@ -25946,25 +25795,6 @@
             "returns": null
           },
           {
-            "name": "parseXmlMessage",
-            "docblock": "COMPATIBILITY METHD\n@param xmlDoc\n@returns {*}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "xmlDoc",
-                "description": null,
-                "type": null
-              }
-            ],
-            "returns": {
-              "description": null,
-              "type": {
-                "name": "mixed"
-              }
-            },
-            "description": "COMPATIBILITY METHD"
-          },
-          {
             "name": "setUser",
             "docblock": "Stores the currently logged user object\n@param oUser User User instance",
             "modifiers": [],
@@ -26915,14 +26745,6 @@
             "description": "Manually sets the source of the selection"
           },
           {
-            "name": "getSelectedItems",
-            "docblock": "DEPRECATED",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "DEPRECATED"
-          },
-          {
             "name": "selectAll",
             "docblock": "Select all the children of the current context node",
             "modifiers": [],
@@ -27087,22 +26909,6 @@
               "type": null
             },
             "description": "Whether the context node has a child with this basename"
-          },
-          {
-            "name": "applyCheckHook",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "node",
-                "type": null
-              },
-              {
-                "name": "additionalParams",
-                "type": null
-              }
-            ],
-            "returns": null
           },
           {
             "name": "getUniqueFileName",

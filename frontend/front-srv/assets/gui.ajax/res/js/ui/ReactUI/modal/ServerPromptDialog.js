@@ -1,3 +1,23 @@
+/*
+ * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
 import React from 'react'
 import {TextField} from 'material-ui'
 import ActionDialogMixin from './ActionDialogMixin'
@@ -34,7 +54,7 @@ export default React.createClass({
 
     },
 
-    getDefaultProps: function(){
+    getDefaultProps(){
         return {
             dialogIsModal: true,
             dialogSize: 'sm'
@@ -47,11 +67,11 @@ export default React.createClass({
         }
     },
 
-    redirect: function(){
+    redirect(){
         window.location.href = this.props.autoRedirectUrl;
     },
 
-    submit: function(){
+    submit(){
         const {autoRedirectUrl, fieldsDefinitions, postSubmitCallback} = this.props;
 
         if(autoRedirectUrl){
@@ -68,12 +88,15 @@ export default React.createClass({
                     parameters[k] = def.value;
                 }
             });
+            /*
+            // Todo: should be rewired to a REST API call
             PydioApi.getClient().request(parameters, (transp) => {
                 if(postSubmitCallback){
                     eval(postSubmitCallback);
                 }
                 this.dismiss();
             });
+            */
         }else{
             if(postSubmitCallback){
                 eval(postSubmitCallback);
@@ -82,7 +105,7 @@ export default React.createClass({
         }
     },
 
-    cancel: function(){
+    cancel(){
         if(this._redirectTimeout){
             clearTimeout(this._redirectTimeout);
             this.dismiss();
@@ -91,7 +114,7 @@ export default React.createClass({
         this.dismiss();
     },
 
-    render: function(){
+    render(){
 
         const {pydio, dialogLegendId, autoRedirectUrl, fieldsDefinitions} = this.props;
         const {MessageHash} = pydio;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -96,85 +96,12 @@ var Connexion = (function () {
     };
 
     /**
-     * Add a parameter to the query
-     * @param paramName String
-     * @param paramValue String
-     */
-
-    Connexion.prototype.addParameter = function addParameter(paramName, paramValue) {
-        if (this._parameters.get(paramName) && paramName.endsWith('[]')) {
-            var existing = this._parameters.get(paramName);
-            if (!existing instanceof Array) {
-                existing = [existing];
-            }
-            existing.push(paramValue);
-            this._parameters.set(paramName, existing);
-        } else {
-            this._parameters.set(paramName, paramValue);
-        }
-    };
-
-    /**
-     * Sets the whole parameter as a bunch
-     * @param hParameters Map
-     */
-
-    Connexion.prototype.setParameters = function setParameters(hParameters) {
-        if (hParameters instanceof Map) {
-            this._parameters = hParameters;
-        } else {
-            if (hParameters._object) {
-                console.error('Passed a legacy Hash object to Connexion.setParameters');
-                hParameters = hParameters._object;
-            }
-            for (var key in hParameters) {
-                if (hParameters.hasOwnProperty(key)) {
-                    this._parameters.set(key, hParameters[key]);
-                }
-            }
-        }
-    };
-
-    /**
      * Set the query method (get post)
      * @param method String
      */
 
     Connexion.prototype.setMethod = function setMethod(method) {
         this._method = method;
-    };
-
-    /**
-     * Add the secure token parameter
-     */
-
-    Connexion.prototype.addSecureToken = function addSecureToken() {
-
-        if (Connexion.SECURE_TOKEN && this._baseUrl.indexOf('secure_token') == -1 && !this._parameters.get('secure_token')) {
-
-            this.addParameter('secure_token', Connexion.SECURE_TOKEN);
-        } else if (this._baseUrl.indexOf('secure_token=') !== -1) {
-
-            // Remove from baseUrl and set inside params
-            var parts = this._baseUrl.split('secure_token=');
-            var toks = parts[1].split('&');
-            var token = toks.shift();
-            var rest = toks.join('&');
-            this._baseUrl = parts[0] + (rest ? '&' + rest : '');
-            this._parameters.set('secure_token', token);
-        }
-    };
-
-    Connexion.prototype.addServerPermanentParams = function addServerPermanentParams() {
-        if (!this._pydio || !this._pydio.Parameters.has('SERVER_PERMANENT_PARAMS')) {
-            return;
-        }
-        var permParams = this._pydio.Parameters.get('SERVER_PERMANENT_PARAMS');
-        for (var permanent in permParams) {
-            if (permParams.hasOwnProperty(permanent)) {
-                this.addParameter(permanent, permParams[permanent]);
-            }
-        }
     };
 
     /**
@@ -195,13 +122,9 @@ var Connexion = (function () {
         this._pydio.notify("connection-end");
     };
 
-    Connexion.prototype._send = function _send() {
+    Connexion.prototype.send = function send() {
         var _this = this;
 
-        var aSync = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
-
-        this.addSecureToken();
-        this.addServerPermanentParams();
         this.showLoader();
         var oThis = this;
         var options = {
@@ -209,9 +132,6 @@ var Connexion = (function () {
             credentials: 'same-origin'
         };
         var url = this._baseUrl;
-        if (!aSync) {
-            options.synchronous = true;
-        }
         var bodyParts = [];
         this._parameters.forEach(function (value, key) {
             if (value instanceof Array) {
@@ -251,22 +171,6 @@ var Connexion = (function () {
                 _this._pydio.displayMessage('ERROR', 'Network error ' + error.message);
             }
         });
-    };
-
-    /**
-     * Send Asynchronously
-     */
-
-    Connexion.prototype.sendAsync = function sendAsync() {
-        this._send(true);
-    };
-
-    /**
-     * Send synchronously
-     */
-
-    Connexion.prototype.sendSync = function sendSync() {
-        this._send(false);
     };
 
     /**
@@ -356,13 +260,15 @@ var Connexion = (function () {
         }
     };
 
-    Connexion.prototype.uploadFile = function uploadFile(file, fileParameterName, uploadUrl, onComplete, onError, onProgress, xhrSettings) {
+    Connexion.prototype.uploadFile = function uploadFile(file, fileParameterName, uploadUrl) {
+        var onComplete = arguments.length <= 3 || arguments[3] === undefined ? function () {} : arguments[3];
+        var onError = arguments.length <= 4 || arguments[4] === undefined ? function () {} : arguments[4];
 
-        if (xhrSettings === undefined) xhrSettings = {};
+        var _this2 = this;
 
-        if (!onComplete) onComplete = function () {};
-        if (!onError) onError = function () {};
-        if (!onProgress) onProgress = function () {};
+        var onProgress = arguments.length <= 5 || arguments[5] === undefined ? function () {} : arguments[5];
+        var xhrSettings = arguments.length <= 6 || arguments[6] === undefined ? {} : arguments[6];
+
         var xhr = this.initializeXHRForUpload(uploadUrl, onComplete, onError, onProgress, xhrSettings);
         if (xhrSettings && xhrSettings.method === 'PUT') {
             xhr.send(file);
@@ -372,9 +278,9 @@ var Connexion = (function () {
             this.sendFileUsingFormData(xhr, file, fileParameterName);
         } else if (window.FileReader) {
             var fileReader = new FileReader();
-            fileReader.onload = (function (e) {
-                this.xhrSendAsBinary(xhr, file.name, e.target.result, fileParameterName);
-            }).bind(this);
+            fileReader.onload = function (e) {
+                _this2.xhrSendAsBinary(xhr, file.name, e.target.result, fileParameterName);
+            };
             fileReader.readAsBinaryString(file);
         } else if (file.getAsBinary) {
             this.xhrSendAsBinary(xhr, file.name, file.getAsBinary(), fileParameterName);
@@ -382,9 +288,8 @@ var Connexion = (function () {
         return xhr;
     };
 
-    Connexion.prototype.initializeXHRForUpload = function initializeXHRForUpload(url, onComplete, onError, onProgress, xhrSettings) {
-
-        if (xhrSettings === undefined) xhrSettings = {};
+    Connexion.prototype.initializeXHRForUpload = function initializeXHRForUpload(url, onComplete, onError, onProgress) {
+        var xhrSettings = arguments.length <= 4 || arguments[4] === undefined ? {} : arguments[4];
 
         var xhr = new XMLHttpRequest();
         var upload = xhr.upload;
@@ -392,11 +297,13 @@ var Connexion = (function () {
             xhr.withCredentials = true;
         }
         upload.addEventListener("progress", function (e) {
-            if (!e.lengthComputable) return;
+            if (!e.lengthComputable) {
+                return;
+            }
             onProgress(e);
         }, false);
         xhr.onreadystatechange = (function () {
-            if (xhr.readyState == 4) {
+            if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
                     onComplete(xhr);
                 } else {
@@ -448,9 +355,9 @@ var Connexion = (function () {
      */
 
     Connexion.prototype.loadLibrary = function loadLibrary(fileName, onLoadedCode, aSync) {
-        var _this2 = this;
+        var _this3 = this;
 
-        if (window.pydioBootstrap && window.pydioBootstrap.parameters.get("ajxpVersion") && fileName.indexOf("?") == -1) {
+        if (window.pydioBootstrap && window.pydioBootstrap.parameters.get("ajxpVersion") && fileName.indexOf("?") === -1) {
             fileName += "?v=" + window.pydioBootstrap.parameters.get("ajxpVersion");
         }
         var url = this._libUrl ? this._libUrl + '/' + fileName : fileName;
@@ -499,7 +406,7 @@ var Connexion = (function () {
                             alert('error loading ' + fileName + ': Status code was ' + xhr.status);
                         }
                     }
-                }).bind(_this2);
+                }).bind(_this3);
                 xhr.open("GET", url, false);
                 xhr.send();
             })();

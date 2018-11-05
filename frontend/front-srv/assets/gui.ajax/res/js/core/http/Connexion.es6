@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
  *
  * Pydio is free software: you can redistribute it and/or modify
@@ -75,52 +75,13 @@ class Connexion{
 
     }
 
-
     static log(action, syncStatus){
         if(!Connexion.PydioLogs){
             Connexion.PydioLogs = [];
         }
         Connexion.PydioLogs.push({action:action, sync:syncStatus});
     }
-	
-	/**
-	 * Add a parameter to the query
-	 * @param paramName String
-	 * @param paramValue String
-	 */
-	addParameter(paramName, paramValue){
-        if(this._parameters.get(paramName) && paramName.endsWith('[]')){
-            let existing =  this._parameters.get(paramName);
-            if(!existing instanceof Array) {
-                existing = [existing];
-            }
-            existing.push(paramValue);
-            this._parameters.set(paramName, existing);
-        }else{
-            this._parameters.set(paramName, paramValue);
-        }
-	}
-	
-	/**
-	 * Sets the whole parameter as a bunch
-	 * @param hParameters Map
-	 */
-	setParameters(hParameters){
-        if(hParameters instanceof Map){
-    		this._parameters = hParameters;
-        }else{
-            if(hParameters._object){
-                console.error('Passed a legacy Hash object to Connexion.setParameters');
-                hParameters = hParameters._object;
-            }
-            for(let key in hParameters){
-                if(hParameters.hasOwnProperty(key)){
-                    this._parameters.set(key, hParameters[key]);
-                }
-            }
-        }
-	}
-	
+
 	/**
 	 * Set the query method (get post)
 	 * @param method String
@@ -128,40 +89,6 @@ class Connexion{
 	setMethod(method){
 		this._method = method;
 	}
-	
-	/**
-	 * Add the secure token parameter
-	 */
-	addSecureToken(){
-
-		if(Connexion.SECURE_TOKEN && this._baseUrl.indexOf('secure_token') == -1 && !this._parameters.get('secure_token')){
-
-			this.addParameter('secure_token', Connexion.SECURE_TOKEN);
-
-		}else if(this._baseUrl.indexOf('secure_token=') !== -1){
-
-            // Remove from baseUrl and set inside params
-            const parts = this._baseUrl.split('secure_token=');
-            let toks = parts[1].split('&');
-            const token = toks.shift();
-            const rest = toks.join('&');
-            this._baseUrl = parts[0] + (rest ? '&' + rest : '');
-            this._parameters.set('secure_token', token);
-
-        }
-	}
-
-	addServerPermanentParams(){
-	    if(!this._pydio || !this._pydio.Parameters.has('SERVER_PERMANENT_PARAMS')){
-	        return;
-        }
-        const permParams = this._pydio.Parameters.get('SERVER_PERMANENT_PARAMS');
-        for(let permanent in permParams){
-            if(permParams.hasOwnProperty(permanent)){
-                this.addParameter(permanent, permParams[permanent]);
-            }
-        }
-    }
 
     /**
      * Show a small loader
@@ -179,10 +106,8 @@ class Connexion{
         this._pydio.notify("connection-end");
     }
 
-    _send(aSync=true){
+    send(){
 
-		this.addSecureToken();
-		this.addServerPermanentParams();
         this.showLoader();
         let oThis = this;
         let options = {
@@ -190,9 +115,6 @@ class Connexion{
             credentials:'same-origin',
         };
         let url = this._baseUrl;
-        if(!aSync){
-            options.synchronous = true;
-        }
         let bodyParts = [];
         this._parameters.forEach(function(value, key){
             if(value instanceof Array){
@@ -237,20 +159,6 @@ class Connexion{
     }
 
 
-	/**
-	 * Send Asynchronously
-	 */
-	sendAsync(){
-        this._send(true);
-    }
-	
-	/**
-	 * Send synchronously
-	 */
-	sendSync(){
-        this._send(false);
-    }
-	
 	/**
 	 * Apply the complete callback, try to grab maximum of errors
 	 * @param parsedBody Transpot
@@ -344,13 +252,8 @@ class Connexion{
         }
 	}
 
-    uploadFile(file, fileParameterName, uploadUrl, onComplete, onError, onProgress, xhrSettings){
+    uploadFile(file, fileParameterName, uploadUrl, onComplete=()=>{}, onError=()=>{}, onProgress=()=>{}, xhrSettings={}){
 
-        if(xhrSettings === undefined) xhrSettings = {};
-
-        if(!onComplete) onComplete = function(){};
-        if(!onError) onError = function(){};
-        if(!onProgress) onProgress = function(){};
         const xhr = this.initializeXHRForUpload(uploadUrl, onComplete, onError, onProgress, xhrSettings);
         if (xhrSettings && xhrSettings.method === 'PUT') {
             xhr.send(file);
@@ -360,9 +263,9 @@ class Connexion{
             this.sendFileUsingFormData(xhr, file, fileParameterName);
         }else if(window.FileReader){
             const fileReader = new FileReader();
-            fileReader.onload = function(e){
+            fileReader.onload = (e)=>{
                 this.xhrSendAsBinary(xhr, file.name, e.target.result, fileParameterName);
-            }.bind(this);
+            };
             fileReader.readAsBinaryString(file);
         }else if(file.getAsBinary){
             this.xhrSendAsBinary(xhr, file.name, file.getAsBinary(), fileParameterName)
@@ -371,9 +274,7 @@ class Connexion{
 
     }
 
-    initializeXHRForUpload(url, onComplete, onError, onProgress, xhrSettings){
-
-        if(xhrSettings === undefined) xhrSettings = {};
+    initializeXHRForUpload(url, onComplete, onError, onProgress, xhrSettings = {}){
 
         const xhr = new XMLHttpRequest();
         const upload = xhr.upload;
@@ -381,11 +282,13 @@ class Connexion{
             xhr.withCredentials = true;
         }
         upload.addEventListener("progress", function(e){
-            if (!e.lengthComputable) return;
+            if (!e.lengthComputable){
+                return;
+            }
             onProgress(e);
         }, false);
         xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4) {
+            if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
                     onComplete(xhr);
                 } else {
@@ -437,7 +340,7 @@ class Connexion{
 	 */
 	loadLibrary(fileName, onLoadedCode, aSync){
 
-        if(window.pydioBootstrap && window.pydioBootstrap.parameters.get("ajxpVersion") && fileName.indexOf("?")==-1){
+        if(window.pydioBootstrap && window.pydioBootstrap.parameters.get("ajxpVersion") && fileName.indexOf("?")===-1){
             fileName += "?v="+window.pydioBootstrap.parameters.get("ajxpVersion");
         }
         const url = (this._libUrl?this._libUrl+'/'+fileName:fileName);

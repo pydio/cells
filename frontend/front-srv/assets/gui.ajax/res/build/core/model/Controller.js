@@ -178,17 +178,6 @@ var Controller = (function (_Observable) {
     };
 
     /**
-     * COMPATIBILITY METHD
-     * @param xmlDoc
-     * @returns {*}
-     */
-
-    Controller.prototype.parseXmlMessage = function parseXmlMessage(xmlDoc) {
-        _langLogger2['default'].debug("Controller.parseXmlMessage() is deprecated, use PydioApi instead");
-        return _httpPydioApi2['default'].getClient().parseXmlMessage(xmlDoc);
-    };
-
-    /**
      * Stores the currently logged user object
      * @param oUser User User instance
      */

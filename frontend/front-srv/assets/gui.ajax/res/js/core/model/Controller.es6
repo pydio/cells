@@ -148,16 +148,6 @@ export default class Controller extends Observable{
         }
     }
 
-    /**
-     * COMPATIBILITY METHD
-     * @param xmlDoc
-     * @returns {*}
-     */
-    parseXmlMessage(xmlDoc){
-        Logger.debug("Controller.parseXmlMessage() is deprecated, use PydioApi instead");
-        return PydioApi.getClient().parseXmlMessage(xmlDoc);
-    }
-
 	/**
 	 * Stores the currently logged user object
 	 * @param oUser User User instance

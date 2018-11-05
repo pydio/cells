@@ -26,6 +26,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
 var _GroupSwitchPanel = require('./GroupSwitchPanel');
 
 var _GroupSwitchPanel2 = _interopRequireDefault(_GroupSwitchPanel);
@@ -38,6 +42,12 @@ var _managerManager = require('../manager/Manager');
 
 var _managerManager2 = _interopRequireDefault(_managerManager);
 
+var _pydioUtilLang = require("pydio/util/lang");
+
+var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
+
+var _materialUi = require("material-ui");
+
 /**
  * Form Panel is a ready to use form builder inherited for Pydio's legacy parameters formats ('standard form').
  * It is very versatile and can basically take a set of parameters defined in the XML manifests (or defined manually
@@ -46,17 +56,7 @@ var _managerManager2 = _interopRequireDefault(_managerManager);
  *
  * See also Manager class to get some utilitary functions to parse parameters and extract values for the form.
  */
-var React = require('react');
-var ReactMUI = require('material-ui-legacy');
-var LangUtils = require('pydio/util/lang');
-var PydioApi = require('pydio/http/api');
-
-var _require = require('material-ui');
-
-var Tabs = _require.Tabs;
-var Tab = _require.Tab;
-var Paper = _require.Paper;
-exports['default'] = React.createClass({
+exports['default'] = _react2['default'].createClass({
     displayName: 'FormPanel',
 
     _hiddenValues: {},
@@ -67,92 +67,92 @@ exports['default'] = React.createClass({
         /**
          * Array of Pydio StandardForm parameters
          */
-        parameters: React.PropTypes.array.isRequired,
+        parameters: _react2['default'].PropTypes.array.isRequired,
         /**
          * Object containing values for the parameters
          */
-        values: React.PropTypes.object,
+        values: _react2['default'].PropTypes.object,
         /**
          * Trigger unitary function when one form input changes.
          */
-        onParameterChange: React.PropTypes.func,
+        onParameterChange: _react2['default'].PropTypes.func,
         /**
          * Send all form values onchange, including eventually the removed ones (for dynamic panels)
          */
-        onChange: React.PropTypes.func,
+        onChange: _react2['default'].PropTypes.func,
         /**
          * Triggered when the form globabally switches between valid and invalid state
          * Triggered once at form construction
          */
-        onValidStatusChange: React.PropTypes.func,
+        onValidStatusChange: _react2['default'].PropTypes.func,
         /**
          * Disable the whole form at once
          */
-        disabled: React.PropTypes.bool,
+        disabled: _react2['default'].PropTypes.bool,
         /**
          * String added to the image inputs for upload/download operations
          */
-        binary_context: React.PropTypes.string,
+        binary_context: _react2['default'].PropTypes.string,
         /**
          * 0 by default, subforms will have their zDepth value increased by one
          */
-        depth: React.PropTypes.number,
+        depth: _react2['default'].PropTypes.number,
 
         /**
          * Add an additional header component (added inside first subpanel)
          */
-        header: React.PropTypes.object,
+        header: _react2['default'].PropTypes.object,
         /**
          * Add an additional footer component (added inside last subpanel)
          */
-        footer: React.PropTypes.object,
+        footer: _react2['default'].PropTypes.object,
         /**
          * Add other arbitrary panels, either at the top or the bottom
          */
-        additionalPanes: React.PropTypes.shape({
-            top: React.PropTypes.array,
-            bottom: React.PropTypes.array
+        additionalPanes: _react2['default'].PropTypes.shape({
+            top: _react2['default'].PropTypes.array,
+            bottom: _react2['default'].PropTypes.array
         }),
         /**
          * An array of tabs containing groupNames. Groups will be splitted
          * accross those tabs
          */
-        tabs: React.PropTypes.array,
+        tabs: _react2['default'].PropTypes.array,
         /**
          * Fired when a the active tab changes
          */
-        onTabChange: React.PropTypes.func,
+        onTabChange: _react2['default'].PropTypes.func,
         /**
          * A bit like tabs, but using accordion-like layout
          */
-        accordionizeIfGroupsMoreThan: React.PropTypes.number,
+        accordionizeIfGroupsMoreThan: _react2['default'].PropTypes.number,
         /**
          * Forward an event when scrolling the form
          */
-        onScrollCallback: React.PropTypes.func,
+        onScrollCallback: _react2['default'].PropTypes.func,
         /**
          * Restrict to a subset of field groups
          */
-        limitToGroups: React.PropTypes.array,
+        limitToGroups: _react2['default'].PropTypes.array,
         /**
          * Ignore some specific fields types
          */
-        skipFieldsTypes: React.PropTypes.array,
+        skipFieldsTypes: _react2['default'].PropTypes.array,
 
         /* Helper Options */
         /**
          * Pass pointers to the Pydio Companion container
          */
-        setHelperData: React.PropTypes.func,
+        setHelperData: _react2['default'].PropTypes.func,
         /**
          * Function to check if the companion is active or none and if a parameter
          * has helper data
          */
-        checkHasHelper: React.PropTypes.func,
+        checkHasHelper: _react2['default'].PropTypes.func,
         /**
          * Test for parameter
          */
-        helperTestFor: React.PropTypes.string
+        helperTestFor: _react2['default'].PropTypes.string
 
     },
 
@@ -161,7 +161,9 @@ exports['default'] = React.createClass({
     },
 
     getInitialState: function getInitialState() {
-        if (this.props.onTabChange) return { tabSelectedIndex: 0 };
+        if (this.props.onTabChange) {
+            return { tabSelectedIndex: 0 };
+        }
         return {};
     },
 
@@ -188,12 +190,14 @@ exports['default'] = React.createClass({
         var additionalFormData = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
 
         // Update writeValues
-        var newValues = LangUtils.deepCopy(this.getValues());
+        var newValues = _pydioUtilLang2['default'].deepCopy(this.getValues());
         if (this.props.onParameterChange) {
             this.props.onParameterChange(paramName, newValue, oldValue, additionalFormData);
         }
         if (additionalFormData) {
-            if (!this._parametersMetadata) this._parametersMetadata = {};
+            if (!this._parametersMetadata) {
+                this._parametersMetadata = {};
+            }
             this._parametersMetadata[paramName] = additionalFormData;
         }
         newValues[paramName] = newValue;
@@ -205,7 +209,7 @@ exports['default'] = React.createClass({
         if (this.props.onChange) {
             //newValues = LangUtils.mergeObjectsRecursive(this._hiddenValues, newValues);
             for (var key in this._hiddenValues) {
-                if (this._hiddenValues.hasOwnProperty(key) && newValues[key] === undefined && (!removeValues || removeValues[key] == undefined)) {
+                if (this._hiddenValues.hasOwnProperty(key) && newValues[key] === undefined && (!removeValues || removeValues[key] === undefined)) {
                     newValues[key] = this._hiddenValues[key];
                 }
             }
@@ -215,7 +219,7 @@ exports['default'] = React.createClass({
     },
 
     onSubformChange: function onSubformChange(newValues, dirty, removeValues) {
-        var values = LangUtils.mergeObjectsRecursive(this.getValues(), newValues);
+        var values = _pydioUtilLang2['default'].mergeObjectsRecursive(this.getValues(), newValues);
         if (removeValues) {
             for (var k in removeValues) {
                 if (removeValues.hasOwnProperty(k) && values[k] !== undefined) {
@@ -239,10 +243,12 @@ exports['default'] = React.createClass({
     applyButtonAction: function applyButtonAction(parameters, callback) {
         if (this.props.applyButtonAction) {
             this.props.applyButtonAction(parameters, callback);
-            return;
         }
+        /*
+        // Old way
         parameters = LangUtils.mergeObjectsRecursive(parameters, this.getValuesForPOST(this.getValues()));
         PydioApi.getClient().request(parameters, callback);
+        */
     },
 
     getValuesForPOST: function getValuesForPOST(values) {
@@ -254,7 +260,7 @@ exports['default'] = React.createClass({
     checkValidStatus: function checkValidStatus(values) {
         var failedMandatories = [];
         this.props.parameters.map((function (p) {
-            if (['string', 'textarea', 'password', 'integer'].indexOf(p.type) > -1 && (p.mandatory == "true" || p.mandatory === true)) {
+            if (['string', 'textarea', 'password', 'integer'].indexOf(p.type) > -1 && (p.mandatory === "true" || p.mandatory === true)) {
                 if (!values || !values.hasOwnProperty(p.name) || values[p.name] === undefined || values[p.name] === "") {
                     failedMandatories.push(p);
                 }
@@ -265,9 +271,10 @@ exports['default'] = React.createClass({
                 }
             }
         }).bind(this));
-        var previousValue, newValue;
+        var previousValue = undefined,
+            newValue = undefined;
         previousValue = this._internalValid; //(this._internalValid !== undefined ? this._internalValid : true);
-        newValue = failedMandatories.length ? false : true;
+        newValue = !failedMandatories.length;
         if ((newValue !== this._internalValid || this.props.forceValidStatusCheck) && this.props.onValidStatusChange) {
             this.props.onValidStatusChange(newValue, failedMandatories);
         }
@@ -285,16 +292,16 @@ exports['default'] = React.createClass({
             var current = this.state && this.state.currentActiveGroup ? this.state.currentActiveGroup : null;
             properties['className'] = 'group-label-' + (active ? 'active' : 'inactive');
             properties['onClick'] = (function () {
-                this.setState({ currentActiveGroup: current != index ? index : null });
+                this.setState({ currentActiveGroup: current !== index ? index : null });
             }).bind(this);
-            groupLabel = [React.createElement('span', { key: 'toggler', className: "group-active-toggler icon-angle-" + (current == index ? 'down' : 'right') }), groupLabel];
+            groupLabel = [_react2['default'].createElement('span', { key: 'toggler', className: "group-active-toggler icon-angle-" + (current === index ? 'down' : 'right') }), groupLabel];
         }
 
-        return React.createElement('h' + (3 + this.props.depth), properties, groupLabel);
+        return _react2['default'].createElement('h' + (3 + this.props.depth), properties, groupLabel);
     },
 
     render: function render() {
-        var _this = this;
+        var _this2 = this;
 
         var allGroups = [];
         var values = this.getValues();
@@ -303,6 +310,7 @@ exports['default'] = React.createClass({
         var replicationGroups = {};
 
         this.props.parameters.map((function (attributes) {
+            var _this = this;
 
             var type = attributes['type'];
             if (this.props.skipFieldsTypes && this.props.skipFieldsTypes.indexOf(type) > -1) {
@@ -310,7 +318,9 @@ exports['default'] = React.createClass({
             }
             var paramName = attributes['name'];
             var field;
-            if (attributes['group_switch_name']) return;
+            if (attributes['group_switch_name']) {
+                return;
+            }
 
             var group = attributes['group'] || '__DEFAULT__';
             if (!allGroups[group]) {
@@ -330,7 +340,7 @@ exports['default'] = React.createClass({
                     allGroups[group].FIELDS.push('REPLICATION:' + repGroup);
                 }
                 // Copy
-                var repAttr = LangUtils.deepCopy(attributes);
+                var repAttr = _pydioUtilLang2['default'].deepCopy(attributes);
                 delete repAttr['replicationGroup'];
                 delete repAttr['group'];
                 replicationGroups[repGroup].PARAMS.push(repAttr);
@@ -338,7 +348,7 @@ exports['default'] = React.createClass({
 
                 if (type.indexOf("group_switch:") === 0) {
 
-                    field = React.createElement(_GroupSwitchPanel2['default'], _extends({}, this.props, {
+                    field = _react2['default'].createElement(_GroupSwitchPanel2['default'], _extends({}, this.props, {
                         onChange: this.onSubformChange,
                         paramAttributes: attributes,
                         parameters: this.props.parameters,
@@ -360,7 +370,7 @@ exports['default'] = React.createClass({
                                 applyButtonAction: this.applyButtonAction
                             }, this.props.helperTestFor);
                         }).bind(this);
-                        helperMark = React.createElement('span', { className: 'icon-question-sign', onClick: showHelper });
+                        helperMark = _react2['default'].createElement('span', { className: 'icon-question-sign', onClick: showHelper });
                     }
                     var mandatoryMissing = false;
                     var classLegend = "form-legend";
@@ -380,9 +390,9 @@ exports['default'] = React.createClass({
                         attributes: attributes,
                         name: paramName,
                         value: values[paramName],
-                        onChange: (function (newValue, oldValue, additionalFormData) {
-                            this.onParameterChange(paramName, newValue, oldValue, additionalFormData);
-                        }).bind(this),
+                        onChange: function onChange(newValue, oldValue, additionalFormData) {
+                            _this.onParameterChange(paramName, newValue, oldValue, additionalFormData);
+                        },
                         disabled: this.props.disabled || attributes['readonly'],
                         multiple: attributes['multiple'],
                         binary_context: this.props.binary_context,
@@ -391,11 +401,11 @@ exports['default'] = React.createClass({
                         errorText: mandatoryMissing ? pydio.MessageHash['621'] : attributes.errorText ? attributes.errorText : null
                     };
 
-                    field = React.createElement(
+                    field = _react2['default'].createElement(
                         'div',
                         { key: paramName, className: 'form-entry-' + attributes['type'] },
                         _managerManager2['default'].createFormElement(props),
-                        React.createElement(
+                        _react2['default'].createElement(
                             'div',
                             { className: classLegend },
                             attributes['warningText'] ? attributes['warningText'] : attributes['description'],
@@ -405,7 +415,7 @@ exports['default'] = React.createClass({
                     );
                 } else {
 
-                    this._hiddenValues[paramName] = values[paramName] !== undefined ? values[paramName] : attributes['default'];
+                    this._hiddenValues[paramName] = values[paramName] === undefined ? attributes['default'] : values[paramName];
                 }
 
                 if (field) {
@@ -415,9 +425,11 @@ exports['default'] = React.createClass({
         }).bind(this));
 
         for (var rGroup in replicationGroups) {
-            if (!replicationGroups.hasOwnProperty(rGroup)) continue;
+            if (!replicationGroups.hasOwnProperty(rGroup)) {
+                continue;
+            }
             var rGroupData = replicationGroups[rGroup];
-            allGroups[rGroupData.GROUP].FIELDS[rGroupData.POSITION] = React.createElement(_ReplicationPanel2['default'], _extends({}, this.props, {
+            allGroups[rGroupData.GROUP].FIELDS[rGroupData.POSITION] = _react2['default'].createElement(_ReplicationPanel2['default'], _extends({}, this.props, {
                 key: "replication-group-" + rGroupData.PARAMS[0].name,
                 onChange: this.onSubformChange,
                 onParameterChange: null,
@@ -441,60 +453,68 @@ exports['default'] = React.createClass({
             var className = 'pydio-form-group',
                 active = false;
             if (accordionize) {
-                active = currentActiveGroup == gIndex;
-                if (gIndex == currentActiveGroup) className += ' form-group-active';else className += ' form-group-inactive';
+                active = currentActiveGroup === gIndex;
+                if (gIndex === currentActiveGroup) {
+                    className += ' form-group-active';
+                } else {
+                    className += ' form-group-inactive';
+                }
             }
-            if (!gData.FIELDS.length) return;
+            if (!gData.FIELDS.length) {
+                return;
+            }
             if (gData.LABEL && !(this.props.skipFieldsTypes && this.props.skipFieldsTypes.indexOf('GroupHeader') > -1)) {
                 header = this.renderGroupHeader(gData.LABEL, accordionize, gIndex, active);
             }
-            if (this.props.depth == 0) {
+            if (this.props.depth === 0) {
                 className += ' z-depth-1';
-                groupPanes.push(React.createElement(
-                    Paper,
+                groupPanes.push(_react2['default'].createElement(
+                    _materialUi.Paper,
                     { className: className, key: 'pane-' + g },
-                    gIndex == 0 && this.props.header ? this.props.header : null,
+                    gIndex === 0 && this.props.header ? this.props.header : null,
                     header,
-                    React.createElement(
+                    _react2['default'].createElement(
                         'div',
                         null,
                         gData.FIELDS
                     ),
-                    gIndex == groupsOrdered.length - 1 && this.props.footer ? this.props.footer : null
+                    gIndex === groupsOrdered.length - 1 && this.props.footer ? this.props.footer : null
                 ));
             } else {
-                groupPanes.push(React.createElement(
+                groupPanes.push(_react2['default'].createElement(
                     'div',
                     { className: className, key: 'pane-' + g },
-                    gIndex == 0 && this.props.header ? this.props.header : null,
+                    gIndex === 0 && this.props.header ? this.props.header : null,
                     header,
-                    React.createElement(
+                    _react2['default'].createElement(
                         'div',
                         null,
                         gData.FIELDS
                     ),
-                    gIndex == groupsOrdered.length - 1 && this.props.footer ? this.props.footer : null
+                    gIndex === groupsOrdered.length - 1 && this.props.footer ? this.props.footer : null
                 ));
             }
         }).bind(this));
         if (this.props.additionalPanes) {
             (function () {
                 var otherPanes = { top: [], bottom: [] };
-                var depth = _this.props.depth;
+                var depth = _this2.props.depth;
                 var index = 0;
 
                 var _loop = function (k) {
-                    if (!otherPanes.hasOwnProperty(k)) return 'continue';
-                    if (_this.props.additionalPanes[k]) {
-                        _this.props.additionalPanes[k].map(function (p) {
-                            if (depth == 0) {
-                                otherPanes[k].push(React.createElement(
-                                    Paper,
+                    if (!otherPanes.hasOwnProperty(k)) {
+                        return 'continue';
+                    }
+                    if (_this2.props.additionalPanes[k]) {
+                        _this2.props.additionalPanes[k].map(function (p) {
+                            if (depth === 0) {
+                                otherPanes[k].push(_react2['default'].createElement(
+                                    _materialUi.Paper,
                                     { className: 'pydio-form-group additional', key: 'other-pane-' + index },
                                     p
                                 ));
                             } else {
-                                otherPanes[k].push(React.createElement(
+                                otherPanes[k].push(_react2['default'].createElement(
                                     'div',
                                     { className: 'pydio-form-group additional', key: 'other-pane-' + index },
                                     p
@@ -516,10 +536,10 @@ exports['default'] = React.createClass({
 
         if (this.props.tabs) {
             var _ret3 = (function () {
-                var className = _this.props.className;
+                var className = _this2.props.className;
                 var initialSelectedIndex = 0;
                 var i = 0;
-                var tabs = _this.props.tabs.map((function (tDef) {
+                var tabs = _this2.props.tabs.map((function (tDef) {
                     var label = tDef['label'];
                     var groups = tDef['groups'];
                     if (tDef['selected']) {
@@ -533,32 +553,32 @@ exports['default'] = React.createClass({
                         }
                     });
                     i++;
-                    return React.createElement(
-                        Tab,
+                    return _react2['default'].createElement(
+                        _materialUi.Tab,
                         { label: label,
                             key: label,
                             value: this.props.onTabChange ? i - 1 : undefined },
-                        React.createElement(
+                        _react2['default'].createElement(
                             'div',
                             { className: (className ? className + ' ' : ' ') + 'pydio-form-panel' + (panes.length % 2 ? ' form-panel-odd' : '') },
                             panes
                         )
                     );
-                }).bind(_this));
-                if (_this.state.tabSelectedIndex !== undefined) {
-                    initialSelectedIndex = _this.state.tabSelectedIndex;
+                }).bind(_this2));
+                if (_this2.state.tabSelectedIndex !== undefined) {
+                    initialSelectedIndex = _this2.state.tabSelectedIndex;
                 }
                 return {
-                    v: React.createElement(
+                    v: _react2['default'].createElement(
                         'div',
                         { className: 'layout-fill vertical-layout tab-vertical-layout' },
-                        React.createElement(
-                            Tabs,
+                        _react2['default'].createElement(
+                            _materialUi.Tabs,
                             { ref: 'tabs',
                                 initialSelectedIndex: initialSelectedIndex,
-                                value: _this.props.onTabChange ? initialSelectedIndex : undefined,
-                                onChange: _this.props.onTabChange ? function (i) {
-                                    _this.setState({ tabSelectedIndex: i });_this.props.onTabChange(i);
+                                value: _this2.props.onTabChange ? initialSelectedIndex : undefined,
+                                onChange: _this2.props.onTabChange ? function (i) {
+                                    _this2.setState({ tabSelectedIndex: i });_this2.props.onTabChange(i);
                                 } : undefined,
                                 style: { flex: 1, display: 'flex', flexDirection: 'column' },
                                 contentContainerStyle: { flex: 1, overflowY: 'auto' }
@@ -571,7 +591,7 @@ exports['default'] = React.createClass({
 
             if (typeof _ret3 === 'object') return _ret3.v;
         } else {
-            return React.createElement(
+            return _react2['default'].createElement(
                 'div',
                 { className: (this.props.className ? this.props.className + ' ' : ' ') + 'pydio-form-panel' + (groupPanes.length % 2 ? ' form-panel-odd' : ''), onScroll: this.props.onScrollCallback },
                 groupPanes
