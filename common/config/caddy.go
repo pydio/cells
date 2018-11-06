@@ -64,13 +64,9 @@ type CaddyTemplateConf struct {
 	// If TLS is enabled, also enable auto-redirect from http to https
 	HttpRedirectSource *url.URL
 	HttpRedirectTarget *url.URL
-
-	PluginTemplates []TemplateFunc
-	PluginPathes    []string
 }
 
 var (
-	caddyConf     = &CaddyTemplateConf{}
 	CaddyTemplate = `
 {{.Bind.Host}} {
 	proxy /a  {{.Micro.Host}} {
