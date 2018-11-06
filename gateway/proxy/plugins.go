@@ -29,12 +29,17 @@ import (
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/mholt/caddy/caddytls"
 
+	"github.com/micro/go-micro/broker"
 	_ "github.com/micro/go-plugins/client/grpc"
 	_ "github.com/micro/go-plugins/server/grpc"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/service"
+)
+
+var (
+	instance *caddy.Instance
 )
 
 func init() {
@@ -74,7 +79,7 @@ func init() {
 			}
 
 			// start caddy server
-			instance, err := caddy.Start(caddyfile)
+			instance, err = caddy.Start(caddyfile)
 			if err != nil {
 				return nil, nil, nil, err
 			}
@@ -91,6 +96,35 @@ func init() {
 					instance.Stop()
 					return nil
 				}), nil
+		}),
+		service.AfterStart(func(s service.Service) error {
+
+			handler := func(p broker.Publication) error {
+				if instance == nil {
+					return nil
+				}
+
+				// now load inside caddy
+				caddyfile, err := caddy.LoadCaddyfile("http")
+				if err != nil {
+					return err
+				}
+
+				// Kick off the restart; our work is done
+				// caddy.EmitEvent(caddy.InstanceRestartEvent, nil)
+
+				_, err = instance.Restart(caddyfile)
+				if err != nil {
+					return err
+				}
+				return nil
+			}
+
+			// Adding subscriber
+			broker.Subscribe(common.TOPIC_SERVICE_START, handler)
+			broker.Subscribe(common.TOPIC_SERVICE_STOP, handler)
+
+			return nil
 		}),
 	)
 }

@@ -25,6 +25,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/nats-io/gnatsd/server"
@@ -59,6 +60,16 @@ func init() {
 			if err != nil {
 				return nil, nil, nil, err
 			}
+
+			opts.Port = 4223
+
+			routeURL := "nats://localhost:5223"
+			url, _ := url.Parse(routeURL)
+
+			opts.Routes = append(opts.Routes, url)
+
+			opts.Cluster.Host = "localhost"
+			opts.Cluster.Port = 5222
 
 			opts.NoSigs = true
 

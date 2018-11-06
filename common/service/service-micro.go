@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/broker"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -74,6 +75,9 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 					log.Logger(ctx).Info("stopping")
 
 					return nil
+				}),
+				micro.AfterStart(func() error {
+					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{})
 				}),
 				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)
