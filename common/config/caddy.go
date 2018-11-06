@@ -31,6 +31,7 @@ import (
 	"strings"
 
 	"github.com/mholt/caddy"
+	"github.com/micro/go-micro/registry"
 	"github.com/pydio/cells/common"
 	"go.uber.org/zap/zapcore"
 )
@@ -199,6 +200,8 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 		}
 	}
 
+	internalUrlFromServices("pydio.gateway.rest")
+
 	if p, e := internalUrlFromConfig("micro.api", []string{"services", common.SERVICE_MICRO_API, "port"}, servicesHost, tls); e == nil {
 		c.Micro = p
 	} else {
@@ -250,6 +253,22 @@ func LoadCaddyConf() (*CaddyTemplateConf, error) {
 	return c, nil
 }
 
+func internalUrlFromServices(name string) []*url.URL {
+
+	fmt.Println("HERE")
+	var urls []*url.URL
+
+	services, _ := registry.GetService(name)
+
+	for _, service := range services {
+		for _, node := range service.Nodes {
+			fmt.Println(node.Address, node.Port)
+		}
+	}
+
+	return urls
+}
+
 func internalUrlFromConfig(name string, path []string, host string, tls bool, split ...bool) (*url.URL, error) {
 	port := Get(path...).String("")
 	if port == "" {
@@ -284,18 +303,17 @@ func InitCaddyFile(tpl string, tplData interface{}) error {
 	}
 
 	fmt.Printf("%s", buf)
-	loader := func(serverType string) (caddy.Input, error) {
+	caddyLoader := func(serverType string) (caddy.Input, error) {
 		return caddy.CaddyfileInput{
 			Contents:       buf.Bytes(),
 			ServerTypeName: serverType,
 		}, nil
 	}
-	caddy.SetDefaultCaddyfileLoader("default", caddy.LoaderFunc(loader))
+	caddy.SetDefaultCaddyfileLoader("default", caddy.LoaderFunc(caddyLoader))
 	if common.LogLevel == zapcore.DebugLevel {
 		fmt.Println("Loading Caddy File", string(buf.Bytes()))
 	}
 	return nil
-
 }
 
 func ConfigureCaddyfile(t string, v interface{}) error {
