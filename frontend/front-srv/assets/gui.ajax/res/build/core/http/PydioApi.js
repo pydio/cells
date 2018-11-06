@@ -274,8 +274,8 @@ var PydioApi = (function () {
                 var managed = new _awsSdk2['default'].S3.ManagedUpload({
                     params: _extends({}, params, { Body: file }),
                     partSize: 5 * 1024 * 1024,
-                    queueSize: 4,
-                    leavePartsOnError: true
+                    queueSize: 3,
+                    leavePartsOnError: false
                 });
                 managed.on('httpUploadProgress', onProgress);
                 managed.send(function (e, d) {

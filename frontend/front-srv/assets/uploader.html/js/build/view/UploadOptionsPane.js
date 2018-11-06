@@ -77,7 +77,6 @@ var UploadOptionsPane = function (_React$Component) {
 
             var toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
             var toggleClose = configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close');
-            var toggleShowProcessed = configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
             var overwriteType = configs.getOption('DEFAULT_EXISTING', 'upload_existing');
 
             return _react2.default.createElement(
@@ -92,25 +91,33 @@ var UploadOptionsPane = function (_React$Component) {
                     }
                 },
                 _react2.default.createElement(
-                    _materialUi.List,
-                    { style: { width: 260 } },
-                    _react2.default.createElement(_materialUi.ListItem, { primaryText: pydio.MessageHash[337], rightToggle: _react2.default.createElement(_materialUi.Toggle, { toggled: toggleStart, defaultToggled: toggleStart, onToggle: this.updateField.bind(this, 'autostart') }) }),
-                    _react2.default.createElement(_materialUi.ListItem, { primaryText: pydio.MessageHash[338], rightToggle: _react2.default.createElement(_materialUi.Toggle, { toggled: toggleClose, onToggle: this.updateField.bind(this, 'autoclose') }) }),
-                    _react2.default.createElement(_materialUi.ListItem, { primaryText: pydio.MessageHash['html_uploader.17'], rightToggle: _react2.default.createElement(_materialUi.Toggle, { toggled: toggleShowProcessed, onToggle: this.updateField.bind(this, 'show_processed') }) }),
-                    _react2.default.createElement(_materialUi.Divider, null),
+                    'div',
+                    { style: { width: 320, paddingBottom: 6 } },
+                    _react2.default.createElement(
+                        _materialUi.Subheader,
+                        null,
+                        'Options'
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { style: { padding: '0 16px', marginTop: -6 } },
+                        _react2.default.createElement(_materialUi.Checkbox, { style: { margin: '8px 0' }, checked: toggleStart, labelPosition: "right", onCheck: this.updateField.bind(this, 'autostart'), label: pydio.MessageHash[337], labelStyle: { fontSize: 14 } }),
+                        _react2.default.createElement(_materialUi.Checkbox, { style: { margin: '8px 0' }, checked: toggleClose, labelPosition: "right", onCheck: this.updateField.bind(this, 'autoclose'), label: pydio.MessageHash[338], labelStyle: { fontSize: 14 } })
+                    ),
                     _react2.default.createElement(
                         _materialUi.Subheader,
                         null,
                         pydio.MessageHash['html_uploader.18']
                     ),
                     _react2.default.createElement(
-                        _materialUi.ListItem,
-                        { disabled: true, style: { paddingTop: 0 } },
+                        'div',
+                        { style: { padding: 16, fontSize: 14, paddingTop: 0 } },
                         _react2.default.createElement(
                             _materialUi.RadioButtonGroup,
                             { ref: 'group', name: 'shipSpeed', defaultSelected: overwriteType, onChange: this.radioChange.bind(this) },
                             _react2.default.createElement(_materialUi.RadioButton, { value: 'alert', label: pydio.MessageHash['html_uploader.19'], style: { paddingBottom: 8 } }),
-                            _react2.default.createElement(_materialUi.RadioButton, { value: 'rename', label: pydio.MessageHash['html_uploader.20'], style: { paddingBottom: 8 } }),
+                            _react2.default.createElement(_materialUi.RadioButton, { value: 'rename-folders', label: "Rename files or folders", style: { paddingBottom: 8 } }),
+                            _react2.default.createElement(_materialUi.RadioButton, { value: 'rename', label: "Rename files only (merge folders)", style: { paddingBottom: 8 } }),
                             _react2.default.createElement(_materialUi.RadioButton, { value: 'overwrite', label: pydio.MessageHash['html_uploader.21'] })
                         )
                     )

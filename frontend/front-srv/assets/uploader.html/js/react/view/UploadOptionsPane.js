@@ -20,7 +20,7 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {Popover, List, ListItem, Divider, Toggle, RadioButtonGroup, RadioButton, Subheader} from 'material-ui'
+import {Popover, List, ListItem, Divider, Checkbox, Toggle, RadioButtonGroup, RadioButton, Subheader} from 'material-ui'
 
 class UploadOptionsPane extends React.Component {
     
@@ -59,7 +59,6 @@ class UploadOptionsPane extends React.Component {
 
         let toggleStart = configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
         let toggleClose = configs.getOptionAsBool('DEFAULT_AUTO_CLOSE', 'upload_auto_close');
-        let toggleShowProcessed = configs.getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false);
         let overwriteType = configs.getOption('DEFAULT_EXISTING', 'upload_existing');
 
         return (
@@ -72,20 +71,23 @@ class UploadOptionsPane extends React.Component {
                     this.props.onDismiss(e)
                 }}
             >
-                <List style={{width: 260}}>
-                    <ListItem primaryText={pydio.MessageHash[337]} rightToggle={<Toggle toggled={toggleStart} defaultToggled={toggleStart} onToggle={this.updateField.bind(this, 'autostart')} />} />
-                    <ListItem primaryText={pydio.MessageHash[338]} rightToggle={<Toggle toggled={toggleClose} onToggle={this.updateField.bind(this, 'autoclose')} />} />
-                    <ListItem primaryText={pydio.MessageHash['html_uploader.17']} rightToggle={<Toggle toggled={toggleShowProcessed} onToggle={this.updateField.bind(this, 'show_processed')} />} />
-                    <Divider />
+                <div style={{width: 320, paddingBottom: 6}}>
+                    <Subheader>Options</Subheader>
+                    <div style={{padding: '0 16px', marginTop: -6}}>
+                        <Checkbox style={{margin:'8px 0'}} checked={toggleStart} labelPosition={"right"} onCheck={this.updateField.bind(this, 'autostart')} label={pydio.MessageHash[337]} labelStyle={{fontSize:14}}/>
+                        <Checkbox style={{margin:'8px 0'}} checked={toggleClose} labelPosition={"right"} onCheck={this.updateField.bind(this, 'autoclose')} label={pydio.MessageHash[338]} labelStyle={{fontSize:14}} />
+                    </div>
+
                     <Subheader>{pydio.MessageHash['html_uploader.18']}</Subheader>
-                    <ListItem disabled={true} style={{paddingTop: 0}}>
+                    <div style={{padding: 16, fontSize:14, paddingTop: 0}}>
                         <RadioButtonGroup ref="group" name="shipSpeed" defaultSelected={overwriteType} onChange={this.radioChange.bind(this)}>
                             <RadioButton value="alert" label={pydio.MessageHash['html_uploader.19']} style={{paddingBottom: 8}} />
-                            <RadioButton value="rename" label={pydio.MessageHash['html_uploader.20']} style={{paddingBottom: 8}}/>
+                            <RadioButton value="rename-folders" label={"Rename files or folders"} style={{paddingBottom: 8}}/>
+                            <RadioButton value="rename" label={"Rename files only (merge folders)"} style={{paddingBottom: 8}}/>
                             <RadioButton value="overwrite" label={pydio.MessageHash['html_uploader.21']}/>
                         </RadioButtonGroup>
-                    </ListItem>
-                </List>
+                    </div>
+                </div>
             </Popover>
         );
     }

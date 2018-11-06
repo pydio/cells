@@ -25,8 +25,6 @@ var _TransfersList2 = _interopRequireDefault(_TransfersList);
 
 var _materialUi = require('material-ui');
 
-var _lodash = require('lodash');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -53,7 +51,7 @@ var DropUploader = function (_React$Component) {
         _this._storeObserver = function () {
             _this.setState({
                 items: store.getItems(),
-                storePaused: store.isPaused()
+                storeRunning: store.isRunning()
             });
         };
         store.observe("update", _this._storeObserver);
@@ -67,22 +65,14 @@ var DropUploader = function (_React$Component) {
             showOptions: false,
             configs: UploaderModel.Configs.getInstance(),
             items: store.getItems(),
-            storePaused: store.isPaused()
+            storeRunning: store.isRunning()
         };
         return _this;
     }
 
     _createClass(DropUploader, [{
         key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(nextProps) {
-
-            var autoStart = this.state.configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
-            var store = UploaderModel.Store.getInstance();
-            var items = store.getItems();
-            if (autoStart && items["pending"].length) {
-                UploaderModel.Store.getInstance().processNext();
-            }
-        }
+        value: function componentWillReceiveProps(nextProps) {}
     }, {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
@@ -153,7 +143,6 @@ var DropUploader = function (_React$Component) {
         value: function render() {
             var _this2 = this;
 
-            var optionsEl = void 0;
             var messages = _pydio2.default.getInstance().MessageHash;
             var connectDropTarget = this.props.connectDropTarget || function (c) {
                 return c;
@@ -162,55 +151,41 @@ var DropUploader = function (_React$Component) {
                 configs = _state2.configs,
                 showOptions = _state2.showOptions,
                 items = _state2.items,
-                storePaused = _state2.storePaused;
+                storeRunning = _state2.storeRunning;
 
             var store = UploaderModel.Store.getInstance();
-
-            optionsEl = _react2.default.createElement(_UploadOptionsPane2.default, { configs: configs, open: showOptions, anchorEl: this.state.optionsAnchorEl, onDismiss: function onDismiss(e) {
-                    _this2.toggleOptions(e);
-                } });
-
+            var listEmpty = true;
+            items.sessions.forEach(function (s) {
+                if (s.getChildren().length) {
+                    listEmpty = false;
+                }
+            });
             var folderButton = void 0,
                 startButton = void 0;
             var e = global.document.createElement('input');
             e.setAttribute('type', 'file');
             if ('webkitdirectory' in e) {
-                folderButton = _react2.default.createElement(_materialUi.RaisedButton, { style: { marginRight: 10 }, label: messages['html_uploader.5'], onTouchTap: this.openFolderPicker.bind(this) });
+                folderButton = _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-folder-plus' }), primary: true, style: { marginRight: 10 }, label: messages['html_uploader.5'], onTouchTap: this.openFolderPicker.bind(this) });
             }
             e = null;
 
-            if (store.getQueueSize()) {
-                if (storePaused) {
-                    startButton = _react2.default.createElement(_materialUi.FlatButton, { style: { marginRight: 10 }, label: messages['html_uploader.11'],
-                        onTouchTap: this.start.bind(this), secondary: true });
-                } else {
-                    startButton = _react2.default.createElement(_materialUi.FlatButton, { style: { marginRight: 10 }, label: "Pause", onTouchTap: this.pause.bind(this),
-                        secondary: true });
-                }
+            if (storeRunning) {
+                startButton = _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-pause' }), label: "Pause", onTouchTap: this.pause.bind(this), secondary: true });
+            } else if (store.hasQueue()) {
+                startButton = _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-play' }), label: messages['html_uploader.11'], onTouchTap: this.start.bind(this), secondary: true });
             }
             return connectDropTarget(_react2.default.createElement(
                 'div',
-                { style: { position: 'relative', padding: '10px' } },
+                { style: { position: 'relative', backgroundColor: '#FAFAFA' } },
                 _react2.default.createElement(
-                    _materialUi.Toolbar,
-                    { style: { backgroundColor: '#fff' } },
-                    _react2.default.createElement(
-                        'div',
-                        { style: { display: 'flex', justifyContent: 'space-between', padding: '0px 24px', width: '100%', height: '100%' } },
-                        _react2.default.createElement(
-                            'div',
-                            { style: { display: 'flex', alignItems: 'center', marginLeft: '-48px' } },
-                            _react2.default.createElement(_materialUi.RaisedButton, { secondary: true, style: { marginRight: 10 }, label: messages['html_uploader.4'], onTouchTap: this.openFilePicker.bind(this) }),
-                            folderButton,
-                            startButton,
-                            _react2.default.createElement(_materialUi.FlatButton, { label: messages['html_uploader.12'], style: { marginRight: 10 }, onTouchTap: this.clear.bind(this) })
-                        ),
-                        _react2.default.createElement(
-                            'div',
-                            { style: { display: 'flex', alignItems: 'center', marginRight: '-48px' } },
-                            _react2.default.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-settings", iconStyle: { color: '#9e9e9e' }, style: { float: 'right' }, tooltip: messages['html_uploader.22'], onTouchTap: this.toggleOptions.bind(this) })
-                        )
-                    )
+                    _materialUi.Paper,
+                    { zDepth: 1, style: { position: 'relative', display: 'flex', alignItems: 'center', paddingLeft: 6, width: '100%', height: '100%' } },
+                    _react2.default.createElement(_materialUi.FlatButton, { icon: _react2.default.createElement(_materialUi.FontIcon, { style: { fontSize: 16 }, className: 'mdi mdi-file-plus' }), primary: true, style: { marginRight: 6 }, label: messages['html_uploader.4'], onTouchTap: this.openFilePicker.bind(this) }),
+                    folderButton,
+                    startButton,
+                    _react2.default.createElement('span', { style: { flex: 1 } }),
+                    !listEmpty && _react2.default.createElement(_materialUi.FlatButton, { label: messages['html_uploader.12'], style: { marginRight: 0 }, primary: true, onTouchTap: this.clear.bind(this) }),
+                    _react2.default.createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-dots-vertical", iconStyle: { color: '#9e9e9e', fontSize: 18 }, style: { padding: 14 }, tooltip: messages['html_uploader.22'], onTouchTap: this.toggleOptions.bind(this) })
                 ),
                 _react2.default.createElement(
                     FileDropZone,
@@ -223,7 +198,7 @@ var DropUploader = function (_React$Component) {
                         ignoreNativeDrop: true,
                         onDrop: this.onDrop.bind(this),
                         onFolderPicked: this.onFolderPicked.bind(this),
-                        style: { width: '100%', height: 300 }
+                        style: { width: '100%', height: 360 }
                     },
                     _react2.default.createElement(_TransfersList2.default, {
                         items: items,
@@ -231,7 +206,9 @@ var DropUploader = function (_React$Component) {
                         onDismiss: this.props.onDismiss
                     })
                 ),
-                optionsEl
+                _react2.default.createElement(_UploadOptionsPane2.default, { configs: configs, open: showOptions, anchorEl: this.state.optionsAnchorEl, onDismiss: function onDismiss(e) {
+                        _this2.toggleOptions(e);
+                    } })
             ));
         }
     }]);

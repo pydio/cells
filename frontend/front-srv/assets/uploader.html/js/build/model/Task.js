@@ -24,16 +24,19 @@ var _Pydio$requireLib = _pydio2.default.requireLib("boot"),
     JobsStore = _Pydio$requireLib.JobsStore;
 
 var Task = function () {
-    function Task() {
+    function Task(session) {
+        var _this = this;
+
         _classCallCheck(this, Task);
 
         pydio = _pydio2.default.getInstance();
         this.job = new JobsJob();
-        this.job.ID = 'local-upload-task';
+        this.job.ID = 'local-upload-task-' + session.getId();
         this.job.Owner = pydio.user.id;
         this.job.Label = pydio.MessageHash['html_uploader.7'];
         this.job.Stoppable = true;
-        this.task = new JobsTask();
+        var task = new JobsTask();
+        this.task = task;
         this.job.Tasks = [this.task];
         this.task.HasProgress = true;
         this.task.ID = "upload";
@@ -41,38 +44,33 @@ var Task = function () {
         this.job.openDetailPane = function () {
             pydio.Controller.fireAction("upload");
         };
+
+        task._statusObserver = function (s) {
+            if (s === 'analyze') {
+                task.StatusMessage = 'Analyzing files and folders (' + session.getChildren().length + ')';
+                task.Status = JobsTaskStatus.constructFromObject('Running');
+            } else if (s === 'ready') {
+                task.StatusMessage = 'Ready to upload';
+                task.Status = JobsTaskStatus.constructFromObject('Idle');
+            }
+            _this.notifyMainStore();
+        };
+        task._progressObserver = function (p) {
+            task.Progress = p / 100;
+            task.Status = JobsTaskStatus.constructFromObject('Running');
+            task.StatusMessage = 'Uploading ' + Math.ceil(p) + '%';
+            _this.notifyMainStore();
+        };
+        session.observe('status', task._statusObserver);
+        session.observe('progress', task._progressObserver);
+
+        task._statusObserver(session.getStatus());
+        task._progressObserver(session.getProgress());
+
         JobsStore.getInstance().enqueueLocalJob(this.job);
     }
 
     _createClass(Task, [{
-        key: 'setProgress',
-        value: function setProgress(progress) {
-            this.task.Progress = progress;
-            this.task.Status = JobsTaskStatus.constructFromObject('Running');
-            this.notifyMainStore();
-        }
-    }, {
-        key: 'setSessionPending',
-        value: function setSessionPending(session) {
-            this.task.StatusMessage = 'Analyzing files and folders (' + session.sessionStatus() + ')';
-            this.task.Status = JobsTaskStatus.constructFromObject('Running');
-            this.notifyMainStore();
-        }
-    }, {
-        key: 'setPending',
-        value: function setPending(queueSize) {
-            this.task.StatusMessage = _pydio2.default.getInstance().MessageHash['html_uploader.1'].replace('%s', queueSize);
-            this.task.Status = JobsTaskStatus.constructFromObject('Idle');
-            this.notifyMainStore();
-        }
-    }, {
-        key: 'setRunning',
-        value: function setRunning(queueSize) {
-            this.task.Status = JobsTaskStatus.constructFromObject('Running');
-            this.task.StatusMessage = _pydio2.default.getInstance().MessageHash['html_uploader.2'].replace('%s', queueSize);
-            this.notifyMainStore();
-        }
-    }, {
         key: 'setIdle',
         value: function setIdle() {
             this.task.Status = JobsTaskStatus.constructFromObject('Idle');
@@ -82,17 +80,14 @@ var Task = function () {
     }, {
         key: 'notifyMainStore',
         value: function notifyMainStore() {
-            this.task.startTime = new Date().getTime() / 1000;
+            this.task.StartTime = new Date().getTime() / 1000;
             this.job.Tasks = [this.task];
             JobsStore.getInstance().enqueueLocalJob(this.job);
         }
     }], [{
-        key: 'getInstance',
-        value: function getInstance() {
-            if (!Task.__INSTANCE) {
-                Task.__INSTANCE = new Task();
-            }
-            return Task.__INSTANCE;
+        key: 'create',
+        value: function create(session) {
+            return new Task(session);
         }
     }]);
 

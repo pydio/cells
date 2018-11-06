@@ -46,16 +46,18 @@ var UploadItem = function (_StatusItem) {
 
     function UploadItem(file, targetNode) {
         var relativePath = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+        var parent = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
         _classCallCheck(this, UploadItem);
 
-        var _this = _possibleConstructorReturn(this, (UploadItem.__proto__ || Object.getPrototypeOf(UploadItem)).call(this, 'file'));
+        var _this = _possibleConstructorReturn(this, (UploadItem.__proto__ || Object.getPrototypeOf(UploadItem)).call(this, 'file', targetNode, parent));
 
         _this._file = file;
         _this._status = 'new';
-        _this._progress = 0;
-        _this._targetNode = targetNode;
         _this._relativePath = relativePath;
+        if (parent) {
+            parent.addChild(_this);
+        }
         return _this;
     }
 
@@ -73,11 +75,6 @@ var UploadItem = function (_StatusItem) {
         key: 'getLabel',
         value: function getLabel() {
             return this._relativePath ? this._relativePath : this._file.name;
-        }
-    }, {
-        key: 'getProgress',
-        value: function getProgress() {
-            return this._progress;
         }
     }, {
         key: 'setProgress',
@@ -112,6 +109,8 @@ var UploadItem = function (_StatusItem) {
         value: function _doProcess(completeCallback) {
             var _this2 = this;
 
+            this._userAborted = false;
+
             var complete = function complete() {
                 _this2.setStatus('loaded');
                 _this2._parseXHRResponse();
@@ -138,6 +137,10 @@ var UploadItem = function (_StatusItem) {
             var MAX_RETRIES = 10;
             var retry = function retry(count) {
                 return function (e) {
+                    if (_this2._userAborted) {
+                        if (e) error(e);else error(new Error('Interrupted by user'));
+                        return;
+                    }
                     if (count >= MAX_RETRIES) {
                         error(e);
                     } else {
@@ -163,6 +166,8 @@ var UploadItem = function (_StatusItem) {
         value: function _doAbort(completeCallback) {
             if (this.xhr) {
                 try {
+                    console.log('Should abort', this.getFullPath());
+                    this._userAborted = true;
                     this.xhr.abort();
                 } catch (e) {}
             }

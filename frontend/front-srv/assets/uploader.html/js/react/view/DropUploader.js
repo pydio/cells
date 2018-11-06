@@ -24,8 +24,7 @@ const {dropProvider} = Pydio.requireLib('hoc');
 const {FileDropZone} = Pydio.requireLib('form');
 import UploadOptionsPane from './UploadOptionsPane'
 import TransfersList from './TransfersList'
-import {Toolbar, RaisedButton, FlatButton, IconButton} from 'material-ui'
-import {debounce} from 'lodash'
+import {Paper, Toolbar, RaisedButton, FlatButton, IconButton, FontIcon} from 'material-ui'
 
 class DropUploader extends React.Component {
     
@@ -35,7 +34,7 @@ class DropUploader extends React.Component {
         this._storeObserver = ()=>{
             this.setState({
                 items: store.getItems(),
-                storePaused: store.isPaused()
+                storeRunning: store.isRunning()
             });
         };
         store.observe("update", this._storeObserver);
@@ -49,19 +48,20 @@ class DropUploader extends React.Component {
             showOptions: false,
             configs: UploaderModel.Configs.getInstance(),
             items: store.getItems(),
-            storePaused: store.isPaused()
+            storeRunning: store.isRunning()
         }; 
     }
 
 
     componentWillReceiveProps(nextProps) {
-
+        /*
         const autoStart = this.state.configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
         const store = UploaderModel.Store.getInstance();
         const items = store.getItems();
-        if (autoStart && items["pending"].length) {
+        if (autoStart && store) {
             UploaderModel.Store.getInstance().processNext();
         }
+        */
 
     }
 
@@ -119,46 +119,39 @@ class DropUploader extends React.Component {
 
     render(){
 
-        let optionsEl;
         let messages = Pydio.getInstance().MessageHash;
         const connectDropTarget = this.props.connectDropTarget || (c => {return c});
-        const {configs, showOptions, items, storePaused} = this.state;
+        const {configs, showOptions, items, storeRunning} = this.state;
         const store = UploaderModel.Store.getInstance();
-
-        optionsEl = <UploadOptionsPane configs={configs} open={showOptions} anchorEl={this.state.optionsAnchorEl} onDismiss={(e) => {this.toggleOptions(e);}}/>
-
+        let listEmpty = true;
+        items.sessions.forEach(s => {
+            if(s.getChildren().length){
+                listEmpty = false;
+            }
+        });
         let folderButton, startButton;
         let e = global.document.createElement('input');
         e.setAttribute('type', 'file');
         if('webkitdirectory' in e){
-            folderButton = <RaisedButton style={{marginRight: 10}} label={messages['html_uploader.5']} onTouchTap={this.openFolderPicker.bind(this)}/>;
+            folderButton = <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-folder-plus"/>} primary={true} style={{marginRight: 10}} label={messages['html_uploader.5']} onTouchTap={this.openFolderPicker.bind(this)}/>;
         }
         e = null;
 
-        if(store.getQueueSize()){
-            if (storePaused) {
-                startButton = <FlatButton style={{marginRight: 10}} label={messages['html_uploader.11']}
-                                          onTouchTap={this.start.bind(this)} secondary={true}/>
-            } else {
-                startButton = <FlatButton style={{marginRight: 10}} label={"Pause"} onTouchTap={this.pause.bind(this)}
-                                          secondary={true}/>
-            }
+        if (storeRunning) {
+            startButton = <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-pause"/>} label={"Pause"} onTouchTap={this.pause.bind(this)} secondary={true}/>
+        } else if(store.hasQueue()){
+            startButton = <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-play"/>} label={messages['html_uploader.11']} onTouchTap={this.start.bind(this)} secondary={true}/>
         }
         return connectDropTarget(
-            <div style={{position:'relative', padding: '10px'}}>
-                <Toolbar style={{backgroundColor: '#fff'}}>
-                    <div style={{display:'flex', justifyContent: 'space-between', padding: '0px 24px', width: '100%', height: '100%'}}>
-                        <div style={{display:'flex', alignItems: 'center', marginLeft: '-48px'}}>
-                            <RaisedButton secondary={true} style={{marginRight: 10}} label={messages['html_uploader.4']} onTouchTap={this.openFilePicker.bind(this)}/>
-                            {folderButton}
-                            {startButton}
-                            <FlatButton label={messages['html_uploader.12']} style={{marginRight: 10}} onTouchTap={this.clear.bind(this)}/>
-                        </div>
-                        <div style={{display:'flex', alignItems: 'center', marginRight: '-48px'}}>
-                            <IconButton iconClassName={"mdi mdi-settings"} iconStyle={{color:'#9e9e9e'}} style={{float: 'right'}} tooltip={messages['html_uploader.22']} onTouchTap={this.toggleOptions.bind(this)}/>
-                        </div>
-                    </div>
-                </Toolbar>
+            <div style={{position:'relative', backgroundColor: '#FAFAFA'}}>
+                <Paper zDepth={1} style={{position: 'relative', display:'flex', alignItems:'center', paddingLeft: 6, width: '100%', height: '100%'}}>
+                    <FlatButton icon={<FontIcon style={{fontSize:16}} className="mdi mdi-file-plus"/>} primary={true} style={{marginRight: 6}} label={messages['html_uploader.4']} onTouchTap={this.openFilePicker.bind(this)}/>
+                    {folderButton}
+                    {startButton}
+                    <span style={{flex: 1}}/>
+                    {!listEmpty && <FlatButton label={messages['html_uploader.12']} style={{marginRight: 0}} primary={true} onTouchTap={this.clear.bind(this)}/>}
+                    <IconButton iconClassName={"mdi mdi-dots-vertical"} iconStyle={{color:'#9e9e9e', fontSize: 18}} style={{padding:14}} tooltip={messages['html_uploader.22']} onTouchTap={this.toggleOptions.bind(this)}/>
+                </Paper>
                 <FileDropZone
                     className="transparent-dropzone"
                     ref="dropzone"
@@ -168,7 +161,7 @@ class DropUploader extends React.Component {
                     ignoreNativeDrop={true}
                     onDrop={this.onDrop.bind(this)}
                     onFolderPicked={this.onFolderPicked.bind(this)}
-                    style={{width:'100%', height: 300}}
+                    style={{width:'100%', height: 360}}
                 >
                     <TransfersList
                         items={items}
@@ -176,8 +169,7 @@ class DropUploader extends React.Component {
                         onDismiss={this.props.onDismiss}
                     />
                 </FileDropZone>
-
-                {optionsEl}
+                <UploadOptionsPane configs={configs} open={showOptions} anchorEl={this.state.optionsAnchorEl} onDismiss={(e) => {this.toggleOptions(e);}}/>
             </div>
         );
     }

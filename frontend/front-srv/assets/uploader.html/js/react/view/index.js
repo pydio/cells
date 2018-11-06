@@ -19,13 +19,9 @@
  */
 
 import DropUploader from './DropUploader'
-import TransferFile from './TransferFile'
-import TransferFolder from './TransferFolder'
 import TransfersList from './TransfersList'
 
 export {
     DropUploader,
-    TransferFolder,
-    TransfersList,
-    TransferFile
+    TransfersList
 }

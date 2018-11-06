@@ -27,11 +27,14 @@ import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'py
 
 class FolderItem extends StatusItem{
 
-    constructor(path, targetNode){
-        super('folder');
+    constructor(path, targetNode, parent = null){
+        super('folder', targetNode, parent);
         this._new = true;
         this._path = path;
-        this._targetNode =  targetNode;
+        this.children.pg[this.getId()] = 0;
+        if(parent){
+            parent.addChild(this);
+        }
     }
 
     isNew() {
@@ -82,6 +85,8 @@ class FolderItem extends StatusItem{
 
         api.createNodes(request).then(collection => {
             this.setStatus('loaded');
+            this.children.pg[this.getId()] = 100;
+            this.recomputeProgress();
             completeCallback();
         });
     }

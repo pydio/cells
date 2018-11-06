@@ -33,32 +33,14 @@ class Store extends Observable{
 
     constructor(){
         super();
-        this._folders = [];
-        this._uploads = [];
         this._processing = [];
         this._processed = [];
         this._errors = [];
         this._sessions = [];
-        this._blacklist = [".ds_store", ".pydio"]
-        this._pause = true;
-    }
-    recomputeGlobalProgress(){
-        let totalCount      = 0;
-        let totalProgress   = 0;
-        this._uploads.concat(this._processing).concat(this._processed).forEach(function(item){
-            if(!item.getProgress) {
-                return;
-            }
-            totalCount += item.getSize();
-            totalProgress += item.getProgress() * item.getSize() / 100;
-        });
-        let progress;
-        if (totalCount) {
-            progress = totalProgress / totalCount;
-        } else {
-            progress = 0;
-        }
-        return progress;
+        this._blacklist = [".ds_store", ".pydio"];
+
+        this._running = false;
+        this._pauseRequired = false;
     }
 
     // Required for backward compat
@@ -66,82 +48,51 @@ class Store extends Observable{
         return Configs.getInstance().getAutoStart();
     }
 
-    pushFolder(folderItem){
-        if(!this.getQueueSize()){
-            this._processed = [];
-            this._pause = true;
-        }
-        this._folders.push(folderItem);
-        Task.getInstance().setPending(this.getQueueSize());
-        if(Configs.getInstance().getAutoStart() && !this._processing.length) {
-            this.processNext();
-        }
-        this.notify('update');
-        this.notify('item_added', folderItem);
-    }
-
-    pushFile(uploadItem){
-        if(!this.getQueueSize()){
-            this._processed = [];
-            this._pause = true;
-        }
-
-        const name = uploadItem.getFile().name.toLowerCase();
-        const isBlacklisted = name.length >= 1 && name[0] === ".";
-        if (isBlacklisted) {
-            return
-        }
-
-        this._uploads.push(uploadItem);
-        Task.getInstance().setPending(this.getQueueSize());
-        uploadItem.observe("progress", ()=>{
-            let pg = this.recomputeGlobalProgress();
-            Task.getInstance().setProgress(pg);
-        });
-        if(Configs.getInstance().getAutoStart() && !this._processing.length) {
-            this.processNext();
-        }
-        this.notify('update');
-        this.notify('item_added', uploadItem);
-    }
-
     pushSession(session) {
-        Task.getInstance().setSessionPending(session);
         this._sessions.push(session);
-        this.notify('update');
+        session.Task = Task.create(session);
         session.observe('update', ()=> {
-            if(!session.pending){
-                this._sessions = this._sessions.filter(s => s !== session);
-            }
             this.notify('update');
         });
+        session.observe('children', ()=> {
+            this.notify('update');
+        });
+        this.notify('update');
+        session.observe('status', (s) => {
+            if(s === 'ready'){
+                const autoStart = Configs.getInstance().getAutoStart();
+                if(autoStart && !this._processing.length && !this._pauseRequired) {
+                    this.processNext();
+                } else if(!autoStart){
+                    Pydio.getInstance().getController().fireAction("upload");
+                }
+            }
+        });
     }
 
-    log(){
-    }
+    log(){}
 
-    getQueueSize(){
-        return this._folders.length + this._uploads.length + this._processing.length;
+    hasQueue(){
+        return this.getNexts(1).length;
     }
 
     clearAll(){
-        this._folders = [];
-        this._uploads = [];
+        this._sessions = [];
+
         this._processing = [];
         this._processed = [];
         this._errors = [];
-        this._sessions = [];
-        this._pause = false;
         this.notify('update');
-        Task.getInstance().setIdle();
+
     }
 
     processNext(){
         let processables = this.getNexts();
-        if(processables.length){
+        if(processables.length && !this._pauseRequired){
+            this._running = true;
             processables.map(processable => {
                 this._processing.push(processable);
-                Task.getInstance().setRunning(this.getQueueSize());
+                //Task.getInstance().setRunning(this.getQueueSize());
                 processable.process(()=>{
                     this._processing = LangUtils.arrayWithout(this._processing, this._processing.indexOf(processable));
                     if(processable.getStatus() === 'error') {
@@ -149,16 +100,14 @@ class Store extends Observable{
                     } else {
                         this._processed.push(processable);
                     }
-                    if(!this._pause){
-                        this.processNext();
-                    }
+                    this.processNext();
                     this.notify("update");
                 });
             });
         }else{
-            this._pause = false;
-            Task.getInstance().setIdle();
-
+            this._running = false;
+            this._pauseRequired = false;
+            //Task.getInstance().setIdle();
             if(this.hasErrors()){
                 if(!pydio.getController().react_selector){
                     Pydio.getInstance().getController().fireAction("upload");
@@ -170,20 +119,37 @@ class Store extends Observable{
     }
 
     getNexts(max = 3){
-        if(this._pause){
-            return [];
-        }
-        if(this._folders.length){
-            return [this._folders.shift()];
+        let folders = [];
+        this._sessions.forEach(session => {
+            session.walk((item)=>{
+                folders.push(item);
+            }, (item)=>{
+                return item.getStatus() === 'new'
+            }, 'folder', ()=>{
+                return folders.length >= 1;
+            });
+        });
+        if(folders.length){
+            return [folders.shift()];
         }
         let items = [];
         const processing = this._processing.length;
-        for (let i = 0; i < (max - processing); i++){
-            if(this._uploads.length){
-                items.push(this._uploads.shift());
+        this._sessions.forEach(session => {
+            let sessItems = 0;
+            session.walk((item)=>{
+                items.push(item);
+                sessItems ++;
+            }, (item)=>{
+                return item.getStatus() === 'new'
+            }, 'file', ()=>{
+                return items.length >= max - processing;
+            });
+            if(sessItems === 0){
+                session.Task.setIdle();
             }
-        }
+        });
         return items;
+
     }
 
     stopOrRemoveItem(item){
@@ -199,11 +165,11 @@ class Store extends Observable{
 
     getItems(){
         return {
+            sessions: this._sessions,
+
             processing: this._processing,
-            pending: this._folders.concat(this._uploads),
             processed: this._processed,
             errors: this._errors,
-            sessions: this._sessions,
         };
     }
 
@@ -211,17 +177,17 @@ class Store extends Observable{
         return this._errors.length ? this._errors : false;
     }
 
-    isPaused(){
-        return this._pause && this.getQueueSize() > 0;
+    isRunning(){
+        return this._running;
     }
 
     pause(){
-        this._pause = true;
+        this._pauseRequired = true;
         this.notify('update');
     }
 
     resume(){
-        this._pause = false;
+        this._pauseRequired = false;
         this.notify('update');
         this.processNext();
     }
@@ -251,15 +217,8 @@ class Store extends Observable{
             }
             session.pushFile(new UploadItem(files[i], targetNode, relPath));
         }
-        session.computeStatuses().then(() => {
-            Object.keys(session.folders).forEach(k => {
-                this.pushFolder(session.folders[k]);
-            });
-            Object.keys(session.files).forEach(k => {
-                this.pushFile(session.files[k]);
-            })
-        }).catch((e) => {
-
+        session.prepare().catch((e) => {
+            // DO SOMETHING?
         }) ;
 
     }
@@ -268,6 +227,12 @@ class Store extends Observable{
 
         const session = new Session();
         this.pushSession(session);
+        const filter = (refPath) => {
+            if(filterFunction && !filterFunction(refPath)){
+                return false;
+            }
+            return this._blacklist.indexOf(PathUtils.getBasename(refPath).toLowerCase()) === -1;
+        };
 
         const enqueue = (item, isFolder=false) => {
             if(filterFunction && !filterFunction(item)){
@@ -303,43 +268,41 @@ class Store extends Observable{
 
                     promises.push(new Promise((resolve, reject) => {
                         entry.file(function(File) {
-                            if(File.size > 0) {
-                                enqueue(new UploadItem(File, targetNode));
+                            let u;
+                            if(File.size > 0 && filter(File.name)) {
+                                u = new UploadItem(File, targetNode, null, session);
                             }
-                            resolve();
+                            resolve(u);
                         }, () => { reject(); error();} );
                     }));
 
                 } else if (entry.isDirectory) {
 
-                    enqueue(new FolderItem(entry.fullPath, targetNode), true);
-
+                    entry.folderItem = new FolderItem(entry.fullPath, targetNode, session);
+                    //enqueue(f, true);
                     promises.push(this.recurseDirectory(entry, (fileEntry) => {
                         const relativePath = fileEntry.fullPath;
                         return new Promise((resolve, reject) => {
                             fileEntry.file((File) => {
-                                if(File.size > 0) {
-                                    enqueue(new UploadItem(File, targetNode, relativePath));
+                                let uItem;
+                                if(File.size > 0 && filter(File.name)) {
+                                    uItem = new UploadItem(File, targetNode, relativePath, fileEntry.parentItem);
                                 }
-                                resolve();
+                                resolve(uItem);
                             }, e => {reject(e); error();});
                         });
                     }, function(folderEntry){
-                        return Promise.resolve(enqueue(new FolderItem(folderEntry.fullPath, targetNode), true));
+                        if(filter(folderEntry.fullPath)){
+                            folderEntry.folderItem = new FolderItem(folderEntry.fullPath, targetNode, folderEntry.parentItem);
+                        }
+                        return Promise.resolve(folderEntry.folderItem);
                     }, error));
 
                 }
             }
 
             Promise.all(promises).then(() => {
-                return session.computeStatuses();
-            }).then(() => {
-                Object.keys(session.folders).forEach(k => {
-                    this.pushFolder(session.folders[k]);
-                });
-                Object.keys(session.files).forEach(k => {
-                    this.pushFile(session.files[k]);
-                })
+                return session.prepare();
             }).catch((e) => {
 
             }) ;
@@ -350,16 +313,12 @@ class Store extends Observable{
                     alert(Pydio.getInstance().MessageHash['html_uploader.8']);
                     return;
                 }
-                enqueue(new UploadItem(files[j], targetNode));
+                if(!filter(files[j].name)){
+                    return;
+                }
+                new UploadItem(files[j], targetNode, null, session);
             }
-            session.computeStatuses().then(() => {
-                Object.keys(session.folders).forEach(k => {
-                    this.pushFolder(session.folders[k]);
-                });
-                Object.keys(session.files).forEach(k => {
-                    this.pushFile(session.files[k]);
-                })
-            }).catch((e) => {
+            session.prepare().catch((e) => {
 
             }) ;
         }
@@ -372,6 +331,9 @@ class Store extends Observable{
             this.dirEntries(item).then((entries) => {
                 const promises = [];
                 entries.forEach(entry => {
+                    if(entry.parent && entry.parent.folderItem){
+                        entry.parentItem = entry.parent.folderItem;
+                    }
                     if(entry.isDirectory){
                         promises.push(promiseFolder(entry));
                     } else {
@@ -401,6 +363,7 @@ class Store extends Observable{
                     } else {
                         let promises = [];
                         entries.forEach(entry => {
+                            entry.parent = item;
                             if(entry.isDirectory){
                                 promises.push(this.dirEntries(entry).then(children => {
                                     entries = entries.concat(children);

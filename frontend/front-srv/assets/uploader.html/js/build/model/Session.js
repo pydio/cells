@@ -15,9 +15,9 @@ var _api = require('pydio/http/api');
 
 var _api2 = _interopRequireDefault(_api);
 
-var _observable = require('pydio/lang/observable');
+var _FolderItem2 = require('./FolderItem');
 
-var _observable2 = _interopRequireDefault(_observable);
+var _FolderItem3 = _interopRequireDefault(_FolderItem2);
 
 var _Configs = require('./Configs');
 
@@ -35,47 +35,61 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Session = function (_Observable) {
-    _inherits(Session, _Observable);
+var Session = function (_FolderItem) {
+    _inherits(Session, _FolderItem);
 
     function Session() {
         _classCallCheck(this, Session);
 
-        var _this = _possibleConstructorReturn(this, (Session.__proto__ || Object.getPrototypeOf(Session)).call(this));
+        var _this = _possibleConstructorReturn(this, (Session.__proto__ || Object.getPrototypeOf(Session)).call(this, 'folder'));
 
-        _this.folders = {};
-        _this.files = {};
-        _this.pending = true;
+        _this._status = 'analyse';
+        delete _this.children.pg[_this.getId()];
         return _this;
     }
 
     _createClass(Session, [{
-        key: 'sessionStatus',
-        value: function sessionStatus() {
-            return Object.keys(this.folders).length + ' folders - ' + Object.keys(this.files).length + ' files';
+        key: 'getFullPath',
+        value: function getFullPath() {
+            return '/';
         }
     }, {
-        key: 'pushFile',
-        value: function pushFile(uploadItem) {
-            this.files[uploadItem.getFullPath()] = uploadItem;
-            this.notify('update');
+        key: 'treeViewFromMaterialPath',
+        value: function treeViewFromMaterialPath(merged) {
+            var tree = [];
+            Object.keys(merged).forEach(function (path) {
+
+                var pathParts = path.split('/');
+                pathParts.shift();
+                var currentLevel = tree;
+                pathParts.forEach(function (part) {
+                    var existingPath = currentLevel.find(function (data) {
+                        return data.name === part;
+                    });
+                    if (existingPath) {
+                        currentLevel = existingPath.children;
+                    } else {
+                        var newPart = {
+                            name: part,
+                            item: merged[path],
+                            children: []
+                        };
+                        currentLevel.push(newPart);
+                        currentLevel = newPart.children;
+                    }
+                });
+            });
+            return tree;
         }
     }, {
-        key: 'pushFolder',
-        value: function pushFolder(folderItem) {
-            this.folders[folderItem.getFullPath()] = folderItem;
-            this.notify('update');
-        }
-    }, {
-        key: 'computeStatuses',
-        value: function computeStatuses() {
+        key: 'prepare',
+        value: function prepare() {
             var _this2 = this;
 
             var overwriteStatus = _Configs2.default.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
 
             if (overwriteStatus !== 'rename' && overwriteStatus !== 'alert') {
-                this.pending = false;
-                this.notify('update');
+                this.setStatus('ready');
                 return Promise.resolve();
             }
 
@@ -83,21 +97,27 @@ var Session = function (_Observable) {
             var request = new _restApi.RestGetBulkMetaRequest();
             request.NodePaths = [];
 
-            request.NodePaths = request.NodePaths.concat(Object.keys(this.files));
+            this.walk(function (item) {
+                request.NodePaths.push(item.getFullPath());
+            }, function () {
+                return true;
+            }, 'file');
+
             return new Promise(function (resolve, reject) {
                 var proms = [];
                 api.bulkStatNodes(request).then(function (response) {
                     if (response.Nodes && response.Nodes.length) {
                         if (overwriteStatus === 'alert') {
                             if (global.confirm(_pydio2.default.getInstance().MessageHash[124])) {
-                                _this2.pending = false;
-                                _this2.notify("update");
+                                _this2.setStatus('ready');
                                 resolve();
                                 return;
                             }
                         }
-                        response.Nodes.map(function (node) {
-                            if (_this2.files[node.Path]) {
+                        _this2.walk(function (item) {
+                            if (response.Nodes.map(function (n) {
+                                return n.Path;
+                            }).indexOf(item.getFullPath()) !== -1) {
                                 proms.push(new Promise(function () {
                                     var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(resolve1) {
                                         var newPath, parts, newRelativePath;
@@ -106,7 +126,7 @@ var Session = function (_Observable) {
                                                 switch (_context.prev = _context.next) {
                                                     case 0:
                                                         _context.next = 2;
-                                                        return _this2.newPath(node.Path);
+                                                        return _this2.newPath(item.getFullPath());
 
                                                     case 2:
                                                         newPath = _context.sent;
@@ -116,7 +136,7 @@ var Session = function (_Observable) {
                                                         newRelativePath = parts.join('/');
 
                                                         console.log('Update relative path with index', newRelativePath);
-                                                        _this2.files[node.Path].setRelativePath(newRelativePath);
+                                                        item.setRelativePath(newRelativePath);
                                                         resolve1();
 
                                                     case 9:
@@ -132,12 +152,13 @@ var Session = function (_Observable) {
                                     };
                                 }()));
                             }
-                        });
+                        }, function () {
+                            return true;
+                        }, 'file');
                     }
                     Promise.all(proms).then(function () {
+                        _this2.setStatus('ready');
                         resolve(proms);
-                        _this2.pending = false;
-                        _this2.notify('update');
                     });
                 });
             });
@@ -222,6 +243,6 @@ var Session = function (_Observable) {
     }]);
 
     return Session;
-}(_observable2.default);
+}(_FolderItem3.default);
 
 exports.default = Session;

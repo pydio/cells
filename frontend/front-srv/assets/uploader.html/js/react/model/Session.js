@@ -19,48 +19,58 @@
  */
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
-import Observable from 'pydio/lang/observable'
+import FolderItem from './FolderItem'
 import Configs from './Configs'
 import {TreeServiceApi, RestGetBulkMetaRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
 
-class Session extends Observable {
+class Session extends FolderItem {
 
     constructor() {
-        super();
-        this.folders = {};
-        this.files = {};
-        this.pending = true;
+        super('folder');
+        this._status = 'analyse';
+        delete this.children.pg[this.getId()];
     }
 
-    sessionStatus(){
-        return Object.keys(this.folders).length + ' folders - ' + Object.keys(this.files).length + ' files';
+    getFullPath(){
+        return '/';
     }
 
-    /**
-     * @param uploadItem {UploadItem}
-     */
-    pushFile(uploadItem){
-        this.files[uploadItem.getFullPath()] = uploadItem;
-        this.notify('update');
+    treeViewFromMaterialPath(merged){
+        const tree = [];
+        Object.keys(merged).forEach((path)  => {
+
+            const pathParts = path.split('/');
+            pathParts.shift(); // Remove first blank element from the parts array.
+            let currentLevel = tree; // initialize currentLevel to root
+            pathParts.forEach((part) => {
+                // check to see if the path already exists.
+                const existingPath = currentLevel.find((data)=>{return data.name === part});
+                if (existingPath) {
+                    // The path to this item was already in the tree, so don't add it again.
+                    // Set the current level to this path's children
+                    currentLevel = existingPath.children;
+                } else {
+                    const newPart = {
+                        name: part,
+                        item: merged[path],
+                        children: [],
+                    };
+                    currentLevel.push(newPart);
+                    currentLevel = newPart.children;
+                }
+            });
+        });
+        return tree
     }
 
-    /**
-     * @param folderItem {FolderItem}
-     */
-    pushFolder(folderItem){
-        this.folders[folderItem.getFullPath()] = folderItem;
-        this.notify('update');
-    }
-
-    computeStatuses(){
+    prepare(){
 
         // Checking file already exists or not
         let overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
 
         // No need to check stats - we'll just override existing files
         if (overwriteStatus !== 'rename' && overwriteStatus !== 'alert') {
-            this.pending = false;
-            this.notify('update');
+            this.setStatus('ready');
             return Promise.resolve()
         }
 
@@ -69,7 +79,13 @@ class Session extends Observable {
         request.NodePaths = [];
         //Do not handle folders
         //request.NodePaths = request.NodePaths.concat(Object.keys(this.folders));
-        request.NodePaths = request.NodePaths.concat(Object.keys(this.files));
+        // Root files
+        // request.NodePaths = request.NodePaths.concat(Object.keys(this.files));
+        // Recurse children files
+        this.walk((item)=>{
+            request.NodePaths.push(item.getFullPath());
+        }, ()=>true, 'file');
+
         return new Promise((resolve, reject) => {
             const proms = [];
             api.bulkStatNodes(request).then(response => {
@@ -77,37 +93,30 @@ class Session extends Observable {
                     if(overwriteStatus === 'alert'){
                         // Ask for overwrite - if ok, just resolve without renaming
                         if (global.confirm(Pydio.getInstance().MessageHash[124])) {
-                            this.pending = false;
-                            this.notify("update");
+                            this.setStatus('ready');
                             resolve();
                             return;
                         }
                     }
-                    response.Nodes.map(node => {
-                        /*
-                        // Do not handle folders
-                        if(this.folders[node.Path]){
-                            this.folders[node.Path].setExists();
-                        }
-                        */
-                        if(this.files[node.Path]){
+                    this.walk((item)=>{
+                        if (response.Nodes.map(n=>n.Path).indexOf(item.getFullPath()) !== -1){
                             proms.push(new Promise(async resolve1 => {
-                                let newPath = await this.newPath(node.Path);
+                                let newPath = await this.newPath(item.getFullPath());
                                 // Remove workspace slug
                                 const parts = newPath.split('/');
                                 parts.shift();
                                 const newRelativePath = parts.join('/');
                                 console.log('Update relative path with index', newRelativePath);
-                                this.files[node.Path].setRelativePath(newRelativePath);
+                                item.setRelativePath(newRelativePath);
                                 resolve1();
                             }));
                         }
-                    });
+                    }, ()=>true, 'file');
+
                 }
                 Promise.all(proms).then(() => {
+                    this.setStatus('ready');
                     resolve(proms);
-                    this.pending = false;
-                    this.notify('update');
                 });
             });
 

@@ -61,149 +61,90 @@ var Store = function (_Observable) {
 
         var _this = _possibleConstructorReturn(this, (Store.__proto__ || Object.getPrototypeOf(Store)).call(this));
 
-        _this._folders = [];
-        _this._uploads = [];
         _this._processing = [];
         _this._processed = [];
         _this._errors = [];
         _this._sessions = [];
         _this._blacklist = [".ds_store", ".pydio"];
-        _this._pause = true;
+
+        _this._running = false;
+        _this._pauseRequired = false;
         return _this;
     }
 
     _createClass(Store, [{
-        key: 'recomputeGlobalProgress',
-        value: function recomputeGlobalProgress() {
-            var totalCount = 0;
-            var totalProgress = 0;
-            this._uploads.concat(this._processing).concat(this._processed).forEach(function (item) {
-                if (!item.getProgress) {
-                    return;
-                }
-                totalCount += item.getSize();
-                totalProgress += item.getProgress() * item.getSize() / 100;
-            });
-            var progress = void 0;
-            if (totalCount) {
-                progress = totalProgress / totalCount;
-            } else {
-                progress = 0;
-            }
-            return progress;
-        }
-    }, {
         key: 'getAutoStart',
         value: function getAutoStart() {
             return _Configs2.default.getInstance().getAutoStart();
         }
     }, {
-        key: 'pushFolder',
-        value: function pushFolder(folderItem) {
-            if (!this.getQueueSize()) {
-                this._processed = [];
-                this._pause = true;
-            }
-            this._folders.push(folderItem);
-            _Task2.default.getInstance().setPending(this.getQueueSize());
-            if (_Configs2.default.getInstance().getAutoStart() && !this._processing.length) {
-                this.processNext();
-            }
-            this.notify('update');
-            this.notify('item_added', folderItem);
-        }
-    }, {
-        key: 'pushFile',
-        value: function pushFile(uploadItem) {
-            var _this2 = this;
-
-            if (!this.getQueueSize()) {
-                this._processed = [];
-                this._pause = true;
-            }
-
-            var name = uploadItem.getFile().name.toLowerCase();
-            var isBlacklisted = name.length >= 1 && name[0] === ".";
-            if (isBlacklisted) {
-                return;
-            }
-
-            this._uploads.push(uploadItem);
-            _Task2.default.getInstance().setPending(this.getQueueSize());
-            uploadItem.observe("progress", function () {
-                var pg = _this2.recomputeGlobalProgress();
-                _Task2.default.getInstance().setProgress(pg);
-            });
-            if (_Configs2.default.getInstance().getAutoStart() && !this._processing.length) {
-                this.processNext();
-            }
-            this.notify('update');
-            this.notify('item_added', uploadItem);
-        }
-    }, {
         key: 'pushSession',
         value: function pushSession(session) {
-            var _this3 = this;
+            var _this2 = this;
 
-            _Task2.default.getInstance().setSessionPending(session);
             this._sessions.push(session);
-            this.notify('update');
+            session.Task = _Task2.default.create(session);
             session.observe('update', function () {
-                if (!session.pending) {
-                    _this3._sessions = _this3._sessions.filter(function (s) {
-                        return s !== session;
-                    });
+                _this2.notify('update');
+            });
+            session.observe('children', function () {
+                _this2.notify('update');
+            });
+            this.notify('update');
+            session.observe('status', function (s) {
+                if (s === 'ready') {
+                    var autoStart = _Configs2.default.getInstance().getAutoStart();
+                    if (autoStart && !_this2._processing.length && !_this2._pauseRequired) {
+                        _this2.processNext();
+                    } else if (!autoStart) {
+                        _pydio2.default.getInstance().getController().fireAction("upload");
+                    }
                 }
-                _this3.notify('update');
             });
         }
     }, {
         key: 'log',
         value: function log() {}
     }, {
-        key: 'getQueueSize',
-        value: function getQueueSize() {
-            return this._folders.length + this._uploads.length + this._processing.length;
+        key: 'hasQueue',
+        value: function hasQueue() {
+            return this.getNexts(1).length;
         }
     }, {
         key: 'clearAll',
         value: function clearAll() {
-            this._folders = [];
-            this._uploads = [];
+            this._sessions = [];
+
             this._processing = [];
             this._processed = [];
             this._errors = [];
-            this._sessions = [];
-            this._pause = false;
             this.notify('update');
-            _Task2.default.getInstance().setIdle();
         }
     }, {
         key: 'processNext',
         value: function processNext() {
-            var _this4 = this;
+            var _this3 = this;
 
             var processables = this.getNexts();
-            if (processables.length) {
+            if (processables.length && !this._pauseRequired) {
+                this._running = true;
                 processables.map(function (processable) {
-                    _this4._processing.push(processable);
-                    _Task2.default.getInstance().setRunning(_this4.getQueueSize());
+                    _this3._processing.push(processable);
+
                     processable.process(function () {
-                        _this4._processing = _lang2.default.arrayWithout(_this4._processing, _this4._processing.indexOf(processable));
+                        _this3._processing = _lang2.default.arrayWithout(_this3._processing, _this3._processing.indexOf(processable));
                         if (processable.getStatus() === 'error') {
-                            _this4._errors.push(processable);
+                            _this3._errors.push(processable);
                         } else {
-                            _this4._processed.push(processable);
+                            _this3._processed.push(processable);
                         }
-                        if (!_this4._pause) {
-                            _this4.processNext();
-                        }
-                        _this4.notify("update");
+                        _this3.processNext();
+                        _this3.notify("update");
                     });
                 });
             } else {
-                this._pause = false;
-                _Task2.default.getInstance().setIdle();
+                this._running = false;
+                this._pauseRequired = false;
 
                 if (this.hasErrors()) {
                     if (!pydio.getController().react_selector) {
@@ -219,19 +160,35 @@ var Store = function (_Observable) {
         value: function getNexts() {
             var max = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 3;
 
-            if (this._pause) {
-                return [];
-            }
-            if (this._folders.length) {
-                return [this._folders.shift()];
+            var folders = [];
+            this._sessions.forEach(function (session) {
+                session.walk(function (item) {
+                    folders.push(item);
+                }, function (item) {
+                    return item.getStatus() === 'new';
+                }, 'folder', function () {
+                    return folders.length >= 1;
+                });
+            });
+            if (folders.length) {
+                return [folders.shift()];
             }
             var items = [];
             var processing = this._processing.length;
-            for (var i = 0; i < max - processing; i++) {
-                if (this._uploads.length) {
-                    items.push(this._uploads.shift());
+            this._sessions.forEach(function (session) {
+                var sessItems = 0;
+                session.walk(function (item) {
+                    items.push(item);
+                    sessItems++;
+                }, function (item) {
+                    return item.getStatus() === 'new';
+                }, 'file', function () {
+                    return items.length >= max - processing;
+                });
+                if (sessItems === 0) {
+                    session.Task.setIdle();
                 }
-            }
+            });
             return items;
         }
     }, {
@@ -250,11 +207,11 @@ var Store = function (_Observable) {
         key: 'getItems',
         value: function getItems() {
             return {
+                sessions: this._sessions,
+
                 processing: this._processing,
-                pending: this._folders.concat(this._uploads),
                 processed: this._processed,
-                errors: this._errors,
-                sessions: this._sessions
+                errors: this._errors
             };
         }
     }, {
@@ -263,27 +220,26 @@ var Store = function (_Observable) {
             return this._errors.length ? this._errors : false;
         }
     }, {
-        key: 'isPaused',
-        value: function isPaused() {
-            return this._pause && this.getQueueSize() > 0;
+        key: 'isRunning',
+        value: function isRunning() {
+            return this._running;
         }
     }, {
         key: 'pause',
         value: function pause() {
-            this._pause = true;
+            this._pauseRequired = true;
             this.notify('update');
         }
     }, {
         key: 'resume',
         value: function resume() {
-            this._pause = false;
+            this._pauseRequired = false;
             this.notify('update');
             this.processNext();
         }
     }, {
         key: 'handleFolderPickerResult',
         value: function handleFolderPickerResult(files, targetNode) {
-            var _this5 = this;
 
             var session = new _Session2.default();
             this.pushSession(session);
@@ -301,19 +257,12 @@ var Store = function (_Observable) {
                 }
                 session.pushFile(new _UploadItem2.default(files[i], targetNode, relPath));
             }
-            session.computeStatuses().then(function () {
-                Object.keys(session.folders).forEach(function (k) {
-                    _this5.pushFolder(session.folders[k]);
-                });
-                Object.keys(session.files).forEach(function (k) {
-                    _this5.pushFile(session.files[k]);
-                });
-            }).catch(function (e) {});
+            session.prepare().catch(function (e) {});
         }
     }, {
         key: 'handleDropEventResults',
         value: function handleDropEventResults(items, files, targetNode) {
-            var _this6 = this;
+            var _this4 = this;
 
             var accumulator = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
             var filterFunction = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
@@ -321,6 +270,12 @@ var Store = function (_Observable) {
 
             var session = new _Session2.default();
             this.pushSession(session);
+            var filter = function filter(refPath) {
+                if (filterFunction && !filterFunction(refPath)) {
+                    return false;
+                }
+                return _this4._blacklist.indexOf(_path2.default.getBasename(refPath).toLowerCase()) === -1;
+            };
 
             var enqueue = function enqueue(item) {
                 var isFolder = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
@@ -360,32 +315,37 @@ var Store = function (_Observable) {
 
                             promises.push(new Promise(function (resolve, reject) {
                                 entry.file(function (File) {
-                                    if (File.size > 0) {
-                                        enqueue(new _UploadItem2.default(File, targetNode));
+                                    var u = void 0;
+                                    if (File.size > 0 && filter(File.name)) {
+                                        u = new _UploadItem2.default(File, targetNode, null, session);
                                     }
-                                    resolve();
+                                    resolve(u);
                                 }, function () {
                                     reject();error();
                                 });
                             }));
                         } else if (entry.isDirectory) {
 
-                            enqueue(new _FolderItem2.default(entry.fullPath, targetNode), true);
+                            entry.folderItem = new _FolderItem2.default(entry.fullPath, targetNode, session);
 
-                            promises.push(_this6.recurseDirectory(entry, function (fileEntry) {
+                            promises.push(_this4.recurseDirectory(entry, function (fileEntry) {
                                 var relativePath = fileEntry.fullPath;
                                 return new Promise(function (resolve, reject) {
                                     fileEntry.file(function (File) {
-                                        if (File.size > 0) {
-                                            enqueue(new _UploadItem2.default(File, targetNode, relativePath));
+                                        var uItem = void 0;
+                                        if (File.size > 0 && filter(File.name)) {
+                                            uItem = new _UploadItem2.default(File, targetNode, relativePath, fileEntry.parentItem);
                                         }
-                                        resolve();
+                                        resolve(uItem);
                                     }, function (e) {
                                         reject(e);error();
                                     });
                                 });
                             }, function (folderEntry) {
-                                return Promise.resolve(enqueue(new _FolderItem2.default(folderEntry.fullPath, targetNode), true));
+                                if (filter(folderEntry.fullPath)) {
+                                    folderEntry.folderItem = new _FolderItem2.default(folderEntry.fullPath, targetNode, folderEntry.parentItem);
+                                }
+                                return Promise.resolve(folderEntry.folderItem);
                             }, error));
                         }
                     };
@@ -397,14 +357,7 @@ var Store = function (_Observable) {
                     }
 
                     Promise.all(promises).then(function () {
-                        return session.computeStatuses();
-                    }).then(function () {
-                        Object.keys(session.folders).forEach(function (k) {
-                            _this6.pushFolder(session.folders[k]);
-                        });
-                        Object.keys(session.files).forEach(function (k) {
-                            _this6.pushFile(session.files[k]);
-                        });
+                        return session.prepare();
                     }).catch(function (e) {});
                 })();
             } else {
@@ -413,27 +366,26 @@ var Store = function (_Observable) {
                         alert(_pydio2.default.getInstance().MessageHash['html_uploader.8']);
                         return;
                     }
-                    enqueue(new _UploadItem2.default(files[j], targetNode));
+                    if (!filter(files[j].name)) {
+                        return;
+                    }
+                    new _UploadItem2.default(files[j], targetNode, null, session);
                 }
-                session.computeStatuses().then(function () {
-                    Object.keys(session.folders).forEach(function (k) {
-                        _this6.pushFolder(session.folders[k]);
-                    });
-                    Object.keys(session.files).forEach(function (k) {
-                        _this6.pushFile(session.files[k]);
-                    });
-                }).catch(function (e) {});
+                session.prepare().catch(function (e) {});
             }
         }
     }, {
         key: 'recurseDirectory',
         value: function recurseDirectory(item, promiseFile, promiseFolder, errorHandler) {
-            var _this7 = this;
+            var _this5 = this;
 
             return new Promise(function (resolve) {
-                _this7.dirEntries(item).then(function (entries) {
+                _this5.dirEntries(item).then(function (entries) {
                     var promises = [];
                     entries.forEach(function (entry) {
+                        if (entry.parent && entry.parent.folderItem) {
+                            entry.parentItem = entry.parent.folderItem;
+                        }
                         if (entry.isDirectory) {
                             promises.push(promiseFolder(entry));
                         } else {
@@ -449,7 +401,7 @@ var Store = function (_Observable) {
     }, {
         key: 'dirEntries',
         value: function dirEntries(item) {
-            var _this8 = this;
+            var _this6 = this;
 
             var reader = item.createReader();
             var entries = [];
@@ -465,8 +417,9 @@ var Store = function (_Observable) {
                         } else {
                             var promises = [];
                             entries.forEach(function (entry) {
+                                entry.parent = item;
                                 if (entry.isDirectory) {
-                                    promises.push(_this8.dirEntries(entry).then(function (children) {
+                                    promises.push(_this6.dirEntries(entry).then(function (children) {
                                         entries = entries.concat(children);
                                     }));
                                 }

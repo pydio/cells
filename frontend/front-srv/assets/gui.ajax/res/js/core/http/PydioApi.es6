@@ -214,8 +214,8 @@ class PydioApi{
                 const managed = new AWS.S3.ManagedUpload({
                     params: {...params, Body: file},
                     partSize: 5 * 1024 * 1024,
-                    queueSize: 4,
-                    leavePartsOnError:true,
+                    queueSize: 3,
+                    leavePartsOnError:false,
                 });
                 managed.on('httpUploadProgress', onProgress);
                 managed.send((e,d) => {

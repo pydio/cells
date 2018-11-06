@@ -24,14 +24,18 @@ const {JobsStore} = Pydio.requireLib("boot");
 
 class Task {
 
-    constructor(){
+    /**
+     * @param session {Session}
+     */
+    constructor(session){
         pydio = Pydio.getInstance();
         this.job = new JobsJob();
-        this.job.ID = 'local-upload-task';
+        this.job.ID = 'local-upload-task-' + session.getId();
         this.job.Owner = pydio.user.id;
         this.job.Label = pydio.MessageHash['html_uploader.7'];
         this.job.Stoppable = true;
-        this.task = new JobsTask();
+        const task = new JobsTask();
+        this.task = task;
         this.job.Tasks = [this.task];
         this.task.HasProgress = true;
         this.task.ID = "upload";
@@ -39,29 +43,33 @@ class Task {
         this.job.openDetailPane = () => {
             pydio.Controller.fireAction("upload");
         };
+
+        task._statusObserver = (s)=>{
+            if(s === 'analyze'){
+                task.StatusMessage = 'Analyzing files and folders (' + session.getChildren().length + ')';
+                task.Status = JobsTaskStatus.constructFromObject('Running');
+            } else if(s === 'ready') {
+                task.StatusMessage = 'Ready to upload';
+                task.Status = JobsTaskStatus.constructFromObject('Idle');
+            }
+            this.notifyMainStore();
+        };
+        task._progressObserver = (p)=>{
+            task.Progress = p / 100;
+            task.Status = JobsTaskStatus.constructFromObject('Running');
+            task.StatusMessage = 'Uploading ' + Math.ceil(p) + '%';
+            this.notifyMainStore();
+        };
+        session.observe('status', task._statusObserver);
+        session.observe('progress', task._progressObserver);
+
+        task._statusObserver(session.getStatus());
+        task._progressObserver(session.getProgress());
+
         JobsStore.getInstance().enqueueLocalJob(this.job);
     }
 
-    setProgress(progress){
-        this.task.Progress = progress;
-        this.task.Status = JobsTaskStatus.constructFromObject('Running');
-        this.notifyMainStore();
-    }
-    setSessionPending(session){
-        this.task.StatusMessage = 'Analyzing files and folders (' + session.sessionStatus() + ')';
-        this.task.Status = JobsTaskStatus.constructFromObject('Running');
-        this.notifyMainStore();
-    }
-    setPending(queueSize){
-        this.task.StatusMessage = Pydio.getInstance().MessageHash['html_uploader.1'].replace('%s', queueSize);
-        this.task.Status = JobsTaskStatus.constructFromObject('Idle');
-        this.notifyMainStore();
-    }
-    setRunning(queueSize){
-        this.task.Status = JobsTaskStatus.constructFromObject('Running');
-        this.task.StatusMessage = Pydio.getInstance().MessageHash['html_uploader.2'].replace('%s', queueSize);
-        this.notifyMainStore();
-    }
+
     setIdle(){
         this.task.Status = JobsTaskStatus.constructFromObject('Idle');
         this.task.StatusMessage = '';
@@ -69,16 +77,13 @@ class Task {
     }
 
     notifyMainStore(){
-        this.task.startTime = (new Date).getTime() / 1000;
+        this.task.StartTime = (new Date).getTime() / 1000;
         this.job.Tasks = [this.task];
         JobsStore.getInstance().enqueueLocalJob(this.job);
     }
 
-    static getInstance(){
-        if(!Task.__INSTANCE) {
-            Task.__INSTANCE = new Task();
-        }
-        return Task.__INSTANCE;
+    static create(session){
+        return new Task(session);
     }
 
 }

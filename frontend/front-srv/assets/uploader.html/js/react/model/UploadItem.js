@@ -29,13 +29,14 @@ import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'py
 
 class UploadItem extends StatusItem {
 
-    constructor(file, targetNode, relativePath = null){
-        super('file');
+    constructor(file, targetNode, relativePath = null, parent = null){
+        super('file', targetNode, parent);
         this._file = file;
         this._status = 'new';
-        this._progress = 0;
-        this._targetNode = targetNode;
         this._relativePath = relativePath;
+        if(parent){
+            parent.addChild(this);
+        }
     }
     getFile(){
         return this._file;
@@ -45,9 +46,6 @@ class UploadItem extends StatusItem {
     }
     getLabel(){
         return this._relativePath ? this._relativePath : this._file.name;
-    }
-    getProgress(){
-        return this._progress;
     }
     setProgress(newValue, bytes = null){
         this._progress = newValue;
@@ -68,6 +66,8 @@ class UploadItem extends StatusItem {
         }
     }
     _doProcess(completeCallback){
+        this._userAborted = false;
+
         const complete = ()=>{
             this.setStatus('loaded');
             this._parseXHRResponse();
@@ -94,6 +94,11 @@ class UploadItem extends StatusItem {
         const MAX_RETRIES = 10;
         const retry = (count)=>{
             return (e)=>{
+                if(this._userAborted){
+                    if(e) error(e);
+                    else error(new Error('Interrupted by user'));
+                    return;
+                }
                 if (count >= MAX_RETRIES) {
                     error(e)
                 } else {
@@ -118,6 +123,8 @@ class UploadItem extends StatusItem {
     _doAbort(completeCallback){
         if(this.xhr){
             try{
+                console.log('Should abort', this.getFullPath());
+                this._userAborted = true;
                 this.xhr.abort();
             }catch(e){}
         }

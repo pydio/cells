@@ -41,13 +41,18 @@ var FolderItem = function (_StatusItem) {
     _inherits(FolderItem, _StatusItem);
 
     function FolderItem(path, targetNode) {
+        var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
         _classCallCheck(this, FolderItem);
 
-        var _this = _possibleConstructorReturn(this, (FolderItem.__proto__ || Object.getPrototypeOf(FolderItem)).call(this, 'folder'));
+        var _this = _possibleConstructorReturn(this, (FolderItem.__proto__ || Object.getPrototypeOf(FolderItem)).call(this, 'folder', targetNode, parent));
 
         _this._new = true;
         _this._path = path;
-        _this._targetNode = targetNode;
+        _this.children.pg[_this.getId()] = 0;
+        if (parent) {
+            parent.addChild(_this);
+        }
         return _this;
     }
 
@@ -107,6 +112,8 @@ var FolderItem = function (_StatusItem) {
 
             api.createNodes(request).then(function (collection) {
                 _this2.setStatus('loaded');
+                _this2.children.pg[_this2.getId()] = 100;
+                _this2.recomputeProgress();
                 completeCallback();
             });
         }
