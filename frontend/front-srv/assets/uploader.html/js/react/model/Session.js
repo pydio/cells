@@ -19,20 +19,32 @@
  */
 import Pydio from 'pydio'
 import PydioApi from 'pydio/http/api'
+import PathUtils from 'pydio/util/path'
 import FolderItem from './FolderItem'
-import Configs from './Configs'
 import {TreeServiceApi, RestGetBulkMetaRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
 
 class Session extends FolderItem {
 
-    constructor() {
-        super('folder');
+    constructor(repositoryId, targetNode) {
+        super('/', targetNode);
+        this._repositoryId = repositoryId;
         this._status = 'analyse';
         delete this.children.pg[this.getId()];
     }
 
     getFullPath(){
-        return '/';
+        const repoList = Pydio.getInstance().user.getRepositoriesList();
+        if(!repoList.has(this._repositoryId)){
+            throw new Error("Repository disconnected?");
+        }
+        const slug = repoList.get(this._repositoryId).getSlug();
+        let fullPath = this._targetNode.getPath();
+        fullPath = LangUtils.trimRight(fullPath, '/');
+        if (fullPath.normalize) {
+            fullPath = fullPath.normalize('NFC');
+        }
+        fullPath = slug + fullPath;
+        return fullPath;
     }
 
     treeViewFromMaterialPath(merged){
@@ -64,13 +76,10 @@ class Session extends FolderItem {
         return tree
     }
 
-    prepare(){
-
-        // Checking file already exists or not
-        let overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
+    prepare(overwriteStatus){
 
         // No need to check stats - we'll just override existing files
-        if (overwriteStatus !== 'rename' && overwriteStatus !== 'alert') {
+        if (overwriteStatus === 'overwrite') {
             this.setStatus('ready');
             return Promise.resolve()
         }
@@ -78,47 +87,83 @@ class Session extends FolderItem {
         const api = new TreeServiceApi(PydioApi.getRestClient());
         const request = new RestGetBulkMetaRequest();
         request.NodePaths = [];
-        //Do not handle folders
-        //request.NodePaths = request.NodePaths.concat(Object.keys(this.folders));
-        // Root files
-        // request.NodePaths = request.NodePaths.concat(Object.keys(this.files));
-        // Recurse children files
+        let walkType = 'both';
+        if(overwriteStatus === 'rename'){
+            walkType = 'file';
+        }
+        // Recurse children
         this.walk((item)=>{
             request.NodePaths.push(item.getFullPath());
-        }, ()=>true, 'file');
+        }, ()=>true, walkType);
 
         return new Promise((resolve, reject) => {
             const proms = [];
             api.bulkStatNodes(request).then(response => {
-                if(response.Nodes && response.Nodes.length){
-                    if(overwriteStatus === 'alert'){
-                        // Ask for overwrite - if ok, just resolve without renaming
-                        if (global.confirm(Pydio.getInstance().MessageHash[124])) {
-                            this.setStatus('ready');
-                            resolve();
-                            return;
-                        }
+                if(!response.Nodes || !response.Nodes.length){
+                    this.setStatus('ready');
+                    resolve(proms);
+                    return;
+                }
+
+                if(overwriteStatus === 'alert'){
+                    // Will ask for overwrite - if ok, just resolve without renaming
+                    this.setStatus('confirm');
+                    resolve();
+                    return;
+                    /*
+                    if (confirm(Pydio.getInstance().MessageHash[124])) {
+                        this.setStatus('ready');
+                        resolve();
+                        return;
                     }
+                    */
+                }
+                const itemStated = (item) => response.Nodes.map(n=>n.Path).indexOf(item.getFullPath()) !== -1;
+
+                // rename files if necessary
+                const renameFiles = () => {
                     this.walk((item)=>{
-                        if (response.Nodes.map(n=>n.Path).indexOf(item.getFullPath()) !== -1){
+                        if (itemStated(item)){
                             proms.push(new Promise(async resolve1 => {
-                                let newPath = await this.newPath(item.getFullPath());
-                                // Remove workspace slug
-                                const parts = newPath.split('/');
-                                parts.shift();
-                                const newRelativePath = parts.join('/');
-                                console.log('Update relative path with index', newRelativePath);
-                                item.setRelativePath(newRelativePath);
+                                const newPath = await this.newPath(item.getFullPath());
+                                const newLabel = PathUtils.getBasename(newPath);
+                                item.updateLabel(newLabel);
                                 resolve1();
                             }));
                         }
                     }, ()=>true, 'file');
+                    return Promise.all(proms);
+                };
 
+
+                // First rename folders if necessary - Blocking, so that renaming a parent folder
+                // will change the children paths and see them directly as not existing
+                // To do that, we chain promises to resolve them sequentially
+                if(overwriteStatus === 'rename-folders'){
+                    const folderProms = [];
+                    let folderProm = Promise.resolve();
+                    this.walk((item)=>{
+                        folderProm = folderProm.then(async()=>{
+                            if (itemStated(item)){
+                                const newPath = await this.newPath(item.getFullPath());
+                                const newLabel = PathUtils.getBasename(newPath);
+                                item.updateLabel(newLabel);
+                            }
+                        });
+                    }, ()=>true, 'folder');
+                    folderProm.then(()=>{
+                        return renameFiles();
+                    }).then(proms=>{
+                        this.setStatus('ready');
+                        resolve(proms);
+                    });
+                } else {
+                    renameFiles().then(proms=>{
+                        this.setStatus('ready');
+                        resolve(proms);
+                    });
                 }
-                Promise.all(proms).then(() => {
-                    this.setStatus('ready');
-                    resolve(proms);
-                });
+
             });
 
         });

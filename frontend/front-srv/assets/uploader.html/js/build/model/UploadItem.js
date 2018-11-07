@@ -19,10 +19,6 @@ var _path = require('pydio/util/path');
 
 var _path2 = _interopRequireDefault(_path);
 
-var _lang = require('pydio/util/lang');
-
-var _lang2 = _interopRequireDefault(_lang);
-
 var _api = require('pydio/http/api');
 
 var _api2 = _interopRequireDefault(_api);
@@ -54,7 +50,11 @@ var UploadItem = function (_StatusItem) {
 
         _this._file = file;
         _this._status = 'new';
-        _this._relativePath = relativePath;
+        if (relativePath) {
+            _this._label = _path2.default.getBasename(relativePath);
+        } else {
+            _this._label = file.name;
+        }
         if (parent) {
             parent.addChild(_this);
         }
@@ -72,11 +72,6 @@ var UploadItem = function (_StatusItem) {
             return this._file.size;
         }
     }, {
-        key: 'getLabel',
-        value: function getLabel() {
-            return this._relativePath ? this._relativePath : this._file.name;
-        }
-    }, {
         key: 'setProgress',
         value: function setProgress(newValue) {
             var bytes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
@@ -86,16 +81,6 @@ var UploadItem = function (_StatusItem) {
             if (bytes !== null) {
                 this.notify('bytes', bytes);
             }
-        }
-    }, {
-        key: 'getRelativePath',
-        value: function getRelativePath() {
-            return this._relativePath;
-        }
-    }, {
-        key: 'setRelativePath',
-        value: function setRelativePath(newPath) {
-            this._relativePath = newPath;
         }
     }, {
         key: '_parseXHRResponse',
@@ -172,28 +157,6 @@ var UploadItem = function (_StatusItem) {
                 } catch (e) {}
             }
             this.setStatus('error');
-        }
-    }, {
-        key: 'getFullPath',
-        value: function getFullPath() {
-            var repoList = _pydio2.default.getInstance().user.getRepositoriesList();
-            if (!repoList.has(this._repositoryId)) {
-                throw new Error('repository.unknown');
-            }
-            var slug = repoList.get(this._repositoryId).getSlug();
-
-            var fullPath = this._targetNode.getPath();
-            var baseName = _path2.default.getBasename(this._file.name);
-            if (this._relativePath) {
-                fullPath = _lang2.default.trimRight(fullPath, '/') + '/' + _lang2.default.trimLeft(_path2.default.getDirname(this._relativePath), '/');
-                baseName = _path2.default.getBasename(this._relativePath);
-            }
-            fullPath = slug + '/' + _lang2.default.trim(fullPath, '/');
-            fullPath = _lang2.default.trimRight(fullPath, '/') + '/' + baseName;
-            if (fullPath.normalize) {
-                fullPath = fullPath.normalize('NFC');
-            }
-            return fullPath;
         }
     }, {
         key: 'uploadPresigned',

@@ -15,13 +15,13 @@ var _api = require('pydio/http/api');
 
 var _api2 = _interopRequireDefault(_api);
 
+var _path = require('pydio/util/path');
+
+var _path2 = _interopRequireDefault(_path);
+
 var _FolderItem2 = require('./FolderItem');
 
 var _FolderItem3 = _interopRequireDefault(_FolderItem2);
-
-var _Configs = require('./Configs');
-
-var _Configs2 = _interopRequireDefault(_Configs);
 
 var _restApi = require('pydio/http/rest-api');
 
@@ -38,11 +38,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Session = function (_FolderItem) {
     _inherits(Session, _FolderItem);
 
-    function Session() {
+    function Session(repositoryId, targetNode) {
         _classCallCheck(this, Session);
 
-        var _this = _possibleConstructorReturn(this, (Session.__proto__ || Object.getPrototypeOf(Session)).call(this, 'folder'));
+        var _this = _possibleConstructorReturn(this, (Session.__proto__ || Object.getPrototypeOf(Session)).call(this, '/', targetNode));
 
+        _this._repositoryId = repositoryId;
         _this._status = 'analyse';
         delete _this.children.pg[_this.getId()];
         return _this;
@@ -51,7 +52,18 @@ var Session = function (_FolderItem) {
     _createClass(Session, [{
         key: 'getFullPath',
         value: function getFullPath() {
-            return '/';
+            var repoList = _pydio2.default.getInstance().user.getRepositoriesList();
+            if (!repoList.has(this._repositoryId)) {
+                throw new Error("Repository disconnected?");
+            }
+            var slug = repoList.get(this._repositoryId).getSlug();
+            var fullPath = this._targetNode.getPath();
+            fullPath = LangUtils.trimRight(fullPath, '/');
+            if (fullPath.normalize) {
+                fullPath = fullPath.normalize('NFC');
+            }
+            fullPath = slug + fullPath;
+            return fullPath;
         }
     }, {
         key: 'treeViewFromMaterialPath',
@@ -84,12 +96,10 @@ var Session = function (_FolderItem) {
         }
     }, {
         key: 'prepare',
-        value: function prepare() {
+        value: function prepare(overwriteStatus) {
             var _this2 = this;
 
-            var overwriteStatus = _Configs2.default.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
-
-            if (overwriteStatus !== 'rename' && overwriteStatus !== 'alert') {
+            if (overwriteStatus === 'overwrite') {
                 this.setStatus('ready');
                 return Promise.resolve();
             }
@@ -97,31 +107,43 @@ var Session = function (_FolderItem) {
             var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
             var request = new _restApi.RestGetBulkMetaRequest();
             request.NodePaths = [];
+            var walkType = 'both';
+            if (overwriteStatus === 'rename') {
+                walkType = 'file';
+            }
 
             this.walk(function (item) {
                 request.NodePaths.push(item.getFullPath());
             }, function () {
                 return true;
-            }, 'file');
+            }, walkType);
 
             return new Promise(function (resolve, reject) {
                 var proms = [];
                 api.bulkStatNodes(request).then(function (response) {
-                    if (response.Nodes && response.Nodes.length) {
-                        if (overwriteStatus === 'alert') {
-                            if (global.confirm(_pydio2.default.getInstance().MessageHash[124])) {
-                                _this2.setStatus('ready');
-                                resolve();
-                                return;
-                            }
-                        }
+                    if (!response.Nodes || !response.Nodes.length) {
+                        _this2.setStatus('ready');
+                        resolve(proms);
+                        return;
+                    }
+
+                    if (overwriteStatus === 'alert') {
+                        _this2.setStatus('confirm');
+                        resolve();
+                        return;
+                    }
+                    var itemStated = function itemStated(item) {
+                        return response.Nodes.map(function (n) {
+                            return n.Path;
+                        }).indexOf(item.getFullPath()) !== -1;
+                    };
+
+                    var renameFiles = function renameFiles() {
                         _this2.walk(function (item) {
-                            if (response.Nodes.map(function (n) {
-                                return n.Path;
-                            }).indexOf(item.getFullPath()) !== -1) {
+                            if (itemStated(item)) {
                                 proms.push(new Promise(function () {
                                     var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(resolve1) {
-                                        var newPath, parts, newRelativePath;
+                                        var newPath, newLabel;
                                         return regeneratorRuntime.wrap(function _callee$(_context) {
                                             while (1) {
                                                 switch (_context.prev = _context.next) {
@@ -131,16 +153,12 @@ var Session = function (_FolderItem) {
 
                                                     case 2:
                                                         newPath = _context.sent;
-                                                        parts = newPath.split('/');
+                                                        newLabel = _path2.default.getBasename(newPath);
 
-                                                        parts.shift();
-                                                        newRelativePath = parts.join('/');
-
-                                                        console.log('Update relative path with index', newRelativePath);
-                                                        item.setRelativePath(newRelativePath);
+                                                        item.updateLabel(newLabel);
                                                         resolve1();
 
-                                                    case 9:
+                                                    case 6:
                                                     case 'end':
                                                         return _context.stop();
                                                 }
@@ -156,11 +174,55 @@ var Session = function (_FolderItem) {
                         }, function () {
                             return true;
                         }, 'file');
+                        return Promise.all(proms);
+                    };
+
+                    if (overwriteStatus === 'rename-folders') {
+                        var folderProms = [];
+                        var folderProm = Promise.resolve();
+                        _this2.walk(function (item) {
+                            folderProm = folderProm.then(_asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+                                var newPath, newLabel;
+                                return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                                    while (1) {
+                                        switch (_context2.prev = _context2.next) {
+                                            case 0:
+                                                if (!itemStated(item)) {
+                                                    _context2.next = 6;
+                                                    break;
+                                                }
+
+                                                _context2.next = 3;
+                                                return _this2.newPath(item.getFullPath());
+
+                                            case 3:
+                                                newPath = _context2.sent;
+                                                newLabel = _path2.default.getBasename(newPath);
+
+                                                item.updateLabel(newLabel);
+
+                                            case 6:
+                                            case 'end':
+                                                return _context2.stop();
+                                        }
+                                    }
+                                }, _callee2, _this2);
+                            })));
+                        }, function () {
+                            return true;
+                        }, 'folder');
+                        folderProm.then(function () {
+                            return renameFiles();
+                        }).then(function (proms) {
+                            _this2.setStatus('ready');
+                            resolve(proms);
+                        });
+                    } else {
+                        renameFiles().then(function (proms) {
+                            _this2.setStatus('ready');
+                            resolve(proms);
+                        });
                     }
-                    Promise.all(proms).then(function () {
-                        _this2.setStatus('ready');
-                        resolve(proms);
-                    });
                 });
             });
         }
@@ -170,11 +232,11 @@ var Session = function (_FolderItem) {
             var _this3 = this;
 
             return new Promise(function () {
-                var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(resolve) {
+                var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(resolve) {
                     var lastSlash, pos, path, ext, newPath, counter, exists;
-                    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                    return regeneratorRuntime.wrap(function _callee3$(_context3) {
                         while (1) {
-                            switch (_context2.prev = _context2.next) {
+                            switch (_context3.prev = _context3.next) {
                                 case 0:
                                     lastSlash = fullpath.lastIndexOf('/');
                                     pos = fullpath.lastIndexOf('.');
@@ -192,18 +254,18 @@ var Session = function (_FolderItem) {
 
                                 case 8:
                                     if (!exists) {
-                                        _context2.next = 16;
+                                        _context3.next = 16;
                                         break;
                                     }
 
                                     newPath = path + '-' + counter + ext;
                                     counter++;
-                                    _context2.next = 13;
+                                    _context3.next = 13;
                                     return _this3.nodeExists(newPath);
 
                                 case 13:
-                                    exists = _context2.sent;
-                                    _context2.next = 8;
+                                    exists = _context3.sent;
+                                    _context3.next = 8;
                                     break;
 
                                 case 16:
@@ -212,14 +274,14 @@ var Session = function (_FolderItem) {
 
                                 case 17:
                                 case 'end':
-                                    return _context2.stop();
+                                    return _context3.stop();
                             }
                         }
-                    }, _callee2, _this3);
+                    }, _callee3, _this3);
                 }));
 
                 return function (_x2) {
-                    return _ref2.apply(this, arguments);
+                    return _ref3.apply(this, arguments);
                 };
             }());
         }

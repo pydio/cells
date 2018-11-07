@@ -68,10 +68,23 @@ var StatusItem = function (_Observable) {
         }
     }, {
         key: 'getLabel',
-        value: function getLabel() {}
+        value: function getLabel() {
+            if (this._label.normalize) {
+                return this._label.normalize('NFC');
+            } else {
+                return this._label;
+            }
+        }
+    }, {
+        key: 'updateLabel',
+        value: function updateLabel(label) {
+            this._label = label;
+        }
     }, {
         key: 'getFullPath',
-        value: function getFullPath() {}
+        value: function getFullPath() {
+            return this._parent.getFullPath() + '/' + this.getLabel();
+        }
     }, {
         key: 'getProgress',
         value: function getProgress() {

@@ -21,8 +21,11 @@
 export default function (pydio) {
 
     return function(manager, uploaderArguments){
-
-        pydio.UI.openComponentInModal('FSActions', 'UploadDialog');
+        let props = {};
+        if(uploaderArguments && uploaderArguments.length){
+            props = {uploaderProps: uploaderArguments[0]};
+        }
+        pydio.UI.openComponentInModal('FSActions', 'UploadDialog', props);
 
     }
 

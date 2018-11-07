@@ -19,9 +19,7 @@
  */
 
 import StatusItem from './StatusItem'
-import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
-import LangUtils from 'pydio/util/lang'
 import PydioApi from 'pydio/http/api'
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
 
@@ -30,7 +28,7 @@ class FolderItem extends StatusItem{
     constructor(path, targetNode, parent = null){
         super('folder', targetNode, parent);
         this._new = true;
-        this._path = path;
+        this._label = PathUtils.getBasename(path);
         this.children.pg[this.getId()] = 0;
         if(parent){
             parent.addChild(this);
@@ -39,31 +37,6 @@ class FolderItem extends StatusItem{
 
     isNew() {
         return this._new;
-    }
-
-    getPath(){
-        return this._path;
-    }
-
-    getLabel(){
-        return PathUtils.getBasename(this._path);
-    }
-
-    getFullPath(){
-        const pydio = Pydio.getInstance();
-
-        const repoList = pydio.user.getRepositoriesList();
-        if(!repoList.has(this._repositoryId)){
-            throw new Error("Repository disconnected?");
-        }
-        const slug = repoList.get(this._repositoryId).getSlug();
-        let fullPath = this._targetNode.getPath();
-        fullPath = LangUtils.trimRight(fullPath, '/') + '/' + LangUtils.trimLeft(this._path, '/');
-        if (fullPath.normalize) {
-            fullPath = fullPath.normalize('NFC');
-        }
-        fullPath = slug + fullPath;
-        return fullPath;
     }
 
     _doProcess(completeCallback) {

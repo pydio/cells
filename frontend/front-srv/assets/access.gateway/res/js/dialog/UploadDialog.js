@@ -53,7 +53,7 @@ let UploadDialog = React.createClass({
             dialogTitle: '',
             dialogSize: mobile ? 'md' : 'lg',
             dialogPadding: false,
-            dialogIsModal: true
+            dialogIsModal: false
         };
     },
 
@@ -88,6 +88,7 @@ let UploadDialog = React.createClass({
                     namespace={parts[0]}
                     componentName={parts[1]}
                     onDismiss={dismiss}
+                    {...this.props.uploaderProps}
                 />
             );
         }

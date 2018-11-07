@@ -213,7 +213,7 @@ class PydioApi{
                 });
                 const managed = new AWS.S3.ManagedUpload({
                     params: {...params, Body: file},
-                    partSize: 5 * 1024 * 1024,
+                    partSize: 50 * 1024 * 1024,
                     queueSize: 3,
                     leavePartsOnError:false,
                 });

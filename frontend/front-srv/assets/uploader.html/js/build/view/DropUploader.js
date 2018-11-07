@@ -23,6 +23,10 @@ var _TransfersList = require('./TransfersList');
 
 var _TransfersList2 = _interopRequireDefault(_TransfersList);
 
+var _ConfirmExists = require('./ConfirmExists');
+
+var _ConfirmExists2 = _interopRequireDefault(_ConfirmExists);
+
 var _materialUi = require('material-ui');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -65,14 +69,19 @@ var DropUploader = function (_React$Component) {
             showOptions: false,
             configs: UploaderModel.Configs.getInstance(),
             items: store.getItems(),
-            storeRunning: store.isRunning()
+            storeRunning: store.isRunning(),
+            confirmDialog: props.confirmDialog
         };
         return _this;
     }
 
     _createClass(DropUploader, [{
         key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(nextProps) {}
+        value: function componentWillReceiveProps(nextProps) {
+            if (nextProps.confirmDialog !== this.state.confirmDialog) {
+                this.setState({ confirmDialog: nextProps.confirmDialog });
+            }
+        }
     }, {
         key: 'componentWillUnmount',
         value: function componentWillUnmount() {
@@ -139,6 +148,34 @@ var DropUploader = function (_React$Component) {
             this.refs.dropzone.openFolderPicker();
         }
     }, {
+        key: 'dialogSubmit',
+        value: function dialogSubmit(newValue, saveValue) {
+            var configs = this.state.configs;
+
+            UploaderModel.Store.getInstance().getItems().sessions.forEach(function (session) {
+                if (session.getStatus() === 'confirm') {
+                    session.prepare(newValue);
+                }
+            });
+            if (saveValue) {
+                configs.updateOption('upload_existing', newValue);
+            }
+            this.setState({ confirmDialog: false });
+            _pydio2.default.getInstance().getController().fireAction('upload');
+        }
+    }, {
+        key: 'dialogCancel',
+        value: function dialogCancel() {
+            var store = UploaderModel.Store.getInstance();
+            store.getItems().sessions.forEach(function (session) {
+                if (session.getStatus() === 'confirm') {
+                    store.removeSession(session);
+                }
+            });
+            this.setState({ confirmDialog: false });
+            _pydio2.default.getInstance().getController().fireAction('upload');
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
@@ -151,7 +188,8 @@ var DropUploader = function (_React$Component) {
                 configs = _state2.configs,
                 showOptions = _state2.showOptions,
                 items = _state2.items,
-                storeRunning = _state2.storeRunning;
+                storeRunning = _state2.storeRunning,
+                confirmDialog = _state2.confirmDialog;
 
             var store = UploaderModel.Store.getInstance();
             var listEmpty = true;
@@ -198,7 +236,7 @@ var DropUploader = function (_React$Component) {
                         ignoreNativeDrop: true,
                         onDrop: this.onDrop.bind(this),
                         onFolderPicked: this.onFolderPicked.bind(this),
-                        style: { width: '100%', height: 360 }
+                        style: { width: '100%', height: 420 }
                     },
                     _react2.default.createElement(_TransfersList2.default, {
                         items: items,
@@ -208,7 +246,8 @@ var DropUploader = function (_React$Component) {
                 ),
                 _react2.default.createElement(_UploadOptionsPane2.default, { configs: configs, open: showOptions, anchorEl: this.state.optionsAnchorEl, onDismiss: function onDismiss(e) {
                         _this2.toggleOptions(e);
-                    } })
+                    } }),
+                confirmDialog && _react2.default.createElement(_ConfirmExists2.default, { onConfirm: this.dialogSubmit.bind(this), onCancel: this.dialogCancel.bind(this) })
             ));
         }
     }]);

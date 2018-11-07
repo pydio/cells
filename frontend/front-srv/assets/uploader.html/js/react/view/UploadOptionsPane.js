@@ -20,7 +20,7 @@
 
 import React from 'react'
 import Pydio from 'pydio'
-import {Popover, List, ListItem, Divider, Checkbox, Toggle, RadioButtonGroup, RadioButton, Subheader} from 'material-ui'
+import {Popover, Divider, Checkbox, Toggle, RadioButtonGroup, RadioButton, Subheader} from 'material-ui'
 
 class UploadOptionsPane extends React.Component {
     
@@ -82,7 +82,7 @@ class UploadOptionsPane extends React.Component {
                     <div style={{padding: 16, fontSize:14, paddingTop: 0}}>
                         <RadioButtonGroup ref="group" name="shipSpeed" defaultSelected={overwriteType} onChange={this.radioChange.bind(this)}>
                             <RadioButton value="alert" label={pydio.MessageHash['html_uploader.19']} style={{paddingBottom: 8}} />
-                            <RadioButton value="rename-folders" label={"Rename files or folders"} style={{paddingBottom: 8}}/>
+                            <RadioButton value="rename-folders" label={"Rename folders then files"} style={{paddingBottom: 8}}/>
                             <RadioButton value="rename" label={"Rename files only (merge folders)"} style={{paddingBottom: 8}}/>
                             <RadioButton value="overwrite" label={pydio.MessageHash['html_uploader.21']}/>
                         </RadioButtonGroup>

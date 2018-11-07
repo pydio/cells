@@ -273,7 +273,7 @@ var PydioApi = (function () {
                 });
                 var managed = new _awsSdk2['default'].S3.ManagedUpload({
                     params: _extends({}, params, { Body: file }),
-                    partSize: 5 * 1024 * 1024,
+                    partSize: 50 * 1024 * 1024,
                     queueSize: 3,
                     leavePartsOnError: false
                 });

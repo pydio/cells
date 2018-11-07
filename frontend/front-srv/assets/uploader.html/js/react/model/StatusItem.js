@@ -22,6 +22,7 @@ import Observable from 'pydio/lang/observable'
 import Pydio from 'pydio'
 
 class StatusItem extends Observable {
+
     /**
      *
      * @param type string
@@ -56,10 +57,17 @@ class StatusItem extends Observable {
         return this._parent;
     }
     getLabel(){
-        // To be implemented by children
+        if(this._label.normalize){
+            return this._label.normalize('NFC')
+        } else {
+            return this._label;
+        }
+    }
+    updateLabel(label){
+        this._label = label;
     }
     getFullPath(){
-        // To be implemented by children
+        return this._parent.getFullPath() + '/' + this.getLabel();
     }
     getProgress(){
         return this._progress;

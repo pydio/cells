@@ -99,8 +99,17 @@ var Store = function (_Observable) {
                     } else if (!autoStart) {
                         _pydio2.default.getInstance().getController().fireAction("upload");
                     }
+                } else if (s === 'confirm') {
+                    _pydio2.default.getInstance().getController().fireAction("upload", { confirmDialog: true });
                 }
             });
+        }
+    }, {
+        key: 'removeSession',
+        value: function removeSession(session) {
+            var i = this._sessions.indexOf(session);
+            this._sessions = _lang2.default.arrayWithout(this._sessions, i);
+            this.notify('update');
         }
     }, {
         key: 'log',
@@ -242,7 +251,8 @@ var Store = function (_Observable) {
         value: function handleFolderPickerResult(files, targetNode) {
             var _this4 = this;
 
-            var session = new _Session2.default();
+            var overwriteStatus = _Configs2.default.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
+            var session = new _Session2.default(_pydio2.default.getInstance().user.activeRepository, targetNode);
             this.pushSession(session);
 
             var mPaths = {};
@@ -274,7 +284,7 @@ var Store = function (_Observable) {
                 });
             };
             recurse(tree, session);
-            session.prepare().catch(function (e) {});
+            session.prepare(overwriteStatus).catch(function (e) {});
         }
     }, {
         key: 'handleDropEventResults',
@@ -285,7 +295,8 @@ var Store = function (_Observable) {
             var filterFunction = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
 
 
-            var session = new _Session2.default();
+            var overwriteStatus = _Configs2.default.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
+            var session = new _Session2.default(_pydio2.default.getInstance().user.activeRepository, targetNode);
             this.pushSession(session);
             var filter = function filter(refPath) {
                 if (filterFunction && !filterFunction(refPath)) {
@@ -374,7 +385,7 @@ var Store = function (_Observable) {
                     }
 
                     Promise.all(promises).then(function () {
-                        return session.prepare();
+                        return session.prepare(overwriteStatus);
                     }).catch(function (e) {});
                 })();
             } else {
@@ -388,7 +399,7 @@ var Store = function (_Observable) {
                     }
                     new _UploadItem2.default(files[j], targetNode, null, session);
                 }
-                session.prepare().catch(function (e) {});
+                session.prepare(overwriteStatus).catch(function (e) {});
             }
         }
     }, {

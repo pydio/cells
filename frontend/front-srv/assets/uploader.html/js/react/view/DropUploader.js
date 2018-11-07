@@ -24,6 +24,7 @@ const {dropProvider} = Pydio.requireLib('hoc');
 const {FileDropZone} = Pydio.requireLib('form');
 import UploadOptionsPane from './UploadOptionsPane'
 import TransfersList from './TransfersList'
+import ConfirmExists from './ConfirmExists'
 import {Paper, Toolbar, RaisedButton, FlatButton, IconButton, FontIcon} from 'material-ui'
 
 class DropUploader extends React.Component {
@@ -48,21 +49,15 @@ class DropUploader extends React.Component {
             showOptions: false,
             configs: UploaderModel.Configs.getInstance(),
             items: store.getItems(),
-            storeRunning: store.isRunning()
+            storeRunning: store.isRunning(),
+            confirmDialog: props.confirmDialog,
         }; 
     }
 
-
-    componentWillReceiveProps(nextProps) {
-        /*
-        const autoStart = this.state.configs.getOptionAsBool('DEFAULT_AUTO_START', 'upload_auto_send');
-        const store = UploaderModel.Store.getInstance();
-        const items = store.getItems();
-        if (autoStart && store) {
-            UploaderModel.Store.getInstance().processNext();
+    componentWillReceiveProps(nextProps){
+        if(nextProps.confirmDialog !== this.state.confirmDialog){
+            this.setState({confirmDialog: nextProps.confirmDialog});
         }
-        */
-
     }
 
     componentWillUnmount(){
@@ -117,11 +112,36 @@ class DropUploader extends React.Component {
         this.refs.dropzone.openFolderPicker();
     }
 
+    dialogSubmit(newValue, saveValue){
+        const {configs} = this.state;
+        UploaderModel.Store.getInstance().getItems().sessions.forEach((session) => {
+            if(session.getStatus() === 'confirm'){
+                session.prepare(newValue);
+            }
+        });
+        if(saveValue){
+            configs.updateOption('upload_existing', newValue);
+        }
+        this.setState({confirmDialog: false});
+        Pydio.getInstance().getController().fireAction('upload'); // Clear
+    }
+
+    dialogCancel(){
+        const store = UploaderModel.Store.getInstance() ;
+        store.getItems().sessions.forEach((session) => {
+            if(session.getStatus() === 'confirm'){
+                store.removeSession(session);
+            }
+        });
+        this.setState({confirmDialog: false});
+        Pydio.getInstance().getController().fireAction('upload'); // Clear
+    }
+
     render(){
 
         let messages = Pydio.getInstance().MessageHash;
         const connectDropTarget = this.props.connectDropTarget || (c => {return c});
-        const {configs, showOptions, items, storeRunning} = this.state;
+        const {configs, showOptions, items, storeRunning, confirmDialog} = this.state;
         const store = UploaderModel.Store.getInstance();
         let listEmpty = true;
         items.sessions.forEach(s => {
@@ -161,7 +181,7 @@ class DropUploader extends React.Component {
                     ignoreNativeDrop={true}
                     onDrop={this.onDrop.bind(this)}
                     onFolderPicked={this.onFolderPicked.bind(this)}
-                    style={{width:'100%', height: 360}}
+                    style={{width:'100%', height: 420}}
                 >
                     <TransfersList
                         items={items}
@@ -170,6 +190,7 @@ class DropUploader extends React.Component {
                     />
                 </FileDropZone>
                 <UploadOptionsPane configs={configs} open={showOptions} anchorEl={this.state.optionsAnchorEl} onDismiss={(e) => {this.toggleOptions(e);}}/>
+                {confirmDialog && <ConfirmExists onConfirm={this.dialogSubmit.bind(this)} onCancel={this.dialogCancel.bind(this)}/>}
             </div>
         );
     }

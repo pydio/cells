@@ -116,7 +116,7 @@ var UploadOptionsPane = function (_React$Component) {
                             _materialUi.RadioButtonGroup,
                             { ref: 'group', name: 'shipSpeed', defaultSelected: overwriteType, onChange: this.radioChange.bind(this) },
                             _react2.default.createElement(_materialUi.RadioButton, { value: 'alert', label: pydio.MessageHash['html_uploader.19'], style: { paddingBottom: 8 } }),
-                            _react2.default.createElement(_materialUi.RadioButton, { value: 'rename-folders', label: "Rename files or folders", style: { paddingBottom: 8 } }),
+                            _react2.default.createElement(_materialUi.RadioButton, { value: 'rename-folders', label: "Rename folders then files", style: { paddingBottom: 8 } }),
                             _react2.default.createElement(_materialUi.RadioButton, { value: 'rename', label: "Rename files only (merge folders)", style: { paddingBottom: 8 } }),
                             _react2.default.createElement(_materialUi.RadioButton, { value: 'overwrite', label: pydio.MessageHash['html_uploader.21'] })
                         )

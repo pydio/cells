@@ -27,8 +27,11 @@ Object.defineProperty(exports, '__esModule', {
 exports['default'] = function (pydio) {
 
     return function (manager, uploaderArguments) {
-
-        pydio.UI.openComponentInModal('FSActions', 'UploadDialog');
+        var props = {};
+        if (uploaderArguments && uploaderArguments.length) {
+            props = { uploaderProps: uploaderArguments[0] };
+        }
+        pydio.UI.openComponentInModal('FSActions', 'UploadDialog', props);
     };
 };
 

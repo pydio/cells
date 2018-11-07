@@ -66,8 +66,16 @@ class Store extends Observable{
                 } else if(!autoStart){
                     Pydio.getInstance().getController().fireAction("upload");
                 }
+            } else if(s === 'confirm') {
+                Pydio.getInstance().getController().fireAction("upload", {confirmDialog: true});
             }
         });
+    }
+
+    removeSession(session){
+        const i = this._sessions.indexOf(session);
+        this._sessions = LangUtils.arrayWithout(this._sessions, i);
+        this.notify('update');
     }
 
     log(){}
@@ -201,7 +209,8 @@ class Store extends Observable{
 
     handleFolderPickerResult(files, targetNode){
 
-        const session = new Session();
+        const overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
+        const session = new Session(Pydio.getInstance().user.activeRepository, targetNode);
         this.pushSession(session);
 
         let mPaths = {};
@@ -233,7 +242,7 @@ class Store extends Observable{
             });
         };
         recurse(tree, session);
-        session.prepare().catch((e) => {
+        session.prepare(overwriteStatus).catch((e) => {
             // DO SOMETHING?
         }) ;
 
@@ -241,7 +250,8 @@ class Store extends Observable{
 
     handleDropEventResults(items, files, targetNode, accumulator = null, filterFunction = null ){
 
-        const session = new Session();
+        const overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
+        const session = new Session(Pydio.getInstance().user.activeRepository, targetNode);
         this.pushSession(session);
         const filter = (refPath) => {
             if(filterFunction && !filterFunction(refPath)){
@@ -318,7 +328,7 @@ class Store extends Observable{
             }
 
             Promise.all(promises).then(() => {
-                return session.prepare();
+                return session.prepare(overwriteStatus);
             }).catch((e) => {
 
             }) ;
@@ -334,7 +344,7 @@ class Store extends Observable{
                 }
                 new UploadItem(files[j], targetNode, null, session);
             }
-            session.prepare().catch((e) => {
+            session.prepare(overwriteStatus).catch((e) => {
 
             }) ;
         }

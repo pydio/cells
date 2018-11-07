@@ -21,7 +21,6 @@
 import StatusItem from './StatusItem'
 import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
-import LangUtils from 'pydio/util/lang'
 import PydioApi from 'pydio/http/api'
 import Configs from './Configs'
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
@@ -33,7 +32,11 @@ class UploadItem extends StatusItem {
         super('file', targetNode, parent);
         this._file = file;
         this._status = 'new';
-        this._relativePath = relativePath;
+        if(relativePath){
+            this._label = PathUtils.getBasename(relativePath);
+        } else {
+            this._label = file.name;
+        }
         if(parent){
             parent.addChild(this);
         }
@@ -44,21 +47,12 @@ class UploadItem extends StatusItem {
     getSize(){
         return this._file.size;
     }
-    getLabel(){
-        return this._relativePath ? this._relativePath : this._file.name;
-    }
     setProgress(newValue, bytes = null){
         this._progress = newValue;
         this.notify('progress', newValue);
         if(bytes !== null) {
             this.notify('bytes', bytes);
         }
-    }
-    getRelativePath(){
-        return this._relativePath;
-    }
-    setRelativePath(newPath){
-        this._relativePath = newPath;
     }
     _parseXHRResponse(){
         if (this.xhr && this.xhr.responseText && this.xhr.responseText !== 'OK') {
@@ -129,30 +123,6 @@ class UploadItem extends StatusItem {
             }catch(e){}
         }
         this.setStatus('error');
-    }
-
-    /**
-     * @return {String}
-     */
-    getFullPath(){
-        const repoList = Pydio.getInstance().user.getRepositoriesList();
-        if(!repoList.has(this._repositoryId)){
-            throw new Error('repository.unknown');
-        }
-        const slug = repoList.get(this._repositoryId).getSlug();
-
-        let fullPath = this._targetNode.getPath();
-        let baseName = PathUtils.getBasename(this._file.name);
-        if(this._relativePath) {
-            fullPath = LangUtils.trimRight(fullPath, '/') + '/' + LangUtils.trimLeft(PathUtils.getDirname(this._relativePath), '/');
-            baseName = PathUtils.getBasename(this._relativePath);
-        }
-        fullPath = slug + '/' + LangUtils.trim(fullPath, '/');
-        fullPath = LangUtils.trimRight(fullPath, '/') + '/' + baseName;
-        if (fullPath.normalize) {
-            fullPath = fullPath.normalize('NFC');
-        }
-        return fullPath;
     }
 
     uploadPresigned(completeCallback, progressCallback, errorCallback){
