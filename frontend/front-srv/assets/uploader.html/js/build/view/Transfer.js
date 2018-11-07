@@ -274,6 +274,8 @@ var Transfer = function (_React$Component) {
                     label = "Preparing files and folders for upload...";
                     progressBar = null;
                     toggleCallback = null;
+                    toggleOpen = null;
+                    rightButton = _react2.default.createElement(_materialUi.CircularProgress, { size: 16, thickness: 2, style: { marginTop: 1 } });
                 }
             }
 

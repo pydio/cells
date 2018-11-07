@@ -115,11 +115,6 @@ export default React.createClass({
     render(){
 
         let messages = this.props.pydio.MessageHash;
-
-        const style = {
-            marginLeft: 24
-        };
-
         let urls = this.state.urls;
 
         let items = urls.map(function(item, id) {
@@ -127,7 +122,7 @@ export default React.createClass({
                 <div>
                     <div style={{display:'flex', justifyContent: 'space-between', padding: '0px 24px', width: '100%', height: '100%'}}>
                         <TextField disabled={this.state.submitting} style={{display:'flex', alignItems: 'center'}} value={item} underlineShow={false} fullWidth={true} onChange={this._handleChangeURL(id)} />
-                        <FontIcon style={{display:'flex', alignItems: 'center', fontSize: '1em'}} className="icon-remove" onClick={this._handleDeleteURL(id)} />
+                        <FontIcon style={{display:'flex', alignItems: 'center', fontSize: '1em'}} className="mdi mdi-delete" onClick={this._handleDeleteURL(id)} />
                     </div>
                     <Divider />
                 </div>
@@ -135,24 +130,19 @@ export default React.createClass({
         }.bind(this));
 
         return (
-            <div style={{position:'relative', padding: '10px'}}>
-                <div style={{position:'relative', margin: '10px'}} className="dialoglegend">{messages['httpdownloader.4']}</div>
-                <Paper zDepth={1}>
-                    {items}
+            <div style={{position:'relative', padding: 10}}>
+                <div style={{position:'relative', margin: 10, fontSize:13}} className="dialoglegend">{messages['httpdownloader.4']}</div>
+                <div style={{minHeight: 160}}>
+                    <Paper zDepth={1} style={{marginBottom: 10, maxHeight: 300, overflowY: 'auto'}}>
+                        {items}
+                        <div style={{paddingLeft: 24}}><TextField disabled={this.state.submitting} hintText={messages['httpdownloader.5'] + ' + Hit Enter'} value={this.state.currentURL} underlineShow={false} fullWidth={true} onChange={this._handleChangeCurrentURL} onKeyDown={this._handleAddURL} onBlur={this._handleAddURL} /></div>
+                        <Divider />
+                    </Paper>
+                </div>
+                <div style={{textAlign:'right'}}>
+                    <RaisedButton disabled={urls.length === 0} primary={true} label="Start" onClick={this._handleSubmit}/>
+                </div>
 
-                    <TextField disabled={this.state.submitting} hintText={messages['httpdownloader.5']} style={style} value={this.state.currentURL} underlineShow={false} fullWidth={true} onChange={this._handleChangeCurrentURL} onKeyDown={this._handleAddURL} onBlur={this._handleAddURL} />
-                    <Divider />
-                </Paper>
-
-                {urls.length > 0 &&
-                    <Toolbar style={{backgroundColor: '#fff'}}>
-                        <div style={{display:'flex', justifyContent: 'space-between', padding: '0px 24px', width: '100%', height: '100%'}}>
-                            <div style={{display:'flex', alignItems: 'center', marginLeft: '-48px'}}>
-                                <RaisedButton primary={true} label="Start" onClick={this._handleSubmit}/>
-                            </div>
-                        </div>
-                    </Toolbar>
-                }
             </div>
         );
     }

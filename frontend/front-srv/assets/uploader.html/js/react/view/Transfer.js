@@ -20,7 +20,7 @@
 
 import React from 'react'
 import PathUtils from 'pydio/util/path'
-import {LinearProgress} from 'material-ui'
+import {LinearProgress, CircularProgress} from 'material-ui'
 
 const uploadStatusMessages = {
     "new" : 433,
@@ -206,6 +206,8 @@ class Transfer extends React.Component{
                 label = "Preparing files and folders for upload...";
                 progressBar = null;
                 toggleCallback = null;
+                toggleOpen = null;
+                rightButton = <CircularProgress size={16} thickness={2} style={{marginTop: 1}}/>
             }
         }
 
