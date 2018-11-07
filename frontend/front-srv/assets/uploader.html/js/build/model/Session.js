@@ -72,6 +72,7 @@ var Session = function (_FolderItem) {
                         var newPart = {
                             name: part,
                             item: merged[path],
+                            path: path,
                             children: []
                         };
                         currentLevel.push(newPart);

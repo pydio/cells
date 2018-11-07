@@ -53,6 +53,7 @@ class Session extends FolderItem {
                     const newPart = {
                         name: part,
                         item: merged[path],
+                        path: path,
                         children: [],
                     };
                     currentLevel.push(newPart);

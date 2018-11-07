@@ -240,29 +240,46 @@ var Store = function (_Observable) {
     }, {
         key: 'handleFolderPickerResult',
         value: function handleFolderPickerResult(files, targetNode) {
+            var _this4 = this;
 
             var session = new _Session2.default();
             this.pushSession(session);
 
-            var folders = {};
+            var mPaths = {};
             for (var i = 0; i < files.length; i++) {
-                var relPath = null;
+                var file = files[i];
+                var mPath = '/' + _path2.default.getBasename(file.name);
                 if (files[i]['webkitRelativePath']) {
-                    relPath = '/' + files[i]['webkitRelativePath'];
-                    var folderPath = _path2.default.getDirname(relPath);
-                    if (!folders[folderPath]) {
-                        session.pushFolder(new _FolderItem2.default(folderPath, targetNode));
-                        folders[folderPath] = true;
+                    mPath = '/' + files[i]['webkitRelativePath'];
+                    var folderPath = _path2.default.getDirname(mPath);
+
+                    if (folderPath !== '/') {
+                        mPaths[_path2.default.getDirname(folderPath)] = 'FOLDER';
                     }
+                    mPaths[folderPath] = 'FOLDER';
                 }
-                session.pushFile(new _UploadItem2.default(files[i], targetNode, relPath));
+                mPaths[mPath] = file;
             }
+            var tree = session.treeViewFromMaterialPath(mPaths);
+            var recurse = function recurse(children, parentItem) {
+                children.forEach(function (child) {
+                    if (child.item === 'FOLDER') {
+                        var f = new _FolderItem2.default(child.path, targetNode, parentItem);
+                        recurse(child.children, f);
+                    } else {
+                        if (_this4._blacklist.indexOf(_path2.default.getBasename(child.path).toLowerCase()) === -1) {
+                            var u = new _UploadItem2.default(child.item, targetNode, child.path, parentItem);
+                        }
+                    }
+                });
+            };
+            recurse(tree, session);
             session.prepare().catch(function (e) {});
         }
     }, {
         key: 'handleDropEventResults',
         value: function handleDropEventResults(items, files, targetNode) {
-            var _this4 = this;
+            var _this5 = this;
 
             var accumulator = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
             var filterFunction = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
@@ -274,7 +291,7 @@ var Store = function (_Observable) {
                 if (filterFunction && !filterFunction(refPath)) {
                     return false;
                 }
-                return _this4._blacklist.indexOf(_path2.default.getBasename(refPath).toLowerCase()) === -1;
+                return _this5._blacklist.indexOf(_path2.default.getBasename(refPath).toLowerCase()) === -1;
             };
 
             var enqueue = function enqueue(item) {
@@ -328,7 +345,7 @@ var Store = function (_Observable) {
 
                             entry.folderItem = new _FolderItem2.default(entry.fullPath, targetNode, session);
 
-                            promises.push(_this4.recurseDirectory(entry, function (fileEntry) {
+                            promises.push(_this5.recurseDirectory(entry, function (fileEntry) {
                                 var relativePath = fileEntry.fullPath;
                                 return new Promise(function (resolve, reject) {
                                     fileEntry.file(function (File) {
@@ -377,10 +394,10 @@ var Store = function (_Observable) {
     }, {
         key: 'recurseDirectory',
         value: function recurseDirectory(item, promiseFile, promiseFolder, errorHandler) {
-            var _this5 = this;
+            var _this6 = this;
 
             return new Promise(function (resolve) {
-                _this5.dirEntries(item).then(function (entries) {
+                _this6.dirEntries(item).then(function (entries) {
                     var promises = [];
                     entries.forEach(function (entry) {
                         if (entry.parent && entry.parent.folderItem) {
@@ -401,7 +418,7 @@ var Store = function (_Observable) {
     }, {
         key: 'dirEntries',
         value: function dirEntries(item) {
-            var _this6 = this;
+            var _this7 = this;
 
             var reader = item.createReader();
             var entries = [];
@@ -419,7 +436,7 @@ var Store = function (_Observable) {
                             entries.forEach(function (entry) {
                                 entry.parent = item;
                                 if (entry.isDirectory) {
-                                    promises.push(_this6.dirEntries(entry).then(function (children) {
+                                    promises.push(_this7.dirEntries(entry).then(function (children) {
                                         entries = entries.concat(children);
                                     }));
                                 }

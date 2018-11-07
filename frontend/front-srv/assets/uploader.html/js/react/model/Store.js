@@ -204,19 +204,35 @@ class Store extends Observable{
         const session = new Session();
         this.pushSession(session);
 
-        let folders = {};
-        for (var i=0; i<files.length; i++) {
-            let relPath = null;
+        let mPaths = {};
+        for (let i=0; i<files.length; i++) {
+            const file = files[i];
+            let mPath = '/' + PathUtils.getBasename(file.name);
             if (files[i]['webkitRelativePath']) {
-                relPath = '/' + files[i]['webkitRelativePath'];
-                const folderPath = PathUtils.getDirname(relPath);
-                if (!folders[folderPath]) {
-                    session.pushFolder(new FolderItem(folderPath, targetNode));
-                    folders[folderPath] = true;
+                mPath = '/' + files[i]['webkitRelativePath'];
+                const folderPath = PathUtils.getDirname(mPath);
+                // Make sure the first level is registered
+                if(folderPath !== '/'){
+                    mPaths[PathUtils.getDirname(folderPath)] = 'FOLDER';
                 }
+                mPaths[folderPath] = 'FOLDER';
             }
-            session.pushFile(new UploadItem(files[i], targetNode, relPath));
+            mPaths[mPath] = file;
         }
+        const tree = session.treeViewFromMaterialPath(mPaths);
+        const recurse = (children, parentItem)=>{
+            children.forEach(child => {
+                if(child.item === 'FOLDER'){
+                    const f = new FolderItem(child.path, targetNode, parentItem);
+                    recurse(child.children, f);
+                } else {
+                    if(this._blacklist.indexOf(PathUtils.getBasename(child.path).toLowerCase()) === -1){
+                        const u = new UploadItem(child.item, targetNode, child.path, parentItem);
+                    }
+                }
+            });
+        };
+        recurse(tree, session);
         session.prepare().catch((e) => {
             // DO SOMETHING?
         }) ;
