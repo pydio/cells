@@ -29,4 +29,5 @@ echo "GIT: Revert cyclic models and add new ones"
 
 git checkout -- $GOPATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen/model/ActivityObject.js
 git checkout -- $GOPATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen/model/JobsAction.js
+git checkout -- $GOPATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen/model/RestTemplateNode.js
 git add $GOPATH/src/github.com/pydio/cells/frontend/front-srv/assets/gui.ajax/res/js/core/http/gen

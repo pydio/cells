@@ -8652,6 +8652,25 @@
     ],
     "core/http/PydioApi.es6": [
       {
+        "description": "",
+        "displayName": "ManagedMultipart",
+        "methods": [
+          {
+            "name": "progress",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "info",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "require": "const PydioApi = require('pydio/http/api')"
+      },
+      {
         "description": "API Client",
         "displayName": "PydioApi",
         "methods": [
@@ -9047,8 +9066,7 @@
             ],
             "returns": null
           }
-        ],
-        "require": "const PydioApi = require('pydio/http/api')"
+        ]
       }
     ],
     "core/http/PydioUsersApi.es6": [
@@ -14041,6 +14059,56 @@
               }
             },
             "description": "Put or Create a share room"
+          }
+        ]
+      }
+    ],
+    "core/http/gen/api/TemplatesServiceApi.js": [
+      {
+        "description": "TemplatesService service.\n@module api/TemplatesServiceApi\n@version 1.0",
+        "displayName": "TemplatesServiceApi",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new TemplatesServiceApi. \n@alias module:api/TemplatesServiceApi\n@class\n@param {module:ApiClient} apiClient Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "apiClient",
+                "description": "Optional API client implementation to use,\ndefault to {@link module:ApiClient#instance} if unspecified.",
+                "type": {
+                  "name": "module:ApiClient"
+                }
+              }
+            ],
+            "returns": null,
+            "description": "Constructs a new TemplatesServiceApi."
+          },
+          {
+            "name": "listTemplatesWithHttpInfo",
+            "docblock": "List available templates\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestListTemplatesResponse} and HTTP response",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestListTemplatesResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "List available templates"
+          },
+          {
+            "name": "listTemplates",
+            "docblock": "List available templates\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestListTemplatesResponse}",
+            "modifiers": [],
+            "params": [],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestListTemplatesResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "List available templates"
           }
         ]
       }
@@ -21066,6 +21134,52 @@
         ]
       }
     ],
+    "core/http/gen/model/RestListTemplatesResponse.js": [
+      {
+        "description": "The RestListTemplatesResponse model module.\n@module model/RestListTemplatesResponse\n@version 1.0",
+        "displayName": "RestListTemplatesResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestListTemplatesResponse</code>.\n@alias module:model/RestListTemplatesResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestListTemplatesResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestListTemplatesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestListTemplatesResponse} obj Optional instance to populate.\n@return {module:model/RestListTemplatesResponse} The populated <code>RestListTemplatesResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestListTemplatesResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestListTemplatesResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestListTemplatesResponse"
+              }
+            },
+            "description": "Constructs a <code>RestListTemplatesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/RestListUserMetaTagsResponse.js": [
       {
         "description": "The RestListUserMetaTagsResponse model module.\n@module model/RestListUserMetaTagsResponse\n@version 1.0",
@@ -22699,6 +22813,98 @@
               }
             },
             "description": "Constructs a <code>RestSubscriptionsCollection</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestTemplate.js": [
+      {
+        "description": "The RestTemplate model module.\n@module model/RestTemplate\n@version 1.0",
+        "displayName": "RestTemplate",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestTemplate</code>.\n@alias module:model/RestTemplate\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestTemplate</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestTemplate</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestTemplate} obj Optional instance to populate.\n@return {module:model/RestTemplate} The populated <code>RestTemplate</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestTemplate"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestTemplate</code> instance.",
+              "type": {
+                "name": "module:model/RestTemplate"
+              }
+            },
+            "description": "Constructs a <code>RestTemplate</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestTemplateNode.js": [
+      {
+        "description": "The RestTemplateNode model module.\n@module model/RestTemplateNode\n@version 1.0",
+        "displayName": "RestTemplateNode",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestTemplateNode</code>.\n@alias module:model/RestTemplateNode\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestTemplateNode</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestTemplateNode</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestTemplateNode} obj Optional instance to populate.\n@return {module:model/RestTemplateNode} The populated <code>RestTemplateNode</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestTemplateNode"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestTemplateNode</code> instance.",
+              "type": {
+                "name": "module:model/RestTemplateNode"
+              }
+            },
+            "description": "Constructs a <code>RestTemplateNode</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

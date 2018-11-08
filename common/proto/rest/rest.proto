@@ -11,6 +11,7 @@ import "scheduler.proto";
 import "graph.proto";
 import "share.proto";
 import "frontend.proto";
+import "templates.proto";
 import "github.com/pydio/cells/common/proto/tree/tree.proto";
 import "github.com/pydio/cells/common/proto/idm/idm.proto";
 import "github.com/pydio/cells/common/proto/mailer/mailer.proto";
@@ -456,6 +457,16 @@ service TreeService {
     }
 }
 
+service TemplatesService{
+
+    // List available templates
+    rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
+        option(google.api.http) = {
+            get: "/templates"
+        };
+    }
+
+}
 
 // Direct access to nodes metadata
 service MetaService {

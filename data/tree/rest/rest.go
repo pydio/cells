@@ -31,6 +31,8 @@ import (
 
 	"encoding/json"
 
+	"io"
+
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -46,6 +48,7 @@ import (
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
 	rest_meta "github.com/pydio/cells/data/meta/rest"
+	"github.com/pydio/cells/data/templates"
 	"github.com/pydio/cells/scheduler/lang"
 )
 
@@ -125,11 +128,36 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 			}
 			output.Children = append(output.Children, r.Node)
 		} else {
-			contents := " " // Use simple space for empty files
-			if n.GetStringMeta("Contents") != "" {
-				contents = n.GetStringMeta("Contents")
+			var reader io.Reader
+			var length int64
+			if input.TemplateUUID != "" {
+				embedded := templates.NewEmbedded()
+				var node templates.Node
+				for _, n := range embedded.List() {
+					if n.AsTemplate().UUID == input.TemplateUUID {
+						node = n
+					}
+				}
+				if node == nil {
+					service.RestError404(req, resp, fmt.Errorf("Cannot find template!"))
+					return
+				}
+				var e error
+				reader, length, e = node.Read()
+				if e != nil {
+					service.RestError500(req, resp, fmt.Errorf("Cannot read template!"))
+					return
+				}
+
+			} else {
+				contents := " " // Use simple space for empty files
+				if n.GetStringMeta("Contents") != "" {
+					contents = n.GetStringMeta("Contents")
+				}
+				length = int64(len(contents))
+				reader = strings.NewReader(contents)
 			}
-			_, e := router.PutObject(ctx, n, strings.NewReader(contents), &views.PutRequestData{Size: int64(len(contents))})
+			_, e := router.PutObject(ctx, n, reader, &views.PutRequestData{Size: length})
 			if e != nil {
 				service.RestError500(req, resp, e)
 				return

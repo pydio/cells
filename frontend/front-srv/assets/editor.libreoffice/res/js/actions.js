@@ -18,63 +18,99 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} = require('pydio/http/rest-api');
+import Pydio from 'pydio'
+import PathUtils from 'pydio/util/path'
+const {TreeServiceApi, TemplatesServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} = require('pydio/http/rest-api');
 
-export const dynamicBuilder = (controller) => {
+let QuickCache, QuickCacheTimer;
 
-    const pydio = window.pydio;
-    const MessageHash = pydio.MessageHash;
-    const exts = {
-        doc:'file-word',
-        docx:'file-word',
-        odt:'file-word',
-        odg:'file-chart',
-        odp:'file-powerpoint',
-        ods:'file-excel',
-        pot:'file-powerpoint',
-        pptx:'file-powerpoint',
-        rtf:'file-word',
-        xls:'file-excel',
-        xlsx:'file-excel'
-    };
+class Builder {
 
-    const dir = pydio.getContextHolder().getContextNode().getPath();
+    static dynamicBuilder(){
 
-    let builderMenuItems = [];
+        if(QuickCache !== null) {
+            this.__loadedTemplates = QuickCache;
+        }
 
-    Object.keys(exts).forEach((k) => {
+        if(this.__loadedTemplates){
 
-        if(!MessageHash['libreoffice.ext.' + k]) return;
+            const pydio = Pydio.getInstance();
+            const exts = {
+                doc:'file-word',
+                docx:'file-word',
+                odt:'file-word',
+                odg:'file-chart',
+                odp:'file-powerpoint',
+                ods:'file-excel',
+                pot:'file-powerpoint',
+                pptx:'file-powerpoint',
+                rtf:'file-word',
+                xls:'file-excel',
+                xlsx:'file-excel'
+            };
 
-        builderMenuItems.push({
-            name:MessageHash['libreoffice.ext.' + k],
-            alt:MessageHash['libreoffice.ext.' + k],
-            icon_class:'mdi mdi-' + exts[k],
-            callback: async function(e) {
-                const repoList = pydio.user.getRepositoriesList()
-                const api = new TreeServiceApi(PydioApi.getRestClient());
-                const request = new RestCreateNodesRequest();
-                const node = new TreeNode();
+            return this.__loadedTemplates.map(tpl => {
 
-                const slug = repoList.get(pydio.user.activeRepository).getSlug();
+                const ext = PathUtils.getFileExtension(tpl.UUID);
+                let icon = 'file';
+                if(exts[ext]) {
+                    icon = exts[ext];
+                }
+                return {
+                    name:tpl.Label,
+                    alt:tpl.Label,
+                    icon_class:'mdi mdi-' + icon,
+                    callback: async function(e) {
+                        const repoList = pydio.user.getRepositoriesList();
+                        const contextNode = pydio.getContextHolder().getContextNode();
+                        const api = new TreeServiceApi(PydioApi.getRestClient());
+                        const request = new RestCreateNodesRequest();
+                        const node = new TreeNode();
+                        const slug = repoList.get(pydio.user.activeRepository).getSlug();
 
-                let path = slug + dir + (dir ? "/" : "") + "Untitled Document." + k;
-                path = await file_newpath(path)
+                        let path = slug + contextNode.getPath() + "/" + "Untitled Document." + ext;
+                        path = path.replace('//', '/');
+                        path = await file_newpath(path);
 
-                node.Path = path
-                node.Type = TreeNodeType.constructFromObject('LEAF');
-                request.Nodes = [node];
+                        node.Path = path;
+                        node.Type = TreeNodeType.constructFromObject('LEAF');
+                        request.Nodes = [node];
+                        request.TemplateUUID = tpl.UUID;
 
-                api.createNodes(request).then(leaf => {
-                    // Success - We should probably select the nodes
-                    // pydio.getContextHolder().setSelectedNodes([node])
-                });
-            }.bind(this)
+                        api.createNodes(request).then(leaf => {
+                            // Success - We should probably select the nodes
+                            // pydio.getContextHolder().setSelectedNodes([node])
+                        });
+                    }.bind(this)
+                }
+            });
+
+        }
+
+        if(QuickCacheTimer){
+            clearTimeout(QuickCacheTimer);
+        }
+        const api = new TemplatesServiceApi(PydioApi.getRestClient());
+        api.listTemplates().then(response => {
+            this.__loadedTemplates = response.Templates;
+            QuickCache = response.Templates;
+            QuickCacheTimer = setTimeout(() => {
+                QuickCache = null;
+            }, 2000);
+            Pydio.getInstance().getController().fireContextChange();
+            console.log(response.Templates);
         });
 
-    });
+        return [];
 
-    return builderMenuItems;
+    };
+}
+
+function loadTemplates(){
+    const api = new TemplatesServiceApi(PydioApi.getRestClient());
+    return api.listTemplates().then(response => {
+        return response.Templates;
+    });
 }
 
 function file_newpath(fullpath) {
@@ -118,3 +154,6 @@ function file_exists(fullpath) {
         }).catch(() => resolve(false))
     })
 }
+
+const dynamicBuilder = Builder.dynamicBuilder;
+export {dynamicBuilder}
