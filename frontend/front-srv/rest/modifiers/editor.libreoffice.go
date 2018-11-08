@@ -109,7 +109,7 @@ func getCollaboraConfig(collabora **url.URL) error {
 
 	tls := config.Get("frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_SSL").Bool(true)
 	host := config.Get("frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_HOST").String("localhost")
-	port := config.Get("frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_HOST").String("9980")
+	port := config.Get("frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_PORT").String("9980")
 
 	scheme := "http"
 	if tls {
