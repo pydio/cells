@@ -134,7 +134,9 @@ var (
 		if {path} not_starts_with "/ws/"
 		if {path} not_starts_with "/plug/"
 		if {path} not_starts_with "/dav/"
-		{{range .PluginPathes}}if {path} not_starts_with "{{.}}"{{end}}
+		{{range .PluginPathes}}
+		if {path} not_starts_with "{{.}}"
+		{{end}}
 		if {path} not_starts_with "/public/"
 		if {path} not_starts_with "/user/reset-password"
 		if {path} not_starts_with "/robots.txt"
