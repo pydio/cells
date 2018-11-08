@@ -44,7 +44,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	}
 
 	// First store minio config
-	minioConfig := utils.FactorizeMinioServers(map[string]*object.MinioConfig{}, conf)
+	minioConfig := config.FactorizeMinioServers(map[string]*object.MinioConfig{}, conf)
 	config.Set(minioConfig, "services", fmt.Sprintf(`pydio.grpc.data.objects.%s`, minioConfig.Name))
 	config.Set([]string{minioConfig.Name}, "services", "pydio.grpc.data.objects", "sources")
 
@@ -59,7 +59,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		index := fmt.Sprintf(`pydio.grpc.data.index.%s`, source)
 		config.Set("default", "services", index, "dsn")
 		config.Set(conf.PeerAddress, "services", index, "PeerAddress")
-		tableNames := utils.IndexServiceTableNames(source)
+		tableNames := config.IndexServiceTableNames(source)
 		config.Set(tableNames, "services", index, "tables")
 		// Clone conf with specific source attributes
 		sourceConf := proto.Clone(conf).(*object.DataSource)

@@ -25,7 +25,7 @@ import (
 	"regexp"
 
 	"github.com/micro/go-micro/registry"
-	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common"
 )
 
 type mockService struct {
@@ -77,7 +77,7 @@ func (m *mockService) SetRunningNodes(nodes []*registry.Node) {
 func (m *mockService) RunningNodes() []*registry.Node {
 	return m.nodes
 }
-func (m *mockService) ExposedConfigs() *forms.Form {
+func (m *mockService) ExposedConfigs() common.XMLSerializableForm {
 	return nil
 }
 func (m *mockService) IsGeneric() bool {

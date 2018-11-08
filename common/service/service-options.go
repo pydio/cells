@@ -31,7 +31,6 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/frontend"
 )
@@ -69,7 +68,7 @@ type ServiceOptions struct {
 	Checker Checker
 
 	MinNumberOfNodes int
-	ExposedConfigs   *forms.Form
+	ExposedConfigs   common.XMLSerializableForm
 
 	// Before and After funcs
 	BeforeInit  []func(Service) error
@@ -164,7 +163,7 @@ func WithChecker(c Checker) ServiceOption {
 	}
 }
 
-func ExposedConfigs(f *forms.Form) ServiceOption {
+func ExposedConfigs(f common.XMLSerializableForm) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.ExposedConfigs = f
 	}

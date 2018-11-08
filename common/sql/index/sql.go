@@ -39,7 +39,7 @@ import (
 	"github.com/rubenv/sql-migrate"
 	"go.uber.org/zap"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
@@ -278,7 +278,7 @@ type IndexSQL struct {
 }
 
 // Init handles the db version migration and prepare the statements
-func (dao *IndexSQL) Init(options config.Map) error {
+func (dao *IndexSQL) Init(options common.ConfigValues) error {
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../common/sql/index/migrations"),

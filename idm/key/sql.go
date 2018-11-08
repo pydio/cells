@@ -26,7 +26,7 @@ import (
 
 	"github.com/gobuffalo/packr"
 	"github.com/gogo/protobuf/proto"
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
 	migrate "github.com/rubenv/sql-migrate"
@@ -49,7 +49,7 @@ type sqlimpl struct {
 }
 
 // Init handler for the SQL DAO
-func (s *sqlimpl) Init(options config.Map) error {
+func (s *sqlimpl) Init(options common.ConfigValues) error {
 
 	// super
 	s.DAO.Init(options)

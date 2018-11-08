@@ -23,16 +23,16 @@ package lang
 
 import (
 	"github.com/gobuffalo/packr"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 )
 
 var (
-	bundle *utils.I18nBundle
+	bundle *i18n.I18nBundle
 )
 
-func Bundle() *utils.I18nBundle {
+func Bundle() *i18n.I18nBundle {
 	if bundle == nil {
-		bundle = utils.NewI18nBundle(packr.NewBox("../../scheduler/lang/box"))
+		bundle = i18n.NewI18nBundle(packr.NewBox("../../scheduler/lang/box"))
 	}
 	return bundle
 }

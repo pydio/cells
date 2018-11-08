@@ -22,12 +22,12 @@
 package dao
 
 import (
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 )
 
 // DAO interface definition
 type DAO interface {
-	Init(config.Map) error
+	Init(common.ConfigValues) error
 	GetConn() Conn
 	SetConn(Conn)
 	Driver() string
@@ -56,7 +56,7 @@ func NewDAO(conn Conn, driver string, prefix string) DAO {
 	}
 }
 
-func (h *handler) Init(c config.Map) error {
+func (h *handler) Init(c common.ConfigValues) error {
 	return nil
 }
 

@@ -30,7 +30,7 @@ import (
 	"sync"
 
 	"github.com/pborman/uuid"
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/proto/tree"
 	commonsql "github.com/pydio/cells/common/sql"
@@ -133,7 +133,7 @@ func (d *daocache) resync() {
 }
 
 // Init the dao cache
-func (d *daocache) Init(m config.Map) error {
+func (d *daocache) Init(m common.ConfigValues) error {
 	return d.DAO.(dao.DAO).Init(m)
 }
 

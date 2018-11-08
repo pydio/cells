@@ -4,10 +4,11 @@ import (
 	"net/http"
 
 	"github.com/pydio/cells/common/config"
+	config2 "github.com/pydio/go-os/config"
 )
 
 type RequestStatus struct {
-	Config        *config.Config
+	Config        config2.Config
 	AclParameters *config.Map
 	AclActions    *config.Map
 	WsScopes      []string

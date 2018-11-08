@@ -23,7 +23,7 @@ package boltdb
 
 import (
 	"github.com/boltdb/bolt"
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
 )
 
@@ -50,7 +50,7 @@ func NewDAO(driver string, dsn string, prefix string) *Handler {
 }
 
 // Init initialises the handler
-func (h *Handler) Init(config.Map) error {
+func (h *Handler) Init(common.ConfigValues) error {
 	return nil
 }
 

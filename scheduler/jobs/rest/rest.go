@@ -32,13 +32,14 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/lang"
 )
@@ -69,7 +70,7 @@ func (s *JobsHandler) Filter() func(string) string {
 
 func (s *JobsHandler) UserListJobs(req *restful.Request, rsp *restful.Response) {
 
-	T := lang.Bundle().GetTranslationFunc(utils.UserLanguagesFromRestRequest(req)...)
+	T := lang.Bundle().GetTranslationFunc(i18n.UserLanguagesFromRestRequest(req, config.Default())...)
 
 	var request jobs.ListJobsRequest
 	if err := req.ReadEntity(&request); err != nil {
@@ -202,7 +203,7 @@ func (s *JobsHandler) UserCreateJob(req *restful.Request, rsp *restful.Response)
 
 	ctx := req.Request.Context()
 	log.Logger(ctx).Debug("User.CreateJob", zap.Any("r", request))
-	languages := utils.UserLanguagesFromRestRequest(req)
+	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
 
 	jsonParams := make(map[string]interface{})
 	if request.JsonParameters != "" {

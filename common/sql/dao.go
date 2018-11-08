@@ -28,7 +28,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
 )
 
@@ -79,7 +79,7 @@ func NewDAO(driver string, dsn string, prefix string) DAO {
 	}
 }
 
-func (h *Handler) Init(c config.Map) error {
+func (h *Handler) Init(c common.ConfigValues) error {
 	return nil
 }
 

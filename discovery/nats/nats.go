@@ -30,8 +30,12 @@ import (
 )
 
 func prerun(s service.Service) error {
-	c := config.Get("cert", "grpc", "certFile").String("")
-	k := config.Get("cert", "grpc", "keyFile").String("")
+	c := ""
+	k := ""
+	if !config.RemoteSource {
+		c = config.Get("cert", "grpc", "certFile").String("")
+		k = config.Get("cert", "grpc", "keyFile").String("")
+	}
 
 	defaults.Init(
 		defaults.WithRegistry(registry.NewRegistry()),

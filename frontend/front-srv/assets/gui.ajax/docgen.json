@@ -205,15 +205,12 @@
     "dialog/UploadDialog.js": [
       {
         "description": "",
-        "methods": [
-          {
-            "name": "submit",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          }
-        ],
+        "displayName": "TopBar",
+        "methods": []
+      },
+      {
+        "description": "",
+        "methods": [],
         "props": {
           "dialogTitle": {
             "defaultValue": {
@@ -238,7 +235,7 @@
           },
           "dialogIsModal": {
             "defaultValue": {
-              "value": "true",
+              "value": "false",
               "computed": false
             },
             "required": false
@@ -8823,6 +8820,34 @@
               }
             },
             "description": "Generate presigned and use it for uploads"
+          },
+          {
+            "name": "uploadMultipart",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "file",
+                "type": null
+              },
+              {
+                "name": "path",
+                "type": null
+              },
+              {
+                "name": "onComplete",
+                "type": null
+              },
+              {
+                "name": "onError",
+                "type": null
+              },
+              {
+                "name": "onProgress",
+                "type": null
+              }
+            ],
+            "returns": null
           },
           {
             "name": "buildPresignedGetUrl",

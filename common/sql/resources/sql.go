@@ -26,7 +26,7 @@ import (
 	"github.com/gobuffalo/packr"
 	"github.com/rubenv/sql-migrate"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
 	"gopkg.in/doug-martin/goqu.v4"
@@ -50,7 +50,7 @@ type ResourcesSQL struct {
 }
 
 // Add to the mysql DB
-func (s *ResourcesSQL) Init(options config.Map) error {
+func (s *ResourcesSQL) Init(options common.ConfigValues) error {
 
 	migrations := &sql.PackrMigrationSource{
 		Box:         packr.NewBox("../../../common/sql/resources/migrations"),

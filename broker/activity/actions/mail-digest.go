@@ -31,12 +31,13 @@ import (
 	"github.com/pydio/cells/broker/activity/render"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/mailer"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/scheduler/actions"
 )
 
@@ -91,7 +92,7 @@ func (m *MailDigestAction) Run(ctx context.Context, channels *actions.RunnableCh
 	if displayName, has = userObject.Attributes["displayName"]; !has {
 		displayName = userObject.Login
 	}
-	lang := utils.UserLanguage(ctx, userObject)
+	lang := i18n.UserLanguage(ctx, userObject, config.Default())
 
 	query := &activity.StreamActivitiesRequest{
 		Context:     activity.StreamContext_USER_ID,

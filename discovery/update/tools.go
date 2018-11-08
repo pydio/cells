@@ -49,7 +49,7 @@ import (
 
 // LoadUpdates will post a Json query to the update server to detect if there are any
 // updates available
-func LoadUpdates(ctx context.Context, config config.Map) ([]*update.Package, error) {
+func LoadUpdates(ctx context.Context, config common.ConfigValues) ([]*update.Package, error) {
 
 	urlConf := config.String("updateUrl")
 	if urlConf == "" {
@@ -99,7 +99,7 @@ func LoadUpdates(ctx context.Context, config config.Map) ([]*update.Package, err
 // ApplyUpdate uses the info of an update.Package to download the binary and replace
 // the current running binary. A restart is necessary afterward.
 // The dryRun option will download the binary and just put it in the /tmp folder
-func ApplyUpdate(ctx context.Context, p *update.Package, conf config.Map, dryRun bool) error {
+func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValues, dryRun bool) error {
 
 	if resp, err := http.Get(p.BinaryURL); err != nil {
 		return err

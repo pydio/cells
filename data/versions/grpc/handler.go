@@ -41,6 +41,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/data/versions"
 )
 
@@ -54,7 +55,7 @@ func (h *Handler) buildVersionDescription(ctx context.Context, version *tree.Cha
 	var description string
 	if version.OwnerUuid != "" && version.Event != nil {
 		ac, _ := activity.DocumentActivity(version.OwnerUuid, version.Event)
-		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, utils.UserLanguageFromContext(ctx, true))
+		description = render.Markdown(ac, activity2.SummaryPointOfView_SUBJECT, i18n.UserLanguageFromContext(ctx, config.Default(), true))
 	} else {
 		description = "N/A"
 	}

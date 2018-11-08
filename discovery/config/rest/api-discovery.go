@@ -32,12 +32,12 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 )
 
 /*****************************
@@ -127,11 +127,9 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 	}
 	for _, srv := range services {
 		if srv.Name() == serviceName {
-			var form *forms.Form
-
+			var form common.XMLSerializableForm
 			form = srv.ExposedConfigs()
-
-			rsp.WriteAsXml(form.Serialize(utils.UserLanguagesFromRestRequest(req)...))
+			rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
 			return
 		}
 	}

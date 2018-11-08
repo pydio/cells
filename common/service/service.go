@@ -51,7 +51,6 @@ import (
 	"github.com/pydio/cells/common/boltdb"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/dao"
-	"github.com/pydio/cells/common/forms"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
@@ -509,7 +508,7 @@ func (s *service) RunningNodes() []*microregistry.Node {
 	return s.nodes
 }
 
-func (s *service) ExposedConfigs() *forms.Form {
+func (s *service) ExposedConfigs() common.XMLSerializableForm {
 	return s.Options().ExposedConfigs
 }
 

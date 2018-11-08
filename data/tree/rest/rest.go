@@ -33,6 +33,7 @@ import (
 
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -42,6 +43,7 @@ import (
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
 	rest_meta "github.com/pydio/cells/data/meta/rest"
 	"github.com/pydio/cells/scheduler/lang"
@@ -149,7 +151,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	}
 	ctx := req.Request.Context()
 	username, _ := utils.FindUserNameInContext(ctx)
-	languages := utils.UserLanguagesFromRestRequest(req)
+	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
 	T := lang.Bundle().GetTranslationFunc(languages...)
 	output := &rest.DeleteNodesResponse{}
 	router := h.GetRouter()
@@ -339,7 +341,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 	output := &rest.RestoreNodesResponse{}
 	ctx := req.Request.Context()
 	username, _ := utils.FindUserNameInContext(ctx)
-	languages := utils.UserLanguagesFromRestRequest(req)
+	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
 	T := lang.Bundle().GetTranslationFunc(languages...)
 	moveLabel := T("Jobs.User.DirMove")
 

@@ -22,18 +22,14 @@ package frontend
 
 import (
 	"io"
+	"math"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	"math"
-
-	"context"
-
 	"github.com/gin-gonic/gin/json"
 	"github.com/gobuffalo/packr"
-	"github.com/pydio/cells/common/log"
 )
 
 type UnionHttpFs struct {
@@ -46,7 +42,6 @@ func NewUnionHttpFs(boxes ...PluginBox) *UnionHttpFs {
 	var packrs []packr.Box
 	var allRoots []string
 	// Build index.json
-	log.Logger(context.Background()).Info("Init Union FS")
 	for _, b := range boxes {
 		packrs = append(packrs, b.Box)
 		allRoots = append(allRoots, b.Exposes...)

@@ -18,21 +18,19 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package utils
+package config
 
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/dchest/uniuri"
-
-	"os"
-
 	"github.com/pborman/uuid"
+
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/object"
 )
 
@@ -40,14 +38,14 @@ import (
 func ListMinioConfigsFromConfig() map[string]*object.MinioConfig {
 	res := make(map[string]*object.MinioConfig)
 
-	var cfgMap config.Map
-	if err := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS).Scan(&cfgMap); err != nil {
+	var cfgMap Map
+	if err := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS).Scan(&cfgMap); err != nil {
 		return res
 	}
 	names := cfgMap.StringArray("sources")
 	for _, name := range names {
 		var conf *object.MinioConfig
-		if e := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+name).Scan(&conf); e == nil {
+		if e := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+name).Scan(&conf); e == nil {
 			res[name] = conf
 		}
 	}
@@ -58,14 +56,14 @@ func ListMinioConfigsFromConfig() map[string]*object.MinioConfig {
 func ListSourcesFromConfig() map[string]*object.DataSource {
 	res := make(map[string]*object.DataSource)
 
-	var cfgMap config.Map
-	if err := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC).Scan(&cfgMap); err != nil {
+	var cfgMap Map
+	if err := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC).Scan(&cfgMap); err != nil {
 		return res
 	}
 	names := cfgMap.StringArray("sources")
 	for _, name := range names {
 		var conf *object.DataSource
-		if e := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+name).Scan(&conf); e == nil {
+		if e := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+name).Scan(&conf); e == nil {
 			res[name] = conf
 		}
 	}
@@ -78,8 +76,8 @@ func SourceNamesToConfig(sources map[string]*object.DataSource) {
 		sourcesJsonKey = append(sourcesJsonKey, name)
 	}
 	marsh, _ := json.Marshal(sourcesJsonKey)
-	config.Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources")
-	config.Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources")
+	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources")
+	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources")
 }
 
 func MinioConfigNamesToConfig(sources map[string]*object.MinioConfig) {
@@ -88,7 +86,7 @@ func MinioConfigNamesToConfig(sources map[string]*object.MinioConfig) {
 		sourcesJsonKey = append(sourcesJsonKey, name)
 	}
 	marsh, _ := json.Marshal(sourcesJsonKey)
-	config.Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "sources")
+	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "sources")
 }
 
 func IndexServiceTableNames(dsName string) map[string]string {

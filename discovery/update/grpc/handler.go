@@ -26,6 +26,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/update"
@@ -37,7 +38,7 @@ type Handler struct{}
 
 func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequest, response *update.UpdateResponse) error {
 
-	var configs config.Map
+	var configs common.ConfigValues
 	if e := config.Get("services", servicecontext.GetServiceName(ctx)).Scan(&configs); e != nil {
 		log.Logger(ctx).Error("Cannot load configs for update service", zap.Error(e))
 		configs = servicecontext.GetConfig(ctx)
@@ -55,7 +56,7 @@ func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequ
 
 func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRequest, response *update.ApplyUpdateResponse) error {
 
-	var configs config.Map
+	var configs common.ConfigValues
 	if e := config.Get("services", servicecontext.GetServiceName(ctx)).Scan(&configs); e != nil {
 		log.Logger(ctx).Error("Cannot load configs for update service", zap.Error(e))
 		configs = servicecontext.GetConfig(ctx)
