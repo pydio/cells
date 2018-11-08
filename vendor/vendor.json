@@ -3719,10 +3719,10 @@
 			"revisionTime": "2018-03-26T12:43:35Z"
 		},
 		{
-			"checksumSHA1": "euYF0naIvuux7cPMDTHuD8h3Kzw=",
+			"checksumSHA1": "mak2X8UHgJUKRYVCVf9tjHYeVfM=",
 			"path": "github.com/pydio/minio-srv/cmd",
-			"revision": "ae7d747d899d83f252b1d69662aefd4bc06c34b8",
-			"revisionTime": "2018-11-02T10:36:28Z"
+			"revision": "c64ff905c826d1a02331c6e27b3f3dae4cb5c5ee",
+			"revisionTime": "2018-11-08T13:45:05Z"
 		},
 		{
 			"checksumSHA1": "C/fcEn40/Ei7OfNkkt55rxjClXo=",
