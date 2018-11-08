@@ -122,8 +122,9 @@ var (
 	  / /login
 	}
 
-	{{range .PluginTemplates}}{{call .}}{{end}}
-
+	{{range .PluginTemplates}}
+	{{call .}}
+	{{end}}
 
 	rewrite {
 		if {path} not_starts_with "/a/"
