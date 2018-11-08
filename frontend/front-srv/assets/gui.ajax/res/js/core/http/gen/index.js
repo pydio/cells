@@ -143,6 +143,7 @@ import RestListPeerFoldersRequest from './model/RestListPeerFoldersRequest';
 import RestListPeersAddressesResponse from './model/RestListPeersAddressesResponse';
 import RestListSharedResourcesRequest from './model/RestListSharedResourcesRequest';
 import RestListSharedResourcesResponse from './model/RestListSharedResourcesResponse';
+import RestListTemplatesResponse from './model/RestListTemplatesResponse';
 import RestListUserMetaTagsResponse from './model/RestListUserMetaTagsResponse';
 import RestLogMessageCollection from './model/RestLogMessageCollection';
 import RestMetaCollection from './model/RestMetaCollection';
@@ -179,6 +180,8 @@ import RestShareLink from './model/RestShareLink';
 import RestShareLinkAccessType from './model/RestShareLinkAccessType';
 import RestShareLinkTargetUser from './model/RestShareLinkTargetUser';
 import RestSubscriptionsCollection from './model/RestSubscriptionsCollection';
+import RestTemplate from './model/RestTemplate';
+import RestTemplateNode from './model/RestTemplateNode';
 import RestUserBookmarksRequest from './model/RestUserBookmarksRequest';
 import RestUserJobRequest from './model/RestUserJobRequest';
 import RestUserJobResponse from './model/RestUserJobResponse';
@@ -233,6 +236,7 @@ import PolicyServiceApi from './api/PolicyServiceApi';
 import RoleServiceApi from './api/RoleServiceApi';
 import SearchServiceApi from './api/SearchServiceApi';
 import ShareServiceApi from './api/ShareServiceApi';
+import TemplatesServiceApi from './api/TemplatesServiceApi';
 import TokenServiceApi from './api/TokenServiceApi';
 import TreeServiceApi from './api/TreeServiceApi';
 import UpdateServiceApi from './api/UpdateServiceApi';
@@ -1060,6 +1064,12 @@ export {
     RestListSharedResourcesResponse,
 
     /**
+     * The RestListTemplatesResponse model constructor.
+     * @property {module:model/RestListTemplatesResponse}
+     */
+    RestListTemplatesResponse,
+
+    /**
      * The RestListUserMetaTagsResponse model constructor.
      * @property {module:model/RestListUserMetaTagsResponse}
      */
@@ -1274,6 +1284,18 @@ export {
      * @property {module:model/RestSubscriptionsCollection}
      */
     RestSubscriptionsCollection,
+
+    /**
+     * The RestTemplate model constructor.
+     * @property {module:model/RestTemplate}
+     */
+    RestTemplate,
+
+    /**
+     * The RestTemplateNode model constructor.
+     * @property {module:model/RestTemplateNode}
+     */
+    RestTemplateNode,
 
     /**
      * The RestUserBookmarksRequest model constructor.
@@ -1598,6 +1620,12 @@ export {
     * @property {module:api/ShareServiceApi}
     */
     ShareServiceApi,
+
+    /**
+    * The TemplatesServiceApi service constructor.
+    * @property {module:api/TemplatesServiceApi}
+    */
+    TemplatesServiceApi,
 
     /**
     * The TokenServiceApi service constructor.
