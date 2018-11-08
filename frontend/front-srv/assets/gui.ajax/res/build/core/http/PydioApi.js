@@ -27,6 +27,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var _Connexion = require('./Connexion');
 
 var _Connexion2 = _interopRequireDefault(_Connexion);
@@ -59,9 +61,45 @@ var _modelAjxpNode = require("../model/AjxpNode");
 
 var _modelAjxpNode2 = _interopRequireDefault(_modelAjxpNode);
 
-/**
- * API Client
- */
+// Extend S3 ManagedUpload to get progress info about each part
+
+var ManagedMultipart = (function (_AWS$S3$ManagedUpload) {
+    _inherits(ManagedMultipart, _AWS$S3$ManagedUpload);
+
+    function ManagedMultipart() {
+        _classCallCheck(this, ManagedMultipart);
+
+        _AWS$S3$ManagedUpload.apply(this, arguments);
+    }
+
+    /**
+     * API Client
+     */
+
+    ManagedMultipart.prototype.progress = function progress(info) {
+        var upload = this._managedUpload;
+        if (this.operation === 'putObject') {
+            info.part = 1;
+            info.key = this.params.Key;
+        } else {
+            var partLoaded = info.loaded;
+            var partTotal = info.total;
+            upload.totalUploadedBytes += info.loaded - this._lastUploadedBytes;
+            this._lastUploadedBytes = info.loaded;
+            info = {
+                loaded: upload.totalUploadedBytes,
+                total: upload.totalBytes,
+                part: this.params.PartNumber,
+                partLoaded: partLoaded, partTotal: partTotal,
+                key: this.params.Key
+            };
+            console.log("emit", info);
+        }
+        upload.emit('httpUploadProgress', [info]);
+    };
+
+    return ManagedMultipart;
+})(_awsSdk2['default'].S3.ManagedUpload);
 
 var PydioApi = (function () {
     function PydioApi() {
@@ -271,7 +309,7 @@ var PydioApi = (function () {
                     s3ForcePathStyle: true,
                     endpoint: url.replace('/io', '')
                 });
-                var managed = new _awsSdk2['default'].S3.ManagedUpload({
+                var managed = new ManagedMultipart({
                     params: _extends({}, params, { Body: file }),
                     partSize: 50 * 1024 * 1024,
                     queueSize: 3,

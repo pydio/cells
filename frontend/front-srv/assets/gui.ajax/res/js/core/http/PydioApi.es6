@@ -26,6 +26,33 @@ import TreeNode from "./gen/model/TreeNode";
 import TreeServiceApi from "./gen/api/TreeServiceApi";
 import AjxpNode from "../model/AjxpNode";
 
+// Extend S3 ManagedUpload to get progress info about each part
+class ManagedMultipart extends AWS.S3.ManagedUpload{
+
+    progress(info) {
+        const upload = this._managedUpload;
+        if (this.operation === 'putObject') {
+            info.part = 1;
+            info.key = this.params.Key;
+        } else {
+            const partLoaded = info.loaded;
+            const partTotal = info.total;
+            upload.totalUploadedBytes += info.loaded - this._lastUploadedBytes;
+            this._lastUploadedBytes = info.loaded;
+            info = {
+                loaded: upload.totalUploadedBytes,
+                total: upload.totalBytes,
+                part: this.params.PartNumber,
+                partLoaded, partTotal,
+                key: this.params.Key
+            };
+            console.log("emit", info);
+        }
+        upload.emit('httpUploadProgress', [info]);
+    }
+
+}
+
 /**
  * API Client
  */
@@ -211,7 +238,7 @@ class PydioApi{
                     s3ForcePathStyle: true,
                     endpoint:url.replace('/io', ''),
                 });
-                const managed = new AWS.S3.ManagedUpload({
+                const managed = new ManagedMultipart({
                     params: {...params, Body: file},
                     partSize: 50 * 1024 * 1024,
                     queueSize: 3,
