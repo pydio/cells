@@ -25,13 +25,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
-	"path"
+	"github.com/spf13/cobra"
 
 	i18n2 "github.com/pydio/cells/common/utils/i18n"
-	"github.com/spf13/cobra"
 )
 
 type singleCounter struct {
@@ -205,7 +205,7 @@ func countGoStrings(cmd *cobra.Command, projectId, counterType, fpath string) er
 		if os.IsNotExist(err) {
 			cmd.Printf("Warning: missing default version of i18n json file at %s\n", fpath) // file does not exist
 		} else {
-			cmd.Printf("Warning: could not stat version of i18n json file at %s: %s\n", fpath, err.Error) // other unexpected error
+			cmd.Printf("Warning: could not stat version of i18n json file at %s: %s\n", fpath, err.Error()) // other unexpected error
 		}
 		return nil
 	}
@@ -227,7 +227,7 @@ func countJsStrings(cmd *cobra.Command, projectId, ftype, fpath string) error {
 		if os.IsNotExist(err) {
 			cmd.Printf("Warning: missing default version of i18n json file at %s\n", fpath) // file does not exist
 		} else {
-			cmd.Printf("Warning: could not stat version of i18n json file at %s: %s\n", fpath, err.Error) // other unexpected error
+			cmd.Printf("Warning: could not stat version of i18n json file at %s: %s\n", fpath, err.Error()) // other unexpected error
 		}
 		return nil
 	}
