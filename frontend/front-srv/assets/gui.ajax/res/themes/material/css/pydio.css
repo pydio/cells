@@ -2629,3 +2629,27 @@ body,
 .icon_buttons_toolbar span.actionbar_button_label {
   display: none;
 }
+.mimefont.mdi-file-pdf,
+.mimefont.mdi-file-image {
+  color: #f44336 !important;
+}
+.mimefont.mdi-file-word,
+.mimefont.mdi-file-document {
+  color: #2196f3 !important;
+}
+.mimefont.mdi-file-excel {
+  color: #4caf50 !important;
+}
+.mimefont.mdi-file-music {
+  color: #ff9800 !important;
+}
+.mimefont.mdi-file-video,
+.mimefont.mdi-movie {
+  color: #ff5722 !important;
+}
+.mimefont.mdi-file-powerpoint {
+  color: #3f51b5 !important;
+}
+.mimefont.mdi-archive {
+  color: #fbc02d !important;
+}

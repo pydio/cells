@@ -181,7 +181,7 @@ class Transfer extends React.Component{
             const ext = PathUtils.getFileExtension(item.getFullPath());
             if(extensions.has(ext)) {
                 const {fontIcon} = extensions.get(ext);
-                iconClass = 'mdi mdi-' + fontIcon;
+                iconClass = 'mimefont mdi mdi-' + fontIcon;
             }
 
             if(status === 'loading') {

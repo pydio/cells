@@ -240,7 +240,7 @@ var Transfer = function (_React$Component) {
                     var _extensions$get = extensions.get(ext),
                         fontIcon = _extensions$get.fontIcon;
 
-                    iconClass = 'mdi mdi-' + fontIcon;
+                    iconClass = 'mimefont mdi mdi-' + fontIcon;
                 }
 
                 if (_status === 'loading') {
