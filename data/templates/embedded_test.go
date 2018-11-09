@@ -8,9 +8,9 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestNewEmbedded(t *testing.T) {
-	Convey("Test Embedded DAO", t, func() {
-		dao := NewEmbedded()
+func TestGetProvider(t *testing.T) {
+	Convey("Test Providers and Embedded DAO", t, func() {
+		dao := GetProvider()
 		nodes := dao.List()
 		So(nodes, ShouldHaveLength, 11)
 		n := nodes[0]
@@ -23,5 +23,9 @@ func TestNewEmbedded(t *testing.T) {
 		So(size, ShouldBeGreaterThan, 0)
 		data, _ := ioutil.ReadAll(reader)
 		So(len(data), ShouldBeGreaterThan, 0)
+
+		byId, e := dao.ByUUID("06-Microsoft PowerPoint Template.pot")
+		So(e, ShouldBeNil)
+		So(byId.AsTemplate().UUID, ShouldEqual, "06-Microsoft PowerPoint Template.pot")
 	})
 }

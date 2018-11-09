@@ -34,7 +34,7 @@ func init() {
 		service.RouterDependencies(),
 		service.WithWeb(func() service.WebHandler {
 			h := new(Handler)
-			h.dao = templates.NewEmbedded()
+			h.dao = templates.GetProvider()
 			return h
 		}),
 	)

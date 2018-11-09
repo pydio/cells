@@ -131,15 +131,10 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 			var reader io.Reader
 			var length int64
 			if input.TemplateUUID != "" {
-				embedded := templates.NewEmbedded()
-				var node templates.Node
-				for _, n := range embedded.List() {
-					if n.AsTemplate().UUID == input.TemplateUUID {
-						node = n
-					}
-				}
-				if node == nil {
-					service.RestError404(req, resp, fmt.Errorf("Cannot find template!"))
+				provider := templates.GetProvider()
+				node, err := provider.ByUUID(input.TemplateUUID)
+				if err != nil {
+					service.RestErrorDetect(req, resp, err)
 					return
 				}
 				var e error
