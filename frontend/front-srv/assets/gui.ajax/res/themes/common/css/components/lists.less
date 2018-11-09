@@ -44,7 +44,7 @@
       &.material-list-entry-2-lines{
         .material-list-line-2{
           line-height: 22px;
-          span.metadata_chunk{
+          span.metadata_chunk_standard{
             opacity: 0;
             color: rgba(0,0,0,0.23);
             &.metadata_chunk_description{
@@ -66,6 +66,9 @@
         border-bottom-color: transparent;
         .material-list-line-1{
           font-weight: inherit;
+          .label-extension{
+            display:inline-block !important;
+          }
         }
         .material-list-line-2{
           span.metadata_chunk{
@@ -89,6 +92,11 @@
       }
 
       &:hover:not(.selected){
+        .material-list-line-1{
+          .label-extension{
+            display:inline-block !important;
+          }
+        }
         .material-list-line-2{
           span.metadata_chunk{
             opacity: 1;

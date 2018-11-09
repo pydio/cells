@@ -21,7 +21,34 @@
 
 import MetaClient from './MetaClient'
 import React from 'react'
+import Color from 'color'
 import {MenuItem, SelectField, Chip, AutoComplete, TextField, Checkbox, FlatButton} from 'material-ui'
+
+const colorsCache = {};
+
+function colorsFromString(s){
+    if (s.length === 0) {
+        return {};
+    }
+    if(colorsCache[s]){
+        return colorsCache[s];
+    }
+    let hash = 0, i, chr, len;
+    for (i = 0, len = s.length; i < len; i++) {
+        chr   = s.charCodeAt(i) * 1000;
+        hash  = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    const hex = "00000".substring(0, 6 - c.length) + c;
+    let color = new Color('#' + hex).hsl();
+    const hue = color.hue();
+    const bg = new Color({h: hue, s: color.saturationl(), l: 90});
+    const fg = new Color({h: hue, s: color.saturationl(), l: 40});
+    const result = {color: fg.string(), backgroundColor:bg.string()};
+    colorsCache[s] = result;
+    return result;
+}
 
 class Renderer{
 
@@ -41,19 +68,45 @@ class Renderer{
     }
 
     static renderStars(node, column){
+        if(!node.getMetadata().get(column.name)){
+            return null;
+        }
         return <MetaStarsRenderer node={node} column={column} size="small"/>;
     }
 
     static renderSelector(node, column){
+        if(!node.getMetadata().get(column.name)){
+            return null;
+        }
         return <SelectorFilter node={node} column={column}/>;
     }
 
     static renderCSSLabel(node, column){
+        if(!node.getMetadata().get(column.name)){
+            return null;
+        }
         return <CSSLabelsFilter node={node} column={column}/>;
     }
 
     static renderTagsCloud(node, column){
-        return <span>{node.getMetadata().get(column.name)}</span>
+        if(!node.getMetadata().get(column.name)){
+            return null;
+        }
+        const tagStyle = {
+            display:'inline-block',
+            backgroundColor: '#E1BEE7',
+            borderRadius: '3px 10px 10px 3px',
+            height: 18,
+            lineHeight: '18px',
+            padding: '0 12px 0 6px',
+            color: '#9C27B0',
+            fontWeight: 500,
+            fontSize: 12,
+            marginRight: 6
+        };
+        const value = node.getMetadata().get(column.name);
+        if(!value) return null;
+        return <span>{value.split(',').map(tag => <span style={{...tagStyle, ...colorsFromString(tag)}}>{tag}</span>)}</span>
     }
 
     static formPanelStars(props){
@@ -392,11 +445,13 @@ let TagsCloud = React.createClass({
     },
 
     renderChip(tag) {
-        const chipStyle = {margin:2, backgroundColor:'#F5F5F5'};
+        const {color, backgroundColor} = colorsFromString(tag);
+        const chipStyle = {margin:2, borderRadius:'4px 16px 16px 4px'};
+        const labelStyle = {color, fontWeight: 500, paddingLeft: 10, paddingRight: 16};
         if (this.props.editMode) {
-            return ( <Chip key={tag} style={chipStyle} onRequestDelete={this.handleRequestDelete.bind(this, tag)}>{tag}</Chip> );
+            return ( <Chip key={tag} backgroundColor={backgroundColor} labelStyle={labelStyle} style={chipStyle} onRequestDelete={this.handleRequestDelete.bind(this, tag)}>{tag}</Chip> );
         } else {
-            return ( <Chip key={tag} style={chipStyle}>{tag}</Chip> );
+            return ( <Chip key={tag} backgroundColor={backgroundColor} labelStyle={labelStyle} style={chipStyle}>{tag}</Chip> );
         }
     },
 

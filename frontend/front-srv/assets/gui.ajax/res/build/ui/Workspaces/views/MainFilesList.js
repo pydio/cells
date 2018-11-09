@@ -146,12 +146,32 @@ var MainFilesList = _react2['default'].createClass({
     },
 
     statics: {
+        computeLabel: function computeLabel(node) {
+            var label = node.getLabel();
+            if (node.isLeaf() && label[0] !== ".") {
+                var ext = _pydioUtilPath2['default'].getFileExtension(label);
+                if (ext) {
+                    ext = '.' + ext;
+                    label = _react2['default'].createElement(
+                        'span',
+                        null,
+                        label.substring(0, label.length - ext.length),
+                        _react2['default'].createElement(
+                            'span',
+                            { className: "label-extension", style: { opacity: 0.33, display: 'none' } },
+                            ext
+                        )
+                    );
+                }
+            }
+            return label;
+        },
+
         tableEntryRenderCell: function tableEntryRenderCell(node) {
             return _react2['default'].createElement(
                 'span',
                 null,
                 _react2['default'].createElement(_FilePreview2['default'], { rounded: true, loadThumbnail: false, node: node, style: { backgroundColor: 'transparent' } }),
-                ' ',
                 node.getLabel()
             );
         }
@@ -210,6 +230,7 @@ var MainFilesList = _react2['default'].createClass({
             var configParser = new ComponentConfigsParser();
             var columns = configParser.loadConfigs('FilesList').get('columns');
             this.setState({
+                repositoryId: this.props.pydio.repositoryId,
                 columns: columns ? columns : configParser.getDefaultListColumns()
             });
         }
@@ -220,10 +241,8 @@ var MainFilesList = _react2['default'].createClass({
     },
 
     recomputeThumbnailsDimension: function recomputeThumbnailsDimension(nearest) {
+        var _this = this;
 
-        if (!nearest || nearest instanceof Event) {
-            nearest = this.state.thumbNearest;
-        }
         var MAIN_CONTAINER_FULL_PADDING = 2;
         var THUMBNAIL_MARGIN = 1;
         var containerWidth = undefined;
@@ -232,36 +251,50 @@ var MainFilesList = _react2['default'].createClass({
         } catch (e) {
             containerWidth = 200;
         }
-
-        // Find nearest dim
-        var blockNumber = Math.floor(containerWidth / nearest);
-        var width = Math.floor(containerWidth / blockNumber) - THUMBNAIL_MARGIN * 2;
-        if (this.props.horizontalRibbon) {
-            blockNumber = this.state.contextNode.getChildren().size;
-            if (this.state.displayMode === 'grid-160') width = 160;else if (this.state.displayMode === 'grid-320') width = 320;else if (this.state.displayMode === 'grid-80') width = 80;else width = 200;
+        if (this.state.displayMode.indexOf('grid') === 0) {
+            if (!nearest || nearest instanceof Event) {
+                nearest = this.state.thumbNearest;
+            }
+            // Find nearest dim
+            var blockNumber = Math.floor(containerWidth / nearest);
+            var width = Math.floor(containerWidth / blockNumber) - THUMBNAIL_MARGIN * 2;
+            if (this.props.horizontalRibbon) {
+                blockNumber = this.state.contextNode.getChildren().size;
+                if (this.state.displayMode === 'grid-160') {
+                    width = 160;
+                } else if (this.state.displayMode === 'grid-320') {
+                    width = 320;
+                } else if (this.state.displayMode === 'grid-80') {
+                    width = 80;
+                } else {
+                    width = 200;
+                }
+            }
+            this.setState({
+                elementsPerLine: blockNumber,
+                thumbSize: width,
+                thumbNearest: nearest
+            });
+        } else {
+            (function () {
+                // Recompute columns widths
+                var columns = _this.state.columns;
+                var columnKeys = Object.keys(columns);
+                var defaultFirstWidthPercent = 10;
+                var firstColWidth = Math.max(250, containerWidth * defaultFirstWidthPercent / 100);
+                var otherColWidth = (containerWidth - firstColWidth) / (Object.keys(_this.state.columns).length - 1);
+                columnKeys.map(function (columnKey) {
+                    columns[columnKey]['width'] = otherColWidth;
+                });
+                _this.setState({
+                    columns: columns
+                });
+            })();
         }
-
-        // Recompute columns widths
-        var columns = this.state.columns;
-        var columnKeys = Object.keys(columns);
-        var defaultFirstWidthPercent = 10;
-        var defaultFirstMinWidthPx = 250;
-        var firstColWidth = Math.max(250, containerWidth * defaultFirstWidthPercent / 100);
-        var otherColWidth = (containerWidth - firstColWidth) / (Object.keys(this.state.columns).length - 1);
-        columnKeys.map(function (columnKey) {
-            columns[columnKey]['width'] = otherColWidth;
-        });
-
-        this.setState({
-            columns: columns,
-            elementsPerLine: blockNumber,
-            thumbSize: width,
-            thumbNearest: nearest
-        });
     },
 
     entryRenderIcon: function entryRenderIcon(node) {
-        var _this = this;
+        var _this2 = this;
 
         var entryProps = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -271,7 +304,7 @@ var MainFilesList = _react2['default'].createClass({
                 node: node,
                 mimeClassName: 'mimefont mdi mdi-chevron-left',
                 onTouchTap: function () {
-                    _this.entryHandleClicks(node, SimpleList.CLICK_TYPE_DOUBLE);
+                    _this2.entryHandleClicks(node, SimpleList.CLICK_TYPE_DOUBLE);
                 },
                 style: { cursor: 'pointer' }
             });
@@ -293,7 +326,7 @@ var MainFilesList = _react2['default'].createClass({
         var mobile = pydio.UI.MOBILE_EXTENSIONS;
         var dm = pydio.getContextHolder();
         if (mobile) {
-            var _ret2 = (function () {
+            var _ret3 = (function () {
                 var ContextMenuModel = require('pydio/model/context-menu');
                 return {
                     v: _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-dots-vertical', tooltip: 'Info', onClick: function (event) {
@@ -307,7 +340,7 @@ var MainFilesList = _react2['default'].createClass({
                 };
             })();
 
-            if (typeof _ret2 === 'object') return _ret2.v;
+            if (typeof _ret3 === 'object') return _ret3.v;
         } else if (node.getMetadata().get('overlay_class')) {
             var elements = node.getMetadata().get('overlay_class').split(',').filter(function (c) {
                 return !!c;
@@ -359,6 +392,9 @@ var MainFilesList = _react2['default'].createClass({
     entryRenderSecondLine: function entryRenderSecondLine(node) {
         var metaData = node.getMetadata();
         var pieces = [];
+        var standardPieces = [];
+        var otherPieces = [];
+
         if (metaData.has('pending_operation')) {
             return _react2['default'].createElement(
                 'span',
@@ -382,29 +418,45 @@ var MainFilesList = _react2['default'].createClass({
 
         var first = false;
         var attKeys = Object.keys(this.state.columns);
+
         for (var i = 0; i < attKeys.length; i++) {
             var s = attKeys[i];
             var columnDef = this.state.columns[s];
             var label = undefined;
+            var standard = false;
             if (s === 'ajxp_label' || s === 'text') {
                 continue;
             } else if (s === "ajxp_modiftime") {
                 var date = new Date();
                 date.setTime(parseInt(metaData.get(s)) * 1000);
                 label = _pydioUtilPath2['default'].formatModifDate(date);
+                standard = true;
             } else if (s === "ajxp_dirname" && metaData.get("filename")) {
                 var dirName = _pydioUtilPath2['default'].getDirname(metaData.get("filename"));
                 label = dirName ? dirName : "/";
+                standard = true;
             } else if (s === "bytesize") {
                 if (metaData.get(s) === "-") {
                     continue;
                 } else {
-                    label = _pydioUtilPath2['default'].roundFileSize(parseInt(metaData.get(s)));
+                    var test = _pydioUtilPath2['default'].roundFileSize(parseInt(metaData.get(s)));
+                    if (test !== NaN) {
+                        label = test;
+                    } else {
+                        continue;
+                    }
                 }
+                standard = true;
             } else if (columnDef.renderComponent) {
                 columnDef['name'] = s;
                 label = columnDef.renderComponent(node, columnDef);
+                if (label === null) {
+                    continue;
+                }
             } else {
+                if (s === 'mimestring' || s === 'readable_dimension') {
+                    standard = true;
+                }
                 var metaValue = metaData.get(s) || "";
                 if (!metaValue) {
                     continue;
@@ -415,8 +467,8 @@ var MainFilesList = _react2['default'].createClass({
             if (!first) {
                 sep = _react2['default'].createElement('span', { className: 'icon-angle-right' });
             }
-            var cellClass = 'metadata_chunk metadata_chunk_standard metadata_chunk_' + s;
-            pieces.push(_react2['default'].createElement(
+            var cellClass = 'metadata_chunk metadata_chunk_' + (standard ? 'standard' : 'other') + ' metadata_chunk_' + s;
+            var cell = _react2['default'].createElement(
                 'span',
                 { key: s, className: cellClass },
                 sep,
@@ -425,19 +477,23 @@ var MainFilesList = _react2['default'].createClass({
                     { className: 'text_label' },
                     label
                 )
-            ));
+            );
+            standard ? standardPieces.push(cell) : otherPieces.push(cell);
         }
+        pieces.push.apply(pieces, otherPieces.concat(standardPieces));
         return pieces;
     },
 
     switchDisplayMode: function switchDisplayMode(displayMode) {
-        this.setState({ displayMode: displayMode });
-        if (displayMode.indexOf('grid-') === 0) {
-            var near = parseInt(displayMode.split('-')[1]);
-            this.recomputeThumbnailsDimension(near);
-        } else if (displayMode === 'detail') {
-            this.recomputeThumbnailsDimension();
-        }
+        var _this3 = this;
+
+        this.setState({ displayMode: displayMode }, function () {
+            var near = null;
+            if (displayMode.indexOf('grid-') === 0) {
+                near = parseInt(displayMode.split('-')[1]);
+            }
+            _this3.recomputeThumbnailsDimension(near);
+        });
     },
 
     getPydioActions: function getPydioActions() {
@@ -446,6 +502,8 @@ var MainFilesList = _react2['default'].createClass({
         if (keysOnly) {
             return ['switch_display_mode'];
         }
+        var displayMode = this.state.displayMode;
+
         var multiAction = new _pydioModelAction2['default']({
             name: 'switch_display_mode',
             icon_class: 'mdi mdi-view-list',
@@ -590,6 +648,9 @@ var MainFilesList = _react2['default'].createClass({
             passScrollingStateToChildren: true,
             entryRenderIcon: this.entryRenderIcon,
             entryRenderParentIcon: this.entryRenderIcon,
+            entryRenderFirstLine: function (node) {
+                return MainFilesList.computeLabel(node);
+            },
             entryRenderSecondLine: entryRenderSecondLine,
             entryRenderActions: this.entryRenderActions,
             entryHandleClicks: this.entryHandleClicks,

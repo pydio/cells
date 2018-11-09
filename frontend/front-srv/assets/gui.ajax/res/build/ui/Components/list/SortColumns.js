@@ -140,7 +140,8 @@ var SortColumns = React.createClass({
             title: this.props.getMessage(450),
             hasAccessKey: false,
             subMenu: true,
-            subMenuUpdateImage: true
+            subMenuUpdateImage: true,
+            weight: 50
         }, {
             selection: false,
             dir: true,
@@ -161,7 +162,9 @@ var SortColumns = React.createClass({
     },
 
     render: function render() {
-        if (this.props.displayMode === 'menu') {
+        if (this.props.displayMode === 'hidden') {
+            return null;
+        } else if (this.props.displayMode === 'menu') {
             return React.createElement(_menuIconButtonMenu2['default'], { buttonTitle: 'Sort by...', buttonClassName: 'mdi mdi-sort-descending', menuItems: this.getColumnsItems('menu', this.props.pydio.getController()), onMenuClicked: this.onMenuClicked });
         } else {
             return React.createElement(

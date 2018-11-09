@@ -112,15 +112,20 @@ export default class Controller extends Observable{
 
     updateGuiActions(actions){
         actions.forEach(function(v, k){
-            this._guiActions.set(k, v);
-            this.registerAction(v);
+            if(!this._guiActions.has(k)){
+                this._guiActions.set(k, v);
+                this.registerAction(v);
+            }
         }.bind(this));
-        //this.notify("actions_refreshed");
+        this.notify("actions_refreshed");
     }
 
     deleteFromGuiActions(actionName){
         this._guiActions.delete(actionName);
-        //this.notify("actions_refreshed");
+        if(this.actions.has(actionName)){
+            this.actions.delete(actionName);
+        }
+        this.notify("actions_refreshed");
     }
 
     refreshGuiActionsI18n(){

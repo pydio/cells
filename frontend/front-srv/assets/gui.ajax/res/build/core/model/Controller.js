@@ -141,15 +141,20 @@ var Controller = (function (_Observable) {
 
     Controller.prototype.updateGuiActions = function updateGuiActions(actions) {
         actions.forEach((function (v, k) {
-            this._guiActions.set(k, v);
-            this.registerAction(v);
+            if (!this._guiActions.has(k)) {
+                this._guiActions.set(k, v);
+                this.registerAction(v);
+            }
         }).bind(this));
-        //this.notify("actions_refreshed");
+        this.notify("actions_refreshed");
     };
 
     Controller.prototype.deleteFromGuiActions = function deleteFromGuiActions(actionName) {
         this._guiActions['delete'](actionName);
-        //this.notify("actions_refreshed");
+        if (this.actions.has(actionName)) {
+            this.actions['delete'](actionName);
+        }
+        this.notify("actions_refreshed");
     };
 
     Controller.prototype.refreshGuiActionsI18n = function refreshGuiActionsI18n() {

@@ -24,9 +24,9 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -46,7 +46,40 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _color = require('color');
+
+var _color2 = _interopRequireDefault(_color);
+
 var _materialUi = require('material-ui');
+
+var colorsCache = {};
+
+function colorsFromString(s) {
+    if (s.length === 0) {
+        return {};
+    }
+    if (colorsCache[s]) {
+        return colorsCache[s];
+    }
+    var hash = 0,
+        i = undefined,
+        chr = undefined,
+        len = undefined;
+    for (i = 0, len = s.length; i < len; i++) {
+        chr = s.charCodeAt(i) * 1000;
+        hash = (hash << 5) - hash + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    var c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    var hex = "00000".substring(0, 6 - c.length) + c;
+    var color = new _color2['default']('#' + hex).hsl();
+    var hue = color.hue();
+    var bg = new _color2['default']({ h: hue, s: color.saturationl(), l: 90 });
+    var fg = new _color2['default']({ h: hue, s: color.saturationl(), l: 40 });
+    var result = { color: fg.string(), backgroundColor: bg.string() };
+    colorsCache[s] = result;
+    return result;
+}
 
 var Renderer = (function () {
     function Renderer() {
@@ -74,25 +107,57 @@ var Renderer = (function () {
     }, {
         key: 'renderStars',
         value: function renderStars(node, column) {
+            if (!node.getMetadata().get(column.name)) {
+                return null;
+            }
             return _react2['default'].createElement(MetaStarsRenderer, { node: node, column: column, size: 'small' });
         }
     }, {
         key: 'renderSelector',
         value: function renderSelector(node, column) {
+            if (!node.getMetadata().get(column.name)) {
+                return null;
+            }
             return _react2['default'].createElement(SelectorFilter, { node: node, column: column });
         }
     }, {
         key: 'renderCSSLabel',
         value: function renderCSSLabel(node, column) {
+            if (!node.getMetadata().get(column.name)) {
+                return null;
+            }
             return _react2['default'].createElement(CSSLabelsFilter, { node: node, column: column });
         }
     }, {
         key: 'renderTagsCloud',
         value: function renderTagsCloud(node, column) {
+            if (!node.getMetadata().get(column.name)) {
+                return null;
+            }
+            var tagStyle = {
+                display: 'inline-block',
+                backgroundColor: '#E1BEE7',
+                borderRadius: '3px 10px 10px 3px',
+                height: 18,
+                lineHeight: '18px',
+                padding: '0 12px 0 6px',
+                color: '#9C27B0',
+                fontWeight: 500,
+                fontSize: 12,
+                marginRight: 6
+            };
+            var value = node.getMetadata().get(column.name);
+            if (!value) return null;
             return _react2['default'].createElement(
                 'span',
                 null,
-                node.getMetadata().get(column.name)
+                value.split(',').map(function (tag) {
+                    return _react2['default'].createElement(
+                        'span',
+                        { style: _extends({}, tagStyle, colorsFromString(tag)) },
+                        tag
+                    );
+                })
             );
         }
     }, {
@@ -504,17 +569,23 @@ var TagsCloud = _react2['default'].createClass({
     },
 
     renderChip: function renderChip(tag) {
-        var chipStyle = { margin: 2, backgroundColor: '#F5F5F5' };
+        var _colorsFromString = colorsFromString(tag);
+
+        var color = _colorsFromString.color;
+        var backgroundColor = _colorsFromString.backgroundColor;
+
+        var chipStyle = { margin: 2, borderRadius: '4px 16px 16px 4px' };
+        var labelStyle = { color: color, fontWeight: 500, paddingLeft: 10, paddingRight: 16 };
         if (this.props.editMode) {
             return _react2['default'].createElement(
                 _materialUi.Chip,
-                { key: tag, style: chipStyle, onRequestDelete: this.handleRequestDelete.bind(this, tag) },
+                { key: tag, backgroundColor: backgroundColor, labelStyle: labelStyle, style: chipStyle, onRequestDelete: this.handleRequestDelete.bind(this, tag) },
                 tag
             );
         } else {
             return _react2['default'].createElement(
                 _materialUi.Chip,
-                { key: tag, style: chipStyle },
+                { key: tag, backgroundColor: backgroundColor, labelStyle: labelStyle, style: chipStyle },
                 tag
             );
         }

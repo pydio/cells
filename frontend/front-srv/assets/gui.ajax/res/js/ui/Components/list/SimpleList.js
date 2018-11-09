@@ -1022,7 +1022,20 @@ let SimpleList = React.createClass({
         return null;
     },
 
-    renderToolbar: function(){
+    renderToolbar: function(hiddenMode = false){
+
+        if(hiddenMode){
+            if(this.props.sortKeys){
+                let sortingInfo, remoteSortingInfo = this.remoteSortingInfo();
+                if(remoteSortingInfo){
+                    sortingInfo = remoteSortingInfo;
+                }else{
+                    sortingInfo = this.state?this.state.sortingInfo:null;
+                }
+                return <SortColumns displayMode="hidden" tableKeys={this.props.sortKeys} columnClicked={this.onColumnSort} sortingInfo={sortingInfo} />;
+            }
+            return null;
+        }
 
         let rightButtons = [<FontIcon
             key={1}
@@ -1141,6 +1154,7 @@ let SimpleList = React.createClass({
             containerClasses += " table-mode";
         }
         let toolbar;
+        let hiddenToolbar;
         if(this.props.tableKeys){
             let tableKeys;
             if(this.props.defaultGroupBy){
@@ -1168,6 +1182,9 @@ let SimpleList = React.createClass({
             />
         }else{
             toolbar = this.props.customToolbar ? this.props.customToolbar : ( !this.props.hideToolbar ? this.renderToolbar() : null );
+            if(this.props.hideToolbar || this.props.customToolbar){
+                hiddenToolbar = this.renderToolbar(true);
+            }
         }
 
         let inlineEditor;
@@ -1210,7 +1227,7 @@ let SimpleList = React.createClass({
 
         return (
             <div className={containerClasses} onContextMenu={this.contextMenuResponder} tabIndex="0" onKeyDown={this.onKeyDown} style={this.props.style}>
-                {toolbar}
+                {toolbar}{hiddenToolbar}
                 {inlineEditor}
                 <div className={this.props.heightAutoWithMax?"infinite-parent-smooth-height":(emptyState?"layout-fill vertical_layout":"layout-fill")} ref="infiniteParent">
                     {!emptyState && !this.props.verticalScroller &&

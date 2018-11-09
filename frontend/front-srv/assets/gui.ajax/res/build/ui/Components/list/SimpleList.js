@@ -1093,6 +1093,22 @@ var SimpleList = React.createClass({
     renderToolbar: function renderToolbar() {
         var _this7 = this;
 
+        var hiddenMode = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+        if (hiddenMode) {
+            if (this.props.sortKeys) {
+                var sortingInfo = undefined,
+                    remoteSortingInfo = this.remoteSortingInfo();
+                if (remoteSortingInfo) {
+                    sortingInfo = remoteSortingInfo;
+                } else {
+                    sortingInfo = this.state ? this.state.sortingInfo : null;
+                }
+                return React.createElement(_SortColumns2['default'], { displayMode: 'hidden', tableKeys: this.props.sortKeys, columnClicked: this.onColumnSort, sortingInfo: sortingInfo });
+            }
+            return null;
+        }
+
         var rightButtons = [React.createElement(_materialUi.FontIcon, {
             key: 1,
             tooltip: 'Reload',
@@ -1222,6 +1238,7 @@ var SimpleList = React.createClass({
             containerClasses += " table-mode";
         }
         var toolbar = undefined;
+        var hiddenToolbar = undefined;
         if (this.props.tableKeys) {
             var tableKeys = undefined;
             if (this.props.defaultGroupBy) {
@@ -1250,6 +1267,9 @@ var SimpleList = React.createClass({
             });
         } else {
             toolbar = this.props.customToolbar ? this.props.customToolbar : !this.props.hideToolbar ? this.renderToolbar() : null;
+            if (this.props.hideToolbar || this.props.customToolbar) {
+                hiddenToolbar = this.renderToolbar(true);
+            }
         }
 
         var inlineEditor = undefined;
@@ -1298,6 +1318,7 @@ var SimpleList = React.createClass({
             'div',
             { className: containerClasses, onContextMenu: this.contextMenuResponder, tabIndex: '0', onKeyDown: this.onKeyDown, style: this.props.style },
             toolbar,
+            hiddenToolbar,
             inlineEditor,
             React.createElement(
                 'div',

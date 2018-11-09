@@ -104,8 +104,24 @@ let MainFilesList = React.createClass({
     },
 
     statics: {
+        computeLabel:(node)=>{
+            let label = node.getLabel();
+            if(node.isLeaf() && label[0] !== "."){
+                let ext = PathUtils.getFileExtension(label);
+                if(ext){
+                    ext = '.' + ext;
+                    label = <span>{label.substring(0, label.length-ext.length)}<span className={"label-extension"} style={{opacity:0.33, display:'none'}}>{ext}</span></span>;
+                }
+            }
+            return label;
+        },
+
         tableEntryRenderCell: function(node){
-            return <span><FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/> {node.getLabel()}</span>;
+            return (
+                <span>
+                    <FilePreview rounded={true} loadThumbnail={false} node={node} style={{backgroundColor:'transparent'}}/>{node.getLabel()}
+                </span>
+            );
         }
     },
 
@@ -162,6 +178,7 @@ let MainFilesList = React.createClass({
             let configParser = new ComponentConfigsParser();
             const columns = configParser.loadConfigs('FilesList').get('columns');
             this.setState({
+                repositoryId: this.props.pydio.repositoryId,
                 columns: columns ? columns : configParser.getDefaultListColumns(),
             })
         }
@@ -173,9 +190,6 @@ let MainFilesList = React.createClass({
 
     recomputeThumbnailsDimension: function(nearest){
 
-        if(!nearest || nearest instanceof Event){
-            nearest = this.state.thumbNearest;
-        }
         const MAIN_CONTAINER_FULL_PADDING = 2;
         const THUMBNAIL_MARGIN = 1;
         let containerWidth;
@@ -184,36 +198,46 @@ let MainFilesList = React.createClass({
         }catch(e){
             containerWidth = 200;
         }
+        if(this.state.displayMode.indexOf('grid') === 0) {
+            if(!nearest || nearest instanceof Event){
+                nearest = this.state.thumbNearest;
+            }
+            // Find nearest dim
+            let blockNumber = Math.floor(containerWidth / nearest);
+            let width = Math.floor(containerWidth / blockNumber) - THUMBNAIL_MARGIN * 2;
+            if(this.props.horizontalRibbon){
+                blockNumber = this.state.contextNode.getChildren().size;
+                if(this.state.displayMode === 'grid-160') {
+                    width = 160;
+                } else if(this.state.displayMode === 'grid-320') {
+                    width = 320;
+                } else if(this.state.displayMode === 'grid-80') {
+                    width = 80;
+                } else {
+                    width = 200;
+                }
+            }
+            this.setState({
+                elementsPerLine: blockNumber,
+                thumbSize: width,
+                thumbNearest:nearest
+            });
 
-        // Find nearest dim
-        let blockNumber = Math.floor(containerWidth / nearest);
-        let width = Math.floor(containerWidth / blockNumber) - THUMBNAIL_MARGIN * 2;
-        if(this.props.horizontalRibbon){
-            blockNumber = this.state.contextNode.getChildren().size;
-            if(this.state.displayMode === 'grid-160') width = 160;
-            else if(this.state.displayMode === 'grid-320') width = 320;
-            else if(this.state.displayMode === 'grid-80') width = 80;
-            else width = 200;
+        } else {
+            // Recompute columns widths
+            let columns = this.state.columns;
+            let columnKeys = Object.keys(columns);
+            let defaultFirstWidthPercent = 10;
+            let firstColWidth = Math.max(250, containerWidth * defaultFirstWidthPercent / 100);
+            let otherColWidth = (containerWidth - firstColWidth) / (Object.keys(this.state.columns).length - 1);
+            columnKeys.map(function(columnKey){
+                columns[columnKey]['width'] = otherColWidth;
+            });
+            this.setState({
+                columns: columns,
+            });
+
         }
-
-        // Recompute columns widths
-        let columns = this.state.columns;
-        let columnKeys = Object.keys(columns);
-        let defaultFirstWidthPercent = 10;
-        let defaultFirstMinWidthPx = 250;
-        let firstColWidth = Math.max(250, containerWidth * defaultFirstWidthPercent / 100);
-        let otherColWidth = (containerWidth - firstColWidth) / (Object.keys(this.state.columns).length - 1);
-        columnKeys.map(function(columnKey){
-            columns[columnKey]['width'] = otherColWidth;
-        });
-
-        this.setState({
-            columns: columns,
-            elementsPerLine: blockNumber,
-            thumbSize: width,
-            thumbNearest:nearest
-        });
-
 
     },
 
@@ -300,6 +324,9 @@ let MainFilesList = React.createClass({
     entryRenderSecondLine: function(node){
         let metaData = node.getMetadata();
         let pieces = [];
+        const standardPieces = [];
+        const otherPieces = [];
+
         if (metaData.has('pending_operation')){
             return <span style={{fontStyle:'italic', color:'rgba(0,0,0,.33)'}}>{metaData.get('pending_operation')}</span>
         }
@@ -315,29 +342,45 @@ let MainFilesList = React.createClass({
 
         let first = false;
         let attKeys = Object.keys(this.state.columns);
+
         for(let i = 0; i<attKeys.length;i++ ){
             let s = attKeys[i];
             let columnDef = this.state.columns[s];
             let label;
+            let standard = false;
             if(s === 'ajxp_label' || s === 'text'){
                 continue;
             }else if(s==="ajxp_modiftime"){
                 let date = new Date();
                 date.setTime(parseInt(metaData.get(s))*1000);
                 label = PathUtils.formatModifDate(date);
+                standard = true;
             }else if(s === "ajxp_dirname" && metaData.get("filename")){
                 let dirName = PathUtils.getDirname(metaData.get("filename"));
                 label =  dirName?dirName:"/" ;
+                standard = true;
             }else if(s === "bytesize") {
                 if(metaData.get(s) === "-"){
                     continue;
                 } else {
-                    label = PathUtils.roundFileSize(parseInt(metaData.get(s)));
+                    let test = PathUtils.roundFileSize(parseInt(metaData.get(s)));
+                    if(test !== NaN){
+                        label = test;
+                    } else {
+                        continue;
+                    }
                 }
+                standard = true;
             }else if(columnDef.renderComponent){
                 columnDef['name'] = s;
                 label = columnDef.renderComponent(node, columnDef);
+                if(label === null){
+                    continue;
+                }
             }else{
+                if(s === 'mimestring' || s === 'readable_dimension'){
+                    standard = true;
+                }
                 const metaValue = metaData.get(s) || "";
                 if(!metaValue) {
                     continue;
@@ -348,21 +391,23 @@ let MainFilesList = React.createClass({
             if(!first){
                 sep = <span className="icon-angle-right"></span>;
             }
-            let cellClass = 'metadata_chunk metadata_chunk_standard metadata_chunk_' + s;
-            pieces.push(<span key={s} className={cellClass}>{sep}<span className="text_label">{label}</span></span>);
+            let cellClass = 'metadata_chunk metadata_chunk_'+(standard ?'standard':'other')+' metadata_chunk_' + s;
+            const cell = <span key={s} className={cellClass}>{sep}<span className="text_label">{label}</span></span>;
+            standard ? standardPieces.push(cell) : otherPieces.push(cell);
         }
+        pieces.push(...otherPieces, ...standardPieces);
         return pieces;
 
     },
 
     switchDisplayMode: function(displayMode){
-        this.setState({displayMode: displayMode});
-        if(displayMode.indexOf('grid-') === 0){
-            let near = parseInt(displayMode.split('-')[1]);
-            this.recomputeThumbnailsDimension(near);
-        }else if(displayMode === 'detail'){
-            this.recomputeThumbnailsDimension();
-        }
+        this.setState({displayMode: displayMode}, ()=>{
+            let near = null;
+            if(displayMode.indexOf('grid-') === 0) {
+                near = parseInt(displayMode.split('-')[1]);
+            }
+            this.recomputeThumbnailsDimension(near)
+        });
     },
 
     getPydioActions: function(keysOnly = false){
@@ -506,6 +551,7 @@ let MainFilesList = React.createClass({
                 passScrollingStateToChildren={true}
                 entryRenderIcon={this.entryRenderIcon}
                 entryRenderParentIcon={this.entryRenderIcon}
+                entryRenderFirstLine={(node)=>MainFilesList.computeLabel(node)}
                 entryRenderSecondLine={entryRenderSecondLine}
                 entryRenderActions={this.entryRenderActions}
                 entryHandleClicks={this.entryHandleClicks}
