@@ -136,11 +136,6 @@ exports['default'] = _react2['default'].createClass({
     render: function render() {
 
         var messages = this.props.pydio.MessageHash;
-
-        var style = {
-            marginLeft: 24
-        };
-
         var urls = this.state.urls;
 
         var items = urls.map((function (item, id) {
@@ -151,7 +146,7 @@ exports['default'] = _react2['default'].createClass({
                     'div',
                     { style: { display: 'flex', justifyContent: 'space-between', padding: '0px 24px', width: '100%', height: '100%' } },
                     _react2['default'].createElement(_materialUi.TextField, { disabled: this.state.submitting, style: { display: 'flex', alignItems: 'center' }, value: item, underlineShow: false, fullWidth: true, onChange: this._handleChangeURL(id) }),
-                    _react2['default'].createElement(_materialUi.FontIcon, { style: { display: 'flex', alignItems: 'center', fontSize: '1em' }, className: 'icon-remove', onClick: this._handleDeleteURL(id) })
+                    _react2['default'].createElement(_materialUi.FontIcon, { style: { display: 'flex', alignItems: 'center', fontSize: '1em' }, className: 'mdi mdi-delete', onClick: this._handleDeleteURL(id) })
                 ),
                 _react2['default'].createElement(_materialUi.Divider, null)
             );
@@ -159,31 +154,31 @@ exports['default'] = _react2['default'].createClass({
 
         return _react2['default'].createElement(
             'div',
-            { style: { position: 'relative', padding: '10px' } },
+            { style: { position: 'relative', padding: 10 } },
             _react2['default'].createElement(
                 'div',
-                { style: { position: 'relative', margin: '10px' }, className: 'dialoglegend' },
+                { style: { position: 'relative', margin: 10, fontSize: 13 }, className: 'dialoglegend' },
                 messages['httpdownloader.4']
             ),
             _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 1 },
-                items,
-                _react2['default'].createElement(_materialUi.TextField, { disabled: this.state.submitting, hintText: messages['httpdownloader.5'], style: style, value: this.state.currentURL, underlineShow: false, fullWidth: true, onChange: this._handleChangeCurrentURL, onKeyDown: this._handleAddURL, onBlur: this._handleAddURL }),
-                _react2['default'].createElement(_materialUi.Divider, null)
-            ),
-            urls.length > 0 && _react2['default'].createElement(
-                _materialUi.Toolbar,
-                { style: { backgroundColor: '#fff' } },
+                'div',
+                { style: { minHeight: 160 } },
                 _react2['default'].createElement(
-                    'div',
-                    { style: { display: 'flex', justifyContent: 'space-between', padding: '0px 24px', width: '100%', height: '100%' } },
+                    _materialUi.Paper,
+                    { zDepth: 1, style: { marginBottom: 10, maxHeight: 300, overflowY: 'auto' } },
+                    items,
                     _react2['default'].createElement(
                         'div',
-                        { style: { display: 'flex', alignItems: 'center', marginLeft: '-48px' } },
-                        _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: 'Start', onClick: this._handleSubmit })
-                    )
+                        { style: { paddingLeft: 24 } },
+                        _react2['default'].createElement(_materialUi.TextField, { disabled: this.state.submitting, hintText: messages['httpdownloader.5'] + ' + Hit Enter', value: this.state.currentURL, underlineShow: false, fullWidth: true, onChange: this._handleChangeCurrentURL, onKeyDown: this._handleAddURL, onBlur: this._handleAddURL })
+                    ),
+                    _react2['default'].createElement(_materialUi.Divider, null)
                 )
+            ),
+            _react2['default'].createElement(
+                'div',
+                { style: { textAlign: 'right' } },
+                _react2['default'].createElement(_materialUi.RaisedButton, { disabled: urls.length === 0, primary: true, label: 'Start', onClick: this._handleSubmit })
             )
         );
     }

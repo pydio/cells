@@ -11,17 +11,9 @@ var _StatusItem2 = require('./StatusItem');
 
 var _StatusItem3 = _interopRequireDefault(_StatusItem2);
 
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
 var _path = require('pydio/util/path');
 
 var _path2 = _interopRequireDefault(_path);
-
-var _lang = require('pydio/util/lang');
-
-var _lang2 = _interopRequireDefault(_lang);
 
 var _api = require('pydio/http/api');
 
@@ -41,15 +33,18 @@ var FolderItem = function (_StatusItem) {
     _inherits(FolderItem, _StatusItem);
 
     function FolderItem(path, targetNode) {
+        var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
         _classCallCheck(this, FolderItem);
 
-        var _this = _possibleConstructorReturn(this, (FolderItem.__proto__ || Object.getPrototypeOf(FolderItem)).call(this, 'folder'));
+        var _this = _possibleConstructorReturn(this, (FolderItem.__proto__ || Object.getPrototypeOf(FolderItem)).call(this, 'folder', targetNode, parent));
 
         _this._new = true;
-        _this._path = path;
-        _this._targetNode = targetNode;
-        var pydio = _pydio2.default.getInstance();
-        _this._repositoryId = pydio.user.activeRepository;
+        _this._label = _path2.default.getBasename(path);
+        _this.children.pg[_this.getId()] = 0;
+        if (parent) {
+            parent.addChild(_this);
+        }
         return _this;
     }
 
@@ -59,34 +54,17 @@ var FolderItem = function (_StatusItem) {
             return this._new;
         }
     }, {
-        key: 'getPath',
-        value: function getPath() {
-            return this._path;
-        }
-    }, {
-        key: 'getLabel',
-        value: function getLabel() {
-            return _path2.default.getBasename(this._path);
-        }
-    }, {
         key: '_doProcess',
         value: function _doProcess(completeCallback) {
             var _this2 = this;
 
-            var pydio = _pydio2.default.getInstance();
-
-            var repoList = pydio.user.getRepositoriesList();
-            if (!repoList.has(this._repositoryId)) {
+            var fullPath = void 0;
+            try {
+                fullPath = this.getFullPath();
+            } catch (e) {
                 this.setStatus('error');
                 return;
             }
-            var slug = repoList.get(this._repositoryId).getSlug();
-            var fullPath = this._targetNode.getPath();
-            fullPath = _lang2.default.trimRight(fullPath, '/') + '/' + _lang2.default.trimLeft(this._path, '/');
-            if (fullPath.normalize) {
-                fullPath = fullPath.normalize('NFC');
-            }
-            fullPath = "/" + slug + fullPath;
 
             var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
             var request = new _restApi.RestCreateNodesRequest();
@@ -98,6 +76,8 @@ var FolderItem = function (_StatusItem) {
 
             api.createNodes(request).then(function (collection) {
                 _this2.setStatus('loaded');
+                _this2.children.pg[_this2.getId()] = 100;
+                _this2.recomputeProgress();
                 completeCallback();
             });
         }

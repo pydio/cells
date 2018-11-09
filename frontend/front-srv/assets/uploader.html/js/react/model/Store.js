@@ -20,40 +20,27 @@
 
 import Pydio from 'pydio'
 import LangUtils from 'pydio/util/lang'
+import PathUtils from 'pydio/util/path'
 import Observable from 'pydio/lang/observable'
 import Task from './Task'
 import Configs from './Configs'
 import UploadItem from './UploadItem'
 import FolderItem from './FolderItem'
+import Session from './Session'
+import {debounce} from 'lodash'
 
 class Store extends Observable{
 
     constructor(){
         super();
-        this._folders = [];
-        this._uploads = [];
         this._processing = [];
         this._processed = [];
         this._errors = [];
-        this._blacklist = [".ds_store", ".pydio"]
-    }
-    recomputeGlobalProgress(){
-        let totalCount      = 0;
-        let totalProgress   = 0;
-        this._uploads.concat(this._processing).concat(this._processed).forEach(function(item){
-            if(!item.getProgress) {
-                return;
-            }
-            totalCount += item.getSize();
-            totalProgress += item.getProgress() * item.getSize() / 100;
-        });
-        let progress;
-        if (totalCount) {
-            progress = totalProgress / totalCount;
-        } else {
-            progress = 0;
-        }
-        return progress;
+        this._sessions = [];
+        this._blacklist = [".ds_store", ".pydio"];
+
+        this._running = false;
+        this._pauseRequired = false;
     }
 
     // Required for backward compat
@@ -61,82 +48,59 @@ class Store extends Observable{
         return Configs.getInstance().getAutoStart();
     }
 
-    pushFolder(folderItem){
-        if(!this.getQueueSize()){
-            this._processed = [];
-        }
-        this._folders.push(folderItem);
-        Task.getInstance().setPending(this.getQueueSize());
-        if(Configs.getInstance().getAutoStart() && !this._processing.length) {
-            this.processNext();
-        }
-        this.notify('update');
-        this.notify('item_added', folderItem);
-    }
-
-    pushFile(uploadItem){
-        if(!this.getQueueSize()){
-            this._processed = [];
-        }
-
-        const name = uploadItem.getFile().name.toLowerCase();
-        const isBlacklisted = name.length >= 1 && name[0] === "."; //this._blacklist.reduce((current, val) => current || name === val, false);
-        if (isBlacklisted) {
-            //this.processNext();
-            return
-        }
-
-        this._uploads.push(uploadItem);
-        Task.getInstance().setPending(this.getQueueSize());
-        uploadItem.observe("progress", ()=>{
-            let pg = this.recomputeGlobalProgress();
-            Task.getInstance().setProgress(pg);
+    pushSession(session) {
+        this._sessions.push(session);
+        session.Task = Task.create(session);
+        session.observe('update', ()=> {
+            this.notify('update');
         });
-        if(Configs.getInstance().getAutoStart() && !this._processing.length) {
-            this.processNext();
-        }
+        session.observe('children', ()=> {
+            this.notify('update');
+        });
         this.notify('update');
-        this.notify('item_added', uploadItem);
-    }
-
-    log(){
-    }
-
-    processQueue(){
-        let next = this.getNext();
-        while(next !== null){
-            next.process(function(){
-                if(next.getStatus() === 'error') {
-                    this._errors.push(next);
-                } else {
-                    this._processed.push(next);
+        session.observe('status', (s) => {
+            if(s === 'ready'){
+                const autoStart = Configs.getInstance().getAutoStart();
+                if(autoStart && !this._processing.length && !this._pauseRequired) {
+                    this.processNext();
+                } else if(!autoStart){
+                    Pydio.getInstance().getController().fireAction("upload");
                 }
-                this.notify("update");
-            }.bind(this));
-            next = this.getNext();
-        }
+            } else if(s === 'confirm') {
+                Pydio.getInstance().getController().fireAction("upload", {confirmDialog: true});
+            }
+        });
     }
 
-    getQueueSize(){
-        return this._folders.length + this._uploads.length + this._processing.length;
+    removeSession(session){
+        const i = this._sessions.indexOf(session);
+        this._sessions = LangUtils.arrayWithout(this._sessions, i);
+        this.notify('update');
+    }
+
+    log(){}
+
+    hasQueue(){
+        return this.getNexts(1).length;
     }
 
     clearAll(){
-        this._folders = [];
-        this._uploads = [];
+        this._sessions = [];
+
         this._processing = [];
         this._processed = [];
         this._errors = [];
         this.notify('update');
-        Task.getInstance().setIdle();
+
     }
 
     processNext(){
         let processables = this.getNexts();
-        if(processables.length){
+        if(processables.length && !this._pauseRequired){
+            this._running = true;
             processables.map(processable => {
                 this._processing.push(processable);
-                Task.getInstance().setRunning(this.getQueueSize());
+                //Task.getInstance().setRunning(this.getQueueSize());
                 processable.process(()=>{
                     this._processing = LangUtils.arrayWithout(this._processing, this._processing.indexOf(processable));
                     if(processable.getStatus() === 'error') {
@@ -149,8 +113,9 @@ class Store extends Observable{
                 });
             });
         }else{
-            Task.getInstance().setIdle();
-
+            this._running = false;
+            this._pauseRequired = false;
+            //Task.getInstance().setIdle();
             if(this.hasErrors()){
                 if(!pydio.getController().react_selector){
                     Pydio.getInstance().getController().fireAction("upload");
@@ -162,17 +127,37 @@ class Store extends Observable{
     }
 
     getNexts(max = 3){
-        if(this._folders.length){
-            return [this._folders.shift()];
+        let folders = [];
+        this._sessions.forEach(session => {
+            session.walk((item)=>{
+                folders.push(item);
+            }, (item)=>{
+                return item.getStatus() === 'new'
+            }, 'folder', ()=>{
+                return folders.length >= 1;
+            });
+        });
+        if(folders.length){
+            return [folders.shift()];
         }
         let items = [];
         const processing = this._processing.length;
-        for (let i = 0; i < (max - processing); i++){
-            if(this._uploads.length){
-                items.push(this._uploads.shift());
+        this._sessions.forEach(session => {
+            let sessItems = 0;
+            session.walk((item)=>{
+                items.push(item);
+                sessItems ++;
+            }, (item)=>{
+                return item.getStatus() === 'new'
+            }, 'file', ()=>{
+                return items.length >= max - processing;
+            });
+            if(sessItems === 0){
+                session.Task.setIdle();
             }
-        }
+        });
         return items;
+
     }
 
     stopOrRemoveItem(item){
@@ -188,15 +173,31 @@ class Store extends Observable{
 
     getItems(){
         return {
+            sessions: this._sessions,
+
             processing: this._processing,
-            pending: this._folders.concat(this._uploads),
             processed: this._processed,
-            errors: this._errors
+            errors: this._errors,
         };
     }
 
     hasErrors(){
         return this._errors.length ? this._errors : false;
+    }
+
+    isRunning(){
+        return this._running;
+    }
+
+    pause(){
+        this._pauseRequired = true;
+        this.notify('update');
+    }
+
+    resume(){
+        this._pauseRequired = false;
+        this.notify('update');
+        this.processNext();
     }
 
     static getInstance(){
@@ -207,115 +208,210 @@ class Store extends Observable{
     }
 
     handleFolderPickerResult(files, targetNode){
-        var folders = {};
-        for (var i=0; i<files.length; i++) {
-            var relPath = null;
+
+        const overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
+        const session = new Session(Pydio.getInstance().user.activeRepository, targetNode);
+        this.pushSession(session);
+
+        let mPaths = {};
+        for (let i=0; i<files.length; i++) {
+            const file = files[i];
+            let mPath = '/' + PathUtils.getBasename(file.name);
             if (files[i]['webkitRelativePath']) {
-                relPath = '/' + files[i]['webkitRelativePath'];
-                var folderPath = PathUtils.getDirname(relPath);
-                if (!folders[folderPath]) {
-                    this.pushFolder(new FolderItem(folderPath, targetNode));
-                    folders[folderPath] = true;
+                mPath = '/' + files[i]['webkitRelativePath'];
+                const folderPath = PathUtils.getDirname(mPath);
+                // Make sure the first level is registered
+                if(folderPath !== '/'){
+                    mPaths[PathUtils.getDirname(folderPath)] = 'FOLDER';
                 }
+                mPaths[folderPath] = 'FOLDER';
             }
-            this.pushFile(new UploadItem(files[i], targetNode, relPath));
+            mPaths[mPath] = file;
         }
+        const tree = session.treeViewFromMaterialPath(mPaths);
+        const recurse = (children, parentItem)=>{
+            children.forEach(child => {
+                if(child.item === 'FOLDER'){
+                    const f = new FolderItem(child.path, targetNode, parentItem);
+                    recurse(child.children, f);
+                } else {
+                    if(this._blacklist.indexOf(PathUtils.getBasename(child.path).toLowerCase()) === -1){
+                        const u = new UploadItem(child.item, targetNode, child.path, parentItem);
+                    }
+                }
+            });
+        };
+        recurse(tree, session);
+        session.prepare(overwriteStatus).catch((e) => {
+            // DO SOMETHING?
+        }) ;
+
     }
 
     handleDropEventResults(items, files, targetNode, accumulator = null, filterFunction = null ){
 
-        let oThis = this;
+        const overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
+        const session = new Session(Pydio.getInstance().user.activeRepository, targetNode);
+        this.pushSession(session);
+        const filter = (refPath) => {
+            if(filterFunction && !filterFunction(refPath)){
+                return false;
+            }
+            return this._blacklist.indexOf(PathUtils.getBasename(refPath).toLowerCase()) === -1;
+        };
+
+        const enqueue = (item, isFolder=false) => {
+            if(filterFunction && !filterFunction(item)){
+                return;
+            }
+            if(accumulator){
+                accumulator.push(item)
+            } else if (isFolder) {
+                //this.pushFolder(item);
+                session.pushFolder(item);
+            } else {
+                //this.pushFile(item);
+                session.pushFile(item);
+            }
+        };
 
         if (items && items.length && (items[0].getAsEntry || items[0].webkitGetAsEntry)) {
             let error = (global.console ? global.console.log : function(err){global.alert(err); }) ;
             let length = items.length;
-            for (var i = 0; i < length; i++) {
-                var entry;
-                if(items[i].kind && items[i].kind !== 'file') continue;
+            const promises = [];
+            for (let i = 0; i < length; i++) {
+                let entry;
+                if(items[i].kind && items[i].kind !== 'file') {
+                    continue;
+                }
                 if(items[0].getAsEntry){
                     entry = items[i].getAsEntry();
                 }else{
                     entry = items[i].webkitGetAsEntry();
                 }
+
                 if (entry.isFile) {
-                    entry.file(function(File) {
-                        if(File.size === 0) return;
-                        let uploadItem = new UploadItem(File, targetNode);
-                        if(filterFunction && !filterFunction(uploadItem)) return;
-                        if(!accumulator) oThis.pushFile(uploadItem);
-                        else accumulator.push(uploadItem);
-                    }, error );
+
+                    promises.push(new Promise((resolve, reject) => {
+                        entry.file(function(File) {
+                            let u;
+                            if(File.size > 0 && filter(File.name)) {
+                                u = new UploadItem(File, targetNode, null, session);
+                            }
+                            resolve(u);
+                        }, () => { reject(); error();} );
+                    }));
+
                 } else if (entry.isDirectory) {
-                    let folderItem = new FolderItem(entry.fullPath, targetNode);
-                    if(filterFunction && !filterFunction(folderItem)) continue;
-                    if(!accumulator) oThis.pushFolder(folderItem);
-                    else accumulator.push(folderItem);
 
-                    this.recurseDirectory(entry, function(fileEntry) {
-                        var relativePath = fileEntry.fullPath;
-                        fileEntry.file(function(File) {
-                            if(File.size === 0) return;
-                            let uploadItem = new UploadItem(File, targetNode, relativePath);
-                            if(filterFunction && !filterFunction(uploadItem)) return;
-                            if(!accumulator) oThis.pushFile(uploadItem);
-                            else accumulator.push(uploadItem);
-
-                        }, error );
+                    entry.folderItem = new FolderItem(entry.fullPath, targetNode, session);
+                    //enqueue(f, true);
+                    promises.push(this.recurseDirectory(entry, (fileEntry) => {
+                        const relativePath = fileEntry.fullPath;
+                        return new Promise((resolve, reject) => {
+                            fileEntry.file((File) => {
+                                let uItem;
+                                if(File.size > 0 && filter(File.name)) {
+                                    uItem = new UploadItem(File, targetNode, relativePath, fileEntry.parentItem);
+                                }
+                                resolve(uItem);
+                            }, e => {reject(e); error();});
+                        });
                     }, function(folderEntry){
-                        let folderItem = new FolderItem(folderEntry.fullPath, targetNode);
-                        if(filterFunction && !filterFunction(uploadItem)) return;
-                        if(!accumulator) oThis.pushFolder(folderItem);
-                        else accumulator.push(folderItem);
-                    }, error );
+                        if(filter(folderEntry.fullPath)){
+                            folderEntry.folderItem = new FolderItem(folderEntry.fullPath, targetNode, folderEntry.parentItem);
+                        }
+                        return Promise.resolve(folderEntry.folderItem);
+                    }, error));
+
                 }
             }
+
+            Promise.all(promises).then(() => {
+                return session.prepare(overwriteStatus);
+            }).catch((e) => {
+
+            }) ;
+
         }else{
-            for(var j=0;j<files.length;j++){
+            for(let j=0;j<files.length;j++){
                 if(files[j].size === 0){
                     alert(Pydio.getInstance().MessageHash['html_uploader.8']);
                     return;
                 }
-                let uploadItem = new UploadItem(files[j], targetNode);
-                if(filterFunction && !filterFunction(uploadItem)) continue;
-                if(!accumulator) oThis.pushFile(uploadItem);
-                else accumulator.push(uploadItem);
+                if(!filter(files[j].name)){
+                    return;
+                }
+                new UploadItem(files[j], targetNode, null, session);
             }
+            session.prepare(overwriteStatus).catch((e) => {
+
+            }) ;
         }
-        Store.getInstance().log();
+
     }
 
-    recurseDirectory(item, fileHandler, folderHandler, errorHandler) {
+    recurseDirectory(item, promiseFile, promiseFolder, errorHandler) {
 
-        let recurseDir = this.recurseDirectory.bind(this);
-        let dirReader = item.createReader();
+        return new Promise(resolve => {
+            this.dirEntries(item).then((entries) => {
+                const promises = [];
+                entries.forEach(entry => {
+                    if(entry.parent && entry.parent.folderItem){
+                        entry.parentItem = entry.parent.folderItem;
+                    }
+                    if(entry.isDirectory){
+                        promises.push(promiseFolder(entry));
+                    } else {
+                        promises.push(promiseFile(entry));
+                    }
+                });
+                Promise.all(promises).then(() => {
+                    resolve();
+                });
+            });
+        });
+
+    }
+
+    dirEntries(item){
+        const reader = item.createReader();
         let entries = [];
-
-        let toArray = function(list){
+        const toArray = function(list){
             return Array.prototype.slice.call(list || [], 0);
         };
-
-        // Call the reader.readEntries() until no more results are returned.
-        var readEntries = function() {
-            dirReader.readEntries (function(results) {
-                if (!results.length) {
-
-                    entries.map(function(e){
-                        if(e.isDirectory){
-                            folderHandler(e);
-                            recurseDir(e, fileHandler, folderHandler, errorHandler);
-                        }else{
-                            fileHandler(e);
+        return new Promise((resolve,reject) => {
+            const next = () => {
+                reader.readEntries(results => {
+                    if(results.length){
+                        entries = entries.concat(toArray(results));
+                        next();
+                    } else {
+                        let promises = [];
+                        entries.forEach(entry => {
+                            entry.parent = item;
+                            if(entry.isDirectory){
+                                promises.push(this.dirEntries(entry).then(children => {
+                                    entries = entries.concat(children);
+                                }));
+                            }
+                        });
+                        if(promises.length){
+                            Promise.all(promises).then(()=> {
+                                resolve(entries);
+                            })
+                        } else {
+                            resolve(entries);
                         }
-                    });
-                } else {
-                    entries = entries.concat(toArray(results));
-                    readEntries();
-                }
-            }, errorHandler);
-        };
-
-        readEntries(); // Start reading dirs.
+                    }
+                }, (e) => {
+                    reject(e);
+                })
+            };
+            next();
+        });
     }
+
 }
 
 

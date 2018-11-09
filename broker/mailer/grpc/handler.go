@@ -48,7 +48,7 @@ type Handler struct {
 	sender       mailer.Sender
 }
 
-func NewHandler(serviceCtx context.Context, conf config.Map) (*Handler, error) {
+func NewHandler(serviceCtx context.Context, conf common.ConfigValues) (*Handler, error) {
 	h := new(Handler)
 	h.initFromConf(serviceCtx, conf)
 	return h, nil
@@ -155,13 +155,13 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 
 }
 
-func (h *Handler) parseConf(conf config.Map) (queueName string, queueConfig config.Map, senderName string, senderConfig config.Map) {
+func (h *Handler) parseConf(conf common.ConfigValues) (queueName string, queueConfig config.Map, senderName string, senderConfig config.Map) {
 
 	// Defaults
 	queueName = "boltdb"
 	senderName = "sendmail"
-	senderConfig = conf
-	queueConfig = conf
+	senderConfig = conf.(config.Map)
+	queueConfig = conf.(config.Map)
 
 	// Parse configs for queue
 	if q := conf.String("queue"); q != "" {
@@ -201,7 +201,7 @@ func (h *Handler) parseConf(conf config.Map) (queueName string, queueConfig conf
 	return
 }
 
-func (h *Handler) initFromConf(ctx context.Context, conf config.Map) error {
+func (h *Handler) initFromConf(ctx context.Context, conf common.ConfigValues) error {
 
 	queueName, queueConfig, senderName, senderConfig := h.parseConf(conf)
 	h.queue = mailer.GetQueue(ctx, queueName, queueConfig)

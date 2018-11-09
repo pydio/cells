@@ -9,7 +9,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 )
 
 type BackendConf struct {
@@ -89,7 +89,7 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 			Title: config.Get("frontend", "plugin", "core.pydio", "APPLICATION_TITLE").String("Pydio Cells"),
 			Icon:  "plug/gui.ajax/res/themes/common/images/LoginBoxLogo.png",
 		},
-		AvailableLanguages: utils.AvailableLanguages,
+		AvailableLanguages: i18n.AvailableLanguages,
 		I18nMessages:       pool.I18nMessages(lang).Messages,
 		Backend: BackendConf{
 			PackageType:   common.PackageType,

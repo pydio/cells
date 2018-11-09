@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         babel: {
             options: {
-                "plugins": ["transform-react-jsx"],
+                "plugins": ["transform-react-jsx", "babel-plugin-transform-object-rest-spread"],
                 "presets":["env"],
                 "comments": false
             },

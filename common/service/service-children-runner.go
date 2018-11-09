@@ -34,6 +34,7 @@ import (
 	"github.com/micro/go-micro"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/object"
@@ -105,7 +106,7 @@ func (c *ChildrenRunner) OnDeleteConfig(callback func(context.Context, string)) 
 }
 
 // StartFromInitialConf list the sources keys and start them
-func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg config.Map) {
+func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg common.ConfigValues) {
 	sources := cfg.StringArray("sources")
 	c.initialCtx = ctx
 	log.Logger(ctx).Debug("Starting umbrella service "+c.childPrefix+" with sources", zap.Any("sources", sources))
@@ -121,7 +122,12 @@ func (c *ChildrenRunner) Start(ctx context.Context, source string) error {
 
 	name := c.childPrefix + source
 	// Do not do anything
-	cmd := exec.CommandContext(ctx, os.Args[0], "start", "--fork", name)
+	args := []string{"start", "--fork"}
+	if config.RemoteSource {
+		args = append(args, "--cluster")
+	}
+	args = append(args, name)
+	cmd := exec.CommandContext(ctx, os.Args[0], args...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

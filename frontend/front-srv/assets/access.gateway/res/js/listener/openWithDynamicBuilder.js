@@ -42,7 +42,7 @@ export default function(pydio) {
             Object.keys(otherRegistered).forEach(function (key) {
                 let editor;
                 pydio.Registry.getActiveExtensionByType("editor").forEach(function (ed) {
-                    if (ed.editorClass == otherRegistered[key]) {
+                    if (ed.editorClass === otherRegistered[key]) {
                         editor = ed;
                     }
                 });
@@ -67,7 +67,7 @@ export default function(pydio) {
                 builderMenuItems.push({
                     name: el.text,
                     alt: el.title,
-                    isDefault: (index == 0),
+                    isDefault: (index === 0),
                     icon_class: el.icon_class,
                     callback: function (e) {
                         this.apply([el]);

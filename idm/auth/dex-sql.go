@@ -7,7 +7,7 @@ import (
 
 	"github.com/coreos/dex/storage"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/sql"
 )
@@ -17,7 +17,7 @@ type dexSql struct {
 }
 
 // Init handler for the SQL DAO
-func (s *dexSql) Init(options config.Map) error {
+func (s *dexSql) Init(options common.ConfigValues) error {
 
 	// super
 	s.DAO.Init(options)

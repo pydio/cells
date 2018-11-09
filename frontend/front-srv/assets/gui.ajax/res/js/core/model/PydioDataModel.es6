@@ -469,13 +469,13 @@ export default class PydioDataModel extends Observable{
 	 * @param source String The source of this selection action
 	 */
 	setSelectedNodes (ajxpDataNodes, source){
-        if(this._selectedNodes.length == ajxpDataNodes.length){
+        if(this._selectedNodes.length === ajxpDataNodes.length){
             if(ajxpDataNodes.length === 0) {
                 return;
             }
             var equal = true;
             for(var k=0;k<ajxpDataNodes.length;k++){
-                equal = equal && ajxpDataNodes[k] == this._selectedNodes[k];
+                equal = equal && ajxpDataNodes[k] === this._selectedNodes[k];
             }
             if(equal){
                 window.pydio.fire("selection_reloaded", this);
@@ -528,13 +528,6 @@ export default class PydioDataModel extends Observable{
     }
 
 	/**
-	 * DEPRECATED
-	 */
-	getSelectedItems (){
-		throw new Error("Deprecated : use getSelectedNodes() instead");
-	}
-
-	/**
 	 * Select all the children of the current context node
 	 */
 	selectAll (){
@@ -549,7 +542,7 @@ export default class PydioDataModel extends Observable{
 	 * @returns Boolean
 	 */
 	isEmpty  (){
-		return (this._selectedNodes?(this._selectedNodes.length==0):true);
+		return (this._selectedNodes?(this._selectedNodes.length===0):true);
 	}
 
     hasReadOnly (){
@@ -625,7 +618,7 @@ export default class PydioDataModel extends Observable{
 	 * @returns Boolean
 	 */
 	hasMime (mimeTypes){
-		if(mimeTypes.length==1 && mimeTypes[0] == "*") return true;
+		if(mimeTypes.length===1 && mimeTypes[0] === "*") return true;
 		var has = false;
 		mimeTypes.map(function(mime){
 			if(has) return;
@@ -698,11 +691,11 @@ export default class PydioDataModel extends Observable{
             contextNode = this._contextNode;
         }
         if(local){
-            var test = (contextNode.getPath()=="/"?"":contextNode.getPath()) + "/" + newFileName;
+            var test = (contextNode.getPath()==="/"?"":contextNode.getPath()) + "/" + newFileName;
             var found = false;
             try{
                 contextNode.getChildren().forEach(function(c){
-                    if(c.getPath() == test) {
+                    if(c.getPath() === test) {
                         found = true;
                         throw new Error();
                     }
@@ -719,24 +712,14 @@ export default class PydioDataModel extends Observable{
 
 	}
 
-    applyCheckHook (node, additionalParams = null){
-
-        var client = PydioApi.getClient();
-        var result;
-        client.applyCheckHook(node, "before_create", node.getMetadata().get("filesize") || -1, function(transport){
-            result = client.parseXmlMessage(transport.responseXML);
-        }, additionalParams);
-        if(result === false){
-            throw new Error("Check failed");
-        }
-    }
-
 	/**
 	 * Gets the first name of the current selection
 	 * @returns String
 	 */
 	getUniqueFileName (){
-		if(this.getFileNames().length) return this.getFileNames()[0];
+		if(this.getFileNames().length) {
+		    return this.getFileNames()[0];
+        }
 		return null;
 	}
 
@@ -772,24 +755,34 @@ export default class PydioDataModel extends Observable{
 		if(oFormElement)
 		{
 			$(oFormElement).select('input[type="hidden"]').map(function(element){
-				if(element.name == "nodes[]" || element.name == "file")element.remove();
+				if(element.name === "nodes[]" || element.name === "file"){
+				    element.remove();
+                }
 			});
 		}
 		// UPDATE THE 'DIR' FIELDS
-		if(oFormElement && oFormElement['rep']) oFormElement['rep'].value = this._currentRep;
+		if(oFormElement && oFormElement['rep']) {
+		    oFormElement['rep'].value = this._currentRep;
+        }
 		sUrl += '&dir='+encodeURIComponent(this._currentRep);
 
 		// UPDATE THE 'file' FIELDS
-		if(this.isEmpty()) return sUrl;
+		if(this.isEmpty()) {
+		    return sUrl;
+        }
 		var fileNames = this.getFileNames();
         for(var i=0;i<fileNames.length;i++)
         {
             sUrl += '&'+'nodes[]='+encodeURIComponent(fileNames[i]);
-            if(oFormElement) this._addHiddenField(oFormElement, 'nodes[]', fileNames[i]);
+            if(oFormElement) {
+                this._addHiddenField(oFormElement, 'nodes[]', fileNames[i]);
+            }
         }
-        if(fileNames.length == 1){
+        if(fileNames.length === 1){
             sUrl += '&'+'file='+encodeURIComponent(fileNames[0]);
-            if(oFormElement) this._addHiddenField(oFormElement, 'file', fileNames[0]);
+            if(oFormElement) {
+                this._addHiddenField(oFormElement, 'file', fileNames[0]);
+            }
         }
 		return sUrl;
 	}

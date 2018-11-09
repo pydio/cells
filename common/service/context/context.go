@@ -28,7 +28,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/dao"
 )
 
@@ -82,7 +82,7 @@ func WithConn(ctx context.Context, conn dao.Conn) context.Context {
 }
 
 // WithConfig links a config to the context
-func WithConfig(ctx context.Context, config config.Map) context.Context {
+func WithConfig(ctx context.Context, config common.ConfigValues) context.Context {
 	return context.WithValue(ctx, configKey, config)
 }
 
@@ -128,8 +128,8 @@ func GetDAO(ctx context.Context) dao.DAO {
 }
 
 // GetConfig returns the config from the context in argument
-func GetConfig(ctx context.Context) config.Map {
-	if conf, ok := ctx.Value(configKey).(config.Map); ok {
+func GetConfig(ctx context.Context) common.ConfigValues {
+	if conf, ok := ctx.Value(configKey).(common.ConfigValues); ok {
 		return conf
 	}
 	return nil

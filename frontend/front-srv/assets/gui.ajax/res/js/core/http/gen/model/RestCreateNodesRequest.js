@@ -63,6 +63,9 @@ export default class RestCreateNodesRequest {
             if (data.hasOwnProperty('Recursive')) {
                 obj['Recursive'] = ApiClient.convertToType(data['Recursive'], 'Boolean');
             }
+            if (data.hasOwnProperty('TemplateUUID')) {
+                obj['TemplateUUID'] = ApiClient.convertToType(data['TemplateUUID'], 'String');
+            }
         }
         return obj;
     }
@@ -75,6 +78,10 @@ export default class RestCreateNodesRequest {
     * @member {Boolean} Recursive
     */
     Recursive = undefined;
+    /**
+    * @member {String} TemplateUUID
+    */
+    TemplateUUID = undefined;
 
 
 

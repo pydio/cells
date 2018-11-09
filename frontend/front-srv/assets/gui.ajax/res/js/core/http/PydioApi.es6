@@ -17,7 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-import XMLUtils from '../util/XMLUtils'
+import Connexion from './Connexion'
 import PathUtils from '../util/PathUtils'
 import RestClient from './RestClient'
 import AWS from 'aws-sdk'
@@ -25,6 +25,33 @@ import RestCreateSelectionRequest from './gen/model/RestCreateSelectionRequest'
 import TreeNode from "./gen/model/TreeNode";
 import TreeServiceApi from "./gen/api/TreeServiceApi";
 import AjxpNode from "../model/AjxpNode";
+
+// Extend S3 ManagedUpload to get progress info about each part
+class ManagedMultipart extends AWS.S3.ManagedUpload{
+
+    progress(info) {
+        const upload = this._managedUpload;
+        if (this.operation === 'putObject') {
+            info.part = 1;
+            info.key = this.params.Key;
+        } else {
+            const partLoaded = info.loaded;
+            const partTotal = info.total;
+            upload.totalUploadedBytes += info.loaded - this._lastUploadedBytes;
+            this._lastUploadedBytes = info.loaded;
+            info = {
+                loaded: upload.totalUploadedBytes,
+                total: upload.totalBytes,
+                part: this.params.PartNumber,
+                partLoaded, partTotal,
+                key: this.params.Key
+            };
+            console.log("emit", info);
+        }
+        upload.emit('httpUploadProgress', [info]);
+    }
+
+}
 
 /**
  * API Client
@@ -41,7 +68,6 @@ class PydioApi{
         return new RestClient(this.getClient()._pydioObject);
     }
 
-
     setPydioObject(pydioObject){
         this._pydioObject = pydioObject;
         this._baseUrl = pydioObject.Parameters.get('serverAccessPath');
@@ -51,34 +77,11 @@ class PydioApi{
         return this._pydioObject;
     }
 
-    request(parameters, onComplete=null, onError=null, settings={}){
-        // Connexion already handles secure_token
-        let c = new Connexion();
-        if(settings.discrete){
-            c.discrete = true;
-        }
-        c.setParameters(parameters);
-        if(settings.method){
-            c.setMethod(settings.method);
-        }
-        if(!onComplete){
-            onComplete = function(transport){
-                if(transport.responseXML) return this.parseXmlMessage(transport.responseXML);
-            }.bind(this);
-        }
-        c.onComplete = onComplete;
-        if(settings.async === false){
-            c.sendSync();
-        }else{
-            c.sendAsync();
-        }
-    }
-
     loadFile(filePath, onComplete=null, onError=null){
         let c = new Connexion(filePath);
         c.setMethod('GET');
         c.onComplete = onComplete;
-        c.sendAsync();
+        c.send();
     }
 
     /**
@@ -89,6 +92,8 @@ class PydioApi{
      * @param onComplete
      * @param onError
      * @param onProgress
+     * @param uploadUrl
+     * @param xhrSettings
      * @returns XHR Handle to abort transfer
      */
     uploadFile(file, fileParameterName, queryStringParams='', onComplete=function(){}, onError=function(){}, onProgress=function(){}, uploadUrl='', xhrSettings={}){
@@ -100,7 +105,6 @@ class PydioApi{
             uploadUrl += (uploadUrl.indexOf('?') === -1 ? '?' : '&') + queryStringParams;
         }
 
-        if(window.Connexion){
             // Warning, avoid double error
             let errorSent = false;
             let localError = (xhr) => {
@@ -112,7 +116,6 @@ class PydioApi{
             let c = new Connexion();
             return c.uploadFile(file, fileParameterName, uploadUrl, onComplete, localError, onProgress, xhrSettings);
 
-        }
 
     }
 
@@ -202,7 +205,7 @@ class PydioApi{
                 AWS.config.update({
                     accessKeyId: 'gateway',
                     secretAccessKey: 'gatewaysecret',
-                    s3ForcePathStyle: true,
+                    s3ForcePathStyle: true
                 });
                 const s3 = new AWS.S3({endpoint:url.replace('/io', '')});
                 const signed = s3.getSignedUrl('putObject', params);
@@ -212,6 +215,49 @@ class PydioApi{
         });
     }
 
+    uploadMultipart(file, path, onComplete=()=>{}, onError=()=>{}, onProgress=() => {}) {
+        let targetPath = path;
+        if (path.normalize){
+            targetPath = path.normalize('NFC');
+        }
+        if(targetPath[0] === "/"){
+            targetPath = targetPath.substring(1);
+        }
+        const url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+        const params = {
+            Bucket: 'io',
+            Key: targetPath,
+            ContentType: 'application/octet-stream'
+        };
+
+        return new Promise(resolve => {
+            PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
+                AWS.config.update({
+                    accessKeyId: jwt,
+                    secretAccessKey: 'gatewaysecret',
+                    s3ForcePathStyle: true,
+                    endpoint:url.replace('/io', ''),
+                });
+                const managed = new ManagedMultipart({
+                    params: {...params, Body: file},
+                    partSize: 50 * 1024 * 1024,
+                    queueSize: 3,
+                    leavePartsOnError:false,
+                });
+                managed.on('httpUploadProgress', onProgress);
+                managed.send((e,d) => {
+                    if(e){
+                        onError(e);
+                    } else {
+                        onComplete(d);
+                    }
+                });
+                resolve(managed);
+            });
+        });
+
+    }
+
     /**
      * Send a request to the server to get a usable presigned url.
      *
@@ -219,6 +265,7 @@ class PydioApi{
      * @param callback Function
      * @param presetType String
      * @param bucketParams
+     * @param attachmentName
      * @return {Promise}|null Return a Promise if callback is null, or call the callback
      */
     buildPresignedGetUrl(node, callback = null, presetType = '', bucketParams = null, attachmentName = '') {
@@ -373,7 +420,7 @@ class PydioApi{
 
         const pydio = this.getPydioObject();
         const agent = navigator.userAgent || '';
-        const agentIsMobile = (agent.indexOf('iPhone')!=-1||agent.indexOf('iPod')!=-1||agent.indexOf('iPad')!=-1||agent.indexOf('iOs')!=-1);
+        const agentIsMobile = (agent.indexOf('iPhone')!==-1||agent.indexOf('iPod')!==-1||agent.indexOf('iPad')!==-1||agent.indexOf('iOs')!==-1);
         const hiddenForm = pydio && pydio.UI && pydio.UI.hasHiddenDownloadForm();
         const slug = pydio.user.getActiveRepositoryObject().getSlug();
 
@@ -493,149 +540,6 @@ class PydioApi{
             });
         });
 
-    }
-
-    /**
-     *
-     * @param node
-     * @param hookName
-     * @param hookArg
-     * @param completeCallback
-     * @param additionalParams
-     */
-    applyCheckHook(node, hookName, hookArg, completeCallback, additionalParams){
-        completeCallback();
-    }
-
-    /**
-     * Standard parser for server XML answers
-     * @param xmlResponse DOMDocument
-     */
-    parseXmlMessage(xmlResponse)
-    {
-        if(xmlResponse == null || xmlResponse.documentElement == null) {
-            return null;
-        }
-        const childs = xmlResponse.documentElement.childNodes;
-        let reloadNodes = [], error = false;
-        this.LAST_ERROR_ID = null;
-        this.LAST_ERROR = null;
-
-        for(let i=0; i<childs.length;i++)
-        {
-            const child = childs[i];
-            if(child.tagName === "message")
-            {
-                let messageTxt = "No message";
-                if(child.firstChild) messageTxt = child.firstChild.nodeValue;
-                if(child.getAttribute('type') == 'ERROR') {
-                    Logger.error(messageTxt);
-                    this.LAST_ERROR = messageTxt;
-                    error = true;
-                }else{
-                    Logger.log(messageTxt);
-                }
-
-            } else if(child.tagName === "prompt") {
-
-                if(pydio && pydio.UI && pydio.UI.openPromptDialog){
-                    let jsonData = XMLUtils.XPathSelectSingleNode(childs[i], "data").firstChild.nodeValue;
-                    pydio.UI.openPromptDialog(JSON.parse(jsonData));
-                }
-                return false;
-
-            } else if(child.tagName === "reload_instruction") {
-
-                const obName = child.getAttribute('object');
-                if(obName === 'data') {
-                    const node = child.getAttribute('node');
-                    if(node){
-                        reloadNodes.push(node);
-                    }else{
-                        const file = child.getAttribute('file');
-                        if(file){
-                            this._pydioObject.getContextHolder().setPendingSelection(file);
-                        }
-                        reloadNodes.push(this._pydioObject.getContextNode());
-                    }
-                } else if(obName === 'repository_list') {
-                    this._pydioObject.reloadRepositoriesList();
-                }
-
-            } else if(child.nodeName === 'nodes_diff') {
-
-                const dm = this._pydioObject.getContextHolder();
-                if(dm.getAjxpNodeProvider().parseAjxpNodesDiffs){
-                    dm.getAjxpNodeProvider().parseAjxpNodesDiffs(childs[i], dm, this._pydioObject.user.activeRepository, !window.currentLightBox);
-                }
-
-            } else if(child.tagName === "logging_result") {
-
-                if(child.getAttribute("secure_token")){
-
-                    this._pydioObject.Parameters.set('SECURE_TOKEN', child.getAttribute("secure_token"));
-                    Connexion.updateServerAccess(this._pydioObject.Parameters);
-                    
-                }
-                const result = child.getAttribute('value');
-                let errorId = false;
-                switch(result){
-                    case '1':
-                        this._pydioObject.loadXmlRegistry();
-                        break;
-                    case '0':
-                    case '-1':
-                        errorId = 285;
-                        break;
-                    case '2':
-                        this._pydioObject.loadXmlRegistry();
-                        break;
-                    case '-2':
-                        errorId = 285;
-                        break;
-                    case '-3':
-                        errorId = 366;
-                        break;
-                    case '-4':
-                        errorId = 386;
-                        break;
-                }
-                if(errorId){
-                    error = true;
-                    this.LAST_ERROR_ID = errorId;
-                    Logger.error(this._pydioObject.MessageHash[errorId]);
-                }
-
-            } else if(child.tagName === "trigger_bg_action") {
-
-                const name = child.getAttribute("name");
-                const messageId = child.getAttribute("messageId");
-                let parameters = {};
-                let callback;
-                for(let j=0;j<child.childNodes.length;j++){
-                    const paramChild = child.childNodes[j];
-                    if(paramChild.tagName === 'param'){
-
-                        parameters[paramChild.getAttribute("name")] = paramChild.getAttribute("value");
-
-                    }else if(paramChild.tagName === 'clientCallback' && paramChild.firstChild && paramChild.firstChild.nodeValue){
-
-                        const callbackCode = paramChild.firstChild.nodeValue;
-                        callback = new Function(callbackCode);
-
-                    }
-                }
-                if(name === "javascript_instruction" && callback){
-                    callback();
-                }
-            }
-
-        }
-        this._pydioObject.notify("response.xml", xmlResponse);
-        if(reloadNodes.length){
-            this._pydioObject.getContextHolder().multipleNodesReload(reloadNodes);
-        }
-        return !error;
     }
 
 }

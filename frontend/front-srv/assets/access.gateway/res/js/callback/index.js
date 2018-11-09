@@ -23,7 +23,6 @@ let pydio = global.pydio;
 const Callbacks = {
     ls                      : require('./ls')(pydio),
     mkdir                   : require('./mkdir')(pydio),
-    mkfile                  : require('./mkfile')(pydio),
     deleteAction            : require('./deleteAction')(pydio),
     rename                  : require('./rename')(pydio),
     applyCopyOrMove         : require('./applyCopyOrMove')(pydio),

@@ -28,6 +28,7 @@ import (
 	"github.com/micro/go-micro/server"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/dao"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service/context"
@@ -40,7 +41,13 @@ func newDBProvider(service micro.Service) error {
 	options = append(options, micro.BeforeStart(func() error {
 
 		ctx := service.Options().Context
-		config := servicecontext.GetConfig(ctx)
+		cfgValues := servicecontext.GetConfig(ctx)
+		var cfg config.Map
+		if cfgValues != nil {
+			if m, ok := cfgValues.(config.Map); ok {
+				cfg = m
+			}
+		}
 
 		d := servicecontext.GetDAO(ctx)
 
@@ -48,7 +55,7 @@ func newDBProvider(service micro.Service) error {
 			return nil
 		}
 
-		if err := d.Init(config); err != nil {
+		if err := d.Init(cfg); err != nil {
 			log.Logger(ctx).Error("Failed to init DB provider", zap.Error(err))
 			return err
 		}

@@ -29,6 +29,7 @@ import (
 
 	"github.com/nats-io/gnatsd/server"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
@@ -45,8 +46,11 @@ func init() {
 			fs := flag.NewFlagSet("nats-server", flag.ExitOnError)
 
 			conf := servicecontext.GetConfig(ctx)
-			for k, v := range conf {
-				fs.Set(k, fmt.Sprintf("%v", v))
+			if m, ok := conf.(config.Map); ok {
+				fmt.Println(m)
+				for k, v := range m {
+					fs.Set(k, fmt.Sprintf("%v", v))
+				}
 			}
 
 			// Configure the options from the flags/config file

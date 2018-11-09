@@ -78,16 +78,16 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	}
 	ctx := req.Request.Context()
 
-	if err := utils.ValidateDataSourceConfig(&ds); err != nil {
+	if err := config.ValidateDataSourceConfig(&ds); err != nil {
 		service.RestError500(req, resp, err)
 		return
 	}
 
-	currentSources := utils.ListSourcesFromConfig()
-	currentMinios := utils.ListMinioConfigsFromConfig()
+	currentSources := config.ListSourcesFromConfig()
+	currentMinios := config.ListMinioConfigsFromConfig()
 	_, update := currentSources[ds.Name]
 
-	minioConfig := utils.FactorizeMinioServers(currentMinios, &ds)
+	minioConfig := config.FactorizeMinioServers(currentMinios, &ds)
 	currentSources[ds.Name] = &ds
 	currentMinios[minioConfig.Name] = minioConfig
 
@@ -104,15 +104,15 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 		config.Del("services", "pydio.grpc.data.index."+dsName, "PeerAddress")
 	}
 	config.Set("default", "services", "pydio.grpc.data.index."+dsName, "dsn")
-	config.Set(utils.IndexServiceTableNames(dsName), "services", "pydio.grpc.data.index."+dsName, "tables")
+	config.Set(config.IndexServiceTableNames(dsName), "services", "pydio.grpc.data.index."+dsName, "tables")
 	// UPDATE SYNC
 	config.Set(ds, "services", "pydio.grpc.data.sync."+dsName)
 	// UPDATE OBJECTS
 	config.Set(minioConfig, "services", "pydio.grpc.data.objects."+minioConfig.Name)
 
 	log.Logger(ctx).Info("Now Store Sources", zap.Any("sources", currentSources), zap.Any("ds", &ds))
-	utils.SourceNamesToConfig(currentSources)
-	utils.MinioConfigNamesToConfig(currentMinios)
+	config.SourceNamesToConfig(currentSources)
+	config.MinioConfigNamesToConfig(currentMinios)
 
 	u, _ := utils.FindUserNameInContext(ctx)
 	if u == "" {
@@ -154,22 +154,22 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 		service.RestError500(req, resp, fmt.Errorf("There are workspaces defined on this datasource, please delete them before removing datasource"))
 		return
 	}
-	currentSources := utils.ListSourcesFromConfig()
+	currentSources := config.ListSourcesFromConfig()
 
 	if _, ok := currentSources[dsName]; !ok {
 		service.RestError500(req, resp, fmt.Errorf("Cannot find datasource!"))
 		return
 	}
 	delete(currentSources, dsName)
-	utils.SourceNamesToConfig(currentSources)
+	config.SourceNamesToConfig(currentSources)
 	config.Del("services", "pydio.grpc.data.index."+dsName)
 	config.Del("services", "pydio.grpc.data.sync."+dsName)
 
-	currentMinios := utils.ListMinioConfigsFromConfig()
-	if key := utils.UnusedMinioServers(currentMinios, currentSources); key != "" {
+	currentMinios := config.ListMinioConfigsFromConfig()
+	if key := config.UnusedMinioServers(currentMinios, currentSources); key != "" {
 		config.Del("services", "pydio.grpc.data.objects."+key)
 		delete(currentMinios, key)
-		utils.MinioConfigNamesToConfig(currentMinios)
+		config.MinioConfigNamesToConfig(currentMinios)
 	}
 
 	u, _ := utils.FindUserNameInContext(req.Request.Context())

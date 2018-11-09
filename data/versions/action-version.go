@@ -29,11 +29,13 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/data/versions/lang"
 	"github.com/pydio/cells/scheduler/actions"
@@ -72,7 +74,7 @@ func (c *VersionAction) Run(ctx context.Context, channels *actions.RunnableChann
 	if node.Etag == common.NODE_FLAG_ETAG_TEMPORARY || utils.IgnoreNodeForOutput(ctx, node) {
 		return input.WithIgnore(), nil // Ignore
 	}
-	T := lang.Bundle().GetTranslationFunc(utils.GetDefaultLanguage())
+	T := lang.Bundle().GetTranslationFunc(i18n.GetDefaultLanguage(config.Default()))
 	var hasPolicy bool
 	if nodeSource, e := c.Pool.GetDataSourceInfo(node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)); e == nil {
 		if nodeSource.VersioningPolicyName != "" {

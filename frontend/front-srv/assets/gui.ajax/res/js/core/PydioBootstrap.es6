@@ -93,35 +93,20 @@ export default class PydioBootstrap{
             url += '&server_prefix_uri=' + this.parameters.get('SERVER_PREFIX_URI').replace(/\.\.\//g, "_UP_/");
         }
         var connexion = new Connexion(url);
-        connexion.onComplete = function(transport){
-            if(transport.responseXML && transport.responseXML.documentElement && transport.responseXML.documentElement.nodeName == "tree"){
-                var alert = XMLUtils.XPathSelectSingleNode(transport.responseXML.documentElement, "message");
-                window.alert('Exception caught by application : ' + alert.firstChild.nodeValue);
-                return;
-            }
-            var phpError;
+        connexion.onComplete = (transport) => {
             let data;
             if(transport.responseJSON) {
                 data = transport.responseJSON;
             }
-            if(!typeof data === "object"){
-                phpError = 'Exception uncaught by application : ' + transport.responseText;
-            }
-            if(phpError){
-                document.write(phpError);
-                if(phpError.indexOf('<b>Notice</b>')>-1 || phpError.indexOf('<b>Strict Standards</b>')>-1){
-                    window.alert('Php errors detected, it seems that Notice or Strict are detected, you may consider changing the PHP Error Reporting level!');
-                }
-                return;
-            }
-            for(let key in data){
-                if(data.hasOwnProperty(key)) this.parameters.set(key, data[key]);
-            }
+            if(typeof data === "object"){
+                Object.keys(data).forEach(key => {
+                    this.parameters.set(key, data[key])
+                })
 
+            }
             this.refreshContextVariablesAndInit(connexion);
-
-        }.bind(this);
-        connexion.sendAsync();
+        };
+        connexion.send();
 
     }
 
@@ -148,9 +133,9 @@ export default class PydioBootstrap{
         if(!Object.keys(MessageHash).length){
             alert('Ooups, this should not happen, your message file is empty!');
         }
-        for(let key in MessageHash){
+        Object.keys(MessageHash).forEach(key => {
             MessageHash[key] = MessageHash[key].replace("\\n", "\n");
-        }
+        });
         window.zipEnabled = this.parameters.get("zipEnabled");
         window.multipleFilesDownloadEnabled = this.parameters.get("multipleFilesDownloadEnabled");
 
@@ -194,13 +179,6 @@ export default class PydioBootstrap{
             connexion.loadLibrary("pydio.min.js?v=" + this.parameters.get("ajxpVersion"), masterClassLoaded, true);
         }
 
-        /*
-        let div = document.createElement('div');
-        div.setAttribute('style', 'position:absolute; bottom: 0; right: 0; z-index: 2000; color:rgba(0,0,0,0.6); font-size: 12px; padding: 0 10px;');
-        div.innerHTML = 'Pydio Community Edition - Copyright Abstrium 2017 - Learn more on <a href="https://pydio.com" target="_blank">pydio.com</a>';
-        document.body.appendChild(div);
-        */
-
     }
 
     /**
@@ -218,7 +196,9 @@ export default class PydioBootstrap{
                     this.parameters.set("debugMode", true);
                 }
                 let src = scriptTag.src.replace('/build/boot.prod.js','').replace('/build/pydio.boot.min.js', '');
-                if(src.indexOf("?")!=-1) src = src.split("?")[0];
+                if(src.indexOf("?")!==-1) {
+                    src = src.split("?")[0];
+                }
                 this.parameters.set("ajxpResourcesFolder", src);
             }
         }
@@ -248,22 +228,6 @@ export default class PydioBootstrap{
         cssNode.href = this.parameters.get("ajxpResourcesFolder") + '/' + fileName;
         cssNode.media = 'screen';
         head.appendChild(cssNode);
-    }
-
-
-    /**
-     * Try to load something under data/cache/
-     * @param onError Function
-     */
-    static testDataFolderAccess(onError){
-        var c = new Connexion('data/cache/index.html');
-        c.setMethod('get');
-        c.onComplete = function(response){
-            if(200 === response.status){
-                onError();
-            }
-        }
-        c.sendAsync();
     }
 
 }

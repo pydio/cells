@@ -27,7 +27,7 @@ import (
 
 	"github.com/gyuho/goraph"
 	"github.com/micro/go-micro/registry"
-	"github.com/pydio/cells/common/forms"
+	"github.com/pydio/cells/common"
 )
 
 // Service defines the primary functions a service must be able to answer to for the registry
@@ -49,7 +49,7 @@ type Service interface {
 	AddDependency(string)
 	SetRunningNodes([]*registry.Node)
 	RunningNodes() []*registry.Node
-	ExposedConfigs() *forms.Form
+	ExposedConfigs() common.XMLSerializableForm
 
 	IsGeneric() bool
 	IsGRPC() bool

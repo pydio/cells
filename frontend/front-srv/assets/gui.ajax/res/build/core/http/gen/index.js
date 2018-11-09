@@ -541,6 +541,10 @@ var _modelRestListSharedResourcesResponse = require('./model/RestListSharedResou
 
 var _modelRestListSharedResourcesResponse2 = _interopRequireDefault(_modelRestListSharedResourcesResponse);
 
+var _modelRestListTemplatesResponse = require('./model/RestListTemplatesResponse');
+
+var _modelRestListTemplatesResponse2 = _interopRequireDefault(_modelRestListTemplatesResponse);
+
 var _modelRestListUserMetaTagsResponse = require('./model/RestListUserMetaTagsResponse');
 
 var _modelRestListUserMetaTagsResponse2 = _interopRequireDefault(_modelRestListUserMetaTagsResponse);
@@ -684,6 +688,14 @@ var _modelRestShareLinkTargetUser2 = _interopRequireDefault(_modelRestShareLinkT
 var _modelRestSubscriptionsCollection = require('./model/RestSubscriptionsCollection');
 
 var _modelRestSubscriptionsCollection2 = _interopRequireDefault(_modelRestSubscriptionsCollection);
+
+var _modelRestTemplate = require('./model/RestTemplate');
+
+var _modelRestTemplate2 = _interopRequireDefault(_modelRestTemplate);
+
+var _modelRestTemplateNode = require('./model/RestTemplateNode');
+
+var _modelRestTemplateNode2 = _interopRequireDefault(_modelRestTemplateNode);
 
 var _modelRestUserBookmarksRequest = require('./model/RestUserBookmarksRequest');
 
@@ -900,6 +912,10 @@ var _apiSearchServiceApi2 = _interopRequireDefault(_apiSearchServiceApi);
 var _apiShareServiceApi = require('./api/ShareServiceApi');
 
 var _apiShareServiceApi2 = _interopRequireDefault(_apiShareServiceApi);
+
+var _apiTemplatesServiceApi = require('./api/TemplatesServiceApi');
+
+var _apiTemplatesServiceApi2 = _interopRequireDefault(_apiTemplatesServiceApi);
 
 var _apiTokenServiceApi = require('./api/TokenServiceApi');
 
@@ -1875,6 +1891,13 @@ RestListSharedResourcesResponse = _modelRestListSharedResourcesResponse2['defaul
 exports.
 
 /**
+ * The RestListTemplatesResponse model constructor.
+ * @property {module:model/RestListTemplatesResponse}
+ */
+RestListTemplatesResponse = _modelRestListTemplatesResponse2['default'];
+exports.
+
+/**
  * The RestListUserMetaTagsResponse model constructor.
  * @property {module:model/RestListUserMetaTagsResponse}
  */
@@ -2124,6 +2147,20 @@ exports.
  * @property {module:model/RestSubscriptionsCollection}
  */
 RestSubscriptionsCollection = _modelRestSubscriptionsCollection2['default'];
+exports.
+
+/**
+ * The RestTemplate model constructor.
+ * @property {module:model/RestTemplate}
+ */
+RestTemplate = _modelRestTemplate2['default'];
+exports.
+
+/**
+ * The RestTemplateNode model constructor.
+ * @property {module:model/RestTemplateNode}
+ */
+RestTemplateNode = _modelRestTemplateNode2['default'];
 exports.
 
 /**
@@ -2502,6 +2539,13 @@ exports.
 * @property {module:api/ShareServiceApi}
 */
 ShareServiceApi = _apiShareServiceApi2['default'];
+exports.
+
+/**
+* The TemplatesServiceApi service constructor.
+* @property {module:api/TemplatesServiceApi}
+*/
+TemplatesServiceApi = _apiTemplatesServiceApi2['default'];
 exports.
 
 /**

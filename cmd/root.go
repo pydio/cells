@@ -36,6 +36,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/registry"
 )
 
@@ -131,6 +132,7 @@ func init() {
 	viper.AutomaticEnv()
 
 	flags := RootCmd.PersistentFlags()
+	flags.BoolVar(&config.RemoteSource, "cluster", false, "Whether this node is master of the cluster or not")
 	flags.String("registry", "nats", "Registry used to manage services")
 	flags.String("log", "info", "Sets the log level mode")
 	flags.String("grpc_cert", "", "Certificates used for communication via grpc")

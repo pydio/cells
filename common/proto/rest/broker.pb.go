@@ -15,6 +15,7 @@ It is generated from these files:
 	rest.proto
 	scheduler.proto
 	share.proto
+	templates.proto
 
 It has these top-level messages:
 	ActivitiesCollection
@@ -128,6 +129,12 @@ It has these top-level messages:
 	DeleteShareLinkResponse
 	ListSharedResourcesRequest
 	ListSharedResourcesResponse
+	TemplateNode
+	Template
+	ListTemplatesRequest
+	ListTemplatesResponse
+	CreateFromTemplateRequest
+	CreateFromTemplateResponse
 */
 package rest
 

@@ -31,6 +31,7 @@ import (
 	activity2 "github.com/pydio/cells/broker/activity"
 	"github.com/pydio/cells/broker/activity/render"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/idm"
@@ -38,6 +39,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -83,7 +85,7 @@ func (a *ActivityHandler) Stream(req *restful.Request, rsp *restful.Response) {
 		inputReq.BoxName = "outbox"
 	}
 	if inputReq.Language == "" {
-		inputReq.Language = utils.UserLanguagesFromRestRequest(req)[0]
+		inputReq.Language = i18n.UserLanguagesFromRestRequest(req, config.Default())[0]
 	}
 	client := a.getClient()
 

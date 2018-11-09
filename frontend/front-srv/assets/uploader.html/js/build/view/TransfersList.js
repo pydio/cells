@@ -15,13 +15,9 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
-var _TransferFolder = require('./TransferFolder');
+var _Transfer = require('./Transfer');
 
-var _TransferFolder2 = _interopRequireDefault(_TransferFolder);
-
-var _TransferFile = require('./TransferFile');
-
-var _TransferFile2 = _interopRequireDefault(_TransferFile);
+var _Transfer2 = _interopRequireDefault(_Transfer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34,106 +30,50 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var TransfersList = function (_React$Component) {
     _inherits(TransfersList, _React$Component);
 
-    function TransfersList() {
+    function TransfersList(props) {
         _classCallCheck(this, TransfersList);
 
-        return _possibleConstructorReturn(this, (TransfersList.__proto__ || Object.getPrototypeOf(TransfersList)).apply(this, arguments));
+        return _possibleConstructorReturn(this, (TransfersList.__proto__ || Object.getPrototypeOf(TransfersList)).call(this, props));
     }
 
     _createClass(TransfersList, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            var store = UploaderModel.Store.getInstance();
-            this._storeObserver = function () {
-                this.setState({ items: store.getItems() });
-            }.bind(this);
-            store.observe("update", this._storeObserver);
-            store.observe("auto_close", function () {
-                if (this.props.onDismiss) {
-                    this.props.onDismiss();
-                }
-            }.bind(this));
-            this.setState({ items: store.getItems() });
-        }
-    }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(nextProps) {
-            var autoStart = nextProps.autoStart;
-            var items = this.state.items;
-
-
-            if (autoStart && items["pending"].length) {
-                UploaderModel.Store.getInstance().processNext();
-            }
-        }
-    }, {
-        key: 'componentWillUnmount',
-        value: function componentWillUnmount() {
-            if (this._storeObserver) {
-                UploaderModel.Store.getInstance().stopObserving("update", this._storeObserver);
-                UploaderModel.Store.getInstance().stopObserving("auto_close");
-            }
-        }
-    }, {
-        key: 'renderSection',
-        value: function renderSection(accumulator, items) {
-            var _this2 = this;
-
-            var title = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "";
-            var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "";
-            var showAll = this.state.showAll;
-
-            if (title && items.length) {
-                accumulator.push(_react2.default.createElement(
-                    'div',
-                    { className: className + " header" },
-                    title
-                ));
-            }
-            items.sort(function (a, b) {
-                var aType = a instanceof UploaderModel.FolderItem ? 'folder' : 'file';
-                var bType = b instanceof UploaderModel.FolderItem ? 'folder' : 'file';
-                if (aType === bType) {
-                    return 0;
-                } else {
-                    return aType === 'folder' ? -1 : 1;
-                }
-            });
-            var limit = 50;
-            var sliced = showAll ? items : items.slice(0, limit);
-            sliced.forEach(function (f) {
-                if (f instanceof UploaderModel.FolderItem) {
-                    accumulator.push(_react2.default.createElement(_TransferFolder2.default, { key: f.getId(), item: f, className: className }));
-                } else {
-                    accumulator.push(_react2.default.createElement(_TransferFile2.default, { key: f.getId(), item: f, className: className }));
-                }
-            });
-            if (!showAll && items.length > limit) {
-                accumulator.push(_react2.default.createElement(
-                    'div',
-                    { style: { cursor: 'pointer' }, className: className, onClick: function onClick() {
-                            _this2.setState({ showAll: true });
-                        } },
-                    'And ',
-                    items.length - limit,
-                    ' more ...'
-                ));
-            }
-        }
-    }, {
         key: 'render',
         value: function render() {
-            var items = [];
-            if (this.state && this.state.items) {
-                this.renderSection(items, this.state.items.processing, _pydio2.default.getInstance().MessageHash['html_uploader.14'], 'section-processing');
-                this.renderSection(items, this.state.items.pending, _pydio2.default.getInstance().MessageHash['html_uploader.15'], 'section-pending');
-                this.renderSection(items, this.state.items.errors, _pydio2.default.getInstance().MessageHash['html_uploader.23'], 'section-errors');
-                this.renderSection(items, this.state.items.processed, _pydio2.default.getInstance().MessageHash['html_uploader.16'], 'section-processed');
+            var components = [];
+            var items = this.props.items;
+
+            var isEmpty = true;
+            if (items) {
+                var ext = _pydio2.default.getInstance().Registry.getFilesExtensions();
+                components = items.sessions.map(function (session) {
+                    if (session.getChildren().length) {
+                        isEmpty = false;
+                    }
+                    return _react2.default.createElement(_Transfer2.default, { item: session, style: {}, limit: 10, level: 0, extensions: ext });
+                });
             }
+            if (isEmpty) {
+                return _react2.default.createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', height: '100%', width: '100%' } },
+                    _react2.default.createElement(
+                        'div',
+                        { style: { textAlign: 'center', width: '100%', fontWeight: 500, textTransform: 'uppercase', color: 'rgba(0,0,0,0.1)', fontSize: 24 } },
+                        'Drop Files Here'
+                    )
+                );
+            }
+
+            var container = {
+                height: '100%',
+                overflowY: 'auto',
+                borderBottom: '1px solid #eeeeee'
+            };
+
             return _react2.default.createElement(
                 'div',
-                { id: 'upload_files_list', style: { height: '100%' }, className: UploaderModel.Configs.getInstance().getOptionAsBool('UPLOAD_SHOW_PROCESSED', 'upload_show_processed', false) ? 'show-processed' : '' },
-                items
+                { style: container },
+                components
             );
         }
     }]);

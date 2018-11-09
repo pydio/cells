@@ -22,24 +22,25 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/micro/go-config/reader"
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/file"
 
-	"encoding/json"
-	"time"
-
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/envvar"
 	file2 "github.com/pydio/cells/common/config/file"
+	"github.com/pydio/cells/common/config/remote"
 )
 
 var (
+	RemoteSource    = false
 	PydioConfigDir  = ApplicationDataDir()
 	PydioConfigFile = "pydio.json"
 
@@ -53,7 +54,7 @@ type Config struct {
 	config.Config
 }
 
-func init() {
+func initVersionStore() {
 	var e error
 	VersionsStore, e = file2.NewStore(PydioConfigDir)
 	if e != nil {
@@ -78,11 +79,22 @@ func init() {
 }
 
 // Default Config with initialisation
-func Default() *Config {
+func Default() config.Config {
 	once.Do(func() {
+		if RemoteSource {
+			// Warning, loading remoteSource will trigger a call to defaults.NewClient()
+			defaultConfig = &Config{config.NewConfig(
+				config.WithSource(newRemoteSource()),
+				config.PollInterval(10*time.Second),
+			)}
+			fmt.Println("Loaded Remote Config from remote source - set 2nd nats on 4223")
+			// defaultConfig.Set(4223, "ports", "nats")
+			return
+		}
+		initVersionStore()
 		defaultConfig = &Config{config.NewConfig(
-			// config.WithSource(newEnvSource()),
 			config.WithSource(newLocalSource()),
+			config.PollInterval(10*time.Second),
 		)}
 		if save, e := UpgradeConfigsIfRequired(defaultConfig); e == nil && save {
 			e2 := saveConfig(defaultConfig, common.PYDIO_SYSTEM_USERNAME, "Configs upgrades applied")
@@ -91,10 +103,10 @@ func Default() *Config {
 			} else {
 				fmt.Println("[Configs] successfully saved config after upgrade - Reloading from source")
 			}
-			// RELOAD FULLY FROM SOURCE, TO MAKE SURE IT IS IN SYNC WITH JSON
+			// Reload fully from source to make sure it's in sync with JSON
 			defaultConfig = &Config{config.NewConfig(
-				// config.WithSource(newEnvSource()),
 				config.WithSource(newLocalSource()),
+				config.PollInterval(10*time.Second),
 			)}
 		} else if e != nil {
 			fmt.Errorf("[Configs] something whent wrong while upgrading configs: %s", e.Error())
@@ -115,6 +127,10 @@ func newLocalSource() config.Source {
 	)
 }
 
+func newRemoteSource() config.Source {
+	return remote.NewSource()
+}
+
 func Get(path ...string) reader.Value {
 	return Default().Get(path...)
 }
@@ -127,24 +143,6 @@ func Del(path ...string) {
 	Default().Del(path...)
 }
 
-// func newConfig() *Config {
-// 	dir := ApplicationDataDir()
-//
-// 	copySampleConfig(filepath.Join(dir, pydioConfigFile))
-//
-// 	// Setting the sources
-// 	// 1 . From the sample file
-// 	// 2 . From the local save
-// 	src1 := file.NewSource(config.SourceName(filepath.Join(dir, pydioConfigFile)))
-//
-// 	// Create a default config handle with the 3 sources
-// 	return &Config{
-// 		Config: config.NewConfig(
-// 			config.WithSource(src2),
-// 			config.PollInterval(5*time.Second),
-// 		)}
-// }
-
 func (c *Config) Unmarshal(val interface{}) error {
 	return c.Config.Get().Scan(&val)
 }
@@ -154,6 +152,7 @@ func (c *Config) UnmarshalKey(key string, val interface{}) error {
 }
 
 func watchConfig() {
+
 }
 
 // GetJsonPath build path for json that contain the local config

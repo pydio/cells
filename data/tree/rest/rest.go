@@ -31,8 +31,11 @@ import (
 
 	"encoding/json"
 
+	"io"
+
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -42,8 +45,10 @@ import (
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/utils"
+	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
 	rest_meta "github.com/pydio/cells/data/meta/rest"
+	"github.com/pydio/cells/data/templates"
 	"github.com/pydio/cells/scheduler/lang"
 )
 
@@ -123,11 +128,31 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 			}
 			output.Children = append(output.Children, r.Node)
 		} else {
-			contents := " " // Use simple space for empty files
-			if n.GetStringMeta("Contents") != "" {
-				contents = n.GetStringMeta("Contents")
+			var reader io.Reader
+			var length int64
+			if input.TemplateUUID != "" {
+				provider := templates.GetProvider()
+				node, err := provider.ByUUID(input.TemplateUUID)
+				if err != nil {
+					service.RestErrorDetect(req, resp, err)
+					return
+				}
+				var e error
+				reader, length, e = node.Read()
+				if e != nil {
+					service.RestError500(req, resp, fmt.Errorf("Cannot read template!"))
+					return
+				}
+
+			} else {
+				contents := " " // Use simple space for empty files
+				if n.GetStringMeta("Contents") != "" {
+					contents = n.GetStringMeta("Contents")
+				}
+				length = int64(len(contents))
+				reader = strings.NewReader(contents)
 			}
-			_, e := router.PutObject(ctx, n, strings.NewReader(contents), &views.PutRequestData{Size: int64(len(contents))})
+			_, e := router.PutObject(ctx, n, reader, &views.PutRequestData{Size: length})
 			if e != nil {
 				service.RestError500(req, resp, e)
 				return
@@ -149,7 +174,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	}
 	ctx := req.Request.Context()
 	username, _ := utils.FindUserNameInContext(ctx)
-	languages := utils.UserLanguagesFromRestRequest(req)
+	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
 	T := lang.Bundle().GetTranslationFunc(languages...)
 	output := &rest.DeleteNodesResponse{}
 	router := h.GetRouter()
@@ -339,7 +364,7 @@ func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 	output := &rest.RestoreNodesResponse{}
 	ctx := req.Request.Context()
 	username, _ := utils.FindUserNameInContext(ctx)
-	languages := utils.UserLanguagesFromRestRequest(req)
+	languages := i18n.UserLanguagesFromRestRequest(req, config.Default())
 	T := lang.Bundle().GetTranslationFunc(languages...)
 	moveLabel := T("Jobs.User.DirMove")
 

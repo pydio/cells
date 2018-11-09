@@ -36,7 +36,7 @@ export default React.createClass({
          */
         dialogTitleId:React.PropTypes.string,
         /**
-         * Message ID used for dialog legend
+         * Message ID or string used for dialog legend
          */
         legendId:React.PropTypes.string,
         /**
@@ -96,9 +96,9 @@ export default React.createClass({
     render(){
         return (
             <div style={{width:'100%'}}>
-                <div className="dialogLegend">{MessageHash[this.props.legendId]}</div>
+                <div className="dialogLegend">{MessageHash[this.props.legendId] || this.props.legendId}</div>
                 <TextField
-                    floatingLabelText={MessageHash[this.props.fieldLabelId]}
+                    floatingLabelText={MessageHash[this.props.fieldLabelId] || this.props.fieldLabelId}
                     ref="input"
                     onKeyDown={this.submitOnEnterKey}
                     defaultValue={this.props.defaultValue}

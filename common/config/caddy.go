@@ -64,9 +64,13 @@ type CaddyTemplateConf struct {
 	// If TLS is enabled, also enable auto-redirect from http to https
 	HttpRedirectSource *url.URL
 	HttpRedirectTarget *url.URL
+
+	PluginTemplates []TemplateFunc
+	PluginPathes    []string
 }
 
 var (
+	caddyConf     = &CaddyTemplateConf{}
 	CaddyTemplate = `
 {{.Bind.Host}} {
 	proxy /a  {{.Micro.Host}} {
@@ -118,29 +122,8 @@ var (
 	  / /login
 	}
 
-	{{if .Collabora}}
-	proxy /wopi/ {{.WOPI.Host}} {
-		transparent
-	}
-
-	proxy /loleaflet/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/loleaflet {
-		transparent
-		insecure_skip_verify
-		without /loleaflet/
-	}
-
-	proxy /hosting/discovery {{.Collabora.Scheme}}://{{.Collabora.Host}}/hosting/discovery {
-		transparent
-		insecure_skip_verify
-		without /hosting/discovery
-	}
-
-	proxy /lool/ {{.Collabora.Scheme}}://{{.Collabora.Host}}/lool/ {
-		transparent
-		insecure_skip_verify
-		websocket
-		without /lool/
-	}
+	{{range .PluginTemplates}}
+	{{call .}}
 	{{end}}
 
 	rewrite {
@@ -151,10 +134,9 @@ var (
 		if {path} not_starts_with "/ws/"
 		if {path} not_starts_with "/plug/"
 		if {path} not_starts_with "/dav/"
-		if {path} not_starts_with "/wopi/"
-		if {path} not_starts_with "/loleaflet/"
-		if {path} not_starts_with "/hosting/discovery"
-		if {path} not_starts_with "/lool/"
+		{{range .PluginPathes}}
+		if {path} not_starts_with "{{.}}"
+		{{end}}
 		if {path} not_starts_with "/public/"
 		if {path} not_starts_with "/user/reset-password"
 		if {path} not_starts_with "/robots.txt"
@@ -182,9 +164,10 @@ func init() {
 // LoadCaddyConf reads the pydio config and fill a CaddyTemplateConf object ready
 // to be executed by template
 func LoadCaddyConf() (*CaddyTemplateConf, error) {
-	c := &CaddyTemplateConf{
-		Logs: filepath.Join(ApplicationDataDir(), "logs"),
-	}
+
+	c := caddyConf
+
+	c.Logs = filepath.Join(ApplicationDataDir(), "logs")
 
 	if bindUrl := Get("defaults", "urlInternal").String(""); bindUrl == "" {
 		return c, fmt.Errorf("cannot find urlInternal configuration")
@@ -337,6 +320,15 @@ func ConfigureCaddyfile(t string, v interface{}) error {
 	}
 
 	return nil
+}
+
+// TemplateFunc is a function providing a stringer
+type TemplateFunc func() string
+
+// RegisterPluginTemplate add a TemplateFunc to be called for each plugin
+func RegisterPluginTemplate(f TemplateFunc, pathes ...string) {
+	caddyConf.PluginTemplates = append(caddyConf.PluginTemplates, f)
+	caddyConf.PluginPathes = append(caddyConf.PluginPathes, pathes...)
 }
 
 // provide loader function

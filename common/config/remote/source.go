@@ -19,7 +19,7 @@
  */
 
 // Package source implements a configuration client backed by a config server
-package source
+package remote
 
 import (
 	"context"
@@ -38,10 +38,8 @@ type remotesource struct {
 
 func (s *remotesource) Read() (*config.ChangeSet, error) {
 	cli := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
-
-	rsp, err := cli.Read(context.TODO(), &proto.ReadRequest{
-		Id: "services",
-	})
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	rsp, err := cli.Read(ctx, &proto.ReadRequest{})
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +57,7 @@ func (s *remotesource) String() string {
 
 func (s *remotesource) Watch() (config.SourceWatcher, error) {
 	cli := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
-	stream, err := cli.Watch(context.TODO(), &proto.WatchRequest{
+	stream, err := cli.Watch(context.Background(), &proto.WatchRequest{
 		Id: s.opts.Name,
 	})
 	if err != nil {

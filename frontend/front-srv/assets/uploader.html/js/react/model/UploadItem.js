@@ -21,7 +21,6 @@
 import StatusItem from './StatusItem'
 import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
-import LangUtils from 'pydio/util/lang'
 import PydioApi from 'pydio/http/api'
 import Configs from './Configs'
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
@@ -29,26 +28,24 @@ import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'py
 
 class UploadItem extends StatusItem {
 
-    constructor(file, targetNode, relativePath = null){
-        super('file');
+    constructor(file, targetNode, relativePath = null, parent = null){
+        super('file', targetNode, parent);
         this._file = file;
         this._status = 'new';
-        this._progress = 0;
-        this._targetNode = targetNode;
-        this._repositoryId = Pydio.getInstance().user.activeRepository;
-        this._relativePath = relativePath;
+        if(relativePath){
+            this._label = PathUtils.getBasename(relativePath);
+        } else {
+            this._label = file.name;
+        }
+        if(parent){
+            parent.addChild(this);
+        }
     }
     getFile(){
         return this._file;
     }
     getSize(){
         return this._file.size;
-    }
-    getLabel(){
-        return this._relativePath ? this._relativePath : this._file.name;
-    }
-    getProgress(){
-        return this._progress;
     }
     setProgress(newValue, bytes = null){
         this._progress = newValue;
@@ -57,15 +54,14 @@ class UploadItem extends StatusItem {
             this.notify('bytes', bytes);
         }
     }
-    getRelativePath(){
-        return this._relativePath;
-    }
     _parseXHRResponse(){
         if (this.xhr && this.xhr.responseText && this.xhr.responseText !== 'OK') {
             this.onError('Unexpected response: ' + this.xhr.responseText);
         }
     }
     _doProcess(completeCallback){
+        this._userAborted = false;
+
         const complete = ()=>{
             this.setStatus('loaded');
             this._parseXHRResponse();
@@ -74,6 +70,9 @@ class UploadItem extends StatusItem {
 
         const progress = (computableEvent)=>{
             if (this._status === 'error') {
+                return;
+            }
+            if(!computableEvent.total){
                 return;
             }
             let percentage = Math.round((computableEvent.loaded * 100) / computableEvent.total);
@@ -89,6 +88,11 @@ class UploadItem extends StatusItem {
         const MAX_RETRIES = 10;
         const retry = (count)=>{
             return (e)=>{
+                if(this._userAborted){
+                    if(e) error(e);
+                    else error(new Error('Interrupted by user'));
+                    return;
+                }
                 if (count >= MAX_RETRIES) {
                     error(e)
                 } else {
@@ -113,87 +117,32 @@ class UploadItem extends StatusItem {
     _doAbort(completeCallback){
         if(this.xhr){
             try{
+                console.log('Should abort', this.getFullPath());
+                this._userAborted = true;
                 this.xhr.abort();
             }catch(e){}
         }
         this.setStatus('error');
     }
 
-    file_newpath(fullpath) {
-        return new Promise(async (resolve) => {
-            const lastSlash = fullpath.lastIndexOf('/');
-            const pos = fullpath.lastIndexOf('.');
-            let path = fullpath;
-            let ext = '';
+    uploadPresigned(completeCallback, progressCallback, errorCallback){
 
-            // NOTE: the position lastSlash + 1 corresponds to hidden files (ex: .DS_STORE)
-            if (pos  > -1 && lastSlash < pos && pos > lastSlash + 1) {
-                path = fullpath.substring(0, pos);
-                ext = fullpath.substring(pos);
-            }
-
-            let newPath = fullpath;
-            let counter = 1;
-
-            let exists = await this._fileExists(newPath);
-            while (exists) {
-                newPath = path + '-' + counter + ext;
-                counter++;
-                exists = await this._fileExists(newPath)
-            }
-
-            resolve(newPath);
-        });
-    }
-
-    _fileExists(fullpath) {
-        return new Promise(resolve => {
-            const api = new TreeServiceApi(PydioApi.getRestClient());
-
-            api.headNode(fullpath).then(node => {
-                if (node.Node) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            }).catch(() => resolve(false))
-        })
-    }
-
-    async uploadPresigned(completeCallback, progressCallback, errorCallback){
-
-        const repoList = Pydio.getInstance().user.getRepositoriesList();
-        if(!repoList.has(this._repositoryId)){
-            errorCallback(new Error('Unauthorized workspace!'));
+        let fullPath;
+        try{
+            fullPath = this.getFullPath();
+        }catch (e) {
+            this.setStatus('error');
             return;
         }
-        const slug = repoList.get(this._repositoryId).getSlug();
-
-        let fullPath = this._targetNode.getPath();
-        if(this._relativePath) {
-            fullPath = LangUtils.trimRight(fullPath, '/') + '/' + LangUtils.trimLeft(PathUtils.getDirname(this._relativePath), '/');
-        }
-        fullPath = slug + '/' + LangUtils.trim(fullPath, '/');
-        fullPath = LangUtils.trimRight(fullPath, '/') + '/' + PathUtils.getBasename(this._file.name);
-        if (fullPath.normalize) {
-            fullPath = fullPath.normalize('NFC');
-        }
-
-        // Checking file already exists or not
-        let overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
-
-        if (overwriteStatus === 'rename') {
-            fullPath = await this.file_newpath(fullPath)
-        } else if (overwriteStatus === 'alert') {
-            if (!global.confirm(Pydio.getInstance().MessageHash[124])) {
-                errorCallback(new Error(Pydio.getInstance().MessageHash[71]));
-                return;
-            }
-        }
-
+        /*
         PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(xhr => {
             this.xhr = xhr;
         });
+        */
+        PydioApi.getClient().uploadMultipart(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(managed => {
+            this.xhr = managed;
+        });
+
     }
 }
 

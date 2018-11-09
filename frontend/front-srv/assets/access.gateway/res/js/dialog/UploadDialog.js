@@ -19,13 +19,32 @@
  */
 
 const React = require('react')
-const {ActionDialogMixin, SubmitButtonProviderMixin} = require('pydio').requireLib('boot')
+const {ActionDialogMixin, AsyncComponent} = require('pydio').requireLib('boot');
+import {Tabs, Tab, IconButton, FontIcon} from 'material-ui'
+import {muiThemeable} from 'material-ui/styles'
+
+class TopBar extends React.Component{
+
+    render(){
+        const {tabs, dismiss, muiTheme} = this.props;
+        return(
+            <div style={{display:'flex', backgroundColor:muiTheme.tabs.backgroundColor}}>
+                <Tabs style={{flex: 1}}>
+                    {tabs}
+                </Tabs>
+                <IconButton iconStyle={{color:muiTheme.tabs.selectedTextColor}} iconClassName={"mdi mdi-close"} onTouchTap={dismiss} tooltip={"Close"}/>
+            </div>
+        );
+    }
+
+}
+
+TopBar = muiThemeable()(TopBar);
 
 let UploadDialog = React.createClass({
 
     mixins:[
-        ActionDialogMixin,
-        SubmitButtonProviderMixin
+        ActionDialogMixin
     ],
 
     getDefaultProps: function(){
@@ -34,43 +53,51 @@ let UploadDialog = React.createClass({
             dialogTitle: '',
             dialogSize: mobile ? 'md' : 'lg',
             dialogPadding: false,
-            dialogIsModal: true
+            dialogIsModal: false
         };
     },
 
-    submit(){
-        this.dismiss();
+    getInitialState(){
+        let uploaders = this.props.pydio.Registry.getActiveExtensionByType("uploader").filter(uploader => uploader.moduleName);
+        uploaders.sort(function(objA, objB){
+            return objA.order - objB.order;
+        });
+        let current;
+        if(uploaders.length){
+            current = uploaders[0];
+        }
+        return {
+            uploaders,
+            current
+        };
     },
 
     render: function(){
         let tabs = [];
-        let uploaders = this.props.pydio.Registry.getActiveExtensionByType("uploader");
+        let component = <div style={{height: 360}}></div>;
         const dismiss = () => {this.dismiss()};
-
-        uploaders.sort(function(objA, objB){
-            return objA.order - objB.order;
-        });
-
+        const {uploaders, current} = this.state;
         uploaders.map((uploader) => {
-            if(uploader.moduleName) {
-                let parts = uploader.moduleName.split('.');
-                tabs.push(
-                    <MaterialUI.Tab label={uploader.xmlNode.getAttribute('label')} key={uploader.id}>
-                        <PydioReactUI.AsyncComponent
-                            pydio={this.props.pydio}
-                            namespace={parts[0]}
-                            componentName={parts[1]}
-                            onDismiss={dismiss}
-                        />
-                    </MaterialUI.Tab>
-                );
-            }
+            tabs.push(<Tab label={uploader.xmlNode.getAttribute('label')} key={uploader.id} onActive={()=>{this.setState({current:uploader})}}/>);
         });
+        if(current){
+            let parts = current.moduleName.split('.');
+            component = (
+                <AsyncComponent
+                    pydio={this.props.pydio}
+                    namespace={parts[0]}
+                    componentName={parts[1]}
+                    onDismiss={dismiss}
+                    {...this.props.uploaderProps}
+                />
+            );
+        }
 
         return (
-            <MaterialUI.Tabs style={{width: '100%'}}>
-                {tabs}
-            </MaterialUI.Tabs>
+            <div style={{width: '100%'}}>
+                <TopBar tabs={tabs} dismiss={dismiss}/>
+                {component}
+            </div>
         );
     }
 

@@ -19,50 +19,34 @@
  */
 
 import StatusItem from './StatusItem'
-import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
-import LangUtils from 'pydio/util/lang'
 import PydioApi from 'pydio/http/api'
 import {TreeServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} from 'pydio/http/rest-api'
 
 class FolderItem extends StatusItem{
 
-    constructor(path, targetNode){
-        super('folder');
+    constructor(path, targetNode, parent = null){
+        super('folder', targetNode, parent);
         this._new = true;
-        this._path = path;
-        this._targetNode =  targetNode;
-        const pydio = Pydio.getInstance();
-        this._repositoryId = pydio.user.activeRepository;
+        this._label = PathUtils.getBasename(path);
+        this.children.pg[this.getId()] = 0;
+        if(parent){
+            parent.addChild(this);
+        }
     }
 
     isNew() {
         return this._new;
     }
 
-    getPath(){
-        return this._path;
-    }
-
-    getLabel(){
-        return PathUtils.getBasename(this._path);
-    }
-
     _doProcess(completeCallback) {
-        const pydio = Pydio.getInstance();
-        
-        const repoList = pydio.user.getRepositoriesList();
-        if(!repoList.has(this._repositoryId)){
+        let fullPath;
+        try{
+            fullPath = this.getFullPath()
+        } catch (e) {
             this.setStatus('error');
             return;
         }
-        const slug = repoList.get(this._repositoryId).getSlug();
-        let fullPath = this._targetNode.getPath();
-        fullPath = LangUtils.trimRight(fullPath, '/') + '/' + LangUtils.trimLeft(this._path, '/');
-        if (fullPath.normalize) {
-            fullPath = fullPath.normalize('NFC');
-        }
-        fullPath = "/" + slug + fullPath;
 
         const api = new TreeServiceApi(PydioApi.getRestClient());
         const request = new RestCreateNodesRequest();
@@ -74,6 +58,8 @@ class FolderItem extends StatusItem{
 
         api.createNodes(request).then(collection => {
             this.setStatus('loaded');
+            this.children.pg[this.getId()] = 100;
+            this.recomputeProgress();
             completeCallback();
         });
     }

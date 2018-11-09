@@ -21,13 +21,17 @@
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _utilXMLUtils = require('../util/XMLUtils');
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _utilXMLUtils2 = _interopRequireDefault(_utilXMLUtils);
+var _Connexion = require('./Connexion');
+
+var _Connexion2 = _interopRequireDefault(_Connexion);
 
 var _utilPathUtils = require('../util/PathUtils');
 
@@ -57,9 +61,45 @@ var _modelAjxpNode = require("../model/AjxpNode");
 
 var _modelAjxpNode2 = _interopRequireDefault(_modelAjxpNode);
 
-/**
- * API Client
- */
+// Extend S3 ManagedUpload to get progress info about each part
+
+var ManagedMultipart = (function (_AWS$S3$ManagedUpload) {
+    _inherits(ManagedMultipart, _AWS$S3$ManagedUpload);
+
+    function ManagedMultipart() {
+        _classCallCheck(this, ManagedMultipart);
+
+        _AWS$S3$ManagedUpload.apply(this, arguments);
+    }
+
+    /**
+     * API Client
+     */
+
+    ManagedMultipart.prototype.progress = function progress(info) {
+        var upload = this._managedUpload;
+        if (this.operation === 'putObject') {
+            info.part = 1;
+            info.key = this.params.Key;
+        } else {
+            var partLoaded = info.loaded;
+            var partTotal = info.total;
+            upload.totalUploadedBytes += info.loaded - this._lastUploadedBytes;
+            this._lastUploadedBytes = info.loaded;
+            info = {
+                loaded: upload.totalUploadedBytes,
+                total: upload.totalBytes,
+                part: this.params.PartNumber,
+                partLoaded: partLoaded, partTotal: partTotal,
+                key: this.params.Key
+            };
+            console.log("emit", info);
+        }
+        upload.emit('httpUploadProgress', [info]);
+    };
+
+    return ManagedMultipart;
+})(_awsSdk2['default'].S3.ManagedUpload);
 
 var PydioApi = (function () {
     function PydioApi() {
@@ -83,41 +123,14 @@ var PydioApi = (function () {
         return this._pydioObject;
     };
 
-    PydioApi.prototype.request = function request(parameters) {
-        var onComplete = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-        var onError = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-        var settings = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
-
-        // Connexion already handles secure_token
-        var c = new Connexion();
-        if (settings.discrete) {
-            c.discrete = true;
-        }
-        c.setParameters(parameters);
-        if (settings.method) {
-            c.setMethod(settings.method);
-        }
-        if (!onComplete) {
-            onComplete = (function (transport) {
-                if (transport.responseXML) return this.parseXmlMessage(transport.responseXML);
-            }).bind(this);
-        }
-        c.onComplete = onComplete;
-        if (settings.async === false) {
-            c.sendSync();
-        } else {
-            c.sendAsync();
-        }
-    };
-
     PydioApi.prototype.loadFile = function loadFile(filePath) {
         var onComplete = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
         var onError = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
-        var c = new Connexion(filePath);
+        var c = new _Connexion2['default'](filePath);
         c.setMethod('GET');
         c.onComplete = onComplete;
-        c.sendAsync();
+        c.send();
     };
 
     /**
@@ -128,6 +141,8 @@ var PydioApi = (function () {
      * @param onComplete
      * @param onError
      * @param onProgress
+     * @param uploadUrl
+     * @param xhrSettings
      * @returns XHR Handle to abort transfer
      */
 
@@ -146,24 +161,16 @@ var PydioApi = (function () {
             uploadUrl += (uploadUrl.indexOf('?') === -1 ? '?' : '&') + queryStringParams;
         }
 
-        if (window.Connexion) {
-            var _ret = (function () {
-                // Warning, avoid double error
-                var errorSent = false;
-                var localError = function localError(xhr) {
-                    if (!errorSent) {
-                        onError('Request failed with status :' + xhr.status);
-                    }
-                    errorSent = true;
-                };
-                var c = new Connexion();
-                return {
-                    v: c.uploadFile(file, fileParameterName, uploadUrl, onComplete, localError, onProgress, xhrSettings)
-                };
-            })();
-
-            if (typeof _ret === 'object') return _ret.v;
-        }
+        // Warning, avoid double error
+        var errorSent = false;
+        var localError = function localError(xhr) {
+            if (!errorSent) {
+                onError('Request failed with status :' + xhr.status);
+            }
+            errorSent = true;
+        };
+        var c = new _Connexion2['default']();
+        return c.uploadFile(file, fileParameterName, uploadUrl, onComplete, localError, onProgress, xhrSettings);
     };
 
     /**
@@ -275,6 +282,52 @@ var PydioApi = (function () {
         });
     };
 
+    PydioApi.prototype.uploadMultipart = function uploadMultipart(file, path) {
+        var onComplete = arguments.length <= 2 || arguments[2] === undefined ? function () {} : arguments[2];
+        var onError = arguments.length <= 3 || arguments[3] === undefined ? function () {} : arguments[3];
+        var onProgress = arguments.length <= 4 || arguments[4] === undefined ? function () {} : arguments[4];
+
+        var targetPath = path;
+        if (path.normalize) {
+            targetPath = path.normalize('NFC');
+        }
+        if (targetPath[0] === "/") {
+            targetPath = targetPath.substring(1);
+        }
+        var url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+        var params = {
+            Bucket: 'io',
+            Key: targetPath,
+            ContentType: 'application/octet-stream'
+        };
+
+        return new Promise(function (resolve) {
+            PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
+                _awsSdk2['default'].config.update({
+                    accessKeyId: jwt,
+                    secretAccessKey: 'gatewaysecret',
+                    s3ForcePathStyle: true,
+                    endpoint: url.replace('/io', '')
+                });
+                var managed = new ManagedMultipart({
+                    params: _extends({}, params, { Body: file }),
+                    partSize: 50 * 1024 * 1024,
+                    queueSize: 3,
+                    leavePartsOnError: false
+                });
+                managed.on('httpUploadProgress', onProgress);
+                managed.send(function (e, d) {
+                    if (e) {
+                        onError(e);
+                    } else {
+                        onComplete(d);
+                    }
+                });
+                resolve(managed);
+            });
+        });
+    };
+
     /**
      * Send a request to the server to get a usable presigned url.
      *
@@ -282,6 +335,7 @@ var PydioApi = (function () {
      * @param callback Function
      * @param presetType String
      * @param bucketParams
+     * @param attachmentName
      * @return {Promise}|null Return a Promise if callback is null, or call the callback
      */
 
@@ -443,7 +497,7 @@ var PydioApi = (function () {
 
         var pydio = this.getPydioObject();
         var agent = navigator.userAgent || '';
-        var agentIsMobile = agent.indexOf('iPhone') != -1 || agent.indexOf('iPod') != -1 || agent.indexOf('iPad') != -1 || agent.indexOf('iOs') != -1;
+        var agentIsMobile = agent.indexOf('iPhone') !== -1 || agent.indexOf('iPod') !== -1 || agent.indexOf('iPad') !== -1 || agent.indexOf('iOs') !== -1;
         var hiddenForm = pydio && pydio.UI && pydio.UI.hasHiddenDownloadForm();
         var slug = pydio.user.getActiveRepositoryObject().getSlug();
 
@@ -544,7 +598,7 @@ var PydioApi = (function () {
             PydioApi._libUrl = pydio.Parameters.get('SERVER_PREFIX_URI');
         }
 
-        var conn = new Connexion();
+        var conn = new _Connexion2['default']();
         conn._libUrl = false;
         if (pydio.Parameters.get('SERVER_PREFIX_URI')) {
             conn._libUrl = pydio.Parameters.get('SERVER_PREFIX_URI');
@@ -563,140 +617,6 @@ var PydioApi = (function () {
                 completeCallback(data);
             });
         });
-    };
-
-    /**
-     *
-     * @param node
-     * @param hookName
-     * @param hookArg
-     * @param completeCallback
-     * @param additionalParams
-     */
-
-    PydioApi.prototype.applyCheckHook = function applyCheckHook(node, hookName, hookArg, completeCallback, additionalParams) {
-        completeCallback();
-    };
-
-    /**
-     * Standard parser for server XML answers
-     * @param xmlResponse DOMDocument
-     */
-
-    PydioApi.prototype.parseXmlMessage = function parseXmlMessage(xmlResponse) {
-        if (xmlResponse == null || xmlResponse.documentElement == null) {
-            return null;
-        }
-        var childs = xmlResponse.documentElement.childNodes;
-        var reloadNodes = [],
-            error = false;
-        this.LAST_ERROR_ID = null;
-        this.LAST_ERROR = null;
-
-        for (var i = 0; i < childs.length; i++) {
-            var child = childs[i];
-            if (child.tagName === "message") {
-                var messageTxt = "No message";
-                if (child.firstChild) messageTxt = child.firstChild.nodeValue;
-                if (child.getAttribute('type') == 'ERROR') {
-                    Logger.error(messageTxt);
-                    this.LAST_ERROR = messageTxt;
-                    error = true;
-                } else {
-                    Logger.log(messageTxt);
-                }
-            } else if (child.tagName === "prompt") {
-
-                if (pydio && pydio.UI && pydio.UI.openPromptDialog) {
-                    var jsonData = _utilXMLUtils2['default'].XPathSelectSingleNode(childs[i], "data").firstChild.nodeValue;
-                    pydio.UI.openPromptDialog(JSON.parse(jsonData));
-                }
-                return false;
-            } else if (child.tagName === "reload_instruction") {
-
-                var obName = child.getAttribute('object');
-                if (obName === 'data') {
-                    var node = child.getAttribute('node');
-                    if (node) {
-                        reloadNodes.push(node);
-                    } else {
-                        var file = child.getAttribute('file');
-                        if (file) {
-                            this._pydioObject.getContextHolder().setPendingSelection(file);
-                        }
-                        reloadNodes.push(this._pydioObject.getContextNode());
-                    }
-                } else if (obName === 'repository_list') {
-                    this._pydioObject.reloadRepositoriesList();
-                }
-            } else if (child.nodeName === 'nodes_diff') {
-
-                var dm = this._pydioObject.getContextHolder();
-                if (dm.getAjxpNodeProvider().parseAjxpNodesDiffs) {
-                    dm.getAjxpNodeProvider().parseAjxpNodesDiffs(childs[i], dm, this._pydioObject.user.activeRepository, !window.currentLightBox);
-                }
-            } else if (child.tagName === "logging_result") {
-
-                if (child.getAttribute("secure_token")) {
-
-                    this._pydioObject.Parameters.set('SECURE_TOKEN', child.getAttribute("secure_token"));
-                    Connexion.updateServerAccess(this._pydioObject.Parameters);
-                }
-                var result = child.getAttribute('value');
-                var errorId = false;
-                switch (result) {
-                    case '1':
-                        this._pydioObject.loadXmlRegistry();
-                        break;
-                    case '0':
-                    case '-1':
-                        errorId = 285;
-                        break;
-                    case '2':
-                        this._pydioObject.loadXmlRegistry();
-                        break;
-                    case '-2':
-                        errorId = 285;
-                        break;
-                    case '-3':
-                        errorId = 366;
-                        break;
-                    case '-4':
-                        errorId = 386;
-                        break;
-                }
-                if (errorId) {
-                    error = true;
-                    this.LAST_ERROR_ID = errorId;
-                    Logger.error(this._pydioObject.MessageHash[errorId]);
-                }
-            } else if (child.tagName === "trigger_bg_action") {
-
-                var _name = child.getAttribute("name");
-                var messageId = child.getAttribute("messageId");
-                var parameters = {};
-                var callback = undefined;
-                for (var j = 0; j < child.childNodes.length; j++) {
-                    var paramChild = child.childNodes[j];
-                    if (paramChild.tagName === 'param') {
-
-                        parameters[paramChild.getAttribute("name")] = paramChild.getAttribute("value");
-                    } else if (paramChild.tagName === 'clientCallback' && paramChild.firstChild && paramChild.firstChild.nodeValue) {
-
-                        var callbackCode = paramChild.firstChild.nodeValue;
-                        callback = new Function(callbackCode);
-                    }
-                }
-                if (_name === "javascript_instruction" && callback) {
-                    callback();
-                }
-            }
-        }
-        this._pydioObject.notify("response.xml", xmlResponse);
-        if (reloadNodes.length) {
-            this._pydioObject.getContextHolder().multipleNodesReload(reloadNodes);
-        }
-        return !error;
     };
 
     return PydioApi;

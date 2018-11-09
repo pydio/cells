@@ -22,7 +22,8 @@ import Store from './Store'
 import Configs from './Configs'
 import UploadItem from './UploadItem'
 import FolderItem from './FolderItem'
+import Session from './Session'
 
 export {
-    Store, Configs, UploadItem, FolderItem
+    Store, Configs, UploadItem, FolderItem, Session
 }

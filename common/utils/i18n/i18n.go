@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package utils
+package i18n
 
 import (
 	"context"
@@ -26,10 +26,11 @@ import (
 	"strings"
 
 	"github.com/emicklei/go-restful"
+	"github.com/pydio/go-os/config"
 
 	"github.com/pydio/cells/common/auth/claim"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/utils"
 )
 
 var (
@@ -73,20 +74,19 @@ var (
 )
 
 // GetDefaultLanguage reads default language from config
-func GetDefaultLanguage() string {
-	config.Default()
-	return config.Get("defaults", "lang").String("en")
+func GetDefaultLanguage(conf config.Config) string {
+	return conf.Get("defaults", "lang").String("en")
 }
 
 // UserLanguagesFromRestRequest tries to find user language from various sources:
 // X-Pydio-Language header, user language inside the system (set via roles), or Accept-Language
 // standard header.
-func UserLanguagesFromRestRequest(req *restful.Request) []string {
+func UserLanguagesFromRestRequest(req *restful.Request, conf config.Config) []string {
 	pydioLang := req.HeaderParameter("X-Pydio-Language")
 	if pydioLang != "" {
 		return []string{pydioLang}
 	}
-	claimsLang := UserLanguageFromContext(req.Request.Context(), false)
+	claimsLang := UserLanguageFromContext(req.Request.Context(), conf, false)
 	if claimsLang != "" {
 		return []string{claimsLang}
 	}
@@ -94,22 +94,22 @@ func UserLanguagesFromRestRequest(req *restful.Request) []string {
 	if len(browserLangs) > 0 {
 		return browserLangs
 	}
-	return []string{GetDefaultLanguage()}
+	return []string{GetDefaultLanguage(conf)}
 }
 
 // UserLanguageFromContext tries to find Claims in context and get the language for the corresponding user.
 // If nothing is found, if returnDefault is true it returns the global default language, otherwise it returns an empty string.
-func UserLanguageFromContext(ctx context.Context, returnDefault bool) string {
+func UserLanguageFromContext(ctx context.Context, conf config.Config, returnDefault bool) string {
 	if claimVal := ctx.Value(claim.ContextKey); claimVal != nil {
 		claims := claimVal.(claim.Claims)
 		u := &idm.User{Login: claims.Name}
 		for _, role := range strings.Split(claims.Roles, ",") {
 			u.Roles = append(u.Roles, &idm.Role{Uuid: role})
 		}
-		return UserLanguage(ctx, u)
+		return UserLanguage(ctx, u, conf)
 	}
 	if returnDefault {
-		return GetDefaultLanguage()
+		return GetDefaultLanguage(conf)
 	} else {
 		return ""
 	}
@@ -118,15 +118,15 @@ func UserLanguageFromContext(ctx context.Context, returnDefault bool) string {
 // UserLanguage looks for the user roles and check if a language
 // parameter is set (starting from the last). Otherwise returns the
 // default language from config
-func UserLanguage(ctx context.Context, user *idm.User) string {
+func UserLanguage(ctx context.Context, user *idm.User, conf config.Config) string {
 
-	var defaultLanguage = GetDefaultLanguage()
+	var defaultLanguage = GetDefaultLanguage(conf)
 
 	if len(user.Roles) == 0 {
 		return defaultLanguage
 	}
 	// from last to first, try to find the "parameter:core.conf:lang" action
-	langActions := GetACLsForRoles(ctx, user.Roles, &idm.ACLAction{Name: "parameter:core.conf:lang"})
+	langActions := utils.GetACLsForRoles(ctx, user.Roles, &idm.ACLAction{Name: "parameter:core.conf:lang"})
 	if len(langActions) == 0 {
 		return defaultLanguage
 	}

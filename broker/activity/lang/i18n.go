@@ -24,16 +24,16 @@ package lang
 import (
 	"github.com/gobuffalo/packr"
 	"github.com/nicksnyder/go-i18n/i18n"
-	"github.com/pydio/cells/common/utils"
+	i18n2 "github.com/pydio/cells/common/utils/i18n"
 )
 
 var (
-	b *utils.I18nBundle
+	b *i18n2.I18nBundle
 )
 
 func T(lang ...string) i18n.TranslateFunc {
 	if b == nil {
-		b = utils.NewI18nBundle(packr.NewBox("../../../broker/activity/lang/box"))
+		b = i18n2.NewI18nBundle(packr.NewBox("../../../broker/activity/lang/box"))
 	}
 	return b.GetTranslationFunc(lang...)
 }

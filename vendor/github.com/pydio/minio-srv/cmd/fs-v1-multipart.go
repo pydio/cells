@@ -818,9 +818,9 @@ func (fs fsObjects) CompleteMultipartUpload(bucket string, object string, upload
 	if len(fsMeta.Meta) == 0 {
 		fsMeta.Meta = make(map[string]string)
 	}
-	//fsMeta.Meta["etag"] = s3MD5
-	fmt.Println("Should set Etag to " + s3MD5 + " but set it empty to trigger a compute next time")
-	fsMeta.Meta = cleanMetaETag(fsMeta.Meta)
+	fsMeta.Meta["etag"] = s3MD5
+	// fmt.Println("Should set Etag to " + s3MD5 + " but set it empty to trigger a compute next time")
+	// fsMeta.Meta = cleanMetaETag(fsMeta.Meta)
 
 	// Write all the set metadata.
 	if _, err = fsMeta.WriteTo(metaFile); err != nil {

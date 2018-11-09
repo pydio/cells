@@ -45,6 +45,7 @@ var RestCreateNodesRequest = (function () {
 
         this.Nodes = undefined;
         this.Recursive = undefined;
+        this.TemplateUUID = undefined;
     }
 
     /**
@@ -65,6 +66,9 @@ var RestCreateNodesRequest = (function () {
             if (data.hasOwnProperty('Recursive')) {
                 obj['Recursive'] = _ApiClient2['default'].convertToType(data['Recursive'], 'Boolean');
             }
+            if (data.hasOwnProperty('TemplateUUID')) {
+                obj['TemplateUUID'] = _ApiClient2['default'].convertToType(data['TemplateUUID'], 'String');
+            }
         }
         return obj;
     };
@@ -80,4 +84,8 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} Recursive
+*/
+
+/**
+* @member {String} TemplateUUID
 */

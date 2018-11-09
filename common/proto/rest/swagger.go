@@ -2059,6 +2059,23 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/templates": {
+      "get": {
+        "summary": "List available templates",
+        "operationId": "ListTemplates",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restListTemplatesResponse"
+            }
+          }
+        },
+        "tags": [
+          "TemplatesService"
+        ]
+      }
+    },
     "/tree/admin/list": {
       "post": {
         "summary": "List files and folders starting at the root (first level lists the datasources)",
@@ -5260,6 +5277,9 @@ var SwaggerJson = `{
         "Recursive": {
           "type": "boolean",
           "format": "boolean"
+        },
+        "TemplateUUID": {
+          "type": "string"
         }
       }
     },
@@ -5673,6 +5693,17 @@ var SwaggerJson = `{
         "Total": {
           "type": "integer",
           "format": "int32"
+        }
+      }
+    },
+    "restListTemplatesResponse": {
+      "type": "object",
+      "properties": {
+        "Templates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/restTemplate"
+          }
         }
       }
     },
@@ -6331,6 +6362,57 @@ var SwaggerJson = `{
           }
         }
       }
+    },
+    "restTemplate": {
+      "type": "object",
+      "properties": {
+        "UUID": {
+          "type": "string",
+          "title": "Unique identifier for this template"
+        },
+        "Label": {
+          "type": "string",
+          "title": "Human friendly label"
+        },
+        "Node": {
+          "$ref": "#/definitions/restTemplateNode",
+          "title": "Template node, can be a file or a tree of folders"
+        },
+        "Policies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/serviceResourcePolicy"
+          },
+          "title": "Associated policies"
+        }
+      },
+      "title": "A template can be used to create files or tree from scratch"
+    },
+    "restTemplateNode": {
+      "type": "object",
+      "properties": {
+        "IsFile": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Whether it's a file or a folder"
+        },
+        "BinaryUUUID": {
+          "type": "string",
+          "title": "If stored in binary store, the binary Uuid"
+        },
+        "EmbedPath": {
+          "type": "string",
+          "title": "If it's embedded in binary"
+        },
+        "Children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/restTemplateNode"
+          },
+          "title": "One or more children"
+        }
+      },
+      "title": "A template node is representing a file or a folder"
     },
     "restUserBookmarksRequest": {
       "type": "object"
