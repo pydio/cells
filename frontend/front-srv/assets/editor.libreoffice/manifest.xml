@@ -20,19 +20,4 @@
 		<div id="libreoffice_box"  box_width="90%" box_height="90%" box_resize="true" box_padding="5" class="editor_container pdf_viewer"><div id="libreOfficeContainer"></div></div>
 	]]></clientForm>
 
-    <registry_contributions>
-        <actions>
-            <action name="libreoffice_mkempty_file">
-                <gui text="libreoffice.10" title="libreoffice.10" iconClass="mdi mdi-file-document" hasAccessKey="false">
-                    <context selection="false" dir="true" recycle="hidden" actionBar="true"
-                             contextMenu="true" infoPanel="false" actionBarGroup="create" inZip="false"/>
-
-                </gui>
-                <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
-                <subMenu>
-                    <dynamicBuilder module="PydioLibreOffice.Actions.dynamicBuilder"/>
-                </subMenu>
-            </action>
-        </actions>
-    </registry_contributions>
 </editor>

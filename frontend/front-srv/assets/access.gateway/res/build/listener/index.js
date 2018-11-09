@@ -26,6 +26,7 @@ Object.defineProperty(exports, '__esModule', {
 var pydio = global.pydio;
 
 var Listeners = {
+  mkfileDynamicBuilder: require('./mkfileDynamicBuilder')(pydio),
   downloadSelectionChange: require('./downloadSelectionChange')(pydio),
   downloadAllInit: require('./downloadAllInit')(pydio),
   compressUiSelectionChange: require('./compressUiSelectionChange')(pydio),

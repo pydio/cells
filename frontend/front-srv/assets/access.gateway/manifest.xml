@@ -68,9 +68,9 @@
                              contextMenu="true" infoPanel="false" actionBarGroup="create" inZip="false"/>
                 </gui>
                 <rightsContext noUser="true" userLogged="only" read="false" write="true" adminOnly=""/>
-                <processing>
-                    <clientCallback module="FSActions.Callbacks.mkfile"/>
-                </processing>
+                <subMenu>
+                    <dynamicBuilder module="FSActions.Listeners.mkfileDynamicBuilder"/>
+                </subMenu>
             </action>
             <action name="upload">
                 <gui text="27" title="27" iconClass="mdi mdi-upload" accessKey="upload_access_key" hasAccessKey="true">

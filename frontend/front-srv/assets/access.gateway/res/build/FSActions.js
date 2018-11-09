@@ -440,7 +440,6 @@ var pydio = global.pydio;
 var Callbacks = {
   ls: require('./ls')(pydio),
   mkdir: require('./mkdir')(pydio),
-  mkfile: require('./mkfile')(pydio),
   deleteAction: require('./deleteAction')(pydio),
   rename: require('./rename')(pydio),
   applyCopyOrMove: require('./applyCopyOrMove')(pydio),
@@ -461,7 +460,7 @@ exports['default'] = Callbacks;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ajxpLink":1,"./applyCopyOrMove":2,"./copy":3,"./deleteAction":4,"./download":5,"./downloadAll":6,"./emptyRecycle":7,"./lock":9,"./ls":10,"./mkdir":11,"./mkfile":12,"./move":13,"./openInEditor":14,"./openOtherEditorPicker":15,"./rename":16,"./restore":17,"./upload":18}],9:[function(require,module,exports){
+},{"./ajxpLink":1,"./applyCopyOrMove":2,"./copy":3,"./deleteAction":4,"./download":5,"./downloadAll":6,"./emptyRecycle":7,"./lock":9,"./ls":10,"./mkdir":11,"./move":12,"./openInEditor":13,"./openOtherEditorPicker":14,"./rename":15,"./restore":16,"./upload":17}],9:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -646,73 +645,6 @@ module.exports = exports["default"];
  * The latest code can be found at <https://pydio.com>.
  */
 
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-var _pydioHttpApi = require("pydio/http/api");
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var _pydioUtilLang = require('pydio/util/lang');
-
-var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
-
-var _pydioHttpRestApi = require("pydio/http/rest-api");
-
-exports["default"] = function (pydio) {
-
-    return function () {
-        var submit = function submit(value) {
-            var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2["default"].getRestClient());
-            var request = new _pydioHttpRestApi.RestCreateNodesRequest();
-            var slug = pydio.user.getActiveRepositoryObject().getSlug();
-            var path = slug + _pydioUtilLang2["default"].trimRight(pydio.getContextNode().getPath(), '/') + '/' + value;
-            var node = new _pydioHttpRestApi.TreeNode();
-            node.Path = path;
-            node.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('LEAF');
-            request.Nodes = [node];
-            api.createNodes(request).then(function (collection) {
-                console.log('Create files', collection.Children);
-            });
-        };
-        pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
-            dialogTitleId: 156,
-            legendId: 157,
-            fieldLabelId: 174,
-            dialogSize: 'sm',
-            submitValue: submit
-        });
-    };
-};
-
-module.exports = exports["default"];
-
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang"}],13:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -782,7 +714,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"./applyCopyOrMove":2,"pydio":"pydio"}],14:[function(require,module,exports){
+},{"./applyCopyOrMove":2,"pydio":"pydio"}],13:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -819,7 +751,7 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -858,7 +790,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],16:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -931,7 +863,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/util/path":"pydio/util/path"}],17:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/util/path":"pydio/util/path"}],16:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -992,7 +924,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],18:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api"}],17:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1032,7 +964,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1203,7 +1135,7 @@ var OtherEditorPickerDialog = React.createClass({
 exports['default'] = OtherEditorPickerDialog;
 module.exports = exports['default'];
 
-},{"../callback/openInEditor":14,"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],20:[function(require,module,exports){
+},{"../callback/openInEditor":13,"material-ui":"material-ui","pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],19:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1465,7 +1397,7 @@ var TreeDialog = _react2["default"].createClass({
 exports["default"] = TreeDialog;
 module.exports = exports["default"];
 
-},{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],21:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/util/lang":"pydio/util/lang","react":"react"}],20:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1620,7 +1552,7 @@ var UploadDialog = React.createClass({
 exports['default'] = UploadDialog;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],22:[function(require,module,exports){
+},{"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],21:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1675,7 +1607,7 @@ exports.UploadDialog = _dialogUploadDialog2['default'];
 exports.OtherEditorPickerDialog = _dialogOtherEditorPickerDialog2['default'];
 exports.TreeDialog = _dialogTreeDialog2['default'];
 
-},{"./callback/index":8,"./dialog/OtherEditorPickerDialog":19,"./dialog/TreeDialog":20,"./dialog/UploadDialog":21,"./listener/index":27}],23:[function(require,module,exports){
+},{"./callback/index":8,"./dialog/OtherEditorPickerDialog":18,"./dialog/TreeDialog":19,"./dialog/UploadDialog":20,"./listener/index":26}],22:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1714,7 +1646,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1767,7 +1699,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],25:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1807,7 +1739,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],26:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1854,7 +1786,7 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{}],27:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -1884,6 +1816,7 @@ Object.defineProperty(exports, '__esModule', {
 var pydio = global.pydio;
 
 var Listeners = {
+  mkfileDynamicBuilder: require('./mkfileDynamicBuilder')(pydio),
   downloadSelectionChange: require('./downloadSelectionChange')(pydio),
   downloadAllInit: require('./downloadAllInit')(pydio),
   compressUiSelectionChange: require('./compressUiSelectionChange')(pydio),
@@ -1896,7 +1829,7 @@ exports['default'] = Listeners;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./compressUiSelectionChange":23,"./copyContextChange":24,"./downloadAllInit":25,"./downloadSelectionChange":26,"./lockSelectionChange":28,"./openWithDynamicBuilder":29}],28:[function(require,module,exports){
+},{"./compressUiSelectionChange":22,"./copyContextChange":23,"./downloadAllInit":24,"./downloadSelectionChange":25,"./lockSelectionChange":27,"./mkfileDynamicBuilder":28,"./openWithDynamicBuilder":29}],27:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1946,7 +1879,223 @@ exports["default"] = function (pydio) {
 
 module.exports = exports["default"];
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
+/*
+ * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioUtilPath = require('pydio/util/path');
+
+var _pydioUtilPath2 = _interopRequireDefault(_pydioUtilPath);
+
+var _require = require('pydio/http/rest-api');
+
+var TreeServiceApi = _require.TreeServiceApi;
+var TemplatesServiceApi = _require.TemplatesServiceApi;
+var RestTemplate = _require.RestTemplate;
+var RestCreateNodesRequest = _require.RestCreateNodesRequest;
+var TreeNode = _require.TreeNode;
+var TreeNodeType = _require.TreeNodeType;
+
+var QuickCache = undefined,
+    QuickCacheTimer = undefined;
+
+var Builder = (function () {
+    function Builder() {
+        _classCallCheck(this, Builder);
+    }
+
+    _createClass(Builder, null, [{
+        key: 'dynamicBuilder',
+        value: function dynamicBuilder() {
+            var _this = this;
+
+            var pydio = _pydio2['default'].getInstance();
+            if (QuickCache !== null) {
+                this.__loadedTemplates = QuickCache;
+            }
+
+            if (this.__loadedTemplates) {
+                var _ret = (function () {
+
+                    var exts = {
+                        doc: 'file-word',
+                        docx: 'file-word',
+                        odt: 'file-word',
+                        odg: 'file-chart',
+                        odp: 'file-powerpoint',
+                        ods: 'file-excel',
+                        pot: 'file-powerpoint',
+                        pptx: 'file-powerpoint',
+                        rtf: 'file-word',
+                        xls: 'file-excel',
+                        xlsx: 'file-excel'
+                    };
+
+                    return {
+                        v: _this.__loadedTemplates.map(function (tpl) {
+
+                            var ext = undefined;
+                            if (tpl.UUID) {
+                                ext = _pydioUtilPath2['default'].getFileExtension(tpl.UUID);
+                            } else {
+                                ext = "txt";
+                            }
+                            var icon = 'file';
+                            if (exts[ext]) {
+                                icon = exts[ext];
+                            }
+                            return {
+                                name: tpl.Label,
+                                alt: tpl.Label,
+                                icon_class: 'mdi mdi-' + icon,
+                                callback: (function callee$4$0(e) {
+                                    var repoList, contextNode, slug, base, path, pathDir, pathLabel, submit;
+                                    return regeneratorRuntime.async(function callee$4$0$(context$5$0) {
+                                        while (1) switch (context$5$0.prev = context$5$0.next) {
+                                            case 0:
+                                                repoList = pydio.user.getRepositoriesList();
+                                                contextNode = pydio.getContextHolder().getContextNode();
+                                                slug = repoList.get(pydio.user.activeRepository).getSlug();
+                                                base = pydio.MessageHash["mkfile.untitled.document"] || "Untitled";
+                                                path = slug + contextNode.getPath() + "/" + base + "." + ext;
+
+                                                path = path.replace('//', '/');
+
+                                                pathDir = _pydioUtilPath2['default'].getDirname(path);
+                                                pathLabel = newLabel(contextNode, _pydioUtilPath2['default'].getBasename(path));
+
+                                                submit = function submit(value) {
+                                                    var api = new TreeServiceApi(PydioApi.getRestClient());
+                                                    var request = new RestCreateNodesRequest();
+                                                    var node = new TreeNode();
+                                                    node.Path = pathDir + '/' + value;
+                                                    node.Type = TreeNodeType.constructFromObject('LEAF');
+                                                    request.Nodes = [node];
+                                                    request.TemplateUUID = tpl.UUID;
+                                                    api.createNodes(request).then(function (collection) {
+                                                        //console.log('Create files', collection.Children);
+                                                    });
+                                                };
+
+                                                pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
+                                                    dialogTitleId: 156,
+                                                    legendId: tpl.Label,
+                                                    fieldLabelId: 174,
+                                                    dialogSize: 'sm',
+                                                    defaultValue: pathLabel,
+                                                    submitValue: submit
+                                                });
+
+                                            case 10:
+                                            case 'end':
+                                                return context$5$0.stop();
+                                        }
+                                    }, null, this);
+                                }).bind(_this)
+                            };
+                        })
+                    };
+                })();
+
+                if (typeof _ret === 'object') return _ret.v;
+            }
+
+            if (QuickCacheTimer) {
+                clearTimeout(QuickCacheTimer);
+            }
+            var api = new TemplatesServiceApi(PydioApi.getRestClient());
+            api.listTemplates().then(function (response) {
+                _this.__loadedTemplates = response.Templates;
+                // Add Empty File Template
+                var emptyTemplate = new RestTemplate();
+                emptyTemplate.Label = pydio.MessageHash["mkfile.empty.template.label"] || "Empty File";
+                emptyTemplate.UUID = "";
+                _this.__loadedTemplates.unshift(emptyTemplate);
+                QuickCache = response.Templates;
+                QuickCacheTimer = setTimeout(function () {
+                    QuickCache = null;
+                }, 2000);
+                _pydio2['default'].getInstance().getController().fireContextChange();
+            });
+
+            return [];
+        }
+    }]);
+
+    return Builder;
+})();
+
+function newLabel(contextNode, label) {
+
+    var children = contextNode.getChildren();
+    var isExists = function isExists(name) {
+        var yes = false;
+        children.forEach(function (child) {
+            if (child.getLabel() === name) {
+                yes = true;
+            }
+        });
+        return yes;
+    };
+
+    var pos = label.lastIndexOf('.');
+    var base = label.substring(0, pos);
+    var ext = label.substring(pos);
+
+    var newPath = label;
+    var counter = 1;
+
+    var exists = isExists(newPath);
+
+    while (exists) {
+        newPath = base + '-' + counter + ext;
+        counter++;
+        exists = isExists(newPath);
+    }
+
+    return newPath;
+}
+
+exports['default'] = function (pydio) {
+    return Builder.dynamicBuilder;
+};
+
+module.exports = exports['default'];
+
+},{"pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/path":"pydio/util/path"}],29:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1998,7 +2147,7 @@ exports['default'] = function (pydio) {
                 Object.keys(otherRegistered).forEach((function (key) {
                     var editor = undefined;
                     pydio.Registry.getActiveExtensionByType("editor").forEach(function (ed) {
-                        if (ed.editorClass == otherRegistered[key]) {
+                        if (ed.editorClass === otherRegistered[key]) {
                             editor = ed;
                         }
                     });
@@ -2025,7 +2174,7 @@ exports['default'] = function (pydio) {
                 builderMenuItems.push({
                     name: el.text,
                     alt: el.title,
-                    isDefault: index == 0,
+                    isDefault: index === 0,
                     icon_class: el.icon_class,
                     callback: (function (e) {
                         this.apply([el]);
@@ -2054,5 +2203,5 @@ exports['default'] = function (pydio) {
 
 module.exports = exports['default'];
 
-},{"../callback/openOtherEditorPicker":15,"pydio/util/path":"pydio/util/path"}]},{},[22])(22)
+},{"../callback/openOtherEditorPicker":14,"pydio/util/path":"pydio/util/path"}]},{},[21])(21)
 });

@@ -21,12 +21,13 @@
 const pydio = global.pydio;
 
 const Listeners  = {
+    mkfileDynamicBuilder        : require('./mkfileDynamicBuilder')(pydio),
     downloadSelectionChange     : require('./downloadSelectionChange')(pydio),
     downloadAllInit             : require('./downloadAllInit')(pydio),
     compressUiSelectionChange   : require('./compressUiSelectionChange')(pydio),
     copyContextChange           : require('./copyContextChange')(pydio),
     openWithDynamicBuilder      : require('./openWithDynamicBuilder')(pydio),
     lockSelectionChange         : require('./lockSelectionChange')(pydio),
-}
+};
 
 export {Listeners as default}

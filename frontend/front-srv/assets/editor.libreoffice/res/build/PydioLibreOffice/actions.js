@@ -136,13 +136,6 @@ var Builder = function () {
     return Builder;
 }();
 
-function loadTemplates() {
-    var api = new TemplatesServiceApi(PydioApi.getRestClient());
-    return api.listTemplates().then(function (response) {
-        return response.Templates;
-    });
-}
-
 function file_newpath(fullpath) {
     return new Promise(async function (resolve) {
         var lastSlash = fullpath.lastIndexOf('/');

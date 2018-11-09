@@ -20,7 +20,7 @@
 
 import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
-const {TreeServiceApi, TemplatesServiceApi, RestCreateNodesRequest, TreeNode, TreeNodeType} = require('pydio/http/rest-api');
+const {TreeServiceApi, TemplatesServiceApi, RestTemplate, RestCreateNodesRequest, TreeNode, TreeNodeType} = require('pydio/http/rest-api');
 
 let QuickCache, QuickCacheTimer;
 
@@ -28,13 +28,13 @@ class Builder {
 
     static dynamicBuilder(){
 
+        const pydio = Pydio.getInstance();
         if(QuickCache !== null) {
             this.__loadedTemplates = QuickCache;
         }
 
         if(this.__loadedTemplates){
 
-            const pydio = Pydio.getInstance();
             const exts = {
                 doc:'file-word',
                 docx:'file-word',
@@ -51,7 +51,12 @@ class Builder {
 
             return this.__loadedTemplates.map(tpl => {
 
-                const ext = PathUtils.getFileExtension(tpl.UUID);
+                let ext;
+                if(tpl.UUID){
+                    ext = PathUtils.getFileExtension(tpl.UUID)
+                } else {
+                    ext = "txt";
+                }
                 let icon = 'file';
                 if(exts[ext]) {
                     icon = exts[ext];
@@ -63,24 +68,35 @@ class Builder {
                     callback: async function(e) {
                         const repoList = pydio.user.getRepositoriesList();
                         const contextNode = pydio.getContextHolder().getContextNode();
-                        const api = new TreeServiceApi(PydioApi.getRestClient());
-                        const request = new RestCreateNodesRequest();
-                        const node = new TreeNode();
                         const slug = repoList.get(pydio.user.activeRepository).getSlug();
-
-                        let path = slug + contextNode.getPath() + "/" + "Untitled Document." + ext;
+                        const base = pydio.MessageHash["mkfile.untitled.document"] || "Untitled";
+                        let path = slug + contextNode.getPath() + "/" + base + "." + ext;
                         path = path.replace('//', '/');
-                        path = await file_newpath(path);
 
-                        node.Path = path;
-                        node.Type = TreeNodeType.constructFromObject('LEAF');
-                        request.Nodes = [node];
-                        request.TemplateUUID = tpl.UUID;
+                        const pathDir = PathUtils.getDirname(path);
+                        const pathLabel = newLabel(contextNode, PathUtils.getBasename(path));
 
-                        api.createNodes(request).then(leaf => {
-                            // Success - We should probably select the nodes
-                            // pydio.getContextHolder().setSelectedNodes([node])
+                        let submit = value => {
+                            const api = new TreeServiceApi(PydioApi.getRestClient());
+                            const request = new RestCreateNodesRequest();
+                            const node = new TreeNode();
+                            node.Path = pathDir + '/' + value;
+                            node.Type = TreeNodeType.constructFromObject('LEAF');
+                            request.Nodes = [node];
+                            request.TemplateUUID = tpl.UUID;
+                            api.createNodes(request).then(collection => {
+                                //console.log('Create files', collection.Children);
+                            });
+                        };
+                        pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
+                            dialogTitleId:156,
+                            legendId:tpl.Label,
+                            fieldLabelId:174,
+                            dialogSize:'sm',
+                            defaultValue: pathLabel,
+                            submitValue:submit
                         });
+
                     }.bind(this)
                 }
             });
@@ -93,12 +109,16 @@ class Builder {
         const api = new TemplatesServiceApi(PydioApi.getRestClient());
         api.listTemplates().then(response => {
             this.__loadedTemplates = response.Templates;
+            // Add Empty File Template
+            const emptyTemplate = new RestTemplate();
+            emptyTemplate.Label = pydio.MessageHash["mkfile.empty.template.label"] || "Empty File";
+            emptyTemplate.UUID = "";
+            this.__loadedTemplates.unshift(emptyTemplate);
             QuickCache = response.Templates;
             QuickCacheTimer = setTimeout(() => {
                 QuickCache = null;
             }, 2000);
             Pydio.getInstance().getController().fireContextChange();
-            console.log(response.Templates);
         });
 
         return [];
@@ -106,54 +126,38 @@ class Builder {
     };
 }
 
-function loadTemplates(){
-    const api = new TemplatesServiceApi(PydioApi.getRestClient());
-    return api.listTemplates().then(response => {
-        return response.Templates;
-    });
-}
+function newLabel(contextNode, label) {
 
-function file_newpath(fullpath) {
-    return new Promise(async function (resolve) {
-        const lastSlash = fullpath.lastIndexOf('/')
-        const pos = fullpath.lastIndexOf('.')
-        let path = fullpath;
-        let ext = '';
-
-        // NOTE: the position lastSlash + 1 corresponds to hidden files (ex: .DS_STORE)
-        if (pos  > -1 && lastSlash < pos && pos > lastSlash + 1) {
-            path = fullpath.substring(0, pos);
-            ext = fullpath.substring(pos);
-        }
-
-        let newPath = fullpath;
-        let counter = 1;
-
-        let exists = await file_exists(newPath);
-
-        while (exists) {
-            newPath = path + '-' + counter + ext;
-            counter++;
-            exists = await file_exists(newPath)
-        }
-
-        resolve(newPath);
-    }.bind(this))
-}
-
-function file_exists(fullpath) {
-    return new Promise(resolve => {
-        const api = new TreeServiceApi(PydioApi.getRestClient());
-
-        api.headNode(fullpath).then(node => {
-            if (node.Node) {
-                resolve(true);
-            } else {
-                resolve(false);
+    const children = contextNode.getChildren();
+    const isExists = (name => {
+        let yes = false;
+        children.forEach(child => {
+            if(child.getLabel() === name) {
+                yes = true;
             }
-        }).catch(() => resolve(false))
-    })
+        });
+        return yes;
+    });
+
+    const pos = label.lastIndexOf('.');
+    const base = label.substring(0, pos);
+    const ext = label.substring(pos);
+
+    let newPath = label;
+    let counter = 1;
+
+    let exists = isExists(newPath);
+
+    while (exists) {
+        newPath = base + '-' + counter + ext;
+        counter++;
+        exists = isExists(newPath)
+    }
+
+    return newPath;
+
 }
 
-const dynamicBuilder = Builder.dynamicBuilder;
-export {dynamicBuilder}
+export default function(pydio){
+    return Builder.dynamicBuilder;
+}

@@ -18,7 +18,4 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import * as Actions from './actions'
-
 export {default as Editor} from './editor'
-export {Actions}
