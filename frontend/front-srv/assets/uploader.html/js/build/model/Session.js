@@ -95,6 +95,30 @@ var Session = function (_FolderItem) {
             return tree;
         }
     }, {
+        key: 'bulkStatSliced',
+        value: function bulkStatSliced(api, nodePaths, sliceSize) {
+            var p = Promise.resolve({ Nodes: [] });
+            var slice = nodePaths.slice(0, sliceSize);
+
+            var _loop = function _loop() {
+                nodePaths = nodePaths.slice(sliceSize);
+                var request = new _restApi.RestGetBulkMetaRequest();
+                request.NodePaths = slice;
+                p = p.then(function (r) {
+                    return api.bulkStatNodes(request).then(function (response) {
+                        r.Nodes = r.Nodes.concat(response.Nodes || []);
+                        return r;
+                    });
+                });
+                slice = nodePaths.slice(0, sliceSize);
+            };
+
+            while (slice.length) {
+                _loop();
+            }
+            return p;
+        }
+    }, {
         key: 'prepare',
         value: function prepare(overwriteStatus) {
             var _this2 = this;
@@ -104,6 +128,7 @@ var Session = function (_FolderItem) {
                 return Promise.resolve();
             }
 
+            this.setStatus('analyse');
             var api = new _restApi.TreeServiceApi(_api2.default.getRestClient());
             var request = new _restApi.RestGetBulkMetaRequest();
             request.NodePaths = [];
@@ -120,7 +145,7 @@ var Session = function (_FolderItem) {
 
             return new Promise(function (resolve, reject) {
                 var proms = [];
-                api.bulkStatNodes(request).then(function (response) {
+                _this2.bulkStatSliced(api, request.NodePaths, 400).then(function (response) {
                     if (!response.Nodes || !response.Nodes.length) {
                         _this2.setStatus('ready');
                         resolve(proms);

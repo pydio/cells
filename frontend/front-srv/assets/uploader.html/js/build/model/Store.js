@@ -107,6 +107,7 @@ var Store = function (_Observable) {
     }, {
         key: 'removeSession',
         value: function removeSession(session) {
+            session.Task.setIdle();
             var i = this._sessions.indexOf(session);
             this._sessions = _lang2.default.arrayWithout(this._sessions, i);
             this.notify('update');
@@ -122,7 +123,11 @@ var Store = function (_Observable) {
     }, {
         key: 'clearAll',
         value: function clearAll() {
+            this._sessions.forEach(function (session) {
+                session.Task.setIdle();
+            });
             this._sessions = [];
+            this._pauseRequired = false;
 
             this._processing = [];
             this._processed = [];
@@ -139,7 +144,6 @@ var Store = function (_Observable) {
                 this._running = true;
                 processables.map(function (processable) {
                     _this3._processing.push(processable);
-
                     processable.process(function () {
                         _this3._processing = _lang2.default.arrayWithout(_this3._processing, _this3._processing.indexOf(processable));
                         if (processable.getStatus() === 'error') {
@@ -153,7 +157,6 @@ var Store = function (_Observable) {
                 });
             } else {
                 this._running = false;
-                this._pauseRequired = false;
 
                 if (this.hasErrors()) {
                     if (!pydio.getController().react_selector) {
@@ -231,18 +234,24 @@ var Store = function (_Observable) {
     }, {
         key: 'isRunning',
         value: function isRunning() {
-            return this._running;
+            return this._running && !this._pauseRequired;
         }
     }, {
         key: 'pause',
         value: function pause() {
             this._pauseRequired = true;
+            this._sessions.forEach(function (s) {
+                return s.setStatus('paused');
+            });
             this.notify('update');
         }
     }, {
         key: 'resume',
         value: function resume() {
             this._pauseRequired = false;
+            this._sessions.forEach(function (s) {
+                return s.setStatus('ready');
+            });
             this.notify('update');
             this.processNext();
         }

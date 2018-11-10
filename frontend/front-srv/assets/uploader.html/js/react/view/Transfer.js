@@ -147,7 +147,7 @@ class Transfer extends React.Component{
         let childComps = [], iconClass, rightButton, leftIcon, toggleOpen, toggleCallback, pgColor;
 
         if (children.length){
-            if(open || (isSession && status === 'ready')){
+            if(open || (isSession && status !== 'analyse')){
                 const sliced = showAll ? children : children.slice(0, limit);
                 childComps = sliced.map(child => <Transfer
                     key={child.getId()}
@@ -200,14 +200,14 @@ class Transfer extends React.Component{
 
         if(isSession){
             // Do not display level 0
-            if(status === 'ready'){
-                return <div>{childComps}</div>
-            } else {
+            if (status === 'analyse') {
                 label = "Preparing files and folders for upload...";
                 progressBar = null;
                 toggleCallback = null;
                 toggleOpen = null;
                 rightButton = <CircularProgress size={16} thickness={2} style={{marginTop: 1}}/>
+            } else {
+                return <div>{childComps}</div>
             }
         }
 

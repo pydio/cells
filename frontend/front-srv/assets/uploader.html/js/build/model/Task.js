@@ -46,19 +46,30 @@ var Task = function () {
         };
 
         task._statusObserver = function (s) {
-            if (s === 'analyze') {
-                task.StatusMessage = 'Analyzing files and folders (' + session.getChildren().length + ')';
+            if (s === 'analyse') {
+                _this.job.Label = 'Preparing files for upload';
+                if (session.getChildren().length) {
+                    task.StatusMessage = 'Analyzing (' + session.getChildren().length + ') items';
+                } else {
+                    task.StatusMessage = 'Please wait...';
+                }
                 task.Status = JobsTaskStatus.constructFromObject('Running');
             } else if (s === 'ready') {
+                _this.job.Label = pydio.MessageHash['html_uploader.7'];
                 task.StatusMessage = 'Ready to upload';
                 task.Status = JobsTaskStatus.constructFromObject('Idle');
+            } else if (s === 'paused') {
+                _this.job.Label = 'Task paused';
+                task.Status = JobsTaskStatus.constructFromObject('Paused');
             }
             _this.notifyMainStore();
         };
         task._progressObserver = function (p) {
             task.Progress = p / 100;
             task.Status = JobsTaskStatus.constructFromObject('Running');
-            task.StatusMessage = 'Uploading ' + Math.ceil(p) + '%';
+            if (p > 0) {
+                task.StatusMessage = 'Uploading ' + Math.ceil(p) + '%';
+            }
             _this.notifyMainStore();
         };
         session.observe('status', task._statusObserver);

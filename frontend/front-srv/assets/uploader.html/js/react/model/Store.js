@@ -73,6 +73,7 @@ class Store extends Observable{
     }
 
     removeSession(session){
+        session.Task.setIdle();
         const i = this._sessions.indexOf(session);
         this._sessions = LangUtils.arrayWithout(this._sessions, i);
         this.notify('update');
@@ -85,7 +86,11 @@ class Store extends Observable{
     }
 
     clearAll(){
+        this._sessions.forEach(session => {
+            session.Task.setIdle();
+        });
         this._sessions = [];
+        this._pauseRequired = false;
 
         this._processing = [];
         this._processed = [];
@@ -100,7 +105,6 @@ class Store extends Observable{
             this._running = true;
             processables.map(processable => {
                 this._processing.push(processable);
-                //Task.getInstance().setRunning(this.getQueueSize());
                 processable.process(()=>{
                     this._processing = LangUtils.arrayWithout(this._processing, this._processing.indexOf(processable));
                     if(processable.getStatus() === 'error') {
@@ -114,8 +118,7 @@ class Store extends Observable{
             });
         }else{
             this._running = false;
-            this._pauseRequired = false;
-            //Task.getInstance().setIdle();
+            //this._pauseRequired = false;
             if(this.hasErrors()){
                 if(!pydio.getController().react_selector){
                     Pydio.getInstance().getController().fireAction("upload");
@@ -186,16 +189,18 @@ class Store extends Observable{
     }
 
     isRunning(){
-        return this._running;
+        return this._running && !this._pauseRequired;
     }
 
     pause(){
         this._pauseRequired = true;
+        this._sessions.forEach(s => s.setStatus('paused'));
         this.notify('update');
     }
 
     resume(){
         this._pauseRequired = false;
+        this._sessions.forEach(s => s.setStatus('ready'));
         this.notify('update');
         this.processNext();
     }

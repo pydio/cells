@@ -191,7 +191,7 @@ var Transfer = function (_React$Component) {
                 pgColor = void 0;
 
             if (children.length) {
-                if (open || isSession && status === 'ready') {
+                if (open || isSession && status !== 'analyse') {
                     var sliced = showAll ? children : children.slice(0, limit);
                     childComps = sliced.map(function (child) {
                         return _react2.default.createElement(Transfer, {
@@ -264,18 +264,18 @@ var Transfer = function (_React$Component) {
             var progressBar = _react2.default.createElement(_materialUi.LinearProgress, { style: { backgroundColor: '#eeeeee' }, color: pgColor, min: 0, max: 100, value: progress, mode: "determinate" });
 
             if (isSession) {
-                if (status === 'ready') {
-                    return _react2.default.createElement(
-                        'div',
-                        null,
-                        childComps
-                    );
-                } else {
+                if (status === 'analyse') {
                     label = "Preparing files and folders for upload...";
                     progressBar = null;
                     toggleCallback = null;
                     toggleOpen = null;
                     rightButton = _react2.default.createElement(_materialUi.CircularProgress, { size: 16, thickness: 2, style: { marginTop: 1 } });
+                } else {
+                    return _react2.default.createElement(
+                        'div',
+                        null,
+                        childComps
+                    );
                 }
             }
 

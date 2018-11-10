@@ -76,6 +76,30 @@ class Session extends FolderItem {
         return tree
     }
 
+    /**
+     * @param api {TreeServiceApi}
+     * @param nodePaths []
+     * @param sliceSize int
+     * @return {Promise<{Nodes: Array}>}
+     */
+    bulkStatSliced(api, nodePaths, sliceSize){
+        let p = Promise.resolve({Nodes:[]});
+        let slice = nodePaths.slice(0, sliceSize);
+        while(slice.length){
+            nodePaths = nodePaths.slice(sliceSize);
+            const request = new RestGetBulkMetaRequest();
+            request.NodePaths = slice;
+            p = p.then(r => {
+                return api.bulkStatNodes(request).then(response => {
+                    r.Nodes = r.Nodes.concat(response.Nodes || []);
+                    return r;
+                })
+            });
+            slice = nodePaths.slice(0, sliceSize);
+        }
+        return p;
+    }
+
     prepare(overwriteStatus){
 
         // No need to check stats - we'll just override existing files
@@ -84,6 +108,7 @@ class Session extends FolderItem {
             return Promise.resolve()
         }
 
+        this.setStatus('analyse');
         const api = new TreeServiceApi(PydioApi.getRestClient());
         const request = new RestGetBulkMetaRequest();
         request.NodePaths = [];
@@ -98,7 +123,7 @@ class Session extends FolderItem {
 
         return new Promise((resolve, reject) => {
             const proms = [];
-            api.bulkStatNodes(request).then(response => {
+            this.bulkStatSliced(api, request.NodePaths, 400).then(response => {
                 if(!response.Nodes || !response.Nodes.length){
                     this.setStatus('ready');
                     resolve(proms);
@@ -110,13 +135,6 @@ class Session extends FolderItem {
                     this.setStatus('confirm');
                     resolve();
                     return;
-                    /*
-                    if (confirm(Pydio.getInstance().MessageHash[124])) {
-                        this.setStatus('ready');
-                        resolve();
-                        return;
-                    }
-                    */
                 }
                 const itemStated = (item) => response.Nodes.map(n=>n.Path).indexOf(item.getFullPath()) !== -1;
 
