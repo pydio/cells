@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Session = exports.FolderItem = exports.UploadItem = exports.Configs = exports.Store = undefined;
+exports.PartItem = exports.Session = exports.FolderItem = exports.UploadItem = exports.Configs = exports.Store = undefined;
 
 var _Store = require('./Store');
 
@@ -21,6 +21,10 @@ var _FolderItem = require('./FolderItem');
 
 var _FolderItem2 = _interopRequireDefault(_FolderItem);
 
+var _PartItem = require('./PartItem');
+
+var _PartItem2 = _interopRequireDefault(_PartItem);
+
 var _Session = require('./Session');
 
 var _Session2 = _interopRequireDefault(_Session);
@@ -32,3 +36,4 @@ exports.Configs = _Configs2.default;
 exports.UploadItem = _UploadItem2.default;
 exports.FolderItem = _FolderItem2.default;
 exports.Session = _Session2.default;
+exports.PartItem = _PartItem2.default;

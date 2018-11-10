@@ -128,6 +128,7 @@ var Transfer = function (_React$Component) {
 
             var children = item.getChildren();
             var isDir = item instanceof UploaderModel.FolderItem;
+            var isPart = item instanceof UploaderModel.PartItem;
             var isSession = item instanceof UploaderModel.Session;
 
             var styles = {
@@ -150,7 +151,7 @@ var Transfer = function (_React$Component) {
                     display: 'inline-block',
                     width: 36,
                     textAlign: 'center',
-                    color: '#616161',
+                    color: isPart ? '#9e9e9e' : '#616161',
                     fontSize: 16
                 },
                 previewImage: {
@@ -162,7 +163,9 @@ var Transfer = function (_React$Component) {
                     borderRadius: '50%'
                 },
                 label: {
-                    fontWeight: isDir ? 500 : 400
+                    fontWeight: isDir ? 500 : 400,
+                    color: isPart ? '#9e9e9e' : null,
+                    fontStyle: isPart ? 'italic' : null
                 },
                 pgBar: {
                     width: 80,
@@ -229,6 +232,11 @@ var Transfer = function (_React$Component) {
                 rightButton = _react2.default.createElement('span', { className: 'mdi mdi-delete', onClick: function onClick() {
                         _this3.remove();
                     } });
+                if (progress === 100) {
+                    pgColor = '#4caf50';
+                }
+            } else if (isPart) {
+                iconClass = "mdi mdi-package-up";
                 if (progress === 100) {
                     pgColor = '#4caf50';
                 }

@@ -68,6 +68,10 @@ class PydioApi{
         return new RestClient(this.getClient()._pydioObject);
     }
 
+    static getMultipartPartSize(){
+        return 50 * 1024 * 1024;
+    }
+
     setPydioObject(pydioObject){
         this._pydioObject = pydioObject;
         this._baseUrl = pydioObject.Parameters.get('serverAccessPath');
@@ -240,7 +244,7 @@ class PydioApi{
                 });
                 const managed = new ManagedMultipart({
                     params: {...params, Body: file},
-                    partSize: 50 * 1024 * 1024,
+                    partSize: PydioApi.getMultipartPartSize(),
                     queueSize: 3,
                     leavePartsOnError:false,
                 });

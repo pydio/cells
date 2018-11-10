@@ -19,6 +19,7 @@
  */
 
 import StatusItem from './StatusItem'
+import PartItem from './PartItem'
 import Pydio from 'pydio'
 import PathUtils from 'pydio/util/path'
 import PydioApi from 'pydio/http/api'
@@ -37,8 +38,18 @@ class UploadItem extends StatusItem {
         } else {
             this._label = file.name;
         }
+        this.createParts();
         if(parent){
             parent.addChild(this);
+        }
+    }
+    createParts(){
+        const partSize = PydioApi.getMultipartPartSize();
+        if(this._file.size > partSize) {
+            this._parts = [];
+            for(let i = 0 ; i < Math.ceil(this._file.size / partSize); i ++ ) {
+                this._parts.push(new PartItem(this, i + 1));
+            }
         }
     }
     getFile(){
@@ -78,6 +89,10 @@ class UploadItem extends StatusItem {
             let percentage = Math.round((computableEvent.loaded * 100) / computableEvent.total);
             let bytesLoaded = computableEvent.loaded;
             this.setProgress(percentage, bytesLoaded);
+            // Update multipart child if any
+            if(this._parts && computableEvent.part && this._parts[computableEvent.part-1] && computableEvent.partLoaded && computableEvent.partTotal){
+                this._parts[computableEvent.part-1].setProgress(Math.round((computableEvent.partLoaded * 100) / computableEvent.partTotal), computableEvent.partLoaded);
+            }
         };
 
         const error = (e)=>{

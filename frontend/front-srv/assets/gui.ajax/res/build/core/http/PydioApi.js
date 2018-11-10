@@ -114,6 +114,10 @@ var PydioApi = (function () {
         return new _RestClient2['default'](this.getClient()._pydioObject);
     };
 
+    PydioApi.getMultipartPartSize = function getMultipartPartSize() {
+        return 50 * 1024 * 1024;
+    };
+
     PydioApi.prototype.setPydioObject = function setPydioObject(pydioObject) {
         this._pydioObject = pydioObject;
         this._baseUrl = pydioObject.Parameters.get('serverAccessPath');
@@ -311,7 +315,7 @@ var PydioApi = (function () {
                 });
                 var managed = new ManagedMultipart({
                     params: _extends({}, params, { Body: file }),
-                    partSize: 50 * 1024 * 1024,
+                    partSize: PydioApi.getMultipartPartSize(),
                     queueSize: 3,
                     leavePartsOnError: false
                 });

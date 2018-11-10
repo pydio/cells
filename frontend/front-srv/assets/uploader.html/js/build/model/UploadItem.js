@@ -11,6 +11,10 @@ var _StatusItem2 = require('./StatusItem');
 
 var _StatusItem3 = _interopRequireDefault(_StatusItem2);
 
+var _PartItem = require('./PartItem');
+
+var _PartItem2 = _interopRequireDefault(_PartItem);
+
 var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
@@ -55,6 +59,7 @@ var UploadItem = function (_StatusItem) {
         } else {
             _this._label = file.name;
         }
+        _this.createParts();
         if (parent) {
             parent.addChild(_this);
         }
@@ -62,6 +67,17 @@ var UploadItem = function (_StatusItem) {
     }
 
     _createClass(UploadItem, [{
+        key: 'createParts',
+        value: function createParts() {
+            var partSize = _api2.default.getMultipartPartSize();
+            if (this._file.size > partSize) {
+                this._parts = [];
+                for (var i = 0; i < Math.ceil(this._file.size / partSize); i++) {
+                    this._parts.push(new _PartItem2.default(this, i + 1));
+                }
+            }
+        }
+    }, {
         key: 'getFile',
         value: function getFile() {
             return this._file;
@@ -112,6 +128,10 @@ var UploadItem = function (_StatusItem) {
                 var percentage = Math.round(computableEvent.loaded * 100 / computableEvent.total);
                 var bytesLoaded = computableEvent.loaded;
                 _this2.setProgress(percentage, bytesLoaded);
+
+                if (_this2._parts && computableEvent.part && _this2._parts[computableEvent.part - 1] && computableEvent.partLoaded && computableEvent.partTotal) {
+                    _this2._parts[computableEvent.part - 1].setProgress(Math.round(computableEvent.partLoaded * 100 / computableEvent.partTotal), computableEvent.partLoaded);
+                }
             };
 
             var error = function error(e) {
