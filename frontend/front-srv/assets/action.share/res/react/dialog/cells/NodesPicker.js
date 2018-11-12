@@ -139,20 +139,32 @@ class NodesPicker extends React.Component{
             if(mode === 'edit'){
                 emptyStateString = <span style={{color:'rgba(0,0,0,.54)', fontStyle:'italic'}}>{m(280)}</span>;
             } else {
-                emptyStateString = <span style={{color:'rgba(0,0,0,.54)', fontStyle:'italic'}}>{m(281)}</span>;
+                //emptyStateString = <span style={{color:'rgba(0,0,0,.54)', fontStyle:'italic'}}>{m(281)}</span>;
             }
+        }
+        let pickButton;
+        if(mode === 'edit'){
+            pickButton = (<FlatButton
+                label={m(282)}
+                onTouchTap={this.handleTouchTap.bind(this)}
+                primary={true}
+                style={{marginBottom: 10}}
+                icon={<FontIcon className={"mdi mdi-folder-plus"}/>}
+            />);
+        } else {
+            pickButton = (<RaisedButton
+                label={m(282)}
+                onTouchTap={this.handleTouchTap.bind(this)}
+                primary={false}
+                style={{marginBottom: 10}}
+                icon={<FontIcon className={"mdi mdi-folder-plus"} style={{fontSize: 20, marginTop: -4}}/>}
+            />);
         }
         const {node, availableWs, crtWs} = this.state;
 
         return (
             <div>
-                <FlatButton
-                    label={m(282)}
-                    onTouchTap={this.handleTouchTap.bind(this)}
-                    primary={true}
-                    style={{marginBottom: 10}}
-                    icon={<FontIcon className={"mdi mdi-folder-plus"}/>}
-                />
+                {pickButton}
                 <List>{nodeLines}</List>
                 {emptyStateString}
                 <Popover

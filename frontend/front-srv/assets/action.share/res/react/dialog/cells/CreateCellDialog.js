@@ -19,7 +19,7 @@
  */
 
 import React from 'react'
-import {FontIcon, FlatButton, TextField} from 'material-ui'
+import {FontIcon, FlatButton, RaisedButton, TextField} from 'material-ui'
 import {muiThemeable} from 'material-ui/styles'
 import SharedUsers from './SharedUsers'
 import NodesPicker from './NodesPicker'
@@ -112,6 +112,11 @@ let CreateCellDialog = React.createClass({
         let content;
         const {pydio, muiTheme} = this.props;
         const {step, model} = this.state;
+        let dialogLabel = pydio.MessageHash['418'];
+        if(step !== 'users'){
+            dialogLabel = model.getLabel();
+        }
+
 
         if (step === 'users'){
 
@@ -123,19 +128,31 @@ let CreateCellDialog = React.createClass({
                 </div>
             );
 
-            buttons.push(<FlatButton
+            if(model.getLabel()){
+                buttons.push(<FlatButton
+                    key="quick"
+                    primary={true}
+                    disabled={!model.getLabel()}
+                    label={this.m('cells.create.advanced')} // Advanced
+                    onTouchTap={()=>{this.setState({step:'data'})}} />
+                );
+                buttons.push(<span style={{display:'inline-block', margin: '0  10px', fontSize: 14, fontWeight: 500, color: '#9E9E9E'}}>{this.m('cells.create.buttons.separator')}</span>);
+            }
+
+            buttons.push(<RaisedButton
                 key="next1"
                 disabled={!model.getLabel()}
                 primary={true}
-                label={pydio.MessageHash['179']} // Next
-                onTouchTap={()=>{this.setState({step:'data'})}} />
+                label={this.m(279)} // Create Cell
+                onTouchTap={()=>{this.submit()}} />
             );
+
 
         } else if(step === 'data') {
 
             content = (
                 <div>
-                    <div>{this.m(278)}</div>
+                    <h5 style={{marginTop: -10}}>{this.m(278)}</h5>
                     <SharedUsers
                         pydio={pydio}
                         cellAcls={model.getAcls()}
@@ -155,30 +172,29 @@ let CreateCellDialog = React.createClass({
 
             content = (
                 <div>
-                    <div>{this.computeSummaryString()}</div>
-                    <div style={{paddingTop: 24}}>
+                    <h5 style={{marginTop: -10}}>{this.m('cells.create.title.fill.folders')}</h5>
+                    <div style={{color: '#9e9e9e'}}>{this.computeSummaryString()}</div>
+                    <div style={{paddingTop: 16}}>
                         <NodesPicker pydio={pydio} model={model}/>
                     </div>
                 </div>
             );
 
             buttons.push(<FlatButton key="prev2" primary={false} label={pydio.MessageHash['304']} onTouchTap={()=>{this.setState({step:'data'})}} />);
-            buttons.push(<FlatButton key="submit" primary={true} label={this.m(279)} onTouchTap={this.submit.bind(this)} />);
+            buttons.push(<RaisedButton key="submit" primary={true} label={this.m(279)} onTouchTap={this.submit.bind(this)} />);
 
         }
-
-        const {primary1Color} = muiTheme.palette;
 
         return (
             <div style={{width: 380, fontSize: 13, color: 'rgba(0,0,0,.87)', display:'flex', flexDirection:'column', minHeight: 300}}>
                 <div style={{display:'flex', alignItems:'center', paddingLeft: 20}}>
                     <FontIcon className={"icomoon-cells-full-plus"}/>
-                    <div style={{padding: 20, fontSize: 22}}>{pydio.MessageHash['418']}</div>
+                    <div style={{padding: 20, fontSize: 22}}>{dialogLabel}</div>
                 </div>
                 <div style={{padding: '20px 20px 10px', flex:1}}>
                     {content}
                 </div>
-                <div style={{padding:8, textAlign:'right'}}>
+                <div style={{padding:'12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>
                     {buttons}
                 </div>
             </div>
