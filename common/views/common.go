@@ -35,16 +35,14 @@ import (
 	"context"
 	"io"
 
-	"github.com/micro/go-micro/metadata"
 	"github.com/pkg/errors"
 
-	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/minio-go"
-	"github.com/pydio/minio-go/pkg/encrypt"
 )
 
 const (
@@ -82,7 +80,7 @@ type (
 		Md5Sum             []byte
 		Sha256Sum          []byte
 		Metadata           map[string]string
-		EncryptionMaterial encrypt.Materials
+		EncryptionMaterial *crypto.AESGCMMaterials
 		MultipartUploadID  string
 		MultipartPartID    int
 	}
@@ -90,14 +88,14 @@ type (
 	GetRequestData struct {
 		StartOffset        int64
 		Length             int64
-		EncryptionMaterial encrypt.Materials
+		EncryptionMaterial *crypto.AESGCMMaterials
 		VersionId          string
 	}
 
 	CopyRequestData struct {
 		Metadata               map[string]string
-		srcEncryptionMaterial  encrypt.Materials
-		destEncryptionMaterial encrypt.Materials
+		srcEncryptionMaterial  *crypto.AESGCMMaterials
+		destEncryptionMaterial *crypto.AESGCMMaterials
 		SrcVersionId           string
 	}
 
@@ -196,20 +194,4 @@ func AncestorsListFromContext(ctx context.Context, node *tree.Node, identifier s
 		return ctx, parents, nil
 	}
 
-}
-
-// MinioMetaFromContext prepares metadata for minio client, merging context medata
-// and eventually the Context User Key value (X-Pydio-User). Used to prepare metadata
-// sent by Minio Clients
-func MinioMetaFromContext(ctx context.Context) (md map[string]string, ok bool) {
-	md = make(map[string]string)
-	if meta, mOk := metadata.FromContext(ctx); mOk {
-		for k, v := range meta {
-			md[k] = v
-		}
-	}
-	if user := ctx.Value(common.PYDIO_CONTEXT_USER_KEY); user != nil {
-		md[common.PYDIO_CONTEXT_USER_KEY] = user.(string)
-	}
-	return md, len(md) > 0
 }

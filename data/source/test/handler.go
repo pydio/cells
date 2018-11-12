@@ -34,6 +34,7 @@ import (
 
 	"github.com/pborman/uuid"
 
+	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -98,7 +99,7 @@ func (h *Handler) TestAuthorization(ctx context.Context, req *test.RunTestsReque
 	}
 	key := uuid.New() + ".txt"
 	content := uuid.New()
-	_, e := core.PutObject(dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), nil, nil, map[string]string{})
+	_, e := core.PutObject(dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), "", "", map[string]string{}, nil)
 	if e == nil {
 		core.RemoveObject(dsConf.ObjectsBucket, key)
 		return result, fmt.Errorf("PutObject should have returned a 401 Error without a X-Pydio-User Header")
@@ -106,9 +107,8 @@ func (h *Handler) TestAuthorization(ctx context.Context, req *test.RunTestsReque
 		result.Log("PutObject without X-Pydio-User header returned error", e)
 	}
 
-	core.PrepareMetadata(map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
-	defer core.ClearMetadata()
-	_, e = core.PutObject(dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), nil, nil, map[string]string{})
+	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
+	_, e = core.PutObjectWithContext(authCtx, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), minio.PutObjectOptions{})
 	if e != nil {
 		return result, fmt.Errorf("PutObject error (with X-Pydio-User Header): " + e.Error())
 	}
@@ -128,8 +128,9 @@ func (h *Handler) TestEtags(ctx context.Context, req *test.RunTestsRequest, dsCo
 	if er != nil {
 		return result, er
 	}
-	core.PrepareMetadata(map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
-	defer core.ClearMetadata()
+	opts := minio.StatObjectOptions{}
+	opts.Set(common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
 
 	var localFolder string
 	var ok bool
@@ -174,26 +175,26 @@ func (h *Handler) TestEtags(ctx context.Context, req *test.RunTestsRequest, dsCo
 	contentPart2 := randString(5 * 1024 * 1024)
 	uId, e := core.NewMultipartUpload(dsConf.ObjectsBucket, uploadFile, minio.PutObjectOptions{})
 	var parts []minio.CompletePart
-	if p1, e := core.PutObjectPart(dsConf.ObjectsBucket, uploadFile, uId, 1, strings.NewReader(contentPart1), int64(len(contentPart1)), nil, nil); e == nil {
+	if p1, e := core.PutObjectPartWithContext(authCtx, dsConf.ObjectsBucket, uploadFile, uId, 1, strings.NewReader(contentPart1), int64(len(contentPart1)), "", "", nil); e == nil {
 		parts = append(parts, minio.CompletePart{PartNumber: 1, ETag: p1.ETag})
 	} else {
 		return result, e
 	}
-	if p2, e := core.PutObjectPart(dsConf.ObjectsBucket, uploadFile, uId, 2, strings.NewReader(contentPart2), int64(len(contentPart2)), nil, nil); e == nil {
+	if p2, e := core.PutObjectPartWithContext(authCtx, dsConf.ObjectsBucket, uploadFile, uId, 2, strings.NewReader(contentPart2), int64(len(contentPart2)), "", "", nil); e == nil {
 		parts = append(parts, minio.CompletePart{PartNumber: 2, ETag: p2.ETag})
 	} else {
 		return result, e
 	}
-	if e := core.CompleteMultipartUpload(dsConf.ObjectsBucket, uploadFile, uId, parts); e != nil {
+	if _, e := core.CompleteMultipartUploadWithContext(authCtx, dsConf.ObjectsBucket, uploadFile, uId, parts); e != nil {
 		return result, e
 	}
 	result.Log("Created multipart upload with 2 parts of 5MB (" + uploadFile + ")")
 	// Register a defer for removing this object
 	defer func() {
-		core.RemoveObject(dsConf.ObjectsBucket, uploadFile)
+		core.RemoveObjectWithContext(authCtx, dsConf.ObjectsBucket, uploadFile)
 	}()
 
-	info2, e := core.StatObject(dsConf.ObjectsBucket, uploadFile, minio.StatObjectOptions{})
+	info2, e := core.StatObject(dsConf.ObjectsBucket, uploadFile, opts)
 	if e != nil {
 		return result, e
 	}
@@ -224,8 +225,10 @@ func (h *Handler) TestEvents(ctx context.Context, req *test.RunTestsRequest, dsC
 	if er != nil {
 		return result, er
 	}
-	core.PrepareMetadata(map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
-	defer core.ClearMetadata()
+
+	opts := minio.StatObjectOptions{}
+	opts.Set(common.PYDIO_CONTEXT_USER_KEY, common.PYDIO_SYSTEM_USERNAME)
+	authCtx := metadata.NewContext(context.Background(), map[string]string{common.PYDIO_CONTEXT_USER_KEY: common.PYDIO_SYSTEM_USERNAME})
 
 	result.Log("Setting up events listener")
 	done := make(chan struct{})
@@ -248,13 +251,13 @@ func (h *Handler) TestEvents(ctx context.Context, req *test.RunTestsRequest, dsC
 	}()
 	key := uuid.New() + ".txt"
 	content := uuid.New()
-	_, e := core.PutObject(dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), nil, nil, map[string]string{})
+	_, e := core.PutObjectWithContext(authCtx, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), minio.PutObjectOptions{})
 	if e != nil {
 		return result, e
 	}
 
 	result.Log("PutObject Passed")
-	defer core.RemoveObject(dsConf.ObjectsBucket, key)
+	defer core.RemoveObjectWithContext(authCtx, dsConf.ObjectsBucket, key)
 
 	wg.Wait()
 	close(done)

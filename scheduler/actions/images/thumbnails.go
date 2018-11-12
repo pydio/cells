@@ -46,6 +46,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
+	context2 "github.com/pydio/cells/common/utils/context"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/actions"
 )
@@ -257,13 +258,14 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 			return false, e
 		}
 
-		if meta, mOk := views.MinioMetaFromContext(ctx); mOk {
-			thumbsClient.PrepareMetadata(meta)
-			//defer thumbsClient.ClearMetadata()
+		opts := minio.StatObjectOptions{}
+		if meta, mOk := context2.MinioMetaFromContext(ctx); mOk {
+			for k, v := range meta {
+				opts.Set(k, v)
+			}
 		}
-
 		// First Check if thumb already exists with same original etag
-		oi, check := thumbsClient.StatObject(thumbsBucket, objectName, minio.StatObjectOptions{})
+		oi, check := thumbsClient.StatObject(thumbsBucket, objectName, opts)
 		log.Logger(ctx).Debug("Object Info", zap.Any("object", oi), zap.Error(check))
 		if check == nil {
 			foundOriginal := oi.Metadata.Get("X-Amz-Meta-Original-Etag")

@@ -31,6 +31,7 @@ import (
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/data/source/objects"
 	minio "github.com/pydio/minio-srv/cmd"
+	"github.com/pydio/minio-srv/cmd/gateway/pydio"
 )
 
 func init() {
@@ -55,7 +56,8 @@ func init() {
 			}
 
 			return service.RunnerFunc(func() error {
-					minio.NewPydioGateway(ctx, fmt.Sprintf(":%d", port), gatewayDir, certFile, keyFile)
+					gw := &pydio.Pydio{}
+					minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), gatewayDir, certFile, keyFile)
 					return nil
 				}), service.CheckerFunc(func() error {
 					return nil

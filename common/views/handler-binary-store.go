@@ -76,10 +76,12 @@ func (a *BinaryStoreHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRequ
 			return nil, e
 		}
 		s3client := source.Client
-		if meta, mOk := MinioMetaFromContext(ctx); mOk {
-			s3client.PrepareMetadata(meta)
-			defer s3client.ClearMetadata()
-		}
+		/*
+			if meta, mOk := MinioMetaFromContext(ctx); mOk {
+				s3client.PrepareMetadata(meta)
+				defer s3client.ClearMetadata()
+			}
+		*/
 		objectInfo, err := s3client.StatObject(source.ObjectsBucket, path.Base(in.Node.Path), minio.StatObjectOptions{})
 		if err != nil {
 			return nil, err
@@ -154,10 +156,12 @@ func (a *BinaryStoreHandler) DeleteNode(ctx context.Context, in *tree.DeleteNode
 	if dsKey != "" && e == nil {
 		// delete alternate versions if they exists
 		s3client := source.Client
-		if meta, mOk := MinioMetaFromContext(ctx); mOk {
-			s3client.PrepareMetadata(meta)
-			defer s3client.ClearMetadata()
-		}
+		/*
+			if meta, mOk := MinioMetaFromContext(ctx); mOk {
+				s3client.PrepareMetadata(meta)
+				defer s3client.ClearMetadata()
+			}
+		*/
 		log.Logger(ctx).Info("Deleting binary alternate version ", zap.String("v", dsKey))
 		if res, e := s3client.ListObjects(source.ObjectsBucket, dsKey, "", "/", -1); e == nil {
 			for _, info := range res.Contents {

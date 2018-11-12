@@ -138,7 +138,7 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 	if err != nil {
 		log.Logger(ctx).Debug("PutObject failed", zap.Error(err))
 	} else if requestData.EncryptionMaterial != nil {
-		params := requestData.EncryptionMaterial.(*crypto.AESGCMMaterials).GetEncryptedParameters()
+		params := requestData.EncryptionMaterial.GetEncryptedParameters()
 		err = e.setNodeEncryptionParams(ctx, node, params)
 	}
 	return n, err
