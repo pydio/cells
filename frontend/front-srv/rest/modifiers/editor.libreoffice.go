@@ -46,7 +46,8 @@ type EditorLibreOffice struct {
 }
 
 func init() {
-	config.RegisterPluginTemplate(config.TemplateFunc(play),
+	config.RegisterPluginTemplate(common.SERVICE_GATEWAY_PROXY,
+		config.TemplateFunc(play),
 		"/wopi/",
 		"/loleaflet/",
 		"/hosting/discovery",
@@ -61,27 +62,29 @@ func init() {
 	editorLibreOfficeTemplate = tmpl
 }
 
-func play() string {
+func play() *bytes.Buffer {
 
 	e := new(EditorLibreOffice)
 
+	log.Info(fmt.Sprintf("PYDIO PLUGIN %v", config.Get("frontend", "plugin", "editor.libreoffice", "PYDIO_PLUGIN_ENABLED").Bool(false)))
+
 	if err := getWOPIConfig(&e.WOPI); err != nil {
 		log.Error("could not retrieve wopi config", zap.Any("error ", err))
-		return ""
+		return nil
 	}
 
 	if err := getCollaboraConfig(&e.Collabora); err != nil {
 		log.Error("could not retrieve collabora config", zap.Any("error ", err))
-		return ""
+		return nil
 	}
 
 	buf := bytes.NewBuffer([]byte{})
 	if err := editorLibreOfficeTemplate.Execute(buf, e); err != nil {
 		log.Error("could not play template", zap.Any("error ", err))
-		return ""
+		return nil
 	}
 
-	return buf.String()
+	return buf
 }
 
 func getWOPIConfig(wopi **url.URL) error {
