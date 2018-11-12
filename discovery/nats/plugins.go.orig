@@ -25,9 +25,8 @@ import (
 	"fmt"
 <<<<<<< HEAD
 =======
-	"net/url"
 	"time"
->>>>>>> POC
+>>>>>>> Hot reload and discovery
 
 	"go.uber.org/zap"
 )
@@ -124,15 +123,15 @@ func init() {
 				return nil, nil, nil, err
 			}
 
-			opts.Port = 4223
-
-			routeURL := "nats://localhost:5223"
-			url, _ := url.Parse(routeURL)
-
-			opts.Routes = append(opts.Routes, url)
-
-			opts.Cluster.Host = "localhost"
-			opts.Cluster.Port = 5222
+			// opts.Port = 4223
+			//
+			// routeURL := "nats://localhost:5223"
+			// url, _ := url.Parse(routeURL)
+			//
+			// opts.Routes = append(opts.Routes, url)
+			//
+			// opts.Cluster.Host = "localhost"
+			// opts.Cluster.Port = 5222
 
 			opts.NoSigs = true
 
@@ -159,7 +158,7 @@ func init() {
 
 		}),
 	)
->>>>>>> POC
+>>>>>>> Hot reload and discovery
 }
 
 type logger struct {
