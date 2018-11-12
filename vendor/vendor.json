@@ -3665,10 +3665,10 @@
 			"revisionTime": "2018-04-16T12:25:13Z"
 		},
 		{
-			"checksumSHA1": "ppfPk8dm4CwZ5YutyZ/Jqsk6NDU=",
+			"checksumSHA1": "GWboFBE6/iWpvmFaURlySDhlCD4=",
 			"path": "github.com/pydio/minio-go",
-			"revision": "960f64538a91fed897eb835dd3780fe17b2c3ccb",
-			"revisionTime": "2017-10-05T16:19:18Z"
+			"revision": "50019a546e27023bdeaa1a1510964b7c3b2799a0",
+			"revisionTime": "2018-11-12T18:14:14Z"
 		},
 		{
 			"checksumSHA1": "auRee3ydiTjco+F9dOcvoqN2XDQ=",
@@ -3719,10 +3719,46 @@
 			"revisionTime": "2018-03-26T12:43:35Z"
 		},
 		{
-			"checksumSHA1": "5C9nZ/HVGH2AqyEWi3S7gEfnDNk=",
+			"checksumSHA1": "0zhmjZYNiArYjLl/7pVhCpLifHo=",
 			"path": "github.com/pydio/minio-srv/cmd",
-			"revision": "680a74ae6e80db35c696264d2ea900ca3be5d889",
-			"revisionTime": "2018-11-08T13:55:04Z"
+			"revision": "fcc50804a0c54d1d4ca099492b14692b212cd473",
+			"revisionTime": "2018-11-12T18:16:38Z"
+		},
+		{
+			"checksumSHA1": "OXkPKFpIS2S+3KaIYkf8x1+PaXQ=",
+			"path": "github.com/pydio/minio-srv/cmd/crypto",
+			"revision": "fcc50804a0c54d1d4ca099492b14692b212cd473",
+			"revisionTime": "2018-11-12T18:16:38Z"
+		},
+		{
+			"checksumSHA1": "SzOcNxOLa9/m7uEY+Niylq2py64=",
+			"path": "github.com/pydio/minio-srv/cmd/gateway/pydio",
+			"revision": "fcc50804a0c54d1d4ca099492b14692b212cd473",
+			"revisionTime": "2018-11-12T18:16:38Z"
+		},
+		{
+			"checksumSHA1": "h7YFTOvQWnR9XSuofYla2gJFAJE=",
+			"path": "github.com/pydio/minio-srv/cmd/http",
+			"revision": "fcc50804a0c54d1d4ca099492b14692b212cd473",
+			"revisionTime": "2018-11-12T18:16:38Z"
+		},
+		{
+			"checksumSHA1": "8v0Gta+iDCGjBUvbkXFDusCjmZA=",
+			"path": "github.com/pydio/minio-srv/cmd/logger",
+			"revision": "fcc50804a0c54d1d4ca099492b14692b212cd473",
+			"revisionTime": "2018-11-12T18:16:38Z"
+		},
+		{
+			"checksumSHA1": "mbzBqbktlBLCWjQguuYsltPI0E8=",
+			"path": "github.com/pydio/minio-srv/cmd/rest",
+			"revision": "fcc50804a0c54d1d4ca099492b14692b212cd473",
+			"revisionTime": "2018-11-12T18:16:38Z"
+		},
+		{
+			"checksumSHA1": "9PjXFEek8fCJskfxNzFg9b6IJdY=",
+			"path": "github.com/pydio/minio-srv/cmd/rpc",
+			"revision": "fcc50804a0c54d1d4ca099492b14692b212cd473",
+			"revisionTime": "2018-11-12T18:16:38Z"
 		},
 		{
 			"checksumSHA1": "C/fcEn40/Ei7OfNkkt55rxjClXo=",
@@ -3822,10 +3858,10 @@
 			"revisionTime": "2018-04-06T17:35:14Z"
 		},
 		{
-			"checksumSHA1": "Wl3OHbdTg47anZk5/ogBzNU/qk8=",
+			"checksumSHA1": "CnvImYwD5jNLT4zMkOTN0ivaGA8=",
 			"path": "github.com/rjeczalik/notify",
-			"revision": "d152f3ce359a5464dc41e84a8919fc67e55bbbf0",
-			"revisionTime": "2018-03-12T21:30:58Z"
+			"revision": "352c463f90a00c0cf83b1148f11ada779308f411",
+			"revisionTime": "2018-10-25T23:13:18Z"
 		},
 		{
 			"checksumSHA1": "aN7wtLTH+mLT3AkxfiOpbW1HWtQ=",

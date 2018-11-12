@@ -2,6 +2,7 @@ GOBUILD=go build
 ENV=env GOOS=linux
 TODAY=`date -u +%Y-%m-%dT%H:%M:%S`
 GITREV=`git rev-parse HEAD`
+GOROOT=/Users/charles/Sources/branches/go1.10.5/go/
 
 .PHONY: all clean build front main client static
 
@@ -46,9 +47,9 @@ main:
 	 .
 
 dev:
-	go build\
+	$GOROOT/bin/go build\
 	 -tags dev\
-	 -ldflags "-X github.com/pydio/cells/common.version=0.2.0\
+	 -ldflags "-v -X github.com/pydio/cells/common.version=0.2.0\
 	 -X github.com/pydio/cells/common.BuildStamp=2018-01-01T00:00:00\
 	 -X github.com/pydio/cells/common.BuildRevision=dev"\
 	 -o cells\
