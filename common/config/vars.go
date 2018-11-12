@@ -143,6 +143,10 @@ func Del(path ...string) {
 	Default().Del(path...)
 }
 
+func Watch(path ...string) (config.Watcher, error) {
+	return Default().Watch(path...)
+}
+
 func (c *Config) Unmarshal(val interface{}) error {
 	return c.Config.Get().Scan(&val)
 }
