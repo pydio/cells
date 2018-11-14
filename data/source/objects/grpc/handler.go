@@ -23,9 +23,12 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/pkg/errors"
 	minio "github.com/pydio/minio-srv/cmd"
+	// Import minio gateways
+	_ "github.com/pydio/minio-srv/cmd/gateway"
 
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/object"
@@ -85,6 +88,8 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 
 	log.Logger(ctx).Info("Starting objects service " + minioServiceName)
 
+	os.Setenv("MINIO_ACCESS_KEY", accessKey)
+	os.Setenv("MINIO_SECRET_KEY", secretKey)
 	minio.Main(params)
 
 	return nil

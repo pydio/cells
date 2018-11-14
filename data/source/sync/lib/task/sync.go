@@ -70,7 +70,7 @@ func (s *Sync) SetupWatcher(ctx context.Context, source PathSyncSource, target P
 				if !ok {
 					continue
 				}
-				//log.Printf(" WATCH EVENT| %v %v %v %v", event.Type, event.Path, event.Time, event.Size)
+				//log.Logger(ctx).Info("WATCH EVENT", zap.Any("e", event))
 				filterIn <- event
 			case err, ok := <-watchObject.Errors():
 				if !ok {

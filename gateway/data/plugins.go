@@ -27,12 +27,29 @@ import (
 
 	"github.com/pydio/cells/common"
 	config2 "github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/data/source/objects"
 	minio "github.com/pydio/minio-srv/cmd"
 	"github.com/pydio/minio-srv/cmd/gateway/pydio"
+	"go.uber.org/zap"
 )
+
+type logger struct {
+	ctx context.Context
+}
+
+func (l *logger) Info(entry interface{}) {
+	log.Logger(l.ctx).Info("Minio Gateway", zap.Any("data", entry))
+}
+
+func (l *logger) Error(entry interface{}) {
+	log.Logger(l.ctx).Error("Minio Gateway", zap.Any("data", entry))
+}
+
+func (l *logger) Audit(entry interface{}) {
+	log.Auditer(l.ctx).Info("Minio Gateway", zap.Any("data", entry))
+}
 
 func init() {
 	service.NewService(
@@ -50,18 +67,17 @@ func init() {
 				keyFile = config2.Get("cert", "http", "keyFile").String("")
 			}
 
-			gatewayDir, err := objects.CreateMinioConfigFile("gateway", "gateway", "gatewaysecret")
-			if err != nil {
-				return nil, nil, nil, err
-			}
+			ctx, cancel = context.WithCancel(ctx)
 
 			return service.RunnerFunc(func() error {
 					gw := &pydio.Pydio{}
-					minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), gatewayDir, certFile, keyFile)
+					console := &logger{ctx: ctx}
+					minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), "gateway", "gatewaysecret", console, certFile, keyFile)
 					return nil
 				}), service.CheckerFunc(func() error {
 					return nil
 				}), service.StopperFunc(func() error {
+					cancel()
 					return nil
 				}), nil
 		}),

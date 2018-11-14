@@ -67,7 +67,7 @@ func (h *Handler) Run(ctx context.Context, req *test.RunTestsRequest, resp *test
 
 	// Try same tests on a gateway
 	var gatewayConf *object.DataSource
-	gatewayName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_SYNC_ + "gateways3"
+	gatewayName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_SYNC_ + "s3ds"
 	if e := config.Get("services", gatewayName).Scan(&gatewayConf); e != nil || gatewayConf == nil {
 		res := test.NewTestResult("Testing on gateways3 datasource")
 		res.Log("[SKIPPED] Cannot read config for " + gatewayName + " - Please create an S3 datasource named gateways3")
@@ -112,7 +112,10 @@ func (h *Handler) TestAuthorization(ctx context.Context, req *test.RunTestsReque
 	if e != nil {
 		return result, fmt.Errorf("PutObject error (with X-Pydio-User Header): " + e.Error())
 	}
-	core.RemoveObject(dsConf.ObjectsBucket, key)
+	e = core.RemoveObjectWithContext(authCtx, dsConf.ObjectsBucket, key)
+	if e != nil {
+		return result, fmt.Errorf("PutObject with X-Pydio-User header passed but RemoteObjectWithContext failed")
+	}
 	result.Log("PutObject with X-Pydio-User header passed")
 
 	return result, nil
@@ -150,7 +153,7 @@ func (h *Handler) TestEtags(ctx context.Context, req *test.RunTestsRequest, dsCo
 			result.Log("Created random data directly on local FS in " + filePath)
 		}
 
-		info, e := core.StatObject(dsConf.ObjectsBucket, fileBaseName, minio.StatObjectOptions{})
+		info, e := core.StatObject(dsConf.ObjectsBucket, fileBaseName, opts)
 		if e != nil {
 			return result, e
 		}
@@ -173,7 +176,7 @@ func (h *Handler) TestEtags(ctx context.Context, req *test.RunTestsRequest, dsCo
 	uploadFile := uuid.New() + ".txt"
 	contentPart1 := randString(5 * 1024 * 1024)
 	contentPart2 := randString(5 * 1024 * 1024)
-	uId, e := core.NewMultipartUpload(dsConf.ObjectsBucket, uploadFile, minio.PutObjectOptions{})
+	uId, e := core.NewMultipartUploadWithContext(authCtx, dsConf.ObjectsBucket, uploadFile, minio.PutObjectOptions{})
 	var parts []minio.CompletePart
 	if p1, e := core.PutObjectPartWithContext(authCtx, dsConf.ObjectsBucket, uploadFile, uId, 1, strings.NewReader(contentPart1), int64(len(contentPart1)), "", "", nil); e == nil {
 		parts = append(parts, minio.CompletePart{PartNumber: 1, ETag: p1.ETag})
@@ -202,13 +205,23 @@ func (h *Handler) TestEtags(ctx context.Context, req *test.RunTestsRequest, dsCo
 		result.Fail("[Multipart] No Etag was computed: ", info2)
 	} else {
 		result.Log("[Multipart] Etag was computed!")
+		var out []byte
 		hasher := md5.New()
-		hasher.Write([]byte(contentPart1 + contentPart2))
-		out := hex.EncodeToString(hasher.Sum(nil))
-		if out == info2.ETag {
+		hasher.Write([]byte(contentPart1))
+		out = append(out, hasher.Sum(nil)...)
+
+		hasher.Reset()
+		hasher.Write([]byte(contentPart2))
+		out = append(out, hasher.Sum(nil)...)
+
+		hasher.Reset()
+		hasher.Write(out)
+		outString := hex.EncodeToString(hasher.Sum(nil)) + "-2"
+
+		if outString == info2.ETag {
 			result.Log("[Multipart] Etag is correct!")
 		} else {
-			result.Fail("[Multipart] Etag was computed but value is not the one expected", info2)
+			result.Fail("[Multipart] Etag was computed but value is not the one expected", info2, out)
 		}
 	}
 
@@ -232,7 +245,7 @@ func (h *Handler) TestEvents(ctx context.Context, req *test.RunTestsRequest, dsC
 
 	result.Log("Setting up events listener")
 	done := make(chan struct{})
-	eventChan := core.ListenBucketNotification(dsConf.ObjectsBucket, "", "", []string{string(minio.ObjectCreatedAll)}, done)
+	eventChan := core.ListenBucketNotificationWithContext(authCtx, dsConf.ObjectsBucket, "", "", []string{string(minio.ObjectCreatedAll)}, done)
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	var receivedInfo minio.NotificationInfo
@@ -251,6 +264,7 @@ func (h *Handler) TestEvents(ctx context.Context, req *test.RunTestsRequest, dsC
 	}()
 	key := uuid.New() + ".txt"
 	content := uuid.New()
+	<-time.After(3 * time.Second)
 	_, e := core.PutObjectWithContext(authCtx, dsConf.ObjectsBucket, key, strings.NewReader(content), int64(len(content)), minio.PutObjectOptions{})
 	if e != nil {
 		return result, e
