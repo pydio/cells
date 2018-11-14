@@ -18,7 +18,9 @@ func MinioMetaFromContext(ctx context.Context) (md map[string]string, ok bool) {
 	md = make(map[string]string)
 	if meta, mOk := metadata.FromContext(ctx); mOk {
 		for k, v := range meta {
-			md[k] = v
+			if httpguts.ValidHeaderFieldName(k) && httpguts.ValidHeaderFieldValue(v) {
+				md[k] = v
+			}
 		}
 	}
 	if user := ctx.Value(common.PYDIO_CONTEXT_USER_KEY); user != nil {
@@ -38,4 +40,26 @@ func AppendCellsMetaFromContext(ctx context.Context, req *http.Request) {
 			}
 		}
 	}
+}
+
+func WithUserNameMetadata(ctx context.Context, userName string) context.Context {
+	md := make(map[string]string)
+	if meta, ok := metadata.FromContext(ctx); ok {
+		for k, v := range meta {
+			md[k] = v
+		}
+	}
+	md[common.PYDIO_CONTEXT_USER_KEY] = userName
+	ctx = metadata.NewContext(ctx, md)
+	// Add it as value for easier use inside the gateway, but this will not be transmitted
+	ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, userName)
+	return ctx
+}
+
+func ContextMetadata(ctx context.Context) (map[string]string, bool) {
+	return metadata.FromContext(ctx)
+}
+
+func WithMetadata(ctx context.Context, md map[string]string) context.Context {
+	return metadata.NewContext(ctx, md)
 }
