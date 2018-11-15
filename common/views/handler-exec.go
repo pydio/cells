@@ -195,7 +195,7 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 			}
 		}
 		reader, err = writer.GetObjectWithContext(ctx, info.ObjectsBucket, s3Path, headers)
-		log.Logger(ctx).Debug("Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers), zap.Any("request", requestData), zap.Any("resultObject", reader))
+		log.Logger(ctx).Debug("Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers.Header()), zap.Any("request", requestData), zap.Any("resultObject", reader))
 		if err != nil {
 			log.Logger(ctx).Error("Get Object", zap.Error(err))
 		}
