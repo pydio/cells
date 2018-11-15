@@ -21,6 +21,7 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"net/url"
 	"os"
@@ -29,19 +30,18 @@ import (
 	"runtime"
 
 	"github.com/manifoldco/promptui"
-	"github.com/mholt/caddy"
 	_ "github.com/mholt/caddy/caddyhttp"
 	"github.com/mholt/caddy/caddytls"
 	"github.com/micro/go-web"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/discovery/install/assets"
 )
 
@@ -49,13 +49,19 @@ const (
 	caddyfile = `
 		 {{.URL}} {
 			 root "{{.Root}}"
-			 proxy /install localhost:{{.Micro}}
+			 proxy /install {{urls .Micro}}
 			 {{.TLS}}
 		 }
 	 `
 )
 
 var (
+	caddyconf = struct {
+		URL   *url.URL
+		Root  string
+		Micro string
+		TLS   string
+	}{}
 	niBindUrl        string
 	niExtUrl         string
 	niDisableSsl     bool
@@ -185,13 +191,6 @@ var installCmd = &cobra.Command{
 			}
 		}
 
-		// Getting the micro api port
-		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
-		if micro == 0 {
-			micro = utils.GetAvailablePort()
-			config.Set(micro, "ports", common.SERVICE_MICRO_API)
-		}
-
 		config.Save("cli", "Install / Setting default Port")
 
 		// Manage TLS settings
@@ -214,20 +213,10 @@ var installCmd = &cobra.Command{
 		}
 
 		// Creating temporary caddy file
-		if err := config.InitCaddyFile(caddyfile, struct {
-			URL   *url.URL
-			Root  string
-			Micro int
-			TLS   string
-		}{
-			URL:   internal,
-			Root:  dir,
-			Micro: micro,
-			TLS:   tls,
-		}); err != nil {
-			log.Fatal(err.Error())
-			os.Exit(0)
-		}
+		caddyconf.URL = internal
+		caddyconf.Root = dir
+		caddyconf.Micro = common.SERVICE_MICRO_API
+		caddyconf.TLS = tls
 
 		// starting the registry service
 		for _, s := range registry.Default.GetServicesByName(defaults.Registry().String()) {
@@ -252,19 +241,14 @@ var installCmd = &cobra.Command{
 
 		config.Save("cli", "Install / Saving final configs")
 
-		// load caddyfile
-		caddyfile, err := caddy.LoadCaddyfile("http")
-		if err != nil {
+		caddy.Enable(caddyfile, play)
+
+		if err := caddy.Start(); err != nil {
 			cmd.Print(err)
 			os.Exit(1)
 		}
 
-		// start caddy server
-		instance, err := caddy.Start(caddyfile)
-		if err != nil {
-			cmd.Print(err)
-			os.Exit(1)
-		}
+		instance := caddy.GetInstance()
 
 		open(external.String())
 
@@ -311,6 +295,17 @@ var installCmd = &cobra.Command{
 		wg.Wait()
 
 	},
+}
+
+func play(c *caddy.Caddy) (*bytes.Buffer, error) {
+	template := c.GetTemplate()
+
+	buf := bytes.NewBuffer([]byte{})
+	if err := template.Execute(buf, caddyconf); err != nil {
+		return nil, err
+	}
+
+	return buf, nil
 }
 
 // open opens the specified URL in the default browser of the user.
