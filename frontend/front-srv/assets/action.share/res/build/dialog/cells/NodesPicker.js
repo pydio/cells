@@ -200,12 +200,26 @@ var NodesPicker = (function (_React$Component) {
                         m(280)
                     );
                 } else {
-                    emptyStateString = _react2['default'].createElement(
-                        'span',
-                        { style: { color: 'rgba(0,0,0,.54)', fontStyle: 'italic' } },
-                        m(281)
-                    );
+                    //emptyStateString = <span style={{color:'rgba(0,0,0,.54)', fontStyle:'italic'}}>{m(281)}</span>;
                 }
+            }
+            var pickButton = undefined;
+            if (mode === 'edit') {
+                pickButton = _react2['default'].createElement(_materialUi.FlatButton, {
+                    label: m(282),
+                    onTouchTap: this.handleTouchTap.bind(this),
+                    primary: true,
+                    style: { marginBottom: 10 },
+                    icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-folder-plus" })
+                });
+            } else {
+                pickButton = _react2['default'].createElement(_materialUi.RaisedButton, {
+                    label: m(282),
+                    onTouchTap: this.handleTouchTap.bind(this),
+                    primary: false,
+                    style: { marginBottom: 10 },
+                    icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-folder-plus", style: { fontSize: 20, marginTop: -4 } })
+                });
             }
             var _state2 = this.state;
             var node = _state2.node;
@@ -215,13 +229,7 @@ var NodesPicker = (function (_React$Component) {
             return _react2['default'].createElement(
                 'div',
                 null,
-                _react2['default'].createElement(_materialUi.FlatButton, {
-                    label: m(282),
-                    onTouchTap: this.handleTouchTap.bind(this),
-                    primary: true,
-                    style: { marginBottom: 10 },
-                    icon: _react2['default'].createElement(_materialUi.FontIcon, { className: "mdi mdi-folder-plus" })
-                }),
+                pickButton,
                 _react2['default'].createElement(
                     _materialUi.List,
                     null,

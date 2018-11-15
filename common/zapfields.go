@@ -36,6 +36,7 @@ const (
 	AUDIT_LOGIN_FAILED        = "2"
 	AUDIT_LOGIN_POLICY_DENIAL = "3"
 	AUDIT_INVALID_JWT         = "4"
+	AUDIT_LOCK_USER           = "5"
 
 	// Tree events
 	AUDIT_NODE_CREATE = "11"

@@ -148,6 +148,11 @@ var CreateCellDialog = _react2['default'].createClass({
         var step = _state.step;
         var model = _state.model;
 
+        var dialogLabel = pydio.MessageHash['418'];
+        if (step !== 'users') {
+            dialogLabel = model.getLabel();
+        }
+
         if (step === 'users') {
 
             content = _react2['default'].createElement(
@@ -166,13 +171,29 @@ var CreateCellDialog = _react2['default'].createClass({
                     }, fullWidth: true })
             );
 
-            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, {
+            if (model.getLabel()) {
+                buttons.push(_react2['default'].createElement(_materialUi.FlatButton, {
+                    key: 'quick',
+                    primary: true,
+                    disabled: !model.getLabel(),
+                    label: this.m('cells.create.advanced'), // Advanced
+                    onTouchTap: function () {
+                        _this3.setState({ step: 'data' });
+                    } }));
+                buttons.push(_react2['default'].createElement(
+                    'span',
+                    { style: { display: 'inline-block', margin: '0  10px', fontSize: 14, fontWeight: 500, color: '#9E9E9E' } },
+                    this.m('cells.create.buttons.separator')
+                ));
+            }
+
+            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, {
                 key: 'next1',
                 disabled: !model.getLabel(),
                 primary: true,
-                label: pydio.MessageHash['179'], // Next
+                label: this.m(279), // Create Cell
                 onTouchTap: function () {
-                    _this3.setState({ step: 'data' });
+                    _this3.submit();
                 } }));
         } else if (step === 'data') {
 
@@ -180,8 +201,8 @@ var CreateCellDialog = _react2['default'].createClass({
                 'div',
                 null,
                 _react2['default'].createElement(
-                    'div',
-                    null,
+                    'h5',
+                    { style: { marginTop: -10 } },
                     this.m(278)
                 ),
                 _react2['default'].createElement(_SharedUsers2['default'], {
@@ -207,13 +228,18 @@ var CreateCellDialog = _react2['default'].createClass({
                 'div',
                 null,
                 _react2['default'].createElement(
+                    'h5',
+                    { style: { marginTop: -10 } },
+                    this.m('cells.create.title.fill.folders')
+                ),
+                _react2['default'].createElement(
                     'div',
-                    null,
+                    { style: { color: '#9e9e9e' } },
                     this.computeSummaryString()
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { paddingTop: 24 } },
+                    { style: { paddingTop: 16 } },
                     _react2['default'].createElement(_NodesPicker2['default'], { pydio: pydio, model: model })
                 )
             );
@@ -221,10 +247,8 @@ var CreateCellDialog = _react2['default'].createClass({
             buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'prev2', primary: false, label: pydio.MessageHash['304'], onTouchTap: function () {
                     _this3.setState({ step: 'data' });
                 } }));
-            buttons.push(_react2['default'].createElement(_materialUi.FlatButton, { key: 'submit', primary: true, label: this.m(279), onTouchTap: this.submit.bind(this) }));
+            buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { key: 'submit', primary: true, label: this.m(279), onTouchTap: this.submit.bind(this) }));
         }
-
-        var primary1Color = muiTheme.palette.primary1Color;
 
         return _react2['default'].createElement(
             'div',
@@ -236,7 +260,7 @@ var CreateCellDialog = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     { style: { padding: 20, fontSize: 22 } },
-                    pydio.MessageHash['418']
+                    dialogLabel
                 )
             ),
             _react2['default'].createElement(
@@ -246,7 +270,7 @@ var CreateCellDialog = _react2['default'].createClass({
             ),
             _react2['default'].createElement(
                 'div',
-                { style: { padding: 8, textAlign: 'right' } },
+                { style: { padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' } },
                 buttons
             )
         );
