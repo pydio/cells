@@ -25,10 +25,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-<<<<<<< HEAD
-=======
-	"html/template"
->>>>>>> Hot reload and discovery
 	"net/url"
 	"path/filepath"
 
@@ -47,15 +43,25 @@ import (
 
 var (
 <<<<<<< HEAD
+=======
+	// proxy /auth {{.Dex | urls}} {
+	// 	without /auth
+	// 	transparent
+	// }
+>>>>>>> Push
 	caddyfile = `
 		{{.Bind}} {
 		proxy /a  {{.Micro | urls}} {
 			without /a
 			transparent
 		}
+<<<<<<< HEAD
 		proxy /auth/dex {{.Dex | urls}} {
 			transparent
 		}
+=======
+
+>>>>>>> Push
 		proxy /io   {{.Gateway | urls}} {
 			transparent
 		}
@@ -87,52 +93,6 @@ var (
 		}
 
 		proxy /login {{urls .FrontPlugins "/gui"}} {
-=======
-	instance      *caddy.Instance
-	caddytemplate = template.New(common.SERVICE_GATEWAY_PROXY)
-	caddyfile     = `
-		{{.Bind.Host}} {
-		proxy /a  {{.Micro.Host}} {
-			without /a
-			transparent
-		}
-		proxy /auth {{.Dex.Host}} {
-			without /auth
-			transparent
-		}
-		proxy /io   {{.Gateway.Host}} {
-			transparent
-		}
-		proxy /data {{.Gateway.Host}} {
-			transparent
-		}
-		proxy /ws   {{.WebSocket.Host}} {
-			websocket
-			without /ws
-		}
-		proxy /plug/   {{.FrontPlugins.Host}} {
-			transparent
-			header_downstream Cache-Control "public, max-age=31536000"
-		}
-		proxy /dav/ {{.DAV.Host}} {
-			transparent
-		}
-
-		proxy /public/ {{.FrontPlugins.Host}}/public {
-			transparent
-			without /public/
-		}
-
-		proxy /user/reset-password/ {{.FrontPlugins.Host}} {
-			transparent
-		}
-
-		proxy /robots.txt {{.FrontPlugins.Host}} {
-			transparent
-		}
-
-		proxy /login {{.FrontPlugins.Host}}/gui {
->>>>>>> Hot reload and discovery
 			transparent
 			without /login
 		}
@@ -166,7 +126,6 @@ var (
 		{{if .TLS}}tls {{.TLS}}{{end}}
 		errors "{{.Logs}}/caddy_errors.log"
 		}
-<<<<<<< HEAD
 
 	`
 
@@ -184,40 +143,11 @@ var (
 		WebSocket    string
 		FrontPlugins string
 		DAV          string
-=======
-		{{if .HttpRedirectSource}}
-		http://{{.HttpRedirectSource.Host}} {
-		redir https://{{.HttpRedirectTarget.Host}}
-		}
-		{{end}}
-	`
-	caddyconf = struct {
-		// Main site URL
-		Bind *url.URL
-
-		// Micro REST API dispatcher
-		Micro *url.URL
-		// Open ID Connect Service
-		Dex *url.URL
-		// S3 Gateway
-		Gateway *url.URL
-		// WebSocket server
-		WebSocket *url.URL
-		// Plugins loader for frontend
-		FrontPlugins *url.URL
-		// WebDAV server
-		DAV *url.URL
-		// WOPI server
-		WOPI *url.URL
-		// Collabora definition from plugins
-		Collabora *url.URL
->>>>>>> Hot reload and discovery
 		// Dedicated log file for caddy errors to ease debugging
 		Logs string
 		// Caddy compliant TLS string, either "self_signed" or paths to "cert key"
 		TLS string
 		// If TLS is enabled, also enable auto-redirect from http to https
-<<<<<<< HEAD
 		// HTTPRedirectSource *url.URL
 		// HTTPRedirectTarget *url.URL
 
@@ -225,22 +155,16 @@ var (
 		PluginPathes    []string
 	}{
 		Micro:        common.SERVICE_MICRO_API,
+<<<<<<< HEAD
 		Dex:          common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_AUTH,
+=======
+>>>>>>> Push
 		Gateway:      common.SERVICE_GATEWAY_DATA,
 		WebSocket:    common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
 		FrontPlugins: common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
 		DAV:          common.SERVICE_GATEWAY_DAV,
 	}
-=======
-		HTTPRedirectSource *url.URL
-		HTTPRedirectTarget *url.URL
-	}{}
->>>>>>> Hot reload and discovery
 )
-
-// CaddyTemplateConf feeds Caddy template file with data
-type CaddyTemplateConf struct {
-}
 
 func init() {
 	service.NewService(
@@ -259,27 +183,13 @@ func init() {
 				caddytls.DefaultCAUrl = caURL
 			}
 
-<<<<<<< HEAD
 			caddy.Enable(caddyfile, play)
+<<<<<<< HEAD
 
 			caddyconf.PluginTemplates = caddy.GetTemplates()
 			caddyconf.PluginPathes = caddy.GetPathes()
 =======
-			err := LoadCaddyConf()
-			if err != nil {
-				return nil, nil, nil, err
-			}
-
-			if err := config.InitCaddyFile(common.SERVICE_GATEWAY_PROXY, caddyconf); err != nil {
-				return nil, nil, nil, err
-			}
-
-			// now load inside caddy
-			caddyfile, err := caddy.LoadCaddyfile(common.SERVICE_GATEWAY_PROXY)
-			if err != nil {
-				return nil, nil, nil, err
-			}
->>>>>>> Hot reload and discovery
+>>>>>>> Push
 
 			err := caddy.Start()
 			if err != nil {
@@ -303,8 +213,8 @@ func init() {
 		}),
 		service.AfterStart(func(s service.Service) error {
 
-<<<<<<< HEAD
 			// Adding subscriber
+<<<<<<< HEAD
 			if _, err := broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error {
 				return caddy.Restart()
 			}); err != nil {
@@ -315,34 +225,11 @@ func init() {
 			}); err != nil {
 				return err
 			}
-
 =======
-			handler := func() error {
-				if instance == nil {
-					return nil
-				}
+			broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error { return caddy.Restart() })
+			broker.Subscribe(common.TOPIC_SERVICE_STOP, func(p broker.Publication) error { return caddy.Restart() })
+>>>>>>> Push
 
-				// now load inside caddy
-				caddyfile, err := caddy.LoadCaddyfile("http")
-				if err != nil {
-					return err
-				}
-
-				// Kick off the restart; our work is done
-				// caddy.EmitEvent(caddy.InstanceRestartEvent, nil)
-
-				_, err = instance.Restart(caddyfile)
-				if err != nil {
-					return err
-				}
-				return nil
-			}
-
-			// Adding subscriber
-			broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error { return handler() })
-			broker.Subscribe(common.TOPIC_SERVICE_STOP, func(p broker.Publication) error { return handler() })
-
->>>>>>> Hot reload and discovery
 			// Watching plugins
 			if w, err := config.Watch("frontend", "plugin"); err != nil {
 				return err
@@ -355,11 +242,7 @@ func init() {
 							break
 						}
 
-<<<<<<< HEAD
 						caddy.Restart()
-=======
-						handler()
->>>>>>> Hot reload and discovery
 					}
 				}()
 			}
@@ -374,6 +257,12 @@ func play() (*bytes.Buffer, error) {
 	LoadCaddyConf()
 
 	template := caddy.Get().GetTemplate()
+=======
+func play(c *caddy.Caddy) (*bytes.Buffer, error) {
+	LoadCaddyConf()
+
+	template := c.GetTemplate()
+>>>>>>> Push
 
 	buf := bytes.NewBuffer([]byte{})
 	if err := template.Execute(buf, caddyconf); err != nil {
@@ -383,15 +272,12 @@ func play() (*bytes.Buffer, error) {
 	return buf, nil
 }
 
-=======
->>>>>>> Hot reload and discovery
 // LoadCaddyConf reads the pydio config and fill a CaddyTemplateConf object ready
 // to be executed by template
 func LoadCaddyConf() error {
 
 	caddyconf.Logs = filepath.Join(config.ApplicationDataDir(), "logs")
 
-<<<<<<< HEAD
 	url, err := url.Parse(config.Get("defaults", "urlInternal").String(""))
 	if err != nil {
 		return err
@@ -399,14 +285,6 @@ func LoadCaddyConf() error {
 
 	caddyconf.Bind = ":" + url.Port()
 	caddyconf.Micro = common.SERVICE_MICRO_API
-=======
-	if bindUrl := config.Get("defaults", "urlInternal").String(""); bindUrl == "" {
-		return fmt.Errorf("cannot find urlInternal configuration")
-	} else {
-		caddyconf.Bind, _ = url.Parse(bindUrl)
-	}
-	servicesHost := "localhost" // This should be detected on a per-service basis
->>>>>>> Hot reload and discovery
 
 	tls := config.Get("cert", "proxy", "ssl").Bool(false)
 	if tls {
@@ -423,7 +301,6 @@ func LoadCaddyConf() error {
 				fmt.Println("Missing one of certFile/keyFile in SSL declaration. Will not enable SSL on proxy")
 			}
 		}
-<<<<<<< HEAD
 	}
 	// 	if redir := config.Get("cert", "proxy", "httpRedir").Bool(false); redir && caddyconf.TLS != "" {
 	// 		if extUrl := config.Get("defaults", "url").String(""); extUrl != "" {
@@ -436,19 +313,6 @@ func LoadCaddyConf() error {
 	// 		}
 	// 	}
 	// }
-=======
-		if redir := config.Get("cert", "proxy", "httpRedir").Bool(false); redir && c.TLS != "" {
-			if extUrl := config.Get("defaults", "url").String(""); extUrl != "" {
-				var e error
-				if caddyconf.HTTPRedirectTarget, e = url.Parse(extUrl); e == nil {
-					caddyconf.HTTPRedirectSource, _ = url.Parse("http://" + c.HttpRedirectTarget.Hostname())
-				}
-			} else {
-				return fmt.Errorf("cannot find url configuration")
-			}
-		}
-	}
->>>>>>> Hot reload and discovery
 
 	// internalUrlFromServices("pydio.gateway.rest")
 
