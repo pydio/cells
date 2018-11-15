@@ -2837,6 +2837,12 @@
 			"revisionTime": "2018-04-08T15:42:42Z"
 		},
 		{
+			"checksumSHA1": "OnNa5705402uy8v4b1IEUSc30/Y=",
+			"path": "github.com/micro/go-plugins/server/http",
+			"revision": "1ab47769eb72d33f38c139177cd17396381fe735",
+			"revisionTime": "2018-02-20T11:08:01Z"
+		},
+		{
 			"checksumSHA1": "nPOiQLLLDt0atNi5xkK2CnBiizY=",
 			"path": "github.com/micro/go-plugins/transport/grpc",
 			"revision": "61d3a25ee9d198e97b6774731bc2fb765c37e701",

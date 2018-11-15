@@ -30,6 +30,10 @@ import (
 	"github.com/spf13/cast"
 )
 
+var (
+	DefaultCaUrl = "https://acme-v01.api.letsencrypt.org/directory"
+)
+
 // Map structure to store configuration
 type Map map[string]interface{}
 

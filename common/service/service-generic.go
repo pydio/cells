@@ -24,6 +24,7 @@ import (
 	"context"
 
 	"github.com/micro/go-micro"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -32,7 +33,7 @@ import (
 )
 
 // WithGeneric adds a generic micro service handler to the current service
-func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, Stopper, error), opts ...micro.Option) ServiceOption {
+func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, Stopper, error), opts ...func(Service) (micro.Option, error)) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Micro = micro.NewService()
 
@@ -49,9 +50,16 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 			)
 
 			// context is always added last - so that there is no override
-			s.Options().Micro.Init(
-				opts...,
-			)
+			for _, opt := range opts {
+				o, err := opt(s)
+				if err != nil {
+					log.Fatal("failed to init micro service ", zap.Error(err))
+				}
+
+				s.Options().Micro.Init(
+					o,
+				)
+			}
 
 			s.Options().Micro.Init(
 				micro.Context(ctx),
