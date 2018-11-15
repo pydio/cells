@@ -4626,12 +4626,6 @@
 			"revisionTime": "2018-03-19T02:42:43Z"
 		},
 		{
-			"checksumSHA1": "rJn3m/27kO+2IU6KCCZ74Miby+8=",
-			"path": "golang.org/x/net/trace",
-			"revision": "61147c48b25b599e5b561d2e9c4f3e1ef489ca41",
-			"revisionTime": "2017-03-19T02:15:06Z"
-		},
-		{
 			"checksumSHA1": "yppNZB5y0GmJrt/TYOASrhe2oVc=",
 			"path": "golang.org/x/net/webdav",
 			"revision": "61147c48b25b599e5b561d2e9c4f3e1ef489ca41",
