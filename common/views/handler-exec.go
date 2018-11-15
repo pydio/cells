@@ -152,6 +152,17 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 	s3Path := e.buildS3Path(info, node)
 	headers := minio.GetObjectOptions{}
 
+	// Make sure the object exists
+	var opts = minio.StatObjectOptions{}
+	if meta, ok := context2.MinioMetaFromContext(ctx); ok {
+		for k, v := range meta {
+			opts.Set(k, v)
+		}
+	}
+	if _, sErr := writer.StatObject(info.ObjectsBucket, s3Path, opts); sErr != nil {
+		return nil, sErr
+	}
+
 	if requestData.EncryptionMaterial != nil {
 
 		var offset = requestData.StartOffset
@@ -183,10 +194,10 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 				return nil, err
 			}
 		}
-		log.Logger(ctx).Debug("Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers), zap.Any("request", requestData))
 		reader, err = writer.GetObjectWithContext(ctx, info.ObjectsBucket, s3Path, headers)
+		log.Logger(ctx).Debug("Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers), zap.Any("request", requestData), zap.Any("resultObject", reader))
 		if err != nil {
-			//log.Logger(ctx).Error("Get Object", zap.Error(err))
+			log.Logger(ctx).Error("Get Object", zap.Error(err))
 		}
 	}
 	return reader, err
