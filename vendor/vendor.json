@@ -3324,6 +3324,55 @@
 			"revisionTime": "2018-04-10T16:16:42Z"
 		},
 		{
+			"checksumSHA1": "cF572fAv+3P9DFqrl9hU9D9m+DQ=",
+			"path": "github.com/pydio/minio-go",
+			"revision": "41cbe90c6ca928f2142e907f12955c35a4ffeee2",
+			"revisionTime": "2018-11-14T16:22:46Z"
+		},
+		{
+			"checksumSHA1": "1mh2M8Un4aI+Xydn3VIQLMUZPrg=",
+			"path": "github.com/pydio/minio-go/pkg/credentials",
+			"revision": "41cbe90c6ca928f2142e907f12955c35a4ffeee2",
+			"revisionTime": "2018-11-14T16:22:46Z"
+		},
+		{
+			"checksumSHA1": "VFHKs6Gi8h3p/rMedLjCAbiqv5w=",
+			"path": "github.com/pydio/minio-go/pkg/encrypt",
+			"revision": "41cbe90c6ca928f2142e907f12955c35a4ffeee2",
+			"revisionTime": "2018-11-14T16:22:46Z"
+		},
+		{
+			"checksumSHA1": "9mkxn/WeWYJU4bTN6Mbv98WodY8=",
+			"path": "github.com/pydio/minio-go/pkg/policy",
+			"revision": "41cbe90c6ca928f2142e907f12955c35a4ffeee2",
+			"revisionTime": "2018-11-14T16:22:46Z"
+		},
+		{
+			"checksumSHA1": "ma/LrBWgCPrYEXa6Zd/fN/D3KCk=",
+			"path": "github.com/pydio/minio-go/pkg/s3signer",
+			"revision": "41cbe90c6ca928f2142e907f12955c35a4ffeee2",
+			"revisionTime": "2018-11-14T16:22:46Z"
+		},
+		{
+			"checksumSHA1": "V1k9KquxhHAKOSNtlKyGzqPLBrI=",
+			"path": "github.com/pydio/minio-go/pkg/s3utils",
+			"revision": "41cbe90c6ca928f2142e907f12955c35a4ffeee2",
+			"revisionTime": "2018-11-14T16:22:46Z"
+		},
+		{
+			"checksumSHA1": "Rk2Ca/t5OkvyLXKGEt1+cGDC4Bc=",
+			"path": "github.com/pydio/minio-go/pkg/set",
+			"revision": "41cbe90c6ca928f2142e907f12955c35a4ffeee2",
+			"revisionTime": "2018-11-14T16:22:46Z"
+		},
+		{
+			"checksumSHA1": "0a/zWarElzzSJJAy7aixrRNPY5Q=",
+			"path": "github.com/pydio/minio-srv",
+			"revision": "af034b5f6233f3ea7bf8f9348cb6d3a60be577af",
+			"revisionTime": "2018-11-15T16:53:54Z",
+			"tree": true
+		},
+		{
 			"checksumSHA1": "pvg8L4xN+zO9HLJislpVeHPPLjM=",
 			"path": "github.com/rainycape/unidecode",
 			"revision": "cb7f23ec59bec0d61b19c56cd88cee3d0cc1870c",
