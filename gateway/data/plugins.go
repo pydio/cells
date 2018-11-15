@@ -24,6 +24,7 @@ package gateway
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/pydio/cells/common"
 	config2 "github.com/pydio/cells/common/config"
@@ -70,6 +71,7 @@ func init() {
 			ctx, cancel = context.WithCancel(ctx)
 
 			return service.RunnerFunc(func() error {
+					os.Setenv("MINIO_BROWSER", "off")
 					gw := &pydio.Pydio{}
 					console := &logger{ctx: ctx}
 					minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), "gateway", "gatewaysecret", console, certFile, keyFile)
