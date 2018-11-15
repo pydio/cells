@@ -22,6 +22,7 @@ package utils
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -414,6 +415,25 @@ func SearchUniqueUser(ctx context.Context, login string, uuid string, queries ..
 		return nil, errors.NotFound(common.SERVICE_USER, "Cannot find user with this login or uuid")
 	}
 	return
+}
+
+// IsUserLocked checks if the passed user has a logout attribute defined.
+func IsUserLocked(user *idm.User) bool {
+	var hasLock bool
+	if user.Attributes != nil {
+		if l, ok := user.Attributes["locks"]; ok {
+			var locks []string
+			if e := json.Unmarshal([]byte(l), &locks); e == nil {
+				for _, lock := range locks {
+					if lock == "logout" {
+						hasLock = true
+						break
+					}
+				}
+			}
+		}
+	}
+	return hasLock
 }
 
 // AccessListFromRoles loads the Acls and flatten them, eventually loading the discovered workspaces
