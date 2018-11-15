@@ -35,6 +35,7 @@ import (
 
 	grpcclient "github.com/micro/go-plugins/client/grpc"
 	grpcserver "github.com/micro/go-plugins/server/grpc"
+	httpserver "github.com/micro/go-plugins/server/http"
 
 	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/client"
@@ -224,6 +225,17 @@ func NewServer(new ...server.Option) server.Server {
 	checkInit()
 
 	return opts.Server(new...)
+}
+
+func NewHTTPServer(new ...server.Option) server.Server {
+	s := httpserver.NewServer(
+		server.Registry(opts.Registry),
+		server.Broker(opts.Broker),
+	)
+
+	s.Init(new...)
+
+	return s
 }
 
 func Registry() registry.Registry {

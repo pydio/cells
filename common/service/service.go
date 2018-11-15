@@ -328,6 +328,7 @@ func (s *service) Start() {
 				log.Logger(ctx).Error("Could not micro init ", zap.Error(err))
 				cancel()
 			}
+
 			if err := s.Options().Micro.Run(); err != nil {
 				log.Logger(ctx).Error("Could not run ", zap.Error(err))
 				cancel()

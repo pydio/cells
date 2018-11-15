@@ -23,19 +23,18 @@ package micro
 
 import (
 	"context"
-	"flag"
-	"fmt"
 	"strings"
 
-	"github.com/micro/cli"
-	"github.com/micro/go-micro/cmd"
-	"github.com/micro/micro/api"
+	"github.com/gorilla/mux"
+	"github.com/micro/go-api"
+	ahandler "github.com/micro/go-api/handler"
+	ahttp "github.com/micro/go-api/handler/http"
+	"github.com/micro/go-api/router"
+	micro "github.com/micro/go-micro"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/defaults"
-
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
 )
 
 func init() {
@@ -44,47 +43,69 @@ func init() {
 		service.Tag(common.SERVICE_TAG_GATEWAY),
 		service.Description("Proxy handler to dispatch REST requests to the underlying services"),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			port := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
-			flagSet := flag.NewFlagSet("test", flag.ExitOnError)
-
-			if config.Get("cert", "http", "ssl").Bool(false) {
-				log.Logger(ctx).Info("MICRO WEB SHOULD START WITH SSL")
-				certFile := config.Get("cert", "http", "certFile").String("")
-				keyFile := config.Get("cert", "http", "keyFile").String("")
-				flagSet.Bool("enable_tls", true, "")
-				flagSet.String("tls_cert_file", certFile, "")
-				flagSet.String("tls_key_file", keyFile, "")
-			}
-
-			api.Handler = "proxy"
-			api.Name = common.SERVICE_MICRO_API
-			api.Address = fmt.Sprintf(":%d", port)
-			api.Namespace = strings.TrimRight(common.SERVICE_REST_NAMESPACE_, ".")
-			api.CORS = map[string]bool{"*": true}
-
-			app := cli.NewApp()
-
-			c := defaults.NewClient()
-			s := defaults.NewServer()
-			r := defaults.Registry()
-			b := defaults.Broker()
-			t := defaults.Transport()
+			// port := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
+			// flagSet := flag.NewFlagSet("test", flag.ExitOnError)
+			//
+			// if config.Get("cert", "http", "ssl").Bool(false) {
+			// 	log.Logger(ctx).Info("MICRO WEB SHOULD START WITH SSL")
+			// 	certFile := config.Get("cert", "http", "certFile").String("")
+			// 	keyFile := config.Get("cert", "http", "keyFile").String("")
+			// 	flagSet.Bool("enable_tls", true, "")
+			// 	flagSet.String("tls_cert_file", certFile, "")
+			// 	flagSet.String("tls_key_file", keyFile, "")
+			// }
+			//
+			// api.Handler = "proxy"
+			// api.Name = common.SERVICE_MICRO_API
+			// api.Address = fmt.Sprintf(":%d", port)
+			// api.Namespace = strings.TrimRight(common.SERVICE_REST_NAMESPACE_, ".")
+			// api.CORS = map[string]bool{"*": true}
+			//
+			// app := cli.NewApp()
+			//
+			// c := defaults.NewClient()
+			// s := defaults.NewServer()
+			// r := defaults.Registry()
+			// b := defaults.Broker()
+			// t := defaults.Transport()
 
 			return service.RunnerFunc(func() error {
-					cmd.Init(
-						cmd.Client(&c),
-						cmd.Server(&s),
-						cmd.Registry(&r),
-						cmd.Broker(&b),
-						cmd.Transport(&t),
-					)
-					api.Commands()[0].Action(cli.NewContext(app, flagSet, nil))
+					// cmd.Init(
+					// 	cmd.Client(&c),
+					// 	cmd.Server(&s),
+					// 	cmd.Registry(&r),
+					// 	cmd.Broker(&b),
+					// 	cmd.Transport(&t),
+					// )
+					// api.Commands()[0].Action(cli.NewContext(app, flagSet, nil))
 					return nil
 				}), service.CheckerFunc(func() error {
 					return nil
 				}), service.StopperFunc(func() error {
 					return nil
 				}), nil
+		}, func(s service.Service) (micro.Option, error) {
+			srv := defaults.NewHTTPServer()
+
+			r := mux.NewRouter()
+			rt := router.NewRouter(router.WithNamespace(strings.TrimRight(common.SERVICE_REST_NAMESPACE_, ".")), router.WithHandler(api.Http))
+			ht := ahttp.NewHandler(
+				ahandler.WithNamespace(strings.TrimRight(common.SERVICE_REST_NAMESPACE_, ".")),
+				ahandler.WithRouter(rt),
+				ahandler.WithService(s.Options().Micro),
+			)
+
+			r.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(ht)
+
+			hd := srv.NewHandler(r)
+
+			// http.Handle("/", router)
+			err := srv.Handle(hd)
+			if err != nil {
+				return nil, err
+			}
+
+			return micro.Server(srv), nil
 		}),
 	)
 }

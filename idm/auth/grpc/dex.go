@@ -229,6 +229,8 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 			errc <- fmt.Errorf("listening on %s failed: %v", c.Web.HTTPS, err)
 		}()
 	}
+
+	fmt.Println("HELLLLO ", c.GRPC, c.Web)
 	if c.GRPC.Addr != "" {
 		logger.Infof("listening (grpc) on %s", c.GRPC.Addr)
 		go func() {
