@@ -250,7 +250,7 @@ func (c *S3Client) actualLsRecursive(recursivePath string, walknFc func(path str
 			}
 			folderObjectInfo := objectInfo
 			//This will be called again inside the walknFc
-			//folderObjectInfo.ETag, _, _ = c.readOrCreateFolderId(folderKey)
+			folderObjectInfo.ETag, _, _ = c.readOrCreateFolderId(folderKey)
 			s3FileInfo := NewS3FolderInfo(folderObjectInfo)
 			walknFc(c.normalize(folderKey), s3FileInfo, nil)
 			createdDirs[folderKey] = true
