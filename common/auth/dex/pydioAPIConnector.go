@@ -28,6 +28,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/micro/go-micro/client"
+	gmerrors "github.com/micro/go-micro/errors"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 
@@ -119,11 +120,18 @@ func (p *pydioAPIConnector) Login(ctx context.Context, s connector.Scopes, usern
 	c := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
 
 	resp, err := c.BindUser(ctx, &idm.BindUserRequest{UserName: username, Password: password})
+
 	if err != nil {
-		fmt.Println("Error Binding user ")
+		// Workaround issue triggered by the fact that the go-micro.Error object overrides the Error() method to return a JSON encoded object
+		// err2 := err
+		errMsg := err.Error()
+		if me, ok := err.(*gmerrors.Error); ok {
+			errMsg = fmt.Sprintf("%d (%s) %s error: %s", me.Code, me.Status, me.Id, me.Detail)
+			// err2 = fmt.Errorf(errMsg)
+		}
 		log.Logger(ctx).Error("cannot bind user "+username, zap.Error(err))
 		log.Auditer(ctx).Error(
-			err.Error(),
+			"Cannot bind user "+username+": "+errMsg,
 			log.GetAuditId(common.AUDIT_LOGIN_FAILED),
 			zap.String(common.KEY_USERNAME, username),
 		)

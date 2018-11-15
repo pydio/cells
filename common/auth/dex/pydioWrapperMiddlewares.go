@@ -17,6 +17,7 @@ import (
 	"github.com/pydio/cells/common/utils"
 )
 
+// WrapperConnectorOperation holds all necessary information to perform auth actions using the middleware pattern.
 type WrapperConnectorOperation struct {
 	OperationType string
 	Scopes        connector.Scopes
@@ -29,6 +30,7 @@ type WrapperConnectorOperation struct {
 	User          *idm.User
 	Identity      connector.Identity
 }
+
 type WrapperConnectorProvider func(ctx context.Context, in *WrapperConnectorOperation) (*WrapperConnectorOperation, error)
 type WrapperConnectorMiddleware func(wrapperConnector WrapperConnectorProvider) WrapperConnectorProvider
 
@@ -36,10 +38,12 @@ var (
 	wrapperMiddlewares = make(map[string][]WrapperConnectorMiddleware)
 )
 
+// RegisterWrapperConnectorMiddleware appends a new connector middleware to the array of already existing middleware for this operation.
 func RegisterWrapperConnectorMiddleware(operation string, middleware WrapperConnectorMiddleware) {
 	wrapperMiddlewares[operation] = append(wrapperMiddlewares[operation], middleware)
 }
 
+// ApplyWrapperConnectorMiddlewares effectively calls each middleware that have been registered for this operation.
 func ApplyWrapperConnectorMiddlewares(ctx context.Context, in *WrapperConnectorOperation, coreProvider WrapperConnectorProvider) (*WrapperConnectorOperation, error) {
 	var p WrapperConnectorProvider
 	if coreProvider == nil {
@@ -57,6 +61,7 @@ func ApplyWrapperConnectorMiddlewares(ctx context.Context, in *WrapperConnectorO
 	return p(ctx, in)
 }
 
+// WrapWithIdmUser retrieves an IDM user with her login and adds it to the current operation.
 func WrapWithIdmUser(middleware WrapperConnectorProvider) WrapperConnectorProvider {
 
 	return func(ctx context.Context, op *WrapperConnectorOperation) (*WrapperConnectorOperation, error) {
@@ -70,17 +75,15 @@ func WrapWithIdmUser(middleware WrapperConnectorProvider) WrapperConnectorProvid
 			u, er := utils.SearchUniqueUser(ctx, op.ValidUsername, "")
 			if e != nil {
 				return op, er
-			} else {
-				op.User = u
-				return op, nil
 			}
+			op.User = u
+			return op, nil
 		}
-
 		return op, e
-
 	}
 }
 
+// WrapWithPolicyCheck checks policies for the current user and updates passed operation.
 func WrapWithPolicyCheck(middleware WrapperConnectorProvider) WrapperConnectorProvider {
 
 	return func(ctx context.Context, op *WrapperConnectorOperation) (*WrapperConnectorOperation, error) {
@@ -116,11 +119,10 @@ func WrapWithPolicyCheck(middleware WrapperConnectorProvider) WrapperConnectorPr
 		}
 
 		return op, nil
-
 	}
-
 }
 
+// WrapWithUserLocks manages lock after too many fail attemps. It also reset the counter on login success.
 func WrapWithUserLocks(middleware WrapperConnectorProvider) WrapperConnectorProvider {
 
 	return func(ctx context.Context, op *WrapperConnectorOperation) (*WrapperConnectorOperation, error) {
@@ -128,35 +130,22 @@ func WrapWithUserLocks(middleware WrapperConnectorProvider) WrapperConnectorProv
 		var opE error
 		op, opE = middleware(ctx, op)
 
-		// User loaded - Additional checks *even* if successful login
-		if op.User != nil {
-			var hasLock bool
-			user := op.User
-			if user.Attributes != nil {
-				if l, ok := user.Attributes["locks"]; ok {
-					var locks []string
-					if e := json.Unmarshal([]byte(l), &locks); e == nil {
-						for _, lock := range locks {
-							if lock == "logout" {
-								hasLock = true
-								break
-							}
-						}
-					}
-				}
-			}
-			if hasLock {
-				e := fmt.Errorf("user " + user.Login + " has locked out attribute")
+		// User loaded - Additional checks *even* after successful login
+		if user := op.User; user != nil {
+
+			// Insure user has not been locked out
+			if utils.IsUserLocked(user) {
+				e := fmt.Errorf("user " + user.Login + " is locked.")
 				log.Auditer(ctx).Error(
 					e.Error(),
 					log.GetAuditId(common.AUDIT_LOGIN_POLICY_DENIAL),
 					zap.String(common.KEY_USER_UUID, user.Uuid),
-					zap.Error(fmt.Errorf("user has logout attribute")),
 				)
-				log.Logger(ctx).Error("lock denies login for request", zap.Error(e))
+				log.Logger(ctx).Error("lock denies login for "+user.Login, zap.Error(e))
 				return op, errors.Unauthorized(common.SERVICE_USER, "User "+user.Login+" is not authorized to log in")
 			}
-			// Reset failedConnections now
+
+			// Reset failed connections
 			if user.Attributes != nil {
 				if _, ok := user.Attributes["failedConnections"]; ok {
 					log.Logger(ctx).Info("[WrapWithUserLocks] Resetting user failedConnections", user.ZapLogin())
@@ -173,6 +162,14 @@ func WrapWithUserLocks(middleware WrapperConnectorProvider) WrapperConnectorProv
 			const maxFailedLogins = 10
 
 			if u, e := utils.SearchUniqueUser(ctx, op.Login, ""); e == nil && u != nil {
+
+				// double check if user was already locked to reduce work load
+				if utils.IsUserLocked(u) {
+					msg := fmt.Sprintf("locked user %s is still trying to connect", u.GetLogin())
+					log.Logger(ctx).Warn(msg, u.ZapLogin())
+					return op, opE
+				}
+
 				var failedInt int64
 				if u.Attributes == nil {
 					u.Attributes = make(map[string]string)
@@ -182,6 +179,7 @@ func WrapWithUserLocks(middleware WrapperConnectorProvider) WrapperConnectorProv
 				}
 				failedInt++
 				u.Attributes["failedConnections"] = fmt.Sprintf("%d", failedInt)
+
 				if failedInt >= maxFailedLogins {
 					// Set lock via attributes
 					var locks []string
@@ -198,23 +196,28 @@ func WrapWithUserLocks(middleware WrapperConnectorProvider) WrapperConnectorProv
 					locks = append(locks, "logout")
 					data, _ := json.Marshal(locks)
 					u.Attributes["locks"] = string(data)
-					log.Logger(ctx).Error("Setting lock on user as there were too many failed connections", u.ZapLogin())
+					msg := fmt.Sprintf("Locking user %s after %d failed connections", u.GetLogin(), maxFailedLogins)
+					log.Logger(ctx).Error(msg, u.ZapLogin())
+					log.Auditer(ctx).Error(
+						msg,
+						log.GetAuditId(common.AUDIT_LOCK_USER),
+						u.ZapLogin(),
+						zap.String(common.KEY_USER_UUID, u.GetUuid()),
+					)
 				}
-				log.Logger(ctx).Info("[WrapWithUserLocks] Updating user failedConnections", u.ZapLogin())
+
+				log.Logger(ctx).Debug("[WrapWithUserLocks] Updating user failedConnections", u.ZapLogin())
 				userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
 				if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: u}); e != nil {
 					log.Logger(ctx).Error("could not store failedConnection for user", zap.Error(e))
 				}
 			}
-
 		}
-
 		return op, opE
-
 	}
-
 }
 
+// WrapWithIdentity converts the op.User to an identity and stores it in the current operation.
 func WrapWithIdentity(middleware WrapperConnectorProvider) WrapperConnectorProvider {
 
 	return func(ctx context.Context, op *WrapperConnectorOperation) (*WrapperConnectorOperation, error) {
@@ -232,7 +235,5 @@ func WrapWithIdentity(middleware WrapperConnectorProvider) WrapperConnectorProvi
 
 		op.Identity = ConvertUserApiToIdentity(op.User, op.AuthSource)
 		return op, nil
-
 	}
-
 }

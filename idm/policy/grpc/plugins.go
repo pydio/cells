@@ -62,6 +62,10 @@ func init() {
 				TargetVersion: service.ValidVersion("1.2.0"),
 				Up:            Upgrade120,
 			},
+			{
+				TargetVersion: service.ValidVersion("1.2.2"),
+				Up:            Upgrade122,
+			},
 		}),
 		service.WithMicro(func(m micro.Service) error {
 			handler := new(Handler)
@@ -235,5 +239,33 @@ func Upgrade120(ctx context.Context) error {
 		}
 
 	}
+	return nil
+}
+
+// Upgrade122 adapts policy dbs. It is called once at service launch when Cells version become >= 1.2.2.
+func Upgrade122(ctx context.Context) error {
+	dao := servicecontext.GetDAO(ctx).(policy.DAO)
+	if dao == nil {
+		return fmt.Errorf("cannot find DAO for policies initialization")
+	}
+	groups, e := dao.ListPolicyGroups(ctx)
+	if e != nil {
+		return e
+	}
+	for _, group := range groups {
+		if group.Uuid == "rest-apis-default-accesses" {
+			for _, p := range group.Policies {
+				if p.Id == "user-default-policy" {
+					p.Resources = append(p.Resources, "rest:/templates")
+				}
+			}
+			if _, er := dao.StorePolicyGroup(ctx, group); er != nil {
+				log.Logger(ctx).Error("could not update policy group "+group.Uuid, zap.Error(er))
+			} else {
+				log.Logger(ctx).Info("Updated policy group " + group.Uuid)
+			}
+		}
+	}
+	log.Logger(ctx).Info("Upgraded policy model to v1.2.2")
 	return nil
 }

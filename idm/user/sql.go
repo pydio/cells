@@ -269,7 +269,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 			return nil, createdNodes, err
 		}
 	} else {
-		return nil, createdNodes, fmt.Errorf("Unknown statement")
+		return nil, createdNodes, fmt.Errorf("unknown statement")
 	}
 	for attr, val := range user.Attributes {
 		if stmt := s.GetStmt("AddAttribute"); stmt != nil {
@@ -283,7 +283,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 				return nil, createdNodes, err
 			}
 		} else {
-			return nil, createdNodes, fmt.Errorf("Unknown statement")
+			return nil, createdNodes, fmt.Errorf("unknown statement")
 		}
 	}
 
@@ -294,7 +294,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 			return nil, createdNodes, err
 		}
 	} else {
-		return nil, createdNodes, fmt.Errorf("Unknown statement")
+		return nil, createdNodes, fmt.Errorf("unknown statement")
 	}
 	for _, role := range user.Roles {
 		if role.UserRole || role.GroupRole {
@@ -311,7 +311,7 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 				return nil, createdNodes, err
 			}
 		} else {
-			return nil, createdNodes, fmt.Errorf("Unknown statement")
+			return nil, createdNodes, fmt.Errorf("unknown statement")
 		}
 	}
 	for _, n := range created {
@@ -333,7 +333,7 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 	s.Search(&service.Query{SubQueries: []*any.Any{qA}}, &results)
 	if len(results) == 0 {
 		// The error code is actually very important
-		return nil, errors.NotFound(common.SERVICE_USER, "Cannot find user %s", userName)
+		return nil, errors.NotFound(common.SERVICE_USER, "cannot find user %s", userName)
 	}
 	object := results[0]
 	user = object.(*idm.User)
@@ -349,7 +349,7 @@ func (s *sqlimpl) Bind(userName string, password string) (user *idm.User, e erro
 		return user, nil
 	}
 
-	return nil, errors.Forbidden(common.SERVICE_USER, "Password does not match")
+	return nil, errors.Forbidden(common.SERVICE_USER, "password does not match")
 
 }
 

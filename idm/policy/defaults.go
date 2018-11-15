@@ -131,6 +131,7 @@ var (
 						"rest:/changes<.+>",
 						"rest:/frontend/<.*>",
 						"rest:/tree/<.*>",
+						"rest:/templates",
 					},
 					Actions: []string{"GET", "POST", "DELETE", "PUT", "PATCH"},
 					Effect:  ladon.AllowAccess,
