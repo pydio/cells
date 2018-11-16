@@ -1458,3 +1458,8 @@ func (l *gcsGateway) DeleteBucketPolicy(ctx context.Context, bucket string) erro
 func (l *gcsGateway) IsCompressionSupported() bool {
 	return false
 }
+
+// IsNotificationSupported returns whether bucket notification is applicable for this layer.
+func (l *gcsGateway) IsNotificationSupported() bool {
+	return true
+}

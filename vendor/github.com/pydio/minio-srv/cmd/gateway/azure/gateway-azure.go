@@ -1259,3 +1259,8 @@ func (a *azureObjects) DeleteBucketPolicy(ctx context.Context, bucket string) er
 func (a *azureObjects) IsCompressionSupported() bool {
 	return false
 }
+
+// IsNotificationSupported returns whether bucket notification is applicable for this layer.
+func (a *azureObjects) IsNotificationSupported() bool {
+	return true
+}

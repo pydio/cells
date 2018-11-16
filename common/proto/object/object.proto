@@ -25,6 +25,12 @@ enum StorageType {
     LOCAL = 0;
     S3 = 1;
     SMB = 2;
+    CELLS = 4;
+    AZURE = 5;
+    GCS = 6;
+    B2 = 7;
+    MANTA = 8;
+    SIA = 9;
 }
 
 // Type of Encryption
@@ -77,6 +83,8 @@ message MinioConfig {
     // Specific to Local storage type
     string LocalFolder = 8;
     string PeerAddress = 9;
+    // Additional configs
+    map<string,string> GatewayConfiguration = 11;
 }
 
 // Used to dispatch some specific events
