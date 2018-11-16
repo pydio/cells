@@ -72,13 +72,13 @@ func NewSyslogServer(bleveIndexPath string, deleteOnClose ...bool) (*SyslogServe
 	return &SyslogServer{Index: index}, nil
 }
 
-// PutLog  simply add a new LogMessage in the syslog repo
+// PutLog  adds a new LogMessage in the syslog index.
 func (s *SyslogServer) PutLog(line map[string]string) error {
 	return BlevePutLog(s.Index, line)
 }
 
-// ListLogs performs a simple query in the bleve index, based on the passed query string and
-// returns the results as a stream of log.ListLogResponse for each corresponding hit.
+// ListLogs performs a query in the bleve index, based on the passed query string.
+// It returns results as a stream of log.ListLogResponse for each corresponding hit.
 // Results are ordered by descending timestamp rather than by score.
 func (s *SyslogServer) ListLogs(str string, page, size int32) (chan log.ListLogResponse, error) {
 	return BleveListLogs(s.Index, str, page, size)

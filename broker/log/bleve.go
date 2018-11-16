@@ -40,8 +40,8 @@ type IndexableLog struct {
 	log.LogMessage
 }
 
-// Default implementation that stores a new log msg in a bleve index. It expects a map[string]string
-// retrieved from a deserialized proto log msg.
+// BlevePutLog stores a new log msg in a bleve index. It expects a map[string]string
+// retrieved from a deserialized proto log message.
 func BlevePutLog(idx bleve.Index, line map[string]string) error {
 
 	msg, err := MarshallLogMsg(line)
@@ -56,8 +56,8 @@ func BlevePutLog(idx bleve.Index, line map[string]string) error {
 	return nil
 }
 
-// Default implementation of the list log query in the bleve index, based on the passed query string and
-// returns the results as a stream of log.ListLogResponse with the values of the indexed fields
+// BleveListLogs queries the bleve index, based on the passed query string.
+// It returns the results as a stream of log.ListLogResponse with the values of the indexed fields
 // for each corresponding hit.
 // Results are ordered by descending timestamp rather than by score.
 func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan log.ListLogResponse, error) {
@@ -109,7 +109,7 @@ func BleveListLogs(idx bleve.Index, str string, page int32, size int32) (chan lo
 	return res, nil
 }
 
-// Simply maps all known fields of the log message JSON object to the log.LogMessage object.
+// MarshallLogMsg creates an IndexableLog object and populates the inner LogMessage with known fields of the passed JSON line.
 func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 
 	msg := &IndexableLog{}
@@ -124,12 +124,11 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 			msg.Ts = convertTimeToTs(t)
 		case "level":
 			msg.Level = val
-		case "logger":
-			msg.Logger = val
-			//		case "msg":
-			//			msg.Msg = val
 		case common.KEY_MSG_ID:
 			msg.MsgId = val
+		case "logger": // name of the service that is currently logging.
+			msg.Logger = val
+		// Node specific info
 		case common.KEY_NODE_UUID:
 			msg.NodeUuid = val
 		case common.KEY_NODE_PATH:
@@ -138,6 +137,7 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 			msg.WsUuid = val
 		case common.KEY_WORKSPACE_SCOPE:
 			msg.WsScope = val
+		// User specific info
 		case common.KEY_USERNAME:
 			msg.UserName = val
 		case common.KEY_USER_UUID:
@@ -148,12 +148,14 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 			msg.RoleUuids = strings.Split(val, ",")
 		case common.KEY_PROFILE:
 			msg.Profile = val
+		// Session and remote client info
 		case servicecontext.HttpMetaRemoteAddress:
 			msg.RemoteAddress = val
 		case servicecontext.HttpMetaUserAgent:
 			msg.UserAgent = val
 		case servicecontext.HttpMetaProtocol:
 			msg.HttpProtocol = val
+		// WTF?
 		case common.KEY_SPAN_UUID:
 			msg.SpanUuid = val
 		case common.KEY_SPAN_PARENT_UUID:
@@ -165,11 +167,12 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 		}
 	}
 
+	// Concatenate msg and error in the full text msg field.
 	text := ""
-	if m, o := line["msg"]; o {
+	if m, ok := line["msg"]; ok {
 		text = m
 	}
-	if m, o := line["error"]; o {
+	if m, ok := line["error"]; ok {
 		text += " - " + m
 	}
 	msg.Msg = text
@@ -177,6 +180,7 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 	return msg, nil
 }
 
+// UnmarshallLogMsgFromDoc populates the LogMessage from the passed bleve document.
 func UnmarshallLogMsgFromDoc(doc *document.Document, msg *log.LogMessage) {
 	// fmt.Printf("## [DEBUG] ## unmarshalling index document \n")
 	m := make(map[string]interface{})
