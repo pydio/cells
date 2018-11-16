@@ -10,13 +10,14 @@ class DataSource extends Observable {
         return new Proxy(object, {
             set:((target, p, value) => {
                 let val = value;
-                if(p === 'ObjectsPort'){
-                    val = this.fixPort(value);
-                } else if(p === 'StorageType') {
+                if(p === 'StorageType') {
+                    target['StorageConfiguration'] = {};
                     if(val === 'LOCAL'){
                         target['StorageConfiguration'] = {"folder":"", "normalize":"false"}
                     } else if(val === 'S3'){
                         target['StorageConfiguration'] = {"customEndpoint":""}
+                    } else if(val === 'GCS') {
+                        target['StorageConfiguration'] = {"jsonCredentials": ""}
                     }
                     this.internalInvalid = false;
                     target['ApiKey'] = target['ApiSecret'] = ''; // reset values
@@ -64,30 +65,9 @@ class DataSource extends Observable {
             this.model.EncryptionMode = ObjectEncryptionMode.constructFromObject('CLEAR');
             this.model.StorageType = ObjectStorageType.constructFromObject('LOCAL');
             this.model.StorageConfiguration = {"folder":"", "normalize":"false"};
-            this.model.ObjectsPort = 9001;
         }
         this.observableModel = this.buildProxy(this.model);
 
-        DataSource.loadDatasources().then(result => {
-            if(!result.DataSources) return;
-            this.excludedPorts = result.DataSources.filter((dS) => {
-                return !(model && model.Name && model.Name === dS.Name)
-            }).map((ds) => {
-                return ds.ObjectsPort;
-            });
-            if(!model){
-                this.observableModel.ObjectsPort = this.fixPort(this.observableModel.ObjectsPort); // will trigger proxy filtering
-            }
-        });
-    }
-
-    fixPort(newValue){
-        let port = parseInt(newValue);
-        if(!this.excludedPorts) return port;
-        while(this.excludedPorts.indexOf(port) !== -1){
-            port ++;
-        }
-        return port;
     }
 
     /**
@@ -101,8 +81,10 @@ class DataSource extends Observable {
         if(this.internalInvalid){
             return false;
         }
-        if(this.model.StorageType === 'S3'){
+        if(this.model.StorageType === 'S3' || this.model.StorageType === 'AZURE') {
             return this.model.ApiKey && this.model.ApiSecret && this.model.Name && this.model.ObjectsBucket;
+        } else if(this.model.StorageType === 'GCS') {
+            return this.model.Name && this.model.ObjectsBucket && this.model.StorageConfiguration && this.model.StorageConfiguration['jsonCredentials'];
         } else {
             return this.model.Name && this.model.StorageConfiguration && this.model.StorageConfiguration['folder'];
         }

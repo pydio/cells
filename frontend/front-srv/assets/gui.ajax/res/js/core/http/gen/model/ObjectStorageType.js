@@ -43,6 +43,48 @@ export default class ObjectStorageType {
         SMB = "SMB";
 
     
+        /**
+         * value: "CELLS"
+         * @const
+         */
+        CELLS = "CELLS";
+
+    
+        /**
+         * value: "AZURE"
+         * @const
+         */
+        AZURE = "AZURE";
+
+    
+        /**
+         * value: "GCS"
+         * @const
+         */
+        GCS = "GCS";
+
+    
+        /**
+         * value: "B2"
+         * @const
+         */
+        B2 = "B2";
+
+    
+        /**
+         * value: "MANTA"
+         * @const
+         */
+        MANTA = "MANTA";
+
+    
+        /**
+         * value: "SIA"
+         * @const
+         */
+        SIA = "SIA";
+
+    
 
     /**
     * Returns a <code>ObjectStorageType</code> enum value from a Javascript object name.

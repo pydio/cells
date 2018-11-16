@@ -36,6 +36,12 @@ var ObjectStorageType = (function () {
         this.LOCAL = "LOCAL";
         this.S3 = "S3";
         this.SMB = "SMB";
+        this.CELLS = "CELLS";
+        this.AZURE = "AZURE";
+        this.GCS = "GCS";
+        this.B2 = "B2";
+        this.MANTA = "MANTA";
+        this.SIA = "SIA";
     }
 
     /**
@@ -66,5 +72,35 @@ module.exports = exports["default"];
 
 /**
  * value: "SMB"
+ * @const
+ */
+
+/**
+ * value: "CELLS"
+ * @const
+ */
+
+/**
+ * value: "AZURE"
+ * @const
+ */
+
+/**
+ * value: "GCS"
+ * @const
+ */
+
+/**
+ * value: "B2"
+ * @const
+ */
+
+/**
+ * value: "MANTA"
+ * @const
+ */
+
+/**
+ * value: "SIA"
  * @const
  */

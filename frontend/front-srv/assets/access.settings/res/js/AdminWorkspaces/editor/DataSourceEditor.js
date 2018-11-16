@@ -213,14 +213,15 @@ class DataSourceEditor extends React.Component{
                     {!create &&
                         <div style={styles.toggleDiv}><Toggle label={m('options.enabled')} toggled={!model.Disabled} onToggle={(e,v) =>{model.Disabled = !v}} /></div>
                     }
-                    <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('options.port')} type={"number"} value={model.ObjectsPort} onChange={(e,v)=>{model.ObjectsPort = v}}/>
                 </div>
                 <Divider/>
                 <div style={styles.section}>
                     <div style={styles.title}>{this.context.getMessage('ds.storage.title', 'ajxp_admin')}</div>
-                    <SelectField fullWidth={true} floatingLabelText={this.context.getMessage('ds.storage', 'ajxp_admin')} value={model.StorageType} onChange={(e,i,v)=>{model.StorageType = v}}>
+                    <SelectField fullWidth={true} disabled={!create} floatingLabelText={this.context.getMessage('ds.storage', 'ajxp_admin')} value={model.StorageType} onChange={(e,i,v)=>{model.StorageType = v}}>
                         <MenuItem value={"LOCAL"} primaryText={this.context.getMessage('ds.storage.fs', 'ajxp_admin')}/>
                         <MenuItem value={"S3"} primaryText={this.context.getMessage('ds.storage.s3', 'ajxp_admin')}/>
+                        <MenuItem value={"AZURE"} primaryText={this.context.getMessage('ds.storage.azure', 'ajxp_admin')}/>
+                        <MenuItem value={"GCS"} primaryText={this.context.getMessage('ds.storage.gcs', 'ajxp_admin')}/>
                     </SelectField>
                     {model.StorageType === 'S3' &&
                         <div>
@@ -228,8 +229,23 @@ class DataSourceEditor extends React.Component{
                             <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.api')} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
                             <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.secret')} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
                             <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.path')} value={model.ObjectsBaseFolder} onChange={(e,v)=>{model.ObjectsBaseFolder = v}}/>
-                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.endpoint')} value={model.StorageConfiguration.customEndpoint} onChange={(e,v)=>{model.StorageConfiguration.customEndpoint = v}}/>
+                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.endpoint')} hintText={m('storage.s3.endpoint.hint')} value={model.StorageConfiguration.customEndpoint} onChange={(e, v) => { model.StorageConfiguration.customEndpoint = v }}/>
                         </div>
+                    }
+                    {model.StorageType === 'AZURE' &&
+                        <div>
+                            <TextField fullWidth={true}  floatingLabelFixed={true} floatingLabelText={m('storage.azure.bucket')} value={model.ObjectsBucket} onChange={(e,v)=>{model.ObjectsBucket = v}}/>
+                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.azure.api')} value={model.ApiKey} onChange={(e,v)=>{model.ApiKey = v}}/>
+                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.azure.secret')} value={model.ApiSecret} onChange={(e,v)=>{model.ApiSecret = v}}/>
+                            <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.path')} value={model.ObjectsBaseFolder} onChange={(e,v)=>{model.ObjectsBaseFolder = v}}/>
+                        </div>
+                    }
+                    {model.StorageType === 'GCS' &&
+                    <div>
+                        <TextField fullWidth={true}  floatingLabelFixed={true} floatingLabelText={m('storage.gcs.bucket')} value={model.ObjectsBucket} onChange={(e,v)=>{model.ObjectsBucket = v}}/>
+                        <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.gcs.credentials')} value={model.StorageConfiguration.jsonCredentials} onChange={(e,v)=>{model.StorageConfiguration.jsonCredentials = v}} multiLine={true}/>
+                        <TextField fullWidth={true} floatingLabelFixed={true} floatingLabelText={m('storage.s3.path')} value={model.ObjectsBaseFolder} onChange={(e,v)=>{model.ObjectsBaseFolder = v}}/>
+                    </div>
                     }
                     {model.StorageType === 'LOCAL' &&
                         <div>

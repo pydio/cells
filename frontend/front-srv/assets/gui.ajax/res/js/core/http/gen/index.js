@@ -126,7 +126,6 @@ import RestDeleteResponse from './model/RestDeleteResponse';
 import RestDeleteShareLinkResponse from './model/RestDeleteShareLinkResponse';
 import RestDeleteUserMetaTagsResponse from './model/RestDeleteUserMetaTagsResponse';
 import RestDiscoveryResponse from './model/RestDiscoveryResponse';
-import RestError from './model/RestError';
 import RestFrontBinaryRequest from './model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
 import RestFrontBootConfResponse from './model/RestFrontBootConfResponse';
@@ -960,12 +959,6 @@ export {
      * @property {module:model/RestDiscoveryResponse}
      */
     RestDiscoveryResponse,
-
-    /**
-     * The RestError model constructor.
-     * @property {module:model/RestError}
-     */
-    RestError,
 
     /**
      * The RestFrontBinaryRequest model constructor.

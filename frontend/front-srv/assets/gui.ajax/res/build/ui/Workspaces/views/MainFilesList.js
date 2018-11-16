@@ -502,8 +502,6 @@ var MainFilesList = _react2['default'].createClass({
         if (keysOnly) {
             return ['switch_display_mode'];
         }
-        var displayMode = this.state.displayMode;
-
         var multiAction = new _pydioModelAction2['default']({
             name: 'switch_display_mode',
             icon_class: 'mdi mdi-view-list',
