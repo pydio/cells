@@ -28,7 +28,9 @@ import (
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 )
 
@@ -90,6 +92,14 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	branch, set := GetBranchInfo(ctx, identifier)
+	if set && branch.UUID != "ROOT" {
+		if branch.EncryptionMode != object.EncryptionMode_CLEAR {
+			node.SetMeta(common.META_FLAG_ENCRYPTED, "true")
+		}
+		if branch.VersioningPolicyName != "" {
+			node.SetMeta(common.META_FLAG_VERSIONING, "true")
+		}
+	}
 	if !set || branch.UUID == "ROOT" || len(branch.RootUUIDs) < 2 {
 		return ctx, node, nil
 	}
