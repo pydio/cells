@@ -75,33 +75,35 @@ func (s *UserHandler) Filter() func(string) string {
 	}
 }
 
-// BindUser checks credentials and bind the user if successful
-func (s *UserHandler) BindUser(req *restful.Request, rsp *restful.Response) {
+// BIND USER should not be exposed via the REST API.
+// TODO remove corresponding declaration from the API
+// // BindUser checks credentials and bind the user if successful
+// func (s *UserHandler) BindUser(req *restful.Request, rsp *restful.Response) {
 
-	var user idm.User
-	err := req.ReadEntity(&user)
-	if err != nil {
-		rsp.WriteError(500, err)
-		return
-	}
+// 	var user idm.User
+// 	err := req.ReadEntity(&user)
+// 	if err != nil {
+// 		rsp.WriteError(500, err)
+// 		return
+// 	}
 
-	if len(user.Login) == 0 || len(user.Password) == 0 {
-		rsp.WriteError(500, errors.BadRequest(common.SERVICE_USER, "Missing arguments for bind request"))
-		return
-	}
+// 	if len(user.Login) == 0 || len(user.Password) == 0 {
+// 		rsp.WriteError(500, errors.BadRequest(common.SERVICE_USER, "Missing arguments for bind request"))
+// 		return
+// 	}
 
-	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
-	resp, er := cli.BindUser(req.Request.Context(), &idm.BindUserRequest{
-		UserName: user.Login,
-		Password: user.Password,
-	})
-	if er != nil {
-		rsp.WriteError(401, er)
-		return
-	}
-	rsp.WriteEntity(resp.User)
+// 	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+// 	resp, er := cli.BindUser(req.Request.Context(), &idm.BindUserRequest{
+// 		UserName: user.Login,
+// 		Password: user.Password,
+// 	})
+// 	if er != nil {
+// 		rsp.WriteError(401, er)
+// 		return
+// 	}
+// 	rsp.WriteEntity(resp.User)
 
-}
+// }
 
 // SearchUsers performs a paginated query to the user repository.
 func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
