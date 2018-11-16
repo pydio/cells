@@ -19,32 +19,6 @@
   "produces": [
     "application/json"
   ],
-"responses": {
-    "401":{
-      "description":"User is not authenticated",
-      "schema":{
-        "$ref": "#/definitions/restError"
-      }
-    },
-    "403":{
-      "description":"User has no permission to access this particular resource",
-      "schema":{
-        "$ref": "#/definitions/restError"
-      }
-    },
-    "404":{
-      "description":"Resource does not exist in the system",
-      "schema":{
-        "$ref": "#/definitions/restError"
-      }
-    },
-    "500":{
-      "description":"An internal error occurred in the backend",
-      "schema":{
-        "$ref": "#/definitions/restError"
-      }
-    }
-  },
   "paths": {
     "/acl": {
       "post": {
@@ -428,7 +402,13 @@
             "enum": [
               "LOCAL",
               "S3",
-              "SMB"
+              "SMB",
+              "CELLS",
+              "AZURE",
+              "GCS",
+              "B2",
+              "MANTA",
+              "SIA"
             ],
             "default": "LOCAL"
           },
@@ -5067,7 +5047,13 @@
       "enum": [
         "LOCAL",
         "S3",
-        "SMB"
+        "SMB",
+        "CELLS",
+        "AZURE",
+        "GCS",
+        "B2",
+        "MANTA",
+        "SIA"
       ],
       "default": "LOCAL",
       "title": "Type of Gateway"
@@ -5373,35 +5359,6 @@
           }
         }
       }
-    },
-    "restError": {
-      "type": "object",
-      "properties": {
-        "Code": {
-          "type": "string",
-          "title": "Unique ID of the error"
-        },
-        "Title": {
-          "type": "string",
-          "title": "Human-readable, short label"
-        },
-        "Detail": {
-          "type": "string",
-          "title": "Human-readable, longer description"
-        },
-        "Source": {
-          "type": "string",
-          "title": "Cells service name or other quickly useful info"
-        },
-        "Meta": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "title": "Additional Metadata"
-        }
-      },
-      "title": "Generic error message"
     },
     "restDeleteResponse": {
       "type": "object",

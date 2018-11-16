@@ -20,14 +20,18 @@ package quick
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
-	os2 "github.com/pydio/minio-srv/pkg/x/os"
+	dns "github.com/pydio/minio-srv/pkg/dns"
+	etcd "go.etcd.io/etcd/clientv3"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -122,11 +126,53 @@ func saveFileConfig(filename string, v interface{}) error {
 
 }
 
+func saveFileConfigEtcd(filename string, clnt *etcd.Client, v interface{}) error {
+	// Fetch filename's extension
+	ext := filepath.Ext(filename)
+	// Marshal data
+	dataBytes, err := toMarshaller(ext)(v)
+	if err != nil {
+		return err
+	}
+	if runtime.GOOS == "windows" {
+		dataBytes = []byte(strings.Replace(string(dataBytes), "\n", "\r\n", -1))
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	_, err = clnt.Put(ctx, filename, string(dataBytes))
+	defer cancel()
+	return err
+}
+
+func loadFileConfigEtcd(filename string, clnt *etcd.Client, v interface{}) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	resp, err := clnt.Get(ctx, filename)
+	defer cancel()
+	if err != nil {
+		return err
+	}
+	if resp.Count == 0 {
+		return dns.ErrNoEntriesFound
+	}
+
+	for _, ev := range resp.Kvs {
+		if string(ev.Key) == filename {
+			fileData := ev.Value
+			if runtime.GOOS == "windows" {
+				fileData = bytes.Replace(fileData, []byte("\r\n"), []byte("\n"), -1)
+			}
+			// Unmarshal file's content
+			return toUnmarshaller(filepath.Ext(filename))(fileData, v)
+		}
+	}
+	return dns.ErrNoEntriesFound
+}
+
 // loadFileConfig unmarshals the file's content with the right
 // decoder format according to the filename extension. If no
 // extension is provided, json will be selected by default.
 func loadFileConfig(filename string, v interface{}) error {
-	if _, err := os2.Stat(filename); err != nil {
+	if _, err := os.Stat(filename); err != nil {
 		return err
 	}
 	fileData, err := ioutil.ReadFile(filename)
@@ -136,6 +182,11 @@ func loadFileConfig(filename string, v interface{}) error {
 	if runtime.GOOS == "windows" {
 		fileData = []byte(strings.Replace(string(fileData), "\r\n", "\n", -1))
 	}
+
+	if err = checkDupJSONKeys(string(fileData)); err != nil {
+		return err
+	}
+
 	// Unmarshal file's content
 	return toUnmarshaller(filepath.Ext(filename))(fileData, v)
 }

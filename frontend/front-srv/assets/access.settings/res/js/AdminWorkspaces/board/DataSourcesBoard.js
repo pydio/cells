@@ -191,7 +191,21 @@ class DataSourcesBoard extends React.Component {
         const dsColumns = [
             {name:'Name', label:m('name'), style:{fontSize: 15}},
             {name:'StorageType', label:m('storage'), renderCell:(row)=>{
-                    return row.StorageType === 'S3' ? m('storage.s3') : m('storage.fs')
+                let s = 'storage.fs';
+                switch (row.StorageType) {
+                    case "S3":
+                        s = 'storage.s3';
+                        break;
+                    case "AZURE":
+                        s = 'storage.azure';
+                        break;
+                    case "GCS":
+                        s = 'storage.gcs';
+                        break;
+                    default:
+                        break;
+                }
+                return m(s);
             }},
             {name:'Status', label:m('status'), renderCell:(row)=>{
                     return row.Disabled ? m('status.disabled') : this.computeStatus(row);

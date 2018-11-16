@@ -473,10 +473,6 @@ var _modelRestDiscoveryResponse = require('./model/RestDiscoveryResponse');
 
 var _modelRestDiscoveryResponse2 = _interopRequireDefault(_modelRestDiscoveryResponse);
 
-var _modelRestError = require('./model/RestError');
-
-var _modelRestError2 = _interopRequireDefault(_modelRestError);
-
 var _modelRestFrontBinaryRequest = require('./model/RestFrontBinaryRequest');
 
 var _modelRestFrontBinaryRequest2 = _interopRequireDefault(_modelRestFrontBinaryRequest);
@@ -1769,13 +1765,6 @@ exports.
  * @property {module:model/RestDiscoveryResponse}
  */
 RestDiscoveryResponse = _modelRestDiscoveryResponse2['default'];
-exports.
-
-/**
- * The RestError model constructor.
- * @property {module:model/RestError}
- */
-RestError = _modelRestError2['default'];
 exports.
 
 /**

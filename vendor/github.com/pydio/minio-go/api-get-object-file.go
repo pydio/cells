@@ -1,5 +1,6 @@
 /*
- * Minio Go Library for Amazon S3 Compatible Cloud Storage (C) 2015 Minio, Inc.
+ * Minio Go Library for Amazon S3 Compatible Cloud Storage
+ * Copyright 2015-2017 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +18,10 @@
 package minio
 
 import (
+	"context"
 	"io"
 	"os"
 	"path/filepath"
-
-	"github.com/pydio/minio-go/pkg/encrypt"
-
-	"context"
 
 	"github.com/pydio/minio-go/pkg/s3utils"
 )
@@ -37,14 +35,6 @@ func (c Client) FGetObjectWithContext(ctx context.Context, bucketName, objectNam
 // FGetObject - download contents of an object to a local file.
 func (c Client) FGetObject(bucketName, objectName, filePath string, opts GetObjectOptions) error {
 	return c.fGetObjectWithContext(context.Background(), bucketName, objectName, filePath, opts)
-}
-
-// FGetEncryptedObject - Decrypt and store an object at filePath.
-func (c Client) FGetEncryptedObject(bucketName, objectName, filePath string, materials encrypt.Materials) error {
-	if materials == nil {
-		return ErrInvalidArgument("Unable to recognize empty encryption properties")
-	}
-	return c.FGetObject(bucketName, objectName, filePath, GetObjectOptions{Materials: materials})
 }
 
 // fGetObjectWithContext - fgetObject wrapper function with context

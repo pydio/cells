@@ -431,7 +431,11 @@ func (f *File) Read(p []byte) (int, error) {
 	if length == 0 {
 		return 0, io.EOF
 	}
-	return length, err
+	if err != nil && err != io.EOF {
+		log.Logger(f.ctx).Error("Error while reading buffer", zap.Error(err))
+		return length, err
+	}
+	return length, nil
 }
 
 func (f *File) Readdir(count int) ([]os.FileInfo, error) {

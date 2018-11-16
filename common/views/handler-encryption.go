@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro/errors"
+	"github.com/pydio/minio-go"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -76,17 +77,23 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 			dsName = info.Root.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 		}
 
-		if requestData.Length == -1 {
-			requestData.Length = clone.Size
-		}
+		requestData.Length = -1
 
 		clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
 		var err error
-		requestData.EncryptionMaterial, err = e.retrieveEncryptionMaterials(ctx, clone, info.EncryptionKey)
+		eMat, err := e.retrieveEncryptionMaterials(ctx, clone, info.EncryptionKey)
 		if err != nil {
 			return nil, err
 		}
-		return e.next.GetObject(ctx, clone, requestData)
+		reader, err := e.next.GetObject(ctx, clone, requestData)
+		if err != nil {
+			return nil, err
+		}
+		err = eMat.SetupDecryptMode(reader, eMat.GetIV(), eMat.GetKey())
+		if err != nil {
+			return nil, err
+		}
+		return eMat, nil
 	}
 
 	return e.next.GetObject(ctx, node, requestData)
@@ -129,17 +136,30 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 
 	clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
 
-	requestData.EncryptionMaterial, err = e.retrieveEncryptionMaterials(ctx, node, info.EncryptionKey)
+	eMaterial, err := e.retrieveEncryptionMaterials(ctx, clone, info.EncryptionKey)
 	if err != nil {
 		return 0, err
 	}
 
+	if err := eMaterial.SetupEncryptMode(reader); err != nil {
+		return 0, err
+	} else {
+		// Clear input
+		requestData.Size = -1
+		requestData.Md5Sum = nil
+		requestData.Sha256Sum = nil
+	}
+	reader = eMaterial
+
 	n, err := e.next.PutObject(ctx, node, reader, requestData)
 	if err != nil {
-		log.Logger(ctx).Debug("PutObject failed", zap.Error(err))
-	} else if requestData.EncryptionMaterial != nil {
-		params := requestData.EncryptionMaterial.(*crypto.AESGCMMaterials).GetEncryptedParameters()
+		log.Logger(ctx).Error("PutObject failed", zap.Error(err))
+	} else if eMaterial != nil {
+		params := eMaterial.GetEncryptedParameters()
 		err = e.setNodeEncryptionParams(ctx, node, params)
+		if err != nil {
+			log.Logger(ctx).Error("PutObject failed", zap.Error(err))
+		}
 	}
 	return n, err
 }
@@ -184,6 +204,14 @@ func (e *EncryptionHandler) CopyObject(ctx context.Context, from *tree.Node, to 
 	}
 
 	return e.next.CopyObject(ctx, from, to, requestData)
+}
+
+func (e *EncryptionHandler) MultipartPutObjectPart(ctx context.Context, target *tree.Node, uploadID string, partNumberMarker int, reader io.Reader, requestData *PutRequestData) (minio.ObjectPart, error) {
+	info, ok := GetBranchInfo(ctx, "in")
+	if ok && info.EncryptionMode == object.EncryptionMode_MASTER {
+		return minio.ObjectPart{}, errors.BadRequest("handler.encryption.putObjectPart", "Encryption is not supported for multipart uploads")
+	}
+	return e.next.MultipartPutObjectPart(ctx, target, uploadID, partNumberMarker, reader, requestData)
 }
 
 func (e *EncryptionHandler) setNodeEncryptionKey(ctx context.Context, nodeKey *encryption.NodeKey) error {

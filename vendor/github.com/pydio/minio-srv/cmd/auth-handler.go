@@ -1,5 +1,5 @@
 /*
- * Minio Cloud Storage, (C) 2015, 2016 Minio, Inc.
+ * Minio Cloud Storage, (C) 2015-2018 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,23 @@ package cmd
 
 import (
 	"bytes"
+	"context"
+	"encoding/base64"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
-)
 
-// Verify if the request http Header "x-amz-content-sha256" == "UNSIGNED-PAYLOAD"
-func isRequestUnsignedPayload(r *http.Request) bool {
-	return r.Header.Get("x-amz-content-sha256") == unsignedPayload
-}
+	jwtgo "github.com/dgrijalva/jwt-go"
+	"github.com/pydio/minio-srv/cmd/logger"
+	"github.com/pydio/minio-srv/pkg/auth"
+	"github.com/pydio/minio-srv/pkg/hash"
+	"github.com/pydio/minio-srv/pkg/iam/policy"
+	"github.com/pydio/minio-srv/pkg/policy"
+)
 
 // Verify if request has JWT.
 func isRequestJWT(r *http.Request) bool {
@@ -58,13 +66,14 @@ func isRequestPresignedSignatureV2(r *http.Request) bool {
 
 // Verify if request has AWS Post policy Signature Version '4'.
 func isRequestPostPolicySignatureV4(r *http.Request) bool {
-	return strings.Contains(r.Header.Get("Content-Type"), "multipart/form-data") && r.Method == httpPOST
+	return strings.Contains(r.Header.Get("Content-Type"), "multipart/form-data") &&
+		r.Method == http.MethodPost
 }
 
 // Verify if the request has AWS Streaming Signature Version '4'. This is only valid for 'PUT' operation.
 func isRequestSignStreamingV4(r *http.Request) bool {
 	return r.Header.Get("x-amz-content-sha256") == streamingContentSHA256 &&
-		r.Method == httpPUT
+		r.Method == http.MethodPut
 }
 
 // Authorization type.
@@ -81,6 +90,7 @@ const (
 	authTypeSigned
 	authTypeSignedV2
 	authTypeJWT
+	authTypeSTS
 )
 
 // Get request authentication type.
@@ -101,37 +111,181 @@ func getRequestAuthType(r *http.Request) authType {
 		return authTypePostPolicy
 	} else if _, ok := r.Header["Authorization"]; !ok {
 		return authTypeAnonymous
+	} else if _, ok := r.URL.Query()["Action"]; ok {
+		return authTypeSTS
 	}
 	return authTypeUnknown
 }
 
-func checkRequestAuthType(r *http.Request, bucket, policyAction, region string) APIErrorCode {
-	reqAuthType := getRequestAuthType(r)
+// checkAdminRequestAuthType checks whether the request is a valid signature V2 or V4 request.
+// It does not accept presigned or JWT or anonymous requests.
+func checkAdminRequestAuthType(r *http.Request, region string) APIErrorCode {
+	s3Err := ErrAccessDenied
+	if _, ok := r.Header["X-Amz-Content-Sha256"]; ok &&
+		getRequestAuthType(r) == authTypeSigned && !skipContentSha256Cksum(r) {
+		// We only support admin credentials to access admin APIs.
 
-	switch reqAuthType {
+		var owner bool
+		_, owner, s3Err = getReqAccessKeyV4(r, region)
+		if s3Err != ErrNone {
+			return s3Err
+		}
+
+		if !owner {
+			return ErrAccessDenied
+		}
+
+		// we only support V4 (no presign) with auth body
+		s3Err = isReqAuthenticated(r, region)
+	}
+	if s3Err != ErrNone {
+		reqInfo := (&logger.ReqInfo{}).AppendTags("requestHeaders", dumpRequest(r))
+		ctx := logger.SetReqInfo(context.Background(), reqInfo)
+		logger.LogIf(ctx, errors.New(getAPIError(s3Err).Description))
+	}
+	return s3Err
+}
+
+// Fetch the security token set by the client.
+func getSessionToken(r *http.Request) (token string) {
+	token = r.Header.Get("X-Amz-Security-Token")
+	if token != "" {
+		return token
+	}
+	return r.URL.Query().Get("X-Amz-Security-Token")
+}
+
+// Fetch claims in the security token returned by the client and validate the token.
+func getClaimsFromToken(r *http.Request, cred auth.Credentials) (map[string]interface{}, APIErrorCode) {
+	stsTokenCallback := func(jwtToken *jwtgo.Token) (interface{}, error) {
+		if _, ok := jwtToken.Method.(*jwtgo.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", jwtToken.Header["alg"])
+		}
+		if err := jwtToken.Claims.Valid(); err != nil {
+			return nil, errAuthentication
+		}
+		if claims, ok := jwtToken.Claims.(jwtgo.MapClaims); ok {
+			if _, ok = claims["accessKey"].(string); !ok {
+				return nil, errInvalidAccessKeyID
+			}
+			// JWT token for x-amz-security-token is signed with admin
+			// secret key, temporary credentials become invalid if
+			// server admin credentials change. This is done to ensure
+			// that clients cannot decode the token using the temp
+			// secret keys and generate an entirely new claim by essentially
+			// hijacking the policies. We need to make sure that this is
+			// based an admin credential such that token cannot be decoded
+			// on the client side and is treated like an opaque value.
+			return []byte(globalServerConfig.GetCredential().SecretKey), nil
+		}
+		return nil, errAuthentication
+	}
+	claims := make(map[string]interface{})
+	token := getSessionToken(r)
+	if token == "" {
+		return nil, ErrNone
+	}
+	if token != "" && cred.AccessKey == "" {
+		return nil, ErrNoAccessKey
+	}
+	if token != cred.SessionToken {
+		return nil, ErrInvalidToken
+	}
+	p := &jwtgo.Parser{}
+	jtoken, err := p.ParseWithClaims(token, jwtgo.MapClaims(claims), stsTokenCallback)
+	if err != nil {
+		return nil, toAPIErrorCode(errAuthentication)
+	}
+	if !jtoken.Valid {
+		return nil, toAPIErrorCode(errAuthentication)
+	}
+	return claims, ErrNone
+}
+
+// Check request auth type verifies the incoming http request
+// - validates the request signature
+// - validates the policy action if anonymous tests bucket policies if any,
+//   for authenticated requests validates IAM policies.
+// returns APIErrorCode if any to be replied to the client.
+func checkRequestAuthType(ctx context.Context, r *http.Request, action policy.Action, bucketName, objectName string) (s3Err APIErrorCode) {
+	var cred auth.Credentials
+	var owner bool
+	switch getRequestAuthType(r) {
+	case authTypeUnknown, authTypeStreamingSigned:
+		return ErrAccessDenied
 	case authTypePresignedV2, authTypeSignedV2:
-		// Signature V2 validation.
-		s3Error := isReqAuthenticatedV2(r)
-		if s3Error != ErrNone {
-			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
+		if s3Err = isReqAuthenticatedV2(r); s3Err != ErrNone {
+			return s3Err
 		}
-		return s3Error
+		cred, owner, s3Err = getReqAccessKeyV2(r)
 	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticated(r, region)
-		if s3Error != ErrNone {
-			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
+		region := globalServerConfig.GetRegion()
+		switch action {
+		case policy.GetBucketLocationAction, policy.ListAllMyBucketsAction:
+			region = ""
 		}
-		return s3Error
+		if s3Err = isReqAuthenticated(r, region); s3Err != ErrNone {
+			return s3Err
+		}
+		cred, owner, s3Err = getReqAccessKeyV4(r, region)
+	}
+	if s3Err != ErrNone {
+		return s3Err
 	}
 
-	if reqAuthType == authTypeAnonymous && policyAction != "" {
-		// http://docs.aws.amazon.com/AmazonS3/latest/dev/using-with-s3-actions.html
-		sourceIP := getSourceIPAddress(r)
-		return enforceBucketPolicy(bucket, policyAction, r.URL.Path,
-			r.Referer(), sourceIP, r.URL.Query())
+	// LocationConstraint is valid only for CreateBucketAction.
+	var locationConstraint string
+	if action == policy.CreateBucketAction {
+		// To extract region from XML in request body, get copy of request body.
+		payload, err := ioutil.ReadAll(io.LimitReader(r.Body, maxLocationConstraintSize))
+		if err != nil {
+			logger.LogIf(ctx, err)
+			return ErrMalformedXML
+		}
+
+		// Populate payload to extract location constraint.
+		r.Body = ioutil.NopCloser(bytes.NewReader(payload))
+
+		var s3Error APIErrorCode
+		locationConstraint, s3Error = parseLocationConstraint(r)
+		if s3Error != ErrNone {
+			return s3Error
+		}
+
+		// Populate payload again to handle it in HTTP handler.
+		r.Body = ioutil.NopCloser(bytes.NewReader(payload))
 	}
 
-	// By default return ErrAccessDenied
+	claims, s3Err := getClaimsFromToken(r, cred)
+	if s3Err != ErrNone {
+		return s3Err
+	}
+
+	if cred.AccessKey == "" {
+		if globalPolicySys.IsAllowed(policy.Args{
+			AccountName:     cred.AccessKey,
+			Action:          action,
+			BucketName:      bucketName,
+			ConditionValues: getConditionValues(r, locationConstraint),
+			IsOwner:         false,
+			ObjectName:      objectName,
+		}) {
+			return ErrNone
+		}
+		return ErrAccessDenied
+	}
+
+	if globalIAMSys.IsAllowed(iampolicy.Args{
+		AccountName:     cred.AccessKey,
+		Action:          iampolicy.Action(action),
+		BucketName:      bucketName,
+		ConditionValues: getConditionValues(r, ""),
+		ObjectName:      objectName,
+		IsOwner:         owner,
+		Claims:          claims,
+	}) {
+		return ErrNone
+	}
 	return ErrAccessDenied
 }
 
@@ -147,7 +301,7 @@ func reqSignatureV4Verify(r *http.Request, region string) (s3Error APIErrorCode)
 	sha256sum := getContentSha256Cksum(r)
 	switch {
 	case isRequestSignatureV4(r):
-		return doesSignatureMatch(sha256sum, r, region, false)
+		return doesSignatureMatch(sha256sum, r, region)
 	case isRequestPresignedSignatureV4(r):
 		return doesPresignedSignatureMatch(sha256sum, r, region)
 	default:
@@ -157,41 +311,45 @@ func reqSignatureV4Verify(r *http.Request, region string) (s3Error APIErrorCode)
 
 // Verify if request has valid AWS Signature Version '4'.
 func isReqAuthenticated(r *http.Request, region string) (s3Error APIErrorCode) {
-	if r == nil {
-		return ErrInternalError
-	}
 	if errCode := reqSignatureV4Verify(r, region); errCode != ErrNone {
 		return errCode
 	}
-	payload, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		errorIf(err, "Unable to read request body for signature verification")
-		return ErrInternalError
-	}
 
-	// Populate back the payload.
-	r.Body = ioutil.NopCloser(bytes.NewReader(payload))
-
-	// Verify Content-Md5, if payload is set.
-	if r.Header.Get("Content-Md5") != "" {
-		if r.Header.Get("Content-Md5") != getMD5HashBase64(payload) {
-			return ErrBadDigest
+	var (
+		err                       error
+		contentMD5, contentSHA256 []byte
+	)
+	// Extract 'Content-Md5' if present.
+	if _, ok := r.Header["Content-Md5"]; ok {
+		contentMD5, err = base64.StdEncoding.Strict().DecodeString(r.Header.Get("Content-Md5"))
+		if err != nil || len(contentMD5) == 0 {
+			return ErrInvalidDigest
 		}
 	}
 
-	if skipContentSha256Cksum(r) {
-		return ErrNone
+	// Extract either 'X-Amz-Content-Sha256' header or 'X-Amz-Content-Sha256' query parameter (if V4 presigned)
+	// Do not verify 'X-Amz-Content-Sha256' if skipSHA256.
+	if skipSHA256 := skipContentSha256Cksum(r); !skipSHA256 && isRequestPresignedSignatureV4(r) {
+		if sha256Sum, ok := r.URL.Query()["X-Amz-Content-Sha256"]; ok && len(sha256Sum) > 0 {
+			contentSHA256, err = hex.DecodeString(sha256Sum[0])
+			if err != nil {
+				return ErrContentSHA256Mismatch
+			}
+		}
+	} else if _, ok := r.Header["X-Amz-Content-Sha256"]; !skipSHA256 && ok {
+		contentSHA256, err = hex.DecodeString(r.Header.Get("X-Amz-Content-Sha256"))
+		if err != nil || len(contentSHA256) == 0 {
+			return ErrContentSHA256Mismatch
+		}
 	}
 
-	// Verify that X-Amz-Content-Sha256 Header == sha256(payload)
-	// If X-Amz-Content-Sha256 header is not sent then we don't calculate/verify sha256(payload)
-	sum := r.Header.Get("X-Amz-Content-Sha256")
-	if isRequestPresignedSignatureV4(r) {
-		sum = r.URL.Query().Get("X-Amz-Content-Sha256")
+	// Verify 'Content-Md5' and/or 'X-Amz-Content-Sha256' if present.
+	// The verification happens implicit during reading.
+	reader, err := hash.NewReader(r.Body, -1, hex.EncodeToString(contentMD5), hex.EncodeToString(contentSHA256), -1)
+	if err != nil {
+		return toAPIErrorCode(err)
 	}
-	if sum != "" && sum != getSHA256Hash(payload) {
-		return ErrContentSHA256Mismatch
-	}
+	r.Body = ioutil.NopCloser(reader)
 	return ErrNone
 }
 
@@ -231,7 +389,7 @@ func (a authHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	} else if aType == authTypeJWT {
 		// Validate Authorization header if its valid for JWT request.
-		if !isHTTPRequestValid(r) {
+		if _, _, authErr := webRequestAuthenticate(r); authErr != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -239,4 +397,56 @@ func (a authHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeErrorResponse(w, ErrSignatureVersionNotSupported, r.URL)
+}
+
+// isPutAllowed - check if PUT operation is allowed on the resource, this
+// call verifies bucket policies and IAM policies, supports multi user
+// checks etc.
+func isPutAllowed(atype authType, bucketName, objectName string, r *http.Request) (s3Err APIErrorCode) {
+	var cred auth.Credentials
+	var owner bool
+	switch atype {
+	case authTypeUnknown:
+		return ErrAccessDenied
+	case authTypeSignedV2, authTypePresignedV2:
+		cred, owner, s3Err = getReqAccessKeyV2(r)
+	case authTypeStreamingSigned, authTypePresigned, authTypeSigned:
+		region := globalServerConfig.GetRegion()
+		cred, owner, s3Err = getReqAccessKeyV4(r, region)
+	}
+	if s3Err != ErrNone {
+		return s3Err
+	}
+
+	claims, s3Err := getClaimsFromToken(r, cred)
+	if s3Err != ErrNone {
+		return s3Err
+	}
+
+	if cred.AccessKey == "" {
+		if globalPolicySys.IsAllowed(policy.Args{
+			AccountName:     cred.AccessKey,
+			Action:          policy.PutObjectAction,
+			BucketName:      bucketName,
+			ConditionValues: getConditionValues(r, ""),
+			IsOwner:         false,
+			ObjectName:      objectName,
+		}) {
+			return ErrNone
+		}
+		return ErrAccessDenied
+	}
+
+	if globalIAMSys.IsAllowed(iampolicy.Args{
+		AccountName:     cred.AccessKey,
+		Action:          policy.PutObjectAction,
+		BucketName:      bucketName,
+		ConditionValues: getConditionValues(r, ""),
+		ObjectName:      objectName,
+		IsOwner:         owner,
+		Claims:          claims,
+	}) {
+		return ErrNone
+	}
+	return ErrAccessDenied
 }

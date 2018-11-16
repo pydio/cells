@@ -8697,6 +8697,15 @@
             "description": null
           },
           {
+            "name": "getMultipartPartSize",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "setPydioObject",
             "docblock": null,
             "modifiers": [],
@@ -20352,52 +20361,6 @@
         ]
       }
     ],
-    "core/http/gen/model/RestError.js": [
-      {
-        "description": "The RestError model module.\n@module model/RestError\n@version 1.0",
-        "displayName": "RestError",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>RestError</code>.\n@alias module:model/RestError\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>RestError</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>RestError</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestError} obj Optional instance to populate.\n@return {module:model/RestError} The populated <code>RestError</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/RestError"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>RestError</code> instance.",
-              "type": {
-                "name": "module:model/RestError"
-              }
-            },
-            "description": "Constructs a <code>RestError</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
     "core/http/gen/model/RestFrontBinaryRequest.js": [
       {
         "description": "The RestFrontBinaryRequest model module.\n@module model/RestFrontBinaryRequest\n@version 1.0",
@@ -31141,7 +31104,12 @@
             "name": "renderToolbar",
             "docblock": null,
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "hiddenMode",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ],
@@ -36134,7 +36102,7 @@
               "name": "string"
             },
             "required": false,
-            "description": "Message ID used for dialog legend"
+            "description": "Message ID or string used for dialog legend"
           },
           "fieldLabelId": {
             "type": {
@@ -37539,6 +37507,20 @@
             "params": [
               {
                 "name": "keysOnly",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "computeLabel",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "node",
                 "type": null
               }
             ],

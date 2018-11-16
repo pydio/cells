@@ -49,15 +49,16 @@ func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requ
 	if isBinary {
 		return reader, e // do not audit thumbnail events
 	}
-
-	log.Auditer(ctx).Info(
-		fmt.Sprintf("Retrieve %s", node.Path),
-		log.GetAuditId(common.AUDIT_OBJECT_GET),
-		node.ZapUuid(),
-		node.ZapPath(),
-		wsInfo,
-		wsScope,
-	)
+	if e == nil {
+		log.Auditer(ctx).Info(
+			fmt.Sprintf("Retrieve %s", node.Path),
+			log.GetAuditId(common.AUDIT_OBJECT_GET),
+			node.ZapUuid(),
+			node.ZapPath(),
+			wsInfo,
+			wsScope,
+		)
+	}
 
 	return reader, e
 }

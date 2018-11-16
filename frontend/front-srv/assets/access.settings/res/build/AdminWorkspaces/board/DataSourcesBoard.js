@@ -286,7 +286,21 @@ var DataSourcesBoard = (function (_React$Component) {
             var versioningReadonly = _props.versioningReadonly;
 
             var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15 } }, { name: 'StorageType', label: m('storage'), renderCell: function renderCell(row) {
-                    return row.StorageType === 'S3' ? m('storage.s3') : m('storage.fs');
+                    var s = 'storage.fs';
+                    switch (row.StorageType) {
+                        case "S3":
+                            s = 'storage.s3';
+                            break;
+                        case "AZURE":
+                            s = 'storage.azure';
+                            break;
+                        case "GCS":
+                            s = 'storage.gcs';
+                            break;
+                        default:
+                            break;
+                    }
+                    return m(s);
                 } }, { name: 'Status', label: m('status'), renderCell: function renderCell(row) {
                     return row.Disabled ? m('status.disabled') : _this3.computeStatus(row);
                 } }, { name: 'EncryptionMode', label: m('encryption'), renderCell: function renderCell(row) {

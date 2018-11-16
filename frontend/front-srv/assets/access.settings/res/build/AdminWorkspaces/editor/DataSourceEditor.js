@@ -358,10 +358,7 @@ var DataSourceEditor = (function (_React$Component) {
                         _react2['default'].createElement(_materialUi.Toggle, { label: m('options.enabled'), toggled: !model.Disabled, onToggle: function (e, v) {
                                 model.Disabled = !v;
                             } })
-                    ),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('options.port'), type: "number", value: model.ObjectsPort, onChange: function (e, v) {
-                            model.ObjectsPort = v;
-                        } })
+                    )
                 ),
                 _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(
@@ -374,11 +371,13 @@ var DataSourceEditor = (function (_React$Component) {
                     ),
                     _react2['default'].createElement(
                         _materialUi.SelectField,
-                        { fullWidth: true, floatingLabelText: this.context.getMessage('ds.storage', 'ajxp_admin'), value: model.StorageType, onChange: function (e, i, v) {
+                        { fullWidth: true, disabled: !create, floatingLabelText: this.context.getMessage('ds.storage', 'ajxp_admin'), value: model.StorageType, onChange: function (e, i, v) {
                                 model.StorageType = v;
                             } },
                         _react2['default'].createElement(_materialUi.MenuItem, { value: "LOCAL", primaryText: this.context.getMessage('ds.storage.fs', 'ajxp_admin') }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "S3", primaryText: this.context.getMessage('ds.storage.s3', 'ajxp_admin') })
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "S3", primaryText: this.context.getMessage('ds.storage.s3', 'ajxp_admin') }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "AZURE", primaryText: this.context.getMessage('ds.storage.azure', 'ajxp_admin') }),
+                        _react2['default'].createElement(_materialUi.MenuItem, { value: "GCS", primaryText: this.context.getMessage('ds.storage.gcs', 'ajxp_admin') })
                     ),
                     model.StorageType === 'S3' && _react2['default'].createElement(
                         'div',
@@ -395,8 +394,37 @@ var DataSourceEditor = (function (_React$Component) {
                         _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
                                 model.ObjectsBaseFolder = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.endpoint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.endpoint'), hintText: m('storage.s3.endpoint.hint'), value: model.StorageConfiguration.customEndpoint, onChange: function (e, v) {
                                 model.StorageConfiguration.customEndpoint = v;
+                            } })
+                    ),
+                    model.StorageType === 'AZURE' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.bucket'), value: model.ObjectsBucket, onChange: function (e, v) {
+                                model.ObjectsBucket = v;
+                            } }),
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.api'), value: model.ApiKey, onChange: function (e, v) {
+                                model.ApiKey = v;
+                            } }),
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.secret'), value: model.ApiSecret, onChange: function (e, v) {
+                                model.ApiSecret = v;
+                            } }),
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
+                                model.ObjectsBaseFolder = v;
+                            } })
+                    ),
+                    model.StorageType === 'GCS' && _react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.gcs.bucket'), value: model.ObjectsBucket, onChange: function (e, v) {
+                                model.ObjectsBucket = v;
+                            } }),
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.gcs.credentials'), value: model.StorageConfiguration.jsonCredentials, onChange: function (e, v) {
+                                model.StorageConfiguration.jsonCredentials = v;
+                            }, multiLine: true }),
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
+                                model.ObjectsBaseFolder = v;
                             } })
                     ),
                     model.StorageType === 'LOCAL' && _react2['default'].createElement(

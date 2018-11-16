@@ -59,7 +59,9 @@ var UploadItem = function (_StatusItem) {
         } else {
             _this._label = file.name;
         }
-        _this.createParts();
+        if (!targetNode.getMetadata().has("datasource_encrypted")) {
+            _this.createParts();
+        }
         if (parent) {
             parent.addChild(_this);
         }
@@ -191,9 +193,15 @@ var UploadItem = function (_StatusItem) {
                 return;
             }
 
-            _api2.default.getClient().uploadMultipart(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(function (managed) {
-                _this3.xhr = managed;
-            });
+            if (this._targetNode.getMetadata().has("datasource_encrypted")) {
+                _api2.default.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(function (xhr) {
+                    _this3.xhr = xhr;
+                });
+            } else {
+                _api2.default.getClient().uploadMultipart(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(function (managed) {
+                    _this3.xhr = managed;
+                });
+            }
         }
     }]);
 

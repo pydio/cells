@@ -1,6 +1,6 @@
 # For maintainers only
 
-### Setup your minio Github Repository
+### Setup your minio GitHub Repository
 
 Fork [minio upstream](https://github.com/pydio/minio-srv/fork) source repository to your own personal repository.
 ```bash

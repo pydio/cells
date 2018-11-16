@@ -1,5 +1,6 @@
 /*
- * Minio Go Library for Amazon S3 Compatible Cloud Storage (C) 2016-17 Minio, Inc.
+ * Minio Go Library for Amazon S3 Compatible Cloud Storage
+ * Copyright 2015-2017 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +28,8 @@ import (
 // GetObjectOptions are used to specify additional headers or options
 // during GET requests.
 type GetObjectOptions struct {
-	headers map[string]string
-
-	Materials encrypt.Materials
+	headers              map[string]string
+	ServerSideEncryption encrypt.ServerSide
 }
 
 // StatObjectOptions are used to specify additional headers or options
@@ -43,6 +43,9 @@ func (o GetObjectOptions) Header() http.Header {
 	headers := make(http.Header, len(o.headers))
 	for k, v := range o.headers {
 		headers.Set(k, v)
+	}
+	if o.ServerSideEncryption != nil && o.ServerSideEncryption.Type() == encrypt.SSEC {
+		o.ServerSideEncryption.Marshal(headers)
 	}
 	return headers
 }

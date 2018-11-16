@@ -58,8 +58,8 @@ func NewAESGCMMaterials(key []byte, t *encryption.Params) *AESGCMMaterials {
 		m.nonceBuffer = bytes.NewBuffer(t.Nonce)
 		m.nonceBytes = t.Nonce
 	} else {
-		m.initialBlockSize = 4096
-		m.blockSize = 4096
+		m.initialBlockSize = 4 * 1024 * 1024
+		m.blockSize = 4 * 1024 * 1024
 		m.nonceBuffer = bytes.NewBuffer([]byte{})
 	}
 	return m

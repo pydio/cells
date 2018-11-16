@@ -154,8 +154,42 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 				StorageType: object.StorageType_S3,
 				ApiKey:      newSource.ApiKey,
 				ApiSecret:   newSource.ApiSecret,
-				RunningPort: newSource.ObjectsPort,
+				RunningPort: createConfigPort(existingConfigs, newSource.ObjectsPort),
 				EndpointUrl: newSource.StorageConfiguration["customEndpoint"],
+			}
+		}
+	} else if newSource.StorageType == object.StorageType_AZURE {
+		if gateway := filterGatewaysWithKeys(existingConfigs, newSource.StorageType, newSource.ApiKey, ""); gateway != nil {
+			config = gateway
+			newSource.ApiKey = config.ApiKey
+			newSource.ApiSecret = config.ApiSecret
+		} else {
+			config = &object.MinioConfig{
+				Name:        createConfigName(existingConfigs, object.StorageType_AZURE),
+				StorageType: object.StorageType_AZURE,
+				ApiKey:      newSource.ApiKey,
+				ApiSecret:   newSource.ApiSecret,
+				RunningPort: createConfigPort(existingConfigs, newSource.ObjectsPort),
+			}
+		}
+	} else if newSource.StorageType == object.StorageType_GCS {
+		creds := newSource.StorageConfiguration["jsonCredentials"]
+		if gateway := filterGatewaysWithStorageConfigKey(existingConfigs, newSource.StorageType, "jsonCredentials", creds); gateway != nil {
+			config = gateway
+			newSource.ApiKey = config.ApiKey
+			newSource.ApiSecret = config.ApiSecret
+		} else {
+			if newSource.ApiKey == "" {
+				newSource.ApiKey = uniuri.New()
+				newSource.ApiSecret = uniuri.NewLen(24)
+			}
+			config = &object.MinioConfig{
+				Name:                 createConfigName(existingConfigs, object.StorageType_GCS),
+				StorageType:          object.StorageType_GCS,
+				ApiKey:               newSource.ApiKey,
+				ApiSecret:            newSource.ApiSecret,
+				RunningPort:          createConfigPort(existingConfigs, newSource.ObjectsPort),
+				GatewayConfiguration: map[string]string{"jsonCredentials": creds},
 			}
 		}
 	} else {
@@ -177,7 +211,7 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 				ApiKey:      newSource.ApiKey,
 				ApiSecret:   newSource.ApiSecret,
 				LocalFolder: base,
-				RunningPort: newSource.ObjectsPort,
+				RunningPort: createConfigPort(existingConfigs, newSource.ObjectsPort),
 				PeerAddress: peerAddress,
 			}
 		}
@@ -190,9 +224,9 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 
 // createConfigName creates a new name for a minio config (local or gateway suffixed with an index)
 func createConfigName(existingConfigs map[string]*object.MinioConfig, storageType object.StorageType) string {
-	base := "local"
-	if storageType == object.StorageType_S3 {
-		base = "gateway"
+	base := "gateway"
+	if storageType == object.StorageType_LOCAL {
+		base = "local"
 	}
 	index := 1
 	label := fmt.Sprintf("%s%d", base, index)
@@ -207,12 +241,47 @@ func createConfigName(existingConfigs map[string]*object.MinioConfig, storageTyp
 	return label
 }
 
+// createConfigPort set up a port that is not already used by other configs
+func createConfigPort(existingConfigs map[string]*object.MinioConfig, passedPort int32) int32 {
+	port := int32(9001)
+	if passedPort != 0 {
+		port = passedPort
+	}
+	exists := func(p int32, configs map[string]*object.MinioConfig) bool {
+		for _, c := range configs {
+			if c.RunningPort == p {
+				return true
+			}
+		}
+		return false
+	}
+	for exists(port, existingConfigs) {
+		port++
+	}
+	return port
+}
+
 // filterGatewaysWithKeys finds gateways configs that share the same ApiKey
 func filterGatewaysWithKeys(configs map[string]*object.MinioConfig, storageType object.StorageType, apiKey string, endpointUrl string) *object.MinioConfig {
 
 	for _, source := range configs {
 		if source.StorageType == storageType && source.ApiKey == apiKey && source.EndpointUrl == endpointUrl {
 			return source
+		}
+	}
+	return nil
+
+}
+
+func filterGatewaysWithStorageConfigKey(configs map[string]*object.MinioConfig, storageType object.StorageType, configKey string, configValue string) *object.MinioConfig {
+
+	for _, source := range configs {
+		if source.StorageType == storageType {
+			if source.GatewayConfiguration != nil {
+				if v, ok := source.GatewayConfiguration[configKey]; ok && v == configValue {
+					return source
+				}
+			}
 		}
 	}
 	return nil

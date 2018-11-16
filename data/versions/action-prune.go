@@ -67,16 +67,18 @@ func (c *PruneVersionsAction) Run(ctx context.Context, channels *actions.Runnabl
 	}
 	// Prepare ctx with info about the target branch
 	ctx = views.WithBranchInfo(ctx, "to", views.BranchInfo{LoadedSource: source})
-	if meta, mOk := views.MinioMetaFromContext(ctx); mOk {
-		source.Client.PrepareMetadata(meta)
-		defer source.Client.ClearMetadata()
-	}
+	/*
+		if meta, mOk := views.MinioMetaFromContext(ctx); mOk {
+			source.Client.PrepareMetadata(meta)
+			defer source.Client.ClearMetadata()
+		}
+	*/
 
 	versionClient := tree.NewNodeVersionerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_VERSIONS, defaults.NewClient())
 	if response, err := versionClient.PruneVersions(ctx, &tree.PruneVersionsRequest{AllDeletedNodes: true}); err == nil {
 		log.Logger(ctx).Debug("Client responded", zap.Any("resp", response))
 		for _, versionFileId := range response.DeletedVersions {
-			err := source.Client.RemoveObject(source.ObjectsBucket, versionFileId)
+			err := source.Client.RemoveObjectWithContext(ctx, source.ObjectsBucket, versionFileId)
 			if err != nil {
 				log.Logger(ctx).Error("Error while trying to remove file", zap.String("fileId", versionFileId), zap.Error(err))
 			} else {

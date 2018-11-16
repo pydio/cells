@@ -66,26 +66,29 @@ func (c *CleanThumbsTask) Run(ctx context.Context, channels *actions.RunnableCha
 		log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(e), zap.Any("context", ctx))
 		return input.WithError(e), e
 	}
-	if meta, mOk := views.MinioMetaFromContext(ctx); mOk {
-		thumbsClient.PrepareMetadata(map[string]string{
-			"x-pydio-user": meta["x-pydio-user"],
-		})
-		defer thumbsClient.ClearMetadata()
-	}
+	/*
+		// TODO CHECK IF THIS FILTERING WAS REQUIRED
+		if meta, mOk := views.MinioMetaFromContext(ctx); mOk {
+			thumbsClient.PrepareMetadata(map[string]string{
+				"x-pydio-user": meta["x-pydio-user"],
+			})
+			defer thumbsClient.ClearMetadata()
+		}
+	*/
 	if e != nil {
 		log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(e), zap.Any("context", ctx))
 		return input.WithError(e), e
 	}
 	nodeUuid := input.Nodes[0].Uuid
 	// List all thumbs starting with node Uuid
-	listRes, err := thumbsClient.ListObjects(thumbsBucket, nodeUuid+"-", "", "", 0)
+	listRes, err := thumbsClient.ListObjectsWithContext(ctx, thumbsBucket, nodeUuid+"-", "", "", 0)
 	if err != nil {
 		log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(err), zap.Any("context", ctx))
 		return input.WithError(err), err
 	}
 	logs := []string{"Removing thumbs associated to node " + nodeUuid}
 	for _, oi := range listRes.Contents {
-		err := thumbsClient.RemoveObject(thumbsBucket, oi.Key)
+		err := thumbsClient.RemoveObjectWithContext(ctx, thumbsBucket, oi.Key)
 		if err != nil {
 			log.Logger(ctx).Debug("Cannot get ThumbStoreClient", zap.Error(err))
 			return input.WithError(err), err

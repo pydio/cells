@@ -150,6 +150,8 @@ const (
 
 	KEYRING_MASTER_KEY       = "keyring.master"
 	META_FLAG_READONLY       = "node_readonly"
+	META_FLAG_ENCRYPTED      = "datasource_encrypted"
+	META_FLAG_VERSIONING     = "datasource_versioning"
 	NODE_FLAG_ETAG_TEMPORARY = "temporary"
 )
 

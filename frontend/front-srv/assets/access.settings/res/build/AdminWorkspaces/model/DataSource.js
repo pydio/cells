@@ -34,13 +34,14 @@ var DataSource = (function (_Observable) {
             return new Proxy(object, {
                 set: function set(target, p, value) {
                     var val = value;
-                    if (p === 'ObjectsPort') {
-                        val = _this.fixPort(value);
-                    } else if (p === 'StorageType') {
+                    if (p === 'StorageType') {
+                        target['StorageConfiguration'] = {};
                         if (val === 'LOCAL') {
                             target['StorageConfiguration'] = { "folder": "", "normalize": "false" };
                         } else if (val === 'S3') {
                             target['StorageConfiguration'] = { "customEndpoint": "" };
+                        } else if (val === 'GCS') {
+                            target['StorageConfiguration'] = { "jsonCredentials": "" };
                         }
                         _this.internalInvalid = false;
                         target['ApiKey'] = target['ApiSecret'] = ''; // reset values
@@ -76,8 +77,6 @@ var DataSource = (function (_Observable) {
     }]);
 
     function DataSource(model) {
-        var _this2 = this;
-
         _classCallCheck(this, DataSource);
 
         _get(Object.getPrototypeOf(DataSource.prototype), 'constructor', this).call(this);
@@ -93,38 +92,15 @@ var DataSource = (function (_Observable) {
             this.model.EncryptionMode = _pydioHttpRestApi.ObjectEncryptionMode.constructFromObject('CLEAR');
             this.model.StorageType = _pydioHttpRestApi.ObjectStorageType.constructFromObject('LOCAL');
             this.model.StorageConfiguration = { "folder": "", "normalize": "false" };
-            this.model.ObjectsPort = 9001;
         }
         this.observableModel = this.buildProxy(this.model);
-
-        DataSource.loadDatasources().then(function (result) {
-            if (!result.DataSources) return;
-            _this2.excludedPorts = result.DataSources.filter(function (dS) {
-                return !(model && model.Name && model.Name === dS.Name);
-            }).map(function (ds) {
-                return ds.ObjectsPort;
-            });
-            if (!model) {
-                _this2.observableModel.ObjectsPort = _this2.fixPort(_this2.observableModel.ObjectsPort); // will trigger proxy filtering
-            }
-        });
     }
 
-    _createClass(DataSource, [{
-        key: 'fixPort',
-        value: function fixPort(newValue) {
-            var port = parseInt(newValue);
-            if (!this.excludedPorts) return port;
-            while (this.excludedPorts.indexOf(port) !== -1) {
-                port++;
-            }
-            return port;
-        }
+    /**
+     * @return {ObjectDataSource}
+     */
 
-        /**
-         * @return {ObjectDataSource}
-         */
-    }, {
+    _createClass(DataSource, [{
         key: 'getModel',
         value: function getModel() {
             return this.observableModel;
@@ -135,8 +111,10 @@ var DataSource = (function (_Observable) {
             if (this.internalInvalid) {
                 return false;
             }
-            if (this.model.StorageType === 'S3') {
+            if (this.model.StorageType === 'S3' || this.model.StorageType === 'AZURE') {
                 return this.model.ApiKey && this.model.ApiSecret && this.model.Name && this.model.ObjectsBucket;
+            } else if (this.model.StorageType === 'GCS') {
+                return this.model.Name && this.model.ObjectsBucket && this.model.StorageConfiguration && this.model.StorageConfiguration['jsonCredentials'];
             } else {
                 return this.model.Name && this.model.StorageConfiguration && this.model.StorageConfiguration['folder'];
             }
@@ -167,12 +145,12 @@ var DataSource = (function (_Observable) {
     }, {
         key: 'saveSource',
         value: function saveSource() {
-            var _this3 = this;
+            var _this2 = this;
 
             var api = new _pydioHttpRestApi.ConfigServiceApi(PydioApi.getRestClient());
             return api.putDataSource(this.model.Name, this.model).then(function (res) {
-                _this3.snapshot = JSON.parse(JSON.stringify(_this3.model));
-                _this3.notify('update');
+                _this2.snapshot = JSON.parse(JSON.stringify(_this2.model));
+                _this2.notify('update');
             });
         }
     }, {
@@ -192,7 +170,7 @@ var DataSource = (function (_Observable) {
     }, {
         key: 'getDataWithPrefix',
         value: function getDataWithPrefix() {
-            var _this4 = this;
+            var _this3 = this;
 
             var prefix = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
@@ -201,8 +179,8 @@ var DataSource = (function (_Observable) {
             }
             var data = {};
             Object.keys(this.model).forEach(function (k) {
-                data[prefix + k] = _this4.model[k];
-                if (k === 'EncryptionMode' && !_this4.model[k]) {
+                data[prefix + k] = _this3.model[k];
+                if (k === 'EncryptionMode' && !_this3.model[k]) {
                     data[prefix + k] = 'CLEAR';
                 }
             });

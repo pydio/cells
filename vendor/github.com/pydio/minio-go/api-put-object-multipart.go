@@ -1,5 +1,6 @@
 /*
- * Minio Go Library for Amazon S3 Compatible Cloud Storage (C) 2015, 2016 Minio, Inc.
+ * Minio Go Library for Amazon S3 Compatible Cloud Storage
+ * Copyright 2015-2017 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +20,8 @@ package minio
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
+	"encoding/hex"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -30,6 +33,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/pydio/minio-go/pkg/encrypt"
 	"github.com/pydio/minio-go/pkg/s3utils"
 )
 
@@ -120,10 +124,22 @@ func (c Client) putObjectMultipartNoStream(ctx context.Context, bucketName, obje
 		// as we read from the source.
 		rd := newHook(bytes.NewReader(buf[:length]), opts.Progress)
 
+		// Checksums..
+		var (
+			md5Base64 string
+			sha256Hex string
+		)
+		if hashSums["md5"] != nil {
+			md5Base64 = base64.StdEncoding.EncodeToString(hashSums["md5"])
+		}
+		if hashSums["sha256"] != nil {
+			sha256Hex = hex.EncodeToString(hashSums["sha256"])
+		}
+
 		// Proceed to upload the part.
 		var objPart ObjectPart
 		objPart, err = c.uploadPart(ctx, bucketName, objectName, uploadID, rd, partNumber,
-			hashSums["md5"], hashSums["sha256"], int64(length), opts.UserMetadata)
+			md5Base64, sha256Hex, int64(length), opts.ServerSideEncryption)
 		if err != nil {
 			return totalUploadedSize, err
 		}
@@ -211,11 +227,9 @@ func (c Client) initiateMultipartUpload(ctx context.Context, bucketName, objectN
 	return initiateMultipartUploadResult, nil
 }
 
-const serverEncryptionKeyPrefix = "x-amz-server-side-encryption"
-
 // uploadPart - Uploads a part in a multipart upload.
 func (c Client) uploadPart(ctx context.Context, bucketName, objectName, uploadID string, reader io.Reader,
-	partNumber int, md5Sum, sha256Sum []byte, size int64, metadata map[string]string) (ObjectPart, error) {
+	partNumber int, md5Base64, sha256Hex string, size int64, sse encrypt.ServerSide) (ObjectPart, error) {
 	// Input validation.
 	if err := s3utils.CheckValidBucketName(bucketName); err != nil {
 		return ObjectPart{}, err
@@ -245,23 +259,23 @@ func (c Client) uploadPart(ctx context.Context, bucketName, objectName, uploadID
 
 	// Set encryption headers, if any.
 	customHeader := make(http.Header)
-	for k, v := range metadata {
-		if len(v) > 0 {
-			if strings.HasPrefix(strings.ToLower(k), serverEncryptionKeyPrefix) {
-				customHeader.Set(k, v)
-			}
-		}
+	// https://docs.aws.amazon.com/AmazonS3/latest/API/mpUploadUploadPart.html
+	// Server-side encryption is supported by the S3 Multipart Upload actions.
+	// Unless you are using a customer-provided encryption key, you don't need
+	// to specify the encryption parameters in each UploadPart request.
+	if sse != nil && sse.Type() == encrypt.SSEC {
+		sse.Marshal(customHeader)
 	}
 
 	reqMetadata := requestMetadata{
-		bucketName:         bucketName,
-		objectName:         objectName,
-		queryValues:        urlValues,
-		customHeader:       customHeader,
-		contentBody:        reader,
-		contentLength:      size,
-		contentMD5Bytes:    md5Sum,
-		contentSHA256Bytes: sha256Sum,
+		bucketName:       bucketName,
+		objectName:       objectName,
+		queryValues:      urlValues,
+		customHeader:     customHeader,
+		contentBody:      reader,
+		contentLength:    size,
+		contentMD5Base64: md5Base64,
+		contentSHA256Hex: sha256Hex,
 	}
 
 	// Execute PUT on each part.
@@ -308,12 +322,12 @@ func (c Client) completeMultipartUpload(ctx context.Context, bucketName, objectN
 	// Instantiate all the complete multipart buffer.
 	completeMultipartUploadBuffer := bytes.NewReader(completeMultipartUploadBytes)
 	reqMetadata := requestMetadata{
-		bucketName:         bucketName,
-		objectName:         objectName,
-		queryValues:        urlValues,
-		contentBody:        completeMultipartUploadBuffer,
-		contentLength:      int64(len(completeMultipartUploadBytes)),
-		contentSHA256Bytes: sum256(completeMultipartUploadBytes),
+		bucketName:       bucketName,
+		objectName:       objectName,
+		queryValues:      urlValues,
+		contentBody:      completeMultipartUploadBuffer,
+		contentLength:    int64(len(completeMultipartUploadBytes)),
+		contentSHA256Hex: sum256Hex(completeMultipartUploadBytes),
 	}
 
 	// Execute POST to complete multipart upload for an objectName.

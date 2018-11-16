@@ -2,21 +2,18 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
-	"go.uber.org/zap"
-
-//	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
-	pydiolog "github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/utils"
-	"github.com/micro/go-micro/metadata"
-	"io/ioutil"
-	"bytes"
+	context2 "github.com/pydio/cells/common/utils/context"
+	"github.com/pydio/minio-srv/cmd/logger"
+	auth2 "github.com/pydio/minio-srv/pkg/auth"
 )
 
 // authHandler - handles all the incoming authorization headers and validates them if possible.
@@ -37,91 +34,6 @@ func getPydioAuthHandlerFunc(gateway bool) HandlerFunc {
 	}
 }
 
-func checkRequestAuthTypeSkipAccessKey(r *http.Request, bucket, policyAction, region string) APIErrorCode {
-	reqAuthType := getRequestAuthType(r)
-
-	switch reqAuthType {
-	case authTypePresignedV2, authTypeSignedV2:
-		// Signature V2 validation.
-		s3Error := isReqAuthenticatedV2(r)
-		if s3Error != ErrNone {
-			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
-		}
-		return s3Error
-	case authTypeSigned, authTypePresigned:
-		s3Error := isReqAuthenticatedSkipAccessKey(r, region)
-		if s3Error != ErrNone {
-			errorIf(errSignatureMismatch, "%s", dumpRequest(r))
-		}
-		return s3Error
-	}
-
-	if reqAuthType == authTypeAnonymous && policyAction != "" {
-		// http://docs.aws.amazon.com/AmazonS3/latest/dev/using-with-s3-actions.html
-		sourceIP := getSourceIPAddress(r)
-		return enforceBucketPolicy(bucket, policyAction, r.URL.Path,
-			r.Referer(), sourceIP, r.URL.Query())
-	}
-
-	// By default return ErrAccessDenied
-	return ErrAccessDenied
-}
-
-
-func reqSignatureV4VerifySkipAccessKey(r *http.Request, region string) (s3Error APIErrorCode) {
-	sha256sum := getContentSha256Cksum(r)
-	switch {
-	case isRequestSignatureV4(r):
-		return doesSignatureMatch(sha256sum, r, region, true)
-	case isRequestPresignedSignatureV4(r):
-		return doesPresignedSignatureMatch(sha256sum, r, region)
-	default:
-		return ErrAccessDenied
-	}
-}
-
-// Verify if request has valid AWS Signature Version '4'.
-func isReqAuthenticatedSkipAccessKey(r *http.Request, region string) (s3Error APIErrorCode) {
-	if r == nil {
-		return ErrInternalError
-	}
-	if errCode := reqSignatureV4VerifySkipAccessKey(r, region); errCode != ErrNone {
-		return errCode
-	}
-	payload, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		errorIf(err, "Unable to read request body for signature verification")
-		return ErrInternalError
-	}
-
-	// Populate back the payload.
-	r.Body = ioutil.NopCloser(bytes.NewReader(payload))
-
-	// Verify Content-Md5, if payload is set.
-	if r.Header.Get("Content-Md5") != "" {
-		if r.Header.Get("Content-Md5") != getMD5HashBase64(payload) {
-			return ErrBadDigest
-		}
-	}
-
-	if skipContentSha256Cksum(r) {
-		return ErrNone
-	}
-
-	// Verify that X-Amz-Content-Sha256 Header == sha256(payload)
-	// If X-Amz-Content-Sha256 header is not sent then we don't calculate/verify sha256(payload)
-	sum := r.Header.Get("X-Amz-Content-Sha256")
-	if isRequestPresignedSignatureV4(r) {
-		sum = r.URL.Query().Get("X-Amz-Content-Sha256")
-	}
-	if sum != "" && sum != getSHA256Hash(payload) {
-		return ErrContentSHA256Mismatch
-	}
-	return ErrNone
-}
-
-
-
 // handler for validating incoming authorization headers.
 func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
@@ -129,16 +41,16 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var userName string
 	ctx := r.Context()
 	ctx = servicecontext.HttpRequestInfoToMetadata(ctx, r)
-	if a.gateway{
+	if a.gateway {
 		ctx = servicecontext.WithServiceName(ctx, common.SERVICE_GATEWAY_DATA)
 	} else {
-		ctx = servicecontext.WithServiceName(ctx, common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS)
+		ctx = servicecontext.WithServiceName(ctx, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS)
 	}
-
+	storeJwtInGlobalIAM := false
 	jwt := r.URL.Query().Get("pydio_jwt")
 
 	if a.gateway && len(jwt) > 0 {
-		pydiolog.Logger(ctx).Debug("Found JWT in URL: replace by header and remove from URL")
+		//logger.Info("Found JWT in URL: replace by header and remove from URL")
 		r.Header.Set("X-Pydio-Bearer", jwt)
 		r.URL.RawQuery = strings.Replace(r.URL.RawQuery, "&pydio_jwt="+jwt, "", 1)
 
@@ -148,12 +60,12 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Save authorization header.
 		v4Auth := req.Header.Get("Authorization")
 		// Parse signature version '4' header.
-		signV4Values, err := parseSignV4(v4Auth)
+		signV4Values, err := parseSignV4(v4Auth, globalServerRegion)
 		if err == ErrNone {
 			accessKey := signV4Values.Credential.accessKey
-			cred := serverConfig.GetCredential()
-			if accessKey != cred.AccessKey {
-				pydiolog.Logger(ctx).Debug("Use AWS Api Key as JWT: " + signV4Values.Credential.accessKey)
+			if accessKey != globalServerConfig.GetCredential().AccessKey {
+				//logger.Info("Use AWS Api Key as JWT: " + signV4Values.Credential.accessKey)
+				storeJwtInGlobalIAM = true
 				r.Header.Set("X-Pydio-Bearer", accessKey)
 			}
 		}
@@ -170,6 +82,9 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		userName = claims.Name
+		if storeJwtInGlobalIAM {
+			globalIAMSys.SetTempUser(rawIDToken, auth2.Credentials{}, "")
+		}
 
 	} else if values, ok := r.Header[common.PYDIO_CONTEXT_USER_KEY]; !a.gateway && ok && len(values) > 0 {
 
@@ -192,42 +107,34 @@ func (a pydioAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 				anonClaim := claim.Claims{
-					Name:common.PYDIO_S3ANON_USERNAME,
-					Roles:strings.Join(s, ","),
-					Profile:"anon",
-					GroupPath:"/",
+					Name:      common.PYDIO_S3ANON_USERNAME,
+					Roles:     strings.Join(s, ","),
+					Profile:   "anon",
+					GroupPath: "/",
 				}
-				pydiolog.Logger(ctx).Error("S3 Gateway: Anonymous User", zap.String("request", r.URL.String()))
 				ctx = context.WithValue(ctx, claim.ContextKey, anonClaim)
 
 			} else {
-				pydiolog.Logger(ctx).Error("S3 Gateway: No User found, error 401", zap.Error(er), zap.String("request", r.URL.String()))
+				logger.LogIf(ctx, er)
 				writeErrorResponse(w, ErrAccessDenied, r.URL)
 				return
 			}
-			//a.handler.ServeHTTP(w, r)
+
 		} else {
-			pydiolog.Logger(ctx).Error("S3 DataSource: could not find neither X-Pydio-Bearer nor X-Pydio-User in headers, error 401", zap.Any("requestHeaders", r.Header))
-			writeErrorResponse(w, ErrAccessDenied, r.URL)
-			return
+			bucketLocation := r.Method == "GET" && strings.HasSuffix(r.URL.String(), "?location=")
+			if !bucketLocation {
+				logger.LogIf(ctx, fmt.Errorf("S3 DataSource: could not find neither X-Pydio-Bearer nor X-Pydio-User in headers, error 401 on "+r.Method+r.URL.String()))
+				writeErrorResponse(w, ErrAccessDenied, r.URL)
+				return
+			}
 		}
 
 	}
 
-	md := make(map[string]string)
-	if meta, ok := metadata.FromContext(ctx); ok {
-		for k, v := range meta{
-			md[k] = v
-		}
-	}
-	md[common.PYDIO_CONTEXT_USER_KEY] = userName
-	ctx = metadata.NewContext(ctx, md)
-
-	// Add it as value for easier use inside the gateway, but this will not be transmitted
-	ctx = context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, userName)
+	ctx = context2.WithUserNameMetadata(ctx, userName)
 
 	if a.gateway {
-		pydiolog.Logger(ctx).Debug("AuthHandler: updating request with context", zap.Any("ctx", ctx))
+		//logger.Info("AuthHandler: updating request with context")
 	}
 
 	newRequest := r.WithContext(ctx)

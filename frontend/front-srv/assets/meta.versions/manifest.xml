@@ -18,7 +18,8 @@
                         actionBar="true" contextMenu="true" infoPanel="false"
                         actionBarGroup="0_get">
                     </context>
-                    <selectionContext dir="false" file="true" recycle="true" unique="true" behaviour="hidden"/></gui>
+                    <selectionContext dir="false" file="true" recycle="true" unique="true" behaviour="hidden" evalMetadata="metadata.get('datasource_versioning')"/>
+                </gui>
                 <rightsContext noUser="true" userLogged="only" read="true" write="true" adminOnly=""/>
                 <processing>
                     <clientCallback module="PydioVersioning.Callbacks.loadHistoryBrowser"/>

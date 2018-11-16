@@ -17,99 +17,80 @@
 package cmd
 
 import (
-	"crypto/subtle"
-	"hash"
+	"context"
 
 	"github.com/klauspost/reedsolomon"
+	"github.com/pydio/minio-srv/cmd/logger"
 )
 
-// OfflineDisk represents an unavailable disk.
-var OfflineDisk StorageAPI // zero value is nil
-
-// ErasureFileInfo contains information about an erasure file operation (create, read, heal).
-type ErasureFileInfo struct {
-	Size      int64
-	Algorithm BitrotAlgorithm
-	Checksums [][]byte
-}
-
-// ErasureStorage represents an array of disks.
-// The disks contain erasure coded and bitrot-protected data.
-type ErasureStorage struct {
-	disks                    []StorageAPI
-	erasure                  reedsolomon.Encoder
+// Erasure - erasure encoding details.
+type Erasure struct {
+	encoder                  reedsolomon.Encoder
 	dataBlocks, parityBlocks int
+	blockSize                int64
 }
 
-// NewErasureStorage creates a new ErasureStorage. The storage erasure codes and protects all data written to
-// the disks.
-func NewErasureStorage(disks []StorageAPI, dataBlocks, parityBlocks int) (s ErasureStorage, err error) {
-	erasure, err := reedsolomon.New(dataBlocks, parityBlocks)
+// NewErasure creates a new ErasureStorage.
+func NewErasure(ctx context.Context, dataBlocks, parityBlocks int, blockSize int64) (e Erasure, err error) {
+	shardsize := int(ceilFrac(blockSize, int64(dataBlocks)))
+	erasure, err := reedsolomon.New(dataBlocks, parityBlocks, reedsolomon.WithAutoGoroutines(shardsize))
 	if err != nil {
-		return s, traceErrorf("failed to create erasure coding: %v", err)
+		logger.LogIf(ctx, err)
+		return e, err
 	}
-	s = ErasureStorage{
-		disks:        make([]StorageAPI, len(disks)),
-		erasure:      erasure,
+	e = Erasure{
+		encoder:      erasure,
 		dataBlocks:   dataBlocks,
 		parityBlocks: parityBlocks,
+		blockSize:    blockSize,
 	}
-	copy(s.disks, disks)
 	return
 }
 
-// ErasureEncode encodes the given data and returns the erasure-coded data.
+// EncodeData encodes the given data and returns the erasure-coded data.
 // It returns an error if the erasure coding failed.
-func (s *ErasureStorage) ErasureEncode(data []byte) ([][]byte, error) {
-	encoded, err := s.erasure.Split(data)
-	if err != nil {
-		return nil, traceErrorf("failed to split data: %v", err)
+func (e *Erasure) EncodeData(ctx context.Context, data []byte) ([][]byte, error) {
+	if len(data) == 0 {
+		return make([][]byte, e.dataBlocks+e.parityBlocks), nil
 	}
-	if err = s.erasure.Encode(encoded); err != nil {
-		return nil, traceErrorf("failed to encode data: %v", err)
+	encoded, err := e.encoder.Split(data)
+	if err != nil {
+		logger.LogIf(ctx, err)
+		return nil, err
+	}
+	if err = e.encoder.Encode(encoded); err != nil {
+		logger.LogIf(ctx, err)
+		return nil, err
 	}
 	return encoded, nil
 }
 
-// ErasureDecodeDataBlocks decodes the given erasure-coded data.
+// DecodeDataBlocks decodes the given erasure-coded data.
 // It only decodes the data blocks but does not verify them.
 // It returns an error if the decoding failed.
-func (s *ErasureStorage) ErasureDecodeDataBlocks(data [][]byte) error {
-	if err := s.erasure.ReconstructData(data); err != nil {
-		return traceErrorf("failed to reconstruct data: %v", err)
+func (e *Erasure) DecodeDataBlocks(data [][]byte) error {
+	needsReconstruction := false
+	for _, b := range data[:e.dataBlocks] {
+		if b == nil {
+			needsReconstruction = true
+			break
+		}
+	}
+	if !needsReconstruction {
+		return nil
+	}
+	if err := e.encoder.ReconstructData(data); err != nil {
+		return err
 	}
 	return nil
 }
 
-// ErasureDecodeDataAndParityBlocks decodes the given erasure-coded data and verifies it.
+// DecodeDataAndParityBlocks decodes the given erasure-coded data and verifies it.
 // It returns an error if the decoding failed.
-func (s *ErasureStorage) ErasureDecodeDataAndParityBlocks(data [][]byte) error {
-	if err := s.erasure.Reconstruct(data); err != nil {
-		return traceErrorf("failed to reconstruct data: %v", err)
+func (e *Erasure) DecodeDataAndParityBlocks(ctx context.Context, data [][]byte) error {
+	if err := e.encoder.Reconstruct(data); err != nil {
+		logger.LogIf(ctx, err)
+		return err
 	}
 	return nil
 }
-
-// NewBitrotVerifier returns a new BitrotVerifier implementing the given algorithm.
-func NewBitrotVerifier(algorithm BitrotAlgorithm, checksum []byte) *BitrotVerifier {
-	return &BitrotVerifier{algorithm.New(), algorithm, checksum, false}
-}
-
-// BitrotVerifier can be used to verify protected data.
-type BitrotVerifier struct {
-	hash.Hash
-
-	algorithm BitrotAlgorithm
-	sum       []byte
-	verified  bool
-}
-
-// Verify returns true iff the computed checksum of the verifier matches the the checksum provided when the verifier
-// was created.
-func (v *BitrotVerifier) Verify() bool {
-	v.verified = true
-	return subtle.ConstantTimeCompare(v.Sum(nil), v.sum) == 1
-}
-
-// IsVerified returns true iff Verify was called at least once.
-func (v *BitrotVerifier) IsVerified() bool { return v.verified }

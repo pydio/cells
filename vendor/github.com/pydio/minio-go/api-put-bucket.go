@@ -1,6 +1,6 @@
 /*
  * Minio Go Library for Amazon S3 Compatible Cloud Storage
- * (C) 2015, 2016, 2017 Minio, Inc.
+ * Copyright 2015-2017 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,12 @@ package minio
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"encoding/xml"
-	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 
-	"github.com/pydio/minio-go/pkg/policy"
 	"github.com/pydio/minio-go/pkg/s3utils"
 )
 
@@ -76,8 +75,8 @@ func (c Client) MakeBucket(bucketName string, location string) (err error) {
 		if err != nil {
 			return err
 		}
-		reqMetadata.contentMD5Bytes = sumMD5(createBucketConfigBytes)
-		reqMetadata.contentSHA256Bytes = sum256(createBucketConfigBytes)
+		reqMetadata.contentMD5Base64 = sumMD5Base64(createBucketConfigBytes)
+		reqMetadata.contentSHA256Hex = sum256Hex(createBucketConfigBytes)
 		reqMetadata.contentBody = bytes.NewReader(createBucketConfigBytes)
 		reqMetadata.contentLength = int64(len(createBucketConfigBytes))
 	}
@@ -100,54 +99,26 @@ func (c Client) MakeBucket(bucketName string, location string) (err error) {
 }
 
 // SetBucketPolicy set the access permissions on an existing bucket.
-//
-// For example
-//
-//  none - owner gets full access [default].
-//  readonly - anonymous get access for everyone at a given object prefix.
-//  readwrite - anonymous list/put/delete access to a given object prefix.
-//  writeonly - anonymous put/delete access to a given object prefix.
-func (c Client) SetBucketPolicy(bucketName string, objectPrefix string, bucketPolicy policy.BucketPolicy) error {
+func (c Client) SetBucketPolicy(bucketName, policy string) error {
 	// Input validation.
 	if err := s3utils.CheckValidBucketName(bucketName); err != nil {
 		return err
 	}
-	if err := s3utils.CheckValidObjectNamePrefix(objectPrefix); err != nil {
-		return err
-	}
 
-	if !bucketPolicy.IsValidBucketPolicy() {
-		return ErrInvalidArgument(fmt.Sprintf("Invalid bucket policy provided. %s", bucketPolicy))
+	// If policy is empty then delete the bucket policy.
+	if policy == "" {
+		return c.removeBucketPolicy(bucketName)
 	}
-
-	policyInfo, err := c.getBucketPolicy(bucketName)
-	errResponse := ToErrorResponse(err)
-	if err != nil && errResponse.Code != "NoSuchBucketPolicy" {
-		return err
-	}
-
-	if bucketPolicy == policy.BucketPolicyNone && policyInfo.Statements == nil {
-		// As the request is for removing policy and the bucket
-		// has empty policy statements, just return success.
-		return nil
-	}
-
-	policyInfo.Statements = policy.SetPolicy(policyInfo.Statements, bucketPolicy, bucketName, objectPrefix)
 
 	// Save the updated policies.
-	return c.putBucketPolicy(bucketName, policyInfo)
+	return c.putBucketPolicy(bucketName, policy)
 }
 
 // Saves a new bucket policy.
-func (c Client) putBucketPolicy(bucketName string, policyInfo policy.BucketAccessPolicy) error {
+func (c Client) putBucketPolicy(bucketName, policy string) error {
 	// Input validation.
 	if err := s3utils.CheckValidBucketName(bucketName); err != nil {
 		return err
-	}
-
-	// If there are no policy statements, we should remove entire policy.
-	if len(policyInfo.Statements) == 0 {
-		return c.removeBucketPolicy(bucketName)
 	}
 
 	// Get resources properly escaped and lined up before
@@ -155,19 +126,18 @@ func (c Client) putBucketPolicy(bucketName string, policyInfo policy.BucketAcces
 	urlValues := make(url.Values)
 	urlValues.Set("policy", "")
 
-	policyBytes, err := json.Marshal(&policyInfo)
+	// Content-length is mandatory for put policy request
+	policyReader := strings.NewReader(policy)
+	b, err := ioutil.ReadAll(policyReader)
 	if err != nil {
 		return err
 	}
 
-	policyBuffer := bytes.NewReader(policyBytes)
 	reqMetadata := requestMetadata{
-		bucketName:         bucketName,
-		queryValues:        urlValues,
-		contentBody:        policyBuffer,
-		contentLength:      int64(len(policyBytes)),
-		contentMD5Bytes:    sumMD5(policyBytes),
-		contentSHA256Bytes: sum256(policyBytes),
+		bucketName:    bucketName,
+		queryValues:   urlValues,
+		contentBody:   policyReader,
+		contentLength: int64(len(b)),
 	}
 
 	// Execute PUT to upload a new bucket policy.
@@ -197,9 +167,90 @@ func (c Client) removeBucketPolicy(bucketName string) error {
 
 	// Execute DELETE on objectName.
 	resp, err := c.executeMethod(context.Background(), "DELETE", requestMetadata{
-		bucketName:         bucketName,
-		queryValues:        urlValues,
-		contentSHA256Bytes: emptySHA256,
+		bucketName:       bucketName,
+		queryValues:      urlValues,
+		contentSHA256Hex: emptySHA256Hex,
+	})
+	defer closeResponse(resp)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// SetBucketLifecycle set the lifecycle on an existing bucket.
+func (c Client) SetBucketLifecycle(bucketName, lifecycle string) error {
+	// Input validation.
+	if err := s3utils.CheckValidBucketName(bucketName); err != nil {
+		return err
+	}
+
+	// If lifecycle is empty then delete it.
+	if lifecycle == "" {
+		return c.removeBucketLifecycle(bucketName)
+	}
+
+	// Save the updated lifecycle.
+	return c.putBucketLifecycle(bucketName, lifecycle)
+}
+
+// Saves a new bucket lifecycle.
+func (c Client) putBucketLifecycle(bucketName, lifecycle string) error {
+	// Input validation.
+	if err := s3utils.CheckValidBucketName(bucketName); err != nil {
+		return err
+	}
+
+	// Get resources properly escaped and lined up before
+	// using them in http request.
+	urlValues := make(url.Values)
+	urlValues.Set("lifecycle", "")
+
+	// Content-length is mandatory for put lifecycle request
+	lifecycleReader := strings.NewReader(lifecycle)
+	b, err := ioutil.ReadAll(lifecycleReader)
+	if err != nil {
+		return err
+	}
+
+	reqMetadata := requestMetadata{
+		bucketName:       bucketName,
+		queryValues:      urlValues,
+		contentBody:      lifecycleReader,
+		contentLength:    int64(len(b)),
+		contentMD5Base64: sumMD5Base64(b),
+	}
+
+	// Execute PUT to upload a new bucket lifecycle.
+	resp, err := c.executeMethod(context.Background(), "PUT", reqMetadata)
+	defer closeResponse(resp)
+	if err != nil {
+		return err
+	}
+	if resp != nil {
+		if resp.StatusCode != http.StatusOK {
+			return httpRespToErrorResponse(resp, bucketName, "")
+		}
+	}
+	return nil
+}
+
+// Remove lifecycle from a bucket.
+func (c Client) removeBucketLifecycle(bucketName string) error {
+	// Input validation.
+	if err := s3utils.CheckValidBucketName(bucketName); err != nil {
+		return err
+	}
+	// Get resources properly escaped and lined up before
+	// using them in http request.
+	urlValues := make(url.Values)
+	urlValues.Set("lifecycle", "")
+
+	// Execute DELETE on objectName.
+	resp, err := c.executeMethod(context.Background(), "DELETE", requestMetadata{
+		bucketName:       bucketName,
+		queryValues:      urlValues,
+		contentSHA256Hex: emptySHA256Hex,
 	})
 	defer closeResponse(resp)
 	if err != nil {
@@ -227,12 +278,12 @@ func (c Client) SetBucketNotification(bucketName string, bucketNotification Buck
 
 	notifBuffer := bytes.NewReader(notifBytes)
 	reqMetadata := requestMetadata{
-		bucketName:         bucketName,
-		queryValues:        urlValues,
-		contentBody:        notifBuffer,
-		contentLength:      int64(len(notifBytes)),
-		contentMD5Bytes:    sumMD5(notifBytes),
-		contentSHA256Bytes: sum256(notifBytes),
+		bucketName:       bucketName,
+		queryValues:      urlValues,
+		contentBody:      notifBuffer,
+		contentLength:    int64(len(notifBytes)),
+		contentMD5Base64: sumMD5Base64(notifBytes),
+		contentSHA256Hex: sum256Hex(notifBytes),
 	}
 
 	// Execute PUT to upload a new bucket notification.
