@@ -38,7 +38,9 @@ class UploadItem extends StatusItem {
         } else {
             this._label = file.name;
         }
-        this.createParts();
+        if(!targetNode.getMetadata().has("datasource_encrypted")){
+            this.createParts();
+        }
         if(parent){
             parent.addChild(this);
         }
@@ -149,15 +151,16 @@ class UploadItem extends StatusItem {
             this.setStatus('error');
             return;
         }
-        /*
-        PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(xhr => {
-            this.xhr = xhr;
-        });
-        */
-        PydioApi.getClient().uploadMultipart(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(managed => {
-            this.xhr = managed;
-        });
-
+        // For encrypted datasource, do not use multipart!
+        if (this._targetNode.getMetadata().has("datasource_encrypted")) {
+            PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(xhr => {
+                this.xhr = xhr;
+            });
+        } else {
+            PydioApi.getClient().uploadMultipart(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(managed => {
+                this.xhr = managed;
+            });
+        }
     }
 }
 
