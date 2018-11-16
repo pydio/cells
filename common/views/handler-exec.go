@@ -34,7 +34,6 @@ import (
 	"go.uber.org/zap"
 
 	"encoding/hex"
-	"fmt"
 
 	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
@@ -159,47 +158,54 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 			opts.Set(k, v)
 		}
 	}
-	if _, sErr := writer.StatObject(info.ObjectsBucket, s3Path, opts); sErr != nil {
+	sObject, sErr := writer.StatObject(info.ObjectsBucket, s3Path, opts)
+	if sErr != nil {
 		return nil, sErr
 	}
 
-	if requestData.EncryptionMaterial != nil {
+	/*
+		if requestData.EncryptionMaterial != nil {
 
-		var offset = requestData.StartOffset
-		var end = offset + requestData.Length - 1
+			var offset = requestData.StartOffset
+			var end = offset + requestData.Length - 1
 
-		if requestData.StartOffset >= 0 && requestData.Length >= 0 {
-			log.Logger(ctx).Debug("GET RANGE", zap.Int64("From", requestData.StartOffset), zap.Int64("Length", requestData.Length), node.Zap())
-			if end >= node.Size-1 {
-				end = 0
+			if requestData.StartOffset >= 0 && requestData.Length >= 0 {
+				log.Logger(ctx).Debug("GET RANGE", zap.Int64("From", requestData.StartOffset), zap.Int64("Length", requestData.Length), node.Zap())
+				if end >= node.Size-1 {
+					end = 0
+				}
 			}
-		}
 
-		//headers.Materials = requestData.EncryptionMaterial
-		if offset == 0 && end == 0 {
-			log.Logger(ctx).Debug("GET DATA WITH NO RANGE ")
-			//FIXME
-			//reader, err = writer.GetObject(info.ObjectsBucket, s3Path, requestData.EncryptionMaterial)
+			//headers.Materials = requestData.EncryptionMaterial
+			if offset == 0 && end == 0 {
+				log.Logger(ctx).Debug("GET DATA WITH NO RANGE ")
+				//FIXME
+				//reader, err = writer.GetObject(info.ObjectsBucket, s3Path, requestData.EncryptionMaterial)
+			} else {
+				log.Logger(ctx).Info("Warning, passing a request Length on encrypted data is not supported yet", zap.Int64("offset", requestData.StartOffset), zap.Int64("end", end))
+				if err := headers.SetRange(requestData.StartOffset, end); err != nil {
+					return nil, err
+				}
+				reader, err = writer.GetObjectWithContext(ctx, info.ObjectsBucket, s3Path, headers)
+			}
 		} else {
-			log.Logger(ctx).Info("Warning, passing a request Length on encrypted data is not supported yet", zap.Int64("offset", requestData.StartOffset), zap.Int64("end", end))
-			if err := headers.SetRange(requestData.StartOffset, end); err != nil {
-				return nil, err
-			}
-			reader, err = writer.GetObjectWithContext(ctx, info.ObjectsBucket, s3Path, headers)
-		}
-	} else {
-		headers := minio.GetObjectOptions{}
-		if requestData.StartOffset >= 0 && requestData.Length >= 0 {
-			if err := headers.SetRange(requestData.StartOffset, requestData.StartOffset+requestData.Length-1); err != nil {
-				return nil, err
-			}
-		}
-		reader, err = writer.GetObjectWithContext(ctx, info.ObjectsBucket, s3Path, headers)
-		log.Logger(ctx).Debug("Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers.Header()), zap.Any("request", requestData), zap.Any("resultObject", reader))
-		if err != nil {
-			log.Logger(ctx).Error("Get Object", zap.Error(err))
+	*/
+	if requestData.StartOffset == 0 && requestData.Length == -1 {
+		log.Logger(ctx).Info("Target Object Size is", zap.Any("object", sObject))
+		//		requestData.Length = sObject.Size
+	}
+	if requestData.StartOffset >= 0 && requestData.Length >= 0 {
+		if err := headers.SetRange(requestData.StartOffset, requestData.StartOffset+requestData.Length-1); err != nil {
+			return nil, err
 		}
 	}
+	reader, err = writer.GetObjectWithContext(ctx, info.ObjectsBucket, s3Path, headers)
+	log.Logger(ctx).Info("Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers.Header()), zap.Any("request", requestData), zap.Any("resultObject", reader))
+	if err != nil {
+		log.Logger(ctx).Error("Get Object", zap.Error(err))
+	}
+
+	//}
 	return reader, err
 }
 
@@ -215,27 +221,20 @@ func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 		UserMetadata: requestData.Metadata,
 	}
 
-	if requestData.EncryptionMaterial != nil {
-		//FIXME
-		//return writer.PutObjectWithContext(context.Background(), info.ObjectsBucket, s3Path, reader, -1, minio.PutObjectOptions{EncryptMaterials: requestData.EncryptionMaterial, UserMetadata: requestData.Metadata})
-		return 0, errors.New("put.encrypt.notImplemented", "Not implemented", 500)
-
-	} else {
-		log.Logger(ctx).Debug("handler exec: put object", zap.Any("info", info), zap.String("s3Path", s3Path), zap.Any("requestData", requestData))
-		if requestData.Size <= 0 {
-			written, err := writer.PutObjectWithContext(ctx, info.ObjectsBucket, s3Path, reader, -1, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
-			if err != nil {
-				return 0, err
-			} else {
-				return written, nil
-			}
+	log.Logger(ctx).Info("handler exec: put object", zap.Any("info", info), zap.String("s3Path", s3Path), zap.Any("requestData", requestData))
+	if requestData.Size <= 0 {
+		written, err := writer.PutObjectWithContext(ctx, info.ObjectsBucket, s3Path, reader, -1, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
+		if err != nil {
+			return 0, err
 		} else {
-			oi, err := writer.PutObjectWithContext(ctx, info.ObjectsBucket, s3Path, reader, requestData.Size, opts)
-			if err != nil {
-				return 0, err
-			} else {
-				return oi, nil
-			}
+			return written, nil
+		}
+	} else {
+		oi, err := writer.PutObjectWithContext(ctx, info.ObjectsBucket, s3Path, reader, requestData.Size, opts)
+		if err != nil {
+			return 0, err
+		} else {
+			return oi, nil
 		}
 	}
 }
@@ -298,35 +297,24 @@ func (e *Executor) CopyObject(ctx context.Context, from *tree.Node, to *tree.Nod
 		if srcErr != nil {
 			return 0, srcErr
 		}
-		if requestData.srcEncryptionMaterial != nil {
-			//FIXME
-			//reader, err = srcClient.GetEncryptedObject(srcBucket, fromPath, requestData.srcEncryptionMaterial)
-		} else {
-			reader, err = srcClient.GetObjectWithContext(ctx, srcBucket, fromPath, minio.GetObjectOptions{})
-		}
+		reader, err = srcClient.GetObjectWithContext(ctx, srcBucket, fromPath, minio.GetObjectOptions{})
 		if err != nil {
 			log.Logger(ctx).Error("CopyObject / Different Clients - Read Source Error", zap.Error(err))
 			return 0, err
 		}
 
-		if requestData.destEncryptionMaterial != nil {
-			//FIXME
-			//return destClient.PutEncryptedObject(destBucket, toPath, reader, requestData.destEncryptionMaterial)
-			return 0, fmt.Errorf("NOT IMPLEMENTED")
+		oi, err := destClient.PutObjectWithContext(ctx, destBucket, toPath, reader, srcStat.Size, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
+		if err != nil {
+			log.Logger(ctx).Error("CopyObject / Different Clients",
+				zap.Error(err),
+				zap.Any("srcStat", srcStat),
+				zap.Any("srcInfo", srcInfo),
+				zap.Any("destInfo", destInfo),
+				zap.Any("to", toPath))
 		} else {
-			oi, err := destClient.PutObjectWithContext(ctx, destBucket, toPath, reader, srcStat.Size, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
-			if err != nil {
-				log.Logger(ctx).Error("CopyObject / Different Clients",
-					zap.Error(err),
-					zap.Any("srcStat", srcStat),
-					zap.Any("srcInfo", srcInfo),
-					zap.Any("destInfo", destInfo),
-					zap.Any("to", toPath))
-			} else {
-				log.Logger(ctx).Debug("CopyObject / Different Clients", zap.Int64("written", oi))
-			}
-			return oi, err
+			log.Logger(ctx).Debug("CopyObject / Different Clients", zap.Int64("written", oi))
 		}
+		return oi, err
 
 	}
 
@@ -353,26 +341,19 @@ func (e *Executor) MultipartPutObjectPart(ctx context.Context, target *tree.Node
 	writer := info.Client
 	s3Path := e.buildS3Path(info, target)
 
-	if requestData.EncryptionMaterial != nil {
-		return minio.ObjectPart{PartNumber: partNumberMarker},
-			errors.BadRequest(VIEWS_LIBRARY_NAME, "Multipart encrypted upload is not implemented")
-	} else {
-		log.Logger(ctx).Debug("HANDLER-EXEC: before put", zap.Any("requestData", requestData))
+	log.Logger(ctx).Debug("HANDLER-EXEC: before put", zap.Any("requestData", requestData))
 
-		if requestData.Size <= 0 {
-			// This should never happen, double check
-			return minio.ObjectPart{PartNumber: partNumberMarker},
-				errors.BadRequest(VIEWS_LIBRARY_NAME, "trying to upload a part object that has no data. Double check")
+	if requestData.Size <= 0 {
+		// This should never happen, double check
+		return minio.ObjectPart{PartNumber: partNumberMarker},
+			errors.BadRequest(VIEWS_LIBRARY_NAME, "trying to upload a part object that has no data. Double check")
+	} else {
+		cp, err := writer.PutObjectPartWithContext(ctx, info.ObjectsBucket, s3Path, uploadID, partNumberMarker, reader, requestData.Size, hex.EncodeToString(requestData.Md5Sum), hex.EncodeToString(requestData.Sha256Sum), nil)
+		if err != nil {
+			log.Logger(ctx).Error("PutObjectPart has failed", zap.Error(err))
+			return minio.ObjectPart{PartNumber: partNumberMarker}, err
 		} else {
-			// FIXME FOR ENCRYPTION
-			//cp, err := writer.PutObjectPartWithMetadata(info.ObjectsBucket, s3Path, uploadID, partNumberMarker, reader, requestData.Size, requestData.Md5Sum, requestData.Sha256Sum, requestData.Metadata)
-			cp, err := writer.PutObjectPartWithContext(ctx, info.ObjectsBucket, s3Path, uploadID, partNumberMarker, reader, requestData.Size, hex.EncodeToString(requestData.Md5Sum), hex.EncodeToString(requestData.Sha256Sum), nil)
-			if err != nil {
-				log.Logger(ctx).Error("PutObjectPart has failed", zap.Error(err))
-				return minio.ObjectPart{PartNumber: partNumberMarker}, err
-			} else {
-				return cp, nil
-			}
+			return cp, nil
 		}
 	}
 }

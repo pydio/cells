@@ -37,7 +37,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
@@ -76,27 +75,23 @@ type (
 	}
 
 	PutRequestData struct {
-		Size               int64
-		Md5Sum             []byte
-		Sha256Sum          []byte
-		Metadata           map[string]string
-		EncryptionMaterial *crypto.AESGCMMaterials
-		MultipartUploadID  string
-		MultipartPartID    int
+		Size              int64
+		Md5Sum            []byte
+		Sha256Sum         []byte
+		Metadata          map[string]string
+		MultipartUploadID string
+		MultipartPartID   int
 	}
 
 	GetRequestData struct {
-		StartOffset        int64
-		Length             int64
-		EncryptionMaterial *crypto.AESGCMMaterials
-		VersionId          string
+		StartOffset int64
+		Length      int64
+		VersionId   string
 	}
 
 	CopyRequestData struct {
-		Metadata               map[string]string
-		srcEncryptionMaterial  *crypto.AESGCMMaterials
-		destEncryptionMaterial *crypto.AESGCMMaterials
-		SrcVersionId           string
+		Metadata     map[string]string
+		SrcVersionId string
 	}
 
 	MultipartRequestData struct {
