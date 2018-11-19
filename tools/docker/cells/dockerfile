@@ -1,3 +1,6 @@
+FROM alpine as certs
+RUN apk update && apk add ca-certificates
+
 FROM busybox:glibc
 
 ARG version
@@ -9,6 +12,7 @@ RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-am
 RUN wget "https://download.pydio.com/pub/cells/release/${CELLS_VERSION}/linux-amd64/cells-ctl"
 RUN wget "https://download.pydio.com/pub/cells-sdk-go/nightly/latest/linux-amd64/cells-sdk-go"
 
+COPY --from=certs /etc/ssl/certs /etc/ssl/certs
 COPY docker-entrypoint.sh /cells/docker-entrypoint.sh
 COPY libdl.so.2 /cells/libdl.so.2
 
