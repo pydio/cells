@@ -35,7 +35,7 @@ import (
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/data/source/index"
 
 	. "github.com/smartystreets/goconvey/convey"

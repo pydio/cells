@@ -260,6 +260,7 @@ func newServer(ctx context.Context, c Config, rotationStrategy rotationStrategy)
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Serving http")
 	s.mux.ServeHTTP(w, r)
 }
 

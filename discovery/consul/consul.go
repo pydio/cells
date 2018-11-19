@@ -20,25 +20,16 @@
 
 package consul
 
-import (
-	"github.com/micro/go-micro/broker"
-	"github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/transport"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
-)
-
-func prerun(s service.Service) error {
-	c := config.Get("cert", "grpc", "certFile").String("")
-	k := config.Get("cert", "grpc", "keyFile").String("")
-
-	defaults.Init(
-		defaults.WithRegistry(registry.NewRegistry()),
-		defaults.WithBroker(broker.NewBroker()),
-		defaults.WithTransport(transport.NewTransport()),
-		defaults.WithCert(c, k),
-	)
-
-	return nil
-}
+// func prerun(s service.Service) error {
+// 	c := config.Get("cert", "grpc", "certFile").String("")
+// 	k := config.Get("cert", "grpc", "keyFile").String("")
+//
+// 	defaults.Init(
+// 		defaults.WithRegistry(registry.NewRegistry()),
+// 		defaults.WithBroker(broker.NewBroker()),
+// 		defaults.WithTransport(transport.NewTransport()),
+// 		defaults.WithCert(c, k),
+// 	)
+//
+// 	return nil
+// }

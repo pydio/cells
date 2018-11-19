@@ -37,7 +37,7 @@ import (
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/scheduler/lang"

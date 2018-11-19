@@ -28,7 +28,7 @@ import (
 	//	"github.com/micro/go-micro/client"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/data/source/index"
 	"go.uber.org/zap"

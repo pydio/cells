@@ -36,7 +36,7 @@ import (
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/idm/key"
 )
 

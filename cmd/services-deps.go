@@ -26,7 +26,6 @@ import (
 	"github.com/micro/go-log"
 	"github.com/spf13/cobra"
 
-	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/registry"
 )
 
@@ -52,9 +51,6 @@ var servicesDepsCmd = &cobra.Command{
 // List dependencies recursively. Ignore nats or consul.
 func listDeps(service registry.Service, sep string) {
 	for _, dep := range service.GetDependencies() {
-		if dep.Name() == common.SERVICE_NATS || dep.Name() == common.SERVICE_CONSUL {
-			continue
-		}
 		var sub string
 		if sep == "" {
 			sub = "   |> "

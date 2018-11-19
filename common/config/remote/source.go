@@ -34,7 +34,7 @@ import (
 	"fmt"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/go-os/config/proto"
 )
 
