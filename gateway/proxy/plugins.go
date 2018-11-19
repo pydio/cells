@@ -42,17 +42,15 @@ import (
 )
 
 var (
-	// proxy /auth {{.Dex | urls}} {
-	// 	without /auth
-	// 	transparent
-	// }
 	caddyfile = `
 		{{.Bind}} {
 		proxy /a  {{.Micro | urls}} {
 			without /a
 			transparent
 		}
-
+		proxy /auth/dex {{.Dex | urls}} {
+			transparent
+		}
 		proxy /io   {{.Gateway | urls}} {
 			transparent
 		}
@@ -146,6 +144,7 @@ var (
 		PluginPathes    []string
 	}{
 		Micro:        common.SERVICE_MICRO_API,
+		Dex:          common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_AUTH,
 		Gateway:      common.SERVICE_GATEWAY_DATA,
 		WebSocket:    common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET,
 		FrontPlugins: common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS,
@@ -194,9 +193,19 @@ func init() {
 		}),
 		service.AfterStart(func(s service.Service) error {
 
+			fmt.Println("Listetning to restart ", broker.DefaultBroker)
+
 			// Adding subscriber
-			broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error { return caddy.Restart() })
-			broker.Subscribe(common.TOPIC_SERVICE_STOP, func(p broker.Publication) error { return caddy.Restart() })
+			if _, err := broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error {
+				return caddy.Restart()
+			}); err != nil {
+				return err
+			}
+			if _, err := broker.Subscribe(common.TOPIC_SERVICE_STOP, func(p broker.Publication) error {
+				return caddy.Restart()
+			}); err != nil {
+				return err
+			}
 
 			// Watching plugins
 			if w, err := config.Watch("frontend", "plugin"); err != nil {

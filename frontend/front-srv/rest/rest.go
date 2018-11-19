@@ -38,7 +38,7 @@ import (
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/views"

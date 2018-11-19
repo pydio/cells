@@ -20,15 +20,19 @@
 
 package registry
 
+import "github.com/micro/go-micro/registry"
+
 // ListServicesWithMicroMeta lists the services that have a specific meta name and value associated
 func (c *pydioregistry) ListServicesWithMicroMeta(metaName string, metaValue ...string) ([]Service, error) {
 
 	var result []Service
 
-	c.runningmutex.Lock()
-	defer c.runningmutex.Unlock()
+	services, err := registry.DefaultRegistry.ListServices()
+	if err != nil {
+		return nil, err
+	}
 
-	for _, rs := range c.running {
+	for _, rs := range services {
 		if len(rs.Nodes) == 0 {
 			continue
 		}
