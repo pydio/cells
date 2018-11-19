@@ -51,6 +51,10 @@ var (
 	combinedRegexp = regexp.MustCompile(`^(?P<remote_addr>[^ ]+) (?P<user>[^ ]+) (?P<other>[^ ]+) \[(?P<time_local>[^]]+)\] "(?P<request>[^"]+)" (?P<code>[^ ]+) (?P<size>[^ ]+) "(?P<referrer>[^ ]*)" "(?P<user_agent>[^"]+)"$`)
 )
 
+func Init() {
+	initLogger()
+}
+
 func initLogger() *zap.Logger {
 
 	if logger != nil {

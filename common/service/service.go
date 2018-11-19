@@ -45,6 +45,7 @@ import (
 	"github.com/micro/go-micro/client"
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/micro/go-web"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -233,9 +234,10 @@ func NewService(opts ...ServiceOption) Service {
 
 		// Adding a check before starting the service to ensure all dependencies are running
 		BeforeStart(func(_ Service) error {
+			log.Logger(ctx).Debug("BeforeStart - Check dependencies")
 
 			for _, d := range s.Options().Dependencies {
-				Retry(func() error {
+				err := Retry(func() error {
 					runningServices, err := registry.ListRunningServices()
 					if err != nil {
 						return err
@@ -247,15 +249,23 @@ func NewService(opts ...ServiceOption) Service {
 						}
 					}
 
-					return fmt.Errorf("not found")
+					return fmt.Errorf("dependency %s not found", d.Name)
 				})
+
+				if err != nil {
+					return err
+				}
 			}
+
+			log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
 
 			return nil
 		}),
 
 		// Checking the service is running
 		AfterStart(func(_ Service) error {
+			log.Logger(ctx).Debug("AfterStart - Check service is running")
+
 			tick := time.Tick(10 * time.Millisecond)
 
 			for {
@@ -265,6 +275,7 @@ func NewService(opts ...ServiceOption) Service {
 					return nil
 				case <-tick:
 					if s.IsRunning() {
+						log.Logger(ctx).Debug("AfterStart - Service is running")
 						return nil
 					}
 				}
@@ -367,7 +378,14 @@ func (s *service) ForkStart() {
 	cancel := s.Options().Cancel
 
 	// Do not do anything
-	cmd := exec.CommandContext(ctx, os.Args[0], "start", "--fork", name)
+	cmd := exec.CommandContext(ctx, os.Args[0], "start",
+		"--fork",
+		"--registry", viper.GetString("registry"),
+		"--registry_address", viper.GetString("registry_address"),
+		"--registry_cluster_address", viper.GetString("registry_cluster_address"),
+		"--registry_cluster_routes", viper.GetString("registry_cluster_routes"),
+		name,
+	)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

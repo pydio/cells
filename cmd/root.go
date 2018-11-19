@@ -37,7 +37,13 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
+
 	"github.com/pydio/cells/common/registry"
+
+	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
+	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
+	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
 )
 
 var (
@@ -86,15 +92,20 @@ the flag --registry=consul.
 		if cmd.Long == StartCmd.Long {
 			common.LogCaptureStdOut = true
 		}
+
+		fmt.Println("Initialize")
+
+		// Initialise the default registry
+		handleRegistry()
+
+		// Initialise the default broker
+		handleBroker()
+
+		// Initialise the default transport
+		handleTransport()
+
 		// Making sure we capture the signals
 		handleSignals()
-
-		// Filtering out the not-in-use messaging system (typically filtering out consul by default)
-		for _, v := range common.ServicesDiscovery {
-			if v != viper.Get("registry").(string) {
-				FilterStartExclude = append(FilterStartExclude, v)
-			}
-		}
 
 		// Filtering out services by exclusion
 		registry.Default.Filter(func(s registry.Service) bool {
@@ -133,16 +144,38 @@ func init() {
 
 	flags := RootCmd.PersistentFlags()
 	flags.BoolVar(&config.RemoteSource, "cluster", false, "Whether this node is master of the cluster or not")
+
 	flags.String("registry", "nats", "Registry used to manage services")
+	flags.String("registry_address", ":4222", "Registry used to manage services")
+	flags.String("registry_cluster_address", ":5222", "Registry used to manage services")
+	flags.String("registry_cluster_routes", "", "Registry used to manage services")
+
+	flags.String("broker", "nats", "Registry used to manage services")
+	flags.String("broker_address", ":4222", "Registry used to manage services")
+
+	flags.String("transport", "grpc", "Registry used to manage services")
+	flags.String("transport_address", ":4222", "Registry used to manage services")
+
 	flags.String("log", "info", "Sets the log level mode")
 	flags.String("grpc_cert", "", "Certificates used for communication via grpc")
 	flags.String("grpc_key", "", "Certificates used for communication via grpc")
 	flags.BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
 
 	viper.BindPFlag("registry", flags.Lookup("registry"))
+	viper.BindPFlag("registry_address", flags.Lookup("registry_address"))
+	viper.BindPFlag("registry_cluster_address", flags.Lookup("registry_cluster_address"))
+	viper.BindPFlag("registry_cluster_routes", flags.Lookup("registry_cluster_routes"))
+
+	viper.BindPFlag("broker", flags.Lookup("broker"))
+	viper.BindPFlag("broker_address", flags.Lookup("broker_address"))
+
+	viper.BindPFlag("transport", flags.Lookup("transport"))
+	viper.BindPFlag("transport_address", flags.Lookup("transport_address"))
+
 	viper.BindPFlag("logs_level", flags.Lookup("log"))
 	viper.BindPFlag("grpc_cert", flags.Lookup("grpc_cert"))
 	viper.BindPFlag("grpc_key", flags.Lookup("grpc_key"))
+
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -155,6 +188,7 @@ func Execute() {
 }
 
 func initLogLevel() {
+
 	// Init log level
 	logLevel := viper.GetString("logs_level")
 
@@ -174,16 +208,43 @@ func initLogLevel() {
 			common.LogLevel = zap.ErrorLevel
 		}
 	}
+
+	log.Init()
 }
 
 func initServices() {
 	registry.Default.BeforeInit()
 
-	registry.Init(
-		registry.Name(viper.GetString("registry")),
-	)
+	registry.Init()
 
 	registry.Default.AfterInit()
+}
+
+func handleRegistry() {
+	switch viper.Get("registry") {
+	case "nats":
+		natsregistry.Enable()
+	default:
+		log.Fatal("registry not supported")
+	}
+}
+
+func handleBroker() {
+	switch viper.Get("broker") {
+	case "nats":
+		natsbroker.Enable()
+	default:
+		log.Fatal("broker not supported")
+	}
+}
+
+func handleTransport() {
+	switch viper.Get("transport") {
+	case "grpc":
+		grpctransport.Enable()
+	default:
+		log.Fatal("transport not supported")
+	}
 }
 
 func handleSignals() {

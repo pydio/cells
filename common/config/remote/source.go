@@ -29,7 +29,7 @@ import (
 	"github.com/pydio/go-os/config"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 )
 
 type remotesource struct {

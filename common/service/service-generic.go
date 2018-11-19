@@ -24,12 +24,13 @@ import (
 	"context"
 
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/broker"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 )
 
 // WithGeneric adds a generic micro service handler to the current service
@@ -93,6 +94,9 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 					log.Logger(ctx).Info("stopping")
 
 					return nil
+				}),
+				micro.AfterStart(func() error {
+					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{})
 				}),
 				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)

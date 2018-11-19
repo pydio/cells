@@ -82,9 +82,6 @@ func (c *pydioregistry) GetServicesByName(name string) []Service {
 // ListServices gives the list of all services registered (whether started or not) in the main registry
 func (c *pydioregistry) ListServices(withExcluded ...bool) ([]Service, error) {
 
-	c.Lock()
-	defer c.Unlock()
-
 	var services []Service
 
 	servicesID, ok := goraph.TopologicalSort(c.graph)
@@ -102,3 +99,8 @@ func (c *pydioregistry) ListServices(withExcluded ...bool) ([]Service, error) {
 
 	return services, nil
 }
+
+// //
+// func (c *pydioregistry) GetServicesForHost(withExcluded ...bool) ([]Service, error) {
+//
+// }

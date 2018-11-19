@@ -35,7 +35,7 @@ import (
 	protosync "github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	synccommon "github.com/pydio/cells/data/source/sync/lib/common"
 	"github.com/pydio/cells/data/source/sync/lib/filters"
 	"github.com/pydio/cells/data/source/sync/lib/task"

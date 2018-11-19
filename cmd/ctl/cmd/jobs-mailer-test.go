@@ -25,7 +25,7 @@ import (
 	"log"
 
 	"github.com/pydio/cells/common/proto/mailer"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/spf13/cobra"
 )
 

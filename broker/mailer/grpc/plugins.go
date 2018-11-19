@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common/proto/mailer"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 )
 
 var (

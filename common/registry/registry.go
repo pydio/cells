@@ -29,9 +29,8 @@ import (
 
 	"github.com/gyuho/goraph"
 	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/registry"
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/spf13/pflag"
 )
 
@@ -63,16 +62,16 @@ type Registry interface {
 }
 
 type pydioregistry struct {
-	*sync.Mutex
-	graph goraph.Graph
+	registerlock *sync.RWMutex
+	register     map[string]Service
+	graph        goraph.Graph
 
-	flags    pflag.FlagSet
-	register map[string]Service
+	// List of peer addresses that have a service associated with the micro registry
+	peerlock *sync.RWMutex
+	peers    map[string]*Peer
 
-	runningmutex *sync.Mutex
-	running      []*registry.Service
-
-	opts Options
+	opts  Options
+	flags pflag.FlagSet
 }
 
 // Init the default registry
@@ -98,11 +97,12 @@ func Watch() (Watcher, error) {
 // NewRegistry provides a new registry object
 func NewRegistry(opts ...Option) Registry {
 	r := &pydioregistry{
-		Mutex:        &sync.Mutex{},
 		graph:        goraph.NewGraph(),
+		registerlock: new(sync.RWMutex),
 		register:     make(map[string]Service),
-		runningmutex: &sync.Mutex{},
 		opts:         newOptions(opts...),
+		peerlock:     new(sync.RWMutex),
+		peers:        make(map[string]*Peer),
 	}
 
 	return r
@@ -115,46 +115,28 @@ func (c *pydioregistry) Init(opts ...Option) {
 		o(&c.opts)
 	}
 
-	if c.opts.Name != "" {
-		services, err := c.ListServices()
-		if err != nil {
-			return
-		}
+	c.maintainRunningServicesList()
+	// services, err := c.ListServices()
+	// if err != nil {
+	// 	return
+	// }
 
-		for _, s := range services {
-			s.AddDependency(c.opts.Name)
-		}
-
-		// Retrieving the node that got the main registry
-		registryNode := goraph.NewNode(c.opts.Name)
-		if node, err := c.graph.GetNode(registryNode); err == nil && node != nil {
-			registryNode = node
-		} else {
-			c.graph.AddNode(registryNode)
-		}
-
-		for _, s := range services {
-			if c.opts.Name == s.Name() {
-				continue
-			}
-			serviceNode := goraph.NewNode(s.Name())
-			if node, err := c.graph.GetNode(serviceNode); err == nil && node != nil {
-				serviceNode = node
-			} else {
-				c.graph.AddNode(serviceNode)
-			}
-
-			c.graph.AddEdge(registryNode.ID(), serviceNode.ID(), 1)
-		}
-	}
+	// for _, s := range services {
+	// 	serviceNode := goraph.NewNode(s.Name())
+	// 	if node, err := c.graph.GetNode(serviceNode); err == nil && node != nil {
+	// 		serviceNode = node
+	// 	} else {
+	// 		c.graph.AddNode(serviceNode)
+	// 	}
+	// }
 }
 
 // Deregister sets a service as excluded in the registry
 func (c *pydioregistry) Deregister(s Service) error {
 	// delete our hash of the service
-	c.Lock()
+	c.registerlock.Lock()
 	c.register[s.Name()].SetExcluded(true)
-	c.Unlock()
+	c.registerlock.Unlock()
 
 	return nil
 }
@@ -167,8 +149,8 @@ func (c *pydioregistry) Register(s Service, opts ...RegisterOption) error {
 		o(&options)
 	}
 
-	c.Lock()
-	defer c.Unlock()
+	c.registerlock.Lock()
+	defer c.registerlock.Unlock()
 
 	id := s.Name()
 
@@ -267,4 +249,16 @@ func (c *pydioregistry) AfterInit() error {
 	}
 
 	return nil
+}
+
+func (c *pydioregistry) GetPeer(address string) *Peer {
+
+	if p, ok := c.peers[address]; ok {
+		return p
+	}
+
+	new := NewPeer(address)
+	c.peers[address] = new
+
+	return new
 }

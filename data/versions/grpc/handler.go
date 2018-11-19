@@ -39,7 +39,7 @@ import (
 	activity2 "github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/data/versions"

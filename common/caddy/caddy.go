@@ -26,6 +26,7 @@ import (
 	"html/template"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/mholt/caddy"
 	"github.com/micro/go-micro/registry"
@@ -34,15 +35,36 @@ import (
 
 var (
 	mainCaddy *Caddy
-	// First we create a FuncMap with which to register the function.
-	funcMap = template.FuncMap{
+	funcMap   = template.FuncMap{
 		"urls": internalURLFromServices,
 	}
+	restartChan chan bool
 )
 
 func init() {
 	caddy.AppName = common.PackageLabel
 	caddy.AppVersion = common.Version().String()
+
+	go watchRestart()
+}
+
+func watchRestart() {
+	restartChan = make(chan bool, 1)
+	exitChan := make(chan bool, 1)
+
+	go func() {
+		<-restartChan
+
+		<-time.After(10 * time.Second)
+
+		err := restart()
+		fmt.Println(err)
+
+		exitChan <- true
+	}()
+
+	<-exitChan
+	watchRestart()
 }
 
 // Caddy contains the templates and functions for building a dynamic caddyfile
@@ -119,6 +141,15 @@ func Start() error {
 }
 
 func Restart() error {
+	go func() {
+		restartChan <- true
+	}()
+
+	return nil
+}
+
+func restart() error {
+
 	if mainCaddy.instance == nil {
 		return fmt.Errorf("instance not started")
 	}

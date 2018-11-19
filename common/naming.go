@@ -204,9 +204,6 @@ var (
 )
 
 var (
-	// ServicesDiscovery lists known discovery server implementations.
-	ServicesDiscovery = []string{SERVICE_CONSUL, SERVICE_NATS}
-
 	// PydioUserProfiles order reflects the level of authorizations
 	PydioUserProfiles = []string{
 		PYDIO_PROFILE_ANON,
