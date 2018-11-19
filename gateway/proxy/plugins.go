@@ -196,6 +196,8 @@ func init() {
 		}),
 		service.AfterStart(func(s service.Service) error {
 
+			fmt.Println("Listetning to restart ", broker.DefaultBroker)
+
 			// Adding subscriber
 			if _, err := broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error {
 				return caddy.Restart()
