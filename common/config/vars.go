@@ -33,9 +33,12 @@ import (
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/file"
 
+	"strings"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/envvar"
 	file2 "github.com/pydio/cells/common/config/file"
+	"github.com/pydio/cells/common/config/memory"
 	"github.com/pydio/cells/common/config/remote"
 )
 
@@ -83,12 +86,11 @@ func Default() config.Config {
 	once.Do(func() {
 		if RemoteSource {
 			// Warning, loading remoteSource will trigger a call to defaults.NewClient()
+			fmt.Println("Loading config from remote source")
 			defaultConfig = &Config{config.NewConfig(
-				config.WithSource(newRemoteSource()),
+				config.WithSource(newRemoteSource(config.SourceName("config"))),
 				config.PollInterval(10*time.Second),
 			)}
-			fmt.Println("Loaded Remote Config from remote source - set 2nd nats on 4223")
-			// defaultConfig.Set(4223, "ports", "nats")
 			return
 		}
 		initVersionStore()
@@ -127,8 +129,8 @@ func newLocalSource() config.Source {
 	)
 }
 
-func newRemoteSource() config.Source {
-	return remote.NewSource()
+func newRemoteSource(opts ...config.SourceOption) config.Source {
+	return remote.NewSource(opts...)
 }
 
 func Get(path ...string) reader.Value {
@@ -136,10 +138,50 @@ func Get(path ...string) reader.Value {
 }
 
 func Set(val interface{}, path ...string) {
-	Default().Set(val, path...)
+	if RemoteSource {
+		remote.UpdateRemote("config", val, path...)
+		return
+	}
+	tmpConfig := Config{Config: config.NewConfig(config.WithSource(memory.NewSource(Default().Bytes())))}
+	tmpConfig.Set(val, path...)
+	// Make sure to init vault
+	Vault()
+	// Filter values
+	hasFilter := false
+	for _, p := range registeredVaultKeys {
+		savedUuid := Default().Get(p...).String("")
+		newConfig := tmpConfig.Get(p...).String("")
+		if newConfig != savedUuid {
+			hasFilter = true
+			if savedUuid != "" {
+				vaultSource.Delete(savedUuid, true)
+			}
+			if newConfig != "" {
+				// Replace value with a secret Uuid
+				fmt.Println("Replacing config value with a secret UUID", strings.Join(p, "/"))
+				newUuid := NewKeyForSecret()
+				e := vaultSource.Set(newUuid, newConfig, true)
+				if e != nil {
+					fmt.Println("Something went wrong when saving file!", e.Error())
+				}
+				tmpConfig.Set(newUuid, p...)
+			}
+		}
+	}
+	if hasFilter {
+		// Replace fully from tmp
+		Default().Set(tmpConfig.Get())
+	} else {
+		// Just update default config
+		Default().Set(val, path...)
+	}
 }
 
 func Del(path ...string) {
+	if RemoteSource {
+		remote.DeleteRemote("config", path...)
+		return
+	}
 	Default().Del(path...)
 }
 

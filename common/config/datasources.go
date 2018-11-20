@@ -183,13 +183,17 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 				newSource.ApiKey = uniuri.New()
 				newSource.ApiSecret = uniuri.NewLen(24)
 			}
+			// Replace credentials by a secret Key
+			secretId := NewKeyForSecret()
+			SetSecret(secretId, creds)
+			newSource.StorageConfiguration["jsonCredentials"] = secretId
 			config = &object.MinioConfig{
 				Name:                 createConfigName(existingConfigs, object.StorageType_GCS),
 				StorageType:          object.StorageType_GCS,
 				ApiKey:               newSource.ApiKey,
 				ApiSecret:            newSource.ApiSecret,
 				RunningPort:          createConfigPort(existingConfigs, newSource.ObjectsPort),
-				GatewayConfiguration: map[string]string{"jsonCredentials": creds},
+				GatewayConfiguration: map[string]string{"jsonCredentials": secretId},
 			}
 		}
 	} else {

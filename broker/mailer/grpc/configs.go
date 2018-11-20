@@ -22,8 +22,13 @@ package grpc
 
 import (
 	"github.com/pydio/cells/broker/mailer/lang"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/forms"
 )
+
+func init() {
+	config.RegisterVaultKey("services", Name, "sender", "password")
+}
 
 var ExposedConfigs = &forms.Form{
 	I18NBundle: lang.Bundle(),

@@ -39,12 +39,18 @@ type Smtp struct {
 	Port     int
 }
 
-func (gm *Smtp) Configure(config config.Map) error {
+func (gm *Smtp) Configure(conf config.Map) error {
 
-	gm.User = config.Get("user").(string)
-	gm.Password = config.Get("password").(string)
-	gm.Host = config.Get("host").(string)
-	portConf := config.Get("port")
+	gm.User = conf.Get("user").(string)
+	// Used by tests
+	if clear := conf.Get("clearPass"); clear != nil {
+		gm.Password = clear.(string)
+	} else {
+		passwordSecret := conf.Get("password").(string)
+		gm.Password = config.GetSecret(passwordSecret).String("")
+	}
+	gm.Host = conf.Get("host").(string)
+	portConf := conf.Get("port")
 	if sConf, ok := portConf.(string); ok && sConf != "" {
 		parsed, _ := strconv.ParseInt(sConf, 10, 64)
 		gm.Port = int(parsed)

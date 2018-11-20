@@ -21,21 +21,18 @@
 package crypto
 
 import (
-	"context"
 	"encoding/base64"
 	"errors"
 
-	"github.com/pydio/cells/common/log"
 	"github.com/zalando/go-keyring"
-	"go.uber.org/zap"
 )
 
 // GetKeyringPassword retrieves password from keyring
 // If no key matches "service" and "user" a key is generated if "createIfNotExist" is true
 func GetKeyringPassword(service string, user string, createIfNotExist bool) ([]byte, error) {
 	password, err := keyring.Get(service, user)
-	if err != nil {
-		log.Logger(context.Background()).Error("Failed to the master key", zap.Error(err))
+	if err != nil && err != keyring.ErrNotFound {
+		return nil, errors.New("failed to read from keyring")
 	}
 
 	empty := len(password) == 0
@@ -55,7 +52,6 @@ func GetKeyringPassword(service string, user string, createIfNotExist bool) ([]b
 	password = base64.StdEncoding.EncodeToString(k)
 	err = keyring.Set(service, user, password)
 	if err != nil {
-		log.Logger(context.Background()).Error("failed to save master key", zap.Error(err))
 		return nil, errors.New("failed to read from keyring. Make sure you have the system keyring installed")
 	}
 	return k, nil
@@ -66,7 +62,6 @@ func SetKeyringPassword(service string, user string, password []byte) error {
 	strPass := base64.StdEncoding.EncodeToString(password)
 	err := keyring.Set(service, user, strPass)
 	if err != nil {
-		log.Logger(context.Background()).Error("failed to save master key", zap.Error(err))
 		return errors.New("failed to write into keyring. Make sure you have the system keyring installed.")
 	}
 	return nil
@@ -76,7 +71,6 @@ func SetKeyringPassword(service string, user string, password []byte) error {
 func DeleteKeyringPassword(service string, user string) error {
 	err := keyring.Delete(service, user)
 	if err != nil {
-		log.Logger(context.Background()).Error("failed to save master key", zap.Error(err))
 		return errors.New("keyring error")
 	}
 	return nil

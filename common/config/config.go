@@ -241,7 +241,7 @@ func (c Map) Del(key string) error {
 // SaveConfigs sends configuration to a local file.
 func Save(ctxUser string, ctxMessage string) error {
 	if RemoteSource {
-		return fmt.Errorf("currently working on remote source - make sure to write configs on cluster configs node")
+		return nil
 	}
 	return saveConfig(defaultConfig, ctxUser, ctxMessage)
 }
