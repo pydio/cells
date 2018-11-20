@@ -28,6 +28,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/mailer"
@@ -42,6 +43,8 @@ var (
 )
 
 func init() {
+	config.RegisterExposedConfigs(Name, ExposedConfigs)
+
 	service.NewService(
 		service.Name(Name),
 		service.Tag(common.SERVICE_TAG_BROKER),
@@ -53,11 +56,10 @@ func init() {
 				Up:            RegisterQueueJob,
 			},
 		}),
-		service.ExposedConfigs(ExposedConfigs),
 		service.WithMicro(func(m micro.Service) error {
 			ctx := m.Options().Context
-			config := servicecontext.GetConfig(ctx)
-			handler, err := NewHandler(ctx, config)
+			conf := servicecontext.GetConfig(ctx)
+			handler, err := NewHandler(ctx, conf)
 			if err != nil {
 				log.Logger(ctx).Error("Init handler", zap.Error(err))
 				return err
