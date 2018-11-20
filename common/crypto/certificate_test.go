@@ -29,7 +29,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/smartystreets/goconvey/convey"
 )
 
@@ -42,7 +41,7 @@ func TestAll(t *testing.T) {
 		testFolder          string
 	)
 
-	testFolder = filepath.Join(config.ApplicationDataDir(), "tests")
+	testFolder = filepath.Join(os.TempDir(), "cells", "tests")
 	os.MkdirAll(testFolder, os.ModePerm)
 
 	caKeyFilename := filepath.Join(testFolder, "ca.key")
