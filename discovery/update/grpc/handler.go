@@ -39,8 +39,11 @@ type Handler struct{}
 func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequest, response *update.UpdateResponse) error {
 
 	var configs common.ConfigValues
-	if e := config.Get("services", servicecontext.GetServiceName(ctx)).Scan(&configs); e != nil {
-		log.Logger(ctx).Error("Cannot load configs for update service", zap.Error(e))
+	var cMap config.Map
+	if e := config.Get("services", servicecontext.GetServiceName(ctx)).Scan(&cMap); e == nil {
+		configs = &cMap
+	} else {
+		log.Logger(ctx).Error("Cannot load last configs for update service, using context configs", zap.Error(e))
 		configs = servicecontext.GetConfig(ctx)
 	}
 	binaries, e := update2.LoadUpdates(ctx, configs)
@@ -57,8 +60,11 @@ func (h *Handler) UpdateRequired(ctx context.Context, request *update.UpdateRequ
 func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRequest, response *update.ApplyUpdateResponse) error {
 
 	var configs common.ConfigValues
-	if e := config.Get("services", servicecontext.GetServiceName(ctx)).Scan(&configs); e != nil {
-		log.Logger(ctx).Error("Cannot load configs for update service", zap.Error(e))
+	var cMap config.Map
+	if e := config.Get("services", servicecontext.GetServiceName(ctx)).Scan(&cMap); e == nil {
+		configs = &cMap
+	} else {
+		log.Logger(ctx).Error("Cannot load last configs for update service, using context configs", zap.Error(e))
 		configs = servicecontext.GetConfig(ctx)
 	}
 	binaries, e := update2.LoadUpdates(ctx, configs)
