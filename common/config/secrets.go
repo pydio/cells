@@ -8,6 +8,7 @@ import (
 	"github.com/micro/go-config/reader"
 	"github.com/pborman/uuid"
 
+	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/remote"
 	"github.com/pydio/cells/common/config/vault"
 	"github.com/pydio/go-os/config"
@@ -45,6 +46,9 @@ func Vault() config.Config {
 			config.WithSource(vaultSource),
 			config.PollInterval(10*time.Second),
 		)}
+		if save := migrateVault(vaultConfig, defaultConfig); save {
+			Save(common.PYDIO_SYSTEM_USERNAME, "Upgrade configs to vault")
+		}
 	})
 	return vaultConfig
 }
