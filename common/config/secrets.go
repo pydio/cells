@@ -39,7 +39,7 @@ func Vault() config.Config {
 		keyPath := filepath.Join(appDir, "cells-vault-key")
 		keyPath = Default().Get("defaults", "vault-key").String(keyPath)
 
-		vaultSource = vault.NewVaultSource(storePath, keyPath)
+		vaultSource = vault.NewVaultSource(storePath, keyPath, false)
 
 		vaultConfig = &Config{config.NewConfig(
 			config.WithSource(vaultSource),
