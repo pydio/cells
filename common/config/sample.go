@@ -63,7 +63,7 @@ var SampleConfig = `{
 			"sender": {
 				"@value": "smtp",
 				"host": "my.smtp.server",
-				"password": "user",
+				"password": "",
 				"port": 465,
 				"user": "name"
 			}
