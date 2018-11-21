@@ -103,7 +103,7 @@ var AdvancedDashboard = (function (_React$Component) {
                 id: 'sharedfiles_per_today',
                 componentClass: 'AdminComponents.GraphBadge',
                 props: {
-                    queryName: "LoginFailed",
+                    queryName: "LinkCreated",
                     legend: getMessageFunc('home.60'),
                     frequency: "D",
                     interval: 60

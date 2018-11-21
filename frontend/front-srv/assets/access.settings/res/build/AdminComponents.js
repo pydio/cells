@@ -17268,7 +17268,7 @@ var AdvancedDashboard = (function (_React$Component) {
                 id: 'sharedfiles_per_today',
                 componentClass: 'AdminComponents.GraphBadge',
                 props: {
-                    queryName: "LoginFailed",
+                    queryName: "LinkCreated",
                     legend: getMessageFunc('home.60'),
                     frequency: "D",
                     interval: 60
@@ -19581,7 +19581,8 @@ var GraphModel = (function () {
                 NodeUpdate: "14",
                 NodeDelete: "15",
                 ObjectGet: "21",
-                ObjectPut: "22"
+                ObjectPut: "22",
+                LinkCreated: "75"
             })[queryName];
         }
     }]);
