@@ -48,7 +48,7 @@ func TestSmtp_Send(t *testing.T) {
 
 		// Put a working user/when testing on your workstation. Beware to *not* commit your password
 		conf.Set("user", test_username)
-		conf.Set("password", test_pwd)
+		conf.Set("clearPass", test_pwd)
 
 		email := &mailer.Mail{}
 		email.From = &mailer.User{

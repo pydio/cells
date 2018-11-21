@@ -163,33 +163,6 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 		return nil, sErr
 	}
 
-	/*
-		if requestData.EncryptionMaterial != nil {
-
-			var offset = requestData.StartOffset
-			var end = offset + requestData.Length - 1
-
-			if requestData.StartOffset >= 0 && requestData.Length >= 0 {
-				log.Logger(ctx).Debug("GET RANGE", zap.Int64("From", requestData.StartOffset), zap.Int64("Length", requestData.Length), node.Zap())
-				if end >= node.Size-1 {
-					end = 0
-				}
-			}
-
-			//headers.Materials = requestData.EncryptionMaterial
-			if offset == 0 && end == 0 {
-				log.Logger(ctx).Debug("GET DATA WITH NO RANGE ")
-				//FIXME
-				//reader, err = writer.GetObject(info.ObjectsBucket, s3Path, requestData.EncryptionMaterial)
-			} else {
-				log.Logger(ctx).Info("Warning, passing a request Length on encrypted data is not supported yet", zap.Int64("offset", requestData.StartOffset), zap.Int64("end", end))
-				if err := headers.SetRange(requestData.StartOffset, end); err != nil {
-					return nil, err
-				}
-				reader, err = writer.GetObjectWithContext(ctx, info.ObjectsBucket, s3Path, headers)
-			}
-		} else {
-	*/
 	if requestData.StartOffset == 0 && requestData.Length == -1 {
 		log.Logger(ctx).Info("Target Object Size is", zap.Any("object", sObject))
 		//		requestData.Length = sObject.Size
@@ -205,7 +178,6 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 		log.Logger(ctx).Error("Get Object", zap.Error(err))
 	}
 
-	//}
 	return reader, err
 }
 
@@ -221,7 +193,7 @@ func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 		UserMetadata: requestData.Metadata,
 	}
 
-	log.Logger(ctx).Info("handler exec: put object", zap.Any("info", info), zap.String("s3Path", s3Path), zap.Any("requestData", requestData))
+	log.Logger(ctx).Info("handler exec: put object", zap.String("s3Path", s3Path), zap.Any("requestData", requestData))
 	if requestData.Size <= 0 {
 		written, err := writer.PutObjectWithContext(ctx, info.ObjectsBucket, s3Path, reader, -1, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
 		if err != nil {

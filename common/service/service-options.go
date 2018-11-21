@@ -68,7 +68,6 @@ type ServiceOptions struct {
 	Checker Checker
 
 	MinNumberOfNodes int
-	ExposedConfigs   common.XMLSerializableForm
 
 	// Before and After funcs
 	BeforeInit  []func(Service) error
@@ -160,12 +159,6 @@ func Regexp(r string) ServiceOption {
 func WithChecker(c Checker) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Checker = c
-	}
-}
-
-func ExposedConfigs(f common.XMLSerializableForm) ServiceOption {
-	return func(o *ServiceOptions) {
-		o.ExposedConfigs = f
 	}
 }
 

@@ -33,6 +33,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/data/source/objects"
@@ -61,18 +62,23 @@ func (o *ObjectHandler) StartMinioServer(ctx context.Context, minioServiceName s
 		gateway = "azure"
 	} else if o.Config.StorageType == object.StorageType_GCS {
 		gateway = "gcs"
-		var creds string
+		var credsUuid string
 		if o.Config.GatewayConfiguration != nil {
 			if jsonCred, ok := o.Config.GatewayConfiguration["jsonCredentials"]; ok {
-				creds = jsonCred
+				credsUuid = jsonCred
 			}
 		}
-		if creds == "" {
+		if credsUuid == "" {
 			return errors.New("missing google application credentials to start GCS gateway")
 		}
+		creds := config.GetSecret(credsUuid).Bytes()
+		if len(creds) == 0 {
+			return errors.New("missing google application credentials to start GCS gateway (cannot find inside vault)")
+		}
+
 		// Create gcs-credentials.json and pass it as env variable
 		fName := filepath.Join(configFolder, "gcs-credentials.json")
-		ioutil.WriteFile(fName, []byte(creds), 0777)
+		ioutil.WriteFile(fName, creds, 0600)
 		os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", fName)
 	} else {
 		folderName = o.Config.LocalFolder

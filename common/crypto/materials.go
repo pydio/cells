@@ -22,13 +22,10 @@ package crypto
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"io"
 
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/encryption"
-	"go.uber.org/zap"
 )
 
 // AESGCMMaterials ...
@@ -175,7 +172,7 @@ func (m *AESGCMMaterials) encryptRead(b []byte) (int, error) {
 		if cursor != 0 && (cursor == int(m.blockSize) || m.eof) {
 			sealed, err := Seal(m.encryptionKey, buff[:cursor])
 			if err != nil {
-				log.Logger(context.Background()).Error("failed to seal block", zap.Int("Block Num", m.blockCount), zap.Int32("Block size", m.blockSize), zap.Int64("Total Read", m.totalRead), zap.Error(err))
+				//log.Logger(context.Background()).Error("failed to seal block", zap.Int("Block Num", m.blockCount), zap.Int32("Block size", m.blockSize), zap.Int64("Total Read", m.totalRead), zap.Error(err))
 				return n, err
 			}
 			cursor = 0
@@ -224,7 +221,7 @@ func (m *AESGCMMaterials) decryptRead(b []byte) (int, error) {
 
 			opened, err := Open(m.encryptionKey, nonce, buff[:cursor])
 			if err != nil {
-				log.Logger(context.Background()).Error("failed to decrypt block", zap.Int("Block Num", m.blockCount), zap.Int32("Block size", m.blockSize), zap.Int64("Total Read", m.totalRead), zap.Error(err))
+				//log.Logger(context.Background()).Error("failed to decrypt block", zap.Int("Block Num", m.blockCount), zap.Int32("Block size", m.blockSize), zap.Int64("Total Read", m.totalRead), zap.Error(err))
 				return 0, err
 			}
 			cursor = 0

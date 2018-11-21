@@ -34,7 +34,6 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
@@ -120,18 +119,12 @@ func (s *Handler) ConfigFormsDiscovery(req *restful.Request, rsp *restful.Respon
 		service.RestError500(req, rsp, errors.BadRequest("configs", "Please provide a service name"))
 	}
 
-	services, err := registry.ListServices()
-	if err != nil {
-		service.RestError500(req, rsp, err)
+	form := config.ExposedConfigsForService(serviceName)
+	if form == nil {
+		service.RestError404(req, rsp, errors.NotFound("configs", "Cannot find service "+serviceName))
 		return
 	}
-	for _, srv := range services {
-		if srv.Name() == serviceName {
-			var form common.XMLSerializableForm
-			form = srv.ExposedConfigs()
-			rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
-			return
-		}
-	}
-	service.RestError404(req, rsp, errors.NotFound("configs", "Cannot find service "+serviceName))
+	rsp.WriteAsXml(form.Serialize(i18n.UserLanguagesFromRestRequest(req, config.Default())...))
+	return
+
 }

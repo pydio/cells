@@ -30,7 +30,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/pydio/cells/common/config"
 	"github.com/smartystreets/goconvey/convey"
 )
 
@@ -44,7 +43,7 @@ func TestMaterials(t *testing.T) {
 		materials            *AESGCMMaterials
 		inFile, outFile      *os.File
 	)
-	testFolder = filepath.Join(config.ApplicationDataDir(), "tests")
+	testFolder = filepath.Join(os.TempDir(), "cells", "tests")
 	os.MkdirAll(testFolder, os.ModePerm)
 
 	filename = filepath.Join(testFolder, "data.txt")

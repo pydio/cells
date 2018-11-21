@@ -44,8 +44,11 @@ var (
 )
 
 func init() {
+
+	config.RegisterExposedConfigs(Name, ExposedConfigs)
+
 	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_VERSIONS),
+		service.Name(Name),
 		service.Tag(common.SERVICE_TAG_DATA),
 		service.Description("Versioning service"),
 		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
@@ -57,7 +60,6 @@ func init() {
 				Up:            InitDefaults,
 			},
 		}),
-		service.ExposedConfigs(ExposedConfigs),
 		service.WithMicro(func(m micro.Service) error {
 
 			serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_VERSIONS)
