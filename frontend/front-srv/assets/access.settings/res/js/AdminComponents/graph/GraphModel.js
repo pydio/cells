@@ -75,7 +75,8 @@ class GraphModel {
             NodeUpdate:     "14",
             NodeDelete:     "15",
             ObjectGet:      "21",
-            ObjectPut:      "22"
+            ObjectPut:      "22",
+            LinkCreated:    "75"
         }[queryName];
     }
 
