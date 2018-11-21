@@ -179,7 +179,7 @@ func init() {
 func printResult(cmd *cobra.Command) {
 	var total singleCounter
 
-	cmd.Println("\nResults\n-------\n")
+	cmd.Println("\nResults\n-------")
 	var i int
 	for _, projectCounter := range counters {
 		i++
