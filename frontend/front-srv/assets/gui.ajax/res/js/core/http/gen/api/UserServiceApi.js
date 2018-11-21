@@ -14,7 +14,6 @@
 
 import ApiClient from "../ApiClient";
 import IdmUser from '../model/IdmUser';
-import RestBindResponse from '../model/RestBindResponse';
 import RestDeleteResponse from '../model/RestDeleteResponse';
 import RestSearchUserRequest from '../model/RestSearchUserRequest';
 import RestUsersCollection from '../model/RestUsersCollection';
@@ -37,62 +36,6 @@ export default class UserServiceApi {
         this.apiClient = apiClient || ApiClient.instance;
     }
 
-
-
-    /**
-     * Bind a user with her login and password
-     * @param {String} login 
-     * @param {module:model/IdmUser} body 
-     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestBindResponse} and HTTP response
-     */
-    bindUserWithHttpInfo(login, body) {
-      let postBody = body;
-
-      // verify the required parameter 'login' is set
-      if (login === undefined || login === null) {
-        throw new Error("Missing the required parameter 'login' when calling bindUser");
-      }
-
-      // verify the required parameter 'body' is set
-      if (body === undefined || body === null) {
-        throw new Error("Missing the required parameter 'body' when calling bindUser");
-      }
-
-
-      let pathParams = {
-        'Login': login
-      };
-      let queryParams = {
-      };
-      let headerParams = {
-      };
-      let formParams = {
-      };
-
-      let authNames = [];
-      let contentTypes = ['application/json'];
-      let accepts = ['application/json'];
-      let returnType = RestBindResponse;
-
-      return this.apiClient.callApi(
-        '/user/{Login}/bind', 'POST',
-        pathParams, queryParams, headerParams, formParams, postBody,
-        authNames, contentTypes, accepts, returnType
-      );
-    }
-
-    /**
-     * Bind a user with her login and password
-     * @param {String} login 
-     * @param {module:model/IdmUser} body 
-     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestBindResponse}
-     */
-    bindUser(login, body) {
-      return this.bindUserWithHttpInfo(login, body)
-        .then(function(response_and_data) {
-          return response_and_data.data;
-        });
-    }
 
 
     /**

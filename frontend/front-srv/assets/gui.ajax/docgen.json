@@ -15050,62 +15050,6 @@
             "description": "Constructs a new UserServiceApi."
           },
           {
-            "name": "bindUserWithHttpInfo",
-            "docblock": "Bind a user with her login and password\n@param {String} login \n@param {module:model/IdmUser} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestBindResponse} and HTTP response",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "login",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              },
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/IdmUser"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestBindResponse} and HTTP response",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Bind a user with her login and password"
-          },
-          {
-            "name": "bindUser",
-            "docblock": "Bind a user with her login and password\n@param {String} login \n@param {module:model/IdmUser} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestBindResponse}",
-            "modifiers": [],
-            "params": [
-              {
-                "name": "login",
-                "description": null,
-                "type": {
-                  "name": "String"
-                }
-              },
-              {
-                "name": "body",
-                "description": null,
-                "type": {
-                  "name": "module:model/IdmUser"
-                }
-              }
-            ],
-            "returns": {
-              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestBindResponse}",
-              "type": {
-                "name": "Promise"
-              }
-            },
-            "description": "Bind a user with her login and password"
-          },
-          {
             "name": "deleteUserWithHttpInfo",
             "docblock": "Delete a user\n@param {String} login \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestDeleteResponse} and HTTP response",
             "modifiers": [],
@@ -19441,52 +19385,6 @@
         ]
       }
     ],
-    "core/http/gen/model/RestBindResponse.js": [
-      {
-        "description": "The RestBindResponse model module.\n@module model/RestBindResponse\n@version 1.0",
-        "displayName": "RestBindResponse",
-        "methods": [
-          {
-            "name": "constructor",
-            "docblock": "Constructs a new <code>RestBindResponse</code>.\n@alias module:model/RestBindResponse\n@class",
-            "modifiers": [],
-            "params": [],
-            "returns": null,
-            "description": "Constructs a new <code>RestBindResponse</code>."
-          },
-          {
-            "name": "constructFromObject",
-            "docblock": "Constructs a <code>RestBindResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestBindResponse} obj Optional instance to populate.\n@return {module:model/RestBindResponse} The populated <code>RestBindResponse</code> instance.",
-            "modifiers": [
-              "static"
-            ],
-            "params": [
-              {
-                "name": "data",
-                "description": "The plain JavaScript object bearing properties of interest.",
-                "type": {
-                  "name": "Object"
-                }
-              },
-              {
-                "name": "obj",
-                "description": "Optional instance to populate.",
-                "type": {
-                  "name": "module:model/RestBindResponse"
-                }
-              }
-            ],
-            "returns": {
-              "description": "The populated <code>RestBindResponse</code> instance.",
-              "type": {
-                "name": "module:model/RestBindResponse"
-              }
-            },
-            "description": "Constructs a <code>RestBindResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
-          }
-        ]
-      }
-    ],
     "core/http/gen/model/RestBulkMetaResponse.js": [
       {
         "description": "The RestBulkMetaResponse model module.\n@module model/RestBulkMetaResponse\n@version 1.0",
@@ -20357,6 +20255,52 @@
               }
             },
             "description": "Constructs a <code>RestDiscoveryResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestError.js": [
+      {
+        "description": "The RestError model module.\n@module model/RestError\n@version 1.0",
+        "displayName": "RestError",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestError</code>.\n@alias module:model/RestError\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestError</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestError</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestError} obj Optional instance to populate.\n@return {module:model/RestError} The populated <code>RestError</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestError"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestError</code> instance.",
+              "type": {
+                "name": "module:model/RestError"
+              }
+            },
+            "description": "Constructs a <code>RestError</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }

@@ -103,7 +103,7 @@ export default React.createClass({
         };
 
         return (
-            <div className="user-roles-picker" style={{padding:0}}>
+            <div className="user-roles-picker" style={{padding:0, marginBottom: 20}}>
                 <div style={{paddingLeft: 22, marginTop: -40, display: 'flex', alignItems: 'center'}}>
                     <div style={{flex: 1, color: '#bdbdbd', fontWeight: 500}}>Manage roles {loadingMessage ? ' ('+ctx.getMessage('21')+')':''}</div>
                     <div className="roles-picker-menu" style={{marginTop: -12}}>

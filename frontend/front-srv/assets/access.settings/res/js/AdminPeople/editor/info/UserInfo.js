@@ -85,7 +85,6 @@ class UserInfo extends React.Component {
             rolesPicker = (
                 <UserRolesPicker
                     roles={idmUser.Roles}
-                    loadingMessage={'Loading Roles...'}
                     addRole={(r) => user.addRole(r)}
                     removeRole={(r) => user.removeRole(r)}
                     switchRoles={(r1,r2) => user.switchRoles(r1,r2)}

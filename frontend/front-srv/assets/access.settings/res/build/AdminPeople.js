@@ -25703,7 +25703,6 @@ var UserInfo = (function (_React$Component) {
                     }
                     rolesPicker = _react2['default'].createElement(_userUserRolesPicker2['default'], {
                         roles: idmUser.Roles,
-                        loadingMessage: 'Loading Roles...',
                         addRole: function (r) {
                             return user.addRole(r);
                         },
@@ -29121,7 +29120,7 @@ exports['default'] = _react2['default'].createClass({
 
         return _react2['default'].createElement(
             'div',
-            { className: 'user-roles-picker', style: { padding: 0 } },
+            { className: 'user-roles-picker', style: { padding: 0, marginBottom: 20 } },
             _react2['default'].createElement(
                 'div',
                 { style: { paddingLeft: 22, marginTop: -40, display: 'flex', alignItems: 'center' } },

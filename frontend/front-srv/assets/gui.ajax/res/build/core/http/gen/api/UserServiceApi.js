@@ -27,10 +27,6 @@ var _modelIdmUser = require('../model/IdmUser');
 
 var _modelIdmUser2 = _interopRequireDefault(_modelIdmUser);
 
-var _modelRestBindResponse = require('../model/RestBindResponse');
-
-var _modelRestBindResponse2 = _interopRequireDefault(_modelRestBindResponse);
-
 var _modelRestDeleteResponse = require('../model/RestDeleteResponse');
 
 var _modelRestDeleteResponse2 = _interopRequireDefault(_modelRestDeleteResponse);
@@ -64,54 +60,6 @@ var UserServiceApi = (function () {
 
     this.apiClient = apiClient || _ApiClient2['default'].instance;
   }
-
-  /**
-   * Bind a user with her login and password
-   * @param {String} login 
-   * @param {module:model/IdmUser} body 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestBindResponse} and HTTP response
-   */
-
-  UserServiceApi.prototype.bindUserWithHttpInfo = function bindUserWithHttpInfo(login, body) {
-    var postBody = body;
-
-    // verify the required parameter 'login' is set
-    if (login === undefined || login === null) {
-      throw new Error("Missing the required parameter 'login' when calling bindUser");
-    }
-
-    // verify the required parameter 'body' is set
-    if (body === undefined || body === null) {
-      throw new Error("Missing the required parameter 'body' when calling bindUser");
-    }
-
-    var pathParams = {
-      'Login': login
-    };
-    var queryParams = {};
-    var headerParams = {};
-    var formParams = {};
-
-    var authNames = [];
-    var contentTypes = ['application/json'];
-    var accepts = ['application/json'];
-    var returnType = _modelRestBindResponse2['default'];
-
-    return this.apiClient.callApi('/user/{Login}/bind', 'POST', pathParams, queryParams, headerParams, formParams, postBody, authNames, contentTypes, accepts, returnType);
-  };
-
-  /**
-   * Bind a user with her login and password
-   * @param {String} login 
-   * @param {module:model/IdmUser} body 
-   * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestBindResponse}
-   */
-
-  UserServiceApi.prototype.bindUser = function bindUser(login, body) {
-    return this.bindUserWithHttpInfo(login, body).then(function (response_and_data) {
-      return response_and_data.data;
-    });
-  };
 
   /**
    * Delete a user

@@ -393,10 +393,6 @@ var _modelRestBackgroundJobResult = require('./model/RestBackgroundJobResult');
 
 var _modelRestBackgroundJobResult2 = _interopRequireDefault(_modelRestBackgroundJobResult);
 
-var _modelRestBindResponse = require('./model/RestBindResponse');
-
-var _modelRestBindResponse2 = _interopRequireDefault(_modelRestBindResponse);
-
 var _modelRestBulkMetaResponse = require('./model/RestBulkMetaResponse');
 
 var _modelRestBulkMetaResponse2 = _interopRequireDefault(_modelRestBulkMetaResponse);
@@ -472,6 +468,10 @@ var _modelRestDeleteUserMetaTagsResponse2 = _interopRequireDefault(_modelRestDel
 var _modelRestDiscoveryResponse = require('./model/RestDiscoveryResponse');
 
 var _modelRestDiscoveryResponse2 = _interopRequireDefault(_modelRestDiscoveryResponse);
+
+var _modelRestError = require('./model/RestError');
+
+var _modelRestError2 = _interopRequireDefault(_modelRestError);
 
 var _modelRestFrontBinaryRequest = require('./model/RestFrontBinaryRequest');
 
@@ -1628,13 +1628,6 @@ RestBackgroundJobResult = _modelRestBackgroundJobResult2['default'];
 exports.
 
 /**
- * The RestBindResponse model constructor.
- * @property {module:model/RestBindResponse}
- */
-RestBindResponse = _modelRestBindResponse2['default'];
-exports.
-
-/**
  * The RestBulkMetaResponse model constructor.
  * @property {module:model/RestBulkMetaResponse}
  */
@@ -1765,6 +1758,13 @@ exports.
  * @property {module:model/RestDiscoveryResponse}
  */
 RestDiscoveryResponse = _modelRestDiscoveryResponse2['default'];
+exports.
+
+/**
+ * The RestError model constructor.
+ * @property {module:model/RestError}
+ */
+RestError = _modelRestError2['default'];
 exports.
 
 /**

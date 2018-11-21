@@ -106,7 +106,6 @@ import ProtobufAny from './model/ProtobufAny';
 import ResourcePolicyQueryQueryType from './model/ResourcePolicyQueryQueryType';
 import RestACLCollection from './model/RestACLCollection';
 import RestBackgroundJobResult from './model/RestBackgroundJobResult';
-import RestBindResponse from './model/RestBindResponse';
 import RestBulkMetaResponse from './model/RestBulkMetaResponse';
 import RestCell from './model/RestCell';
 import RestCellAcl from './model/RestCellAcl';
@@ -126,6 +125,7 @@ import RestDeleteResponse from './model/RestDeleteResponse';
 import RestDeleteShareLinkResponse from './model/RestDeleteShareLinkResponse';
 import RestDeleteUserMetaTagsResponse from './model/RestDeleteUserMetaTagsResponse';
 import RestDiscoveryResponse from './model/RestDiscoveryResponse';
+import RestError from './model/RestError';
 import RestFrontBinaryRequest from './model/RestFrontBinaryRequest';
 import RestFrontBinaryResponse from './model/RestFrontBinaryResponse';
 import RestFrontBootConfResponse from './model/RestFrontBootConfResponse';
@@ -841,12 +841,6 @@ export {
     RestBackgroundJobResult,
 
     /**
-     * The RestBindResponse model constructor.
-     * @property {module:model/RestBindResponse}
-     */
-    RestBindResponse,
-
-    /**
      * The RestBulkMetaResponse model constructor.
      * @property {module:model/RestBulkMetaResponse}
      */
@@ -959,6 +953,12 @@ export {
      * @property {module:model/RestDiscoveryResponse}
      */
     RestDiscoveryResponse,
+
+    /**
+     * The RestError model constructor.
+     * @property {module:model/RestError}
+     */
+    RestError,
 
     /**
      * The RestFrontBinaryRequest model constructor.

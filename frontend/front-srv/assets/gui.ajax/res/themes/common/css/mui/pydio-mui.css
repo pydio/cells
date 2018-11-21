@@ -2984,14 +2984,21 @@
 }
 .react-mui-context .pydio-form-panel .form-entry-string .form-legend,
 .react-mui-context .pydio-form-panel .form-entry-integer .form-legend,
+.react-mui-context .pydio-form-panel .form-entry-autocomplete .form-legend,
+.react-mui-context .pydio-form-panel .form-entry-select .form-legend,
 .react-mui-context .pydio-form-panel .form-entry-textarea .form-legend {
   margin-top: -5px;
   transition: margin-top 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 .react-mui-context .pydio-form-panel .form-entry-string .form-legend.mandatory-missing,
 .react-mui-context .pydio-form-panel .form-entry-integer .form-legend.mandatory-missing,
+.react-mui-context .pydio-form-panel .form-entry-autocomplete .form-legend.mandatory-missing,
+.react-mui-context .pydio-form-panel .form-entry-select .form-legend.mandatory-missing,
 .react-mui-context .pydio-form-panel .form-entry-textarea .form-legend.mandatory-missing {
   opacity: 0;
+}
+.react-mui-context .pydio-form-panel .form-entry-select .form-legend {
+  margin-top: -10px;
 }
 .react-mui-context .pydio-form-panel .form-entry-button {
   display: inline-block;
@@ -3584,6 +3591,9 @@
   margin-bottom: 0;
   font-weight: 400;
   line-height: 23px;
+}
+.react-mui-context .mui-subheader {
+  text-transform: uppercase;
 }
 .react-mui-context .mui-focus-ripple .mui-focus-ripple-inner {
   animation: none !important;
