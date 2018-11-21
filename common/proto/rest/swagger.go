@@ -429,7 +429,13 @@ var SwaggerJson = `{
             "enum": [
               "LOCAL",
               "S3",
-              "SMB"
+              "SMB",
+              "CELLS",
+              "AZURE",
+              "GCS",
+              "B2",
+              "MANTA",
+              "SIA"
             ],
             "default": "LOCAL"
           },
@@ -2770,39 +2776,6 @@ var SwaggerJson = `{
         ]
       }
     },
-    "/user/{Login}/bind": {
-      "post": {
-        "summary": "Bind a user with her login and password",
-        "operationId": "BindUser",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/restBindResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Login",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/idmUser"
-            }
-          }
-        ],
-        "tags": [
-          "UserService"
-        ]
-      }
-    },
     "/workspace": {
       "post": {
         "summary": "Search workspaces on certain keys",
@@ -5068,7 +5041,13 @@ var SwaggerJson = `{
       "enum": [
         "LOCAL",
         "S3",
-        "SMB"
+        "SMB",
+        "CELLS",
+        "AZURE",
+        "GCS",
+        "B2",
+        "MANTA",
+        "SIA"
       ],
       "default": "LOCAL",
       "title": "Type of Gateway"
@@ -5114,16 +5093,6 @@ var SwaggerJson = `{
           "type": "string"
         }
       }
-    },
-    "restBindResponse": {
-      "type": "object",
-      "properties": {
-        "Success": {
-          "type": "boolean",
-          "format": "boolean"
-        }
-      },
-      "title": "Binding Response"
     },
     "restBulkMetaResponse": {
       "type": "object",

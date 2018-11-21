@@ -245,13 +245,6 @@ service UserService {
           body: "*"
         };
     };
-    // Bind a user with her login and password
-    rpc BindUser(idm.User) returns (BindResponse) {
-        option (google.api.http) =  {
-            post: "/user/{Login}/bind"
-            body: "*"
-        };
-    }
     // Just save a user roles, without other datas
     rpc PutRoles(idm.User) returns (idm.User) {
         option (google.api.http) =  {
