@@ -38,7 +38,7 @@ class UploadItem extends StatusItem {
         } else {
             this._label = file.name;
         }
-        if(!targetNode.getMetadata().has("datasource_encrypted")){
+        if(file.size > PydioApi.getMultipartThreshold() && !targetNode.getMetadata().has("datasource_encrypted")){
             this.createParts();
         }
         if(parent){
@@ -47,11 +47,9 @@ class UploadItem extends StatusItem {
     }
     createParts(){
         const partSize = PydioApi.getMultipartPartSize();
-        if(this._file.size > partSize) {
-            this._parts = [];
-            for(let i = 0 ; i < Math.ceil(this._file.size / partSize); i ++ ) {
-                this._parts.push(new PartItem(this, i + 1));
-            }
+        this._parts = [];
+        for(let i = 0 ; i < Math.ceil(this._file.size / partSize); i ++ ) {
+            this._parts.push(new PartItem(this, i + 1));
         }
     }
     getFile(){
@@ -152,7 +150,7 @@ class UploadItem extends StatusItem {
             return;
         }
         // For encrypted datasource, do not use multipart!
-        if (this._targetNode.getMetadata().has("datasource_encrypted")) {
+        if (this._targetNode.getMetadata().has("datasource_encrypted") || this.getSize() < PydioApi.getMultipartThreshold()) {
             PydioApi.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(xhr => {
                 this.xhr = xhr;
             });

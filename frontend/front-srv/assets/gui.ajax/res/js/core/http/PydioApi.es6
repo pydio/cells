@@ -17,6 +17,7 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
+import Pydio from '../Pydio'
 import Connexion from './Connexion'
 import PathUtils from '../util/PathUtils'
 import RestClient from './RestClient'
@@ -46,7 +47,6 @@ class ManagedMultipart extends AWS.S3.ManagedUpload{
                 partLoaded, partTotal,
                 key: this.params.Key
             };
-            console.log("emit", info);
         }
         upload.emit('httpUploadProgress', [info]);
     }
@@ -68,8 +68,31 @@ class PydioApi{
         return new RestClient(this.getClient()._pydioObject);
     }
 
+    static getMultipartThreshold(){
+        const conf = Pydio.getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_THRESHOLD");
+        if(conf) {
+            return parseInt(conf);
+        } else {
+            return 100 * 1024 * 1024;
+        }
+    }
+
     static getMultipartPartSize(){
-        return 50 * 1024 * 1024;
+        const conf = Pydio.getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_PART_SIZE");
+        if(conf) {
+            return parseInt(conf);
+        } else {
+            return 50 * 1024 * 1024;
+        }
+    }
+
+    static getMultipartPartQueueSize(){
+        const conf = Pydio.getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_QUEUE_SIZE");
+        if(conf) {
+            return parseInt(conf);
+        } else {
+            return 3;
+        }
     }
 
     setPydioObject(pydioObject){
@@ -245,7 +268,7 @@ class PydioApi{
                 const managed = new ManagedMultipart({
                     params: {...params, Body: file},
                     partSize: PydioApi.getMultipartPartSize(),
-                    queueSize: 3,
+                    queueSize: PydioApi.getMultipartPartQueueSize(),
                     leavePartsOnError:false,
                 });
                 managed.on('httpUploadProgress', onProgress);

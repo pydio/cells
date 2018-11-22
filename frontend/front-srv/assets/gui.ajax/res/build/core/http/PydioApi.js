@@ -29,6 +29,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var _Pydio = require('../Pydio');
+
+var _Pydio2 = _interopRequireDefault(_Pydio);
+
 var _Connexion = require('./Connexion');
 
 var _Connexion2 = _interopRequireDefault(_Connexion);
@@ -93,7 +97,6 @@ var ManagedMultipart = (function (_AWS$S3$ManagedUpload) {
                 partLoaded: partLoaded, partTotal: partTotal,
                 key: this.params.Key
             };
-            console.log("emit", info);
         }
         upload.emit('httpUploadProgress', [info]);
     };
@@ -114,8 +117,31 @@ var PydioApi = (function () {
         return new _RestClient2['default'](this.getClient()._pydioObject);
     };
 
+    PydioApi.getMultipartThreshold = function getMultipartThreshold() {
+        var conf = _Pydio2['default'].getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_THRESHOLD");
+        if (conf) {
+            return parseInt(conf);
+        } else {
+            return 100 * 1024 * 1024;
+        }
+    };
+
     PydioApi.getMultipartPartSize = function getMultipartPartSize() {
-        return 50 * 1024 * 1024;
+        var conf = _Pydio2['default'].getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_PART_SIZE");
+        if (conf) {
+            return parseInt(conf);
+        } else {
+            return 50 * 1024 * 1024;
+        }
+    };
+
+    PydioApi.getMultipartPartQueueSize = function getMultipartPartQueueSize() {
+        var conf = _Pydio2['default'].getInstance().getPluginConfigs("core.uploader").get("MULTIPART_UPLOAD_QUEUE_SIZE");
+        if (conf) {
+            return parseInt(conf);
+        } else {
+            return 3;
+        }
     };
 
     PydioApi.prototype.setPydioObject = function setPydioObject(pydioObject) {
@@ -316,7 +342,7 @@ var PydioApi = (function () {
                 var managed = new ManagedMultipart({
                     params: _extends({}, params, { Body: file }),
                     partSize: PydioApi.getMultipartPartSize(),
-                    queueSize: 3,
+                    queueSize: PydioApi.getMultipartPartQueueSize(),
                     leavePartsOnError: false
                 });
                 managed.on('httpUploadProgress', onProgress);

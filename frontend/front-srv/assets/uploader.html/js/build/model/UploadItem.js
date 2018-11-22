@@ -59,7 +59,7 @@ var UploadItem = function (_StatusItem) {
         } else {
             _this._label = file.name;
         }
-        if (!targetNode.getMetadata().has("datasource_encrypted")) {
+        if (file.size > _api2.default.getMultipartThreshold() && !targetNode.getMetadata().has("datasource_encrypted")) {
             _this.createParts();
         }
         if (parent) {
@@ -72,11 +72,9 @@ var UploadItem = function (_StatusItem) {
         key: 'createParts',
         value: function createParts() {
             var partSize = _api2.default.getMultipartPartSize();
-            if (this._file.size > partSize) {
-                this._parts = [];
-                for (var i = 0; i < Math.ceil(this._file.size / partSize); i++) {
-                    this._parts.push(new _PartItem2.default(this, i + 1));
-                }
+            this._parts = [];
+            for (var i = 0; i < Math.ceil(this._file.size / partSize); i++) {
+                this._parts.push(new _PartItem2.default(this, i + 1));
             }
         }
     }, {
@@ -193,7 +191,7 @@ var UploadItem = function (_StatusItem) {
                 return;
             }
 
-            if (this._targetNode.getMetadata().has("datasource_encrypted")) {
+            if (this._targetNode.getMetadata().has("datasource_encrypted") || this.getSize() < _api2.default.getMultipartThreshold()) {
                 _api2.default.getClient().uploadPresigned(this._file, fullPath, completeCallback, errorCallback, progressCallback).then(function (xhr) {
                     _this3.xhr = xhr;
                 });
