@@ -39,7 +39,7 @@ export default React.createClass({
     },
 
     getInitialState(){
-        return {details: true, filter:''}
+        return {details: false, filter:'', peers:[], peerFilter:''}
     },
 
     onDetailsChange(event, value){
@@ -50,18 +50,33 @@ export default React.createClass({
         this.setState({filter: value});
     },
 
+    onPeerFilterChange(event, index, value){
+        this.setState({peerFilter: value});
+    },
+
     reloadList(){
         this.refs.servicesList.reload();
     },
 
+    onUpdatePeers(peers){
+        this.setState({peers})
+    },
+
     render(){
         const {pydio} = this.props;
+        const {peers, peerFilter, filter, details} = this.state;
         const m = id => pydio.MessageHash['ajxp_admin.services.' + id] || id;
 
         const buttonContainer = (
             <div style={{display: 'flex', alignItems: 'center', padding: '0 20px', width: '100%'}}>
-                <Toggle label={m('toggle.details')} toggled={this.state.details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 150}}/>
-                <DropDownMenu style={{marginTop: -10}} underlineStyle={{display:'none'}} value={this.state.filter} onChange={this.onFilterChange}>
+                <Toggle label={m('toggle.details')} toggled={details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 150}}/>
+                {peers.length &&
+                    <DropDownMenu style={{marginTop: -10}} underlineStyle={{display:'none'}} value={peerFilter} onChange={this.onPeerFilterChange}>
+                        <MenuItem value={''} primaryText={'Select Peer Node'} />
+                        {peers.map(peer => <MenuItem value={peer} primaryText={peer} />)}
+                    </DropDownMenu>
+                }
+                <DropDownMenu style={{marginTop: -10}} underlineStyle={{display:'none'}} value={filter} onChange={this.onFilterChange}>
                     <MenuItem value={''} primaryText={m('filter.nofilter')} />
                     <MenuItem value={'STARTED'} primaryText={m('filter.started')} />
                     <MenuItem value={'STOPPED'} primaryText={m('filter.stopped')} />
@@ -86,8 +101,10 @@ export default React.createClass({
                         dataModel={this.props.dataModel}
                         rootNode={this.props.rootNode}
                         currentNode={this.props.rootNode}
-                        filter={this.state.filter}
-                        details={this.state.details}
+                        filter={filter}
+                        peerFilter={peerFilter}
+                        details={details}
+                        onUpdatePeers={this.onUpdatePeers.bind(this)}
                     />
                 </div>
             </div>

@@ -23,17 +23,12 @@ import PydioApi from 'pydio/http/api'
 import {ConfigServiceApi} from 'pydio/http/rest-api'
 import {Paper, List, ListItem, Checkbox, FontIcon, Divider} from 'material-ui'
 import ServiceCard from './ServiceCard'
+const {MaterialTable} = Pydio.requireLib('components');
 
 const tags = ['gateway', 'datasource', 'data', 'idm', 'scheduler', 'broker', 'frontend', 'discovery'];
 
-function groupAndSortServices(services) {
-
+function extractPeers(services) {
     let Peers = {};
-    let Tags = {};
-    // Sort all services on name
-    services.sort((s1, s2) => {
-        return s1.Name > s2.Name ? 1 : (s1.Name === s2.Name ? 0 : -1);
-    });
     // First detect peers
     services.map(service => {
         if(!service.RunningPeers) {
@@ -43,7 +38,17 @@ function groupAndSortServices(services) {
             Peers[peer.Address] = peer.Address;
         });
     });
-    // Now split services on various tags
+    return Object.keys(Peers);
+}
+
+function groupAndSortServices(services) {
+
+    let Tags = {};
+    // Sort all services on name
+    services.sort((s1, s2) => {
+        return s1.Name > s2.Name ? 1 : (s1.Name === s2.Name ? 0 : -1);
+    });
+    // Split services on various tags
     tags.forEach(tagName => {
         Tags[tagName] = {
             services:{}
@@ -79,7 +84,7 @@ function groupAndSortServices(services) {
         });
     });
 
-    return {Peers, Tags};
+    return Tags;
 
 }
 
@@ -92,7 +97,9 @@ export default React.createClass({
         rootNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
         currentNode:React.PropTypes.instanceOf(AjxpNode).isRequired,
         filter:React.PropTypes.string,
-        details: React.PropTypes.bool
+        peerFilter:React.PropTypes.string,
+        details: React.PropTypes.bool,
+        onUpdatePeers: React.PropTypes.func,
     },
 
     getInitialState(){
@@ -113,6 +120,10 @@ export default React.createClass({
         api.listServices().then((servicesCollection) => {
             Pydio.endLoading();
             this.setState({services: servicesCollection.Services});
+            if(this.props.onUpdatePeers){
+                const peers = extractPeers(servicesCollection.Services);
+                this.props.onUpdatePeers(peers);
+            }
         }).catch(()=>{
             Pydio.endLoading();
         });
@@ -145,19 +156,24 @@ export default React.createClass({
             />);
     },
 
-
     filterNodes(service){
         if(service.Name.indexOf('.(.+)') !== -1){
             return false;
         }
-        if(! this.props.filter ) {
-            return true;
+        if(this.props.filter && service.Status !== this.props.filter ) {
+            return false;
         }
-        return service.Status === this.props.filter;
+        if(this.props.peerFilter) {
+            if(!service.RunningPeers) return false;
+            return service.RunningPeers.filter(p => {
+                return p.Address === this.props.peerFilter;
+            }).length > 0;
+        }
+        return true;
     },
 
     render(){
-        const {pydio} = this.props;
+        const {pydio, details} = this.props;
         const {services} = this.state;
         const blockStyle = {
             margin:16,
@@ -166,61 +182,137 @@ export default React.createClass({
         };
         const m = id => pydio.MessageHash['ajxp_admin.services.tag.' + id] || id;
 
+        const Tags = groupAndSortServices(services.filter(s => this.filterNodes(s)), pydio);
+        if (!details){
+            let tableData = [];
+            const tableColumns = [
+                {name:'Status', label: '', style:{width:56, paddingLeft:12, paddingRight:12}, headerStyle:{width:56}, renderCell: (service) =>{
+                    let iconColor = service.Status === 'STARTED' ? '#33691e' : '#d32f2f';
+                    if( service.Status !== 'STARTED' && (service.Name === "consul" || service.Name === "pydio.rest.install" || service.Name === "nats") ){
+                        iconColor = '#9E9E9E';
+                    }
+                    return <FontIcon style={{margin:'0 9px 0 4px', fontSize: 20}} className={"mdi-traffic-light"} color={iconColor}/>
+                }},
+                {name:'Name', label: 'Service Name', style:{paddingLeft: 0}, headerStyle:{paddingLeft: 0}},
+                {name:'Description', label: 'Description', style:{width: '40%'}, headerStyle:{width: '40%'}},
+                {name:'Version', label: 'Version', style:{width: 80}, headerStyle:{width: 80}},
+                {name:'Type', label:'Tag', style:{width: 140}, headerStyle:{width: 140}, renderCell:(service)=>{
+                        const isGrpc = service.Name.startsWith('pydio.grpc.');
+                        let legend = isGrpc ? "Grpc" : "Rest";
+                        const m = id => pydio.MessageHash['ajxp_admin.services.service.' + id] || id;
+                        if(service.Tag === 'gateway') {
+                            legend = service.Name.split('.').pop();
+                        } else if (service.Tag === 'datasource') {
+                            if(service.Name.startsWith('pydio.grpc.data.sync.')){
+                                legend=m('datasource.sync')
+                            } else if(service.Name.startsWith('pydio.grpc.data.objects.')){
+                                legend=m('datasource.objects')
+                            } else if(service.Name.startsWith('pydio.grpc.data.index.')){
+                                legend=m('datasource.index')
+                            }
+                        }
+                        return legend;
+                }},
+                {name:'RunningPeers', label: 'Peers', renderCell:(service)=>{
+                    let peers = [];
+                    if(service.Status === 'STARTED' && service.RunningPeers) {
+                        service.RunningPeers.map(p => {
+                            if(p.Port){
+                                peers.push(p.Address + ':' + p.Port);
+                            } else {
+                                peers.push(p.Address);
+                            }
+                        });
+                    } else {
+                        peers.push('N/A');
+                    }
+                    return peers.join(',');
+                }}
+            ];
+            Object.keys(Tags).forEach(tag => {
+                const tagData = [];
+                const services = Tags[tag].services;
+                Object.keys(services).forEach(id => {
+                    const subServices = services[id];
+                    subServices.forEach(service => {
+                        tagData.push(service);
+                    });
+                });
+                if(tagData.length){
+                    tagData.unshift({Subheader: <span><span style={{textTransform:'uppercase'}}>{m(tag + '.title')}</span> - {m(tag + '.description')}</span>});
+                    tableData.push(...tagData)
+                }
+            });
 
-        const {Peers, Tags} = groupAndSortServices(services.filter(s => this.filterNodes(s)), pydio);
-        const blocks = Object.keys(Tags).map(tag => {
-            const services = Tags[tag].services;
-            const srvComps = Object.keys(services).map(id => <ServiceCard pydio={pydio} showDescription={this.props.details} title={id} tagId={tag} services={services[id]}/> );
-            let subBlocks = [];
-            if(tag === 'datasource') {
-                // Regroup by type
-                subBlocks.push(
-                    <div style={{...blockStyle, margin: '0 16px'}} >
-                        {Object.keys(services).map(id => {
-                            if(!id.startsWith('main -')) return null;
-                            return <ServiceCard pydio={pydio} showDescription={this.props.details} title={id.replace('main - ', '')} tagId={tag} services={services[id]}/>
-                        })}
-                    </div>
-                );
-                subBlocks.push(
-                    <div style={{...blockStyle, margin: '0 16px'}} >
-                        {Object.keys(services).map(id => {
-                            if(!id.startsWith('datasource -')) return null;
-                            return <ServiceCard pydio={pydio} showDescription={this.props.details} title={id.replace('datasource - ', '')} tagId={tag} services={services[id]}/>
-                        })}
-                    </div>
-                );
-                subBlocks.push(
-                    <div style={{...blockStyle, margin: '0 16px'}} >
-                        {Object.keys(services).map(id => {
-                            if(!id.startsWith('objects -')) return null;
-                            return <ServiceCard pydio={pydio} showDescription={this.props.details} title={id.replace('objects - ', '')} tagId={tag} services={services[id]}/>
-                        })}
-                    </div>
-                );
-
-            } else {
-                subBlocks.push(
-                    <div style={blockStyle} >
-                        {Object.keys(services).map(id => <ServiceCard pydio={pydio} showDescription={this.props.details} title={id} tagId={tag} services={services[id]}/>)}
-                    </div>
-                )
-            }
-            if(srvComps.length === 0) {
-                return null;
-            }
             return (
-                <div>
-                    <AdminComponents.SubHeader title={m(tag + '.title')} legend={m(tag + '.description')}/>
-                    {subBlocks}
+                <div className={this.props.className} style={this.props.style}>
+                    <Paper zDepth={1} style={{margin:16}}>
+                        <MaterialTable
+                            data={tableData}
+                            columns={tableColumns}
+                            deselectOnClickAway={true}
+                            showCheckboxes={false}
+                            emptyStateString={"Loading Services..."}
+                        />
+                    </Paper>
                 </div>
             );
-        });
+        } else {
+
+            const blocks = Object.keys(Tags).map(tag => {
+                const services = Tags[tag].services;
+                const srvComps = Object.keys(services).map(id => <ServiceCard pydio={pydio} showDescription={true} title={id} tagId={tag} services={services[id]}/> );
+                let subBlocks = [];
+                if(tag === 'datasource') {
+                    // Regroup by type
+                    subBlocks.push(
+                        <div style={{...blockStyle, margin: '0 16px'}} >
+                            {Object.keys(services).map(id => {
+                                if(!id.startsWith('main -')) return null;
+                                return <ServiceCard pydio={pydio} showDescription={true} title={id.replace('main - ', '')} tagId={tag} services={services[id]}/>
+                            })}
+                        </div>
+                    );
+                    subBlocks.push(
+                        <div style={{...blockStyle, margin: '0 16px'}} >
+                            {Object.keys(services).map(id => {
+                                if(!id.startsWith('datasource -')) return null;
+                                return <ServiceCard pydio={pydio} showDescription={true} title={id.replace('datasource - ', '')} tagId={tag} services={services[id]}/>
+                            })}
+                        </div>
+                    );
+                    subBlocks.push(
+                        <div style={{...blockStyle, margin: '0 16px'}} >
+                            {Object.keys(services).map(id => {
+                                if(!id.startsWith('objects -')) return null;
+                                return <ServiceCard pydio={pydio} showDescription={true} title={id.replace('objects - ', '')} tagId={tag} services={services[id]}/>
+                            })}
+                        </div>
+                    );
+
+                } else {
+                    subBlocks.push(
+                        <div style={blockStyle} >
+                            {Object.keys(services).map(id => <ServiceCard pydio={pydio} showDescription={true} title={id} tagId={tag} services={services[id]}/>)}
+                        </div>
+                    )
+                }
+                if(srvComps.length === 0) {
+                    return null;
+                }
+                return (
+                    <div>
+                        <AdminComponents.SubHeader title={m(tag + '.title')} legend={m(tag + '.description')}/>
+                        {subBlocks}
+                    </div>
+                );
+            });
 
 
-        return (
-            <div className={this.props.className} style={this.props.style}>{blocks}</div>
-        );
+            return (
+                <div className={this.props.className} style={this.props.style}>{blocks}</div>
+            );
+        }
     }
 
 });

@@ -56,6 +56,19 @@ class MaterialTable extends React.Component{
             if(computeRowStyle){
                 rowStyle = computeRowStyle(model);
             }
+            if(model.Subheader){
+                const headerStyle = {
+                    fontSize:12, color: '#616161', backgroundColor:'#FAFAFA',fontWeight: 500,
+                    ...model.style
+                };
+                return (
+                    <TableRow>
+                        <TableRowColumn colSpan={columns.length} style={headerStyle}>
+                            {model.Subheader}
+                        </TableRowColumn>
+                    </TableRow>
+                );
+            }
             return (
                 <TableRow selectable={onSelectRows !== undefined} style={rowStyle}>
                     {columns.map((column) => {
@@ -76,8 +89,19 @@ class MaterialTable extends React.Component{
         if(emptyStateString && !rows.length){
             showCheckboxes = false;
             rows = [
-                <TableRow><TableRowColumn colspan={columns.length}>{emptyStateString}</TableRowColumn></TableRow>
+                <TableRow><TableRowColumn colSpan={columns.length}>{emptyStateString}</TableRowColumn></TableRow>
             ];
+        }
+        if((data.length && data[0].Subheader) || (emptyStateString && !rows.length)){
+            // Add fake first line to fix width
+            rows.unshift(
+                <TableRow style={{borderBottom:'none', height:0}}>{
+                    columns.map(col => {
+                        const s = col.style || {};
+                        return <TableRowColumn style={{...s, height: 0}}/>
+                    })
+                }</TableRow>
+            );
         }
 
         return (

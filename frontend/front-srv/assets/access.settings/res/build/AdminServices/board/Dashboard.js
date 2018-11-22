@@ -63,7 +63,7 @@ exports['default'] = _react2['default'].createClass({
     },
 
     getInitialState: function getInitialState() {
-        return { details: true, filter: '' };
+        return { details: false, filter: '', peers: [], peerFilter: '' };
     },
 
     onDetailsChange: function onDetailsChange(event, value) {
@@ -74,12 +74,25 @@ exports['default'] = _react2['default'].createClass({
         this.setState({ filter: value });
     },
 
+    onPeerFilterChange: function onPeerFilterChange(event, index, value) {
+        this.setState({ peerFilter: value });
+    },
+
     reloadList: function reloadList() {
         this.refs.servicesList.reload();
     },
 
+    onUpdatePeers: function onUpdatePeers(peers) {
+        this.setState({ peers: peers });
+    },
+
     render: function render() {
         var pydio = this.props.pydio;
+        var _state = this.state;
+        var peers = _state.peers;
+        var peerFilter = _state.peerFilter;
+        var filter = _state.filter;
+        var details = _state.details;
 
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.services.' + id] || id;
@@ -88,10 +101,18 @@ exports['default'] = _react2['default'].createClass({
         var buttonContainer = _react2['default'].createElement(
             'div',
             { style: { display: 'flex', alignItems: 'center', padding: '0 20px', width: '100%' } },
-            _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.details'), toggled: this.state.details, onToggle: this.onDetailsChange, labelPosition: "right", style: { width: 150 } }),
+            _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.details'), toggled: details, onToggle: this.onDetailsChange, labelPosition: "right", style: { width: 150 } }),
+            peers.length && _react2['default'].createElement(
+                _materialUi.DropDownMenu,
+                { style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: peerFilter, onChange: this.onPeerFilterChange },
+                _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: 'Select Peer Node' }),
+                peers.map(function (peer) {
+                    return _react2['default'].createElement(_materialUi.MenuItem, { value: peer, primaryText: peer });
+                })
+            ),
             _react2['default'].createElement(
                 _materialUi.DropDownMenu,
-                { style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: this.state.filter, onChange: this.onFilterChange },
+                { style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: filter, onChange: this.onFilterChange },
                 _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('filter.nofilter') }),
                 _react2['default'].createElement(_materialUi.MenuItem, { value: 'STARTED', primaryText: m('filter.started') }),
                 _react2['default'].createElement(_materialUi.MenuItem, { value: 'STOPPED', primaryText: m('filter.stopped') })
@@ -118,8 +139,10 @@ exports['default'] = _react2['default'].createClass({
                     dataModel: this.props.dataModel,
                     rootNode: this.props.rootNode,
                     currentNode: this.props.rootNode,
-                    filter: this.state.filter,
-                    details: this.state.details
+                    filter: filter,
+                    peerFilter: peerFilter,
+                    details: details,
+                    onUpdatePeers: this.onUpdatePeers.bind(this)
                 })
             )
         );
