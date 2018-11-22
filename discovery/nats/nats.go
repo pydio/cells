@@ -22,7 +22,6 @@ package nats
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"strconv"
 	"time"
@@ -42,7 +41,6 @@ func init() {
 
 func run() {
 
-	fmt.Println("Init nats")
 	reg := viper.GetString("registry")
 	regAddress := viper.GetString("registry_address")
 	regClusterAddress := viper.GetString("registry_cluster_address")
@@ -102,24 +100,5 @@ func run() {
 		if !hd.ReadyForConnections(3 * time.Second) {
 			log.Fatal("nats: start timed out")
 		}
-
-		fmt.Println("Server is running")
 	}
 }
-
-// func prerun(s service.Service) error {
-// 	c := ""
-// 	k := ""
-// 	if !config.RemoteSource {
-// 		c = config.Get("cert", "grpc", "certFile").String("")
-// 		k = config.Get("cert", "grpc", "keyFile").String("")
-// 	}
-// 	defaults.Init(
-// 		defaults.WithRegistry(registry.NewRegistry()),
-// 		defaults.WithBroker(broker.NewBroker()),
-// 		defaults.WithTransport(transport.NewTransport()),
-// 		defaults.WithCert(c, k),
-// 	)
-//
-// 	return nil
-// }

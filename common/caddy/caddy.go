@@ -24,18 +24,20 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"log"
 	"strings"
 	"time"
 
 	"github.com/mholt/caddy"
 	"github.com/micro/go-micro/registry"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
+	"go.uber.org/zap"
 )
 
 var (
-	mainCaddy *Caddy
-	funcMap   = template.FuncMap{
+	mainCaddy = &Caddy{}
+	FuncMap   = template.FuncMap{
 		"urls": internalURLFromServices,
 	}
 	restartChan chan bool
@@ -57,8 +59,7 @@ func watchRestart() {
 
 		<-time.After(10 * time.Second)
 
-		err := restart()
-		fmt.Println(err)
+		restart()
 
 		exitChan <- true
 	}()
@@ -79,20 +80,18 @@ type Caddy struct {
 }
 
 // TemplateFunc is a function providing a stringer
-type TemplateFunc func(*Caddy) (*bytes.Buffer, error)
+type TemplateFunc func() (*bytes.Buffer, error)
 
 // Enable the caddy builder
 func Enable(caddyfile string, player TemplateFunc) {
-	caddytemplate, err := template.New("pydiocaddy").Funcs(funcMap).Parse(caddyfile)
+	caddytemplate, err := template.New("pydiocaddy").Funcs(FuncMap).Parse(caddyfile)
 	if err != nil {
-		log.Fatal("could not load template: ", err)
+		log.Fatal("could not load template: ", zap.Error(err))
 	}
 
-	mainCaddy = &Caddy{
-		caddyfile:     caddyfile,
-		caddytemplate: caddytemplate,
-		player:        player,
-	}
+	mainCaddy.caddyfile = caddyfile
+	mainCaddy.caddytemplate = caddytemplate
+	mainCaddy.player = player
 
 	caddyLoader := func(serverType string) (caddy.Input, error) {
 		buf, err := mainCaddy.Play()
@@ -160,7 +159,7 @@ func restart() error {
 		return err
 	}
 
-	fmt.Printf("Caddyfile %s\n", caddyfile.Body())
+	log.Debug("Restart", zap.ByteString("caddyfile", caddyfile.Body()))
 
 	// start caddy server
 	instance, err := mainCaddy.instance.Restart(caddyfile)
@@ -173,7 +172,7 @@ func restart() error {
 }
 
 func (c *Caddy) Play() (*bytes.Buffer, error) {
-	return c.player(c)
+	return c.player()
 }
 
 func GetInstance() *caddy.Instance {
@@ -184,12 +183,12 @@ func (c *Caddy) GetTemplate() *template.Template {
 	return c.caddytemplate
 }
 
-func (c *Caddy) GetPathes() []string {
-	return c.pathes
+func GetPathes() []string {
+	return mainCaddy.pathes
 }
 
-func (c *Caddy) GetTemplates() []TemplateFunc {
-	return c.templates
+func GetTemplates() []TemplateFunc {
+	return mainCaddy.templates
 }
 
 func internalURLFromServices(name string, uri ...string) string {
@@ -208,4 +207,9 @@ func internalURLFromServices(name string, uri ...string) string {
 	}
 
 	return strings.Join(res, " ")
+}
+
+func peersFromConfig(path []string, def ...string) string {
+	c := config.Get(path...)
+	return c.String(def[0])
 }

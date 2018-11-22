@@ -39,9 +39,9 @@ import (
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/discovery/install/assets"
 )
 
@@ -297,8 +297,8 @@ var installCmd = &cobra.Command{
 	},
 }
 
-func play(c *caddy.Caddy) (*bytes.Buffer, error) {
-	template := c.GetTemplate()
+func play() (*bytes.Buffer, error) {
+	template := caddy.Get().GetTemplate()
 
 	buf := bytes.NewBuffer([]byte{})
 	if err := template.Execute(buf, caddyconf); err != nil {

@@ -55,19 +55,23 @@ var (
 
 func init() {
 
-	for _, v := range config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources").StringSlice([]string{}) {
-
-		datasource := v
+	for _, datasource := range config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources").StringSlice([]string{}) {
 
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+datasource),
 			service.Tag(common.SERVICE_TAG_DATASOURCE),
 			service.Description("Synchronization service between objects and index for a given datasource"),
+			service.Source(datasource),
 			service.WithMicro(func(m micro.Service) error {
 
 				m.Init(micro.AfterStart(func() error {
 
+					s := m.Options().Server
 					ctx := m.Options().Context
+					datasource := s.Options().Metadata["source"]
+					if datasource == "" {
+						return fmt.Errorf("could not find source key in service Metadata")
+					}
 
 					// The current call is triggered inside a BeforeStart, thus we don't
 					// have the full config yet.
