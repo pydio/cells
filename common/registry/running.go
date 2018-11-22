@@ -21,6 +21,7 @@
 package registry
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 
@@ -36,6 +37,10 @@ var (
 // ListRunningServices returns a list of services that are registered with the main registry
 // They may or may not belong to the app registry so we create a mock service in case they don't
 func (c *pydioregistry) ListRunningServices() ([]Service, error) {
+
+	runningOnce.Do(func() {
+		c.maintainRunningServicesList()
+	})
 
 	var services []Service
 
@@ -88,9 +93,8 @@ func (c *pydioregistry) maintainRunningServicesList() {
 
 	running, _ := defaults.Registry().ListServices()
 	for _, r := range running {
-		for _, n := range r.Nodes {
-			c.GetPeer(n.Address).Add(r)
-		}
+		// Initially, nodes are not set on the service, so we fake it
+		c.GetPeer("INITIAL").Add(r, r.Name)
 	}
 
 	go func() {
@@ -117,11 +121,12 @@ func (c *pydioregistry) maintainRunningServicesList() {
 			switch a {
 			case "create":
 				for _, n := range s.Nodes {
-					c.GetPeer(n.Address).Add(s)
+					c.GetPeer(n.Address).Add(s, fmt.Sprintf("%d", n.Port))
+					c.GetPeer("INITIAL").Delete(s, s.Name)
 				}
 			case "delete":
 				for _, n := range s.Nodes {
-					c.GetPeer(n.Address).Delete(s)
+					c.GetPeer(n.Address).Delete(s, fmt.Sprintf("%d", n.Port))
 				}
 			}
 		}

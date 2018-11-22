@@ -109,10 +109,9 @@ const (
 
 // Define constants for Event Bus Topics
 const (
-	TOPIC_SERVICE_START = "topic.pydio.service.start"
-	TOPIC_SERVICE_STOP  = "topic.pydio.service.stop"
-	TOPIC_INDEX_CHANGES = "topic.test"
-	// pydio.index.nodes.changes"
+	TOPIC_SERVICE_START    = "topic.pydio.service.start"
+	TOPIC_SERVICE_STOP     = "topic.pydio.service.stop"
+	TOPIC_INDEX_CHANGES    = "topic.pydio.index.nodes.changes"
 	TOPIC_TREE_CHANGES     = "topic.pydio.tree.nodes.changes"
 	TOPIC_META_CHANGES     = "topic.pydio.meta.nodes.changes"
 	TOPIC_TIMER_EVENT      = "topic.pydio.meta.timer.event"
@@ -152,6 +151,8 @@ const (
 
 	KEYRING_MASTER_KEY       = "keyring.master"
 	META_FLAG_READONLY       = "node_readonly"
+	META_FLAG_ENCRYPTED      = "datasource_encrypted"
+	META_FLAG_VERSIONING     = "datasource_versioning"
 	NODE_FLAG_ETAG_TEMPORARY = "temporary"
 )
 

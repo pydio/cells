@@ -24,13 +24,20 @@ package gateway
 import (
 	"context"
 	"fmt"
+	"net/http/httputil"
+	"net/url"
+	"os"
 
+	micro "github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
-	config2 "github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/data/source/objects"
+	"github.com/pydio/cells/common/utils"
 	minio "github.com/pydio/minio-srv/cmd"
+	"github.com/pydio/minio-srv/cmd/gateway/pydio"
+	"go.uber.org/zap"
 )
 
 type logger struct {
@@ -56,7 +63,7 @@ func init() {
 		service.RouterDependencies(),
 		service.Description("S3 Gateway to tree service"),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			
+
 			return service.RunnerFunc(func() error {
 
 					return nil
@@ -82,12 +89,11 @@ func init() {
 			port := utils.GetAvailablePort()
 			url, _ := url.Parse(fmt.Sprintf("%s://%s:%d", scheme, host, port))
 
-
 			os.Setenv("MINIO_BROWSER", "off")
 			gw := &pydio.Pydio{}
 			console := &logger{ctx: ctx}
 			go minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), "gateway", "gatewaysecret", console, certFile, keyFile)
-					
+
 			proxy := httputil.NewSingleHostReverseProxy(url)
 
 			hd := srv.NewHandler(proxy)

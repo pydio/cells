@@ -33,6 +33,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"regexp"
@@ -57,6 +58,7 @@ import (
 	"github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/common/utils"
 )
 
 const (
@@ -129,6 +131,26 @@ func NewService(opts ...ServiceOption) Service {
 
 	s := &service{
 		opts: newOptions(opts...),
+	}
+
+	// Checking that the service is not bound to a certain IP
+	peerAddress := config.Get("services", s.opts.Name, "PeerAddress").String("")
+
+	if peerAddress != "" {
+		peerIP := net.ParseIP(peerAddress)
+		localIPs, _ := utils.GetAvailableIPs()
+
+		found := false
+		for _, localIP := range localIPs {
+			if peerIP.Equal(localIP) {
+				found = true
+			}
+		}
+
+		if !found {
+			// log.Debug("Service bound", zap.String("name", s.opts.Name), zap.String("ip", peerAddress))
+			return nil
+		}
 	}
 
 	// Setting context
@@ -232,6 +254,28 @@ func NewService(opts ...ServiceOption) Service {
 
 		}),
 
+		// Adding a check before starting the service to ensure only one is started if unique
+		BeforeStart(func(s Service) error {
+
+			conf := servicecontext.GetConfig(ctx)
+
+			unique := conf.Bool("unique")
+			if unique {
+				runningServices, err := registry.ListRunningServices()
+				if err != nil {
+					return err
+				}
+
+				for _, r := range runningServices {
+					if s.Name() == r.Name() {
+						return fmt.Errorf("already started")
+					}
+				}
+			}
+
+			return nil
+		}),
+
 		// Adding a check before starting the service to ensure all dependencies are running
 		BeforeStart(func(_ Service) error {
 			log.Logger(ctx).Debug("BeforeStart - Check dependencies")
@@ -330,6 +374,7 @@ func (s *service) Start() {
 		if err := f(s); err != nil {
 			log.Logger(ctx).Error("Could not prepare start ", zap.Error(err))
 			cancel()
+			return
 		}
 	}
 
@@ -338,6 +383,7 @@ func (s *service) Start() {
 			if err := s.Options().MicroInit(s); err != nil {
 				log.Logger(ctx).Error("Could not micro init ", zap.Error(err))
 				cancel()
+				return
 			}
 
 			if err := s.Options().Micro.Run(); err != nil {
@@ -353,6 +399,7 @@ func (s *service) Start() {
 			if err := s.Options().WebInit(s); err != nil {
 				log.Logger(ctx).Error("Could not web init ", zap.Error(err))
 				cancel()
+				return
 			}
 			if err := s.Options().Web.Run(); err != nil {
 				log.Logger(ctx).Error("Could not run ", zap.Error(err))
@@ -532,10 +579,6 @@ func (s *service) RunningNodes() []*microregistry.Node {
 		}
 	}
 	return nodes
-}
-
-func (s *service) ExposedConfigs() common.XMLSerializableForm {
-	return s.Options().ExposedConfigs
 }
 
 func (s *service) IsGeneric() bool {

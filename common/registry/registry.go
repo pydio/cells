@@ -115,21 +115,6 @@ func (c *pydioregistry) Init(opts ...Option) {
 	for _, o := range opts {
 		o(&c.opts)
 	}
-
-	c.maintainRunningServicesList()
-	// services, err := c.ListServices()
-	// if err != nil {
-	// 	return
-	// }
-
-	// for _, s := range services {
-	// 	serviceNode := goraph.NewNode(s.Name())
-	// 	if node, err := c.graph.GetNode(serviceNode); err == nil && node != nil {
-	// 		serviceNode = node
-	// 	} else {
-	// 		c.graph.AddNode(serviceNode)
-	// 	}
-	// }
 }
 
 // Deregister sets a service as excluded in the registry

@@ -23,12 +23,18 @@ package remote
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	proto "github.com/pydio/config-srv/proto/config"
 	"github.com/pydio/go-os/config"
 
+	"crypto/md5"
+	"encoding/json"
+	"fmt"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/go-os/config/proto"
 	"github.com/pydio/cells/common/micro"
 )
 
@@ -39,7 +45,9 @@ type remotesource struct {
 func (s *remotesource) Read() (*config.ChangeSet, error) {
 	cli := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	rsp, err := cli.Read(ctx, &proto.ReadRequest{})
+	rsp, err := cli.Read(ctx, &proto.ReadRequest{
+		Id: s.opts.Name,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +90,6 @@ func NewSource(opts ...config.SourceOption) config.Source {
 	}
 }
 
-// FIXME simply copied from pydio/go-os/config/watcher.go
 type sourceWatcher struct {
 	w proto.Config_WatchClient
 }
@@ -102,4 +109,44 @@ func (w *sourceWatcher) Next() (*config.ChangeSet, error) {
 
 func (w *sourceWatcher) Stop() error {
 	return w.w.Close()
+}
+
+// UpdateRemote sends an Update request to a remote Config Service
+func UpdateRemote(configId string, val interface{}, path ...string) error {
+
+	cl := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
+	data, _ := json.Marshal(val)
+	hasher := md5.New()
+	hasher.Write(data)
+	checksum := fmt.Sprintf("%x", hasher.Sum(nil))
+
+	_, e := cl.Update(context.Background(), &proto.UpdateRequest{
+		Change: &proto.Change{
+			Id:        configId,
+			Path:      strings.Join(path, "/"),
+			Timestamp: time.Now().Unix(),
+			Author:    common.PYDIO_SYSTEM_USERNAME,
+			ChangeSet: &go_micro_os_config.ChangeSet{
+				Data:      string(data),
+				Checksum:  checksum,
+				Timestamp: time.Now().Unix(),
+			},
+		},
+	})
+
+	return e
+}
+
+// DeleteRemote sends an Delete request to a remote Config Service
+func DeleteRemote(configId string, path ...string) error {
+	cl := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
+
+	_, e := cl.Delete(context.Background(), &proto.DeleteRequest{
+		Change: &proto.Change{
+			Id:   configId,
+			Path: strings.Join(path, "/"),
+		},
+	})
+
+	return e
 }
