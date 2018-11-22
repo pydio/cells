@@ -6,16 +6,19 @@ import (
 	"html/template"
 	"net/url"
 
+	"github.com/spf13/cobra"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"go.uber.org/zap"
 )
 
 var (
 	editorLibreOfficeTemplate    *template.Template
 	editorLibreOfficeTemplateStr = `
-        proxy /wopi/ {{.WOPI.Host}} {
+        proxy /wopi/ {{.WOPI | urls}} {
             transparent
         }
 
@@ -41,71 +44,48 @@ var (
 )
 
 type EditorLibreOffice struct {
-	WOPI      *url.URL
+	WOPI      string
 	Collabora *url.URL
 }
 
 func init() {
-	config.RegisterPluginTemplate(common.SERVICE_GATEWAY_PROXY,
-		config.TemplateFunc(play),
-		"/wopi/",
-		"/loleaflet/",
-		"/hosting/discovery",
-		"/lool/",
-	)
+	cobra.OnInitialize(func() {
+		caddy.RegisterPluginTemplate(
+			caddy.TemplateFunc(play),
+			"/wopi/",
+			"/loleaflet/",
+			"/hosting/discovery",
+			"/lool/",
+		)
 
-	tmpl, err := template.New("caddyfile").Parse(editorLibreOfficeTemplateStr)
-	if err != nil {
-		log.Fatal("Could not read template")
-	}
+		tmpl, err := template.New("caddyfile").Funcs(caddy.FuncMap).Parse(editorLibreOfficeTemplateStr)
+		if err != nil {
+			log.Fatal("Could not read template ", zap.Error(err))
+		}
 
-	editorLibreOfficeTemplate = tmpl
+		editorLibreOfficeTemplate = tmpl
+	})
 }
 
-func play() *bytes.Buffer {
+func play() (*bytes.Buffer, error) {
 
 	e := new(EditorLibreOffice)
 
 	log.Info(fmt.Sprintf("PYDIO PLUGIN %v", config.Get("frontend", "plugin", "editor.libreoffice", "PYDIO_PLUGIN_ENABLED").Bool(false)))
 
-	if err := getWOPIConfig(&e.WOPI); err != nil {
-		log.Error("could not retrieve wopi config", zap.Any("error ", err))
-		return nil
-	}
+	e.WOPI = common.SERVICE_GATEWAY_WOPI
 
 	if err := getCollaboraConfig(&e.Collabora); err != nil {
 		log.Error("could not retrieve collabora config", zap.Any("error ", err))
-		return nil
+		return nil, err
 	}
 
 	buf := bytes.NewBuffer([]byte{})
 	if err := editorLibreOfficeTemplate.Execute(buf, e); err != nil {
-		log.Error("could not play template", zap.Any("error ", err))
-		return nil
+		return nil, err
 	}
 
-	return buf
-}
-
-func getWOPIConfig(wopi **url.URL) error {
-
-	tls := config.Get("cert", "proxy", "ssl").Bool(false)
-	host := "localhost"
-	port := config.Get("services", common.SERVICE_GATEWAY_WOPI, "port").String("")
-
-	scheme := "http"
-	if tls {
-		scheme = "https"
-	}
-
-	u, err := url.Parse(fmt.Sprintf("%s://%s:%s", scheme, host, port))
-	if err != nil {
-		return err
-	}
-
-	*wopi = u
-
-	return nil
+	return buf, nil
 }
 
 func getCollaboraConfig(collabora **url.URL) error {

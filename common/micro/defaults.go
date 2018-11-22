@@ -41,11 +41,11 @@ import (
 )
 
 var (
-	clientOpts []client.Option
-	serverOpts []server.Option
+	clientOpts []func() client.Option
+	serverOpts []func() server.Option
 )
 
-func InitServer(opt ...server.Option) {
+func InitServer(opt ...func() server.Option) {
 
 	serverOpts = append(serverOpts, opt...)
 
@@ -107,7 +107,7 @@ func InitServer(opt ...server.Option) {
 	server.DefaultServer = NewServer()
 }
 
-func InitClient(opt ...client.Option) {
+func InitClient(opt ...func() client.Option) {
 	clientOpts = append(clientOpts, opt...)
 
 	client.DefaultClient = NewClient()
@@ -151,7 +151,10 @@ func simpleClientTLS(c string) (client.Option, error) {
 
 // NewClient returns a client attached to the defaults
 func NewClient(new ...client.Option) client.Client {
-	opts := append(clientOpts, new...)
+	opts := new
+	for _, o := range clientOpts {
+		opts = append(opts, o())
+	}
 
 	return grpcclient.NewClient(
 		opts...,
@@ -160,7 +163,10 @@ func NewClient(new ...client.Option) client.Client {
 
 // NewServer returns a server attached to the defaults
 func NewServer(new ...server.Option) server.Server {
-	opts := append(serverOpts, new...)
+	opts := new
+	for _, o := range serverOpts {
+		opts = append(opts, o())
+	}
 
 	return grpcserver.NewServer(
 		opts...,
@@ -168,7 +174,10 @@ func NewServer(new ...server.Option) server.Server {
 }
 
 func NewHTTPServer(new ...server.Option) server.Server {
-	opts := append(serverOpts, new...)
+	opts := new
+	for _, o := range serverOpts {
+		opts = append(opts, o())
+	}
 
 	s := httpserver.NewServer(
 		opts...,

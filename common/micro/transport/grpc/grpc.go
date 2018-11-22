@@ -11,13 +11,13 @@ import (
 var t = grpc.NewTransport()
 
 func Enable() {
-	defaults.InitServer(
-		server.Transport(t),
-	)
+	defaults.InitServer(func() server.Option {
+		return server.Transport(t)
+	})
 
-	defaults.InitClient(
-		client.Transport(t),
-	)
+	defaults.InitClient(func() client.Option {
+		return client.Transport(t)
+	})
 
 	transport.DefaultTransport = t
 }

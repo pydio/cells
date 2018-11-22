@@ -22,6 +22,8 @@
 package grpc
 
 import (
+	"fmt"
+
 	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
@@ -40,6 +42,8 @@ func init() {
 		service.WithMicro(func(m micro.Service) error {
 			s := m.Options().Server
 			serviceName := s.Options().Metadata["source"]
+
+			fmt.Println(serviceName)
 
 			engine := &ObjectHandler{}
 

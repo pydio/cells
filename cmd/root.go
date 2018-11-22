@@ -93,8 +93,6 @@ the flag --registry=consul.
 			common.LogCaptureStdOut = true
 		}
 
-		fmt.Println("Initialize")
-
 		// Initialise the default registry
 		handleRegistry()
 

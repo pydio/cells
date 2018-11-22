@@ -35,13 +35,14 @@ type Peer struct {
 
 	// List of services associated
 	lock     *sync.RWMutex
-	register []*registry.Service
+	register map[int]*registry.Service
 }
 
 func NewPeer(address string) *Peer {
 	return &Peer{
-		address: address,
-		lock:    &sync.RWMutex{},
+		address:  address,
+		lock:     &sync.RWMutex{},
+		register: make(map[int]*registry.Service),
 	}
 }
 
@@ -49,27 +50,20 @@ func (p *Peer) Add(c *registry.Service) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
-	new := filter(p.register, c)
-	new = append(new, c)
-
-	p.register = new
+	p.register[c.Nodes[0].Port] = c
 }
 
 func (p *Peer) Delete(c *registry.Service) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
-	new := filter(p.register, c)
-	new = append(new, c)
-
-	p.register = new
+	delete(p.register, c.Nodes[0].Port)
 }
 
-func filter(all []*registry.Service, n *registry.Service) []*registry.Service {
-	y := all[:0]
-
-	for _, s := range all {
-		if s.Name != n.Name {
+func (p *Peer) GetServices(name ...string) []*registry.Service {
+	var y []*registry.Service
+	for _, s := range p.register {
+		if len(name) == 0 || name[0] == s.Name {
 			y = append(y, s)
 		}
 	}

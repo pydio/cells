@@ -109,9 +109,10 @@ const (
 
 // Define constants for Event Bus Topics
 const (
-	TOPIC_SERVICE_START    = "topic.pydio.service.start"
-	TOPIC_SERVICE_STOP     = "topic.pydio.service.stop"
-	TOPIC_INDEX_CHANGES    = "topic.pydio.index.nodes.changes"
+	TOPIC_SERVICE_START = "topic.pydio.service.start"
+	TOPIC_SERVICE_STOP  = "topic.pydio.service.stop"
+	TOPIC_INDEX_CHANGES = "topic.test"
+	// pydio.index.nodes.changes"
 	TOPIC_TREE_CHANGES     = "topic.pydio.tree.nodes.changes"
 	TOPIC_META_CHANGES     = "topic.pydio.meta.nodes.changes"
 	TOPIC_TIMER_EVENT      = "topic.pydio.meta.timer.event"

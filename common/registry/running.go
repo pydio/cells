@@ -42,7 +42,6 @@ func (c *pydioregistry) ListRunningServices() ([]Service, error) {
 	for _, p := range c.peers {
 		for _, rs := range p.register {
 			if s, ok := c.register[rs.Name]; ok {
-				//s.SetRunningNodes(s.Nodes)
 				services = append(services, s)
 			} else {
 				mock := &mockService{name: rs.Name, running: true}
@@ -54,7 +53,20 @@ func (c *pydioregistry) ListRunningServices() ([]Service, error) {
 		}
 	}
 
-	return services, nil
+	// De-dup
+	result := services[:0]
+	encountered := map[string]bool{}
+	for _, s := range services {
+		name := s.Name()
+		if encountered[name] == true {
+			// Do not add duplicate.
+		} else {
+			encountered[name] = true
+			result = append(result, s)
+		}
+	}
+
+	return result, nil
 }
 
 // SetServiceStopped artificially removes a service from the running services list

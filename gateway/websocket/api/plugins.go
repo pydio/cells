@@ -28,15 +28,20 @@ import (
 	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/activity"
 	chat2 "github.com/pydio/cells/common/proto/chat"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/gateway/websocket"
+)
+
+var (
+	ws   *websocket.WebsocketHandler
+	chat *websocket.ChatHandler
 )
 
 func init() {
@@ -86,53 +91,12 @@ func init() {
 			// 		Server.Run(fmt.Sprintf(":%d", port))
 			// 	}
 			// }()
-
-			// Register Subscribers
-
-			// treeChangeListener := func(ctx context.Context, msg *tree.NodeChangeEvent) error {
-			// 	return ws.HandleNodeChangeEvent(ctx, msg)
-			// }
-			// taskChangeListener := func(ctx context.Context, msg *jobs.TaskChangeEvent) error {
-			// 	return ws.BroadcastTaskChangeEvent(ctx, msg)
-			// }
-			// idmChangeListener := func(ctx context.Context, msg *idm.ChangeEvent) error {
-			// 	return ws.BroadcastIDMChangeEvent(ctx, msg)
-			// }
-			// activityListener := func(ctx context.Context, msg *activity.PostActivityEvent) error {
-			// 	return ws.BroadcastActivityEvent(ctx, msg)
-			// }
-			//
-			// if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_TREE_CHANGES, treeChangeListener)); err != nil {
-			// 	return err
-			// }
-			// if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_META_CHANGES, treeChangeListener)); err != nil {
-			// 	return err
-			// }
-			// if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_JOB_TASK_EVENT, taskChangeListener)); err != nil {
-			// 	return err
-			// }
-			// if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, idmChangeListener)); err != nil {
-			// 	return err
-			// }
-			// if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_ACTIVITY_EVENT, activityListener)); err != nil {
-			// 	return err
-			// }
-			//
-			// // Register Chat Subscribers
-			// chatEventsListener := func(ctx context.Context, msg *chat2.ChatEvent) error {
-			// 	return chat.BroadcastChatMessage(ctx, msg)
-			// }
-			// if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_CHAT_EVENT, chatEventsListener)); err != nil {
-			// 	return err
-			// }
-			//
-			// return nil
 		}, func(s service.Service) (micro.Option, error) {
 
 			ctx := s.Options().Context
 			srv := defaults.NewHTTPServer()
 
-			ws := websocket.NewWebSocketHandler(ctx)
+			ws = websocket.NewWebSocketHandler(ctx)
 			ws.EventRouter = views.NewRouterEventFilter(views.RouterOptions{WatchRegistry: true})
 
 			gin.SetMode(gin.ReleaseMode)
@@ -143,7 +107,7 @@ func init() {
 				ws.Websocket.HandleRequest(c.Writer, c.Request)
 			})
 
-			chat := websocket.NewChatHandler(ctx)
+			chat = websocket.NewChatHandler(ctx)
 			Server.GET("/chat", func(c *gin.Context) {
 				chat.Websocket.HandleRequest(c.Writer, c.Request)
 			})
@@ -155,8 +119,16 @@ func init() {
 				return nil, err
 			}
 
-			eventSrv := defaults.NewServer()
+			return micro.Server(srv), nil
+		}),
+	)
 
+	service.NewService(
+		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WEBSOCKET),
+		service.Tag(common.SERVICE_TAG_GATEWAY),
+		service.Dependency(common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_WEBSOCKET, []string{}),
+		service.Description("WebSocket server subscribing to messages"),
+		service.WithMicro(func(m micro.Service) error {
 			// Register Subscribers
 			treeChangeListener := func(ctx context.Context, msg *tree.NodeChangeEvent) error {
 				return ws.HandleNodeChangeEvent(ctx, msg)
@@ -171,20 +143,22 @@ func init() {
 				return ws.BroadcastActivityEvent(ctx, msg)
 			}
 
+			eventSrv := m.Options().Server
+
 			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_TREE_CHANGES, treeChangeListener)); err != nil {
-				return nil, err
+				return err
 			}
 			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_META_CHANGES, treeChangeListener)); err != nil {
-				return nil, err
+				return err
 			}
 			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_JOB_TASK_EVENT, taskChangeListener)); err != nil {
-				return nil, err
+				return err
 			}
 			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_IDM_EVENT, idmChangeListener)); err != nil {
-				return nil, err
+				return err
 			}
 			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_ACTIVITY_EVENT, activityListener)); err != nil {
-				return nil, err
+				return err
 			}
 
 			// Register Chat Subscribers
@@ -192,10 +166,10 @@ func init() {
 				return chat.BroadcastChatMessage(ctx, msg)
 			}
 			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_CHAT_EVENT, chatEventsListener)); err != nil {
-				return nil, err
+				return err
 			}
 
-			return micro.Server(srv), nil
+			return nil
 		}),
 	)
 }

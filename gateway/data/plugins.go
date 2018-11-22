@@ -24,44 +24,69 @@ package gateway
 import (
 	"context"
 	"fmt"
+	"net/http/httputil"
+	"net/url"
 
+	micro "github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
-	config2 "github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/data/source/objects"
 	minio "github.com/pydio/minio-srv/cmd"
 )
 
 func init() {
+
 	service.NewService(
 		service.Name(common.SERVICE_GATEWAY_DATA),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
 		service.RouterDependencies(),
 		service.Description("S3 Gateway to tree service"),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			config := servicecontext.GetConfig(ctx)
-
-			port := config.Int("port", 9020)
-			var certFile, keyFile string
-			if config2.Get("cert", "http", "ssl").Bool(false) {
-				certFile = config2.Get("cert", "http", "certFile").String("")
-				keyFile = config2.Get("cert", "http", "keyFile").String("")
-			}
-
-			gatewayDir, err := objects.CreateMinioConfigFile("gateway", "gateway", "gatewaysecret")
-			if err != nil {
-				return nil, nil, nil, err
-			}
 
 			return service.RunnerFunc(func() error {
-					minio.NewPydioGateway(ctx, fmt.Sprintf(":%d", port), gatewayDir, certFile, keyFile)
+
 					return nil
 				}), service.CheckerFunc(func() error {
 					return nil
 				}), service.StopperFunc(func() error {
 					return nil
 				}), nil
+		}, func(s service.Service) (micro.Option, error) {
+			srv := defaults.NewHTTPServer()
+
+			// INIT DEX CONFIG
+			ctx := s.Options().Context
+
+			var certFile, keyFile string
+			if config.Get("cert", "http", "ssl").Bool(false) {
+				certFile = config.Get("cert", "http", "certFile").String("")
+				keyFile = config.Get("cert", "http", "keyFile").String("")
+			}
+
+			scheme := "http"
+			host := "127.0.0.1"
+			port := utils.GetAvailablePort()
+			url, _ := url.Parse(fmt.Sprintf("%s://%s:%d", scheme, host, port))
+
+			gatewayDir, err := objects.CreateMinioConfigFile("gateway", "gateway", "gatewaysecret")
+			if err != nil {
+				return nil, err
+			}
+
+			go minio.NewPydioGateway(ctx, fmt.Sprintf(":%d", port), gatewayDir, certFile, keyFile)
+
+			proxy := httputil.NewSingleHostReverseProxy(url)
+
+			hd := srv.NewHandler(proxy)
+
+			if err := srv.Handle(hd); err != nil {
+				return nil, err
+			}
+
+			return micro.Server(srv), nil
 		}),
 	)
 }

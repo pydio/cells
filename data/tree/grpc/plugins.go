@@ -27,9 +27,9 @@ import (
 	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 )
 
 func init() {
@@ -61,7 +61,6 @@ func init() {
 
 			go watchRegistry(ctx, treeServer)
 
-			// Register Subscribers
 			if err := m.Options().Server.Subscribe(
 				m.Options().Server.NewSubscriber(
 					common.TOPIC_INDEX_CHANGES,

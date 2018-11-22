@@ -8,18 +8,16 @@ import (
 	"github.com/pydio/cells/common/micro"
 )
 
-var b = nats.NewBroker()
-
 func Enable() {
-	defaults.InitServer(
-		server.Broker(b),
-	)
+	defaults.InitServer(func() server.Option {
+		return server.Broker(nats.NewBroker())
+	})
 
-	defaults.InitClient(
-		client.Broker(b),
-	)
+	defaults.InitClient(func() client.Option {
+		return client.Broker(nats.NewBroker())
+	})
 
-	broker.DefaultBroker = b
+	broker.DefaultBroker = nats.NewBroker()
 
 	// Establishing connectin
 	broker.Connect()

@@ -456,9 +456,9 @@ func (s *service) IsRunning() bool {
 
 // Check the status of the service (globally - not specific to an endpoint)
 func (s *service) Check(ctx context.Context) error {
+
 	running, err := registry.ListRunningServices()
 	if err != nil {
-
 		return err
 	}
 
@@ -524,7 +524,14 @@ func (s *service) SetRunningNodes(nodes []*microregistry.Node) {
 }
 
 func (s *service) RunningNodes() []*microregistry.Node {
-	return s.nodes
+	var nodes []*microregistry.Node
+
+	for _, p := range registry.GetPeers() {
+		for _, ms := range p.GetServices(s.Name()) {
+			nodes = append(nodes, ms.Nodes...)
+		}
+	}
+	return nodes
 }
 
 func (s *service) ExposedConfigs() common.XMLSerializableForm {

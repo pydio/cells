@@ -171,6 +171,9 @@ func init() {
 
 			caddy.Enable(caddyfile, play)
 
+			caddyconf.PluginTemplates = caddy.GetTemplates()
+			caddyconf.PluginPathes = caddy.GetPathes()
+
 			err := caddy.Start()
 			if err != nil {
 				return nil, nil, nil, err
@@ -192,8 +195,6 @@ func init() {
 				}), nil
 		}),
 		service.AfterStart(func(s service.Service) error {
-
-			fmt.Println("Listetning to restart ", broker.DefaultBroker)
 
 			// Adding subscriber
 			if _, err := broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error {
@@ -229,10 +230,10 @@ func init() {
 	)
 }
 
-func play(c *caddy.Caddy) (*bytes.Buffer, error) {
+func play() (*bytes.Buffer, error) {
 	LoadCaddyConf()
 
-	template := c.GetTemplate()
+	template := caddy.Get().GetTemplate()
 
 	buf := bytes.NewBuffer([]byte{})
 	if err := template.Execute(buf, caddyconf); err != nil {
