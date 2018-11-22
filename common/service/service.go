@@ -182,6 +182,9 @@ func NewService(opts ...ServiceOption) Service {
 		}),
 
 		AfterInit(func(_ Service) error {
+			// TODO :  WHY IS THAT ?
+			// utils.SaveConfigs()
+
 			return nil
 		}),
 
@@ -465,7 +468,7 @@ func (s *service) Check(ctx context.Context) error {
 		}
 	}
 
-	return fmt.Errorf("not found")
+	return fmt.Errorf("Not found")
 }
 
 func (s *service) AddDependency(name string) {
@@ -531,8 +534,12 @@ func (s *service) RunningNodes() []*microregistry.Node {
 	return nodes
 }
 
+func (s *service) ExposedConfigs() common.XMLSerializableForm {
+	return s.Options().ExposedConfigs
+}
+
 func (s *service) IsGeneric() bool {
-	return s.Options().Micro != nil && !strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_)
+	return (s.Options().Micro != nil && !strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_))
 }
 
 func (s *service) IsGRPC() bool {
