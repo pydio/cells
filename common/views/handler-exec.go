@@ -164,7 +164,7 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 	}
 
 	if requestData.StartOffset == 0 && requestData.Length == -1 {
-		log.Logger(ctx).Info("Target Object Size is", zap.Any("object", sObject))
+		log.Logger(ctx).Debug("[Handler exec] Target Object Size is", zap.Any("object", sObject))
 		//		requestData.Length = sObject.Size
 	}
 	if requestData.StartOffset >= 0 && requestData.Length >= 0 {
@@ -173,7 +173,7 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 		}
 	}
 	reader, err = writer.GetObjectWithContext(ctx, info.ObjectsBucket, s3Path, headers)
-	log.Logger(ctx).Info("Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers.Header()), zap.Any("request", requestData), zap.Any("resultObject", reader))
+	log.Logger(ctx).Debug("[handler exec] Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers.Header()), zap.Any("request", requestData), zap.Any("resultObject", reader))
 	if err != nil {
 		log.Logger(ctx).Error("Get Object", zap.Error(err))
 	}
@@ -193,7 +193,7 @@ func (e *Executor) PutObject(ctx context.Context, node *tree.Node, reader io.Rea
 		UserMetadata: requestData.Metadata,
 	}
 
-	log.Logger(ctx).Info("handler exec: put object", zap.String("s3Path", s3Path), zap.Any("requestData", requestData))
+	log.Logger(ctx).Debug("[handler exec]: put object", zap.String("s3Path", s3Path), zap.Any("requestData", requestData))
 	if requestData.Size <= 0 {
 		written, err := writer.PutObjectWithContext(ctx, info.ObjectsBucket, s3Path, reader, -1, minio.PutObjectOptions{UserMetadata: requestData.Metadata})
 		if err != nil {
