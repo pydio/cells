@@ -15,14 +15,15 @@ var r = nats.NewRegistry()
 func Enable() {
 	s := cache.NewSelector(selector.Registry(r))
 
-	defaults.InitServer(
-		server.Registry(r),
-	)
+	defaults.InitServer(func() server.Option {
+		return server.Registry(r)
+	})
 
-	defaults.InitClient(
-		client.Selector(s),
-		client.Registry(r),
-	)
+	defaults.InitClient(func() client.Option {
+		return client.Selector(s)
+	}, func() client.Option {
+		return client.Registry(r)
+	})
 
 	registry.DefaultRegistry = r
 }

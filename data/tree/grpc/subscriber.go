@@ -35,9 +35,9 @@ type EventSubscriber struct {
 
 // Handle incoming INDEX events and resend them as TREE events
 func (s *EventSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent) error {
+	source, target := msg.Source, msg.Target
 
 	// Update Source & Target Nodes
-	source, target := msg.Source, msg.Target
 	if source != nil {
 		var dsSource string
 		source.GetMeta(common.META_NAMESPACE_DATASOURCE_NAME, &dsSource)
@@ -48,8 +48,6 @@ func (s *EventSubscriber) Handle(ctx context.Context, msg *tree.NodeChangeEvent)
 		target.GetMeta(common.META_NAMESPACE_DATASOURCE_NAME, &dsTarget)
 		s.TreeServer.updateDataSourceNode(target, dsTarget)
 	}
-
-	//log.Logger(ctx).Info("Handle", zap.Any("source", source), zap.Any("target", target))
 
 	s.EventClient.Publish(ctx, s.EventClient.NewPublication(common.TOPIC_TREE_CHANGES, msg))
 

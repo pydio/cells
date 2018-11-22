@@ -34,8 +34,8 @@ import (
 	"github.com/pydio/cells/common/auth/dex"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/idm/auth"
 )
 
@@ -56,9 +56,9 @@ func init() {
 		service.Tag(common.SERVICE_TAG_IDM),
 		service.WithStorage(auth.NewDAO, "dex_"),
 		service.Description("Authentication Service : JWT provider and token revocation"),
-		// service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
-		// service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
-		// service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 			return service.RunnerFunc(func() error {
 					return nil

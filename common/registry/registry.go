@@ -48,6 +48,7 @@ type Registry interface {
 	Deregister(Service) error
 	GetService(string) ([]Service, error)
 	GetServicesByName(string) []Service
+	GetPeers() map[string]*Peer
 	ListServices(withExcluded ...bool) ([]Service, error)
 	ListRunningServices() ([]Service, error)
 	ListServicesWithMicroMeta(string, ...string) ([]Service, error)
@@ -249,6 +250,14 @@ func (c *pydioregistry) AfterInit() error {
 	}
 
 	return nil
+}
+
+func GetPeers() map[string]*Peer {
+	return Default.GetPeers()
+}
+
+func (c *pydioregistry) GetPeers() map[string]*Peer {
+	return c.peers
 }
 
 func (c *pydioregistry) GetPeer(address string) *Peer {
