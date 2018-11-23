@@ -164,9 +164,11 @@ export const withImageSize = (Component) => {
         componentWillReceiveProps(nextProps) {
             const {url, node} = nextProps
             const meta = node.getMetadata()
+            if(!url){
+                return
+            }
 
             const update = this.updateSize
-
             this.getImageSize(url, function() {
                 if (!meta.has('image_width')){
                     meta.set("image_width", this.width);

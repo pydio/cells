@@ -21,7 +21,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { mapStateToProps } from './utils';
-import { ImageSizeProvider, ContainerSizeProvider } from './providers';
+import { ImageSizeProvider } from './providers';
 import { EditorActions, getRatio, getDisplayName, getBoundingRect } from '../utils';
 import { withImageSize, withContainerSize } from './providers';
 import panAndZoomHoc from 'react-pan-and-zoom-hoc';
@@ -32,8 +32,7 @@ export const withResize = (Component) => {
         @withContainerSize
         @connect(mapStateToProps)
         // @panAndZoomHoc
-        class extends React.Component {
-            constructor
+        class ComponentWithResize extends React.Component {
             static get displayName() {
                 return `WithResize(${getDisplayName(Component)})`
             }

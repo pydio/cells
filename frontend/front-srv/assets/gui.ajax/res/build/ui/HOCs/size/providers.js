@@ -238,9 +238,11 @@ var withImageSize = function withImageSize(Component) {
             var node = nextProps.node;
 
             var meta = node.getMetadata();
+            if (!url) {
+                return;
+            }
 
             var update = this.updateSize;
-
             this.getImageSize(url, function () {
                 if (!meta.has('image_width')) {
                     meta.set("image_width", this.width);

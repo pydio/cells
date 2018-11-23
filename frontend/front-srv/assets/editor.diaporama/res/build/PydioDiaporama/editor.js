@@ -127,7 +127,9 @@ var Editor = (function (_PureComponent) {
             // height={imgHeight}
             // containerWidth={containerWidth}
             // containerHeight={containerHeight}
-
+            if (!src) {
+                return null;
+            }
             return _react2['default'].createElement(ExtendedImageContainer, {
                 editorData: editorData,
                 node: node,

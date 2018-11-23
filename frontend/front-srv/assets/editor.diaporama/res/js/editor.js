@@ -89,7 +89,9 @@ class Editor extends PureComponent {
     // height={imgHeight}
     // containerWidth={containerWidth}
     // containerHeight={containerHeight}
-
+        if(!src){
+            return null;
+        }
         return (
             <ExtendedImageContainer
                 editorData={editorData}

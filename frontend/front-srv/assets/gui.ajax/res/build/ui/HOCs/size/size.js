@@ -54,19 +54,19 @@ var withResize = function withResize(Component) {
     return(
         // @panAndZoomHoc
         (function (_React$Component) {
-            _inherits(_class, _React$Component);
+            _inherits(ComponentWithResize, _React$Component);
 
-            function _class() {
-                _classCallCheck(this, _class2);
+            function ComponentWithResize() {
+                _classCallCheck(this, _ComponentWithResize);
 
                 _React$Component.apply(this, arguments);
             }
 
-            _class.prototype.componentDidMount = function componentDidMount() {
+            ComponentWithResize.prototype.componentDidMount = function componentDidMount() {
                 this.loadSize(this.props);
             };
 
-            _class.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
+            ComponentWithResize.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
                 var scale = nextProps.scale;
                 var size = nextProps.size;
                 var containerWidth = nextProps.containerWidth;
@@ -79,7 +79,7 @@ var withResize = function withResize(Component) {
                 }
             };
 
-            _class.prototype.loadSize = function loadSize(props) {
+            ComponentWithResize.prototype.loadSize = function loadSize(props) {
                 var _props$scale = props.scale;
                 var scale = _props$scale === undefined ? 1 : _props$scale;
                 var _props$size = props.size;
@@ -102,7 +102,7 @@ var withResize = function withResize(Component) {
                 dispatch(_utils2.EditorActions.editorModify(state));
             };
 
-            _class.prototype.render = function render() {
+            ComponentWithResize.prototype.render = function render() {
                 var _props = this.props;
                 var scale = _props.scale;
                 var dispatch = _props.dispatch;
@@ -114,7 +114,7 @@ var withResize = function withResize(Component) {
                 }));
             };
 
-            _createClass(_class, null, [{
+            _createClass(ComponentWithResize, null, [{
                 key: 'displayName',
                 get: function get() {
                     return 'WithResize(' + _utils2.getDisplayName(Component) + ')';
@@ -132,11 +132,11 @@ var withResize = function withResize(Component) {
                 }
             }]);
 
-            var _class2 = _class;
-            _class = _reactRedux.connect(_utils.mapStateToProps)(_class) || _class;
-            _class = _providers.withContainerSize(_class) || _class;
-            _class = _providers.withImageSize(_class) || _class;
-            return _class;
+            var _ComponentWithResize = ComponentWithResize;
+            ComponentWithResize = _reactRedux.connect(_utils.mapStateToProps)(ComponentWithResize) || ComponentWithResize;
+            ComponentWithResize = _providers.withContainerSize(ComponentWithResize) || ComponentWithResize;
+            ComponentWithResize = _providers.withImageSize(ComponentWithResize) || ComponentWithResize;
+            return ComponentWithResize;
         })(_react2['default'].Component)
     );
 };
