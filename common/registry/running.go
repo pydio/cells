@@ -44,8 +44,8 @@ func (c *pydioregistry) ListRunningServices() ([]Service, error) {
 
 	var services []Service
 
-	for _, p := range c.peers {
-		for _, rs := range p.register {
+	for _, p := range GetPeers() {
+		for _, rs := range p.GetServices() {
 			if s, ok := c.register[rs.Name]; ok {
 				services = append(services, s)
 			} else {

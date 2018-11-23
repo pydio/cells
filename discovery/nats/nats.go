@@ -22,6 +22,7 @@ package nats
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"strconv"
 	"time"
@@ -86,6 +87,8 @@ func run() {
 		if regClusterRoutes != "" {
 			opts.RoutesStr = regClusterRoutes
 			opts.Routes = server.RoutesFromStr(regClusterRoutes)
+
+			fmt.Println("Routes ", opts.RoutesStr, opts.Routes)
 		}
 
 		// Create the server with appropriate options.
@@ -95,7 +98,10 @@ func run() {
 		hd.SetLogger(logger{log.Logger(context.Background())}, true, false)
 
 		// Start things up. Block here until done.
-		go server.Run(hd)
+		go func() {
+			err := server.Run(hd)
+			fmt.Println(err)
+		}()
 
 		if !hd.ReadyForConnections(3 * time.Second) {
 			log.Fatal("nats: start timed out")

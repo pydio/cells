@@ -60,6 +60,7 @@ type ServiceOptions struct {
 	Web   web.Service
 
 	Dependencies []*dependency
+	Fork         bool
 
 	Registry registry.Registry
 
@@ -159,6 +160,12 @@ func Regexp(r string) ServiceOption {
 func WithChecker(c Checker) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Checker = c
+	}
+}
+
+func Fork(b bool) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Fork = b
 	}
 }
 

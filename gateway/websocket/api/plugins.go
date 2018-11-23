@@ -59,38 +59,6 @@ func init() {
 					return nil
 				}), nil
 
-			// ctx := m.Options().Context
-			// config := servicecontext.GetConfig(ctx)
-			//
-			// port := config.Int("port", 5050)
-			//
-			// ws := websocket.NewWebSocketHandler(ctx)
-			// ws.EventRouter = views.NewRouterEventFilter(views.RouterOptions{WatchRegistry: true})
-			//
-			// gin.SetMode(gin.ReleaseMode)
-			// gin.DisableConsoleColor()
-			// Server := gin.New()
-			// Server.Use(gin.Recovery())
-			// Server.GET("/event", func(c *gin.Context) {
-			// 	ws.Websocket.HandleRequest(c.Writer, c.Request)
-			// })
-			//
-			// chat := websocket.NewChatHandler(ctx)
-			// Server.GET("/chat", func(c *gin.Context) {
-			// 	chat.Websocket.HandleRequest(c.Writer, c.Request)
-			// })
-
-			// ssl := config2.Get("cert", "http", "ssl").Bool(false)
-			// certFile := config2.Get("cert", "http", "certFile").String("")
-			// keyFile := config2.Get("cert", "http", "keyFile").String("")
-			//
-			// go func() {
-			// 	if ssl {
-			// 		Server.RunTLS(fmt.Sprintf(":%d", port), certFile, keyFile)
-			// 	} else {
-			// 		Server.Run(fmt.Sprintf(":%d", port))
-			// 	}
-			// }()
 		}, func(s service.Service) (micro.Option, error) {
 
 			ctx := s.Options().Context

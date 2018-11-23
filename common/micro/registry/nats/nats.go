@@ -8,11 +8,12 @@ import (
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/registry/nats"
 	"github.com/pydio/cells/common/micro"
+	"github.com/spf13/viper"
 )
 
-var r = nats.NewRegistry()
-
 func Enable() {
+	addr := viper.GetString("registry_address")
+	r := nats.NewRegistry(registry.Addrs(addr))
 	s := cache.NewSelector(selector.Registry(r))
 
 	defaults.InitServer(func() server.Option {

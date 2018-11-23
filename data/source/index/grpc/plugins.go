@@ -48,6 +48,7 @@ func init() {
 			service.Tag(common.SERVICE_TAG_DATASOURCE),
 			service.Description("Datasource indexation service"),
 			service.Source(source),
+			service.Fork(true),
 			service.WithStorage(index.NewDAO, func(s service.Service) string {
 				// Returning a prefix for the dao
 				return strings.Replace(name, ".", "_", -1)

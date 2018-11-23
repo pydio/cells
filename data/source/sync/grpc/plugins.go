@@ -62,6 +62,7 @@ func init() {
 			service.Tag(common.SERVICE_TAG_DATASOURCE),
 			service.Description("Synchronization service between objects and index for a given datasource"),
 			service.Source(datasource),
+			service.Fork(true),
 			service.WithMicro(func(m micro.Service) error {
 
 				m.Init(micro.AfterStart(func() error {

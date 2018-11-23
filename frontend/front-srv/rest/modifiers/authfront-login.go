@@ -98,7 +98,7 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 
 	urlInternal := config.Get("defaults", "urlInternal").String("")
 	fullURL := urlInternal + "/auth/dex/token"
-	selfSigned := config.Get("cert", "http", "self").Bool(false)
+	selfSigned := config.Get("cert", "proxy", "self").Bool(false)
 
 	data := url.Values{}
 	if refreshToken != "" {

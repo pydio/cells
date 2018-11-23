@@ -22,11 +22,10 @@
 package grpc
 
 import (
-	"fmt"
-
 	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/service"
@@ -35,43 +34,47 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Regexp(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+`(.+)`),
-		service.Tag(common.SERVICE_TAG_DATASOURCE),
-		service.Description("S3 Object service for a given datasource"),
-		service.WithMicro(func(m micro.Service) error {
-			s := m.Options().Server
-			serviceName := s.Options().Metadata["source"]
 
-			fmt.Println(serviceName)
+	for _, datasource := range config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "sources").StringSlice([]string{}) {
 
-			engine := &ObjectHandler{}
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+datasource),
+			service.Tag(common.SERVICE_TAG_DATASOURCE),
+			service.Description("S3 Object service for a given datasource"),
+			service.Source(datasource),
+			service.Fork(true),
+			service.WithMicro(func(m micro.Service) error {
+				s := m.Options().Server
+				serviceName := s.Options().Metadata["source"]
 
-			m.Init(micro.AfterStart(func() error {
-				ctx := m.Options().Context
-				log.Logger(ctx).Debug("AfterStart for Object service " + serviceName)
-				var conf *object.MinioConfig
-				if err := servicecontext.ScanConfig(ctx, &conf); err != nil {
-					return err
-				}
-				if ip, e := utils.GetExternalIP(); e != nil {
+				engine := &ObjectHandler{}
+
+				m.Init(micro.AfterStart(func() error {
+					ctx := m.Options().Context
+					log.Logger(ctx).Debug("AfterStart for Object service " + serviceName)
+					var conf *object.MinioConfig
+					if err := servicecontext.ScanConfig(ctx, &conf); err != nil {
+						return err
+					}
+					if ip, e := utils.GetExternalIP(); e != nil {
+						conf.RunningHost = "127.0.0.1"
+					} else {
+						conf.RunningHost = ip.String()
+					}
+					// Not sure using real ip is working right now
 					conf.RunningHost = "127.0.0.1"
-				} else {
-					conf.RunningHost = ip.String()
-				}
-				// Not sure using real ip is working right now
-				conf.RunningHost = "127.0.0.1"
-				conf.RunningSecure = false
+					conf.RunningSecure = false
 
-				engine.Config = conf
-				log.Logger(ctx).Debug("Now starting minio server (" + serviceName + ")")
-				go engine.StartMinioServer(ctx, serviceName)
-				object.RegisterObjectsEndpointHandler(s, engine)
+					engine.Config = conf
+					log.Logger(ctx).Debug("Now starting minio server (" + serviceName + ")")
+					go engine.StartMinioServer(ctx, serviceName)
+					object.RegisterObjectsEndpointHandler(s, engine)
+
+					return nil
+				}))
 
 				return nil
-			}))
-
-			return nil
-		}),
-	)
+			}),
+		)
+	}
 }

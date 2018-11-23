@@ -61,6 +61,9 @@ func (p *Peer) Delete(c *registry.Service, id string) {
 }
 
 func (p *Peer) GetServices(name ...string) []*registry.Service {
+	p.lock.RLock()
+	defer p.lock.RUnlock()
+
 	var y []*registry.Service
 	for _, s := range p.register {
 		if len(name) == 0 || name[0] == s.Name {

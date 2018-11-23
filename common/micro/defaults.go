@@ -22,13 +22,9 @@
 package defaults
 
 import (
-	"crypto/tls"
-	"crypto/x509"
-	"fmt"
-	"io/ioutil"
+	"github.com/pydio/cells/common/config"
 
-	"github.com/pkg/errors"
-
+	httptransport "github.com/micro/go-micro/transport/http"
 	grpcclient "github.com/micro/go-plugins/client/grpc"
 	grpcserver "github.com/micro/go-plugins/server/grpc"
 	httpserver "github.com/micro/go-plugins/server/http"
@@ -46,63 +42,7 @@ var (
 )
 
 func InitServer(opt ...func() server.Option) {
-
 	serverOpts = append(serverOpts, opt...)
-
-	// Make it configurable ?
-	// opts.Selector = cache.NewSelector(selector.Registry(opts.Registry))
-	//
-	// if opts.Server == nil {
-	// 	so, err := simpleServerTLS(opts.CertFile, opts.KeyFile)
-	// 	if err != nil {
-	// 		log.Fatal("Certificates not found - do you have permission to read the file ?", err)
-	// 	}
-	//
-	// 	opts.Server = func(new ...server.Option) server.Server {
-	// 		s := grpcserver.NewServer(
-	// 			server.Registry(opts.Registry),
-	// 			server.Broker(opts.Broker),
-	// 			server.Transport(opts.Transport),
-	// 		)
-	// 		if so != nil {
-	// 			s.Init(so)
-	// 		}
-	// 		s.Init(new...)
-	// 		return s
-	// 	}
-	// }
-	//
-	// if opts.Client == nil {
-	// 	co, err := simpleClientTLS(opts.CertFile)
-	// 	if err != nil {
-	// 		log.Fatal("Certificates not found - do you have permission to read the file ?", err)
-	// 	}
-	//
-	// 	opts.Client = func(new ...client.Option) client.Client {
-	// 		c := grpcclient.NewClient(
-	// 			client.Selector(opts.Selector),
-	// 			client.Registry(opts.Registry),
-	// 			client.Broker(opts.Broker),
-	// 			client.Transport(opts.Transport),
-	// 			client.RequestTimeout(10*time.Minute),
-	// 			client.Wrap(servicecontext.SpanClientWrapper),
-	// 		)
-	// 		if co != nil {
-	// 			c.Init(co)
-	// 		}
-	// 		c.Init(new...)
-	//
-	// 		return c
-	// 	}
-	// }
-	//
-	// // Do we need this ?
-	// registry.DefaultRegistry = opts.Registry
-	// broker.DefaultBroker = opts.Broker
-	// transport.DefaultTransport = opts.Transport
-	//
-	// client.DefaultClient = opts.Client()
-	// server.DefaultServer = opts.Server()
 
 	server.DefaultServer = NewServer()
 }
@@ -113,47 +53,16 @@ func InitClient(opt ...func() client.Option) {
 	client.DefaultClient = NewClient()
 }
 
-func simpleServerTLS(c string, k string) (server.Option, error) {
-
-	if c == "" || k == "" {
-		return nil, nil
-	}
-
-	cert, err := tls.LoadX509KeyPair(c, k)
-	if err != nil {
-		return nil, errors.Wrap(err, "Cannot load client key pair")
-	}
-
-	return grpcserver.AuthTLS(&tls.Config{
-		Certificates: []tls.Certificate{cert},
-	}), nil
-}
-
-func simpleClientTLS(c string) (client.Option, error) {
-	if c == "" {
-		return nil, nil
-	}
-
-	b, err := ioutil.ReadFile(c)
-	if err != nil {
-		return nil, errors.Wrap(err, "Cannot read cert file")
-	}
-
-	cp := x509.NewCertPool()
-	if !cp.AppendCertsFromPEM(b) {
-		return nil, fmt.Errorf("Cannot append cert to pool")
-	}
-
-	return grpcclient.AuthTLS(&tls.Config{
-		RootCAs: cp,
-	}), nil
-}
-
 // NewClient returns a client attached to the defaults
 func NewClient(new ...client.Option) client.Client {
 	opts := new
 	for _, o := range clientOpts {
 		opts = append(opts, o())
+	}
+
+	tls := config.GetTLSClientConfig("grpc")
+	if tls != nil {
+		opts = append(opts, grpcclient.AuthTLS(tls))
 	}
 
 	return grpcclient.NewClient(
@@ -168,6 +77,11 @@ func NewServer(new ...server.Option) server.Server {
 		opts = append(opts, o())
 	}
 
+	tls := config.GetTLSServerConfig("grpc")
+	if tls != nil {
+		opts = append(opts, grpcserver.AuthTLS(tls))
+	}
+
 	return grpcserver.NewServer(
 		opts...,
 	)
@@ -177,6 +91,12 @@ func NewHTTPServer(new ...server.Option) server.Server {
 	opts := new
 	for _, o := range serverOpts {
 		opts = append(opts, o())
+	}
+
+	tls := config.GetTLSServerConfig("http")
+	if tls != nil {
+		t := httptransport.NewTransport(transport.TLSConfig(tls), transport.Secure(true))
+		opts = append(opts, server.Transport(t))
 	}
 
 	s := httpserver.NewServer(

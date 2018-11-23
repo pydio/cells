@@ -33,6 +33,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/idm/auth"
@@ -70,8 +71,6 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 			return nil, fmt.Errorf("invalid config: %s", check.errMsg)
 		}
 	}
-
-	logger.Infof("config issuer: %s", c.Issuer)
 
 	// var grpcOptions []grpc.ServerOption
 	// if c.GRPC.TLSCert != "" {
@@ -166,6 +165,8 @@ func serve(c auth.Config, pydioSrvContext context.Context, pydioLogger *zap.Logg
 	if len(c.Web.AllowedOrigins) > 0 {
 		logger.Infof("config allowed origins: %s", c.Web.AllowedOrigins)
 	}
+
+	c.Issuer = config.Get("url").String("") + "/auth/dex"
 
 	// explicitly convert to UTC.
 	now := func() time.Time { return time.Now().UTC() }

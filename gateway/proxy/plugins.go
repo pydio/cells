@@ -50,6 +50,7 @@ var (
 		}
 		proxy /auth/dex {{.Dex | urls}} {
 			transparent
+			insecure_skip_verify
 		}
 		proxy /io   {{.Gateway | urls}} {
 			transparent
@@ -273,6 +274,9 @@ func LoadCaddyConf() error {
 			}
 		}
 	}
+
+	// According to docs, caddy is supposed to redirect automatically if certificate is correctly set
+
 	// 	if redir := config.Get("cert", "proxy", "httpRedir").Bool(false); redir && caddyconf.TLS != "" {
 	// 		if extUrl := config.Get("defaults", "url").String(""); extUrl != "" {
 	// 			var e error
@@ -283,56 +287,6 @@ func LoadCaddyConf() error {
 	// 			return fmt.Errorf("cannot find url configuration")
 	// 		}
 	// 	}
-	// }
-
-	// internalUrlFromServices("pydio.gateway.rest")
-
-	// if p, e := internalUrlFromConfig("micro.api", []string{"services", common.SERVICE_MICRO_API, "port"}, servicesHost, tls); e == nil {
-	// 	caddyconf.Micro = p
-	// } else {
-	// 	return c, e
-	// }
-	//
-	// if p, e := internalUrlFromConfig("dex", []string{"services", common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_AUTH, "dex", "web", "http"}, servicesHost, tls, true); e == nil {
-	// 	caddyconf.Dex = p
-	// } else {
-	// 	return c, e
-	// }
-	//
-	// if p, e := internalUrlFromConfig("gateway.data", []string{"services", common.SERVICE_GATEWAY_DATA, "port"}, servicesHost, tls); e == nil {
-	// 	caddyconf.Gateway = p
-	// } else {
-	// 	return c, e
-	// }
-	//
-	// if p, e := internalUrlFromConfig("websocket", []string{"services", common.SERVICE_GATEWAY_NAMESPACE_ + common.SERVICE_WEBSOCKET, "port"}, servicesHost, tls); e == nil {
-	// 	caddyconf.WebSocket = p
-	// } else {
-	// 	return c, e
-	// }
-	//
-	// if p, e := internalUrlFromConfig("web statics", []string{"services", common.SERVICE_WEB_NAMESPACE_ + common.SERVICE_FRONT_STATICS, "port"}, servicesHost, tls); e == nil {
-	// 	caddyconf.FrontPlugins = p
-	// } else {
-	// 	return c, e
-	// }
-	//
-	// if p, e := internalUrlFromConfig("dav", []string{"services", common.SERVICE_GATEWAY_DAV, "port"}, servicesHost, tls); e == nil {
-	// 	caddyconf.DAV = p
-	// } else {
-	// 	return c, e
-	// }
-	//
-	// if p, e := internalUrlFromConfig("wopi", []string{"services", common.SERVICE_GATEWAY_WOPI, "port"}, servicesHost, tls); e == nil {
-	// 	caddyconf.WOPI = p
-	// } else {
-	// 	return c, e
-	// }
-
-	// if p, e := internalUrlFromConfig("collabora", []string{"frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_PORT"}, Get("frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_HOST").String(""), Get("frontend", "plugin", "editor.libreoffice", "LIBREOFFICE_SSL").Bool(true)); e == nil {
-	// 	c.Collabora = p
-	// } else {
-	// 	c.Collabora = nil
 	// }
 
 	return nil

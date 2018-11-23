@@ -431,6 +431,8 @@ func (s *service) ForkStart() {
 		"--registry_address", viper.GetString("registry_address"),
 		"--registry_cluster_address", viper.GetString("registry_cluster_address"),
 		"--registry_cluster_routes", viper.GetString("registry_cluster_routes"),
+		"--broker", viper.GetString("broker"),
+		"--broker_address", viper.GetString("broker_address"),
 		name,
 	)
 
@@ -596,7 +598,7 @@ func (s *service) IsREST() bool {
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) RequiresFork() bool {
 	ctx := s.Options().Context
-	return servicecontext.GetConfig(ctx).Bool("fork")
+	return s.Options().Fork || servicecontext.GetConfig(ctx).Bool("fork")
 }
 
 func (s *service) Client() (string, client.Client) {
