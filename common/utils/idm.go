@@ -136,7 +136,9 @@ func GetRoles(ctx context.Context, names []string) []*idm.Role {
 	stream, err := roleClient.SearchRole(ctx, &idm.SearchRoleRequest{Query: &service.Query{SubQueries: []*any.Any{query}}})
 
 	if err != nil {
-		log.Logger(ctx).Error("Failed to retrieve roles", zap.Error(err))
+		if !strings.Contains(err.Error(), "context canceled") {
+			log.Logger(ctx).Error("Failed to retrieve roles", zap.Error(err), zap.Any("c", ctx))
+		}
 		return nil
 	}
 
