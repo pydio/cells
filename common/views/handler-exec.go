@@ -153,10 +153,13 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 
 	// Make sure the object exists
 	var opts = minio.StatObjectOptions{}
+	newCtx := ctx
 	if meta, ok := context2.MinioMetaFromContext(ctx); ok {
 		for k, v := range meta {
 			opts.Set(k, v)
 		}
+		// Store a copy of the meta
+		newCtx = context2.WithMetadata(ctx, meta)
 	}
 	sObject, sErr := writer.StatObject(info.ObjectsBucket, s3Path, opts)
 	if sErr != nil {
@@ -172,7 +175,7 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 			return nil, err
 		}
 	}
-	reader, err = writer.GetObjectWithContext(ctx, info.ObjectsBucket, s3Path, headers)
+	reader, err = writer.GetObjectWithContext(newCtx, info.ObjectsBucket, s3Path, headers)
 	log.Logger(ctx).Debug("[handler exec] Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers.Header()), zap.Any("request", requestData), zap.Any("resultObject", reader))
 	if err != nil {
 		log.Logger(ctx).Error("Get Object", zap.Error(err))
