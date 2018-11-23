@@ -80,6 +80,18 @@
   "ds.editor.legend.s3.2": {
     "other": "Use the standard API Key / Api Secret to authenticate, leave endpoint URL empty for AmazonS3 or use your storage URL for other on-premise solutions."
   },
+  "ds.editor.storage.legend.fs":{
+    "other": "Browse data from a local or network-attached file system. Peer Address is a node where Cells is currently running. Last folder must be lowercase and its parent must writeable."
+  },
+  "ds.editor.storage.legend.s3":{
+    "other": "Browse data from an Amazon S3 bucket or from an S3-compatible storage."
+  },
+  "ds.editor.storage.legend.azure":{
+    "other": "Browse data an Azure Blob Storage bucket."
+  },
+  "ds.editor.storage.legend.gcs":{
+    "other": "Browse data a Google Cloud Storage bucket."
+  },
   "ds.editor.new": {
     "other": "New DataSource"
   },

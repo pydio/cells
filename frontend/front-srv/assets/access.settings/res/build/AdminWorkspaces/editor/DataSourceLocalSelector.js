@@ -242,8 +242,13 @@ var DataSourceLocalSelector = (function (_React$Component2) {
         value: function componentDidMount() {
             var _this3 = this;
 
+            var model = this.props.model;
+
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.listPeersAddresses().then(function (res) {
+                if (res.PeerAddresses && res.PeerAddresses.length === 1 && !model.PeerAddress) {
+                    model.PeerAddress = res.PeerAddresses[0];
+                }
                 _this3.setState({ peerAddresses: res.PeerAddresses });
             });
         }
@@ -296,7 +301,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             {
                                 value: model.PeerAddress || '',
                                 floatingLabelFixed: true,
-                                floatingLabelText: m('selector.peer'),
+                                floatingLabelText: m('selector.peer') + ' *',
                                 onChange: function (e, i, v) {
                                     model.PeerAddress = v;
                                 },
@@ -314,14 +319,14 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             value: model.StorageConfiguration.folder,
                             peerAddress: model.PeerAddress,
                             onChange: this.onPathChange.bind(this),
-                            fieldLabel: m('selector.completer')
+                            fieldLabel: m('selector.completer') + ' *'
                         }),
                         !model.PeerAddress && _react2['default'].createElement(_materialUi.TextField, {
                             style: { marginTop: -3 },
                             fullWidth: true,
                             disabled: true,
                             value: model.StorageConfiguration.folder,
-                            floatingLabelText: m('selector.folder'),
+                            floatingLabelText: m('selector.folder') + ' *',
                             floatingLabelFixed: true,
                             hintText: m('selector.folder.hint')
                         })

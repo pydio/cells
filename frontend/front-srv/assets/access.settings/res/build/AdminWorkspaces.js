@@ -22513,7 +22513,7 @@ DataSourcesBoard.propTypes = {
 exports['default'] = DataSourcesBoard;
 module.exports = exports['default'];
 
-},{"../editor/DataSourceEditor":162,"../editor/VersionPolicyEditor":165,"../editor/VersionPolicyPeriods":166,"../model/DataSource":172,"./EncryptionKeys":157,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid4":154}],157:[function(require,module,exports){
+},{"../editor/DataSourceEditor":162,"../editor/VersionPolicyEditor":166,"../editor/VersionPolicyPeriods":167,"../model/DataSource":173,"./EncryptionKeys":157,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react","uuid4":154}],157:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -23057,7 +23057,7 @@ var MetadataBoard = (function (_React$Component) {
 exports['default'] = MetadataBoard;
 module.exports = exports['default'];
 
-},{"../editor/MetaNamespace":164,"../model/Metadata":173,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],159:[function(require,module,exports){
+},{"../editor/MetaNamespace":165,"../model/Metadata":174,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],159:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23264,7 +23264,7 @@ var VirtualNodes = (function (_React$Component) {
 exports['default'] = VirtualNodes;
 module.exports = exports['default'];
 
-},{"../model/DataSource":172,"../model/VirtualNode":174,"../virtual/NodeCard":176,"material-ui":"material-ui","react":"react"}],160:[function(require,module,exports){
+},{"../model/DataSource":173,"../model/VirtualNode":175,"../virtual/NodeCard":177,"material-ui":"material-ui","react":"react"}],160:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23412,7 +23412,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Ws":175,"pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],161:[function(require,module,exports){
+},{"../model/Ws":176,"pydio":"pydio","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],161:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23614,7 +23614,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../editor/WsEditor":168,"./WorkspaceList":160,"material-ui":"material-ui","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],162:[function(require,module,exports){
+},{"../editor/WsEditor":169,"./WorkspaceList":160,"material-ui":"material-ui","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/xml":"pydio/util/xml","react":"react"}],162:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -23648,6 +23648,10 @@ var _materialUi = require('material-ui');
 var _DataSourceLocalSelector = require('./DataSourceLocalSelector');
 
 var _DataSourceLocalSelector2 = _interopRequireDefault(_DataSourceLocalSelector);
+
+var _DsStorageSelector = require('./DsStorageSelector');
+
+var _DsStorageSelector2 = _interopRequireDefault(_DsStorageSelector);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
@@ -23900,7 +23904,15 @@ var DataSourceEditor = (function (_React$Component) {
                 },
                 legend: {},
                 section: { padding: '0 20px 20px' },
+                storageSection: { border: '1px solid #e0e0e0', padding: 20, marginTop: -1, borderRadius: 2 },
                 toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
+            };
+
+            var storageTypes = {
+                LOCAL: { primaryText: this.context.getMessage('ds.storage.fs', 'ajxp_admin'), image: 'fs.png' },
+                S3: { primaryText: this.context.getMessage('ds.storage.s3', 'ajxp_admin'), image: 's3-compat.png' },
+                AZURE: { primaryText: this.context.getMessage('ds.storage.azure', 'ajxp_admin'), image: 'azure.png' },
+                GCS: { primaryText: this.context.getMessage('ds.storage.gcs', 'ajxp_admin'), image: 'gcs.png' }
             };
 
             return _react2['default'].createElement(
@@ -23966,46 +23978,55 @@ var DataSourceEditor = (function (_React$Component) {
                         { style: styles.title },
                         m('options')
                     ),
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('options.id'), disabled: !create, value: model.Name, onChange: function (e, v) {
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('options.id') + ' *', disabled: !create, value: model.Name, onChange: function (e, v) {
                             model.Name = v;
                         } }),
                     !create && _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: m('options.enabled'), toggled: !model.Disabled, onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { labelPosition: "right", label: m('options.enabled'), toggled: !model.Disabled, onToggle: function (e, v) {
                                 model.Disabled = !v;
                             } })
                     )
                 ),
-                _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(
                     'div',
                     { style: styles.section },
-                    _react2['default'].createElement(
+                    _react2['default'].createElement(_DsStorageSelector2['default'], { disabled: !create, value: model.StorageType, onChange: function (e, i, v) {
+                            model.StorageType = v;
+                        }, values: storageTypes }),
+                    model.StorageType === 'LOCAL' && _react2['default'].createElement(
                         'div',
-                        { style: styles.title },
-                        this.context.getMessage('ds.storage.title', 'ajxp_admin')
-                    ),
-                    _react2['default'].createElement(
-                        _materialUi.SelectField,
-                        { fullWidth: true, disabled: !create, floatingLabelText: this.context.getMessage('ds.storage', 'ajxp_admin'), value: model.StorageType, onChange: function (e, i, v) {
-                                model.StorageType = v;
-                            } },
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "LOCAL", primaryText: this.context.getMessage('ds.storage.fs', 'ajxp_admin') }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "S3", primaryText: this.context.getMessage('ds.storage.s3', 'ajxp_admin') }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "AZURE", primaryText: this.context.getMessage('ds.storage.azure', 'ajxp_admin') }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: "GCS", primaryText: this.context.getMessage('ds.storage.gcs', 'ajxp_admin') })
+                        { style: styles.storageSection },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: styles.legend },
+                            m('storage.legend.fs')
+                        ),
+                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model, pydio: this.props.pydio }),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: styles.toggleDiv },
+                            _react2['default'].createElement(_materialUi.Toggle, { labelPosition: "right", label: m('storage.fs.macos'), toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
+                                    storageConfig.normalize = v ? "true" : "false";
+                                } })
+                        )
                     ),
                     model.StorageType === 'S3' && _react2['default'].createElement(
                         'div',
-                        null,
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.bucket'), value: model.ObjectsBucket, onChange: function (e, v) {
+                        { style: styles.storageSection },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: styles.legend },
+                            m('storage.legend.s3')
+                        ),
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
                                 model.ObjectsBucket = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.api'), value: model.ApiKey, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.secret'), value: model.ApiSecret, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
                                 model.ApiSecret = v;
                             } }),
                         _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
@@ -24017,14 +24038,19 @@ var DataSourceEditor = (function (_React$Component) {
                     ),
                     model.StorageType === 'AZURE' && _react2['default'].createElement(
                         'div',
-                        null,
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.bucket'), value: model.ObjectsBucket, onChange: function (e, v) {
+                        { style: styles.storageSection },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: styles.legend },
+                            m('storage.legend.azure')
+                        ),
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
                                 model.ObjectsBucket = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.api'), value: model.ApiKey, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.api') + ' *', value: model.ApiKey, onChange: function (e, v) {
                                 model.ApiKey = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.secret'), value: model.ApiSecret, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.azure.secret') + ' *', value: model.ApiSecret, onChange: function (e, v) {
                                 model.ApiSecret = v;
                             } }),
                         _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
@@ -24033,28 +24059,21 @@ var DataSourceEditor = (function (_React$Component) {
                     ),
                     model.StorageType === 'GCS' && _react2['default'].createElement(
                         'div',
-                        null,
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.gcs.bucket'), value: model.ObjectsBucket, onChange: function (e, v) {
+                        { style: styles.storageSection },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: styles.legend },
+                            m('storage.legend.gcs')
+                        ),
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.gcs.bucket') + ' *', value: model.ObjectsBucket, onChange: function (e, v) {
                                 model.ObjectsBucket = v;
                             } }),
-                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.gcs.credentials'), value: model.StorageConfiguration.jsonCredentials, onChange: function (e, v) {
+                        _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.gcs.credentials') + ' *', value: model.StorageConfiguration.jsonCredentials, onChange: function (e, v) {
                                 model.StorageConfiguration.jsonCredentials = v;
                             }, multiLine: true }),
                         _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, floatingLabelFixed: true, floatingLabelText: m('storage.s3.path'), value: model.ObjectsBaseFolder, onChange: function (e, v) {
                                 model.ObjectsBaseFolder = v;
                             } })
-                    ),
-                    model.StorageType === 'LOCAL' && _react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(_DataSourceLocalSelector2['default'], { model: model, pydio: this.props.pydio }),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: styles.toggleDiv },
-                            _react2['default'].createElement(_materialUi.Toggle, { label: m('storage.fs.macos'), toggled: storageConfig.normalize === "true", onToggle: function (e, v) {
-                                    storageConfig.normalize = v ? "true" : "false";
-                                } })
-                        )
                     )
                 ),
                 _react2['default'].createElement(_materialUi.Divider, null),
@@ -24079,7 +24098,7 @@ var DataSourceEditor = (function (_React$Component) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.toggleDiv },
-                        _react2['default'].createElement(_materialUi.Toggle, { label: m('enc'), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
+                        _react2['default'].createElement(_materialUi.Toggle, { labelPosition: "right", label: m('enc'), toggled: model.EncryptionMode === "MASTER", onToggle: function (e, v) {
                                 _this6.toggleEncryption(v);
                             } })
                     ),
@@ -24108,7 +24127,7 @@ DataSourceEditor.contextTypes = {
 exports['default'] = DataSourceEditor;
 module.exports = exports['default'];
 
-},{"../model/DataSource":172,"./DataSourceLocalSelector":163,"material-ui":"material-ui","pydio":"pydio","react":"react"}],163:[function(require,module,exports){
+},{"../model/DataSource":173,"./DataSourceLocalSelector":163,"./DsStorageSelector":164,"material-ui":"material-ui","pydio":"pydio","react":"react"}],163:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -24353,8 +24372,13 @@ var DataSourceLocalSelector = (function (_React$Component2) {
         value: function componentDidMount() {
             var _this3 = this;
 
+            var model = this.props.model;
+
             var api = new _pydioHttpRestApi.ConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
             api.listPeersAddresses().then(function (res) {
+                if (res.PeerAddresses && res.PeerAddresses.length === 1 && !model.PeerAddress) {
+                    model.PeerAddress = res.PeerAddresses[0];
+                }
                 _this3.setState({ peerAddresses: res.PeerAddresses });
             });
         }
@@ -24407,7 +24431,7 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             {
                                 value: model.PeerAddress || '',
                                 floatingLabelFixed: true,
-                                floatingLabelText: m('selector.peer'),
+                                floatingLabelText: m('selector.peer') + ' *',
                                 onChange: function (e, i, v) {
                                     model.PeerAddress = v;
                                 },
@@ -24425,14 +24449,14 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             value: model.StorageConfiguration.folder,
                             peerAddress: model.PeerAddress,
                             onChange: this.onPathChange.bind(this),
-                            fieldLabel: m('selector.completer')
+                            fieldLabel: m('selector.completer') + ' *'
                         }),
                         !model.PeerAddress && _react2['default'].createElement(_materialUi.TextField, {
                             style: { marginTop: -3 },
                             fullWidth: true,
                             disabled: true,
                             value: model.StorageConfiguration.folder,
-                            floatingLabelText: m('selector.folder'),
+                            floatingLabelText: m('selector.folder') + ' *',
                             floatingLabelFixed: true,
                             hintText: m('selector.folder.hint')
                         })
@@ -24454,6 +24478,164 @@ exports['default'] = DataSourceLocalSelector;
 module.exports = exports['default'];
 
 },{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/path":"pydio/util/path","react":"react"}],164:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioUtilDom = require('pydio/util/dom');
+
+var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
+var _materialUi = require('material-ui');
+
+var DsStorageType = (function (_React$Component) {
+    _inherits(DsStorageType, _React$Component);
+
+    function DsStorageType() {
+        _classCallCheck(this, DsStorageType);
+
+        _get(Object.getPrototypeOf(DsStorageType.prototype), 'constructor', this).apply(this, arguments);
+    }
+
+    _createClass(DsStorageType, [{
+        key: 'render',
+        value: function render() {
+            var _props = this.props;
+            var onSelect = _props.onSelect;
+            var selected = _props.selected;
+            var value = _props.value;
+            var primaryText = _props.primaryText;
+            var image = _props.image;
+
+            var styles = {
+                cont: {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    padding: '10px 10px 0 10px',
+                    backgroundColor: 'transparent',
+                    borderBottom: '2px solid transparent',
+                    transition: _pydioUtilDom2['default'].getBeziersTransition()
+                },
+                image: {
+                    width: 36,
+                    height: 36,
+                    opacity: .3,
+                    transition: _pydioUtilDom2['default'].getBeziersTransition()
+                },
+                label: {
+                    margin: 5,
+                    marginTop: 8,
+                    textTransform: 'uppercase',
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: 'rgba(0,0,0,.3)',
+                    textAlign: 'center',
+                    transition: _pydioUtilDom2['default'].getBeziersTransition()
+                }
+            };
+            if (selected) {
+                styles.cont.borderBottom = '2px solid #0e4d6d';
+                styles.cont.backgroundColor = '#fff';
+                styles.image.opacity = 1;
+                styles.label.color = 'rgba(0,0,0,.77)';
+            }
+
+            return _react2['default'].createElement(
+                'div',
+                { zDepth: 0, style: styles.cont, onClick: function (e) {
+                        onSelect(value);
+                    }, rounded: false },
+                image && _react2['default'].createElement('img', { style: styles.image, src: _pydio2['default'].getInstance().Parameters.get('REBASE') + '/plug/access.settings/res/images/' + image }),
+                _react2['default'].createElement(
+                    'div',
+                    { style: styles.label },
+                    primaryText
+                )
+            );
+        }
+    }]);
+
+    return DsStorageType;
+})(_react2['default'].Component);
+
+var DsStorageSelector = (function (_React$Component2) {
+    _inherits(DsStorageSelector, _React$Component2);
+
+    function DsStorageSelector(props) {
+        _classCallCheck(this, DsStorageSelector);
+
+        _get(Object.getPrototypeOf(DsStorageSelector.prototype), 'constructor', this).call(this, props);
+    }
+
+    _createClass(DsStorageSelector, [{
+        key: 'onChange',
+        value: function onChange(newValue) {
+            var _props2 = this.props;
+            var values = _props2.values;
+            var onChange = _props2.onChange;
+
+            var i = Object.keys(values).indexOf(newValue);
+            onChange(null, i, newValue);
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this = this;
+
+            var _props3 = this.props;
+            var values = _props3.values;
+            var value = _props3.value;
+            var disabled = _props3.disabled;
+
+            var style = {
+                display: 'flex',
+                padding: '0 1px'
+            };
+            return _react2['default'].createElement(
+                'div',
+                { style: style },
+                Object.keys(values).map(function (k) {
+                    return _react2['default'].createElement(DsStorageType, {
+                        value: k,
+                        selected: k === value,
+                        onSelect: disabled ? function () {} : _this.onChange.bind(_this),
+                        primaryText: values[k].primaryText,
+                        image: values[k].image
+                    });
+                })
+            );
+        }
+    }]);
+
+    return DsStorageSelector;
+})(_react2['default'].Component);
+
+exports['default'] = DsStorageSelector;
+module.exports = exports['default'];
+
+},{"material-ui":"material-ui","pydio":"pydio","pydio/util/dom":"pydio/util/dom","react":"react"}],165:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -24851,7 +25033,7 @@ MetaNamespace.PropTypes = {
 exports['default'] = MetaNamespace;
 module.exports = exports['default'];
 
-},{"../model/Metadata":173,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],165:[function(require,module,exports){
+},{"../model/Metadata":174,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","react":"react"}],166:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25148,7 +25330,7 @@ VersionPolicyEditor.contextTypes = {
 exports['default'] = VersionPolicyEditor;
 module.exports = exports['default'];
 
-},{"./VersionPolicyPeriods":166,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],166:[function(require,module,exports){
+},{"./VersionPolicyPeriods":167,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],167:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25270,7 +25452,7 @@ var VersionPolicyPeriods = (function (_React$Component) {
 exports['default'] = VersionPolicyPeriods;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],167:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],168:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25550,7 +25732,7 @@ var WsAutoComplete = (function (_React$Component) {
 exports['default'] = WsAutoComplete;
 module.exports = exports['default'];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/path":"pydio/util/path","react":"react"}],168:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/path":"pydio/util/path","react":"react"}],169:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25890,7 +26072,7 @@ var WsEditor = (function (_React$Component) {
 exports['default'] = WsEditor;
 module.exports = exports['default'];
 
-},{"../model/Ws":175,"./WsAutoComplete":167,"material-ui":"material-ui","pydio":"pydio","react":"react"}],169:[function(require,module,exports){
+},{"../model/Ws":176,"./WsAutoComplete":168,"material-ui":"material-ui","pydio":"pydio","react":"react"}],170:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25973,7 +26155,7 @@ window.AdminWorkspaces = {
   Workspace: _modelWs2['default']
 };
 
-},{"./board/DataSourcesBoard":156,"./board/MetadataBoard":158,"./board/VirtualNodes":159,"./board/WsDashboard":161,"./editor/DataSourceEditor":162,"./editor/WsAutoComplete":167,"./meta/MetaList":170,"./meta/MetaSourceForm":171,"./model/VirtualNode":174,"./model/Ws":175,"./virtual/NodeCard":176}],170:[function(require,module,exports){
+},{"./board/DataSourcesBoard":156,"./board/MetadataBoard":158,"./board/VirtualNodes":159,"./board/WsDashboard":161,"./editor/DataSourceEditor":162,"./editor/WsAutoComplete":168,"./meta/MetaList":171,"./meta/MetaSourceForm":172,"./model/VirtualNode":175,"./model/Ws":176,"./virtual/NodeCard":177}],171:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26079,7 +26261,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],171:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],172:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26194,7 +26376,7 @@ var MetaSourceForm = React.createClass({
 exports['default'] = MetaSourceForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],172:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],173:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26415,7 +26597,7 @@ var DataSource = (function (_Observable) {
 exports['default'] = DataSource;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],173:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],174:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26511,7 +26693,7 @@ Metadata.MetaTypes = {
 exports['default'] = Metadata;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],174:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api"}],175:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -26666,7 +26848,7 @@ var VirtualNode = (function (_Observable) {
 exports['default'] = VirtualNode;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],175:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],176:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -26900,7 +27082,7 @@ var Workspace = (function (_Observable) {
 exports['default'] = Workspace;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],176:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","pydio/util/lang":"pydio/util/lang"}],177:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27065,4 +27247,4 @@ var NodeCard = (function (_React$Component) {
 exports['default'] = NodeCard;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}]},{},[169]);
+},{"material-ui":"material-ui","react":"react"}]},{},[170]);

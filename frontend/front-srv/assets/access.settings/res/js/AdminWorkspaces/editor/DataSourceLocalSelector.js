@@ -154,8 +154,12 @@ class DataSourceLocalSelector extends React.Component{
     }
 
     componentDidMount(){
+        const {model} = this.props;
         const api = new ConfigServiceApi(PydioApi.getRestClient());
         api.listPeersAddresses().then(res => {
+            if(res.PeerAddresses && res.PeerAddresses.length === 1 && !model.PeerAddress){
+                model.PeerAddress = res.PeerAddresses[0];
+            }
             this.setState({peerAddresses: res.PeerAddresses});
         })
     }
@@ -194,7 +198,7 @@ class DataSourceLocalSelector extends React.Component{
                         <SelectField
                             value={model.PeerAddress || ''}
                             floatingLabelFixed={true}
-                            floatingLabelText={m('selector.peer')}
+                            floatingLabelText={m('selector.peer') + ' *'}
                             onChange={(e,i,v) => {model.PeerAddress = v}}
                             fullWidth={true}
                         >
@@ -209,7 +213,7 @@ class DataSourceLocalSelector extends React.Component{
                                 value={model.StorageConfiguration.folder}
                                 peerAddress={model.PeerAddress}
                                 onChange={this.onPathChange.bind(this)}
-                                fieldLabel={m('selector.completer')}
+                                fieldLabel={m('selector.completer') + ' *'}
                             />
                         }
                         {!model.PeerAddress &&
@@ -218,7 +222,7 @@ class DataSourceLocalSelector extends React.Component{
                                 fullWidth={true}
                                 disabled={true}
                                 value={model.StorageConfiguration.folder}
-                                floatingLabelText={m('selector.folder')}
+                                floatingLabelText={m('selector.folder') + ' *'}
                                 floatingLabelFixed={true}
                                 hintText={m('selector.folder.hint')}
                             />
