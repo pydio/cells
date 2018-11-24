@@ -148,7 +148,12 @@ func promptSslMode() (enabled bool, e error) {
 		config.Set(false, "cert", "proxy", "self")
 		config.Set(certEmail, "cert", "proxy", "email")
 		config.Set(caUrl, "cert", "proxy", "caUrl")
+
 		fmt.Println("### Configuring LE SSL, CA URL:", caUrl)
+		fmt.Printf("[DEBUG] Right after set, certEmail: %s, caUrl: %s\n",
+			config.Get("cert", "proxy", "email").String(""),
+			config.Get("cert", "proxy", "caUrl").String(""))
+
 		// config.Set(useStagingCA, "cert", "proxy", "useStagingCA")
 	case 2:
 		enabled = true
@@ -182,7 +187,6 @@ func promptSslMode() (enabled bool, e error) {
 		config.Get("cert", "proxy", "keyFile").String(""),
 		config.Get("cert", "proxy", "email").String(""),
 		config.Get("cert", "proxy", "caUrl").String(""))
-
 	return
 }
 
