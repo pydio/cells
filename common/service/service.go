@@ -469,6 +469,7 @@ func (s *service) ForkStart() {
 	if err := cmd.Wait(); err != nil {
 		cancel()
 	}
+
 }
 
 // Start a service and its dependencies
@@ -482,8 +483,6 @@ func (s *service) Stop() {
 			log.Logger(ctx).Error("Could not prepare stop ", zap.Error(err))
 		}
 	}
-
-	fmt.Println("Stopping ", s.Name())
 
 	// Cancelling context should stop the service altogether
 	cancel()
@@ -514,10 +513,6 @@ func (s *service) Stop() {
 
 		fmt.Println(gerr)
 	}
-
-	// if web := s.Options().Web; web != nil {
-	// 	web.Options().Server.Stop()
-	// }
 
 	for _, f := range s.Options().AfterStop {
 		if err := f(s); err != nil {

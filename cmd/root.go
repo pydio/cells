@@ -249,7 +249,7 @@ func handleSignals() {
 	c := make(chan os.Signal, 1)
 
 	// signal.Notify(c, syscall.SIGINT, syscall.SIGUSR1, syscall.SIGHUP)
-	signal.Notify(c, syscall.SIGINT, syscall.SIGHUP)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGHUP, syscall.SIGTERM)
 
 	go func() {
 		for sig := range c {
@@ -259,7 +259,7 @@ func handleSignals() {
 				for _, service := range allServices {
 					service.Stop()
 				}
-				<-time.After(500 * time.Millisecond)
+				<-time.After(2 * time.Second)
 				os.Exit(0)
 			// case syscall.SIGUSR1:
 			// 	pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)

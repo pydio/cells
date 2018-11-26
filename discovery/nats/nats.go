@@ -60,6 +60,7 @@ func run() {
 
 		opts.Host = host
 		opts.Port = port
+		opts.NoSigs = true
 
 		if _, err := net.Dial("tcp", regAddress); err == nil {
 			return
