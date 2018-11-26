@@ -621,10 +621,13 @@ func (s *TreeServer) UpdateParentsAndNotify(ctx context.Context, dao index.DAO, 
 	// NOW SEND REAL EVENTS OR STACK THEM IN SESSION BATCHER
 	//
 	if event != nil {
+		//pub := client.NewPublication(common.TOPIC_INDEX_CHANGES, event)
 		if batcher != nil {
 			log.Logger(ctx).Debug("SHOULD NOTIFY BATCHER", zap.Any("b", batcher))
 			batcher.Notify(common.TOPIC_INDEX_CHANGES, event)
 		} else {
+			//broker.Publish(pub.Topic(), pub.Message())
+
 			client.Publish(ctx, client.NewPublication(common.TOPIC_INDEX_CHANGES, event))
 		}
 	}

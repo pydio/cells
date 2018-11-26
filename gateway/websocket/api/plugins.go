@@ -23,22 +23,25 @@ package api
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/micro/go-micro"
 
 	"github.com/pydio/cells/common"
-	config2 "github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/activity"
 	chat2 "github.com/pydio/cells/common/proto/chat"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/views"
 	"github.com/pydio/cells/gateway/websocket"
+)
+
+var (
+	ws   *websocket.WebsocketHandler
+	chat *websocket.ChatHandler
 )
 
 func init() {
@@ -47,14 +50,21 @@ func init() {
 		service.Tag(common.SERVICE_TAG_GATEWAY),
 		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT, []string{}),
 		service.Description("WebSocket server pushing event to the clients"),
-		service.WithMicro(func(m micro.Service) error {
+		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
+			return service.RunnerFunc(func() error {
+					return nil
+				}), service.CheckerFunc(func() error {
+					return nil
+				}), service.StopperFunc(func() error {
+					return nil
+				}), nil
 
-			ctx := m.Options().Context
-			config := servicecontext.GetConfig(ctx)
+		}, func(s service.Service) (micro.Option, error) {
 
-			port := config.Int("port", 5050)
+			ctx := s.Options().Context
+			srv := defaults.NewHTTPServer()
 
-			ws := websocket.NewWebSocketHandler(ctx)
+			ws = websocket.NewWebSocketHandler(ctx)
 			ws.EventRouter = views.NewRouterEventFilter(views.RouterOptions{WatchRegistry: true})
 
 			gin.SetMode(gin.ReleaseMode)
@@ -65,25 +75,29 @@ func init() {
 				ws.Websocket.HandleRequest(c.Writer, c.Request)
 			})
 
-			chat := websocket.NewChatHandler(ctx)
+			chat = websocket.NewChatHandler(ctx)
 			Server.GET("/chat", func(c *gin.Context) {
 				chat.Websocket.HandleRequest(c.Writer, c.Request)
 			})
 
-			ssl := config2.Get("cert", "http", "ssl").Bool(false)
-			certFile := config2.Get("cert", "http", "certFile").String("")
-			keyFile := config2.Get("cert", "http", "keyFile").String("")
+			hd := srv.NewHandler(Server)
 
-			go func() {
-				if ssl {
-					Server.RunTLS(fmt.Sprintf(":%d", port), certFile, keyFile)
-				} else {
-					Server.Run(fmt.Sprintf(":%d", port))
-				}
-			}()
+			err := srv.Handle(hd)
+			if err != nil {
+				return nil, err
+			}
 
+			return micro.Server(srv), nil
+		}),
+	)
+
+	service.NewService(
+		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WEBSOCKET),
+		service.Tag(common.SERVICE_TAG_GATEWAY),
+		service.Dependency(common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_WEBSOCKET, []string{}),
+		service.Description("WebSocket server subscribing to messages"),
+		service.WithMicro(func(m micro.Service) error {
 			// Register Subscribers
-
 			treeChangeListener := func(ctx context.Context, msg *tree.NodeChangeEvent) error {
 				return ws.HandleNodeChangeEvent(ctx, msg)
 			}
@@ -97,19 +111,21 @@ func init() {
 				return ws.BroadcastActivityEvent(ctx, msg)
 			}
 
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_TREE_CHANGES, treeChangeListener)); err != nil {
+			eventSrv := m.Options().Server
+
+			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_TREE_CHANGES, treeChangeListener)); err != nil {
 				return err
 			}
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_META_CHANGES, treeChangeListener)); err != nil {
+			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_META_CHANGES, treeChangeListener)); err != nil {
 				return err
 			}
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_JOB_TASK_EVENT, taskChangeListener)); err != nil {
+			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_JOB_TASK_EVENT, taskChangeListener)); err != nil {
 				return err
 			}
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, idmChangeListener)); err != nil {
+			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_IDM_EVENT, idmChangeListener)); err != nil {
 				return err
 			}
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_ACTIVITY_EVENT, activityListener)); err != nil {
+			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_ACTIVITY_EVENT, activityListener)); err != nil {
 				return err
 			}
 
@@ -117,7 +133,7 @@ func init() {
 			chatEventsListener := func(ctx context.Context, msg *chat2.ChatEvent) error {
 				return chat.BroadcastChatMessage(ctx, msg)
 			}
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_CHAT_EVENT, chatEventsListener)); err != nil {
+			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_CHAT_EVENT, chatEventsListener)); err != nil {
 				return err
 			}
 

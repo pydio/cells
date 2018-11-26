@@ -21,11 +21,12 @@
 package registry
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 )
 
 var (
@@ -41,71 +42,63 @@ func (c *pydioregistry) ListRunningServices() ([]Service, error) {
 		c.maintainRunningServicesList()
 	})
 
-	c.runningmutex.Lock()
-	defer c.runningmutex.Unlock()
-
 	var services []Service
 
-	for _, rs := range c.running {
-		if service, ok := c.register[rs.Name]; ok {
-			service.SetRunningNodes(rs.Nodes)
-			services = append(services, service)
-		} else {
-			mock := &mockService{name: rs.Name, running: true, nodes: rs.Nodes}
-			if strings.HasPrefix(rs.Name, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_) {
-				mock.tags = []string{common.SERVICE_TAG_DATASOURCE}
+	for _, p := range GetPeers() {
+		for _, rs := range p.GetServices() {
+			if s, ok := c.register[rs.Name]; ok {
+				services = append(services, s)
+			} else {
+				mock := &mockService{name: rs.Name, running: true}
+				if strings.HasPrefix(rs.Name, common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_) {
+					mock.tags = []string{common.SERVICE_TAG_DATASOURCE}
+				}
+				services = append(services, mock)
 			}
-			services = append(services, mock)
 		}
 	}
 
-	return services, nil
+	// De-dup
+	result := services[:0]
+	encountered := map[string]bool{}
+	for _, s := range services {
+		name := s.Name()
+		if encountered[name] == true {
+			// Do not add duplicate.
+		} else {
+			encountered[name] = true
+			result = append(result, s)
+		}
+	}
+
+	return result, nil
 }
 
 // SetServiceStopped artificially removes a service from the running services list
 // This may be necessary for processes started as forks and crashing unexpectedly
 func (c *pydioregistry) SetServiceStopped(name string) error {
-	c.runningmutex.Lock()
-	defer c.runningmutex.Unlock()
-	for k, v := range c.running {
-		if v.Name == name {
-			c.running = append(c.running[:k], c.running[k+1:]...)
-			break
-		}
-	}
+	// c.runningmutex.Lock()
+	// defer c.runningmutex.Unlock()
+	// for k, v := range c.running {
+	// 	if v.Name == name {
+	// 		c.running = append(c.running[:k], c.running[k+1:]...)
+	// 		break
+	// 	}
+	// }
 	return nil
 }
 
 // maintain a list of services currently running for easy discovery
 func (c *pydioregistry) maintainRunningServicesList() {
 
-	// once := &sync.Once{}
-	//
-	//
-	// go func() {
-	// 	tick := time.Tick(c.Options().PollInterval)
-	// 	timeout := time.After(5 * c.Options().PollInterval)
-
-	// for {
-	// 	select {
-	// 	case <-tick:
+	initial := true
+	wg := new(sync.WaitGroup)
 	running, _ := defaults.Registry().ListServices()
-	// if err != nil {
-	// 	continue
-	// }
-
-	// For the first run, we always lock the mutex
-	c.runningmutex.Lock()
-	c.running = running
-	c.runningmutex.Unlock()
-
-	// 		case <-timeout:
-	// 			once.Do(func() {
-	// 				c.runningmutex.Unlock()
-	// 			})
-	// 		}
-	// 	}
-	// }()
+	for _, r := range running {
+		wg.Add(1)
+		// Initially, nodes are not set on the service, so we fake it
+		c.GetPeer("INITIAL").Add(r, r.Name)
+	}
 
 	go func() {
 
@@ -125,34 +118,30 @@ func (c *pydioregistry) maintainRunningServicesList() {
 				continue
 			}
 
+			if initial {
+				wg.Done()
+			}
+
 			a := res.Action
 			s := res.Service
 
-			c.runningmutex.Lock()
 			switch a {
 			case "create":
-				found := false
-				for k, v := range c.running {
-					if v.Name == s.Name {
-						c.running[k] = s
-						found = true
-						break
-					}
-				}
-
-				if !found {
-					c.running = append(c.running, s)
+				for _, n := range s.Nodes {
+					c.GetPeer(n.Address).Add(s, fmt.Sprintf("%d", n.Port))
+					c.GetPeer("INITIAL").Delete(s, s.Name)
 				}
 			case "delete":
-				for k, v := range c.running {
-					if v.Name == s.Name {
-						c.running = append(c.running[:k], c.running[k+1:]...)
-						break
-					}
+				for _, n := range s.Nodes {
+					fmt.Println(n.Address, n.Port)
+					c.GetPeer(n.Address).Delete(s, fmt.Sprintf("%d", n.Port))
+
+					fmt.Println(c.GetPeer(n.Address))
 				}
 			}
-			c.runningmutex.Unlock()
-
 		}
 	}()
+
+	// wg.Wait()
+	initial = false
 }

@@ -30,26 +30,16 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/dex"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/idm/auth"
 )
 
 func init() {
-
-	dex.RegisterWrapperConnectorMiddleware("Login", dex.WrapWithIdmUser)
-	dex.RegisterWrapperConnectorMiddleware("Login", dex.WrapWithUserLocks)
-	dex.RegisterWrapperConnectorMiddleware("Login", dex.WrapWithPolicyCheck)
-	dex.RegisterWrapperConnectorMiddleware("Login", dex.WrapWithIdentity)
-
-	dex.RegisterWrapperConnectorMiddleware("Refresh", dex.WrapWithIdmUser)
-	dex.RegisterWrapperConnectorMiddleware("Refresh", dex.WrapWithUserLocks)
-	dex.RegisterWrapperConnectorMiddleware("Refresh", dex.WrapWithPolicyCheck)
-	dex.RegisterWrapperConnectorMiddleware("Refresh", dex.WrapWithIdentity)
 
 	service.NewService(
 		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH),
@@ -96,25 +86,21 @@ func init() {
 				c.Web.HTTP = ""
 				c.Web.TLSCert = certFile
 				c.Web.TLSKey = keyFile
+
+				if config.Get("cert", "http", "self").Bool(false) {
+					ips, _ := utils.GetAvailableIPs()
+					for _, ip := range ips {
+						c.Web.AllowedOrigins = append(c.Web.AllowedOrigins, ip.String())
+					}
+				}
 			}
 
 			tokenRevokerHandler, err := NewAuthTokenRevokerHandler(c)
 			if err != nil {
 				return err
 			}
+
 			proto.RegisterAuthTokenRevokerHandler(m.Options().Server, tokenRevokerHandler)
-
-			m.Init(micro.AfterStart(func() error {
-
-				go func() {
-					err := serve(c, ctx, log.Logger(ctx))
-					if err != nil {
-						log.Logger(ctx).Error("ERROR STARTING DEX SERVER", zap.Error(err))
-					}
-				}()
-
-				return nil
-			}))
 
 			return nil
 		}),

@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"regexp"
 	"sync"
@@ -74,6 +75,7 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 `,
 	PreRun: func(cmd *cobra.Command, args []string) {
 
+		fmt.Println("Executing prerun")
 		// Removing install services
 		registry.Default.Filter(func(s registry.Service) bool {
 			re := regexp.MustCompile(common.SERVICE_INSTALL)

@@ -24,11 +24,12 @@ import (
 	"time"
 
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/broker"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
@@ -76,6 +77,9 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 					return nil
 				}),
 				micro.AfterStart(func() error {
+					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{})
+				}),
+				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)
 				}),
 			)
@@ -89,6 +93,8 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			newClaimsProvider(s.Options().Micro)
 
 			proto.RegisterServiceHandler(s.Options().Micro.Server(), &Handler{s.Options().Micro})
+
+			micro.RegisterSubscriber(common.TOPIC_SERVICE_STOP, s.Options().Micro.Server(), &StopHandler{s})
 
 			return nil
 		}

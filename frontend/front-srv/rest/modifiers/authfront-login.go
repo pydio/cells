@@ -96,15 +96,9 @@ func JwtFromSession(ctx context.Context, session *sessions.Session) (jwt string,
 
 func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, login string, pwd string) (map[string]interface{}, error) {
 
-	dexHost := config.Get("services", "pydio.grpc.auth", "dex", "web", "http").String("")
-	ssl := config.Get("cert", "http", "ssl").Bool(false)
-	var fullURL string
-	if ssl {
-		fullURL = "https://" + dexHost + "/dex/token"
-	} else {
-		fullURL = "http://" + dexHost + "/dex/token"
-	}
-	selfSigned := ssl && config.Get("cert", "http", "self").Bool(false)
+	urlInternal := config.Get("defaults", "urlInternal").String("")
+	fullURL := urlInternal + "/auth/dex/token"
+	selfSigned := config.Get("cert", "proxy", "self").Bool(false)
 
 	data := url.Values{}
 	if refreshToken != "" {

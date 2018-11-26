@@ -26,9 +26,8 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
 )
 
 var (
@@ -37,16 +36,18 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(Name),
-		service.Tag(common.SERVICE_TAG_DATASOURCE),
-		service.Description("Starter for data sources synchronizations"),
-		service.WithMicroChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete),
-	)
+	// service.NewService(
+	// 	service.Name(Name),
+	// 	service.Tag(common.SERVICE_TAG_DATASOURCE),
+	// 	service.Description("Starter for data sources synchronizations"),
+	// 	service.WithMicroChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete),
+	// )
 }
 
 // Manage datasources deletion operations : clean index tables
 func onDataSourceDelete(ctx context.Context, deletedSource string) {
+
+	// TODO - find a way to delete datasources - surely a config watch
 
 	log.Logger(ctx).Info("Sync = Send Event Server-wide for " + deletedSource)
 	cl := defaults.NewClient()

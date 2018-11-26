@@ -33,6 +33,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"regexp"
@@ -45,6 +46,7 @@ import (
 	"github.com/micro/go-micro/client"
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/micro/go-web"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -56,6 +58,7 @@ import (
 	"github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/common/utils"
 )
 
 const (
@@ -130,6 +133,26 @@ func NewService(opts ...ServiceOption) Service {
 		opts: newOptions(opts...),
 	}
 
+	// Checking that the service is not bound to a certain IP
+	peerAddress := config.Get("services", s.opts.Name, "PeerAddress").String("")
+
+	if peerAddress != "" {
+		peerIP := net.ParseIP(peerAddress)
+		localIPs, _ := utils.GetAvailableIPs()
+
+		found := false
+		for _, localIP := range localIPs {
+			if peerIP.Equal(localIP) {
+				found = true
+			}
+		}
+
+		if !found {
+			// log.Debug("Service bound", zap.String("name", s.opts.Name), zap.String("ip", peerAddress))
+			return nil
+		}
+	}
+
 	// Setting context
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -181,6 +204,9 @@ func NewService(opts ...ServiceOption) Service {
 		}),
 
 		AfterInit(func(_ Service) error {
+			// TODO :  WHY IS THAT ?
+			// utils.SaveConfigs()
+
 			return nil
 		}),
 
@@ -228,11 +254,34 @@ func NewService(opts ...ServiceOption) Service {
 
 		}),
 
+		// Adding a check before starting the service to ensure only one is started if unique
+		BeforeStart(func(s Service) error {
+
+			conf := servicecontext.GetConfig(ctx)
+
+			unique := conf.Bool("unique")
+			if unique {
+				runningServices, err := registry.ListRunningServices()
+				if err != nil {
+					return err
+				}
+
+				for _, r := range runningServices {
+					if s.Name() == r.Name() {
+						return fmt.Errorf("already started")
+					}
+				}
+			}
+
+			return nil
+		}),
+
 		// Adding a check before starting the service to ensure all dependencies are running
 		BeforeStart(func(_ Service) error {
+			log.Logger(ctx).Debug("BeforeStart - Check dependencies")
 
 			for _, d := range s.Options().Dependencies {
-				Retry(func() error {
+				err := Retry(func() error {
 					runningServices, err := registry.ListRunningServices()
 					if err != nil {
 						return err
@@ -244,15 +293,23 @@ func NewService(opts ...ServiceOption) Service {
 						}
 					}
 
-					return fmt.Errorf("not found")
+					return fmt.Errorf("dependency %s not found", d.Name)
 				})
+
+				if err != nil {
+					return err
+				}
 			}
+
+			log.Logger(ctx).Debug("BeforeStart - Valid dependencies")
 
 			return nil
 		}),
 
 		// Checking the service is running
 		AfterStart(func(_ Service) error {
+			log.Logger(ctx).Debug("AfterStart - Check service is running")
+
 			tick := time.Tick(10 * time.Millisecond)
 
 			for {
@@ -262,6 +319,7 @@ func NewService(opts ...ServiceOption) Service {
 					return nil
 				case <-tick:
 					if s.IsRunning() {
+						log.Logger(ctx).Debug("AfterStart - Service is running")
 						return nil
 					}
 				}
@@ -316,6 +374,7 @@ func (s *service) Start() {
 		if err := f(s); err != nil {
 			log.Logger(ctx).Error("Could not prepare start ", zap.Error(err))
 			cancel()
+			return
 		}
 	}
 
@@ -324,7 +383,9 @@ func (s *service) Start() {
 			if err := s.Options().MicroInit(s); err != nil {
 				log.Logger(ctx).Error("Could not micro init ", zap.Error(err))
 				cancel()
+				return
 			}
+
 			if err := s.Options().Micro.Run(); err != nil {
 				log.Logger(ctx).Error("Could not run ", zap.Error(err))
 				cancel()
@@ -338,6 +399,7 @@ func (s *service) Start() {
 			if err := s.Options().WebInit(s); err != nil {
 				log.Logger(ctx).Error("Could not web init ", zap.Error(err))
 				cancel()
+				return
 			}
 			if err := s.Options().Web.Run(); err != nil {
 				log.Logger(ctx).Error("Could not run ", zap.Error(err))
@@ -363,7 +425,16 @@ func (s *service) ForkStart() {
 	cancel := s.Options().Cancel
 
 	// Do not do anything
-	cmd := exec.CommandContext(ctx, os.Args[0], "start", "--fork", name)
+	cmd := exec.CommandContext(ctx, os.Args[0], "start",
+		"--fork",
+		"--registry", viper.GetString("registry"),
+		"--registry_address", viper.GetString("registry_address"),
+		"--registry_cluster_address", viper.GetString("registry_cluster_address"),
+		"--registry_cluster_routes", viper.GetString("registry_cluster_routes"),
+		"--broker", viper.GetString("broker"),
+		"--broker_address", viper.GetString("broker_address"),
+		name,
+	)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -412,8 +483,41 @@ func (s *service) Stop() {
 		}
 	}
 
+	fmt.Println("Stopping ", s.Name())
+
 	// Cancelling context should stop the service altogether
 	cancel()
+
+	if micro := s.Options().Micro; micro != nil {
+		var gerr error
+		s := micro.Options().Server
+
+		for _, fn := range micro.Options().BeforeStop {
+			if err := fn(); err != nil {
+				gerr = err
+			}
+		}
+
+		if err := s.Deregister(); err != nil {
+			return
+		}
+
+		if err := s.Stop(); err != nil {
+			return
+		}
+
+		for _, fn := range micro.Options().AfterStop {
+			if err := fn(); err != nil {
+				gerr = err
+			}
+		}
+
+		fmt.Println(gerr)
+	}
+
+	// if web := s.Options().Web; web != nil {
+	// 	web.Options().Server.Stop()
+	// }
 
 	for _, f := range s.Options().AfterStop {
 		if err := f(s); err != nil {
@@ -434,9 +538,9 @@ func (s *service) IsRunning() bool {
 
 // Check the status of the service (globally - not specific to an endpoint)
 func (s *service) Check(ctx context.Context) error {
+
 	running, err := registry.ListRunningServices()
 	if err != nil {
-
 		return err
 	}
 
@@ -446,7 +550,7 @@ func (s *service) Check(ctx context.Context) error {
 		}
 	}
 
-	return fmt.Errorf("not found")
+	return fmt.Errorf("Not found")
 }
 
 func (s *service) AddDependency(name string) {
@@ -502,11 +606,18 @@ func (s *service) SetRunningNodes(nodes []*microregistry.Node) {
 }
 
 func (s *service) RunningNodes() []*microregistry.Node {
-	return s.nodes
+	var nodes []*microregistry.Node
+
+	for _, p := range registry.GetPeers() {
+		for _, ms := range p.GetServices(s.Name()) {
+			nodes = append(nodes, ms.Nodes...)
+		}
+	}
+	return nodes
 }
 
 func (s *service) IsGeneric() bool {
-	return s.Options().Micro != nil && !strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_)
+	return (s.Options().Micro != nil && !strings.HasPrefix(s.Name(), common.SERVICE_GRPC_NAMESPACE_))
 }
 
 func (s *service) IsGRPC() bool {
@@ -520,7 +631,7 @@ func (s *service) IsREST() bool {
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
 func (s *service) RequiresFork() bool {
 	ctx := s.Options().Context
-	return servicecontext.GetConfig(ctx).Bool("fork")
+	return s.Options().Fork || servicecontext.GetConfig(ctx).Bool("fork")
 }
 
 func (s *service) Client() (string, client.Client) {
@@ -563,5 +674,16 @@ type Handler struct {
 func (h *Handler) Status(ctx context.Context, in *empty.Empty, out *proto.StatusResponse) error {
 	out.OK = true
 
+	return nil
+}
+
+type StopHandler struct {
+	s Service
+}
+
+func (s *StopHandler) Process(ctx context.Context, in *proto.StopEvent) error {
+	if s.s.Name() == in.ServiceName {
+		s.s.Stop()
+	}
 	return nil
 }

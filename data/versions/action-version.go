@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"

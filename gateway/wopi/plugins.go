@@ -23,13 +23,11 @@ package wopi
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 
+	micro "github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -44,22 +42,29 @@ func init() {
 		service.RouterDependencies(),
 		service.Description("WOPI REST Gateway to tree service"),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			viewsRouter = views.NewUuidRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})
-
-			config := servicecontext.GetConfig(ctx)
-			port := config.Int("port", 5014)
-
-			router := NewRouter()
-
-			log.Logger(ctx).Debug(fmt.Sprintf("Starting Wopi Server on port %d", port))
 
 			return service.RunnerFunc(func() error {
-					return http.ListenAndServe(fmt.Sprintf(":%d", port), router)
+					return nil
 				}), service.CheckerFunc(func() error {
 					return nil
 				}), service.StopperFunc(func() error {
 					return nil
 				}), nil
+		}, func(s service.Service) (micro.Option, error) {
+			srv := defaults.NewHTTPServer()
+
+			viewsRouter = views.NewUuidRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})
+
+			router := NewRouter()
+
+			hd := srv.NewHandler(router)
+
+			err := srv.Handle(hd)
+			if err != nil {
+				return nil, err
+			}
+
+			return micro.Server(srv), nil
 		}),
 	)
 }

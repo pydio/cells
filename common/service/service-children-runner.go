@@ -32,15 +32,16 @@ import (
 	"syscall"
 
 	"github.com/micro/go-micro"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/common/utils"
 )
 
@@ -121,13 +122,15 @@ func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg common.Co
 func (c *ChildrenRunner) Start(ctx context.Context, source string) error {
 
 	name := c.childPrefix + source
-	// Do not do anything
-	args := []string{"start", "--fork"}
-	if config.RemoteSource {
-		args = append(args, "--cluster")
-	}
-	args = append(args, name)
-	cmd := exec.CommandContext(ctx, os.Args[0], args...)
+
+	cmd := exec.CommandContext(ctx, os.Args[0], "start",
+		"--fork",
+		"--registry", viper.GetString("registry"),
+		"--registry_address", viper.GetString("registry_address"),
+		"--registry_cluster_address", viper.GetString("registry_cluster_address"),
+		"--registry_cluster_routes", viper.GetString("registry_cluster_routes"),
+		name,
+	)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

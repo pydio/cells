@@ -24,15 +24,17 @@ import (
 	"context"
 
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/broker"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 )
 
 // WithGeneric adds a generic micro service handler to the current service
-func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, Stopper, error), opts ...micro.Option) ServiceOption {
+func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, Stopper, error), opts ...func(Service) (micro.Option, error)) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Micro = micro.NewService()
 
@@ -49,9 +51,16 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 			)
 
 			// context is always added last - so that there is no override
-			s.Options().Micro.Init(
-				opts...,
-			)
+			for _, opt := range opts {
+				o, err := opt(s)
+				if err != nil {
+					log.Fatal("failed to init micro service ", zap.Error(err))
+				}
+
+				s.Options().Micro.Init(
+					o,
+				)
+			}
 
 			s.Options().Micro.Init(
 				micro.Context(ctx),
@@ -85,6 +94,9 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 					log.Logger(ctx).Info("stopping")
 
 					return nil
+				}),
+				micro.AfterStart(func() error {
+					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{})
 				}),
 				micro.AfterStart(func() error {
 					return UpdateServiceVersion(s)
