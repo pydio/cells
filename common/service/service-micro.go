@@ -94,6 +94,8 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 
 			proto.RegisterServiceHandler(s.Options().Micro.Server(), &Handler{s.Options().Micro})
 
+			micro.RegisterSubscriber(common.TOPIC_SERVICE_STOP, s.Options().Micro.Server(), &StopHandler{s})
+
 			return nil
 		}
 

@@ -28,6 +28,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 
 	"github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
@@ -103,6 +104,8 @@ var installCmd = &cobra.Command{
  Services will all start automatically after the install process is finished.
 	 `,
 	Run: func(cmd *cobra.Command, args []string) {
+
+		debug.PrintStack()
 
 		cmd.Println("")
 		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m")
@@ -261,39 +264,9 @@ var installCmd = &cobra.Command{
 		instance.ShutdownCallbacks()
 		instance.Stop()
 
-		// Re-building allServices list
-		initServices()
-		if s, err := registry.Default.ListServices(); err != nil {
-			cmd.Print("Could not retrieve list of services")
-			os.Exit(0)
-		} else {
-			allServices = s
-		}
-
-		// Start all services
-		excludes := []string{
-			"nats",
-			common.SERVICE_MICRO_API,
-			common.SERVICE_REST_NAMESPACE_ + common.SERVICE_INSTALL,
-		}
-		for _, service := range allServices {
-			ignore := false
-			for _, ex := range excludes {
-				if service.Name() == ex {
-					ignore = true
-				}
-			}
-			if service.Regexp() != nil {
-				ignore = true
-			}
-			if !ignore {
-				go service.Start()
-			}
-		}
-
-		wg.Add(1)
-		wg.Wait()
-
+		fmt.Println("")
+		fmt.Println(promptui.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
+		fmt.Println("")
 	},
 }
 

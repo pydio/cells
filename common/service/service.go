@@ -483,8 +483,41 @@ func (s *service) Stop() {
 		}
 	}
 
+	fmt.Println("Stopping ", s.Name())
+
 	// Cancelling context should stop the service altogether
 	cancel()
+
+	if micro := s.Options().Micro; micro != nil {
+		var gerr error
+		s := micro.Options().Server
+
+		for _, fn := range micro.Options().BeforeStop {
+			if err := fn(); err != nil {
+				gerr = err
+			}
+		}
+
+		if err := s.Deregister(); err != nil {
+			return
+		}
+
+		if err := s.Stop(); err != nil {
+			return
+		}
+
+		for _, fn := range micro.Options().AfterStop {
+			if err := fn(); err != nil {
+				gerr = err
+			}
+		}
+
+		fmt.Println(gerr)
+	}
+
+	// if web := s.Options().Web; web != nil {
+	// 	web.Options().Server.Stop()
+	// }
 
 	for _, f := range s.Options().AfterStop {
 		if err := f(s); err != nil {
@@ -641,5 +674,16 @@ type Handler struct {
 func (h *Handler) Status(ctx context.Context, in *empty.Empty, out *proto.StatusResponse) error {
 	out.OK = true
 
+	return nil
+}
+
+type StopHandler struct {
+	s Service
+}
+
+func (s *StopHandler) Process(ctx context.Context, in *proto.StopEvent) error {
+	if s.s.Name() == in.ServiceName {
+		s.s.Stop()
+	}
 	return nil
 }

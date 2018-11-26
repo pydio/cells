@@ -91,8 +91,11 @@ func (c *pydioregistry) SetServiceStopped(name string) error {
 // maintain a list of services currently running for easy discovery
 func (c *pydioregistry) maintainRunningServicesList() {
 
+	initial := true
+	wg := new(sync.WaitGroup)
 	running, _ := defaults.Registry().ListServices()
 	for _, r := range running {
+		wg.Add(1)
 		// Initially, nodes are not set on the service, so we fake it
 		c.GetPeer("INITIAL").Add(r, r.Name)
 	}
@@ -115,6 +118,10 @@ func (c *pydioregistry) maintainRunningServicesList() {
 				continue
 			}
 
+			if initial {
+				wg.Done()
+			}
+
 			a := res.Action
 			s := res.Service
 
@@ -126,9 +133,15 @@ func (c *pydioregistry) maintainRunningServicesList() {
 				}
 			case "delete":
 				for _, n := range s.Nodes {
+					fmt.Println(n.Address, n.Port)
 					c.GetPeer(n.Address).Delete(s, fmt.Sprintf("%d", n.Port))
+
+					fmt.Println(c.GetPeer(n.Address))
 				}
 			}
 		}
 	}()
+
+	// wg.Wait()
+	initial = false
 }
