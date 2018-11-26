@@ -1259,9 +1259,11 @@ div#multiple_download_container div div a:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  height: 40px;
+  line-height: 40px;
 }
 .user-widget .action_bar {
-  padding: 0 8px;
+  padding: 0 5px;
   margin-top: -4px;
   text-align: left;
 }
@@ -2510,6 +2512,7 @@ body,
 @media only screen and (max-width: 758px) {
   .react-mui-context .drawer-open .left-panel {
     transform: translateX(0px);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
   }
 }
 .react-mui-context .desktop-container {

@@ -20,6 +20,7 @@
 
 import React from 'react';
 import Pydio from 'pydio';
+import ReactDOM from 'react-dom'
 import Action from 'pydio/model/action';
 import MessagesProviderMixin from '../MessagesProviderMixin'
 import Breadcrumb from './Breadcrumb'
@@ -104,8 +105,12 @@ let FSTemplate = React.createClass({
         this.setState({drawerOpen: true});
     },
 
-    closeDrawer(){
+    closeDrawer(e){
         if(!this.state.drawerOpen){
+            return;
+        }
+        const widgets = document.getElementsByClassName('user-widget');
+        if(widgets && widgets.length > 0 && widgets[0].contains(ReactDOM.findDOMNode(e.target))){
             return;
         }
         this.setState({drawerOpen: false});
@@ -214,7 +219,7 @@ let FSTemplate = React.createClass({
                 <div className="desktop-container vertical_layout vertical_fit">
                     <Paper zDepth={1} style={styles.appBarStyle} rounded={false}>
                         <div id="workspace_toolbar" style={{display: 'flex', height: 58}}>
-                            <span className="drawer-button"><IconButton style={{color: 'white'}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/></span>
+                            <span className="drawer-button"><IconButton iconStyle={{color: 'white'}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/></span>
                             <Breadcrumb {...props} startWithSeparator={false}/>
                             <span style={{flex:1}}/>
                             <SearchForm {...props}/>

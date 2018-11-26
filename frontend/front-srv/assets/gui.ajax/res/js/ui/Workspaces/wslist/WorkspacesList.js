@@ -25,9 +25,10 @@ const {EmptyStateView} = Pydio.requireLib('components');
 import WorkspaceEntry from './WorkspaceEntry'
 const Repository = require('pydio/model/repository');
 import ResourcesManager from 'pydio/http/resources-manager'
-import {IconButton, Popover} from 'material-ui'
+import {IconButton, Popover, FlatButton} from 'material-ui'
 const {muiThemeable} = require('material-ui/styles');
 import LangUtils from 'pydio/util/lang'
+import Color from 'color'
 
 class WorkspacesList extends React.Component{
 
@@ -42,7 +43,8 @@ class WorkspacesList extends React.Component{
     stateFromPydio(pydio){
         return {
             workspaces : pydio.user ? pydio.user.getRepositoriesList() : [],
-            showTreeForWorkspace: pydio.user ? pydio.user.activeRepository : false
+            showTreeForWorkspace: pydio.user ? pydio.user.activeRepository : false,
+            activeRepoIsHome: pydio.user && pydio.user.activeRepository === 'homepage'
         };
     }
 
@@ -60,8 +62,26 @@ class WorkspacesList extends React.Component{
 
     render(){
         let entries = [], sharedEntries = [], createAction;
-        const {workspaces,showTreeForWorkspace} = this.state;
-        const {pydio, className, style, filterByType, muiTheme} = this.props;
+        const {workspaces,showTreeForWorkspace, activeRepoIsHome} = this.state;
+        const {pydio, className, style, filterByType, muiTheme, sectionTitleStyle} = this.props;
+        let selectHint, titleMarginFirst;
+        // TEMP TESTS
+        if (false && activeRepoIsHome) {
+            const hintStyle = {
+                padding: '14px 18px 12px',
+                color: '#2196F3',
+                fontWeight: 500,
+                backgroundColor: '#E3F2FD',
+                /*borderBottom: '1px solid #BBDEFB',
+                fontStyle: 'italic'*/
+            };
+            const hintIconStyle = {
+                display: 'inline-block',
+                marginLeft: 5
+            };
+            selectHint = <div style={hintStyle}>Select a workspace or a cell<span className="mdi mdi-arrow-down" style={hintIconStyle}/></div>
+            titleMarginFirst = true
+        }
         let wsList = [];
         workspaces.forEach((o,k)=>{
             wsList.push(o);
@@ -130,26 +150,30 @@ class WorkspacesList extends React.Component{
 
         let sections = [];
         if(entries.length){
+            const s = titleMarginFirst ? {...sectionTitleStyle, marginTop:5} : {...sectionTitleStyle};
+            titleMarginFirst = false;
             sections.push({
                 k:'entries',
-                title: <div key="entries-title" className="section-title" style={this.props.sectionTitleStyle}>{messages[468]}</div>,
+                title: <div key="entries-title" className="section-title" style={s}>{messages[468]}</div>,
                 content: <div key="entries-ws" className="workspaces">{entries}</div>
             });
         }
         if(!sharedEntries.length){
-            sharedEntries = <EmptyStateView
-                iconClassName={"icomoon-cells"}
-                primaryTextId={messages[632]}
-                secondaryTextId={messages[633]}
-                actionLabelId={this.createRepositoryEnabled() ? messages[418] : null}
-                actionCallback={this.createRepositoryEnabled() ? createClick : null}
-                actionStyle={{marginTop: 20}}
-                style={{backgroundColor:'transparent'}}
-            />
+
+            const mainColor = Color(muiTheme.palette.primary1Color);
+            sharedEntries = (
+                <div style={{textAlign: 'center', color: mainColor.fade(0.6).toString()}}>
+                    <div className="icomoon-cells" style={{fontSize: 80}}></div>
+                    {this.createRepositoryEnabled() && <FlatButton style={{color: muiTheme.palette.accent2Color, marginTop:5}} primary={true} label={messages[418]} onTouchTap={createClick}/>}
+                    <div style={{fontSize: 13, padding: '5px 20px'}}>{messages[633]}</div>
+                </div>
+            );
+
         }
+        const s = titleMarginFirst ? {...sectionTitleStyle, marginTop:5} : {...sectionTitleStyle};
         sections.push({
             k:'shared',
-            title: <div key="shared-title" className="section-title" style={{...this.props.sectionTitleStyle, position:'relative', overflow:'visible', padding:'16px 16px'}}>{messages[469]}{createAction}</div>,
+            title: <div key="shared-title" className="section-title" style={{...s, position:'relative', overflow:'visible', padding:'16px 16px'}}>{messages[469]}{createAction}</div>,
             content: <div key="shared-ws" className="workspaces">{sharedEntries}</div>
         });
 
@@ -173,6 +197,7 @@ class WorkspacesList extends React.Component{
         });
         return (
             <div className={classNames.join(' ')}>
+                {selectHint}
                 {elements}
                 <Popover
                     open={this.state.popoverOpen}

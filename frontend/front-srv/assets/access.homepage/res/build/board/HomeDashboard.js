@@ -32,6 +32,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
 var _ConfigLogo = require('./ConfigLogo');
 
 var _ConfigLogo2 = _interopRequireDefault(_ConfigLogo);
@@ -101,8 +105,12 @@ var AltDashboard = _react2['default'].createClass({
         this.setState({ drawerOpen: true });
     },
 
-    closeDrawer: function closeDrawer() {
+    closeDrawer: function closeDrawer(e) {
         if (!this.state.drawerOpen) {
+            return;
+        }
+        var widgets = document.getElementsByClassName('user-widget');
+        if (widgets && widgets.length > 0 && widgets[0].contains(_reactDom2['default'].findDOMNode(e.target))) {
             return;
         }
         this.setState({ drawerOpen: false });
@@ -184,7 +192,7 @@ var AltDashboard = _react2['default'].createClass({
                         _react2['default'].createElement(
                             'span',
                             { className: 'drawer-button' },
-                            _react2['default'].createElement(_materialUi.IconButton, { style: { color: 'white' }, iconClassName: 'mdi mdi-menu', onTouchTap: this.openDrawer })
+                            _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: 'white' }, iconClassName: 'mdi mdi-menu', onTouchTap: this.openDrawer })
                         ),
                         _react2['default'].createElement('span', { style: { flex: 1 } }),
                         _react2['default'].createElement(
