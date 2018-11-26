@@ -30,6 +30,7 @@ import (
 	"github.com/nats-io/gnatsd/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
 )
@@ -108,4 +109,28 @@ func run() {
 			log.Fatal("nats: start timed out")
 		}
 	}
+}
+
+type logger struct {
+	*zap.Logger
+}
+
+func (l logger) Debugf(str string, args ...interface{}) {
+	l.Debug(fmt.Sprintf(str, args...))
+}
+
+func (l logger) Errorf(str string, args ...interface{}) {
+	l.Error(fmt.Sprintf(str, args...))
+}
+
+func (l logger) Fatalf(str string, args ...interface{}) {
+	l.Fatal(fmt.Sprintf(str, args...))
+}
+
+func (l logger) Noticef(str string, args ...interface{}) {
+	l.Debug(fmt.Sprintf(str, args...))
+}
+
+func (l logger) Tracef(str string, args ...interface{}) {
+	l.Debug(fmt.Sprintf(str, args...))
 }

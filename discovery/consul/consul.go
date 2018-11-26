@@ -20,16 +20,60 @@
 
 package consul
 
-// func prerun(s service.Service) error {
-// 	c := config.Get("cert", "grpc", "certFile").String("")
-// 	k := config.Get("cert", "grpc", "keyFile").String("")
-//
-// 	defaults.Init(
-// 		defaults.WithRegistry(registry.NewRegistry()),
-// 		defaults.WithBroker(broker.NewBroker()),
-// 		defaults.WithTransport(transport.NewTransport()),
-// 		defaults.WithCert(c, k),
-// 	)
-//
-// 	return nil
-// }
+import (
+	"context"
+	"encoding/json"
+	"log"
+	"strings"
+
+	"github.com/hashicorp/consul/agent"
+	"github.com/hashicorp/consul/agent/config"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+)
+
+func init() {
+	cobra.OnInitialize(run)
+}
+
+func run() {
+
+	reg := viper.GetString("registry")
+	regAddress := viper.GetString("registry_address")
+	regClusterAddress := viper.GetString("registry_cluster_address")
+	regClusterRoutes := viper.GetString("registry_cluster_routes")
+
+	if reg == "consul" {
+
+		data, _ := json.Marshal(servicecontext.GetConfig(ctx))
+
+		// Making sure bool are converted
+		r := strings.NewReplacer(`"true"`, `true`, `"false"`, `false`)
+		str := r.Replace(string(data))
+
+		//create the logwriter
+		runtime := config.DefaultRuntimeConfig(str)
+
+		agent, err := agent.New(runtime)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+
+		agent.LogOutput = &logwriter{ctx}
+
+		go func() {
+			agent.Start()
+		}()
+	}
+}
+
+type logwriter struct {
+	ctx context.Context
+}
+
+// Write to the lowest context for the standard logwriter
+func (lw *logwriter) Write(p []byte) (n int, err error) {
+	log.Logger(lw.ctx).Info(string(p))
+
+	return len(p), nil
+}
