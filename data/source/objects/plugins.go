@@ -34,6 +34,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/service/context"
 )
 
 var (
@@ -47,9 +48,20 @@ func init() {
 		service.Tag(common.SERVICE_TAG_DATASOURCE),
 		service.Description("Starter for different sources objects"),
 		service.WithMicro(func(m micro.Service) error {
+			runner := service.NewChildrenRunner(m, Name, ChildPrefix)
+			m.Init(
+				micro.AfterStart(func() error {
+					ctx := m.Options().Context
+					conf := servicecontext.GetConfig(ctx)
+					runner.StartFromInitialConf(ctx, conf)
+					tree.RegisterNodeProviderHandler(m.Server(), NewTreeHandler())
+					runner.OnDeleteConfig(onDeleteObjectsConfig)
+					return nil
+				}))
+
 			tree.RegisterNodeProviderHandler(m.Server(), NewTreeHandler())
 
-			return nil
+			return runner.Watch(m.Options().Context)
 		}),
 	)
 }

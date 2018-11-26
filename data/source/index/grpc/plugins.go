@@ -24,7 +24,8 @@
 package grpc
 
 import (
-	"context"
+	"encoding/json"
+	"log"
 	"strings"
 
 	micro "github.com/micro/go-micro"
@@ -32,7 +33,6 @@ import (
 	"go.uber.org/zap"
 	//	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
 	//	"github.com/pydio/cells/common/registry"
 
@@ -42,13 +42,17 @@ import (
 )
 
 func init() {
-	log.Logger(context.Background()).Debug("Sources are  ", zap.Any("services", config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources").StringSlice([]string{})))
 
-	for _, source := range config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources").StringSlice([]string{}) {
+	var sources []string
+	str := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources").Bytes()
+
+	if err := json.Unmarshal(str, &sources); err != nil {
+		log.Fatal("Error reading config", zap.Error(err))
+	}
+
+	for _, source := range sources {
 
 		name := common.SERVICE_DATA_INDEX_ + source
-
-		log.Logger(context.Background()).Info("Adding new index service", zap.String("name", name))
 
 		service.NewService(
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+name),

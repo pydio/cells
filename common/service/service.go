@@ -484,35 +484,39 @@ func (s *service) Stop() {
 		}
 	}
 
+	// if micro := s.Options().Micro; micro != nil {
+	// 	var gerr error
+	// 	s := micro.Options().Server
+	//
+	// 	fmt.Println(s.Options().Name, "BeforeStop")
+	// 	for _, fn := range micro.Options().BeforeStop {
+	// 		if err := fn(); err != nil {
+	// 			gerr = err
+	// 		}
+	// 	}
+	//
+	// 	fmt.Println(s.Options().Name, "Deregister")
+	// 	if err := s.Deregister(); err != nil {
+	// 		return
+	// 	}
+	//
+	// 	fmt.Println(s.Options().Name, "Stop")
+	// 	if err := s.Stop(); err != nil {
+	// 		return
+	// 	}
+	//
+	// 	fmt.Println(s.Options().Name, "AfterStop")
+	// 	for _, fn := range micro.Options().AfterStop {
+	// 		if err := fn(); err != nil {
+	// 			gerr = err
+	// 		}
+	// 	}
+	//
+	// 	fmt.Println(gerr)
+	// }
+
 	// Cancelling context should stop the service altogether
 	cancel()
-
-	if micro := s.Options().Micro; micro != nil {
-		var gerr error
-		s := micro.Options().Server
-
-		for _, fn := range micro.Options().BeforeStop {
-			if err := fn(); err != nil {
-				gerr = err
-			}
-		}
-
-		if err := s.Deregister(); err != nil {
-			return
-		}
-
-		if err := s.Stop(); err != nil {
-			return
-		}
-
-		for _, fn := range micro.Options().AfterStop {
-			if err := fn(); err != nil {
-				gerr = err
-			}
-		}
-
-		fmt.Println(gerr)
-	}
 
 	for _, f := range s.Options().AfterStop {
 		if err := f(s); err != nil {

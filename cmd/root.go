@@ -30,6 +30,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/micro/go-micro/broker"
 	microregistry "github.com/micro/go-micro/registry"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -266,12 +267,21 @@ func handleSignals() {
 		for sig := range c {
 			switch sig {
 			case syscall.SIGINT:
+
+				log.Info("Disconnecting broker")
+				// Disconnecting the broker so that we are not flooded with messages
+				broker.Disconnect()
+
+				log.Info("Stopping all services")
 				// Stop all services
 				for _, service := range allServices {
 					service.Stop()
 				}
+
+				log.Info("Exiting")
 				<-time.After(2 * time.Second)
 				os.Exit(0)
+
 			// case syscall.SIGUSR1:
 			// 	pprof.Lookup("goroutine").WriteTo(os.Stdout, 1)
 			//

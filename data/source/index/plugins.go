@@ -22,12 +22,21 @@ package index
 
 import (
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/service"
 )
 
 var (
 	// Name of the current plugin
-	Name = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX
+	Name        = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX
+	ChildPrefix = common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_INDEX_
 )
 
 func init() {
+	service.NewService(
+		service.Name(Name),
+		service.Tag(common.SERVICE_TAG_DATASOURCE),
+		service.Description("Starter for data sources indexes"),
+		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+		service.WithMicroChildrenRunner(Name, ChildPrefix, true, nil),
+	)
 }

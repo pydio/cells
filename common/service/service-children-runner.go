@@ -24,7 +24,6 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -218,12 +217,13 @@ func (c *ChildrenRunner) Watch(ctx context.Context) error {
 			log.Logger(ctx).Info("Got an event on sources keys for " + c.parentName + ". Let's start/stop services accordingly")
 			var sources string
 			if err := res.Scan(&sources); err != nil {
-				fmt.Println(err)
+				log.Logger(ctx).Error("Cannot read sources", zap.Error(err))
 				continue
 			}
 
 			var arr []string
 			if err := json.Unmarshal([]byte(sources), &arr); err != nil {
+				log.Logger(ctx).Error("Invalid sources", zap.Error(err))
 				continue
 			}
 

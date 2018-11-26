@@ -97,8 +97,3 @@ func (c *pydioregistry) ListServices(withExcluded ...bool) ([]Service, error) {
 
 	return services, nil
 }
-
-// //
-// func (c *pydioregistry) GetServicesForHost(withExcluded ...bool) ([]Service, error) {
-//
-// }
