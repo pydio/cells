@@ -22,44 +22,48 @@ package consul
 
 import (
 	"context"
-	"encoding/json"
-	"log"
-	"strings"
 
 	"github.com/hashicorp/consul/agent"
 	"github.com/hashicorp/consul/agent/config"
+	"github.com/pydio/cells/cmd"
+	"github.com/pydio/cells/common/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+)
+
+var (
+	defaultConfig = `{
+      "bootstrap": true,
+      "data_dir": "/tmp/consul",
+      "server": true
+	}`
 )
 
 func init() {
+	flags := cmd.RootCmd.PersistentFlags()
+	flags.String("consul_config", "", "Configuration file for consul")
+
+	viper.BindPFlag("consul_config", flags.Lookup("consul_config"))
+
 	cobra.OnInitialize(run)
 }
 
 func run() {
 
 	reg := viper.GetString("registry")
-	regAddress := viper.GetString("registry_address")
-	regClusterAddress := viper.GetString("registry_cluster_address")
-	regClusterRoutes := viper.GetString("registry_cluster_routes")
 
 	if reg == "consul" {
 
-		data, _ := json.Marshal(servicecontext.GetConfig(ctx))
-
-		// Making sure bool are converted
-		r := strings.NewReplacer(`"true"`, `true`, `"false"`, `false`)
-		str := r.Replace(string(data))
-
 		//create the logwriter
-		runtime := config.DefaultRuntimeConfig(str)
+		runtime := config.DefaultRuntimeConfig(defaultConfig)
 
 		agent, err := agent.New(runtime)
 		if err != nil {
-			return nil, nil, nil, err
+			log.Fatal("Cannot start consul", zap.Error(err))
 		}
 
-		agent.LogOutput = &logwriter{ctx}
+		agent.LogOutput = &logwriter{context.Background()}
 
 		go func() {
 			agent.Start()

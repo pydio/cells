@@ -44,6 +44,8 @@ import (
 	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
 	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
 	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
+
+	consulregistry "github.com/pydio/cells/common/micro/registry/consul"
 )
 
 var (
@@ -222,6 +224,8 @@ func handleRegistry() {
 	switch viper.Get("registry") {
 	case "nats":
 		natsregistry.Enable()
+	case "consul":
+		consulregistry.Enable()
 	default:
 		log.Fatal("registry not supported")
 	}
