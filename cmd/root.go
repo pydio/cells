@@ -41,11 +41,16 @@ import (
 
 	"github.com/pydio/cells/common/registry"
 
+	// All brokers
+	httpbroker "github.com/pydio/cells/common/micro/broker/http"
 	natsbroker "github.com/pydio/cells/common/micro/broker/nats"
-	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
-	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
 
+	// All registries
 	consulregistry "github.com/pydio/cells/common/micro/registry/consul"
+	natsregistry "github.com/pydio/cells/common/micro/registry/nats"
+
+	// All transports
+	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
 )
 
 var (
@@ -235,6 +240,8 @@ func handleBroker() {
 	switch viper.Get("broker") {
 	case "nats":
 		natsbroker.Enable()
+	case "http":
+		httpbroker.Enable()
 	default:
 		log.Fatal("broker not supported")
 	}
