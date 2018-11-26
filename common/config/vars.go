@@ -26,14 +26,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/micro/go-config/reader"
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/file"
-
-	"strings"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config/envvar"
@@ -138,6 +137,7 @@ func Get(path ...string) reader.Value {
 }
 
 func Set(val interface{}, path ...string) {
+
 	if RemoteSource {
 		remote.UpdateRemote("config", val, path...)
 		return
@@ -170,7 +170,15 @@ func Set(val interface{}, path ...string) {
 	}
 	if hasFilter {
 		// Replace fully from tmp
-		Default().Set(tmpConfig.Get())
+		// Does not work probably due to a bug in the underlying TP library
+		// Default().Set(tmpConfig.Get())
+
+		// Rather explicitly replace all values.
+		var all map[string]interface{}
+		json.Unmarshal(tmpConfig.Bytes(), &all)
+		for k, v := range all {
+			Default().Set(v, k)
+		}
 	} else {
 		// Just update default config
 		Default().Set(val, path...)
