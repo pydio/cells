@@ -80,6 +80,18 @@
   "ds.editor.legend.s3.2": {
     "other": "Use the standard API Key / Api Secret to authenticate, leave endpoint URL empty for AmazonS3 or use your storage URL for other on-premise solutions."
   },
+  "ds.editor.storage.legend.fs": {
+    "other": "Browse data from a local or network-attached file system. Peer Address is a node where Cells is currently running. Last folder must be lowercase and its parent must writeable."
+  },
+  "ds.editor.storage.legend.s3": {
+    "other": "Browse data from an Amazon S3 bucket or from an S3-compatible storage."
+  },
+  "ds.editor.storage.legend.azure": {
+    "other": "Browse data an Azure Blob Storage bucket."
+  },
+  "ds.editor.storage.legend.gcs": {
+    "other": "Browse data a Google Cloud Storage bucket."
+  },
   "ds.editor.new": {
     "other": "New DataSource"
   },
@@ -119,6 +131,21 @@
   "ds.editor.storage.fs.macos": {
     "other": "Operating System is MacOSX"
   },
+  "ds.editor.storage.azure.api": {
+    "other": "Azure Account Name"
+  },
+  "ds.editor.storage.azure.secret": {
+    "other": "Azure Secret Key"
+  },
+  "ds.editor.storage.azure.bucket": {
+    "other": "Bucket Name"
+  },
+  "ds.editor.storage.gcs.credentials": {
+    "other": "Paste content of GCS JSON credentials file"
+  },
+  "ds.editor.storage.gcs.bucket": {
+    "other": "Bucket Name"
+  },
   "ds.editor.storage.s3.api": {
     "other": "S3 Api Key"
   },
@@ -127,6 +154,9 @@
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "Custom Endpoint URL"
+  },
+  "ds.editor.storage.s3.endpoint.hint": {
+    "other": "Leave empty for Amazon S3"
   },
   "ds.editor.storage.s3.path": {
     "other": "Internal Path"
@@ -241,6 +271,12 @@
   },
   "ds.storage.s3": {
     "other": "S3-compatible Storage"
+  },
+  "ds.storage.azure": {
+    "other": "Azure Blob Storage"
+  },
+  "ds.storage.gcs": {
+    "other": "Google Cloud Storage"
   },
   "ds.storage.title": {
     "other": "Storage"

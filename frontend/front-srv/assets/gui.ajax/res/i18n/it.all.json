@@ -100,5 +100,8 @@
   },
   "tour.workspaces.title": {
     "other": "Workspaces & Cells"
+  },
+  "background.jobs.title": {
+    "other": "Jobs running"
   }
 }
