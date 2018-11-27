@@ -59,7 +59,7 @@ func PollInterval(interval time.Duration) Option {
 
 func newOptions(opts ...Option) Options {
 	opt := Options{
-		PollInterval: 30 * time.Second,
+		PollInterval: 1 * time.Second,
 	}
 
 	for _, o := range opts {
