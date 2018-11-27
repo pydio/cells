@@ -114,7 +114,7 @@ func promptSslMode() (enabled bool, e error) {
 		config.Set(keyFile, "cert", "proxy", "keyFile")
 	case 1:
 		mailPrompt := promptui.Prompt{Label: "Please enter the mail address to use with which to generate the certificate", Default: certEmail}
-		acceptLeSa := promptui.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/N] ", Default: "Y"}
+		acceptLeSa := promptui.Prompt{Label: "Do you agree to the Let's Encrypt SA? [Y/n] ", Default: ""}
 
 		// For the time being, we do not offer the option to use let's encrypt staging environment
 		// useStagingPrompt := promptui.Prompt{Label: "Use staging Certificate Authority URL? [Y/N] ", Default: "N"}
@@ -128,7 +128,7 @@ func promptSslMode() (enabled bool, e error) {
 			e = e1
 			return
 		}
-		if !(val == "Y" || val == "y") {
+		if !(val == "Y" || val == "y" || val == "") {
 			e = fmt.Errorf("You must agree to Let's Encrypt SA to use automated certificate generation feature.")
 			return
 		}
@@ -148,7 +148,12 @@ func promptSslMode() (enabled bool, e error) {
 		config.Set(false, "cert", "proxy", "self")
 		config.Set(certEmail, "cert", "proxy", "email")
 		config.Set(caUrl, "cert", "proxy", "caUrl")
+
 		fmt.Println("### Configuring LE SSL, CA URL:", caUrl)
+		fmt.Printf("[DEBUG] Right after set, certEmail: %s, caUrl: %s\n",
+			config.Get("cert", "proxy", "email").String(""),
+			config.Get("cert", "proxy", "caUrl").String(""))
+
 		// config.Set(useStagingCA, "cert", "proxy", "useStagingCA")
 	case 2:
 		enabled = true
@@ -177,6 +182,11 @@ func promptSslMode() (enabled bool, e error) {
 		config.Del("cert", "proxy", "httpRedir")
 	}
 
+	fmt.Printf("[DEBUG] certFile: %s, keyFile: %s, certEmail: %s, caUrl: %s\n",
+		config.Get("cert", "proxy", "certFile").String(""),
+		config.Get("cert", "proxy", "keyFile").String(""),
+		config.Get("cert", "proxy", "email").String(""),
+		config.Get("cert", "proxy", "caUrl").String(""))
 	return
 }
 

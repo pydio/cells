@@ -58,20 +58,22 @@ func NewHandler(serviceCtx context.Context, conf common.ConfigValues) (*Handler,
 // SendMail either queues or send a mail directly
 func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp *proto.SendMailResponse) error {
 	mail := req.Mail
+
+	// Sanity checks
 	if mail == nil || (len(mail.Subject) == 0 && mail.TemplateId == "") || len(mail.To) == 0 {
-		e := errors.BadRequest(common.SERVICE_MAILER, "SendMail: some required fields are missing")
-		log.Logger(ctx).Error("SendMail", zap.Error(e))
+		e := errors.BadRequest(common.SERVICE_MAILER, "cannot send mail: some required fields are missing")
+		log.Logger(ctx).Error("cannot process mail to send", zap.Any("Mail", mail), zap.Error(e))
 		return e
 	}
 	if mail.ContentPlain == "" && mail.ContentMarkdown == "" && mail.ContentHtml == "" && mail.TemplateId == "" {
 		e := errors.BadRequest(common.SERVICE_MAILER, "SendMail: please provide one of ContentPlain, ContentMarkdown or ContentHtml")
-		log.Logger(ctx).Error("SendMail", zap.Error(e))
+		log.Logger(ctx).Error("cannot process mail to send: empty body", zap.Any("Mail", mail), zap.Error(e))
 		return e
 	}
 	h.checkConfigChange(ctx)
 
 	for _, to := range mail.To {
-		// To find language
+		// Find language to be used
 		var languages []string
 		if to.Language != "" {
 			languages = append(languages, to.Language)
@@ -118,17 +120,18 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 		}
 
 		if req.InQueue {
-			log.Logger(ctx).Info("SendMail: pushing email to queue", zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
+			log.Logger(ctx).Debug("SendMail: pushing email to queue", zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
 			if e := h.queue.Push(m); e != nil {
+				log.Logger(ctx).Error(fmt.Sprintf("cannot put mail in queue: %s", e.Error()), zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
 				return e
 			}
 		} else {
-			log.Logger(ctx).Info("SendMail: sending email", zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
+			log.Logger(ctx).Debug("SendMail: sending email", zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
 			if e := h.sender.Send(m); e != nil {
+				log.Logger(ctx).Error(fmt.Sprintf("could not directly send mail: %s", e.Error()), zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
 				return e
 			}
 		}
-
 	}
 	return nil
 }
@@ -148,14 +151,14 @@ func (h *Handler) ConsumeQueue(ctx context.Context, req *proto.ConsumeQueueReque
 		return h.sender.Send(em)
 	}
 
-	if e := h.queue.Consume(c); e == nil {
-		rsp.Message = fmt.Sprintf("Successfully sent %d messages", counter)
-		rsp.EmailsSent = counter
-		return nil
-	} else {
+	e := h.queue.Consume(c)
+	if e != nil {
 		return e
 	}
 
+	rsp.Message = fmt.Sprintf("Successfully sent %d messages", counter)
+	rsp.EmailsSent = counter
+	return nil
 }
 
 func (h *Handler) parseConf(conf common.ConfigValues) (queueName string, queueConfig config.Map, senderName string, senderConfig config.Map) {
@@ -215,12 +218,12 @@ func (h *Handler) initFromConf(ctx context.Context, conf common.ConfigValues) er
 		log.Logger(ctx).Info("Starting mailer with queue '" + queueName + "'")
 	}
 
-	if sender, err := mailer.GetSender(senderName, senderConfig); err != nil {
+	sender, err := mailer.GetSender(senderName, senderConfig)
+	if err != nil {
 		return err
-	} else {
-		log.Logger(ctx).Info("Starting mailer with sender '" + senderName + "'")
-		h.sender = sender
 	}
+	log.Logger(ctx).Info("Starting mailer with sender '" + senderName + "'")
+	h.sender = sender
 
 	h.queueName = queueName
 	h.queueConfig = queueConfig
@@ -240,7 +243,7 @@ func (h *Handler) checkConfigChange(ctx context.Context) error {
 	m1, _ := json.Marshal(senderConfig)
 	m2, _ := json.Marshal(h.senderConfig)
 	if queueName != h.queueName || senderName != h.senderName || string(m1) != string(m2) {
-		log.Logger(ctx).Info("Mailer config has changed - Refresh sender and queue")
+		log.Logger(ctx).Info("Mailer configuration has changed. Refreshing sender and queue")
 		return h.initFromConf(ctx, cfg)
 	}
 	return nil

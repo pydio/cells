@@ -108,6 +108,7 @@ var installCmd = &cobra.Command{
 
 		var internal, external *url.URL
 
+		// If these flags are set, non interractive mode
 		if niBindUrl != "" && niExtUrl != "" {
 
 			var saveMsg, prefix string
@@ -149,7 +150,7 @@ var installCmd = &cobra.Command{
 			config.Save("cli", saveMsg)
 
 		} else {
-
+			// Gather necessary basic info via the command line
 			p := promptui.Select{Label: "Installation mode", Items: []string{"Browser-based (requires a browser access)", "Command line (performed in this terminal)"}}
 			if i, _, e := p.Run(); e != nil {
 				cmd.Help()
