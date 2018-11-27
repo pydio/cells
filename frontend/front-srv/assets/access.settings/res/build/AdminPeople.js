@@ -25669,6 +25669,10 @@ var UserInfo = (function (_React$Component) {
                         currentLocks = currentLocks.filter(function (l) {
                             return l !== lockName;
                         });
+                        if (action === 'user_set_lock-lock') {
+                            // Reset also the failedConnections attempts
+                            delete idmUser.Attributes["failedConnections"];
+                        }
                     } else {
                         currentLocks.push(lockName);
                     }
