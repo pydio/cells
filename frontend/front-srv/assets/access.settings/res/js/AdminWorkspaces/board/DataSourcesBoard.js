@@ -207,13 +207,13 @@ class DataSourcesBoard extends React.Component {
                 }
                 return m(s);
             }},
-            {name:'Status', label:m('status'), renderCell:(row)=>{
+            {name:'Status', label:m('status'), hideSmall:true, renderCell:(row)=>{
                     return row.Disabled ? m('status.disabled') : this.computeStatus(row);
             }},
-            {name:'EncryptionMode', label:m('encryption'), renderCell:(row) => {
+            {name:'EncryptionMode', label:m('encryption'), hideSmall:true, renderCell:(row) => {
                 return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'] ;
             }},
-            {name:'VersioningPolicyName', label:m('versioning'), renderCell:(row) => {
+            {name:'VersioningPolicyName', label:m('versioning'), hideSmall:true, renderCell:(row) => {
                 const pol = versioningPolicies.find((obj)=>obj.Uuid === row['VersioningPolicyName']);
                 if (pol) {
                     return pol.Name;
@@ -231,9 +231,9 @@ class DataSourcesBoard extends React.Component {
             buttons.push(<FlatButton primary={true} label={pydio.MessageHash['ajxp_admin.ws.4b']} onTouchTap={() => {this.openVersionPolicy()}}/>)
         }
         const policiesColumns = [
-            {name:'Name', label: m('versioning.name'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
+            {name:'Name', label: m('versioning.name'), style:{width:180, fontSize:15}, headerStyle:{width:180}},
             {name:'Description', label: m('versioning.description')},
-            {name:'KeepPeriods', label: m('versioning.periods'), renderCell:(row) => {
+            {name:'KeepPeriods', hideSmall:true, label: m('versioning.periods'), renderCell:(row) => {
                 return <VersionPolicyPeriods rendering="short" periods={row.KeepPeriods} pydio={pydio}/>
             }}
         ];

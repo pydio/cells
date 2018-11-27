@@ -775,10 +775,8 @@ func TestSmallArborescenceWithCache(t *testing.T) {
 
 		getDAO(ctxWithCache).Flush(false)
 
-		fmt.Println("In here")
 		err = getDAO(ctxWithCache).MoveNodeTree(nodeFrom, nodeTo)
 		So(err, ShouldBeNil)
-		fmt.Println("In there")
 
 		getDAO(ctxWithCache).Flush(false)
 

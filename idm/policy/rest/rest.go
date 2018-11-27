@@ -28,7 +28,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/idm/policy/lang"
 )

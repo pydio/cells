@@ -25,19 +25,17 @@ import (
 
 	"github.com/emicklei/go-restful"
 
-	"strconv"
-
 	"github.com/micro/go-micro/client"
 	registry2 "github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/ctl"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
 )
 
 /*********************
@@ -208,7 +206,6 @@ func (s *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	if !strings.HasPrefix(srv.Name(), "pydio") || srv.Name() == "pydio.grpc.config" {
 		controllable = false
 	}
-	configPort := config.Default().Get("services", srv.Name(), "port").String("")
 	configAddress := ""
 	c := config.Default().Get("defaults", "url").String("")
 	if srv.Name() == common.SERVICE_GATEWAY_PROXY && c != "" {
@@ -226,10 +223,6 @@ func (s *Handler) serviceToRest(srv registry.Service, running bool) *ctl.Service
 	for _, node := range srv.RunningNodes() {
 		p := int32(node.Port)
 		a := node.Address
-		if configPort != "" {
-			i, _ := strconv.ParseInt(configPort, 10, 32)
-			p = int32(i)
-		}
 		if configAddress != "" {
 			a = configAddress
 			p = 0

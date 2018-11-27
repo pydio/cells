@@ -36,6 +36,10 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
 var _pydioModelAction = require('pydio/model/action');
 
 var _pydioModelAction2 = _interopRequireDefault(_pydioModelAction);
@@ -176,8 +180,12 @@ var FSTemplate = _react2['default'].createClass({
         this.setState({ drawerOpen: true });
     },
 
-    closeDrawer: function closeDrawer() {
+    closeDrawer: function closeDrawer(e) {
         if (!this.state.drawerOpen) {
+            return;
+        }
+        var widgets = document.getElementsByClassName('user-widget');
+        if (widgets && widgets.length > 0 && widgets[0].contains(_reactDom2['default'].findDOMNode(e.target))) {
             return;
         }
         this.setState({ drawerOpen: false });
@@ -306,7 +314,7 @@ var FSTemplate = _react2['default'].createClass({
                         _react2['default'].createElement(
                             'span',
                             { className: 'drawer-button' },
-                            _react2['default'].createElement(_materialUi.IconButton, { style: { color: 'white' }, iconClassName: 'mdi mdi-menu', onTouchTap: this.openDrawer })
+                            _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: 'white' }, iconClassName: 'mdi mdi-menu', onTouchTap: this.openDrawer })
                         ),
                         _react2['default'].createElement(_Breadcrumb2['default'], _extends({}, props, { startWithSeparator: false })),
                         _react2['default'].createElement('span', { style: { flex: 1 } }),

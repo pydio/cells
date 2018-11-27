@@ -25,6 +25,8 @@ import (
 
 	"github.com/matcornic/hermes"
 
+	"strings"
+
 	"github.com/pydio/cells/broker/mailer/lang"
 	"github.com/pydio/cells/common/config"
 )
@@ -52,7 +54,7 @@ func GetApplicationConfig(languages ...string) ApplicationConfigs {
 		Title:        "Pydio",
 		Url:          url,
 		From:         from,
-		Logo:         fmt.Sprintf("%s/plugins/gui.ajax/res/themes/common/images/PydioLogo250.png", url),
+		Logo:         fmt.Sprintf("%s/plug/gui.ajax/res/themes/common/images/PydioLogo250.png", strings.TrimRight(url, "/")),
 		Copyright:    T("Mail.Main.Copyright"),
 		TroubleText:  T("Mail.Main.Troubleshoot"),
 		Greeting:     T("Mail.Main.Greeting"),

@@ -59,6 +59,8 @@ func init() {
 					return nil
 				}))
 
+			tree.RegisterNodeProviderHandler(m.Server(), NewTreeHandler())
+
 			return runner.Watch(m.Options().Context)
 		}),
 	)

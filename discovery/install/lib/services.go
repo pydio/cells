@@ -41,21 +41,15 @@ type DexClient struct {
 
 func actionConfigsSet(c *install.InstallConfig) error {
 
-	config.Set(c.GetExternalMicro(), "services", common.SERVICE_MICRO_API, "port")
-	config.Set(c.GetExternalGateway(), "services", common.SERVICE_GATEWAY_DATA, "port")
-	config.Set(c.GetExternalWebsocket(), "services", common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_WEBSOCKET, "port")
-	config.Set(c.GetExternalFrontPlugins(), "services", common.SERVICE_WEB_NAMESPACE_+common.SERVICE_FRONT_STATICS, "port")
-	config.Set(c.GetExternalDAV(), "services", common.SERVICE_GATEWAY_DAV, "port")
-	config.Set(c.GetExternalWOPI(), "services", common.SERVICE_GATEWAY_WOPI, "port")
-
-	config.Set(fmt.Sprintf("http://127.0.0.1:%s/dex", c.GetExternalDex()), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "issuer")
-	config.Set(fmt.Sprintf("0.0.0.0:%s", c.GetExternalDex()), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "web", "http")
+	url := config.Get("defaults", "url").String("")
+	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "issuer")
+	config.Set(fmt.Sprintf("%s/auth/dex", url), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH, "dex", "web", "http")
 
 	dexStaticClient := &DexClient{
 		Id:                     c.GetExternalDexID(),
 		Name:                   c.GetExternalDexID(),
 		Secret:                 c.GetExternalDexSecret(),
-		RedirectURIs:           []string{"http://127.0.0.1:5555/callback"},
+		RedirectURIs:           []string{fmt.Sprintf("%s/auth/callback", url)},
 		IdTokensExpiry:         "10m",
 		RefreshTokensExpiry:    "30m",
 		OfflineSessionsSliding: true,

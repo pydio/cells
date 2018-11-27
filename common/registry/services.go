@@ -40,6 +40,7 @@ type Service interface {
 	Check(context.Context) error
 
 	Name() string
+	Address() string
 	Regexp() *regexp.Regexp
 	Version() string
 	Description() string
@@ -55,6 +56,8 @@ type Service interface {
 
 	RequiresFork() bool
 	ForkStart()
+	MustBeUnique() bool
+	AutoStart() bool
 
 	MatchesRegexp(string) bool
 
@@ -79,9 +82,6 @@ func (c *pydioregistry) GetServicesByName(name string) []Service {
 
 // ListServices gives the list of all services registered (whether started or not) in the main registry
 func (c *pydioregistry) ListServices(withExcluded ...bool) ([]Service, error) {
-
-	c.Lock()
-	defer c.Unlock()
 
 	var services []Service
 

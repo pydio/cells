@@ -28,14 +28,15 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/micro/go-micro/server"
 	"github.com/micro/go-plugins/broker/nats"
 	"github.com/micro/go-plugins/registry/memory"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/sql"
 
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/cells/data/source/index"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -95,9 +96,9 @@ func (l *List) Close() error {
 func TestMain(m *testing.M) {
 
 	// Registry mock
-	defaults.Init(
-		defaults.WithRegistry(memory.NewRegistry()),
-		defaults.WithBroker(nats.NewBroker()),
+	defaults.InitServer(
+		func() server.Option { return server.Registry(memory.NewRegistry()) },
+		func() server.Option { return server.Broker(nats.NewBroker()) },
 	)
 
 	var options config.Map

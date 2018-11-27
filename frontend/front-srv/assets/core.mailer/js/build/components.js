@@ -246,6 +246,8 @@ var Email = (function () {
 
             Promise.all(proms).then(function () {
                 callback(true);
+            })['catch'](function (e) {
+                callback(false);
             });
         }
     }]);
@@ -267,7 +269,8 @@ var Pane = (function (_React$Component3) {
             users: this.props.users || {},
             subject: this.props.subject,
             message: this.props.message,
-            errorMessage: null
+            errorMessage: null,
+            posting: false
         };
     }
 
@@ -346,10 +349,13 @@ var Pane = (function (_React$Component3) {
             var templateData = _props2.templateData;
 
             var callback = function callback(res) {
+                _this2.setState({ posting: false });
                 if (res) {
                     _this2.props.onDismiss();
                 }
             };
+            this.setState({ posting: true });
+
             if (this.props.processPost) {
                 this.props.processPost(Email, users, subject, message, link, callback);
                 return;
@@ -369,20 +375,27 @@ var Pane = (function (_React$Component3) {
         value: function render() {
             var _this4 = this;
 
+            var _state2 = this.state;
+            var users = _state2.users;
+            var posting = _state2.posting;
+            var errorMessage = _state2.errorMessage;
+            var subject = _state2.subject;
+            var message = _state2.message;
+
             var className = [this.props.className, "react-mailer", "reset-pydio-forms"].join(" ");
-            var users = Object.keys(this.state.users).map((function (uId) {
+            var usersChips = Object.keys(users).map((function (uId) {
                 var _this3 = this;
 
-                return _react2['default'].createElement(UserChip, { key: uId, user: this.state.users[uId], onRemove: function () {
+                return _react2['default'].createElement(UserChip, { key: uId, user: users[uId], onRemove: function () {
                         _this3.removeUser(uId);
                     } });
             }).bind(this));
             var errorDiv = undefined;
-            if (this.state.errorMessage) {
+            if (errorMessage) {
                 errorDiv = _react2['default'].createElement(
                     'div',
                     { style: { padding: '10px 20px', color: 'red' } },
-                    this.state.errorMessage
+                    errorMessage
                 );
             }
             var style = _extends({
@@ -408,7 +421,7 @@ var Pane = (function (_React$Component3) {
                         existingOnly: true,
                         freeValueAllowed: true,
                         onValueSelected: this.addUser.bind(this),
-                        excludes: Object.keys(this.state.users),
+                        excludes: Object.keys(users),
                         renderSuggestion: function (userObject) {
                             return _react2['default'].createElement(DestBadge, { user: userObject });
                         },
@@ -419,14 +432,14 @@ var Pane = (function (_React$Component3) {
                     _react2['default'].createElement(
                         'div',
                         { style: styles.wrapper },
-                        users
+                        usersChips
                     )
                 ),
                 !this.props.uniqueUserStyle && _react2['default'].createElement(_materialUi.Divider, null),
                 !this.props.templateId && _react2['default'].createElement(
                     'div',
                     { style: { padding: '0 20px' } },
-                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, underlineShow: false, floatingLabelText: this.getMessage('6'), value: this.state.subject, onChange: this.updateSubject.bind(this) })
+                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: true, underlineShow: false, floatingLabelText: this.getMessage('6'), value: subject, onChange: this.updateSubject.bind(this) })
                 ),
                 !this.props.templateId && _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(
@@ -436,7 +449,7 @@ var Pane = (function (_React$Component3) {
                         fullWidth: true,
                         underlineShow: false,
                         floatingLabelText: this.getMessage('7'),
-                        value: this.state.message,
+                        value: message,
                         multiLine: true,
                         onChange: this.updateMessage.bind(this),
                         rowsMax: 6
@@ -448,7 +461,7 @@ var Pane = (function (_React$Component3) {
                     'div',
                     { style: { textAlign: 'right', padding: '8px 20px' } },
                     _react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('54', ''), onTouchTap: this.props.onDismiss }),
-                    _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.getMessage('77', ''), onTouchTap: function (e) {
+                    _react2['default'].createElement(_materialUi.FlatButton, { disabled: posting, primary: true, label: this.getMessage('77', ''), onTouchTap: function (e) {
                             return _this4.postEmail();
                         } })
                 )

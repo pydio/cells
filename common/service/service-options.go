@@ -56,10 +56,17 @@ type ServiceOptions struct {
 	Prefix     interface{}
 	Migrations []*Migration
 
+	Port string
+
 	Micro micro.Service
 	Web   web.Service
 
 	Dependencies []*dependency
+
+	// Starting options
+	AutoStart bool
+	Fork      bool
+	Unique    bool
 
 	Registry registry.Registry
 
@@ -93,6 +100,7 @@ func newOptions(opts ...ServiceOption) ServiceOptions {
 	opt := ServiceOptions{}
 
 	opt.Registry = registry.Default
+	opt.AutoStart = true
 
 	for _, o := range opts {
 		o(&opt)
@@ -156,9 +164,33 @@ func Regexp(r string) ServiceOption {
 	}
 }
 
+func Port(p string) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Port = p
+	}
+}
+
 func WithChecker(c Checker) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Checker = c
+	}
+}
+
+func AutoStart(b bool) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.AutoStart = b
+	}
+}
+
+func Fork(b bool) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Fork = b
+	}
+}
+
+func Unique(b bool) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Unique = b
 	}
 }
 

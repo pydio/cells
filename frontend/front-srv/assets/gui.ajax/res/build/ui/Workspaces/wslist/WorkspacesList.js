@@ -52,6 +52,10 @@ var _pydioUtilLang = require('pydio/util/lang');
 
 var _pydioUtilLang2 = _interopRequireDefault(_pydioUtilLang);
 
+var _color = require('color');
+
+var _color2 = _interopRequireDefault(_color);
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
 
 var withVerticalScroll = _Pydio$requireLib.withVerticalScroll;
@@ -84,7 +88,8 @@ var WorkspacesList = (function (_React$Component) {
     WorkspacesList.prototype.stateFromPydio = function stateFromPydio(pydio) {
         return {
             workspaces: pydio.user ? pydio.user.getRepositoriesList() : [],
-            showTreeForWorkspace: pydio.user ? pydio.user.activeRepository : false
+            showTreeForWorkspace: pydio.user ? pydio.user.activeRepository : false,
+            activeRepoIsHome: pydio.user && pydio.user.activeRepository === 'homepage'
         };
     };
 
@@ -109,13 +114,39 @@ var WorkspacesList = (function (_React$Component) {
         var _state = this.state;
         var workspaces = _state.workspaces;
         var showTreeForWorkspace = _state.showTreeForWorkspace;
+        var activeRepoIsHome = _state.activeRepoIsHome;
         var _props = this.props;
         var pydio = _props.pydio;
         var className = _props.className;
         var style = _props.style;
         var filterByType = _props.filterByType;
         var muiTheme = _props.muiTheme;
+        var sectionTitleStyle = _props.sectionTitleStyle;
 
+        var selectHint = undefined,
+            titleMarginFirst = undefined;
+        // TEMP TESTS
+        if (false && activeRepoIsHome) {
+            var hintStyle = {
+                padding: '14px 18px 12px',
+                color: '#2196F3',
+                fontWeight: 500,
+                backgroundColor: '#E3F2FD'
+            };
+            /*borderBottom: '1px solid #BBDEFB',
+            fontStyle: 'italic'*/
+            var hintIconStyle = {
+                display: 'inline-block',
+                marginLeft: 5
+            };
+            selectHint = _react2['default'].createElement(
+                'div',
+                { style: hintStyle },
+                'Select a workspace or a cell',
+                _react2['default'].createElement('span', { className: 'mdi mdi-arrow-down', style: hintIconStyle })
+            );
+            titleMarginFirst = true;
+        }
         var wsList = [];
         workspaces.forEach(function (o, k) {
             wsList.push(o);
@@ -185,11 +216,13 @@ var WorkspacesList = (function (_React$Component) {
 
         var sections = [];
         if (entries.length) {
+            var _s = titleMarginFirst ? _extends({}, sectionTitleStyle, { marginTop: 5 }) : _extends({}, sectionTitleStyle);
+            titleMarginFirst = false;
             sections.push({
                 k: 'entries',
                 title: _react2['default'].createElement(
                     'div',
-                    { key: 'entries-title', className: 'section-title', style: this.props.sectionTitleStyle },
+                    { key: 'entries-title', className: 'section-title', style: _s },
                     messages[468]
                 ),
                 content: _react2['default'].createElement(
@@ -200,21 +233,26 @@ var WorkspacesList = (function (_React$Component) {
             });
         }
         if (!sharedEntries.length) {
-            sharedEntries = _react2['default'].createElement(EmptyStateView, {
-                iconClassName: "icomoon-cells",
-                primaryTextId: messages[632],
-                secondaryTextId: messages[633],
-                actionLabelId: this.createRepositoryEnabled() ? messages[418] : null,
-                actionCallback: this.createRepositoryEnabled() ? createClick : null,
-                actionStyle: { marginTop: 20 },
-                style: { backgroundColor: 'transparent' }
-            });
+
+            var mainColor = _color2['default'](muiTheme.palette.primary1Color);
+            sharedEntries = _react2['default'].createElement(
+                'div',
+                { style: { textAlign: 'center', color: mainColor.fade(0.6).toString() } },
+                _react2['default'].createElement('div', { className: 'icomoon-cells', style: { fontSize: 80 } }),
+                this.createRepositoryEnabled() && _react2['default'].createElement(_materialUi.FlatButton, { style: { color: muiTheme.palette.accent2Color, marginTop: 5 }, primary: true, label: messages[418], onTouchTap: createClick }),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { fontSize: 13, padding: '5px 20px' } },
+                    messages[633]
+                )
+            );
         }
+        var s = titleMarginFirst ? _extends({}, sectionTitleStyle, { marginTop: 5 }) : _extends({}, sectionTitleStyle);
         sections.push({
             k: 'shared',
             title: _react2['default'].createElement(
                 'div',
-                { key: 'shared-title', className: 'section-title', style: _extends({}, this.props.sectionTitleStyle, { position: 'relative', overflow: 'visible', padding: '16px 16px' }) },
+                { key: 'shared-title', className: 'section-title', style: _extends({}, s, { position: 'relative', overflow: 'visible', padding: '16px 16px' }) },
                 messages[469],
                 createAction
             ),
@@ -251,6 +289,7 @@ var WorkspacesList = (function (_React$Component) {
         return _react2['default'].createElement(
             'div',
             { className: classNames.join(' ') },
+            selectHint,
             elements,
             _react2['default'].createElement(
                 _materialUi.Popover,

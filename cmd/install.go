@@ -21,27 +21,28 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 
 	"github.com/manifoldco/promptui"
-	"github.com/mholt/caddy"
 	_ "github.com/mholt/caddy/caddyhttp"
 	"github.com/mholt/caddy/caddytls"
 	"github.com/micro/go-web"
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
-	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/discovery/install/assets"
 )
 
@@ -49,13 +50,19 @@ const (
 	caddyfile = `
 		 {{.URL}} {
 			 root "{{.Root}}"
-			 proxy /install localhost:{{.Micro}}
+			 proxy /install {{urls .Micro}}
 			 {{.TLS}}
 		 }
 	 `
 )
 
 var (
+	caddyconf = struct {
+		URL   *url.URL
+		Root  string
+		Micro string
+		TLS   string
+	}{}
 	niBindUrl        string
 	niExtUrl         string
 	niDisableSsl     bool
@@ -97,6 +104,8 @@ var installCmd = &cobra.Command{
  Services will all start automatically after the install process is finished.
 	 `,
 	Run: func(cmd *cobra.Command, args []string) {
+
+		debug.PrintStack()
 
 		cmd.Println("")
 		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m")
@@ -186,13 +195,6 @@ var installCmd = &cobra.Command{
 			}
 		}
 
-		// Getting the micro api port
-		micro := config.Get("ports", common.SERVICE_MICRO_API).Int(0)
-		if micro == 0 {
-			micro = utils.GetAvailablePort()
-			config.Set(micro, "ports", common.SERVICE_MICRO_API)
-		}
-
 		config.Save("cli", "Install / Setting default Port")
 
 		// Manage TLS settings
@@ -215,20 +217,10 @@ var installCmd = &cobra.Command{
 		}
 
 		// Creating temporary caddy file
-		if err := config.InitCaddyFile(caddyfile, struct {
-			URL   *url.URL
-			Root  string
-			Micro int
-			TLS   string
-		}{
-			URL:   internal,
-			Root:  dir,
-			Micro: micro,
-			TLS:   tls,
-		}); err != nil {
-			log.Fatal(err.Error())
-			os.Exit(0)
-		}
+		caddyconf.URL = internal
+		caddyconf.Root = dir
+		caddyconf.Micro = common.SERVICE_MICRO_API
+		caddyconf.TLS = tls
 
 		// starting the registry service
 		for _, s := range registry.Default.GetServicesByName(defaults.Registry().String()) {
@@ -253,19 +245,14 @@ var installCmd = &cobra.Command{
 
 		config.Save("cli", "Install / Saving final configs")
 
-		// load caddyfile
-		caddyfile, err := caddy.LoadCaddyfile("http")
-		if err != nil {
+		caddy.Enable(caddyfile, play)
+
+		if err := caddy.Start(); err != nil {
 			cmd.Print(err)
 			os.Exit(1)
 		}
 
-		// start caddy server
-		instance, err := caddy.Start(caddyfile)
-		if err != nil {
-			cmd.Print(err)
-			os.Exit(1)
-		}
+		instance := caddy.GetInstance()
 
 		open(external.String())
 
@@ -278,40 +265,21 @@ var installCmd = &cobra.Command{
 		instance.ShutdownCallbacks()
 		instance.Stop()
 
-		// Re-building allServices list
-		initServices()
-		if s, err := registry.Default.ListServices(); err != nil {
-			cmd.Print("Could not retrieve list of services")
-			os.Exit(0)
-		} else {
-			allServices = s
-		}
-
-		// Start all services
-		excludes := []string{
-			"nats",
-			common.SERVICE_MICRO_API,
-			common.SERVICE_REST_NAMESPACE_ + common.SERVICE_INSTALL,
-		}
-		for _, service := range allServices {
-			ignore := false
-			for _, ex := range excludes {
-				if service.Name() == ex {
-					ignore = true
-				}
-			}
-			if service.Regexp() != nil {
-				ignore = true
-			}
-			if !ignore {
-				go service.Start()
-			}
-		}
-
-		wg.Add(1)
-		wg.Wait()
-
+		fmt.Println("")
+		fmt.Println(promptui.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
+		fmt.Println("")
 	},
+}
+
+func play() (*bytes.Buffer, error) {
+	template := caddy.Get().GetTemplate()
+
+	buf := bytes.NewBuffer([]byte{})
+	if err := template.Execute(buf, caddyconf); err != nil {
+		return nil, err
+	}
+
+	return buf, nil
 }
 
 // open opens the specified URL in the default browser of the user.

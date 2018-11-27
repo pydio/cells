@@ -29,6 +29,7 @@ import (
 	"github.com/emicklei/go-restful"
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
+	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-web"
 	"github.com/pborman/uuid"
@@ -37,7 +38,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/frontend"
 )
 
@@ -82,6 +83,9 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 				web.Registry(defaults.Registry()),
 				web.Name(name),
 				web.Context(ctx),
+				web.AfterStart(func() error {
+					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{})
+				}),
 				web.AfterStart(func() error {
 					log.Logger(ctx).Info("started")
 					return nil

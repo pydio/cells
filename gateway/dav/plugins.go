@@ -24,9 +24,11 @@ package dav
 import (
 	"context"
 
+	micro "github.com/micro/go-micro"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
 )
 
 func init() {
@@ -36,17 +38,24 @@ func init() {
 		service.RouterDependencies(),
 		service.Description("DAV Gateway to tree service"),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			config := servicecontext.GetConfig(ctx)
-			port := config.Int("port", 5013)
-
 			return service.RunnerFunc(func() error {
-					startHttpServer(ctx, port)
 					return nil
 				}), service.CheckerFunc(func() error {
 					return nil
 				}), service.StopperFunc(func() error {
 					return nil
 				}), nil
+		}, func(s service.Service) (micro.Option, error) {
+			srv := defaults.NewHTTPServer()
+
+			handler := newHandler(s.Options().Context)
+
+			err := srv.Handle(srv.NewHandler(handler))
+			if err != nil {
+				return nil, err
+			}
+
+			return micro.Server(srv), nil
 		}),
 	)
 }

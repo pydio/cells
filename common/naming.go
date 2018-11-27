@@ -109,6 +109,7 @@ const (
 
 // Define constants for Event Bus Topics
 const (
+	TOPIC_SERVICE_START    = "topic.pydio.service.start"
 	TOPIC_SERVICE_STOP     = "topic.pydio.service.stop"
 	TOPIC_INDEX_CHANGES    = "topic.pydio.index.nodes.changes"
 	TOPIC_TREE_CHANGES     = "topic.pydio.tree.nodes.changes"
@@ -205,9 +206,6 @@ var (
 )
 
 var (
-	// ServicesDiscovery lists known discovery server implementations.
-	ServicesDiscovery = []string{SERVICE_CONSUL, SERVICE_NATS}
-
 	// PydioUserProfiles order reflects the level of authorizations
 	PydioUserProfiles = []string{
 		PYDIO_PROFILE_ANON,

@@ -23,22 +23,20 @@ package web
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"time"
-
-	"github.com/gorilla/mux"
-	"github.com/lpar/gzipped"
 
 	"path/filepath"
 
 	"os"
 
+	"github.com/gorilla/mux"
+	"github.com/lpar/gzipped"
+	micro "github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/frontend/front-srv/web/index"
 	"go.uber.org/zap"
@@ -51,6 +49,7 @@ Disallow: /`
 )
 
 func init() {
+
 	service.NewService(
 		service.Name(Name),
 		service.Tag(common.SERVICE_TAG_FRONTEND),
@@ -62,43 +61,44 @@ func init() {
 			},
 		}),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			cfg := servicecontext.GetConfig(ctx)
-
-			port := cfg.Int("port", 9025)
-
 			return service.RunnerFunc(func() error {
-					router := mux.NewRouter()
-					httpFs := frontend.GetPluginsFS()
-					fs := gzipped.FileServer(httpFs)
-					router.Handle("/index.json", fs)
-					router.PathPrefix("/plug/").Handler(http.StripPrefix("/plug/", fs))
-					indexHandler := index.NewIndexHandler()
-					router.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
-						w.WriteHeader(200)
-						w.Header().Set("Content-Type", "text/plain")
-						w.Write([]byte(RobotsString))
-					})
-					router.Handle("/gui", indexHandler)
-					router.Handle("/user/reset-password/{resetPasswordKey}", indexHandler)
-					router.Handle("/public/{link}", index.NewPublicHandler())
-					http.Handle("/", router)
-					srv := &http.Server{
-						Handler: router,
-						Addr:    fmt.Sprintf(":%d", port),
-						// Good practice: enforce timeouts for servers you create!
-						WriteTimeout: 15 * time.Second,
-						ReadTimeout:  15 * time.Second,
-					}
-					srv.ListenAndServe()
-
 					return nil
 				}), service.CheckerFunc(func() error {
 					return nil
 				}), service.StopperFunc(func() error {
 					return nil
 				}), nil
+		}, func(s service.Service) (micro.Option, error) {
+			srv := defaults.NewHTTPServer()
+
+			httpFs := frontend.GetPluginsFS()
+			fs := gzipped.FileServer(httpFs)
+
+			router := mux.NewRouter()
+
+			router.Handle("/index.json", fs)
+			router.PathPrefix("/plug/").Handler(http.StripPrefix("/plug/", fs))
+			indexHandler := index.NewIndexHandler()
+			router.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(200)
+				w.Header().Set("Content-Type", "text/plain")
+				w.Write([]byte(RobotsString))
+			})
+			router.Handle("/gui", indexHandler)
+			router.Handle("/user/reset-password/{resetPasswordKey}", indexHandler)
+			router.Handle("/public/{link}", index.NewPublicHandler())
+
+			hd := srv.NewHandler(router)
+
+			err := srv.Handle(hd)
+			if err != nil {
+				return nil, err
+			}
+
+			return micro.Server(srv), nil
 		}),
 	)
+
 }
 
 // DropLegacyStatics removes files and references to old PHP data in configuration

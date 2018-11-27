@@ -16883,7 +16883,7 @@ var AdminDashboard = _react2['default'].createClass({
                 dm.requireContextChange(dm.getRootNode());
             };
         } else {
-            leftIcon = "mdi mdi-view-headline";
+            leftIcon = "mdi mdi-menu";
             leftIconClick = function () {
                 _this3.setState({ openLeftNav: !openLeftNav });
             };
@@ -17599,7 +17599,10 @@ var Header = (function (_Component) {
                     alignItems: 'center'
                 },
                 title: {
-                    fontSize: 20
+                    fontSize: 20,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
                 },
                 legend: {},
                 icon: {

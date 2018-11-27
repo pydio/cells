@@ -22421,11 +22421,11 @@ var DataSourcesBoard = (function (_React$Component) {
                             break;
                     }
                     return m(s);
-                } }, { name: 'Status', label: m('status'), renderCell: function renderCell(row) {
+                } }, { name: 'Status', label: m('status'), hideSmall: true, renderCell: function renderCell(row) {
                     return row.Disabled ? m('status.disabled') : _this3.computeStatus(row);
-                } }, { name: 'EncryptionMode', label: m('encryption'), renderCell: function renderCell(row) {
+                } }, { name: 'EncryptionMode', label: m('encryption'), hideSmall: true, renderCell: function renderCell(row) {
                     return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'];
-                } }, { name: 'VersioningPolicyName', label: m('versioning'), renderCell: function renderCell(row) {
+                } }, { name: 'VersioningPolicyName', label: m('versioning'), hideSmall: true, renderCell: function renderCell(row) {
                     var pol = versioningPolicies.find(function (obj) {
                         return obj.Uuid === row['VersioningPolicyName'];
                     });
@@ -22443,7 +22443,7 @@ var DataSourcesBoard = (function (_React$Component) {
                         _this3.openVersionPolicy();
                     } }));
             }
-            var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', label: m('versioning.periods'), renderCell: function renderCell(row) {
+            var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
                     return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods, pydio: pydio });
                 } }];
 
@@ -22702,7 +22702,7 @@ var EncryptionKeys = (function (_React$Component) {
             var m = _state.m;
             var pydio = this.props.pydio;
 
-            var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id') }, { name: 'Owner', label: m('key.owner') }, { name: 'CreationDate', label: m('key.created'), renderCell: function renderCell(row) {
+            var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id'), hideSmall: true }, { name: 'Owner', label: m('key.owner'), hideSmall: true }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, renderCell: function renderCell(row) {
                     return new Date(row.CreationDate * 1000).toUTCString();
                 } }, { name: 'Actions', label: '', style: { width: 160, textAlign: 'right', overflow: 'visible' }, headerStyle: { width: '160' }, renderCell: function renderCell(row) {
                     return _react2['default'].createElement(
@@ -22974,11 +22974,11 @@ var MetadataBoard = (function (_React$Component) {
             var currentNode = _props.currentNode;
             var pydio = _props.pydio;
 
-            var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 }, renderCell: function renderCell(row) {
+            var columns = [{ name: 'Order', label: m('order'), style: { width: 30 }, headerStyle: { width: 30 }, hideSmall: true, renderCell: function renderCell(row) {
                     return row.Order || '0';
-                } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'Indexable', label: m('indexable'), style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
+                } }, { name: 'Namespace', label: m('namespace'), style: { fontSize: 15 } }, { name: 'Label', label: m('label'), style: { width: '25%' }, headerStyle: { width: '25%' } }, { name: 'Indexable', label: m('indexable'), style: { width: '25%' }, headerStyle: { width: '25%' }, hideSmall: true, renderCell: function renderCell(row) {
                     return row.Indexable ? 'Yes' : 'No';
-                } }, { name: 'JsonDefinition', label: m('definition'), renderCell: function renderCell(row) {
+                } }, { name: 'JsonDefinition', label: m('definition'), hideSmall: true, renderCell: function renderCell(row) {
                     var def = row.JsonDefinition;
                     if (!def) {
                         return '';
@@ -23394,7 +23394,7 @@ exports['default'] = _react2['default'].createClass({
             return pydio.MessageHash['settings.' + id];
         };
 
-        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: s('103'), style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'summary', label: m('ws.board.summary'), style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' } }];
+        var columns = [{ name: 'label', label: s('8'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'description', label: s('103'), hideSmall: true, style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'summary', label: m('ws.board.summary'), hideSmall: true, style: { width: '30%' }, headerStyle: { width: '30%' } }, { name: 'slug', label: m('ws.5'), style: { width: '20%' }, headerStyle: { width: '20%' } }];
         var loading = this.state.loading;
 
         var data = this.computeTableData();

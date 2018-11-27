@@ -7333,6 +7333,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
 var _ConfigLogo = require('./ConfigLogo');
 
 var _ConfigLogo2 = _interopRequireDefault(_ConfigLogo);
@@ -7402,8 +7406,12 @@ var AltDashboard = _react2['default'].createClass({
         this.setState({ drawerOpen: true });
     },
 
-    closeDrawer: function closeDrawer() {
+    closeDrawer: function closeDrawer(e) {
         if (!this.state.drawerOpen) {
+            return;
+        }
+        var widgets = document.getElementsByClassName('user-widget');
+        if (widgets && widgets.length > 0 && widgets[0].contains(_reactDom2['default'].findDOMNode(e.target))) {
             return;
         }
         this.setState({ drawerOpen: false });
@@ -7485,7 +7493,7 @@ var AltDashboard = _react2['default'].createClass({
                         _react2['default'].createElement(
                             'span',
                             { className: 'drawer-button' },
-                            _react2['default'].createElement(_materialUi.IconButton, { style: { color: 'white' }, iconClassName: 'mdi mdi-menu', onTouchTap: this.openDrawer })
+                            _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: 'white' }, iconClassName: 'mdi mdi-menu', onTouchTap: this.openDrawer })
                         ),
                         _react2['default'].createElement('span', { style: { flex: 1 } }),
                         _react2['default'].createElement(
@@ -7525,7 +7533,7 @@ exports['default'] = AltDashboard = MaterialUI.Style.muiThemeable()(AltDashboard
 exports['default'] = AltDashboard;
 module.exports = exports['default'];
 
-},{"../recent/ActivityStreams":14,"./ConfigLogo":6,"./HomeSearchForm":8,"./WelcomeTour":10,"material-ui":"material-ui","pydio":"pydio","react":"react"}],8:[function(require,module,exports){
+},{"../recent/ActivityStreams":14,"./ConfigLogo":6,"./HomeSearchForm":8,"./WelcomeTour":10,"material-ui":"material-ui","pydio":"pydio","react":"react","react-dom":"react-dom"}],8:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -7692,7 +7700,7 @@ var HomeSearchForm = (function (_Component) {
                 },
                 textField: { flex: 1 },
                 textInput: { color: 'inherit' },
-                textHint: { color: whiteTransp },
+                textHint: { color: whiteTransp, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%' },
                 magnifier: { color: whiteTransp, fontSize: 20, padding: '14px 8px' },
                 close: { color: whiteTransp, fontSize: 20, padding: '14px 8px', cursor: 'pointer' }
             };

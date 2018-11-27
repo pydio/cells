@@ -11,6 +11,6 @@
 		<global_param expose="true" group="CONF_MESSAGE[Limitations]" name="ALLOWED_EXTENSIONS_READABLE" type="string" label="CONF_MESSAGE[Ext. Label]" description="CONF_MESSAGE[User readable label for the list of allowed extensions (images, all files, etc).]" mandatory="false" default=""/>
 		<global_param expose="true" group="CONF_MESSAGE[Multipart Uploads]" name="MULTIPART_UPLOAD_THRESHOLD" type="integer" label="CONF_MESSAGE[Multipart Threshold]" description="CONF_MESSAGE[Switch to Multipart Upload for files bigger than this value (in bytes)]" mandatory="false" default="104857600"/>
 		<global_param expose="true" group="CONF_MESSAGE[Multipart Uploads]" name="MULTIPART_UPLOAD_PART_SIZE" type="integer" label="CONF_MESSAGE[Multipart Parts Size]" description="CONF_MESSAGE[Chunk Size used for multipart uploads]" mandatory="false" default="52428800"/>
-		<global_param expose="true" group="CONF_MESSAGE[Multipart Uploads]" name="MULTIPART_UPLOAD_QUEUE_SIZE" type="integer" label="CONF_MESSAGE[Queue Size]" description="CONF_MESSAGE[Number of concurrent uploads]" mandatory="false" default="3"/>
+		<global_param expose="true" group="CONF_MESSAGE[Multipart Uploads]" name="MULTIPART_UPLOAD_QUEUE_SIZE" type="integer" label="CONF_MESSAGE[Queue Size]" description="CONF_MESSAGE[Number of concurrent uploads (maximum 6, due to browsers limitations)]" mandatory="false" default="3"/>
 	</server_settings>
 </plugin>

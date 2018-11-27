@@ -19,6 +19,7 @@
  */
 
 import React from 'react'
+import ReactDOM from 'react-dom'
 import ConfigLogo from './ConfigLogo'
 import {Paper, IconButton, Badge} from 'material-ui'
 import WelcomeTour from './WelcomeTour'
@@ -75,8 +76,12 @@ let AltDashboard = React.createClass({
         this.setState({drawerOpen: true});
     },
 
-    closeDrawer: function(){
+    closeDrawer: function(e){
         if(!this.state.drawerOpen){
+            return;
+        }
+        const widgets = document.getElementsByClassName('user-widget');
+        if(widgets && widgets.length > 0 && widgets[0].contains(ReactDOM.findDOMNode(e.target))){
             return;
         }
         this.setState({drawerOpen: false});
@@ -150,7 +155,7 @@ let AltDashboard = React.createClass({
                 <div className="desktop-container vertical_layout vertical_fit">
                     <Paper zDepth={1} style={styles.appBarStyle} rounded={false}>
                         <div id="workspace_toolbar" style={{display: "flex", justifyContent: "space-between"}}>
-                            <span className="drawer-button"><IconButton style={{color: 'white'}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/></span>
+                            <span className="drawer-button"><IconButton iconStyle={{color: 'white'}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/></span>
                             <span style={{flex:1}}></span>
                             <div style={{textAlign:'center', width: 250}}>
                                 <ConfigLogo

@@ -805,7 +805,7 @@ var PluginsList = React.createClass({
         if (displaySmall) {
             columns = [{ name: 'enabled', label: 'Enabled', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: renderEnabled }, { name: 'label', label: 'Label', style: { fontSize: 15 } }, { name: 'action', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: renderEditButton }];
         } else {
-            columns = [{ name: 'enabled', label: 'Enabled', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: renderEnabled }, { name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'id', label: 'Id', style: { width: '15%' }, headerStyle: { width: '15%' } }, { name: 'description', label: 'Description' }, { name: 'action', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: renderEditButton }];
+            columns = [{ name: 'enabled', label: 'Enabled', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: renderEnabled }, { name: 'label', label: 'Label', style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'id', label: 'Id', style: { width: '15%' }, headerStyle: { width: '15%' }, hideSmall: true }, { name: 'description', label: 'Description', hideSmall: true }, { name: 'action', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: renderEditButton }];
         }
 
         var data = this.computeTableData();

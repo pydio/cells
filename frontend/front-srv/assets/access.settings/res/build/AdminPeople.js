@@ -22382,19 +22382,25 @@ var Dashboard = _react2['default'].createClass({
     renderListEntryFirstLine: function renderListEntryFirstLine(node) {
         var idmUser = node.getMetadata().get('IdmUser');
         var profile = idmUser.Attributes ? idmUser.Attributes['profile'] : '';
+        var icons = [];
+        var iconStyle = { display: 'inline-block', marginLeft: 5, fontSize: 14 };
+
         if (profile === 'shared') {
-            return node.getLabel() + " [" + this.context.getMessage('user.13') + "]";
+            icons.push(_react2['default'].createElement('span', { className: "mdi mdi-share-variant", style: _extends({}, iconStyle, { color: '#009688' }), title: this.context.getMessage('user.13') }));
         } else if (profile === "admin") {
-            return _react2['default'].createElement(
-                'span',
-                null,
-                node.getLabel(),
-                ' ',
-                _react2['default'].createElement('span', { className: 'icon-lock', style: { display: 'inline-block', marginRight: 5 } })
-            );
-        } else {
-            return node.getLabel();
+            icons.push(_react2['default'].createElement('span', { className: "mdi mdi-security", style: _extends({}, iconStyle, { color: '#03a9f4' }) }));
         }
+        if (idmUser.Attributes && idmUser.Attributes['locks'] && idmUser.Attributes['locks'].indexOf('logout') > -1) {
+            icons.push(_react2['default'].createElement('span', { className: "mdi mdi-lock", style: _extends({}, iconStyle, { color: '#E53934' }) }));
+        }
+
+        return _react2['default'].createElement(
+            'span',
+            null,
+            node.getLabel(),
+            ' ',
+            icons
+        );
     },
 
     renderListEntrySecondLine: function renderListEntrySecondLine(node) {
@@ -22598,7 +22604,8 @@ var Dashboard = _react2['default'].createClass({
             hideResults: this.hideSearchResults,
             style: { margin: '-18px 20px 0' },
             limit: 50,
-            textLabel: this.context.getMessage('user.7')
+            textLabel: this.context.getMessage('user.7'),
+            className: "media-small-hide"
         });
 
         var headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction })];
@@ -23494,7 +23501,7 @@ var RolesDashboard = _react2['default'].createClass({
             color: 'rgba(0,0,0,0.3)',
             fontSize: 20
         };
-        var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor') }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' } }, { name: 'actions', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
+        var columns = [{ name: 'roleLabel', label: this.context.getMessage('32', 'role_editor'), style: { width: '35%', fontSize: 15 }, headerStyle: { width: '35%' } }, { name: 'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall: true }, { name: 'isDefault', label: this.context.getMessage('114', 'settings'), style: { width: '20%' }, headerStyle: { width: '20%' }, hideSmall: true }, { name: 'actions', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
                 return _react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
                         _this4.deleteAction(row.roleId);
                     }, onClick: function (e) {
@@ -23692,7 +23699,12 @@ var UsersSearchBox = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1 } },
-                    _react2['default'].createElement(_materialUi.TextField, { ref: 'query', onKeyDown: this.keyDown.bind(this), floatingLabelText: this.props.textLabel, fullWidth: true })
+                    _react2['default'].createElement(_materialUi.TextField, { ref: 'query',
+                        onKeyDown: this.keyDown.bind(this),
+                        floatingLabelText: this.props.textLabel,
+                        fullWidth: true,
+                        floatingLabelStyle: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }
+                    })
                 ),
                 _react2['default'].createElement(
                     'div',
@@ -25663,6 +25675,10 @@ var UserInfo = (function (_React$Component) {
                         currentLocks = currentLocks.filter(function (l) {
                             return l !== lockName;
                         });
+                        if (action === 'user_set_lock-lock') {
+                            // Reset also the failedConnections attempts
+                            delete idmUser.Attributes["failedConnections"];
+                        }
                     } else {
                         currentLocks.push(lockName);
                     }

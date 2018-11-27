@@ -61,12 +61,15 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 		config.Set(conf.PeerAddress, "services", index, "PeerAddress")
 		tableNames := config.IndexServiceTableNames(source)
 		config.Set(tableNames, "services", index, "tables")
+
 		// Clone conf with specific source attributes
 		sourceConf := proto.Clone(conf).(*object.DataSource)
 		sourceConf.Name = source
 		sourceConf.ObjectsBucket = source
 		sourceConf.StorageConfiguration["folder"] = filepath.Join(storageFolder, source)
-		config.Set(sourceConf, "services", fmt.Sprintf(`pydio.grpc.data.sync.%s`, source))
+
+		sync := fmt.Sprintf(`pydio.grpc.data.sync.%s`, source)
+		config.Set(sourceConf, "services", sync)
 	}
 
 	// Set main dsName as default

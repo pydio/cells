@@ -296,6 +296,7 @@ func filterGatewaysWithStorageConfigKey(configs map[string]*object.MinioConfig, 
 func filterMiniosWithBaseFolder(configs map[string]*object.MinioConfig, peerAddress string, folder string) *object.MinioConfig {
 
 	for _, source := range configs {
+		fmt.Println(source)
 		if source.StorageType == object.StorageType_LOCAL && source.PeerAddress == peerAddress && source.LocalFolder == folder {
 			return source
 		}

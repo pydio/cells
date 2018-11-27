@@ -79,6 +79,7 @@ func (v *PathDataSourceHandler) updateInputBranch(ctx context.Context, node *tre
 		dsName := wsRoot.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 		source, err := v.clientsPool.GetDataSourceInfo(dsName)
 		if err != nil {
+			log.Logger(ctx).Error("Cannot find DataSourceInfo for "+dsName, zap.Error(err))
 			return nil, out, err
 		}
 		branchInfo.LoadedSource = source

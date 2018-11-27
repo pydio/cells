@@ -26,7 +26,7 @@ var (
 )
 
 func init() {
-	configsMigrations = append(configsMigrations, renameServices1, setDefaultConfig)
+	configsMigrations = append(configsMigrations, renameServices1, setDefaultConfig, forceDefaultConfig)
 }
 
 // UpgradeConfigsIfRequired applies all registered configMigration functions
@@ -78,7 +78,27 @@ func setDefaultConfig(config *Config) (bool, error) {
 			fmt.Printf("[Configs] Upgrading: setting default config %s to %v\n", path, def)
 			config.Set(def, paths...)
 			save = true
+		}
+	}
 
+	return save, nil
+}
+
+func forceDefaultConfig(config *Config) (bool, error) {
+	var save bool
+
+	configKeys := map[string]interface{}{
+		"services/pydio.grpc.auth/dex/issuer": config.Get("defaults", "url").String("") + "/auth/dex",
+	}
+
+	for path, def := range configKeys {
+		paths := strings.Split(path, "/")
+		val := config.Get(paths...)
+		var data interface{}
+		if val.Scan(&data); data != def {
+			fmt.Printf("[Configs] Upgrading: setting default config %s to %v\n", path, def)
+			config.Set(def, paths...)
+			save = true
 		}
 	}
 
