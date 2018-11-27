@@ -16,6 +16,7 @@ import (
 
 	"context"
 
+	"github.com/micro/go-micro/errors"
 	"github.com/micro/go-micro/metadata"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -179,7 +180,11 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 		return nil, fmt.Errorf("could not unmarshall response with status %d: %s\nerror cause: %s", res.StatusCode, res.Status, err.Error())
 	}
 	if errMsg, exists := respMap["error"]; exists {
-		return nil, fmt.Errorf("could not retrieve token, %s: %s", errMsg, respMap["error_description"])
+		if t := errors.Parse(respMap["error_description"].(string)); t != nil && t.Code > 0 {
+			return nil, t
+		} else {
+			return nil, fmt.Errorf("could not retrieve token, %s: %s", errMsg, respMap["error_description"])
+		}
 	}
 
 	return respMap, nil
