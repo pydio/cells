@@ -73,6 +73,7 @@ func init() {
 			service.Source(datasource),
 			service.Fork(true),
 			service.Unique(true),
+			service.AutoStart(false),
 			service.WithMicro(func(m micro.Service) error {
 
 				m.Init(micro.AfterStart(func() error {

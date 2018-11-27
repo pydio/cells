@@ -62,8 +62,11 @@ type ServiceOptions struct {
 	Web   web.Service
 
 	Dependencies []*dependency
-	Fork         bool
-	Unique       bool
+
+	// Starting options
+	AutoStart bool
+	Fork      bool
+	Unique    bool
 
 	Registry registry.Registry
 
@@ -97,6 +100,7 @@ func newOptions(opts ...ServiceOption) ServiceOptions {
 	opt := ServiceOptions{}
 
 	opt.Registry = registry.Default
+	opt.AutoStart = true
 
 	for _, o := range opts {
 		o(&opt)
@@ -169,6 +173,12 @@ func Port(p string) ServiceOption {
 func WithChecker(c Checker) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Checker = c
+	}
+}
+
+func AutoStart(b bool) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.AutoStart = b
 	}
 }
 

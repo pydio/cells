@@ -202,13 +202,6 @@ func NewService(opts ...ServiceOption) Service {
 			return nil
 		}),
 
-		AfterInit(func(_ Service) error {
-			// TODO :  WHY IS THAT ?
-			// utils.SaveConfigs()
-
-			return nil
-		}),
-
 		// Adding the dao to the context
 		BeforeStart(func(_ Service) error {
 
@@ -645,6 +638,12 @@ func (s *service) IsGRPC() bool {
 
 func (s *service) IsREST() bool {
 	return s.Options().Web != nil
+}
+
+// RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
+func (s *service) AutoStart() bool {
+	ctx := s.Options().Context
+	return s.Options().AutoStart || servicecontext.GetConfig(ctx).Bool("autostart")
 }
 
 // RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.

@@ -66,7 +66,6 @@ func WithMicroChildrenRunner(parentName string, childrenPrefix string, cleanEndp
 		)
 		return runner.Watch(m.Options().Context)
 	})
-
 }
 
 // NewChildrenRunner creates a ChildrenRunner

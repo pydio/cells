@@ -54,6 +54,7 @@ func init() {
 			service.Source(datasource),
 			service.Fork(true),
 			service.Unique(true),
+			service.AutoStart(false),
 			service.WithMicro(func(m micro.Service) error {
 				s := m.Options().Server
 				serviceName := s.Options().Metadata["source"]

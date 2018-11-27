@@ -57,6 +57,7 @@ type Service interface {
 	RequiresFork() bool
 	ForkStart()
 	MustBeUnique() bool
+	AutoStart() bool
 
 	MatchesRegexp(string) bool
 
