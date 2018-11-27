@@ -80,6 +80,18 @@
   "ds.editor.legend.s3.2": {
     "other": "Utiliser les clés d'API pour l'authentification, laisser l'URL vide pour AmazonS3, ou entrer une URL pour un stockage déployé sur-site."
   },
+  "ds.editor.storage.legend.fs": {
+    "other": "Parcourir les données d’un système de fichiers local ou d'un répertoire réseau. La Peer Address est un nœud où Cells est en cours d’exécution. Le dernier dossier du chemin doit être en minuscule et son parent doit être accessible en écriture."
+  },
+  "ds.editor.storage.legend.s3": {
+    "other": "Parcourir les données d’un compartiment Amazon S3 ou d’un stockage S3-compatible."
+  },
+  "ds.editor.storage.legend.azure": {
+    "other": "Parcourir les données d'un compartiment de stockage Azure Blob Storage."
+  },
+  "ds.editor.storage.legend.gcs": {
+    "other": "Parcourir les données un compartiment de Google Cloud Storage."
+  },
   "ds.editor.new": {
     "other": "Nouvelle Datasource"
   },
@@ -119,6 +131,21 @@
   "ds.editor.storage.fs.macos": {
     "other": "Le système d'exploitation est Mac OSX"
   },
+  "ds.editor.storage.azure.api": {
+    "other": "Nom du compte Azure"
+  },
+  "ds.editor.storage.azure.secret": {
+    "other": "Clé secrète d’Azure"
+  },
+  "ds.editor.storage.azure.bucket": {
+    "other": "Nom du compartiment"
+  },
+  "ds.editor.storage.gcs.credentials": {
+    "other": "Coller le contenu du fichier d’identification GCS en JSON (credentials.json)"
+  },
+  "ds.editor.storage.gcs.bucket": {
+    "other": "Nom du compartiment"
+  },
   "ds.editor.storage.s3.api": {
     "other": "Clé d'API s3"
   },
@@ -127,6 +154,9 @@
   },
   "ds.editor.storage.s3.endpoint": {
     "other": "URL de stockage personnalisée"
+  },
+  "ds.editor.storage.s3.endpoint.hint": {
+    "other": "Laissez vide pour Amazon S3"
   },
   "ds.editor.storage.s3.path": {
     "other": "Chemin interne"
@@ -241,6 +271,12 @@
   },
   "ds.storage.s3": {
     "other": "Stockage compatible S3"
+  },
+  "ds.storage.azure": {
+    "other": "Azure Blob Storage"
+  },
+  "ds.storage.gcs": {
+    "other": "Google Cloud Storage"
   },
   "ds.storage.title": {
     "other": "Stockage"

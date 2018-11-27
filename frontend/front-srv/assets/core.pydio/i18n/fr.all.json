@@ -2212,5 +2212,11 @@
   },
   "overlay.bookmark.folder": {
     "other": "Répertoire favori"
+  },
+  "mkfile.empty.template.label": {
+    "other": "Fichier vide"
+  },
+  "mkfile.untitled.document": {
+    "other": "Document sans titre"
   }
 }
