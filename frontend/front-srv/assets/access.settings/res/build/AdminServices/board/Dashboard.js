@@ -104,7 +104,7 @@ exports['default'] = _react2['default'].createClass({
             _react2['default'].createElement(_materialUi.Toggle, { label: m('toggle.details'), toggled: details, onToggle: this.onDetailsChange, labelPosition: "right", style: { width: 150 } }),
             peers.length && _react2['default'].createElement(
                 _materialUi.DropDownMenu,
-                { style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: peerFilter, onChange: this.onPeerFilterChange },
+                { className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: peerFilter, onChange: this.onPeerFilterChange },
                 _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: 'Select Peer Node' }),
                 peers.map(function (peer) {
                     return _react2['default'].createElement(_materialUi.MenuItem, { value: peer, primaryText: peer });
@@ -112,7 +112,7 @@ exports['default'] = _react2['default'].createClass({
             ),
             _react2['default'].createElement(
                 _materialUi.DropDownMenu,
-                { style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: filter, onChange: this.onFilterChange },
+                { className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: filter, onChange: this.onFilterChange },
                 _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('filter.nofilter') }),
                 _react2['default'].createElement(_materialUi.MenuItem, { value: 'STARTED', primaryText: m('filter.started') }),
                 _react2['default'].createElement(_materialUi.MenuItem, { value: 'STOPPED', primaryText: m('filter.stopped') })

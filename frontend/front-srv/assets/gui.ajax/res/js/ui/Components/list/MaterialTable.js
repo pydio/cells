@@ -62,7 +62,7 @@ class MaterialTable extends React.Component{
                     ...model.style
                 };
                 return (
-                    <TableRow>
+                    <TableRow className={"media-small-hide"}>
                         <TableRowColumn colSpan={columns.length} style={headerStyle}>
                             {model.Subheader}
                         </TableRowColumn>
@@ -78,13 +78,13 @@ class MaterialTable extends React.Component{
                         } else if (column.renderCell) {
                             value = column.renderCell(model);
                         }
-                        return <TableRowColumn style={column.style||{}} title={value}>{value}</TableRowColumn>
+                        return <TableRowColumn style={column.style||{}} title={value} className={column.hideSmall?'media-small-hide':null}>{value}</TableRowColumn>
                     })}
                 </TableRow>
             );
         });
         const headers = columns.map((column) => {
-            return <TableHeaderColumn style={column.headerStyle||{}}>{column.label}</TableHeaderColumn>
+            return <TableHeaderColumn style={column.headerStyle||{}} className={column.hideSmall?'media-small-hide':null}>{column.label}</TableHeaderColumn>
         });
         if(emptyStateString && !rows.length){
             showCheckboxes = false;
@@ -98,7 +98,7 @@ class MaterialTable extends React.Component{
                 <TableRow style={{borderBottom:'none', height:0}}>{
                     columns.map(col => {
                         const s = col.style || {};
-                        return <TableRowColumn style={{...s, height: 0}}/>
+                        return <TableRowColumn style={{...s, height: 0}} className={col.hideSmall?'media-small-hide':null}/>
                     })
                 }</TableRow>
             );

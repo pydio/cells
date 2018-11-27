@@ -301,11 +301,11 @@ var DataSourcesBoard = (function (_React$Component) {
                             break;
                     }
                     return m(s);
-                } }, { name: 'Status', label: m('status'), renderCell: function renderCell(row) {
+                } }, { name: 'Status', label: m('status'), hideSmall: true, renderCell: function renderCell(row) {
                     return row.Disabled ? m('status.disabled') : _this3.computeStatus(row);
-                } }, { name: 'EncryptionMode', label: m('encryption'), renderCell: function renderCell(row) {
+                } }, { name: 'EncryptionMode', label: m('encryption'), hideSmall: true, renderCell: function renderCell(row) {
                     return row['EncryptionMode'] === 'MASTER' ? pydio.MessageHash['440'] : pydio.MessageHash['441'];
-                } }, { name: 'VersioningPolicyName', label: m('versioning'), renderCell: function renderCell(row) {
+                } }, { name: 'VersioningPolicyName', label: m('versioning'), hideSmall: true, renderCell: function renderCell(row) {
                     var pol = versioningPolicies.find(function (obj) {
                         return obj.Uuid === row['VersioningPolicyName'];
                     });
@@ -323,7 +323,7 @@ var DataSourcesBoard = (function (_React$Component) {
                         _this3.openVersionPolicy();
                     } }));
             }
-            var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: '20%', fontSize: 15 }, headerStyle: { width: '20%' } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', label: m('versioning.periods'), renderCell: function renderCell(row) {
+            var policiesColumns = [{ name: 'Name', label: m('versioning.name'), style: { width: 180, fontSize: 15 }, headerStyle: { width: 180 } }, { name: 'Description', label: m('versioning.description') }, { name: 'KeepPeriods', hideSmall: true, label: m('versioning.periods'), renderCell: function renderCell(row) {
                     return _react2['default'].createElement(_editorVersionPolicyPeriods2['default'], { rendering: 'short', periods: row.KeepPeriods, pydio: pydio });
                 } }];
 

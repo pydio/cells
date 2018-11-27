@@ -233,10 +233,10 @@ var LogBoard = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'u',
                                     null,
-                                    pydio.MessageHash['ajxp_admin.sys.note']
+                                    pydio.MessageHash['ajxp_admin.logs.sys.note']
                                 ),
                                 ' ',
-                                pydio.MessageHash['ajxp_admin.sys.note.content']
+                                pydio.MessageHash['ajxp_admin.logs.sys.note.content']
                             )
                         )
                     )
@@ -781,9 +781,9 @@ var LogTable = (function (_React$Component) {
                         );
                     }
                     return dateString;
-                }, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Logger', label: MessageHash['ajxp_admin.logs.service'], renderCell: function renderCell(row) {
+                }, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Logger', label: MessageHash['ajxp_admin.logs.service'], hideSmall: true, renderCell: function renderCell(row) {
                     return row['Logger'] ? row['Logger'].replace('pydio.', '') : '';
-                }, style: { width: 110, padding: '12px 0' }, headerStyle: { width: 110, padding: '12px 0' } }, { name: 'UserName', label: pydio.MessageHash["settings.20"], style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Msg', label: MessageHash['ajxp_admin.logs.message'] }];
+                }, style: { width: 110, padding: '12px 0' }, headerStyle: { width: 110, padding: '12px 0' } }, { name: 'UserName', label: pydio.MessageHash["settings.20"], hideSmall: true, style: { width: 100, padding: 12 }, headerStyle: { width: 100, padding: 12 } }, { name: 'Msg', label: MessageHash['ajxp_admin.logs.message'] }];
 
             return _react2['default'].createElement(MaterialTable, {
                 data: logs,

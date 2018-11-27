@@ -150,7 +150,7 @@ class LogBoard extends React.Component {
                             {mainContent}
                             {(!service || service === 'syslog') &&
                                 <div style={{padding: '0 26px', color: '#9e9e9e', fontWeight: 500}}>
-                                    <u>{pydio.MessageHash['ajxp_admin.sys.note']}</u> {pydio.MessageHash['ajxp_admin.sys.note.content']}
+                                    <u>{pydio.MessageHash['ajxp_admin.logs.sys.note']}</u> {pydio.MessageHash['ajxp_admin.logs.sys.note.content']}
                                 </div>
                             }
                         </div>

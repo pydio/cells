@@ -174,18 +174,21 @@ const Dashboard = React.createClass({
                 label:m('job.owner'),
                 style:{width:'15%'},
                 headerStyle:{width:'15%'},
+                hideSmall: true
             },
             {
                 name:'Trigger',
                 label:m('job.trigger'),
                 style:{width:'15%'},
                 headerStyle:{width:'15%'},
+                hideSmall: true
             },
             {
                 name:'TaskEndTime',
                 label:this.context.getMessage('14', 'action.scheduler'),
                 style:{width:'15%'},
                 headerStyle:{width:'15%'},
+                hideSmall: true
             },
             {
                 name:'TaskStatus',

@@ -232,10 +232,10 @@ var LogBoard = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'u',
                                     null,
-                                    pydio.MessageHash['ajxp_admin.sys.note']
+                                    pydio.MessageHash['ajxp_admin.logs.sys.note']
                                 ),
                                 ' ',
-                                pydio.MessageHash['ajxp_admin.sys.note.content']
+                                pydio.MessageHash['ajxp_admin.logs.sys.note.content']
                             )
                         )
                     )

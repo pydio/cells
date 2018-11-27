@@ -224,7 +224,7 @@ var JobBoard = (function (_React$Component2) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
             };
 
-            var keys = [{ name: 'ID', label: m('task.id') }, { name: 'StartTime', label: m('task.start'), useMoment: true }, { name: 'EndTime', label: m('task.end'), useMoment: true }, { name: 'Status', label: m('task.status') }, { name: 'StatusMessage', label: m('task.message'), style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
+            var keys = [{ name: 'ID', label: m('task.id'), hideSmall: true }, { name: 'StartTime', label: m('task.start'), useMoment: true }, { name: 'EndTime', label: m('task.end'), useMoment: true, hideSmall: true }, { name: 'Status', label: m('task.status') }, { name: 'StatusMessage', label: m('task.message'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
                     if (row.Status === 'Error') return _react2['default'].createElement(
                         'span',
                         { style: { fontWeight: 500, color: '#E53935' } },

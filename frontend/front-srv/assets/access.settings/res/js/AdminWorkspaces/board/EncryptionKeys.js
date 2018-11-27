@@ -128,9 +128,9 @@ class EncryptionKeys extends React.Component{
 
         const columns = [
             {name:'Label', label: m('key.label'), style:{width:'30%', fontSize:15}, headerStyle:{width:'30%'}},
-            {name:'ID', label: m('key.id')},
-            {name:'Owner', label: m('key.owner')},
-            {name:'CreationDate', label: m('key.created'), renderCell:(row) => new Date(row.CreationDate*1000).toUTCString()},
+            {name:'ID', label: m('key.id'), hideSmall:true},
+            {name:'Owner', label: m('key.owner'), hideSmall:true},
+            {name:'CreationDate', label: m('key.created'), hideSmall:true, renderCell:(row) => new Date(row.CreationDate*1000).toUTCString()},
             {name:'Actions', label:'', style:{width:160, textAlign:'right', overflow:'visible'}, headerStyle:{width:'160'}, renderCell:(row => {
                 return (
                     <div>
