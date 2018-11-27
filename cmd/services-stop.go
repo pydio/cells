@@ -22,14 +22,14 @@ package cmd
 
 import (
 	"context"
+	"log"
 	"strings"
-	"sync"
 
-	"github.com/micro/go-micro"
+	micro "github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/service/proto"
+	proto "github.com/pydio/cells/common/service/proto"
 	"github.com/spf13/cobra"
 )
 
@@ -47,25 +47,16 @@ var stopCmd = &cobra.Command{
 			return
 		}
 
-		var wg sync.WaitGroup
-
-		background := context.Background()
-		servicesToStop := []string{}
-
 		for _, srv := range allServices {
-
-			name := srv.Name()
-			tags := srv.Tags()
-
 			if len(args) > 0 {
 				found := false
 				for _, arg := range args {
-					for _, t := range tags {
+					for _, t := range srv.Tags() {
 						if filterStopTag != "" && t != filterStopTag {
 							continue
 						}
 					}
-					if strings.HasPrefix(name, arg) {
+					if strings.HasPrefix(srv.Name(), arg) {
 						found = true
 						break
 					}
@@ -74,27 +65,22 @@ var stopCmd = &cobra.Command{
 				if !found {
 					continue
 				}
-				servicesToStop = append(servicesToStop, name)
+
+				req := new(proto.StopEvent)
+				req.ServiceName = srv.Name()
+
+				p := micro.NewPublisher(common.TOPIC_SERVICE_STOP, defaults.NewClient())
+				p.Publish(context.Background(), req)
+			} else {
+				req := new(proto.StopEvent)
+				req.ServiceName = srv.Name()
+
+				p := micro.NewPublisher(common.TOPIC_SERVICE_STOP, defaults.NewClient())
+				if err := p.Publish(context.Background(), req); err != nil {
+					log.Fatal(err)
+				}
 			}
 		}
-
-		if len(servicesToStop) > 0 {
-
-			ctx, done := context.WithCancel(context.Background())
-			oneSrv := micro.NewService(micro.Context(ctx))
-			oneSrv.Init(micro.AfterStart(func() error {
-				defer done()
-				for _, srvName := range servicesToStop {
-					log.Logger(oneSrv.Options().Context).Info("Sending Stop Event to " + srvName)
-					oneSrv.Client().Publish(background, oneSrv.Client().NewPublication(common.TOPIC_SERVICE_STOP, &service.StopEvent{ServiceName: srvName}))
-				}
-				return nil
-			}), micro.Context(ctx))
-			oneSrv.Run()
-
-		}
-
-		wg.Wait()
 	},
 }
 

@@ -21,24 +21,63 @@
 package consul
 
 import (
-	"github.com/micro/go-micro/broker"
-	"github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/transport"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/defaults"
+	"context"
+
+	"github.com/hashicorp/consul/agent"
+	"github.com/hashicorp/consul/agent/config"
+	"github.com/pydio/cells/cmd"
+	"github.com/pydio/cells/common/log"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
-func prerun(s service.Service) error {
-	c := config.Get("cert", "grpc", "certFile").String("")
-	k := config.Get("cert", "grpc", "keyFile").String("")
+var (
+	defaultConfig = `{
+      "bootstrap": true,
+      "data_dir": "/tmp/consul",
+      "server": true
+	}`
+)
 
-	defaults.Init(
-		defaults.WithRegistry(registry.NewRegistry()),
-		defaults.WithBroker(broker.NewBroker()),
-		defaults.WithTransport(transport.NewTransport()),
-		defaults.WithCert(c, k),
-	)
+func init() {
+	flags := cmd.RootCmd.PersistentFlags()
+	flags.String("consul_config", "", "Configuration file for consul")
 
-	return nil
+	viper.BindPFlag("consul_config", flags.Lookup("consul_config"))
+
+	cobra.OnInitialize(run)
+}
+
+func run() {
+
+	reg := viper.GetString("registry")
+
+	if reg == "consul" {
+
+		//create the logwriter
+		runtime := config.DefaultRuntimeConfig(defaultConfig)
+
+		agent, err := agent.New(runtime)
+		if err != nil {
+			log.Fatal("Cannot start consul", zap.Error(err))
+		}
+
+		agent.LogOutput = &logwriter{context.Background()}
+
+		go func() {
+			agent.Start()
+		}()
+	}
+}
+
+type logwriter struct {
+	ctx context.Context
+}
+
+// Write to the lowest context for the standard logwriter
+func (lw *logwriter) Write(p []byte) (n int, err error) {
+	log.Logger(lw.ctx).Info(string(p))
+
+	return len(p), nil
 }

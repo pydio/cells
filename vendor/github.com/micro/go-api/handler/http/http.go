@@ -20,8 +20,10 @@ type httpHandler struct {
 }
 
 func (h *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
 	service, err := h.getService(r)
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(500)
 		return
 	}
@@ -33,6 +35,7 @@ func (h *httpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	rp, err := url.Parse(service)
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(500)
 		return
 	}

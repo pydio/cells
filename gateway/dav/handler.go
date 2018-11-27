@@ -22,7 +22,6 @@ package dav
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/url"
 	"sync"
@@ -50,7 +49,7 @@ func logRequest(handler http.Handler) http.Handler {
 	})
 }
 
-func startHttpServer(ctx context.Context, port int) {
+func newHandler(ctx context.Context) http.Handler {
 
 	router := views.NewStandardRouter(views.RouterOptions{WatchRegistry: true, AuditEvent: true})
 	basicAuthenticator := auth.NewBasicAuthenticator("Pydio WebDAV", time.Duration(20*time.Minute))
@@ -87,6 +86,5 @@ func startHttpServer(ctx context.Context, port int) {
 		},
 	}
 
-	handler := basicAuthenticator.Wrap(logRequest(dav))
-	http.ListenAndServe(fmt.Sprintf(":%d", port), handler)
+	return basicAuthenticator.Wrap(logRequest(dav))
 }

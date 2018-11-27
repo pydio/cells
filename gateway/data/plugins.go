@@ -27,10 +27,10 @@ import (
 	"os"
 
 	"github.com/pydio/cells/common"
-	config2 "github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils"
 	minio "github.com/pydio/minio-srv/cmd"
 	"github.com/pydio/minio-srv/cmd/gateway/pydio"
 	"go.uber.org/zap"
@@ -53,33 +53,32 @@ func (l *logger) Audit(entry interface{}) {
 }
 
 func init() {
+
+	port := utils.GetAvailablePort()
 	service.NewService(
 		service.Name(common.SERVICE_GATEWAY_DATA),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
 		service.RouterDependencies(),
 		service.Description("S3 Gateway to tree service"),
+		service.Port(fmt.Sprintf("%d", port)),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			config := servicecontext.GetConfig(ctx)
 
-			port := config.Int("port", 9020)
 			var certFile, keyFile string
-			if config2.Get("cert", "http", "ssl").Bool(false) {
-				certFile = config2.Get("cert", "http", "certFile").String("")
-				keyFile = config2.Get("cert", "http", "keyFile").String("")
+			if config.Get("cert", "http", "ssl").Bool(false) {
+				certFile = config.Get("cert", "http", "certFile").String("")
+				keyFile = config.Get("cert", "http", "keyFile").String("")
 			}
 
-			ctx, cancel = context.WithCancel(ctx)
+			os.Setenv("MINIO_BROWSER", "off")
+			gw := &pydio.Pydio{}
+			console := &logger{ctx: ctx}
+			go minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), "gateway", "gatewaysecret", console, certFile, keyFile)
 
 			return service.RunnerFunc(func() error {
-					os.Setenv("MINIO_BROWSER", "off")
-					gw := &pydio.Pydio{}
-					console := &logger{ctx: ctx}
-					minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), "gateway", "gatewaysecret", console, certFile, keyFile)
 					return nil
 				}), service.CheckerFunc(func() error {
 					return nil
 				}), service.StopperFunc(func() error {
-					cancel()
 					return nil
 				}), nil
 		}),

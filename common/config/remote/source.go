@@ -34,7 +34,6 @@ import (
 	"fmt"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/service/defaults"
 	"github.com/pydio/go-os/config/proto"
 )
 
@@ -43,7 +42,7 @@ type remotesource struct {
 }
 
 func (s *remotesource) Read() (*config.ChangeSet, error) {
-	cli := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
+	cli := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, nil)
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	rsp, err := cli.Read(ctx, &proto.ReadRequest{
 		Id: s.opts.Name,
@@ -64,7 +63,7 @@ func (s *remotesource) String() string {
 }
 
 func (s *remotesource) Watch() (config.SourceWatcher, error) {
-	cli := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
+	cli := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, nil)
 	stream, err := cli.Watch(context.Background(), &proto.WatchRequest{
 		Id: s.opts.Name,
 	})
@@ -114,7 +113,7 @@ func (w *sourceWatcher) Stop() error {
 // UpdateRemote sends an Update request to a remote Config Service
 func UpdateRemote(configId string, val interface{}, path ...string) error {
 
-	cl := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
+	cl := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, nil)
 	data, _ := json.Marshal(val)
 	hasher := md5.New()
 	hasher.Write(data)
@@ -139,7 +138,7 @@ func UpdateRemote(configId string, val interface{}, path ...string) error {
 
 // DeleteRemote sends an Delete request to a remote Config Service
 func DeleteRemote(configId string, path ...string) error {
-	cl := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
+	cl := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, nil)
 
 	_, e := cl.Delete(context.Background(), &proto.DeleteRequest{
 		Change: &proto.Change{

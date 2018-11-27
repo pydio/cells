@@ -9,7 +9,6 @@ import (
 	"github.com/coreos/dex/storage"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
-	sqlite3 "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
 )
 
@@ -49,11 +48,12 @@ func (s *SQLite3) open(logger logrus.FieldLogger) (*conn, error) {
 	}
 
 	errCheck := func(err error) bool {
-		sqlErr, ok := err.(sqlite3.Error)
+		return false
+		/*sqlErr, ok := err.(sqlite3.Error)
 		if !ok {
 			return false
 		}
-		return sqlErr.ExtendedCode == sqlite3.ErrConstraintPrimaryKey
+		return sqlErr.ExtendedCode == sqlite3.ErrConstraintPrimaryKey*/
 	}
 
 	c := &conn{db, flavorSQLite3, logger, errCheck}
@@ -164,7 +164,7 @@ func (s *MySQL) Open(logger logrus.FieldLogger) (storage.Storage, error) {
 	return conn, nil
 }
 
-func (s *MySQL) open(logger logrus.FieldLogger) (*conn, error) {		
+func (s *MySQL) open(logger logrus.FieldLogger) (*conn, error) {
 	dexDSN, err := mysql.ParseDSN(s.DSN)
 	if err != nil {
 

@@ -31,7 +31,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/service/defaults"
+	"github.com/pydio/cells/common/micro"
 )
 
 var (
