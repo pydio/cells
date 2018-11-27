@@ -4373,10 +4373,42 @@
             "returns": null
           },
           {
+            "name": "onPeerFilterChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "index",
+                "type": null
+              },
+              {
+                "name": "value",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "reloadList",
             "docblock": null,
             "modifiers": [],
             "params": [],
+            "returns": null
+          },
+          {
+            "name": "onUpdatePeers",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "peers",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ],
@@ -4561,9 +4593,23 @@
             "required": false,
             "description": ""
           },
+          "peerFilter": {
+            "type": {
+              "name": "string"
+            },
+            "required": false,
+            "description": ""
+          },
           "details": {
             "type": {
               "name": "bool"
+            },
+            "required": false,
+            "description": ""
+          },
+          "onUpdatePeers": {
+            "type": {
+              "name": "func"
             },
             "required": false,
             "description": ""
@@ -5172,6 +5218,31 @@
           },
           {
             "name": "onPathChange",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "newValue",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "AdminWorkspaces/editor/DsStorageSelector.js": [
+      {
+        "description": "",
+        "displayName": "DsStorageType",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "DsStorageSelector",
+        "methods": [
+          {
+            "name": "onChange",
             "docblock": null,
             "modifiers": [],
             "params": [
@@ -8697,7 +8768,25 @@
             "description": null
           },
           {
+            "name": "getMultipartThreshold",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "getMultipartPartSize",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "getMultipartPartQueueSize",
             "docblock": null,
             "modifiers": [
               "static"
@@ -37195,7 +37284,12 @@
             "name": "closeDrawer",
             "docblock": null,
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ],
@@ -38316,7 +38410,12 @@
             "name": "closeDrawer",
             "docblock": null,
             "modifiers": [],
-            "params": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
             "returns": null
           }
         ]
