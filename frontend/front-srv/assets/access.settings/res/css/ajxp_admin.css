@@ -1548,9 +1548,12 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
     top: 0;
   }
   .react-mui-context .edit-object-user .avatar-provider .form-entry-image .file-dropzone {
-    width: 60px !important;
-    height: 60px !important;
+    width: 56px !important;
+    height: 56px !important;
     border-right: 0;
+    margin-top: 2px;
+    margin-left: 2px;
+    border-radius: 5px;
   }
   .react-mui-context .edit-object-user .avatar-provider .form-entry-image .binary-remove-button {
     zoom: 0.7;
