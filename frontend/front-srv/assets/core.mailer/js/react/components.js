@@ -167,6 +167,8 @@ class Email {
 
         Promise.all(proms).then(() => {
             callback(true);
+        }).catch(e => {
+            callback(false);
         });
 
     }
@@ -184,7 +186,8 @@ class Pane extends React.Component {
             users:this.props.users || {},
             subject:this.props.subject,
             message:this.props.message,
-            errorMessage:null
+            errorMessage:null,
+            posting: false,
         };
     }
 
@@ -239,10 +242,13 @@ class Pane extends React.Component {
         }
         const {link, templateId, templateData} = this.props;
         const callback = (res) => {
+            this.setState({posting: false});
             if(res) {
                 this.props.onDismiss();
             }
         };
+        this.setState({posting: true});
+
         if(this.props.processPost){
             this.props.processPost(Email, users, subject, message, link, callback);
             return;
@@ -259,15 +265,17 @@ class Pane extends React.Component {
     }
 
     render(){
+        const {users, posting, errorMessage, subject, message} = this.state;
+
         const className = [this.props.className, "react-mailer", "reset-pydio-forms"].join(" ");
-        const users = Object.keys(this.state.users).map(function(uId){
+        const usersChips = Object.keys(users).map(function(uId){
             return (
-                <UserChip key={uId} user={this.state.users[uId]} onRemove={()=>{this.removeUser(uId)}}/>
+                <UserChip key={uId} user={users[uId]} onRemove={()=>{this.removeUser(uId)}}/>
             );
         }.bind(this));
         let errorDiv;
-        if(this.state.errorMessage){
-            errorDiv = <div style={{padding: '10px 20px', color: 'red'}}>{this.state.errorMessage}</div>
+        if(errorMessage){
+            errorDiv = <div style={{padding: '10px 20px', color: 'red'}}>{errorMessage}</div>
         }
         const style = {
             margin:this.props.uniqueUserStyle ? 0 : 8,
@@ -287,19 +295,19 @@ class Pane extends React.Component {
                             existingOnly={true}
                             freeValueAllowed={true}
                             onValueSelected={this.addUser.bind(this)}
-                            excludes={Object.keys(this.state.users)}
+                            excludes={Object.keys(users)}
                             renderSuggestion={(userObject) => <DestBadge user={userObject}/> }
                             pydio={pydio}
                             showAddressBook={this.props.showAddressBook}
                             underlineHide={true}
                         />
-                        <div style={styles.wrapper}>{users}</div>
+                        <div style={styles.wrapper}>{usersChips}</div>
                     </div>
                 }
                 {!this.props.uniqueUserStyle && <Divider/>}
                 {!this.props.templateId &&
                     <div  style={{padding:'0 20px'}}>
-                        <TextField fullWidth={true} underlineShow={false} floatingLabelText={this.getMessage('6')} value={this.state.subject} onChange={this.updateSubject.bind(this)}/>
+                        <TextField fullWidth={true} underlineShow={false} floatingLabelText={this.getMessage('6')} value={subject} onChange={this.updateSubject.bind(this)}/>
                     </div>
                 }
                 {!this.props.templateId &&
@@ -310,7 +318,7 @@ class Pane extends React.Component {
                         fullWidth={true}
                         underlineShow={false}
                         floatingLabelText={this.getMessage('7')}
-                        value={this.state.message}
+                        value={message}
                         multiLine={true}
                         onChange={this.updateMessage.bind(this)}
                         rowsMax={6}
@@ -320,7 +328,7 @@ class Pane extends React.Component {
                 <Divider/>
                 <div style={{textAlign:'right', padding: '8px 20px'}}>
                     <FlatButton label={this.getMessage('54', '')} onTouchTap={this.props.onDismiss}/>
-                    <FlatButton primary={true} label={this.getMessage('77', '')} onTouchTap={(e)=>this.postEmail()}/>
+                    <FlatButton disabled={posting} primary={true} label={this.getMessage('77', '')} onTouchTap={(e)=>this.postEmail()}/>
                 </div>
             </Paper>
         );
