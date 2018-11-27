@@ -233,7 +233,7 @@ const Dashboard = React.createClass({
                             columns={keys}
                             onSelectRows={(rows)=>{this.selectRows(rows)}}
                             showCheckboxes={false}
-                            emptyStateString={loading ? this.context.getMessage('33') : m('system.empty')}
+                            emptyStateString={loading ? this.context.getMessage('466', '') : m('system.empty')}
                         />
                     </Paper>
                     <AdminComponents.SubHeader

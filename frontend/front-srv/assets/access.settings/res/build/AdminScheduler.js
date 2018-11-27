@@ -321,7 +321,7 @@ var Dashboard = _react2['default'].createClass({
                             _this4.selectRows(rows);
                         },
                         showCheckboxes: false,
-                        emptyStateString: loading ? this.context.getMessage('33') : m('system.empty')
+                        emptyStateString: loading ? this.context.getMessage('466', '') : m('system.empty')
                     })
                 ),
                 _react2['default'].createElement(AdminComponents.SubHeader, {
