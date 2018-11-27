@@ -81,6 +81,13 @@ module.exports = function(grunt) {
                 dest: 'res/build/',
                 ext: '.js.gz'
             },
+            css: {
+                expand: true,
+                cwd: 'res/css/',
+                src: ['*.css'],
+                dest: 'res/css/',
+                ext: '.css.gz'
+            }
         },
         less: {
             development: {
@@ -169,8 +176,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('assemble-less');
-    grunt.registerTask('default', ['babel:dist', 'browserify:ui', 'less', 'compress:all']);
+    grunt.registerTask('default', ['babel:dist', 'browserify:ui', 'less', 'compress:all', 'compress:css']);
     grunt.registerTask('type:js', ['babel:dist', 'browserify:ui', 'compress:all']);
-    grunt.registerTask('type:css', ['less']);
+    grunt.registerTask('type:css', ['less', 'compress:css']);
 
 };

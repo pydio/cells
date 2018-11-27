@@ -135,11 +135,11 @@ class JobBoard extends React.Component {
         const m = (id) => pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
 
         const keys = [
-            {name:'ID', label:m('task.id')},
+            {name:'ID', label:m('task.id'), hideSmall: true},
             {name:'StartTime', label:m('task.start'), useMoment:true},
-            {name:'EndTime', label:m('task.end'), useMoment:true},
+            {name:'EndTime', label:m('task.end'), useMoment:true, hideSmall: true},
             {name:'Status', label:m('task.status')},
-            {name:'StatusMessage', label:m('task.message'), style:{width: '25%'}, headerStyle:{width:'25%'}, renderCell:(row)=>{
+            {name:'StatusMessage', label:m('task.message'), hideSmall: true, style:{width: '25%'}, headerStyle:{width:'25%'}, renderCell:(row)=>{
                 if(row.Status === 'Error') return <span style={{fontWeight: 500, color: '#E53935'}}>{row.StatusMessage}</span>;
                 else return row.StatusMessage;
             }},

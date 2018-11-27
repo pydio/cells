@@ -241,17 +241,20 @@ var Dashboard = _react2['default'].createClass({
             name: 'Owner',
             label: m('job.owner'),
             style: { width: '15%' },
-            headerStyle: { width: '15%' }
+            headerStyle: { width: '15%' },
+            hideSmall: true
         }, {
             name: 'Trigger',
             label: m('job.trigger'),
             style: { width: '15%' },
-            headerStyle: { width: '15%' }
+            headerStyle: { width: '15%' },
+            hideSmall: true
         }, {
             name: 'TaskEndTime',
             label: this.context.getMessage('14', 'action.scheduler'),
             style: { width: '15%' },
-            headerStyle: { width: '15%' }
+            headerStyle: { width: '15%' },
+            hideSmall: true
         }, {
             name: 'TaskStatus',
             label: this.context.getMessage('13', 'action.scheduler')
@@ -320,7 +323,7 @@ var Dashboard = _react2['default'].createClass({
                             _this4.selectRows(rows);
                         },
                         showCheckboxes: false,
-                        emptyStateString: loading ? this.context.getMessage('33') : m('system.empty')
+                        emptyStateString: loading ? this.context.getMessage('466', '') : m('system.empty')
                     })
                 ),
                 _react2['default'].createElement(AdminComponents.SubHeader, {

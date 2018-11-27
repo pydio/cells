@@ -58,7 +58,7 @@ func (gm *Smtp) Configure(conf config.Map) error {
 		gm.Port = int(portConf.(float64))
 	}
 
-	log.Logger(context.Background()).Debug("SMTP Configured", zap.String("u", gm.User), zap.String("h", gm.Host), zap.Int("p", gm.Port))
+	log.Logger(context.Background()).Debug("SMTP Configured", zap.String("user", gm.User), zap.String("host", gm.Host), zap.Int("port", gm.Port))
 
 	return nil
 }

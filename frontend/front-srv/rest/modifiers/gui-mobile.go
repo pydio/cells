@@ -6,7 +6,6 @@ import (
 
 	"github.com/mssola/user_agent"
 
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service/frontend"
 )
 
@@ -27,7 +26,6 @@ func MobileRegModifier(ctx context.Context, status frontend.RequestStatus, plugi
 	}
 	p := plugin.(*frontend.Cplugin)
 	if mobileAgent {
-		log.Logger(req.Context()).Info("Enable gui.mobile plugin!")
 		p.Attrenabled = "true"
 	} else {
 		p.Attrenabled = "false"

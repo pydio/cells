@@ -96,8 +96,8 @@ export default React.createClass({
 
         const columns = [
             {name:'label', label: s('8'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
-            {name:'description', label: s('103'), style:{width:'30%'}, headerStyle:{width:'30%'}},
-            {name:'summary', label: m('ws.board.summary'), style:{width:'30%'}, headerStyle:{width:'30%'}},
+            {name:'description', label: s('103'), hideSmall:true, style:{width:'30%'}, headerStyle:{width:'30%'}},
+            {name:'summary', label: m('ws.board.summary'), hideSmall:true, style:{width:'30%'}, headerStyle:{width:'30%'}},
             {name:'slug', label: m('ws.5'), style:{width:'20%'}, headerStyle:{width:'20%'}},
         ];
         const {loading} = this.state;

@@ -44,7 +44,10 @@ class Header extends Component{
                 alignItems: 'center'
             },
             title: {
-                fontSize: 20
+                fontSize: 20,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
             },
             legend: {
 

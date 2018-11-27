@@ -8,13 +8,13 @@
 }
 .home-top-logo {
   height: 100px;
-}
-@media only screen and (max-width: 758px) {
-  .home-top-logo {
+  /*
+  @media @screenwidth-medium{
     height: 55px;
     float: right;
     margin-right: 16px;
   }
+  */
 }
 div.user-dashboard-main .admin-helper-panel {
   position: absolute;
@@ -73,15 +73,12 @@ div.user-dashboard-main .home-dashboard {
   }
 }
 div.user-dashboard-main div.react-grid-layout.dashboard-layout .video-card .tutorial_legend {
-  display: -ms-flexbox;
   display: flex;
-  -ms-flex-direction: column;
-      flex-direction: column;
+  flex-direction: column;
   height: 100%;
 }
 div.user-dashboard-main div.react-grid-layout.dashboard-layout .video-card .tutorial_content {
-  -ms-flex: 1;
-      flex: 1;
+  flex: 1;
   padding: 16px;
   position: relative;
   overflow-y: auto;

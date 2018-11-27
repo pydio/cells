@@ -24,6 +24,7 @@ var (
 
 // Vault Config with initialisation
 func Vault() config.Config {
+
 	vaultOnce.Do(func() {
 		if RemoteSource {
 			// loading remoteSource will trigger a call to defaults.NewClient()
@@ -33,7 +34,10 @@ func Vault() config.Config {
 			)}
 			return
 		}
-		appDir := ApplicationDataDir()
+
+		// appDir := ApplicationDataDir()
+		// Rather use same application directory as the one defined in vars.go to enable overriding of default location
+		appDir := PydioConfigDir
 		storePath := filepath.Join(appDir, "pydio-vault.json")
 
 		// Load keyPath from default location or from central config

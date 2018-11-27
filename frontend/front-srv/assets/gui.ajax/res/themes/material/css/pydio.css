@@ -2609,6 +2609,11 @@ body,
     margin-right: 0;
   }
 }
+@media only screen and (max-width: 420px) {
+  .react-mui-context .media-small-hide {
+    display: none !important;
+  }
+}
 .toolbar {
   display: -ms-flexbox;
   display: flex;

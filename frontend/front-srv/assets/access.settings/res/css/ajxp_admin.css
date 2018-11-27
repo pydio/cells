@@ -1510,6 +1510,7 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   height: 200px !important;
   border-radius: 0;
   background-color: #e0e0e0;
+  border-right: 1px solid #e0e0e0;
 }
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image .file-dropzone .icon-camera {
   position: absolute;
@@ -1541,14 +1542,21 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
 @media only screen and (max-width: 720px) {
   .react-mui-context .edit-object-user .paper-editor-title h2 {
     text-align: left !important;
-    padding-left: 120px !important;
+    padding-left: 70px !important;
   }
   .react-mui-context .edit-object-user .avatar-provider .form-entry-image {
     top: 0;
   }
   .react-mui-context .edit-object-user .avatar-provider .form-entry-image .file-dropzone {
-    width: 103px !important;
-    height: 103px !important;
+    width: 56px !important;
+    height: 56px !important;
+    border-right: 0;
+    margin-top: 2px;
+    margin-left: 2px;
+    border-radius: 5px;
+  }
+  .react-mui-context .edit-object-user .avatar-provider .form-entry-image .binary-remove-button {
+    zoom: 0.7;
   }
   .react-mui-context .edit-object-user .paper-editor-left .mui-subheader:first-child {
     margin-top: 109px !important;

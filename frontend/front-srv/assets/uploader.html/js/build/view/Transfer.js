@@ -165,7 +165,11 @@ var Transfer = function (_React$Component) {
                 label: {
                     fontWeight: isDir ? 500 : 400,
                     color: isPart ? '#9e9e9e' : null,
-                    fontStyle: isPart ? 'italic' : null
+                    fontStyle: isPart ? 'italic' : null,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    flex: 1
                 },
                 pgBar: {
                     width: 80,
@@ -307,10 +311,10 @@ var Transfer = function (_React$Component) {
                     _react2.default.createElement(
                         'span',
                         { onClick: toggleCallback, style: styles.label },
-                        label
+                        label,
+                        ' ',
+                        toggleOpen
                     ),
-                    toggleOpen,
-                    _react2.default.createElement('span', { style: { flex: 1 } }),
                     _react2.default.createElement(
                         'div',
                         { style: styles.pgBar },

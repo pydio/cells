@@ -174,18 +174,21 @@ const Dashboard = React.createClass({
                 label:m('job.owner'),
                 style:{width:'15%'},
                 headerStyle:{width:'15%'},
+                hideSmall: true
             },
             {
                 name:'Trigger',
                 label:m('job.trigger'),
                 style:{width:'15%'},
                 headerStyle:{width:'15%'},
+                hideSmall: true
             },
             {
                 name:'TaskEndTime',
                 label:this.context.getMessage('14', 'action.scheduler'),
                 style:{width:'15%'},
                 headerStyle:{width:'15%'},
+                hideSmall: true
             },
             {
                 name:'TaskStatus',
@@ -233,7 +236,7 @@ const Dashboard = React.createClass({
                             columns={keys}
                             onSelectRows={(rows)=>{this.selectRows(rows)}}
                             showCheckboxes={false}
-                            emptyStateString={loading ? this.context.getMessage('33') : m('system.empty')}
+                            emptyStateString={loading ? this.context.getMessage('466', '') : m('system.empty')}
                         />
                     </Paper>
                     <AdminComponents.SubHeader

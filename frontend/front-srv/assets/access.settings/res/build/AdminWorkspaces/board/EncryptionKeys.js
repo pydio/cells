@@ -186,7 +186,7 @@ var EncryptionKeys = (function (_React$Component) {
             var m = _state.m;
             var pydio = this.props.pydio;
 
-            var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id') }, { name: 'Owner', label: m('key.owner') }, { name: 'CreationDate', label: m('key.created'), renderCell: function renderCell(row) {
+            var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id'), hideSmall: true }, { name: 'Owner', label: m('key.owner'), hideSmall: true }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, renderCell: function renderCell(row) {
                     return new Date(row.CreationDate * 1000).toUTCString();
                 } }, { name: 'Actions', label: '', style: { width: 160, textAlign: 'right', overflow: 'visible' }, headerStyle: { width: '160' }, renderCell: function renderCell(row) {
                     return _react2['default'].createElement(
