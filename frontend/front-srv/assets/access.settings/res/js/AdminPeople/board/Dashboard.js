@@ -90,15 +90,19 @@ let Dashboard = React.createClass({
     renderListEntryFirstLine(node){
         const idmUser = node.getMetadata().get('IdmUser');
         const profile = idmUser.Attributes ? idmUser.Attributes['profile'] : '';
+        let icons = [];
+        const iconStyle = {display:'inline-block',marginLeft:5, fontSize: 14};
+
         if(profile === 'shared') {
-            return node.getLabel() + " ["+this.context.getMessage('user.13')+"]";
+            icons.push(<span className={"mdi mdi-share-variant"} style={{...iconStyle, color:'#009688'}} title={this.context.getMessage('user.13')}/>);
         }else if(profile === "admin"){
-            return (
-                <span>{node.getLabel()} <span className="icon-lock" style={{display:'inline-block',marginRight:5}}></span></span>
-            );
-        }else{
-            return node.getLabel();
+            icons.push(<span className={"mdi mdi-security"} style={{...iconStyle, color:'#03a9f4'}}/>);
         }
+        if(idmUser.Attributes && idmUser.Attributes['locks'] && idmUser.Attributes['locks'].indexOf('logout') > -1){
+            icons.push(<span className={"mdi mdi-lock"} style={{...iconStyle, color:'#E53934'}}/>);
+        }
+
+        return <span>{node.getLabel()} {icons}</span>;
     },
 
     renderListEntrySecondLine(node){
