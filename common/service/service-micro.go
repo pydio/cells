@@ -92,7 +92,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			// newTraceProvider(s.Options().Micro) // DISABLED FOR NOW DUE TO CONFLICT WITH THE MICRO GO OS
 			newClaimsProvider(s.Options().Micro)
 
-			proto.RegisterServiceHandler(s.Options().Micro.Server(), &Handler{s.Options().Micro})
+			proto.RegisterServiceHandler(s.Options().Micro.Server(), &StatusHandler{s.Address()})
 
 			micro.RegisterSubscriber(common.TOPIC_SERVICE_STOP, s.Options().Micro.Server(), &StopHandler{s})
 

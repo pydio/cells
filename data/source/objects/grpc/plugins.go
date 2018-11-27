@@ -53,6 +53,7 @@ func init() {
 			service.Description("S3 Object service for a given datasource"),
 			service.Source(datasource),
 			service.Fork(true),
+			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 				s := m.Options().Server
 				serviceName := s.Options().Metadata["source"]

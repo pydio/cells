@@ -52,10 +52,10 @@ var (
 			transparent
 			insecure_skip_verify
 		}
-		proxy /io   {{.Gateway | urls}} {
+		proxy /io   {{.Gateway | serviceAddress}} {
 			transparent
 		}
-		proxy /data {{.Gateway | urls}} {
+		proxy /data {{.Gateway | serviceAddress}} {
 			transparent
 		}
 		proxy /ws   {{.WebSocket | urls}} {

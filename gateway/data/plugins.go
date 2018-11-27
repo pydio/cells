@@ -24,15 +24,11 @@ package gateway
 import (
 	"context"
 	"fmt"
-	"net/http/httputil"
-	"net/url"
 	"os"
 
-	micro "github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/utils"
 	minio "github.com/pydio/minio-srv/cmd"
@@ -57,26 +53,15 @@ func (l *logger) Audit(entry interface{}) {
 }
 
 func init() {
+
+	port := utils.GetAvailablePort()
 	service.NewService(
 		service.Name(common.SERVICE_GATEWAY_DATA),
 		service.Tag(common.SERVICE_TAG_GATEWAY),
 		service.RouterDependencies(),
 		service.Description("S3 Gateway to tree service"),
+		service.Port(fmt.Sprintf("%d", port)),
 		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-
-			return service.RunnerFunc(func() error {
-
-					return nil
-				}), service.CheckerFunc(func() error {
-					return nil
-				}), service.StopperFunc(func() error {
-					return nil
-				}), nil
-		}, func(s service.Service) (micro.Option, error) {
-			srv := defaults.NewHTTPServer()
-
-			// INIT DEX CONFIG
-			ctx := s.Options().Context
 
 			var certFile, keyFile string
 			if config.Get("cert", "http", "ssl").Bool(false) {
@@ -84,25 +69,18 @@ func init() {
 				keyFile = config.Get("cert", "http", "keyFile").String("")
 			}
 
-			scheme := "http"
-			host := "127.0.0.1"
-			port := utils.GetAvailablePort()
-			url, _ := url.Parse(fmt.Sprintf("%s://%s:%d", scheme, host, port))
-
 			os.Setenv("MINIO_BROWSER", "off")
 			gw := &pydio.Pydio{}
 			console := &logger{ctx: ctx}
 			go minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), "gateway", "gatewaysecret", console, certFile, keyFile)
 
-			proxy := httputil.NewSingleHostReverseProxy(url)
-
-			hd := srv.NewHandler(proxy)
-
-			if err := srv.Handle(hd); err != nil {
-				return nil, err
-			}
-
-			return micro.Server(srv), nil
+			return service.RunnerFunc(func() error {
+					return nil
+				}), service.CheckerFunc(func() error {
+					return nil
+				}), service.StopperFunc(func() error {
+					return nil
+				}), nil
 		}),
 	)
 }

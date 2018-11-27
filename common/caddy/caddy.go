@@ -22,23 +22,28 @@ package caddy
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 	"strings"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mholt/caddy"
 	"github.com/micro/go-micro/registry"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
+	proto "github.com/pydio/cells/common/service/proto"
 	"go.uber.org/zap"
 )
 
 var (
 	mainCaddy = &Caddy{}
 	FuncMap   = template.FuncMap{
-		"urls": internalURLFromServices,
+		"urls":           internalURLFromServices,
+		"serviceAddress": addressFromService,
 	}
 	restartChan chan bool
 )
@@ -207,6 +212,23 @@ func internalURLFromServices(name string, uri ...string) string {
 	}
 
 	return strings.Join(res, " ")
+}
+
+func addressFromService(name string, uri ...string) string {
+
+	c := proto.NewService(name, defaults.NewClient())
+	r, err := c.Status(context.Background(), &empty.Empty{})
+	if err != nil {
+		log.Error("Error ", zap.String("name", name), zap.Error(err))
+		return "NOT_AVAILABLE"
+	}
+
+	if !r.GetOK() {
+		log.Error("Service is not started")
+		return "NOT_AVAILABLE"
+	}
+
+	return r.Address
 }
 
 func peersFromConfig(path []string, def ...string) string {

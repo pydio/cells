@@ -72,6 +72,7 @@ func init() {
 			service.Description("Synchronization service between objects and index for a given datasource"),
 			service.Source(datasource),
 			service.Fork(true),
+			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 
 				m.Init(micro.AfterStart(func() error {
@@ -92,7 +93,7 @@ func init() {
 					// Making sure index is started
 					service.Retry(func() error {
 						log.Logger(ctx).Debug("Sync " + datasource + " - Try to contact Index")
-						c := protoservice.NewServiceClient(registry.GetClient(common.SERVICE_DATA_INDEX_ + datasource))
+						c := protoservice.NewService(registry.GetClient(common.SERVICE_DATA_INDEX_ + datasource))
 						r, err := c.Status(context.Background(), &empty.Empty{})
 						if err != nil {
 							return err

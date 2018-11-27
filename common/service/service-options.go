@@ -56,11 +56,14 @@ type ServiceOptions struct {
 	Prefix     interface{}
 	Migrations []*Migration
 
+	Port string
+
 	Micro micro.Service
 	Web   web.Service
 
 	Dependencies []*dependency
 	Fork         bool
+	Unique       bool
 
 	Registry registry.Registry
 
@@ -157,6 +160,12 @@ func Regexp(r string) ServiceOption {
 	}
 }
 
+func Port(p string) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Port = p
+	}
+}
+
 func WithChecker(c Checker) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Checker = c
@@ -166,6 +175,12 @@ func WithChecker(c Checker) ServiceOption {
 func Fork(b bool) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Fork = b
+	}
+}
+
+func Unique(b bool) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.Unique = b
 	}
 }
 

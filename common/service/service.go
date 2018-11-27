@@ -40,7 +40,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/gyuho/goraph"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
@@ -56,7 +55,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
-	proto "github.com/pydio/cells/common/service/proto"
+
 	"github.com/pydio/cells/common/sql"
 	"github.com/pydio/cells/common/utils"
 )
@@ -257,10 +256,7 @@ func NewService(opts ...ServiceOption) Service {
 		// Adding a check before starting the service to ensure only one is started if unique
 		BeforeStart(func(s Service) error {
 
-			conf := servicecontext.GetConfig(ctx)
-
-			unique := conf.Bool("unique")
-			if unique {
+			if s.MustBeUnique() {
 				runningServices, err := registry.ListRunningServices()
 				if err != nil {
 					return err
@@ -592,6 +588,30 @@ func (s *service) Regexp() *regexp.Regexp {
 	return s.Options().Regexp
 }
 
+func (s *service) Address() string {
+	address := "127.0.0.1:0"
+	port := s.Options().Port
+
+	if m := s.Options().Micro; m != nil {
+		address = m.Server().Options().Address
+	}
+
+	if w := s.Options().Web; w != nil {
+		address = w.Options().Address
+	}
+
+	a, _, err := net.SplitHostPort(address)
+	if err != nil {
+		return address
+	}
+
+	if port != "" {
+		address = net.JoinHostPort(a, port)
+	}
+
+	return address
+}
+
 func (s *service) SetExcluded(ex bool) {
 	s.excluded = ex
 }
@@ -633,6 +653,12 @@ func (s *service) RequiresFork() bool {
 	return s.Options().Fork || servicecontext.GetConfig(ctx).Bool("fork")
 }
 
+// RequiresFork reads config fork=true to decide whether this service starts in a forked process or not.
+func (s *service) MustBeUnique() bool {
+	ctx := s.Options().Context
+	return s.Options().Unique || servicecontext.GetConfig(ctx).Bool("unique")
+}
+
 func (s *service) Client() (string, client.Client) {
 	return s.Options().Micro.Server().Options().Name, s.Options().Micro.Client()
 }
@@ -664,25 +690,3 @@ func (s *service) getContext() context.Context {
 
 // RestHandlerBuilder builds a RestHandler
 type RestHandlerBuilder func(service web.Service, defaultClient client.Client) interface{}
-
-type Handler struct {
-	service micro.Service
-}
-
-// Status of the service - If we reach this point, it means that this micro service is correctly up and running
-func (h *Handler) Status(ctx context.Context, in *empty.Empty, out *proto.StatusResponse) error {
-	out.OK = true
-
-	return nil
-}
-
-type StopHandler struct {
-	s Service
-}
-
-func (s *StopHandler) Process(ctx context.Context, in *proto.StopEvent) error {
-	if s.s.Name() == in.ServiceName {
-		s.s.Stop()
-	}
-	return nil
-}

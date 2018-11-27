@@ -53,6 +53,9 @@ func (m *mockService) Check(context.Context) error {
 func (m *mockService) Name() string {
 	return m.name
 }
+func (m *mockService) Address() string {
+	return ""
+}
 func (m *mockService) Version() string {
 	return ""
 }
@@ -93,6 +96,9 @@ func (m *mockService) RequiresFork() bool {
 	return false
 }
 func (m *mockService) ForkStart() {
+}
+func (m *mockService) MustBeUnique() bool {
+	return false
 }
 func (m *mockService) MatchesRegexp(string) bool {
 	return false

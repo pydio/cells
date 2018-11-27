@@ -29,8 +29,9 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/service/context"
+	proto "github.com/pydio/cells/common/service/proto"
 )
 
 // WithGeneric adds a generic micro service handler to the current service
@@ -108,7 +109,7 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 			newLogProvider(s.Options().Micro)
 
 			// We should actually offer that possibility
-			// proto.RegisterServiceHandler(s.Options().Micro.Server(), &Handler{s.Options().Micro})
+			proto.RegisterServiceHandler(s.Options().Micro.Server(), &StatusHandler{s.Address()})
 
 			return nil
 		}

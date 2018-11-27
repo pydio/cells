@@ -40,6 +40,7 @@ type Service interface {
 	Check(context.Context) error
 
 	Name() string
+	Address() string
 	Regexp() *regexp.Regexp
 	Version() string
 	Description() string
@@ -55,6 +56,7 @@ type Service interface {
 
 	RequiresFork() bool
 	ForkStart()
+	MustBeUnique() bool
 
 	MatchesRegexp(string) bool
 
