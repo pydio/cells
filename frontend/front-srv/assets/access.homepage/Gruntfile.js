@@ -87,6 +87,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('assemble-less');
     grunt.loadNpmTasks('grunt-contrib-compress');
-    grunt.registerTask('default', ['babel', 'browserify', 'compress']);
+    grunt.registerTask('default', ['babel', 'browserify', 'less', 'compress']);
 
 };

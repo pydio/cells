@@ -282,6 +282,7 @@ let Dashboard = React.createClass({
                 style={{margin: '-18px 20px 0'}}
                 limit={50}
                 textLabel={this.context.getMessage('user.7')}
+                className={"media-small-hide"}
             />
         );
 

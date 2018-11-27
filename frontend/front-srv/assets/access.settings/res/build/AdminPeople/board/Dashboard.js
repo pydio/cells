@@ -346,7 +346,8 @@ var Dashboard = _react2['default'].createClass({
             hideResults: this.hideSearchResults,
             style: { margin: '-18px 20px 0' },
             limit: 50,
-            textLabel: this.context.getMessage('user.7')
+            textLabel: this.context.getMessage('user.7'),
+            className: "media-small-hide"
         });
 
         var headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction })];

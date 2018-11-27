@@ -97,7 +97,7 @@ class HomeSearchForm extends Component{
             },
             textField: {flex: 1},
             textInput: {color: 'inherit'},
-            textHint : {color: whiteTransp},
+            textHint : {color: whiteTransp, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '100%'},
             magnifier: {color: whiteTransp, fontSize: 20, padding:'14px 8px'},
             close: {color: whiteTransp, fontSize: 20, padding:'14px 8px', cursor: 'pointer'}
         };

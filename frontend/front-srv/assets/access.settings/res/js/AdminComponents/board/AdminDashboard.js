@@ -274,7 +274,7 @@ let AdminDashboard = React.createClass({
                 dm.requireContextChange(dm.getRootNode());
             }
         } else {
-            leftIcon = "mdi mdi-view-headline";
+            leftIcon = "mdi mdi-menu";
             leftIconClick = () => {
                 this.setState({openLeftNav: !openLeftNav})
             };

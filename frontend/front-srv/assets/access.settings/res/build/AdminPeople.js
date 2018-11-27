@@ -22604,7 +22604,8 @@ var Dashboard = _react2['default'].createClass({
             hideResults: this.hideSearchResults,
             style: { margin: '-18px 20px 0' },
             limit: 50,
-            textLabel: this.context.getMessage('user.7')
+            textLabel: this.context.getMessage('user.7'),
+            className: "media-small-hide"
         });
 
         var headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction })];
@@ -23698,7 +23699,12 @@ var UsersSearchBox = (function (_React$Component) {
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1 } },
-                    _react2['default'].createElement(_materialUi.TextField, { ref: 'query', onKeyDown: this.keyDown.bind(this), floatingLabelText: this.props.textLabel, fullWidth: true })
+                    _react2['default'].createElement(_materialUi.TextField, { ref: 'query',
+                        onKeyDown: this.keyDown.bind(this),
+                        floatingLabelText: this.props.textLabel,
+                        fullWidth: true,
+                        floatingLabelStyle: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }
+                    })
                 ),
                 _react2['default'].createElement(
                     'div',
