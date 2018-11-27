@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	protobuf "github.com/golang/protobuf/proto"
 	"github.com/matcornic/hermes"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
@@ -76,52 +77,54 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 			languages = append(languages, to.Language)
 		}
 		configs := templates.GetApplicationConfig(languages...)
-
-		if mail.From == nil {
-			mail.From = &proto.User{
+		// Clone email and set unique user
+		m := protobuf.Clone(mail).(*proto.Mail)
+		m.To = []*proto.User{to}
+		if m.From == nil {
+			m.From = &proto.User{
 				Address: configs.From,
 				Name:    configs.Title,
 			}
-		} else if mail.From.Address == "" {
-			mail.From.Address = configs.From
+		} else if m.From.Address == "" {
+			m.From.Address = configs.From
 		}
 		he := templates.GetHermes(languages...)
-		if mail.ContentHtml == "" {
+		if m.ContentHtml == "" {
 			var body hermes.Body
-			if mail.TemplateId != "" {
+			if m.TemplateId != "" {
 				var subject string
-				subject, body = templates.BuildTemplateWithId(to, mail.TemplateId, mail.TemplateData, languages...)
-				mail.Subject = subject
-				if mail.ContentMarkdown != "" {
-					body.FreeMarkdown = hermes.Markdown(mail.ContentMarkdown)
+				subject, body = templates.BuildTemplateWithId(to, m.TemplateId, m.TemplateData, languages...)
+				m.Subject = subject
+				if m.ContentMarkdown != "" {
+					body.FreeMarkdown = hermes.Markdown(m.ContentMarkdown)
 				}
 			} else {
-				if mail.ContentMarkdown != "" {
+				if m.ContentMarkdown != "" {
 					body = hermes.Body{
-						FreeMarkdown: hermes.Markdown(mail.ContentMarkdown),
+						FreeMarkdown: hermes.Markdown(m.ContentMarkdown),
 					}
 				} else {
 					body = hermes.Body{
-						Intros: []string{mail.ContentPlain},
+						Intros: []string{m.ContentPlain},
 					}
 				}
 			}
 			hermesMail := hermes.Email{Body: body}
 			var e error
-			mail.ContentHtml, _ = he.GenerateHTML(hermesMail)
-			if mail.ContentPlain, e = he.GenerateHTML(hermesMail); e != nil {
+			m.ContentHtml, _ = he.GenerateHTML(hermesMail)
+			if m.ContentPlain, e = he.GenerateHTML(hermesMail); e != nil {
 				return e
 			}
 		}
 
 		if req.InQueue {
-			log.Logger(ctx).Info("SendMail: pushing email to queue", zap.Any("to", mail.To), zap.Any("from", mail.From), zap.Any("subject", mail.Subject))
-			if e := h.queue.Push(mail); e != nil {
+			log.Logger(ctx).Info("SendMail: pushing email to queue", zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
+			if e := h.queue.Push(m); e != nil {
 				return e
 			}
 		} else {
-			log.Logger(ctx).Info("SendMail: sending email", zap.Any("to", mail.To), zap.Any("from", mail.From), zap.Any("subject", mail.Subject))
-			if e := h.sender.Send(mail); e != nil {
+			log.Logger(ctx).Info("SendMail: sending email", zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
+			if e := h.sender.Send(m); e != nil {
 				return e
 			}
 		}
