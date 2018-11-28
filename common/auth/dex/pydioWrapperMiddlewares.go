@@ -12,8 +12,8 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/utils"
 )
 
@@ -108,7 +108,7 @@ func WrapWithPolicyCheck(middleware WrapperConnectorProvider) WrapperConnectorPr
 		}
 		if resp, err := cli.IsAllowed(ctx, policyRequest); err != nil || resp.Allowed == false {
 			log.Auditer(ctx).Error(
-				"policy denies login to "+user.Login,
+				"Policy denied login to ["+user.Login+"]",
 				log.GetAuditId(common.AUDIT_LOGIN_POLICY_DENIAL),
 				zap.String(common.KEY_USER_UUID, user.Uuid),
 				zap.Any(common.KEY_POLICY_REQUEST, policyRequest),
@@ -135,14 +135,13 @@ func WrapWithUserLocks(middleware WrapperConnectorProvider) WrapperConnectorProv
 
 			// Insure user has not been locked out
 			if utils.IsUserLocked(user) {
-				e := fmt.Errorf("user " + user.Login + " is locked.")
 				log.Auditer(ctx).Error(
-					e.Error(),
+					"Locked user ["+user.Login+"] tried to log in.",
 					log.GetAuditId(common.AUDIT_LOGIN_POLICY_DENIAL),
 					zap.String(common.KEY_USER_UUID, user.Uuid),
 				)
-				log.Logger(ctx).Error("lock denies login for "+user.Login, zap.Error(e))
-				return op, errors.Unauthorized(common.SERVICE_USER, "User "+user.Login+" is not authorized to log in")
+				log.Logger(ctx).Error("lock denies login for "+user.Login, zap.Error(fmt.Errorf("blocked login")))
+				return op, errors.Unauthorized(common.SERVICE_USER, "User "+user.Login+" has been blocked. Contact your sysadmin.")
 			}
 
 			// Reset failed connections
@@ -196,7 +195,7 @@ func WrapWithUserLocks(middleware WrapperConnectorProvider) WrapperConnectorProv
 					locks = append(locks, "logout")
 					data, _ := json.Marshal(locks)
 					u.Attributes["locks"] = string(data)
-					msg := fmt.Sprintf("Locking user %s after %d failed connections", u.GetLogin(), maxFailedLogins)
+					msg := fmt.Sprintf("Locked user [%s] after %d failed connections", u.GetLogin(), maxFailedLogins)
 					log.Logger(ctx).Error(msg, u.ZapLogin())
 					log.Auditer(ctx).Error(
 						msg,
@@ -206,7 +205,7 @@ func WrapWithUserLocks(middleware WrapperConnectorProvider) WrapperConnectorProv
 					)
 				}
 
-				log.Logger(ctx).Debug("[WrapWithUserLocks] Updating user failedConnections", u.ZapLogin())
+				log.Logger(ctx).Debug(fmt.Sprintf("[WrapWithUserLocks] Updating failed connection number for user [%s]", u.GetLogin()), u.ZapLogin())
 				userClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
 				if _, e := userClient.CreateUser(ctx, &idm.CreateUserRequest{User: u}); e != nil {
 					log.Logger(ctx).Error("could not store failedConnection for user", zap.Error(e))

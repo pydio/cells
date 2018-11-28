@@ -95,7 +95,7 @@ func JWTHttpWrapper(h http.Handler) http.Handler {
 				w.Write([]byte("Unauthorized.\n"))
 
 				log.Auditer(c).Error(
-					"invalid jwt",
+					"Blocked invalid JWT",
 					log.GetAuditId(common.AUDIT_INVALID_JWT),
 				)
 

@@ -34,10 +34,10 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/frontend"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
@@ -203,7 +203,7 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 		}
 		if !s.MatchPolicies(ctx, response.User.Uuid, response.User.Policies, service2.ResourcePolicyAction_WRITE) {
 			log.Auditer(ctx).Error(
-				fmt.Sprintf("Error while trying to delete forbidden user %s", response.User.Uuid),
+				fmt.Sprintf("Forbidden action: could not delete user [%s]", response.User.Login),
 				log.GetAuditId(common.AUDIT_USER_DELETE),
 				response.User.ZapUuid(),
 			)
@@ -218,8 +218,12 @@ func (s *UserHandler) DeleteUser(req *restful.Request, rsp *restful.Response) {
 	if e != nil {
 		service.RestError500(req, rsp, e)
 	} else {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("%d users have been deleted", n.RowsDeleted),
+		msg := fmt.Sprintf("Deleted user [%s]", login)
+		if n.RowsDeleted > 1 {
+			msg = fmt.Sprintf("Deleted %d users", n.RowsDeleted)
+		}
+
+		log.Auditer(ctx).Info(msg,
 			log.GetAuditId(common.AUDIT_USER_DELETE),
 		)
 		rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})
@@ -252,7 +256,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		// Check User Policies
 		if !s.MatchPolicies(ctx, update.Uuid, update.Policies, service2.ResourcePolicyAction_WRITE) {
 			log.Auditer(ctx).Error(
-				fmt.Sprintf("Error trying to edit forbidden user %s", update.Uuid),
+				fmt.Sprintf("Forbidden action: could not edit user [%s]", update.GetLogin()),
 				log.GetAuditId(common.AUDIT_USER_UPDATE),
 				update.ZapUuid(),
 			)
@@ -267,8 +271,9 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		rolesToCheck = append(rolesToCheck, removes...)
 		if err := s.checkCanAssignRoles(ctx, rolesToCheck, roleCli); err != nil {
 			log.Auditer(ctx).Error(
-				"Error trying to assign role (forbidden)",
+				fmt.Sprintf("Forbidden action: could not assign roles on [%s]", update.GetLogin()),
 				log.GetAuditId(common.AUDIT_USER_UPDATE),
+				update.ZapUuid(),
 			)
 			service.RestError403(req, rsp, err)
 			return
@@ -383,13 +388,13 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	}
 	if update != nil {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Update user %s", update.Uuid),
+			fmt.Sprintf("Updated user [%s]", update.GetLogin()),
 			log.GetAuditId(common.AUDIT_USER_UPDATE),
 			update.ZapUuid(),
 		)
 	} else {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Create user %s", response.User.Uuid),
+			fmt.Sprintf("Created user [%s]", response.User.GetLogin()),
 			log.GetAuditId(common.AUDIT_USER_CREATE),
 			response.User.ZapUuid(),
 		)
@@ -492,8 +497,11 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 	rolesToCheck = append(rolesToCheck, removes...)
 	if err := s.checkCanAssignRoles(ctx, rolesToCheck, roleCli); err != nil {
 		log.Auditer(ctx).Error(
-			fmt.Sprintf("Error trying to assign role (forbidden) on user %s", update.Uuid),
+			fmt.Sprintf("Forbidden action: could not assign roles to user [%s]", update.GetLogin()),
 			log.GetAuditId(common.AUDIT_USER_UPDATE),
+			zap.Any("rolesToCheck", rolesToCheck),
+			update.ZapUuid(),
+			zap.Any("rolesToCheck", rolesToCheck),
 		)
 		service.RestError403(req, rsp, err)
 		return
@@ -511,9 +519,10 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 		u := response.User
 		u.Roles = update.Roles
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Update user roles %s", response.User.Uuid),
+			fmt.Sprintf("Updated roles on user [%s]", response.User.GetLogin()),
 			log.GetAuditId(common.AUDIT_USER_UPDATE),
 			response.User.ZapUuid(),
+			zap.Any("Roles", u.Roles),
 		)
 		rsp.WriteEntity(u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies)))
 	}

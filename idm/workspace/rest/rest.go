@@ -34,10 +34,10 @@ import (
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	service2 "github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
 )
@@ -127,7 +127,7 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 	h.manageDefaultRights(ctx, u, true, "")
 	rsp.WriteEntity(u)
 	log.Auditer(ctx).Info(
-		fmt.Sprintf("Workspace %s has been saved", u.Slug),
+		fmt.Sprintf("Updated workspace [%s]", u.Slug),
 		log.GetAuditId(common.AUDIT_WS_UPDATE),
 		u.ZapUuid(),
 	)
@@ -159,7 +159,7 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 			}
 			if !h.MatchPolicies(ctx, resp.Workspace.UUID, resp.Workspace.Policies, service.ResourcePolicyAction_WRITE) {
 				log.Auditer(ctx).Error(
-					fmt.Sprintf("Error while trying to delete forbidden workspace %s", slug),
+					fmt.Sprintf("Forbidden action could not delete workspace [%s]", slug),
 					log.GetAuditId(common.AUDIT_WS_DELETE),
 				)
 				service2.RestError403(req, rsp, errors.Forbidden(common.SERVICE_WORKSPACE, "You are not allowed to edit this workspace!"))
@@ -173,7 +173,7 @@ func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Re
 		service2.RestError500(req, rsp, e)
 	} else {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Workspace %s has been removed", slug),
+			fmt.Sprintf("Removed workspace [%s]", slug),
 			log.GetAuditId(common.AUDIT_WS_DELETE),
 		)
 		rsp.WriteEntity(&rest.DeleteResponse{Success: true, NumRows: n.RowsDeleted})

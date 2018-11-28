@@ -40,11 +40,11 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
 	"github.com/pydio/cells/common/utils"
@@ -181,13 +181,13 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 	// Put an Audit log if this cell has been newly created
 	if wsCreated {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Cell %s has been created", shareRequest.Room.Label),
+			fmt.Sprintf("Created cell [%s]", shareRequest.Room.Label),
 			log.GetAuditId(common.AUDIT_CELL_CREATE),
 			zap.String(common.KEY_CELL_UUID, shareRequest.Room.Uuid),
 		)
 	} else {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Cell %s has been updated", shareRequest.Room.Label),
+			fmt.Sprintf("Updated cell [%s]", shareRequest.Room.Label),
 			log.GetAuditId(common.AUDIT_CELL_UPDATE),
 			zap.String(common.KEY_CELL_UUID, shareRequest.Room.Uuid),
 		)
@@ -250,7 +250,7 @@ func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) 
 
 	// Put an Audit log if this cell has been removed without error
 	log.Auditer(ctx).Info(
-		fmt.Sprintf("Cell %s has been removed", currWsLabel),
+		fmt.Sprintf("Removed cell [%s]", currWsLabel),
 		log.GetAuditId(common.AUDIT_CELL_DELETE),
 		zap.String(common.KEY_CELL_UUID, id),
 	)
@@ -372,14 +372,14 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	}
 	if create {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("ShareLink %s has been created", link.Label),
+			fmt.Sprintf("Created share link [%s]", link.Label),
 			log.GetAuditId(common.AUDIT_LINK_CREATE),
 			zap.String(common.KEY_LINK_UUID, link.Uuid),
 		)
 		track("Auditer")
 	} else {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("ShareLink %s has been updated", link.Label),
+			fmt.Sprintf("Updated share link [%s]", link.Label),
 			log.GetAuditId(common.AUDIT_LINK_UPDATE),
 			zap.String(common.KEY_LINK_UUID, link.Uuid),
 		)
@@ -451,7 +451,7 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 	}
 
 	log.Auditer(ctx).Info(
-		fmt.Sprintf("ShareLink %s has been removed", id),
+		fmt.Sprintf("Removed share link [%s]", id),
 		log.GetAuditId(common.AUDIT_LINK_UPDATE),
 		zap.String(common.KEY_LINK_UUID, id),
 	)

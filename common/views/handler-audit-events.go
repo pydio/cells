@@ -51,7 +51,7 @@ func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requ
 	}
 	if e == nil {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Retrieve %s", node.Path),
+			fmt.Sprintf("Retrieved object at %s", node.Path),
 			log.GetAuditId(common.AUDIT_OBJECT_GET),
 			node.ZapUuid(),
 			node.ZapPath(),
@@ -73,7 +73,7 @@ func (h *HandlerAuditEvent) PutObject(ctx context.Context, node *tree.Node, read
 	}
 
 	log.Auditer(ctx).Info(
-		fmt.Sprintf("Modify %s, put %d bytes", node.Path, written),
+		fmt.Sprintf("Modified %s, put %d bytes", node.Path, written),
 		log.GetAuditId(common.AUDIT_OBJECT_PUT),
 		node.ZapUuid(),
 		node.ZapPath(),
@@ -113,7 +113,7 @@ func (h *HandlerAuditEvent) ListNodes(ctx context.Context, in *tree.ListNodesReq
 
 	_, wsInfo, wsScope := checkBranchInfoForAudit(ctx, "in")
 	log.Auditer(ctx).Info(
-		fmt.Sprintf("List folder %s", in.Node.Path),
+		fmt.Sprintf("Listed folder %s", in.Node.Path),
 		log.GetAuditId(common.AUDIT_NODE_LIST),
 		in.Node.ZapUuid(),
 		in.Node.ZapPath(),
@@ -128,9 +128,10 @@ func (h *HandlerAuditEvent) ListNodes(ctx context.Context, in *tree.ListNodesReq
 // CreateNode logs an audit message on each call after having transferred the call to following handlers.
 func (h *HandlerAuditEvent) CreateNode(ctx context.Context, in *tree.CreateNodeRequest, opts ...client.CallOption) (*tree.CreateNodeResponse, error) {
 	response, e := h.next.CreateNode(ctx, in, opts...)
+
 	_, wsInfo, wsScope := checkBranchInfoForAudit(ctx, "in")
 	log.Auditer(ctx).Info(
-		fmt.Sprintf("Create node at %s", in.Node.Path),
+		fmt.Sprintf("Created node at %s", in.Node.Path),
 		log.GetAuditId(common.AUDIT_NODE_CREATE),
 		in.Node.ZapUuid(),
 		in.Node.ZapPath(),
@@ -148,7 +149,7 @@ func (h *HandlerAuditEvent) UpdateNode(ctx context.Context, in *tree.UpdateNodeR
 	from := in.From
 	to := in.To
 
-	fmt.Printf("#### Update node, from: %v to: %v", from, to)
+	log.Logger(ctx).Debug(fmt.Sprintf("Updated node, from: %v to: %v", from, to))
 
 	log.Auditer(ctx).Info(
 		fmt.Sprintf("Update node at %s", in.From.Path),
@@ -167,7 +168,7 @@ func (h *HandlerAuditEvent) DeleteNode(ctx context.Context, in *tree.DeleteNodeR
 
 	_, wsInfo, wsScope := checkBranchInfoForAudit(ctx, "in")
 	log.Auditer(ctx).Info(
-		fmt.Sprintf("Delete node at %s", in.Node.Path),
+		fmt.Sprintf("Deleted node at %s", in.Node.Path),
 		log.GetAuditId(common.AUDIT_NODE_DELETE),
 		in.Node.ZapUuid(),
 		in.Node.ZapPath(),
