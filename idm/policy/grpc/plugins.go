@@ -26,6 +26,7 @@ import (
 	"fmt"
 
 	"github.com/micro/go-micro"
+	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	"strings"
@@ -40,39 +41,41 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("Policy Engine Service"),
-		service.WithStorage(policy.NewDAO, "idm_policy"),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.FirstRun(),
-				Up:            InitDefaults,
-			},
-			{
-				TargetVersion: service.ValidVersion("1.0.1"),
-				Up:            Upgrade101,
-			},
-			{
-				TargetVersion: service.ValidVersion("1.0.3"),
-				Up:            Upgrade103,
-			},
-			{
-				TargetVersion: service.ValidVersion("1.2.0"),
-				Up:            Upgrade120,
-			},
-			{
-				TargetVersion: service.ValidVersion("1.2.2"),
-				Up:            Upgrade122,
-			},
-		}),
-		service.WithMicro(func(m micro.Service) error {
-			handler := new(Handler)
-			idm.RegisterPolicyEngineServiceHandler(m.Options().Server, handler)
-			return nil
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("Policy Engine Service"),
+			service.WithStorage(policy.NewDAO, "idm_policy"),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            InitDefaults,
+				},
+				{
+					TargetVersion: service.ValidVersion("1.0.1"),
+					Up:            Upgrade101,
+				},
+				{
+					TargetVersion: service.ValidVersion("1.0.3"),
+					Up:            Upgrade103,
+				},
+				{
+					TargetVersion: service.ValidVersion("1.2.0"),
+					Up:            Upgrade120,
+				},
+				{
+					TargetVersion: service.ValidVersion("1.2.2"),
+					Up:            Upgrade122,
+				},
+			}),
+			service.WithMicro(func(m micro.Service) error {
+				handler := new(Handler)
+				idm.RegisterPolicyEngineServiceHandler(m.Options().Server, handler)
+				return nil
+			}),
+		)
+	})
 }
 
 // InitDefaults is called once at first launch to create default policy groups.

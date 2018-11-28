@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 
 	"github.com/micro/go-micro"
+	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -38,54 +39,57 @@ import (
 
 func init() {
 
-	var sources []string
-	str := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "sources").Bytes()
+	plugins.Register(func() {
 
-	if err := json.Unmarshal(str, &sources); err != nil {
-		log.Fatal("Error reading config", zap.Error(err))
-	}
+		var sources []string
+		str := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "sources").Bytes()
 
-	for _, datasource := range sources {
+		if err := json.Unmarshal(str, &sources); err != nil {
+			log.Fatal("Error reading config", zap.Error(err))
+		}
 
-		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+datasource),
-			service.Tag(common.SERVICE_TAG_DATASOURCE),
-			service.Description("S3 Object service for a given datasource"),
-			service.Source(datasource),
-			service.Fork(true),
-			service.Unique(true),
-			service.AutoStart(false),
-			service.WithMicro(func(m micro.Service) error {
-				s := m.Options().Server
-				serviceName := s.Options().Metadata["source"]
+		for _, datasource := range sources {
 
-				engine := &ObjectHandler{}
+			service.NewService(
+				service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+datasource),
+				service.Tag(common.SERVICE_TAG_DATASOURCE),
+				service.Description("S3 Object service for a given datasource"),
+				service.Source(datasource),
+				service.Fork(true),
+				service.Unique(true),
+				service.AutoStart(false),
+				service.WithMicro(func(m micro.Service) error {
+					s := m.Options().Server
+					serviceName := s.Options().Metadata["source"]
 
-				m.Init(micro.AfterStart(func() error {
-					ctx := m.Options().Context
-					log.Logger(ctx).Debug("AfterStart for Object service " + serviceName)
-					var conf *object.MinioConfig
-					if err := servicecontext.ScanConfig(ctx, &conf); err != nil {
-						return err
-					}
-					if ip, e := utils.GetExternalIP(); e != nil {
-						conf.RunningHost = "127.0.0.1"
-					} else {
-						conf.RunningHost = ip.String()
-					}
+					engine := &ObjectHandler{}
 
-					conf.RunningSecure = false
+					m.Init(micro.AfterStart(func() error {
+						ctx := m.Options().Context
+						log.Logger(ctx).Debug("AfterStart for Object service " + serviceName)
+						var conf *object.MinioConfig
+						if err := servicecontext.ScanConfig(ctx, &conf); err != nil {
+							return err
+						}
+						if ip, e := utils.GetExternalIP(); e != nil {
+							conf.RunningHost = "127.0.0.1"
+						} else {
+							conf.RunningHost = ip.String()
+						}
 
-					engine.Config = conf
-					log.Logger(ctx).Debug("Now starting minio server (" + serviceName + ")")
-					go engine.StartMinioServer(ctx, serviceName)
-					object.RegisterObjectsEndpointHandler(s, engine)
+						conf.RunningSecure = false
+
+						engine.Config = conf
+						log.Logger(ctx).Debug("Now starting minio server (" + serviceName + ")")
+						go engine.StartMinioServer(ctx, serviceName)
+						object.RegisterObjectsEndpointHandler(s, engine)
+
+						return nil
+					}))
 
 					return nil
-				}))
-
-				return nil
-			}),
-		)
-	}
+				}),
+			)
+		}
+	})
 }

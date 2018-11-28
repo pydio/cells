@@ -25,6 +25,7 @@ import (
 	"path"
 
 	micro "github.com/micro/go-micro"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/broker/log"
 	"github.com/pydio/cells/common"
@@ -34,27 +35,29 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG),
-		service.Tag(common.SERVICE_TAG_BROKER),
-		service.Description("Syslog index store"),
-		service.WithMicro(func(m micro.Service) error {
-			serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_LOG)
-			if e != nil {
-				return e
-			}
-			repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"))
-			if err != nil {
-				return err
-			}
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_LOG),
+			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Description("Syslog index store"),
+			service.WithMicro(func(m micro.Service) error {
+				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_LOG)
+				if e != nil {
+					return e
+				}
+				repo, err := log.NewSyslogServer(path.Join(serviceDir, "syslog.bleve"))
+				if err != nil {
+					return err
+				}
 
-			handler := &Handler{
-				Repo: repo,
-			}
+				handler := &Handler{
+					Repo: repo,
+				}
 
-			proto.RegisterLogRecorderHandler(m.Options().Server, handler)
+				proto.RegisterLogRecorderHandler(m.Options().Server, handler)
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }

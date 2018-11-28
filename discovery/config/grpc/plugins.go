@@ -22,6 +22,7 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
@@ -30,15 +31,17 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG),
-		service.Tag(common.SERVICE_TAG_DISCOVERY),
-		service.Description("Main service loading configurations for all other services."),
-		service.WithStorage(config.NewDAO),
-		service.WithMicro(func(m micro.Service) error {
-			// Register handler
-			proto.RegisterConfigHandler(m.Server(), new(Handler))
-			return nil
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG),
+			service.Tag(common.SERVICE_TAG_DISCOVERY),
+			service.Description("Main service loading configurations for all other services."),
+			service.WithStorage(config.NewDAO),
+			service.WithMicro(func(m micro.Service) error {
+				// Register handler
+				proto.RegisterConfigHandler(m.Server(), new(Handler))
+				return nil
+			}),
+		)
+	})
 }

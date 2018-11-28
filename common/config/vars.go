@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -43,24 +44,19 @@ import (
 )
 
 var (
-	RemoteSource    = false
 	PydioConfigDir  = ApplicationDataDir()
 	PydioConfigFile = "pydio.json"
 
-	VersionsStore file2.VersionsStore
-	defaultConfig *Config
-	once          sync.Once
+	VersionsStore    file2.VersionsStore
+	defaultConfig    *Config
+	once             sync.Once
+	remoteSourceOnce sync.Once
+	remoteSource     bool
 )
 
 // Config wrapper around micro Config
 type Config struct {
 	config.Config
-}
-
-func init() {
-	if viper.GetString("registry_cluster_routes") != "" {
-		RemoteSource = true
-	}
 }
 
 func initVersionStore() {
@@ -90,9 +86,9 @@ func initVersionStore() {
 // Default Config with initialisation
 func Default() config.Config {
 	once.Do(func() {
-		if RemoteSource {
+		if GetRemoteSource() {
 			// Warning, loading remoteSource will trigger a call to defaults.NewClient()
-			fmt.Println("Loading config from remote source")
+
 			defaultConfig = &Config{config.NewConfig(
 				config.WithSource(newRemoteSource(config.SourceName("config"))),
 				config.PollInterval(10*time.Second),
@@ -145,7 +141,7 @@ func Get(path ...string) reader.Value {
 
 func Set(val interface{}, path ...string) {
 
-	if RemoteSource {
+	if GetRemoteSource() {
 		remote.UpdateRemote("config", val, path...)
 		return
 	}
@@ -193,7 +189,7 @@ func Set(val interface{}, path ...string) {
 }
 
 func Del(path ...string) {
-	if RemoteSource {
+	if GetRemoteSource() {
 		remote.DeleteRemote("config", path...)
 		return
 	}
@@ -219,4 +215,15 @@ func watchConfig() {
 // GetJsonPath build path for json that contain the local config
 func GetJsonPath() string {
 	return filepath.Join(PydioConfigDir, PydioConfigFile)
+}
+
+func GetRemoteSource() bool {
+	remoteSourceOnce.Do(func() {
+		debug.PrintStack()
+		if viper.GetString("registry_cluster_routes") != "" {
+			remoteSource = true
+		}
+	})
+
+	return remoteSource
 }

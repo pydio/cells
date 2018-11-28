@@ -30,6 +30,7 @@ import (
 
 	micro "github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
+	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	//	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/config"
@@ -43,43 +44,45 @@ import (
 
 func init() {
 
-	var sources []string
-	str := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources").Bytes()
+	plugins.Register(func() {
+		var sources []string
+		str := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources").Bytes()
 
-	if err := json.Unmarshal(str, &sources); err != nil {
-		log.Fatal("Error reading config", zap.Error(err))
-	}
+		if err := json.Unmarshal(str, &sources); err != nil {
+			log.Fatal("Error reading config", zap.Error(err))
+		}
 
-	for _, source := range sources {
+		for _, source := range sources {
 
-		name := common.SERVICE_DATA_INDEX_ + source
+			name := common.SERVICE_DATA_INDEX_ + source
 
-		service.NewService(
-			service.Name(common.SERVICE_GRPC_NAMESPACE_+name),
-			service.Tag(common.SERVICE_TAG_DATASOURCE),
-			service.Description("Datasource indexation service"),
-			service.Source(source),
-			service.Fork(true),
-			service.AutoStart(false),
-			service.WithStorage(index.NewDAO, func(s service.Service) string {
-				// Returning a prefix for the dao
-				return strings.Replace(name, ".", "_", -1)
-			}),
-			service.WithMicro(func(m micro.Service) error {
+			service.NewService(
+				service.Name(common.SERVICE_GRPC_NAMESPACE_+name),
+				service.Tag(common.SERVICE_TAG_DATASOURCE),
+				service.Description("Datasource indexation service"),
+				service.Source(source),
+				service.Fork(true),
+				service.AutoStart(false),
+				service.WithStorage(index.NewDAO, func(s service.Service) string {
+					// Returning a prefix for the dao
+					return strings.Replace(name, ".", "_", -1)
+				}),
+				service.WithMicro(func(m micro.Service) error {
 
-				server := m.Server()
-				source := server.Options().Metadata["source"]
+					server := m.Server()
+					source := server.Options().Metadata["source"]
 
-				engine := NewTreeServer(source)
-				tree.RegisterNodeReceiverHandler(m.Options().Server, engine)
-				tree.RegisterNodeProviderHandler(m.Options().Server, engine)
-				tree.RegisterNodeReceiverStreamHandler(m.Options().Server, engine)
-				tree.RegisterNodeProviderStreamerHandler(m.Options().Server, engine)
-				tree.RegisterSessionIndexerHandler(m.Options().Server, engine)
-				object.RegisterResourceCleanerEndpointHandler(m.Options().Server, engine)
+					engine := NewTreeServer(source)
+					tree.RegisterNodeReceiverHandler(m.Options().Server, engine)
+					tree.RegisterNodeProviderHandler(m.Options().Server, engine)
+					tree.RegisterNodeReceiverStreamHandler(m.Options().Server, engine)
+					tree.RegisterNodeProviderStreamerHandler(m.Options().Server, engine)
+					tree.RegisterSessionIndexerHandler(m.Options().Server, engine)
+					object.RegisterResourceCleanerEndpointHandler(m.Options().Server, engine)
 
-				return nil
-			}),
-		)
-	}
+					return nil
+				}),
+			)
+		}
+	})
 }

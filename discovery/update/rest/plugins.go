@@ -24,16 +24,19 @@ package rest
 import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
+	"github.com/spf13/cobra"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_UPDATE),
-		service.Tag(common.SERVICE_TAG_DISCOVERY),
-		service.Description("Gateway to check for available updates"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, []string{}),
-		service.WithWeb(func() service.WebHandler {
-			return new(Handler)
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_UPDATE),
+			service.Tag(common.SERVICE_TAG_DISCOVERY),
+			service.Description("Gateway to check for available updates"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, []string{}),
+			service.WithWeb(func() service.WebHandler {
+				return new(Handler)
+			}),
+		)
+	})
 }

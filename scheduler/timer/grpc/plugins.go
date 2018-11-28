@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
@@ -30,32 +31,34 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TIMER),
-		service.Tag(common.SERVICE_TAG_SCHEDULER),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TASKS, []string{}),
-		service.Description("Triggers events based on a scheduler pattern"),
-		service.WithMicro(func(m micro.Service) error {
-			m.Init(micro.AfterStart(func() error {
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TIMER),
+			service.Tag(common.SERVICE_TAG_SCHEDULER),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TASKS, []string{}),
+			service.Description("Triggers events based on a scheduler pattern"),
+			service.WithMicro(func(m micro.Service) error {
+				m.Init(micro.AfterStart(func() error {
 
-				producer := timer.NewEventProducer(m.Options().Context)
-				subscriber := &timer.JobsEventsSubscriber{
-					Producer: producer,
-				}
-				m.Options().Server.Subscribe(
-					m.Options().Server.NewSubscriber(
-						common.TOPIC_JOB_CONFIG_EVENT,
-						subscriber,
-					),
-				)
+					producer := timer.NewEventProducer(m.Options().Context)
+					subscriber := &timer.JobsEventsSubscriber{
+						Producer: producer,
+					}
+					m.Options().Server.Subscribe(
+						m.Options().Server.NewSubscriber(
+							common.TOPIC_JOB_CONFIG_EVENT,
+							subscriber,
+						),
+					)
 
-				producer.Start()
+					producer.Start()
+
+					return nil
+				}))
 
 				return nil
-			}))
-
-			return nil
-		}),
-	)
+			}),
+		)
+	})
 }

@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/encryption"
@@ -31,19 +32,21 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ENC_KEY),
-		service.Tag(common.SERVICE_TAG_DATA),
-		service.Description("Encryption Keys server"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
-		service.WithStorage(key.NewDAO, "data_key"),
-		service.WithMicro(func(m micro.Service) error {
-			h := &NodeKeyManagerHandler{}
-			encryption.RegisterNodeKeyManagerHandler(m.Options().Server, h)
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_TREE_CHANGES, h.HandleTreeChanges)); err != nil {
-				return err
-			}
-			return nil
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ENC_KEY),
+			service.Tag(common.SERVICE_TAG_DATA),
+			service.Description("Encryption Keys server"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
+			service.WithStorage(key.NewDAO, "data_key"),
+			service.WithMicro(func(m micro.Service) error {
+				h := &NodeKeyManagerHandler{}
+				encryption.RegisterNodeKeyManagerHandler(m.Options().Server, h)
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_TREE_CHANGES, h.HandleTreeChanges)); err != nil {
+					return err
+				}
+				return nil
+			}),
+		)
+	})
 }

@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -38,40 +39,42 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHANGES),
-		service.Tag(common.SERVICE_TAG_DATA),
-		service.Description("Index of nodes changes"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
-		service.Migrations([]*service.Migration{{
-			TargetVersion: service.FirstRun(),
-			Up:            RegisterResync,
-		}}),
-		service.WithStorage(changes.NewDAO, "data_changes"),
-		service.WithMicro(func(m micro.Service) error {
-			h := NewHandler(m.Options().Context)
-			serviceproto.RegisterArchiverHandler(m.Options().Server, h)
-			tree.RegisterSyncChangesHandler(m.Options().Server, h)
-			sync.RegisterSyncEndpointHandler(m.Options().Server, h)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHANGES),
+			service.Tag(common.SERVICE_TAG_DATA),
+			service.Description("Index of nodes changes"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+			service.Migrations([]*service.Migration{{
+				TargetVersion: service.FirstRun(),
+				Up:            RegisterResync,
+			}}),
+			service.WithStorage(changes.NewDAO, "data_changes"),
+			service.WithMicro(func(m micro.Service) error {
+				h := NewHandler(m.Options().Context)
+				serviceproto.RegisterArchiverHandler(m.Options().Server, h)
+				tree.RegisterSyncChangesHandler(m.Options().Server, h)
+				sync.RegisterSyncEndpointHandler(m.Options().Server, h)
 
-			// Register Event Subscriber
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_TREE_CHANGES, h.OnTreeEvent)); err != nil {
-				return err
-			}
+				// Register Event Subscriber
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_TREE_CHANGES, h.OnTreeEvent)); err != nil {
+					return err
+				}
 
-			return nil
-		}),
-		service.BeforeStop(func(s service.Service) error {
-			cancel := s.Options().Cancel
+				return nil
+			}),
+			service.BeforeStop(func(s service.Service) error {
+				cancel := s.Options().Cancel
 
-			// NOTE:  though *probably* unnecessary, this ensures `cancel` is always called, thus avoiding a
-			//   	  potential resource leak.  Note that this makes golint happy as well.
-			cancel()
+				// NOTE:  though *probably* unnecessary, this ensures `cancel` is always called, thus avoiding a
+				//   	  potential resource leak.  Note that this makes golint happy as well.
+				cancel()
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }
 
 func RegisterResync(ctx context.Context) error {

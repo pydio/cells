@@ -25,23 +25,26 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/test"
 	"github.com/pydio/cells/common/service"
+	"github.com/spf13/cobra"
 )
 
 var name = common.SERVICE_TEST_NAMESPACE_ + "objects"
 
 func init() {
-	service.NewService(
-		service.Name(name),
-		service.Tag(common.SERVICE_TAG_DATA),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, []string{}),
-		service.Description("Test Objects Service conformance"),
-		service.WithMicro(func(m micro.Service) error {
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(name),
+			service.Tag(common.SERVICE_TAG_DATA),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, []string{}),
+			service.Description("Test Objects Service conformance"),
+			service.WithMicro(func(m micro.Service) error {
 
-			test.RegisterTesterHandler(m.Server(), NewHandler())
+				test.RegisterTesterHandler(m.Server(), NewHandler())
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }

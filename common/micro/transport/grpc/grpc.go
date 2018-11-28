@@ -1,16 +1,21 @@
 package grpc
 
 import (
+	"net/http"
+
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/transport"
 	"github.com/micro/go-plugins/transport/grpc"
+	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/micro"
 )
 
 var t = grpc.NewTransport()
 
 func Enable() {
+	tls := config.GetTLSClientConfig("proxy")
+
 	defaults.InitServer(func() server.Option {
 		return server.Transport(t)
 	})
@@ -20,4 +25,9 @@ func Enable() {
 	})
 
 	transport.DefaultTransport = t
+
+	// The default client is used by dex so no choice
+	http.DefaultClient.Transport = &http.Transport{
+		TLSClientConfig: tls,
+	}
 }

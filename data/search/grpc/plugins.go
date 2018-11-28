@@ -29,11 +29,12 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/data/search/dao/bleve"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -41,43 +42,45 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(Name),
-		service.Tag(common.SERVICE_TAG_DATA),
-		service.Description("Search Engine"),
-		service.RouterDependencies(),
-		service.WithMicro(func(m micro.Service) error {
-			var indexContent bool
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(Name),
+			service.Tag(common.SERVICE_TAG_DATA),
+			service.Description("Search Engine"),
+			service.RouterDependencies(),
+			service.WithMicro(func(m micro.Service) error {
+				var indexContent bool
 
-			var cfg config.Map //TODO
-			if indexConf := cfg.Get("indexContent"); indexConf != nil {
-				indexContent = cfg.Get("indexContent").(bool)
-			}
-			dir, _ := config.ServiceDataDir(Name)
-			bleve.BleveIndexPath = filepath.Join(dir, "searchengine.bleve")
-			bleveEngine, err := bleve.NewBleveEngine(indexContent)
-			if err != nil {
-				return err
-			}
-			server := &SearchServer{
-				Engine:     bleveEngine,
-				TreeClient: tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient()),
-			}
+				var cfg config.Map //TODO
+				if indexConf := cfg.Get("indexContent"); indexConf != nil {
+					indexContent = cfg.Get("indexContent").(bool)
+				}
+				dir, _ := config.ServiceDataDir(Name)
+				bleve.BleveIndexPath = filepath.Join(dir, "searchengine.bleve")
+				bleveEngine, err := bleve.NewBleveEngine(indexContent)
+				if err != nil {
+					return err
+				}
+				server := &SearchServer{
+					Engine:     bleveEngine,
+					TreeClient: tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient()),
+				}
 
-			tree.RegisterSearcherHandler(m.Options().Server, server)
-			sync.RegisterSyncEndpointHandler(m.Options().Server, server)
+				tree.RegisterSearcherHandler(m.Options().Server, server)
+				sync.RegisterSyncEndpointHandler(m.Options().Server, server)
 
-			// Register Subscribers
-			if err := m.Options().Server.Subscribe(
-				m.Options().Server.NewSubscriber(
-					common.TOPIC_META_CHANGES,
-					server.CreateNodeChangeSubscriber(),
-				),
-			); err != nil {
-				return err
-			}
+				// Register Subscribers
+				if err := m.Options().Server.Subscribe(
+					m.Options().Server.NewSubscriber(
+						common.TOPIC_META_CHANGES,
+						server.CreateNodeChangeSubscriber(),
+					),
+				); err != nil {
+					return err
+				}
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }

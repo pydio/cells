@@ -24,18 +24,21 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/data/templates"
+	"github.com/spf13/cobra"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_TEMPLATES),
-		service.Tag(common.SERVICE_TAG_DATA),
-		service.Description("RESTful Gateway to list templates"),
-		service.RouterDependencies(),
-		service.WithWeb(func() service.WebHandler {
-			h := new(Handler)
-			h.dao = templates.GetProvider()
-			return h
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_TEMPLATES),
+			service.Tag(common.SERVICE_TAG_DATA),
+			service.Description("RESTful Gateway to list templates"),
+			service.RouterDependencies(),
+			service.WithWeb(func() service.WebHandler {
+				h := new(Handler)
+				h.dao = templates.GetProvider()
+				return h
+			}),
+		)
+	})
 }

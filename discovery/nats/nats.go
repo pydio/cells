@@ -28,20 +28,22 @@ import (
 	"time"
 
 	"github.com/nats-io/gnatsd/server"
-	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 )
 
 var hd *server.Server
 
-func init() {
-	cobra.OnInitialize(run)
+func Init() {
+	plugins.Register(run)
 }
 
 func run() {
+
+	fmt.Println("HERE WE GO")
 
 	reg := viper.GetString("registry")
 	regAddress := viper.GetString("registry_address")
@@ -89,8 +91,6 @@ func run() {
 		if regClusterRoutes != "" {
 			opts.RoutesStr = regClusterRoutes
 			opts.Routes = server.RoutesFromStr(regClusterRoutes)
-
-			fmt.Println("Routes ", opts.RoutesStr, opts.Routes)
 		}
 
 		// Create the server with appropriate options.

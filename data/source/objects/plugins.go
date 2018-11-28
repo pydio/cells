@@ -29,6 +29,7 @@ import (
 
 	"github.com/micro/go-micro"
 	"github.com/spf13/afero"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -43,27 +44,29 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(Name),
-		service.Tag(common.SERVICE_TAG_DATASOURCE),
-		service.Description("Starter for different sources objects"),
-		service.WithMicro(func(m micro.Service) error {
-			runner := service.NewChildrenRunner(m, Name, ChildPrefix)
-			m.Init(
-				micro.AfterStart(func() error {
-					ctx := m.Options().Context
-					conf := servicecontext.GetConfig(ctx)
-					runner.StartFromInitialConf(ctx, conf)
-					tree.RegisterNodeProviderHandler(m.Server(), NewTreeHandler())
-					runner.OnDeleteConfig(onDeleteObjectsConfig)
-					return nil
-				}))
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(Name),
+			service.Tag(common.SERVICE_TAG_DATASOURCE),
+			service.Description("Starter for different sources objects"),
+			service.WithMicro(func(m micro.Service) error {
+				runner := service.NewChildrenRunner(m, Name, ChildPrefix)
+				m.Init(
+					micro.AfterStart(func() error {
+						ctx := m.Options().Context
+						conf := servicecontext.GetConfig(ctx)
+						runner.StartFromInitialConf(ctx, conf)
+						tree.RegisterNodeProviderHandler(m.Server(), NewTreeHandler())
+						runner.OnDeleteConfig(onDeleteObjectsConfig)
+						return nil
+					}))
 
-			tree.RegisterNodeProviderHandler(m.Server(), NewTreeHandler())
+				tree.RegisterNodeProviderHandler(m.Server(), NewTreeHandler())
 
-			return runner.Watch(m.Options().Context)
-		}),
-	)
+				return runner.Watch(m.Options().Context)
+			}),
+		)
+	})
 }
 
 // Manage datasources deletion operations : clean minio server configuration folder

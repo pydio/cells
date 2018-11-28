@@ -23,21 +23,24 @@ package rest
 import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
+	"github.com/spf13/cobra"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_WORKSPACE),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("RESTful Gateway to workspaces service"),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.FirstRun(),
-				Up:            FirstRun,
-			},
-		}),
-		service.WithWeb(func() service.WebHandler {
-			return NewWorkspaceHandler()
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_WORKSPACE),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("RESTful Gateway to workspaces service"),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            FirstRun,
+				},
+			}),
+			service.WithWeb(func() service.WebHandler {
+				return NewWorkspaceHandler()
+			}),
+		)
+	})
 }

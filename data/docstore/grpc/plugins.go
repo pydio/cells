@@ -26,6 +26,7 @@ import (
 	"path"
 
 	"github.com/micro/go-micro"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -35,52 +36,54 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE),
-		service.Tag(common.SERVICE_TAG_DATA),
-		service.Description("Generic document store"),
-		service.WithMicro(func(m micro.Service) error {
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE),
+			service.Tag(common.SERVICE_TAG_DATA),
+			service.Description("Generic document store"),
+			service.WithMicro(func(m micro.Service) error {
 
-			serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DOCSTORE)
-			if e != nil {
-				return e
-			}
-
-			store, err := docstore.NewBoltStore(path.Join(serviceDir, "docstore.db"))
-			if err != nil {
-				return err
-			}
-
-			indexer, err := docstore.NewBleveEngine(path.Join(serviceDir, "docstore.bleve"))
-			if err != nil {
-				return err
-			}
-
-			handler := &Handler{
-				Db:      store,
-				Indexer: indexer,
-			}
-
-			for id, json := range defaults() {
-				if doc, e := store.GetDocument(common.DOCSTORE_ID_VIRTUALNODES, id); e == nil && doc != nil {
-					continue // Already defined
+				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DOCSTORE)
+				if e != nil {
+					return e
 				}
-				handler.PutDocument(context.Background(),
-					&proto.PutDocumentRequest{StoreID: common.DOCSTORE_ID_VIRTUALNODES, DocumentID: id, Document: &proto.Document{
-						ID:            id,
-						Owner:         common.PYDIO_SYSTEM_USERNAME,
-						Data:          json,
-						IndexableMeta: json,
-					}}, &proto.PutDocumentResponse{})
-			}
 
-			m.Init(micro.BeforeStop(handler.Close))
+				store, err := docstore.NewBoltStore(path.Join(serviceDir, "docstore.db"))
+				if err != nil {
+					return err
+				}
 
-			proto.RegisterDocStoreHandler(m.Options().Server, handler)
+				indexer, err := docstore.NewBleveEngine(path.Join(serviceDir, "docstore.bleve"))
+				if err != nil {
+					return err
+				}
 
-			return nil
-		}),
-	)
+				handler := &Handler{
+					Db:      store,
+					Indexer: indexer,
+				}
+
+				for id, json := range defaults() {
+					if doc, e := store.GetDocument(common.DOCSTORE_ID_VIRTUALNODES, id); e == nil && doc != nil {
+						continue // Already defined
+					}
+					handler.PutDocument(context.Background(),
+						&proto.PutDocumentRequest{StoreID: common.DOCSTORE_ID_VIRTUALNODES, DocumentID: id, Document: &proto.Document{
+							ID:            id,
+							Owner:         common.PYDIO_SYSTEM_USERNAME,
+							Data:          json,
+							IndexableMeta: json,
+						}}, &proto.PutDocumentResponse{})
+				}
+
+				m.Init(micro.BeforeStop(handler.Close))
+
+				proto.RegisterDocStoreHandler(m.Options().Server, handler)
+
+				return nil
+			}),
+		)
+	})
 }
 
 func defaults() map[string]string {

@@ -27,6 +27,7 @@ import (
 
 	"github.com/coreos/dex/storage/sql"
 	"github.com/micro/go-micro"
+	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -40,69 +41,70 @@ import (
 )
 
 func init() {
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.WithStorage(auth.NewDAO, "dex_"),
+			service.Description("Authentication Service : JWT provider and token revocation"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
+			service.Migrations([]*service.Migration{{
+				TargetVersion: service.FirstRun(),
+				Up:            auth.InsertPruningJob,
+			}}),
+			service.WithMicro(func(m micro.Service) error {
 
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_AUTH),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.WithStorage(auth.NewDAO, "dex_"),
-		service.Description("Authentication Service : JWT provider and token revocation"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_POLICY, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
-		service.Migrations([]*service.Migration{{
-			TargetVersion: service.FirstRun(),
-			Up:            auth.InsertPruningJob,
-		}}),
-		service.WithMicro(func(m micro.Service) error {
+				// INIT DEX CONFIG
+				ctx := m.Options().Context
+				conf := servicecontext.GetConfig(ctx)
+				log.Logger(ctx).Debug("Config ", zap.Any("config", conf))
+				configDex := conf.Get("dex")
+				var c auth.Config
+				remarshall, _ := json.Marshal(configDex)
+				if err := json.Unmarshal(remarshall, &c); err != nil {
+					return fmt.Errorf("error parsing config file %s: %v", configDex, err)
+				}
 
-			// INIT DEX CONFIG
-			ctx := m.Options().Context
-			conf := servicecontext.GetConfig(ctx)
-			log.Logger(ctx).Debug("Config ", zap.Any("config", conf))
-			configDex := conf.Get("dex")
-			var c auth.Config
-			remarshall, _ := json.Marshal(configDex)
-			if err := json.Unmarshal(remarshall, &c); err != nil {
-				return fmt.Errorf("error parsing config file %s: %v", configDex, err)
-			}
+				driver, dsn := conf.Database("dsn")
 
-			driver, dsn := conf.Database("dsn")
+				switch driver {
+				case "mysql":
+					sqlConfig := new(sql.MySQL)
+					sqlConfig.DSN = dsn
+					c.Storage.Config = sqlConfig
+				case "sqlite3":
+					sqlConfig := new(sql.SQLite3)
+					sqlConfig.File = dsn
+				}
 
-			switch driver {
-			case "mysql":
-				sqlConfig := new(sql.MySQL)
-				sqlConfig.DSN = dsn
-				c.Storage.Config = sqlConfig
-			case "sqlite3":
-				sqlConfig := new(sql.SQLite3)
-				sqlConfig.File = dsn
-			}
+				if config.Get("cert", "http", "ssl").Bool(false) {
+					log.Logger(ctx).Info("DEX SHOULD START WITH SSL")
+					certFile := config.Get("cert", "http", "certFile").String("")
+					keyFile := config.Get("cert", "http", "keyFile").String("")
+					c.Web.HTTPS = c.Web.HTTP
+					c.Web.HTTP = ""
+					c.Web.TLSCert = certFile
+					c.Web.TLSKey = keyFile
 
-			if config.Get("cert", "http", "ssl").Bool(false) {
-				log.Logger(ctx).Info("DEX SHOULD START WITH SSL")
-				certFile := config.Get("cert", "http", "certFile").String("")
-				keyFile := config.Get("cert", "http", "keyFile").String("")
-				c.Web.HTTPS = c.Web.HTTP
-				c.Web.HTTP = ""
-				c.Web.TLSCert = certFile
-				c.Web.TLSKey = keyFile
-
-				if config.Get("cert", "http", "self").Bool(false) {
-					ips, _ := utils.GetAvailableIPs()
-					for _, ip := range ips {
-						c.Web.AllowedOrigins = append(c.Web.AllowedOrigins, ip.String())
+					if config.Get("cert", "http", "self").Bool(false) {
+						ips, _ := utils.GetAvailableIPs()
+						for _, ip := range ips {
+							c.Web.AllowedOrigins = append(c.Web.AllowedOrigins, ip.String())
+						}
 					}
 				}
-			}
 
-			tokenRevokerHandler, err := NewAuthTokenRevokerHandler(c)
-			if err != nil {
-				return err
-			}
+				tokenRevokerHandler, err := NewAuthTokenRevokerHandler(c)
+				if err != nil {
+					return err
+				}
 
-			proto.RegisterAuthTokenRevokerHandler(m.Options().Server, tokenRevokerHandler)
+				proto.RegisterAuthTokenRevokerHandler(m.Options().Server, tokenRevokerHandler)
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }

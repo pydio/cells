@@ -32,11 +32,12 @@ import (
 	"github.com/pydio/cells/broker/activity"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	proto "github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -44,39 +45,41 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(Name),
-		service.Tag(common.SERVICE_TAG_BROKER),
-		service.Description("Activity Service is collecting activity for users and nodes"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.FirstRun(),
-				Up:            RegisterDigestJob,
-			},
-		}),
-		service.WithStorage(activity.NewDAO, "broker_activity"),
-		service.WithMicro(func(m micro.Service) error {
-			m.Init(
-				micro.Metadata(map[string]string{"MetaProvider": "stream"}),
-			)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(Name),
+			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Description("Activity Service is collecting activity for users and nodes"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            RegisterDigestJob,
+				},
+			}),
+			service.WithStorage(activity.NewDAO, "broker_activity"),
+			service.WithMicro(func(m micro.Service) error {
+				m.Init(
+					micro.Metadata(map[string]string{"MetaProvider": "stream"}),
+				)
 
-			// Register Subscribers
-			subscriber := &MicroEventsSubscriber{
-				client: tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient()),
-			}
+				// Register Subscribers
+				subscriber := &MicroEventsSubscriber{
+					client: tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, defaults.NewClient()),
+				}
 
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_TREE_CHANGES, subscriber)); err != nil {
-				return err
-			}
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_TREE_CHANGES, subscriber)); err != nil {
+					return err
+				}
 
-			proto.RegisterActivityServiceHandler(m.Options().Server, new(Handler))
-			tree.RegisterNodeProviderStreamerHandler(m.Options().Server, new(MetaProvider))
+				proto.RegisterActivityServiceHandler(m.Options().Server, new(Handler))
+				tree.RegisterNodeProviderStreamerHandler(m.Options().Server, new(MetaProvider))
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }
 
 func RegisterDigestJob(ctx context.Context) error {

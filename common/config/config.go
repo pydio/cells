@@ -240,7 +240,7 @@ func (c Map) Del(key string) error {
 
 // SaveConfigs sends configuration to a local file.
 func Save(ctxUser string, ctxMessage string) error {
-	if RemoteSource {
+	if GetRemoteSource() {
 		return nil
 	}
 	return saveConfig(defaultConfig, ctxUser, ctxMessage)

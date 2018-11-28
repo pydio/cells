@@ -29,16 +29,17 @@ import (
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/errors"
+	"github.com/spf13/cobra"
 
 	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/micro"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/idm/user"
 )
@@ -49,31 +50,33 @@ const (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("Users persistence layer"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.FirstRun(),
-				Up:            InitDefaults,
-			},
-		}),
-		service.WithStorage(user.NewDAO, "idm_user"),
-		service.WithMicro(func(m micro.Service) error {
-			idm.RegisterUserServiceHandler(m.Options().Server, new(Handler))
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("Users persistence layer"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            InitDefaults,
+				},
+			}),
+			service.WithStorage(user.NewDAO, "idm_user"),
+			service.WithMicro(func(m micro.Service) error {
+				idm.RegisterUserServiceHandler(m.Options().Server, new(Handler))
 
-			// Register a cleaner for removing a workspace when there are no more ACLs on it.
-			dao := servicecontext.GetDAO(m.Options().Context).(user.DAO)
-			cleaner := &RolesCleaner{Dao: dao}
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
-				return err
-			}
+				// Register a cleaner for removing a workspace when there are no more ACLs on it.
+				dao := servicecontext.GetDAO(m.Options().Context).(user.DAO)
+				cleaner := &RolesCleaner{Dao: dao}
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
+					return err
+				}
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }
 
 func InitDefaults(ctx context.Context) error {

@@ -23,6 +23,7 @@ package rest
 
 import (
 	"github.com/gobuffalo/packr"
+	"github.com/spf13/cobra"
 
 	"encoding/gob"
 
@@ -80,23 +81,25 @@ var BasePluginsBox = frontend.PluginBox{
 
 func init() {
 
-	gob.Register(map[string]string{})
+	plugins.Register(func() {
+		gob.Register(map[string]string{})
 
-	frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
-	frontend.RegisterPluginModifier(modifiers.MobileRegModifier)
-	frontend.WrapAuthMiddleware(modifiers.LoginPasswordAuth)
+		frontend.RegisterRegModifier(modifiers.MetaUserRegModifier)
+		frontend.RegisterPluginModifier(modifiers.MobileRegModifier)
+		frontend.WrapAuthMiddleware(modifiers.LoginPasswordAuth)
 
-	s := service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),
-		service.Tag(common.SERVICE_TAG_FRONTEND),
-		service.Description("REST service for serving specific requests directly to frontend"),
-		service.PluginBoxes(BasePluginsBox),
-		service.WithWeb(func() service.WebHandler {
-			return NewFrontendHandler()
-		}),
-	)
-	// Make sure to have the WebSession wrapper happen before the policies
-	// Exclude POST binaries for using Cookies as it's the only one subject to possible CSRF
-	s.Init(service.WithWebSession("POST:/frontend/binaries"))
+		s := service.NewService(
+			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_FRONTEND),
+			service.Tag(common.SERVICE_TAG_FRONTEND),
+			service.Description("REST service for serving specific requests directly to frontend"),
+			service.PluginBoxes(BasePluginsBox),
+			service.WithWeb(func() service.WebHandler {
+				return NewFrontendHandler()
+			}),
+		)
+		// Make sure to have the WebSession wrapper happen before the policies
+		// Exclude POST binaries for using Cookies as it's the only one subject to possible CSRF
+		s.Init(service.WithWebSession("POST:/frontend/binaries"))
+	})
 
 }

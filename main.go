@@ -22,12 +22,14 @@ package main
 
 import (
 	"github.com/pydio/cells/cmd"
+	
+	// Making sure they are initialised first
+	_ "github.com/pydio/cells/discovery/consul"
+	_ "github.com/pydio/cells/discovery/nats"
 
 	_ "github.com/pydio/cells/discovery/config/grpc"
 	_ "github.com/pydio/cells/discovery/config/rest"
-	_ "github.com/pydio/cells/discovery/consul"
 	_ "github.com/pydio/cells/discovery/install/rest"
-	_ "github.com/pydio/cells/discovery/nats"
 	_ "github.com/pydio/cells/discovery/update/grpc"
 	_ "github.com/pydio/cells/discovery/update/rest"
 

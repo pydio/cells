@@ -26,6 +26,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/micro/go-micro"
+	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
@@ -45,99 +46,101 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_WEBSOCKET),
-		service.Tag(common.SERVICE_TAG_GATEWAY),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT, []string{}),
-		service.Description("WebSocket server pushing event to the clients"),
-		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			return service.RunnerFunc(func() error {
-					return nil
-				}), service.CheckerFunc(func() error {
-					return nil
-				}), service.StopperFunc(func() error {
-					return nil
-				}), nil
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_WEBSOCKET),
+			service.Tag(common.SERVICE_TAG_GATEWAY),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT, []string{}),
+			service.Description("WebSocket server pushing event to the clients"),
+			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
+				return service.RunnerFunc(func() error {
+						return nil
+					}), service.CheckerFunc(func() error {
+						return nil
+					}), service.StopperFunc(func() error {
+						return nil
+					}), nil
 
-		}, func(s service.Service) (micro.Option, error) {
+			}, func(s service.Service) (micro.Option, error) {
 
-			ctx := s.Options().Context
-			srv := defaults.NewHTTPServer()
+				ctx := s.Options().Context
+				srv := defaults.NewHTTPServer()
 
-			ws = websocket.NewWebSocketHandler(ctx)
-			ws.EventRouter = views.NewRouterEventFilter(views.RouterOptions{WatchRegistry: true})
+				ws = websocket.NewWebSocketHandler(ctx)
+				ws.EventRouter = views.NewRouterEventFilter(views.RouterOptions{WatchRegistry: true})
 
-			gin.SetMode(gin.ReleaseMode)
-			gin.DisableConsoleColor()
-			Server := gin.New()
-			Server.Use(gin.Recovery())
-			Server.GET("/event", func(c *gin.Context) {
-				ws.Websocket.HandleRequest(c.Writer, c.Request)
-			})
+				gin.SetMode(gin.ReleaseMode)
+				gin.DisableConsoleColor()
+				Server := gin.New()
+				Server.Use(gin.Recovery())
+				Server.GET("/event", func(c *gin.Context) {
+					ws.Websocket.HandleRequest(c.Writer, c.Request)
+				})
 
-			chat = websocket.NewChatHandler(ctx)
-			Server.GET("/chat", func(c *gin.Context) {
-				chat.Websocket.HandleRequest(c.Writer, c.Request)
-			})
+				chat = websocket.NewChatHandler(ctx)
+				Server.GET("/chat", func(c *gin.Context) {
+					chat.Websocket.HandleRequest(c.Writer, c.Request)
+				})
 
-			hd := srv.NewHandler(Server)
+				hd := srv.NewHandler(Server)
 
-			err := srv.Handle(hd)
-			if err != nil {
-				return nil, err
-			}
+				err := srv.Handle(hd)
+				if err != nil {
+					return nil, err
+				}
 
-			return micro.Server(srv), nil
-		}),
-	)
+				return micro.Server(srv), nil
+			}),
+		)
 
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WEBSOCKET),
-		service.Tag(common.SERVICE_TAG_GATEWAY),
-		service.Dependency(common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_WEBSOCKET, []string{}),
-		service.Description("WebSocket server subscribing to messages"),
-		service.WithMicro(func(m micro.Service) error {
-			// Register Subscribers
-			treeChangeListener := func(ctx context.Context, msg *tree.NodeChangeEvent) error {
-				return ws.HandleNodeChangeEvent(ctx, msg)
-			}
-			taskChangeListener := func(ctx context.Context, msg *jobs.TaskChangeEvent) error {
-				return ws.BroadcastTaskChangeEvent(ctx, msg)
-			}
-			idmChangeListener := func(ctx context.Context, msg *idm.ChangeEvent) error {
-				return ws.BroadcastIDMChangeEvent(ctx, msg)
-			}
-			activityListener := func(ctx context.Context, msg *activity.PostActivityEvent) error {
-				return ws.BroadcastActivityEvent(ctx, msg)
-			}
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WEBSOCKET),
+			service.Tag(common.SERVICE_TAG_GATEWAY),
+			service.Dependency(common.SERVICE_GATEWAY_NAMESPACE_+common.SERVICE_WEBSOCKET, []string{}),
+			service.Description("WebSocket server subscribing to messages"),
+			service.WithMicro(func(m micro.Service) error {
+				// Register Subscribers
+				treeChangeListener := func(ctx context.Context, msg *tree.NodeChangeEvent) error {
+					return ws.HandleNodeChangeEvent(ctx, msg)
+				}
+				taskChangeListener := func(ctx context.Context, msg *jobs.TaskChangeEvent) error {
+					return ws.BroadcastTaskChangeEvent(ctx, msg)
+				}
+				idmChangeListener := func(ctx context.Context, msg *idm.ChangeEvent) error {
+					return ws.BroadcastIDMChangeEvent(ctx, msg)
+				}
+				activityListener := func(ctx context.Context, msg *activity.PostActivityEvent) error {
+					return ws.BroadcastActivityEvent(ctx, msg)
+				}
 
-			eventSrv := m.Options().Server
+				eventSrv := m.Options().Server
 
-			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_TREE_CHANGES, treeChangeListener)); err != nil {
-				return err
-			}
-			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_META_CHANGES, treeChangeListener)); err != nil {
-				return err
-			}
-			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_JOB_TASK_EVENT, taskChangeListener)); err != nil {
-				return err
-			}
-			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_IDM_EVENT, idmChangeListener)); err != nil {
-				return err
-			}
-			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_ACTIVITY_EVENT, activityListener)); err != nil {
-				return err
-			}
+				if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_TREE_CHANGES, treeChangeListener)); err != nil {
+					return err
+				}
+				if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_META_CHANGES, treeChangeListener)); err != nil {
+					return err
+				}
+				if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_JOB_TASK_EVENT, taskChangeListener)); err != nil {
+					return err
+				}
+				if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_IDM_EVENT, idmChangeListener)); err != nil {
+					return err
+				}
+				if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_ACTIVITY_EVENT, activityListener)); err != nil {
+					return err
+				}
 
-			// Register Chat Subscribers
-			chatEventsListener := func(ctx context.Context, msg *chat2.ChatEvent) error {
-				return chat.BroadcastChatMessage(ctx, msg)
-			}
-			if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_CHAT_EVENT, chatEventsListener)); err != nil {
-				return err
-			}
+				// Register Chat Subscribers
+				chatEventsListener := func(ctx context.Context, msg *chat2.ChatEvent) error {
+					return chat.BroadcastChatMessage(ctx, msg)
+				}
+				if err := eventSrv.Subscribe(eventSrv.NewSubscriber(common.TOPIC_CHAT_EVENT, chatEventsListener)); err != nil {
+					return err
+				}
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }
