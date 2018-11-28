@@ -1,4 +1,10 @@
 {
+  "dashboard.tab.dashboard":{
+    "other": "Dashboard"
+  },
+  "dashboard.tab.activity":{
+    "other": "Activity"
+  },
   "ds.board.ds.legend": {
     "other": "Datasources are concrete storage locations that are aggregated by Pydio into a global tree. They can be distributed accross many storage nodes as needed."
   },
@@ -1456,6 +1462,21 @@
   },
   "services.toggle.details":{
     "other": "Show Details"
+  },
+  "services.column.name":{
+    "other": "Service Name"
+  },
+  "services.column.description":{
+    "other": "Description"
+  },
+  "services.column.version":{
+    "other": "Version"
+  },
+  "services.column.tag":{
+    "other": "Tag"
+  },
+  "services.column.peers":{
+    "other": "Peers"
   },
   "services.tag.gateway.title":{
     "other": "Gateways"

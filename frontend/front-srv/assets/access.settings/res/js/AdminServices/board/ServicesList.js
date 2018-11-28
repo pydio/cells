@@ -181,6 +181,7 @@ export default React.createClass({
             flexWrap:'wrap'
         };
         const m = id => pydio.MessageHash['ajxp_admin.services.tag.' + id] || id;
+        const m2 = id => pydio.MessageHash['ajxp_admin.services.column.' + id] || id;
 
         const Tags = groupAndSortServices(services.filter(s => this.filterNodes(s)), pydio);
         if (!details){
@@ -193,10 +194,10 @@ export default React.createClass({
                     }
                     return <FontIcon style={{margin:'0 9px 0 4px', fontSize: 20}} className={"mdi-traffic-light"} color={iconColor}/>
                 }},
-                {name:'Name', label: 'Service Name', style:{paddingLeft: 0}, headerStyle:{paddingLeft: 0}},
-                {name:'Description', label: 'Description', style:{width: '40%'}, headerStyle:{width: '40%'}, hideSmall: true},
-                {name:'Version', label: 'Version', style:{width: 80}, headerStyle:{width: 80}, hideSmall: true},
-                {name:'Type', label:'Tag', style:{width: 140}, headerStyle:{width: 140}, hideSmall: true, renderCell:(service)=>{
+                {name:'Name', label: m2('name'), style:{paddingLeft: 0}, headerStyle:{paddingLeft: 0}},
+                {name:'Description', label: m2('description'), style:{width: '40%'}, headerStyle:{width: '40%'}, hideSmall: true},
+                {name:'Version', label: m2('version'), style:{width: 80}, headerStyle:{width: 80}, hideSmall: true},
+                {name:'Type', label:m2('tag'), style:{width: 140}, headerStyle:{width: 140}, hideSmall: true, renderCell:(service)=>{
                         const isGrpc = service.Name.startsWith('pydio.grpc.');
                         let legend = isGrpc ? "Grpc" : "Rest";
                         const m = id => pydio.MessageHash['ajxp_admin.services.service.' + id] || id;
@@ -213,7 +214,7 @@ export default React.createClass({
                         }
                         return legend;
                 }},
-                {name:'RunningPeers', label: 'Peers', hideSmall: true, renderCell:(service)=>{
+                {name:'RunningPeers', label: m2('peers'), hideSmall: true, renderCell:(service)=>{
                     let peers = [];
                     if(service.Status === 'STARTED' && service.RunningPeers) {
                         service.RunningPeers.map(p => {

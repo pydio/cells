@@ -13,7 +13,6 @@
             <i18n namespace="admin_dashboard" remote="plug/access.settings/res/i18n/dashboard" />
             <i18n namespace="action.scheduler" remote="plug/access.settings/res/i18n/scheduler" />
             <i18n namespace="updater" remote="plug/access.settings/res/i18n/updater" />
-            <i18n namespace="ldap" remote="plug/access.settings/res/i18n/ldap" />
 
             <css file="plug/access.settings/res/css/ajxp_admin.css" autoload="true"/>
             <css file="plug/access.settings/res/css/rolesEditor.css" autoload="true"/>
