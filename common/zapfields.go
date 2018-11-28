@@ -39,14 +39,15 @@ const (
 	AUDIT_LOCK_USER           = "5"
 
 	// Tree events
-	AUDIT_NODE_CREATE = "11"
-	AUDIT_NODE_READ   = "12"
-	AUDIT_NODE_LIST   = "13"
-	AUDIT_NODE_UPDATE = "14"
-	AUDIT_NODE_DELETE = "15"
-	AUDIT_WS_CREATE   = "16"
-	AUDIT_WS_UPDATE   = "17"
-	AUDIT_WS_DELETE   = "18"
+	AUDIT_NODE_CREATE       = "11"
+	AUDIT_NODE_READ         = "12"
+	AUDIT_NODE_LIST         = "13"
+	AUDIT_NODE_UPDATE       = "14"
+	AUDIT_NODE_DELETE       = "15"
+	AUDIT_WS_CREATE         = "16"
+	AUDIT_WS_UPDATE         = "17"
+	AUDIT_WS_DELETE         = "18"
+	AUDIT_NODE_MOVED_TO_BIN = "19"
 
 	// S3 Objects
 	AUDIT_OBJECT_GET = "21"
