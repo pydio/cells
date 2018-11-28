@@ -123,6 +123,10 @@ var ParametersPanel = (function (_React$Component) {
             }
             var workspaces = this.state.workspaces;
 
+            var m = function m(id) {
+                return pydio.MessageHash['pydio_role.' + id] || id;
+            };
+
             var params = role.listParametersAndActions();
             var scopes = {
                 PYDIO_REPO_SCOPE_ALL: {},
@@ -144,9 +148,9 @@ var ParametersPanel = (function (_React$Component) {
 
                 scopes[a.WorkspaceID][paramName] = a;
             });
-            var wsItems = [_react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Add for...", value: 1 }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "All workspaces", onTouchTap: function () {
+            var wsItems = [_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.selector.title'), value: 1 }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.all'), onTouchTap: function () {
                     _this4.addParameter('PYDIO_REPO_SCOPE_ALL');
-                } }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Shared Cells", onTouchTap: function () {
+                } }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.shared'), onTouchTap: function () {
                     _this4.addParameter('PYDIO_REPO_SCOPE_SHARED');
                 } }), _react2['default'].createElement(_materialUi.Divider, null)].concat(Object.keys(workspaces).map(function (ws) {
                 return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: workspaces[ws].Label, onTouchTap: function () {
@@ -163,11 +167,11 @@ var ParametersPanel = (function (_React$Component) {
                     _react2['default'].createElement(
                         'span',
                         { style: { flex: 1, paddingRight: 20 } },
-                        pydio.MessageHash['pydio_role.46'],
+                        m('46'),
                         _react2['default'].createElement(
                             'div',
                             { className: "section-legend" },
-                            pydio.MessageHash['pydio_role.47']
+                            m('47')
                         )
                     ),
                     _react2['default'].createElement(
@@ -187,13 +191,13 @@ var ParametersPanel = (function (_React$Component) {
                         var scopeLabel = undefined;
                         var odd = false;
                         if (s === 'PYDIO_REPO_SCOPE_ALL') {
-                            scopeLabel = 'All Workspaces';
+                            scopeLabel = m('parameters.scope.all');
                         } else if (s === 'PYDIO_REPO_SCOPE_SHARED') {
-                            scopeLabel = 'Shared Cells Only';
+                            scopeLabel = m('parameters.scope.shared');
                         } else if (workspaces[s]) {
-                            scopeLabel = 'Workspace ' + workspaces[s].Label;
+                            scopeLabel = m('parameters.scope.workspace').replace('%s', workspaces[s].Label);
                         } else {
-                            scopeLabel = 'Workspace ' + s;
+                            scopeLabel = m('parameters.scope.workspace').replace('%s', s);
                         }
                         var entries = undefined;
                         if (Object.keys(scopes[s]).length) {
@@ -209,7 +213,7 @@ var ParametersPanel = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'td',
                                     { colSpan: 3, style: { padding: '14px 0' } },
-                                    'No parameters or actions'
+                                    m('parameters.empty')
                                 )
                             );
                         }
@@ -229,7 +233,7 @@ var ParametersPanel = (function (_React$Component) {
                                     { style: { width: 50 } },
                                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onTouchTap: function () {
                                             _this4.addParameter(s);
-                                        } })
+                                        }, tooltip: m('parameters.custom.add') })
                                 )
                             ),
                             entries

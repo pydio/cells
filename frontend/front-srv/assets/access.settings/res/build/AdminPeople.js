@@ -22630,7 +22630,7 @@ var Dashboard = _react2['default'].createClass({
         var filterIcon = _react2['default'].createElement(
             _materialUi.IconMenu,
             {
-                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { style: { marginRight: -16, marginLeft: 8 }, iconStyle: { color: iconColor }, iconClassName: "mdi mdi-filter-variant" }),
+                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { style: { marginRight: -16, marginLeft: 8 }, iconStyle: { color: iconColor }, iconClassName: "mdi mdi-filter-variant", tooltip: this.context.getMessage('user.filter.tooltip') }),
                 anchorOrigin: { horizontal: 'right', vertical: 'top' },
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
                 value: filterValue,
@@ -22638,10 +22638,10 @@ var Dashboard = _react2['default'].createClass({
                     _this2.setState({ filterValue: val });
                 }
             },
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 1, primaryText: 'Internal Users' }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 2, primaryText: 'Shared Users' }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 3, primaryText: 'Admins Only' }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 4, primaryText: 'All Users' })
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 1, primaryText: this.context.getMessage('user.filter.internal') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 2, primaryText: this.context.getMessage('user.filter.shared') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 3, primaryText: this.context.getMessage('user.filter.admins') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 4, primaryText: this.context.getMessage('user.filter.all') })
         );
 
         return _react2['default'].createElement(
@@ -22665,7 +22665,7 @@ var Dashboard = _react2['default'].createClass({
                         _react2['default'].createElement(
                             'div',
                             { style: groupHeaderStyle },
-                            'Groups'
+                            this.context.getMessage("user.3")
                         ),
                         _react2['default'].createElement(PydioComponents.DNDTreeView, {
                             showRoot: true,
@@ -23713,7 +23713,7 @@ var UsersSearchBox = (function (_React$Component) {
                         ref: 'button',
                         onTouchTap: this.triggerSearch.bind(this),
                         iconClassName: 'mdi mdi-account-search',
-                        tooltip: 'Search'
+                        tooltip: this.props.textLabel
                     })
                 )
             );
@@ -24017,8 +24017,9 @@ var Editor = (function (_React$Component) {
 
             if (this.state.roleType === 'user') {
 
-                title = observableUser.getIdmUser().Login;
-                pagesShowSettings = observableUser.getIdmUser().Attributes['profile'] === 'admin';
+                var idmUser = observableUser.getIdmUser();
+                title = idmUser.Attributes && idmUser.Attributes['displayName'] ? idmUser.Attributes['displayName'] : idmUser.Login;
+                pagesShowSettings = idmUser.Attributes['profile'] === 'admin';
                 otherForm = _react2['default'].createElement(_infoUserInfo2['default'], { user: observableUser, pydio: pydio, pluginsRegistry: pluginsRegistry });
             } else if (this.state.roleType === 'group') {
 
@@ -24099,18 +24100,18 @@ var Editor = (function (_React$Component) {
                             { className: 'read-write-header' },
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'read'
+                                { className: 'header-read' },
+                                this.getMessage('react.5a', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'write'
+                                { className: 'header-write' },
+                                this.getMessage('react.5b', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'deny'
+                                { className: 'header-deny' },
+                                this.getMessage('react.5', 'ajxp_admin')
                             )
                         ),
                         _react2['default'].createElement('br', null)
@@ -24142,18 +24143,18 @@ var Editor = (function (_React$Component) {
                             { className: 'read-write-header' },
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'read'
+                                { className: 'header-read' },
+                                this.getMessage('react.5a', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'write'
+                                { className: 'header-write' },
+                                this.getMessage('react.5b', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'deny'
+                                { className: 'header-deny' },
+                                this.getMessage('react.5', 'ajxp_admin')
                             )
                         ),
                         _react2['default'].createElement('br', null)
@@ -24165,7 +24166,8 @@ var Editor = (function (_React$Component) {
                         advancedAcl: advancedAcl,
                         showModal: this.showModal.bind(this),
                         hideModal: this.hideModal.bind(this),
-                        showSettings: pagesShowSettings
+                        showSettings: pagesShowSettings,
+                        pydio: pydio
                     })
                 ));
             } else if (currentPane === 'params') {
@@ -24390,19 +24392,23 @@ var PagesAcls = (function (_React$Component) {
         _classCallCheck(this, PagesAcls);
 
         _get(Object.getPrototypeOf(PagesAcls.prototype), 'constructor', this).call(this, props);
+        var m = function m(id) {
+            return props.pydio.MessageHash['pydio_role.' + id] || id;
+        };
+
         var workspaces = [];
         var homepageWorkspace = new _pydioHttpRestApi.IdmWorkspace();
         homepageWorkspace.UUID = "homepage";
-        homepageWorkspace.Label = "Home Page";
-        homepageWorkspace.Description = "First page after login";
+        homepageWorkspace.Label = m('workspace.statics.home.title');
+        homepageWorkspace.Description = m('workspace.statics.home.description');
         homepageWorkspace.Slug = "homepage";
         homepageWorkspace.RootNodes = { "homepage-ROOT": _pydioHttpRestApi.TreeNode.constructFromObject({ Uuid: "homepage-ROOT" }) };
         workspaces.push(homepageWorkspace);
         if (props.showSettings) {
             var settingsWorkspace = new _pydioHttpRestApi.IdmWorkspace();
             settingsWorkspace.UUID = "settings";
-            settingsWorkspace.Label = "Settings Page";
-            settingsWorkspace.Description = "Pydio Cells Administration dashboard";
+            settingsWorkspace.Label = m('workspace.statics.settings.title');
+            settingsWorkspace.Description = m('workspace.statics.settings.description');
             settingsWorkspace.Slug = "settings";
             settingsWorkspace.RootNodes = { "settings-ROOT": _pydioHttpRestApi.TreeNode.constructFromObject({ Uuid: "settings-ROOT" }) };
             workspaces.push(settingsWorkspace);
@@ -24455,6 +24461,10 @@ var _react2 = _interopRequireDefault(_react);
 var _modelRole = require("../model/Role");
 
 var _modelRole2 = _interopRequireDefault(_modelRole);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
@@ -24566,7 +24576,7 @@ var PermissionMaskEditor = _react2['default'].createClass({
         // Todo:  multiple roots
         var rootNodes = this.props.workspace.RootNodes;
         var firstNode = rootNodes[Object.keys(rootNodes).shift()];
-        var rootNode = new AjxpNode("/" + firstNode.Path, false, "Whole workspace", "folder.png", rNodeProvider);
+        var rootNode = new _pydioModelNode2['default']("/" + firstNode.Path, false, this.context.getMessage('acls.rights.advanced.root'), "folder.png", rNodeProvider);
         rootNode.getMetadata().set("uuid", firstNode.Uuid);
 
         dataModel.setRootNode(rootNode);
@@ -24700,18 +24710,21 @@ var PermissionMaskEditor = _react2['default'].createClass({
                         this.context.getMessage('react.5', 'ajxp_admin')
                     )
                 ),
-                _react2['default'].createElement('br', { style: { clear: 'both' } }),
-                _react2['default'].createElement(PydioComponents.TreeView, {
-                    ref: 'tree',
-                    dataModel: this.state.dataModel,
-                    node: this.state.node,
-                    showRoot: true,
-                    checkboxes: ["read", "write", "deny"],
-                    checkboxesValues: this.state.mask,
-                    checkboxesComputeStatus: this.checkboxesComputeStatus,
-                    onCheckboxCheck: this.onCheckboxCheck,
-                    forceExpand: true
-                })
+                _react2['default'].createElement(
+                    'div',
+                    { style: { clear: 'both', marginRight: -34 } },
+                    _react2['default'].createElement(PydioComponents.TreeView, {
+                        ref: 'tree',
+                        dataModel: this.state.dataModel,
+                        node: this.state.node,
+                        showRoot: true,
+                        checkboxes: ["read", "write", "deny"],
+                        checkboxesValues: this.state.mask,
+                        checkboxesComputeStatus: this.checkboxesComputeStatus,
+                        onCheckboxCheck: this.onCheckboxCheck,
+                        forceExpand: true
+                    })
+                )
             )
         );
     }
@@ -24721,7 +24734,7 @@ var PermissionMaskEditor = _react2['default'].createClass({
 exports['default'] = PermissionMaskEditor;
 module.exports = exports['default'];
 
-},{"../model/Role":182,"./MaskNodesProvider":164,"classNames":50,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","react":"react"}],167:[function(require,module,exports){
+},{"../model/Role":182,"./MaskNodesProvider":164,"classNames":50,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],167:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25006,7 +25019,7 @@ exports['default'] = _react2['default'].createClass({
                     anchorOrigin: { horizontal: 'right', vertical: 'top' },
                     targetOrigin: { horizontal: 'right', vertical: 'top' }
                 },
-                _react2['default'].createElement(_materialUi.MenuItem, { value: 'manual-rights', primaryText: "Rights set manually" }),
+                _react2['default'].createElement(_materialUi.MenuItem, { value: 'manual-rights', primaryText: this.context.getMessage('acls.rights.policy.manual', 'pydio_role') }),
                 policies.map(function (entry) {
                     return _react2['default'].createElement(_materialUi.MenuItem, { value: entry.id, primaryText: entry.label });
                 })
@@ -28498,6 +28511,10 @@ var ParametersPanel = (function (_React$Component) {
             }
             var workspaces = this.state.workspaces;
 
+            var m = function m(id) {
+                return pydio.MessageHash['pydio_role.' + id] || id;
+            };
+
             var params = role.listParametersAndActions();
             var scopes = {
                 PYDIO_REPO_SCOPE_ALL: {},
@@ -28519,9 +28536,9 @@ var ParametersPanel = (function (_React$Component) {
 
                 scopes[a.WorkspaceID][paramName] = a;
             });
-            var wsItems = [_react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Add for...", value: 1 }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "All workspaces", onTouchTap: function () {
+            var wsItems = [_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.selector.title'), value: 1 }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.all'), onTouchTap: function () {
                     _this4.addParameter('PYDIO_REPO_SCOPE_ALL');
-                } }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Shared Cells", onTouchTap: function () {
+                } }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.shared'), onTouchTap: function () {
                     _this4.addParameter('PYDIO_REPO_SCOPE_SHARED');
                 } }), _react2['default'].createElement(_materialUi.Divider, null)].concat(Object.keys(workspaces).map(function (ws) {
                 return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: workspaces[ws].Label, onTouchTap: function () {
@@ -28538,11 +28555,11 @@ var ParametersPanel = (function (_React$Component) {
                     _react2['default'].createElement(
                         'span',
                         { style: { flex: 1, paddingRight: 20 } },
-                        pydio.MessageHash['pydio_role.46'],
+                        m('46'),
                         _react2['default'].createElement(
                             'div',
                             { className: "section-legend" },
-                            pydio.MessageHash['pydio_role.47']
+                            m('47')
                         )
                     ),
                     _react2['default'].createElement(
@@ -28562,13 +28579,13 @@ var ParametersPanel = (function (_React$Component) {
                         var scopeLabel = undefined;
                         var odd = false;
                         if (s === 'PYDIO_REPO_SCOPE_ALL') {
-                            scopeLabel = 'All Workspaces';
+                            scopeLabel = m('parameters.scope.all');
                         } else if (s === 'PYDIO_REPO_SCOPE_SHARED') {
-                            scopeLabel = 'Shared Cells Only';
+                            scopeLabel = m('parameters.scope.shared');
                         } else if (workspaces[s]) {
-                            scopeLabel = 'Workspace ' + workspaces[s].Label;
+                            scopeLabel = m('parameters.scope.workspace').replace('%s', workspaces[s].Label);
                         } else {
-                            scopeLabel = 'Workspace ' + s;
+                            scopeLabel = m('parameters.scope.workspace').replace('%s', s);
                         }
                         var entries = undefined;
                         if (Object.keys(scopes[s]).length) {
@@ -28584,7 +28601,7 @@ var ParametersPanel = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'td',
                                     { colSpan: 3, style: { padding: '14px 0' } },
-                                    'No parameters or actions'
+                                    m('parameters.empty')
                                 )
                             );
                         }
@@ -28604,7 +28621,7 @@ var ParametersPanel = (function (_React$Component) {
                                     { style: { width: 50 } },
                                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onTouchTap: function () {
                                             _this4.addParameter(s);
-                                        } })
+                                        }, tooltip: m('parameters.custom.add') })
                                 )
                             ),
                             entries
@@ -29143,7 +29160,8 @@ exports['default'] = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, color: '#bdbdbd', fontWeight: 500 } },
-                    'Manage roles ',
+                    ctx.getMessage('roles.picker.title'),
+                    ' ',
                     loadingMessage ? ' (' + ctx.getMessage('21') + ')' : ''
                 ),
                 _react2['default'].createElement(

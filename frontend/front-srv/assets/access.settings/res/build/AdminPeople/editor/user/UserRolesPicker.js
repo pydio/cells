@@ -138,7 +138,8 @@ exports['default'] = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, color: '#bdbdbd', fontWeight: 500 } },
-                    'Manage roles ',
+                    ctx.getMessage('roles.picker.title'),
+                    ' ',
                     loadingMessage ? ' (' + ctx.getMessage('21') + ')' : ''
                 ),
                 _react2['default'].createElement(

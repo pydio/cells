@@ -152,7 +152,7 @@ exports['default'] = _react2['default'].createClass({
                     anchorOrigin: { horizontal: 'right', vertical: 'top' },
                     targetOrigin: { horizontal: 'right', vertical: 'top' }
                 },
-                _react2['default'].createElement(_materialUi.MenuItem, { value: 'manual-rights', primaryText: "Rights set manually" }),
+                _react2['default'].createElement(_materialUi.MenuItem, { value: 'manual-rights', primaryText: this.context.getMessage('acls.rights.policy.manual', 'pydio_role') }),
                 policies.map(function (entry) {
                     return _react2['default'].createElement(_materialUi.MenuItem, { value: entry.id, primaryText: entry.label });
                 })

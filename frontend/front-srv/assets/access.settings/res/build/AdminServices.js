@@ -106,7 +106,7 @@ exports['default'] = _react2['default'].createClass({
             peers.length && _react2['default'].createElement(
                 _materialUi.DropDownMenu,
                 { className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: peerFilter, onChange: this.onPeerFilterChange },
-                _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: 'Select Peer Node' }),
+                _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('peerfilter.title') }),
                 peers.map(function (peer) {
                     return _react2['default'].createElement(_materialUi.MenuItem, { value: peer, primaryText: peer });
                 })

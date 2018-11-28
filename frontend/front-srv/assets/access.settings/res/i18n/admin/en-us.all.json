@@ -860,6 +860,21 @@
   "plugins.6": {
     "other": "Revert"
   },
+  "plugins.list.column.enabled":{
+    "other": "Enabled"
+  },
+  "plugins.list.column.label":{
+    "other": "Label"
+  },
+  "plugins.list.column.id":{
+    "other": "Id"
+  },
+  "plugins.list.column.description":{
+    "other": "Description"
+  },
+  "plugins.list.action.edit":{
+    "other": "Edit plugin parameters"
+  },
   "policies.policy.create": {
     "other": "Create"
   },
@@ -1042,6 +1057,21 @@
   },
   "user.9": {
     "other": "Last connected"
+  },
+  "user.filter.tooltip":{
+    "other": "Filter users list..."
+  },
+  "user.filter.internal":{
+    "other": "Internal users"
+  },
+  "user.filter.shared":{
+    "other": "Shared users"
+  },
+  "user.filter.admins":{
+    "other": "Admins only"
+  },
+  "user.filter.all":{
+    "other": "All users"
   },
   "versions.editor.delete": {
     "other": "Delete Policy"
@@ -1420,6 +1450,9 @@
   },
   "services.filter.stopped":{
     "other": "Stopped Only"
+  },
+  "services.peerfilter.title":{
+    "other": "Select Node"
   },
   "services.toggle.details":{
     "other": "Show Details"

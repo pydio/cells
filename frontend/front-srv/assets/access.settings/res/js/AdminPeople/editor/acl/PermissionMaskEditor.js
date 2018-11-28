@@ -1,5 +1,6 @@
 import React from 'react'
 import Role from "../model/Role";
+import AjxpNode from 'pydio/model/node';
 import {IdmWorkspace} from 'pydio/http/rest-api';
 import classNames from 'classNames';
 import {IconButton} from 'material-ui';
@@ -93,7 +94,7 @@ const PermissionMaskEditor = React.createClass({
         // Todo:  multiple roots
         const rootNodes = this.props.workspace.RootNodes;
         const firstNode = rootNodes[Object.keys(rootNodes).shift()];
-        const rootNode = new AjxpNode("/" + firstNode.Path, false, "Whole workspace", "folder.png", rNodeProvider);
+        const rootNode = new AjxpNode("/" + firstNode.Path, false, this.context.getMessage('acls.rights.advanced.root'), "folder.png", rNodeProvider);
         rootNode.getMetadata().set("uuid", firstNode.Uuid);
 
         dataModel.setRootNode(rootNode);
@@ -195,18 +196,19 @@ const PermissionMaskEditor = React.createClass({
                         <span className="header-write">{this.context.getMessage('react.5b','ajxp_admin')}</span>
                         <span className="header-deny">{this.context.getMessage('react.5','ajxp_admin')}</span>
                     </div>
-                    <br  style={{clear: 'both'}}/>
-                    <PydioComponents.TreeView
-                        ref="tree"
-                        dataModel={this.state.dataModel}
-                        node={this.state.node}
-                        showRoot={true}
-                        checkboxes={["read", "write", "deny"]}
-                        checkboxesValues={this.state.mask}
-                        checkboxesComputeStatus={this.checkboxesComputeStatus}
-                        onCheckboxCheck={this.onCheckboxCheck}
-                        forceExpand={true}
-                    />
+                    <div style={{clear: 'both', marginRight:-34}}>
+                        <PydioComponents.TreeView
+                            ref="tree"
+                            dataModel={this.state.dataModel}
+                            node={this.state.node}
+                            showRoot={true}
+                            checkboxes={["read", "write", "deny"]}
+                            checkboxesValues={this.state.mask}
+                            checkboxesComputeStatus={this.checkboxesComputeStatus}
+                            onCheckboxCheck={this.onCheckboxCheck}
+                            forceExpand={true}
+                        />
+                    </div>
                 </div>
             </div>
         );

@@ -93,7 +93,8 @@ const PluginsList = React.createClass({
 
     render(){
 
-        const {displaySmall} = this.props;
+        const {displaySmall, pydio} = this.props;
+        const m = (id) => pydio.MessageHash['ajxp_admin.plugins.list.' + id] || id;
         let columns;
         const renderEnabled = (row) => {
             return (<Toggle
@@ -109,7 +110,7 @@ const PluginsList = React.createClass({
                     <IconButton
                         iconStyle={{color: 'rgba(0,0,0,0.33)', fontSize:21}}
                         iconClassName="mdi mdi-pencil"
-                        tooltip={"Edit plugin parameters"}
+                        tooltip={m('action.edit')}
                         onTouchTap={()=>this.openTableRows([row])}
                     />);
             } else {
@@ -120,17 +121,17 @@ const PluginsList = React.createClass({
 
         if(displaySmall) {
             columns = [
-                {name:'enabled', label: 'Enabled', style:{width:80}, headerStyle:{width:80}, renderCell: renderEnabled},
-                {name:'label', label: 'Label', style:{fontSize:15}},
+                {name:'enabled', label: m('column.enabled'), style:{width:80}, headerStyle:{width:80}, renderCell: renderEnabled},
+                {name:'label', label: m('column.label'), style:{fontSize:15}},
                 {name:'action', label: '', style:{width:80}, headerStyle:{width:80}, renderCell: renderEditButton}
             ];
 
         } else {
             columns = [
-                {name:'enabled', label: 'Enabled', style:{width:80}, headerStyle:{width:80}, renderCell: renderEnabled},
-                {name:'label', label: 'Label', style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
-                {name:'id', label: 'Id', style:{width:'15%'}, headerStyle:{width:'15%'}, hideSmall: true},
-                {name:'description', label: 'Description', hideSmall: true},
+                {name:'enabled', label: m('column.enabled'), style:{width:80}, headerStyle:{width:80}, renderCell: renderEnabled},
+                {name:'label', label: m('column.label'), style:{width:'20%', fontSize:15}, headerStyle:{width:'20%'}},
+                {name:'id', label: m('column.id'), style:{width:'15%'}, headerStyle:{width:'15%'}, hideSmall: true},
+                {name:'description', label: m('column.description'), hideSmall: true},
                 {name:'action', label: '', style:{width:80}, headerStyle:{width:80}, renderCell: renderEditButton}
             ];
         }

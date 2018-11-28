@@ -167,7 +167,7 @@ var UsersSearchBox = (function (_React$Component) {
                         ref: 'button',
                         onTouchTap: this.triggerSearch.bind(this),
                         iconClassName: 'mdi mdi-account-search',
-                        tooltip: 'Search'
+                        tooltip: this.props.textLabel
                     })
                 )
             );

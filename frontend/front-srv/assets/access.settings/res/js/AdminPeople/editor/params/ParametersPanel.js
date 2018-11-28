@@ -69,6 +69,7 @@ export default class ParametersPanel extends React.Component {
             return null;
         }
         const {workspaces} = this.state;
+        const m = (id) => pydio.MessageHash['pydio_role.'+id] || id;
 
         const params = role.listParametersAndActions();
         let scopes = {
@@ -84,9 +85,9 @@ export default class ParametersPanel extends React.Component {
             scopes[a.WorkspaceID][paramName] = a;
         });
         let wsItems = [
-            <MenuItem primaryText={"Add for..."} value={1}/>,
-            <MenuItem primaryText={"All workspaces"} onTouchTap={() => { this.addParameter('PYDIO_REPO_SCOPE_ALL') }}/>,
-            <MenuItem primaryText={"Shared Cells"} onTouchTap={() => { this.addParameter('PYDIO_REPO_SCOPE_SHARED') }}/>,
+            <MenuItem primaryText={m('parameters.scope.selector.title')} value={1}/>,
+            <MenuItem primaryText={m('parameters.scope.all')} onTouchTap={() => { this.addParameter('PYDIO_REPO_SCOPE_ALL') }}/>,
+            <MenuItem primaryText={m('parameters.scope.shared')} onTouchTap={() => { this.addParameter('PYDIO_REPO_SCOPE_SHARED') }}/>,
             <Divider/>
         ].concat(
             Object.keys(workspaces).map(ws => <MenuItem primaryText={workspaces[ws].Label} onTouchTap={() => { this.addParameter(ws) }}/>)
@@ -96,8 +97,8 @@ export default class ParametersPanel extends React.Component {
             <div>
                 <h3 className="paper-right-title" style={{display: 'flex'}}>
                     <span style={{flex: 1, paddingRight: 20}}>
-                        {pydio.MessageHash['pydio_role.46']}
-                        <div className={"section-legend"}>{pydio.MessageHash['pydio_role.47']}</div>
+                        {m('46')}
+                        <div className={"section-legend"}>{m('47')}</div>
                     </span>
                     <div style={{width: 160}}><SelectField fullWidth={true} value={1}>{wsItems}</SelectField></div>
                 </h3>
@@ -106,13 +107,13 @@ export default class ParametersPanel extends React.Component {
                         let scopeLabel;
                         let odd = false;
                         if(s === 'PYDIO_REPO_SCOPE_ALL') {
-                            scopeLabel = 'All Workspaces';
+                            scopeLabel = m('parameters.scope.all');
                         } else if(s === 'PYDIO_REPO_SCOPE_SHARED') {
-                            scopeLabel = 'Shared Cells Only';
+                            scopeLabel = m('parameters.scope.shared');
                         } else if(workspaces[s]){
-                            scopeLabel = 'Workspace ' + workspaces[s].Label;
+                            scopeLabel = m('parameters.scope.workspace').replace('%s', workspaces[s].Label);
                         } else {
-                            scopeLabel = 'Workspace ' + s;
+                            scopeLabel = m('parameters.scope.workspace').replace('%s', s);
                         }
                         let entries;
                         if(Object.keys(scopes[s]).length){
@@ -122,13 +123,15 @@ export default class ParametersPanel extends React.Component {
                                 return <ParameterEntry pydio={pydio} acl={scopes[s][param]} role={role} {...this.state} style={style}/>
                             });
                         } else {
-                            entries = <tr><td colSpan={3} style={{padding: '14px 0'}}>No parameters or actions</td></tr>;
+                            entries = <tr><td colSpan={3} style={{padding: '14px 0'}}>{m('parameters.empty')}</td></tr>;
                         }
                         return (
                             <table style={{width:'100%', marginBottom: 20}}>
                                 <tr style={{borderBottom: '1px solid #e0e0e0'}}>
                                     <td colSpan={2} style={{fontSize: 15, paddingTop: 10}}>{scopeLabel}</td>
-                                    <td style={{width: 50}}><IconButton iconClassName={"mdi mdi-plus"} onTouchTap={()=>{this.addParameter(s)}}/></td>
+                                    <td style={{width: 50}}>
+                                        <IconButton iconClassName={"mdi mdi-plus"} onTouchTap={()=>{this.addParameter(s)}} tooltip={m('parameters.custom.add')}/>
+                                    </td>
                                 </tr>
                                 {entries}
                             </table>

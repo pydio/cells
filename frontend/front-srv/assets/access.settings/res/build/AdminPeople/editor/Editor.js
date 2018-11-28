@@ -278,8 +278,9 @@ var Editor = (function (_React$Component) {
 
             if (this.state.roleType === 'user') {
 
-                title = observableUser.getIdmUser().Login;
-                pagesShowSettings = observableUser.getIdmUser().Attributes['profile'] === 'admin';
+                var idmUser = observableUser.getIdmUser();
+                title = idmUser.Attributes && idmUser.Attributes['displayName'] ? idmUser.Attributes['displayName'] : idmUser.Login;
+                pagesShowSettings = idmUser.Attributes['profile'] === 'admin';
                 otherForm = _react2['default'].createElement(_infoUserInfo2['default'], { user: observableUser, pydio: pydio, pluginsRegistry: pluginsRegistry });
             } else if (this.state.roleType === 'group') {
 
@@ -360,18 +361,18 @@ var Editor = (function (_React$Component) {
                             { className: 'read-write-header' },
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'read'
+                                { className: 'header-read' },
+                                this.getMessage('react.5a', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'write'
+                                { className: 'header-write' },
+                                this.getMessage('react.5b', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'deny'
+                                { className: 'header-deny' },
+                                this.getMessage('react.5', 'ajxp_admin')
                             )
                         ),
                         _react2['default'].createElement('br', null)
@@ -403,18 +404,18 @@ var Editor = (function (_React$Component) {
                             { className: 'read-write-header' },
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'read'
+                                { className: 'header-read' },
+                                this.getMessage('react.5a', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'write'
+                                { className: 'header-write' },
+                                this.getMessage('react.5b', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'deny'
+                                { className: 'header-deny' },
+                                this.getMessage('react.5', 'ajxp_admin')
                             )
                         ),
                         _react2['default'].createElement('br', null)
@@ -426,7 +427,8 @@ var Editor = (function (_React$Component) {
                         advancedAcl: advancedAcl,
                         showModal: this.showModal.bind(this),
                         hideModal: this.hideModal.bind(this),
-                        showSettings: pagesShowSettings
+                        showSettings: pagesShowSettings,
+                        pydio: pydio
                     })
                 ));
             } else if (currentPane === 'params') {
