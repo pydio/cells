@@ -1,4 +1,10 @@
 {
+  "dashboard.tab.dashboard": {
+    "other": "Dashboard"
+  },
+  "dashboard.tab.activity": {
+    "other": "Activité"
+  },
   "ds.board.ds.legend": {
     "other": "Les datasources représentent concrètement les points d'accès à vos stockages, et sont agrégées dans un namespace global par Pydio. Elles peuvent être distribuées sur différents nœuds."
   },
@@ -1456,6 +1462,21 @@
   },
   "services.toggle.details": {
     "other": "Voir les détails"
+  },
+  "services.column.name": {
+    "other": "Nom du Service"
+  },
+  "services.column.description": {
+    "other": "Description"
+  },
+  "services.column.version": {
+    "other": "Version"
+  },
+  "services.column.tag": {
+    "other": "Tag"
+  },
+  "services.column.peers": {
+    "other": "Nœuds"
   },
   "services.tag.gateway.title": {
     "other": "Passerelles"
