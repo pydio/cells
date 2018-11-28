@@ -160,5 +160,44 @@
   },
   "9": {
     "other": "Sólo lectura"
+  },
+  "roles.picker.title": {
+    "other": "Manage user roles"
+  },
+  "parameters.scope.selector.title": {
+    "other": "Add for ..."
+  },
+  "parameters.scope.all": {
+    "other": "All Workspaces"
+  },
+  "parameters.scope.shared": {
+    "other": "Shared Cells only"
+  },
+  "parameters.scope.workspace": {
+    "other": "Workspace %s"
+  },
+  "parameters.custom.add": {
+    "other": "Add custom parameter or action"
+  },
+  "parameters.empty": {
+    "other": "No parameters or actions"
+  },
+  "workspace.statics.home.title": {
+    "other": "Home Page"
+  },
+  "workspace.statics.home.description": {
+    "other": "Welcome page displayed after login"
+  },
+  "workspace.statics.settings.title": {
+    "other": "Admin Console"
+  },
+  "workspace.statics.settings.description": {
+    "other": "Pydio Cells administration dashboard"
+  },
+  "acls.rights.policy.manual": {
+    "other": "Rights set manually"
+  },
+  "acls.rights.advanced.root": {
+    "other": "Whole workspace"
   }
 }
