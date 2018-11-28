@@ -242,17 +242,20 @@ var Dashboard = _react2['default'].createClass({
             name: 'Owner',
             label: m('job.owner'),
             style: { width: '15%' },
-            headerStyle: { width: '15%' }
+            headerStyle: { width: '15%' },
+            hideSmall: true
         }, {
             name: 'Trigger',
             label: m('job.trigger'),
             style: { width: '15%' },
-            headerStyle: { width: '15%' }
+            headerStyle: { width: '15%' },
+            hideSmall: true
         }, {
             name: 'TaskEndTime',
             label: this.context.getMessage('14', 'action.scheduler'),
             style: { width: '15%' },
-            headerStyle: { width: '15%' }
+            headerStyle: { width: '15%' },
+            hideSmall: true
         }, {
             name: 'TaskStatus',
             label: this.context.getMessage('13', 'action.scheduler')
@@ -321,7 +324,7 @@ var Dashboard = _react2['default'].createClass({
                             _this4.selectRows(rows);
                         },
                         showCheckboxes: false,
-                        emptyStateString: loading ? this.context.getMessage('33') : m('system.empty')
+                        emptyStateString: loading ? this.context.getMessage('466', '') : m('system.empty')
                     })
                 ),
                 _react2['default'].createElement(AdminComponents.SubHeader, {
@@ -577,7 +580,7 @@ var JobBoard = (function (_React$Component2) {
                 return pydio.MessageHash['ajxp_admin.scheduler.' + id] || id;
             };
 
-            var keys = [{ name: 'ID', label: m('task.id') }, { name: 'StartTime', label: m('task.start'), useMoment: true }, { name: 'EndTime', label: m('task.end'), useMoment: true }, { name: 'Status', label: m('task.status') }, { name: 'StatusMessage', label: m('task.message'), style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
+            var keys = [{ name: 'ID', label: m('task.id'), hideSmall: true }, { name: 'StartTime', label: m('task.start'), useMoment: true }, { name: 'EndTime', label: m('task.end'), useMoment: true, hideSmall: true }, { name: 'Status', label: m('task.status') }, { name: 'StatusMessage', label: m('task.message'), hideSmall: true, style: { width: '25%' }, headerStyle: { width: '25%' }, renderCell: function renderCell(row) {
                     if (row.Status === 'Error') return _react2['default'].createElement(
                         'span',
                         { style: { fontWeight: 500, color: '#E53935' } },

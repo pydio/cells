@@ -127,6 +127,10 @@ class Transfer extends React.Component{
                 fontWeight: isDir ? 500: 400,
                 color: isPart ? '#9e9e9e' : null,
                 fontStyle: isPart ? 'italic' : null,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                flex: 1,
             },
             pgBar: {
                 width: 80,
@@ -235,9 +239,7 @@ class Transfer extends React.Component{
             <div style={styles.main} className={"upload-" + status + " " + (className?className:"")}>
                 <div style={styles.line}>
                     {leftIcon}
-                    <span onClick={toggleCallback} style={styles.label}>{label}</span>
-                    {toggleOpen}
-                    <span style={{flex: 1}}/>
+                    <span onClick={toggleCallback} style={styles.label}>{label} {toggleOpen}</span>
                     <div style={styles.pgBar}>{progressBar}</div>
                     <span style={styles.rightButton}>{rightButton}</span>
                 </div>

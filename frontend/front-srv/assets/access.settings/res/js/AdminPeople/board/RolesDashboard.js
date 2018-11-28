@@ -163,8 +163,8 @@ let RolesDashboard = React.createClass({
         };
         const columns = [
             {name:'roleLabel', label: this.context.getMessage('32', 'role_editor'), style:{width:'35%', fontSize:15}, headerStyle:{width:'35%'}},
-            {name:'roleSummary', label: this.context.getMessage('last_update', 'role_editor')},
-            {name:'isDefault', label: this.context.getMessage('114', 'settings'), style:{width:'20%'}, headerStyle:{width:'20%'}},
+            {name:'roleSummary', label: this.context.getMessage('last_update', 'role_editor'), hideSmall:true},
+            {name:'isDefault', label: this.context.getMessage('114', 'settings'), style:{width:'20%'}, headerStyle:{width:'20%'}, hideSmall:true},
             {name:'actions', label:'', style:{width:80}, headerStyle:{width:80}, renderCell:(row) => {
                 return <IconButton key="delete" iconClassName="mdi mdi-delete" onTouchTap={() => {this.deleteAction(row.roleId)}} onClick={(e)=>{e.stopPropagation()}} iconStyle={iconStyle} />
             }}

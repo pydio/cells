@@ -889,5 +889,14 @@
   },
   "99": {
     "other": "Todos os elementos compartilahdos"
+  },
+  "cells.create.advanced": {
+    "other": "Add users/data"
+  },
+  "cells.create.buttons.separator": {
+    "other": "or"
+  },
+  "cells.create.title.fill.folders": {
+    "other": "Share existing folder(s)"
   }
 }

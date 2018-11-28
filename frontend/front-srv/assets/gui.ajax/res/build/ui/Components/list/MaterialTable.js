@@ -101,7 +101,7 @@ var MaterialTable = (function (_React$Component) {
                 }, model.style);
                 return _react2['default'].createElement(
                     _materialUi.TableRow,
-                    null,
+                    { className: "media-small-hide" },
                     _react2['default'].createElement(
                         _materialUi.TableRowColumn,
                         { colSpan: columns.length, style: headerStyle },
@@ -121,7 +121,7 @@ var MaterialTable = (function (_React$Component) {
                     }
                     return _react2['default'].createElement(
                         _materialUi.TableRowColumn,
-                        { style: column.style || {}, title: value },
+                        { style: column.style || {}, title: value, className: column.hideSmall ? 'media-small-hide' : null },
                         value
                     );
                 })
@@ -130,7 +130,7 @@ var MaterialTable = (function (_React$Component) {
         var headers = columns.map(function (column) {
             return _react2['default'].createElement(
                 _materialUi.TableHeaderColumn,
-                { style: column.headerStyle || {} },
+                { style: column.headerStyle || {}, className: column.hideSmall ? 'media-small-hide' : null },
                 column.label
             );
         });
@@ -153,7 +153,7 @@ var MaterialTable = (function (_React$Component) {
                 { style: { borderBottom: 'none', height: 0 } },
                 columns.map(function (col) {
                     var s = col.style || {};
-                    return _react2['default'].createElement(_materialUi.TableRowColumn, { style: _extends({}, s, { height: 0 }) });
+                    return _react2['default'].createElement(_materialUi.TableRowColumn, { style: _extends({}, s, { height: 0 }), className: col.hideSmall ? 'media-small-hide' : null });
                 })
             ));
         }

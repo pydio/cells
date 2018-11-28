@@ -28,26 +28,25 @@ import (
 	"github.com/pydio/cells/common/proto/mailer"
 )
 
+// NewGomailMessage prepares a new Message to be sent.
 func NewGomailMessage(email *mailer.Mail) (*gomail.Message, error) {
 
 	m := gomail.NewMessage()
 	if email.From == nil || email.From.Address == "" {
-		return nil, fmt.Errorf("NewGomailMessage: cannot find FROM address")
+		return nil, fmt.Errorf("cannot create gomail: no FROM address")
 	}
 	// FROM
 	m.SetAddressHeader("From", email.From.Address, email.From.Name)
-	// fmt.Println("Adding sender: " + email.From.Address)
 
 	// TO
 	to := []string{}
 	for _, u := range email.To {
 		if u.Address != "" {
 			to = append(to, u.Address)
-			// fmt.Println("Adding recipient: " + u.Address)
 		}
 	}
 	if len(to) == 0 {
-		return nil, fmt.Errorf("NewGomailMessage: cannot find any address to send to")
+		return nil, fmt.Errorf("cannot create gomail: no recipient address")
 	}
 	m.SetHeader("To", to...)
 	// CC
@@ -59,8 +58,6 @@ func NewGomailMessage(email *mailer.Mail) (*gomail.Message, error) {
 
 	m.SetHeader("Subject", email.Subject)
 
-	//formatMail(email, email.To[0])
-
 	if len(email.ContentHtml) > 0 {
 		m.SetBody("text/html", email.ContentHtml)
 	} else {
@@ -71,5 +68,4 @@ func NewGomailMessage(email *mailer.Mail) (*gomail.Message, error) {
 	}
 
 	return m, nil
-
 }

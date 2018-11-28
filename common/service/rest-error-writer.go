@@ -39,6 +39,10 @@ func RestError500(req *restful.Request, resp *restful.Response, err error) {
 		Title:  err.Error(),
 		Detail: err.Error(),
 	}
+	if parsed := errors.Parse(err.Error()); parsed.Status != "" && parsed.Detail != "" {
+		e.Title = parsed.Detail
+		e.Detail = parsed.Status + ": " + parsed.Detail
+	}
 	resp.WriteHeaderAndEntity(500, e)
 }
 
@@ -49,6 +53,10 @@ func RestError404(req *restful.Request, resp *restful.Response, err error) {
 	e := &rest.Error{
 		Title:  err.Error(),
 		Detail: err.Error(),
+	}
+	if parsed := errors.Parse(err.Error()); parsed.Status != "" && parsed.Detail != "" {
+		e.Title = parsed.Detail
+		e.Detail = parsed.Status + ": " + parsed.Detail
 	}
 	resp.WriteHeaderAndEntity(404, e)
 }
@@ -61,6 +69,10 @@ func RestError403(req *restful.Request, resp *restful.Response, err error) {
 		Title:  err.Error(),
 		Detail: err.Error(),
 	}
+	if parsed := errors.Parse(err.Error()); parsed.Status != "" && parsed.Detail != "" {
+		e.Title = parsed.Detail
+		e.Detail = parsed.Status + ": " + parsed.Detail
+	}
 	resp.WriteHeaderAndEntity(403, e)
 }
 
@@ -71,6 +83,10 @@ func RestError401(req *restful.Request, resp *restful.Response, err error) {
 	e := &rest.Error{
 		Title:  err.Error(),
 		Detail: err.Error(),
+	}
+	if parsed := errors.Parse(err.Error()); parsed.Status != "" && parsed.Detail != "" {
+		e.Title = parsed.Detail
+		e.Detail = parsed.Status + ": " + parsed.Detail
 	}
 	resp.WriteHeaderAndEntity(401, e)
 }

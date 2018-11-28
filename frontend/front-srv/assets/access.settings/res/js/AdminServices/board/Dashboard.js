@@ -71,12 +71,12 @@ export default React.createClass({
             <div style={{display: 'flex', alignItems: 'center', padding: '0 20px', width: '100%'}}>
                 <Toggle label={m('toggle.details')} toggled={details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 150}}/>
                 {peers.length &&
-                    <DropDownMenu style={{marginTop: -10}} underlineStyle={{display:'none'}} value={peerFilter} onChange={this.onPeerFilterChange}>
+                    <DropDownMenu className={"media-small-hide"} style={{marginTop: -10}} underlineStyle={{display:'none'}} value={peerFilter} onChange={this.onPeerFilterChange}>
                         <MenuItem value={''} primaryText={'Select Peer Node'} />
                         {peers.map(peer => <MenuItem value={peer} primaryText={peer} />)}
                     </DropDownMenu>
                 }
-                <DropDownMenu style={{marginTop: -10}} underlineStyle={{display:'none'}} value={filter} onChange={this.onFilterChange}>
+                <DropDownMenu className={"media-small-hide"} style={{marginTop: -10}} underlineStyle={{display:'none'}} value={filter} onChange={this.onFilterChange}>
                     <MenuItem value={''} primaryText={m('filter.nofilter')} />
                     <MenuItem value={'STARTED'} primaryText={m('filter.started')} />
                     <MenuItem value={'STOPPED'} primaryText={m('filter.stopped')} />

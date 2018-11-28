@@ -55,6 +55,10 @@ class UserInfo extends React.Component {
             }
             if(currentLocks.indexOf(lockName) > - 1){
                 currentLocks = currentLocks.filter(l => l !== lockName);
+                if(action === 'user_set_lock-lock'){
+                    // Reset also the failedConnections attempts
+                    delete idmUser.Attributes["failedConnections"];
+                }
             } else {
                 currentLocks.push(lockName);
             }

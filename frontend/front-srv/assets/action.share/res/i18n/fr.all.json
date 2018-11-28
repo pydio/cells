@@ -889,5 +889,14 @@
   },
   "99": {
     "other": "Tous les éléments partagés"
+  },
+  "cells.create.advanced": {
+    "other": "+ Utilisateurs/Fichiers"
+  },
+  "cells.create.buttons.separator": {
+    "other": "ou"
+  },
+  "cells.create.title.fill.folders": {
+    "other": "Partager des répertoires existants"
   }
 }

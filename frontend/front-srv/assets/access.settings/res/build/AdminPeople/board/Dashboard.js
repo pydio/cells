@@ -124,19 +124,25 @@ var Dashboard = _react2['default'].createClass({
     renderListEntryFirstLine: function renderListEntryFirstLine(node) {
         var idmUser = node.getMetadata().get('IdmUser');
         var profile = idmUser.Attributes ? idmUser.Attributes['profile'] : '';
+        var icons = [];
+        var iconStyle = { display: 'inline-block', marginLeft: 5, fontSize: 14 };
+
         if (profile === 'shared') {
-            return node.getLabel() + " [" + this.context.getMessage('user.13') + "]";
+            icons.push(_react2['default'].createElement('span', { className: "mdi mdi-share-variant", style: _extends({}, iconStyle, { color: '#009688' }), title: this.context.getMessage('user.13') }));
         } else if (profile === "admin") {
-            return _react2['default'].createElement(
-                'span',
-                null,
-                node.getLabel(),
-                ' ',
-                _react2['default'].createElement('span', { className: 'icon-lock', style: { display: 'inline-block', marginRight: 5 } })
-            );
-        } else {
-            return node.getLabel();
+            icons.push(_react2['default'].createElement('span', { className: "mdi mdi-security", style: _extends({}, iconStyle, { color: '#03a9f4' }) }));
         }
+        if (idmUser.Attributes && idmUser.Attributes['locks'] && idmUser.Attributes['locks'].indexOf('logout') > -1) {
+            icons.push(_react2['default'].createElement('span', { className: "mdi mdi-lock", style: _extends({}, iconStyle, { color: '#E53934' }) }));
+        }
+
+        return _react2['default'].createElement(
+            'span',
+            null,
+            node.getLabel(),
+            ' ',
+            icons
+        );
     },
 
     renderListEntrySecondLine: function renderListEntrySecondLine(node) {
@@ -340,7 +346,8 @@ var Dashboard = _react2['default'].createClass({
             hideResults: this.hideSearchResults,
             style: { margin: '-18px 20px 0' },
             limit: 50,
-            textLabel: this.context.getMessage('user.7')
+            textLabel: this.context.getMessage('user.7'),
+            className: "media-small-hide"
         });
 
         var headerButtons = [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.1"), onTouchTap: this.createUserAction }), _react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: this.context.getMessage("user.2"), onTouchTap: this.createGroupAction })];
