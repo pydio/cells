@@ -179,8 +179,9 @@ class Editor extends React.Component{
 
         if(this.state.roleType === 'user') {
 
-            title = observableUser.getIdmUser().Login;
-            pagesShowSettings = observableUser.getIdmUser().Attributes['profile'] === 'admin';
+            const idmUser = observableUser.getIdmUser();
+            title = (idmUser.Attributes && idmUser.Attributes['displayName']) ? idmUser.Attributes['displayName'] : idmUser.Login;
+            pagesShowSettings = idmUser.Attributes['profile'] === 'admin';
             otherForm = <UserInfo user={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
 
         }else if(this.state.roleType === 'group'){
@@ -247,9 +248,9 @@ class Editor extends React.Component{
                         {this.getRootMessage('250')}
                         <div className="section-legend">{this.getMessage('43')}</div>
                         <div className="read-write-header">
-                            <span>read</span>
-                            <span>write</span>
-                            <span>deny</span>
+                            <span className="header-read">{this.getMessage('react.5a','ajxp_admin')}</span>
+                            <span className="header-write">{this.getMessage('react.5b','ajxp_admin')}</span>
+                            <span className="header-deny">{this.getMessage('react.5','ajxp_admin')}</span>
                         </div>
                         <br/>
                     </h3>
@@ -270,9 +271,9 @@ class Editor extends React.Component{
                         {this.getMessage('44')}
                         <div className="section-legend">{this.getMessage('45')}</div>
                         <div className="read-write-header">
-                            <span>read</span>
-                            <span>write</span>
-                            <span>deny</span>
+                            <span className="header-read">{this.getMessage('react.5a','ajxp_admin')}</span>
+                            <span className="header-write">{this.getMessage('react.5b','ajxp_admin')}</span>
+                            <span className="header-deny">{this.getMessage('react.5','ajxp_admin')}</span>
                         </div>
                         <br/>
                     </h3>
@@ -284,6 +285,7 @@ class Editor extends React.Component{
                         showModal={this.showModal.bind(this)}
                         hideModal={this.hideModal.bind(this)}
                         showSettings={pagesShowSettings}
+                        pydio={pydio}
                     />
                 </div>
             );

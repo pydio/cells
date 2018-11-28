@@ -26,6 +26,7 @@ const AuthenticationPluginsDashboard = React.createClass({
     mixins:[AdminComponents.MessagesConsumerMixin],
     render(){
         const pluginsList = <PluginsList
+            pydio={this.props.pydio}
             title={this.context.getMessage('plugtype.title.authfront', '')}
             dataModel={this.props.dataModel}
             filterType={"authfront"}

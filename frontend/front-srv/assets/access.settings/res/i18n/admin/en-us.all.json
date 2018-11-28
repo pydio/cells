@@ -1,4 +1,10 @@
 {
+  "dashboard.tab.dashboard":{
+    "other": "Dashboard"
+  },
+  "dashboard.tab.activity":{
+    "other": "Activity"
+  },
   "ds.board.ds.legend": {
     "other": "Datasources are concrete storage locations that are aggregated by Pydio into a global tree. They can be distributed accross many storage nodes as needed."
   },
@@ -860,6 +866,21 @@
   "plugins.6": {
     "other": "Revert"
   },
+  "plugins.list.column.enabled":{
+    "other": "Enabled"
+  },
+  "plugins.list.column.label":{
+    "other": "Label"
+  },
+  "plugins.list.column.id":{
+    "other": "Id"
+  },
+  "plugins.list.column.description":{
+    "other": "Description"
+  },
+  "plugins.list.action.edit":{
+    "other": "Edit plugin parameters"
+  },
   "policies.policy.create": {
     "other": "Create"
   },
@@ -1042,6 +1063,21 @@
   },
   "user.9": {
     "other": "Last connected"
+  },
+  "user.filter.tooltip":{
+    "other": "Filter users list..."
+  },
+  "user.filter.internal":{
+    "other": "Internal users"
+  },
+  "user.filter.shared":{
+    "other": "Shared users"
+  },
+  "user.filter.admins":{
+    "other": "Admins only"
+  },
+  "user.filter.all":{
+    "other": "All users"
   },
   "versions.editor.delete": {
     "other": "Delete Policy"
@@ -1421,8 +1457,26 @@
   "services.filter.stopped":{
     "other": "Stopped Only"
   },
+  "services.peerfilter.title":{
+    "other": "Select Node"
+  },
   "services.toggle.details":{
     "other": "Show Details"
+  },
+  "services.column.name":{
+    "other": "Service Name"
+  },
+  "services.column.description":{
+    "other": "Description"
+  },
+  "services.column.version":{
+    "other": "Version"
+  },
+  "services.column.tag":{
+    "other": "Tag"
+  },
+  "services.column.peers":{
+    "other": "Peers"
   },
   "services.tag.gateway.title":{
     "other": "Gateways"

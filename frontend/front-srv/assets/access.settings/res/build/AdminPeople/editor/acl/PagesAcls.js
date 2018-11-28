@@ -31,19 +31,23 @@ var PagesAcls = (function (_React$Component) {
         _classCallCheck(this, PagesAcls);
 
         _get(Object.getPrototypeOf(PagesAcls.prototype), 'constructor', this).call(this, props);
+        var m = function m(id) {
+            return props.pydio.MessageHash['pydio_role.' + id] || id;
+        };
+
         var workspaces = [];
         var homepageWorkspace = new _pydioHttpRestApi.IdmWorkspace();
         homepageWorkspace.UUID = "homepage";
-        homepageWorkspace.Label = "Home Page";
-        homepageWorkspace.Description = "First page after login";
+        homepageWorkspace.Label = m('workspace.statics.home.title');
+        homepageWorkspace.Description = m('workspace.statics.home.description');
         homepageWorkspace.Slug = "homepage";
         homepageWorkspace.RootNodes = { "homepage-ROOT": _pydioHttpRestApi.TreeNode.constructFromObject({ Uuid: "homepage-ROOT" }) };
         workspaces.push(homepageWorkspace);
         if (props.showSettings) {
             var settingsWorkspace = new _pydioHttpRestApi.IdmWorkspace();
             settingsWorkspace.UUID = "settings";
-            settingsWorkspace.Label = "Settings Page";
-            settingsWorkspace.Description = "Pydio Cells Administration dashboard";
+            settingsWorkspace.Label = m('workspace.statics.settings.title');
+            settingsWorkspace.Description = m('workspace.statics.settings.description');
             settingsWorkspace.Slug = "settings";
             settingsWorkspace.RootNodes = { "settings-ROOT": _pydioHttpRestApi.TreeNode.constructFromObject({ Uuid: "settings-ROOT" }) };
             workspaces.push(settingsWorkspace);

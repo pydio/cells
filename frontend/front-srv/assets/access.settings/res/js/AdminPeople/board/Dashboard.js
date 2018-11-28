@@ -310,16 +310,16 @@ let Dashboard = React.createClass({
         const iconColor = (filterValue === 1 ? 'rgba(0,0,0,0.4)' : this.props.muiTheme.palette.accent1Color);
         const filterIcon = (
             <IconMenu
-                iconButtonElement={<IconButton style={{marginRight:-16, marginLeft: 8}} iconStyle={{color:iconColor}} iconClassName={"mdi mdi-filter-variant"}/>}
+                iconButtonElement={<IconButton style={{marginRight:-16, marginLeft: 8}} iconStyle={{color:iconColor}} iconClassName={"mdi mdi-filter-variant"} tooltip={this.context.getMessage('user.filter.tooltip')}/>}
                 anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                 targetOrigin={{horizontal: 'right', vertical: 'top'}}
                 value={filterValue}
                 onChange={(e,val)=>{this.setState({filterValue:val})}}
             >
-                <MenuItem value={1} primaryText="Internal Users" />
-                <MenuItem value={2} primaryText="Shared Users" />
-                <MenuItem value={3} primaryText="Admins Only" />
-                <MenuItem value={4} primaryText="All Users" />
+                <MenuItem value={1} primaryText={this.context.getMessage('user.filter.internal')} />
+                <MenuItem value={2} primaryText={this.context.getMessage('user.filter.shared')} />
+                <MenuItem value={3} primaryText={this.context.getMessage('user.filter.admins')} />
+                <MenuItem value={4} primaryText={this.context.getMessage('user.filter.all')} />
             </IconMenu>
         );
 
@@ -336,7 +336,7 @@ let Dashboard = React.createClass({
                 <Paper zDepth={1} style={{margin: 16}} className={"horizontal-layout layout-fill"}>
                     <div className="hide-on-vertical-layout vertical-layout tab-vertical-layout people-tree" style={groupPanelStyle}>
                         <div style={{flex: 1}}>
-                            <div style={groupHeaderStyle}>Groups</div>
+                            <div style={groupHeaderStyle}>{this.context.getMessage("user.3")}</div>
                             <PydioComponents.DNDTreeView
                                 showRoot={true}
                                 rootLabel={this.context.getMessage("user.5")}

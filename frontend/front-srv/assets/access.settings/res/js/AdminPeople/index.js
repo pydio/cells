@@ -21,7 +21,6 @@
 import Dashboard from './board/Dashboard'
 import RolesDashboard from './board/RolesDashboard'
 import PoliciesBoard from './board/PoliciesBoard'
-import DirectoriesBoard from './board/DirectoriesBoard'
 import Callbacks from './board/Callbacks'
 
 import CreateUserForm from './forms/CreateUserForm'
@@ -46,6 +45,5 @@ window.AdminPeople = {
 
     Dashboard,
     RolesDashboard,
-    PoliciesBoard,
-    DirectoriesBoard
+    PoliciesBoard
 };

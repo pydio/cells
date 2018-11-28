@@ -22630,7 +22630,7 @@ var Dashboard = _react2['default'].createClass({
         var filterIcon = _react2['default'].createElement(
             _materialUi.IconMenu,
             {
-                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { style: { marginRight: -16, marginLeft: 8 }, iconStyle: { color: iconColor }, iconClassName: "mdi mdi-filter-variant" }),
+                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { style: { marginRight: -16, marginLeft: 8 }, iconStyle: { color: iconColor }, iconClassName: "mdi mdi-filter-variant", tooltip: this.context.getMessage('user.filter.tooltip') }),
                 anchorOrigin: { horizontal: 'right', vertical: 'top' },
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
                 value: filterValue,
@@ -22638,10 +22638,10 @@ var Dashboard = _react2['default'].createClass({
                     _this2.setState({ filterValue: val });
                 }
             },
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 1, primaryText: 'Internal Users' }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 2, primaryText: 'Shared Users' }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 3, primaryText: 'Admins Only' }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 4, primaryText: 'All Users' })
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 1, primaryText: this.context.getMessage('user.filter.internal') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 2, primaryText: this.context.getMessage('user.filter.shared') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 3, primaryText: this.context.getMessage('user.filter.admins') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 4, primaryText: this.context.getMessage('user.filter.all') })
         );
 
         return _react2['default'].createElement(
@@ -22665,7 +22665,7 @@ var Dashboard = _react2['default'].createClass({
                         _react2['default'].createElement(
                             'div',
                             { style: groupHeaderStyle },
-                            'Groups'
+                            this.context.getMessage("user.3")
                         ),
                         _react2['default'].createElement(PydioComponents.DNDTreeView, {
                             showRoot: true,
@@ -22711,225 +22711,7 @@ exports['default'] = Dashboard = (0, _materialUiStyles.muiThemeable)()(Dashboard
 exports['default'] = Dashboard;
 module.exports = exports['default'];
 
-},{"../editor/Editor":163,"./Callbacks":157,"./UsersSearchBox":162,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],159:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydioModelDataModel = require('pydio/model/data-model');
-
-var _pydioModelDataModel2 = _interopRequireDefault(_pydioModelDataModel);
-
-var _pydioModelNode = require('pydio/model/node');
-
-var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
-
-var _materialUi = require('material-ui');
-
-var _materialUiStyles = require('material-ui/styles');
-
-var _editorLdapLdapEditor = require('../editor/ldap/LdapEditor');
-
-var _editorLdapLdapEditor2 = _interopRequireDefault(_editorLdapLdapEditor);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
-
-var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
-
-var _editorLdapServerConfigModel = require('../editor/ldap/ServerConfigModel');
-
-var _editorLdapServerConfigModel2 = _interopRequireDefault(_editorLdapServerConfigModel);
-
-var PydioComponents = _pydio2['default'].requireLib('components');
-var MaterialTable = PydioComponents.MaterialTable;
-
-var DirectoriesBoard = _react2['default'].createClass({
-    displayName: 'DirectoriesBoard',
-
-    mixins: [AdminComponents.MessagesConsumerMixin],
-
-    propTypes: {
-        dataModel: _react2['default'].PropTypes.instanceOf(_pydioModelDataModel2['default']).isRequired,
-        rootNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        currentNode: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']).isRequired,
-        openEditor: _react2['default'].PropTypes.func.isRequired,
-        openRightPane: _react2['default'].PropTypes.func.isRequired,
-        closeRightPane: _react2['default'].PropTypes.func.isRequired
-    },
-
-    getInitialState: function getInitialState() {
-        return { directories: [] };
-    },
-
-    // Load from server
-    loadDirectories: function loadDirectories() {
-        var _this = this;
-
-        this.setState({ loading: true });
-        _editorLdapServerConfigModel2['default'].loadDirectories().then(function (response) {
-            if (response.Directories) {
-                _this.setState({ directories: response.Directories });
-            } else {
-                _this.setState({ directories: [] });
-            }
-            _this.setState({ loading: false });
-        })['catch'](function () {
-            _this.setState({ loading: false });
-        });
-    },
-
-    deleteDirectory: function deleteDirectory(row) {
-        var _this2 = this;
-
-        if (confirm('Are you sure you want to remove this external directory?')) {
-            _editorLdapServerConfigModel2['default'].deleteDirectory(row.ConfigId).then(function (res) {
-                _this2.loadDirectories();
-            });
-        }
-    },
-
-    openEditor: function openEditor() {
-        var _this3 = this;
-
-        var config = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-        var _props = this.props;
-        var pydio = _props.pydio;
-        var openRightPane = _props.openRightPane;
-
-        if (this.refs.editor && this.refs.editor.isDirty()) {
-            if (!window.confirm(pydio.MessageHash["role_editor.19"])) {
-                return false;
-            }
-        }
-        var editorData = {
-            COMPONENT: _editorLdapLdapEditor2['default'],
-            PROPS: {
-                ref: "editor",
-                pydio: pydio,
-                config: config,
-                reload: function reload() {
-                    _this3.loadDirectories();
-                },
-                onRequestTabClose: this.closeEditor.bind(this)
-            }
-        };
-        openRightPane(editorData);
-        return true;
-    },
-
-    closeEditor: function closeEditor(editor) {
-        var _props2 = this.props;
-        var pydio = _props2.pydio;
-        var closeRightPane = _props2.closeRightPane;
-
-        if (editor && editor.isDirty()) {
-            if (editor.isCreate()) {
-                closeRightPane();
-                return true;
-            }
-            if (!window.confirm(pydio.MessageHash["role_editor.19"])) {
-                return false;
-            }
-        }
-        closeRightPane();
-        return true;
-    },
-
-    openTableRows: function openTableRows(rows) {
-        if (!rows.length) {
-            return;
-        }
-        var row = rows[0];
-        this.openEditor(row);
-    },
-
-    componentDidMount: function componentDidMount() {
-        var _this4 = this;
-
-        _pydioHttpResourcesManager2['default'].loadClass('EnterpriseSDK').then(function () {
-            _this4.loadDirectories();
-        });
-    },
-
-    render: function render() {
-        var _this5 = this;
-
-        var directories = this.state.directories;
-
-        var columns = [{ name: 'DomainName', label: 'Directory' }, { name: 'Host', label: 'Server Address' }, { name: 'Schedule', label: 'Synchronization' }, { name: 'Actions', label: '', style: { width: 80 }, headerStyle: { width: 80 }, renderCell: function renderCell(row) {
-                return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", tooltip: "Remove", onTouchTap: function () {
-                        _this5.deleteDirectory(row);
-                    }, onClick: function (e) {
-                        e.stopPropagation();
-                    } });
-            } }];
-
-        return _react2['default'].createElement(
-            'div',
-            { className: "main-layout-nav-to-stack vertical-layout people-dashboard" },
-            _react2['default'].createElement(AdminComponents.Header, {
-                title: this.props.currentNode.getLabel(),
-                icon: this.props.currentNode.getMetadata().get('icon_class'),
-                actions: [_react2['default'].createElement(_materialUi.FlatButton, { primary: true, label: "+ Directory", onTouchTap: function () {
-                        _this5.openEditor();
-                    } })],
-                reloadAction: this.loadDirectories.bind(this),
-                loading: this.state.loading
-            }),
-            _react2['default'].createElement(AdminComponents.SubHeader, { legend: 'Connect Pydio to one or many external user directories (currently only LDAP/ActiveDirectory are supported). Users will be synchronized to the internal Pydio directory.' }),
-            _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16 }, className: "horizontal-layout layout-fill" },
-                _react2['default'].createElement(MaterialTable, {
-                    data: directories,
-                    columns: columns,
-                    onSelectRows: this.openTableRows.bind(this),
-                    deselectOnClickAway: true,
-                    showCheckboxes: false
-                })
-            )
-        );
-    }
-
-});
-
-exports['default'] = DirectoriesBoard = (0, _materialUiStyles.muiThemeable)()(DirectoriesBoard);
-exports['default'] = DirectoriesBoard;
-module.exports = exports['default'];
-
-},{"../editor/ldap/LdapEditor":178,"../editor/ldap/ServerConfigModel":181,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],160:[function(require,module,exports){
+},{"../editor/Editor":162,"./Callbacks":157,"./UsersSearchBox":161,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],159:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23294,7 +23076,7 @@ exports['default'] = PoliciesBoard = (0, _materialUiStyles.muiThemeable)()(Polic
 exports['default'] = PoliciesBoard;
 module.exports = exports['default'];
 
-},{"../policies/Policy":195,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":155}],161:[function(require,module,exports){
+},{"../policies/Policy":186,"material-ui":"material-ui","material-ui/styles":"material-ui/styles","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react","uuid4":155}],160:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23543,7 +23325,7 @@ var RolesDashboard = _react2['default'].createClass({
 exports['default'] = RolesDashboard;
 module.exports = exports['default'];
 
-},{"../editor/Editor":163,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],162:[function(require,module,exports){
+},{"../editor/Editor":162,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","react":"react"}],161:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -23713,7 +23495,7 @@ var UsersSearchBox = (function (_React$Component) {
                         ref: 'button',
                         onTouchTap: this.triggerSearch.bind(this),
                         iconClassName: 'mdi mdi-account-search',
-                        tooltip: 'Search'
+                        tooltip: this.props.textLabel
                     })
                 )
             );
@@ -23735,7 +23517,7 @@ UsersSearchBox.PropTypes = {
 exports['default'] = UsersSearchBox;
 module.exports = exports['default'];
 
-},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],163:[function(require,module,exports){
+},{"lodash.debounce":"lodash.debounce","material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","pydio/util/lang":"pydio/util/lang","react":"react"}],162:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -24017,8 +23799,9 @@ var Editor = (function (_React$Component) {
 
             if (this.state.roleType === 'user') {
 
-                title = observableUser.getIdmUser().Login;
-                pagesShowSettings = observableUser.getIdmUser().Attributes['profile'] === 'admin';
+                var idmUser = observableUser.getIdmUser();
+                title = idmUser.Attributes && idmUser.Attributes['displayName'] ? idmUser.Attributes['displayName'] : idmUser.Login;
+                pagesShowSettings = idmUser.Attributes['profile'] === 'admin';
                 otherForm = _react2['default'].createElement(_infoUserInfo2['default'], { user: observableUser, pydio: pydio, pluginsRegistry: pluginsRegistry });
             } else if (this.state.roleType === 'group') {
 
@@ -24099,18 +23882,18 @@ var Editor = (function (_React$Component) {
                             { className: 'read-write-header' },
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'read'
+                                { className: 'header-read' },
+                                this.getMessage('react.5a', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'write'
+                                { className: 'header-write' },
+                                this.getMessage('react.5b', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'deny'
+                                { className: 'header-deny' },
+                                this.getMessage('react.5', 'ajxp_admin')
                             )
                         ),
                         _react2['default'].createElement('br', null)
@@ -24142,18 +23925,18 @@ var Editor = (function (_React$Component) {
                             { className: 'read-write-header' },
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'read'
+                                { className: 'header-read' },
+                                this.getMessage('react.5a', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'write'
+                                { className: 'header-write' },
+                                this.getMessage('react.5b', 'ajxp_admin')
                             ),
                             _react2['default'].createElement(
                                 'span',
-                                null,
-                                'deny'
+                                { className: 'header-deny' },
+                                this.getMessage('react.5', 'ajxp_admin')
                             )
                         ),
                         _react2['default'].createElement('br', null)
@@ -24165,7 +23948,8 @@ var Editor = (function (_React$Component) {
                         advancedAcl: advancedAcl,
                         showModal: this.showModal.bind(this),
                         hideModal: this.hideModal.bind(this),
-                        showSettings: pagesShowSettings
+                        showSettings: pagesShowSettings,
+                        pydio: pydio
                     })
                 ));
             } else if (currentPane === 'params') {
@@ -24243,7 +24027,7 @@ exports['default'] = Editor;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./acl/PagesAcls":165,"./acl/WorkspacesAcls":170,"./info/GroupInfo":171,"./info/RoleInfo":172,"./info/UserInfo":173,"./model/Role":182,"./model/User":183,"./panel/SharesList":184,"./params/ParametersPanel":187,"material-ui":"material-ui","pydio":"pydio","pydio/util/path":"pydio/util/path","react":"react"}],164:[function(require,module,exports){
+},{"./acl/PagesAcls":164,"./acl/WorkspacesAcls":169,"./info/GroupInfo":170,"./info/RoleInfo":171,"./info/UserInfo":172,"./model/Role":173,"./model/User":174,"./panel/SharesList":175,"./params/ParametersPanel":178,"material-ui":"material-ui","pydio":"pydio","pydio/util/path":"pydio/util/path","react":"react"}],163:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -24356,7 +24140,7 @@ var MaskNodesProvider = (function (_MetaNodeProvider) {
 exports['default'] = MaskNodesProvider;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/meta-node-provider":"pydio/model/meta-node-provider"}],165:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/meta-node-provider":"pydio/model/meta-node-provider"}],164:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -24390,19 +24174,23 @@ var PagesAcls = (function (_React$Component) {
         _classCallCheck(this, PagesAcls);
 
         _get(Object.getPrototypeOf(PagesAcls.prototype), 'constructor', this).call(this, props);
+        var m = function m(id) {
+            return props.pydio.MessageHash['pydio_role.' + id] || id;
+        };
+
         var workspaces = [];
         var homepageWorkspace = new _pydioHttpRestApi.IdmWorkspace();
         homepageWorkspace.UUID = "homepage";
-        homepageWorkspace.Label = "Home Page";
-        homepageWorkspace.Description = "First page after login";
+        homepageWorkspace.Label = m('workspace.statics.home.title');
+        homepageWorkspace.Description = m('workspace.statics.home.description');
         homepageWorkspace.Slug = "homepage";
         homepageWorkspace.RootNodes = { "homepage-ROOT": _pydioHttpRestApi.TreeNode.constructFromObject({ Uuid: "homepage-ROOT" }) };
         workspaces.push(homepageWorkspace);
         if (props.showSettings) {
             var settingsWorkspace = new _pydioHttpRestApi.IdmWorkspace();
             settingsWorkspace.UUID = "settings";
-            settingsWorkspace.Label = "Settings Page";
-            settingsWorkspace.Description = "Pydio Cells Administration dashboard";
+            settingsWorkspace.Label = m('workspace.statics.settings.title');
+            settingsWorkspace.Description = m('workspace.statics.settings.description');
             settingsWorkspace.Slug = "settings";
             settingsWorkspace.RootNodes = { "settings-ROOT": _pydioHttpRestApi.TreeNode.constructFromObject({ Uuid: "settings-ROOT" }) };
             workspaces.push(settingsWorkspace);
@@ -24439,7 +24227,7 @@ var PagesAcls = (function (_React$Component) {
 exports['default'] = PagesAcls;
 module.exports = exports['default'];
 
-},{"./WorkspaceAcl":169,"pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],166:[function(require,module,exports){
+},{"./WorkspaceAcl":168,"pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],165:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -24455,6 +24243,10 @@ var _react2 = _interopRequireDefault(_react);
 var _modelRole = require("../model/Role");
 
 var _modelRole2 = _interopRequireDefault(_modelRole);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
@@ -24566,7 +24358,7 @@ var PermissionMaskEditor = _react2['default'].createClass({
         // Todo:  multiple roots
         var rootNodes = this.props.workspace.RootNodes;
         var firstNode = rootNodes[Object.keys(rootNodes).shift()];
-        var rootNode = new AjxpNode("/" + firstNode.Path, false, "Whole workspace", "folder.png", rNodeProvider);
+        var rootNode = new _pydioModelNode2['default']("/" + firstNode.Path, false, this.context.getMessage('acls.rights.advanced.root'), "folder.png", rNodeProvider);
         rootNode.getMetadata().set("uuid", firstNode.Uuid);
 
         dataModel.setRootNode(rootNode);
@@ -24700,18 +24492,21 @@ var PermissionMaskEditor = _react2['default'].createClass({
                         this.context.getMessage('react.5', 'ajxp_admin')
                     )
                 ),
-                _react2['default'].createElement('br', { style: { clear: 'both' } }),
-                _react2['default'].createElement(PydioComponents.TreeView, {
-                    ref: 'tree',
-                    dataModel: this.state.dataModel,
-                    node: this.state.node,
-                    showRoot: true,
-                    checkboxes: ["read", "write", "deny"],
-                    checkboxesValues: this.state.mask,
-                    checkboxesComputeStatus: this.checkboxesComputeStatus,
-                    onCheckboxCheck: this.onCheckboxCheck,
-                    forceExpand: true
-                })
+                _react2['default'].createElement(
+                    'div',
+                    { style: { clear: 'both', marginRight: -34 } },
+                    _react2['default'].createElement(PydioComponents.TreeView, {
+                        ref: 'tree',
+                        dataModel: this.state.dataModel,
+                        node: this.state.node,
+                        showRoot: true,
+                        checkboxes: ["read", "write", "deny"],
+                        checkboxesValues: this.state.mask,
+                        checkboxesComputeStatus: this.checkboxesComputeStatus,
+                        onCheckboxCheck: this.onCheckboxCheck,
+                        forceExpand: true
+                    })
+                )
             )
         );
     }
@@ -24721,7 +24516,7 @@ var PermissionMaskEditor = _react2['default'].createClass({
 exports['default'] = PermissionMaskEditor;
 module.exports = exports['default'];
 
-},{"../model/Role":182,"./MaskNodesProvider":164,"classNames":50,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","react":"react"}],167:[function(require,module,exports){
+},{"../model/Role":173,"./MaskNodesProvider":163,"classNames":50,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","pydio/model/data-model":"pydio/model/data-model","pydio/model/node":"pydio/model/node","react":"react"}],166:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -24851,7 +24646,7 @@ PoliciesLoader.INSTANCE = null;
 exports['default'] = PoliciesLoader;
 module.exports = exports['default'];
 
-},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}],168:[function(require,module,exports){
+},{"pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable"}],167:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25006,7 +24801,7 @@ exports['default'] = _react2['default'].createClass({
                     anchorOrigin: { horizontal: 'right', vertical: 'top' },
                     targetOrigin: { horizontal: 'right', vertical: 'top' }
                 },
-                _react2['default'].createElement(_materialUi.MenuItem, { value: 'manual-rights', primaryText: "Rights set manually" }),
+                _react2['default'].createElement(_materialUi.MenuItem, { value: 'manual-rights', primaryText: this.context.getMessage('acls.rights.policy.manual', 'pydio_role') }),
                 policies.map(function (entry) {
                     return _react2['default'].createElement(_materialUi.MenuItem, { value: entry.id, primaryText: entry.label });
                 })
@@ -25039,7 +24834,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":191,"./PoliciesLoader":167,"material-ui":"material-ui","react":"react"}],169:[function(require,module,exports){
+},{"../util/MessagesMixin":182,"./PoliciesLoader":166,"material-ui":"material-ui","react":"react"}],168:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -25198,7 +24993,7 @@ exports['default'] = React.createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Role":182,"../util/MessagesMixin":191,"./PermissionMaskEditor":166,"./RightsSelector":168,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api"}],170:[function(require,module,exports){
+},{"../model/Role":173,"../util/MessagesMixin":182,"./PermissionMaskEditor":165,"./RightsSelector":167,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api"}],169:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25280,7 +25075,7 @@ var WorkspacesAcls = (function (_React$Component) {
 exports['default'] = WorkspacesAcls;
 module.exports = exports['default'];
 
-},{"./WorkspaceAcl":169,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],171:[function(require,module,exports){
+},{"./WorkspaceAcl":168,"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],170:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25422,7 +25217,7 @@ GroupInfo.PropTypes = {
 exports['default'] = GroupInfo;
 module.exports = exports['default'];
 
-},{"../model/User":183,"pydio":"pydio","react":"react"}],172:[function(require,module,exports){
+},{"../model/User":174,"pydio":"pydio","react":"react"}],171:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25564,7 +25359,7 @@ RoleInfo.PropTypes = {
 exports['default'] = RoleInfo;
 module.exports = exports['default'];
 
-},{"../model/Role":182,"pydio":"pydio","react":"react"}],173:[function(require,module,exports){
+},{"../model/Role":173,"pydio":"pydio","react":"react"}],172:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -25806,1325 +25601,7 @@ UserInfo.PropTypes = {
 exports['default'] = UserInfo;
 module.exports = exports['default'];
 
-},{"../model/User":183,"../user/UserRolesPicker":190,"material-ui":"material-ui","pydio":"pydio","react":"react"}],174:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var ConnectionPane = (function (_React$Component) {
-    _inherits(ConnectionPane, _React$Component);
-
-    function ConnectionPane(props) {
-        _classCallCheck(this, ConnectionPane);
-
-        _get(Object.getPrototypeOf(ConnectionPane.prototype), 'constructor', this).call(this, props);
-        this.state = { advanced: false };
-    }
-
-    _createClass(ConnectionPane, [{
-        key: 'render',
-        value: function render() {
-            var _this = this;
-
-            var _props = this.props;
-            var style = _props.style;
-            var config = _props.config;
-            var titleStyle = _props.titleStyle;
-            var legendStyle = _props.legendStyle;
-            var divider = _props.divider;
-            var pydio = _props.pydio;
-            var advanced = this.state.advanced;
-
-            return _react2['default'].createElement(
-                'div',
-                { style: style },
-                _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(
-                        'div',
-                        { style: titleStyle },
-                        'Connection'
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: legendStyle },
-                        'Required parameters to connect to your external directory (LDAP or ActiveDirectory)'
-                    ),
-                    _react2['default'].createElement(_materialUi.TextField, {
-                        fullWidth: true,
-                        floatingLabelText: "Host",
-                        value: config.Host, onChange: function (e, v) {
-                            config.Host = v;
-                        }
-                    }),
-                    _react2['default'].createElement(
-                        _materialUi.SelectField,
-                        {
-                            floatingLabelText: pydio.MessageHash["ldap.12"],
-                            value: config.Connection || 'normal',
-                            onChange: function (e, i, val) {
-                                config.Connection = val;
-                            },
-                            fullWidth: true
-                        },
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: 'normal', primaryText: pydio.MessageHash["ldap.15"] }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: 'ssl', primaryText: pydio.MessageHash["ldap.16"] }),
-                        _react2['default'].createElement(_materialUi.MenuItem, { value: 'starttls', primaryText: pydio.MessageHash["ldap.17"] })
-                    ),
-                    _react2['default'].createElement(_materialUi.TextField, {
-                        fullWidth: true,
-                        floatingLabelText: pydio.MessageHash["ldap.18"],
-                        value: config.BindDN, onChange: function (e, v) {
-                            config.BindDN = v;
-                        }
-                    }),
-                    _react2['default'].createElement(_materialUi.TextField, {
-                        fullWidth: true,
-                        floatingLabelText: pydio.MessageHash["ldap.19"],
-                        value: config.BindPW || '', onChange: function (e, v) {
-                            config.BindPW = v;
-                        },
-                        type: "password",
-                        autoComplete: false
-                    })
-                ),
-                divider,
-                _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(
-                        'div',
-                        { style: _extends({}, titleStyle, { display: 'flex', alignItems: 'center', marginTop: 10, paddingBottom: 0 }) },
-                        _react2['default'].createElement(
-                            'span',
-                            { style: { flex: 1 } },
-                            'Advanced Settings'
-                        ),
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-chevron-" + (advanced ? 'up' : 'down'), onTouchTap: function () {
-                                _this.setState({ advanced: !advanced });
-                            } })
-                    ),
-                    advanced && _react2['default'].createElement(
-                        'div',
-                        null,
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { height: 50, display: 'flex', alignItems: 'flex-end' } },
-                            _react2['default'].createElement(_materialUi.Toggle, {
-                                toggled: config.SkipVerifyCertificate,
-                                onToggle: function (e, val) {
-                                    config.SkipVerifyCertificate = val;
-                                },
-                                labelPosition: "right",
-                                label: pydio.MessageHash["ldap.20"]
-                            })
-                        ),
-                        _react2['default'].createElement(_materialUi.TextField, {
-                            fullWidth: true,
-                            floatingLabelText: pydio.MessageHash["ldap.21"],
-                            value: config.RootCA, onChange: function (e, v) {
-                                config.RootCA = v;
-                            }
-                        }),
-                        _react2['default'].createElement(_materialUi.TextField, {
-                            fullWidth: true,
-                            floatingLabelText: pydio.MessageHash["ldap.22"],
-                            multiLine: true,
-                            value: config.RootCAData, onChange: function (e, v) {
-                                config.RootCAData = v;
-                            }
-                        }),
-                        _react2['default'].createElement(_materialUi.TextField, {
-                            fullWidth: true,
-                            floatingLabelText: pydio.MessageHash["ldap.23"],
-                            value: config.PageSize || 500, onChange: function (e, v) {
-                                config.PageSize = parseInt(v);
-                            },
-                            type: "number"
-                        })
-                    )
-                )
-            );
-        }
-    }]);
-
-    return ConnectionPane;
-})(_react2['default'].Component);
-
-ConnectionPane.propTypes = {
-    style: _react2['default'].PropTypes.object
-};
-
-exports['default'] = ConnectionPane;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","react":"react"}],175:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var DNs = (function (_React$Component) {
-    _inherits(DNs, _React$Component);
-
-    function DNs(props) {
-        _classCallCheck(this, DNs);
-
-        _get(Object.getPrototypeOf(DNs.prototype), 'constructor', this).call(this, props);
-    }
-
-    _createClass(DNs, [{
-        key: 'addDn',
-        value: function addDn() {
-            var _props = this.props;
-            var dns = _props.dns;
-            var onChange = _props.onChange;
-
-            var newDns = [].concat(_toConsumableArray(dns), ['']);
-            onChange(newDns);
-        }
-    }, {
-        key: 'editDn',
-        value: function editDn(index, value) {
-            var _props2 = this.props;
-            var dns = _props2.dns;
-            var onChange = _props2.onChange;
-
-            var newVals = [].concat(_toConsumableArray(dns.slice(0, index > 0 ? index : 0)), [value], _toConsumableArray(dns.slice(index + 1)));
-            onChange(newVals);
-        }
-    }, {
-        key: 'removeDn',
-        value: function removeDn(index) {
-            var _props3 = this.props;
-            var dns = _props3.dns;
-            var onChange = _props3.onChange;
-
-            onChange([].concat(_toConsumableArray(dns.slice(0, index)), _toConsumableArray(dns.slice(index + 1))));
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this = this;
-
-            var _props4 = this.props;
-            var dns = _props4.dns;
-            var pydio = _props4.pydio;
-
-            return _react2['default'].createElement(
-                'div',
-                null,
-                dns.map(function (dn, k) {
-                    return _react2['default'].createElement(
-                        'div',
-                        { style: { display: 'flex', alignItems: k === 0 ? 'baseline' : 'center' } },
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { flex: 1 } },
-                            _react2['default'].createElement(_materialUi.TextField, { fullWidth: 1, floatingLabelText: k === 0 ? "DN" : undefined, hintText: k > 0 ? "DN" : undefined, value: dn, onChange: function (e, val) {
-                                    return _this.editDn(k, val);
-                                } })
-                        ),
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onTouchTap: function () {
-                                _this.removeDn(k);
-                            }, disabled: k === 0 })
-                    );
-                }),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { textAlign: 'left' } },
-                    _react2['default'].createElement(_materialUi.RaisedButton, { label: pydio.MessageHash["ldap.11"], onTouchTap: function () {
-                            _this.addDn();
-                        }, disabled: !dns.length || !dns[dns.length - 1] })
-                )
-            );
-        }
-    }]);
-
-    return DNs;
-})(_react2['default'].Component);
-
-exports['default'] = DNs;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","react":"react"}],176:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var _DNs = require('./DNs');
-
-var _DNs2 = _interopRequireDefault(_DNs);
-
-var FilterPane = (function (_React$Component) {
-    _inherits(FilterPane, _React$Component);
-
-    function FilterPane() {
-        _classCallCheck(this, FilterPane);
-
-        _get(Object.getPrototypeOf(FilterPane.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(FilterPane, [{
-        key: 'render',
-        value: function render() {
-            var _props = this.props;
-            var style = _props.style;
-            var config = _props.config;
-            var legendStyle = _props.legendStyle;
-            var titleStyle = _props.titleStyle;
-            var pydio = _props.pydio;
-
-            var user = config.User;
-
-            return _react2['default'].createElement(
-                'div',
-                { style: style },
-                _react2['default'].createElement(
-                    'div',
-                    { style: titleStyle },
-                    pydio.MessageHash["ldap.9"]
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: legendStyle },
-                    pydio.MessageHash["ldap.10"]
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(_DNs2['default'], { dns: user.DNs || [''], onChange: function (val) {
-                            user.DNs = val;
-                        }, pydio: pydio }),
-                    _react2['default'].createElement(_materialUi.TextField, {
-                        fullWidth: true,
-                        floatingLabelText: pydio.MessageHash["ldap.7"],
-                        value: user.Filter, onChange: function (e, v) {
-                            user.Filter = v;
-                        }
-                    }),
-                    _react2['default'].createElement(_materialUi.TextField, {
-                        fullWidth: true,
-                        floatingLabelText: pydio.MessageHash["ldap.8"],
-                        value: user.IDAttribute, onChange: function (e, v) {
-                            user.IDAttribute = v;
-                        }
-                    })
-                )
-            );
-        }
-    }]);
-
-    return FilterPane;
-})(_react2['default'].Component);
-
-FilterPane.propTypes = {
-    style: _react2['default'].PropTypes.object
-};
-
-exports['default'] = FilterPane;
-module.exports = exports['default'];
-
-},{"./DNs":175,"material-ui":"material-ui","react":"react"}],177:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var GeneralPane = (function (_React$Component) {
-    _inherits(GeneralPane, _React$Component);
-
-    function GeneralPane(props) {
-        _classCallCheck(this, GeneralPane);
-
-        _get(Object.getPrototypeOf(GeneralPane.prototype), 'constructor', this).call(this, props);
-    }
-
-    /**
-     *
-     * @param d {Date}
-     */
-
-    _createClass(GeneralPane, [{
-        key: 'updateSyncDate',
-        value: function updateSyncDate(d) {
-            var config = this.props.config;
-
-            config.SchedulerDetails = d.getHours() + ":" + d.getMinutes();
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this = this;
-
-            var _props = this.props;
-            var style = _props.style;
-            var config = _props.config;
-            var titleStyle = _props.titleStyle;
-            var legendStyle = _props.legendStyle;
-
-            var hDate = new Date();
-            if (config.Schedule === 'daily' || !config.Schedule) {
-                var detail = config.SchedulerDetails || '3:00';
-
-                var _detail$split = detail.split(':');
-
-                var _detail$split2 = _slicedToArray(_detail$split, 2);
-
-                var h = _detail$split2[0];
-                var m = _detail$split2[1];
-
-                hDate.setHours(parseInt(h), parseInt(m));
-            }
-
-            return _react2['default'].createElement(
-                'div',
-                { style: style },
-                _react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(
-                        'div',
-                        { style: titleStyle },
-                        'External Directory'
-                    ),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: legendStyle },
-                        'Define how this directory will appear to users and when it will be synchronized with Pydio internal directory.'
-                    ),
-                    _react2['default'].createElement(_materialUi.TextField, {
-                        fullWidth: true,
-                        floatingLabelText: "Label",
-                        value: config.DomainName, onChange: function (e, v) {
-                            config.DomainName = v;
-                        }
-                    }),
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { display: 'flex', alignItems: 'flex-end' } },
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { flex: 1 } },
-                            _react2['default'].createElement(
-                                _materialUi.SelectField,
-                                {
-                                    floatingLabelText: 'Synchronization',
-                                    value: config.Schedule || 'daily',
-                                    onChange: function (e, i, val) {
-                                        config.Schedule = val;
-                                    },
-                                    fullWidth: true
-                                },
-                                _react2['default'].createElement(_materialUi.MenuItem, { value: 'daily', primaryText: 'Daily' }),
-                                _react2['default'].createElement(_materialUi.MenuItem, { value: 'hourly', primaryText: 'Hourly' }),
-                                _react2['default'].createElement(_materialUi.MenuItem, { value: 'manual', primaryText: 'Manual' })
-                            )
-                        ),
-                        (config.Schedule === 'daily' || !config.Schedule) && _react2['default'].createElement(
-                            'div',
-                            { style: { height: 52, paddingLeft: 10 } },
-                            _react2['default'].createElement(_materialUi.TimePicker, {
-                                format: 'ampm',
-                                minutesStep: 5,
-                                hintText: "Sync Time",
-                                textFieldStyle: { width: 100, marginRight: 5 },
-                                value: hDate, onChange: function (e, v) {
-                                    _this.updateSyncDate(v);
-                                }
-                            })
-                        )
-                    )
-                )
-            );
-        }
-    }]);
-
-    return GeneralPane;
-})(_react2['default'].Component);
-
-GeneralPane.propTypes = {
-    style: _react2['default'].PropTypes.object
-};
-
-exports['default'] = GeneralPane;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","react":"react"}],178:[function(require,module,exports){
-/*
- * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
- * This file is part of Pydio.
- *
- * Pydio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Pydio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
- *
- * The latest code can be found at <https://pydio.com>.
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _pydio = require('pydio');
-
-var _pydio2 = _interopRequireDefault(_pydio);
-
-var _materialUi = require('material-ui');
-
-var _ServerConfigModel = require('./ServerConfigModel');
-
-var _ServerConfigModel2 = _interopRequireDefault(_ServerConfigModel);
-
-var _ConnectionPane = require('./ConnectionPane');
-
-var _ConnectionPane2 = _interopRequireDefault(_ConnectionPane);
-
-var _FilterPane = require('./FilterPane');
-
-var _FilterPane2 = _interopRequireDefault(_FilterPane);
-
-var _MappingsPane = require('./MappingsPane');
-
-var _MappingsPane2 = _interopRequireDefault(_MappingsPane);
-
-var _MemberOfPane = require('./MemberOfPane');
-
-var _MemberOfPane2 = _interopRequireDefault(_MemberOfPane);
-
-var _GeneralPane = require('./GeneralPane');
-
-var _GeneralPane2 = _interopRequireDefault(_GeneralPane);
-
-var _uuid4 = require('uuid4');
-
-var _uuid42 = _interopRequireDefault(_uuid4);
-
-var _Pydio$requireLib = _pydio2['default'].requireLib('components');
-
-var PaperEditorLayout = _Pydio$requireLib.PaperEditorLayout;
-var PaperEditorNavEntry = _Pydio$requireLib.PaperEditorNavEntry;
-var PaperEditorNavHeader = _Pydio$requireLib.PaperEditorNavHeader;
-
-var LdapEditor = (function (_React$Component) {
-    _inherits(LdapEditor, _React$Component);
-
-    function LdapEditor(props) {
-        var _this = this;
-
-        _classCallCheck(this, LdapEditor);
-
-        _get(Object.getPrototypeOf(LdapEditor.prototype), 'constructor', this).call(this, props);
-        var config = props.config;
-
-        var model = undefined,
-            create = true;
-        if (config) {
-            model = new _ServerConfigModel2['default'](config.ConfigId, config);
-            create = false;
-        } else {
-            var conf = new EnterpriseSDK.AuthLdapServerConfig();
-            conf.ConfigId = (0, _uuid42['default'])();
-            model = new _ServerConfigModel2['default'](conf.ConfigId, conf);
-        }
-        model.observe('update', function () {
-            _this.setState({
-                config: model.getConfig(),
-                dirty: true,
-                valid: model.isValid()
-            }, function () {
-                _this.forceUpdate();
-            });
-        });
-        this.state = {
-            model: model,
-            config: model.getConfig(),
-            snapshot: model.snapshot(),
-            dirty: create,
-            valid: !create,
-            create: create,
-            currentPane: 'general'
-        };
-    }
-
-    _createClass(LdapEditor, [{
-        key: 'isDirty',
-        value: function isDirty() {
-            return this.state.dirty;
-        }
-    }, {
-        key: 'isValid',
-        value: function isValid() {
-            return this.state.valid;
-        }
-    }, {
-        key: 'isCreate',
-        value: function isCreate() {
-            return this.state.create;
-        }
-    }, {
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(newProps) {
-            var _this2 = this;
-
-            var config = newProps.config;
-
-            if (config && this.props.config !== config) {
-                (function () {
-                    var model = new _ServerConfigModel2['default'](config.ConfigId, config);
-                    model.observe('update', function () {
-                        _this2.setState({
-                            config: model.getConfig(),
-                            dirty: true,
-                            valid: model.isValid()
-                        }, function () {
-                            _this2.forceUpdate();
-                        });
-                    });
-                    _this2.state = {
-                        model: model,
-                        config: model.getConfig(),
-                        snapshot: model.snapshot()
-                    };
-                })();
-            }
-        }
-    }, {
-        key: 'revert',
-        value: function revert() {
-            var _state = this.state;
-            var model = _state.model;
-            var snapshot = _state.snapshot;
-
-            var newConfig = model.revertTo(snapshot);
-            this.setState({ config: newConfig, dirty: false });
-        }
-    }, {
-        key: 'save',
-        value: function save() {
-            var _this3 = this;
-
-            var model = this.state.model;
-            var reload = this.props.reload;
-
-            model.save().then(function (resp) {
-                _this3.setState({ dirty: false, snapshot: model.snapshot() });
-                reload();
-            });
-        }
-    }, {
-        key: 'setSelectedPane',
-        value: function setSelectedPane(key) {
-            this.setState({ currentPane: key });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this4 = this;
-
-            var _state2 = this.state;
-            var dirty = _state2.dirty;
-            var valid = _state2.valid;
-            var currentPane = _state2.currentPane;
-            var config = _state2.config;
-
-            var buttonMargin = { marginLeft: 6 };
-            var actions = [];
-            if (!this.isCreate()) {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, disabled: !dirty, label: "Revert", onTouchTap: this.revert.bind(this) }));
-            }
-            actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, disabled: !dirty || !valid, label: "Save", onTouchTap: this.save.bind(this) }));
-            if (this.isCreate()) {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, label: "Cancel", onTouchTap: function () {
-                        return _this4.props.onRequestTabClose(_this4);
-                    } }));
-            } else {
-                actions.push(_react2['default'].createElement(_materialUi.RaisedButton, { style: buttonMargin, label: "Close", onTouchTap: function () {
-                        return _this4.props.onRequestTabClose(_this4);
-                    } }));
-            }
-
-            var leftNav = [_react2['default'].createElement(PaperEditorNavHeader, { key: 'h1', label: "Directory" }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'general', keyName: 'general', onClick: this.setSelectedPane.bind(this), label: pydio.MessageHash["ldap.2"], selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'connection', keyName: 'connection', onClick: this.setSelectedPane.bind(this), label: pydio.MessageHash["ldap.3"], selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'filter', keyName: 'filter', onClick: this.setSelectedPane.bind(this), label: pydio.MessageHash["ldap.4"], selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: 'h2', label: "Mapping" }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'mappings', keyName: 'mappings', onClick: this.setSelectedPane.bind(this), label: pydio.MessageHash["ldap.5"], selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'memberof', keyName: 'memberof', onClick: this.setSelectedPane.bind(this), label: pydio.MessageHash["ldap.6"], selectedKey: currentPane })];
-
-            var paneStyle = { padding: 20 };
-            var titleStyle = { fontSize: 16, paddingBottom: 6 };
-            var legendStyle = { fontSize: 13, color: '#9e9e9e' };
-            var paneProps = {
-                pydio: pydio,
-                style: paneStyle,
-                config: config,
-                titleStyle: titleStyle,
-                legendStyle: legendStyle,
-                divider: _react2['default'].createElement(_materialUi.Divider, { style: { marginTop: 20, marginBottom: 20, marginLeft: -20, marginRight: -20 } })
-            };
-
-            var pane = undefined;
-            switch (currentPane) {
-                case "general":
-                    pane = _react2['default'].createElement(_GeneralPane2['default'], paneProps);
-                    break;
-                case "connection":
-                    pane = _react2['default'].createElement(_ConnectionPane2['default'], paneProps);
-                    break;
-                case "filter":
-                    pane = _react2['default'].createElement(_FilterPane2['default'], paneProps);
-                    break;
-                case "mappings":
-                    pane = _react2['default'].createElement(_MappingsPane2['default'], paneProps);
-                    break;
-                case "memberof":
-                    pane = _react2['default'].createElement(_MemberOfPane2['default'], paneProps);
-                    break;
-                default:
-                    break;
-            }
-
-            return _react2['default'].createElement(
-                PaperEditorLayout,
-                {
-                    title: config.DomainName ? config.DomainName : 'New Directory',
-                    titleActionBar: actions,
-                    contentFill: false,
-                    leftNav: leftNav
-                },
-                pane
-            );
-        }
-    }]);
-
-    return LdapEditor;
-})(_react2['default'].Component);
-
-exports['default'] = LdapEditor;
-module.exports = exports['default'];
-
-},{"./ConnectionPane":174,"./FilterPane":176,"./GeneralPane":177,"./MappingsPane":179,"./MemberOfPane":180,"./ServerConfigModel":181,"material-ui":"material-ui","pydio":"pydio","react":"react","uuid4":155}],179:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var MappingsPane = (function (_React$Component) {
-    _inherits(MappingsPane, _React$Component);
-
-    function MappingsPane() {
-        _classCallCheck(this, MappingsPane);
-
-        _get(Object.getPrototypeOf(MappingsPane.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(MappingsPane, [{
-        key: 'addRule',
-        value: function addRule() {
-            var config = this.props.config;
-
-            var rules = config.MappingRules || [];
-            config.MappingRules = [].concat(_toConsumableArray(rules), [new EnterpriseSDK.AuthLdapMapping()]);
-        }
-    }, {
-        key: 'removeRule',
-        value: function removeRule(index) {
-            var config = this.props.config;
-
-            config.MappingRules = [].concat(_toConsumableArray(config.MappingRules.slice(0, index)), _toConsumableArray(config.MappingRules.slice(index + 1)));
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this = this;
-
-            var _props = this.props;
-            var style = _props.style;
-            var config = _props.config;
-            var titleStyle = _props.titleStyle;
-            var legendStyle = _props.legendStyle;
-            var pydio = _props.pydio;
-
-            var rules = config.MappingRules || [];
-
-            return _react2['default'].createElement(
-                'div',
-                { style: _extends({}, style) },
-                _react2['default'].createElement(
-                    'div',
-                    { style: titleStyle },
-                    pydio.MessageHash["ldap.29"]
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: legendStyle },
-                    pydio.MessageHash["ldap.30"]
-                ),
-                rules.map(function (rule, k) {
-                    return _react2['default'].createElement(
-                        'div',
-                        { style: { display: 'flex', alignItems: k === 0 ? 'baseline' : 'center' } },
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { flex: 1, margin: '0 5px' } },
-                            _react2['default'].createElement(_materialUi.TextField, { fullWidth: 1, floatingLabelText: k === 0 ? "Left Attribute" : undefined, hintText: k > 0 ? "Left Attribute" : undefined, value: rule.LeftAttribute, onChange: function (e, val) {
-                                    rule.LeftAttribute = val;
-                                } })
-                        ),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { flex: 2, margin: '0 5px' } },
-                            _react2['default'].createElement(_materialUi.TextField, { fullWidth: 1, floatingLabelText: k === 0 ? "Rule String" : undefined, hintText: k > 0 ? "Rule String" : undefined, value: rule.RuleString, onChange: function (e, val) {
-                                    rule.RuleString = val;
-                                } })
-                        ),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { flex: 1, margin: '0 5px' } },
-                            _react2['default'].createElement(_materialUi.TextField, { fullWidth: 1, floatingLabelText: k === 0 ? "Right Attribute" : undefined, hintText: k > 0 ? "Right Attribute" : undefined, value: rule.RightAttribute, onChange: function (e, val) {
-                                    rule.RightAttribute = val;
-                                } })
-                        ),
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", onTouchTap: function () {
-                                _this.removeRule(k);
-                            } })
-                    );
-                }),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { padding: 20, textAlign: 'center' } },
-                    _react2['default'].createElement(_materialUi.FlatButton, { label: pydio.MessageHash["ldap.27"], onTouchTap: function () {
-                            _this.addRule();
-                        } })
-                )
-            );
-        }
-    }]);
-
-    return MappingsPane;
-})(_react2['default'].Component);
-
-MappingsPane.propTypes = {
-    style: _react2['default'].PropTypes.object
-};
-
-exports['default'] = MappingsPane;
-module.exports = exports['default'];
-
-},{"material-ui":"material-ui","react":"react"}],180:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _materialUi = require('material-ui');
-
-var _DNs = require('./DNs');
-
-var _DNs2 = _interopRequireDefault(_DNs);
-
-var MemberOfPane = (function (_React$Component) {
-    _inherits(MemberOfPane, _React$Component);
-
-    function MemberOfPane() {
-        _classCallCheck(this, MemberOfPane);
-
-        _get(Object.getPrototypeOf(MemberOfPane.prototype), 'constructor', this).apply(this, arguments);
-    }
-
-    _createClass(MemberOfPane, [{
-        key: 'enableMapping',
-        value: function enableMapping() {
-            var config = this.props.config;
-
-            var m = new EnterpriseSDK.AuthLdapMemberOfMapping();
-            m.Mapping = new EnterpriseSDK.AuthLdapMapping();
-            m.GroupFilter = new EnterpriseSDK.AuthLdapSearchFilter();
-            m.RealMemberOf = true;
-            config.MemberOfMapping = m;
-        }
-    }, {
-        key: 'disableMapping',
-        value: function disableMapping() {
-            var config = this.props.config;
-
-            config.MemberOfMapping = null;
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            var _this = this;
-
-            var _props = this.props;
-            var titleStyle = _props.titleStyle;
-            var legendStyle = _props.legendStyle;
-            var style = _props.style;
-            var config = _props.config;
-            var divider = _props.divider;
-
-            var mOf = config.MemberOfMapping;
-            var content = undefined;
-            if (mOf) {
-                (function () {
-                    var rule = mOf.Mapping;
-                    var group = mOf.GroupFilter;
-                    content = _react2['default'].createElement(
-                        'div',
-                        null,
-                        divider,
-                        _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(
-                                'div',
-                                { style: titleStyle },
-                                'Mapping'
-                            ),
-                            _react2['default'].createElement(
-                                'div',
-                                { style: legendStyle },
-                                pydio.MessageHash["ldap.31"]
-                            ),
-                            _react2['default'].createElement(
-                                'div',
-                                { style: { display: 'flex', alignItems: 'baseline' } },
-                                _react2['default'].createElement(
-                                    'div',
-                                    { style: { flex: 1, margin: '0 5px' } },
-                                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: 1, floatingLabelText: "Left Attribute", hintText: "Left Attribute", value: rule.LeftAttribute, onChange: function (e, val) {
-                                            rule.LeftAttribute = val;
-                                        } })
-                                ),
-                                _react2['default'].createElement(
-                                    'div',
-                                    { style: { flex: 2, margin: '0 5px' } },
-                                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: 1, floatingLabelText: "Rule String", hintText: "Rule String", value: rule.RuleString, onChange: function (e, val) {
-                                            rule.RuleString = val;
-                                        } })
-                                ),
-                                _react2['default'].createElement(
-                                    'div',
-                                    { style: { flex: 1, margin: '0 5px' } },
-                                    _react2['default'].createElement(_materialUi.TextField, { fullWidth: 1, floatingLabelText: "Right Attribute", hintText: "Right Attribute", value: rule.RightAttribute, onChange: function (e, val) {
-                                            rule.RightAttribute = val;
-                                        } })
-                                )
-                            )
-                        ),
-                        divider,
-                        _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(
-                                'div',
-                                { style: _extends({}, titleStyle, { marginTop: 20 }) },
-                                'Groups Filtering'
-                            ),
-                            _react2['default'].createElement(
-                                'div',
-                                { style: legendStyle },
-                                pydio.MessageHash["ldap.32"]
-                            ),
-                            _react2['default'].createElement(_DNs2['default'], { dns: group.DNs || [''], onChange: function (val) {
-                                    group.DNs = val;
-                                }, pydio: pydio }),
-                            _react2['default'].createElement(_materialUi.TextField, {
-                                fullWidth: true,
-                                floatingLabelText: pydio.MessageHash["ldap.7"],
-                                value: group.Filter, onChange: function (e, v) {
-                                    group.Filter = v;
-                                }
-                            }),
-                            _react2['default'].createElement(_materialUi.TextField, {
-                                fullWidth: true,
-                                floatingLabelText: pydio.MessageHash["ldap.8"],
-                                value: group.IDAttribute, onChange: function (e, v) {
-                                    group.IDAttribute = v;
-                                }
-                            }),
-                            _react2['default'].createElement(_materialUi.TextField, {
-                                fullWidth: true,
-                                floatingLabelText: pydio.MessageHash["ldap.33"],
-                                value: group.DisplayAttribute, onChange: function (e, v) {
-                                    group.DisplayAttribute = v;
-                                }
-                            })
-                        ),
-                        divider,
-                        _react2['default'].createElement(
-                            'div',
-                            null,
-                            _react2['default'].createElement(
-                                'div',
-                                { style: _extends({}, titleStyle, { marginTop: 20 }) },
-                                'MemberOf Attribute'
-                            ),
-                            _react2['default'].createElement(
-                                'div',
-                                { style: legendStyle },
-                                pydio.MessageHash["ldap.34"]
-                            ),
-                            _react2['default'].createElement(
-                                'div',
-                                { style: { height: 50, display: 'flex', alignItems: 'center' } },
-                                _react2['default'].createElement(_materialUi.Toggle, { toggled: mOf.RealMemberOf, onToggle: function (e, v) {
-                                        mOf.RealMemberOf = v;
-                                    }, label: "Native MemberOf support", labelPosition: "right" })
-                            ),
-                            mOf.RealMemberOf && _react2['default'].createElement(
-                                'div',
-                                null,
-                                _react2['default'].createElement(_materialUi.TextField, {
-                                    fullWidth: true,
-                                    floatingLabelText: pydio.MessageHash["ldap.35"],
-                                    value: mOf.RealMemberOfAttribute, onChange: function (e, v) {
-                                        mOf.RealMemberOfAttribute = v;
-                                    }
-                                }),
-                                _react2['default'].createElement(_materialUi.TextField, {
-                                    fullWidth: true,
-                                    floatingLabelText: pydio.MessageHash["ldap.36"],
-                                    value: mOf.RealMemberOfValueFormat, onChange: function (e, v) {
-                                        mOf.RealMemberOfValueFormat = v;
-                                    }
-                                })
-                            ),
-                            !mOf.RealMemberOf && _react2['default'].createElement(
-                                'div',
-                                null,
-                                _react2['default'].createElement(_materialUi.TextField, {
-                                    fullWidth: true,
-                                    floatingLabelText: pydio.MessageHash["ldap.37"],
-                                    value: mOf.PydioMemberOfAttribute, onChange: function (e, v) {
-                                        mOf.PydioMemberOfAttribute = v;
-                                    }
-                                }),
-                                _react2['default'].createElement(_materialUi.TextField, {
-                                    fullWidth: true,
-                                    floatingLabelText: pydio.MessageHash["ldap.38"],
-                                    value: mOf.PydioMemberOfValueFormat, onChange: function (e, v) {
-                                        mOf.PydioMemberOfValueFormat = v;
-                                    }
-                                })
-                            )
-                        )
-                    );
-                })();
-            }
-
-            return _react2['default'].createElement(
-                'div',
-                { style: style },
-                _react2['default'].createElement(
-                    'div',
-                    { style: titleStyle },
-                    pydio.MessageHash["ldap.39"]
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: legendStyle },
-                    pydio.MessageHash["ldap.40"]
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { height: 50, display: 'flex', alignItems: 'center' } },
-                    _react2['default'].createElement(_materialUi.Toggle, { toggled: mOf, onToggle: function (e, v) {
-                            v ? _this.enableMapping() : _this.disableMapping();
-                        }, label: "Enable MemberOf Mapping", labelPosition: "right" })
-                ),
-                content
-            );
-        }
-    }]);
-
-    return MemberOfPane;
-})(_react2['default'].Component);
-
-MemberOfPane.propTypes = {
-    style: _react2['default'].PropTypes.object
-};
-
-exports['default'] = MemberOfPane;
-module.exports = exports['default'];
-
-},{"./DNs":175,"material-ui":"material-ui","react":"react"}],181:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _pydioLangObservable = require("pydio/lang/observable");
-
-var _pydioLangObservable2 = _interopRequireDefault(_pydioLangObservable);
-
-var _pydioHttpApi = require('pydio/http/api');
-
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
-
-var ServerConfigModel = (function (_Observable) {
-    _inherits(ServerConfigModel, _Observable);
-
-    _createClass(ServerConfigModel, [{
-        key: 'buildProxy',
-        value: function buildProxy(object) {
-            var _this = this;
-
-            return new Proxy(object, {
-                set: function set(target, p, value) {
-                    target[p] = value;
-                    _this.notify('update');
-                    return true;
-                },
-                get: function get(target, p) {
-                    var out = target[p];
-                    if (out instanceof Array) {
-                        if (p === 'MappingRules') {
-                            return out.map(function (rule) {
-                                return _this.buildProxy(rule);
-                            });
-                        }
-                        return out;
-                    } else if (out instanceof Object) {
-                        return _this.buildProxy(out);
-                    } else if (p === 'User') {
-                        var filter = new EnterpriseSDK.AuthLdapSearchFilter();
-                        target[p] = _this.buildProxy(filter);
-                        return target[p];
-                    } else {
-                        return out;
-                    }
-                }
-            });
-        }
-    }]);
-
-    function ServerConfigModel(configId, config) {
-        _classCallCheck(this, ServerConfigModel);
-
-        _get(Object.getPrototypeOf(ServerConfigModel.prototype), 'constructor', this).call(this);
-        //this.config = new AuthLdapServerConfig();
-        //this.config.DomainName = 'New Directory';
-        this.configId = configId;
-        this.config = config;
-        this.observableConfig = this.buildProxy(this.config);
-    }
-
-    /**
-     *
-     * @return {AuthLdapServerConfig}
-     */
-
-    _createClass(ServerConfigModel, [{
-        key: 'getConfig',
-        value: function getConfig() {
-            return this.observableConfig;
-        }
-    }, {
-        key: 'isValid',
-        value: function isValid() {
-            return true;
-        }
-    }, {
-        key: 'snapshot',
-        value: function snapshot() {
-            return EnterpriseSDK.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(this.config)));
-        }
-    }, {
-        key: 'revertTo',
-        value: function revertTo(snapshot) {
-            this.config = EnterpriseSDK.AuthLdapServerConfig.constructFromObject(JSON.parse(JSON.stringify(snapshot)));
-            this.observableConfig = this.buildProxy(this.config);
-            return this.observableConfig;
-        }
-
-        /**
-         * @return {Promise}
-         */
-    }, {
-        key: 'save',
-        value: function save() {
-            var api = new EnterpriseSDK.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            var request = new EnterpriseSDK.RestExternalDirectoryConfig();
-            request.ConfigId = this.configId;
-            request.Config = this.config;
-            return api.putExternalDirectory(this.configId, request);
-        }
-
-        /**
-         * @return {Promise}
-         */
-    }], [{
-        key: 'loadDirectories',
-        value: function loadDirectories() {
-            var api = new EnterpriseSDK.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            return api.listExternalDirectories();
-        }
-
-        /**
-         * @param configId
-         * @return {Promise}
-         */
-    }, {
-        key: 'deleteDirectory',
-        value: function deleteDirectory(configId) {
-            var api = new EnterpriseSDK.EnterpriseConfigServiceApi(_pydioHttpApi2['default'].getRestClient());
-            return api.deleteExternalDirectory(configId);
-        }
-    }]);
-
-    return ServerConfigModel;
-})(_pydioLangObservable2['default']);
-
-exports['default'] = ServerConfigModel;
-module.exports = exports['default'];
-
-},{"pydio/http/api":"pydio/http/api","pydio/lang/observable":"pydio/lang/observable"}],182:[function(require,module,exports){
+},{"../model/User":174,"../user/UserRolesPicker":181,"material-ui":"material-ui","pydio":"pydio","react":"react"}],173:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27612,7 +26089,7 @@ var Role = (function (_Observable) {
 exports['default'] = Role;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":155}],183:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":155}],174:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -27846,7 +26323,7 @@ var User = (function (_Observable) {
 exports['default'] = User;
 module.exports = exports['default'];
 
-},{"./Role":182,"pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":155}],184:[function(require,module,exports){
+},{"./Role":173,"pydio/http/rest-api":"pydio/http/rest-api","pydio/lang/observable":"pydio/lang/observable","uuid4":155}],175:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -27935,7 +26412,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":191,"material-ui":"material-ui","pydio":"pydio","react":"react"}],185:[function(require,module,exports){
+},{"../util/MessagesMixin":182,"material-ui":"material-ui","pydio":"pydio","react":"react"}],176:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28102,7 +26579,7 @@ var ParameterCreate = _react2["default"].createClass({
 exports["default"] = ParameterCreate;
 module.exports = exports["default"];
 
-},{"./ParametersPicker":188,"material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],186:[function(require,module,exports){
+},{"./ParametersPicker":179,"material-ui/styles":"material-ui/styles","pydio":"pydio","react":"react"}],177:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28372,7 +26849,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../model/Role":182,"../util/MessagesMixin":191,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],187:[function(require,module,exports){
+},{"../model/Role":173,"../util/MessagesMixin":182,"material-ui":"material-ui","pydio":"pydio","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],178:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -28498,6 +26975,10 @@ var ParametersPanel = (function (_React$Component) {
             }
             var workspaces = this.state.workspaces;
 
+            var m = function m(id) {
+                return pydio.MessageHash['pydio_role.' + id] || id;
+            };
+
             var params = role.listParametersAndActions();
             var scopes = {
                 PYDIO_REPO_SCOPE_ALL: {},
@@ -28519,9 +27000,9 @@ var ParametersPanel = (function (_React$Component) {
 
                 scopes[a.WorkspaceID][paramName] = a;
             });
-            var wsItems = [_react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Add for...", value: 1 }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "All workspaces", onTouchTap: function () {
+            var wsItems = [_react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.selector.title'), value: 1 }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.all'), onTouchTap: function () {
                     _this4.addParameter('PYDIO_REPO_SCOPE_ALL');
-                } }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: "Shared Cells", onTouchTap: function () {
+                } }), _react2['default'].createElement(_materialUi.MenuItem, { primaryText: m('parameters.scope.shared'), onTouchTap: function () {
                     _this4.addParameter('PYDIO_REPO_SCOPE_SHARED');
                 } }), _react2['default'].createElement(_materialUi.Divider, null)].concat(Object.keys(workspaces).map(function (ws) {
                 return _react2['default'].createElement(_materialUi.MenuItem, { primaryText: workspaces[ws].Label, onTouchTap: function () {
@@ -28538,11 +27019,11 @@ var ParametersPanel = (function (_React$Component) {
                     _react2['default'].createElement(
                         'span',
                         { style: { flex: 1, paddingRight: 20 } },
-                        pydio.MessageHash['pydio_role.46'],
+                        m('46'),
                         _react2['default'].createElement(
                             'div',
                             { className: "section-legend" },
-                            pydio.MessageHash['pydio_role.47']
+                            m('47')
                         )
                     ),
                     _react2['default'].createElement(
@@ -28562,13 +27043,13 @@ var ParametersPanel = (function (_React$Component) {
                         var scopeLabel = undefined;
                         var odd = false;
                         if (s === 'PYDIO_REPO_SCOPE_ALL') {
-                            scopeLabel = 'All Workspaces';
+                            scopeLabel = m('parameters.scope.all');
                         } else if (s === 'PYDIO_REPO_SCOPE_SHARED') {
-                            scopeLabel = 'Shared Cells Only';
+                            scopeLabel = m('parameters.scope.shared');
                         } else if (workspaces[s]) {
-                            scopeLabel = 'Workspace ' + workspaces[s].Label;
+                            scopeLabel = m('parameters.scope.workspace').replace('%s', workspaces[s].Label);
                         } else {
-                            scopeLabel = 'Workspace ' + s;
+                            scopeLabel = m('parameters.scope.workspace').replace('%s', s);
                         }
                         var entries = undefined;
                         if (Object.keys(scopes[s]).length) {
@@ -28584,7 +27065,7 @@ var ParametersPanel = (function (_React$Component) {
                                 _react2['default'].createElement(
                                     'td',
                                     { colSpan: 3, style: { padding: '14px 0' } },
-                                    'No parameters or actions'
+                                    m('parameters.empty')
                                 )
                             );
                         }
@@ -28604,7 +27085,7 @@ var ParametersPanel = (function (_React$Component) {
                                     { style: { width: 50 } },
                                     _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onTouchTap: function () {
                                             _this4.addParameter(s);
-                                        } })
+                                        }, tooltip: m('parameters.custom.add') })
                                 )
                             ),
                             entries
@@ -28621,7 +27102,7 @@ var ParametersPanel = (function (_React$Component) {
 exports['default'] = ParametersPanel;
 module.exports = exports['default'];
 
-},{"./ParameterEntry":186,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],188:[function(require,module,exports){
+},{"./ParameterEntry":177,"material-ui":"material-ui","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],179:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -28876,7 +27357,7 @@ var ParametersPicker = _react2["default"].createClass({
 exports["default"] = ParametersPicker;
 module.exports = exports["default"];
 
-},{"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml","react":"react"}],189:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml","react":"react"}],180:[function(require,module,exports){
 (function (global){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
@@ -29002,7 +27483,7 @@ exports['default'] = React.createClass({
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../model/User":183,"material-ui":"material-ui","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],190:[function(require,module,exports){
+},{"../model/User":174,"material-ui":"material-ui","pydio":"pydio","pydio/util/pass":"pydio/util/pass","react":"react"}],181:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29143,7 +27624,8 @@ exports['default'] = _react2['default'].createClass({
                 _react2['default'].createElement(
                     'div',
                     { style: { flex: 1, color: '#bdbdbd', fontWeight: 500 } },
-                    'Manage roles ',
+                    ctx.getMessage('roles.picker.title'),
+                    ' ',
                     loadingMessage ? ' (' + ctx.getMessage('21') + ')' : ''
                 ),
                 _react2['default'].createElement(
@@ -29188,7 +27670,7 @@ exports['default'] = _react2['default'].createClass({
 });
 module.exports = exports['default'];
 
-},{"../util/MessagesMixin":191,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],191:[function(require,module,exports){
+},{"../util/MessagesMixin":182,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],182:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29255,7 +27737,7 @@ var RoleMessagesProviderMixin = {
 exports.RoleMessagesConsumerMixin = RoleMessagesConsumerMixin;
 exports.RoleMessagesProviderMixin = RoleMessagesProviderMixin;
 
-},{}],192:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29465,7 +27947,7 @@ var CreateRoleOrGroupForm = _react2['default'].createClass({
 exports['default'] = CreateRoleOrGroupForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],193:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","react":"react"}],184:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29636,7 +28118,7 @@ var CreateUserForm = _react2['default'].createClass({
 exports['default'] = CreateUserForm;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],194:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/model/node":"pydio/model/node","pydio/util/pass":"pydio/util/pass","react":"react"}],185:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29672,10 +28154,6 @@ var _boardRolesDashboard2 = _interopRequireDefault(_boardRolesDashboard);
 var _boardPoliciesBoard = require('./board/PoliciesBoard');
 
 var _boardPoliciesBoard2 = _interopRequireDefault(_boardPoliciesBoard);
-
-var _boardDirectoriesBoard = require('./board/DirectoriesBoard');
-
-var _boardDirectoriesBoard2 = _interopRequireDefault(_boardDirectoriesBoard);
 
 var _boardCallbacks = require('./board/Callbacks');
 
@@ -29724,11 +28202,10 @@ window.AdminPeople = {
 
   Dashboard: _boardDashboard2['default'],
   RolesDashboard: _boardRolesDashboard2['default'],
-  PoliciesBoard: _boardPoliciesBoard2['default'],
-  DirectoriesBoard: _boardDirectoriesBoard2['default']
+  PoliciesBoard: _boardPoliciesBoard2['default']
 };
 
-},{"./board/Callbacks":157,"./board/Dashboard":158,"./board/DirectoriesBoard":159,"./board/PoliciesBoard":160,"./board/RolesDashboard":161,"./editor/Editor":163,"./editor/panel/SharesList":184,"./editor/params/ParameterCreate":185,"./editor/user/UserPasswordDialog":189,"./editor/user/UserRolesPicker":190,"./editor/util/MessagesMixin":191,"./forms/CreateRoleOrGroupForm":192,"./forms/CreateUserForm":193}],195:[function(require,module,exports){
+},{"./board/Callbacks":157,"./board/Dashboard":158,"./board/PoliciesBoard":159,"./board/RolesDashboard":160,"./editor/Editor":162,"./editor/panel/SharesList":175,"./editor/params/ParameterCreate":176,"./editor/user/UserPasswordDialog":180,"./editor/user/UserRolesPicker":181,"./editor/util/MessagesMixin":182,"./forms/CreateRoleOrGroupForm":183,"./forms/CreateUserForm":184}],186:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -29973,7 +28450,7 @@ var Policy = (function (_React$Component) {
 exports['default'] = Policy;
 module.exports = exports['default'];
 
-},{"./Rule":196,"./editor/InlineLabel":201,"material-ui":"material-ui","react":"react","uuid4":155}],196:[function(require,module,exports){
+},{"./Rule":187,"./editor/InlineLabel":192,"material-ui":"material-ui","react":"react","uuid4":155}],187:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30128,7 +28605,7 @@ var Rule = (function (_React$Component) {
 exports['default'] = Rule;
 module.exports = exports['default'];
 
-},{"./editor/RuleEditor":204,"material-ui":"material-ui","react":"react"}],197:[function(require,module,exports){
+},{"./editor/RuleEditor":195,"material-ui":"material-ui","react":"react"}],188:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30232,7 +28709,7 @@ var Actions = (function (_React$Component) {
 exports['default'] = Actions;
 module.exports = exports['default'];
 
-},{"./ChipValues":198,"material-ui":"material-ui","react":"react"}],198:[function(require,module,exports){
+},{"./ChipValues":189,"material-ui":"material-ui","react":"react"}],189:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30375,7 +28852,7 @@ var ChipValues = (function (_React$Component) {
 exports['default'] = ChipValues;
 module.exports = exports['default'];
 
-},{"./ValuesOrRegexp":206,"material-ui":"material-ui","react":"react"}],199:[function(require,module,exports){
+},{"./ValuesOrRegexp":197,"material-ui":"material-ui","react":"react"}],190:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30582,7 +29059,7 @@ var Conditions = (function (_React$Component) {
 exports['default'] = Conditions;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],200:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],191:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30688,7 +29165,7 @@ var Effect = (function (_React$Component) {
 exports['default'] = Effect;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],201:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],192:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30842,7 +29319,7 @@ var InlineLabel = (function (_React$Component) {
 exports['default'] = InlineLabel;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],202:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],193:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -30934,7 +29411,7 @@ var Label = (function (_React$Component) {
 exports['default'] = Label;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}],203:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react"}],194:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31030,7 +29507,7 @@ var Resources = (function (_React$Component) {
 exports['default'] = Resources;
 module.exports = exports['default'];
 
-},{"./ChipValues":198,"material-ui":"material-ui","react":"react"}],204:[function(require,module,exports){
+},{"./ChipValues":189,"material-ui":"material-ui","react":"react"}],195:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31213,7 +29690,7 @@ var RuleEditor = (function (_React$Component) {
 exports['default'] = RuleEditor;
 module.exports = exports['default'];
 
-},{"./Actions":197,"./Conditions":199,"./Effect":200,"./Label":202,"./Resources":203,"./Subjects":205,"material-ui":"material-ui","pydio":"pydio","react":"react"}],205:[function(require,module,exports){
+},{"./Actions":188,"./Conditions":190,"./Effect":191,"./Label":193,"./Resources":194,"./Subjects":196,"material-ui":"material-ui","pydio":"pydio","react":"react"}],196:[function(require,module,exports){
 /*
  * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -31309,7 +29786,7 @@ var Subjects = (function (_React$Component) {
 exports['default'] = Subjects;
 module.exports = exports['default'];
 
-},{"./ChipValues":198,"material-ui":"material-ui","react":"react"}],206:[function(require,module,exports){
+},{"./ChipValues":189,"material-ui":"material-ui","react":"react"}],197:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -31456,4 +29933,4 @@ var ValuesOrRegexp = (function (_React$Component) {
 exports['default'] = ValuesOrRegexp;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react"}]},{},[194]);
+},{"material-ui":"material-ui","react":"react"}]},{},[185]);

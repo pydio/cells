@@ -117,7 +117,7 @@
     "other": "Pages principles de l'application"
   },
   "45": {
-    "other": "Accès aux pages spécifiques, type Mon Compte, Page d'accueil, etc.)"
+    "other": "Accès aux pages spécifiques (type Page d'accueil, Console d'Admin, etc.)"
   },
   "46": {
     "other": "Paramètres et Actions"
@@ -160,5 +160,44 @@
   },
   "9": {
     "other": "Lecture seule"
+  },
+  "roles.picker.title": {
+    "other": "Gérer les rôles"
+  },
+  "parameters.scope.selector.title": {
+    "other": "Ajouter pour..."
+  },
+  "parameters.scope.all": {
+    "other": "Tous les workspaces"
+  },
+  "parameters.scope.shared": {
+    "other": "Cellules partagées"
+  },
+  "parameters.scope.workspace": {
+    "other": "Workspace %s"
+  },
+  "parameters.custom.add": {
+    "other": "Ajouter un paramètre ou une action"
+  },
+  "parameters.empty": {
+    "other": "Aucun paramètres ou actions"
+  },
+  "workspace.statics.home.title": {
+    "other": "Page d'accueil"
+  },
+  "workspace.statics.home.description": {
+    "other": "Page de bienvenue affichée après le login"
+  },
+  "workspace.statics.settings.title": {
+    "other": "Console d'administration"
+  },
+  "workspace.statics.settings.description": {
+    "other": "Tableau de bord d'administration de Pydio Cells"
+  },
+  "acls.rights.policy.manual": {
+    "other": "Droits définis manuellement"
+  },
+  "acls.rights.advanced.root": {
+    "other": "Tout le workspace"
   }
 }

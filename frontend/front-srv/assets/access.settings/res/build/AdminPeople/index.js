@@ -34,10 +34,6 @@ var _boardPoliciesBoard = require('./board/PoliciesBoard');
 
 var _boardPoliciesBoard2 = _interopRequireDefault(_boardPoliciesBoard);
 
-var _boardDirectoriesBoard = require('./board/DirectoriesBoard');
-
-var _boardDirectoriesBoard2 = _interopRequireDefault(_boardDirectoriesBoard);
-
 var _boardCallbacks = require('./board/Callbacks');
 
 var _boardCallbacks2 = _interopRequireDefault(_boardCallbacks);
@@ -85,6 +81,5 @@ window.AdminPeople = {
 
   Dashboard: _boardDashboard2['default'],
   RolesDashboard: _boardRolesDashboard2['default'],
-  PoliciesBoard: _boardPoliciesBoard2['default'],
-  DirectoriesBoard: _boardDirectoriesBoard2['default']
+  PoliciesBoard: _boardPoliciesBoard2['default']
 };

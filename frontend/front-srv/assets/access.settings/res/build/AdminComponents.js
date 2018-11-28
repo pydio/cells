@@ -18235,8 +18235,9 @@ var TabBoard = (function (_React$Component) {
             var _state = this.state;
             var tab = _state.tab;
             var logToolsState = _state.logToolsState;
+            var pydio = this.props.pydio;
 
-            var tabs = [{ Value: 'dashboard', Label: 'Dashboard', Icon: 'mdi mdi-view-dashboard' }, { Value: 'audit', Label: 'Activity', Icon: 'mdi mdi-pulse' }];
+            var tabs = [{ Value: 'dashboard', Label: pydio.MessageHash['ajxp_admin.dashboard.tab.dashboard'], Icon: 'mdi mdi-view-dashboard' }, { Value: 'audit', Label: pydio.MessageHash['ajxp_admin.dashboard.tab.activity'], Icon: 'mdi mdi-pulse' }];
             var buttons = [];
             if (tab === 'audit') {
                 buttons.push(_react2['default'].createElement(AdminLogs.LogTools, { pydio: pydio, service: 'audit', onStateChange: this.handleLogToolsChange.bind(this) }));

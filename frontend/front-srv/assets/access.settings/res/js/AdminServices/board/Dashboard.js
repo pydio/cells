@@ -72,7 +72,7 @@ export default React.createClass({
                 <Toggle label={m('toggle.details')} toggled={details} onToggle={this.onDetailsChange} labelPosition={"right"} style={{width: 150}}/>
                 {peers.length &&
                     <DropDownMenu className={"media-small-hide"} style={{marginTop: -10}} underlineStyle={{display:'none'}} value={peerFilter} onChange={this.onPeerFilterChange}>
-                        <MenuItem value={''} primaryText={'Select Peer Node'} />
+                        <MenuItem value={''} primaryText={m('peerfilter.title')} />
                         {peers.map(peer => <MenuItem value={peer} primaryText={peer} />)}
                     </DropDownMenu>
                 }

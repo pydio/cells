@@ -372,7 +372,7 @@ var Dashboard = _react2['default'].createClass({
         var filterIcon = _react2['default'].createElement(
             _materialUi.IconMenu,
             {
-                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { style: { marginRight: -16, marginLeft: 8 }, iconStyle: { color: iconColor }, iconClassName: "mdi mdi-filter-variant" }),
+                iconButtonElement: _react2['default'].createElement(_materialUi.IconButton, { style: { marginRight: -16, marginLeft: 8 }, iconStyle: { color: iconColor }, iconClassName: "mdi mdi-filter-variant", tooltip: this.context.getMessage('user.filter.tooltip') }),
                 anchorOrigin: { horizontal: 'right', vertical: 'top' },
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
                 value: filterValue,
@@ -380,10 +380,10 @@ var Dashboard = _react2['default'].createClass({
                     _this2.setState({ filterValue: val });
                 }
             },
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 1, primaryText: 'Internal Users' }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 2, primaryText: 'Shared Users' }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 3, primaryText: 'Admins Only' }),
-            _react2['default'].createElement(_materialUi.MenuItem, { value: 4, primaryText: 'All Users' })
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 1, primaryText: this.context.getMessage('user.filter.internal') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 2, primaryText: this.context.getMessage('user.filter.shared') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 3, primaryText: this.context.getMessage('user.filter.admins') }),
+            _react2['default'].createElement(_materialUi.MenuItem, { value: 4, primaryText: this.context.getMessage('user.filter.all') })
         );
 
         return _react2['default'].createElement(
@@ -407,7 +407,7 @@ var Dashboard = _react2['default'].createClass({
                         _react2['default'].createElement(
                             'div',
                             { style: groupHeaderStyle },
-                            'Groups'
+                            this.context.getMessage("user.3")
                         ),
                         _react2['default'].createElement(PydioComponents.DNDTreeView, {
                             showRoot: true,

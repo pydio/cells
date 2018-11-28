@@ -135,7 +135,7 @@ export default React.createClass({
                         anchorOrigin={{horizontal: 'right', vertical: 'top'}}
                         targetOrigin={{horizontal: 'right', vertical: 'top'}}
                     >
-                        <MenuItem value={'manual-rights'} primaryText={"Rights set manually"} />
+                        <MenuItem value={'manual-rights'} primaryText={this.context.getMessage('acls.rights.policy.manual', 'pydio_role')} />
                         {policies.map((entry) => {
                             return <MenuItem value={entry.id} primaryText={entry.label} />;
                         })}

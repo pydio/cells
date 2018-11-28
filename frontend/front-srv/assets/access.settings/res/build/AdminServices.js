@@ -106,7 +106,7 @@ exports['default'] = _react2['default'].createClass({
             peers.length && _react2['default'].createElement(
                 _materialUi.DropDownMenu,
                 { className: "media-small-hide", style: { marginTop: -10 }, underlineStyle: { display: 'none' }, value: peerFilter, onChange: this.onPeerFilterChange },
-                _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: 'Select Peer Node' }),
+                _react2['default'].createElement(_materialUi.MenuItem, { value: '', primaryText: m('peerfilter.title') }),
                 peers.map(function (peer) {
                     return _react2['default'].createElement(_materialUi.MenuItem, { value: peer, primaryText: peer });
                 })
@@ -552,6 +552,9 @@ exports['default'] = _react2['default'].createClass({
         var m = function m(id) {
             return pydio.MessageHash['ajxp_admin.services.tag.' + id] || id;
         };
+        var m2 = function m2(id) {
+            return pydio.MessageHash['ajxp_admin.services.column.' + id] || id;
+        };
 
         var Tags = groupAndSortServices(services.filter(function (s) {
             return _this3.filterNodes(s);
@@ -565,7 +568,7 @@ exports['default'] = _react2['default'].createClass({
                             iconColor = '#9E9E9E';
                         }
                         return _react2['default'].createElement(_materialUi.FontIcon, { style: { margin: '0 9px 0 4px', fontSize: 20 }, className: "mdi-traffic-light", color: iconColor });
-                    } }, { name: 'Name', label: 'Service Name', style: { paddingLeft: 0 }, headerStyle: { paddingLeft: 0 } }, { name: 'Description', label: 'Description', style: { width: '40%' }, headerStyle: { width: '40%' }, hideSmall: true }, { name: 'Version', label: 'Version', style: { width: 80 }, headerStyle: { width: 80 }, hideSmall: true }, { name: 'Type', label: 'Tag', style: { width: 140 }, headerStyle: { width: 140 }, hideSmall: true, renderCell: function renderCell(service) {
+                    } }, { name: 'Name', label: m2('name'), style: { paddingLeft: 0 }, headerStyle: { paddingLeft: 0 } }, { name: 'Description', label: m2('description'), style: { width: '40%' }, headerStyle: { width: '40%' }, hideSmall: true }, { name: 'Version', label: m2('version'), style: { width: 80 }, headerStyle: { width: 80 }, hideSmall: true }, { name: 'Type', label: m2('tag'), style: { width: 140 }, headerStyle: { width: 140 }, hideSmall: true, renderCell: function renderCell(service) {
                         var isGrpc = service.Name.startsWith('pydio.grpc.');
                         var legend = isGrpc ? "Grpc" : "Rest";
                         var m = function m(id) {
@@ -583,7 +586,7 @@ exports['default'] = _react2['default'].createClass({
                             }
                         }
                         return legend;
-                    } }, { name: 'RunningPeers', label: 'Peers', hideSmall: true, renderCell: function renderCell(service) {
+                    } }, { name: 'RunningPeers', label: m2('peers'), hideSmall: true, renderCell: function renderCell(service) {
                         var peers = [];
                         if (service.Status === 'STARTED' && service.RunningPeers) {
                             service.RunningPeers.map(function (p) {

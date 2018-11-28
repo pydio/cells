@@ -33,10 +33,11 @@ class TabBoard extends React.Component {
     render(){
 
         const {tab, logToolsState} = this.state;
+        const {pydio} = this.props;
 
         const tabs = [
-            {Value: 'dashboard', Label: 'Dashboard', Icon:'mdi mdi-view-dashboard'},
-            {Value: 'audit', Label: 'Activity', Icon: 'mdi mdi-pulse'},
+            {Value: 'dashboard', Label: pydio.MessageHash['ajxp_admin.dashboard.tab.dashboard'], Icon:'mdi mdi-view-dashboard'},
+            {Value: 'audit', Label: pydio.MessageHash['ajxp_admin.dashboard.tab.activity'], Icon: 'mdi mdi-pulse'},
         ];
         let buttons = [];
         if(tab === 'audit'){

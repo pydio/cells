@@ -14,6 +14,10 @@ var _modelRole = require("../model/Role");
 
 var _modelRole2 = _interopRequireDefault(_modelRole);
 
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
 var _classNames = require('classNames');
@@ -124,7 +128,7 @@ var PermissionMaskEditor = _react2['default'].createClass({
         // Todo:  multiple roots
         var rootNodes = this.props.workspace.RootNodes;
         var firstNode = rootNodes[Object.keys(rootNodes).shift()];
-        var rootNode = new AjxpNode("/" + firstNode.Path, false, "Whole workspace", "folder.png", rNodeProvider);
+        var rootNode = new _pydioModelNode2['default']("/" + firstNode.Path, false, this.context.getMessage('acls.rights.advanced.root'), "folder.png", rNodeProvider);
         rootNode.getMetadata().set("uuid", firstNode.Uuid);
 
         dataModel.setRootNode(rootNode);
@@ -258,18 +262,21 @@ var PermissionMaskEditor = _react2['default'].createClass({
                         this.context.getMessage('react.5', 'ajxp_admin')
                     )
                 ),
-                _react2['default'].createElement('br', { style: { clear: 'both' } }),
-                _react2['default'].createElement(PydioComponents.TreeView, {
-                    ref: 'tree',
-                    dataModel: this.state.dataModel,
-                    node: this.state.node,
-                    showRoot: true,
-                    checkboxes: ["read", "write", "deny"],
-                    checkboxesValues: this.state.mask,
-                    checkboxesComputeStatus: this.checkboxesComputeStatus,
-                    onCheckboxCheck: this.onCheckboxCheck,
-                    forceExpand: true
-                })
+                _react2['default'].createElement(
+                    'div',
+                    { style: { clear: 'both', marginRight: -34 } },
+                    _react2['default'].createElement(PydioComponents.TreeView, {
+                        ref: 'tree',
+                        dataModel: this.state.dataModel,
+                        node: this.state.node,
+                        showRoot: true,
+                        checkboxes: ["read", "write", "deny"],
+                        checkboxesValues: this.state.mask,
+                        checkboxesComputeStatus: this.checkboxesComputeStatus,
+                        onCheckboxCheck: this.onCheckboxCheck,
+                        forceExpand: true
+                    })
+                )
             )
         );
     }
