@@ -860,6 +860,21 @@
   "plugins.6": {
     "other": "Revenir"
   },
+  "plugins.list.column.enabled": {
+    "other": "Activé"
+  },
+  "plugins.list.column.label": {
+    "other": "Libellé"
+  },
+  "plugins.list.column.id": {
+    "other": "Id"
+  },
+  "plugins.list.column.description": {
+    "other": "Description"
+  },
+  "plugins.list.action.edit": {
+    "other": "Editer les paramètres du plugin"
+  },
   "policies.policy.create": {
     "other": "Créer"
   },
@@ -1042,6 +1057,21 @@
   },
   "user.9": {
     "other": "Dernière connexion"
+  },
+  "user.filter.tooltip": {
+    "other": "Filtrer la liste..."
+  },
+  "user.filter.internal": {
+    "other": "Utilisateurs internes"
+  },
+  "user.filter.shared": {
+    "other": "Utilisateurs partagés"
+  },
+  "user.filter.admins": {
+    "other": "Admins seulement"
+  },
+  "user.filter.all": {
+    "other": "Tous les utilisateurs"
   },
   "versions.editor.delete": {
     "other": "Supprimer la stratégie"
@@ -1420,6 +1450,9 @@
   },
   "services.filter.stopped": {
     "other": "Arrêtés"
+  },
+  "services.peerfilter.title": {
+    "other": "Sélectionner un nœud"
   },
   "services.toggle.details": {
     "other": "Voir les détails"
