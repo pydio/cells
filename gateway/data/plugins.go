@@ -69,12 +69,12 @@ func init() {
 				keyFile = config.Get("cert", "http", "keyFile").String("")
 			}
 
-			os.Setenv("MINIO_BROWSER", "off")
-			gw := &pydio.Pydio{}
-			console := &logger{ctx: ctx}
-			go minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), "gateway", "gatewaysecret", console, certFile, keyFile)
-
 			return service.RunnerFunc(func() error {
+					os.Setenv("MINIO_BROWSER", "off")
+					gw := &pydio.Pydio{}
+					console := &logger{ctx: ctx}
+					minio.StartPydioGateway(ctx, gw, fmt.Sprintf(":%d", port), "gateway", "gatewaysecret", console, certFile, keyFile)
+
 					return nil
 				}), service.CheckerFunc(func() error {
 					return nil

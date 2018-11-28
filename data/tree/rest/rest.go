@@ -22,28 +22,25 @@
 package rest
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"strings"
 
 	"github.com/emicklei/go-restful"
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
-	"fmt"
-
-	"encoding/json"
-
-	"io"
-
-	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/utils/i18n"
 	"github.com/pydio/cells/common/views"
@@ -68,12 +65,12 @@ func getClient() tree.NodeProviderClient {
 }
 
 // SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
-func (a *Handler) SwaggerTags() []string {
+func (h *Handler) SwaggerTags() []string {
 	return []string{"TreeService", "AdminTreeService"}
 }
 
 // Filter returns a function to filter the swagger path
-func (a *Handler) Filter() func(string) string {
+func (h *Handler) Filter() func(string) string {
 	return func(s string) string {
 		return strings.Replace(s, "{Node}", "{Node:*}", 1)
 	}
@@ -117,7 +114,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 	ctx := req.Request.Context()
 	output := &rest.NodesCollection{}
 
-	log.Logger(ctx).Info("Got CreateNodes Request", zap.Any("r", input))
+	log.Logger(ctx).Info("Got CreateNodes Request", zap.Any("request", input))
 	router := h.GetRouter()
 	for _, n := range input.Nodes {
 		if !n.IsLeaf() {
@@ -165,6 +162,7 @@ func (h *Handler) CreateNodes(req *restful.Request, resp *restful.Response) {
 
 }
 
+// DeleteNodes either moves to recycle bin or definitively removes nodes.
 func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 
 	var input rest.DeleteNodesRequest
@@ -199,12 +197,18 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				return e
 			}
 			if sourceInRecycle(ctx, filtered, ancestors) {
-				// THIS IS A REAL DELETE NOW !
-				log.Logger(ctx).Info("Delete Node: this is a real delete")
+				// Now, this is a real delete!
+				log.Logger(ctx).Info(fmt.Sprintf("Definitively deleting [%s]", node.GetPath()))
 				deleteJobs.RealDeletes = append(deleteJobs.RealDeletes, filtered.Path)
+				log.Auditer(ctx).Info(
+					fmt.Sprintf("Deletion: [%s] has been definitively deleted", node.GetPath()),
+					log.GetAuditId(common.AUDIT_NODE_MOVED_TO_BIN),
+					node.ZapUuid(),
+					node.ZapPath(),
+				)
 			} else if recycleRoot, e := findRecycleForSource(ctx, filtered, ancestors); e == nil {
-				// MOVE TO RECYCLE INSTEAD OF DELETING
-				log.Logger(ctx).Info("Delete Node / found RecycleRoot : ", zap.Any("n", recycleRoot))
+				// Moving to recycle bin
+				log.Logger(ctx).Info(fmt.Sprintf("Deletion: moving [%s] to recycle bin", node.GetPath()), zap.Any("RecycleRoot", recycleRoot))
 				rPath := strings.TrimSuffix(recycleRoot.Path, "/") + "/" + common.RECYCLE_BIN_NAME
 				// If moving to recycle, save current path as metadata for later restore operation
 				metaNode := &tree.Node{Uuid: ancestors[0].Uuid}
@@ -216,6 +220,12 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				if _, ok := deleteJobs.RecyclesNodes[rPath]; !ok {
 					deleteJobs.RecyclesNodes[rPath] = &tree.Node{Path: rPath, Type: tree.NodeType_COLLECTION}
 				}
+				log.Auditer(ctx).Info(
+					fmt.Sprintf("Deletion: [%s] was moved to recycle bin", node.GetPath()),
+					log.GetAuditId(common.AUDIT_NODE_MOVED_TO_BIN),
+					node.ZapUuid(),
+					node.ZapPath(),
+				)
 			} else {
 				// we don't know what to do!
 				return fmt.Errorf("cannot find proper root for recycling: %s", e.Error())
@@ -318,10 +328,9 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 	}
 
 	resp.WriteEntity(output)
-
 }
 
-// Creates a temporary selection to be stored and used by a later action, currently only download
+// CreateSelection creates a temporary selection to be stored and used by a later action, currently only download.
 func (h *Handler) CreateSelection(req *restful.Request, resp *restful.Response) {
 
 	var input rest.CreateSelectionRequest
@@ -354,6 +363,7 @@ func (h *Handler) CreateSelection(req *restful.Request, resp *restful.Response) 
 
 }
 
+// RestoreNodes moves corresponding nodes to their initial location before deletion.
 func (h *Handler) RestoreNodes(req *restful.Request, resp *restful.Response) {
 
 	var input rest.RestoreNodesRequest

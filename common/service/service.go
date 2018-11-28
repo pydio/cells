@@ -283,7 +283,7 @@ func NewService(opts ...ServiceOption) Service {
 					}
 
 					return fmt.Errorf("dependency %s not found", d.Name)
-				})
+				}, 1*time.Second, 30*time.Minute)
 
 				if err != nil {
 					return err
