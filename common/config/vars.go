@@ -32,6 +32,7 @@ import (
 	"github.com/micro/go-config/reader"
 	"github.com/pydio/go-os/config"
 	"github.com/pydio/go-os/config/source/file"
+	"github.com/spf13/viper"
 
 	"strings"
 
@@ -55,6 +56,12 @@ var (
 // Config wrapper around micro Config
 type Config struct {
 	config.Config
+}
+
+func init() {
+	if viper.GetString("registry_cluster_routes") != "" {
+		RemoteSource = true
+	}
 }
 
 func initVersionStore() {
