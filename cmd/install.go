@@ -28,7 +28,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"runtime/debug"
 
 	"github.com/manifoldco/promptui"
 	_ "github.com/mholt/caddy/caddyhttp"
@@ -104,8 +103,6 @@ var installCmd = &cobra.Command{
  Services will all start automatically after the install process is finished.
 	 `,
 	Run: func(cmd *cobra.Command, args []string) {
-
-		debug.PrintStack()
 
 		cmd.Println("")
 		cmd.Println("\033[1mWelcome to " + common.PackageLabel + " installation\033[0m")

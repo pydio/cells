@@ -73,8 +73,7 @@ func init() {
 					} else {
 						conf.RunningHost = ip.String()
 					}
-					// Not sure using real ip is working right now
-					conf.RunningHost = "127.0.0.1"
+
 					conf.RunningSecure = false
 
 					engine.Config = conf
