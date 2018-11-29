@@ -159,13 +159,13 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 	if len(createdNodes) == 0 {
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("Group [%s] has been updated", out.GroupLabel),
+				fmt.Sprintf("Updated group [%s]", out.GroupLabel),
 				log.GetAuditId(common.AUDIT_GROUP_UPDATE),
 				out.ZapUuid(),
 			)
 		} else {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("User [%s] has been updated", out.Login),
+				fmt.Sprintf("Updated user [%s]", out.Login),
 				log.GetAuditId(common.AUDIT_USER_UPDATE),
 				out.ZapUuid(),
 			)
@@ -173,13 +173,13 @@ func (h *Handler) CreateUser(ctx context.Context, req *idm.CreateUserRequest, re
 	} else {
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("Group [%s] has been created in %s", out.GroupLabel, out.GroupPath),
+				fmt.Sprintf("Created group [%s] at %s", out.GroupLabel, out.GroupPath),
 				log.GetAuditId(common.AUDIT_GROUP_CREATE),
 				out.ZapUuid(),
 			)
 		} else {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("User [%s] has been created in %s", out.Login, out.GroupPath),
+				fmt.Sprintf("Created user [%s] at %s", out.Login, out.GroupPath),
 				log.GetAuditId(common.AUDIT_USER_CREATE),
 				out.ZapUuid(),
 			)
@@ -223,13 +223,13 @@ func (h *Handler) DeleteUser(ctx context.Context, req *idm.DeleteUserRequest, re
 		}))
 		if deleted.IsGroup {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("Group %s has been deleted from %s", deleted.GroupLabel, deleted.GroupPath),
+				fmt.Sprintf("Deleted group [%s] from %s", deleted.GroupLabel, deleted.GroupPath),
 				log.GetAuditId(common.AUDIT_GROUP_DELETE),
 				deleted.ZapUuid(),
 			)
 		} else {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("User %s has been deleted from %s", deleted.Login, deleted.GroupPath),
+				fmt.Sprintf("Deleted user [%s] from %s", deleted.Login, deleted.GroupPath),
 				log.GetAuditId(common.AUDIT_USER_DELETE),
 				deleted.ZapUuid(),
 			)

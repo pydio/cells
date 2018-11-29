@@ -34,8 +34,8 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/idm"
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
@@ -131,7 +131,7 @@ func (p *pydioAPIConnector) Login(ctx context.Context, s connector.Scopes, usern
 		}
 		log.Logger(ctx).Error("cannot bind user "+username, zap.Error(err))
 		log.Auditer(ctx).Error(
-			"Cannot bind user "+username+": "+errMsg,
+			"Could not bind user ["+username+"]: "+errMsg,
 			log.GetAuditId(common.AUDIT_LOGIN_FAILED),
 			zap.String(common.KEY_USERNAME, username),
 		)

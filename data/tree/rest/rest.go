@@ -201,7 +201,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 				log.Logger(ctx).Info(fmt.Sprintf("Definitively deleting [%s]", node.GetPath()))
 				deleteJobs.RealDeletes = append(deleteJobs.RealDeletes, filtered.Path)
 				log.Auditer(ctx).Info(
-					fmt.Sprintf("Deletion: [%s] has been definitively deleted", node.GetPath()),
+					fmt.Sprintf("Definitively deleted [%s]", node.GetPath()),
 					log.GetAuditId(common.AUDIT_NODE_MOVED_TO_BIN),
 					node.ZapUuid(),
 					node.ZapPath(),
@@ -221,7 +221,7 @@ func (h *Handler) DeleteNodes(req *restful.Request, resp *restful.Response) {
 					deleteJobs.RecyclesNodes[rPath] = &tree.Node{Path: rPath, Type: tree.NodeType_COLLECTION}
 				}
 				log.Auditer(ctx).Info(
-					fmt.Sprintf("Deletion: [%s] was moved to recycle bin", node.GetPath()),
+					fmt.Sprintf("Moved [%s] to recycle bin", node.GetPath()),
 					log.GetAuditId(common.AUDIT_NODE_MOVED_TO_BIN),
 					node.ZapUuid(),
 					node.ZapPath(),

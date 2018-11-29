@@ -32,10 +32,10 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	serviceproto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
 )
@@ -180,7 +180,7 @@ func (s *RoleHandler) DeleteRole(req *restful.Request, rsp *restful.Response) {
 		rsp.WriteError(500, e)
 	} else {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Role %s has been deleted", uuid),
+			fmt.Sprintf("Deleted role [%s]", uuid),
 			log.GetAuditId(common.AUDIT_ROLE_DELETE),
 			zap.String(common.KEY_ROLE_UUID, uuid),
 		)
@@ -214,7 +214,7 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 		rsp.WriteError(500, er)
 	} else {
 		log.Auditer(ctx).Info(
-			fmt.Sprintf("Role %s has been updated", inputRole.Label),
+			fmt.Sprintf("Updated role [%s]", inputRole.Label),
 			log.GetAuditId(common.AUDIT_ROLE_UPDATE),
 			inputRole.Zap(),
 		)
