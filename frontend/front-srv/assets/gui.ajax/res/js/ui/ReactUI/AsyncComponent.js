@@ -20,6 +20,7 @@
 
 import React, {Component} from 'react';
 import ResourcesManager from 'pydio/http/resources-manager';
+import FuncUtils from 'pydio/util/func'
 
 import _ from 'lodash';
 
@@ -32,11 +33,13 @@ import _ from 'lodash';
 class AsyncComponent extends Component {
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
-            loaded: false
-        }
+            loaded: false,
+            namespace: props.namespace,
+            componentName: props.componentName
+        };
 
         this._handleLoad = _.debounce(this._handleLoad, 100)
     }
@@ -44,14 +47,14 @@ class AsyncComponent extends Component {
     _handleLoad() {
         const callback = () => {
             if (this.instance && !this.loadFired && typeof this.props.onLoad === 'function') {
-                this.props.onLoad(this.instance)
+                this.props.onLoad(this.instance);
                 this.loadFired = true
             }
-        }
+        };
 
         if (!this.state.loaded) {
             // Loading the class asynchronously
-            ResourcesManager.loadClassesAndApply([this.props.namespace], () => {
+            ResourcesManager.loadClassesAndApply([this.state.namespace], () => {
                 this.setState({loaded:true});
                 callback();
             })
@@ -66,9 +69,14 @@ class AsyncComponent extends Component {
     }
 
     componentWillReceiveProps(newProps) {
-        if (this.props.namespace != newProps.namespace) {
+        if (this.props.namespace !== newProps.namespace) {
+            //this.setState({loaded:false});
+            ResourcesManager.loadClassesAndApply([newProps.namespace], () => {
             this.loadFired = false;
-            this.setState({loaded:false});
+                this.setState({namespace: newProps.namespace, componentName: newProps.componentName});
+            });
+        } else {
+            this.setState({namespace: newProps.namespace, componentName: newProps.componentName})
         }
     }
 
@@ -77,12 +85,13 @@ class AsyncComponent extends Component {
     }
 
     render() {
-        if (!this.state.loaded) return null
+        if (!this.state.loaded) {
+            return null;
+        }
 
-        let props = this.props
-        const {namespace, componentName, modalData} = props
-        const nsObject = window[this.props.namespace];
-        const Component = FuncUtils.getFunctionByName(this.props.componentName, window[this.props.namespace]);
+        let props = this.props;
+        const {namespace, componentName, modalData} = props;
+        const Component = FuncUtils.getFunctionByName(this.state.componentName, window[this.state.namespace]);
 
         if (Component) {
             if (modalData && modalData.payload) {
@@ -103,7 +112,7 @@ class AsyncComponent extends Component {
 AsyncComponent.propTypes = {
     namespace: React.PropTypes.string.isRequired,
     componentName: React.PropTypes.string.isRequired
-}
+};
 
 // AsyncComponent = PydioHOCs.withLoader(AsyncComponent)
 
