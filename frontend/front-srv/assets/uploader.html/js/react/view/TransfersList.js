@@ -45,7 +45,7 @@ class TransfersList extends React.Component{
             return (
                 <div style={{display:'flex', alignItems:'center', height: '100%', width: '100%'}}>
                     <div style={{textAlign: 'center',width: '100%',fontWeight: 500, textTransform: 'uppercase', color: 'rgba(0,0,0,0.1)', fontSize: 24}}>
-                        Drop Files Here
+                        {Pydio.getMessages()["html_uploader.drophere"]}
                     </div>
                 </div>
             );

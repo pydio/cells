@@ -18,6 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
+import Pydio from 'pydio'
 import React from 'react'
 import PathUtils from 'pydio/util/path'
 import {LinearProgress, CircularProgress} from 'material-ui'
@@ -215,7 +216,7 @@ class Transfer extends React.Component{
         if(isSession){
             // Do not display level 0
             if (status === 'analyse') {
-                label = "Preparing files and folders for upload...";
+                label = Pydio.getMessages()["html_uploader.analyze.step"];
                 progressBar = null;
                 toggleCallback = null;
                 toggleOpen = null;

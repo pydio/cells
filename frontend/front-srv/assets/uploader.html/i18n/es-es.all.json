@@ -26,20 +26,23 @@
   "17": {
     "other": "Mostrar archivos procesados"
   },
-  "18": {
-    "other": "Si existe un archivo con el mismo nombre:"
+  "options.existing": {
+    "other": "If a file with the same name exists:"
   },
-  "19": {
-    "other": "Parar subida y notificarme"
+  "options.existing.alert": {
+    "other": "Stop upload and alert me"
+  },
+  "options.existing.folders": {
+    "other": "Rename folders then files"
+  },
+  "options.existing.merge": {
+    "other": "Rename files only (merge folders)"
   },
   "2": {
     "other": "Subiendo %s archivos"
   },
-  "20": {
-    "other": "Renombar archivo"
-  },
-  "21": {
-    "other": "Sobreescribir"
+  "options.existing.overwrite": {
+    "other": "Overwrite existing file silently"
   },
   "22": {
     "other": "Options"
@@ -67,5 +70,11 @@
   },
   "9": {
     "other": ""
+  },
+  "analyze.step": {
+    "other": "Preparing files and folders for upload..."
+  },
+  "drophere": {
+    "other": "Drop Files Here"
   }
 }
