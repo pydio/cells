@@ -170,7 +170,7 @@ func init() {
 				if certEmail != "" {
 					caddytls.Agreed = true
 					caURL := config.Get("cert", "proxy", "caUrl").String("")
-					fmt.Println("### Configuring LE SSL, CA URL:", caURL)
+					log.Logger(ctx).Debug(fmt.Sprintf("Configuring Let's Encrypt - SSL process, CA URL: %s", caURL))
 					caddytls.DefaultCAUrl = caURL
 				}
 
