@@ -21,17 +21,25 @@
 package rest
 
 import (
+	"context"
+	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/emicklei/go-restful"
-
 	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/errors"
 	registry2 "github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/selector"
+	"github.com/pborman/uuid"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/ctl"
+	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
@@ -122,26 +130,7 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 	// Use a selector to make sure to we call the service that is running on the specific node
 	streamer, e := cl.ListNodes(req.Request.Context(), &tree.ListNodesRequest{
 		Node: &tree.Node{Path: listReq.Path},
-	}, client.WithSelectOption(selector.WithFilter(func(services []*registry2.Service) (out []*registry2.Service) {
-		peerAddress := listReq.PeerAddress
-		for _, srv := range services {
-			if srv.Name != srvName {
-				continue
-			}
-			var nodes []*registry2.Node
-			for _, n := range srv.Nodes {
-				if n.Address == peerAddress {
-					nodes = append(nodes, n)
-					break
-				}
-			}
-			if len(nodes) > 0 {
-				srv.Nodes = nodes
-				out = append(out, srv)
-			}
-		}
-		return
-	})))
+	}, client.WithSelectOption(h.PeerClientSelector(srvName, listReq.PeerAddress)))
 	if e != nil {
 		service.RestError500(req, resp, e)
 		return
@@ -158,6 +147,81 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 
 	resp.WriteEntity(coll)
 
+}
+
+// ValidateLocalDSFolderOnPeer sends a couple of stat/create requests to the target Peer to make sure folder is valid
+func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *object.DataSource) error {
+
+	folder := newSource.StorageConfiguration["folder"]
+	srvName := common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DATA_OBJECTS
+	selectorOption := client.WithSelectOption(h.PeerClientSelector(srvName, newSource.PeerAddress))
+	defClient := defaults.NewClient()
+
+	cl := tree.NewNodeProviderClient(srvName, defClient)
+	wCl := tree.NewNodeReceiverClient(srvName, defClient)
+
+	// Check it's two level deep
+	parentName := filepath.Dir(folder)
+	if strings.Trim(parentName, "/") == "" {
+		return errors.BadRequest("ds.folder.invalid", "please use at least a two-levels deep folder")
+	}
+
+	// Stat node to make sure it exists - Create it otherwise
+	_, e := cl.ReadNode(ctx, &tree.ReadNodeRequest{
+		Node: &tree.Node{Path: folder},
+	}, selectorOption)
+
+	if e != nil {
+		if create, ok := newSource.StorageConfiguration["create"]; ok && create == "true" {
+			// Create Node Now
+			wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
+				Type: tree.NodeType_COLLECTION,
+				Path: folder,
+			}}, selectorOption)
+		} else {
+			return e
+		}
+	}
+
+	log.Logger(ctx).Info("Checking parent folder is writable before creating datasource", zap.Any("ds", newSource))
+	// Finally try to write a tmp file inside parent folder to make sure it's writable, then remove it
+	touchFile := &tree.Node{
+		Type: tree.NodeType_LEAF,
+		Path: path.Join(parentName, uuid.New()),
+	}
+	touched, e := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: touchFile}, selectorOption)
+	if e != nil {
+		return errors.Forbidden("ds.folder.parent.not.writable", "Please make sure that parent folder is writeable by the application")
+	} else {
+		if _, er := wCl.DeleteNode(ctx, &tree.DeleteNodeRequest{Node: touched.Node}, selectorOption); er != nil {
+			log.Logger(ctx).Error("Could not delete tmp file written when creating datasource on peer " + newSource.PeerAddress)
+		}
+	}
+
+	return e
+}
+
+// PeerClientSelector creates a Selector Filter to restrict call to a given PeerAddress
+func (h *Handler) PeerClientSelector(srvName string, targetPeer string) selector.SelectOption {
+	return selector.WithFilter(func(services []*registry2.Service) (out []*registry2.Service) {
+		for _, srv := range services {
+			if srv.Name != srvName {
+				continue
+			}
+			var nodes []*registry2.Node
+			for _, n := range srv.Nodes {
+				if n.Address == targetPeer {
+					nodes = append(nodes, n)
+					break
+				}
+			}
+			if len(nodes) > 0 {
+				srv.Nodes = nodes
+				out = append(out, srv)
+			}
+		}
+		return
+	})
 }
 
 // Start Stop services

@@ -28,8 +28,9 @@ import (
 	"strings"
 
 	"github.com/micro/go-micro"
-	"github.com/spf13/afero"
+	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common/plugins"
+	"github.com/spf13/afero"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
@@ -62,6 +63,7 @@ func init() {
 					}))
 
 				tree.RegisterNodeProviderHandler(m.Server(), NewTreeHandler())
+				tree.RegisterNodeReceiverHandler(m.Server(), NewTreeHandler())
 
 				return runner.Watch(m.Options().Context)
 			}),
@@ -136,4 +138,35 @@ func (t *TreeHandler) ListNodes(ctx context.Context, request *tree.ListNodesRequ
 		return e
 	}
 
+}
+
+func (t *TreeHandler) CreateNode(ctx context.Context, request *tree.CreateNodeRequest, response *tree.CreateNodeResponse) error {
+	if request.Node.IsLeaf() {
+		if file, e := t.FS.Create(request.Node.Path); e != nil {
+			return e
+		} else {
+			fileInfo, _ := file.Stat()
+			response.Node = t.FileInfoToNode(request.Node.Path, fileInfo)
+		}
+	} else {
+		if e := t.FS.MkdirAll(request.Node.Path, 0666); e != nil {
+			return e
+		} else {
+			fileInfo, _ := t.FS.Stat(request.Node.Path)
+			response.Node = t.FileInfoToNode(request.Node.Path, fileInfo)
+		}
+	}
+	return nil
+}
+
+func (t *TreeHandler) UpdateNode(ctx context.Context, request *tree.UpdateNodeRequest, response *tree.UpdateNodeResponse) error {
+	return errors.BadRequest("not.implemented", "")
+}
+
+func (t *TreeHandler) DeleteNode(ctx context.Context, request *tree.DeleteNodeRequest, response *tree.DeleteNodeResponse) error {
+	if e := t.FS.Remove(request.Node.Path); e != nil {
+		return e
+	}
+	response.Success = true
+	return nil
 }

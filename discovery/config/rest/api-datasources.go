@@ -33,12 +33,12 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
 )
@@ -78,9 +78,11 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	}
 	ctx := req.Request.Context()
 
-	if err := config.ValidateDataSourceConfig(&ds); err != nil {
-		service.RestError500(req, resp, err)
-		return
+	if ds.StorageType == object.StorageType_LOCAL {
+		if err := s.ValidateLocalDSFolderOnPeer(ctx, &ds); err != nil {
+			service.RestError500(req, resp, err)
+			return
+		}
 	}
 
 	currentSources := config.ListSourcesFromConfig()
