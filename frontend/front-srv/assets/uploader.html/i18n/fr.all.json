@@ -26,20 +26,23 @@
   "17": {
     "other": "Montrer/cacher les fichiers transférés"
   },
-  "18": {
-    "other": "Si un fichier avec le même nom existe:"
+  "options.existing": {
+    "other": "Si un fichier existe avec le même nom:"
   },
-  "19": {
-    "other": "Interrompre et me demander"
+  "options.existing.alert": {
+    "other": "Arrêter l'upload et m'alerter"
+  },
+  "options.existing.folders": {
+    "other": "Renommer les répertoires puis les fichiers"
+  },
+  "options.existing.merge": {
+    "other": "Renommer les fichiers (fusionner les dossiers)"
   },
   "2": {
     "other": "Chargement de %s fichiers"
   },
-  "20": {
-    "other": "Renommer automatiquement"
-  },
-  "21": {
-    "other": "Remplacer le fichier existant"
+  "options.existing.overwrite": {
+    "other": "Ecraser les fichiers en silence"
   },
   "22": {
     "other": "Options"
@@ -67,5 +70,11 @@
   },
   "9": {
     "other": ""
+  },
+  "analyze.step": {
+    "other": "Préparation des fichiers et répertoires pour l'upload..."
+  },
+  "drophere": {
+    "other": "Déposez des fichiers ici"
   }
 }

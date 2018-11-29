@@ -119,6 +119,7 @@ func UnusedMinioServers(minios map[string]*object.MinioConfig, sources map[strin
 }
 
 func ValidateDataSourceConfig(newSource *object.DataSource) error {
+	return nil
 	if newSource.StorageType == object.StorageType_LOCAL {
 		folder := newSource.StorageConfiguration["folder"]
 		_, e := os.Stat(folder)
