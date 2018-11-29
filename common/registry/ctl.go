@@ -20,36 +20,29 @@
 
 package registry
 
-import "github.com/micro/go-micro/registry"
-
 // ListServicesWithMicroMeta lists the services that have a specific meta name and value associated
 func (c *pydioregistry) ListServicesWithMicroMeta(metaName string, metaValue ...string) ([]Service, error) {
 
 	var result []Service
 
-	services, err := registry.DefaultRegistry.ListServices()
+	services, err := ListRunningServices()
 	if err != nil {
 		return nil, err
 	}
-
 	for _, rs := range services {
-		if len(rs.Nodes) == 0 {
+		if len(rs.RunningNodes()) == 0 {
 			continue
 		}
-		if value, ok := rs.Nodes[0].Metadata[metaName]; ok {
+		if value, ok := rs.RunningNodes()[0].Metadata[metaName]; ok {
 			// Compare meta value if passed
 			if len(metaValue) > 0 && value != metaValue[0] {
 				continue
 			}
-			if rs.Metadata == nil {
-				rs.Metadata = make(map[string]string, 1)
-			}
-			rs.Metadata[metaName] = value
 
-			if service, ok := c.register[rs.Name]; ok {
+			if service, ok := c.register[rs.Name()]; ok {
 				result = append(result, service)
 			} else {
-				result = append(result, &mockService{rs.Name, true, rs.Nodes, []string{}, false})
+				result = append(result, &mockService{rs.Name(), true, rs.RunningNodes(), []string{}, false})
 			}
 		}
 	}
