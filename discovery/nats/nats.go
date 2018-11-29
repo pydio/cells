@@ -37,12 +37,11 @@ import (
 
 var hd *server.Server
 
-func init() {
+func Init() {
 	cobra.OnInitialize(run)
 }
 
 func run() {
-
 	reg := viper.GetString("registry")
 	regAddress := viper.GetString("registry_address")
 	regClusterAddress := viper.GetString("registry_cluster_address")
@@ -89,8 +88,6 @@ func run() {
 		if regClusterRoutes != "" {
 			opts.RoutesStr = regClusterRoutes
 			opts.Routes = server.RoutesFromStr(regClusterRoutes)
-
-			fmt.Println("Routes ", opts.RoutesStr, opts.Routes)
 		}
 
 		// Create the server with appropriate options.
@@ -102,8 +99,13 @@ func run() {
 		// Start things up. Block here until done.
 		go func() {
 			err := server.Run(hd)
-			fmt.Println(err)
+			if err != nil {
+				log.Fatal("nats: could not start", zap.Error(err))
+			}
 		}()
+
+		// Allowing time for nats to start up
+		<-time.After(1 * time.Second)
 
 		if !hd.ReadyForConnections(3 * time.Second) {
 			log.Fatal("nats: start timed out")

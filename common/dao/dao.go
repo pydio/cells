@@ -70,6 +70,9 @@ func (h *handler) Prefix() string {
 
 // GetConn to the DB for the DAO
 func (h *handler) GetConn() Conn {
+	if h == nil {
+		return nil
+	}
 	return h.conn
 }
 

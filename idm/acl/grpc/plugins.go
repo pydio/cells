@@ -28,33 +28,36 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/idm/acl"
+	"github.com/pydio/cells/common/plugins"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("Access Control List service"),
-		service.WithStorage(acl.NewDAO, "idm_acl"),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.ValidVersion("1.2.0"),
-				Up:            UpgradeTo120,
-			},
-		}),
-		service.WithMicro(func(m micro.Service) error {
-			m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
-			handler := new(Handler)
-			idm.RegisterACLServiceHandler(m.Server(), handler)
-			tree.RegisterNodeProviderStreamerHandler(m.Server(), handler)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("Access Control List service"),
+			service.WithStorage(acl.NewDAO, "idm_acl"),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.ValidVersion("1.2.0"),
+					Up:            UpgradeTo120,
+				},
+			}),
+			service.WithMicro(func(m micro.Service) error {
+				m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
+				handler := new(Handler)
+				idm.RegisterACLServiceHandler(m.Server(), handler)
+				tree.RegisterNodeProviderStreamerHandler(m.Server(), handler)
 
-			// Clean acls on Ws or Roles deletion
-			m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_IDM_EVENT, &WsRolesCleaner{handler}))
+				// Clean acls on Ws or Roles deletion
+				m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_IDM_EVENT, &WsRolesCleaner{handler}))
 
-			// Clean acls on Nodes deletion
-			m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_TREE_CHANGES, &NodesCleaner{Handler: handler}))
+				// Clean acls on Nodes deletion
+				m.Server().Subscribe(m.Server().NewSubscriber(common.TOPIC_TREE_CHANGES, &NodesCleaner{Handler: handler}))
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }

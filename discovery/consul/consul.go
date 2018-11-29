@@ -27,7 +27,7 @@ import (
 	"github.com/hashicorp/consul/agent/config"
 	"github.com/pydio/cells/cmd"
 	"github.com/pydio/cells/common/log"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
@@ -40,13 +40,13 @@ var (
 	}`
 )
 
-func init() {
+func Init() {
 	flags := cmd.RootCmd.PersistentFlags()
 	flags.String("consul_config", "", "Configuration file for consul")
 
 	viper.BindPFlag("consul_config", flags.Lookup("consul_config"))
 
-	cobra.OnInitialize(run)
+	plugins.Register(run)
 }
 
 func run() {

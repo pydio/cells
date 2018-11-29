@@ -27,20 +27,23 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/proto/update"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/plugins"
 )
 
 func init() {
 
-	config.RegisterExposedConfigs(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, ExposedConfigs)
+	plugins.Register(func() {
+		config.RegisterExposedConfigs(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, ExposedConfigs)
 
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE),
-		service.Tag(common.SERVICE_TAG_DISCOVERY),
-		service.Description("Update checker service"),
-		service.WithMicro(func(m micro.Service) error {
-			handler := new(Handler)
-			update.RegisterUpdateServiceHandler(m.Server(), handler)
-			return nil
-		}),
-	)
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE),
+			service.Tag(common.SERVICE_TAG_DISCOVERY),
+			service.Description("Update checker service"),
+			service.WithMicro(func(m micro.Service) error {
+				handler := new(Handler)
+				update.RegisterUpdateServiceHandler(m.Server(), handler)
+				return nil
+			}),
+		)
+	})
 }

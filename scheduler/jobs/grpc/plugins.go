@@ -25,6 +25,7 @@ import (
 	"path"
 
 	"github.com/micro/go-micro"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -34,40 +35,44 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS),
-		service.Tag(common.SERVICE_TAG_SCHEDULER),
-		service.Description("Store for scheduler jobs description"),
-		service.WithMicro(func(m micro.Service) error {
-			serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_JOBS)
-			if e != nil {
-				return e
-			}
-			store, err := jobs.NewBoltStore(path.Join(serviceDir, "jobs.db"))
-			if err != nil {
-				return err
-			}
-			handler := &JobsHandler{
-				store: store,
-			}
-			proto.RegisterJobServiceHandler(m.Options().Server, handler)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS),
+			service.Tag(common.SERVICE_TAG_SCHEDULER),
+			service.Description("Store for scheduler jobs description"),
+			service.Unique(true),
+			service.WithMicro(func(m micro.Service) error {
+				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_JOBS)
+				if e != nil {
+					return e
+				}
+				store, err := jobs.NewBoltStore(path.Join(serviceDir, "jobs.db"))
+				if err != nil {
+					return err
+				}
+				handler := &JobsHandler{
+					store: store,
+				}
+				proto.RegisterJobServiceHandler(m.Options().Server, handler)
 
-			m.Init(
-				micro.BeforeStop(func() error {
-					store.Close()
-					return nil
-				}),
-				micro.AfterStart(func() error {
-					for _, j := range getDefaultJobs() {
-						handler.PutJob(m.Options().Context, &proto.PutJobRequest{Job: j}, &proto.PutJobResponse{})
-					}
-					// Clean tasks stuck in "Running" status
-					handler.CleanStuckTasks(m.Options().Context)
-					return nil
-				}),
-			)
+				m.Init(
+					micro.BeforeStop(func() error {
+						store.Close()
+						return nil
+					}),
+					micro.AfterStart(func() error {
+						for _, j := range getDefaultJobs() {
+							handler.PutJob(m.Options().Context, &proto.PutJobRequest{Job: j}, &proto.PutJobResponse{})
+						}
+						// Clean tasks stuck in "Running" status
+						handler.CleanStuckTasks(m.Options().Context)
+						return nil
+					}),
+				)
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+
+	})
 }

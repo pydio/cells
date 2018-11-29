@@ -24,22 +24,25 @@ package rest
 import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/plugins"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_SHARE),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("REST access to shared rooms"),
-		service.RouterDependencies(),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, []string{}),
-		service.WithWeb(func() service.WebHandler {
-			return NewSharesHandler()
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_SHARE),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("REST access to shared rooms"),
+			service.RouterDependencies(),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ACL, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_WORKSPACE, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, []string{}),
+			service.WithWeb(func() service.WebHandler {
+				return NewSharesHandler()
+			}),
+		)
+	})
 }

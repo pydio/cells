@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/plugins"
 )
 
 var (
@@ -37,12 +38,14 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(Name),
-		service.Tag(common.SERVICE_TAG_DATASOURCE),
-		service.Description("Starter for data sources synchronizations"),
-		service.WithMicroChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(Name),
+			service.Tag(common.SERVICE_TAG_DATASOURCE),
+			service.Description("Starter for data sources synchronizations"),
+			service.WithMicroChildrenRunner(Name, ChildPrefix, true, onDataSourceDelete),
+		)
+	})
 }
 
 // Manage datasources deletion operations : clean index tables

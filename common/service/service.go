@@ -225,17 +225,23 @@ func NewService(opts ...ServiceOption) Service {
 
 			switch driver {
 			case "mysql":
-				d = s.Options().DAO(sql.NewDAO(driver, dsn, prefix))
+				if c := sql.NewDAO(driver, dsn, prefix); c != nil {
+					d = s.Options().DAO(c)
+				}
 			case "sqlite3":
-				d = s.Options().DAO(sql.NewDAO(driver, dsn, prefix))
+				if c := sql.NewDAO(driver, dsn, prefix); c != nil {
+					d = s.Options().DAO(c)
+				}
 			case "boltdb":
-				d = s.Options().DAO(boltdb.NewDAO(driver, dsn, prefix))
+				if c := boltdb.NewDAO(driver, dsn, prefix); c != nil {
+					d = s.Options().DAO(c)
+				}
 			default:
 				return fmt.Errorf("unsupported driver type: %s", driver)
 			}
 
 			if d == nil {
-				return fmt.Errorf("This driver is not implemented for this service")
+				return fmt.Errorf("Storage is not available")
 			}
 
 			ctx = servicecontext.WithDAO(ctx, d)
@@ -256,6 +262,7 @@ func NewService(opts ...ServiceOption) Service {
 				}
 
 				for _, r := range runningServices {
+					log.Logger(ctx).Debug("BeforeStart - Check unique ", zap.String("name ", s.Name()), zap.String("name2 ", r.Name()))
 					if s.Name() == r.Name() {
 						return fmt.Errorf("already started")
 					}

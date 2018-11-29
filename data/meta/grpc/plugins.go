@@ -23,6 +23,7 @@ package grpc
 
 import (
 	micro "github.com/micro/go-micro"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"
@@ -31,33 +32,35 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META),
-		service.Tag(common.SERVICE_TAG_DATA),
-		service.Description("Metadata server for tree nodes"),
-		service.WithStorage(meta.NewDAO, "data_meta"),
-		service.WithMicro(func(m micro.Service) error {
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META),
+			service.Tag(common.SERVICE_TAG_DATA),
+			service.Description("Metadata server for tree nodes"),
+			service.WithStorage(meta.NewDAO, "data_meta"),
+			service.WithMicro(func(m micro.Service) error {
 
-			ctx := m.Options().Context
+				ctx := m.Options().Context
 
-			engine := NewMetaServer()
+				engine := NewMetaServer()
 
-			tree.RegisterNodeProviderHandler(m.Options().Server, engine)
-			tree.RegisterNodeProviderStreamerHandler(m.Options().Server, engine)
-			tree.RegisterNodeReceiverHandler(m.Options().Server, engine)
-			tree.RegisterSearcherHandler(m.Options().Server, engine)
+				tree.RegisterNodeProviderHandler(m.Options().Server, engine)
+				tree.RegisterNodeProviderStreamerHandler(m.Options().Server, engine)
+				tree.RegisterNodeReceiverHandler(m.Options().Server, engine)
+				tree.RegisterSearcherHandler(m.Options().Server, engine)
 
-			// Register Subscribers
-			if err := m.Options().Server.Subscribe(
-				m.Options().Server.NewSubscriber(
-					common.TOPIC_TREE_CHANGES,
-					engine.CreateNodeChangeSubscriber(ctx),
-				),
-			); err != nil {
-				return err
-			}
+				// Register Subscribers
+				if err := m.Options().Server.Subscribe(
+					m.Options().Server.NewSubscriber(
+						common.TOPIC_TREE_CHANGES,
+						engine.CreateNodeChangeSubscriber(ctx),
+					),
+				); err != nil {
+					return err
+				}
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }

@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
+	"github.com/pydio/cells/common/plugins"
 
 	"context"
 
@@ -37,33 +38,35 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_META),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("User-defined Metadata"),
-		service.WithStorage(meta.NewDAO, "idm_usr_meta"),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.FirstRun(),
-				Up:            defaultMetas,
-			},
-		}),
-		service.WithMicro(func(m micro.Service) error {
-			ctx := m.Options().Context
-			server := NewHandler()
-			m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_META),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("User-defined Metadata"),
+			service.WithStorage(meta.NewDAO, "idm_usr_meta"),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            defaultMetas,
+				},
+			}),
+			service.WithMicro(func(m micro.Service) error {
+				ctx := m.Options().Context
+				server := NewHandler()
+				m.Init(micro.Metadata(map[string]string{"MetaProvider": "stream"}))
 
-			idm.RegisterUserMetaServiceHandler(m.Options().Server, server)
-			tree.RegisterNodeProviderStreamerHandler(m.Options().Server, server)
+				idm.RegisterUserMetaServiceHandler(m.Options().Server, server)
+				tree.RegisterNodeProviderStreamerHandler(m.Options().Server, server)
 
-			// Clean role on user deletion
-			cleaner := NewCleaner(server, servicecontext.GetDAO(ctx))
-			if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
-				return err
-			}
-			return nil
-		}),
-	)
+				// Clean role on user deletion
+				cleaner := NewCleaner(server, servicecontext.GetDAO(ctx))
+				if err := m.Options().Server.Subscribe(m.Options().Server.NewSubscriber(common.TOPIC_IDM_EVENT, cleaner)); err != nil {
+					return err
+				}
+				return nil
+			}),
+		)
+	})
 }
 
 func defaultMetas(ctx context.Context) error {

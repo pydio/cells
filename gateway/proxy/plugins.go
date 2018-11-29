@@ -30,6 +30,7 @@ import (
 
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/mholt/caddy/caddytls"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/micro/go-micro/broker"
 	_ "github.com/micro/go-plugins/client/grpc"
@@ -156,91 +157,93 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GATEWAY_PROXY),
-		service.Tag(common.SERVICE_TAG_GATEWAY),
-		service.Description("Main HTTP proxy for exposing a unique address to the world"),
-		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GATEWAY_PROXY),
+			service.Tag(common.SERVICE_TAG_GATEWAY),
+			service.Description("Main HTTP proxy for exposing a unique address to the world"),
+			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
 
-			httpserver.HTTP2 = false
+				httpserver.HTTP2 = false
 
-			certEmail := config.Get("cert", "proxy", "email").String("")
-			if certEmail != "" {
-				caddytls.Agreed = true
-				caURL := config.Get("cert", "proxy", "caUrl").String("")
-				fmt.Println("### Configuring LE SSL, CA URL:", caURL)
-				caddytls.DefaultCAUrl = caURL
-			}
-
-			caddy.Enable(caddyfile, play)
-
-			caddyconf.PluginTemplates = caddy.GetTemplates()
-			caddyconf.PluginPathes = caddy.GetPathes()
-
-			err := caddy.Start()
-			if err != nil {
-				if isErr, port := errorUtils.IsErrorPortPermissionDenied(err); isErr {
-					log.Logger(ctx).Error("*******************************************************************")
-					log.Logger(ctx).Error(fmt.Sprintf("   ERROR: Cannot bind to port %d.   ", port))
-					log.Logger(ctx).Error("   You should probably run the following command ")
-					log.Logger(ctx).Error("   otherwise the main internal proxy cannot start")
-					log.Logger(ctx).Error("   and your application will be unreachable.")
-					log.Logger(ctx).Error("   $ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>")
-					log.Logger(ctx).Error("*******************************************************************")
+				certEmail := config.Get("cert", "proxy", "email").String("")
+				if certEmail != "" {
+					caddytls.Agreed = true
+					caURL := config.Get("cert", "proxy", "caUrl").String("")
+					fmt.Println("### Configuring LE SSL, CA URL:", caURL)
+					caddytls.DefaultCAUrl = caURL
 				}
 
-				return nil, nil, nil, err
-			}
+				caddy.Enable(caddyfile, play)
 
-			instance := caddy.GetInstance()
+				caddyconf.PluginTemplates = caddy.GetTemplates()
+				caddyconf.PluginPathes = caddy.GetPathes()
 
-			return service.RunnerFunc(func() error {
-					instance.Wait()
-					return nil
-				}), service.CheckerFunc(func() error {
-					if len(instance.Servers()) == 0 {
-						return fmt.Errorf("No servers have been started")
+				err := caddy.Start()
+				if err != nil {
+					if isErr, port := errorUtils.IsErrorPortPermissionDenied(err); isErr {
+						log.Logger(ctx).Error("*******************************************************************")
+						log.Logger(ctx).Error(fmt.Sprintf("   ERROR: Cannot bind to port %d.   ", port))
+						log.Logger(ctx).Error("   You should probably run the following command ")
+						log.Logger(ctx).Error("   otherwise the main internal proxy cannot start")
+						log.Logger(ctx).Error("   and your application will be unreachable.")
+						log.Logger(ctx).Error("   $ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>")
+						log.Logger(ctx).Error("*******************************************************************")
 					}
-					return nil
-				}), service.StopperFunc(func() error {
-					instance.Stop()
-					return nil
-				}), nil
-		}),
-		service.AfterStart(func(s service.Service) error {
 
-			// Adding subscriber
-			if _, err := broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error {
-				return caddy.Restart()
-			}); err != nil {
-				return err
-			}
-			if _, err := broker.Subscribe(common.TOPIC_SERVICE_STOP, func(p broker.Publication) error {
-				return caddy.Restart()
-			}); err != nil {
-				return err
-			}
+					return nil, nil, nil, err
+				}
 
-			// Watching plugins
-			if w, err := config.Watch("frontend", "plugin"); err != nil {
-				return err
-			} else {
-				go func() {
-					defer w.Stop()
-					for {
-						_, err := w.Next()
-						if err != nil {
-							break
+				instance := caddy.GetInstance()
+
+				return service.RunnerFunc(func() error {
+						instance.Wait()
+						return nil
+					}), service.CheckerFunc(func() error {
+						if len(instance.Servers()) == 0 {
+							return fmt.Errorf("No servers have been started")
 						}
+						return nil
+					}), service.StopperFunc(func() error {
+						instance.Stop()
+						return nil
+					}), nil
+			}),
+			service.AfterStart(func(s service.Service) error {
 
-						caddy.Restart()
-					}
-				}()
-			}
+				// Adding subscriber
+				if _, err := broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error {
+					return caddy.Restart()
+				}); err != nil {
+					return err
+				}
+				if _, err := broker.Subscribe(common.TOPIC_SERVICE_STOP, func(p broker.Publication) error {
+					return caddy.Restart()
+				}); err != nil {
+					return err
+				}
 
-			return nil
-		}),
-	)
+				// Watching plugins
+				if w, err := config.Watch("frontend", "plugin"); err != nil {
+					return err
+				} else {
+					go func() {
+						defer w.Stop()
+						for {
+							_, err := w.Next()
+							if err != nil {
+								break
+							}
+
+							caddy.Restart()
+						}
+					}()
+				}
+
+				return nil
+			}),
+		)
+	})
 }
 
 func play() (*bytes.Buffer, error) {

@@ -6,13 +6,13 @@ import (
 	"html/template"
 	"net/url"
 
-	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 )
 
 var (
@@ -49,7 +49,7 @@ type EditorLibreOffice struct {
 }
 
 func init() {
-	cobra.OnInitialize(func() {
+	plugins.Register(func() {
 		caddy.RegisterPluginTemplate(
 			caddy.TemplateFunc(play),
 			"/wopi/",
@@ -70,8 +70,6 @@ func init() {
 func play() (*bytes.Buffer, error) {
 
 	e := new(EditorLibreOffice)
-
-	log.Info(fmt.Sprintf("PYDIO PLUGIN %v", config.Get("frontend", "plugin", "editor.libreoffice", "PYDIO_PLUGIN_ENABLED").Bool(false)))
 
 	e.WOPI = common.SERVICE_GATEWAY_WOPI
 

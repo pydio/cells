@@ -5,8 +5,9 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"sync"
+
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -20,12 +21,28 @@ var (
 )
 
 func init() {
-	tls := GetTLSClientConfig("proxy")
+	cobra.OnInitialize(func() {
+		// TODO - reactivate this
+		// We deactivated that because we had a round circle situation for remote sources
+		// (you need remote source to retrieve the config and you need the cert config to call the remote source)
+		// Solution would be to retrieve the cert config directly in the env
 
-	// The default client is used by dex so no choice
-	http.DefaultClient.Transport = &http.Transport{
-		TLSClientConfig: tls,
-	}
+		// tls := GetTLSClientConfig("grpc")
+		// if tls != nil {
+		// 	defaults.InitClient(func() client.Option { return grpcclient.AuthTLS(tls) })
+		// }
+		//
+		// tls = GetTLSServerConfig("grpc")
+		// if tls != nil {
+		// 	defaults.InitServer(func() server.Option { return grpcserver.AuthTLS(tls) })
+		// }
+		//
+		// tls = GetTLSServerConfig("http")
+		// if tls != nil {
+		// 	t := httptransport.NewTransport(transport.TLSConfig(tls), transport.Secure(true))
+		// 	defaults.InitHTTPServer(func() server.Option { return server.Transport(t) })
+		// }
+	})
 }
 
 // GetTLSServerConfig returns the configuration ssl for a server handler

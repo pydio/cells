@@ -23,17 +23,17 @@ package remote
 
 import (
 	"context"
-	"strings"
-	"time"
-
-	proto "github.com/pydio/config-srv/proto/config"
-	"github.com/pydio/go-os/config"
-
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/micro"
+	proto "github.com/pydio/config-srv/proto/config"
+	"github.com/pydio/go-os/config"
+
 	"github.com/pydio/go-os/config/proto"
 )
 
@@ -42,20 +42,38 @@ type remotesource struct {
 }
 
 func (s *remotesource) Read() (*config.ChangeSet, error) {
-	cli := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, nil)
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	rsp, err := cli.Read(ctx, &proto.ReadRequest{
-		Id: s.opts.Name,
+
+	var changeset *config.ChangeSet
+
+	err := Retry(func() error {
+		cli := proto.NewConfigClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CONFIG, defaults.NewClient())
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		rsp, err := cli.Read(ctx, &proto.ReadRequest{
+			Id: s.opts.Name,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		changeset = &config.ChangeSet{
+			Timestamp: time.Unix(rsp.Change.ChangeSet.Timestamp, 0),
+			Data:      []byte(rsp.Change.ChangeSet.Data),
+			Checksum:  rsp.Change.ChangeSet.Checksum,
+			Source:    rsp.Change.ChangeSet.Source,
+		}
+
+		return nil
 	})
+
 	if err != nil {
 		return nil, err
 	}
-	return &config.ChangeSet{
-		Timestamp: time.Unix(rsp.Change.ChangeSet.Timestamp, 0),
-		Data:      []byte(rsp.Change.ChangeSet.Data),
-		Checksum:  rsp.Change.ChangeSet.Checksum,
-		Source:    rsp.Change.ChangeSet.Source,
-	}, nil
+
+	return changeset, nil
 }
 
 func (s *remotesource) String() string {
@@ -148,4 +166,27 @@ func DeleteRemote(configId string, path ...string) error {
 	})
 
 	return e
+}
+
+func Retry(f func() error, seconds ...time.Duration) error {
+
+	tick := time.Tick(1 * time.Second)
+	timeout := time.After(30 * time.Second)
+	if len(seconds) == 2 {
+		tick = time.Tick(seconds[0])
+		timeout = time.After(seconds[1])
+	} else if len(seconds) == 1 {
+		tick = time.Tick(seconds[0])
+	}
+
+	for {
+		select {
+		case <-tick:
+			if err := f(); err == nil {
+				return nil
+			}
+		case <-timeout:
+			return fmt.Errorf("timeout")
+		}
+	}
 }

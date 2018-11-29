@@ -31,11 +31,12 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/data/versions"
 )
 
@@ -45,48 +46,50 @@ var (
 
 func init() {
 
-	config.RegisterExposedConfigs(Name, ExposedConfigs)
+	plugins.Register(func() {
+		config.RegisterExposedConfigs(Name, ExposedConfigs)
 
-	service.NewService(
-		service.Name(Name),
-		service.Tag(common.SERVICE_TAG_DATA),
-		service.Description("Versioning service"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
-		service.Migrations([]*service.Migration{
-			{
-				TargetVersion: service.FirstRun(),
-				Up:            InitDefaults,
-			},
-		}),
-		service.WithMicro(func(m micro.Service) error {
+		service.NewService(
+			service.Name(Name),
+			service.Tag(common.SERVICE_TAG_DATA),
+			service.Description("Versioning service"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE, []string{}),
+			service.Migrations([]*service.Migration{
+				{
+					TargetVersion: service.FirstRun(),
+					Up:            InitDefaults,
+				},
+			}),
+			service.Unique(true),
+			service.WithMicro(func(m micro.Service) error {
 
-			serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_VERSIONS)
-			if e != nil {
-				return e
-			}
-			store, err := versions.NewBoltStore(path.Join(serviceDir, "versions.db"))
-			if err != nil {
-				return err
-			}
+				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_VERSIONS)
+				if e != nil {
+					return e
+				}
+				store, err := versions.NewBoltStore(path.Join(serviceDir, "versions.db"))
+				if err != nil {
+					return err
+				}
 
-			engine := &Handler{
-				db: store,
-			}
+				engine := &Handler{
+					db: store,
+				}
 
-			tree.RegisterNodeVersionerHandler(m.Options().Server, engine)
+				tree.RegisterNodeVersionerHandler(m.Options().Server, engine)
 
-			jobsClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
-			ctx, _ := context.WithTimeout(m.Options().Context, time.Second*1)
-			for _, j := range getDefaultJobs() {
-				jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j})
-			}
+				jobsClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+				ctx, _ := context.WithTimeout(m.Options().Context, time.Second*1)
+				for _, j := range getDefaultJobs() {
+					jobsClient.PutJob(ctx, &jobs.PutJobRequest{Job: j})
+				}
 
-			return nil
-		}),
-	)
-
+				return nil
+			}),
+		)
+	})
 }
 
 func InitDefaults(ctx context.Context) error {

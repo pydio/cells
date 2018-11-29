@@ -31,6 +31,7 @@ import (
 	ahttp "github.com/micro/go-api/handler/http"
 	"github.com/micro/go-api/router"
 	micro "github.com/micro/go-micro"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/micro"
@@ -38,40 +39,42 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_MICRO_API),
-		service.Tag(common.SERVICE_TAG_GATEWAY),
-		service.Description("Proxy handler to dispatch REST requests to the underlying services"),
-		service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
-			return service.RunnerFunc(func() error {
-					return nil
-				}), service.CheckerFunc(func() error {
-					return nil
-				}), service.StopperFunc(func() error {
-					return nil
-				}), nil
-		}, func(s service.Service) (micro.Option, error) {
-			srv := defaults.NewHTTPServer()
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_MICRO_API),
+			service.Tag(common.SERVICE_TAG_GATEWAY),
+			service.Description("Proxy handler to dispatch REST requests to the underlying services"),
+			service.WithGeneric(func(ctx context.Context, cancel context.CancelFunc) (service.Runner, service.Checker, service.Stopper, error) {
+				return service.RunnerFunc(func() error {
+						return nil
+					}), service.CheckerFunc(func() error {
+						return nil
+					}), service.StopperFunc(func() error {
+						return nil
+					}), nil
+			}, func(s service.Service) (micro.Option, error) {
+				srv := defaults.NewHTTPServer()
 
-			r := mux.NewRouter()
-			rt := router.NewRouter(router.WithNamespace(strings.TrimRight(common.SERVICE_REST_NAMESPACE_, ".")), router.WithHandler(api.Http))
-			ht := ahttp.NewHandler(
-				ahandler.WithNamespace(strings.TrimRight(common.SERVICE_REST_NAMESPACE_, ".")),
-				ahandler.WithRouter(rt),
-				ahandler.WithService(s.Options().Micro),
-			)
+				r := mux.NewRouter()
+				rt := router.NewRouter(router.WithNamespace(strings.TrimRight(common.SERVICE_REST_NAMESPACE_, ".")), router.WithHandler(api.Http))
+				ht := ahttp.NewHandler(
+					ahandler.WithNamespace(strings.TrimRight(common.SERVICE_REST_NAMESPACE_, ".")),
+					ahandler.WithRouter(rt),
+					ahandler.WithService(s.Options().Micro),
+				)
 
-			r.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(ht)
+				r.PathPrefix("/{service:[a-zA-Z0-9]+}").Handler(ht)
 
-			hd := srv.NewHandler(r)
+				hd := srv.NewHandler(r)
 
-			// http.Handle("/", router)
-			err := srv.Handle(hd)
-			if err != nil {
-				return nil, err
-			}
+				// http.Handle("/", router)
+				err := srv.Handle(hd)
+				if err != nil {
+					return nil, err
+				}
 
-			return micro.Server(srv), nil
-		}),
-	)
+				return micro.Server(srv), nil
+			}),
+		)
+	})
 }

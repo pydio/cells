@@ -37,8 +37,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
+	"github.com/pydio/cells/discovery/nats"
 
 	"github.com/pydio/cells/common/registry"
 
@@ -113,6 +114,8 @@ the flag --registry=consul.
 		// Making sure we capture the signals
 		handleSignals()
 
+		plugins.Init()
+
 		// Filtering out services by exclusion
 		registry.Default.Filter(func(s registry.Service) bool {
 			for _, exclude := range FilterStartExclude {
@@ -149,7 +152,6 @@ func init() {
 	viper.AutomaticEnv()
 
 	flags := RootCmd.PersistentFlags()
-	flags.BoolVar(&config.RemoteSource, "cluster", false, "Whether this node is master of the cluster or not")
 
 	flags.String("registry", "nats", "Registry used to manage services")
 	flags.String("registry_address", ":4222", "Registry used to manage services")
@@ -187,6 +189,10 @@ func init() {
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+
+	nats.Init()
+	// consul.Init()
+
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -227,6 +233,7 @@ func initServices() {
 }
 
 func handleRegistry() {
+
 	switch viper.Get("registry") {
 	case "nats":
 		natsregistry.Enable()
