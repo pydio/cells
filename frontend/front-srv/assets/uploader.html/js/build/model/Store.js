@@ -158,12 +158,11 @@ var Store = function (_Observable) {
                 });
             } else {
                 this._running = false;
-
                 if (this.hasErrors()) {
                     if (!pydio.getController().react_selector) {
                         _pydio2.default.getInstance().getController().fireAction("upload");
                     }
-                } else if (_Configs2.default.getInstance().getAutoClose()) {
+                } else if (_Configs2.default.getInstance().getAutoClose() && !this._pauseRequired) {
                     this.notify("auto_close");
                 }
             }

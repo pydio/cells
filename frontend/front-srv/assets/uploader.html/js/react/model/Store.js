@@ -119,12 +119,11 @@ class Store extends Observable{
             });
         }else{
             this._running = false;
-            //this._pauseRequired = false;
             if(this.hasErrors()){
                 if(!pydio.getController().react_selector){
                     Pydio.getInstance().getController().fireAction("upload");
                 }
-            }else if(Configs.getInstance().getAutoClose()){
+            }else if(Configs.getInstance().getAutoClose() && !this._pauseRequired){
                 this.notify("auto_close");
             }
         }

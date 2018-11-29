@@ -59,7 +59,7 @@ var TransfersList = function (_React$Component) {
                     _react2.default.createElement(
                         'div',
                         { style: { textAlign: 'center', width: '100%', fontWeight: 500, textTransform: 'uppercase', color: 'rgba(0,0,0,0.1)', fontSize: 24 } },
-                        'Drop Files Here'
+                        _pydio2.default.getMessages()["html_uploader.drophere"]
                     )
                 );
             }
