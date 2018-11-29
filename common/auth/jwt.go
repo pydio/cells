@@ -24,6 +24,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/coreos/dex/storage"
@@ -39,10 +40,10 @@ import (
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/proto"
 )
 
@@ -86,6 +87,11 @@ func (j *JWTVerifier) Verify(ctx context.Context, rawIDToken string) (context.Co
 
 	claims := claim.Claims{}
 
+	ctx = oidc.ClientContext(ctx, &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: config.GetTLSClientConfig("proxy"),
+		},
+	})
 	provider, err := oidc.NewProvider(ctx, j.IssuerUrl)
 	if err != nil {
 		log.Logger(ctx).Error("cannot init oidc provider", zap.Error(err))

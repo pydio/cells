@@ -1,7 +1,6 @@
 package modifiers
 
 import (
-	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -97,9 +96,8 @@ func JwtFromSession(ctx context.Context, session *sessions.Session) (jwt string,
 
 func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, login string, pwd string) (map[string]interface{}, error) {
 
-	urlInternal := config.Get("defaults", "urlInternal").String("")
-	fullURL := urlInternal + "/auth/dex/token"
-	selfSigned := config.Get("cert", "proxy", "self").Bool(false)
+	dexUrl := config.Get("defaults", "url").String("")
+	fullURL := dexUrl + "/auth/dex/token"
 
 	data := url.Values{}
 	if refreshToken != "" {
@@ -153,14 +151,10 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 	httpReq.Header.Add("Cache-Control", "no-cache")
 	httpReq.Header.Add("Authorization", basic)
 
-	var client *http.Client
-	if selfSigned {
-		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-		client = &http.Client{Transport: tr}
-	} else {
-		client = http.DefaultClient
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: config.GetTLSClientConfig("proxy"),
+		},
 	}
 	res, err := client.Do(httpReq)
 	if err != nil {
