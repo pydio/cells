@@ -24,17 +24,20 @@ package rest
 import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/plugins"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_USER),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("RESTful Gateway to users service"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
-		service.WithWeb(func() service.WebHandler {
-			return NewUserHandler()
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_USER),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("RESTful Gateway to users service"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, []string{}),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, []string{}),
+			service.WithWeb(func() service.WebHandler {
+				return NewUserHandler()
+			}),
+		)
+	})
 }

@@ -26,7 +26,7 @@ var (
 func Vault() config.Config {
 
 	vaultOnce.Do(func() {
-		if RemoteSource {
+		if GetRemoteSource() {
 			// loading remoteSource will trigger a call to defaults.NewClient()
 			vaultConfig = &Config{config.NewConfig(
 				config.WithSource(newRemoteSource(config.SourceName("vault"))),
@@ -70,7 +70,7 @@ func GetSecret(uuid string) reader.Value {
 }
 
 func SetSecret(uuid string, val string) {
-	if RemoteSource {
+	if GetRemoteSource() {
 		remote.UpdateRemote("vault", val, uuid)
 		return
 	}
@@ -79,7 +79,7 @@ func SetSecret(uuid string, val string) {
 }
 
 func DelSecret(uuid string) {
-	if RemoteSource {
+	if GetRemoteSource() {
 		remote.DeleteRemote("vault", uuid)
 		return
 	}

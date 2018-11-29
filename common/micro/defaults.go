@@ -22,9 +22,6 @@
 package defaults
 
 import (
-	"github.com/pydio/cells/common/config"
-
-	httptransport "github.com/micro/go-micro/transport/http"
 	grpcclient "github.com/micro/go-plugins/client/grpc"
 	grpcserver "github.com/micro/go-plugins/server/grpc"
 	httpserver "github.com/micro/go-plugins/server/http"
@@ -37,14 +34,19 @@ import (
 )
 
 var (
-	clientOpts []func() client.Option
-	serverOpts []func() server.Option
+	clientOpts     []func() client.Option
+	serverOpts     []func() server.Option
+	serverHTTPOpts []func() server.Option
 )
 
 func InitServer(opt ...func() server.Option) {
 	serverOpts = append(serverOpts, opt...)
 
 	server.DefaultServer = NewServer()
+}
+
+func InitHTTPServer(opt ...func() server.Option) {
+	serverHTTPOpts = append(serverOpts, opt...)
 }
 
 func InitClient(opt ...func() client.Option) {
@@ -60,11 +62,6 @@ func NewClient(new ...client.Option) client.Client {
 		opts = append(opts, o())
 	}
 
-	tls := config.GetTLSClientConfig("grpc")
-	if tls != nil {
-		opts = append(opts, grpcclient.AuthTLS(tls))
-	}
-
 	return grpcclient.NewClient(
 		opts...,
 	)
@@ -77,11 +74,6 @@ func NewServer(new ...server.Option) server.Server {
 		opts = append(opts, o())
 	}
 
-	tls := config.GetTLSServerConfig("grpc")
-	if tls != nil {
-		opts = append(opts, grpcserver.AuthTLS(tls))
-	}
-
 	return grpcserver.NewServer(
 		opts...,
 	)
@@ -89,14 +81,8 @@ func NewServer(new ...server.Option) server.Server {
 
 func NewHTTPServer(new ...server.Option) server.Server {
 	opts := new
-	for _, o := range serverOpts {
+	for _, o := range serverHTTPOpts {
 		opts = append(opts, o())
-	}
-
-	tls := config.GetTLSServerConfig("http")
-	if tls != nil {
-		t := httptransport.NewTransport(transport.TLSConfig(tls), transport.Secure(true))
-		opts = append(opts, server.Transport(t))
 	}
 
 	s := httpserver.NewServer(

@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/encryption"
@@ -31,18 +32,20 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY),
-		service.Tag(common.SERVICE_TAG_IDM),
-		service.Description("Encryption Keys server"),
-		service.WithStorage(key.NewDAO, "idm_key"),
-		service.WithMicro(func(m micro.Service) error {
-			h, err := NewUserKeyStore()
-			if err != nil {
-				return err
-			}
-			encryption.RegisterUserKeyStoreHandler(m.Options().Server, h)
-			return nil
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER_KEY),
+			service.Tag(common.SERVICE_TAG_IDM),
+			service.Description("Encryption Keys server"),
+			service.WithStorage(key.NewDAO, "idm_key"),
+			service.WithMicro(func(m micro.Service) error {
+				h, err := NewUserKeyStore()
+				if err != nil {
+					return err
+				}
+				encryption.RegisterUserKeyStoreHandler(m.Options().Server, h)
+				return nil
+			}),
+		)
+	})
 }

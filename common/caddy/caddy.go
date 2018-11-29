@@ -219,12 +219,10 @@ func addressFromService(name string, uri ...string) string {
 	c := proto.NewService(name, defaults.NewClient())
 	r, err := c.Status(context.Background(), &empty.Empty{})
 	if err != nil {
-		log.Error("Error ", zap.String("name", name), zap.Error(err))
 		return "NOT_AVAILABLE"
 	}
 
 	if !r.GetOK() {
-		log.Error("Service is not started")
 		return "NOT_AVAILABLE"
 	}
 

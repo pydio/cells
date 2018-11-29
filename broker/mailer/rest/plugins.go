@@ -24,16 +24,19 @@ package rest
 import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/plugins"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_MAILER),
-		service.Tag(common.SERVICE_TAG_BROKER),
-		service.Description("REST send email service"),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_MAILER, []string{}),
-		service.WithWeb(func() service.WebHandler {
-			return new(MailerHandler)
-		}),
-	)
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_MAILER),
+			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Description("REST send email service"),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_MAILER, []string{}),
+			service.WithWeb(func() service.WebHandler {
+				return new(MailerHandler)
+			}),
+		)
+	})
 }

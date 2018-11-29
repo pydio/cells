@@ -23,6 +23,7 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/broker/chat"
 	"github.com/pydio/cells/common"
@@ -31,15 +32,18 @@ import (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT),
-		service.Tag(common.SERVICE_TAG_BROKER),
-		service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
-		service.WithStorage(chat.NewDAO, "broker_chat"),
-		service.WithMicro(func(m micro.Service) error {
-			proto.RegisterChatServiceHandler(m.Options().Server, new(ChatHandler))
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_CHAT),
+			service.Tag(common.SERVICE_TAG_BROKER),
+			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
+			service.WithStorage(chat.NewDAO, "broker_chat"),
+			service.Unique(true),
+			service.WithMicro(func(m micro.Service) error {
+				proto.RegisterChatServiceHandler(m.Options().Server, new(ChatHandler))
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }

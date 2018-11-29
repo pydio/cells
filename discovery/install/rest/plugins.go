@@ -28,6 +28,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/plugins"
 )
 
 var (
@@ -36,34 +37,36 @@ var (
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL),
-		service.Tag(common.SERVICE_TAG_DISCOVERY),
-		service.Description("RESTful Installation server"),
-		service.WithWeb(func() service.WebHandler {
-			return new(Handler)
-		}),
-		//service.WithWebAuth(),
-		func(o *service.ServiceOptions) {
-			o.BeforeStart = append(o.BeforeStart, func(s service.Service) error {
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_REST_NAMESPACE_+common.SERVICE_INSTALL),
+			service.Tag(common.SERVICE_TAG_DISCOVERY),
+			service.Description("RESTful Installation server"),
+			service.WithWeb(func() service.WebHandler {
+				return new(Handler)
+			}),
+			//service.WithWebAuth(),
+			func(o *service.ServiceOptions) {
+				o.BeforeStart = append(o.BeforeStart, func(s service.Service) error {
 
-				var e error
-				if eventManager, e = golongpoll.StartLongpoll(golongpoll.Options{}); e != nil {
-					return e
-				}
-				s.Options().Web.HandleFunc("/install/events", eventManager.SubscriptionHandler)
-				log.Logger(o.Context).Info("Registering /install/events for Polling")
-				StopService = s.Stop
-				return nil
-			})
-			o.BeforeStop = append(o.BeforeStop, func(s service.Service) (e error) {
-				defer func() {
-					// ignore
-					recover()
-				}()
-				eventManager.Shutdown()
-				return nil
-			})
-		},
-	)
+					var e error
+					if eventManager, e = golongpoll.StartLongpoll(golongpoll.Options{}); e != nil {
+						return e
+					}
+					s.Options().Web.HandleFunc("/install/events", eventManager.SubscriptionHandler)
+					log.Logger(o.Context).Info("Registering /install/events for Polling")
+					StopService = s.Stop
+					return nil
+				})
+				o.BeforeStop = append(o.BeforeStop, func(s service.Service) (e error) {
+					defer func() {
+						// ignore
+						recover()
+					}()
+					eventManager.Shutdown()
+					return nil
+				})
+			},
+		)
+	})
 }

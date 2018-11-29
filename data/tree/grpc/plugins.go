@@ -30,50 +30,53 @@ import (
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
+	"github.com/pydio/cells/common/plugins"
 )
 
 func init() {
-	service.NewService(
-		service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE),
-		service.Tag(common.SERVICE_TAG_DATA),
-		service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
-		service.Description("Aggregator of all datasources into one master tree"),
-		service.WithMicro(func(m micro.Service) error {
+	plugins.Register(func() {
+		service.NewService(
+			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_TREE),
+			service.Tag(common.SERVICE_TAG_DATA),
+			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, []string{}),
+			service.Description("Aggregator of all datasources into one master tree"),
+			service.WithMicro(func(m micro.Service) error {
 
-			ctx := m.Options().Context
+				ctx := m.Options().Context
 
-			dataSources := map[string]DataSource{}
-			treeServer := &TreeServer{
-				ConfigsMutex: &sync.Mutex{},
-				DataSources:  dataSources,
-				meta:         tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient()),
-			}
+				dataSources := map[string]DataSource{}
+				treeServer := &TreeServer{
+					ConfigsMutex: &sync.Mutex{},
+					DataSources:  dataSources,
+					meta:         tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, defaults.NewClient()),
+				}
 
-			eventSubscriber := &EventSubscriber{
-				TreeServer:  treeServer,
-				EventClient: defaults.NewClient(),
-			}
+				eventSubscriber := &EventSubscriber{
+					TreeServer:  treeServer,
+					EventClient: defaults.NewClient(),
+				}
 
-			updateServicesList(ctx, treeServer)
+				updateServicesList(ctx, treeServer)
 
-			tree.RegisterNodeProviderHandler(m.Options().Server, treeServer)
-			tree.RegisterNodeReceiverHandler(m.Options().Server, treeServer)
+				tree.RegisterNodeProviderHandler(m.Options().Server, treeServer)
+				tree.RegisterNodeReceiverHandler(m.Options().Server, treeServer)
 
-			go watchRegistry(ctx, treeServer)
+				go watchRegistry(ctx, treeServer)
 
-			if err := m.Options().Server.Subscribe(
-				m.Options().Server.NewSubscriber(
-					common.TOPIC_INDEX_CHANGES,
-					eventSubscriber,
-					func(o *server.SubscriberOptions) {
-						o.Queue = "tree"
-					},
-				),
-			); err != nil {
-				return err
-			}
+				if err := m.Options().Server.Subscribe(
+					m.Options().Server.NewSubscriber(
+						common.TOPIC_INDEX_CHANGES,
+						eventSubscriber,
+						func(o *server.SubscriberOptions) {
+							o.Queue = "tree"
+						},
+					),
+				); err != nil {
+					return err
+				}
 
-			return nil
-		}),
-	)
+				return nil
+			}),
+		)
+	})
 }
