@@ -348,7 +348,10 @@ class PydioApi{
 
         const resolver = (jwt, cb) => {
             let meta = node.getMetadata().get('presignedUrls');
-            const cacheKey = jwt + params.Key;
+            let cacheKey = jwt + params.Key;
+            if(cType){
+               cacheKey += "#" + cType;
+            }
             const cached = meta ? meta.get(cacheKey) : null;
             if(cached){
                 cb(cached);

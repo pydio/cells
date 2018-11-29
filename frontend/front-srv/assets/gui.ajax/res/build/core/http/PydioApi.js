@@ -429,6 +429,9 @@ var PydioApi = (function () {
         var resolver = function resolver(jwt, cb) {
             var meta = node.getMetadata().get('presignedUrls');
             var cacheKey = jwt + params.Key;
+            if (cType) {
+                cacheKey += "#" + cType;
+            }
             var cached = meta ? meta.get(cacheKey) : null;
             if (cached) {
                 cb(cached);
