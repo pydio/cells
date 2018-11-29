@@ -78,13 +78,13 @@ class UploadOptionsPane extends React.Component {
                         <Checkbox style={{margin:'8px 0'}} checked={toggleClose} labelPosition={"right"} onCheck={this.updateField.bind(this, 'autoclose')} label={pydio.MessageHash[338]} labelStyle={{fontSize:14}} />
                     </div>
 
-                    <Subheader>{pydio.MessageHash['html_uploader.18']}</Subheader>
+                    <Subheader>{pydio.MessageHash['html_uploader.options.existing']}</Subheader>
                     <div style={{padding: 16, fontSize:14, paddingTop: 0}}>
                         <RadioButtonGroup ref="group" name="shipSpeed" defaultSelected={overwriteType} onChange={this.radioChange.bind(this)}>
-                            <RadioButton value="alert" label={pydio.MessageHash['html_uploader.19']} style={{paddingBottom: 8}} />
-                            <RadioButton value="rename-folders" label={"Rename folders then files"} style={{paddingBottom: 8}}/>
-                            <RadioButton value="rename" label={"Rename files only (merge folders)"} style={{paddingBottom: 8}}/>
-                            <RadioButton value="overwrite" label={pydio.MessageHash['html_uploader.21']}/>
+                            <RadioButton value="alert" label={pydio.MessageHash['html_uploader.options.existing.alert']} style={{paddingBottom: 8}} />
+                            <RadioButton value="rename-folders" label={pydio.MessageHash['html_uploader.options.existing.folders']} style={{paddingBottom: 8}}/>
+                            <RadioButton value="rename" label={pydio.MessageHash['html_uploader.options.existing.merge']} style={{paddingBottom: 8}}/>
+                            <RadioButton value="overwrite" label={pydio.MessageHash['html_uploader.options.existing.overwrite']}/>
                         </RadioButtonGroup>
                     </div>
                 </div>
