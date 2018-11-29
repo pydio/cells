@@ -53,17 +53,17 @@ Four modes are currently supported :
 		}
 
 		// Replace Main URLS
-		extUrl, _ := url.Parse(config.Get("defaults", "url").String(""))
-		intUrl, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
+		extURL, _ := url.Parse(config.Get("defaults", "url").String(""))
+		intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
 		if enabled {
-			extUrl.Scheme = "https"
-			intUrl.Scheme = "https"
+			extURL.Scheme = "https"
+			intURL.Scheme = "https"
 		} else {
-			extUrl.Scheme = "http"
-			intUrl.Scheme = "http"
+			extURL.Scheme = "http"
+			intURL.Scheme = "http"
 		}
-		config.Set(extUrl.String(), "defaults", "url")
-		config.Set(intUrl.String(), "defaults", "urlInternal")
+		config.Set(extURL.String(), "defaults", "url")
+		config.Set(intURL.String(), "defaults", "urlInternal")
 		if e := config.Save("cli", "Update SSL mode"); e != nil {
 			cmd.Println("Error while saving config: " + e.Error())
 		}
@@ -80,7 +80,7 @@ func promptSslMode() (enabled bool, e error) {
 	certFile := config.Get("cert", "proxy", "certFile").String("")
 	keyFile := config.Get("cert", "proxy", "keyFile").String("")
 	certEmail := config.Get("cert", "proxy", "email").String("")
-	caUrl := config.Get("cert", "proxy", "caUrl").String(config.DefaultCaUrl)
+	caURL := config.Get("cert", "proxy", "caUrl").String(config.DefaultCaUrl)
 
 	selector := promptui.Select{
 		Label: "Choose SSL activation mode",
@@ -147,12 +147,12 @@ func promptSslMode() (enabled bool, e error) {
 		config.Set(true, "cert", "proxy", "ssl")
 		config.Set(false, "cert", "proxy", "self")
 		config.Set(certEmail, "cert", "proxy", "email")
-		config.Set(caUrl, "cert", "proxy", "caUrl")
+		config.Set(caURL, "cert", "proxy", "caUrl")
 
-		fmt.Println("### Configuring LE SSL, CA URL:", caUrl)
-		fmt.Printf("[DEBUG] Right after set, certEmail: %s, caUrl: %s\n",
-			config.Get("cert", "proxy", "email").String(""),
-			config.Get("cert", "proxy", "caUrl").String(""))
+		// fmt.Println("### Configuring LE SSL, CA URL:", caUrl)
+		// fmt.Printf("[DEBUG] Right after set, certEmail: %s, caUrl: %s\n",
+		// 	config.Get("cert", "proxy", "email").String(""),
+		// 	config.Get("cert", "proxy", "caUrl").String(""))
 
 		// config.Set(useStagingCA, "cert", "proxy", "useStagingCA")
 	case 2:
@@ -182,11 +182,11 @@ func promptSslMode() (enabled bool, e error) {
 		config.Del("cert", "proxy", "httpRedir")
 	}
 
-	fmt.Printf("[DEBUG] certFile: %s, keyFile: %s, certEmail: %s, caUrl: %s\n",
-		config.Get("cert", "proxy", "certFile").String(""),
-		config.Get("cert", "proxy", "keyFile").String(""),
-		config.Get("cert", "proxy", "email").String(""),
-		config.Get("cert", "proxy", "caUrl").String(""))
+	// fmt.Printf("[DEBUG] certFile: %s, keyFile: %s, certEmail: %s, caUrl: %s\n",
+	// 	config.Get("cert", "proxy", "certFile").String(""),
+	// 	config.Get("cert", "proxy", "keyFile").String(""),
+	// 	config.Get("cert", "proxy", "email").String(""),
+	// 	config.Get("cert", "proxy", "caUrl").String(""))
 	return
 }
 
