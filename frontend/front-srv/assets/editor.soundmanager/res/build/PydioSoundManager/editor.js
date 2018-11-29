@@ -236,7 +236,7 @@ var Editor = (function (_Component) {
                                         _react2['default'].createElement(
                                             _materialUi.TableRowColumn,
                                             { style: { width: 16, backgroundColor: 'white' } },
-                                            n.getPath() === node.getPath() ? _react2['default'].createElement('span', { className: "mdi mdi-play" }) : index
+                                            node && n.getPath() === node.getPath() ? _react2['default'].createElement('span', { className: "mdi mdi-play" }) : index
                                         ),
                                         _react2['default'].createElement(
                                             _materialUi.TableRowColumn,

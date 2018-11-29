@@ -103,6 +103,7 @@ var Store = function (_Observable) {
                     _pydio2.default.getInstance().getController().fireAction("upload", { confirmDialog: true });
                 }
             });
+            this.notify('session_added', session);
         }
     }, {
         key: 'removeSession',

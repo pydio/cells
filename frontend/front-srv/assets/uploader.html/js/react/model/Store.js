@@ -70,6 +70,7 @@ class Store extends Observable{
                 Pydio.getInstance().getController().fireAction("upload", {confirmDialog: true});
             }
         });
+        this.notify('session_added', session);
     }
 
     removeSession(session){

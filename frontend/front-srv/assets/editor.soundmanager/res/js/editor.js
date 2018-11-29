@@ -142,7 +142,7 @@ class Editor extends Component {
                         >
                         {this.props.selection && this.props.selection.selection.map( (n, index) => (
                             <TableRow key={index}>
-                                <TableRowColumn style={{width: 16, backgroundColor:'white'}}>{n.getPath() === node.getPath() ? <span className={"mdi mdi-play"}/> : index}</TableRowColumn>
+                                <TableRowColumn style={{width: 16, backgroundColor:'white'}}>{node && n.getPath() === node.getPath() ? <span className={"mdi mdi-play"}/> : index}</TableRowColumn>
                                 <TableRowColumn style={{backgroundColor:'white'}}>{n.getLabel()}</TableRowColumn>
                             </TableRow>
                         ))}

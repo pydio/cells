@@ -57,6 +57,12 @@ let Dashboard = React.createClass({
         }
     },
 
+    reloadList(){
+        if(this.refs["mainlist"]){
+            this.refs["mainlist"].reload();
+        }
+    },
+
     renderListUserAvatar(node){
         const idmUser = node.getMetadata().get('IdmUser');
         const {pydio} = this.props;
@@ -187,6 +193,7 @@ let Dashboard = React.createClass({
                 initialEditSection:initialSection,
                 onRequestTabClose:this.closeRoleEditor,
                 advancedAcl:advancedAcl,
+                afterSave:()=>{this.reloadList()}
             }
         };
         this.props.openRightPane(editorData);

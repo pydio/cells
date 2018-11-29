@@ -306,7 +306,7 @@ var Editor = (function (_React$Component) {
             if (observableUser) {
                 saveDisabled = !observableUser.isDirty();
                 save = function () {
-                    observableUser.save();
+                    observableUser.save().then(_this6.props.afterSave);
                 };
                 revert = function () {
                     observableUser.revert();
@@ -314,7 +314,7 @@ var Editor = (function (_React$Component) {
             } else if (observableRole) {
                 saveDisabled = !observableRole.isDirty();
                 save = function () {
-                    observableRole.save();
+                    observableRole.save(_this6.props.afterSave);
                 };
                 revert = function () {
                     observableRole.revert();
