@@ -1392,6 +1392,13 @@
         "description": "",
         "methods": [
           {
+            "name": "reloadList",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "renderListUserAvatar",
             "docblock": null,
             "modifiers": [],

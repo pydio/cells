@@ -38,6 +38,10 @@ var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
 var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
+var _pydioUtilFunc = require('pydio/util/func');
+
+var _pydioUtilFunc2 = _interopRequireDefault(_pydioUtilFunc);
+
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
@@ -58,7 +62,9 @@ var AsyncComponent = (function (_Component) {
         _Component.call(this, props);
 
         this.state = {
-            loaded: false
+            loaded: false,
+            namespace: props.namespace,
+            componentName: props.componentName
         };
 
         this._handleLoad = _lodash2['default'].debounce(this._handleLoad, 100);
@@ -76,7 +82,7 @@ var AsyncComponent = (function (_Component) {
 
         if (!this.state.loaded) {
             // Loading the class asynchronously
-            _pydioHttpResourcesManager2['default'].loadClassesAndApply([this.props.namespace], function () {
+            _pydioHttpResourcesManager2['default'].loadClassesAndApply([this.state.namespace], function () {
                 _this.setState({ loaded: true });
                 callback();
             });
@@ -91,9 +97,16 @@ var AsyncComponent = (function (_Component) {
     };
 
     AsyncComponent.prototype.componentWillReceiveProps = function componentWillReceiveProps(newProps) {
-        if (this.props.namespace != newProps.namespace) {
-            this.loadFired = false;
-            this.setState({ loaded: false });
+        var _this2 = this;
+
+        if (this.props.namespace !== newProps.namespace) {
+            //this.setState({loaded:false});
+            _pydioHttpResourcesManager2['default'].loadClassesAndApply([newProps.namespace], function () {
+                _this2.loadFired = false;
+                _this2.setState({ namespace: newProps.namespace, componentName: newProps.componentName });
+            });
+        } else {
+            this.setState({ namespace: newProps.namespace, componentName: newProps.componentName });
         }
     };
 
@@ -102,9 +115,11 @@ var AsyncComponent = (function (_Component) {
     };
 
     AsyncComponent.prototype.render = function render() {
-        var _this2 = this;
+        var _this3 = this;
 
-        if (!this.state.loaded) return null;
+        if (!this.state.loaded) {
+            return null;
+        }
 
         var props = this.props;
         var _props = props;
@@ -112,8 +127,7 @@ var AsyncComponent = (function (_Component) {
         var componentName = _props.componentName;
         var modalData = _props.modalData;
 
-        var nsObject = window[this.props.namespace];
-        var Component = FuncUtils.getFunctionByName(this.props.componentName, window[this.props.namespace]);
+        var Component = _pydioUtilFunc2['default'].getFunctionByName(this.state.componentName, window[this.state.namespace]);
 
         if (Component) {
             if (modalData && modalData.payload) {
@@ -121,7 +135,7 @@ var AsyncComponent = (function (_Component) {
             }
 
             return _react2['default'].createElement(Component, _extends({}, props, { ref: function (instance) {
-                    _this2.instance = instance;
+                    _this3.instance = instance;
                 } }));
         } else {
             return _react2['default'].createElement(
