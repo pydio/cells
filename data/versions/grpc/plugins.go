@@ -32,12 +32,12 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/data/versions"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -62,6 +62,7 @@ func init() {
 					Up:            InitDefaults,
 				},
 			}),
+			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 
 				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_VERSIONS)

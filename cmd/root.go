@@ -38,6 +38,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/discovery/nats"
 
 	"github.com/pydio/cells/common/registry"
@@ -101,6 +102,20 @@ the flag --registry=consul.
 			common.LogCaptureStdOut = true
 		}
 
+		// Initialise the default registry
+		handleRegistry()
+
+		// Initialise the default broker
+		handleBroker()
+
+		// Initialise the default transport
+		handleTransport()
+
+		// Making sure we capture the signals
+		handleSignals()
+
+		plugins.Init()
+
 		// Filtering out services by exclusion
 		registry.Default.Filter(func(s registry.Service) bool {
 			for _, exclude := range FilterStartExclude {
@@ -131,18 +146,6 @@ the flag --registry=consul.
 func init() {
 	cobra.OnInitialize(
 		initLogLevel,
-
-		// Initialise the default registry
-		handleRegistry,
-
-		// Initialise the default broker
-		handleBroker,
-
-		// Initialise the default transport
-		handleTransport,
-
-		// Making sure we capture the signals
-		handleSignals,
 	)
 
 	viper.SetEnvPrefix("pydio")

@@ -26,7 +26,7 @@ import (
 	"path"
 
 	"github.com/micro/go-micro"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
@@ -41,6 +41,7 @@ func init() {
 			service.Name(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE),
 			service.Tag(common.SERVICE_TAG_DATA),
 			service.Description("Generic document store"),
+			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 
 				serviceDir, e := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_DOCSTORE)

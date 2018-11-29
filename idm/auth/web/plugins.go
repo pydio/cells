@@ -28,7 +28,7 @@ import (
 
 	"github.com/coreos/dex/storage/sql"
 	"github.com/micro/go-micro"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"

@@ -24,7 +24,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/data/templates"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 )
 
 func init() {

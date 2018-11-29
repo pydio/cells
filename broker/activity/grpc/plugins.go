@@ -33,11 +33,11 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	proto "github.com/pydio/cells/common/proto/activity"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -59,6 +59,7 @@ func init() {
 				},
 			}),
 			service.WithStorage(activity.NewDAO, "broker_activity"),
+			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 				m.Init(
 					micro.Metadata(map[string]string{"MetaProvider": "stream"}),

@@ -23,7 +23,7 @@ package rest
 
 import (
 	"github.com/gobuffalo/packr"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 
 	"encoding/gob"
 

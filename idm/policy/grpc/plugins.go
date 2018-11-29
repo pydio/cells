@@ -26,7 +26,7 @@ import (
 	"fmt"
 
 	"github.com/micro/go-micro"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 	"go.uber.org/zap"
 
 	"strings"

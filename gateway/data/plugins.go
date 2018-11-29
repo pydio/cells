@@ -33,7 +33,7 @@ import (
 	"github.com/pydio/cells/common/utils"
 	minio "github.com/pydio/minio-srv/cmd"
 	"github.com/pydio/minio-srv/cmd/gateway/pydio"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 	"go.uber.org/zap"
 )
 

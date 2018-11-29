@@ -56,5 +56,12 @@ func (h *Handler) Init(common.ConfigValues) error {
 
 // DB returns the bolt DB object
 func (h *Handler) DB() *bolt.DB {
-	return h.GetConn().(*bolt.DB)
+	if h == nil {
+		return nil
+	}
+
+	if conn := h.GetConn(); conn != nil {
+		return conn.(*bolt.DB)
+	}
+	return nil
 }

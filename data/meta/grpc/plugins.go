@@ -23,7 +23,7 @@ package grpc
 
 import (
 	micro "github.com/micro/go-micro"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/tree"

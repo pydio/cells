@@ -28,23 +28,20 @@ import (
 	"time"
 
 	"github.com/nats-io/gnatsd/server"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/plugins"
 )
 
 var hd *server.Server
 
 func Init() {
-	plugins.Register(run)
+	cobra.OnInitialize(run)
 }
 
 func run() {
-
-	fmt.Println("HERE WE GO")
-
 	reg := viper.GetString("registry")
 	regAddress := viper.GetString("registry_address")
 	regClusterAddress := viper.GetString("registry_cluster_address")
@@ -102,8 +99,13 @@ func run() {
 		// Start things up. Block here until done.
 		go func() {
 			err := server.Run(hd)
-			fmt.Println(err)
+			if err != nil {
+				log.Fatal("nats: could not start", zap.Error(err))
+			}
 		}()
+
+		// Allowing time for nats to start up
+		<-time.After(1 * time.Second)
 
 		if !hd.ReadyForConnections(3 * time.Second) {
 			log.Fatal("nats: start timed out")

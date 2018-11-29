@@ -23,7 +23,7 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/broker/chat"
 	"github.com/pydio/cells/common"
@@ -38,6 +38,7 @@ func init() {
 			service.Tag(common.SERVICE_TAG_BROKER),
 			service.Description("Chat Service to attach real-time chats to various object. Coupled with WebSocket"),
 			service.WithStorage(chat.NewDAO, "broker_chat"),
+			service.Unique(true),
 			service.WithMicro(func(m micro.Service) error {
 				proto.RegisterChatServiceHandler(m.Options().Server, new(ChatHandler))
 

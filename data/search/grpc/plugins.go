@@ -34,7 +34,7 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/data/search/dao/bleve"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 )
 
 var (

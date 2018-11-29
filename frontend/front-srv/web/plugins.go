@@ -39,7 +39,7 @@ import (
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/frontend/front-srv/web/index"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 	"go.uber.org/zap"
 )
 

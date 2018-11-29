@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -219,7 +218,6 @@ func GetJsonPath() string {
 
 func GetRemoteSource() bool {
 	remoteSourceOnce.Do(func() {
-		debug.PrintStack()
 		if viper.GetString("registry_cluster_routes") != "" {
 			remoteSource = true
 		}

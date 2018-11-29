@@ -29,7 +29,7 @@ import (
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/errors"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 
 	"time"
 

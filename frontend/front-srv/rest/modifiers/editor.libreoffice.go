@@ -6,13 +6,13 @@ import (
 	"html/template"
 	"net/url"
 
-	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 )
 
 var (

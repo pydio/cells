@@ -25,7 +25,7 @@ import (
 	"context"
 
 	"github.com/micro/go-micro"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
@@ -53,6 +53,7 @@ func init() {
 			service.Tag(common.SERVICE_TAG_BROKER),
 			service.Description("MailSender Service"),
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, []string{}),
+			service.Unique(true),
 			service.Migrations([]*service.Migration{
 				{
 					TargetVersion: service.FirstRun(),

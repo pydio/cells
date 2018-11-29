@@ -29,7 +29,7 @@ import (
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/views"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 )
 
 var (

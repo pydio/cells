@@ -30,7 +30,7 @@ import (
 
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/mholt/caddy/caddytls"
-	"github.com/spf13/cobra"
+	"github.com/pydio/cells/common/plugins"
 
 	"github.com/micro/go-micro/broker"
 	_ "github.com/micro/go-plugins/client/grpc"
