@@ -29,10 +29,10 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/views"
@@ -159,6 +159,17 @@ func (h *GraphHandler) Relation(req *restful.Request, rsp *restful.Response) {
 			Scope: idm.WorkspaceScope_ROOM,
 		})
 		query.SubQueries = append(query.SubQueries, q)
+	}
+	// Build a ResourcePolicyQuery to restrict next request only to actual visible workspaces
+	subjects, e := auth.SubjectsForResourcePolicyQuery(ctx, &rest.ResourcePolicyQuery{
+		Type: rest.ResourcePolicyQuery_CONTEXT,
+	})
+	if e != nil {
+		service.RestErrorDetect(req, rsp, e)
+		return
+	}
+	query.ResourcePolicyQuery = &service2.ResourcePolicyQuery{
+		Subjects: subjects,
 	}
 
 	log.Logger(ctx).Debug("QUERY", zap.Any("q", query))
