@@ -5,7 +5,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 
-	"github.com/pydio/cells/common/log"
 	proto "github.com/pydio/cells/common/service/proto"
 )
 
@@ -16,7 +15,6 @@ type StatusHandler struct {
 
 // Status of the service - If we reach this point, it means that this micro service is correctly up and running
 func (sh *StatusHandler) Status(ctx context.Context, in *empty.Empty, out *proto.StatusResponse) error {
-	log.Info("Retrieving status handler")
 	out.OK = true
 	out.Address = sh.address
 
