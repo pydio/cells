@@ -20,6 +20,9 @@
   "Jobs.Default.FakeGrpcJob": {
     "other": "Tâche RPC (pour le test)"
   },
+  "Jobs.Default.ArchiveJobs": {
+    "other": "Archivage automatique du service Changes"
+  },
   "Jobs.User.Compress": {
     "other": "Compression de la selection..."
   },
