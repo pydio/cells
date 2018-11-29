@@ -90,6 +90,12 @@ var Dashboard = _react2['default'].createClass({
         }
     },
 
+    reloadList: function reloadList() {
+        if (this.refs["mainlist"]) {
+            this.refs["mainlist"].reload();
+        }
+    },
+
     renderListUserAvatar: function renderListUserAvatar(node) {
         var idmUser = node.getMetadata().get('IdmUser');
         var pydio = this.props.pydio;
@@ -211,6 +217,8 @@ var Dashboard = _react2['default'].createClass({
     },
 
     openRoleEditor: function openRoleEditor(node) {
+        var _this = this;
+
         var initialSection = arguments.length <= 1 || arguments[1] === undefined ? 'activity' : arguments[1];
         var _props = this.props;
         var advancedAcl = _props.advancedAcl;
@@ -229,7 +237,10 @@ var Dashboard = _react2['default'].createClass({
                 pydio: pydio,
                 initialEditSection: initialSection,
                 onRequestTabClose: this.closeRoleEditor,
-                advancedAcl: advancedAcl
+                advancedAcl: advancedAcl,
+                afterSave: function afterSave() {
+                    _this.reloadList();
+                }
             }
         };
         this.props.openRightPane(editorData);
@@ -251,7 +262,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     renderNodeActions: function renderNodeActions(node) {
-        var _this = this;
+        var _this2 = this;
 
         var mime = node.getAjxpMime();
         var iconStyle = {
@@ -265,18 +276,18 @@ var Dashboard = _react2['default'].createClass({
         var actions = [];
         if (mime === 'user_editable' || mime === 'group') {
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
-                    _this.openRoleEditor(node);
+                    _this2.openRoleEditor(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'delete', iconClassName: 'mdi mdi-delete', onTouchTap: function () {
-                    _this.deleteAction(node);
+                    _this2.deleteAction(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
         } else if (mime === 'user') {
             actions.push(_react2['default'].createElement(_materialUi.IconButton, { key: 'edit', iconClassName: 'mdi mdi-pencil', onTouchTap: function () {
-                    _this.openRoleEditor(node);
+                    _this2.openRoleEditor(node);
                 }, onClick: function (e) {
                     e.stopPropagation();
                 }, iconStyle: iconStyle }));
@@ -310,7 +321,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     render: function render() {
-        var _this2 = this;
+        var _this3 = this;
 
         var fontIconStyle = {
             style: {
@@ -377,7 +388,7 @@ var Dashboard = _react2['default'].createClass({
                 targetOrigin: { horizontal: 'right', vertical: 'top' },
                 value: filterValue,
                 onChange: function (e, val) {
-                    _this2.setState({ filterValue: val });
+                    _this3.setState({ filterValue: val });
                 }
             },
             _react2['default'].createElement(_materialUi.MenuItem, { value: 1, primaryText: this.context.getMessage('user.filter.internal') }),

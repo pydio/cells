@@ -208,11 +208,11 @@ class Editor extends React.Component{
         let save = ()=>{}, revert= ()=>{};
         if(observableUser) {
             saveDisabled = !observableUser.isDirty();
-            save = () => {observableUser.save()};
+            save = () => {observableUser.save().then(this.props.afterSave);};
             revert = () => {observableUser.revert()};
         } else if(observableRole){
             saveDisabled = !observableRole.isDirty();
-            save = () => {observableRole.save()};
+            save = () => {observableRole.save(this.props.afterSave)};
             revert = () => {observableRole.revert()};
         }
 
