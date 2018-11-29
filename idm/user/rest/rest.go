@@ -414,7 +414,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			)
 		} else {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("Created user [%s%s] at %s", path, out.Login),
+				fmt.Sprintf("Created user [%s%s]", path, out.Login),
 				log.GetAuditId(common.AUDIT_USER_CREATE),
 				out.ZapUuid(),
 			)
