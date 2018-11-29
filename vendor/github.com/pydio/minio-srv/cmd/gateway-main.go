@@ -281,7 +281,7 @@ func StartGateway(ctx *cli.Context, gw Gateway, masterPydioGateway ...bool) {
 	globalObjLayerMutex.Unlock()
 
 	// Prints the formatted startup message once object layer is initialized.
-	if !quietFlag {
+	if !quietFlag && len(masterPydioGateway) == 0 {
 		mode := globalMinioModeGatewayPrefix + gatewayName
 		// Check update mode.
 		checkUpdate(mode)
