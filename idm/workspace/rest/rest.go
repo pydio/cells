@@ -42,11 +42,12 @@ import (
 	"github.com/pydio/cells/common/service/resources"
 )
 
-// Handler definition
+// WorkspaceHandler defines the specific handler struc for workspace management.
 type WorkspaceHandler struct {
 	resources.ResourceProviderHandler
 }
 
+// NewWorkspaceHandler simply creates and configures a handler.
 func NewWorkspaceHandler() *WorkspaceHandler {
 	h := new(WorkspaceHandler)
 	h.ServiceName = common.SERVICE_WORKSPACE
@@ -55,12 +56,12 @@ func NewWorkspaceHandler() *WorkspaceHandler {
 	return h
 }
 
-// SwaggerTags list the names of the service tags declared in the swagger json implemented by this service
+// SwaggerTags lists the names of the service tags declared in the swagger json implemented by this service.
 func (h *WorkspaceHandler) SwaggerTags() []string {
 	return []string{"WorkspaceService"}
 }
 
-// Filter returns a function to filter the swagger path
+// Filter returns a function to filter the swagger path.
 func (h *WorkspaceHandler) Filter() func(string) string {
 	return nil
 }
@@ -131,7 +132,6 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 		log.GetAuditId(common.AUDIT_WS_UPDATE),
 		u.ZapUuid(),
 	)
-
 }
 
 func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Response) {

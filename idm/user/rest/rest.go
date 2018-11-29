@@ -386,18 +386,35 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 			return
 		}
 	}
+	out := response.User
 	if update != nil {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Updated user [%s]", update.GetLogin()),
-			log.GetAuditId(common.AUDIT_USER_UPDATE),
-			update.ZapUuid(),
-		)
+		if out.IsGroup {
+			log.Auditer(ctx).Info(
+				fmt.Sprintf("Updated group [%s] at %s", out.GroupLabel, out.GroupPath),
+				log.GetAuditId(common.AUDIT_GROUP_UPDATE),
+				out.ZapUuid(),
+			)
+		} else {
+			log.Auditer(ctx).Info(
+				fmt.Sprintf("Updated user [%s] at %s", out.Login, out.GroupPath),
+				log.GetAuditId(common.AUDIT_USER_UPDATE),
+				out.ZapUuid(),
+			)
+		}
 	} else {
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Created user [%s]", response.User.GetLogin()),
-			log.GetAuditId(common.AUDIT_USER_CREATE),
-			response.User.ZapUuid(),
-		)
+		if out.IsGroup {
+			log.Auditer(ctx).Info(
+				fmt.Sprintf("Created group [%s] at %s", out.GroupLabel, out.GroupPath),
+				log.GetAuditId(common.AUDIT_GROUP_CREATE),
+				out.ZapUuid(),
+			)
+		} else {
+			log.Auditer(ctx).Info(
+				fmt.Sprintf("Created user [%s] at %s", out.Login, out.GroupPath),
+				log.GetAuditId(common.AUDIT_USER_CREATE),
+				out.ZapUuid(),
+			)
+		}
 	}
 
 	u := response.User
