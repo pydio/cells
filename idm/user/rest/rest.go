@@ -387,16 +387,20 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		}
 	}
 	out := response.User
+	path := "/"
+	if len(out.GroupPath) > 1 {
+		path = out.GroupPath + "/"
+	}
 	if update != nil {
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("Updated group [%s] at %s", out.GroupLabel, out.GroupPath),
+				fmt.Sprintf("Updated group [%s]", out.GroupPath),
 				log.GetAuditId(common.AUDIT_GROUP_UPDATE),
 				out.ZapUuid(),
 			)
 		} else {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("Updated user [%s] at %s", out.Login, out.GroupPath),
+				fmt.Sprintf("Updated user [%s%s]", path, out.Login),
 				log.GetAuditId(common.AUDIT_USER_UPDATE),
 				out.ZapUuid(),
 			)
@@ -404,13 +408,13 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	} else {
 		if out.IsGroup {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("Created group [%s] at %s", out.GroupLabel, out.GroupPath),
+				fmt.Sprintf("Created group [%s]", out.GroupPath),
 				log.GetAuditId(common.AUDIT_GROUP_CREATE),
 				out.ZapUuid(),
 			)
 		} else {
 			log.Auditer(ctx).Info(
-				fmt.Sprintf("Created user [%s] at %s", out.Login, out.GroupPath),
+				fmt.Sprintf("Created user [%s%s] at %s", path, out.Login),
 				log.GetAuditId(common.AUDIT_USER_CREATE),
 				out.ZapUuid(),
 			)

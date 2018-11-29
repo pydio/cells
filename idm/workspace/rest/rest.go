@@ -127,11 +127,20 @@ func (h *WorkspaceHandler) PutWorkspace(req *restful.Request, rsp *restful.Respo
 	u := response.Workspace
 	h.manageDefaultRights(ctx, u, true, "")
 	rsp.WriteEntity(u)
-	log.Auditer(ctx).Info(
-		fmt.Sprintf("Updated workspace [%s]", u.Slug),
-		log.GetAuditId(common.AUDIT_WS_UPDATE),
-		u.ZapUuid(),
-	)
+	if update {
+		log.Auditer(ctx).Info(
+			fmt.Sprintf("Updated workspace [%s]", u.Slug),
+			log.GetAuditId(common.AUDIT_WS_UPDATE),
+			u.ZapUuid(),
+		)
+
+	} else {
+		log.Auditer(ctx).Info(
+			fmt.Sprintf("Created workspace [%s]", u.Slug),
+			log.GetAuditId(common.AUDIT_WS_CREATE),
+			u.ZapUuid(),
+		)
+	}
 }
 
 func (h *WorkspaceHandler) DeleteWorkspace(req *restful.Request, rsp *restful.Response) {
