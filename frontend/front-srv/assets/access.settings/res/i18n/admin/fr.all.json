@@ -119,6 +119,12 @@
   "ds.editor.selector.completer": {
     "other": "Choisir un répertoire"
   },
+  "ds.editor.selector.completer.hint": {
+    "other": "Choisir ou tapper un chemin et appuyer sur Entrée"
+  },
+  "ds.editor.selector.completer.create": {
+    "other": "le répertoire sera créé"
+  },
   "ds.editor.selector.error.depth": {
     "other": "Veuillez vous assurer de sélectionner un répertoire à au moins 2 niveaux de profondeur."
   },
