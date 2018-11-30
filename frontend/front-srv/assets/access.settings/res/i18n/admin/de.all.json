@@ -119,6 +119,12 @@
   "ds.editor.selector.completer": {
     "other": "Pick a folder"
   },
+  "ds.editor.selector.completer.hint": {
+    "other": "Pick from list or type a path and hit Enter"
+  },
+  "ds.editor.selector.completer.create": {
+    "other": "folder will be created"
+  },
   "ds.editor.selector.error.depth": {
     "other": "Make sure to select a two-levels deep folder. Object storage will start on the parent folder."
   },
