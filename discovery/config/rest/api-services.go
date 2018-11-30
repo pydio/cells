@@ -178,10 +178,10 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 				Type: tree.NodeType_COLLECTION,
 				Path: folder,
 			}}, selectorOption); err != nil {
-				return err
+				return errors.Forbidden("ds.folder.cannot.create", err.Error())
 			}
 		} else {
-			return e
+			return errors.NotFound("ds.folder.cannot.stat", e.Error())
 		}
 	}
 
@@ -200,7 +200,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 		}
 	}
 
-	return e
+	return nil
 }
 
 // PeerClientSelector creates a Selector Filter to restrict call to a given PeerAddress
