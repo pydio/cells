@@ -68,7 +68,7 @@ var settingsNode = &rest.SettingsMenuResponse{
 					Metadata: &rest.SettingsEntryMeta{
 						IconClass: "mdi mdi-database",
 						Component: "AdminWorkspaces.DataSourcesBoard",
-						Props:     `{"versioningReadonly":true}`,
+						Props:     `{"versioningReadonly":true,"storageTypes":["LOCAL","S3"]}`,
 					},
 				},
 				{

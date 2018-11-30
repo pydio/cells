@@ -162,8 +162,9 @@ var DataSourcesBoard = (function (_React$Component) {
                 COMPONENT: _editorDataSourceEditor2['default'],
                 PROPS: {
                     ref: "editor",
-                    pydio: pydio,
+                    pydio: this.props.pydio,
                     dataSource: dataSource,
+                    storageTypes: this.props.storageTypes,
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
                 }
@@ -256,12 +257,17 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'createDataSource',
         value: function createDataSource() {
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var storageTypes = _props.storageTypes;
+
             this.props.openRightPane({
                 COMPONENT: _editorDataSourceEditor2['default'],
                 PROPS: {
                     ref: "editor",
                     create: true,
                     pydio: pydio,
+                    storageTypes: storageTypes,
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
                 }
@@ -280,10 +286,10 @@ var DataSourcesBoard = (function (_React$Component) {
             dataSources.sort(_pydioUtilLang2['default'].arraySorter('Name'));
             versioningPolicies.sort(_pydioUtilLang2['default'].arraySorter('Name'));
 
-            var _props = this.props;
-            var currentNode = _props.currentNode;
-            var pydio = _props.pydio;
-            var versioningReadonly = _props.versioningReadonly;
+            var _props2 = this.props;
+            var currentNode = _props2.currentNode;
+            var pydio = _props2.pydio;
+            var versioningReadonly = _props2.versioningReadonly;
 
             var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15 } }, { name: 'StorageType', label: m('storage'), renderCell: function renderCell(row) {
                     var s = 'storage.fs';

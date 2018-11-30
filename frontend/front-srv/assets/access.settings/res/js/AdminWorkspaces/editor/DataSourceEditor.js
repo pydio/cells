@@ -98,6 +98,7 @@ class DataSourceEditor extends React.Component{
     }
 
     render(){
+        const {storageTypes} = this.props;
         const {model, create, observable, encryptionKeys, versioningPolicies, showDialog, dialogTargetValue, m} = this.state;
 
         let titleActionBarButtons = [];
@@ -178,12 +179,19 @@ class DataSourceEditor extends React.Component{
             toggleDiv:{height: 50, display:'flex', alignItems:'flex-end'}
         };
 
-        const storageTypes = {
+        let storages = {
             LOCAL: {primaryText:this.context.getMessage('ds.storage.fs', 'ajxp_admin'), image:'fs.png'},
             S3: {primaryText:this.context.getMessage('ds.storage.s3', 'ajxp_admin'), image:'s3-compat.png'},
             AZURE: {primaryText:this.context.getMessage('ds.storage.azure', 'ajxp_admin'), image:'azure.png'},
             GCS: {primaryText:this.context.getMessage('ds.storage.gcs', 'ajxp_admin'), image:'gcs.png'},
         };
+        let storageData = {};
+        storageTypes.forEach(type => {
+            storageData[type] = storages[type];
+        });
+        if(model.StorageType && !storageData[model.StorageType]){
+            storageData[model.StorageType] = storages[model.StorageType];
+        }
 
         return (
             <PydioComponents.PaperEditorLayout
@@ -224,7 +232,7 @@ class DataSourceEditor extends React.Component{
                     }
                 </div>
                 <div style={styles.section}>
-                    <DsStorageSelector disabled={!create} value={model.StorageType} onChange={(e,i,v)=>{model.StorageType = v}} values={storageTypes}/>
+                    <DsStorageSelector disabled={!create} value={model.StorageType} onChange={(e,i,v)=>{model.StorageType = v}} values={storageData}/>
                     {model.StorageType === 'LOCAL' &&
                     <div style={styles.storageSection}>
                         <div style={styles.legend}>{m('storage.legend.fs')}</div>
