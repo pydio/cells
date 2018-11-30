@@ -57,6 +57,7 @@ import (
 	"github.com/pydio/cells/common/service/context"
 
 	"github.com/pydio/cells/common/sql"
+	"github.com/pydio/cells/common/utils"
 )
 
 const (
@@ -131,25 +132,25 @@ func NewService(opts ...ServiceOption) Service {
 		opts: newOptions(opts...),
 	}
 
-	// // Checking that the service is not bound to a certain IP
-	// peerAddress := config.Get("services", s.opts.Name, "PeerAddress").String("")
-	//
-	// if peerAddress != "" {
-	// 	peerIP := net.ParseIP(peerAddress)
-	// 	localIPs, _ := utils.GetAvailableIPs()
-	//
-	// 	found := false
-	// 	for _, localIP := range localIPs {
-	// 		if peerIP.Equal(localIP) {
-	// 			found = true
-	// 		}
-	// 	}
-	//
-	// 	if !found {
-	// 		// log.Debug("Service bound", zap.String("name", s.opts.Name), zap.String("ip", peerAddress))
-	// 		return nil
-	// 	}
-	// }
+	// Checking that the service is not bound to a certain IP
+	peerAddress := config.Get("services", s.opts.Name, "PeerAddress").String("")
+
+	if peerAddress != "" {
+		peerIP := net.ParseIP(peerAddress)
+		localIPs, _ := utils.GetAvailableIPs()
+
+		found := false
+		for _, localIP := range localIPs {
+			if peerIP.Equal(localIP) {
+				found = true
+			}
+		}
+
+		if !found {
+			// log.Debug("Service bound", zap.String("name", s.opts.Name), zap.String("ip", peerAddress))
+			return nil
+		}
+	}
 
 	// Setting context
 	ctx, cancel := context.WithCancel(context.Background())
