@@ -1,6 +1,6 @@
 import React from 'react'
 import PydioApi from 'pydio/http/api'
-import {ConfigServiceApi, RestListPeerFoldersRequest} from 'pydio/http/rest-api'
+import {ConfigServiceApi, RestListPeerFoldersRequest, TreeNode} from 'pydio/http/rest-api'
 import {SelectField, TextField, MenuItem, FontIcon, AutoComplete, RefreshIndicator} from 'material-ui'
 import debounce from 'lodash.debounce'
 import LangUtils from 'pydio/util/lang'
@@ -22,30 +22,25 @@ class AutocompleteTree extends React.Component{
     handleNewRequest(chosenValue) {
         let key;
         const {nodes} = this.state;
+        let exist = false;
         if (chosenValue.key === undefined) {
-            key = chosenValue;
+            key = '/' + LangUtils.trim(chosenValue, '/');
             let ok = false;
             nodes.map(node => {
-                if (node.Path === key) {
+                //const test = node.Path + '/';
+                if (node.Path === key || node.Path.indexOf(key + '/') === 0) {
                     ok = true;
                 }
             });
-            if(!ok){
-                nodes.map(node => {
-                    if (node.Path.indexOf(key) === 0) {
-                        key = node.Path;
-                        ok = true;
-                    }
-                });
-            }
-            if(!ok) {
-                return;
+            if (ok){
+                exist = true;
             }
         } else {
             key = chosenValue.key;
+            exist = true;
         }
-        this.setState({value:key});
-        this.props.onChange(key);
+        this.setState({value:key, exist});
+        this.props.onChange(key, exist);
         this.loadValues(key);
     }
 
@@ -77,7 +72,14 @@ class AutocompleteTree extends React.Component{
         listRequest.Path = basePath;
         this.setState({loading: true});
         api.listPeerFolders(peerAddress, listRequest).then(nodesColl => {
-            this.setState({nodes: nodesColl.Children || [], loading: false});
+            let children = nodesColl.Children || [];
+            children = children.map(c => {
+                if(c.Path[0] !== '/'){
+                    c.Path = '/' + c.Path;
+                }
+                return c;
+            });
+            this.setState({nodes: children, loading: false});
         }).catch(() => {
             this.setState({loading: false});
         })
@@ -101,7 +103,7 @@ class AutocompleteTree extends React.Component{
 
     render(){
 
-        const {nodes, loading} = this.state;
+        const {nodes, loading, exist, value} = this.state;
         const {fieldLabel} = this.props;
         let dataSource = [];
         if (nodes){
@@ -131,6 +133,7 @@ class AutocompleteTree extends React.Component{
                     floatingLabelText={fieldLabel}
                     floatingLabelStyle={{whiteSpace:'nowrap'}}
                     floatingLabelFixed={true}
+                    hintText={this.props.hintText}
                     filter={(searchText, key) => (key.toLowerCase().indexOf(searchText.toLowerCase()) === 0)}
                     openOnFocus={true}
                     menuProps={{maxHeight: 200}}
@@ -178,11 +181,16 @@ class DataSourceLocalSelector extends React.Component{
         return invalid;
     }
 
-    onPathChange(newValue){
+    onPathChange(newValue, exists){
         const {model} = this.props;
         const invalid = this.baseIsInvalid(newValue);
         model.invalid = invalid;
         model.StorageConfiguration.folder = newValue;
+        if(!exists){
+            model.StorageConfiguration.create = 'true';
+        } else if (model.StorageConfiguration['create'] !== undefined) {
+            delete model.StorageConfiguration['create'];
+        }
         this.setState({invalid: invalid});
     }
 
@@ -213,7 +221,8 @@ class DataSourceLocalSelector extends React.Component{
                                 value={model.StorageConfiguration.folder}
                                 peerAddress={model.PeerAddress}
                                 onChange={this.onPathChange.bind(this)}
-                                fieldLabel={m('selector.completer') + ' *'}
+                                fieldLabel={m('selector.completer') + (model.StorageConfiguration.create ? ' ('+m('selector.completer.create')+')':'') + ' *'}
+                                hintText={m('selector.completer.hint')}
                             />
                         }
                         {!model.PeerAddress &&

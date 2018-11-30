@@ -174,10 +174,12 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	if e != nil {
 		if create, ok := newSource.StorageConfiguration["create"]; ok && create == "true" {
 			// Create Node Now
-			wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
+			if _, err := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 				Type: tree.NodeType_COLLECTION,
 				Path: folder,
-			}}, selectorOption)
+			}}, selectorOption); err != nil {
+				return err
+			}
 		} else {
 			return e
 		}
