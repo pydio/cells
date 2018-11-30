@@ -255,6 +255,7 @@ func play() (*bytes.Buffer, error) {
 	if err := template.Execute(buf, caddyconf); err != nil {
 		return nil, err
 	}
+	fmt.Println(string(buf.Bytes()))
 
 	return buf, nil
 }
