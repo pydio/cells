@@ -194,7 +194,7 @@ func NewService(opts ...ServiceOption) Service {
 				cfg.Set("port", p)
 			}
 
-			log.Logger(ctx).Debug("Service configuration retrieved", zap.String("service", s.Name()), zap.Any("cfg", cfg))
+			//log.Logger(ctx).Debug("Service configuration retrieved", zap.String("service", s.Name()), zap.Any("cfg", cfg))
 			ctx = servicecontext.WithConfig(ctx, cfg)
 
 			s.Init(Context(ctx))

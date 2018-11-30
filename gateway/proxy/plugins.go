@@ -42,6 +42,7 @@ import (
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service"
 	errorUtils "github.com/pydio/cells/common/utils/error"
+	"go.uber.org/zap"
 )
 
 var (
@@ -255,7 +256,9 @@ func play() (*bytes.Buffer, error) {
 	if err := template.Execute(buf, caddyconf); err != nil {
 		return nil, err
 	}
-	fmt.Println(string(buf.Bytes()))
+	if common.LogLevel == zap.DebugLevel {
+		fmt.Println(string(buf.Bytes()))
+	}
 
 	return buf, nil
 }

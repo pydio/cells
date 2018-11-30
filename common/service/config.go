@@ -26,10 +26,8 @@ import (
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/service/context"
 )
 
@@ -51,7 +49,7 @@ func newConfigProvider(service micro.Service) error {
 			return err
 		}
 
-		log.Logger(ctx).Debug("Service configuration retrieved", zap.String("service", name), zap.Any("cfg", cfg))
+		//log.Logger(ctx).Debug("Service configuration retrieved", zap.String("service", name), zap.Any("cfg", cfg))
 		ctx = servicecontext.WithConfig(ctx, cfg)
 		service.Init(micro.Context(ctx))
 
