@@ -36,9 +36,9 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/frontend"
 )
 
@@ -84,7 +84,7 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 				web.Name(name),
 				web.Context(ctx),
 				web.AfterStart(func() error {
-					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{})
+					return broker.Publish(common.TOPIC_SERVICE_START, &broker.Message{Body: []byte(name)})
 				}),
 				web.AfterStart(func() error {
 					log.Logger(ctx).Info("started")

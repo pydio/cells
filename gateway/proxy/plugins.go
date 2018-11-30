@@ -24,25 +24,27 @@ package proxy
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"path/filepath"
+	"strings"
 
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/mholt/caddy/caddytls"
-	"github.com/pydio/cells/common/plugins"
-
 	"github.com/micro/go-micro/broker"
 	_ "github.com/micro/go-plugins/client/grpc"
 	_ "github.com/micro/go-plugins/server/grpc"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
+	service2 "github.com/pydio/cells/common/service/proto"
 	errorUtils "github.com/pydio/cells/common/utils/error"
-	"go.uber.org/zap"
 )
 
 var (
@@ -212,14 +214,30 @@ func init() {
 			}),
 			service.AfterStart(func(s service.Service) error {
 
+				needsRestart := func(sName string) bool {
+					return strings.HasPrefix(sName, common.SERVICE_GATEWAY_NAMESPACE_) || strings.HasPrefix(sName, common.SERVICE_WEB_NAMESPACE_)
+				}
+
 				// Adding subscriber
 				if _, err := broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error {
-					return caddy.Restart()
+					sName := string(p.Message().Body)
+					if needsRestart(sName) {
+						log.Logger(s.Options().Context).Debug("Received Stop Message - Will Restart Caddy - ", zap.Any("serviceName", sName))
+						return caddy.Restart()
+					}
+					return nil
 				}); err != nil {
 					return err
 				}
 				if _, err := broker.Subscribe(common.TOPIC_SERVICE_STOP, func(p broker.Publication) error {
-					return caddy.Restart()
+					var se service2.StopEvent
+					if e := json.Unmarshal(p.Message().Body, &se); e == nil {
+						if needsRestart(se.ServiceName) {
+							log.Logger(s.Options().Context).Debug("Received Stop Message - Will Restart Caddy - ", zap.Any("stopEvent", &se))
+							return caddy.Restart()
+						}
+					}
+					return nil
 				}); err != nil {
 					return err
 				}
