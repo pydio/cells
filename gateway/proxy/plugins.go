@@ -24,23 +24,26 @@ package proxy
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"path/filepath"
+	"strings"
 
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/mholt/caddy/caddytls"
-	"github.com/pydio/cells/common/plugins"
-
 	"github.com/micro/go-micro/broker"
 	_ "github.com/micro/go-plugins/client/grpc"
 	_ "github.com/micro/go-plugins/server/grpc"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
+	service2 "github.com/pydio/cells/common/service/proto"
 	errorUtils "github.com/pydio/cells/common/utils/error"
 )
 
@@ -120,13 +123,13 @@ var (
 		errors "{{.Logs}}/caddy_errors.log"
 		}
 
+		{{if .HTTPRedirectSource}}
+		http://{{.HTTPRedirectSource.Host}} {
+			redir https://{{.HTTPRedirectTarget.Host}}
+		}
+		{{end}}
 	`
 
-	// {{if .HttpRedirectSource}}
-	// http://{{.HttpRedirectSource.Host}} {
-	// redir https://{{.HttpRedirectTarget.Host}}
-	// }
-	// {{end}}
 	caddyconf = struct {
 		// Main site URL
 		Bind         string
@@ -141,8 +144,8 @@ var (
 		// Caddy compliant TLS string, either "self_signed" or paths to "cert key"
 		TLS string
 		// If TLS is enabled, also enable auto-redirect from http to https
-		// HTTPRedirectSource *url.URL
-		// HTTPRedirectTarget *url.URL
+		HTTPRedirectSource *url.URL
+		HTTPRedirectTarget *url.URL
 
 		PluginTemplates []caddy.TemplateFunc
 		PluginPathes    []string
@@ -211,14 +214,30 @@ func init() {
 			}),
 			service.AfterStart(func(s service.Service) error {
 
+				needsRestart := func(sName string) bool {
+					return strings.HasPrefix(sName, common.SERVICE_GATEWAY_NAMESPACE_) || strings.HasPrefix(sName, common.SERVICE_WEB_NAMESPACE_)
+				}
+
 				// Adding subscriber
 				if _, err := broker.Subscribe(common.TOPIC_SERVICE_START, func(p broker.Publication) error {
-					return caddy.Restart()
+					sName := string(p.Message().Body)
+					if needsRestart(sName) {
+						log.Logger(s.Options().Context).Debug("Received Stop Message - Will Restart Caddy - ", zap.Any("serviceName", sName))
+						return caddy.Restart()
+					}
+					return nil
 				}); err != nil {
 					return err
 				}
 				if _, err := broker.Subscribe(common.TOPIC_SERVICE_STOP, func(p broker.Publication) error {
-					return caddy.Restart()
+					var se service2.StopEvent
+					if e := json.Unmarshal(p.Message().Body, &se); e == nil {
+						if needsRestart(se.ServiceName) {
+							log.Logger(s.Options().Context).Debug("Received Stop Message - Will Restart Caddy - ", zap.Any("stopEvent", &se))
+							return caddy.Restart()
+						}
+					}
+					return nil
 				}); err != nil {
 					return err
 				}
@@ -255,6 +274,9 @@ func play() (*bytes.Buffer, error) {
 	if err := template.Execute(buf, caddyconf); err != nil {
 		return nil, err
 	}
+	if common.LogLevel == zap.DebugLevel {
+		fmt.Println(string(buf.Bytes()))
+	}
 
 	return buf, nil
 }
@@ -265,16 +287,17 @@ func LoadCaddyConf() error {
 
 	caddyconf.Logs = filepath.Join(config.ApplicationDataDir(), "logs")
 
-	url, err := url.Parse(config.Get("defaults", "urlInternal").String(""))
+	u, err := url.Parse(config.Get("defaults", "urlInternal").String(""))
 	if err != nil {
 		return err
 	}
 
-	caddyconf.Bind = ":" + url.Port()
 	caddyconf.Micro = common.SERVICE_MICRO_API
 
+	protocol := "http://"
 	tls := config.Get("cert", "proxy", "ssl").Bool(false)
 	if tls {
+		protocol = "https://"
 		if self := config.Get("cert", "proxy", "self").Bool(false); self {
 			caddyconf.TLS = "self_signed"
 		} else if certEmail := config.Get("cert", "proxy", "email").String(""); certEmail != "" {
@@ -290,19 +313,18 @@ func LoadCaddyConf() error {
 		}
 	}
 
-	// According to docs, caddy is supposed to redirect automatically if certificate is correctly set
+	caddyconf.Bind = protocol + u.Host
 
-	// 	if redir := config.Get("cert", "proxy", "httpRedir").Bool(false); redir && caddyconf.TLS != "" {
-	// 		if extUrl := config.Get("defaults", "url").String(""); extUrl != "" {
-	// 			var e error
-	// 			if caddyconf.HTTPRedirectTarget, e = url.Parse(extUrl); e == nil {
-	// 				caddyconf.HTTPRedirectSource, _ = url.Parse("http://" + caddyconf.HTTPRedirectTarget.Hostname())
-	// 			}
-	// 		} else {
-	// 			return fmt.Errorf("cannot find url configuration")
-	// 		}
-	// 	}
-	// }
+	if redir := config.Get("cert", "proxy", "httpRedir").Bool(false); redir && caddyconf.TLS != "" {
+		if extUrl := config.Get("defaults", "url").String(""); extUrl != "" {
+			var e error
+			if caddyconf.HTTPRedirectTarget, e = url.Parse(extUrl); e == nil {
+				caddyconf.HTTPRedirectSource, _ = url.Parse("http://" + caddyconf.HTTPRedirectTarget.Hostname())
+			}
+		} else {
+			return fmt.Errorf("cannot find url configuration")
+		}
+	}
 
 	return nil
 }

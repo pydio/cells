@@ -263,8 +263,47 @@ var installCmd = &cobra.Command{
 		instance.Stop()
 
 		fmt.Println("")
-		fmt.Println(promptui.IconGood + "\033[1m Installation Finished: please restart with '" + os.Args[0] + " start' command\033[0m")
+		fmt.Println(promptui.IconGood + "\033[1m Installation Finished: server will restart\033[0m")
 		fmt.Println("")
+
+		// Re-building allServices list
+		if s, err := registry.Default.ListServices(); err != nil {
+			cmd.Print("Could not retrieve list of services")
+			os.Exit(0)
+		} else {
+			allServices = s
+		}
+
+		// Start all services
+		excludes := []string{
+			common.SERVICE_MICRO_API,
+			common.SERVICE_REST_NAMESPACE_ + common.SERVICE_INSTALL,
+		}
+		for _, service := range allServices {
+			ignore := false
+			for _, ex := range excludes {
+				if service.Name() == ex {
+					ignore = true
+				}
+			}
+			if service.Regexp() != nil {
+				ignore = true
+			}
+			if !ignore {
+				if service.RequiresFork() {
+					if !service.AutoStart() {
+						continue
+					}
+					go service.ForkStart()
+				} else {
+					go service.Start()
+				}
+			}
+		}
+
+		wg.Add(1)
+		wg.Wait()
+
 	},
 }
 

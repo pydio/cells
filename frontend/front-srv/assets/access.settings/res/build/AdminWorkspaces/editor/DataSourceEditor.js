@@ -167,6 +167,7 @@ var DataSourceEditor = (function (_React$Component) {
         value: function render() {
             var _this6 = this;
 
+            var storageTypes = this.props.storageTypes;
             var _state = this.state;
             var model = _state.model;
             var create = _state.create;
@@ -291,12 +292,19 @@ var DataSourceEditor = (function (_React$Component) {
                 toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
             };
 
-            var storageTypes = {
+            var storages = {
                 LOCAL: { primaryText: this.context.getMessage('ds.storage.fs', 'ajxp_admin'), image: 'fs.png' },
                 S3: { primaryText: this.context.getMessage('ds.storage.s3', 'ajxp_admin'), image: 's3-compat.png' },
                 AZURE: { primaryText: this.context.getMessage('ds.storage.azure', 'ajxp_admin'), image: 'azure.png' },
                 GCS: { primaryText: this.context.getMessage('ds.storage.gcs', 'ajxp_admin'), image: 'gcs.png' }
             };
+            var storageData = {};
+            storageTypes.forEach(function (type) {
+                storageData[type] = storages[type];
+            });
+            if (model.StorageType && !storageData[model.StorageType]) {
+                storageData[model.StorageType] = storages[model.StorageType];
+            }
 
             return _react2['default'].createElement(
                 PydioComponents.PaperEditorLayout,
@@ -377,7 +385,7 @@ var DataSourceEditor = (function (_React$Component) {
                     { style: styles.section },
                     _react2['default'].createElement(_DsStorageSelector2['default'], { disabled: !create, value: model.StorageType, onChange: function (e, i, v) {
                             model.StorageType = v;
-                        }, values: storageTypes }),
+                        }, values: storageData }),
                     model.StorageType === 'LOCAL' && _react2['default'].createElement(
                         'div',
                         { style: styles.storageSection },

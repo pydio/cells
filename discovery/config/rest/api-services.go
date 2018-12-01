@@ -174,12 +174,14 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 	if e != nil {
 		if create, ok := newSource.StorageConfiguration["create"]; ok && create == "true" {
 			// Create Node Now
-			wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
+			if _, err := wCl.CreateNode(ctx, &tree.CreateNodeRequest{Node: &tree.Node{
 				Type: tree.NodeType_COLLECTION,
 				Path: folder,
-			}}, selectorOption)
+			}}, selectorOption); err != nil {
+				return errors.Forbidden("ds.folder.cannot.create", err.Error())
+			}
 		} else {
-			return e
+			return errors.NotFound("ds.folder.cannot.stat", e.Error())
 		}
 	}
 
@@ -198,7 +200,7 @@ func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *ob
 		}
 	}
 
-	return e
+	return nil
 }
 
 // PeerClientSelector creates a Selector Filter to restrict call to a given PeerAddress

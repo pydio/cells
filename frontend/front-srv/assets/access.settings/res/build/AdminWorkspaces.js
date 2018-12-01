@@ -22282,8 +22282,9 @@ var DataSourcesBoard = (function (_React$Component) {
                 COMPONENT: _editorDataSourceEditor2['default'],
                 PROPS: {
                     ref: "editor",
-                    pydio: pydio,
+                    pydio: this.props.pydio,
                     dataSource: dataSource,
+                    storageTypes: this.props.storageTypes,
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
                 }
@@ -22376,12 +22377,17 @@ var DataSourcesBoard = (function (_React$Component) {
     }, {
         key: 'createDataSource',
         value: function createDataSource() {
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var storageTypes = _props.storageTypes;
+
             this.props.openRightPane({
                 COMPONENT: _editorDataSourceEditor2['default'],
                 PROPS: {
                     ref: "editor",
                     create: true,
                     pydio: pydio,
+                    storageTypes: storageTypes,
                     closeEditor: this.closeEditor.bind(this),
                     reloadList: this.load.bind(this)
                 }
@@ -22400,10 +22406,10 @@ var DataSourcesBoard = (function (_React$Component) {
             dataSources.sort(_pydioUtilLang2['default'].arraySorter('Name'));
             versioningPolicies.sort(_pydioUtilLang2['default'].arraySorter('Name'));
 
-            var _props = this.props;
-            var currentNode = _props.currentNode;
-            var pydio = _props.pydio;
-            var versioningReadonly = _props.versioningReadonly;
+            var _props2 = this.props;
+            var currentNode = _props2.currentNode;
+            var pydio = _props2.pydio;
+            var versioningReadonly = _props2.versioningReadonly;
 
             var dsColumns = [{ name: 'Name', label: m('name'), style: { fontSize: 15 } }, { name: 'StorageType', label: m('storage'), renderCell: function renderCell(row) {
                     var s = 'storage.fs';
@@ -23784,6 +23790,7 @@ var DataSourceEditor = (function (_React$Component) {
         value: function render() {
             var _this6 = this;
 
+            var storageTypes = this.props.storageTypes;
             var _state = this.state;
             var model = _state.model;
             var create = _state.create;
@@ -23908,12 +23915,19 @@ var DataSourceEditor = (function (_React$Component) {
                 toggleDiv: { height: 50, display: 'flex', alignItems: 'flex-end' }
             };
 
-            var storageTypes = {
+            var storages = {
                 LOCAL: { primaryText: this.context.getMessage('ds.storage.fs', 'ajxp_admin'), image: 'fs.png' },
                 S3: { primaryText: this.context.getMessage('ds.storage.s3', 'ajxp_admin'), image: 's3-compat.png' },
                 AZURE: { primaryText: this.context.getMessage('ds.storage.azure', 'ajxp_admin'), image: 'azure.png' },
                 GCS: { primaryText: this.context.getMessage('ds.storage.gcs', 'ajxp_admin'), image: 'gcs.png' }
             };
+            var storageData = {};
+            storageTypes.forEach(function (type) {
+                storageData[type] = storages[type];
+            });
+            if (model.StorageType && !storageData[model.StorageType]) {
+                storageData[model.StorageType] = storages[model.StorageType];
+            }
 
             return _react2['default'].createElement(
                 PydioComponents.PaperEditorLayout,
@@ -23994,7 +24008,7 @@ var DataSourceEditor = (function (_React$Component) {
                     { style: styles.section },
                     _react2['default'].createElement(_DsStorageSelector2['default'], { disabled: !create, value: model.StorageType, onChange: function (e, i, v) {
                             model.StorageType = v;
-                        }, values: storageTypes }),
+                        }, values: storageData }),
                     model.StorageType === 'LOCAL' && _react2['default'].createElement(
                         'div',
                         { style: styles.storageSection },
@@ -24191,30 +24205,25 @@ var AutocompleteTree = (function (_React$Component) {
             var key = undefined;
             var nodes = this.state.nodes;
 
+            var exist = false;
             if (chosenValue.key === undefined) {
-                key = chosenValue;
+                key = '/' + _pydioUtilLang2['default'].trim(chosenValue, '/');
                 var ok = false;
                 nodes.map(function (node) {
-                    if (node.Path === key) {
+                    //const test = node.Path + '/';
+                    if (node.Path === key || node.Path.indexOf(key + '/') === 0) {
                         ok = true;
                     }
                 });
-                if (!ok) {
-                    nodes.map(function (node) {
-                        if (node.Path.indexOf(key) === 0) {
-                            key = node.Path;
-                            ok = true;
-                        }
-                    });
-                }
-                if (!ok) {
-                    return;
+                if (ok) {
+                    exist = true;
                 }
             } else {
                 key = chosenValue.key;
+                exist = true;
             }
-            this.setState({ value: key });
-            this.props.onChange(key);
+            this.setState({ value: key, exist: exist });
+            this.props.onChange(key, exist);
             this.loadValues(key);
         }
     }, {
@@ -24251,7 +24260,14 @@ var AutocompleteTree = (function (_React$Component) {
             listRequest.Path = basePath;
             this.setState({ loading: true });
             api.listPeerFolders(peerAddress, listRequest).then(function (nodesColl) {
-                _this.setState({ nodes: nodesColl.Children || [], loading: false });
+                var children = nodesColl.Children || [];
+                children = children.map(function (c) {
+                    if (c.Path[0] !== '/') {
+                        c.Path = '/' + c.Path;
+                    }
+                    return c;
+                });
+                _this.setState({ nodes: children, loading: false });
             })['catch'](function () {
                 _this.setState({ loading: false });
             });
@@ -24305,6 +24321,8 @@ var AutocompleteTree = (function (_React$Component) {
             var _state = this.state;
             var nodes = _state.nodes;
             var loading = _state.loading;
+            var exist = _state.exist;
+            var value = _state.value;
             var fieldLabel = this.props.fieldLabel;
 
             var dataSource = [];
@@ -24338,6 +24356,7 @@ var AutocompleteTree = (function (_React$Component) {
                     floatingLabelText: fieldLabel,
                     floatingLabelStyle: { whiteSpace: 'nowrap' },
                     floatingLabelFixed: true,
+                    hintText: this.props.hintText,
                     filter: function (searchText, key) {
                         return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
                     },
@@ -24400,12 +24419,17 @@ var DataSourceLocalSelector = (function (_React$Component2) {
         }
     }, {
         key: 'onPathChange',
-        value: function onPathChange(newValue) {
+        value: function onPathChange(newValue, exists) {
             var model = this.props.model;
 
             var invalid = this.baseIsInvalid(newValue);
             model.invalid = invalid;
             model.StorageConfiguration.folder = newValue;
+            if (!exists) {
+                model.StorageConfiguration.create = 'true';
+            } else if (model.StorageConfiguration['create'] !== undefined) {
+                delete model.StorageConfiguration['create'];
+            }
             this.setState({ invalid: invalid });
         }
     }, {
@@ -24449,7 +24473,8 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             value: model.StorageConfiguration.folder,
                             peerAddress: model.PeerAddress,
                             onChange: this.onPathChange.bind(this),
-                            fieldLabel: m('selector.completer') + ' *'
+                            fieldLabel: m('selector.completer') + (model.StorageConfiguration.create ? ' (' + m('selector.completer.create') + ')' : '') + ' *',
+                            hintText: m('selector.completer.hint')
                         }),
                         !model.PeerAddress && _react2['default'].createElement(_materialUi.TextField, {
                             style: { marginTop: -3 },

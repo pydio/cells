@@ -149,7 +149,7 @@ func (t *TreeHandler) CreateNode(ctx context.Context, request *tree.CreateNodeRe
 			response.Node = t.FileInfoToNode(request.Node.Path, fileInfo)
 		}
 	} else {
-		if e := t.FS.MkdirAll(request.Node.Path, 0666); e != nil {
+		if e := t.FS.MkdirAll(request.Node.Path, 0755); e != nil {
 			return e
 		} else {
 			fileInfo, _ := t.FS.Stat(request.Node.Path)

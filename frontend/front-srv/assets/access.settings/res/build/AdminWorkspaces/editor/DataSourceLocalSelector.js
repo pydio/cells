@@ -61,30 +61,25 @@ var AutocompleteTree = (function (_React$Component) {
             var key = undefined;
             var nodes = this.state.nodes;
 
+            var exist = false;
             if (chosenValue.key === undefined) {
-                key = chosenValue;
+                key = '/' + _pydioUtilLang2['default'].trim(chosenValue, '/');
                 var ok = false;
                 nodes.map(function (node) {
-                    if (node.Path === key) {
+                    //const test = node.Path + '/';
+                    if (node.Path === key || node.Path.indexOf(key + '/') === 0) {
                         ok = true;
                     }
                 });
-                if (!ok) {
-                    nodes.map(function (node) {
-                        if (node.Path.indexOf(key) === 0) {
-                            key = node.Path;
-                            ok = true;
-                        }
-                    });
-                }
-                if (!ok) {
-                    return;
+                if (ok) {
+                    exist = true;
                 }
             } else {
                 key = chosenValue.key;
+                exist = true;
             }
-            this.setState({ value: key });
-            this.props.onChange(key);
+            this.setState({ value: key, exist: exist });
+            this.props.onChange(key, exist);
             this.loadValues(key);
         }
     }, {
@@ -121,7 +116,14 @@ var AutocompleteTree = (function (_React$Component) {
             listRequest.Path = basePath;
             this.setState({ loading: true });
             api.listPeerFolders(peerAddress, listRequest).then(function (nodesColl) {
-                _this.setState({ nodes: nodesColl.Children || [], loading: false });
+                var children = nodesColl.Children || [];
+                children = children.map(function (c) {
+                    if (c.Path[0] !== '/') {
+                        c.Path = '/' + c.Path;
+                    }
+                    return c;
+                });
+                _this.setState({ nodes: children, loading: false });
             })['catch'](function () {
                 _this.setState({ loading: false });
             });
@@ -175,6 +177,8 @@ var AutocompleteTree = (function (_React$Component) {
             var _state = this.state;
             var nodes = _state.nodes;
             var loading = _state.loading;
+            var exist = _state.exist;
+            var value = _state.value;
             var fieldLabel = this.props.fieldLabel;
 
             var dataSource = [];
@@ -208,6 +212,7 @@ var AutocompleteTree = (function (_React$Component) {
                     floatingLabelText: fieldLabel,
                     floatingLabelStyle: { whiteSpace: 'nowrap' },
                     floatingLabelFixed: true,
+                    hintText: this.props.hintText,
                     filter: function (searchText, key) {
                         return key.toLowerCase().indexOf(searchText.toLowerCase()) === 0;
                     },
@@ -270,12 +275,17 @@ var DataSourceLocalSelector = (function (_React$Component2) {
         }
     }, {
         key: 'onPathChange',
-        value: function onPathChange(newValue) {
+        value: function onPathChange(newValue, exists) {
             var model = this.props.model;
 
             var invalid = this.baseIsInvalid(newValue);
             model.invalid = invalid;
             model.StorageConfiguration.folder = newValue;
+            if (!exists) {
+                model.StorageConfiguration.create = 'true';
+            } else if (model.StorageConfiguration['create'] !== undefined) {
+                delete model.StorageConfiguration['create'];
+            }
             this.setState({ invalid: invalid });
         }
     }, {
@@ -319,7 +329,8 @@ var DataSourceLocalSelector = (function (_React$Component2) {
                             value: model.StorageConfiguration.folder,
                             peerAddress: model.PeerAddress,
                             onChange: this.onPathChange.bind(this),
-                            fieldLabel: m('selector.completer') + ' *'
+                            fieldLabel: m('selector.completer') + (model.StorageConfiguration.create ? ' (' + m('selector.completer.create') + ')' : '') + ' *',
+                            hintText: m('selector.completer.hint')
                         }),
                         !model.PeerAddress && _react2['default'].createElement(_materialUi.TextField, {
                             style: { marginTop: -3 },

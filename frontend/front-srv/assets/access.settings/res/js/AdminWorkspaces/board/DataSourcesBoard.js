@@ -94,8 +94,9 @@ class DataSourcesBoard extends React.Component {
             COMPONENT:DataSourceEditor,
             PROPS:{
                 ref:"editor",
-                pydio:pydio,
+                pydio:this.props.pydio,
                 dataSource:dataSource,
+                storageTypes:this.props.storageTypes,
                 closeEditor:this.closeEditor.bind(this),
                 reloadList:this.load.bind(this),
             }
@@ -170,12 +171,14 @@ class DataSourcesBoard extends React.Component {
     }
 
     createDataSource(){
+        const {pydio, storageTypes} = this.props;
         this.props.openRightPane({
             COMPONENT:DataSourceEditor,
             PROPS:{
                 ref:"editor",
                 create:true,
                 pydio:pydio,
+                storageTypes:storageTypes,
                 closeEditor:this.closeEditor.bind(this),
                 reloadList:this.load.bind(this),
             }
