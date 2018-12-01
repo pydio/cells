@@ -319,6 +319,7 @@ func (s *BooleanSearcher) Next(ctx *search.SearchContext) (*search.DocumentMatch
 			return nil, err
 		}
 	}
+
 	return rv, nil
 }
 
@@ -331,41 +332,51 @@ func (s *BooleanSearcher) Advance(ctx *search.SearchContext, ID index.IndexInter
 		}
 	}
 
-	var err error
-	if s.mustSearcher != nil {
-		if s.currMust != nil {
-			ctx.DocumentMatchPool.Put(s.currMust)
+	// Advance the searcher only if the cursor is trailing the lookup ID
+	if s.currentID == nil || s.currentID.Compare(ID) < 0 {
+		var err error
+		if s.mustSearcher != nil {
+			if s.currMust != nil {
+				ctx.DocumentMatchPool.Put(s.currMust)
+			}
+			s.currMust, err = s.mustSearcher.Advance(ctx, ID)
+			if err != nil {
+				return nil, err
+			}
 		}
-		s.currMust, err = s.mustSearcher.Advance(ctx, ID)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if s.shouldSearcher != nil {
-		if s.currShould != nil {
-			ctx.DocumentMatchPool.Put(s.currShould)
-		}
-		s.currShould, err = s.shouldSearcher.Advance(ctx, ID)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if s.mustNotSearcher != nil {
-		if s.currMustNot != nil {
-			ctx.DocumentMatchPool.Put(s.currMustNot)
-		}
-		s.currMustNot, err = s.mustNotSearcher.Advance(ctx, ID)
-		if err != nil {
-			return nil, err
-		}
-	}
 
-	if s.mustSearcher != nil && s.currMust != nil {
-		s.currentID = s.currMust.IndexInternalID
-	} else if s.mustSearcher == nil && s.currShould != nil {
-		s.currentID = s.currShould.IndexInternalID
-	} else {
-		s.currentID = nil
+		if s.shouldSearcher != nil {
+			if s.currShould != nil {
+				ctx.DocumentMatchPool.Put(s.currShould)
+			}
+			s.currShould, err = s.shouldSearcher.Advance(ctx, ID)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if s.mustNotSearcher != nil {
+			// Additional check for mustNotSearcher whose cursor isn't tracked by
+			// currentID to prevent it from moving when the searcher's already
+			// where it should be.
+			if s.currMustNot == nil || !s.currMustNot.IndexInternalID.Equals(ID) {
+				if s.currMustNot != nil {
+					ctx.DocumentMatchPool.Put(s.currMustNot)
+				}
+				s.currMustNot, err = s.mustNotSearcher.Advance(ctx, ID)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+
+		if s.mustSearcher != nil && s.currMust != nil {
+			s.currentID = s.currMust.IndexInternalID
+		} else if s.mustSearcher == nil && s.currShould != nil {
+			s.currentID = s.currShould.IndexInternalID
+		} else {
+			s.currentID = nil
+		}
 	}
 
 	return s.Next(ctx)

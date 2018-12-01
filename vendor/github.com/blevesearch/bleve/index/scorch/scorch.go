@@ -36,7 +36,7 @@ import (
 
 const Name = "scorch"
 
-const Version uint8 = 1
+const Version uint8 = 2
 
 var ErrClosed = fmt.Errorf("scorch closed")
 
@@ -57,8 +57,8 @@ type Scorch struct {
 	nextSnapshotEpoch    uint64
 	eligibleForRemoval   []uint64        // Index snapshot epochs that are safe to GC.
 	ineligibleForRemoval map[string]bool // Filenames that should not be GC'ed yet.
-	numSnapshotsToKeep   int
 
+	numSnapshotsToKeep int
 	closeCh            chan struct{}
 	introductions      chan *segmentIntroduction
 	persists           chan *persistIntroduction
@@ -71,6 +71,23 @@ type Scorch struct {
 
 	onEvent      func(event Event)
 	onAsyncError func(err error)
+
+	iStats internalStats
+
+	pauseLock sync.RWMutex
+
+	pauseCount uint64
+}
+
+type internalStats struct {
+	persistEpoch          uint64
+	persistSnapshotSize   uint64
+	mergeEpoch            uint64
+	mergeSnapshotSize     uint64
+	newSegBufBytesAdded   uint64
+	newSegBufBytesRemoved uint64
+	analysisBytesAdded    uint64
+	analysisBytesRemoved  uint64
 }
 
 func NewScorch(storeName string,
@@ -84,7 +101,7 @@ func NewScorch(storeName string,
 		closeCh:              make(chan struct{}),
 		ineligibleForRemoval: map[string]bool{},
 	}
-	rv.root = &IndexSnapshot{parent: rv, refs: 1}
+	rv.root = &IndexSnapshot{parent: rv, refs: 1, creator: "NewScorch"}
 	ro, ok := config["read_only"].(bool)
 	if ok {
 		rv.readOnly = ro
@@ -104,9 +121,30 @@ func NewScorch(storeName string,
 	return rv, nil
 }
 
+func (s *Scorch) paused() uint64 {
+	s.pauseLock.Lock()
+	pc := s.pauseCount
+	s.pauseLock.Unlock()
+	return pc
+}
+
+func (s *Scorch) incrPause() {
+	s.pauseLock.Lock()
+	s.pauseCount++
+	s.pauseLock.Unlock()
+}
+
+func (s *Scorch) decrPause() {
+	s.pauseLock.Lock()
+	s.pauseCount--
+	s.pauseLock.Unlock()
+}
+
 func (s *Scorch) fireEvent(kind EventKind, dur time.Duration) {
 	if s.onEvent != nil {
+		s.incrPause()
 		s.onEvent(Event{Kind: kind, Scorch: s, Duration: dur})
+		s.decrPause()
 	}
 }
 
@@ -175,6 +213,8 @@ func (s *Scorch) openBolt() error {
 			return err
 		}
 	}
+
+	atomic.StoreUint64(&s.stats.TotFileSegmentsAtRoot, uint64(len(s.root.segment)))
 
 	s.introductions = make(chan *segmentIntroduction)
 	s.persists = make(chan *persistIntroduction)
@@ -284,12 +324,17 @@ func (s *Scorch) Batch(batch *index.Batch) (err error) {
 	// wait for analysis result
 	analysisResults := make([]*index.AnalysisResult, int(numUpdates))
 	var itemsDeQueued uint64
+	var totalAnalysisSize int
 	for itemsDeQueued < numUpdates {
 		result := <-resultChan
+		resultSize := result.Size()
+		atomic.AddUint64(&s.iStats.analysisBytesAdded, uint64(resultSize))
+		totalAnalysisSize += resultSize
 		analysisResults[itemsDeQueued] = result
 		itemsDeQueued++
 	}
 	close(resultChan)
+	defer atomic.AddUint64(&s.iStats.analysisBytesRemoved, uint64(totalAnalysisSize))
 
 	atomic.AddUint64(&s.stats.TotAnalysisTime, uint64(time.Since(start)))
 
@@ -299,11 +344,13 @@ func (s *Scorch) Batch(batch *index.Batch) (err error) {
 	s.fireEvent(EventKindBatchIntroductionStart, 0)
 
 	var newSegment segment.Segment
+	var bufBytes uint64
 	if len(analysisResults) > 0 {
-		newSegment, err = zap.AnalysisResultsToSegmentBase(analysisResults, DefaultChunkFactor)
+		newSegment, bufBytes, err = zap.AnalysisResultsToSegmentBase(analysisResults, DefaultChunkFactor)
 		if err != nil {
 			return err
 		}
+		atomic.AddUint64(&s.iStats.newSegBufBytesAdded, bufBytes)
 	} else {
 		atomic.AddUint64(&s.stats.TotBatchesEmpty, 1)
 	}
@@ -321,6 +368,7 @@ func (s *Scorch) Batch(batch *index.Batch) (err error) {
 		atomic.AddUint64(&s.stats.TotIndexedPlainTextBytes, numPlainTextBytes)
 	}
 
+	atomic.AddUint64(&s.iStats.newSegBufBytesRemoved, bufBytes)
 	atomic.AddUint64(&s.stats.TotIndexTime, uint64(time.Since(indexStart)))
 
 	return err
@@ -349,6 +397,8 @@ func (s *Scorch) prepareSegment(newSegment segment.Segment, ids []string,
 	root.AddRef()
 	s.rootLock.RUnlock()
 
+	defer func() { _ = root.DecRef() }()
+
 	for _, seg := range root.segment {
 		delta, err := seg.segment.DocNumbers(ids)
 		if err != nil {
@@ -356,8 +406,6 @@ func (s *Scorch) prepareSegment(newSegment segment.Segment, ids []string,
 		}
 		introduction.obsoletes[seg.id] = delta
 	}
-
-	_ = root.DecRef()
 
 	introStartTime := time.Now()
 
@@ -403,7 +451,9 @@ func (s *Scorch) Reader() (index.IndexReader, error) {
 func (s *Scorch) currentSnapshot() *IndexSnapshot {
 	s.rootLock.RLock()
 	rv := s.root
-	rv.AddRef()
+	if rv != nil {
+		rv.AddRef()
+	}
 	s.rootLock.RUnlock()
 	return rv
 }
@@ -411,24 +461,30 @@ func (s *Scorch) currentSnapshot() *IndexSnapshot {
 func (s *Scorch) Stats() json.Marshaler {
 	return &s.stats
 }
-func (s *Scorch) StatsMap() map[string]interface{} {
-	m := s.stats.ToMap()
 
+func (s *Scorch) diskFileStats() (uint64, uint64) {
+	var numFilesOnDisk, numBytesUsedDisk uint64
 	if s.path != "" {
 		finfos, err := ioutil.ReadDir(s.path)
 		if err == nil {
-			var numFilesOnDisk, numBytesUsedDisk uint64
 			for _, finfo := range finfos {
 				if !finfo.IsDir() {
 					numBytesUsedDisk += uint64(finfo.Size())
 					numFilesOnDisk++
 				}
 			}
-
-			m["CurOnDiskBytes"] = numBytesUsedDisk
-			m["CurOnDiskFiles"] = numFilesOnDisk
 		}
 	}
+	return numFilesOnDisk, numBytesUsedDisk
+}
+
+func (s *Scorch) StatsMap() map[string]interface{} {
+	m := s.stats.ToMap()
+
+	numFilesOnDisk, numBytesUsedDisk := s.diskFileStats()
+
+	m["CurOnDiskBytes"] = numBytesUsedDisk
+	m["CurOnDiskFiles"] = numFilesOnDisk
 
 	// TODO: consider one day removing these backwards compatible
 	// names for apps using the old names
@@ -443,8 +499,13 @@ func (s *Scorch) StatsMap() map[string]interface{} {
 	m["num_plain_text_bytes_indexed"] = m["TotIndexedPlainTextBytes"]
 	m["num_items_introduced"] = m["TotIntroducedItems"]
 	m["num_items_persisted"] = m["TotPersistedItems"]
+	m["num_recs_to_persist"] = m["TotItemsToPersist"]
 	m["num_bytes_used_disk"] = m["CurOnDiskBytes"]
 	m["num_files_on_disk"] = m["CurOnDiskFiles"]
+	m["num_root_memorysegments"] = m["TotMemorySegmentsAtRoot"]
+	m["num_root_filesegments"] = m["TotFileSegmentsAtRoot"]
+	m["num_persister_nap_pause_completed"] = m["TotPersisterNapPauseCompleted"]
+	m["num_persister_nap_merger_break"] = m["TotPersisterMergerNapBreak"]
 	m["total_compaction_written_bytes"] = m["TotFileMergeWrittenBytes"]
 
 	return m
@@ -487,12 +548,44 @@ func (s *Scorch) AddEligibleForRemoval(epoch uint64) {
 	s.rootLock.Unlock()
 }
 
-func (s *Scorch) MemoryUsed() uint64 {
+func (s *Scorch) MemoryUsed() (memUsed uint64) {
 	indexSnapshot := s.currentSnapshot()
+	if indexSnapshot == nil {
+		return
+	}
+
 	defer func() {
 		_ = indexSnapshot.Close()
 	}()
-	return uint64(indexSnapshot.Size())
+
+	// Account for current root snapshot overhead
+	memUsed += uint64(indexSnapshot.Size())
+
+	// Account for snapshot that the persister may be working on
+	persistEpoch := atomic.LoadUint64(&s.iStats.persistEpoch)
+	persistSnapshotSize := atomic.LoadUint64(&s.iStats.persistSnapshotSize)
+	if persistEpoch != 0 && indexSnapshot.epoch > persistEpoch {
+		// the snapshot that the persister is working on isn't the same as
+		// the current snapshot
+		memUsed += persistSnapshotSize
+	}
+
+	// Account for snapshot that the merger may be working on
+	mergeEpoch := atomic.LoadUint64(&s.iStats.mergeEpoch)
+	mergeSnapshotSize := atomic.LoadUint64(&s.iStats.mergeSnapshotSize)
+	if mergeEpoch != 0 && indexSnapshot.epoch > mergeEpoch {
+		// the snapshot that the merger is working on isn't the same as
+		// the current snapshot
+		memUsed += mergeSnapshotSize
+	}
+
+	memUsed += (atomic.LoadUint64(&s.iStats.newSegBufBytesAdded) -
+		atomic.LoadUint64(&s.iStats.newSegBufBytesRemoved))
+
+	memUsed += (atomic.LoadUint64(&s.iStats.analysisBytesAdded) -
+		atomic.LoadUint64(&s.iStats.analysisBytesRemoved))
+
+	return memUsed
 }
 
 func (s *Scorch) markIneligibleForRemoval(filename string) {

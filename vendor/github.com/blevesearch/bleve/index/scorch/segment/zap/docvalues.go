@@ -23,67 +23,96 @@ import (
 	"sort"
 
 	"github.com/blevesearch/bleve/index"
+	"github.com/blevesearch/bleve/index/scorch/segment"
 	"github.com/blevesearch/bleve/size"
 	"github.com/golang/snappy"
 )
 
-var reflectStaticSizedocValueIterator int
+var reflectStaticSizedocValueReader int
 
 func init() {
-	var dvi docValueIterator
-	reflectStaticSizedocValueIterator = int(reflect.TypeOf(dvi).Size())
+	var dvi docValueReader
+	reflectStaticSizedocValueReader = int(reflect.TypeOf(dvi).Size())
 }
 
-type docValueIterator struct {
+type docNumTermsVisitor func(docNum uint64, terms []byte) error
+
+type docVisitState struct {
+	dvrs    map[uint16]*docValueReader
+	segment *Segment
+}
+
+type docValueReader struct {
 	field          string
 	curChunkNum    uint64
-	numChunks      uint64
 	chunkOffsets   []uint64
 	dvDataLoc      uint64
 	curChunkHeader []MetaData
 	curChunkData   []byte // compressed data cache
+	uncompressed   []byte // temp buf for snappy decompression
 }
 
-func (di *docValueIterator) size() int {
-	return reflectStaticSizedocValueIterator + size.SizeOfPtr +
+func (di *docValueReader) size() int {
+	return reflectStaticSizedocValueReader + size.SizeOfPtr +
 		len(di.field) +
 		len(di.chunkOffsets)*size.SizeOfUint64 +
 		len(di.curChunkHeader)*reflectStaticSizeMetaData +
 		len(di.curChunkData)
 }
 
-func (di *docValueIterator) fieldName() string {
+func (di *docValueReader) cloneInto(rv *docValueReader) *docValueReader {
+	if rv == nil {
+		rv = &docValueReader{}
+	}
+
+	rv.field = di.field
+	rv.curChunkNum = math.MaxUint64
+	rv.chunkOffsets = di.chunkOffsets // immutable, so it's sharable
+	rv.dvDataLoc = di.dvDataLoc
+	rv.curChunkHeader = rv.curChunkHeader[:0]
+	rv.curChunkData = nil
+	rv.uncompressed = rv.uncompressed[:0]
+
+	return rv
+}
+
+func (di *docValueReader) fieldName() string {
 	return di.field
 }
 
-func (di *docValueIterator) curChunkNumber() uint64 {
+func (di *docValueReader) curChunkNumber() uint64 {
 	return di.curChunkNum
 }
 
-func (s *SegmentBase) loadFieldDocValueIterator(field string,
-	fieldDvLoc uint64) (*docValueIterator, error) {
+func (s *SegmentBase) loadFieldDocValueReader(field string,
+	fieldDvLocStart, fieldDvLocEnd uint64) (*docValueReader, error) {
 	// get the docValue offset for the given fields
-	if fieldDvLoc == fieldNotUninverted {
-		return nil, fmt.Errorf("loadFieldDocValueIterator: "+
+	if fieldDvLocStart == fieldNotUninverted {
+		return nil, fmt.Errorf("loadFieldDocValueReader: "+
 			"no docValues found for field: %s", field)
 	}
 
-	// read the number of chunks, chunk lengths
-	var offset, loc uint64
-	numChunks, read := binary.Uvarint(s.mem[fieldDvLoc : fieldDvLoc+binary.MaxVarintLen64])
-	if read <= 0 {
-		return nil, fmt.Errorf("failed to read the field "+
-			"doc values for field %s", field)
-	}
-	offset += uint64(read)
+	// read the number of chunks, and chunk offsets position
+	var numChunks, chunkOffsetsPosition uint64
 
-	fdvIter := &docValueIterator{
+	if fieldDvLocEnd-fieldDvLocStart > 16 {
+		numChunks = binary.BigEndian.Uint64(s.mem[fieldDvLocEnd-8 : fieldDvLocEnd])
+		// read the length of chunk offsets
+		chunkOffsetsLen := binary.BigEndian.Uint64(s.mem[fieldDvLocEnd-16 : fieldDvLocEnd-8])
+		// acquire position of chunk offsets
+		chunkOffsetsPosition = (fieldDvLocEnd - 16) - chunkOffsetsLen
+	}
+
+	fdvIter := &docValueReader{
 		curChunkNum:  math.MaxUint64,
 		field:        field,
 		chunkOffsets: make([]uint64, int(numChunks)),
 	}
+
+	// read the chunk offsets
+	var offset uint64
 	for i := 0; i < int(numChunks); i++ {
-		loc, read = binary.Uvarint(s.mem[fieldDvLoc+offset : fieldDvLoc+offset+binary.MaxVarintLen64])
+		loc, read := binary.Uvarint(s.mem[chunkOffsetsPosition+offset : chunkOffsetsPosition+offset+binary.MaxVarintLen64])
 		if read <= 0 {
 			return nil, fmt.Errorf("corrupted chunk offset during segment load")
 		}
@@ -91,16 +120,25 @@ func (s *SegmentBase) loadFieldDocValueIterator(field string,
 		offset += uint64(read)
 	}
 
-	fdvIter.dvDataLoc = fieldDvLoc + offset
+	// set the data offset
+	fdvIter.dvDataLoc = fieldDvLocStart
+
 	return fdvIter, nil
 }
 
-func (di *docValueIterator) loadDvChunk(chunkNumber,
-	localDocNum uint64, s *SegmentBase) error {
+func (di *docValueReader) loadDvChunk(chunkNumber uint64, s *SegmentBase) error {
 	// advance to the chunk where the docValues
 	// reside for the given docNum
 	destChunkDataLoc, curChunkEnd := di.dvDataLoc, di.dvDataLoc
 	start, end := readChunkBoundary(int(chunkNumber), di.chunkOffsets)
+	if start >= end {
+		di.curChunkHeader = di.curChunkHeader[:0]
+		di.curChunkData = nil
+		di.curChunkNum = chunkNumber
+		di.uncompressed = di.uncompressed[:0]
+		return nil
+	}
+
 	destChunkDataLoc += start
 	curChunkEnd += end
 
@@ -112,7 +150,11 @@ func (di *docValueIterator) loadDvChunk(chunkNumber,
 	chunkMetaLoc := destChunkDataLoc + uint64(read)
 
 	offset := uint64(0)
-	di.curChunkHeader = make([]MetaData, int(numDocs))
+	if cap(di.curChunkHeader) < int(numDocs) {
+		di.curChunkHeader = make([]MetaData, int(numDocs))
+	} else {
+		di.curChunkHeader = di.curChunkHeader[:int(numDocs)]
+	}
 	for i := 0; i < int(numDocs); i++ {
 		di.curChunkHeader[i].DocNum, read = binary.Uvarint(s.mem[chunkMetaLoc+offset : chunkMetaLoc+offset+binary.MaxVarintLen64])
 		offset += uint64(read)
@@ -124,20 +166,61 @@ func (di *docValueIterator) loadDvChunk(chunkNumber,
 	dataLength := curChunkEnd - compressedDataLoc
 	di.curChunkData = s.mem[compressedDataLoc : compressedDataLoc+dataLength]
 	di.curChunkNum = chunkNumber
+	di.uncompressed = di.uncompressed[:0]
 	return nil
 }
 
-func (di *docValueIterator) visitDocValues(docNum uint64,
+func (di *docValueReader) iterateAllDocValues(s *SegmentBase, visitor docNumTermsVisitor) error {
+	for i := 0; i < len(di.chunkOffsets); i++ {
+		err := di.loadDvChunk(uint64(i), s)
+		if err != nil {
+			return err
+		}
+		if di.curChunkData == nil || len(di.curChunkHeader) == 0 {
+			continue
+		}
+
+		// uncompress the already loaded data
+		uncompressed, err := snappy.Decode(di.uncompressed[:cap(di.uncompressed)], di.curChunkData)
+		if err != nil {
+			return err
+		}
+		di.uncompressed = uncompressed
+
+		start := uint64(0)
+		for _, entry := range di.curChunkHeader {
+			err = visitor(entry.DocNum, uncompressed[start:entry.DocDvOffset])
+			if err != nil {
+				return err
+			}
+
+			start = entry.DocDvOffset
+		}
+	}
+
+	return nil
+}
+
+func (di *docValueReader) visitDocValues(docNum uint64,
 	visitor index.DocumentFieldTermVisitor) error {
 	// binary search the term locations for the docNum
 	start, end := di.getDocValueLocs(docNum)
-	if start == math.MaxUint64 || end == math.MaxUint64 {
+	if start == math.MaxUint64 || end == math.MaxUint64 || start == end {
 		return nil
 	}
-	// uncompress the already loaded data
-	uncompressed, err := snappy.Decode(nil, di.curChunkData)
-	if err != nil {
-		return err
+
+	var uncompressed []byte
+	var err error
+	// use the uncompressed copy if available
+	if len(di.uncompressed) > 0 {
+		uncompressed = di.uncompressed
+	} else {
+		// uncompress the already loaded data
+		uncompressed, err = snappy.Decode(di.uncompressed[:cap(di.uncompressed)], di.curChunkData)
+		if err != nil {
+			return err
+		}
+		di.uncompressed = uncompressed
 	}
 
 	// pick the terms for the given docNum
@@ -155,7 +238,7 @@ func (di *docValueIterator) visitDocValues(docNum uint64,
 	return nil
 }
 
-func (di *docValueIterator) getDocValueLocs(docNum uint64) (uint64, uint64) {
+func (di *docValueReader) getDocValueLocs(docNum uint64) (uint64, uint64) {
 	i := sort.Search(len(di.curChunkHeader), func(i int) bool {
 		return di.curChunkHeader[i].DocNum >= docNum
 	})
@@ -167,43 +250,60 @@ func (di *docValueIterator) getDocValueLocs(docNum uint64) (uint64, uint64) {
 
 // VisitDocumentFieldTerms is an implementation of the
 // DocumentFieldTermVisitable interface
-func (s *SegmentBase) VisitDocumentFieldTerms(localDocNum uint64, fields []string,
-	visitor index.DocumentFieldTermVisitor) error {
-	fieldIDPlus1 := uint16(0)
-	ok := true
+func (s *Segment) VisitDocumentFieldTerms(localDocNum uint64, fields []string,
+	visitor index.DocumentFieldTermVisitor, dvsIn segment.DocVisitState) (
+	segment.DocVisitState, error) {
+	dvs, ok := dvsIn.(*docVisitState)
+	if !ok || dvs == nil {
+		dvs = &docVisitState{}
+	} else {
+		if dvs.segment != s {
+			dvs.segment = s
+			dvs.dvrs = nil
+		}
+	}
+
+	var fieldIDPlus1 uint16
+	if dvs.dvrs == nil {
+		dvs.dvrs = make(map[uint16]*docValueReader, len(fields))
+		for _, field := range fields {
+			if fieldIDPlus1, ok = s.fieldsMap[field]; !ok {
+				continue
+			}
+			fieldID := fieldIDPlus1 - 1
+			if dvIter, exists := s.fieldDvReaders[fieldID]; exists &&
+				dvIter != nil {
+				dvs.dvrs[fieldID] = dvIter.cloneInto(dvs.dvrs[fieldID])
+			}
+		}
+	}
+
+	// find the chunkNumber where the docValues are stored
+	docInChunk := localDocNum / uint64(s.chunkFactor)
+	var dvr *docValueReader
 	for _, field := range fields {
 		if fieldIDPlus1, ok = s.fieldsMap[field]; !ok {
 			continue
 		}
-		// find the chunkNumber where the docValues are stored
-		docInChunk := localDocNum / uint64(s.chunkFactor)
-
-		if dvIter, exists := s.fieldDvIterMap[fieldIDPlus1-1]; exists &&
-			dvIter != nil {
+		fieldID := fieldIDPlus1 - 1
+		if dvr, ok = dvs.dvrs[fieldID]; ok && dvr != nil {
 			// check if the chunk is already loaded
-			if docInChunk != dvIter.curChunkNumber() {
-				err := dvIter.loadDvChunk(docInChunk, localDocNum, s)
+			if docInChunk != dvr.curChunkNumber() {
+				err := dvr.loadDvChunk(docInChunk, &s.SegmentBase)
 				if err != nil {
-					continue
+					return dvs, err
 				}
 			}
 
-			_ = dvIter.visitDocValues(localDocNum, visitor)
+			_ = dvr.visitDocValues(localDocNum, visitor)
 		}
 	}
-	return nil
+	return dvs, nil
 }
 
 // VisitableDocValueFields returns the list of fields with
 // persisted doc value terms ready to be visitable using the
 // VisitDocumentFieldTerms method.
 func (s *Segment) VisitableDocValueFields() ([]string, error) {
-	var rv []string
-	for fieldID, field := range s.fieldsInv {
-		if dvIter, ok := s.fieldDvIterMap[uint16(fieldID)]; ok &&
-			dvIter != nil {
-			rv = append(rv, field)
-		}
-	}
-	return rv, nil
+	return s.fieldDvNames, nil
 }
