@@ -38,7 +38,8 @@ type TermSearcher struct {
 }
 
 func NewTermSearcher(indexReader index.IndexReader, term string, field string, boost float64, options search.SearcherOptions) (*TermSearcher, error) {
-	reader, err := indexReader.TermFieldReader([]byte(term), field, true, true, options.IncludeTermVectors)
+	termBytes := []byte(term)
+	reader, err := indexReader.TermFieldReader(termBytes, field, true, true, options.IncludeTermVectors)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +48,7 @@ func NewTermSearcher(indexReader index.IndexReader, term string, field string, b
 		_ = reader.Close()
 		return nil, err
 	}
-	scorer := scorer.NewTermQueryScorer([]byte(term), field, boost, count, reader.Count(), options)
+	scorer := scorer.NewTermQueryScorer(termBytes, field, boost, count, reader.Count(), options)
 	return &TermSearcher{
 		indexReader: indexReader,
 		reader:      reader,
@@ -136,4 +137,14 @@ func (s *TermSearcher) Min() int {
 
 func (s *TermSearcher) DocumentMatchPoolSize() int {
 	return 1
+}
+
+func (s *TermSearcher) Optimize(kind string, octx index.OptimizableContext) (
+	index.OptimizableContext, error) {
+	o, ok := s.reader.(index.Optimizable)
+	if ok {
+		return o.Optimize(kind, octx)
+	}
+
+	return octx, nil
 }

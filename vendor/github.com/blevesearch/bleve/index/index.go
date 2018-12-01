@@ -80,6 +80,8 @@ type IndexReader interface {
 	Document(id string) (*document.Document, error)
 	DocumentVisitFieldTerms(id IndexInternalID, fields []string, visitor DocumentFieldTermVisitor) error
 
+	DocValueReader(fields []string) (DocValueReader, error)
+
 	Fields() ([]string, error)
 
 	GetInternal(key []byte) ([]byte, error)
@@ -94,6 +96,29 @@ type IndexReader interface {
 	DumpFields() chan interface{}
 
 	Close() error
+}
+
+// The Regexp interface defines the subset of the regexp.Regexp API
+// methods that are used by bleve indexes, allowing callers to pass in
+// alternate implementations.
+type Regexp interface {
+	FindStringIndex(s string) (loc []int)
+
+	LiteralPrefix() (prefix string, complete bool)
+
+	String() string
+}
+
+type IndexReaderRegexp interface {
+	FieldDictRegexp(field string, regex string) (FieldDict, error)
+}
+
+type IndexReaderFuzzy interface {
+	FieldDictFuzzy(field string, term string, fuzziness int, prefix string) (FieldDict, error)
+}
+
+type IndexReaderOnly interface {
+	FieldDictOnly(field string, onlyTerms [][]byte, includeCount bool) (FieldDict, error)
 }
 
 // FieldTerms contains the terms used by a document, keyed by field
@@ -166,10 +191,12 @@ func (tfd *TermFieldDoc) Size() int {
 func (tfd *TermFieldDoc) Reset() *TermFieldDoc {
 	// remember the []byte used for the ID
 	id := tfd.ID
+	vectors := tfd.Vectors
 	// idiom to copy over from empty TermFieldDoc (0 allocations)
 	*tfd = TermFieldDoc{}
 	// reuse the []byte already allocated (and reset len to 0)
 	tfd.ID = id[:0]
+	tfd.Vectors = vectors[:0]
 	return tfd
 }
 
@@ -271,4 +298,44 @@ func (b *Batch) String() string {
 func (b *Batch) Reset() {
 	b.IndexOps = make(map[string]*document.Document)
 	b.InternalOps = make(map[string][]byte)
+}
+
+func (b *Batch) Merge(o *Batch) {
+	for k, v := range o.IndexOps {
+		b.IndexOps[k] = v
+	}
+	for k, v := range o.InternalOps {
+		b.InternalOps[k] = v
+	}
+}
+
+func (b *Batch) TotalDocSize() int {
+	var s int
+	for k, v := range b.IndexOps {
+		if v != nil {
+			s += v.Size() + size.SizeOfString
+		}
+		s += len(k)
+	}
+	return s
+}
+
+// Optimizable represents an optional interface that implementable by
+// optimizable resources (e.g., TermFieldReaders, Searchers).  These
+// optimizable resources are provided the same OptimizableContext
+// instance, so that they can coordinate via dynamic interface
+// casting.
+type Optimizable interface {
+	Optimize(kind string, octx OptimizableContext) (OptimizableContext, error)
+}
+
+type OptimizableContext interface {
+	// Once all the optimzable resources have been provided the same
+	// OptimizableContext instance, the optimization preparations are
+	// finished or completed via the Finish() method.
+	Finish() error
+}
+
+type DocValueReader interface {
+	VisitDocValues(id IndexInternalID, visitor DocumentFieldTermVisitor) error
 }

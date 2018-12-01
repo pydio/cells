@@ -22,7 +22,6 @@ import (
 	"sync"
 
 	"github.com/RoaringBitmap/roaring"
-	"github.com/Smerity/govarint"
 	"github.com/blevesearch/bleve/analysis"
 	"github.com/blevesearch/bleve/document"
 	"github.com/blevesearch/bleve/index"
@@ -30,10 +29,14 @@ import (
 	"github.com/golang/snappy"
 )
 
+var NewSegmentBufferNumResultsBump int = 100
+var NewSegmentBufferNumResultsFactor float64 = 1.0
+var NewSegmentBufferAvgBytesPerDocFactor float64 = 1.0
+
 // AnalysisResultsToSegmentBase produces an in-memory zap-encoded
 // SegmentBase from analysis results
 func AnalysisResultsToSegmentBase(results []*index.AnalysisResult,
-	chunkFactor uint32) (*SegmentBase, error) {
+	chunkFactor uint32) (*SegmentBase, uint64, error) {
 	s := interimPool.Get().(*interim)
 
 	var br bytes.Buffer
@@ -42,8 +45,11 @@ func AnalysisResultsToSegmentBase(results []*index.AnalysisResult,
 		// size, but note that the interim instance comes from a
 		// global interimPool, so multiple scorch instances indexing
 		// different docs can lead to low quality estimates
-		avgBytesPerDoc := s.lastOutSize / s.lastNumDocs
-		br.Grow(avgBytesPerDoc * (len(results) + 1))
+		estimateAvgBytesPerDoc := int(float64(s.lastOutSize/s.lastNumDocs) *
+			NewSegmentBufferNumResultsFactor)
+		estimateNumResults := int(float64(len(results)+NewSegmentBufferNumResultsBump) *
+			NewSegmentBufferAvgBytesPerDocFactor)
+		br.Grow(estimateAvgBytesPerDoc * estimateNumResults)
 	}
 
 	s.results = results
@@ -53,7 +59,7 @@ func AnalysisResultsToSegmentBase(results []*index.AnalysisResult,
 	storedIndexOffset, fieldsIndexOffset, fdvIndexOffset, dictOffsets,
 		err := s.convert()
 	if err != nil {
-		return nil, err
+		return nil, uint64(0), err
 	}
 
 	sb, err := InitSegmentBase(br.Bytes(), s.w.Sum32(), chunkFactor,
@@ -66,7 +72,7 @@ func AnalysisResultsToSegmentBase(results []*index.AnalysisResult,
 		interimPool.Put(s)
 	}
 
-	return sb, err
+	return sb, uint64(len(br.Bytes())), err
 }
 
 var interimPool = sync.Pool{New: func() interface{} { return &interim{} }}
@@ -102,9 +108,6 @@ type interim struct {
 
 	// postings id -> bitmap of docNums
 	Postings []*roaring.Bitmap
-
-	// postings id -> bitmap of docNums that have locations
-	PostingsLocs []*roaring.Bitmap
 
 	// postings id -> freq/norm's, one for each docNum in postings
 	FreqNorms        [][]interimFreqNorm
@@ -151,10 +154,6 @@ func (s *interim) reset() (err error) {
 		idn.Clear()
 	}
 	s.Postings = s.Postings[:0]
-	for _, idn := range s.PostingsLocs {
-		idn.Clear()
-	}
-	s.PostingsLocs = s.PostingsLocs[:0]
 	s.FreqNorms = s.FreqNorms[:0]
 	for i := range s.freqNormsBacking {
 		s.freqNormsBacking[i] = interimFreqNorm{}
@@ -196,8 +195,9 @@ type interimStoredField struct {
 }
 
 type interimFreqNorm struct {
-	freq uint64
-	norm float32
+	freq    uint64
+	norm    float32
+	numLocs int
 }
 
 type interimLoc struct {
@@ -356,19 +356,6 @@ func (s *interim) prepareDicts() {
 		s.Postings = postings
 	}
 
-	if cap(s.PostingsLocs) >= numPostingsLists {
-		s.PostingsLocs = s.PostingsLocs[:numPostingsLists]
-	} else {
-		postingsLocs := make([]*roaring.Bitmap, numPostingsLists)
-		copy(postingsLocs, s.PostingsLocs[:cap(s.PostingsLocs)])
-		for i := 0; i < numPostingsLists; i++ {
-			if postingsLocs[i] == nil {
-				postingsLocs[i] = roaring.New()
-			}
-		}
-		s.PostingsLocs = postingsLocs
-	}
-
 	if cap(s.FreqNorms) >= numPostingsLists {
 		s.FreqNorms = s.FreqNorms[:numPostingsLists]
 	} else {
@@ -464,14 +451,12 @@ func (s *interim) processDocument(docNum uint64,
 
 			s.FreqNorms[pid] = append(s.FreqNorms[pid],
 				interimFreqNorm{
-					freq: uint64(tf.Frequency()),
-					norm: norm,
+					freq:    uint64(tf.Frequency()),
+					norm:    norm,
+					numLocs: len(tf.Locations),
 				})
 
 			if len(tf.Locations) > 0 {
-				locBS := s.PostingsLocs[pid]
-				locBS.Add(uint32(docNum))
-
 				locs := s.Locs[pid]
 
 				for _, loc := range tf.Locations {
@@ -500,7 +485,11 @@ func (s *interim) processDocument(docNum uint64,
 
 func (s *interim) writeStoredFields() (
 	storedIndexOffset uint64, err error) {
-	metaEncoder := govarint.NewU64Base128Encoder(&s.metaBuf)
+	varBuf := make([]byte, binary.MaxVarintLen64)
+	metaEncode := func(val uint64) (int, error) {
+		wb := binary.PutUvarint(varBuf, val)
+		return s.metaBuf.Write(varBuf[:wb])
+	}
 
 	data, compressed := s.tmp0[:0], s.tmp1[:0]
 	defer func() { s.tmp0, s.tmp1 = data, compressed }()
@@ -538,35 +527,46 @@ func (s *interim) writeStoredFields() (
 
 		s.metaBuf.Reset()
 		data = data[:0]
-		compressed = compressed[:0]
 
-		for fieldID := range s.FieldsInv {
+		// _id field special case optimizes ExternalID() lookups
+		idFieldVal := docStoredFields[uint16(0)].vals[0]
+		_, err = metaEncode(uint64(len(idFieldVal)))
+		if err != nil {
+			return 0, err
+		}
+
+		// handle non-"_id" fields
+		for fieldID := 1; fieldID < len(s.FieldsInv); fieldID++ {
 			isf, exists := docStoredFields[uint16(fieldID)]
 			if exists {
 				curr, data, err = persistStoredFieldValues(
 					fieldID, isf.vals, isf.typs, isf.arrayposs,
-					curr, metaEncoder, data)
+					curr, metaEncode, data)
 				if err != nil {
 					return 0, err
 				}
 			}
 		}
 
-		metaEncoder.Close()
 		metaBytes := s.metaBuf.Bytes()
 
-		compressed = snappy.Encode(compressed, data)
+		compressed = snappy.Encode(compressed[:cap(compressed)], data)
 
 		docStoredOffsets[docNum] = uint64(s.w.Count())
 
 		_, err := writeUvarints(s.w,
 			uint64(len(metaBytes)),
-			uint64(len(compressed)))
+			uint64(len(idFieldVal)+len(compressed)))
 		if err != nil {
 			return 0, err
 		}
 
 		_, err = s.w.Write(metaBytes)
+		if err != nil {
+			return 0, err
+		}
+
+		_, err = s.w.Write(idFieldVal)
 		if err != nil {
 			return 0, err
 		}
@@ -592,13 +592,14 @@ func (s *interim) writeStoredFields() (
 func (s *interim) writeDicts() (fdvIndexOffset uint64, dictOffsets []uint64, err error) {
 	dictOffsets = make([]uint64, len(s.FieldsInv))
 
-	fdvOffsets := make([]uint64, len(s.FieldsInv))
+	fdvOffsetsStart := make([]uint64, len(s.FieldsInv))
+	fdvOffsetsEnd := make([]uint64, len(s.FieldsInv))
 
 	buf := s.grabBuf(binary.MaxVarintLen64)
 
 	tfEncoder := newChunkedIntCoder(uint64(s.chunkFactor), uint64(len(s.results)-1))
 	locEncoder := newChunkedIntCoder(uint64(s.chunkFactor), uint64(len(s.results)-1))
-	fdvEncoder := newChunkedContentCoder(uint64(s.chunkFactor), uint64(len(s.results)-1))
+	fdvEncoder := newChunkedContentCoder(uint64(s.chunkFactor), uint64(len(s.results)-1), s.w, false)
 
 	var docTermMap [][]byte
 
@@ -625,7 +626,6 @@ func (s *interim) writeDicts() (fdvIndexOffset uint64, dictOffsets []uint64, err
 			pid := dict[term] - 1
 
 			postingsBS := s.Postings[pid]
-			postingsLocsBS := s.PostingsLocs[pid]
 
 			freqNorms := s.FreqNorms[pid]
 			freqNormOffset := 0
@@ -639,18 +639,29 @@ func (s *interim) writeDicts() (fdvIndexOffset uint64, dictOffsets []uint64, err
 
 				freqNorm := freqNorms[freqNormOffset]
 
-				err = tfEncoder.Add(docNum, freqNorm.freq,
+				err = tfEncoder.Add(docNum,
+					encodeFreqHasLocs(freqNorm.freq, freqNorm.numLocs > 0),
 					uint64(math.Float32bits(freqNorm.norm)))
 				if err != nil {
 					return 0, nil, err
 				}
 
-				for i := uint64(0); i < freqNorm.freq; i++ {
-					if len(locs) > 0 {
-						loc := locs[locOffset]
+				if freqNorm.numLocs > 0 {
+					numBytesLocs := 0
+					for _, loc := range locs[locOffset : locOffset+freqNorm.numLocs] {
+						numBytesLocs += totalUvarintBytes(
+							uint64(loc.fieldID), loc.pos, loc.start, loc.end,
+							uint64(len(loc.arrayposs)), loc.arrayposs)
+					}
 
-						err = locEncoder.Add(docNum, uint64(loc.fieldID),
-							loc.pos, loc.start, loc.end,
+					err = locEncoder.Add(docNum, uint64(numBytesLocs))
+					if err != nil {
+						return 0, nil, err
+					}
+
+					for _, loc := range locs[locOffset : locOffset+freqNorm.numLocs] {
+						err = locEncoder.Add(docNum,
+							uint64(loc.fieldID), loc.pos, loc.start, loc.end,
 							uint64(len(loc.arrayposs)))
 						if err != nil {
 							return 0, nil, err
@@ -662,7 +673,7 @@ func (s *interim) writeDicts() (fdvIndexOffset uint64, dictOffsets []uint64, err
 						}
 					}
 
-					locOffset++
+					locOffset += freqNorm.numLocs
 				}
 
 				freqNormOffset++
@@ -675,9 +686,8 @@ func (s *interim) writeDicts() (fdvIndexOffset uint64, dictOffsets []uint64, err
 			tfEncoder.Close()
 			locEncoder.Close()
 
-			postingsOffset, err := writePostings(
-				postingsBS, postingsLocsBS, tfEncoder, locEncoder,
-				nil, s.w, buf)
+			postingsOffset, err :=
+				writePostings(postingsBS, tfEncoder, locEncoder, nil, s.w, buf)
 			if err != nil {
 				return 0, nil, err
 			}
@@ -739,24 +749,32 @@ func (s *interim) writeDicts() (fdvIndexOffset uint64, dictOffsets []uint64, err
 				return 0, nil, err
 			}
 
-			fdvOffsets[fieldID] = uint64(s.w.Count())
+			fdvOffsetsStart[fieldID] = uint64(s.w.Count())
 
-			_, err = fdvEncoder.Write(s.w)
+			_, err = fdvEncoder.Write()
 			if err != nil {
 				return 0, nil, err
 			}
 
+			fdvOffsetsEnd[fieldID] = uint64(s.w.Count())
+
 			fdvEncoder.Reset()
 		} else {
-			fdvOffsets[fieldID] = fieldNotUninverted
+			fdvOffsetsStart[fieldID] = fieldNotUninverted
+			fdvOffsetsEnd[fieldID] = fieldNotUninverted
 		}
 	}
 
 	fdvIndexOffset = uint64(s.w.Count())
 
-	for _, fdvOffset := range fdvOffsets {
-		n := binary.PutUvarint(buf, fdvOffset)
+	for i := 0; i < len(fdvOffsetsStart); i++ {
+		n := binary.PutUvarint(buf, fdvOffsetsStart[i])
 		_, err := s.w.Write(buf[:n])
+		if err != nil {
+			return 0, nil, err
+		}
+		n = binary.PutUvarint(buf, fdvOffsetsEnd[i])
+		_, err = s.w.Write(buf[:n])
 		if err != nil {
 			return 0, nil, err
 		}
@@ -782,4 +800,27 @@ func encodeFieldType(f document.Field) byte {
 		fieldType = 'c'
 	}
 	return fieldType
+}
+
+// returns the total # of bytes needed to encode the given uint64's
+// into binary.PutUVarint() encoding
+func totalUvarintBytes(a, b, c, d, e uint64, more []uint64) (n int) {
+	n = numUvarintBytes(a)
+	n += numUvarintBytes(b)
+	n += numUvarintBytes(c)
+	n += numUvarintBytes(d)
+	n += numUvarintBytes(e)
+	for _, v := range more {
+		n += numUvarintBytes(v)
+	}
+	return n
+}
+
+// returns # of bytes needed to encode x in binary.PutUvarint() encoding
+func numUvarintBytes(x uint64) (n int) {
+	for x >= 0x80 {
+		x >>= 7
+		n++
+	}
+	return n + 1
 }
