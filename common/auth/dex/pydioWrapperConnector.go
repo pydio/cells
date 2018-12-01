@@ -87,11 +87,11 @@ func (p *pydioWrapperConnector) Login(ctx context.Context, s connector.Scopes, u
 		Password:      password,
 		Scopes:        s,
 	}
-	if out, err := ApplyWrapperConnectorMiddlewares(ctx, in, p.performLoginOnConnectors); err != nil {
+	out, err := ApplyWrapperConnectorMiddlewares(ctx, in, p.performLoginOnConnectors)
+	if err != nil {
 		return connector.Identity{}, !out.LoginError, err
-	} else {
-		return out.Identity, true, nil
 	}
+	return out.Identity, true, nil
 }
 
 // Refresh reloads user info and checks pydio internal services for possible revokations.

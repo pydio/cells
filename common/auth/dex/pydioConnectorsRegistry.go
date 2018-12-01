@@ -25,7 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// PydioConnectorsConfig provides an easy way to return a config struct
+// PydioConnectorConfig provides an easy way to return a config struct
 // depending on the connector type.
 type PydioConnectorConfig interface {
 	Open(logger logrus.FieldLogger) (connector.Connector, error)
