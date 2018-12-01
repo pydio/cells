@@ -1,8 +1,10 @@
 package blevetest
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -17,6 +19,7 @@ import (
 
 // TestServer is a generic index server
 type TestServer struct {
+	path  string
 	name  string
 	Index bleve.Index
 	idgen xid.ID
@@ -47,7 +50,7 @@ func NewDefaultServer(bleveIndexPath, sname string) (*TestServer, error) {
 	index, err := bleve.Open(bleveIndexPath)
 	if err == nil {
 		// Already existing, no needs to create
-		return &TestServer{Index: index, name: sname}, nil
+		return &TestServer{Index: index, name: sname, path: bleveIndexPath}, nil
 	}
 
 	// Creates the new index and initialises the server
@@ -61,7 +64,8 @@ func NewDefaultServer(bleveIndexPath, sname string) (*TestServer, error) {
 	} else {
 		index, err = bleve.New(bleveIndexPath, mapping)
 	}
-	return &TestServer{Index: index, name: sname}, nil
+
+	return &TestServer{Index: index, name: sname, path: bleveIndexPath}, nil
 }
 
 // NewDefaultServerWithMapping creates and configures a new Default Bleve instance if none has already been configured.
@@ -70,7 +74,7 @@ func NewDefaultServerWithMapping(bleveIndexPath, sname string) (*TestServer, err
 	index, err := bleve.Open(bleveIndexPath)
 	if err == nil {
 		// Already existing, no needs to create
-		return &TestServer{Index: index, name: sname}, nil
+		return &TestServer{Index: index, name: sname, path: bleveIndexPath}, nil
 	}
 
 	// a generic reusable mapping for english text
@@ -112,7 +116,7 @@ func NewDefaultServerWithMapping(bleveIndexPath, sname string) (*TestServer, err
 		index, err = bleve.New(bleveIndexPath, mapping)
 	}
 
-	return &TestServer{Index: index, name: sname}, err
+	return &TestServer{Index: index, name: sname, path: bleveIndexPath}, err
 }
 
 // NewServerOnBolt creates and configures a bleve instance that use BoltDB if none has already been configured.
@@ -121,7 +125,7 @@ func NewServerOnBolt(bleveIndexPath, sname string) (*TestServer, error) {
 	index, err := bleve.Open(bleveIndexPath)
 	if err == nil {
 		// Already existing, no needs to create
-		return &TestServer{Index: index, name: sname}, nil
+		return &TestServer{Index: index, name: sname, path: bleveIndexPath}, nil
 	}
 
 	// Creates the new index and initialises the server
@@ -136,7 +140,7 @@ func NewServerOnBolt(bleveIndexPath, sname string) (*TestServer, error) {
 	// }
 	// index, err := bleve.NewUsing(bleveIndexPath, mapping, upsidedown.Name, boltdb.Name, config)
 
-	return &TestServer{Index: index, name: sname}, nil
+	return &TestServer{Index: index, name: sname, path: bleveIndexPath}, nil
 }
 
 // NewServerOnScorch creates and configures a bleve instance that use BoltDB if none has already been configured.
@@ -145,7 +149,7 @@ func NewServerOnScorch(bleveIndexPath, sname string) (*TestServer, error) {
 	index, err := bleve.Open(bleveIndexPath)
 	if err == nil {
 		// Already existing, no needs to create
-		return &TestServer{Index: index, name: sname}, nil
+		return &TestServer{Index: index, name: sname, path: bleveIndexPath}, nil
 	}
 
 	// Creates the new index and initialises the server
@@ -155,7 +159,7 @@ func NewServerOnScorch(bleveIndexPath, sname string) (*TestServer, error) {
 	mapping.AddDocumentMapping("dft-on-scorch", defaultMapping)
 	index, err = bleve.NewUsing(bleveIndexPath, mapping, scorch.Name, boltdb.Name, nil)
 
-	return &TestServer{Index: index, name: sname}, nil
+	return &TestServer{Index: index, name: sname, path: bleveIndexPath}, nil
 }
 
 // TestServer specific methods.
@@ -163,6 +167,11 @@ func NewServerOnScorch(bleveIndexPath, sname string) (*TestServer, error) {
 // GetName simply return a name for this server.
 func (s *TestServer) GetName() string {
 	return s.name
+}
+
+// GetPath simply return the path on the FS to the corresponding folder.
+func (s *TestServer) GetPath() string {
+	return s.path
 }
 
 // PutLog stores a new log msg. It expects a map[string]string.
@@ -179,7 +188,7 @@ func (s *TestServer) PutLog(line map[string]string) error {
 	return nil
 }
 
-func (s *TestServer) BatchIndex(lines []string, batchSize int) error {
+func (s *TestServer) BatchIndex(lines []string, batchSize int) (string, error) {
 
 	fmt.Printf("Indexing in %s\n", s.GetName())
 
@@ -196,7 +205,7 @@ func (s *TestServer) BatchIndex(lines []string, batchSize int) error {
 		currLogMsg, err := toIndexableMsg(Json2map(line))
 		if err != nil {
 			fmt.Printf("[ERROR] failed to prepare line[%d] - %s : %s \n", i, line, err.Error())
-			return err
+			return "", err
 		}
 
 		batch.Index(xid.New().String(), currLogMsg)
@@ -205,7 +214,7 @@ func (s *TestServer) BatchIndex(lines []string, batchSize int) error {
 		if batchCount >= batchSize {
 			err = s.Index.Batch(batch)
 			if err != nil {
-				return err
+				return "", err
 			}
 			batch = s.Index.NewBatch()
 			batchCount = 0
@@ -223,15 +232,20 @@ func (s *TestServer) BatchIndex(lines []string, batchSize int) error {
 	if batchCount > 0 {
 		err := s.Index.Batch(batch)
 		if err != nil {
-			return err
+			return "", err
 		}
 	}
 	indexDuration := time.Since(startTime)
 	indexDurationSeconds := float64(indexDuration) / float64(time.Second)
 	timePerDoc := float64(indexDuration) / float64(count)
-	fmt.Printf("Indexed %d documents, in %.2fs (average %.2fms/doc)\n", count, indexDurationSeconds, timePerDoc/float64(time.Millisecond))
+	indexSize, err := getIndexSize(s.GetPath())
+	if err != nil {
+		fmt.Printf("Could not retrieve index size on disk at %s, cause: %s\n", s.GetPath(), err.Error())
+	}
 
-	return nil
+	summary := fmt.Sprintf(" %s:\t indexed %d documents in %.2fs (average %.2fms/doc), size: %s", s.GetName(), count, indexDurationSeconds, timePerDoc/float64(time.Millisecond), indexSize)
+	fmt.Println(summary)
+	return summary, nil
 }
 
 func toIndexableMsg(line map[string]string) (*indexableLog, error) {
@@ -308,4 +322,35 @@ func Json2map(line string) map[string]string {
 	}
 
 	return data
+}
+
+func getIndexSize(path string) (string, error) {
+	cmd := exec.Command("/bin/du", "-sh", path)
+
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return "-", err
+	}
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return "-", err
+	}
+
+	err = cmd.Start()
+	if err != nil {
+		return "-", err
+	}
+
+	// TODO enhance this
+	errorReader := bufio.NewReader(stderr)      // Read the stderr type io.ReadCloser
+	errorStr, _ := errorReader.ReadString('\n') // Until next line and convert to String type
+	outputReader := bufio.NewReader(stdout)
+	outputStr, _ := outputReader.ReadString('\t')
+
+	if len(errorStr) > 0 {
+		return outputStr, fmt.Errorf(errorStr)
+	} else {
+		return outputStr, nil
+	}
 }
