@@ -29,8 +29,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/idm"
 	service "github.com/pydio/cells/common/service/proto"
 )
 
@@ -67,7 +67,7 @@ Use the flags to search ACLs by a given facet : node_id, role_id, workspace_id o
 		})
 
 		if err != nil {
-			log.Println(err)
+			log.Fatal(err)
 		}
 
 		defer stream.Close()
