@@ -1,6 +1,7 @@
 .DS_Store
 *-packr.go
 /main
+/cmd/ctl/ctl
 /cells
 /cells-ctl
 /config/file/*
