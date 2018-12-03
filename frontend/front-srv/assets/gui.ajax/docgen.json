@@ -5231,6 +5231,10 @@
               {
                 "name": "newValue",
                 "type": null
+              },
+              {
+                "name": "exists",
+                "type": null
               }
             ],
             "returns": null

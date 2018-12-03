@@ -142,6 +142,10 @@ class PydioWebSocket {
                 if (target === null) {
                     return;
                 }
+                if(target.getPath() === "" || target.getPath() === "/"){
+                    // This is probably a new cell folder
+                    break;
+                }
                 dm.addNode(target, false);
                 break;
             case "UPDATE_PATH":

@@ -313,7 +313,7 @@ export default class AjxpNode extends Observable{
      * @returns String
      */
     getLabel(){
-        return this._label;
+        return this._label || "";
     }
     /**
      * @param l string
@@ -331,7 +331,7 @@ export default class AjxpNode extends Observable{
      * @returns Boolean
      */
     isRecycle(){
-        return (this.getAjxpMime() == 'ajxp_recycle');
+        return (this.getAjxpMime() === 'ajxp_recycle');
     }
     /**
      * @returns String

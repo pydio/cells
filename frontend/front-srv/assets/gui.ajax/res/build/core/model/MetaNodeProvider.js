@@ -254,8 +254,11 @@ var MetaNodeProvider = (function () {
     MetaNodeProvider.parseTreeNode = function parseTreeNode(obj, workspaceSlug) {
         var defaultSlug = arguments.length <= 2 || arguments[2] === undefined ? '' : arguments[2];
 
-        if (!obj || !obj.MetaStore) {
+        if (!obj) {
             return null;
+        }
+        if (!obj.MetaStore) {
+            obj.MetaStore = {};
         }
         var pydio = _pydio2['default'].getInstance();
 

@@ -368,7 +368,7 @@ var AjxpNode = (function (_Observable) {
      */
 
     AjxpNode.prototype.getLabel = function getLabel() {
-        return this._label;
+        return this._label || "";
     };
 
     /**
@@ -392,7 +392,7 @@ var AjxpNode = (function (_Observable) {
      */
 
     AjxpNode.prototype.isRecycle = function isRecycle() {
-        return this.getAjxpMime() == 'ajxp_recycle';
+        return this.getAjxpMime() === 'ajxp_recycle';
     };
 
     /**

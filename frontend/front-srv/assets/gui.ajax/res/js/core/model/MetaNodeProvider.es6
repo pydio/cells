@@ -210,8 +210,11 @@ export default class MetaNodeProvider{
      */
     static parseTreeNode(obj, workspaceSlug, defaultSlug = '') {
 
-        if (!obj || !obj.MetaStore){
+        if (!obj){
             return null;
+        }
+        if(!obj.MetaStore){
+            obj.MetaStore = {};
         }
         const pydio = Pydio.getInstance();
 
