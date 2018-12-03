@@ -143,6 +143,9 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 			for rKey, rNode := range nodes {
 				node := rNode.Clone()
 				node.Path = rKey
+				if strings.HasPrefix(node.GetUuid(), "DATASOURCE:") {
+					node.SetMeta("name", strings.TrimPrefix(node.GetUuid(), "DATASOURCE:"))
+				}
 				node.SetMeta("ws_root", "true")
 				streamer.Send(&tree.ListNodesResponse{Node: node})
 			}
