@@ -30,13 +30,15 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mholt/caddy"
+	"github.com/mholt/caddy/caddyhttp/httpserver"
 	"github.com/micro/go-micro/registry"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	proto "github.com/pydio/cells/common/service/proto"
-	"go.uber.org/zap"
 )
 
 var (
@@ -51,6 +53,7 @@ var (
 func init() {
 	caddy.AppName = common.PackageLabel
 	caddy.AppVersion = common.Version().String()
+	httpserver.GracefulTimeout = 30 * time.Second
 
 	go watchRestart()
 }
