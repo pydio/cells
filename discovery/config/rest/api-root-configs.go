@@ -42,7 +42,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 	ctx := req.Request.Context()
 	var configuration rest.Configuration
 	if err := req.ReadEntity(&configuration); err != nil {
-		resp.WriteError(500, err)
+		service.RestError500(req, resp, err)
 		return
 	}
 	u, _ := utils.FindUserNameInContext(ctx)
@@ -55,7 +55,7 @@ func (s *Handler) PutConfig(req *restful.Request, resp *restful.Response) {
 		config.Set(parsed, path...)
 		if err := config.Save(u, "Setting config via API"); err != nil {
 			log.Logger(ctx).Error("Put", zap.Error(err))
-			resp.WriteError(500, err)
+			service.RestError500(req, resp, err)
 			return
 		}
 		resp.WriteEntity(&configuration)

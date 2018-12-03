@@ -95,7 +95,7 @@ func (h *Handler) HeadNode(req *restful.Request, resp *restful.Response) {
 
 	response, err := router.ReadNode(req.Request.Context(), nodeRequest)
 	if err != nil {
-		resp.WriteError(404, err)
+		service.RestError404(req, resp, err)
 		return
 	}
 
@@ -451,7 +451,7 @@ func (h *Handler) ListAdminTree(req *restful.Request, resp *restful.Response) {
 
 	var input tree.ListNodesRequest
 	if err := req.ReadEntity(&input); err != nil {
-		resp.WriteError(500, err)
+		service.RestError500(req, resp, err)
 		return
 	}
 
@@ -460,13 +460,13 @@ func (h *Handler) ListAdminTree(req *restful.Request, resp *restful.Response) {
 		WithCommits: input.WithCommits,
 	})
 	if err != nil {
-		resp.WriteError(404, err)
+		service.RestError404(req, resp, err)
 		return
 	}
 
 	streamer, err := getClient().ListNodes(req.Request.Context(), &input)
 	if err != nil {
-		resp.WriteError(500, err)
+		service.RestError500(req, resp, err)
 		return
 	}
 	defer streamer.Close()
@@ -492,13 +492,13 @@ func (h *Handler) StatAdminTree(req *restful.Request, resp *restful.Response) {
 
 	var input tree.ReadNodeRequest
 	if err := req.ReadEntity(&input); err != nil {
-		resp.WriteError(500, err)
+		service.RestError500(req, resp, err)
 		return
 	}
 
 	response, err := getClient().ReadNode(req.Request.Context(), &input)
 	if err != nil {
-		resp.WriteError(500, err)
+		service.RestError500(req, resp, err)
 		return
 	}
 

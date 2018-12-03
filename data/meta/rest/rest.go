@@ -60,7 +60,7 @@ func (h *Handler) Filter() func(string) string {
 
 func error404(req *restful.Request, resp *restful.Response, err error) {
 	// Do not log error as it's polluting logs for nothing
-	resp.WriteError(404, err)
+	service.RestError404(req, resp, err)
 }
 
 func (h *Handler) GetMeta(req *restful.Request, resp *restful.Response) {

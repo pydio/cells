@@ -29,10 +29,11 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/views"
 )
 
@@ -70,7 +71,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
 	var searchRequest tree.SearchRequest
 	if err := req.ReadEntity(&searchRequest); err != nil {
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 
@@ -174,7 +175,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 
 	if err != nil {
 		log.Logger(ctx).Error("Query", zap.Error(err))
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 

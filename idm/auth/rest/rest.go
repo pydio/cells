@@ -31,6 +31,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/auth"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
@@ -38,7 +39,6 @@ import (
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils"
 )
 
@@ -60,7 +60,7 @@ func (a *TokenHandler) Revoke(req *restful.Request, resp *restful.Response) {
 	claims, ok := ctx.Value(claim.ContextKey).(claim.Claims)
 	if !ok || !claims.Verified {
 		e := errors.Forbidden(common.SERVICE_AUTH, "invalid token")
-		resp.WriteError(403, e)
+		service.RestError403(req, resp, e)
 		return
 	}
 

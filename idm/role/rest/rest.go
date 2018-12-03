@@ -111,7 +111,7 @@ func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputQuery)
 	if err != nil {
 		log.Logger(req.Request.Context()).Error("cannot fetch rest.SearchRoleRequest from request", zap.Error(err))
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	log.Logger(ctx).Debug("Received Role.Search API request", zap.Any("q", inputQuery))
@@ -136,7 +136,7 @@ func (s *RoleHandler) SearchRoles(req *restful.Request, rsp *restful.Response) {
 	streamer, err := cl.SearchRole(ctx, &idm.SearchRoleRequest{Query: query})
 	if err != nil {
 		log.Logger(req.Request.Context()).Error("While fetching roles", zap.Error(err))
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	defer streamer.Close()
@@ -177,7 +177,7 @@ func (s *RoleHandler) DeleteRole(req *restful.Request, rsp *restful.Response) {
 		Query: &serviceproto.Query{SubQueries: []*any.Any{query}},
 	})
 	if e != nil {
-		rsp.WriteError(500, e)
+		service.RestError500(req, rsp, e)
 	} else {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Deleted role [%s]", uuid),
@@ -195,7 +195,7 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputRole)
 	if err != nil {
 		log.Logger(req.Request.Context()).Error("cannot fetch idm.Role from request", zap.Error(err))
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	ctx := req.Request.Context()
@@ -211,7 +211,7 @@ func (s *RoleHandler) SetRole(req *restful.Request, rsp *restful.Response) {
 		Role: &inputRole,
 	})
 	if er != nil {
-		rsp.WriteError(500, er)
+		service.RestError500(req, rsp, er)
 	} else {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Updated role [%s]", inputRole.Label),

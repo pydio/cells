@@ -84,7 +84,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 	log.Logger(ctx).Debug("Received User.Get API request", zap.Any("q", userReq), zap.Error(err))
 	// Ignore empty body
 	if err != nil && err != io.EOF {
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	// Transform to standard query
@@ -123,7 +123,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 	})
 	if err != nil {
 		// Handle error
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	response := &rest.UsersCollection{
@@ -137,7 +137,7 @@ func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 		})
 		if err != nil {
 			// Handle error
-			rsp.WriteError(500, err)
+			service.RestError500(req, rsp, err)
 			return
 		}
 		defer streamer.Close()
@@ -239,7 +239,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputUser)
 	if err != nil {
 		log.Logger(ctx).Error("cannot fetch idm.User from request", zap.Error(err))
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
@@ -355,7 +355,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		User: &inputUser,
 	})
 	if er != nil {
-		rsp.WriteError(500, er)
+		service.RestError500(req, rsp, er)
 		return
 	}
 
@@ -382,7 +382,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		roleCli := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
 		_, er := roleCli.CreateRole(ctx, &idm.CreateRoleRequest{Role: newRole})
 		if er != nil {
-			rsp.WriteError(500, er)
+			service.RestError500(req, rsp, er)
 			return
 		}
 	}
@@ -454,7 +454,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 	})
 	if err != nil {
 		// Handle error
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	defer streamer.Close()
@@ -493,7 +493,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 	err := req.ReadEntity(&inputUser)
 	if err != nil {
 		log.Logger(ctx).Error("cannot fetch idm.User from rest query", zap.Error(err))
-		rsp.WriteError(500, err)
+		service.RestError500(req, rsp, err)
 		return
 	}
 	log.Logger(ctx).Debug("Received User.PutRoles API request", inputUser.ZapLogin())
@@ -535,7 +535,7 @@ func (s *UserHandler) PutRoles(req *restful.Request, rsp *restful.Response) {
 		User: update,
 	})
 	if er != nil {
-		rsp.WriteError(500, er)
+		service.RestError500(req, rsp, er)
 	} else {
 		u := response.User
 		u.Roles = update.Roles
