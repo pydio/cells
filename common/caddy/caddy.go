@@ -60,9 +60,8 @@ func init() {
 
 	go func() {
 		for {
-			<-time.After(5 * time.Second)
+			<-time.After(10 * time.Second)
 			if restartRequired {
-				log.Info("RESTART REQUIRED ON CADDY")
 				restart()
 			}
 		}
@@ -181,7 +180,7 @@ func restart() error {
 		return err
 	}
 
-	log.Info("Restart", zap.ByteString("caddyfile", caddyfile.Body()))
+	log.Info("Restarting Gateway Proxy", zap.ByteString("caddyfile", caddyfile.Body()))
 
 	// start caddy server
 	instance, err := mainCaddy.instance.Restart(caddyfile)
