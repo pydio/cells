@@ -47,7 +47,8 @@ var (
 		"urls":           internalURLFromServices,
 		"serviceAddress": addressFromService,
 	}
-	restartChan chan bool
+	restartChan     chan bool
+	restartRequired bool
 )
 
 func init() {
@@ -56,6 +57,16 @@ func init() {
 	httpserver.GracefulTimeout = 30 * time.Second
 
 	go watchRestart()
+
+	go func() {
+		for {
+			<-time.After(5 * time.Second)
+			if restartRequired {
+				log.Info("RESTART REQUIRED ON CADDY")
+				restart()
+			}
+		}
+	}()
 }
 
 func watchRestart() {
@@ -65,9 +76,10 @@ func watchRestart() {
 	go func() {
 		<-restartChan
 
-		<-time.After(10 * time.Second)
+		//<-time.After(httpserver.GracefulTimeout + 2 * time.Second)
+		restartRequired = true
 
-		restart()
+		//restart()
 
 		exitChan <- true
 	}()
@@ -157,6 +169,8 @@ func Restart() error {
 
 func restart() error {
 
+	restartRequired = false
+
 	if mainCaddy.instance == nil {
 		return fmt.Errorf("instance not started")
 	}
@@ -167,7 +181,7 @@ func restart() error {
 		return err
 	}
 
-	log.Debug("Restart", zap.ByteString("caddyfile", caddyfile.Body()))
+	log.Info("Restart", zap.ByteString("caddyfile", caddyfile.Body()))
 
 	// start caddy server
 	instance, err := mainCaddy.instance.Restart(caddyfile)
@@ -175,6 +189,7 @@ func restart() error {
 		return err
 	}
 
+	log.Info("Restart Finished")
 	mainCaddy.instance = instance
 	return nil
 }
