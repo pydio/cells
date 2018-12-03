@@ -24,6 +24,7 @@ package web
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"path/filepath"
 
@@ -36,10 +37,10 @@ import (
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/frontend/front-srv/web/index"
-	"github.com/pydio/cells/common/plugins"
 	"go.uber.org/zap"
 )
 
@@ -90,7 +91,13 @@ func init() {
 				router.Handle("/user/reset-password/{resetPasswordKey}", indexHandler)
 				router.Handle("/public/{link}", index.NewPublicHandler())
 
-				hd := srv.NewHandler(router)
+				routerWithTimeout := http.TimeoutHandler(
+					router,
+					15*time.Second,
+					"There was a timeout while serving the request...",
+				)
+
+				hd := srv.NewHandler(routerWithTimeout)
 
 				err := srv.Handle(hd)
 				if err != nil {
