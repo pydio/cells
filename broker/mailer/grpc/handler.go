@@ -210,6 +210,9 @@ func (h *Handler) parseConf(conf common.ConfigValues) (queueName string, queueCo
 func (h *Handler) initFromConf(ctx context.Context, conf common.ConfigValues) error {
 
 	queueName, queueConfig, senderName, senderConfig := h.parseConf(conf)
+	if h.queue != nil {
+		h.queue.Close()
+	}
 	h.queue = mailer.GetQueue(ctx, queueName, queueConfig)
 	if h.queue == nil {
 		queueName = "boltdb"

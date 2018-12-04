@@ -39,6 +39,7 @@ import (
 type Queue interface {
 	Push(email *mailer.Mail) error
 	Consume(func(email *mailer.Mail) error) error
+	Close() error
 }
 
 type Sender interface {
