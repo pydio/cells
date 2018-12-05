@@ -73,6 +73,9 @@ const (
 	sqStringStart     = '\''
 	sqStringEnd       = '\''
 	optValTerm        = ';'
+	topOptStart       = '{'
+	topOptValTerm     = ','
+	topOptTerm        = '}'
 	blockStart        = '('
 	blockEnd          = ')'
 )
@@ -234,6 +237,8 @@ func lexTop(lx *lexer) stateFn {
 	}
 
 	switch r {
+	case topOptStart:
+		return lexSkip(lx, lexTop)
 	case commentHashStart:
 		lx.push(lexTop)
 		return lexCommentStart
@@ -280,7 +285,7 @@ func lexTopValueEnd(lx *lexer) stateFn {
 		fallthrough
 	case isWhitespace(r):
 		return lexTopValueEnd
-	case isNL(r) || r == eof || r == optValTerm:
+	case isNL(r) || r == eof || r == optValTerm || r == topOptValTerm || r == topOptTerm:
 		lx.ignore()
 		return lexTop
 	}
@@ -1026,7 +1031,7 @@ func lexFloat(lx *lexer) stateFn {
 // lexIPAddr consumes IP addrs, like 127.0.0.1:4222
 func lexIPAddr(lx *lexer) stateFn {
 	r := lx.next()
-	if unicode.IsDigit(r) || r == '.' || r == ':' {
+	if unicode.IsDigit(r) || r == '.' || r == ':' || r == '-' {
 		return lexIPAddr
 	}
 	lx.backup()

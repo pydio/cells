@@ -3050,34 +3050,34 @@
 			"revisionTime": "2018-03-19T02:42:43Z"
 		},
 		{
-			"checksumSHA1": "5dHdLwwYEa4C2+mG5JKJMKETAnY=",
+			"checksumSHA1": "C6fM9mwFk5zTL5dqRqiJdje1Hf8=",
 			"path": "github.com/nats-io/gnatsd/conf",
-			"revision": "b2a9ed97d69a96c65a0ee09f259d25c2379aeacf",
-			"revisionTime": "2018-03-16T23:23:10Z"
+			"revision": "eed4fbc1458ce110ad1aa1adf904229bc8fda2a7",
+			"revisionTime": "2018-08-30T15:04:11Z"
 		},
 		{
-			"checksumSHA1": "PH2W6QhkX6AYoiIE1cD7/bzbA90=",
+			"checksumSHA1": "uRClG9ShjVyYmpFrntjg20fVXKs=",
 			"path": "github.com/nats-io/gnatsd/logger",
-			"revision": "b2a9ed97d69a96c65a0ee09f259d25c2379aeacf",
-			"revisionTime": "2018-03-16T23:23:10Z"
+			"revision": "eed4fbc1458ce110ad1aa1adf904229bc8fda2a7",
+			"revisionTime": "2018-08-30T15:04:11Z"
 		},
 		{
-			"checksumSHA1": "He3ZpcTa0DdcHtU3NoUOAw99A8Q=",
+			"checksumSHA1": "2mXj/5KMVU6eOHaCJRhZRhqZqWM=",
 			"path": "github.com/nats-io/gnatsd/server",
-			"revision": "b2a9ed97d69a96c65a0ee09f259d25c2379aeacf",
-			"revisionTime": "2018-03-16T23:23:10Z"
+			"revision": "eed4fbc1458ce110ad1aa1adf904229bc8fda2a7",
+			"revisionTime": "2018-08-30T15:04:11Z"
 		},
 		{
-			"checksumSHA1": "uTRrGjZ+tM5C2/ik9w6D/f1QeyU=",
+			"checksumSHA1": "rm/ETqE8LFv61eWUaS3Dy9ILYWc=",
 			"path": "github.com/nats-io/gnatsd/server/pse",
-			"revision": "b2a9ed97d69a96c65a0ee09f259d25c2379aeacf",
-			"revisionTime": "2018-03-16T23:23:10Z"
+			"revision": "eed4fbc1458ce110ad1aa1adf904229bc8fda2a7",
+			"revisionTime": "2018-08-30T15:04:11Z"
 		},
 		{
-			"checksumSHA1": "tgh+r8nAS/kmb9gqZ6K1TZnxKCE=",
+			"checksumSHA1": "GfQ4LMqxsTdxY+4VjBPzejbMI6Q=",
 			"path": "github.com/nats-io/gnatsd/util",
-			"revision": "b2a9ed97d69a96c65a0ee09f259d25c2379aeacf",
-			"revisionTime": "2018-03-16T23:23:10Z"
+			"revision": "eed4fbc1458ce110ad1aa1adf904229bc8fda2a7",
+			"revisionTime": "2018-08-30T15:04:11Z"
 		},
 		{
 			"checksumSHA1": "zvQr4zOz1/g/Fui6co0sctxrJ28=",

@@ -56,11 +56,43 @@ func (u *User) clone() *User {
 	return clone
 }
 
+// SubjectPermission is an individual allow and deny struct for publish
+// and subscribe authorizations.
+type SubjectPermission struct {
+	Allow []string `json:"allow"`
+	Deny  []string `json:"deny"`
+}
+
 // Permissions are the allowed subjects on a per
 // publish or subscribe basis.
 type Permissions struct {
-	Publish   []string `json:"publish"`
-	Subscribe []string `json:"subscribe"`
+	Publish   *SubjectPermission `json:"publish"`
+	Subscribe *SubjectPermission `json:"subscribe"`
+}
+
+// RoutePermissions are similar to user permissions
+// but describe what a server can import/export from and to
+// another server.
+type RoutePermissions struct {
+	Import *SubjectPermission `json:"import"`
+	Export *SubjectPermission `json:"export"`
+}
+
+// clone will clone an individual subject permission.
+func (p *SubjectPermission) clone() *SubjectPermission {
+	if p == nil {
+		return nil
+	}
+	clone := &SubjectPermission{}
+	if p.Allow != nil {
+		clone.Allow = make([]string, len(p.Allow))
+		copy(clone.Allow, p.Allow)
+	}
+	if p.Deny != nil {
+		clone.Deny = make([]string, len(p.Deny))
+		copy(clone.Deny, p.Deny)
+	}
+	return clone
 }
 
 // clone performs a deep copy of the Permissions struct, returning a new clone
@@ -71,12 +103,10 @@ func (p *Permissions) clone() *Permissions {
 	}
 	clone := &Permissions{}
 	if p.Publish != nil {
-		clone.Publish = make([]string, len(p.Publish))
-		copy(clone.Publish, p.Publish)
+		clone.Publish = p.Publish.clone()
 	}
 	if p.Subscribe != nil {
-		clone.Subscribe = make([]string, len(p.Subscribe))
-		copy(clone.Subscribe, p.Subscribe)
+		clone.Subscribe = p.Subscribe.clone()
 	}
 	return clone
 }
@@ -122,6 +152,14 @@ func (s *Server) checkAuthorization(c *client) bool {
 	}
 }
 
+// hasUsers leyt's us know if we have a users array.
+func (s *Server) hasUsers() bool {
+	s.mu.Lock()
+	hu := s.users != nil
+	s.mu.Unlock()
+	return hu
+}
+
 // isClientAuthorized will check the client against the proper authorization method and data.
 // This could be token or username/password based.
 func (s *Server) isClientAuthorized(c *client) bool {
@@ -129,10 +167,13 @@ func (s *Server) isClientAuthorized(c *client) bool {
 	opts := s.getOpts()
 
 	// Check custom auth first, then multiple users, then token, then single user/pass.
-	if s.opts.CustomClientAuthentication != nil {
-		return s.opts.CustomClientAuthentication.Check(c)
-	} else if s.users != nil {
+	if opts.CustomClientAuthentication != nil {
+		return opts.CustomClientAuthentication.Check(c)
+	} else if s.hasUsers() {
+		s.mu.Lock()
 		user, ok := s.users[c.opts.Username]
+		s.mu.Unlock()
+
 		if !ok {
 			return false
 		}
@@ -173,7 +214,11 @@ func (s *Server) isRouterAuthorized(c *client) bool {
 	if opts.Cluster.Username != c.opts.Username {
 		return false
 	}
-	return comparePasswords(opts.Cluster.Password, c.opts.Password)
+	if !comparePasswords(opts.Cluster.Password, c.opts.Password) {
+		return false
+	}
+	c.setRoutePermissions(opts.Cluster.Permissions)
+	return true
 }
 
 // removeUnauthorizedSubs removes any subscriptions the client has that are no
