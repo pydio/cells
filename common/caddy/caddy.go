@@ -55,36 +55,44 @@ func init() {
 	caddy.AppName = common.PackageLabel
 	caddy.AppVersion = common.Version().String()
 	httpserver.GracefulTimeout = 30 * time.Second
+	restartChan = make(chan bool, 1)
 
 	go watchRestart()
 
-	go func() {
-		for {
-			<-time.After(10 * time.Second)
-			if restartRequired {
-				restart()
-			}
-		}
-	}()
 }
 
 func watchRestart() {
-	restartChan = make(chan bool, 1)
-	exitChan := make(chan bool, 1)
+	//exitChan := make(chan bool, 1)
 
-	go func() {
-		<-restartChan
+	for {
+		select {
+		case <-restartChan:
+			log.Logger(context.Background()).Info("Received Proxy Restart Event")
+			restartRequired = true
+		case <-time.After(10 * time.Second):
+			if restartRequired {
+				log.Logger(context.Background()).Info("Restarting Proxy Now")
+				restartRequired = false
+				restart()
+			}
+		}
+	}
 
-		//<-time.After(httpserver.GracefulTimeout + 2 * time.Second)
-		restartRequired = true
+	/*
+		go func() {
+			<-restartChan
 
-		//restart()
+			//<-time.After(httpserver.GracefulTimeout + 2 * time.Second)
+			restartRequired = true
 
-		exitChan <- true
-	}()
+			//restart()
 
-	<-exitChan
-	watchRestart()
+			exitChan <- true
+		}()
+
+		<-exitChan
+		watchRestart()
+	*/
 }
 
 // Caddy contains the templates and functions for building a dynamic caddyfile
@@ -167,8 +175,6 @@ func Restart() error {
 }
 
 func restart() error {
-
-	restartRequired = false
 
 	if mainCaddy.instance == nil {
 		return fmt.Errorf("instance not started")
