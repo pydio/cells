@@ -67,11 +67,11 @@ func watchRestart() {
 	for {
 		select {
 		case <-restartChan:
-			log.Logger(context.Background()).Info("Received Proxy Restart Event")
+			log.Logger(context.Background()).Debug("Received Proxy Restart Event")
 			restartRequired = true
 		case <-time.After(10 * time.Second):
 			if restartRequired {
-				log.Logger(context.Background()).Info("Restarting Proxy Now")
+				log.Logger(context.Background()).Debug("Restarting Proxy Now")
 				restartRequired = false
 				restart()
 			}
