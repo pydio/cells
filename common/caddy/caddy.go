@@ -62,8 +62,6 @@ func init() {
 }
 
 func watchRestart() {
-	//exitChan := make(chan bool, 1)
-
 	for {
 		select {
 		case <-restartChan:
@@ -77,22 +75,6 @@ func watchRestart() {
 			}
 		}
 	}
-
-	/*
-		go func() {
-			<-restartChan
-
-			//<-time.After(httpserver.GracefulTimeout + 2 * time.Second)
-			restartRequired = true
-
-			//restart()
-
-			exitChan <- true
-		}()
-
-		<-exitChan
-		watchRestart()
-	*/
 }
 
 // Caddy contains the templates and functions for building a dynamic caddyfile
