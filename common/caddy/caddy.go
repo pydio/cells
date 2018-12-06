@@ -213,6 +213,9 @@ func internalURLFromServices(name string, uri ...string) string {
 	}
 
 	if len(res) == 0 {
+		go func() {
+			restartChan <- true
+		}()
 		return "PENDING"
 	}
 
