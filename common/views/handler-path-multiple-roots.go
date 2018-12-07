@@ -121,7 +121,7 @@ func (m *MultipleRootsHandler) updateOutputBranch(ctx context.Context, node *tre
 	}
 	out.Path = m.makeRootKey(branch.Root) + "/" + strings.TrimLeft(node.Path, "/")
 	if firstLevel {
-		out.SetMeta("ws_root", "true")
+		out.SetMeta(common.META_FLAG_WORKSPACE_ROOT, "true")
 	}
 	return ctx, out, nil
 }
@@ -144,9 +144,9 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 				node := rNode.Clone()
 				node.Path = rKey
 				if strings.HasPrefix(node.GetUuid(), "DATASOURCE:") {
-					node.SetMeta("name", strings.TrimPrefix(node.GetUuid(), "DATASOURCE:"))
+					node.SetMeta(common.META_NAMESPACE_NODENAME, strings.TrimPrefix(node.GetUuid(), "DATASOURCE:"))
 				}
-				node.SetMeta("ws_root", "true")
+				node.SetMeta(common.META_FLAG_WORKSPACE_ROOT, "true")
 				streamer.Send(&tree.ListNodesResponse{Node: node})
 			}
 		}()
@@ -181,9 +181,9 @@ func (m *MultipleRootsHandler) ReadNode(ctx context.Context, in *tree.ReadNodeRe
 				fakeNode.MTime = node.MTime
 			}
 		}
-		fakeNode.SetMeta("name", branch.Workspace.Label)
-		fakeNode.SetMeta("virtual_root", "true")
-		fakeNode.SetMeta("level_readonly", "true")
+		fakeNode.SetMeta(common.META_NAMESPACE_NODENAME, branch.Workspace.Label)
+		fakeNode.SetMeta(common.META_FLAG_VIRTUAL_ROOT, "true")
+		fakeNode.SetMeta(common.META_FLAG_LEVEL_READONLY, "true")
 		return &tree.ReadNodeResponse{Success: true, Node: fakeNode}, nil
 	}
 	return m.AbstractBranchFilter.ReadNode(ctx, in, opts...)

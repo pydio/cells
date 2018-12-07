@@ -129,6 +129,7 @@ const (
 	META_NAMESPACE_DATASOURCE_PATH        = "pydio:meta-data-source-path"
 	META_NAMESPACE_NODE_TEST_LOCAL_FOLDER = "pydio:test:local-folder-storage"
 	META_NAMESPACE_RECYCLE_RESTORE        = "pydio:recycle_restore"
+	META_NAMESPACE_NODENAME               = "name"
 	RECYCLE_BIN_NAME                      = "recycle_bin"
 
 	PYDIO_THUMBSTORE_NAMESPACE        = "pydio-thumbstore"
@@ -151,8 +152,11 @@ const (
 
 	KEYRING_MASTER_KEY       = "keyring.master"
 	META_FLAG_READONLY       = "node_readonly"
+	META_FLAG_LEVEL_READONLY = "level_readonly"
 	META_FLAG_ENCRYPTED      = "datasource_encrypted"
 	META_FLAG_VERSIONING     = "datasource_versioning"
+	META_FLAG_WORKSPACE_ROOT = "ws_root"
+	META_FLAG_VIRTUAL_ROOT   = "virtual_root"
 	NODE_FLAG_ETAG_TEMPORARY = "temporary"
 )
 
