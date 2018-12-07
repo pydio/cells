@@ -19,6 +19,7 @@
  */
 
 import XMLUtils from '../util/XMLUtils'
+import Pydio from '../Pydio'
 const SystemJS = require('systemjs');
 
 /**
@@ -160,10 +161,10 @@ class ResourcesManager{
 	 */
 	loadCSSResource(fileName){
 
-        if(pydio.Parameters.get('SERVER_PREFIX_URI')){
-            fileName = pydio.Parameters.get('SERVER_PREFIX_URI')+fileName;
+        if(Pydio.getInstance().Parameters.get('SERVER_PREFIX_URI')){
+            fileName = Pydio.getInstance().Parameters.get('SERVER_PREFIX_URI')+fileName;
         }
-        fileName = fileName+"?v="+pydio.Parameters.get("ajxpVersion");
+        fileName = fileName+"?v="+Pydio.getVersion();
 
         let found = false;
         const links = document.getElementsByTagName('link');
@@ -210,7 +211,7 @@ class ResourcesManager{
 				}
 			}
 		}else if(node.nodeName === "clientForm" && node.firstChild){
-            if(!node.getAttribute("theme") || node.getAttribute("theme") === pydio.Parameters.get("theme")){
+            if(!node.getAttribute("theme") || node.getAttribute("theme") === Pydio.getInstance().Parameters.get("theme")){
                 clForm = {formId:node.getAttribute("id"), formCode:node.firstChild.nodeValue};
             }
 		}
@@ -269,8 +270,9 @@ class ResourcesManager{
 	 */
 	static loadAutoLoadResources(registry = null){
 	    if(!registry){
-	        registry = window.pydio.Registry.getXML();
+	        registry = Pydio.getInstance().Registry.getXML();
         }
+        const version = Pydio.getVersion();
         const manager = new ResourcesManager();
 		const jsNodes = XMLUtils.XPathSelectNodes(registry, 'plugins/*/client_settings/resources/js');
         let node;
@@ -290,7 +292,7 @@ class ResourcesManager{
             if(node.getAttribute('expose')){
                 ResourcesManager.__requires[node.getAttribute('expose')] = namespace;
             }
-            sysjsMap[namespace] = filepath;
+            sysjsMap[namespace] = filepath + "?v=" + version;
             sysjsMeta[namespace] = {format: 'global', deps: deps};
         }
         SystemJS.config({map: sysjsMap, meta:sysjsMeta});

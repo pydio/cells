@@ -575,6 +575,17 @@ class Pydio extends Observable{
     }
 
     /**
+     * Return current pydio version
+     * @return {*}
+     */
+    static getVersion(){
+        if(Pydio.instance && Pydio.instance.Parameters && Pydio.instance.Parameters.get("backend")){
+            return Pydio.instance.Parameters.get("backend")["Version"];
+        }
+        return "";
+    }
+
+    /**
      * Direct access to unique instance MessageHash
      * @return {{}}
      */

@@ -30,6 +30,10 @@ var _utilXMLUtils = require('../util/XMLUtils');
 
 var _utilXMLUtils2 = _interopRequireDefault(_utilXMLUtils);
 
+var _Pydio = require('../Pydio');
+
+var _Pydio2 = _interopRequireDefault(_Pydio);
+
 var SystemJS = require('systemjs');
 
 /**
@@ -198,10 +202,10 @@ var ResourcesManager = (function () {
 
     ResourcesManager.prototype.loadCSSResource = function loadCSSResource(fileName) {
 
-        if (pydio.Parameters.get('SERVER_PREFIX_URI')) {
-            fileName = pydio.Parameters.get('SERVER_PREFIX_URI') + fileName;
+        if (_Pydio2['default'].getInstance().Parameters.get('SERVER_PREFIX_URI')) {
+            fileName = _Pydio2['default'].getInstance().Parameters.get('SERVER_PREFIX_URI') + fileName;
         }
-        fileName = fileName + "?v=" + pydio.Parameters.get("ajxpVersion");
+        fileName = fileName + "?v=" + _Pydio2['default'].getVersion();
 
         var found = false;
         var links = document.getElementsByTagName('link');
@@ -247,7 +251,7 @@ var ResourcesManager = (function () {
                 }
             }
         } else if (node.nodeName === "clientForm" && node.firstChild) {
-            if (!node.getAttribute("theme") || node.getAttribute("theme") === pydio.Parameters.get("theme")) {
+            if (!node.getAttribute("theme") || node.getAttribute("theme") === _Pydio2['default'].getInstance().Parameters.get("theme")) {
                 clForm = { formId: node.getAttribute("id"), formCode: node.firstChild.nodeValue };
             }
         }
@@ -311,8 +315,9 @@ var ResourcesManager = (function () {
         var registry = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 
         if (!registry) {
-            registry = window.pydio.Registry.getXML();
+            registry = _Pydio2['default'].getInstance().Registry.getXML();
         }
+        var version = _Pydio2['default'].getVersion();
         var manager = new ResourcesManager();
         var jsNodes = _utilXMLUtils2['default'].XPathSelectNodes(registry, 'plugins/*/client_settings/resources/js');
         var node = undefined;
@@ -341,7 +346,7 @@ var ResourcesManager = (function () {
             if (node.getAttribute('expose')) {
                 ResourcesManager.__requires[node.getAttribute('expose')] = namespace;
             }
-            sysjsMap[namespace] = filepath;
+            sysjsMap[namespace] = filepath + "?v=" + version;
             sysjsMeta[namespace] = { format: 'global', deps: deps };
         }
         SystemJS.config({ map: sysjsMap, meta: sysjsMeta });
