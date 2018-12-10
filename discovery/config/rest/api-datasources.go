@@ -89,7 +89,7 @@ func (s *Handler) PutDataSource(req *restful.Request, resp *restful.Response) {
 	currentMinios := config.ListMinioConfigsFromConfig()
 	_, update := currentSources[ds.Name]
 
-	minioConfig := config.FactorizeMinioServers(currentMinios, &ds)
+	minioConfig := config.FactorizeMinioServers(currentMinios, &ds, update)
 	currentSources[ds.Name] = &ds
 	currentMinios[minioConfig.Name] = minioConfig
 
@@ -168,9 +168,11 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 	config.Del("services", "pydio.grpc.data.sync."+dsName)
 
 	currentMinios := config.ListMinioConfigsFromConfig()
-	if key := config.UnusedMinioServers(currentMinios, currentSources); key != "" {
-		config.Del("services", "pydio.grpc.data.objects."+key)
-		delete(currentMinios, key)
+	if keys := config.UnusedMinioServers(currentMinios, currentSources); len(keys) > 0 {
+		for _, key := range keys {
+			config.Del("services", "pydio.grpc.data.objects."+key)
+			delete(currentMinios, key)
+		}
 		config.MinioConfigNamesToConfig(currentMinios)
 	}
 
@@ -195,8 +197,6 @@ func (s *Handler) DeleteDataSource(req *restful.Request, resp *restful.Response)
 
 func (s *Handler) ListDataSources(req *restful.Request, resp *restful.Response) {
 
-	log.Logger(req.Request.Context()).Info("ListDataSources")
-
 	if sources, err := s.getDataSources(req.Request.Context()); err != nil {
 		service.RestError500(req, resp, err)
 	} else {
@@ -210,15 +210,7 @@ func (s *Handler) ListDataSources(req *restful.Request, resp *restful.Response) 
 
 func (s *Handler) getDataSources(ctx context.Context) ([]*object.DataSource, error) {
 
-	var cfgMap config.Map
-
-	if err := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX).Scan(&cfgMap); err != nil {
-		return nil, err
-	}
-
-	sources := cfgMap.StringArray("sources")
-
-	log.Logger(ctx).Info("ListDataSources", zap.Any("sources", sources))
+	sources := config.SourceNamesForDataServices(common.SERVICE_DATA_INDEX)
 	var dataSources []*object.DataSource
 	for _, src := range sources {
 		if ds, err := s.loadDataSource(ctx, src); err == nil {
