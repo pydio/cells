@@ -114,7 +114,6 @@ func (b *Merger) process(batch *filters.Batch) {
 
 	if batch.DoneChan != nil {
 		defer func() {
-			fmt.Println("Sending event for batch finished")
 			batch.DoneChan <- true
 		}()
 	}

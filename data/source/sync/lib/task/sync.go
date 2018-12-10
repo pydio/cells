@@ -168,7 +168,9 @@ func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan cha
 			i++
 			if i == 2 {
 				close(dChan)
-				doneChan <- true
+				if doneChan != nil {
+					doneChan <- true
+				}
 			}
 		}
 	}()
