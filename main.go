@@ -22,7 +22,7 @@ package main
 
 import (
 	"github.com/pydio/cells/cmd"
-	
+
 	// Making sure they are initialised first
 	_ "github.com/pydio/cells/discovery/consul"
 	_ "github.com/pydio/cells/discovery/nats"
@@ -52,6 +52,7 @@ import (
 	_ "github.com/pydio/cells/data/source/index/grpc"
 	_ "github.com/pydio/cells/data/source/objects/grpc"
 	_ "github.com/pydio/cells/data/source/sync/grpc"
+	_ "github.com/pydio/cells/data/source/test"
 	_ "github.com/pydio/cells/data/templates/rest"
 	_ "github.com/pydio/cells/data/tree/grpc"
 	_ "github.com/pydio/cells/data/tree/rest"

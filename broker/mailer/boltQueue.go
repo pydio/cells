@@ -160,7 +160,7 @@ func (b *BoltQueue) Consume(sendHandler func(email *mailer.Mail) error) error {
 			i++
 		}
 		if len(errStack) > 0 {
-			output = fmt.Errorf("batch sent %d mails and failed %d times, errors were %s", len(errStack), i, strings.Join(errStack, ", "))
+			output = fmt.Errorf("batch sent %d mails and failed %d times, errors were: %s", i, len(errStack), strings.Join(errStack, ", "))
 		}
 		return nil
 	})

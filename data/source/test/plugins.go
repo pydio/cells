@@ -23,9 +23,9 @@ package test
 import (
 	"github.com/micro/go-micro"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/test"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/plugins"
 )
 
 var name = common.SERVICE_TEST_NAMESPACE_ + "objects"
@@ -40,7 +40,6 @@ func init() {
 			service.Dependency(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, []string{}),
 			service.Description("Test Objects Service conformance"),
 			service.WithMicro(func(m micro.Service) error {
-
 				test.RegisterTesterHandler(m.Server(), NewHandler())
 
 				return nil
