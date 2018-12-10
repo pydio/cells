@@ -26,15 +26,13 @@ package grpc
 import (
 	"strings"
 
-	micro "github.com/micro/go-micro"
-	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/plugins"
-	//	"github.com/pydio/cells/common/proto/object"
-	"github.com/pydio/cells/common/config"
-	"github.com/pydio/cells/common/proto/tree"
-	//	"github.com/pydio/cells/common/registry"
+	"github.com/micro/go-micro"
 
+	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/object"
+	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/data/source/index"
 )

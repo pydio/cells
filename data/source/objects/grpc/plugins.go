@@ -23,11 +23,11 @@ package grpc
 
 import (
 	"github.com/micro/go-micro"
-	"github.com/pydio/cells/common/plugins"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/service"
 	"github.com/pydio/cells/common/service/context"

@@ -25,10 +25,9 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/dchest/uniuri"
-
-	"time"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/object"

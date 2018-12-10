@@ -23,6 +23,8 @@ package service
 import (
 	"bufio"
 	"context"
+	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -32,10 +34,6 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-
-	"encoding/json"
-
-	"fmt"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
