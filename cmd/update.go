@@ -51,7 +51,7 @@ To apply the actual update, re-run the command with a --version parameter.
 		pKey := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, "publicKey").String("")
 		channel := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_UPDATE, "channel").String("stable")
 		configs := config.Map{}
-		configs.Set("url", url)
+		configs.Set("updateUrl", url)
 		configs.Set("channel", channel)
 		configs.Set("publicKey", pKey)
 
