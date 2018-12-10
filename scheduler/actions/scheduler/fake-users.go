@@ -92,7 +92,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 	log.Logger(ctx).Info("Starting fake users creation")
 
 	outputMessage := input
-	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Hello World"})
+	outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Creating random users"})
 
 	userServiceClient := idm.NewUserServiceClient(registry.GetClient(common.SERVICE_USER))
 	rolesServiceClient := idm.NewRoleServiceClient(registry.GetClient(common.SERVICE_ROLE))
@@ -181,6 +181,7 @@ func (f *FakeUsersAction) Run(ctx context.Context, channels *actions.RunnableCha
 		step = float32(i)
 		channels.Progress <- step / steps
 		channels.StatusMsg <- "Created user " + label
+		outputMessage.AppendOutput(&jobs.ActionOutput{StringBody: "Created user " + label})
 		<-time.After(100 * time.Millisecond)
 	}
 
