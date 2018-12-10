@@ -74,6 +74,9 @@ export default class JobsActionOutput {
             if (data.hasOwnProperty('Ignored')) {
                 obj['Ignored'] = ApiClient.convertToType(data['Ignored'], 'Boolean');
             }
+            if (data.hasOwnProperty('Time')) {
+                obj['Time'] = ApiClient.convertToType(data['Time'], 'Number');
+            }
         }
         return obj;
     }
@@ -102,6 +105,10 @@ export default class JobsActionOutput {
     * @member {Boolean} Ignored
     */
     Ignored = undefined;
+    /**
+    * @member {Number} Time
+    */
+    Time = undefined;
 
 
 

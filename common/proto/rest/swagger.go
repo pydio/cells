@@ -4432,6 +4432,10 @@ var SwaggerJson = `{
         "Ignored": {
           "type": "boolean",
           "format": "boolean"
+        },
+        "Time": {
+          "type": "integer",
+          "format": "int32"
         }
       },
       "title": "Standard output of an action. Success value is required\nother are optional"

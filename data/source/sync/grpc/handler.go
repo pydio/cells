@@ -130,7 +130,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 
 	statusChan := make(chan filters.BatchProcessStatus)
 	doneChan := make(chan bool)
-	var outputs []*jobs.ActionOutput
+	fullLog := &jobs.ActionLog{
+		OutputMessage: &jobs.ActionMessage{},
+	}
 
 	if req.Task != nil {
 		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
@@ -142,10 +144,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 		theTask.Progress = 0
 		theTask.Status = jobs.TaskStatus_Running
 		theTask.StartTime = int32(time.Now().Unix())
-		theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
-			OutputMessage: &jobs.ActionMessage{
-				OutputChain: []*jobs.ActionOutput{{StringBody: "Starting Resync"}},
-			},
+		theTask.ActionsLogs = append(theTask.ActionsLogs, fullLog)
+		fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
+			StringBody: "Starting Resync",
 		})
 		taskClient.PutTask(subCtx, &jobs.PutTaskRequest{Task: theTask})
 
@@ -156,7 +157,9 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 				select {
 				case status := <-statusChan:
 					theTask.StatusMessage = status.StatusString
-					outputs = append(outputs, &jobs.ActionOutput{StringBody: status.StatusString})
+					fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
+						StringBody: status.StatusString,
+					})
 					theTask.Progress = status.Progress
 					theTask.Status = jobs.TaskStatus_Running
 					_, e := taskClient.PutTask(subCtx, &jobs.PutTaskRequest{Task: theTask})
@@ -169,8 +172,8 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 					theTask.Progress = 1
 					theTask.EndTime = int32(time.Now().Unix())
 					theTask.Status = jobs.TaskStatus_Finished
-					theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
-						OutputMessage: &jobs.ActionMessage{OutputChain: outputs},
+					fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
+						StringBody: "Sync complete",
 					})
 					_, e := taskClient.PutTask(subCtx, &jobs.PutTaskRequest{Task: theTask})
 					if e != nil {
@@ -191,9 +194,10 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 			theTask.Progress = 1
 			theTask.EndTime = int32(time.Now().Unix())
 			theTask.Status = jobs.TaskStatus_Error
-			theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
-				OutputMessage: &jobs.ActionMessage{OutputChain: outputs},
+			fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
+				ErrorString: e.Error(),
 			})
+			theTask.ActionsLogs = append(theTask.ActionsLogs, fullLog)
 			taskClient.PutTask(c, &jobs.PutTaskRequest{Task: theTask})
 		}
 		return e

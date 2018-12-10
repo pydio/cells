@@ -305,6 +305,7 @@ message ActionOutput {
     bytes JsonBody = 4;
     string ErrorString = 5;
     bool Ignored = 6;
+    int32 Time = 7;
 }
 
 // Message passed along from one action to another, main properties

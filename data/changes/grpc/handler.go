@@ -32,11 +32,11 @@ import (
 	"github.com/micro/protobuf/ptypes"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/micro"
 	service "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/data/changes"
 )
@@ -126,7 +126,10 @@ func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, res
 				theTask.Status = jobs.TaskStatus_Error
 				theTask.EndTime = int32(time.Now().Unix())
 				theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
-					OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{ErrorString: outputError.Error()}}},
+					OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{
+						Time:        int32(time.Now().Unix()),
+						ErrorString: outputError.Error(),
+					}}},
 				})
 			} else {
 				theTask.StatusMessage = "Complete"
@@ -185,7 +188,10 @@ func (h Handler) TriggerResync(ctx context.Context, req *sync.ResyncRequest, res
 			theTask.StatusMessage = "Indexing node " + node.GetPath()
 			theTask.Status = jobs.TaskStatus_Running
 			theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
-				OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{StringBody: theTask.StatusMessage}}},
+				OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{
+					StringBody: theTask.StatusMessage,
+					Time:       int32(time.Now().Unix()),
+				}}},
 			})
 			_, e := taskClient.PutTask(ctx, &jobs.PutTaskRequest{Task: theTask})
 			if e != nil {

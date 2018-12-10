@@ -21,6 +21,8 @@
 package jobs
 
 import (
+	"time"
+
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
 )
@@ -29,6 +31,9 @@ func (a *ActionMessage) AppendOutput(output *ActionOutput) {
 
 	if a.OutputChain == nil {
 		a.OutputChain = []*ActionOutput{}
+	}
+	if output.Time == 0 {
+		output.Time = int32(time.Now().Unix())
 	}
 
 	a.OutputChain = append(a.OutputChain, output)
