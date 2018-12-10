@@ -54,6 +54,7 @@ type Batch struct {
 	SessionProvider        sync.SessionProvider
 	SessionProviderContext context.Context
 	StatusChan             chan BatchProcessStatus
+	DoneChan               chan bool
 }
 
 type BidirectionalBatch struct {
