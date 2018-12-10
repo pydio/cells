@@ -29,29 +29,36 @@ class ActionsLog extends React.Component {
     render(){
         const {task} = this.props;
         const {ActionsLogs} = task;
-        if (!ActionsLogs) {
+        let lines = [], error;
+        if(ActionsLogs){
+            ActionsLogs.map(log => {
+                lines.push(
+                    <div>
+                        <div style={{border: '1px solid #9e9e9e'}}>
+                            <AdminComponents.CodeMirrorField
+                                mode="json"
+                                globalScope={{}}
+                                value={JSON.stringify(log.OutputMessage, null, 4)}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+                );
+                lines.push(<Divider/>)
+            });
+            lines.pop();
+        }
+
+        if (task.Status === "Error" && task.StatusMessage) {
+            error = <div style={{padding: '12px 0', fontWeight: 500, fontSize: 14, color:'#e53935'}}>{task.StatusMessage}</div>
+        }
+        if (!error && !lines.length) {
             return <div>No actions taken</div>
         }
-        let lines = [];
-        ActionsLogs.map(log => {
-            lines.push(
-                <div>
-                    <div style={{border: '1px solid #9e9e9e'}}>
-                        <AdminComponents.CodeMirrorField
-                            mode="json"
-                            globalScope={{}}
-                            value={JSON.stringify(log.OutputMessage, null, 4)}
-                            readOnly={true}
-                        />
-                    </div>
-                </div>
-            );
-            lines.push(<Divider/>)
-        });
-        lines.pop();
 
         return (
             <div style={{fontSize: 13}}>
+                {error}
                 <div>{lines}</div>
             </div>
         );
