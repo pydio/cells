@@ -244,7 +244,12 @@ class Pane extends React.Component {
         const callback = (res) => {
             this.setState({posting: false});
             if(res) {
-                this.props.onDismiss();
+                if(this.props.onDismiss){
+                    this.props.onDismiss();
+                } else {
+                    this.props.pydio.UI.displayMessage('SUCCESS', this.props.pydio.MessageHash["core.mailer.1"].replace('%s', Object.keys(users).length));
+                    this.setState({users: {}, subject:'', message:''});
+                }
             }
         };
         this.setState({posting: true});
@@ -283,11 +288,11 @@ class Pane extends React.Component {
         };
         const content = (
             <Paper zDepth={this.props.zDepth !== undefined ? this.props.zDepth : 2} className={className} style={style}>
-                <h3  style={{padding:20, color:'rgba(0,0,0,0.87)', fontSize:25, marginBottom: 0, paddingBottom: 10}}>{this.props.panelTitle}</h3>
+                <h3  style={{padding:20, color:'rgba(0,0,0,0.87)', fontSize:25, marginBottom: 0, paddingBottom: 10, ...this.props.titleStyle}}>{this.props.panelTitle}</h3>
                 {errorDiv}
                 {this.props.additionalPaneTop}
                 {!this.props.uniqueUserStyle &&
-                    <div className="users-block" style={{padding: '0 20px'}}>
+                    <div className="users-block" style={{padding: '0 20px', ...this.props.usersBlockStyle}}>
                         <PydioComponents.UsersCompleter
                             ref="completer"
                             fieldLabel={this.getMessage('8')}
@@ -313,7 +318,7 @@ class Pane extends React.Component {
                 {!this.props.templateId &&
                     <Divider/>
                 }
-                <div style={{padding:'0 20px'}}>
+                <div style={{padding:'0 20px', ...this.props.messageBlockStyle}}>
                     <TextField
                         fullWidth={true}
                         underlineShow={false}
@@ -327,7 +332,8 @@ class Pane extends React.Component {
                 {this.props.additionalPaneBottom}
                 <Divider/>
                 <div style={{textAlign:'right', padding: '8px 20px'}}>
-                    <FlatButton label={this.getMessage('54', '')} onTouchTap={this.props.onDismiss}/>
+                    {this.props.onDismiss && <FlatButton label={this.getMessage('54', '')} onTouchTap={this.props.onDismiss}/>}
+                    {!this.props.onDismiss && <FlatButton label={this.getMessage('216', '')} onTouchTap={()=>{this.setState({users: {}, subject:'', message:''});}}/>}
                     <FlatButton disabled={posting} primary={true} label={this.getMessage('77', '')} onTouchTap={(e)=>this.postEmail()}/>
                 </div>
             </Paper>
