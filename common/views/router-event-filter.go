@@ -106,13 +106,13 @@ func (r *RouterEventFilter) NodeIsChildOfRoot(ctx context.Context, node *tree.No
 	vManager := GetVirtualNodesManager()
 	if virtualNode, exists := vManager.ByUuid(rootId); exists {
 		if resolved, e := vManager.ResolveInContext(ctx, virtualNode, r.GetClientsPool(), false); e == nil {
-			log.Logger(ctx).Debug("NodeIsChildOfRoot, Comparing Pathes on resolved", zap.String("node", node.Path), zap.String("root", resolved.Path))
-			return resolved, strings.HasPrefix(node.Path, resolved.Path)
+			//log.Logger(ctx).Info("NodeIsChildOfRoot, Comparing Pathes on resolved", zap.String("node", node.Path), zap.String("root", resolved.Path))
+			return resolved, node.Path == resolved.Path || strings.HasPrefix(node.Path, strings.TrimRight(resolved.Path, "/")+"/")
 		}
 	}
 	if root := r.getRoot(ctx, rootId); root != nil {
-		//log.Logger(ctx).Debug("NodeIsChildOfRoot, Comparing Pathes", zap.String("node", node.Path), zap.String("root", root.Path))
-		return root, strings.HasPrefix(node.Path, root.Path)
+		//log.Logger(ctx).Info("NodeIsChildOfRoot, Comparing Pathes", zap.String("node", node.Path), zap.String("root", root.Path))
+		return root, node.Path == root.Path || strings.HasPrefix(node.Path, strings.TrimRight(root.Path, "/")+"/")
 	}
 	return nil, false
 
