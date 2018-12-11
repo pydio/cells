@@ -84,14 +84,17 @@ func (s *sqlimpl) makeSearchQuery(query sql.Enquirer, countOnly bool, includePar
 
 		dataset = dataset.Select(goqu.I("t.uuid"), goqu.I("t.level"), goqu.I("t.rat"), goqu.I("n.name"), goqu.I("n.leaf"), goqu.I("n.etag"))
 		dataset = dataset.Order(goqu.I("n.name").Asc())
-		offset, limit := int64(0), int64(100)
+		offset, limit := int64(0), int64(-1)
 		if query.GetOffset() > 0 {
 			offset = query.GetOffset()
 		}
 		if query.GetLimit() > 0 {
 			limit = query.GetLimit()
 		}
-		dataset = dataset.Offset(uint(offset)).Limit(uint(limit))
+		dataset = dataset.Offset(uint(offset))
+		if limit > -1 {
+			dataset = dataset.Limit(uint(limit))
+		}
 
 	}
 

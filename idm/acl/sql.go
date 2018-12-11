@@ -167,7 +167,7 @@ func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 		expressions = append(expressions, whereExpression)
 	}
 
-	offset, limit := int64(0), int64(100)
+	offset, limit := int64(0), int64(-1)
 	if query.GetOffset() > 0 {
 		offset = query.GetOffset()
 	}

@@ -97,7 +97,10 @@ func QueryStringFromExpression(tableName string, driver string, e Enquirer, ex g
 		limit = e.GetLimit()
 	}
 
-	dataset = dataset.Offset(uint(offset)).Limit(uint(limit))
+	dataset = dataset.Offset(uint(offset))
+	if limit > -1 {
+		dataset = dataset.Limit(uint(limit))
+	}
 
 	queryString, _, err := dataset.ToSql()
 	return queryString, err
