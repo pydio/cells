@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"os"
 	"sync"
@@ -64,16 +65,19 @@ To apply the actual update, re-run the command with a --version parameter.
 		}
 		if len(binaries) == 0 {
 			c := color.New(color.FgRed)
-			c.Println("\nNo updates are available for this version\n")
+			c.Println("\nNo updates are available for this version")
+			c.Println("")
 			return
 		}
 
 		if updateToVersion == "" {
 			// List versions
 			c := color.New(color.FgGreen)
-			c.Println("\nNew packages are available. Please run the following command to upgrade to a given version\n")
+			c.Println("\nNew packages are available. Please run the following command to upgrade to a given version")
+			c.Println("")
 			c = color.New(color.FgBlack, color.Bold)
-			c.Println(os.Args[0] + " update --version=x.y.z\n")
+			c.Println(os.Args[0] + " update --version=x.y.z")
+			c.Println("")
 
 			table := tablewriter.NewWriter(cmd.OutOrStdout())
 			table.SetHeader([]string{"Version", "Package Name", "Description"})
@@ -98,7 +102,8 @@ To apply the actual update, re-run the command with a --version parameter.
 			}
 
 			c := color.New(color.FgBlack)
-			c.Println("Updating binary now\n")
+			c.Println("Updating binary now")
+			c.Println("")
 			pgChan := make(chan float64)
 			errorChan := make(chan error)
 			doneChan := make(chan bool)
@@ -114,7 +119,8 @@ To apply the actual update, re-run the command with a --version parameter.
 						color.New(color.FgRed).Println("\rError while updating binary: " + e.Error())
 						return
 					case <-doneChan:
-						color.New(color.FgBlack, color.Bold).Println("\rBinary successfully upgraded, you can restart cells now!\n")
+						color.New(color.FgBlack, color.Bold).Println("\rBinary successfully upgraded, you can restart cells now!")
+						fmt.Println("")
 						return
 					}
 				}
