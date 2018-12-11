@@ -101,6 +101,18 @@ var ManagedMultipart = (function (_AWS$S3$ManagedUpload) {
         upload.emit('httpUploadProgress', [info]);
     };
 
+    ManagedMultipart.prototype.uploadPart = function uploadPart(chunk, partNumber) {
+        var _this = this;
+
+        // Make sure to reupdate JWT after long uploads
+        PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
+            _awsSdk2['default'].config.update({
+                accessKeyId: jwt
+            });
+            _AWS$S3$ManagedUpload.prototype.uploadPart.call(_this, chunk, partNumber);
+        });
+    };
+
     return ManagedMultipart;
 })(_awsSdk2['default'].S3.ManagedUpload);
 
@@ -209,7 +221,7 @@ var PydioApi = (function () {
      */
 
     PydioApi.prototype.downloadSelection = function downloadSelection(userSelection) {
-        var _this = this;
+        var _this2 = this;
 
         var pydio = this.getPydioObject();
         var agent = navigator.userAgent || '';
@@ -234,14 +246,14 @@ var PydioApi = (function () {
                 if (agentIsMobile || !hiddenForm) {
                     document.location.href = url;
                 } else {
-                    _this.getPydioObject().UI.sendDownloadToHiddenForm(userSelection, { presignedUrl: url });
+                    _this2.getPydioObject().UI.sendDownloadToHiddenForm(userSelection, { presignedUrl: url });
                 }
             });
         } else {
             (function () {
                 var selection = new _genModelRestCreateSelectionRequest2['default']();
                 selection.Nodes = [];
-                var slug = _this.getPydioObject().user.getActiveRepositoryObject().getSlug();
+                var slug = _this2.getPydioObject().user.getActiveRepositoryObject().getSlug();
                 selection.Nodes = userSelection.getSelectedNodes().map(function (node) {
                     var tNode = new _genModelTreeNode2['default']();
                     tNode.Path = slug + node.getPath();
@@ -251,13 +263,13 @@ var PydioApi = (function () {
                 api.createSelection(selection).then(function (response) {
                     var SelectionUUID = response.SelectionUUID;
 
-                    var fakeNodePath = _this.getPydioObject().getContextHolder().getContextNode().getPath() + "/" + SelectionUUID + '-selection.' + archiveExt;
+                    var fakeNodePath = _this2.getPydioObject().getContextHolder().getContextNode().getPath() + "/" + SelectionUUID + '-selection.' + archiveExt;
                     var fakeNode = new _modelAjxpNode2['default'](fakeNodePath, true);
-                    _this.buildPresignedGetUrl(fakeNode, null, '', null, 'selection.' + archiveExt).then(function (url) {
+                    _this2.buildPresignedGetUrl(fakeNode, null, '', null, 'selection.' + archiveExt).then(function (url) {
                         if (agentIsMobile || !hiddenForm) {
                             document.location.href = url;
                         } else {
-                            _this.getPydioObject().UI.sendDownloadToHiddenForm(userSelection, { presignedUrl: url });
+                            _this2.getPydioObject().UI.sendDownloadToHiddenForm(userSelection, { presignedUrl: url });
                         }
                     });
                 });
@@ -278,7 +290,7 @@ var PydioApi = (function () {
     PydioApi.prototype.uploadPresigned = function uploadPresigned(file, path) {
         var onComplete = arguments.length <= 2 || arguments[2] === undefined ? function () {} : arguments[2];
 
-        var _this2 = this;
+        var _this3 = this;
 
         var onError = arguments.length <= 3 || arguments[3] === undefined ? function () {} : arguments[3];
         var onProgress = arguments.length <= 4 || arguments[4] === undefined ? function () {} : arguments[4];
@@ -306,7 +318,7 @@ var PydioApi = (function () {
                 });
                 var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
                 var signed = s3.getSignedUrl('putObject', params);
-                var xhr = _this2.uploadFile(file, '', '', onComplete, onError, onProgress, signed, { method: 'PUT', customHeaders: { 'X-Pydio-Bearer': jwt, 'Content-Type': 'application/octet-stream' } });
+                var xhr = _this3.uploadFile(file, '', '', onComplete, onError, onProgress, signed, { method: 'PUT', customHeaders: { 'X-Pydio-Bearer': jwt, 'Content-Type': 'application/octet-stream' } });
                 resolve(xhr);
             });
         });
@@ -469,11 +481,11 @@ var PydioApi = (function () {
     };
 
     PydioApi.prototype.getPlainContent = function getPlainContent(node, contentCallback) {
-        var _this3 = this;
+        var _this4 = this;
 
         PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
-            var url = _this3.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
-            var slug = _this3.getPydioObject().user.getActiveRepositoryObject().getSlug();
+            var url = _this4.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+            var slug = _this4.getPydioObject().user.getActiveRepositoryObject().getSlug();
 
             _awsSdk2['default'].config.update({
                 accessKeyId: jwt,
@@ -491,18 +503,18 @@ var PydioApi = (function () {
                 if (!err) {
                     contentCallback(data.Body.toString('utf-8'));
                 } else {
-                    _this3.getPydioObject().UI.displayMessage('ERROR', err.message);
+                    _this4.getPydioObject().UI.displayMessage('ERROR', err.message);
                 }
             });
         });
     };
 
     PydioApi.prototype.postPlainTextContent = function postPlainTextContent(nodePath, content, finishedCallback) {
-        var _this4 = this;
+        var _this5 = this;
 
         PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
-            var url = _this4.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
-            var slug = _this4.getPydioObject().user.getActiveRepositoryObject().getSlug();
+            var url = _this5.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+            var slug = _this5.getPydioObject().user.getActiveRepositoryObject().getSlug();
 
             _awsSdk2['default'].config.update({
                 accessKeyId: jwt,
@@ -519,7 +531,7 @@ var PydioApi = (function () {
                 if (!err) {
                     finishedCallback('Ok');
                 } else {
-                    _this4.getPydioObject().UI.displayMessage('ERROR', err.message);
+                    _this5.getPydioObject().UI.displayMessage('ERROR', err.message);
                     finishedCallback(false);
                 }
             });
@@ -548,11 +560,11 @@ var PydioApi = (function () {
     };
 
     PydioApi.prototype.revertToVersion = function revertToVersion(node, versionId, callback) {
-        var _this5 = this;
+        var _this6 = this;
 
         PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
-            var url = _this5.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
-            var slug = _this5.getPydioObject().user.getActiveRepositoryObject().getSlug();
+            var url = _this6.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
+            var slug = _this6.getPydioObject().user.getActiveRepositoryObject().getSlug();
 
             _awsSdk2['default'].config.update({
                 accessKeyId: jwt,
@@ -567,7 +579,7 @@ var PydioApi = (function () {
             var s3 = new _awsSdk2['default'].S3({ endpoint: url.replace('/io', '') });
             s3.copyObject(params, function (err) {
                 if (err) {
-                    _this5.getPydioObject().UI.displayMessage('ERROR', err.message);
+                    _this6.getPydioObject().UI.displayMessage('ERROR', err.message);
                 } else if (callback) {
                     callback('Copy version to original node');
                 }
