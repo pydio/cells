@@ -1958,6 +1958,7 @@ var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var moment = _Pydio$requireLib.moment;
 var Loader = _Pydio$requireLib.Loader;
+var SingleJobProgress = _Pydio$requireLib.SingleJobProgress;
 
 var UpdaterDashboard = _react2['default'].createClass({
     displayName: 'UpdaterDashboard',
@@ -2000,6 +2001,15 @@ var UpdaterDashboard = _react2['default'].createClass({
         });
     },
 
+    upgradeFinished: function upgradeFinished() {
+        var pydio = this.props.pydio;
+
+        this.setState({ updateApplied: this.state.selectedPackage.Version });
+        var node = pydio.getContextNode();
+        node.getMetadata().set('flag', 0);
+        AdminComponents.MenuItemListener.getInstance().notify("item_changed");
+    },
+
     performUpgrade: function performUpgrade() {
         var _this2 = this;
 
@@ -2014,29 +2024,26 @@ var UpdaterDashboard = _react2['default'].createClass({
         }
 
         if (confirm(this.context.getMessage('15', 'updater'))) {
-            (function () {
 
-                var toApply = packages[check];
-                var version = toApply.Version;
-                var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
-                _this2.setState({ applying: true });
-                api.applyUpdate(version).then(function (res) {
-                    pydio.UI.displayMessage(res.Success ? 'SUCCESS' : 'ERROR', res.Message);
-                    if (res.Success) {
-                        _this2.setState({ updateApplied: version });
-                        var node = pydio.getContextNode();
-                        node.getMetadata().set('flag', 0);
-                        AdminComponents.MenuItemListener.getInstance().notify("item_changed");
-                    }
-                })['finally'](function () {
-                    _this2.setState({ applying: false });
-                });
-            })();
+            var toApply = packages[check];
+            var version = toApply.Version;
+            var api = new _pydioHttpRestApi.UpdateServiceApi(_pydioHttpApi2['default'].getRestClient());
+            api.applyUpdate(version).then(function (res) {
+                if (res.Success) {
+                    _this2.setState({ watchJob: res.Message });
+                } else {
+                    pydio.UI.displayMessage('ERROR', res.Message);
+                }
+            })['finally'](function () {});
         }
     },
 
-    onCheckStateChange: function onCheckStateChange(index, value) {
-        if (value) this.setState({ check: index });else this.setState({ check: -1 });
+    onCheckStateChange: function onCheckStateChange(index, value, pack) {
+        if (value) {
+            this.setState({ check: index, selectedPackage: pack });
+        } else {
+            this.setState({ check: -1, selectedPackage: null });
+        }
     },
 
     render: function render() {
@@ -2050,23 +2057,20 @@ var UpdaterDashboard = _react2['default'].createClass({
         var loading = _state2.loading;
         var dirty = _state2.dirty;
         var updateApplied = _state2.updateApplied;
-        var applying = _state2.applying;
+        var selectedPackage = _state2.selectedPackage;
+        var watchJob = _state2.watchJob;
 
         var buttons = [];
         if (packages) {
             buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { disabled: check < 0 || updateApplied, secondary: true, label: this.context.getMessage('4', 'updater'), onTouchTap: this.performUpgrade }));
             var items = [];
-            if (updateApplied) {
-                items.push(_react2['default'].createElement(_materialUi.ListItem, { primaryText: "An update has been applied. Please restart the backend now." }));
-                items.push(_react2['default'].createElement(_materialUi.Divider, null));
-            }
 
             var _loop = function (index) {
                 var p = packages[index];
                 items.push(_react2['default'].createElement(_materialUi.ListItem, {
                     leftCheckbox: _react2['default'].createElement(_materialUi.Checkbox, { key: p, onCheck: function (e, v) {
-                            return _this3.onCheckStateChange(index, v);
-                        }, checked: index === check, disabled: updateApplied }),
+                            return _this3.onCheckStateChange(index, v, p);
+                        }, checked: check >= index, disabled: updateApplied || check > index }),
                     primaryText: p.PackageName + ' ' + p.Version,
                     secondaryText: p.Label + ' - ' + moment(new Date(p.ReleaseDate * 1000)).fromNow()
                 }));
@@ -2094,7 +2098,7 @@ var UpdaterDashboard = _react2['default'].createClass({
         } else if (loading) {
             list = _react2['default'].createElement(
                 'div',
-                null,
+                { style: { padding: 12 } },
                 this.context.getMessage('17', 'updater')
             );
         } else {
@@ -2150,13 +2154,24 @@ var UpdaterDashboard = _react2['default'].createClass({
                             ) })
                     )
                 ),
-                _react2['default'].createElement(
+                watchJob && _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { style: { margin: '0 16px', padding: 30, position: 'relative' }, zDepth: 1 },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { fontSize: 16, paddingBottom: 16 } },
+                        selectedPackage ? selectedPackage.PackageName + ' ' + selectedPackage.Version : ''
+                    ),
+                    _react2['default'].createElement(SingleJobProgress, { jobID: watchJob, progressStyle: { paddingTop: 16 }, onEnd: function () {
+                            _this3.upgradeFinished();
+                        } })
+                ),
+                !watchJob && list && _react2['default'].createElement(
                     _materialUi.Paper,
                     { style: { margin: '0 16px', padding: 16, position: 'relative' }, zDepth: 1 },
-                    applying && _react2['default'].createElement(Loader, { style: { position: 'absolute', zIndex: 1000, top: 0, left: 0, backgroundColor: 'rgba(0, 0, 0, 0.43)' } }),
                     list
                 ),
-                _react2['default'].createElement(_coreServiceExposedConfigs2['default'], {
+                !watchJob && _react2['default'].createElement(_coreServiceExposedConfigs2['default'], {
                     serviceName: "pydio.grpc.update",
                     ref: "serviceConfigs",
                     onDirtyChange: function (d) {
