@@ -41,10 +41,13 @@ import (
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 
+	"io/ioutil"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/update"
+	"github.com/pydio/cells/common/utils"
 )
 
 // LoadUpdates will post a Json query to the update server to detect if there are any
@@ -99,37 +102,73 @@ func LoadUpdates(ctx context.Context, config common.ConfigValues) ([]*update.Pac
 // ApplyUpdate uses the info of an update.Package to download the binary and replace
 // the current running binary. A restart is necessary afterward.
 // The dryRun option will download the binary and just put it in the /tmp folder
-func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValues, dryRun bool) error {
+func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValues, dryRun bool, pgChan chan float64, doneChan chan bool, errorChan chan error) {
+
+	defer func() {
+		doneChan <- true
+	}()
 
 	if resp, err := http.Get(p.BinaryURL); err != nil {
-		return err
+		errorChan <- err
+		return
 	} else {
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			plain, _ := ioutil.ReadAll(resp.Body)
+			errorChan <- errors.New("binary.download.error", "Error while downloading binary:"+string(plain), int32(resp.StatusCode))
+			return
+		}
+
 		targetPath := ""
 		if dryRun {
 			targetPath = filepath.Join(os.TempDir(), "pydio-update")
 		}
 		if p.BinaryChecksum == "" || p.BinarySignature == "" {
-			return fmt.Errorf("Missing checksum and signature infos")
+			errorChan <- fmt.Errorf("Missing checksum and signature infos")
+			return
 		}
 		checksum, e := base64.StdEncoding.DecodeString(p.BinaryChecksum)
 		if e != nil {
-			return e
+			errorChan <- e
+			return
 		}
 		signature, e := base64.StdEncoding.DecodeString(p.BinarySignature)
 		if e != nil {
-			return e
+			errorChan <- e
+			return
 		}
 
 		pKey := conf.Get("publicKey").(string)
 		block, _ := pem.Decode([]byte(pKey))
 		var pubKey rsa.PublicKey
 		if _, err := asn1.Unmarshal(block.Bytes, &pubKey); err != nil {
-			return err
+			errorChan <- err
+			return
 		}
 		dataDir, _ := config.ServiceDataDir(common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_UPDATE)
 		oldPath := filepath.Join(dataDir, "revision-"+common.BuildStamp)
 
-		return update2.Apply(resp.Body, update2.Options{
+		/*
+			pg := make(chan float64)
+			done := make(chan bool, 1)
+			go func() {
+				defer close(pg)
+				defer close(done)
+				for {
+					select {
+					case progress := <-pg:
+						log.Logger(ctx).Info("Download Progress", zap.Any("pg", progress))
+					case <-done:
+						log.Logger(ctx).Info("Download Finished")
+						return
+					}
+				}
+			}()
+		*/
+
+		reader := utils.BodyWithProgressMonitor(resp, pgChan, nil)
+
+		er := update2.Apply(reader, update2.Options{
 			Checksum:    checksum,
 			Signature:   signature,
 			TargetPath:  targetPath,
@@ -138,6 +177,10 @@ func ApplyUpdate(ctx context.Context, p *update.Package, conf common.ConfigValue
 			PublicKey:   &pubKey,
 			Verifier:    update2.NewRSAVerifier(),
 		})
+		if er != nil {
+			errorChan <- er
+		}
+		return
 	}
 
 }

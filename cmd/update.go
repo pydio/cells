@@ -22,12 +22,15 @@ package cmd
 
 import (
 	"context"
-	"fmt"
+	"math"
 	"os"
+	"sync"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -60,15 +63,27 @@ To apply the actual update, re-run the command with a --version parameter.
 			log.Fatal("Cannot retrieve available updates", zap.Error(e))
 		}
 		if len(binaries) == 0 {
-			fmt.Println("No updates available for this version")
+			c := color.New(color.FgRed)
+			c.Println("\nNo updates are available for this version\n")
+			return
 		}
 
 		if updateToVersion == "" {
 			// List versions
-			fmt.Println("Following packages are available: please run \n$ " + os.Args[0] + " update --version=x.y.z\n to upgrade to a given version")
+			c := color.New(color.FgGreen)
+			c.Println("\nNew packages are available. Please run the following command to upgrade to a given version\n")
+			c = color.New(color.FgBlack, color.Bold)
+			c.Println(os.Args[0] + " update --version=x.y.z\n")
+
+			table := tablewriter.NewWriter(cmd.OutOrStdout())
+			table.SetHeader([]string{"Version", "Package Name", "Description"})
+
 			for _, bin := range binaries {
-				fmt.Println(fmt.Sprintf(" %s \t %s \t %s", bin.PackageName, bin.Version, bin.Label))
+				table.Append([]string{bin.Version, bin.Label, bin.Description})
 			}
+
+			table.SetAlignment(tablewriter.ALIGN_LEFT)
+			table.Render()
 
 		} else {
 
@@ -79,16 +94,33 @@ To apply the actual update, re-run the command with a --version parameter.
 				}
 			}
 			if apply == nil {
-				log.Fatal("cannot find the requested version")
+				log.Fatal("Cannot find the requested version")
 			}
 
-			fmt.Println("Updating binary now")
-			if err := update2.ApplyUpdate(context.Background(), apply, configs, updateDryRun); err != nil {
-				log.Fatal("Could not update the binary: " + err.Error())
-			} else {
-				fmt.Println("Successfully upgraded binary, you can restart pydio now!")
-			}
-
+			c := color.New(color.FgBlack)
+			c.Println("Updating binary now\n")
+			pgChan := make(chan float64)
+			errorChan := make(chan error)
+			doneChan := make(chan bool)
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for {
+					select {
+					case pg := <-pgChan:
+						color.New(color.FgBlue).Printf("\rDownloading binary: %v%%", math.Floor(pg*100))
+					case e := <-errorChan:
+						color.New(color.FgRed).Println("\rError while updating binary: " + e.Error())
+						return
+					case <-doneChan:
+						color.New(color.FgBlack, color.Bold).Println("\rBinary successfully upgraded, you can restart cells now!\n")
+						return
+					}
+				}
+			}()
+			update2.ApplyUpdate(context.Background(), apply, configs, updateDryRun, pgChan, doneChan, errorChan)
+			wg.Wait()
 		}
 
 	},
