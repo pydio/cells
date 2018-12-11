@@ -22,10 +22,11 @@ package mailer
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"go.uber.org/zap"
-	"gopkg.in/gomail.v2"
+	gomail "gopkg.in/gomail.v2"
 
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -41,16 +42,35 @@ type Smtp struct {
 
 func (gm *Smtp) Configure(conf config.Map) error {
 
-	gm.User = conf.Get("user").(string)
-	// Used by tests
+	val := conf.Get("user")
+	if val == nil {
+		return fmt.Errorf("cannot configure mailer: missing compulsory user name")
+	}
+	gm.User = val.(string)
+
 	if clear := conf.Get("clearPass"); clear != nil {
+		// Used by tests
 		gm.Password = clear.(string)
 	} else {
-		passwordSecret := conf.Get("password").(string)
+		val = conf.Get("password")
+		if val == nil {
+			return fmt.Errorf("cannot configure mailer: missing compulsory password")
+		}
+		passwordSecret := val.(string)
 		gm.Password = config.GetSecret(passwordSecret).String("")
 	}
-	gm.Host = conf.Get("host").(string)
+
+	val = conf.Get("host")
+	if val == nil {
+		return fmt.Errorf("cannot configure mailer: missing compulsory host address")
+	}
+	gm.Host = val.(string)
+
 	portConf := conf.Get("port")
+	if portConf == nil {
+		return fmt.Errorf("cannot configure mailer: missing compulsory port")
+	}
+
 	if sConf, ok := portConf.(string); ok && sConf != "" {
 		parsed, _ := strconv.ParseInt(sConf, 10, 64)
 		gm.Port = int(parsed)
