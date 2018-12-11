@@ -151,7 +151,7 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 			}
 			respNode := resp.Node
 			for r, p := range nodesPrefixes {
-				if strings.HasPrefix(respNode.Path, r) {
+				if strings.HasPrefix(respNode.Path, r+"/") {
 					log.Logger(ctx).Debug("Response", zap.String("node", respNode.Path))
 					_, filtered, err := outputFilter(ctx, respNode, "search-"+p)
 					if err != nil {
