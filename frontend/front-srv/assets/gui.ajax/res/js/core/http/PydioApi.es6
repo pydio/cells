@@ -54,9 +54,8 @@ class ManagedMultipart extends AWS.S3.ManagedUpload{
     uploadPart(chunk, partNumber) {
         // Make sure to reupdate JWT after long uploads
         PydioApi.getRestClient().getOrUpdateJwt().then(jwt => {
-            AWS.config.update({
-                accessKeyId: jwt,
-            });
+            // Update accessKeyId
+            this.service.config.credentials.accessKeyId = jwt;
             super.uploadPart(chunk, partNumber);
         });
     }

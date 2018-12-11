@@ -106,9 +106,8 @@ var ManagedMultipart = (function (_AWS$S3$ManagedUpload) {
 
         // Make sure to reupdate JWT after long uploads
         PydioApi.getRestClient().getOrUpdateJwt().then(function (jwt) {
-            _awsSdk2['default'].config.update({
-                accessKeyId: jwt
-            });
+            // Update accessKeyId
+            _this.service.config.credentials.accessKeyId = jwt;
             _AWS$S3$ManagedUpload.prototype.uploadPart.call(_this, chunk, partNumber);
         });
     };
