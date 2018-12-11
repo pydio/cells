@@ -28,10 +28,10 @@ import (
 	"strconv"
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/micro/go-micro/client"
 	"github.com/pborman/uuid"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
