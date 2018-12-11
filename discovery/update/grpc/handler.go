@@ -23,15 +23,12 @@ package grpc
 import (
 	"context"
 	"fmt"
-
-	"go.uber.org/zap"
-
-	"time"
-
+	"math"
 	"net/url"
 	"strconv"
+	"time"
 
-	"math"
+	"go.uber.org/zap"
 
 	"github.com/micro/go-micro/client"
 	"github.com/pborman/uuid"

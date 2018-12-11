@@ -29,6 +29,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -40,8 +41,6 @@ import (
 	update2 "github.com/inconshreveable/go-update"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
-
-	"io/ioutil"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
