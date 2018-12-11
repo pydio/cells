@@ -150,17 +150,18 @@ func (s *BleveServer) MakeIndexableNode(ctx context.Context, node *tree.Node) *I
 	indexNode.GetMeta("GeoLocation", &indexNode.GeoPoint)
 
 	if s.IndexContent && indexNode.IsLeaf() {
+		logger := log.Logger(ctx)
 		reader, err := s.getRouter().GetObject(ctx, proto.Clone(node).(*tree.Node), &views.GetRequestData{Length: -1})
 		//reader, err := node.ReadFile(ctx)
 		if err == nil {
 			convertResp, er := docconv.Convert(reader, docconv.MimeTypeByExtension(basename), true)
 			if er == nil {
 				// Todo : do something with convertResp.Meta?
-				log.Logger(ctx).Debug("[BLEVE] Indexing content body for file")
+				logger.Debug("[BLEVE] Indexing content body for file")
 				indexNode.TextContent = convertResp.Body
 			}
 		} else {
-			log.Logger(ctx).Debug("[BLEVE] Index content: error while trying to read file for content indexation")
+			logger.Debug("[BLEVE] Index content: error while trying to read file for content indexation")
 		}
 	}
 	indexNode.MetaStore = nil

@@ -43,6 +43,7 @@ type HandlerAuditEvent struct {
 
 // GetObject logs an audit message on each GetObject Events after calling following handlers.
 func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+	auditer := log.Auditer(ctx)
 	reader, e := h.next.GetObject(ctx, node, requestData)
 
 	isBinary, wsInfo, wsScope := checkBranchInfoForAudit(ctx, "in")
@@ -50,7 +51,7 @@ func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requ
 		return reader, e // do not audit thumbnail events
 	}
 	if e == nil {
-		log.Auditer(ctx).Info(
+		auditer.Info(
 			fmt.Sprintf("Retrieved object at %s", node.Path),
 			log.GetAuditId(common.AUDIT_OBJECT_GET),
 			node.ZapUuid(),
@@ -65,6 +66,7 @@ func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requ
 
 // PutObject logs an audit message after calling following handlers.
 func (h *HandlerAuditEvent) PutObject(ctx context.Context, node *tree.Node, reader io.Reader, requestData *PutRequestData) (int64, error) {
+	auditer := log.Auditer(ctx)
 	written, e := h.next.PutObject(ctx, node, reader, requestData)
 
 	isBinary, wsInfo, wsScope := checkBranchInfoForAudit(ctx, "in")
@@ -72,7 +74,7 @@ func (h *HandlerAuditEvent) PutObject(ctx context.Context, node *tree.Node, read
 		return written, e // do not audit thumbnail events
 	}
 
-	log.Auditer(ctx).Info(
+	auditer.Info(
 		fmt.Sprintf("Modified %s, put %d bytes", node.Path, written),
 		log.GetAuditId(common.AUDIT_OBJECT_PUT),
 		node.ZapUuid(),

@@ -26,6 +26,7 @@ import {RaisedButton, FlatButton} from 'material-ui'
 import Pydio from 'pydio'
 const PydioForm = Pydio.requireLib("form");
 import ServiceExposedConfigs from './ServiceExposedConfigs'
+import MailerTest from './MailerTest'
 
 /**
  * Editor for a given plugin. By default, displays documentation in a left column panel,
@@ -140,6 +141,11 @@ const PluginEditor = React.createClass({
             addPanes.top = additionalPanes.top.slice();
             addPanes.bottom = additionalPanes.bottom.slice();
         }
+        const {serviceName} = this.props;
+        if(serviceName === 'pydio.grpc.mailer'){
+            addPanes.bottom.push(<MailerTest pydio={this.props.pydio}/>)
+        }
+
         let closeButton;
         if(closeEditor){
             closeButton = <RaisedButton label={this.context.getMessage('86','')} onTouchTap={closeEditor}/>

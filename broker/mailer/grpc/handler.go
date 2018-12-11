@@ -126,7 +126,7 @@ func (h *Handler) SendMail(ctx context.Context, req *proto.SendMailRequest, rsp 
 				return e
 			}
 		} else {
-			log.Logger(ctx).Debug("SendMail: sending email", zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
+			log.Logger(ctx).Info("SendMail: sending email", zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
 			if e := h.sender.Send(m); e != nil {
 				log.Logger(ctx).Error(fmt.Sprintf("could not directly send mail: %s", e.Error()), zap.Any("to", m.To), zap.Any("from", m.From), zap.Any("subject", m.Subject))
 				return e

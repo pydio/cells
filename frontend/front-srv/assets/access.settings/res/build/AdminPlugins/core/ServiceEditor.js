@@ -52,6 +52,10 @@ var _ServiceExposedConfigs = require('./ServiceExposedConfigs');
 
 var _ServiceExposedConfigs2 = _interopRequireDefault(_ServiceExposedConfigs);
 
+var _MailerTest = require('./MailerTest');
+
+var _MailerTest2 = _interopRequireDefault(_MailerTest);
+
 /**
  * Editor for a given plugin. By default, displays documentation in a left column panel,
  * and plugin parameters as form cards on the right.
@@ -184,6 +188,12 @@ var PluginEditor = _react2['default'].createClass({
             addPanes.top = additionalPanes.top.slice();
             addPanes.bottom = additionalPanes.bottom.slice();
         }
+        var serviceName = this.props.serviceName;
+
+        if (serviceName === 'pydio.grpc.mailer') {
+            addPanes.bottom.push(_react2['default'].createElement(_MailerTest2['default'], { pydio: this.props.pydio }));
+        }
+
         var closeButton = undefined;
         if (closeEditor) {
             closeButton = _react2['default'].createElement(_materialUi.RaisedButton, { label: this.context.getMessage('86', ''), onTouchTap: closeEditor });

@@ -351,7 +351,12 @@ var Pane = (function (_React$Component3) {
             var callback = function callback(res) {
                 _this2.setState({ posting: false });
                 if (res) {
-                    _this2.props.onDismiss();
+                    if (_this2.props.onDismiss) {
+                        _this2.props.onDismiss();
+                    } else {
+                        _this2.props.pydio.UI.displayMessage('SUCCESS', _this2.props.pydio.MessageHash["core.mailer.1"].replace('%s', Object.keys(users).length));
+                        _this2.setState({ users: {}, subject: '', message: '' });
+                    }
                 }
             };
             this.setState({ posting: true });
@@ -406,14 +411,14 @@ var Pane = (function (_React$Component3) {
                 { zDepth: this.props.zDepth !== undefined ? this.props.zDepth : 2, className: className, style: style },
                 _react2['default'].createElement(
                     'h3',
-                    { style: { padding: 20, color: 'rgba(0,0,0,0.87)', fontSize: 25, marginBottom: 0, paddingBottom: 10 } },
+                    { style: _extends({ padding: 20, color: 'rgba(0,0,0,0.87)', fontSize: 25, marginBottom: 0, paddingBottom: 10 }, this.props.titleStyle) },
                     this.props.panelTitle
                 ),
                 errorDiv,
                 this.props.additionalPaneTop,
                 !this.props.uniqueUserStyle && _react2['default'].createElement(
                     'div',
-                    { className: 'users-block', style: { padding: '0 20px' } },
+                    { className: 'users-block', style: _extends({ padding: '0 20px' }, this.props.usersBlockStyle) },
                     _react2['default'].createElement(PydioComponents.UsersCompleter, {
                         ref: 'completer',
                         fieldLabel: this.getMessage('8'),
@@ -444,7 +449,7 @@ var Pane = (function (_React$Component3) {
                 !this.props.templateId && _react2['default'].createElement(_materialUi.Divider, null),
                 _react2['default'].createElement(
                     'div',
-                    { style: { padding: '0 20px' } },
+                    { style: _extends({ padding: '0 20px' }, this.props.messageBlockStyle) },
                     _react2['default'].createElement(_materialUi.TextField, {
                         fullWidth: true,
                         underlineShow: false,
@@ -460,7 +465,10 @@ var Pane = (function (_React$Component3) {
                 _react2['default'].createElement(
                     'div',
                     { style: { textAlign: 'right', padding: '8px 20px' } },
-                    _react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('54', ''), onTouchTap: this.props.onDismiss }),
+                    this.props.onDismiss && _react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('54', ''), onTouchTap: this.props.onDismiss }),
+                    !this.props.onDismiss && _react2['default'].createElement(_materialUi.FlatButton, { label: this.getMessage('216', ''), onTouchTap: function () {
+                            _this4.setState({ users: {}, subject: '', message: '' });
+                        } }),
                     _react2['default'].createElement(_materialUi.FlatButton, { disabled: posting, primary: true, label: this.getMessage('77', ''), onTouchTap: function (e) {
                             return _this4.postEmail();
                         } })

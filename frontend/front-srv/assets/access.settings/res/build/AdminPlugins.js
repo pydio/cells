@@ -123,7 +123,7 @@ var AuthenticationPluginsDashboard = React.createClass({
 exports['default'] = AuthenticationPluginsDashboard;
 module.exports = exports['default'];
 
-},{"../core/PluginEditor":6,"../core/PluginsList":7}],3:[function(require,module,exports){
+},{"../core/PluginEditor":7,"../core/PluginsList":8}],3:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -219,7 +219,7 @@ var CoreAndPluginsDashboard = (function (_React$Component) {
 exports['default'] = CoreAndPluginsDashboard;
 module.exports = exports['default'];
 
-},{"./PluginEditor":6,"./PluginsList":7,"pydio/util/path":"pydio/util/path","react":"react"}],4:[function(require,module,exports){
+},{"./PluginEditor":7,"./PluginsList":8,"pydio/util/path":"pydio/util/path","react":"react"}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -265,6 +265,113 @@ exports['default'] = Loader;
 module.exports = exports['default'];
 
 },{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml"}],5:[function(require,module,exports){
+/*
+ * Copyright 2007-2018 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
+ * This file is part of Pydio.
+ *
+ * Pydio is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Pydio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Pydio.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * The latest code can be found at <https://pydio.com>.
+ */
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
+
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
+
+var MailerTest = (function (_React$Component) {
+    _inherits(MailerTest, _React$Component);
+
+    function MailerTest(props) {
+        _classCallCheck(this, MailerTest);
+
+        _get(Object.getPrototypeOf(MailerTest.prototype), 'constructor', this).call(this, props);
+        this.state = { loaded: false };
+    }
+
+    _createClass(MailerTest, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            var _this = this;
+
+            _pydioHttpResourcesManager2['default'].loadClass('PydioMailer').then(function () {
+                _this.setState({ loaded: true });
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var loaded = this.state.loaded;
+            var MessageHash = this.props.pydio.MessageHash;
+
+            if (!loaded) {
+                return _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 20 } },
+                    MessageHash["ajxp_admin.mailer.test.loading"]
+                );
+            }
+
+            return _react2['default'].createElement(
+                'div',
+                null,
+                _react2['default'].createElement(PydioMailer.Pane, {
+                    pydio: this.props.pydio,
+                    templateId: "AdminTestMail",
+                    templateData: {},
+                    overlay: false,
+                    panelTitle: MessageHash["ajxp_admin.mailer.test.title"],
+                    style: { margin: 16, padding: '20px 0 0' },
+                    titleStyle: { fontSize: 24, padding: 0, paddingBottom: 0 },
+                    usersBlockStyle: { padding: 0 },
+                    messageBlockStyle: { padding: 0 },
+                    zDepth: 0
+                }),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { color: '#BDBDBD', margin: '20px 16px', fontSize: 12 } },
+                    MessageHash["ajxp_admin.mailer.test.legend"]
+                )
+            );
+        }
+    }]);
+
+    return MailerTest;
+})(_react2['default'].Component);
+
+exports['default'] = MailerTest;
+module.exports = exports['default'];
+
+},{"pydio/http/resources-manager":"pydio/http/resources-manager","react":"react"}],6:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -341,7 +448,7 @@ var PluginsManager = _react2['default'].createClass({
 exports['default'] = PluginsManager;
 module.exports = exports['default'];
 
-},{"./PluginsList":7,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],6:[function(require,module,exports){
+},{"./PluginsList":8,"material-ui":"material-ui","pydio/http/api":"pydio/http/api","react":"react"}],7:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -645,7 +752,7 @@ var PluginEditor = _react2['default'].createClass({
 exports['default'] = PluginEditor;
 module.exports = exports['default'];
 
-},{"./Loader":4,"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml","react":"react"}],7:[function(require,module,exports){
+},{"./Loader":4,"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml","react":"react"}],8:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -829,7 +936,7 @@ var PluginsList = React.createClass({
 exports['default'] = PluginsList;
 module.exports = exports['default'];
 
-},{"./Loader":4,"./PluginEditor":6,"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml"}],8:[function(require,module,exports){
+},{"./Loader":4,"./PluginEditor":7,"material-ui":"material-ui","pydio/util/lang":"pydio/util/lang","pydio/util/xml":"pydio/util/xml"}],9:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -883,6 +990,10 @@ var _pydio2 = _interopRequireDefault(_pydio);
 var _ServiceExposedConfigs = require('./ServiceExposedConfigs');
 
 var _ServiceExposedConfigs2 = _interopRequireDefault(_ServiceExposedConfigs);
+
+var _MailerTest = require('./MailerTest');
+
+var _MailerTest2 = _interopRequireDefault(_MailerTest);
 
 /**
  * Editor for a given plugin. By default, displays documentation in a left column panel,
@@ -1016,6 +1127,12 @@ var PluginEditor = _react2['default'].createClass({
             addPanes.top = additionalPanes.top.slice();
             addPanes.bottom = additionalPanes.bottom.slice();
         }
+        var serviceName = this.props.serviceName;
+
+        if (serviceName === 'pydio.grpc.mailer') {
+            addPanes.bottom.push(_react2['default'].createElement(_MailerTest2['default'], { pydio: this.props.pydio }));
+        }
+
         var closeButton = undefined;
         if (closeEditor) {
             closeButton = _react2['default'].createElement(_materialUi.RaisedButton, { label: this.context.getMessage('86', ''), onTouchTap: closeEditor });
@@ -1080,7 +1197,7 @@ var PluginEditor = _react2['default'].createClass({
 exports['default'] = PluginEditor;
 module.exports = exports['default'];
 
-},{"./ServiceExposedConfigs":9,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],9:[function(require,module,exports){
+},{"./MailerTest":5,"./ServiceExposedConfigs":10,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","pydio/util/xml":"pydio/util/xml","react":"react"}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -1266,7 +1383,7 @@ var ServiceExposedConfigs = (function (_React$Component) {
 exports['default'] = ServiceExposedConfigs;
 module.exports = exports['default'];
 
-},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],10:[function(require,module,exports){
+},{"pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],11:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1664,7 +1781,7 @@ var ClassPanel = (function (_Component2) {
 exports['default'] = JSDocsPanel;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio/util/path":"pydio/util/path","react":"react"}],11:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio/util/path":"pydio/util/path","react":"react"}],12:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1758,7 +1875,7 @@ var OpenApiDashboard = (function (_React$Component) {
 exports['default'] = OpenApiDashboard;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","react":"react","react-swagger-ui":1}],12:[function(require,module,exports){
+},{"material-ui":"material-ui","react":"react","react-swagger-ui":1}],13:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1825,7 +1942,7 @@ var EditorsDashboard = React.createClass({
 exports['default'] = EditorsDashboard;
 module.exports = exports['default'];
 
-},{"../core/PluginsList":7,"material-ui":"material-ui"}],13:[function(require,module,exports){
+},{"../core/PluginsList":8,"material-ui":"material-ui"}],14:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -1905,7 +2022,7 @@ window.AdminPlugins = {
 
 };
 
-},{"./auth/AuthenticationPluginsDashboard":2,"./core/CoreAndPluginsDashboard":3,"./core/Manager":5,"./core/PluginEditor":6,"./core/PluginsList":7,"./core/ServiceEditor":8,"./docs/JSDocsDashboard":10,"./docs/OpenApiDashboard":11,"./editors/EditorsDashboard":12,"./updater/UpdaterDashboard":14}],14:[function(require,module,exports){
+},{"./auth/AuthenticationPluginsDashboard":2,"./core/CoreAndPluginsDashboard":3,"./core/Manager":6,"./core/PluginEditor":7,"./core/PluginsList":8,"./core/ServiceEditor":9,"./docs/JSDocsDashboard":11,"./docs/OpenApiDashboard":12,"./editors/EditorsDashboard":13,"./updater/UpdaterDashboard":15}],15:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -2187,4 +2304,4 @@ var UpdaterDashboard = _react2['default'].createClass({
 exports['default'] = UpdaterDashboard;
 module.exports = exports['default'];
 
-},{"../core/ServiceExposedConfigs":9,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}]},{},[13]);
+},{"../core/ServiceExposedConfigs":10,"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}]},{},[14]);

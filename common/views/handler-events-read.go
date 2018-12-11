@@ -31,10 +31,10 @@ import (
 	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils"
 )
 
@@ -78,6 +78,8 @@ func (h *HandlerEventRead) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 
 func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
 
+	logger := log.Logger(ctx)
+
 	var (
 		doc      *docstore.Document
 		linkData *docstore.ShareDocument
@@ -98,7 +100,7 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 		eventNode := node.Clone()
 		if eventNode.Uuid == "" {
 			if e := h.feedNodeUuid(ctx, eventNode); e != nil {
-				log.Logger(ctx).Error("HandlerEventRead did not find Uuid!", zap.Error(e))
+				logger.Debug("HandlerEventRead did not find Uuid!", zap.Error(e))
 			}
 		}
 		if eventNode.Uuid != "" {
@@ -118,9 +120,9 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 				store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 				_, e3 := store.PutDocument(bgContext, &docstore.PutDocumentRequest{StoreID: common.DOCSTORE_ID_SHARES, DocumentID: doc.ID, Document: doc})
 				if e3 == nil {
-					log.Logger(ctx).Debug("Updated share download count " + doc.ID)
+					logger.Debug("Updated share download count " + doc.ID)
 				} else {
-					log.Logger(ctx).Error("Docstore error while trying to increment link downloads count", zap.Error(e3))
+					logger.Error("Docstore error while trying to increment link downloads count", zap.Error(e3))
 				}
 
 			}()

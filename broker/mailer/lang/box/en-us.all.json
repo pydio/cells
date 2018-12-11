@@ -122,6 +122,22 @@
     "other" : "{{.Configs.Title}} File Sharing platform is used by {{.TplData.Inviter}} team to efficiently collaborate on documents."
   },
 
+  "Mail.AdminTestMail.Subject" : {
+    "other" : "{{.Configs.Title}} is sending you a test email"
+  },
+  "Mail.AdminTestMail.Intros" : {
+    "other" : "{{.TplData.Message}}"
+  },
+  "Mail.AdminTestMail.LinkLabel": {
+    "other" : "Open Cells"
+  },
+  "Mail.AdminTestMail.LinkInstructions": {
+    "other" : "Click to open the frontend"
+  },
+  "Mail.AdminTestMail.Outros" : {
+    "other" : "{{.Configs.Title}} File Sharing platform is used by teams to efficiently collaborate on documents."
+  },
+
   "Mail.Config.Title":{
     "other" : "Mailer"
   },

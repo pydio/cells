@@ -139,6 +139,8 @@ func (e *Executor) DeleteNode(ctx context.Context, in *tree.DeleteNodeRequest, o
 }
 
 func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *GetRequestData) (io.ReadCloser, error) {
+	// Init logger now
+	logger := log.Logger(ctx)
 	info, ok := GetBranchInfo(ctx, "in")
 	if !ok {
 		return nil, errors.BadRequest(VIEWS_LIBRARY_NAME, "Cannot find S3 client, did you insert a resolver middleware?")
@@ -167,7 +169,7 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 	}
 
 	if requestData.StartOffset == 0 && requestData.Length == -1 {
-		log.Logger(ctx).Debug("[Handler exec] Target Object Size is", zap.Any("object", sObject))
+		logger.Debug("[Handler exec] Target Object Size is", zap.Any("object", sObject))
 		//		requestData.Length = sObject.Size
 	}
 	if requestData.StartOffset >= 0 && requestData.Length >= 0 {
@@ -176,9 +178,9 @@ func (e *Executor) GetObject(ctx context.Context, node *tree.Node, requestData *
 		}
 	}
 	reader, err = writer.GetObjectWithContext(newCtx, info.ObjectsBucket, s3Path, headers)
-	log.Logger(ctx).Debug("[handler exec] Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers.Header()), zap.Any("request", requestData), zap.Any("resultObject", reader))
+	logger.Debug("[handler exec] Get Object", zap.String("bucket", info.ObjectsBucket), zap.String("s3path", s3Path), zap.Any("headers", headers.Header()), zap.Any("request", requestData), zap.Any("resultObject", reader))
 	if err != nil {
-		log.Logger(ctx).Error("Get Object", zap.Error(err))
+		logger.Error("Get Object", zap.Error(err))
 	}
 
 	return reader, err
