@@ -79,7 +79,7 @@ func (e *ExifProcessor) Run(ctx context.Context, channels *actions.RunnableChann
 	exifData, err := e.ExtractExif(ctx, node)
 
 	if err != nil {
-		log.Logger(ctx).Error("Could not extract exif : ", zap.Error(err), zap.Any("ctx", ctx))
+		log.Logger(ctx).Debug("Could not extract exif : ", zap.Error(err), zap.Any("ctx", ctx))
 		return input.WithError(err), err
 	}
 
