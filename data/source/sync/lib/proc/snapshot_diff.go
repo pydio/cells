@@ -24,6 +24,8 @@ import (
 	"context"
 	"errors"
 
+	"fmt"
+
 	"github.com/pydio/cells/common/proto/tree"
 	sync "github.com/pydio/cells/data/source/sync/lib/common"
 	"github.com/pydio/cells/data/source/sync/lib/endpoints"
@@ -64,7 +66,7 @@ func (diff *SourceDiff) FilterMissing(source sync.PathSyncSource, target sync.Pa
 
 }
 
-func ComputeSourcesDiff(ctx context.Context, left sync.PathSyncSource, right sync.PathSyncSource, strong bool) (diff *SourceDiff, err error) {
+func ComputeSourcesDiff(ctx context.Context, left sync.PathSyncSource, right sync.PathSyncSource, strong bool, statusChan chan filters.BatchProcessStatus) (diff *SourceDiff, err error) {
 
 	diff = &SourceDiff{
 		Left:    left,
@@ -75,6 +77,9 @@ func ComputeSourcesDiff(ctx context.Context, left sync.PathSyncSource, right syn
 	var rightSnapshot, leftSnapshot *endpoints.MemDB
 
 	if right != nil {
+		if statusChan != nil {
+			statusChan <- filters.BatchProcessStatus{StatusString: "[right] Loading snapshot"}
+		}
 		rightSnapshot = endpoints.NewMemDB()
 		err = right.Walk(func(path string, node *tree.Node, err error) {
 			if sync.IsIgnoredFile(path) || len(path) == 0 {
@@ -85,10 +90,16 @@ func ComputeSourcesDiff(ctx context.Context, left sync.PathSyncSource, right syn
 		if err != nil {
 			return nil, err
 		}
+		if statusChan != nil {
+			statusChan <- filters.BatchProcessStatus{StatusString: "[right] Snapshot loaded - " + rightSnapshot.Stats()}
+		}
 	}
 
 	if left != nil {
 		leftSnapshot = endpoints.NewMemDB()
+		if statusChan != nil {
+			statusChan <- filters.BatchProcessStatus{StatusString: "[left] Loading snapshot"}
+		}
 		err = left.Walk(func(path string, node *tree.Node, err error) {
 			if sync.IsIgnoredFile(path) || len(path) == 0 {
 				return
@@ -98,10 +109,16 @@ func ComputeSourcesDiff(ctx context.Context, left sync.PathSyncSource, right syn
 		if err != nil {
 			return nil, err
 		}
-
+		if statusChan != nil {
+			statusChan <- filters.BatchProcessStatus{StatusString: "[left] Snapshot loaded - " + leftSnapshot.Stats()}
+		}
 	}
 
 	//	log.Logger(ctx).Info("Snapshots", zap.Any("left", leftSnapshot), zap.Any("right", rightSnapshot))
+
+	if statusChan != nil {
+		statusChan <- filters.BatchProcessStatus{StatusString: "Now computing diff between snapshots"}
+	}
 
 	if leftSnapshot != nil {
 		err = leftSnapshot.Walk(func(path string, node *tree.Node, err error) {
@@ -148,6 +165,10 @@ func ComputeSourcesDiff(ctx context.Context, left sync.PathSyncSource, right syn
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if statusChan != nil {
+		statusChan <- filters.BatchProcessStatus{StatusString: fmt.Sprintf("Diff contents: missing left %v - missing right %v", len(diff.MissingLeft), len(diff.MissingRight))}
 	}
 
 	return diff, nil

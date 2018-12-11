@@ -67,36 +67,48 @@ var ActionsLog = (function (_React$Component) {
             var task = this.props.task;
             var ActionsLogs = task.ActionsLogs;
 
-            if (!ActionsLogs) {
+            var lines = [],
+                error = undefined;
+            if (ActionsLogs) {
+                ActionsLogs.map(function (log) {
+                    lines.push(_react2['default'].createElement(
+                        'div',
+                        null,
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { border: '1px solid #9e9e9e' } },
+                            _react2['default'].createElement(AdminComponents.CodeMirrorField, {
+                                mode: 'json',
+                                globalScope: {},
+                                value: JSON.stringify(log.OutputMessage, null, 4),
+                                readOnly: true
+                            })
+                        )
+                    ));
+                    lines.push(_react2['default'].createElement(_materialUi.Divider, null));
+                });
+                lines.pop();
+            }
+
+            if (task.Status === "Error" && task.StatusMessage) {
+                error = _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '12px 0', fontWeight: 500, fontSize: 14, color: '#e53935' } },
+                    task.StatusMessage
+                );
+            }
+            if (!error && !lines.length) {
                 return _react2['default'].createElement(
                     'div',
                     null,
                     'No actions taken'
                 );
             }
-            var lines = [];
-            ActionsLogs.map(function (log) {
-                lines.push(_react2['default'].createElement(
-                    'div',
-                    null,
-                    _react2['default'].createElement(
-                        'div',
-                        { style: { border: '1px solid #9e9e9e' } },
-                        _react2['default'].createElement(AdminComponents.CodeMirrorField, {
-                            mode: 'json',
-                            globalScope: {},
-                            value: JSON.stringify(log.OutputMessage, null, 4),
-                            readOnly: true
-                        })
-                    )
-                ));
-                lines.push(_react2['default'].createElement(_materialUi.Divider, null));
-            });
-            lines.pop();
 
             return _react2['default'].createElement(
                 'div',
                 { style: { fontSize: 13 } },
+                error,
                 _react2['default'].createElement(
                     'div',
                     null,

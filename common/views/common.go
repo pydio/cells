@@ -60,6 +60,7 @@ type (
 	ctxUserAccessListKey struct{}
 	ctxAdminContextKey   struct{}
 	ctxBranchInfoKey     struct{}
+	CtxKeepAccessListKey struct{}
 
 	LoadedSource struct {
 		object.DataSource

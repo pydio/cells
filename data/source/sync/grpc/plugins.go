@@ -23,7 +23,6 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -32,12 +31,11 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
-	"github.com/pydio/cells/common/plugins"
-	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/plugins"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/object"
 	protosync "github.com/pydio/cells/common/proto/sync"
@@ -59,12 +57,8 @@ var (
 func init() {
 
 	plugins.Register(func() {
-		var sources []string
-		str := config.Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources").Bytes()
 
-		if err := json.Unmarshal(str, &sources); err != nil {
-			log.Fatal("Error reading config", zap.Error(err))
-		}
+		sources := config.SourceNamesForDataServices(common.SERVICE_DATA_SYNC)
 
 		for _, datasource := range sources {
 

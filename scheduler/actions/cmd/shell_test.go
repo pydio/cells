@@ -95,7 +95,8 @@ func TestShellAction_Run(t *testing.T) {
 		close(progress)
 		So(err, ShouldBeNil)
 		output := outputMessage.GetLastOutput()
-		So(output, ShouldResemble, &jobs.ActionOutput{Success: true, StringBody: "HelloWorld\n"})
+		So(output.Success, ShouldBeTrue)
+		So(output.StringBody, ShouldEqual, "HelloWorld\n")
 
 	})
 }

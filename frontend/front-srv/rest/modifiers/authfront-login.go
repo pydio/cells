@@ -36,7 +36,7 @@ func LoginPasswordAuth(middleware frontend.AuthMiddleware) frontend.AuthMiddlewa
 		}
 
 		nonce := uuid.New()
-		respMap, err := GrantTypeAccess(req.Request.Context(), nonce, "", in.AuthInfo["login"], in.AuthInfo["password"])
+		respMap, err := GrantTypeAccess(req.Request.Context(), nonce, "", in.AuthInfo["login"], in.AuthInfo["password"], false)
 		if err != nil {
 			return err
 		}
@@ -68,7 +68,7 @@ func JwtFromSession(ctx context.Context, session *sessions.Session) (jwt string,
 		if refresh, refOk := session.Values["refresh_token"]; refOk && (expTime.Before(ref) || expTime.Equal(ref)) {
 			// Refresh token
 			log.Logger(ctx).Debug("Refreshing Token Now", zap.Any("refresh", refresh), zap.Any("nonce", session.Values["nonce"]), zap.Any("jwt", session.Values["jwt"]))
-			refreshResponse, err := GrantTypeAccess(ctx, session.Values["nonce"].(string), refresh.(string), "", "")
+			refreshResponse, err := GrantTypeAccess(ctx, session.Values["nonce"].(string), refresh.(string), "", "", false)
 			if err != nil {
 				// Refresh_token is invalid: clear session
 				e = err
@@ -94,7 +94,7 @@ func JwtFromSession(ctx context.Context, session *sessions.Session) (jwt string,
 	return
 }
 
-func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, login string, pwd string) (map[string]interface{}, error) {
+func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, login string, pwd string, retry502 bool) (map[string]interface{}, error) {
 
 	dexUrl := config.Get("defaults", "url").String("")
 	fullURL := dexUrl + "/auth/dex/token"
@@ -165,6 +165,11 @@ func GrantTypeAccess(ctx context.Context, nonce string, refreshToken string, log
 	var respMap map[string]interface{}
 	err = json.NewDecoder(res.Body).Decode(&respMap)
 	if err != nil {
+		if res.StatusCode == 502 && !retry502 {
+			log.Logger(ctx).Error("Got a 502 when contacting gateway - maybe it is currently restarting, wait for 11s and retry once")
+			<-time.After(11 * time.Second)
+			return GrantTypeAccess(ctx, nonce, refreshToken, login, pwd, true)
+		}
 		return nil, fmt.Errorf("could not unmarshall response with status %d: %s\nerror cause: %s", res.StatusCode, res.Status, err.Error())
 	}
 	if errMsg, exists := respMap["error"]; exists {

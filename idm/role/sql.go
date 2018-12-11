@@ -262,7 +262,7 @@ func (s *sqlimpl) buildSearchQuery(query sql.Enquirer, countOnly bool, delete bo
 		if countOnly {
 			return sql.CountStringFromExpression("idm_roles", "uuid", s.Driver(), query, ex, resourceExpr)
 		} else {
-			return sql.QueryStringFromExpression("idm_roles", s.Driver(), query, ex, resourceExpr, 100)
+			return sql.QueryStringFromExpression("idm_roles", s.Driver(), query, ex, resourceExpr, -1)
 		}
 
 	}

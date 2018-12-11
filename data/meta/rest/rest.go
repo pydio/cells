@@ -108,7 +108,7 @@ func (h *Handler) GetBulkMeta(req *restful.Request, resp *restful.Response) {
 				folderNodes = append(folderNodes, readResp)
 				var inRequest bool
 				for _, p2 := range bulkRequest.NodePaths {
-					if p2 == readResp.Path {
+					if strings.TrimSuffix(p2, "/") == strings.TrimSuffix(readResp.Path, "/") {
 						inRequest = true
 						break
 					}

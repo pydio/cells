@@ -121,6 +121,10 @@ var _tasksJobsStore = require('./tasks/JobsStore');
 
 var _tasksJobsStore2 = _interopRequireDefault(_tasksJobsStore);
 
+var _tasksSingleJobProgress = require('./tasks/SingleJobProgress');
+
+var _tasksSingleJobProgress2 = _interopRequireDefault(_tasksSingleJobProgress);
+
 var _materialUiInternalTooltip = require('material-ui/internal/Tooltip');
 
 var _materialUiInternalTooltip2 = _interopRequireDefault(_materialUiInternalTooltip);
@@ -150,3 +154,4 @@ exports.Tooltip = _materialUiInternalTooltip2['default'];
 exports.moment = _Moment2['default'];
 exports.TasksPanel = _tasksTasksPanel2['default'];
 exports.JobsStore = _tasksJobsStore2['default'];
+exports.SingleJobProgress = _tasksSingleJobProgress2['default'];

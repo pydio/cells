@@ -104,7 +104,7 @@ func TestCopyMoveAction_RunCopy(t *testing.T) {
 		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
 			Nodes: []*tree.Node{},
 		})
-		So(ignored.GetLastOutput(), ShouldResemble, &jobs.ActionOutput{Ignored: true})
+		So(ignored.GetLastOutput().Ignored, ShouldBeTrue)
 
 		output, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
 			Nodes: []*tree.Node{&tree.Node{
@@ -155,7 +155,7 @@ func TestCopyMoveAction_RunCopyOnItself(t *testing.T) {
 		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
 			Nodes: []*tree.Node{},
 		})
-		So(ignored.GetLastOutput(), ShouldResemble, &jobs.ActionOutput{Ignored: true})
+		So(ignored.GetLastOutput().Ignored, ShouldBeTrue)
 
 		output, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
 			Nodes: []*tree.Node{&tree.Node{
@@ -203,7 +203,7 @@ func TestCopyMoveAction_RunMove(t *testing.T) {
 		ignored, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
 			Nodes: []*tree.Node{},
 		})
-		So(ignored.GetLastOutput(), ShouldResemble, &jobs.ActionOutput{Ignored: true})
+		So(ignored.GetLastOutput().Ignored, ShouldBeTrue)
 
 		output, err := action.Run(context.Background(), &actions.RunnableChannels{StatusMsg: status, Progress: progress}, jobs.ActionMessage{
 			Nodes: []*tree.Node{&tree.Node{

@@ -38,7 +38,7 @@ func TestComputeSourcesDiff(t *testing.T) {
 		Convey("Test empty source and target", func() {
 			left = endpoints.NewMemDB()
 			right = endpoints.NewMemDB()
-			diff, _ = ComputeSourcesDiff(mergerTestCtx, left, right, false)
+			diff, _ = ComputeSourcesDiff(mergerTestCtx, left, right, false, nil)
 			So(diff, ShouldNotBeNil)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 0)
@@ -52,7 +52,7 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			}, true)
-			diff, _ = ComputeSourcesDiff(mergerTestCtx, left, right, false)
+			diff, _ = ComputeSourcesDiff(mergerTestCtx, left, right, false, nil)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 1)
 		})
@@ -65,7 +65,7 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			}, true)
-			diff, _ = ComputeSourcesDiff(mergerTestCtx, left, right, false)
+			diff, _ = ComputeSourcesDiff(mergerTestCtx, left, right, false, nil)
 			So(diff.MissingLeft, ShouldHaveLength, 1)
 			So(diff.MissingRight, ShouldHaveLength, 0)
 		})
@@ -83,7 +83,7 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			}, true)
-			diff, _ = ComputeSourcesDiff(mergerTestCtx, left, right, false)
+			diff, _ = ComputeSourcesDiff(mergerTestCtx, left, right, false, nil)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 0)
 		})
@@ -121,7 +121,7 @@ func TestComputeSourcesDiff(t *testing.T) {
 				Type: tree.NodeType_LEAF,
 				Etag: "hash",
 			}, true)
-			diff, _ = ComputeSourcesDiff(mergerTestCtx, left, right, false)
+			diff, _ = ComputeSourcesDiff(mergerTestCtx, left, right, false, nil)
 			So(diff.MissingLeft, ShouldHaveLength, 0)
 			So(diff.MissingRight, ShouldHaveLength, 0)
 		})

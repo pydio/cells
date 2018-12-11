@@ -45,6 +45,7 @@ var JobsActionOutput = (function () {
         this.JsonBody = undefined;
         this.ErrorString = undefined;
         this.Ignored = undefined;
+        this.Time = undefined;
     }
 
     /**
@@ -77,6 +78,9 @@ var JobsActionOutput = (function () {
             if (data.hasOwnProperty('Ignored')) {
                 obj['Ignored'] = _ApiClient2['default'].convertToType(data['Ignored'], 'Boolean');
             }
+            if (data.hasOwnProperty('Time')) {
+                obj['Time'] = _ApiClient2['default'].convertToType(data['Time'], 'Number');
+            }
         }
         return obj;
     };
@@ -108,4 +112,8 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} Ignored
+*/
+
+/**
+* @member {Number} Time
 */

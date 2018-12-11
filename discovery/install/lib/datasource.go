@@ -44,7 +44,7 @@ func actionDatasourceAdd(c *install.InstallConfig) error {
 	}
 
 	// First store minio config
-	minioConfig := config.FactorizeMinioServers(map[string]*object.MinioConfig{}, conf)
+	minioConfig := config.FactorizeMinioServers(map[string]*object.MinioConfig{}, conf, false)
 	config.Set(minioConfig, "services", fmt.Sprintf(`pydio.grpc.data.objects.%s`, minioConfig.Name))
 	config.Set([]string{minioConfig.Name}, "services", "pydio.grpc.data.objects", "sources")
 

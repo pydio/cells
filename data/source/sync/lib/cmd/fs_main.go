@@ -137,7 +137,7 @@ func main() {
 
 	syncTask := task.NewSync(ctx, source, target)
 	syncTask.Start(ctx)
-	syncTask.Resync(ctx, false, nil)
+	syncTask.Resync(ctx, false, nil, nil)
 
 	// Start routine to watching on events.
 	go func() {
@@ -157,13 +157,13 @@ func main() {
 				syncTask.Shutdown()
 				return
 			case <-resyncCh:
-				syncTask.Resync(ctx, false, nil)
+				syncTask.Resync(ctx, false, nil, nil)
 			case dbEvent := <-dbEvents:
 				log.Printf("[DB] %v", dbEvent)
 			case processorEvent := <-processorEvents:
 				if processorEvent.Type == "merger:end" {
 					log.Println(processorEvent.Type)
-					diff, err := proc.ComputeSourcesDiff(ctx, source, interface{}(target).(common.PathSyncSource), true)
+					diff, err := proc.ComputeSourcesDiff(ctx, source, interface{}(target).(common.PathSyncSource), true, nil)
 					if err != nil {
 						log.Println("Error while computing sources diff", err)
 					} else if len(diff.MissingLeft) > 0 || len(diff.MissingRight) > 0 {
@@ -195,7 +195,7 @@ func main() {
 				fmt.Println("Exiting ?")
 				commandLineCh <- true
 			} else if text == "resync" {
-				syncTask.Resync(context.Background(), false, nil)
+				syncTask.Resync(context.Background(), false, nil, nil)
 			} else {
 				fmt.Println("Unsupported command, type exit or resync")
 			}

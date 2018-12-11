@@ -29,9 +29,9 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	service2 "github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
 )
@@ -51,8 +51,7 @@ func FirstRun(ctx context.Context) error {
 	var hasPersonal bool
 	var commonDS string
 	// List datasources from configs
-	syncConf := config.Default().Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources")
-	sources := syncConf.StringSlice([]string{})
+	sources := config.SourceNamesForDataServices(common.SERVICE_DATA_INDEX)
 	for _, s := range sources {
 		if s == "personal" {
 			hasPersonal = true

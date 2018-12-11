@@ -23,16 +23,22 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"math"
 	"net/url"
 	"strconv"
+	"time"
 
+	"github.com/micro/go-micro/client"
+	"github.com/pborman/uuid"
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/update"
 	"github.com/pydio/cells/common/service/context"
+	"github.com/pydio/cells/common/utils"
 	update2 "github.com/pydio/cells/discovery/update"
 )
 
@@ -85,26 +91,74 @@ func (h *Handler) ApplyUpdate(ctx context.Context, request *update.ApplyUpdateRe
 	}
 
 	log.Logger(ctx).Info("Update binary now", zap.Any("package", apply))
-	err := update2.ApplyUpdate(ctx, apply, configs, false)
-	if err != nil {
-		log.Logger(ctx).Error("Failed updating binary", zap.Error(err))
-		return err
-	}
-	response.Success = true
-	response.Message = "Update success - Please restart now!"
+	uName, _ := utils.FindUserNameInContext(ctx)
 
-	log.Logger(ctx).Info("Update success - Please restart!")
-	// Double check if we are on a protected port and log a hint in such case.
-	intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
-	port, err := strconv.Atoi(intURL.Port())
-	if err == nil && port < 1024 {
-		log.Logger(ctx).Warn("*******************************************************************")
-		log.Logger(ctx).Warn(fmt.Sprintf("   WARNING: you are using the reserved port %d.   ", port))
-		log.Logger(ctx).Warn("   You must execute following command to authorize the new binary")
-		log.Logger(ctx).Warn("   to use this port *before* restarting your instance:")
-		log.Logger(ctx).Warn("   $ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>")
-		log.Logger(ctx).Warn("*******************************************************************")
+	// Defining new Context
+	newCtx := context.Background()
+	pgChan := make(chan float64)
+	errorChan := make(chan error)
+	doneChan := make(chan bool)
+	response.Success = true
+	// Create a fake job UUID
+	response.Message = uuid.New()
+	task := &jobs.Task{
+		ID:            response.Message,
+		JobID:         response.Message,
+		Status:        jobs.TaskStatus_Running,
+		HasProgress:   true,
+		StartTime:     int32(time.Now().Unix()),
+		StatusMessage: "Upgrading Binary",
+		TriggerOwner:  uName,
 	}
+	job := &jobs.Job{
+		ID:    response.Message,
+		Label: "Upgrading Binary",
+		Owner: uName,
+		Tasks: []*jobs.Task{task},
+	}
+	event := &jobs.TaskChangeEvent{
+		TaskUpdated: task,
+		Job:         job,
+	}
+	client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, event))
+	go func() {
+		defer close(pgChan)
+		defer close(errorChan)
+		defer close(doneChan)
+		for {
+			select {
+			case pg := <-pgChan:
+				task.Progress = float32(pg)
+				if pg < 1 {
+					task.StatusMessage = fmt.Sprintf("Downloading Binary %v%%...", math.Floor(pg*100))
+				} else {
+					task.StatusMessage = "Download finished, now verifying package..."
+				}
+				client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, event))
+			case e := <-errorChan:
+				task.Status = jobs.TaskStatus_Error
+				task.StatusMessage = e.Error()
+				client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, event))
+				return
+			case <-doneChan:
+				task.Status = jobs.TaskStatus_Finished
+				task.StatusMessage = "Binary package has been successfully verified, you can now restart Cells.\n"
+				// Double check if we are on a protected port and log a hint in such case.
+				intURL, _ := url.Parse(config.Get("defaults", "urlInternal").String(""))
+				port, err := strconv.Atoi(intURL.Port())
+				if err == nil && port < 1024 {
+					task.StatusMessage += "--------- \n"
+					task.StatusMessage += fmt.Sprintf("WARNING: you are using the reserved port %d.\n", port)
+					task.StatusMessage += "You must execute following command to authorize the new binary to use this port *before* restarting your instance:\n"
+					task.StatusMessage += "$ sudo setcap 'cap_net_bind_service=+ep' <path to your binary>\n"
+				}
+				client.Publish(ctx, client.NewPublication(common.TOPIC_JOB_TASK_EVENT, event))
+				return
+			}
+		}
+	}()
+
+	go update2.ApplyUpdate(newCtx, apply, configs, false, pgChan, doneChan, errorChan)
 
 	return nil
 }

@@ -27,15 +27,17 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/client"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/object"
 	protosync "github.com/pydio/cells/common/proto/sync"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/micro"
+	context2 "github.com/pydio/cells/common/utils/context"
 	synccommon "github.com/pydio/cells/data/source/sync/lib/common"
 	"github.com/pydio/cells/data/source/sync/lib/filters"
 	"github.com/pydio/cells/data/source/sync/lib/task"
@@ -128,65 +130,83 @@ func (s *Handler) TriggerResync(c context.Context, req *protosync.ResyncRequest,
 
 	statusChan := make(chan filters.BatchProcessStatus)
 	doneChan := make(chan bool)
-	defer close(statusChan)
-	defer close(doneChan)
-	var outputs []*jobs.ActionOutput
+	fullLog := &jobs.ActionLog{
+		OutputMessage: &jobs.ActionMessage{},
+	}
 
 	if req.Task != nil {
+		subCtx := context2.WithUserNameMetadata(context.Background(), common.PYDIO_SYSTEM_USERNAME)
+
 		theTask := req.Task
-		taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient())
+		taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient(client.Retries(3)))
 
 		theTask.StatusMessage = "Starting"
 		theTask.Progress = 0
 		theTask.Status = jobs.TaskStatus_Running
 		theTask.StartTime = int32(time.Now().Unix())
-		theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
-			OutputMessage: &jobs.ActionMessage{
-				OutputChain: []*jobs.ActionOutput{{StringBody: "Starting Resync"}},
-			},
+		theTask.ActionsLogs = append(theTask.ActionsLogs, fullLog)
+		fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
+			StringBody: "Starting Resync",
 		})
-		taskClient.PutTask(c, &jobs.PutTaskRequest{Task: theTask})
+		taskClient.PutTask(subCtx, &jobs.PutTaskRequest{Task: theTask})
 
 		go func() {
+			defer close(statusChan)
+			defer close(doneChan)
 			for {
 				select {
 				case status := <-statusChan:
 					theTask.StatusMessage = status.StatusString
-					outputs = append(outputs, &jobs.ActionOutput{StringBody: status.StatusString})
+					fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
+						StringBody: status.StatusString,
+					})
 					theTask.Progress = status.Progress
 					theTask.Status = jobs.TaskStatus_Running
-					taskClient.PutTask(c, &jobs.PutTaskRequest{Task: theTask})
+					_, e := taskClient.PutTask(subCtx, &jobs.PutTaskRequest{Task: theTask})
+					if e != nil {
+						log.Logger(subCtx).Error("Could not update sync task", zap.Any("s", status), zap.Error(e))
+					}
 				case <-doneChan:
+					theTask := req.Task
+					theTask.StatusMessage = "Complete"
+					theTask.Progress = 1
+					theTask.EndTime = int32(time.Now().Unix())
+					theTask.Status = jobs.TaskStatus_Finished
+					fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
+						StringBody: "Sync complete",
+					})
+					_, e := taskClient.PutTask(subCtx, &jobs.PutTaskRequest{Task: theTask})
+					if e != nil {
+						log.Logger(subCtx).Error("Could not update sync task", zap.Error(e))
+					}
 					return
 				}
 			}
 		}()
 	}
 
-	diff, e := s.SyncTask.Resync(c, req.DryRun, statusChan)
-	doneChan <- true
-	if req.Task != nil {
-		theTask := req.Task
-		taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient(client.Retries(3)))
-		theTask.StatusMessage = "Complete"
-		theTask.Progress = 1
-		theTask.EndTime = int32(time.Now().Unix())
-		theTask.Status = jobs.TaskStatus_Finished
-		theTask.ActionsLogs = append(theTask.ActionsLogs, &jobs.ActionLog{
-			OutputMessage: &jobs.ActionMessage{OutputChain: outputs},
-		})
-		taskClient.PutTask(c, &jobs.PutTaskRequest{Task: theTask})
-	}
+	diff, e := s.SyncTask.Resync(c, req.DryRun, statusChan, doneChan)
 	if e != nil {
+		if req.Task != nil {
+			theTask := req.Task
+			taskClient := jobs.NewJobServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_JOBS, defaults.NewClient(client.Retries(3)))
+			theTask.StatusMessage = "Error"
+			theTask.Progress = 1
+			theTask.EndTime = int32(time.Now().Unix())
+			theTask.Status = jobs.TaskStatus_Error
+			fullLog.OutputMessage.AppendOutput(&jobs.ActionOutput{
+				ErrorString: e.Error(),
+			})
+			theTask.ActionsLogs = append(theTask.ActionsLogs, fullLog)
+			taskClient.PutTask(c, &jobs.PutTaskRequest{Task: theTask})
+		}
 		return e
 	}
-	data, e := json.Marshal(diff)
-	if e != nil {
-		return e
+	data, _ := json.Marshal(diff)
+	if e == nil {
+		resp.JsonDiff = string(data)
 	}
-
 	resp.Success = true
-	resp.JsonDiff = string(data)
 	return nil
 }
 

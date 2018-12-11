@@ -87,17 +87,19 @@ func (s *Sync) SetupWatcher(ctx context.Context, source PathSyncSource, target P
 
 }
 
-func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan chan filters.BatchProcessStatus) (diff *proc.SourceDiff, e error) {
+func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan chan filters.BatchProcessStatus, doneChan chan bool) (diff *proc.SourceDiff, e error) {
 
 	source, _ := AsPathSyncSource(s.Source)
 	targetAsSource, tASOk := AsPathSyncSource(s.Target)
-	diff, e = proc.ComputeSourcesDiff(ctx, source, targetAsSource, dryRun)
+	diff, e = proc.ComputeSourcesDiff(ctx, source, targetAsSource, dryRun, statusChan)
 
 	//log.Logger(ctx).Info("### GOT DIFF", zap.Any("diff", diff))
 	if e != nil {
+		doneChan <- true
 		return nil, e
 	}
 	if dryRun {
+		doneChan <- true
 		return diff, nil
 	}
 
@@ -157,6 +159,21 @@ func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan cha
 
 	batchLeft.StatusChan = statusChan
 	batchRight.StatusChan = statusChan
+	dChan := make(chan bool, 2)
+	batchLeft.DoneChan = dChan
+	batchRight.DoneChan = dChan
+	go func() {
+		i := 0
+		for _ = range dChan {
+			i++
+			if i == 2 {
+				close(dChan)
+				if doneChan != nil {
+					doneChan <- true
+				}
+			}
+		}
+	}()
 
 	//	log.Logger(ctx).Info("### SENDING TO MERGER")
 
@@ -188,8 +205,8 @@ func (s *Sync) Start(ctx context.Context) {
 	}
 }
 
-func (s *Sync) Resync(ctx context.Context, dryRun bool, statusChan chan filters.BatchProcessStatus) (*proc.SourceDiff, error) {
-	return s.InitialSnapshots(ctx, dryRun, statusChan)
+func (s *Sync) Resync(ctx context.Context, dryRun bool, statusChan chan filters.BatchProcessStatus, doneChan chan bool) (*proc.SourceDiff, error) {
+	return s.InitialSnapshots(ctx, dryRun, statusChan, doneChan)
 }
 
 func NewSync(ctx context.Context, left Endpoint, right Endpoint) *Sync {

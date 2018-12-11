@@ -23,7 +23,7 @@ import {Paper, List, ListItem, RaisedButton, Checkbox, Divider, Subheader} from 
 import PydioApi from 'pydio/http/api'
 import {UpdateServiceApi} from 'pydio/http/rest-api'
 import Pydio from 'pydio'
-const {moment, Loader} = Pydio.requireLib('boot');
+const {moment, Loader, SingleJobProgress} = Pydio.requireLib('boot');
 import ServiceExposedConfigs from '../core/ServiceExposedConfigs'
 
 const UpdaterDashboard = React.createClass({
@@ -65,6 +65,14 @@ const UpdaterDashboard = React.createClass({
 
     },
 
+    upgradeFinished(){
+        const {pydio} = this.props;
+        this.setState({updateApplied: this.state.selectedPackage.Version});
+        const node = pydio.getContextNode();
+        node.getMetadata().set('flag', 0);
+        AdminComponents.MenuItemListener.getInstance().notify("item_changed");
+    },
+
     performUpgrade: function(){
         const {pydio} = this.props;
         const {check, packages} = this.state;
@@ -79,44 +87,40 @@ const UpdaterDashboard = React.createClass({
             const toApply = packages[check];
             const version = toApply.Version;
             const api = new UpdateServiceApi(PydioApi.getRestClient());
-            this.setState({applying: true});
             api.applyUpdate(version).then(res => {
-                pydio.UI.displayMessage(res.Success ? 'SUCCESS':'ERROR', res.Message);
-                if(res.Success){
-                    this.setState({updateApplied: version});
-                    const node = pydio.getContextNode();
-                    node.getMetadata().set('flag', 0);
-                    AdminComponents.MenuItemListener.getInstance().notify("item_changed");
+                if (res.Success) {
+                    this.setState({watchJob: res.Message});
+                } else {
+                    pydio.UI.displayMessage('ERROR', res.Message);
                 }
             }).finally(()=>{
-                this.setState({applying: false});
+
             });
 
         }
     },
 
-    onCheckStateChange: function(index, value){
-        if(value) this.setState({check: index});
-        else this.setState({check: -1});
+    onCheckStateChange: function(index, value, pack){
+        if(value) {
+            this.setState({check: index, selectedPackage: pack});
+        } else {
+            this.setState({check: -1, selectedPackage: null});
+        }
     },
 
     render:function(){
 
         let list = null;
         const {pydio} = this.props;
-        const {packages, check, loading, dirty, updateApplied, applying} = this.state;
+        const {packages, check, loading, dirty, updateApplied, selectedPackage, watchJob} = this.state;
         let buttons = [];
         if(packages){
             buttons.push(<RaisedButton disabled={check < 0 || updateApplied} secondary={true} label={this.context.getMessage('4', 'updater')} onTouchTap={this.performUpgrade}/>);
             let items = [];
-            if(updateApplied) {
-                items.push(<ListItem primaryText={"An update has been applied. Please restart the backend now."}/>);
-                items.push(<Divider/>);
-            }
             for (let index=packages.length - 1; index >= 0; index--) {
                 const p = packages[index];
                 items.push(<ListItem
-                    leftCheckbox={<Checkbox key={p} onCheck={(e,v)=> this.onCheckStateChange(index, v)} checked={index === check} disabled={updateApplied} />}
+                    leftCheckbox={<Checkbox key={p} onCheck={(e,v)=> this.onCheckStateChange(index, v, p)} checked={check >= index} disabled={updateApplied || check > index} />}
                     primaryText={p.PackageName + ' ' + p.Version}
                     secondaryText={p.Label + ' - ' + moment(new Date(p.ReleaseDate * 1000)).fromNow()}
                 />);
@@ -133,7 +137,7 @@ const UpdaterDashboard = React.createClass({
             );
         }else if(loading){
             list = (
-                <div>{this.context.getMessage('17', 'updater')}</div>
+                <div style={{padding: 12}}>{this.context.getMessage('17', 'updater')}</div>
             );
         }else{
             list = (
@@ -175,15 +179,24 @@ const UpdaterDashboard = React.createClass({
                             </span>}/>
                         </List>
                     </Paper>
-                    <Paper style={{margin:'0 16px', padding: 16, position:'relative'}} zDepth={1}>
-                        {applying && <Loader style={{position: 'absolute', zIndex: 1000, top: 0, left: 0, backgroundColor: 'rgba(0, 0, 0, 0.43)'}}/>}
-                        {list}
-                    </Paper>
-                    <ServiceExposedConfigs
-                        serviceName={"pydio.grpc.update"}
-                        ref={"serviceConfigs"}
-                        onDirtyChange={(d)=>this.setState({dirty: d})}
-                    />
+                    {watchJob &&
+                        <Paper style={{margin:'0 16px', padding: 30, position:'relative'}} zDepth={1}>
+                            <div style={{fontSize:16, paddingBottom: 16}}>{selectedPackage ? (selectedPackage.PackageName + ' ' + selectedPackage.Version) : ''}</div>
+                            <SingleJobProgress jobID={watchJob} progressStyle={{paddingTop: 16}} onEnd={()=>{this.upgradeFinished()}}/>
+                        </Paper>
+                    }
+                    {!watchJob && list &&
+                        <Paper style={{margin:'0 16px', padding: 16, position:'relative'}} zDepth={1}>
+                            {list}
+                        </Paper>
+                    }
+                    {!watchJob &&
+                        <ServiceExposedConfigs
+                            serviceName={"pydio.grpc.update"}
+                            ref={"serviceConfigs"}
+                            onDirtyChange={(d)=>this.setState({dirty: d})}
+                        />
+                    }
                 </div>
             </div>
 

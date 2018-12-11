@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/dchest/uniuri"
 
@@ -32,15 +33,15 @@ import (
 	"github.com/pydio/cells/common/proto/object"
 )
 
+var (
+	sourcesTimestampPrefix = "updated:"
+)
+
 // ListMinioConfigsFromConfig scans configs for objects services configs
 func ListMinioConfigsFromConfig() map[string]*object.MinioConfig {
 	res := make(map[string]*object.MinioConfig)
 
-	var cfgMap Map
-	if err := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS).Scan(&cfgMap); err != nil {
-		return res
-	}
-	names := cfgMap.StringArray("sources")
+	names := SourceNamesForDataServices(common.SERVICE_DATA_OBJECTS)
 	for _, name := range names {
 		var conf *object.MinioConfig
 		if e := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS_+name).Scan(&conf); e == nil {
@@ -53,12 +54,7 @@ func ListMinioConfigsFromConfig() map[string]*object.MinioConfig {
 // ListSourcesFromConfig scans configs for sync services configs
 func ListSourcesFromConfig() map[string]*object.DataSource {
 	res := make(map[string]*object.DataSource)
-
-	var cfgMap Map
-	if err := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC).Scan(&cfgMap); err != nil {
-		return res
-	}
-	names := cfgMap.StringArray("sources")
+	names := SourceNamesForDataServices(common.SERVICE_DATA_SYNC)
 	for _, name := range names {
 		var conf *object.DataSource
 		if e := Get("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_+name).Scan(&conf); e == nil {
@@ -68,21 +64,54 @@ func ListSourcesFromConfig() map[string]*object.DataSource {
 	return res
 }
 
+// SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
+func SourceNamesForDataServices(dataSrvType string) []string {
+	var res []string
+	var cfgMap Map
+	if err := Get("services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType).Scan(&cfgMap); err == nil {
+		return SourceNamesFromDataConfigs(cfgMap)
+	}
+	return res
+}
+
+// SourceNamesForDataServices list sourceNames from the config, excluding the timestamp key
+func SourceNamesFromDataConfigs(cfgMap common.ConfigValues) []string {
+	names := cfgMap.StringArray("sources")
+	return SourceNamesFiltered(names)
+}
+
+// SourceNamesForDataServices excludes the timestamp key from a slice of source names
+func SourceNamesFiltered(names []string) []string {
+	var res []string
+	for _, name := range names {
+		if !strings.HasPrefix(name, sourcesTimestampPrefix) {
+			res = append(res, name)
+		}
+	}
+	return res
+}
+
+// SourceNamesToConfig saves index and sync sources to configs
 func SourceNamesToConfig(sources map[string]*object.DataSource) {
 	var sourcesJsonKey []string
 	for name, _ := range sources {
 		sourcesJsonKey = append(sourcesJsonKey, name)
 	}
+	// Append a timestamped value to make sure it modifies the sources and triggers a config.Watch() event
+	sourcesJsonKey = append(sourcesJsonKey, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
 	marsh, _ := json.Marshal(sourcesJsonKey)
 	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources")
 	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources")
 }
 
+// MinioConfigNamesToConfig saves objects sources to config
 func MinioConfigNamesToConfig(sources map[string]*object.MinioConfig) {
 	var sourcesJsonKey []string
 	for name, _ := range sources {
 		sourcesJsonKey = append(sourcesJsonKey, name)
 	}
+	// Append a timestamped value to make sure it modifies the sources and triggers a config.Watch() event
+	sourcesJsonKey = append(sourcesJsonKey, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
 	marsh, _ := json.Marshal(sourcesJsonKey)
 	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_OBJECTS, "sources")
 }
@@ -100,8 +129,8 @@ func IndexServiceTableNames(dsName string) map[string]string {
 }
 
 // UnusedMinioServers searches for existing minio configs that are not used anywhere in datasources
-func UnusedMinioServers(minios map[string]*object.MinioConfig, sources map[string]*object.DataSource) string {
-
+func UnusedMinioServers(minios map[string]*object.MinioConfig, sources map[string]*object.DataSource) []string {
+	var unused []string
 	for name, _ := range minios {
 		used := false
 		for _, source := range sources {
@@ -110,20 +139,26 @@ func UnusedMinioServers(minios map[string]*object.MinioConfig, sources map[strin
 			}
 		}
 		if !used {
-			return name
+			unused = append(unused, name)
 		}
 	}
-	return ""
+	return unused
 }
 
 // FactorizeMinioServers tries to find exisiting MinioConfig that can be directly reused by the new source, or creates a new one
-func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSource *object.DataSource) (config *object.MinioConfig) {
+func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSource *object.DataSource, update bool) (config *object.MinioConfig) {
 
 	if newSource.StorageType == object.StorageType_S3 {
 		if gateway := filterGatewaysWithKeys(existingConfigs, newSource.StorageType, newSource.ApiKey, newSource.StorageConfiguration["customEndpoint"]); gateway != nil {
 			config = gateway
 			newSource.ApiKey = config.ApiKey
 			newSource.ApiSecret = config.ApiSecret
+		} else if update {
+			// Update existing config
+			config = existingConfigs[newSource.ObjectsServiceName]
+			config.ApiKey = newSource.ApiKey
+			config.ApiSecret = newSource.ApiSecret
+			config.EndpointUrl = newSource.StorageConfiguration["customEndpoint"]
 		} else {
 			config = &object.MinioConfig{
 				Name:        createConfigName(existingConfigs, object.StorageType_S3),
@@ -139,6 +174,11 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			config = gateway
 			newSource.ApiKey = config.ApiKey
 			newSource.ApiSecret = config.ApiSecret
+		} else if update {
+			// Update existing config
+			config = existingConfigs[newSource.ObjectsServiceName]
+			config.ApiKey = newSource.ApiKey
+			config.ApiSecret = newSource.ApiSecret
 		} else {
 			config = &object.MinioConfig{
 				Name:        createConfigName(existingConfigs, object.StorageType_AZURE),
@@ -154,6 +194,28 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			config = gateway
 			newSource.ApiKey = config.ApiKey
 			newSource.ApiSecret = config.ApiSecret
+		} else if update {
+			config = existingConfigs[newSource.ObjectsServiceName]
+			updateCredsSecret := true
+			var crtSecretId string
+			if config.GatewayConfiguration != nil {
+				var ok bool
+				if crtSecretId, ok = config.GatewayConfiguration["jsonCredentials"]; ok {
+					if crtSecretId == creds {
+						updateCredsSecret = false
+					}
+				}
+			}
+			if updateCredsSecret {
+				if crtSecretId != "" {
+					DelSecret(crtSecretId)
+				}
+				secretId := NewKeyForSecret()
+				SetSecret(secretId, creds)
+				config.GatewayConfiguration = map[string]string{"jsonCredentials": secretId}
+				newSource.StorageConfiguration["jsonCredentials"] = secretId
+			}
+
 		} else {
 			if newSource.ApiKey == "" {
 				newSource.ApiKey = uniuri.New()
@@ -180,6 +242,10 @@ func FactorizeMinioServers(existingConfigs map[string]*object.MinioConfig, newSo
 			config = minioConfig
 			newSource.ApiKey = config.ApiKey
 			newSource.ApiSecret = config.ApiSecret
+		} else if update {
+			config = existingConfigs[newSource.ObjectsServiceName]
+			config.LocalFolder = base
+			config.PeerAddress = peerAddress
 		} else {
 			if newSource.ApiKey == "" {
 				newSource.ApiKey = uniuri.New()
@@ -272,7 +338,6 @@ func filterGatewaysWithStorageConfigKey(configs map[string]*object.MinioConfig, 
 func filterMiniosWithBaseFolder(configs map[string]*object.MinioConfig, peerAddress string, folder string) *object.MinioConfig {
 
 	for _, source := range configs {
-		fmt.Println(source)
 		if source.StorageType == object.StorageType_LOCAL && source.PeerAddress == peerAddress && source.LocalFolder == folder {
 			return source
 		}

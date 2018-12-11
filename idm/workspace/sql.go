@@ -160,7 +160,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, workspaces *[]interface{}) error {
 	if e != nil {
 		return e
 	}
-	queryString, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceExpr, 100)
+	queryString, err := sql.QueryStringFromExpression("idm_workspaces", s.Driver(), query, whereExpression, resourceExpr, -1)
 	if err != nil {
 		return err
 	}
