@@ -175,7 +175,7 @@ func TestQueryBuilder(t *testing.T) {
 
 		{
 			users := new([]interface{})
-			e := mockDAO.Search(&service.Query{Offset: 4}, users)
+			e := mockDAO.Search(&service.Query{Offset: 4, Limit: 10}, users)
 			So(e, ShouldBeNil)
 			So(users, ShouldHaveLength, 1)
 		}

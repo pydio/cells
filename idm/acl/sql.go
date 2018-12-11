@@ -179,9 +179,8 @@ func (dao *sqlimpl) Search(query sql.Enquirer, acls *[]interface{}) error {
 		goqu.I("idm_acl_nodes").As("n"), goqu.I("idm_acl_workspaces").As("w"), goqu.I("idm_acl_roles").As("r"))
 
 	dataset = dataset.Select(goqu.I("a.id"), goqu.I("n.uuid"), goqu.I("a.action_name"), goqu.I("a.action_value"), goqu.I("r.uuid"), goqu.I("w.name"))
-	dataset = dataset.Offset(uint(offset))
 	if limit > -1 {
-		dataset = dataset.Limit(uint(limit))
+		dataset = dataset.Offset(uint(offset)).Limit(uint(limit))
 	}
 
 	dataset = dataset.Where(expressions...)
