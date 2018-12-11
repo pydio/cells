@@ -27,6 +27,8 @@ import (
 	"github.com/emicklei/go-restful"
 	"go.uber.org/zap"
 
+	"context"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
@@ -124,13 +126,14 @@ func (s *Handler) Nodes(req *restful.Request, rsp *restful.Response) {
 		query.PathPrefix = []string{}
 
 		var e error
+		ctx = context.WithValue(ctx, views.CtxKeepAccessListKey{}, true)
 		for _, p := range prefixes {
 			rootNode := &tree.Node{Path: p}
 			ctx, rootNode, e = inputFilter(ctx, rootNode, "search-"+p)
 			if e != nil {
 				return e
 			}
-			log.Logger(ctx).Info("Filtered Node & Context", zap.String("path", rootNode.Path))
+			log.Logger(ctx).Debug("Filtered Node & Context", zap.String("path", rootNode.Path))
 			nodesPrefixes[rootNode.Path] = p
 			query.PathPrefix = append(query.PathPrefix, rootNode.Path)
 		}
