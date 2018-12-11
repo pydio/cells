@@ -102,9 +102,14 @@ func (mh *MailerHandler) Send(req *restful.Request, rsp *restful.Response) {
 		return
 	}
 	message.To = resolvedTos
+	queue := true
+	if message.TemplateId == "AdminTestMail" {
+		queue = false
+		message.TemplateData["AdminName"] = claims.Name
+	}
 
 	// Now call service to send email
-	response, err := cli.SendMail(ctx, &mailer.SendMailRequest{Mail: &message, InQueue: true})
+	response, err := cli.SendMail(ctx, &mailer.SendMailRequest{Mail: &message, InQueue: queue})
 	if err != nil {
 		log.Logger(ctx).Error("could not send mail", zap.Error(err))
 		service.RestError500(req, rsp, err)
