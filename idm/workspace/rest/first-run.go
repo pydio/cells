@@ -26,6 +26,8 @@ import (
 
 	"github.com/pborman/uuid"
 
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -98,6 +100,29 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 
 	ws.Scope = idm.WorkspaceScope_ADMIN
 	ws.Policies = initialPolicies
+
+	// First check if it does not already exists, for one reason or another
+	q, _ := ptypes.MarshalAny(&idm.WorkspaceSingleQuery{
+		Slug: ws.Slug,
+	})
+	rC, e := wsClient.SearchWorkspace(ctx, &idm.SearchWorkspaceRequest{Query: &service.Query{
+		SubQueries: []*any.Any{q},
+		Limit:      1,
+	}})
+	if e == nil {
+		defer rC.Close()
+		for {
+			resp, er := rC.Recv()
+			if er != nil {
+				break
+			}
+			if resp != nil && resp.Workspace != nil {
+				// Workspace was found, exit now, avoid creating duplicates
+				return nil
+			}
+		}
+	}
+
 	if _, e := wsClient.CreateWorkspace(ctx, &idm.CreateWorkspaceRequest{Workspace: ws}); e != nil {
 		return e
 	}
