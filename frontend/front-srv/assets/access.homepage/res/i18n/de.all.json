@@ -63,7 +63,7 @@
     "other": "Android"
   },
   "59": {
-    "other": "iPhone/iPad"
+    "other": "iPhone & iPad"
   },
   "60": {
     "other": "Mac OS"
@@ -72,13 +72,13 @@
     "other": "Windows"
   },
   "62": {
-    "other": "<h2>[How-to] What is a workspace?</h2>\n            This video explains what Workspaces are in APPLICATION_TITLE\n            <ul>\n                <li>Why are Workspaces central in APPLICATION_TITLE?</li>\n                <li>What are Workspaces from a technical perspective?</li>\n                <li>How do they allow you to organise your data?</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Was ist ein Arbeitsbereich?</h2>\n            Diese Video erklärt Arbeitsbreiche APPLICATION_TITLE\n            <ul>\n                <li>Warum sind Arbeitsbereiche zentral in APPLICATION_TITLE?</li>\n                <li>Was sind Arbeitsbereiche aus technischer Sicht?</li>\n                <li>Wie helfe Sie Ihre Datei Arbeit zu organisieren?</li>\n            </ul>\n            "
   },
   "63": {
-    "other": "<h2>[How-to] Upload files to APPLICATION_TITLE</h2>\n            Get started with APPLICATION_TITLE and see how to upload files\n            <ul>\n                <li>Drag and drop files into APPLICATION_TITLE</li>\n                <li>Create a new folder</li>\n                <li>Rename files and folders</li>\n                <li>Download files to your Computer</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Dateien zu APPLICATION_TITLE hochladen</h2>\n            Beginnen Sie mit APPLICATION_TITLE und erfahren Sie, wie Sie Dateien hochladen können.\n            <ul>\n                <li>Drag and Drop von Dateien in APPLICATION_TITLE</li>\n                <li>Erstellen neuer Ordner</li>.\n                <li>Dateien und Ordner umbenennen</li>\n                <li>Download von Dateien auf Ihren Computer </li>           \n</ul>            "
   },
   "64": {
-    "other": "<h2>[How-to] Search, browse and manage your files</h2>\n            This video shows you various tips to efficiently manage your files in APPLICATION_TITLE\n            <ul>\n                <li>Cross-workspaces search bar</li>\n                <li>Content display modes, Keyboard shortcuts</li>\n                <li>Sort Files</li>\n                <li>Meta Data, Bookmarks</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Durchsuchen und verwalten Sie Ihre Dateien</h2>\n            Dieses Video zeigt Ihnen verschiedene Tipps zur effizienten Verwaltung Ihrer Dateien in APPLICATION_TITLE.\n            <ul>\n                <li>Arbeitsbereichsübergreifende Suchleiste</li>\n                <li>Inhaltsanzeigemodi, Tastenkombinationen </li>\n                <li>Dateiesortierung</li>\n                <li>Metadaten, Lesezeichen</li>\n            </ul>            "
   },
   "65": {
     "other": "Mehr über APPLICATION_TITLE im YouTube-Kanal erfahren!"
@@ -123,10 +123,10 @@
     "other": "Wählen Sie eine Ziel-Arbeitsumgebung"
   },
   "79": {
-    "other": "<h2>[How-to] Sharing files and folders</h2>\n            This tutorial shows you how to share files and folders, internally or externally\n            <ul>\n                <li>Creating share links for external people</li>\n                <li>Sharing files and folders with internal collaborators</li>\n                <li>Sharing a folder as a workspace</li>\n                <li>Layout options of shared folders</li>\n                <li>Creating a blind drop folder</li>\n                <li>Managing users and share rights</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Austausch von Dateien und Ordnern</h2>\n            Dieses Tutorial zeigt Ihnen gewusst wie: Freigeben von Dateien und Ordnern, intern oder extern         \n            <ul>\n                <li>Erstellen Anteil Links für externe Personen</li>\n                <li>Freigeben von Dateien und Ordnern mit internen Mitarbeitern</li>\n                <li>Freigabe eines Ordners als Arbeitsbereich</li>\n                <li>Layoutoptionen der gemeinsame Ordner</li>\n                <li>Erstellen einen Blind drop Ordner</li>\n                <li>Verwalten von Benutzern und teilen Rechte</li>\n            </ul>\n            "
   },
   "80": {
-    "other": "<h2>[How-to] Sharing : security features</h2>\n            This video goes through the various share settings that help you secure your shares\n            <ul>\n                <li>Password protection</li>\n                <li>Expiration date</li>\n                <li>Limit the number of downloads</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Sharing : Sicherheit Features</h2>\n            Dieses Video durchläuft verschiedene Freigabeeinstellungen, die Ihnen helfen, Ihre Aktien zu sichern\n            <ul>\n                <li>Passwort Schutz</li>\n                <li>Ablauf Datum</li>\n                <li>Anzahl der Downloads begrenzen</li>\n            </ul>\n            "
   },
   "81": {
     "other": "<h2>[How-to] Customize your share links</h2>\n            See how you can customise the URL of your share links to make them look more user-friendly.\n            "
@@ -135,13 +135,13 @@
     "other": "<h2>[How-to] Shared links custom rights</h2>\n            This video shows you how to manage the permissions attached to your shares\n            <ul>\n                <li>Preview</li>\n                <li>Download</li>\n                <li>Upload / Edit</li>\n            </ul>\n            "
   },
   "83": {
-    "other": "<h2>[How-to] Language</h2>\n            APPLICATION_TITLE is available in 28 languages. This video shows you how to change the language in APPLICATION_TITLE.\n            "
+    "other": "<h2>[How-to] Sprache</h2>\n            APPLICATION_TITLE ist in 28 Sprachen verfügbar. Dieses Video zeigt Ihnen, wie Sie die Sprache in APPLICATION_TITLE ändern können.            "
   },
   "84": {
-    "other": "<h2>[How-to] Alerts</h2>\n            Learn how to set alerts on a file, in order to see when it has been modified or consulted.\n            "
+    "other": "<h2>[How-to] Warnmeldungen</h2>\n            Erfahren Sie, wie Sie Warnmeldungen für eine Datei einrichten, um zu sehen, wann sie geändert oder konsultiert wurde.            "
   },
   "85": {
-    "other": "<h2>[How-to] Collaborative edition</h2>\n            This video shows you how to collaborate on office docs, thanks to Collabora online office suite\n            <ul>\n                <li>Work on text docs, presentations, spreadsheets</li>\n                <li>Edit docs collaboratively in real time</li>\n                <li>Create new documents directly from your browser</li>\n            </ul>\n            "
+    "other": "<h2>[How-to] Kollaborative Ausgabe</h2>\n             Dieses Video zeigt Ihnen, wie Sie dank der Collabora Online Office auf Dokumenten mit Anderen zusammenarbeiten können.\n            <ul>\n                <li>Arbeiten an Textdokumenten, Präsentationen und Tabellenkalkulationen</li>\n                <li>Dokumente in Echtzeit kollaborativ bearbeiten</li>\n                <li>Erstellen Sie neue Dokumente direkt aus Ihrem Browser heraus</li>.\n            </ul>            "
   },
   "86": {
     "other": "Video abspielen"
@@ -174,6 +174,6 @@
     "other": "Willkommen-Seite"
   },
   "title": {
-    "other": "Home"
+    "other": "Hauptseite"
   }
 }
