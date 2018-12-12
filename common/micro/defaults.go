@@ -22,6 +22,8 @@
 package defaults
 
 import (
+	"time"
+
 	grpcclient "github.com/micro/go-plugins/client/grpc"
 	grpcserver "github.com/micro/go-plugins/server/grpc"
 	httpserver "github.com/micro/go-plugins/server/http"
@@ -61,6 +63,8 @@ func NewClient(new ...client.Option) client.Client {
 	for _, o := range clientOpts {
 		opts = append(opts, o())
 	}
+
+	opts = append(opts, client.RequestTimeout(10*time.Minute))
 
 	return grpcclient.NewClient(
 		opts...,
