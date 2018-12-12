@@ -1,62 +1,62 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "Betrachtet von {{.Actor}}"
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "Zugriff auf {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "Auf {{.Object}} wurde von {{.Actor}} zugegriffen"
   },
   "Cell": {
-    "other": "Cell"
+    "other": "Zelle"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "Erstellt von {{.Actor}}"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "{{.Object}} erstellt"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} erstellt von {{.Actor}}"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "Gelöscht von {{.Actor}}"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "{{.Object}} gelöscht"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} gelöscht von {{.Actor}}"
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "Dies ist Ihre tägliche Pydio Zusammenfassung"
   },
   "Document": {
-    "other": "Document"
+    "other": "Dokument"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "Ordner"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "Geändert von {{.Actor}}"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "{{.Object}} bearbeitet"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} bearbeitet von {{.Actor}}"
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "Verschoben von {{.Actor}}"
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "{{.Object}} verschoben"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "{{.Object}} verschoben von {{.Actor}}"
   },
   "Workspace": {
-    "other": "Workspace"
+    "other": "Arbeitsplatz"
   }
 }

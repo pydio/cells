@@ -1,47 +1,47 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "Update-Konfiguration"
   },
   "Update.Config.Url.Label": {
-    "other": "Update Server"
+    "other": "Updateserver"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "HTTP-URL des Update-Servers"
   },
   "Update.Config.PublicKey.Label": {
-    "other": "Public Key"
+    "other": "Öffentlicher Schlüssel"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "Offizieller Schlüssel, der zur Überprüfung der Signatur von Binärdateien verwendet wird."
   },
   "Update.Config.Channel.Label": {
-    "other": "Update Channel"
+    "other": "Update-Kanal"
   },
   "Update.Config.Channel.Description": {
-    "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
+    "other": "Kanal, der für die Prüfung auf Updates verwendet wird. Bleiben Sie bei Stabil, wenn Sie sich nicht sicher sind."
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "Stable"
+    "other": "Stabil"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "Dev (auf eigene Gefahr)"
   },
   "Update.Config.ProxyHost.Label": {
     "other": "Proxy"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host of a proxy server if required for outbound connections"
+    "other": "Host eines Proxy-Servers - bei Bedarf für ausgehende Verbindungen verwendet"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "Proxy User"
+    "other": "Proxy-Benutzername"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "User for proxy server identification"
+    "other": "Benutzer für Proxy-Server-Identifikation"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "Proxy Password"
+    "other": "Proxy Passwort"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "Password for the proxy server identification"
+    "other": "Passwort für Proxyserver-Identifikation"
   }
 }

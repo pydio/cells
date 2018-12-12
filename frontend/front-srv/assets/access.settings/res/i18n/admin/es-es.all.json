@@ -1675,5 +1675,14 @@
   },
   "developer.rest.apis.legend": {
     "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."
+  },
+  "mailer.test.title": {
+    "other": "Send a test email"
+  },
+  "mailer.test.legend": {
+    "other": "Make sure to save your configuration changes before sending a test email."
+  },
+  "mailer.test.loading": {
+    "other": "Loading Mailer Library..."
   }
 }
