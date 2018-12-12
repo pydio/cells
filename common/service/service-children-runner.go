@@ -35,6 +35,8 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"net"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -300,11 +302,18 @@ func (c *ChildrenRunner) FilterOutSource(ctx context.Context, sourceName string)
 		}
 		if val, ok := basic["PeerAddress"]; ok {
 			limitToAddress := val.(string)
-			// TODO : How to make sure they are corresponding?
-			// Can we get the "Node" on which the current service is running?
-			ip, e := utils.GetExternalIP()
-			if e == nil && ip.String() != limitToAddress {
-				log.Logger(ctx).Info(fmt.Sprintf("Ignoring %s as PeerAddress (%s) does not correspond to current peer ip (%s)", c.childPrefix+sourceName, limitToAddress, ip.String()))
+
+			peerIP := net.ParseIP(limitToAddress)
+			localIPs, _ := utils.GetAvailableIPs()
+
+			found := false
+			for _, localIP := range localIPs {
+				if peerIP.Equal(localIP) {
+					found = true
+				}
+			}
+			if !found {
+				log.Logger(ctx).Info(fmt.Sprintf("Ignoring %s as PeerAddress (%s) does not correspond to any current peer ip", c.childPrefix+sourceName, limitToAddress))
 				return true
 			}
 		}
