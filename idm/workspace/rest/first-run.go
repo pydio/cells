@@ -26,6 +26,8 @@ import (
 
 	"github.com/pborman/uuid"
 
+	"fmt"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pydio/cells/common"
@@ -118,6 +120,7 @@ func createWs(ctx context.Context, wsClient idm.WorkspaceServiceClient, ws *idm.
 			}
 			if resp != nil && resp.Workspace != nil {
 				// Workspace was found, exit now, avoid creating duplicates
+				log.Logger(ctx).Info(fmt.Sprintf("Ignoring creation of %s workspace as it already exists", ws.Label))
 				return nil
 			}
 		}
