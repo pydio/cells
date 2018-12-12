@@ -113,8 +113,23 @@
   "Mail.PublicFolder.Outros": {
     "other": "La plateforme de partage de fichiers {{.Configs.Title}} est utilisée par {{.TplData.Inviter}} pour partager et collaborer efficacement sur ses documents."
   },
+  "Mail.AdminTestMail.Subject": {
+    "other": "{{.Configs.Title}} vous envoie un courriel de test"
+  },
+  "Mail.AdminTestMail.Intros": {
+    "other": "{{.TplData.Message}}"
+  },
+  "Mail.AdminTestMail.LinkLabel": {
+    "other": "Ouvrir Pydio Cells"
+  },
+  "Mail.AdminTestMail.LinkInstructions": {
+    "other": "Cliquez pour ouvrir l'interface utilisateur"
+  },
+  "Mail.AdminTestMail.Outros": {
+    "other": "La plateforme de partage de fichiers {{.Configs.Title}} est utilisée pour partager et collaborer efficacement sur des documents."
+  },
   "Mail.Config.Title": {
-    "other": "Moteur de mail"
+    "other": "Moteur d'envoi de courriel"
   },
   "Mail.Config.From.Label": {
     "other": "Adresse d'expéditeur par défaut"

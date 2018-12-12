@@ -1,6 +1,6 @@
 {
   "PolicyGroup.PublicAccess.Title": {
-    "other": "Public access"
+    "other": "Öffentlicher Zugriff"
   },
   "PolicyGroup.PublicAccess.Description": {
     "other": "Public access to discovery endpoints"
@@ -66,10 +66,10 @@
     "other": "Filter out display of a any file with a PNG extension"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] Limited Period"
+    "other": "[Example] Begrenzter Zeitraum"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
-    "other": "Enables access to a workspace only for a given period"
+    "other": "Ermöglicht den Zugriff auf einen bestimmten Arbeitsbereich nur für einen festgelegten Zeitraum"
   },
   "PolicyGroup.ACLSamplePeriod.Rule1": {
     "other": "ACL Rule example, allowing access only in Feb. and March 2018"
@@ -81,13 +81,13 @@
     "other": "Disable access to a workspace after a given date"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule1": {
-    "other": "Global read/write"
+    "other": "Globaler Lese-/Schreibzugriff"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule2": {
     "other": "Deny read/write if date is after 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] Access allowed only during business hours"
+    "other": "[Example] Zugriff ist nur während der üblichen Geschäftszeiten erlaubt"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
     "other": "Enable access to a workspace only certain days within pre-defined hours"
@@ -96,15 +96,15 @@
     "other": "Office hours rule example, allowing read/write"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] Disable access based on IP"
+    "other": "[Example] Deaktivieren Sie den Zugriff basierend auf IP-Adressen"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
-    "other": "Disable access to IPs outside of LAN"
+    "other": "Zugriff auf IPs außerhalb LAN deaktivieren"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule1": {
     "other": "Global read/write"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule2": {
-    "other": "Denying IP if it's not localhost, 127.0.0.1 or ::1"
+    "other": "Verbieten IP, wenn es nicht Localhost 127.0.0.1 oder:: 1"
   }
 }

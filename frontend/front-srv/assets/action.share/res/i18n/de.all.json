@@ -186,7 +186,7 @@
     "other": "Zugriffsrechte"
   },
   "151": {
-    "other": "Layout"
+    "other": "Anordnung"
   },
   "152": {
     "other": "Bearbeiten"
@@ -507,79 +507,79 @@
     "other": "%s Einladung(en) versendet"
   },
   "246": {
-    "other": "Open cell"
+    "other": "Zelle öffnen"
   },
   "247": {
-    "other": "Edit cell"
+    "other": "Zelle editieren"
   },
   "248": {
-    "other": "Delete cell"
+    "other": "Zelle löschen"
   },
   "249": {
-    "other": "Contents"
+    "other": "Inhalte"
   },
   "25": {
     "other": "Kein Limit"
   },
   "250": {
-    "other": "Cells"
+    "other": "Zelle"
   },
   "251": {
     "other": "Link"
   },
   "252": {
-    "other": "Access"
+    "other": "Zugriff"
   },
   "253": {
-    "other": "Visibility"
+    "other": "Sichtbarkeit"
   },
   "254": {
     "other": "Shared in cells"
   },
   "255": {
-    "other": "Are you sure you want to delete all cells and links on this item?"
+    "other": "Sind Sie sicher, dass Sie alle Zellen und Links zu dieser Datei löschen möchten?"
   },
   "256": {
     "other": "Shares for %s"
   },
   "257": {
-    "other": "Created on %s"
+    "other": "Erstellt am %s"
   },
   "258": {
     "other": "Edit cell users"
   },
   "259": {
-    "other": "Remove from this cell"
+    "other": "Aus dieser Zelle entfernen"
   },
   "26": {
     "other": "Wählen Sie die Benutzer oder Gruppen und legen Sie deren Zugriffsrechte fest. Nur Schreiben erstellt eine Nur-Upload-Arbeitsumgebung."
   },
   "260": {
-    "other": "Folder is shared in the following cells. You can edit the users or create a new cell."
+    "other": "Ordner wird in den folgenden Zellen geteilt. Sie können die Benutzer bearbeiten oder eine neue Zelle erstellen."
   },
   "261": {
-    "other": "Pick users or groups who will have access to this cell"
+    "other": "Wählen Sie Benutzer oder Gruppen, die Zugriff auf diese Zelle haben dürfen"
   },
   "262": {
-    "other": "Share this folder with other users by creating a new cell"
+    "other": "Freigeben Sie dieser Ordner für andere Benutzer, indem Sie eine neue Zelle erstellen"
   },
   "263": {
-    "other": "Add to Cell..."
+    "other": "Zur Zelle hinzufügen..."
   },
   "264": {
-    "other": "+ New Cell"
+    "other": "+ Neue Zelle"
   },
   "265": {
-    "other": "Link Label"
+    "other": "Linkbezeichnung"
   },
   "266": {
-    "other": "Link Description"
+    "other": "Linkbeschreibung"
   },
   "267": {
-    "other": "Cell Label"
+    "other": "Name der Zelle"
   },
   "268": {
-    "other": "Cell Description"
+    "other": "Zellenbeschreibung"
   },
   "269": {
     "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
@@ -588,25 +588,25 @@
     "other": "Datei freigeben"
   },
   "270": {
-    "other": "users"
+    "other": "Benutzer"
   },
   "271": {
-    "other": "groups"
+    "other": "Gruppen"
   },
   "272": {
-    "other": "teams"
+    "other": "Teams"
   },
   "273": {
-    "other": "nobody"
+    "other": "niemand"
   },
   "274": {
-    "other": " and "
+    "other": " und "
   },
   "275": {
-    "other": "Create cells to collaborate with other users. First start by describing the object of this cell."
+    "other": "Erstellen Sie Zellen, um mit anderen Benutzern zusammenzuarbeiten. Fangen Sie mit einer Beschreibung dieser Zelle an."
   },
   "276": {
-    "other": "Title of your cell"
+    "other": "Titel Ihrer Zelle"
   },
   "277": {
     "other": "Optionally add a description"
@@ -615,7 +615,7 @@
     "other": "Choose who you will share data with"
   },
   "279": {
-    "other": "Create cell now!"
+    "other": "Zelle jetzt erstellen!"
   },
   "28": {
     "other": "Ordner freigeben"
@@ -750,7 +750,7 @@
     "other": "Direkter Download Link"
   },
   "61": {
-    "other": "HTML Embed Code"
+    "other": "Eingebetteter HTML Code"
   },
   "62": {
     "other": "Adresse des öffentlichen Links"
@@ -873,7 +873,7 @@
     "other": "Existierende Links"
   },
   "94": {
-    "other": "QR Code"
+    "other": "QR-Code"
   },
   "95": {
     "other": "QR code"
@@ -894,9 +894,9 @@
     "other": "Add users/data"
   },
   "cells.create.buttons.separator": {
-    "other": "or"
+    "other": "oder"
   },
   "cells.create.title.fill.folders": {
-    "other": "Share existing folder(s)"
+    "other": "Bestehende(n) Ordner teilen"
   }
 }

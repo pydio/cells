@@ -1675,5 +1675,14 @@
   },
   "developer.rest.apis.legend": {
     "other": "Voici toutes les API disponibles dans Pydio Cells. Pour utiliser ces API, vous devez tout d’abord vous authentifier auprès du service OpenID Connect afin d'obtenir un JWT valide. Consultez le guide de l’administrateur en ligne pour en savoir plus."
+  },
+  "mailer.test.title": {
+    "other": "Envoyer un courriel test"
+  },
+  "mailer.test.legend": {
+    "other": "Assurez-vous d'enregistrer vos modifications de configuration avant d’envoyer un courriel de test."
+  },
+  "mailer.test.loading": {
+    "other": "Chargement de la bibliothèque d'envoi de courriel..."
   }
 }
