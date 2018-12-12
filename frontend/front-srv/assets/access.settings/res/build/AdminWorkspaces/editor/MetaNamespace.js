@@ -47,7 +47,9 @@ var MetaNamespace = (function (_React$Component) {
             namespace: this.cloneNs(props.namespace),
             m: function m(id) {
                 return props.pydio.MessageHash['ajxp_admin.metadata.' + id];
-            }
+            },
+            selectorNewKey: '',
+            selectorNewValue: ''
         };
     }
 
@@ -133,10 +135,14 @@ var MetaNamespace = (function (_React$Component) {
         key: 'addSelectionValue',
         value: function addSelectionValue() {
             var data = this.getSelectionData();
-            var key = _pydioUtilLang2['default'].computeStringSlug(this.refs.newkey.getValue());
-            data[key] = this.refs.newvalue.getValue();
-            console.log(data);
+            var _state = this.state;
+            var selectorNewKey = _state.selectorNewKey;
+            var selectorNewValue = _state.selectorNewValue;
+
+            var key = _pydioUtilLang2['default'].computeStringSlug(selectorNewKey);
+            data[key] = selectorNewValue;
             this.setSelectionData(data);
+            this.setState({ selectorNewKey: '', selectorNewValue: '' });
         }
     }, {
         key: 'removeSelectionValue',
@@ -151,7 +157,10 @@ var MetaNamespace = (function (_React$Component) {
             var _this2 = this;
 
             var data = this.getSelectionData();
-            var m = this.state.m;
+            var _state2 = this.state;
+            var m = _state2.m;
+            var selectorNewKey = _state2.selectorNewKey;
+            var selectorNewValue = _state2.selectorNewValue;
 
             return _react2['default'].createElement(
                 'div',
@@ -167,7 +176,7 @@ var MetaNamespace = (function (_React$Component) {
                     Object.keys(data).map(function (k) {
                         return _react2['default'].createElement(
                             'div',
-                            { style: { display: 'flex' } },
+                            { key: k, style: { display: 'flex' } },
                             _react2['default'].createElement(
                                 'span',
                                 null,
@@ -190,23 +199,27 @@ var MetaNamespace = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex' } },
+                    { style: { display: 'flex' }, key: "new-selection-key" },
                     _react2['default'].createElement(
                         'span',
                         null,
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newkey', hintText: m('editor.selection.key'), fullWidth: true })
+                        _react2['default'].createElement(_materialUi.TextField, { value: selectorNewKey, onChange: function (e, v) {
+                                _this2.setState({ selectorNewKey: v });
+                            }, hintText: m('editor.selection.key'), fullWidth: true })
                     ),
                     _react2['default'].createElement(
                         'span',
                         { style: { marginLeft: 10 } },
-                        _react2['default'].createElement(_materialUi.TextField, { ref: 'newvalue', hintText: m('editor.selection.value'), fullWidth: true })
+                        _react2['default'].createElement(_materialUi.TextField, { value: selectorNewValue, onChange: function (e, v) {
+                                _this2.setState({ selectorNewValue: v });
+                            }, hintText: m('editor.selection.value'), fullWidth: true })
                     ),
                     _react2['default'].createElement(
                         'span',
                         null,
                         _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-plus", onTouchTap: function () {
                                 _this2.addSelectionValue();
-                            } })
+                            }, disabled: !selectorNewKey || !selectorNewValue })
                     )
                 )
             );
@@ -239,9 +252,9 @@ var MetaNamespace = (function (_React$Component) {
             var create = _props.create;
             var namespaces = _props.namespaces;
             var pydio = _props.pydio;
-            var _state = this.state;
-            var namespace = _state.namespace;
-            var m = _state.m;
+            var _state3 = this.state;
+            var namespace = _state3.namespace;
+            var m = _state3.m;
 
             var title = undefined;
             if (namespace.Label) {

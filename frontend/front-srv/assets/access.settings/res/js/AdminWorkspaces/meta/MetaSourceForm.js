@@ -69,7 +69,7 @@ const MetaSourceForm = React.createClass({
         allMetas.map(function(metaSource){
             const id = metaSource['id'];
             const type = id.split('.').shift();
-            if(type == 'metastore' || type == 'index'){
+            if(type === 'metastore' || type === 'index'){
                 let already = false;
                 Object.keys(currentMetas).map(function(metaKey){
                     if(metaKey.indexOf(type) === 0) already = true;
