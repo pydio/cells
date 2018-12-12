@@ -11,7 +11,9 @@ class MetaNamespace extends React.Component{
         super(props);
         this.state = {
             namespace: this.cloneNs(props.namespace),
-            m : (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id]
+            m : (id) => props.pydio.MessageHash['ajxp_admin.metadata.' + id],
+            selectorNewKey:'',
+            selectorNewValue:''
         };
     }
 
@@ -75,10 +77,11 @@ class MetaNamespace extends React.Component{
 
     addSelectionValue(){
         const data = this.getSelectionData();
-        const key = LangUtils.computeStringSlug(this.refs.newkey.getValue());
-        data[key] = this.refs.newvalue.getValue();
-        console.log(data);
+        const {selectorNewKey, selectorNewValue} = this.state;
+        const key = LangUtils.computeStringSlug(selectorNewKey);
+        data[key] = selectorNewValue;
         this.setSelectionData(data);
+        this.setState({selectorNewKey:'', selectorNewValue:''});
     }
     removeSelectionValue(key){
         let data = this.getSelectionData();
@@ -88,23 +91,23 @@ class MetaNamespace extends React.Component{
 
     renderSelectionBoard(){
         const data = this.getSelectionData();
-        const {m} = this.state;
+        const {m, selectorNewKey, selectorNewValue} = this.state;
         return (
             <div style={{padding: 10, backgroundColor: '#f5f5f5', borderRadius: 2}}>
                 <div style={{fontSize: 13}}>{m('editor.selection')}</div>
                 <div>{Object.keys(data).map(k => {
                     return (
-                        <div style={{display:'flex'}}>
+                        <div key={k} style={{display:'flex'}}>
                             <span><TextField value={k} disabled={true} fullWidth={true}/></span>
                             <span style={{marginLeft: 10}}><TextField value={data[k]} disabled={true} fullWidth={true}/></span>
                             <span><IconButton iconClassName={"mdi mdi-delete"} onTouchTap={()=>{this.removeSelectionValue(k)}}/></span>
                         </div>
                     )
                 })}</div>
-                <div style={{display:'flex'}}>
-                    <span><TextField ref="newkey" hintText={m('editor.selection.key')} fullWidth={true}/></span>
-                    <span style={{marginLeft: 10}}><TextField ref="newvalue" hintText={m('editor.selection.value')} fullWidth={true}/></span>
-                    <span><IconButton iconClassName={"mdi mdi-plus"} onTouchTap={()=>{this.addSelectionValue()}}/></span>
+                <div style={{display:'flex'}} key={"new-selection-key"}>
+                    <span><TextField value={selectorNewKey} onChange={(e,v)=>{this.setState({selectorNewKey:v})}} hintText={m('editor.selection.key')} fullWidth={true}/></span>
+                    <span style={{marginLeft: 10}}><TextField value={selectorNewValue} onChange={(e,v)=>{this.setState({selectorNewValue:v})}} hintText={m('editor.selection.value')} fullWidth={true}/></span>
+                    <span><IconButton iconClassName={"mdi mdi-plus"} onTouchTap={()=>{this.addSelectionValue()}} disabled={!selectorNewKey || !selectorNewValue}/></span>
                 </div>
             </div>
         );
