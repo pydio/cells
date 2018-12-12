@@ -951,10 +951,10 @@
     "other": "Sehr sicher"
   },
   "validation.login.lowercase": {
-    "other": "Please use only lowercase characters for logins"
+    "other": "Bitte verwenden Sie für die Anmeldung nur Kleinbuchstaben"
   },
   "validation.login.format": {
-    "other": "Please use alphanumeric characters or valid emails for logins"
+    "other": "Bitte verwenden Sie für die Anmeldung alphanumerische Zeichen oder gültige E-Mails"
   },
   "386": {
     "other": "Drei Anmeldeversuche sind fehlgeschlagen.\\nGeben Sie zur Sicherheit bitte das Wort vom Bild ein."
@@ -1743,7 +1743,7 @@
     "other": "Erfolgreich kopiert!"
   },
   "625": {
-    "other": "Letter"
+    "other": "Buchstabe"
   },
   "626": {
     "other": "Mit mir geteilte Ordner"
@@ -1779,13 +1779,13 @@
     "other": "Your group"
   },
   "634c": {
-    "other": "All users"
+    "other": "Alle Benutzer"
   },
   "635": {
-    "other": "Chat Room"
+    "other": "Chatraum"
   },
   "636": {
-    "other": "Start typing and hit Enter"
+    "other": "Beginnen Sie mit der Eingabe und drücken Sie Enter"
   },
   "637": {
     "other": "No messages yet, start typing to chat with users of this cell!"
@@ -1794,7 +1794,7 @@
     "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
   },
   "639": {
-    "other": "In this cell"
+    "other": "In dieser Zelle"
   },
   "64": {
     "other": "XLS-Tabelle"
@@ -1806,7 +1806,7 @@
     "other": "Remove from current cell"
   },
   "642": {
-    "other": "Add to current cell"
+    "other": "Zur aktuellen Zelle hinzufügen"
   },
   "643": {
     "other": "You now share a cell with %s"
@@ -2178,7 +2178,7 @@
     "other": "c"
   },
   "public_link_user": {
-    "other": "Public access"
+    "other": "Öffentlicher Zugriff"
   },
   "background.move.file": {
     "other": "Moving file in background ..."
@@ -2214,9 +2214,9 @@
     "other": "Folder is bookmarked"
   },
   "mkfile.empty.template.label": {
-    "other": "Empty File"
+    "other": "Leere Datei"
   },
   "mkfile.untitled.document": {
-    "other": "Untitled Document"
+    "other": "Unbenanntes Dokument"
   }
 }
