@@ -34,10 +34,11 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
-	"github.com/pydio/cells/common/micro"
+	config2 "github.com/pydio/go-os/config"
 )
 
 type sourceAlias struct {
@@ -58,6 +59,7 @@ type ClientsPool struct {
 	genericClient client.Client
 	configMutex   *sync.Mutex
 	watcher       registry.Watcher
+	confWatcher   config2.Watcher
 }
 
 // NewSource instantiates a LoadedSource with a minio client
@@ -87,6 +89,7 @@ func NewClientsPool(watchRegistry bool) (pool *ClientsPool) {
 	pool.listDatasources()
 	if watchRegistry {
 		go pool.watchRegistry()
+		go pool.watchConfigChanges()
 	}
 
 	return pool
@@ -96,6 +99,9 @@ func NewClientsPool(watchRegistry bool) (pool *ClientsPool) {
 func (p *ClientsPool) Close() {
 	if p.watcher != nil {
 		p.watcher.Stop()
+	}
+	if p.confWatcher != nil {
+		p.confWatcher.Stop()
 	}
 }
 
@@ -232,7 +238,7 @@ func (p *ClientsPool) watchRegistry() {
 			if strings.Contains(srv.Name(), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_) {
 				dsName := strings.TrimPrefix(srv.Name(), common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC_)
 
-				log.Logger(context.TODO()).Debug("[ClientsPool] Registry action", zap.String("action", result.Action), zap.Any("srv", srv.Name()))
+				log.Logger(context.Background()).Debug("[ClientsPool] Registry action", zap.String("action", result.Action), zap.Any("srv", srv.Name()))
 				if _, ok := p.Sources[dsName]; ok && result.Action == "stopped" {
 					// Reset list
 					p.configMutex.Lock()
@@ -243,6 +249,22 @@ func (p *ClientsPool) watchRegistry() {
 			}
 		}
 	}
+}
+
+func (p *ClientsPool) watchConfigChanges() {
+
+	watcher, err := config.Default().Watch("services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_SYNC, "sources")
+	if err != nil {
+		return
+	}
+	p.confWatcher = watcher
+	for {
+		event, err := watcher.Next()
+		if event != nil && err == nil {
+			p.listDatasources()
+		}
+	}
+
 }
 
 func (p *ClientsPool) createClientsForDataSource(dataSourceName string, dataSource *object.DataSource, registerKey ...string) error {

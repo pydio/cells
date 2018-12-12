@@ -104,6 +104,14 @@ func SourceNamesToConfig(sources map[string]*object.DataSource) {
 	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX, "sources")
 }
 
+func TouchSourceNamesForDataServices(dataSrvType string) {
+	sources := SourceNamesForDataServices(dataSrvType)
+	sources = append(sources, fmt.Sprintf("%s%v", sourcesTimestampPrefix, time.Now().Unix()))
+	marsh, _ := json.Marshal(sources)
+	Set(string(marsh), "services", common.SERVICE_GRPC_NAMESPACE_+dataSrvType, "sources")
+	Save(common.PYDIO_SYSTEM_USERNAME, "Touch sources update date for "+dataSrvType)
+}
+
 // MinioConfigNamesToConfig saves objects sources to config
 func MinioConfigNamesToConfig(sources map[string]*object.MinioConfig) {
 	var sourcesJsonKey []string

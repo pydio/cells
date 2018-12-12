@@ -24,7 +24,6 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -42,16 +41,11 @@ import (
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/service/context"
 	protoservice "github.com/pydio/cells/common/service/proto"
-	"github.com/pydio/cells/data/source/sync"
-	synccommon "github.com/pydio/cells/data/source/sync/lib/common"
-	"github.com/pydio/cells/data/source/sync/lib/endpoints"
-	synctask "github.com/pydio/cells/data/source/sync/lib/task"
 )
 
 var (
-	syncConfig *object.DataSource
+	syncHandler *Handler
 )
 
 func init() {
@@ -81,12 +75,6 @@ func init() {
 							return fmt.Errorf("could not find source key in service Metadata")
 						}
 
-						// The current call is triggered inside a BeforeStart, thus we don't
-						// have the full config yet.
-						if err := servicecontext.ScanConfig(ctx, &syncConfig); err != nil {
-							return err
-						}
-
 						// Making sure index is started
 						service.Retry(func() error {
 							log.Logger(ctx).Debug("Sync " + datasource + " - Try to contact Index")
@@ -103,62 +91,19 @@ func init() {
 							return nil
 						}, 3*time.Second, 50*time.Second)
 
-						var minioConfig *object.MinioConfig
-						service.Retry(func() error {
-							log.Logger(ctx).Debug("Sync " + datasource + " - Try to contact Objects")
-							cli := object.NewObjectsEndpointClient(registry.GetClient(common.SERVICE_DATA_OBJECTS_ + syncConfig.ObjectsServiceName))
-							resp, err := cli.GetMinioConfig(ctx, &object.GetMinioConfigRequest{})
-							if err != nil {
-								log.Logger(ctx).Debug(common.SERVICE_DATA_OBJECTS_ + syncConfig.ObjectsServiceName + " not yet available")
-								return err
-							}
-							minioConfig = resp.MinioConfig
-							return nil
-						}, 3*time.Second, 50*time.Second)
-
-						if minioConfig == nil {
-							return fmt.Errorf("objects not reachable")
+						var e error
+						syncHandler, e = NewHandler(ctx, datasource)
+						if e != nil {
+							return e
 						}
 
-						var source synccommon.PathSyncTarget
-						if syncConfig.Watch {
-							return fmt.Errorf("datasource watch is not implemented yet")
-						} else {
-							s3client, errs3 := endpoints.NewS3Client(ctx,
-								minioConfig.BuildUrl(), minioConfig.ApiKey, minioConfig.ApiSecret, syncConfig.ObjectsBucket, syncConfig.ObjectsBaseFolder)
-							if errs3 != nil {
-								return errs3
-							}
-							normalizeS3, _ := strconv.ParseBool(syncConfig.StorageConfiguration["normalize"])
-							if normalizeS3 {
-								s3client.ServerRequiresNormalization = true
-							}
-							source = s3client
-						}
-
-						indexClientWrite := tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX_+datasource, m.Client())
-						indexClientRead := tree.NewNodeProviderClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX_+datasource, m.Client())
-						sessionClient := tree.NewSessionIndexerClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DATA_INDEX_+datasource, m.Client())
-
-						target := sync.NewIndexEndpoint(datasource, indexClientRead, indexClientWrite, sessionClient)
-
-						syncTask := synctask.NewSync(ctx, source, target)
-						syncTask.Direction = "left"
-
-						syncHandler := &Handler{
-							S3client:     source,
-							IndexClient:  indexClientRead,
-							SyncTask:     syncTask,
-							SyncConfig:   syncConfig,
-							ObjectConfig: minioConfig,
-						}
 						tree.RegisterNodeProviderHandler(m.Server(), syncHandler)
 						tree.RegisterNodeReceiverHandler(m.Server(), syncHandler)
 						protosync.RegisterSyncEndpointHandler(m.Server(), syncHandler)
 						object.RegisterDataSourceEndpointHandler(m.Server(), syncHandler)
 						object.RegisterResourceCleanerEndpointHandler(m.Options().Server, syncHandler)
 
-						syncTask.Start(ctx)
+						syncHandler.Start()
 
 						md := make(map[string]string)
 						md[common.PYDIO_CONTEXT_USER_KEY] = common.PYDIO_SYSTEM_USERNAME
@@ -196,6 +141,15 @@ func init() {
 							return e
 						}
 
+						return nil
+					}))
+
+					m.Init(micro.BeforeStop(func() error {
+						if syncHandler != nil {
+							ctx := m.Options().Context
+							log.Logger(ctx).Info("Stopping sync task and registry watch")
+							syncHandler.Stop()
+						}
 						return nil
 					}))
 
