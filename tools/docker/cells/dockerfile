@@ -19,9 +19,8 @@ ARG version
 
 WORKDIR /pydio
 
-ENV CELLS_VERSION ${version} \
-    CELLS_BIND localhost:8080 \
-    CELLS_EXTERNAL localhost:8080
+ENV CELLS_BIND localhost:8080
+ENV CELLS_EXTERNAL localhost:8080
 
 # Add necessary files
 COPY docker-entrypoint.sh /pydio/docker-entrypoint.sh
