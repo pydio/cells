@@ -32,7 +32,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/disintegration/imaging"
 	"github.com/golang/protobuf/proto"
@@ -142,7 +141,7 @@ func displayMemStat(ctx context.Context, position string) {
 	return
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
-	log.Logger(ctx).Debug("---- MEMORY USAGE AT: "+position, zap.Uint64("Alloc", m.Alloc/1024/1024), zap.Uint64("TotalAlloc", m.TotalAlloc/1024/1024), zap.Uint64("Sys", m.Sys/1024/1024), zap.Uint32("NumGC", m.NumGC))
+	log.Logger(ctx).Info("---- MEMORY USAGE AT: "+position, zap.Uint64("Alloc", m.Alloc/1024/1024), zap.Uint64("TotalAlloc", m.TotalAlloc/1024/1024), zap.Uint64("Sys", m.Sys/1024/1024), zap.Uint32("NumGC", m.NumGC))
 	//stdlog.Printf("%s : \nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\n\n", position, m.Alloc / 1024 / 1024, m.TotalAlloc / 1024 / 1024, m.Sys / 1024, m.NumGC)
 
 }
@@ -203,13 +202,11 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 
 	log.Logger(ctx).Debug("Thumbnails - Extracted dimension and saved in metadata", zap.Any("dimension", bounds))
 	meta := &ThumbnailsMeta{}
-	wg := &sync.WaitGroup{}
 
 	for _, size := range sizes {
 
-		wg.Add(1)
 		displayMemStat(ctx, "BEFORE WRITE SIZE FROM SRC")
-		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size, wg)
+		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size)
 		if err != nil {
 			return err
 		}
@@ -221,7 +218,10 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 			})
 		}
 	}
-	wg.Wait()
+
+	runtime.GC()
+
+	displayMemStat(ctx, "AFTER TRIGGERING GC")
 
 	if (meta != &ThumbnailsMeta{}) {
 		node.SetMeta(METADATA_THUMBNAILS, meta)
@@ -235,7 +235,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	return err
 }
 
-func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Image, node *tree.Node, targetSize int, wg *sync.WaitGroup) (bool, error) {
+func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Image, node *tree.Node, targetSize int) (bool, error) {
 
 	localTest := false
 	localFolder := ""
@@ -247,14 +247,14 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 	if localFolder = node.GetStringMeta(common.META_NAMESPACE_NODE_TEST_LOCAL_FOLDER); localFolder != "" {
 		localTest = true
 	}
+	logger := log.Logger(ctx)
 
 	if !localTest {
 
 		var e error
 		thumbsClient, thumbsBucket, e = views.GetGenericStoreClient(ctx, common.PYDIO_THUMBSTORE_NAMESPACE, t.Client)
 		if e != nil {
-			log.Logger(ctx).Error("Cannot find client for thumbstore", zap.Error(e))
-			wg.Done()
+			logger.Error("Cannot find client for thumbstore", zap.Error(e))
 			return false, e
 		}
 
@@ -266,74 +266,56 @@ func (t *ThumbnailExtractor) writeSizeFromSrc(ctx context.Context, img image.Ima
 		}
 		// First Check if thumb already exists with same original etag
 		oi, check := thumbsClient.StatObject(thumbsBucket, objectName, opts)
-		log.Logger(ctx).Debug("Object Info", zap.Any("object", oi), zap.Error(check))
+		logger.Debug("Object Info", zap.Any("object", oi), zap.Error(check))
 		if check == nil {
 			foundOriginal := oi.Metadata.Get("X-Amz-Meta-Original-Etag")
 			if len(foundOriginal) > 0 && foundOriginal == node.Etag {
 				// No update necessary
-				log.Logger(ctx).Debug("Ignoring Resize: thumb already exists in store", zap.Any("original", oi))
-				wg.Done()
+				logger.Debug("Ignoring Resize: thumb already exists in store", zap.Any("original", oi))
 				return false, nil
 			}
 		}
 
 	}
 
-	log.Logger(ctx).Debug("WriteSizeFromSrc", zap.String("nodeUuid", node.Uuid))
+	logger.Debug("WriteSizeFromSrc", zap.String("nodeUuid", node.Uuid))
 	// Resize the cropped image to width = 256px preserving the aspect ratio.
 	dst := imaging.Resize(img, targetSize, 0, imaging.Lanczos)
 	ol := imaging.New(dst.Bounds().Dx(), dst.Bounds().Dy(), colornames.Lightgrey)
 	ol = imaging.Overlay(ol, dst, image.Pt(0, 0), 1.0)
 
-	var out io.WriteCloser
+	displayMemStat(ctx, "BEFORE ENCODE")
+	var thumbBytes []byte
+	buf := bytes.NewBuffer(thumbBytes)
+	err := imaging.Encode(buf, ol, imaging.JPEG)
+
+	displayMemStat(ctx, "AFTER ENCODE")
 
 	if !localTest {
-		// We have to compute the size first
-		var reader io.ReadCloser
 
-		reader, out = io.Pipe()
-		defer out.Close()
-
-		go func() {
-			defer func() {
-				reader.Close()
-				wg.Done()
-			}()
-			displayMemStat(ctx, "BEGIN GOFUNC")
-			requestMeta := map[string]string{"X-Amz-Meta-Original-Etag": node.Etag}
-			options := minio.PutObjectOptions{
-				UserMetadata: requestMeta,
-				ContentType:  "image/jpeg",
-			}
-			log.Logger(ctx).Debug("Writing thumbnail to thumbs bucket", zap.Any("image size", targetSize), zap.Any("options", options))
-			displayMemStat(ctx, "BEFORE PUT OBJECT WITH CONTEXT")
-			allData, err := ioutil.ReadAll(reader)
-			putReader := bytes.NewReader(allData)
-			written, err := thumbsClient.PutObjectWithContext(ctx, thumbsBucket, objectName, putReader, int64(len(allData)), options)
-			if err != nil {
-				log.Logger(ctx).Error("Error while calling PutObject", zap.Error(err), zap.Any("client", thumbsClient))
-			} else {
-				log.Logger(ctx).Debug("Finished putting thumb for size", zap.Int64("written", written), zap.Int("size ", targetSize))
-			}
-			displayMemStat(ctx, "SHOULD EXIT GO FUNC")
-		}()
+		requestMeta := map[string]string{"X-Amz-Meta-Original-Etag": node.Etag}
+		options := minio.PutObjectOptions{
+			UserMetadata: requestMeta,
+			ContentType:  "image/jpeg",
+		}
+		logger.Debug("Writing thumbnail to thumbs bucket", zap.Any("image size", targetSize), zap.Any("options", options))
+		displayMemStat(ctx, "BEFORE PUT OBJECT WITH CONTEXT")
+		written, err := thumbsClient.PutObjectWithContext(ctx, thumbsBucket, objectName, buf, int64(buf.Len()), options)
+		if err != nil {
+			return false, err
+		} else {
+			logger.Debug("Finished putting thumb for size", zap.Int64("written", written), zap.Int("size ", targetSize))
+		}
+		displayMemStat(ctx, "AFTER PUT OBJECT WITH CONTEXT")
 
 	} else {
-
-		defer wg.Done()
-		var e error
-		out, e = os.OpenFile(filepath.Join(localFolder, objectName), os.O_CREATE|os.O_WRONLY, 0755)
+		e := ioutil.WriteFile(filepath.Join(localFolder, objectName), buf.Bytes(), 0755)
 		if e != nil {
 			return false, e
 		}
-		defer out.Close()
 	}
 
-	displayMemStat(ctx, "BEFORE ENCODE")
-	err := imaging.Encode(out, ol, imaging.JPEG)
-	displayMemStat(ctx, "AFTER ENCODE")
-
-	log.Logger(ctx).Debug("WriteSizeFromSrc: END", zap.String("nodeUuid", node.Uuid))
+	logger.Debug("WriteSizeFromSrc: END", zap.String("nodeUuid", node.Uuid))
 
 	return true, err
 
