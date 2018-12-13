@@ -219,6 +219,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		}
 	}
 
+	src = nil
 	runtime.GC()
 
 	displayMemStat(ctx, "AFTER TRIGGERING GC")
