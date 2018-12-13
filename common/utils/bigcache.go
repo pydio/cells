@@ -11,7 +11,11 @@ import (
 func DefaultBigCacheConfig() bigcache.Config {
 
 	c := bigcache.DefaultConfig(30 * time.Minute)
-	c.HardMaxCacheSize = 20 * 1024 * 1024
+	c.CleanWindow = 10 * time.Minute
+	c.Shards = 256
+	c.MaxEntriesInWindow = 10 * 60 * 128
+	c.MaxEntrySize = 500
+	c.HardMaxCacheSize = 20
 
 	return c
 }
