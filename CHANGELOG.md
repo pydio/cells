@@ -1,10 +1,53 @@
-# Changes between v1.2.2 and v1.2.3
+# Changes between v1.2.3 and v1.2.4
 
-[See Full Changelog](https://github.com/pydio/cells/compare/v1.2.2...v1.2.3)
+[See Full Changelog](https://github.com/pydio/cells/compare/v1.2.3...v1.2.4)
 
-- [#01ff2c5](https://github.com/pydio/cells/commit/01ff2c51d130643d39bc7183ab51c5853a7b4915): Last build
-- [#6b65d00](https://github.com/pydio/cells/commit/6b65d008db5f198fbf489c0fe8ce1f9d5793a299): Rewire version suffix on JS load
-- [#2e28a59](https://github.com/pydio/cells/commit/2e28a595375526d51054b9d77dd2fa1f37477d57): Send a restart signal when a PENDING is found
-- [#5087b56](https://github.com/pydio/cells/commit/5087b567a6e623bd24248765c11f85509f7b39d7): Remove Debug log
-- [#001bd6d](https://github.com/pydio/cells/commit/001bd6d695c7b403091e24bc92a6dda351109a1e): Remove Debug log
-- [#21309db](https://github.com/pydio/cells/commit/21309db680ee30734dbc700353539e679bfe11c7): Change proxy restart observing
+- [#c6ee5a7](https://github.com/pydio/cells/commit/c6ee5a7fe0ba544b8d66ccd1e57d44e632104426): Reducing cache size
+- [#595b996](https://github.com/pydio/cells/commit/595b996bd31563ceeb7e612804464736d38dae74): Merge remote-tracking branch 'origin/master'
+- [#ead21c1](https://github.com/pydio/cells/commit/ead21c199c86cdc7c970b4e4ba1be18d161b5850): Empty src var before gc
+- [#d547c82](https://github.com/pydio/cells/commit/d547c826e6e4f31ba769d9f7364b0550cfab60c3): fixed the ENV and also removed the CELLS_VERSION env on the cells image
+- [#5bbcc0a](https://github.com/pydio/cells/commit/5bbcc0aaa4b7909414f7c937f00cb77574aca3c4): Merge remote-tracking branch 'origin/master'
+- [#fe86599](https://github.com/pydio/cells/commit/fe865996a02cbbfb14af57c0cd5d438f5e412465): Thumbnails task: simplify code (no need for complexe io.Pipe as we must read the buffer to send the size anyway). Trigger GC after action.
+- [#2d8a7f7](https://github.com/pydio/cells/commit/2d8a7f72ad74743031ef7fd750b5ebd3d3695954): Re-adding timeout for client
+- [#5d26fd5](https://github.com/pydio/cells/commit/5d26fd5ec155d3dbfb448c9c9afb7282f8bec376): Resync : do not pass chans if they are not used Resync ctl command : set a proper context
+- [#875cff5](https://github.com/pydio/cells/commit/875cff57217ac791fda402ed2f2fa65afd1d05c4): Merge pull request 44 from pydio-i18n/master
+- [#60e5bbd](https://github.com/pydio/cells/commit/60e5bbd9d0a575b7c2dcde2e51a1da965a184514): More French + German translations thanks to Patrick Polsterer and Christian Eberle
+- [#a702b05](https://github.com/pydio/cells/commit/a702b051f4acd7441625d999aa21502f9fb3460f): More French + German translations thanks to Patrick Polsterer and Christian Eberle
+- [#e6af53b](https://github.com/pydio/cells/commit/e6af53bc0f98c9b047ce996c104b86b957234383): Check PeerAddress on all available IPs
+- [#06c4864](https://github.com/pydio/cells/commit/06c486471cf0c99584d452f725dc47e5aa5a2b26): Refactor sync service to manage SyncTask. Restart sync task not yet handled, but update Versioning and Encryption mode is now working.
+- [#007a117](https://github.com/pydio/cells/commit/007a1174be9afba60cf85b3ea1e1e8a9beb8ff4b): Remove legacy file.
+- [#b1fe3e6](https://github.com/pydio/cells/commit/b1fe3e61a9b0126e9e9e4d9cd7505e41828f8aeb): Merge remote-tracking branch 'origin/master'
+- [#27405f4](https://github.com/pydio/cells/commit/27405f4bb86afe10079b55ae6910d194b9145a14): Fix metaform when editing selection keys/values
+- [#1c978b5](https://github.com/pydio/cells/commit/1c978b5159513fa0dd99e58065f0387d1fea0178): Log when ws is ignored
+- [#8c21ed0](https://github.com/pydio/cells/commit/8c21ed0efb383ba9f56d71cdec35736b707d4375): FirstRun create workspace : check that it does not exists - avoid duplicates in some specific reset situations
+- [#7792f70](https://github.com/pydio/cells/commit/7792f70c76402951fc6233a7ade784b6d46551da): Remove sdk-go binary, clean and optimise docker file.
+- [#ce39b5e](https://github.com/pydio/cells/commit/ce39b5e5202fccb673ea97686cdcb011c62b2dc1): Further fixes on node path comparison
+- [#08fdffd](https://github.com/pydio/cells/commit/08fdffdc95abc08fa43b1764687ce0da49686a80): Add specific component for mailer to send a test email
+- [#1d1ae0b](https://github.com/pydio/cells/commit/1d1ae0b97527af487732c99af8585dd50bc573db): Add new template for test email - send directly (not in queue)
+- [#9ad44f5](https://github.com/pydio/cells/commit/9ad44f5e199f5c46cb1a5544b50fc6698dd2cd64): Hunt down some other potential concurrent hashmaps access
+- [#26abd24](https://github.com/pydio/cells/commit/26abd248874be347e89c8eeb2f56760e3976236b): Enhance error handling
+- [#ffa7040](https://github.com/pydio/cells/commit/ffa70402832a9ff7b4bbebba978547cc999523fe): ManagedUpload: wrap uploadPart() to reload JWT if necessary for long uploads (II)
+- [#2eaece8](https://github.com/pydio/cells/commit/2eaece84e714a16bccd6478a7947b825bf76f86b): ManagedUpload: wrap uploadPart() to reload JWT if necessary for long uploads
+- [#9d2545c](https://github.com/pydio/cells/commit/9d2545ce1f5b8b3fb9583742acd5b05fb062fb84): Testing 50+ cells showed a small perf issue on cross-worskpace search. Flag context to not reload access list when looping on path prefixes.
+- [#2f945fd](https://github.com/pydio/cells/commit/2f945fdda9aafde5262e62bb5fc28b0e7ca91dba): Refix sql implicit limits: do not use offset without limit!
+- [#e13438b](https://github.com/pydio/cells/commit/e13438bb16265ff8551cfcb965ac4e984a96365a): Fix cross-workspace search : results may appear in wrong workspaces if they have the same prefix (e.g. aaa-1, aaa-12)
+- [#a38db6a](https://github.com/pydio/cells/commit/a38db6a24246b51c60d26d07ffc4a7fc68f16129): Remove implicit limits on sql queries
+- [#f1b8365](https://github.com/pydio/cells/commit/f1b83651e1342641e0e0231f0a488dfc83e0f84b): Fix redundant new line for go 1.11
+- [#bfe8529](https://github.com/pydio/cells/commit/bfe8529bdaad11d350523b71619ca76f3a352a22): Imports
+- [#7e7b0e1](https://github.com/pydio/cells/commit/7e7b0e1ac0252d3d98f265e7551422a617a11947): Imports
+- [#94f9db4](https://github.com/pydio/cells/commit/94f9db40dabde951b0ff2b2801b9ddb9a732752d): Run update in background and notify progress in CLI and as a fake job in rest handler
+- [#859598a](https://github.com/pydio/cells/commit/859598a81dd72ec897f66672e2499d43824b48f7): Follow update as a task
+- [#16deb8a](https://github.com/pydio/cells/commit/16deb8ae6ea55692394bfe9a01c237f755343169): Fixing command line and use background as context to apply update to avoid timeout
+- [#c412612](https://github.com/pydio/cells/commit/c4126122bad6eca4848945f7b30b264eea3423c2): Catch 502 when contacting oidc via gateway => probably restarting, wait an retry once.
+- [#ab817fc](https://github.com/pydio/cells/commit/ab817fc139f4fab3b4a04fa52f639fd113fa1ee5): Fix hello world message
+- [#ecec12e](https://github.com/pydio/cells/commit/ecec12e05d154f9ad18cd05e8b9dba98ba2d92ea): Display full error message in task
+- [#87c14f5](https://github.com/pydio/cells/commit/87c14f5bcac5719de30973a9bb587e5d96997453): Add Time on ActionOutput proto message - Regenerate protos, swagger, and adapt tests accordingly
+- [#49117e3](https://github.com/pydio/cells/commit/49117e3d001174dccc6c13fa7aade930434bc512): Fix unnecessary .gitignore
+- [#dc6154d](https://github.com/pydio/cells/commit/dc6154d0f50cd77bf7ef9c1de1abe15340178e53): SyncLib: Remove log, make sure doneChan is not nil
+- [#863dd10](https://github.com/pydio/cells/commit/863dd106e069567f7fcefe02cd11f80ee0167358): Fix imports
+- [#7a5d7a9](https://github.com/pydio/cells/commit/7a5d7a9afd71eec0323ae2ab8cc852a4b88d0eac): Fix FactorizeMinioServers when updating an existing datasource Fix datasources reload events to make handle case where a PeerAddress is changed
+- [#d1fdf73](https://github.com/pydio/cells/commit/d1fdf73f2daefdb727c611d193f7b7a70ef974b0): SyncLib: Pass a doneChan to be notified when batchLeft and batchRight have been fully processed
+- [#469a9ca](https://github.com/pydio/cells/commit/469a9caa25dcd13132f533fa0c8f420df759d4ce): Fix error msg: success and fail numbers were inverted.
+- [#5212930](https://github.com/pydio/cells/commit/5212930702bcd37b57c72201c963da9858a88300): One broker to rule them all
+- [#2ad7edc](https://github.com/pydio/cells/commit/2ad7edcf06ca66cc634950452f797e432b4dbafa): Fix edge cases when stating some nodes - Move hardcoded strings in naming.go
+- [#324cb42](https://github.com/pydio/cells/commit/324cb423092b7cc8e61c90d1bd4f8a74ce7fce10): Update README.md
