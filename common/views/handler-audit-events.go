@@ -223,6 +223,9 @@ func (h *HandlerAuditEvent) MultipartListObjectParts(ctx context.Context, target
 // checkBranchInfoForAudit simply gather relevant information from the branch info before calling the Audit log.
 func checkBranchInfoForAudit(ctx context.Context, identifier string) (isBinary bool, wsInfo zapcore.Field, wsScope zapcore.Field) {
 	// Retrieve Datasource and Workspace info
+	wsInfo = zap.String(common.KEY_WORKSPACE_UUID, "")
+	wsScope = zap.String(common.KEY_WORKSPACE_SCOPE, "")
+
 	branchInfo, ok := GetBranchInfo(ctx, identifier)
 	if ok && branchInfo.Binary {
 		return true, wsInfo, wsScope
