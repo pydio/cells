@@ -124,12 +124,14 @@ func (ukm *userKeyStore) AdminCreateKey(ctx context.Context, req *enc.AdminCreat
 		return err
 	}
 
-	if k, err := keyDao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.KeyID); err != nil {
-		return err
-	} else if k != nil {
-		return errors.BadRequest(common.SERVICE_ENC_KEY, "Key already exists with this id!")
+	if _, err := keyDao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.KeyID); err != nil {
+		if errors.Parse(err.Error()).Code == 404 {
+			return createSystemKey(keyDao, req.KeyID, req.Label)
+		} else {
+			return err
+		}
 	} else {
-		return createSystemKey(keyDao, req.KeyID, req.Label)
+		return errors.BadRequest(common.SERVICE_ENC_KEY, "Key already exists with this id!")
 	}
 }
 
@@ -161,8 +163,11 @@ func (ukm *userKeyStore) AdminImportKey(ctx context.Context, req *enc.AdminImpor
 	log.Logger(ctx).Info("Received request", zap.Any("Data", req))
 
 	var k *enc.Key
-	if k, err = dao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.Key.ID); err != nil {
-		return err
+	k, err = dao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.Key.ID)
+	if err != nil {
+		if errors.Parse(err.Error()).Code != 404 {
+			return err
+		}
 	} else if k != nil && !req.Override {
 		return errors.BadRequest(common.SERVICE_ENC_KEY, "Key already exists with this id!")
 	}
@@ -237,7 +242,7 @@ func (ukm *userKeyStore) AdminExportKey(ctx context.Context, req *enc.AdminExpor
 
 	rsp.Key, err = dao.GetKey(common.PYDIO_SYSTEM_USERNAME, req.KeyID)
 	if err != nil {
-		return errors.NotFound(common.SERVICE_ENC_KEY, fmt.Sprintf("cannot find %s key with ID = %s", common.PYDIO_SYSTEM_USERNAME, req.KeyID), err)
+		return err
 	}
 	log.Logger(ctx).Info(fmt.Sprintf("Exporting key %s", rsp.Key.Content))
 

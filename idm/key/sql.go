@@ -26,6 +26,7 @@ import (
 
 	"github.com/gobuffalo/packr"
 	"github.com/gogo/protobuf/proto"
+	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
@@ -118,11 +119,12 @@ func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) 
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	k := encryption.Key{
-		Info: &encryption.KeyInfo{},
-	}
 	if rows.Next() {
+		k := encryption.Key{
+			Info: &encryption.KeyInfo{},
+		}
 		var bytes []byte
 		err := rows.Scan(&(k.Owner), &(k.ID), &(k.Label), &(k.Content), &(k.CreationDate), &bytes)
 		if err != nil {
@@ -133,12 +135,10 @@ func (dao *sqlimpl) GetKey(owner string, KeyID string) (*encryption.Key, error) 
 		if bytes != nil && len(bytes) > 0 {
 			proto.Unmarshal(bytes, k.Info)
 		}
-		rows.Close()
+		return &k, rows.Err()
 	} else {
-		rows.Close()
-		return nil, nil
+		return nil, errors.NotFound("encryption.key.notfound", "cannot find key with id "+KeyID)
 	}
-	return &k, rows.Err()
 }
 
 func (dao *sqlimpl) ListKeys(owner string) ([]*encryption.Key, error) {

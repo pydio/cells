@@ -29,8 +29,8 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
-	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/proto/tree"
 )
 
 type VersionHandler struct {
@@ -180,7 +180,7 @@ func (v *VersionHandler) CopyObject(ctx context.Context, from *tree.Node, to *tr
 		if requestData.Metadata == nil {
 			requestData.Metadata = make(map[string]string, 1)
 		}
-		requestData.Metadata["X-Amz-Meta-Pydio-Node-Uuid"] = from.Uuid // Make sure to keep Uuid!
+		requestData.Metadata[common.X_AMZ_META_NODE_UUID] = from.Uuid // Make sure to keep Uuid!
 		from = &tree.Node{
 			Path: from.Uuid + "__" + requestData.SrcVersionId,
 		}
