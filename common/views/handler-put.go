@@ -31,10 +31,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/micro/go-micro/errors"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/object"
@@ -168,7 +168,7 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 	if node.Uuid != "" {
 
 		log.Logger(ctx).Debug("PUT: Appending node Uuid to request metadata: " + node.Uuid)
-		requestData.Metadata["X-Amz-Meta-Pydio-Node-Uuid"] = node.Uuid
+		requestData.Metadata[common.X_AMZ_META_NODE_UUID] = node.Uuid
 		return m.next.PutObject(ctx, node, reader, requestData)
 
 	} else {
@@ -184,9 +184,10 @@ func (m *PutHandler) PutObject(ctx context.Context, node *tree.Node, reader io.R
 			reader = bytes.NewBufferString(newNode.Uuid)
 		}
 
-		requestData.Metadata["X-Amz-Meta-Pydio-Node-Uuid"] = newNode.Uuid
+		requestData.Metadata[common.X_AMZ_META_NODE_UUID] = newNode.Uuid
 		if encrypted {
-			requestData.Metadata["X-Amz-Meta-Pydio-Clear-Size"] = fmt.Sprintf("%d", requestData.Size)
+			log.Logger(ctx).Debug("Adding special header to store clear size", zap.Any("s", requestData.Size))
+			requestData.Metadata[common.X_AMZ_META_CLEAR_SIZE] = fmt.Sprintf("%d", requestData.Size)
 		}
 		node.Uuid = newNode.Uuid
 		size, err := m.next.PutObject(ctx, node, reader, requestData)
@@ -231,7 +232,7 @@ func (m *PutHandler) MultipartCreate(ctx context.Context, node *tree.Node, reque
 		log.Logger(ctx).Debug("PUT - MULTIPART CREATE: Appending node Uuid to request metadata: " + node.Uuid)
 	}
 
-	requestData.Metadata["X-Amz-Meta-Pydio-Node-Uuid"] = node.Uuid
+	requestData.Metadata[common.X_AMZ_META_NODE_UUID] = node.Uuid
 
 	// Call next handler
 	multipartId, err := m.next.MultipartCreate(ctx, node, requestData)

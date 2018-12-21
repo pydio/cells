@@ -33,10 +33,10 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/crypto"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/proto/object"
 	"github.com/pydio/cells/common/proto/tree"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/idm/key"
 )
 
@@ -81,7 +81,7 @@ func (e *EncryptionHandler) GetObject(ctx context.Context, node *tree.Node, requ
 
 		clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
 		var err error
-		eMat, err := e.retrieveEncryptionMaterials(ctx, clone, info.EncryptionKey)
+		eMat, err := e.retrieveEncryptionMaterials(ctx, clone, info.EncryptionKey, false)
 		if err != nil {
 			return nil, err
 		}
@@ -136,7 +136,7 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 
 	clone.SetMeta(common.META_NAMESPACE_DATASOURCE_NAME, dsName)
 
-	eMaterial, err := e.retrieveEncryptionMaterials(ctx, clone, info.EncryptionKey)
+	eMaterial, err := e.retrieveEncryptionMaterials(ctx, clone, info.EncryptionKey, true)
 	if err != nil {
 		return 0, err
 	}
@@ -156,6 +156,7 @@ func (e *EncryptionHandler) PutObject(ctx context.Context, node *tree.Node, read
 		log.Logger(ctx).Error("PutObject failed", zap.Error(err))
 	} else if eMaterial != nil {
 		params := eMaterial.GetEncryptedParameters()
+		log.Logger(ctx).Debug("Storing Encryption Parameters", zap.Any("m", eMaterial))
 		err = e.setNodeEncryptionParams(ctx, node, params)
 		if err != nil {
 			log.Logger(ctx).Error("PutObject failed", zap.Error(err))
@@ -248,7 +249,7 @@ func (e *EncryptionHandler) setNodeEncryptionParams(ctx context.Context, node *t
 	return err
 }
 
-func (e *EncryptionHandler) retrieveEncryptionMaterials(ctx context.Context, node *tree.Node, encryptionKeyName string) (*crypto.AESGCMMaterials, error) {
+func (e *EncryptionHandler) retrieveEncryptionMaterials(ctx context.Context, node *tree.Node, encryptionKeyName string, encrypt bool) (*crypto.AESGCMMaterials, error) {
 
 	dsName := node.GetStringMeta(common.META_NAMESPACE_DATASOURCE_NAME)
 	tool, err := key.MasterKeyTool(ctx)
@@ -292,6 +293,8 @@ func (e *EncryptionHandler) retrieveEncryptionMaterials(ctx context.Context, nod
 
 		return crypto.NewAESGCMMaterials(encKey, nil), nil
 
+	} else if encrypt {
+		nodeKey.Nonce = []byte{}
 	}
 	encKey, err := tool.GetDecrypted(ctx, encryptionKeyName, nodeKey.Data)
 	if err != nil {

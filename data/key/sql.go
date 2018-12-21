@@ -21,15 +21,19 @@
 package key
 
 import (
+	"context"
 	"fmt"
 	"sync/atomic"
 
 	"github.com/gobuffalo/packr"
 	"github.com/micro/go-micro/errors"
+	"github.com/rubenv/sql-migrate"
+	"go.uber.org/zap"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/encryption"
 	"github.com/pydio/cells/common/sql"
-	migrate "github.com/rubenv/sql-migrate"
 )
 
 var (
@@ -98,7 +102,7 @@ func (h *sqlimpl) InsertNode(nodeUuid string, nonce []byte, blockSize int32) err
 			return fmt.Errorf("Unknown statement")
 		}
 		defer stmt.Close()
-
+		log.Logger(context.Background()).Debug("Updating Material for node "+nodeUuid, zap.Any("nonce", string([]byte(nonce))), zap.Any("s", blockSize))
 		_, err = stmt.Exec(
 			nonce,
 			blockSize,
@@ -110,7 +114,7 @@ func (h *sqlimpl) InsertNode(nodeUuid string, nonce []byte, blockSize int32) err
 			return fmt.Errorf("Unknown statement")
 		}
 		defer stmt.Close()
-
+		log.Logger(context.Background()).Debug("Inserting Material for node "+nodeUuid, zap.Any("nonce", string([]byte(nonce))), zap.Any("s", blockSize))
 		_, err = stmt.Exec(
 			nodeUuid,
 			nonce,

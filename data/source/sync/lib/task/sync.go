@@ -186,6 +186,10 @@ func (s *Sync) InitialSnapshots(ctx context.Context, dryRun bool, statusChan cha
 }
 
 func (s *Sync) Shutdown() {
+	defer func() {
+		// ignore 'close on closed channel'
+		recover()
+	}()
 	for _, channel := range s.doneChans {
 		close(channel)
 	}

@@ -158,6 +158,17 @@ func (t *Task) AppendLog(a jobs.Action, in jobs.ActionMessage, out jobs.ActionMe
 	})
 }
 
+func (t *Task) GlobalError(e error) {
+	t.lockTask()
+	defer t.unlockTask()
+	t.lockedTask.ActionsLogs = append(t.lockedTask.ActionsLogs, &jobs.ActionLog{
+		OutputMessage: &jobs.ActionMessage{OutputChain: []*jobs.ActionOutput{{
+			Time:        int32(time.Now().Unix()),
+			ErrorString: e.Error(),
+		}}},
+	})
+}
+
 func (t *Task) createMessage(event interface{}) jobs.ActionMessage {
 	initialInput := jobs.ActionMessage{}
 

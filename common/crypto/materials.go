@@ -23,6 +23,7 @@ package crypto
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 
 	"github.com/pydio/cells/common/proto/encryption"
@@ -216,12 +217,13 @@ func (m *AESGCMMaterials) decryptRead(b []byte) (int, error) {
 			nonce := make([]byte, 12)
 			nl, err := m.nonceBuffer.Read(nonce)
 			if err != nil || nl < 12 {
+				fmt.Println("Error while reading nonce for decrypting data!", err.Error())
 				return 0, errors.New("Read nonce failed")
 			}
 
 			opened, err := Open(m.encryptionKey, nonce, buff[:cursor])
 			if err != nil {
-				//log.Logger(context.Background()).Error("failed to decrypt block", zap.Int("Block Num", m.blockCount), zap.Int32("Block size", m.blockSize), zap.Int64("Total Read", m.totalRead), zap.Error(err))
+				fmt.Println("Error while decrypting data!", err.Error())
 				return 0, err
 			}
 			cursor = 0

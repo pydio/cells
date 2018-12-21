@@ -30,8 +30,10 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/scheduler/actions"
+	"go.uber.org/zap"
 )
 
 // Runnable represents the runnable instance of a given task
@@ -118,6 +120,18 @@ func (r *Runnable) RunAction(Queue chan Runnable) error {
 		taskUpdateDelegated = true
 		taskConsumer.SetTask(r.Task.GetJobTaskClone())
 	}
+
+	defer func() {
+		if re := recover(); re != nil {
+			log.Logger(r.Context).Error("Recovered scheduler task", zap.Any("task", r.Task))
+			r.Task.SetStatus(jobs.TaskStatus_Error, "Panic inside task")
+			if e, ok := re.(error); ok {
+				log.Logger(r.Context).Error("Recovered scheduler task", zap.Any("task", r.Task), zap.Error(e))
+				r.Task.GlobalError(e)
+			}
+			r.Task.Save()
+		}
+	}()
 
 	if controllable, ok := r.Implementation.(actions.ControllableAction); ok {
 		r.Task.SetControllable(controllable.CanStop(), controllable.CanPause())

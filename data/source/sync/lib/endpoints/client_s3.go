@@ -452,8 +452,8 @@ func (c *S3Client) getFileHash(path string) (uid string, hash string, metaSize i
 	if e != nil {
 		return "", "", metaSize, e
 	}
-	uid = objectInfo.Metadata.Get("X-Amz-Meta-Pydio-Node-Uuid")
-	if size := objectInfo.Metadata.Get("X-Amz-Meta-Pydio-Clear-Size"); size != "" {
+	uid = objectInfo.Metadata.Get(servicescommon.X_AMZ_META_NODE_UUID)
+	if size := objectInfo.Metadata.Get(servicescommon.X_AMZ_META_CLEAR_SIZE); size != "" {
 		metaSize, _ = strconv.ParseInt(size, 10, 64)
 	}
 	etag := strings.Trim(objectInfo.ETag, "\"")
