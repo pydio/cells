@@ -18,7 +18,6 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-
 import NestedListItem from './NestedListItem'
 import UsersList from './UsersList'
 import RightPanelCard from './RightPanelCard'
@@ -31,7 +30,7 @@ import {Popover, IconButton, Divider} from 'material-ui'
 import {muiThemeable, colors} from 'material-ui/styles'
 import ActionsPanel from '../avatar/ActionsPanel'
 import UserCreationForm from '../UserCreationForm'
-const {PydioContextConsumer} = Pydio.requireLib('boot');
+const {PydioContextConsumer, PydioContextProvider} = Pydio.requireLib('boot');
 import PydioApi from 'pydio/http/api';
 
 /**
@@ -385,6 +384,7 @@ let AddressBook = React.createClass({
             if(this.props.popoverButton){
                 iconButton = <this.props.popoverButton.type {...this.props.popoverButton.props} onTouchTap={this.openPopover}/>
             }
+            const WrappedAddressBook = PydioContextProvider(AddressBook, this.props.pydio);
             return (
                 <span>
                     {iconButton}
@@ -398,7 +398,7 @@ let AddressBook = React.createClass({
                         zDepth={2}
                     >
                         <div style={{width: 320, height: 420, ...popoverContainerStyle}}>
-                            <AddressBook {...this.props} mode="selector" />
+                            <WrappedAddressBook {...this.props} mode="selector" />
                         </div>
                     </Popover>
                 </span>
