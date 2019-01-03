@@ -84,6 +84,7 @@ var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
 var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
+var PydioContextProvider = _Pydio$requireLib.PydioContextProvider;
 var AddressBook = _react2['default'].createClass({
     displayName: 'AddressBook',
 
@@ -446,6 +447,7 @@ var AddressBook = _react2['default'].createClass({
             if (this.props.popoverButton) {
                 iconButton = _react2['default'].createElement(this.props.popoverButton.type, _extends({}, this.props.popoverButton.props, { onTouchTap: this.openPopover }));
             }
+            var WrappedAddressBook = PydioContextProvider(AddressBook, this.props.pydio);
             return _react2['default'].createElement(
                 'span',
                 null,
@@ -464,7 +466,7 @@ var AddressBook = _react2['default'].createClass({
                     _react2['default'].createElement(
                         'div',
                         { style: _extends({ width: 320, height: 420 }, popoverContainerStyle) },
-                        _react2['default'].createElement(AddressBook, _extends({}, this.props, { mode: 'selector' }))
+                        _react2['default'].createElement(WrappedAddressBook, _extends({}, this.props, { mode: 'selector' }))
                     )
                 )
             );
