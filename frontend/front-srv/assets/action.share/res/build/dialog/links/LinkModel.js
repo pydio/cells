@@ -271,6 +271,7 @@ var LinkModel = (function (_Observable) {
                 _this5.dirty = false;
                 _this5.updatePassword = _this5.createPassword = _this5.customLink = null;
                 _this5.notify('update');
+                _this5.notify('delete');
             });
         }
 

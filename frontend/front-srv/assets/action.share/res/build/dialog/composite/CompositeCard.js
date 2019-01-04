@@ -241,6 +241,7 @@ var CompositeCard = (function (_React$Component) {
             var node = _props2.node;
             var mode = _props2.mode;
             var pydio = _props2.pydio;
+            var editorOneColumn = _props2.editorOneColumn;
             var _state = this.state;
             var model = _state.model;
             var mailerData = _state.mailerData;
@@ -277,7 +278,7 @@ var CompositeCard = (function (_React$Component) {
                 tabs.right.push({
                     Label: m(250),
                     Value: "cells",
-                    Component: _react2['default'].createElement(_CellsList2['default'], { pydio: pydio, compositeModel: model, usersInvitations: this.usersInvitations.bind(this) })
+                    Component: _react2['default'].createElement(_CellsList2['default'], { pydio: pydio, compositeModel: model, usersInvitations: this.usersInvitations.bind(this), style: editorOneColumn ? { padding: 10 } : {} })
                 });
                 var links = model.getLinks();
                 if (publicLinkModel) {
@@ -318,7 +319,8 @@ var CompositeCard = (function (_React$Component) {
                         tabs.left.push({
                             Label: m(253),
                             Value: 'link-visibility',
-                            Component: _react2['default'].createElement(_linksVisibilityPanel2['default'], { pydio: pydio, linkModel: links[0] })
+                            Component: _react2['default'].createElement(_linksVisibilityPanel2['default'], { pydio: pydio, linkModel: links[0] }),
+                            AlwaysLast: true
                         });
                     }
                 }
@@ -333,6 +335,7 @@ var CompositeCard = (function (_React$Component) {
                     onRevertAction: function () {
                         model.revertChanges();
                     },
+                    editorOneColumn: editorOneColumn,
                     style: { width: '100%', height: null, flex: 1, minHeight: 550, color: 'rgba(0,0,0,.83)', fontSize: 13 }
                 });
             } else {

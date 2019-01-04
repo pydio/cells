@@ -95,6 +95,7 @@ export default React.createClass({
                 {
                     Label:m(253),
                     Value:'permissions',
+                    AlwaysLast: true,
                     Component:(
                         <ResourcePoliciesPanel
                             pydio={pydio}
@@ -123,6 +124,7 @@ export default React.createClass({
                 pydio={pydio}
                 tabs={tabs}
                 header={header}
+                editorOneColumn={this.props.editorOneColumn}
                 saveEnabled={model.isDirty()}
                 onSaveAction={this.submit.bind(this)}
                 onCloseAction={this.props.onDismiss}

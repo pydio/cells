@@ -74,6 +74,7 @@ let CompositeDialog = React.createClass({
 
         return (
             <CompositeCard
+                editorOneColumn={this.props.editorOneColumn}
                 pydio={pydio}
                 mode="edit"
                 node={node}

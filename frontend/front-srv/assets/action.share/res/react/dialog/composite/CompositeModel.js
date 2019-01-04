@@ -96,6 +96,9 @@ class CompositeModel extends Observable {
     }
 
     updateUnderlyingNode(){
+        if(this.skipUpdateUnderlyingNode){
+            return;
+        }
         pydio.getContextHolder().requireNodeReload(this.node);
     }
 
@@ -142,6 +145,15 @@ class CompositeModel extends Observable {
                 this.load(this.node, false);
             });
         }
+    }
+
+    loadUniqueLink(linkUuid, node){
+        this.node = node;
+        const linkModel = new LinkModel();
+        linkModel.observe("update", ()=> {this.notify("update")});
+        linkModel.load(linkUuid);
+        this.links.push(linkModel);
+        return linkModel;
     }
 
     save(){

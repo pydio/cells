@@ -138,6 +138,7 @@ exports['default'] = React.createClass({
             }, {
                 Label: m(253),
                 Value: 'permissions',
+                AlwaysLast: true,
                 Component: React.createElement(ResourcePoliciesPanel, {
                     pydio: pydio,
                     resourceType: 'workspace',
@@ -160,6 +161,7 @@ exports['default'] = React.createClass({
             pydio: pydio,
             tabs: tabs,
             header: header,
+            editorOneColumn: this.props.editorOneColumn,
             saveEnabled: model.isDirty(),
             onSaveAction: this.submit.bind(this),
             onCloseAction: this.props.onDismiss,

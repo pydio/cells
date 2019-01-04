@@ -101,6 +101,7 @@ var CompositeDialog = React.createClass({
         }
 
         return React.createElement(_CompositeCard2['default'], {
+            editorOneColumn: this.props.editorOneColumn,
             pydio: pydio,
             mode: 'edit',
             node: node,

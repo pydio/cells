@@ -5,11 +5,16 @@
     class Callbacks{
 
         static share(){
-            pydio.UI.openComponentInModal('ShareDialog', 'CompositeDialog', {pydio:pydio, selection:pydio.getUserSelection()});
+            const props = {pydio:pydio, selection:pydio.getUserSelection()};
+            if(DOMUtils.getViewportWidth() < 700) {
+                props.dialogSize = 'md';
+                props.editorOneColumn = true;
+            }
+            pydio.UI.openComponentInModal('ShareDialog', 'CompositeDialog', props);
         }
         
         static editShare(){
-            pydio.UI.openComponentInModal('ShareDialog', 'CompositeDialog', {pydio:pydio, selection:pydio.getUserSelection()});
+            Callbacks.share();
         }
 
         static loadList(){

@@ -230,7 +230,7 @@ var CellsList = (function (_React$Component) {
 
             return _react2['default'].createElement(
                 'div',
-                null,
+                { style: this.props.style },
                 _react2['default'].createElement(
                     'div',
                     { style: { paddingBottom: 20 } },

@@ -37,6 +37,10 @@ var _cellsCellCard = require('./cells/CellCard');
 
 var _cellsCellCard2 = _interopRequireDefault(_cellsCellCard);
 
+var _compositeSimpleLinkCard = require('./composite/SimpleLinkCard');
+
+var _compositeSimpleLinkCard2 = _interopRequireDefault(_compositeSimpleLinkCard);
+
 var _mainInfoPanel = require('./main/InfoPanel');
 
 var _mainInfoPanel2 = _interopRequireDefault(_mainInfoPanel);
@@ -64,3 +68,4 @@ exports.LinkModel = _linksLinkModel2['default'];
 exports.ShareHelper = _mainShareHelper2['default'];
 exports.ShareViewModal = _listsShareView.ShareViewModal;
 exports.ShareView = _listsShareView.ShareView;
+exports.SimpleLinkCard = _compositeSimpleLinkCard2['default'];

@@ -76,34 +76,69 @@ class GenericEditor extends React.Component {
 
     render(){
 
-        const {tabs, header, onSaveAction, onCloseAction, onRevertAction, saveEnabled, style, pydio} = this.props;
+        const {tabs, header, onSaveAction, onCloseAction, onRevertAction, saveEnabled, style, pydio, editorOneColumn} = this.props;
         const {left, right} = this.state;
 
-        return (
-            <div style={{display:'flex', flexDirection:'column', height: '100%', ...style}}>
-                <div style={{display:'flex', padding: '10px 20px 20px'}}>
-                    <div style={{flex: 1, paddingRight: 20}}>{header}</div>
-                    <div style={{paddingTop: 10}}>
-                        <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onTouchTap={onSaveAction}/>
-                        <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onTouchTap={onRevertAction} style={{marginLeft: 10}}/>
-                        <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onTouchTap={onCloseAction} style={{marginLeft: 10}}/>
+        if(editorOneColumn){
+
+            let merged = [...tabs.left, ...tabs.right];
+            const hasLast = merged.filter(tab => tab.AlwaysLast);
+            if(hasLast.length){
+                merged = [...merged.filter(tab => !tab.AlwaysLast), hasLast[0]];
+            }
+
+            return (
+                <div style={{display:'flex', flexDirection:'column', height: '100%', ...style}}>
+                    <div style={{display:'flex', flexDirection:'column'}}>
+                        <div style={{backgroundColor: '#EEEEEE',display: 'flex', alignItems: 'center', justifyContent: 'flex-end'}}>
+                            <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onTouchTap={onSaveAction}/>
+                            <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onTouchTap={onRevertAction} style={{marginLeft: 10}}/>
+                            <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onTouchTap={onCloseAction} style={{marginLeft: 10}}/>
+                        </div>
+                        <div style={{flex: 1, padding: '10px 20px'}}>{header}</div>
+                    </div>
+                    <div style={{display:'flex'}}>
+                        <EditorTab tabs={merged} active={left} style={{flex: 1}} onChange={(value)=>{this.setState({left:value})}}/>
+                    </div>
+                    <Divider/>
+                    <div style={{display:'flex', flex: 1}}>
+                        <div style={{overflowY:'auto', width:'100%', height: '100%', padding: 10, ...tabs.leftStyle}}>
+                            <EditorTabContent tabs={merged} active={left}/>
+                        </div>
                     </div>
                 </div>
-                <div style={{display:'flex'}}>
-                    <EditorTab tabs={tabs.left} active={left} style={{flex: 1}} onChange={(value)=>{this.setState({left:value})}}/>
-                    <EditorTab tabs={tabs.right} active={right} style={{flex: 1}}  onChange={(value)=>{this.setState({right:value})}}/>
-                </div>
-                <Divider/>
-                <div style={{display:'flex', flex: 1}}>
-                    <div style={{overflowY:'auto', width:'50%', borderRight: '1px solid #e0e0e0', height: '100%', padding: 10, ...tabs.leftStyle}}>
-                        <EditorTabContent tabs={tabs.left} active={left}/>
+            );
+
+
+        } else {
+
+            return (
+                <div style={{display:'flex', flexDirection:'column', height: '100%', ...style}}>
+                    <div style={{display:'flex', padding: '10px 20px 20px'}}>
+                        <div style={{flex: 1, paddingRight: 20}}>{header}</div>
+                        <div style={{paddingTop: 10}}>
+                            <RaisedButton disabled={!saveEnabled} primary={true} label={pydio.MessageHash['53']} onTouchTap={onSaveAction}/>
+                            <FlatButton disabled={!saveEnabled} label={pydio.MessageHash['628']} onTouchTap={onRevertAction} style={{marginLeft: 10}}/>
+                            <IconButton iconClassName={"mdi mdi-close"} tooltip={pydio.MessageHash['86']} onTouchTap={onCloseAction} style={{marginLeft: 10}}/>
+                        </div>
                     </div>
-                    <div style={{overflowY:'auto', width:'50%', height: '100%', padding: 10, ...tabs.rightStyle}}>
-                        <EditorTabContent tabs={tabs.right} active={right}/>
+                    <div style={{display:'flex'}}>
+                        <EditorTab tabs={tabs.left} active={left} style={{flex: 1}} onChange={(value)=>{this.setState({left:value})}}/>
+                        <EditorTab tabs={tabs.right} active={right} style={{flex: 1}}  onChange={(value)=>{this.setState({right:value})}}/>
+                    </div>
+                    <Divider/>
+                    <div style={{display:'flex', flex: 1}}>
+                        <div style={{overflowY:'auto', width:'50%', borderRight: '1px solid #e0e0e0', height: '100%', padding: 10, ...tabs.leftStyle}}>
+                            <EditorTabContent tabs={tabs.left} active={left}/>
+                        </div>
+                        <div style={{overflowY:'auto', width:'50%', height: '100%', padding: 10, ...tabs.rightStyle}}>
+                            <EditorTabContent tabs={tabs.right} active={right}/>
+                        </div>
                     </div>
                 </div>
-            </div>
-        );
+            );
+
+        }
     }
 
 }

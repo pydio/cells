@@ -280,8 +280,9 @@ var WorkspaceEntry = React.createClass({
         var target = event.target;
 
         var offsetTop = target.getBoundingClientRect().top;
-        var viewport = _pydioUtilDom2['default'].getViewportHeight();
-        var popoverTop = viewport - offsetTop < 250;
+        var viewportH = _pydioUtilDom2['default'].getViewportHeight();
+        var viewportW = _pydioUtilDom2['default'].getViewportWidth();
+        var popoverTop = viewportH - offsetTop < 250;
         _pydioHttpResourcesManager2['default'].loadClassesAndApply(["ShareDialog"], function () {
             var popoverContent = React.createElement(ShareDialog.CellCard, {
                 pydio: _this2.props.pydio,
@@ -291,7 +292,8 @@ var WorkspaceEntry = React.createClass({
                 },
                 onHeightChange: function () {
                     _this2.setState({ popoverHeight: 500 });
-                }
+                },
+                editorOneColumn: viewportW < 700
             });
             _this2.setState({ popoverAnchor: target, popoverOpen: true, popoverContent: popoverContent, popoverTop: popoverTop, popoverHeight: null });
         });

@@ -138,7 +138,7 @@ class CompositeCard extends React.Component {
 
     render(){
 
-        const {node, mode, pydio} = this.props;
+        const {node, mode, pydio, editorOneColumn} = this.props;
         const {model, mailerData, linkTooltip, copyMessage} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
 
@@ -170,7 +170,7 @@ class CompositeCard extends React.Component {
                 Label:m(250),
                 Value:"cells",
                 Component:(
-                    <CellsList pydio={pydio} compositeModel={model} usersInvitations={this.usersInvitations.bind(this)}/>
+                    <CellsList pydio={pydio} compositeModel={model} usersInvitations={this.usersInvitations.bind(this)} style={editorOneColumn?{padding:10}:{}}/>
                 )
             });
             const links = model.getLinks();
@@ -212,7 +212,8 @@ class CompositeCard extends React.Component {
                     tabs.left.push({
                         Label:m(253),
                         Value:'link-visibility',
-                        Component:( <VisibilityPanel pydio={pydio} linkModel={links[0]}/> )
+                        Component:( <VisibilityPanel pydio={pydio} linkModel={links[0]}/> ),
+                        AlwaysLast: true
                     })
                 }
             }
@@ -226,6 +227,7 @@ class CompositeCard extends React.Component {
                     onSaveAction={this.submit.bind(this)}
                     onCloseAction={this.props.onDismiss}
                     onRevertAction={()=>{model.revertChanges()}}
+                    editorOneColumn={editorOneColumn}
                     style={{width:'100%', height: null, flex: 1, minHeight:550, color: 'rgba(0,0,0,.83)', fontSize: 13}}
                 />
             );
