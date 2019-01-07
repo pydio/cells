@@ -6,7 +6,7 @@
     "other": "Scaricamento su APPLICATION_TITLE"
   },
   "10a": {
-    "other": "Scaricamento su %s"
+    "other": "Download su %s"
   },
   "10b": {
     "other": "DL su %s"
@@ -21,7 +21,7 @@
     "other": "Trascina uno dei seguenti link sulla tua barra dei segnalibri: "
   },
   "12": {
-    "other": "Attivare il download di file remoti"
+    "other": "Esegui il download del file remoto"
   },
   "13": {
     "other": "Dal computer"
@@ -33,10 +33,10 @@
     "other": "Oppure crea un segnalibro manualmente e usa il codice sottostante come link: "
   },
   "16": {
-    "other": "Trascinami sulla tua barra segnalibri!"
+    "other": "Trascinami sulla tua barra dei segnalibri!"
   },
   "17": {
-    "other": "Scarica file"
+    "other": "Scarica il file"
   },
   "18": {
     "other": "File parziale"
@@ -48,13 +48,13 @@
     "other": "m"
   },
   "4": {
-    "other": "Inserisci almeno un URL che punti al file che desideri scaricare direttamente da un server HTTP esterno alla cartella corrente. Questa operazione verrà eseguita in background così da poter continuare ad usare APPLICATION_TITLE durante lo scaricamento."
+    "other": "Inserisci almeno un URL che punti al file che desideri scaricare direttamente da un server HTTP esterno alla cartella corrente. Questa operazione verrà eseguita in background così da poter continuare ad usare APPLICATION_TITLE durante il download."
   },
   "5": {
     "other": "URL"
   },
   "6": {
-    "other": "Scaricamento"
+    "other": "Download in corso"
   },
   "7": {
     "other": "al server"

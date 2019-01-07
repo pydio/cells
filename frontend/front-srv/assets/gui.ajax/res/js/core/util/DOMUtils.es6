@@ -65,4 +65,26 @@ export default class DOMUtils {
             window.detachEvent('onresize', callback);
         }
     }
+
+    static selectBaseFileName(htmlInput){
+        const value = htmlInput.value;
+        let rangeEnd = value.lastIndexOf('.');
+        if(rangeEnd === -1){
+            rangeEnd = value.length;
+        }
+        if (htmlInput.setSelectionRange){
+            htmlInput.setSelectionRange(0, rangeEnd);
+        } else if (window.getSelection) {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.setStart(htmlInput, 0);
+            range.setEnd(htmlInput, rangeEnd);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } else if(htmlInput.select){
+            htmlInput.select();
+        } else {
+            console.warn("Could not select text in node: Unsupported browser.");
+        }
+    }
 }
