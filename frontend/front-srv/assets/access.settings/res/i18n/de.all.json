@@ -303,7 +303,7 @@
     "other": "Lesen"
   },
   "2b": {
-    "other": "Data Management"
+    "other": "Datenverwaltung"
   },
   "3": {
     "other": "Arbeitsumgebungen"
@@ -339,7 +339,7 @@
     "other": "DataSources"
   },
   "3c": {
-    "other": "Template Paths"
+    "other": "Vorlagenpfad"
   },
   "4": {
     "other": "Protokolle"
@@ -543,10 +543,10 @@
     "other": "Cells Console"
   },
   "topbar.button.advanced": {
-    "other": "Show/hide advanced parameters"
+    "other": "Zeige/verstecke erweiterte Parameter"
   },
   "topbar.button.about": {
-    "other": "Learn more about Pydio Cells"
+    "other": "Mehr über Pydio Cells erfahren"
   },
   "group_access": {
     "other": "G"

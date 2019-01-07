@@ -114,19 +114,19 @@
     "other": "{{.Configs.Title}} Dateiaustauschplattform wird zur effizienten und gemeinsamen Dokumentenarbeit bei {{.TplData.Inviter}} \nverwendet."
   },
   "Mail.AdminTestMail.Subject": {
-    "other": "{{.Configs.Title}} is sending you a test email"
+    "other": "{{.Configs.Title}} sendet Ihnen eine Test-Email"
   },
   "Mail.AdminTestMail.Intros": {
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "Open Cells"
+    "other": "Cells öffnen"
   },
   "Mail.AdminTestMail.LinkInstructions": {
     "other": "Click to open the frontend"
   },
   "Mail.AdminTestMail.Outros": {
-    "other": "{{.Configs.Title}} File Sharing platform is used by teams to efficiently collaborate on documents."
+    "other": "Die {{.Configs.Title}} File-Sharing-Plattform wird von Teams genutzt, um effizient an Dokumenten zusammenzuarbeiten."
   },
   "Mail.Config.Title": {
     "other": "Mailer"
