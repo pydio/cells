@@ -46,7 +46,7 @@ func TestSendmail_Send(t *testing.T) {
 	Convey("Test Sending w/ sendmail", t, func() {
 
 		conf := config.NewMap()
-		conf.Set("BINARY_PATH", sendmailtest_binaryPath)
+		conf.Set("executable", sendmailtest_binaryPath)
 
 		email := &mailer.Mail{}
 		email.From = &mailer.User{
