@@ -299,10 +299,13 @@ let Dashboard = React.createClass({
         ];
 
         const groupHeaderStyle = {
-            height: 56,
+            height: 48,
+            lineHeight:'48px',
+            backgroundColor:'#f5f5f5',
             borderBottom: '1px solid rgb(228, 228, 228)',
-            padding: '20px 10px',
-            fontSize: 16
+            padding: '0 10px',
+            fontSize: 12,
+            fontWeight: 500
         };
         let groupPanelStyle = {
             flex:'none'
@@ -370,7 +373,7 @@ let Dashboard = React.createClass({
                             searchResultData={searchResultData}
                             elementHeight={PydioComponents.SimpleList.HEIGHT_TWO_LINES}
                             hideToolbar={false}
-                            toolbarStyle={{backgroundColor: 'white', borderBottom: '1px solid #e4e4e4'}}
+                            toolbarStyle={{backgroundColor: '#f5f5f5', height:48, borderBottom: '1px solid #e4e4e4'}}
                             multipleActions={[this.props.pydio.Controller.getActionByName('delete')]}
                             additionalActions={filterIcon}
                             filterNodes={this.filterNodes}

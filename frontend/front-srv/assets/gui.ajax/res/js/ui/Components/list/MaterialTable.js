@@ -84,7 +84,7 @@ class MaterialTable extends React.Component{
             );
         });
         const headers = columns.map((column) => {
-            return <TableHeaderColumn style={column.headerStyle||{}} className={column.hideSmall?'media-small-hide':null}>{column.label}</TableHeaderColumn>
+            return <TableHeaderColumn style={{...column.headerStyle, height: 48, backgroundColor:'#F5F5F5', fontWeight: 500}} className={column.hideSmall?'media-small-hide':null}>{column.label}</TableHeaderColumn>
         });
         if(emptyStateString && !rows.length){
             showCheckboxes = false;
