@@ -21,6 +21,7 @@ import (
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
+	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/common/service/proto"
 )
@@ -116,18 +117,25 @@ func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (stat
 		"MINISITE":            linkId,
 		"START_REPOSITORY":    linkData.RepositoryId,
 	}
+	var uField string
 	if linkData.PreLogUser != "" {
 		startParameters["PRELOG_USER"] = linkData.PreLogUser
-		log.Auditer(ctx).Info(
-			fmt.Sprintf("Public Link accessed"),
-			log.GetAuditId(common.AUDIT_LOGIN_SUCCEED),
-			zap.String(common.KEY_WORKSPACE_UUID, linkData.RepositoryId),
-		)
-
+		uField = linkData.PreLogUser
 	} else if linkData.PresetLogin != "" {
 		startParameters["PRESET_LOGIN"] = linkData.PresetLogin
 		startParameters["PASSWORD_AUTH_ONLY"] = true
+		uField = linkData.PresetLogin
 	}
+	if uField != "" {
+		ctx = servicecontext.WithServiceName(ctx, common.SERVICE_WEB_NAMESPACE_+common.SERVICE_FRONTEND)
+		log.Auditer(ctx).Info(
+			fmt.Sprintf("Public Link %s accessed", linkId),
+			log.GetAuditId(common.AUDIT_LOGIN_SUCCEED),
+			zap.String(common.KEY_WORKSPACE_UUID, linkData.RepositoryId),
+			zap.String(common.KEY_USER_UUID, uField),
+		)
+	}
+
 	tplConf.StartParameters = startParameters
 	tplConf.LoadingString = GetLoadingString(bootConf.CurrentLanguage)
 
