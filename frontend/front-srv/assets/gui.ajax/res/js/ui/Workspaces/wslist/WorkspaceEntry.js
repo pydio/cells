@@ -236,14 +236,16 @@ let WorkspaceEntry =React.createClass({
         event.stopPropagation();
         const {target} = event;
         const offsetTop  = target.getBoundingClientRect().top;
-        const viewport = DOMUtils.getViewportHeight();
-        const popoverTop = (viewport - offsetTop < 250);
+        const viewportH = DOMUtils.getViewportHeight();
+        const viewportW = DOMUtils.getViewportWidth();
+        const popoverTop = (viewportH - offsetTop < 250);
         ResourcesManager.loadClassesAndApply(["ShareDialog"], () => {
             const popoverContent = (<ShareDialog.CellCard
                 pydio={this.props.pydio}
                 cellId={this.props.workspace.getId()}
                 onDismiss={()=>{this.setState({popoverOpen: false})}}
                 onHeightChange={()=>{this.setState({popoverHeight: 500})}}
+                editorOneColumn={viewportW < 700}
             />);
             this.setState({popoverAnchor:target, popoverOpen: true, popoverContent:popoverContent, popoverTop: popoverTop, popoverHeight: null})
         });

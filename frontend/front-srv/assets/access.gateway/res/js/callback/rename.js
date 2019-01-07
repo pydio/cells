@@ -28,6 +28,9 @@ export default function (pydio) {
             if(!node) {
                 node = pydio.getUserSelection().getUniqueNode();
             }
+            if(newValue.indexOf('/') !== -1) {
+                throw new Error(pydio.MessageHash['filename.forbidden.slash']);
+            }
             const slug = pydio.user.getActiveRepositoryObject().getSlug();
             const path = slug + node.getPath();
             const target = PathUtils.getDirname(path) + '/' + newValue;
@@ -37,7 +40,8 @@ export default function (pydio) {
                 targetParent: false
             };
             PydioApi.getRestClient().userJob('move', jobParams).then(r => {
-                pydio.UI.displayMessage('SUCCESS', 'Renaming');
+                const m = pydio.MessageHash['rename.processing'].replace('%1', node.getLabel()).replace('%2', newValue);
+                pydio.UI.displayMessage('SUCCESS', m);
                 pydio.getContextHolder().setSelectedNodes([]);
             });
         };

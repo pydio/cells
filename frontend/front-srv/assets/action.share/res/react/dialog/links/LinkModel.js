@@ -212,6 +212,7 @@ class LinkModel extends Observable {
             this.dirty = false;
             this.updatePassword = this.createPassword = this.customLink = null;
             this.notify('update');
+            this.notify('delete');
         });
     }
 

@@ -31,6 +31,8 @@ var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_ag
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -148,55 +150,108 @@ var GenericEditor = (function (_React$Component3) {
             var saveEnabled = _props3.saveEnabled;
             var style = _props3.style;
             var pydio = _props3.pydio;
+            var editorOneColumn = _props3.editorOneColumn;
             var _state = this.state;
             var left = _state.left;
             var right = _state.right;
 
-            return _react2['default'].createElement(
-                'div',
-                { style: _extends({ display: 'flex', flexDirection: 'column', height: '100%' }, style) },
-                _react2['default'].createElement(
+            if (editorOneColumn) {
+
+                var merged = [].concat(_toConsumableArray(tabs.left), _toConsumableArray(tabs.right));
+                var hasLast = merged.filter(function (tab) {
+                    return tab.AlwaysLast;
+                });
+                if (hasLast.length) {
+                    merged = [].concat(_toConsumableArray(merged.filter(function (tab) {
+                        return !tab.AlwaysLast;
+                    })), [hasLast[0]]);
+                }
+
+                return _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex', padding: '10px 20px 20px' } },
+                    { style: _extends({ display: 'flex', flexDirection: 'column', height: '100%' }, style) },
                     _react2['default'].createElement(
                         'div',
-                        { style: { flex: 1, paddingRight: 20 } },
-                        header
+                        { style: { display: 'flex', flexDirection: 'column' } },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { backgroundColor: '#EEEEEE', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' } },
+                            _react2['default'].createElement(_materialUi.RaisedButton, { disabled: !saveEnabled, primary: true, label: pydio.MessageHash['53'], onTouchTap: onSaveAction }),
+                            _react2['default'].createElement(_materialUi.FlatButton, { disabled: !saveEnabled, label: pydio.MessageHash['628'], onTouchTap: onRevertAction, style: { marginLeft: 10 } }),
+                            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: pydio.MessageHash['86'], onTouchTap: onCloseAction, style: { marginLeft: 10 } })
+                        ),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { flex: 1, padding: '10px 20px' } },
+                            header
+                        )
                     ),
                     _react2['default'].createElement(
                         'div',
-                        { style: { paddingTop: 10 } },
-                        _react2['default'].createElement(_materialUi.RaisedButton, { disabled: !saveEnabled, primary: true, label: pydio.MessageHash['53'], onTouchTap: onSaveAction }),
-                        _react2['default'].createElement(_materialUi.FlatButton, { disabled: !saveEnabled, label: pydio.MessageHash['628'], onTouchTap: onRevertAction, style: { marginLeft: 10 } }),
-                        _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: pydio.MessageHash['86'], onTouchTap: onCloseAction, style: { marginLeft: 10 } })
-                    )
-                ),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { display: 'flex' } },
-                    _react2['default'].createElement(EditorTab, { tabs: tabs.left, active: left, style: { flex: 1 }, onChange: function (value) {
-                            _this.setState({ left: value });
-                        } }),
-                    _react2['default'].createElement(EditorTab, { tabs: tabs.right, active: right, style: { flex: 1 }, onChange: function (value) {
-                            _this.setState({ right: value });
-                        } })
-                ),
-                _react2['default'].createElement(_materialUi.Divider, null),
-                _react2['default'].createElement(
-                    'div',
-                    { style: { display: 'flex', flex: 1 } },
+                        { style: { display: 'flex' } },
+                        _react2['default'].createElement(EditorTab, { tabs: merged, active: left, style: { flex: 1 }, onChange: function (value) {
+                                _this.setState({ left: value });
+                            } })
+                    ),
+                    _react2['default'].createElement(_materialUi.Divider, null),
                     _react2['default'].createElement(
                         'div',
-                        { style: _extends({ overflowY: 'auto', width: '50%', borderRight: '1px solid #e0e0e0', height: '100%', padding: 10 }, tabs.leftStyle) },
-                        _react2['default'].createElement(EditorTabContent, { tabs: tabs.left, active: left })
+                        { style: { display: 'flex', flex: 1 } },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({ overflowY: 'auto', width: '100%', height: '100%', padding: 10 }, tabs.leftStyle) },
+                            _react2['default'].createElement(EditorTabContent, { tabs: merged, active: left })
+                        )
+                    )
+                );
+            } else {
+
+                return _react2['default'].createElement(
+                    'div',
+                    { style: _extends({ display: 'flex', flexDirection: 'column', height: '100%' }, style) },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { display: 'flex', padding: '10px 20px 20px' } },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { flex: 1, paddingRight: 20 } },
+                            header
+                        ),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: { paddingTop: 10 } },
+                            _react2['default'].createElement(_materialUi.RaisedButton, { disabled: !saveEnabled, primary: true, label: pydio.MessageHash['53'], onTouchTap: onSaveAction }),
+                            _react2['default'].createElement(_materialUi.FlatButton, { disabled: !saveEnabled, label: pydio.MessageHash['628'], onTouchTap: onRevertAction, style: { marginLeft: 10 } }),
+                            _react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", tooltip: pydio.MessageHash['86'], onTouchTap: onCloseAction, style: { marginLeft: 10 } })
+                        )
                     ),
                     _react2['default'].createElement(
                         'div',
-                        { style: _extends({ overflowY: 'auto', width: '50%', height: '100%', padding: 10 }, tabs.rightStyle) },
-                        _react2['default'].createElement(EditorTabContent, { tabs: tabs.right, active: right })
+                        { style: { display: 'flex' } },
+                        _react2['default'].createElement(EditorTab, { tabs: tabs.left, active: left, style: { flex: 1 }, onChange: function (value) {
+                                _this.setState({ left: value });
+                            } }),
+                        _react2['default'].createElement(EditorTab, { tabs: tabs.right, active: right, style: { flex: 1 }, onChange: function (value) {
+                                _this.setState({ right: value });
+                            } })
+                    ),
+                    _react2['default'].createElement(_materialUi.Divider, null),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { display: 'flex', flex: 1 } },
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({ overflowY: 'auto', width: '50%', borderRight: '1px solid #e0e0e0', height: '100%', padding: 10 }, tabs.leftStyle) },
+                            _react2['default'].createElement(EditorTabContent, { tabs: tabs.left, active: left })
+                        ),
+                        _react2['default'].createElement(
+                            'div',
+                            { style: _extends({ overflowY: 'auto', width: '50%', height: '100%', padding: 10 }, tabs.rightStyle) },
+                            _react2['default'].createElement(EditorTabContent, { tabs: tabs.right, active: right })
+                        )
                     )
-                )
-            );
+                );
+            }
         }
     }]);
 

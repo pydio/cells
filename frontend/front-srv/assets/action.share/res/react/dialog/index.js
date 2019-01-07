@@ -20,10 +20,11 @@
 import CreateCellDialog from './cells/CreateCellDialog'
 import EditCellDialog from './cells/EditCellDialog'
 import CellCard from './cells/CellCard'
+import SimpleLinkCard from './composite/SimpleLinkCard'
 import InfoPanel from './main/InfoPanel'
 import CompositeDialog from './composite/CompositeDialog'
 import LinkModel from './links/LinkModel'
 import ShareHelper from './main/ShareHelper'
 import {ShareView, ShareViewModal} from "./lists/ShareView";
 
-export {CreateCellDialog, EditCellDialog, CellCard, InfoPanel, CompositeDialog, LinkModel, ShareHelper, ShareViewModal, ShareView}
+export {CreateCellDialog, EditCellDialog, CellCard, InfoPanel, CompositeDialog, LinkModel, ShareHelper, ShareViewModal, ShareView, SimpleLinkCard}

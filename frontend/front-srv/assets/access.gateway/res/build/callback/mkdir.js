@@ -41,6 +41,13 @@ exports["default"] = function (pydio) {
     return function () {
 
         var submit = function submit(value) {
+
+            if (value.indexOf('/') !== -1) {
+                var m = pydio.MessageHash['filename.forbidden.slash'];
+                pydio.UI.displayMessage('ERROR', m);
+                throw new Error(m);
+            }
+
             var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2["default"].getRestClient());
             var request = new _pydioHttpRestApi.RestCreateNodesRequest();
             var slug = pydio.user.getActiveRepositoryObject().getSlug();
@@ -50,7 +57,7 @@ exports["default"] = function (pydio) {
             node.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('COLLECTION');
             request.Nodes = [node];
             api.createNodes(request).then(function (collection) {
-                console.log('Created nodes', collection.Children);
+                if (console) console.debug('Created nodes', collection.Children);
             });
         };
         pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {

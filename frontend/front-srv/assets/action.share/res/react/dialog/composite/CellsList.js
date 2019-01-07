@@ -149,7 +149,7 @@ class CellsList extends React.Component {
         }
 
         return (
-            <div>
+            <div style={this.props.style}>
                 <div style={{paddingBottom: 20}}>
                     <RaisedButton label={m(264)} primary={true} onTouchTap={()=>{compositeModel.createEmptyCell();this.setState({edit:'NEWCELL'})}}/>
                     {addToCellMenu}

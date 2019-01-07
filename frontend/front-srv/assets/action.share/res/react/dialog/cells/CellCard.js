@@ -54,7 +54,7 @@ class CellCard extends React.Component{
     }
 
     render(){
-        const {mode, pydio} = this.props;
+        const {mode, pydio, editorOneColumn} = this.props;
         const {edit, model} = this.state;
         const m = (id) => pydio.MessageHash['share_center.' + id];
 
@@ -62,8 +62,12 @@ class CellCard extends React.Component{
         let content;
 
         if (edit) {
-            rootStyle = {width: 700, height: 500};
-            content = <EditCellDialog {...this.props} model={model} sendInvitations={this.usersInvitations.bind(this)}/>;
+            if(editorOneColumn){
+                rootStyle = {width: 350, height: 500};
+            } else{
+                rootStyle = {width: 700, height: 500};
+            }
+            content = <EditCellDialog {...this.props} model={model} sendInvitations={this.usersInvitations.bind(this)} editorOneColumn={editorOneColumn}/>;
         } else {
             let nodes = model.getRootNodes().map(node => {
                 return model.getNodeLabelInContext(node);

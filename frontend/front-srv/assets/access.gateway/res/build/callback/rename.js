@@ -41,6 +41,9 @@ exports['default'] = function (pydio) {
             if (!node) {
                 node = pydio.getUserSelection().getUniqueNode();
             }
+            if (newValue.indexOf('/') !== -1) {
+                throw new Error(pydio.MessageHash['filename.forbidden.slash']);
+            }
             var slug = pydio.user.getActiveRepositoryObject().getSlug();
             var path = slug + node.getPath();
             var target = _pydioUtilPath2['default'].getDirname(path) + '/' + newValue;
@@ -50,7 +53,8 @@ exports['default'] = function (pydio) {
                 targetParent: false
             };
             _pydioHttpApi2['default'].getRestClient().userJob('move', jobParams).then(function (r) {
-                pydio.UI.displayMessage('SUCCESS', 'Renaming');
+                var m = pydio.MessageHash['rename.processing'].replace('%1', node.getLabel()).replace('%2', newValue);
+                pydio.UI.displayMessage('SUCCESS', m);
                 pydio.getContextHolder().setSelectedNodes([]);
             });
         };

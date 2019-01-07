@@ -153,6 +153,9 @@ var CompositeModel = (function (_Observable) {
     }, {
         key: 'updateUnderlyingNode',
         value: function updateUnderlyingNode() {
+            if (this.skipUpdateUnderlyingNode) {
+                return;
+            }
             pydio.getContextHolder().requireNodeReload(this.node);
         }
     }, {
@@ -218,9 +221,23 @@ var CompositeModel = (function (_Observable) {
             }
         }
     }, {
+        key: 'loadUniqueLink',
+        value: function loadUniqueLink(linkUuid, node) {
+            var _this6 = this;
+
+            this.node = node;
+            var linkModel = new _linksLinkModel2['default']();
+            linkModel.observe("update", function () {
+                _this6.notify("update");
+            });
+            linkModel.load(linkUuid);
+            this.links.push(linkModel);
+            return linkModel;
+        }
+    }, {
         key: 'save',
         value: function save() {
-            var _this6 = this;
+            var _this7 = this;
 
             var proms = [];
             this.cells.map(function (r) {
@@ -236,13 +253,13 @@ var CompositeModel = (function (_Observable) {
             // Wait that all save are finished
             Promise.all(proms).then(function () {
                 // Remove cells that don't have this node anymore
-                var nodeId = _this6.node.getMetadata().get('uuid');
-                _this6.cells = _this6.cells.filter(function (r) {
+                var nodeId = _this7.node.getMetadata().get('uuid');
+                _this7.cells = _this7.cells.filter(function (r) {
                     return r.hasRootNode(nodeId);
                 });
-                _this6.updateUnderlyingNode();
+                _this7.updateUnderlyingNode();
             })['catch'](function (e) {
-                _this6.updateUnderlyingNode();
+                _this7.updateUnderlyingNode();
             });
         }
     }, {
@@ -311,13 +328,13 @@ var CompositeModel = (function (_Observable) {
     }, {
         key: 'getCells',
         value: function getCells() {
-            var _this7 = this;
+            var _this8 = this;
 
             if (this.node) {
                 var _ret = (function () {
-                    var nodeId = _this7.node.getMetadata().get('uuid');
+                    var nodeId = _this8.node.getMetadata().get('uuid');
                     return {
-                        v: _this7.cells.filter(function (r) {
+                        v: _this8.cells.filter(function (r) {
                             return r.hasRootNode(nodeId);
                         })
                     };

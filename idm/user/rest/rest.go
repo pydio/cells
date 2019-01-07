@@ -249,6 +249,11 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		if existing, exists := s.userById(ctx, inputUser.Uuid, cli); exists {
 			update = existing
 		}
+	} else {
+		if _, err := utils.SearchUniqueUser(ctx, inputUser.Login, ""); err == nil {
+			service.RestError403(req, rsp, fmt.Errorf("User with the same login already exists!"))
+			return
+		}
 	}
 	var existingAcls []*idm.ACL
 	ctxLogin, ctxClaims := utils.FindUserNameInContext(ctx)

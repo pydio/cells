@@ -104,6 +104,13 @@ var ExposedConfigs = &forms.Form{
 								Mandatory:   true,
 								Type:        forms.ParamPassword,
 							},
+							&forms.FormField{
+								Name:        "insecureSkipVerify",
+								Label:       "Mail.Config.Smtp.SkipVerify.Label",
+								Description: "Mail.Config.Smtp.SkipVerify.Description",
+								Mandatory:   false,
+								Type:        forms.ParamBool,
+							},
 						},
 					},
 					{

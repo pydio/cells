@@ -111,6 +111,7 @@ var CellCard = (function (_React$Component) {
             var _props2 = this.props;
             var mode = _props2.mode;
             var pydio = _props2.pydio;
+            var editorOneColumn = _props2.editorOneColumn;
             var _state = this.state;
             var edit = _state.edit;
             var model = _state.model;
@@ -123,8 +124,12 @@ var CellCard = (function (_React$Component) {
             var content = undefined;
 
             if (edit) {
-                rootStyle = { width: 700, height: 500 };
-                content = _react2['default'].createElement(_EditCellDialog2['default'], _extends({}, this.props, { model: model, sendInvitations: this.usersInvitations.bind(this) }));
+                if (editorOneColumn) {
+                    rootStyle = { width: 350, height: 500 };
+                } else {
+                    rootStyle = { width: 700, height: 500 };
+                }
+                content = _react2['default'].createElement(_EditCellDialog2['default'], _extends({}, this.props, { model: model, sendInvitations: this.usersInvitations.bind(this), editorOneColumn: editorOneColumn }));
             } else {
                 var nodes = model.getRootNodes().map(function (node) {
                     return model.getNodeLabelInContext(node);

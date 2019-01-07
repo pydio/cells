@@ -116,6 +116,11 @@ var Builder = (function () {
                                                 pathLabel = newLabel(contextNode, _pydioUtilPath2['default'].getBasename(path));
 
                                                 submit = function submit(value) {
+                                                    if (value.indexOf('/') !== -1) {
+                                                        var message = pydio.MessageHash['filename.forbidden.slash'];
+                                                        pydio.UI.displayMessage('ERROR', message);
+                                                        throw new Error(message);
+                                                    }
                                                     var api = new TreeServiceApi(PydioApi.getRestClient());
                                                     var request = new RestCreateNodesRequest();
                                                     var node = new TreeNode();
@@ -134,6 +139,7 @@ var Builder = (function () {
                                                     fieldLabelId: 174,
                                                     dialogSize: 'sm',
                                                     defaultValue: pathLabel,
+                                                    defaultInputSelection: true,
                                                     submitValue: submit
                                                 });
 
