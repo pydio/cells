@@ -39,7 +39,7 @@
   },
 
   "Mail.Digest.Subject": {
-    "other" : "Your {{.Configs.Title}} daily digest"
+    "other" : "Your {{.Configs.Title}} notifications"
   },
   "Mail.Digest.Intros": {
     "other" : "Below is a summary of all the notifications your received on {{.Configs.Title}}"

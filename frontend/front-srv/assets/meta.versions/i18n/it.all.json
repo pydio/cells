@@ -12,31 +12,31 @@
     "other": "Modifica"
   },
   "13": {
-    "other": "Sicuro di voler procedere? Ripristinare ad una vecchia versione creerà una nuova versione di questo documento con la revisione selezionata."
+    "other": "Sicuro di voler procedere? Ripristinare la vecchia versione creerà una nuova versione del documento con la revisione selezionata."
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "Non è stata trovata nessuna versione precedente"
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "Le versioni vengono create quando si aggiorna il contenuto del file"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "Versioni precedenti per '%s '"
   },
   "2": {
-    "other": "Documento versioni precedenti"
+    "other": "Versioni precedenti del documento"
   },
   "3": {
     "other": "Download"
   },
   "4": {
-    "other": "Download delle versioni selezionate"
+    "other": "Download della versione selezionata sul tuo computer"
   },
   "5": {
     "other": "Anteprima (browser)"
   },
   "6": {
-    "other": "Apre le versioni selezionate in una finestra del browser"
+    "other": "Apre la versione selezionata in una finestra del browser"
   },
   "7": {
     "other": "Riporta a..."

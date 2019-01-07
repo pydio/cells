@@ -15,7 +15,7 @@
     "other": "Master-Keys werden vom Pydio-Dienst automatisch generiert und im servergeschützten Schlüsselbund gespeichert. Verwenden Sie die unten folgenden Tools, um diese Schlüssel zu exportieren/importieren, falls Sie diese auf einem anderen Server neu installieren oder bereitstellen möchten"
   },
   "ds.board.enc.title": {
-    "other": "Encryption Master Keys"
+    "other": "Masterschlüssel"
   },
   "ds.board.versioning.legend": {
     "other": "Sie können festlegen, wie Dateien für jede Datenquelle versioniert werden und wie viele Versionen die Anwendung im Laufe der Zeit beibehält."
@@ -30,37 +30,37 @@
     "other": "Enabled encryption at rest"
   },
   "ds.editor.enc.dialog.disable": {
-    "other": "If you have previously enabled encrytion on this datasource, all the encrypted data will be unreadable! Are you sure you want to do that?"
+    "other": "Wenn Sie zuvor die Verschlüsselung für diese Datenquelle aktiviert haben, sind alle verschlüsselten Daten unlesbar! Sind Sie sicher, dass Sie das tun möchten?"
   },
   "ds.editor.enc.dialog.enable.1": {
-    "other": "Enabling encryption on a datasource will start cyphering the data on the storage using the encryption key you provide."
+    "other": "Wenn Sie die Verschlüsselung auf einer Datenquelle aktivieren, werden die Daten auf dem Speicher mit dem von Ihnen angegebenen Schlüssel verschlüsselt."
   },
   "ds.editor.enc.dialog.enable.2": {
     "other": "Please be aware that if you do not export and backup your master key, and if you have to reinstall the server for any reason,"
   },
   "ds.editor.enc.dialog.enable.2bold": {
-    "other": "all data will be lost!"
+    "other": "alle Daten gehen verloren!"
   },
   "ds.editor.enc.dialog.enable.3": {
     "other": "You must also be aware that it may require more CPU for a smooth on-the-fly encrypting/decrypting of the data."
   },
   "ds.editor.enc.key": {
-    "other": "Encryption Key"
+    "other": "Geheimschlüssel"
   },
   "ds.editor.enc.validate": {
-    "other": "I Understand"
+    "other": "Okay, ich verstehe"
   },
   "ds.editor.enc.warning": {
-    "other": "Warning!"
+    "other": "Warnung!"
   },
   "ds.editor.legend.delete.1": {
     "other": "Deleting datasource is a destructive operation : although it will NOT remove the data inside the underlying storage, it will destroy existing index and unlink all ACLs linked to the indexed nodes."
   },
   "ds.editor.legend.delete.2": {
-    "other": "Make sure to first remove all workspaces that are pointing to this datasource before deleting it."
+    "other": "Stellen Sie sicher, dass Sie zuerst alle Arbeitsbereiche entfernen, die auf diese Datenquelle verweisen, bevor Sie diese löschen."
   },
   "ds.editor.legend.delete.button": {
-    "other": "Delete DataSource"
+    "other": "Datenquelle löschen"
   },
   "ds.editor.legend.local": {
     "other": "File System datasources serve files via an object storage server, that is starting on the parent folder and serving the target as an s3 bucket. For this reason, the selected folder must meet the following requirements:"
@@ -99,13 +99,13 @@
     "other": "Browse data a Google Cloud Storage bucket."
   },
   "ds.editor.new": {
-    "other": "New DataSource"
+    "other": "Neue Datenquelle"
   },
   "ds.editor.options": {
     "other": "Main Options"
   },
   "ds.editor.datamanagement": {
-    "other": "Data Management"
+    "other": "Datenverwaltung"
   },
   "ds.editor.options.enabled": {
     "other": "Aktiviert"
@@ -114,7 +114,7 @@
     "other": "DataSource Identifier"
   },
   "ds.editor.options.port": {
-    "other": "Internal Port"
+    "other": "Interner Port"
   },
   "ds.editor.selector.completer": {
     "other": "Wählen Sie einen Ordner aus"
@@ -123,7 +123,7 @@
     "other": "Pick from list or type a path and hit Enter"
   },
   "ds.editor.selector.completer.create": {
-    "other": "folder will be created"
+    "other": "Ordner wird erstellt"
   },
   "ds.editor.selector.error.depth": {
     "other": "Make sure to select a two-levels deep folder. Object storage will start on the parent folder."
@@ -159,7 +159,7 @@
     "other": "Bucket Name"
   },
   "ds.editor.storage.s3.api": {
-    "other": "S3 Api Key"
+    "other": "S3 API-Schlüssel"
   },
   "ds.editor.storage.s3.bucket": {
     "other": "Bucket Name"
@@ -171,49 +171,49 @@
     "other": "Leave empty for Amazon S3"
   },
   "ds.editor.storage.s3.path": {
-    "other": "Internal Path"
+    "other": "Interner Pfad"
   },
   "ds.editor.storage.s3.secret": {
     "other": "S3 Api Secret"
   },
   "ds.editor.title": {
-    "other": "DataSource %s"
+    "other": "Datenquelle %s"
   },
   "ds.editor.versioning": {
-    "other": "Versioning Policy"
+    "other": "Versionierungsrichtlinie"
   },
   "ds.editor.versioning.disabled": {
-    "other": "Do not enable versioning"
+    "other": "Versionierung nicht aktivieren"
   },
   "ds.encryption": {
-    "other": "Encrypted"
+    "other": "Verschlüsselt"
   },
   "ds.encryption.key.emptyState": {
-    "other": "No master key created"
+    "other": "Kein Masterschlüssel erstellt"
   },
   "ds.encryption.key.create": {
-    "other": "Create Key"
+    "other": "Schlüssel erstellen"
   },
   "ds.encryption.key.created": {
-    "other": "Created on"
+    "other": "Erstellt am"
   },
   "ds.encryption.key.delete": {
-    "other": "Delete Key"
+    "other": "Schlüssel löschen"
   },
   "ds.encryption.key.delete.warning": {
     "other": "If the key is currently used for encrypted data, this is a very destructive operation! Are you sure you want to do that?"
   },
   "ds.encryption.key.export": {
-    "other": "Export Key"
+    "other": "Schlüssel exportieren"
   },
   "ds.encryption.key.export.confirm": {
-    "other": "Confirm password"
+    "other": "Passwort bestätigen"
   },
   "ds.encryption.key.export.fail": {
-    "other": "Something went wrong during export"
+    "other": "Während des Exportierens ist etwas schief gelaufen"
   },
   "ds.encryption.key.export.password": {
-    "other": "Provide a strong password"
+    "other": "Geben Sie ein sicheres Passwort ein"
   },
   "ds.encryption.key.export.result.copy": {
     "other": "Copy result to a file to save the key"
@@ -222,13 +222,13 @@
     "other": "Identifier"
   },
   "ds.encryption.key.import": {
-    "other": "Import Key"
+    "other": "Schlüssel importieren"
   },
   "ds.encryption.key.import.content": {
-    "other": "Paste key here from your backup file"
+    "other": "Fügen Sie hier Ihren Schlüssel aus Ihrer Backup-Datei ein"
   },
   "ds.encryption.key.import.fail": {
-    "other": "Something went wrong during import"
+    "other": "Während des Importierens ist etwas schief gelaufen"
   },
   "ds.encryption.key.import.id": {
     "other": "Unique identifier for this key"
@@ -240,13 +240,13 @@
     "other": "Password used at export time"
   },
   "ds.encryption.key.import.success": {
-    "other": "Key was successfully imported"
+    "other": "Schlüssel wurde erfolgreich importiert"
   },
   "ds.encryption.key.label": {
     "other": "Label"
   },
   "ds.encryption.key.owner": {
-    "other": "Owner"
+    "other": "Eigentümer"
   },
   "ds.name": {
     "other": "Name"
@@ -255,13 +255,13 @@
     "other": "Status"
   },
   "ds.status.disabled": {
-    "other": "Disabled"
+    "other": "Deaktiviert"
   },
   "ds.status.index": {
     "other": "Index down"
   },
   "ds.status.ko": {
-    "other": "Services stopped"
+    "other": "Dienste wurden angehalten"
   },
   "ds.status.na": {
     "other": "N/A"
@@ -270,13 +270,13 @@
     "other": "Objects down"
   },
   "ds.status.ok": {
-    "other": "All services running"
+    "other": "Alle Dienste werden ausgeführt"
   },
   "ds.status.sync": {
     "other": "Sync down"
   },
   "ds.storage": {
-    "other": "Storage Type"
+    "other": "Speichertyp"
   },
   "ds.storage.fs": {
     "other": "Local File System"
