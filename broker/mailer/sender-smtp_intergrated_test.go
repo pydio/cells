@@ -30,7 +30,7 @@ func TestSmtpIntergrated_Send(t *testing.T) {
 		conf.Set("port", float64(465))
 		// Should add self-signed CA cert into system trusted list
 		// https://askubuntu.com/questions/1024300/set-company-certificate-as-trusted
-		conf.Set("InsecureSkipVerify", true)
+		conf.Set("insecureSkipVerify", true)
 		// Put a working user/when testing on your workstation. Beware to *not* commit your password
 		conf.Set("user", test_inte_username)
 		conf.Set("password", test_inte_pwd)

@@ -81,8 +81,8 @@ func (gm *Smtp) Configure(conf config.Map) error {
 	}
 	// Set defaul to be false.
 	gm.InsecureSkipVerify = false	
-	if conf.Get("InsecureSkipVerify") != nil {
-		gm.InsecureSkipVerify = conf.Get("InsecureSkipVerify").(bool)
+	if conf.Get("insecureSkipVerify") != nil {
+		gm.InsecureSkipVerify = conf.Get("insecureSkipVerify").(bool)
 	}
 	log.Logger(context.Background()).Debug("SMTP Configured", zap.String("u", gm.User), zap.String("h", gm.Host), zap.Int("p", gm.Port))
 
