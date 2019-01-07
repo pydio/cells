@@ -18,11 +18,21 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-'use strict';
+"use strict";
 
 exports.__esModule = true;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _materialUi = require("material-ui");
+
+var _pydioUtilDom = require('pydio/util/dom');
+
+var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
 
 var _ActionDialogMixin = require('./ActionDialogMixin');
 
@@ -40,46 +50,41 @@ var _SubmitButtonProviderMixin2 = _interopRequireDefault(_SubmitButtonProviderMi
  * Ready-to-use dialog for requiring information (text or password) from the user
  *
  */
-var React = require('react');
-
-var _require = require('material-ui');
-
-var TextField = _require.TextField;
-exports['default'] = React.createClass({
-    displayName: 'PromptDialog',
+exports["default"] = _react2["default"].createClass({
+    displayName: "PromptDialog",
 
     propTypes: {
         /**
          * Message ID used for the dialog title
          */
-        dialogTitleId: React.PropTypes.string,
+        dialogTitleId: _react2["default"].PropTypes.string,
         /**
          * Message ID or string used for dialog legend
          */
-        legendId: React.PropTypes.string,
+        legendId: _react2["default"].PropTypes.string,
         /**
          * MessageID used for the field Floating Label Text
          */
-        fieldLabelId: React.PropTypes.string,
+        fieldLabelId: _react2["default"].PropTypes.string,
         /**
          * Either text or password
          */
-        fieldType: React.PropTypes.oneOf(['text', 'password']),
+        fieldType: _react2["default"].PropTypes.oneOf(['text', 'password']),
         /**
          * Callback used at submit time
          */
-        submitValue: React.PropTypes.func.isRequired,
+        submitValue: _react2["default"].PropTypes.func.isRequired,
         /**
          * Preset value displayed in the text field
          */
-        defaultValue: React.PropTypes.string,
+        defaultValue: _react2["default"].PropTypes.string,
         /**
          * Select a part of the default value [NOT IMPLEMENTED]
          */
-        defaultInputSelection: React.PropTypes.string
+        defaultInputSelection: _react2["default"].PropTypes.string
     },
 
-    mixins: [_ActionDialogMixin2['default'], _CancelButtonProviderMixin2['default'], _SubmitButtonProviderMixin2['default']],
+    mixins: [_ActionDialogMixin2["default"], _CancelButtonProviderMixin2["default"], _SubmitButtonProviderMixin2["default"]],
 
     getDefaultProps: function getDefaultProps() {
         return {
@@ -102,25 +107,30 @@ exports['default'] = React.createClass({
     componentDidMount: function componentDidMount() {
         var _this = this;
 
+        var defaultInputSelection = this.props.defaultInputSelection;
+
         setTimeout(function () {
             try {
+                if (defaultInputSelection) {
+                    _pydioUtilDom2["default"].selectBaseFileName(_this.refs.input.input);
+                }
                 _this.refs.input.focus();
             } catch (e) {}
         }, 150);
     },
 
     render: function render() {
-        return React.createElement(
-            'div',
+        return _react2["default"].createElement(
+            "div",
             { style: { width: '100%' } },
-            React.createElement(
-                'div',
-                { className: 'dialogLegend' },
+            _react2["default"].createElement(
+                "div",
+                { className: "dialogLegend" },
                 MessageHash[this.props.legendId] || this.props.legendId
             ),
-            React.createElement(TextField, {
+            _react2["default"].createElement(_materialUi.TextField, {
                 floatingLabelText: MessageHash[this.props.fieldLabelId] || this.props.fieldLabelId,
-                ref: 'input',
+                ref: "input",
                 onKeyDown: this.submitOnEnterKey,
                 defaultValue: this.props.defaultValue,
                 type: this.props.fieldType,
@@ -130,4 +140,4 @@ exports['default'] = React.createClass({
     }
 
 });
-module.exports = exports['default'];
+module.exports = exports["default"];

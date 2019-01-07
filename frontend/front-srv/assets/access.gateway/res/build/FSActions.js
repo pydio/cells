@@ -600,6 +600,13 @@ exports["default"] = function (pydio) {
     return function () {
 
         var submit = function submit(value) {
+
+            if (value.indexOf('/') !== -1) {
+                var m = pydio.MessageHash['filename.forbidden.slash'];
+                pydio.UI.displayMessage('ERROR', m);
+                throw new Error(m);
+            }
+
             var api = new _pydioHttpRestApi.TreeServiceApi(_pydioHttpApi2["default"].getRestClient());
             var request = new _pydioHttpRestApi.RestCreateNodesRequest();
             var slug = pydio.user.getActiveRepositoryObject().getSlug();
@@ -609,7 +616,7 @@ exports["default"] = function (pydio) {
             node.Type = _pydioHttpRestApi.TreeNodeType.constructFromObject('COLLECTION');
             request.Nodes = [node];
             api.createNodes(request).then(function (collection) {
-                console.log('Created nodes', collection.Children);
+                if (console) console.debug('Created nodes', collection.Children);
             });
         };
         pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {
@@ -834,6 +841,9 @@ exports['default'] = function (pydio) {
             if (!node) {
                 node = pydio.getUserSelection().getUniqueNode();
             }
+            if (newValue.indexOf('/') !== -1) {
+                throw new Error(pydio.MessageHash['filename.forbidden.slash']);
+            }
             var slug = pydio.user.getActiveRepositoryObject().getSlug();
             var path = slug + node.getPath();
             var target = _pydioUtilPath2['default'].getDirname(path) + '/' + newValue;
@@ -843,7 +853,8 @@ exports['default'] = function (pydio) {
                 targetParent: false
             };
             _pydioHttpApi2['default'].getRestClient().userJob('move', jobParams).then(function (r) {
-                pydio.UI.displayMessage('SUCCESS', 'Renaming');
+                var m = pydio.MessageHash['rename.processing'].replace('%1', node.getLabel()).replace('%2', newValue);
+                pydio.UI.displayMessage('SUCCESS', m);
                 pydio.getContextHolder().setSelectedNodes([]);
             });
         };
@@ -1998,6 +2009,11 @@ var Builder = (function () {
                                                 pathLabel = newLabel(contextNode, _pydioUtilPath2['default'].getBasename(path));
 
                                                 submit = function submit(value) {
+                                                    if (value.indexOf('/') !== -1) {
+                                                        var message = pydio.MessageHash['filename.forbidden.slash'];
+                                                        pydio.UI.displayMessage('ERROR', message);
+                                                        throw new Error(message);
+                                                    }
                                                     var api = new TreeServiceApi(PydioApi.getRestClient());
                                                     var request = new RestCreateNodesRequest();
                                                     var node = new TreeNode();
@@ -2016,6 +2032,7 @@ var Builder = (function () {
                                                     fieldLabelId: 174,
                                                     dialogSize: 'sm',
                                                     defaultValue: pathLabel,
+                                                    defaultInputSelection: true,
                                                     submitValue: submit
                                                 });
 

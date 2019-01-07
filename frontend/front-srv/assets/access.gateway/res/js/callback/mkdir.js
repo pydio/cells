@@ -28,6 +28,13 @@ export default function(pydio){
     return function(){
 
         let submit = value => {
+
+            if(value.indexOf('/') !== -1) {
+                const m = pydio.MessageHash['filename.forbidden.slash'];
+                pydio.UI.displayMessage('ERROR', m);
+                throw new Error(m);
+            }
+
             const api = new TreeServiceApi(PydioApi.getRestClient());
             const request = new RestCreateNodesRequest();
             const slug = pydio.user.getActiveRepositoryObject().getSlug();
@@ -37,7 +44,7 @@ export default function(pydio){
             node.Type = TreeNodeType.constructFromObject('COLLECTION');
             request.Nodes = [node];
             api.createNodes(request).then(collection => {
-                console.log('Created nodes', collection.Children);
+                if(console) console.debug('Created nodes', collection.Children);
             });
         };
         pydio.UI.openComponentInModal('PydioReactUI', 'PromptDialog', {

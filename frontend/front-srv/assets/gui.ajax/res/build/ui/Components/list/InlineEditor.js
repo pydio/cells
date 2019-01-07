@@ -21,11 +21,26 @@
 'use strict';
 
 exports.__esModule = true;
-var React = require('react');
-var Pydio = require('pydio');
-var AjxpNode = require('pydio/model/node');
 
-var _Pydio$requireLib = Pydio.requireLib('boot');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _pydio = require("pydio");
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
+var _pydioUtilDom = require('pydio/util/dom');
+
+var _pydioUtilDom2 = _interopRequireDefault(_pydioUtilDom);
+
+var _pydioModelNode = require('pydio/model/node');
+
+var _pydioModelNode2 = _interopRequireDefault(_pydioModelNode);
+
+var _react = require("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
 var PydioContextConsumer = _Pydio$requireLib.PydioContextConsumer;
 
@@ -35,27 +50,38 @@ var Paper = _require.Paper;
 var TextField = _require.TextField;
 var FlatButton = _require.FlatButton;
 
-var InlineEditor = React.createClass({
+var InlineEditor = _react2['default'].createClass({
     displayName: 'InlineEditor',
 
     propTypes: {
-        node: React.PropTypes.instanceOf(AjxpNode),
-        callback: React.PropTypes.func,
-        onClose: React.PropTypes.func,
-        detached: React.PropTypes.bool
+        node: _react2['default'].PropTypes.instanceOf(_pydioModelNode2['default']),
+        callback: _react2['default'].PropTypes.func,
+        onClose: _react2['default'].PropTypes.func,
+        detached: _react2['default'].PropTypes.bool
     },
 
     submit: function submit() {
-        if (!this.state || !this.state.value || this.state.value === this.props.node.getLabel()) {
-            this.setState({ errorString: 'Please use a different value for renaming!' });
-            this.props.getPydio().displayMessage('ERROR', 'Please use a different value for renaming!');
+        var value = undefined;
+        if (this.state && this.state.value) {
+            value = this.state.value;
+        }
+        var messages = _pydio2['default'].getMessages();
+        if (!value || value === this.props.node.getLabel()) {
+            this.setState({
+                errorString: messages['rename.newvalue.error.similar']
+            });
+        } else if (value && value.indexOf('/') > -1) {
+            this.setState({
+                errorString: messages['filename.forbidden.slash']
+            });
         } else {
-            this.props.callback(this.state.value);
+            this.props.callback(value);
             this.props.onClose();
         }
     },
 
     componentDidMount: function componentDidMount() {
+        _pydioUtilDom2['default'].selectBaseFileName(this.refs.text.input);
         this.refs.text.focus();
     },
 
@@ -64,20 +90,22 @@ var InlineEditor = React.createClass({
     },
 
     onKeyDown: function onKeyDown(e) {
+        e.stopPropagation();
         if (e.key === 'Enter') {
             this.submit();
+        } else {
+            this.setState({ errorString: '' });
         }
-        this.setState({ errorString: '' });
-        e.stopPropagation();
     },
 
     render: function render() {
         var _this = this;
 
-        return React.createElement(
+        var messages = _pydio2['default'].getMessages();
+        return _react2['default'].createElement(
             Paper,
             { className: "inline-editor" + (this.props.detached ? " detached" : ""), style: { padding: 8 }, zDepth: 2 },
-            React.createElement(TextField, {
+            _react2['default'].createElement(TextField, {
                 ref: 'text',
                 defaultValue: this.props.node.getLabel(),
                 onChange: function (e, value) {
@@ -87,11 +115,11 @@ var InlineEditor = React.createClass({
                 tabIndex: '0', onKeyDown: this.onKeyDown,
                 errorText: this.state ? this.state.errorString : null
             }),
-            React.createElement(
+            _react2['default'].createElement(
                 'div',
                 { style: { textAlign: 'right', paddingTop: 8 } },
-                React.createElement(FlatButton, { label: 'Cancel', onClick: this.props.onClose }),
-                React.createElement(FlatButton, { label: 'Submit', onClick: this.submit })
+                _react2['default'].createElement(FlatButton, { label: messages['54'], onClick: this.props.onClose }),
+                _react2['default'].createElement(FlatButton, { label: messages['48'], onClick: this.submit })
             )
         );
     }

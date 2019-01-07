@@ -77,6 +77,11 @@ class Builder {
                         const pathLabel = newLabel(contextNode, PathUtils.getBasename(path));
 
                         let submit = value => {
+                            if(value.indexOf('/') !== -1) {
+                                const message = pydio.MessageHash['filename.forbidden.slash'];
+                                pydio.UI.displayMessage('ERROR', message);
+                                throw new Error(message);
+                            }
                             const api = new TreeServiceApi(PydioApi.getRestClient());
                             const request = new RestCreateNodesRequest();
                             const node = new TreeNode();
@@ -94,6 +99,7 @@ class Builder {
                             fieldLabelId:174,
                             dialogSize:'sm',
                             defaultValue: pathLabel,
+                            defaultInputSelection: true,
                             submitValue:submit
                         });
 
