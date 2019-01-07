@@ -1,8 +1,10 @@
 import React from "react"
+import Pydio from 'pydio'
 import PydioApi from "pydio/http/api";
 import ResourcesManager from 'pydio/http/resources-manager'
 import {Paper} from 'material-ui'
 import {LogListLogRequest, ListLogRequestLogFormat} from 'pydio/http/rest-api';
+
 const {MaterialTable} = Pydio.requireLib('components');
 const {moment} = Pydio.requireLib('boot');
 

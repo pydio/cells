@@ -25404,6 +25404,10 @@ var _react = require("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _pydioHttpApi = require("pydio/http/api");
 
 var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
@@ -25416,11 +25420,11 @@ var _materialUi = require('material-ui');
 
 var _pydioHttpRestApi = require('pydio/http/rest-api');
 
-var _Pydio$requireLib = Pydio.requireLib('components');
+var _Pydio$requireLib = _pydio2["default"].requireLib('components');
 
 var MaterialTable = _Pydio$requireLib.MaterialTable;
 
-var _Pydio$requireLib2 = Pydio.requireLib('boot');
+var _Pydio$requireLib2 = _pydio2["default"].requireLib('boot');
 
 var moment = _Pydio$requireLib2.moment;
 
@@ -25506,7 +25510,7 @@ var UserActivity = (function (_React$Component) {
 exports["default"] = UserActivity;
 module.exports = exports["default"];
 
-},{"material-ui":"material-ui","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],173:[function(require,module,exports){
+},{"material-ui":"material-ui","pydio":"pydio","pydio/http/api":"pydio/http/api","pydio/http/resources-manager":"pydio/http/resources-manager","pydio/http/rest-api":"pydio/http/rest-api","react":"react"}],173:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
