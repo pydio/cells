@@ -18,9 +18,10 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react')
-const Pydio = require('pydio')
-const AjxpNode = require('pydio/model/node')
+import Pydio from "pydio";
+import DOMUtils from 'pydio/util/dom'
+import AjxpNode from 'pydio/model/node'
+import React from "react";
 const {PydioContextConsumer} = Pydio.requireLib('boot')
 const {Paper, TextField, FlatButton} = require('material-ui')
 
@@ -34,16 +35,27 @@ let InlineEditor = React.createClass({
     },
 
     submit: function(){
-        if(!this.state || !this.state.value || this.state.value === this.props.node.getLabel()){
-            this.setState({errorString: 'Please use a different value for renaming!'});
-            this.props.getPydio().displayMessage('ERROR', 'Please use a different value for renaming!');
+        let value;
+        if(this.state && this.state.value){
+            value = this.state.value;
+        }
+        const messages = Pydio.getMessages();
+        if(!value || value === this.props.node.getLabel()) {
+            this.setState({
+                errorString: messages['rename.newvalue.error.similar']
+            });
+        } else if(value && value.indexOf('/') > -1){
+            this.setState({
+                errorString: messages['filename.forbidden.slash']
+            });
         }else{
-            this.props.callback(this.state.value);
+            this.props.callback(value);
             this.props.onClose();
         }
     },
 
     componentDidMount:function(){
+        DOMUtils.selectBaseFileName(this.refs.text.input);
         this.refs.text.focus();
     },
 
@@ -52,14 +64,16 @@ let InlineEditor = React.createClass({
     },
 
     onKeyDown: function(e){
+        e.stopPropagation();
         if(e.key === 'Enter') {
             this.submit();
+        } else {
+            this.setState({errorString: ''});
         }
-        this.setState({errorString: ''});
-        e.stopPropagation();
     },
 
     render: function(){
+        const messages = Pydio.getMessages();
         return (
             <Paper className={"inline-editor" + (this.props.detached ? " detached" : "")} style={{padding: 8}} zDepth={2}>
                 <TextField
@@ -71,8 +85,8 @@ let InlineEditor = React.createClass({
                     errorText={this.state ? this.state.errorString : null}
                 />
                 <div style={{textAlign:'right', paddingTop: 8}}>
-                    <FlatButton label="Cancel" onClick={this.props.onClose}/>
-                    <FlatButton label="Submit" onClick={this.submit}/>
+                    <FlatButton label={messages['54']} onClick={this.props.onClose}/>
+                    <FlatButton label={messages['48']} onClick={this.submit}/>
                 </div>
             </Paper>
         );
@@ -80,6 +94,6 @@ let InlineEditor = React.createClass({
 
 });
 
-InlineEditor = PydioContextConsumer(InlineEditor)
+InlineEditor = PydioContextConsumer(InlineEditor);
 
 export {InlineEditor as default}

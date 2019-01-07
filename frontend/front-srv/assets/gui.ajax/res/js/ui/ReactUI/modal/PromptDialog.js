@@ -18,11 +18,13 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react');
-const {TextField} = require('material-ui')
+import React from "react";
+import {TextField} from "material-ui";
+import DOMUtils from 'pydio/util/dom';
 import ActionDialogMixin from './ActionDialogMixin'
 import CancelButtonProviderMixin from './CancelButtonProviderMixin'
 import SubmitButtonProviderMixin from './SubmitButtonProviderMixin'
+
 
 /**
  * Ready-to-use dialog for requiring information (text or password) from the user
@@ -86,8 +88,12 @@ export default React.createClass({
      * Focus on input at mount time
      */
     componentDidMount(){
+        const {defaultInputSelection} = this.props;
         setTimeout(()=> {
             try{
+                if(defaultInputSelection){
+                    DOMUtils.selectBaseFileName(this.refs.input.input);
+                }
                 this.refs.input.focus();
             }catch (e){}
         }, 150);
