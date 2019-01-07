@@ -1,60 +1,60 @@
 {
   "AccessedBy": {
-    "other": "Accessed by {{.Actor}}"
+    "other": "Letta da {{.Actor}}"
   },
   "AccessedObject": {
-    "other": "Accessed {{.Object}}"
+    "other": "Letta {{.Object}}"
   },
   "AccessedObjectBy": {
-    "other": "{{.Object}} was accessed by {{.Actor}}"
+    "other": "{{.Object}} è stato letto da {{.Actor}}"
   },
   "Cell": {
     "other": "Cell"
   },
   "CreatedBy": {
-    "other": "Created by {{.Actor}}"
+    "other": "Creato da {{.Actor}}"
   },
   "CreatedObject": {
-    "other": "Created {{.Object}}"
+    "other": "Creato {{.Object}}"
   },
   "CreatedObjectBy": {
-    "other": "{{.Object}} was created by {{.Actor}}"
+    "other": "{{.Object}} è stato creato da {{.Actor}}"
   },
   "DeletedBy": {
-    "other": "Deleted by {{.Actor}}"
+    "other": "Eliminato da {{.Actor}}"
   },
   "DeletedObject": {
-    "other": "Deleted {{.Object}}"
+    "other": "Eliminato {{.Object}}"
   },
   "DeletedObjectBy": {
-    "other": "{{.Object}} was deleted by {{.Actor}}"
+    "other": "{{.Object}} è stato eliminato da {{.Actor}}"
   },
   "DigestTitle": {
-    "other": "This is your Pydio Daily Digest"
+    "other": "Questo è il tuo Pydio Daily Digest"
   },
   "Document": {
-    "other": "Document"
+    "other": "Documento"
   },
   "Folder": {
-    "other": "Folder"
+    "other": "Cartella"
   },
   "ModifiedBy": {
-    "other": "Modified by {{.Actor}}"
+    "other": "Modificato da {{.Actor}}"
   },
   "ModifiedObject": {
-    "other": "Modified {{.Object}}"
+    "other": "Modificato {{.Object}}"
   },
   "ModifiedObjectBy": {
-    "other": "{{.Object}} was modified by {{.Actor}}"
+    "other": "{{.Object}} è stato modificato da {{.Actor}}"
   },
   "MovedBy": {
-    "other": "Moved by {{.Actor}}"
+    "other": "Spostato da {{.Actor}}"
   },
   "MovedObject": {
-    "other": "Moved {{.Object}}"
+    "other": "Spostato {{.Object}}"
   },
   "MovedObjectBy": {
-    "other": "{{.Object}} was moved by {{.Actor}}"
+    "other": "{{.Object}} è stato spostato da {{.Actor}}"
   },
   "Workspace": {
     "other": "Workspace"
