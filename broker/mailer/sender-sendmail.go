@@ -35,7 +35,7 @@ type Sendmail struct {
 
 func (s *Sendmail) Configure(config config.Map) error {
 	s.BinPath = "/usr/bin/mail"
-	if str, ok := config.Get("BINARY_PATH").(string); ok && str != "" {
+	if str, ok := config.Get("executable").(string); ok && str != "" {
 		s.BinPath = str
 	}
 	return nil
