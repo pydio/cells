@@ -184,12 +184,14 @@ func (h *SharesHandler) PutCell(req *restful.Request, rsp *restful.Response) {
 			fmt.Sprintf("Created cell [%s]", shareRequest.Room.Label),
 			log.GetAuditId(common.AUDIT_CELL_CREATE),
 			zap.String(common.KEY_CELL_UUID, shareRequest.Room.Uuid),
+			zap.String(common.KEY_WORKSPACE_UUID, shareRequest.Room.Uuid),
 		)
 	} else {
 		log.Auditer(ctx).Info(
 			fmt.Sprintf("Updated cell [%s]", shareRequest.Room.Label),
 			log.GetAuditId(common.AUDIT_CELL_UPDATE),
 			zap.String(common.KEY_CELL_UUID, shareRequest.Room.Uuid),
+			zap.String(common.KEY_WORKSPACE_UUID, shareRequest.Room.Uuid),
 		)
 	}
 
@@ -253,6 +255,7 @@ func (h *SharesHandler) DeleteCell(req *restful.Request, rsp *restful.Response) 
 		fmt.Sprintf("Removed cell [%s]", currWsLabel),
 		log.GetAuditId(common.AUDIT_CELL_DELETE),
 		zap.String(common.KEY_CELL_UUID, id),
+		zap.String(common.KEY_WORKSPACE_UUID, id),
 	)
 
 	rsp.WriteEntity(&rest.DeleteCellResponse{
@@ -375,6 +378,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 			fmt.Sprintf("Created share link [%s]", link.Label),
 			log.GetAuditId(common.AUDIT_LINK_CREATE),
 			zap.String(common.KEY_LINK_UUID, link.Uuid),
+			zap.String(common.KEY_WORKSPACE_UUID, link.Uuid),
 		)
 		track("Auditer")
 	} else {
@@ -382,6 +386,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 			fmt.Sprintf("Updated share link [%s]", link.Label),
 			log.GetAuditId(common.AUDIT_LINK_UPDATE),
 			zap.String(common.KEY_LINK_UUID, link.Uuid),
+			zap.String(common.KEY_WORKSPACE_UUID, link.Uuid),
 		)
 	}
 
@@ -454,6 +459,7 @@ func (h *SharesHandler) DeleteShareLink(req *restful.Request, rsp *restful.Respo
 		fmt.Sprintf("Removed share link [%s]", id),
 		log.GetAuditId(common.AUDIT_LINK_UPDATE),
 		zap.String(common.KEY_LINK_UUID, id),
+		zap.String(common.KEY_WORKSPACE_UUID, id),
 	)
 
 	rsp.WriteEntity(&rest.DeleteShareLinkResponse{

@@ -18,9 +18,9 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/service/frontend"
 	"github.com/pydio/cells/common/service/proto"
 )
@@ -118,6 +118,12 @@ func (h *PublicHandler) computeTplConf(ctx context.Context, linkId string) (stat
 	}
 	if linkData.PreLogUser != "" {
 		startParameters["PRELOG_USER"] = linkData.PreLogUser
+		log.Auditer(ctx).Info(
+			fmt.Sprintf("Public Link accessed"),
+			log.GetAuditId(common.AUDIT_LOGIN_SUCCEED),
+			zap.String(common.KEY_WORKSPACE_UUID, linkData.RepositoryId),
+		)
+
 	} else if linkData.PresetLogin != "" {
 		startParameters["PRESET_LOGIN"] = linkData.PresetLogin
 		startParameters["PASSWORD_AUTH_ONLY"] = true

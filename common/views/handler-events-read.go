@@ -96,7 +96,7 @@ func (h *HandlerEventRead) GetObject(ctx context.Context, node *tree.Node, reque
 	if branchInfo, ok := GetBranchInfo(ctx, "in"); ok && branchInfo.Binary {
 		return reader, e
 	}
-	if e == nil {
+	if e == nil && requestData.StartOffset == 0 {
 		eventNode := node.Clone()
 		if eventNode.Uuid == "" {
 			if e := h.feedNodeUuid(ctx, eventNode); e != nil {
