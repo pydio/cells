@@ -42,7 +42,7 @@
     "other": "toutes les données seront perdues!"
   },
   "ds.editor.enc.dialog.enable.3": {
-    "other": "Vous devez aussi être conscient que ceci consomme plus de CPU afin de chiffrer/déchiffrer les données à la volée."
+    "other": "You must also be aware that it may require more CPU for a smooth on-the-fly encryption/decryption of the data."
   },
   "ds.editor.enc.key": {
     "other": "Clé d'encryption"
@@ -93,10 +93,10 @@
     "other": "Parcourir les données d’un compartiment Amazon S3 ou d’un stockage S3-compatible."
   },
   "ds.editor.storage.legend.azure": {
-    "other": "Parcourir les données d'un compartiment de stockage Azure Blob Storage."
+    "other": "Browse data from an Azure Blob Storage bucket."
   },
   "ds.editor.storage.legend.gcs": {
-    "other": "Parcourir les données un compartiment de Google Cloud Storage."
+    "other": "Browse data from a Google Cloud Storage bucket."
   },
   "ds.editor.new": {
     "other": "Nouvelle Datasource"
@@ -1092,7 +1092,7 @@
     "other": "Voulez vous vraiment supprimer cette stratégie? Ce n'est pas réversible!"
   },
   "versions.editor.error.lastdelete": {
-    "other": "La dernière période est configurée pour ne garder aucunes versions, vous ne pouvez pas en ajouter d'autre."
+    "other": "The last period is configured to delete all versions, you cannot add a new one!"
   },
   "versions.editor.title": {
     "other": "Stratégie %s"
@@ -1512,13 +1512,13 @@
     "other": "Planificateur"
   },
   "services.tag.scheduler.description": {
-    "other": "Services de gestion des tâches en arrière-plan. Le serveur de tâches peut être distribué sur différents nœuds pour de meilleurs performances."
+    "other": "Services for managing background jobs. The task server can be dispatched across various peers."
   },
   "services.tag.broker.title": {
     "other": "Courtier"
   },
   "services.tag.broker.description": {
-    "other": "Services génériques de traitement des événements dans l’application."
+    "other": "Services dispatching and processing events (generally toward users) across the application."
   },
   "services.tag.frontend.title": {
     "other": "Interface Utilisateur"

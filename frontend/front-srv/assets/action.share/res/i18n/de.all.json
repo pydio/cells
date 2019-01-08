@@ -534,19 +534,19 @@
     "other": "Sichtbarkeit"
   },
   "254": {
-    "other": "Shared in cells"
+    "other": "Geteilt in Cells"
   },
   "255": {
     "other": "Sind Sie sicher, dass Sie alle Zellen und Links zu dieser Datei löschen möchten?"
   },
   "256": {
-    "other": "Shares for %s"
+    "other": "Shares für %s"
   },
   "257": {
     "other": "Erstellt am %s"
   },
   "258": {
-    "other": "Edit cell users"
+    "other": "Cell Benutzer bearbeiten"
   },
   "259": {
     "other": "Aus dieser Zelle entfernen"
@@ -582,7 +582,7 @@
     "other": "Zellenbeschreibung"
   },
   "269": {
-    "other": "You will create a cell shared with %USERS. Pick some folders you want to share or just let Pydio create an empty folder for you!"
+    "other": "Erstellen Sie eine Cell mit %USERS geteilt. Wählen Sie einige Ordner, die Sie freigeben oder lassen Sie Pydio einen leeren Ordner für Sie erstellen!"
   },
   "27": {
     "other": "Datei freigeben"
@@ -609,10 +609,10 @@
     "other": "Titel Ihrer Zelle"
   },
   "277": {
-    "other": "Optionally add a description"
+    "other": "Optional eine Beschreibung hinzufügen"
   },
   "278": {
-    "other": "Choose who you will share data with"
+    "other": "Wählen Sie aus, mit wem Sie Daten teilen möchten"
   },
   "279": {
     "other": "Zelle jetzt erstellen!"
@@ -621,19 +621,19 @@
     "other": "Ordner freigeben"
   },
   "280": {
-    "other": "Cell has its own folder"
+    "other": "Cell besitzt einen eigenen Ordner"
   },
   "281": {
-    "other": "Cell will be created in a new folder"
+    "other": "Cell wird in einem neuen Ordner erstellt werden"
   },
   "282": {
-    "other": "Add an existing folder..."
+    "other": "Einen existierenden Order hinzufügen..."
   },
   "283": {
-    "other": "Select a node in the tree..."
+    "other": "Wählen Sie ein Node in der Baumstruktur aus..."
   },
   "284": {
-    "other": "Visible in %s cells"
+    "other": "In %s Cells sichtbar"
   },
   "29": {
     "other": "Freigabe"
@@ -861,7 +861,7 @@
     "other": "Verwenden Sie diese Schaltfläche, um diesen Ordner freizugeben"
   },
   "90": {
-    "other": "Link URL"
+    "other": "Link-URL"
   },
   "91": {
     "other": "Tags (Eingabe zum Speichern)"
@@ -876,7 +876,7 @@
     "other": "QR-Code"
   },
   "95": {
-    "other": "QR code"
+    "other": "QR-Code"
   },
   "96": {
     "other": "Freigabe löschen"
@@ -891,7 +891,7 @@
     "other": "Alle freigegebenen Elemente"
   },
   "cells.create.advanced": {
-    "other": "Add users/data"
+    "other": "Fügen Sie Benutzer/Daten"
   },
   "cells.create.buttons.separator": {
     "other": "oder"

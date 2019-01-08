@@ -15,13 +15,13 @@
     "other": "Wenn Sie zum alten Stand zurückkehren wird eine neue Version mit dem ausgewählten Stand des Dokuments erstellt. Soll diese Änderung durchgeführt werden?"
   },
   "14": {
-    "other": "No previous versions found"
+    "other": "Keine vorherigen Versionen gefunden"
   },
   "15": {
-    "other": "Versions are created when you update the file content"
+    "other": "Versionen werden erstellt, wenn Sie den Dateiinhalt aktualisieren"
   },
   "16": {
-    "other": "Previous versions for '%s'"
+    "other": "Vorherige Versionen für '%s'"
   },
   "2": {
     "other": "Ältere Versionen des Elements"

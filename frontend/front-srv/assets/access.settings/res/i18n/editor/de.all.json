@@ -144,10 +144,10 @@
     "other": "Von %1 aus der Arbeitsumgebung %2 freigegeben"
   },
   "54": {
-    "other": "Basic user informations. Use button on the right to see more actions."
+    "other": "Grundlegende Benutzerinformationen. Verwenden Sie die Schaltfläche auf der rechten Seite, um weitere Aktionen anzuzeigen."
   },
   "55": {
-    "other": "Toggle profile and roles to automatically grant permissions to this user."
+    "other": "Verändern Sie Profil und Rollen, um diesem Benutzer automatisch Berechtigungen zu erteilen."
   },
   "6": {
     "other": "Wert speichern"
@@ -162,42 +162,42 @@
     "other": "Nur lesen"
   },
   "roles.picker.title": {
-    "other": "Manage user roles"
+    "other": "Benutzerrollen verwalten"
   },
   "parameters.scope.selector.title": {
-    "other": "Add for ..."
+    "other": "Addieren für..."
   },
   "parameters.scope.all": {
-    "other": "All Workspaces"
+    "other": "Alle Arbeitsbereiche"
   },
   "parameters.scope.shared": {
-    "other": "Shared Cells only"
+    "other": "Nur geteilte Zellen"
   },
   "parameters.scope.workspace": {
-    "other": "Workspace %s"
+    "other": "Arbeitsbereich %s"
   },
   "parameters.custom.add": {
-    "other": "Add custom parameter or action"
+    "other": "Benutzerdefinierte Parameter oder Aktionen hinzufügen"
   },
   "parameters.empty": {
-    "other": "No parameters or actions"
+    "other": "Keine Parameter oder Aktionen"
   },
   "workspace.statics.home.title": {
-    "other": "Home Page"
+    "other": "Startseite"
   },
   "workspace.statics.home.description": {
-    "other": "Welcome page displayed after login"
+    "other": "Startseite nach dem Login angezeigt"
   },
   "workspace.statics.settings.title": {
-    "other": "Admin Console"
+    "other": "Administrationsoberfläche"
   },
   "workspace.statics.settings.description": {
-    "other": "Pydio Cells administration dashboard"
+    "other": "Pydio Cells Administrationsoberfläche"
   },
   "acls.rights.policy.manual": {
-    "other": "Rights set manually"
+    "other": "Rechte manuell gesetzt"
   },
   "acls.rights.advanced.root": {
-    "other": "Whole workspace"
+    "other": "Gesamter Arbeitsbereich"
   }
 }
