@@ -36,7 +36,7 @@
     "other": "Wenn Sie diesen Vorgang nicht ausgelöst haben, informieren Sie bitte Ihren Administrator sofort, da dies ein Sicherheitsrisiko darstellen kann."
   },
   "Mail.Digest.Subject": {
-    "other": "Ihre tägliche Zusammenfassung {{.Configs.Title}}"
+    "other": "Ihre {{.Configs.Title}} -Benachrichtigungen"
   },
   "Mail.Digest.Intros": {
     "other": "Es folgt eine Zusammenfassung aller Benachrichtigungen {{.Configs.Title}}"
@@ -123,7 +123,7 @@
     "other": "Cells öffnen"
   },
   "Mail.AdminTestMail.LinkInstructions": {
-    "other": "Click to open the frontend"
+    "other": "Klicken Sie hier, um das Frontend zu öffnen"
   },
   "Mail.AdminTestMail.Outros": {
     "other": "Die {{.Configs.Title}} File-Sharing-Plattform wird von Teams genutzt, um effizient an Dokumenten zusammenzuarbeiten."
@@ -181,6 +181,12 @@
   },
   "Mail.Config.Smtp.Password.Description": {
     "other": "Kennwort für die Verbindung zum SMTP - Server"
+  },
+  "Mail.Config.Smtp.SkipVerify.Label": {
+    "other": "Selbstsigniertes Zertifikat"
+  },
+  "Mail.Config.Smtp.SkipVerify.Description": {
+    "other": "Deaktivieren Sie die Zertifikatüberprüfung, wenn Ihr SMTP-Serverzertifikat selbstsigniert ist"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid Dienstleistung"

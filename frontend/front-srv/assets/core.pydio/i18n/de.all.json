@@ -756,7 +756,7 @@
     "other": "Ohne Anpassung"
   },
   "327": {
-    "other": "100%"
+    "other": "100 %"
   },
   "328": {
     "other": "ImageMagick-Betrachter"
@@ -1347,7 +1347,7 @@
     "other": "Größe"
   },
   "504": {
-    "other": "1k,1M,1G"
+    "other": "1k, 1M, 1G"
   },
   "505": {
     "other": "bis"
@@ -1644,7 +1644,7 @@
     "other": "Benutzer suchen..."
   },
   "596": {
-    "other": "Server '%s'"
+    "other": "Server '%s '"
   },
   "597": {
     "other": "Alle"
@@ -1665,10 +1665,10 @@
     "other": "Benutzer bearbeiten"
   },
   "601": {
-    "other": "One shared cell"
+    "other": "Eine shared Cell"
   },
   "602": {
-    "other": "%1 shared cells"
+    "other": "%1 shared Cells"
   },
   "603": {
     "other": "Team"
@@ -1713,7 +1713,7 @@
     "other": "Ausführen"
   },
   "616": {
-    "other": "Mask"
+    "other": "Maske"
   },
   "617": {
     "other": "Öffnen"
@@ -1764,19 +1764,19 @@
     "other": "Mit mir geteilte Dateien"
   },
   "631": {
-    "other": "This cell is empty!"
+    "other": "Diese Cell ist leer!"
   },
   "632": {
-    "other": "No cells yet"
+    "other": "Keine Cell bisher"
   },
   "633": {
-    "other": "Cells are spaces shared with others to collaborate on documents"
+    "other": "Cells sind Bereiche, in denen andere Personen gemeinsam an Dokumenten arbeiten"
   },
   "634": {
-    "other": "You"
+    "other": "Ihnen"
   },
   "634b": {
-    "other": "Your group"
+    "other": "Ihre Benutzergruppe"
   },
   "634c": {
     "other": "Alle Benutzer"
@@ -1788,10 +1788,10 @@
     "other": "Beginnen Sie mit der Eingabe und drücken Sie Enter"
   },
   "637": {
-    "other": "No messages yet, start typing to chat with users of this cell!"
+    "other": "Keine Nachrichten bisher, beginnen Sie mit der Eingabe, um mit Benutzern dieser Cell zu chatten!"
   },
   "638": {
-    "other": "Cell contains multiple root folders or files, you cannot upload data directly here."
+    "other": "Cell enthält mehrere Root-Ordner oder Dateien, Sie können keine Daten direkt hier hochladen."
   },
   "639": {
     "other": "In dieser Zelle"
@@ -1800,19 +1800,19 @@
     "other": "XLS-Tabelle"
   },
   "640": {
-    "other": "Create a cell with %s"
+    "other": "Erstellen Sie eine Cell mit %s"
   },
   "641": {
-    "other": "Remove from current cell"
+    "other": "Aus dieser Cell entfernen"
   },
   "642": {
     "other": "Zur aktuellen Zelle hinzufügen"
   },
   "643": {
-    "other": "You now share a cell with %s"
+    "other": "Jetzt teilen Sie eine Cell mit %s"
   },
   "644": {
-    "other": "Could not create cell: %s"
+    "other": "Cell konnte nicht erstellt werden: %s"
   },
   "65": {
     "other": "Word-Dokument"
@@ -2094,7 +2094,7 @@
     "other": "Authentifizierungs-Frontends"
   },
   "plugtype.title.boot": {
-    "other": "Loader"
+    "other": "Lader"
   },
   "plugtype.title.cache": {
     "other": "Cache-Server"
@@ -2181,42 +2181,51 @@
     "other": "Öffentlicher Zugriff"
   },
   "background.move.file": {
-    "other": "Moving file in background ..."
+    "other": "Datei wird im Hintergrund verschoben..."
   },
   "background.move.folder": {
-    "other": "Moving folder in background ..."
+    "other": "Ordner wird im Hintergrund verschoben..."
   },
   "background.copy.selection": {
-    "other": "Copying selection in background ..."
+    "other": "Auswahl wird im Hintergrund kopiert..."
   },
   "overlay.lock.file": {
-    "other": "File is locked"
+    "other": "Datei ist gesperrt"
   },
   "overlay.lock.folder": {
-    "other": "Folder is locked"
+    "other": "Ordner ist gesperrt"
   },
   "overlay.watch.file": {
-    "other": "Currently watching this file"
+    "other": "Derzeit wird diese Datei beobachtet"
   },
   "overlay.watch.folder": {
-    "other": "Currently watching this folder"
+    "other": "Derzeit wird dieser Ordner beobachtet"
   },
   "overlay.shared.file": {
-    "other": "Shared file, click to edit"
+    "other": "Shared Datei, klicken Sie zum Bearbeiten"
   },
   "overlay.shared.folder": {
-    "other": "Shared folder, click to edit"
+    "other": "Shared Ordner, klicken Sie zum Bearbeiten"
   },
   "overlay.bookmark.file": {
-    "other": "File is bookmarked"
+    "other": "Die Datei ist mit Lesezeichen"
   },
   "overlay.bookmark.folder": {
-    "other": "Folder is bookmarked"
+    "other": "Der Ordner ist mit Lesezeichen"
   },
   "mkfile.empty.template.label": {
     "other": "Leere Datei"
   },
   "mkfile.untitled.document": {
     "other": "Unbenanntes Dokument"
+  },
+  "filename.forbidden.slash": {
+    "other": "Verwenden Sie kein \"/\" Zeichen in Dateinamen!"
+  },
+  "rename.newvalue.error.similar": {
+    "other": "Bitte verwenden Sie einen anderen Wert für die Umbenennung!"
+  },
+  "rename.processing": {
+    "other": "%1 wird umbenannt in %2"
   }
 }

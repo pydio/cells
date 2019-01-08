@@ -3,67 +3,67 @@
     "other": "Öffentlicher Zugriff"
   },
   "PolicyGroup.PublicAccess.Description": {
-    "other": "Public access to discovery endpoints"
+    "other": "Öffentlicher Zugriff auf Discovery-Endpunkte"
   },
   "PolicyGroup.PublicAccess.Rule1": {
     "other": "Anonymous access to discovery (GET)"
   },
   "PolicyGroup.PublicAccess.Rule2": {
-    "other": "Anonymous access to reset-password endpoints (PUT, POST)"
+    "other": "Anonymer Zugriff auf Reset-Passwort-Endpunkte (PUT, POST)"
   },
   "PolicyGroup.PublicAccess.Rule3": {
-    "other": "Anonymous access to load frontend state (GET)"
+    "other": "Anonymer Zugriff zum Laden des Frontend-Status (GET)"
   },
   "PolicyGroup.PublicAccess.Rule4": {
-    "other": "Anonymous access to init frontend session (POST)"
+    "other": "Anonymer Zugriff auf Init-Frontend-Sitzung (POST)"
   },
   "PolicyGroup.PublicInstall.Title": {
-    "other": "Installation Endpoints (first run)"
+    "other": "Installationsendpunkte (erster Lauf)"
   },
   "PolicyGroup.PublicInstall.Description": {
-    "other": "Installation endpoints require public access at first run"
+    "other": "Installationsendpunkte erfordern beim ersten Start einen öffentlichen Zugriff"
   },
   "PolicyGroup.PublicInstall.Rule1": {
-    "other": "Anonymous access to install endpoints (GET, POST)"
+    "other": "Anonymer Zugriff zum Installieren von Endpunkten (GET, POST)"
   },
   "PolicyGroup.LoggedUsers.Title": {
-    "other": "Logged User and Admin User accesses"
+    "other": "Angemeldeter- und Admin-Benutzerzugriffe"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "Decide how standard users/shared users/admin users can access the rest APIs"
+    "other": "Legen Sie fest, wie Standard-, Shared- und Admin-Benutzer auf die übrigen APIs zugreifen können"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
-    "other": "Full REST accesses to Admin profile"
+    "other": "Volle REST-Zugriffe auf das Admin-Profil"
   },
   "PolicyGroup.LoggedUsers.Rule2": {
-    "other": "Default REST accesses for a logged user"
+    "other": "Standard-REST-Zugriffe für einen angemeldeten Benutzer"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "User-meta prevent deleting tags"
+    "other": "Benutzer-Meta verhindern das Löschen von Tags"
   },
   "PolicyGroup.OIDC.Title": {
-    "other": "OpenIdConnect Operations"
+    "other": "OpenIdConnect-Vorgänge"
   },
   "PolicyGroup.OIDC.Description": {
-    "other": "Enable/Disable authentications in OpenID Connect Server"
+    "other": "Authentifizierung in OpenID Connect Server Aktivieren / Deaktivieren"
   },
   "PolicyGroup.OIDC.Rule1": {
-    "other": "Default accesses to login action for all users"
+    "other": "Standardzugriffe auf die Anmeldeaktion für alle Benutzer"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] Complex ACL Policy"
+    "other": "[Beispiel] Komplexe ACL-Richtlinie"
   },
   "PolicyGroup.ACLSample1.Description": {
-    "other": "Sample Complex Policy for managing ACLs dynamically"
+    "other": "Beispiel für eine komplexe Richtlinie zum dynamischen Verwalten von ACLs"
   },
   "PolicyGroup.ACLSample1.Rule1": {
-    "other": "Default allowing read/write"
+    "other": "Standardeinstellung zum Lesen / Schreiben"
   },
   "PolicyGroup.ACLSample1.Rule2": {
-    "other": "Preventing modification based on IP and file metadata conditions"
+    "other": "Verhindern von Änderungen basierend auf IP- und Dateimetadatenbedingungen"
   },
   "PolicyGroup.ACLSample1.Rule3": {
-    "other": "Filter out display of a any file with a PNG extension"
+    "other": "Filter out any file with a PNG extension if request does not come from localhost"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
     "other": "[Example] Begrenzter Zeitraum"
@@ -72,28 +72,28 @@
     "other": "Ermöglicht den Zugriff auf einen bestimmten Arbeitsbereich nur für einen festgelegten Zeitraum"
   },
   "PolicyGroup.ACLSamplePeriod.Rule1": {
-    "other": "ACL Rule example, allowing access only in Feb. and March 2018"
+    "other": "Beispiel für eine ACL-Regel, die den Zugriff nur im Februar und März 2018 erlaubt"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] No access after a given date"
+    "other": "[Beispiel] Kein Zugriff nach einem bestimmten Datum"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
-    "other": "Disable access to a workspace after a given date"
+    "other": "Den Zugriff auf einen Workspace nach einem bestimmten Datum deaktivieren"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule1": {
     "other": "Globaler Lese-/Schreibzugriff"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule2": {
-    "other": "Deny read/write if date is after 2018-02-28"
+    "other": "Lese- und Schreibzugriff verweigern, wenn das akuelle Datum nach 2018-02-28 liegt"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
     "other": "[Example] Zugriff ist nur während der üblichen Geschäftszeiten erlaubt"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
-    "other": "Enable access to a workspace only certain days within pre-defined hours"
+    "other": "Zugriff auf einen Workspace nur an bestimmten Tagen innerhalb vordefinierter Stunden aktivieren"
   },
   "PolicyGroup.ACLSampleBusinessHours.Rule1": {
-    "other": "Office hours rule example, allowing read/write"
+    "other": "Geschäftszeiten Beispiel, ermöglicht Lese- und Schreibzugriff"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
     "other": "[Example] Deaktivieren Sie den Zugriff basierend auf IP-Adressen"
@@ -102,7 +102,7 @@
     "other": "Zugriff auf IPs außerhalb LAN deaktivieren"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule1": {
-    "other": "Global read/write"
+    "other": "Globales Lesen / Schreiben"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule2": {
     "other": "Verbieten IP, wenn es nicht Localhost 127.0.0.1 oder:: 1"

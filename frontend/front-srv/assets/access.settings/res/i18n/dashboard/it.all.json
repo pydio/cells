@@ -1,104 +1,104 @@
 {
   "cont.btn.fb": {
-    "other": "Follow us"
+    "other": "Seguici"
   },
   "cont.btn.github": {
-    "other": "Github Star"
+    "other": "GitHub Star"
   },
   "cont.btn.tw": {
     "other": "Twitter"
   },
   "cont.intro": {
-    "other": "Code is available publicly on Github. Do you want to fix a bug, help others in the forum or push the next killer feature? Get involved!\n                            Or show your love on social networks!"
+    "other": "Il codice è disponibile pubblicamente su Github. Vuoi correggere un bug, aiutare gli altri nel forum o proporre una nuova funzione innovativa? Partecipa al progetto!\n                            Oppure dimostra il tuo entusiasmo sui social network!"
   },
   "cont.subtitle": {
-    "other": "Pydio Cells is free open source software. Contribute back!"
+    "other": "Pydio Cells è software libero e open source. Partecipa al progetto!"
   },
   "cont.title": {
     "other": "Pay it forward!"
   },
   "cont.topic.pr": {
-    "other": "I implemented a new feature: github Pull Requests"
+    "other": "Ho implementato una nuova funzionalità: github Pull Request"
   },
   "cont.topic.report": {
-    "other": "I think I found a bug! Post in the forum."
+    "other": "Penso di aver trovato un bug! Scrivi nel forum."
   },
   "cont.topic.report.2": {
-    "other": "My bug is qualified: open a github issue."
+    "other": "Il mio bug è qualificato: apri una issue su github."
   },
   "cont.topic.translate": {
-    "other": "How-to create or complete a language translation ?"
+    "other": "Come creare o completare la traduzione in una lingua?"
   },
   "ent.advanced": {
-    "other": "Advanced Administrator Dashboard"
+    "other": "Dashboard avanzata di amministrazione"
   },
   "ent.advanced.legend": {
-    "other": "Unique admin dashboard for real-time monitoring of platform usage."
+    "other": "Dashboard di amministrazione per il monitoraggio in tempo reale dell'utilizzo della piattaforma."
   },
   "ent.btn.contact": {
-    "other": "Contact Sales"
+    "other": "Contatta l'ufficio vendite"
   },
   "ent.btn.more": {
-    "other": "Learn More"
+    "other": "Per saperne di più"
   },
   "ent.features": {
-    "other": "Enterprise-oriented features"
+    "other": "Funzionalità di classe Enterprise"
   },
   "ent.features.legend": {
-    "other": "Enterprise-ready features : AD/LDAP Connectors, Auditable Logs for compliance, EasyTransfer..."
+    "other": "Funzionalità di classe Enterprise: connettori AD/LDAP, log verificabili per conformità, EasyTransfer..."
   },
   "ent.subtitle": {
-    "other": "MORE FEATURES - GDPR COMPLIANCE - EXTENDED BRANDING"
+    "other": "ALTRE CARATTERISTICHE - CONFORMITÀ GDPR - FUNZIONI DI BRANDING"
   },
   "ent.support": {
-    "other": "Support and Maintenance"
+    "other": "Supporto e manutenzione"
   },
   "ent.support.legend": {
-    "other": "Get help with your installation directly from the core team"
+    "other": "Ottenere aiuto per l'installazione direttamente dal core team"
   },
   "ent.title": {
-    "other": "Discover Pydio Cells Enterprise"
+    "other": "Scopri Pydio Cells Enterprise"
   },
   "kb.btn.alldocs": {
-    "other": "All documentation"
+    "other": "Tutta la documentazione"
   },
   "kb.btn.forum": {
-    "other": "Go to Forum"
+    "other": "Vai al Forum"
   },
   "kb.intro": {
-    "other": "Beside the forum, our website provides plenty of docs to help you. Make sure to look throught them before posting your questions ;-)"
+    "other": "Oltre al forum, il nostro sito fornisce un gran numero di documenti per aiutarti. Assicuratevi di averli letti prima di inviare le vostre domande ;-)"
   },
   "kb.subtitle": {
-    "other": "Our most common F.A.Q and tutorial, a.k.a RTFM"
+    "other": "F.A.Q e tutorial più comuni, ovvero RTFM"
   },
   "kb.title": {
-    "other": "Get yourself some help"
+    "other": "Chiedete aiuto"
   },
   "welc.btn.advanced": {
-    "other": "Advanced Topics"
+    "other": "Argomenti avanzati"
   },
   "welc.btn.parameters": {
-    "other": "About Parameters"
+    "other": "Informazioni sui parametri"
   },
   "welc.btn.start": {
-    "other": "Getting Started"
+    "other": "Guida introduttiva"
   },
   "welc.btn.users": {
-    "other": "About Users Management"
+    "other": "Informazioni sulla gestione degli utenti"
   },
   "welc.btn.ws": {
-    "other": "About Workspaces"
+    "other": "Informazioni sui workspace"
   },
   "welc.guide": {
-    "other": "If you don't know where to start, the Administrator Guide is definitely a good read:"
+    "other": "Se non sai da dove cominciare, la guida per l'amministratore è sicuramente una buona lettura:"
   },
   "welc.intro": {
-    "other": "This is your dashboard for managing Pydio. Using the left menu you can create <a class=\"doc-link\" data-path=\"/data/workspaces\">workspaces</a> and <a class=\"doc-link\" data-path=\"/idm/users\">users</a>,\n                            check all <a class=\"doc-link\" data-path=\"/admin/logs\">events</a> that happened on the platform, and manage <a class=\"doc-link\" data-path=\"/parameters/core\">configurations</a> and <a class=\"doc-link\" data-path=\"/plugins/manager\">plugins</a>."
+    "other": "Questo è il pannello di controllo per la gestione di Pydio Cells. Usando il menù sulla sinistra, è possibile creare i <a class=\"doc-link\" data-path=\"/data/workspaces\">workspace</a> e gli <a class=\"doc-link\" data-path=\"/idm/users\">utenti</a>,\n                            controllate tutti gli <a class=\"doc-link\" data-path=\"/admin/logs\">eventi</a> che si sono verificati sulla piattaforma, e gestire le <a class=\"doc-link\" data-path=\"/parameters/core\">configurazioni</a> e i <a class=\"doc-link\" data-path=\"/plugins/manager\">plugin</a>."
   },
   "welc.subtitle": {
-    "other": "The place to administrate and monitor the activity of your platform"
+    "other": "Il luogo dove amministrare e monitorare l'attività sulla piattaforma"
   },
   "welc.title": {
-    "other": "Welcome to Pydio Cells Dashboard"
+    "other": "Benvenuto sul pannello di controllo di Pydio Cells"
   }
 }

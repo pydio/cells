@@ -1,30 +1,30 @@
 {
   "1": {
-    "other": "Meta Data"
+    "other": "Metadati"
   },
   "10": {
-    "other": "Existing or new tag"
+    "other": "Tag esistente o nuovo"
   },
   "11": {
-    "other": "No metadata set, click to add any"
+    "other": "Nessun insieme di metadati, clicca per aggiungerne uno"
   },
   "12": {
-    "other": "Multiple Selection:"
+    "other": "Selezione multipla:"
   },
   "13": {
-    "other": "check the fields that you want to update, value will be applied to all selected files"
+    "other": "controlla i campi da aggiornare, il valore verrà applicato a tutti i file selezionati"
   },
   "14": {
-    "other": "Edit meta"
+    "other": "Modifica i meta"
   },
   "15": {
-    "other": "Save meta"
+    "other": "Salva i meta"
   },
   "2": {
     "other": "Nessuna Etichetta"
   },
   "3": {
-    "other": "Rimuovi Votazione"
+    "other": "Rimuovi il Punteggio"
   },
   "4": {
     "other": "Basso"

@@ -2218,5 +2218,14 @@
   },
   "mkfile.untitled.document": {
     "other": "Document sans titre"
+  },
+  "filename.forbidden.slash": {
+    "other": "N'utilisez pas le caractère \"/\" dans les noms de fichiers !"
+  },
+  "rename.newvalue.error.similar": {
+    "other": "Veuillez utiliser un nom différent pour renommer!"
+  },
+  "rename.processing": {
+    "other": "Renommage de %1 vers %2"
   }
 }
