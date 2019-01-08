@@ -598,7 +598,7 @@ var MainFilesList = _react2['default'].createClass({
         };
         if (contextNode.isRoot()) {
             (function () {
-                var isCell = pydio.user.activeRepository ? pydio.user.getRepositoriesList().get(pydio.user.activeRepository).getOwner() : false;
+                var isCell = pydio.user && pydio.user.activeRepository ? pydio.user.getRepositoriesList().get(pydio.user.activeRepository).getOwner() : false;
                 var recyclePath = contextNode.getMetadata().get('repo_has_recycle');
                 emptyStateProps = {
                     style: { backgroundColor: 'transparent' },

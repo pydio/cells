@@ -93,7 +93,7 @@ class HomeSearchForm extends Component{
                 display:'flex',
                 backgroundColor: white,
                 height: 55,
-                padding: '4px 8px 4px 0'
+                padding: '4px 18px 4px 0'
             },
             textField: {flex: 1},
             textInput: {color: 'inherit'},

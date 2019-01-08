@@ -300,11 +300,19 @@ class Callbacks{
 
     static sessionLogout(){
 
+        if(Pydio.getInstance().Parameters.get("PRELOG_USER")){
+            return;
+        }
+
         PydioApi.getRestClient().sessionLogout();
 
     }
 
     static loginPassword(props = {}) {
+
+        if(Pydio.getInstance().Parameters.get("PRELOG_USER")){
+            return;
+        }
 
         pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', {...props, blur: true});
 

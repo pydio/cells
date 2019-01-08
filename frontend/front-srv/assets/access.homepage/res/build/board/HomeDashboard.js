@@ -143,7 +143,7 @@ var AltDashboard = _react2['default'].createClass({
                 zIndex: 10,
                 top: 108,
                 bottom: 0,
-                right: 10,
+                right: 0,
                 left: 260,
                 display: 'flex',
                 flexDirection: 'column'
@@ -215,7 +215,7 @@ var AltDashboard = _react2['default'].createClass({
                         _extends({ zDepth: 0 }, this.props, { style: styles.wsListsContainerStyle }),
                         _react2['default'].createElement(
                             'div',
-                            { style: { flex: 1, display: 'flex', flexDirection: 'column' }, id: 'history-block' },
+                            { style: { flex: 1, overflowY: 'scroll' }, id: 'history-block' },
                             _react2['default'].createElement(_recentActivityStreams2['default'], _extends({}, this.props, {
                                 emptyStateProps: { style: { backgroundColor: 'white' } }
                             }))

@@ -25,8 +25,7 @@ const {PaperEditorLayout, PaperEditorNavEntry, PaperEditorNavHeader} = Pydio.req
 import Role from './model/Role'
 import User from './model/User'
 
-
-import SharesList from './panel/SharesList'
+import UserActivity from './info/UserActivity'
 import WorkspacesAcls from './acl/WorkspacesAcls'
 import PagesAcls from './acl/PagesAcls'
 import React from "react";
@@ -175,6 +174,7 @@ class Editor extends React.Component{
         let title = '', infoTitle = '';
         let infoMenuTitle = this.getMessage('24'); // user information
         let otherForm;
+        let activityTab;
         let pagesShowSettings = false;
 
         if(this.state.roleType === 'user') {
@@ -183,6 +183,9 @@ class Editor extends React.Component{
             title = (idmUser.Attributes && idmUser.Attributes['displayName']) ? idmUser.Attributes['displayName'] : idmUser.Login;
             pagesShowSettings = idmUser.Attributes['profile'] === 'admin';
             otherForm = <UserInfo user={observableUser} pydio={pydio} pluginsRegistry={pluginsRegistry}/>
+            if(advancedAcl){
+                activityTab = <PaperEditorNavEntry key="activity" keyName="activity" onClick={this.setSelectedPane.bind(this)} label={"Recent Activity"} selectedKey={currentPane}/>
+            }
 
         }else if(this.state.roleType === 'group'){
 
@@ -224,6 +227,7 @@ class Editor extends React.Component{
         const leftNav = [
             <PaperEditorNavHeader key="1" label={this.getMessage('ws.28', 'ajxp_admin')}/>,
             <PaperEditorNavEntry key="info" keyName="info" onClick={this.setSelectedPane.bind(this)} label={infoMenuTitle} selectedKey={currentPane}/>,
+            activityTab,
             <PaperEditorNavHeader key="2" label={this.getMessage('34')}/>,
             <PaperEditorNavEntry key="workspaces" keyName="workspaces" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('35')} selectedKey={currentPane}/>,
             <PaperEditorNavEntry key="pages" keyName="pages" onClick={this.setSelectedPane.bind(this)} label={this.getMessage('36')} selectedKey={currentPane}/>,
@@ -300,6 +304,15 @@ class Editor extends React.Component{
                     />
                 </div>
             );
+        } else if (currentPane === 'activity' && observableUser) {
+            panes.push(
+                <div key="activity" className={classFor('activity')} style={styleFor('activity')}>
+                    <UserActivity
+                        pydio={pydio}
+                        user={observableUser}
+                    />
+                </div>
+            )
         }
 
 

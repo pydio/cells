@@ -50,7 +50,7 @@ func (h *HandlerAuditEvent) GetObject(ctx context.Context, node *tree.Node, requ
 	if isBinary {
 		return reader, e // do not audit thumbnail events
 	}
-	if e == nil {
+	if e == nil && requestData.StartOffset == 0 {
 		auditer.Info(
 			fmt.Sprintf("Retrieved object at %s", node.Path),
 			log.GetAuditId(common.AUDIT_OBJECT_GET),

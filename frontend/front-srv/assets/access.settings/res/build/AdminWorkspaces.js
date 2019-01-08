@@ -22710,21 +22710,21 @@ var EncryptionKeys = (function (_React$Component) {
 
             var columns = [{ name: 'Label', label: m('key.label'), style: { width: '30%', fontSize: 15 }, headerStyle: { width: '30%' } }, { name: 'ID', label: m('key.id'), hideSmall: true }, { name: 'Owner', label: m('key.owner'), hideSmall: true }, { name: 'CreationDate', label: m('key.created'), hideSmall: true, renderCell: function renderCell(row) {
                     return new Date(row.CreationDate * 1000).toUTCString();
-                } }, { name: 'Actions', label: '', style: { width: 160, textAlign: 'right', overflow: 'visible' }, headerStyle: { width: '160' }, renderCell: function renderCell(row) {
+                } }, { name: 'Actions', label: '', style: { width: 170, textAlign: 'right', overflow: 'visible' }, headerStyle: { width: 170 }, renderCell: function renderCell(row) {
                     return _react2['default'].createElement(
                         'div',
                         null,
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.import'), iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-import", onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.import'), tooltipPosition: "right", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-import", onTouchTap: function () {
                                 _this6.setState({ showDialog: true, showImportKey: row });
                             }, onClick: function (e) {
                                 return e.stopPropagation();
                             } }),
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.export'), iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-export", onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.export'), tooltipPosition: "right", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-export", onTouchTap: function () {
                                 _this6.setState({ showDialog: true, showExportKey: row.ID });
                             }, onClick: function (e) {
                                 return e.stopPropagation();
                             } }),
-                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.delete'), iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-delete", onTouchTap: function () {
+                        _react2['default'].createElement(_materialUi.IconButton, { tooltip: m('key.delete'), tooltipPosition: "right", iconStyle: { color: '#9e9e9e' }, iconClassName: "mdi mdi-delete", onTouchTap: function () {
                                 _this6.deleteKey(row.ID);
                             }, onClick: function (e) {
                                 return e.stopPropagation();
@@ -22797,8 +22797,8 @@ var EncryptionKeys = (function (_React$Component) {
             }
 
             return _react2['default'].createElement(
-                _materialUi.Paper,
-                { zDepth: 1, style: { margin: 16, padding: 16 } },
+                'div',
+                { zDepth: 0, style: { margin: 16 } },
                 _react2['default'].createElement(
                     _materialUi.Dialog,
                     {
@@ -22815,7 +22815,7 @@ var EncryptionKeys = (function (_React$Component) {
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { textAlign: 'right' } },
+                    { style: { textAlign: 'right', paddingBottom: 16 } },
                     _react2['default'].createElement(_materialUi.RaisedButton, { primary: true, label: m('key.import'), onTouchTap: function () {
                             _this6.setState({ showImportKey: {}, showDialog: true });
                         }, style: { marginLeft: 16 } }),
@@ -22823,13 +22823,17 @@ var EncryptionKeys = (function (_React$Component) {
                             _this6.setState({ showCreateKey: true, showDialog: true });
                         }, style: { marginLeft: 16 } })
                 ),
-                _react2['default'].createElement(MaterialTable, {
-                    data: keys,
-                    columns: columns,
-                    onSelectRows: function () {},
-                    showCheckboxes: false,
-                    emptyStateString: m('key.emptyState')
-                })
+                _react2['default'].createElement(
+                    _materialUi.Paper,
+                    { zDepth: 1 },
+                    _react2['default'].createElement(MaterialTable, {
+                        data: keys,
+                        columns: columns,
+                        onSelectRows: function () {},
+                        showCheckboxes: false,
+                        emptyStateString: m('key.emptyState')
+                    })
+                )
             );
         }
     }]);

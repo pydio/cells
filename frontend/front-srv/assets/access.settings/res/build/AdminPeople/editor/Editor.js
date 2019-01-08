@@ -46,9 +46,9 @@ var _modelUser = require('./model/User');
 
 var _modelUser2 = _interopRequireDefault(_modelUser);
 
-var _panelSharesList = require('./panel/SharesList');
+var _infoUserActivity = require('./info/UserActivity');
 
-var _panelSharesList2 = _interopRequireDefault(_panelSharesList);
+var _infoUserActivity2 = _interopRequireDefault(_infoUserActivity);
 
 var _aclWorkspacesAcls = require('./acl/WorkspacesAcls');
 
@@ -274,6 +274,7 @@ var Editor = (function (_React$Component) {
                 infoTitle = '';
             var infoMenuTitle = this.getMessage('24'); // user information
             var otherForm = undefined;
+            var activityTab = undefined;
             var pagesShowSettings = false;
 
             if (this.state.roleType === 'user') {
@@ -282,6 +283,9 @@ var Editor = (function (_React$Component) {
                 title = idmUser.Attributes && idmUser.Attributes['displayName'] ? idmUser.Attributes['displayName'] : idmUser.Login;
                 pagesShowSettings = idmUser.Attributes['profile'] === 'admin';
                 otherForm = _react2['default'].createElement(_infoUserInfo2['default'], { user: observableUser, pydio: pydio, pluginsRegistry: pluginsRegistry });
+                if (advancedAcl) {
+                    activityTab = _react2['default'].createElement(PaperEditorNavEntry, { key: 'activity', keyName: 'activity', onClick: this.setSelectedPane.bind(this), label: "Recent Activity", selectedKey: currentPane });
+                }
             } else if (this.state.roleType === 'group') {
 
                 infoTitle = this.getMessage('26'); // group information
@@ -323,7 +327,7 @@ var Editor = (function (_React$Component) {
 
             var rightButtons = [PaperEditorLayout.actionButton(this.getMessage('plugins.6', 'ajxp_admin'), "mdi mdi-undo", revert, saveDisabled), PaperEditorLayout.actionButton(this.getRootMessage('53'), "mdi mdi-content-save", save, saveDisabled)];
 
-            var leftNav = [_react2['default'].createElement(PaperEditorNavHeader, { key: '1', label: this.getMessage('ws.28', 'ajxp_admin') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'info', keyName: 'info', onClick: this.setSelectedPane.bind(this), label: infoMenuTitle, selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '2', label: this.getMessage('34') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'workspaces', keyName: 'workspaces', onClick: this.setSelectedPane.bind(this), label: this.getMessage('35'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'pages', keyName: 'pages', onClick: this.setSelectedPane.bind(this), label: this.getMessage('36'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '3', label: this.getMessage('37') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'params', keyName: 'params', onClick: this.setSelectedPane.bind(this), label: this.getMessage('38'), selectedKey: currentPane })];
+            var leftNav = [_react2['default'].createElement(PaperEditorNavHeader, { key: '1', label: this.getMessage('ws.28', 'ajxp_admin') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'info', keyName: 'info', onClick: this.setSelectedPane.bind(this), label: infoMenuTitle, selectedKey: currentPane }), activityTab, _react2['default'].createElement(PaperEditorNavHeader, { key: '2', label: this.getMessage('34') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'workspaces', keyName: 'workspaces', onClick: this.setSelectedPane.bind(this), label: this.getMessage('35'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'pages', keyName: 'pages', onClick: this.setSelectedPane.bind(this), label: this.getMessage('36'), selectedKey: currentPane }), _react2['default'].createElement(PaperEditorNavHeader, { key: '3', label: this.getMessage('37') }), _react2['default'].createElement(PaperEditorNavEntry, { key: 'params', keyName: 'params', onClick: this.setSelectedPane.bind(this), label: this.getMessage('38'), selectedKey: currentPane })];
 
             var panes = [];
             var classFor = function classFor(key) {
@@ -439,6 +443,15 @@ var Editor = (function (_React$Component) {
                         pydio: pydio,
                         role: observableUser ? observableUser.getRole() : observableRole,
                         roleType: this.state.roleType
+                    })
+                ));
+            } else if (currentPane === 'activity' && observableUser) {
+                panes.push(_react2['default'].createElement(
+                    'div',
+                    { key: 'activity', className: classFor('activity'), style: styleFor('activity') },
+                    _react2['default'].createElement(_infoUserActivity2['default'], {
+                        pydio: pydio,
+                        user: observableUser
                     })
                 ));
             }

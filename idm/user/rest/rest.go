@@ -75,6 +75,56 @@ func (s *UserHandler) Filter() func(string) string {
 	}
 }
 
+// GetUser finds a user by its login, answering to rest endpoint GET:/a/user/{Login}
+func (s *UserHandler) GetUser(req *restful.Request, rsp *restful.Response) {
+
+	ctx := req.Request.Context()
+	login := req.PathParameter("Login")
+	if login == "" {
+		service.RestError500(req, rsp, errors.BadRequest("user.missing.login", "please provide a login"))
+		return
+	}
+
+	qLogin, _ := ptypes.MarshalAny(&idm.UserSingleQuery{Login: login})
+	query := &service2.Query{
+		Limit:      1,
+		Offset:     0,
+		SubQueries: []*any.Any{qLogin},
+	}
+	query.ResourcePolicyQuery, _ = s.RestToServiceResourcePolicy(ctx, nil)
+	var result *idm.User
+
+	cli := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
+	streamer, err := cli.SearchUser(ctx, &idm.SearchUserRequest{
+		Query: query,
+	})
+	if err != nil {
+		// Handle error
+		service.RestError500(req, rsp, err)
+		return
+	}
+	defer streamer.Close()
+	for {
+		resp, e := streamer.Recv()
+		if e != nil {
+			break
+		}
+		if resp == nil {
+			continue
+		}
+		u := resp.User
+		u.Roles = utils.GetRolesForUser(ctx, u, false)
+		result = u.WithPublicData(ctx, s.IsContextEditable(ctx, u.Uuid, u.Policies))
+	}
+
+	if result != nil {
+		rsp.WriteEntity(result)
+	} else {
+		service.RestError404(req, rsp, errors.NotFound("user.notfound", "cannot find user with login %s", login))
+	}
+
+}
+
 // SearchUsers performs a paginated query to the user repository.
 func (s *UserHandler) SearchUsers(req *restful.Request, rsp *restful.Response) {
 	ctx := req.Request.Context()
