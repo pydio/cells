@@ -387,12 +387,20 @@ var Callbacks = (function () {
         key: 'sessionLogout',
         value: function sessionLogout() {
 
+            if (Pydio.getInstance().Parameters.get("PRELOG_USER")) {
+                return;
+            }
+
             _pydioHttpApi2['default'].getRestClient().sessionLogout();
         }
     }, {
         key: 'loginPassword',
         value: function loginPassword() {
             var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+            if (Pydio.getInstance().Parameters.get("PRELOG_USER")) {
+                return;
+            }
 
             pydio.UI.openComponentInModal('AuthfrontCoreActions', 'LoginPasswordDialog', _extends({}, props, { blur: true }));
         }
