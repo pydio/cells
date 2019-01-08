@@ -503,7 +503,7 @@ let MainFilesList = React.createClass({
             secondaryTextId : secondary,
         };
         if(contextNode.isRoot()){
-            const isCell = pydio.user.activeRepository ? pydio.user.getRepositoriesList().get(pydio.user.activeRepository).getOwner() : false;
+            const isCell = (pydio.user && pydio.user.activeRepository) ? pydio.user.getRepositoriesList().get(pydio.user.activeRepository).getOwner() : false;
             const recyclePath = contextNode.getMetadata().get('repo_has_recycle');
             emptyStateProps = {
                 style           : {backgroundColor: 'transparent'},
