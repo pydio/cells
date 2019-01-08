@@ -2486,6 +2486,10 @@ body,
   -ms-flex: 1;
       flex: 1;
 }
+#ajxp_desktop {
+  /* Necessary to fix FF flexbox issue */
+  min-height: 0px;
+}
 #orbit_content {
   -webkit-font-smoothing: antialiased;
   -ms-flex: 1;
