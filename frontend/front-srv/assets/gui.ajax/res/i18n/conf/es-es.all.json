@@ -204,7 +204,7 @@
     "other": "Configura el dominio para Analytics (no es necesario)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Configura el dominio para Analytics (no es necesario)"
+    "other": "Set the domain for your analytics reports (not mandatory!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
     "other": "Configura los parámetros de algunas aplicaciones. Si activas Emails, usa el botón Test para comprobar la configuración de PHP."

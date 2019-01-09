@@ -36,7 +36,7 @@
     "other": "Si vous n'avez pas déclenché cette opération, veuillez alerter votre administrateur immédiatement, car il peut s'agir d'un problème de sécurité."
   },
   "Mail.Digest.Subject": {
-    "other": "Votre résumé quotidien pour {{.Configs.Title}}"
+    "other": "Vos notifications pour {{.Configs.Title}}"
   },
   "Mail.Digest.Intros": {
     "other": "Voici un résumé des notifications que vous avez reçues sur {{.Configs.Title}}"
@@ -181,6 +181,12 @@
   },
   "Mail.Config.Smtp.Password.Description": {
     "other": "Mot de passe de l'utilisateur pour se connecter au serveur SMTP"
+  },
+  "Mail.Config.Smtp.SkipVerify.Label": {
+    "other": "Certificat auto-signé"
+  },
+  "Mail.Config.Smtp.SkipVerify.Description": {
+    "other": "Désactiver la vérification du certificat si le certificat de votre serveur SMTP est auto-signé"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "Service SendGrid"

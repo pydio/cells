@@ -67,7 +67,7 @@
     "other": "Preventing modification based on IP and file metadata conditions"
   },
   "PolicyGroup.ACLSample1.Rule3": {
-    "other": "Filter out display of a any file with a PNG extension"
+    "other": "Filter out any file with a PNG extension if request does not come from localhost"
   },
 
   "PolicyGroup.ACLSamplePeriod.Title": {

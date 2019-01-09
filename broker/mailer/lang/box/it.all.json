@@ -36,7 +36,7 @@
     "other": "Se non ha richiesto questa operazione, dovrebbe avvisare immediatamente l'amministratore in quanto potrebbe essere un problema di sicurezza."
   },
   "Mail.Digest.Subject": {
-    "other": "Sintesi quotidiana {{.Configs.Title}}"
+    "other": "Le notifiche di {{.Configs.Title}}"
   },
   "Mail.Digest.Intros": {
     "other": "Quella che segue è la sintesi di tutte le notifiche ricevute su {{.Configs.Title}}"
@@ -72,10 +72,10 @@
     "other": "{{.Configs.Title}}, la piattaforma di condivisione dei file viene utilizzata dal team {{.TplData.Inviter}} per collaborare in modo efficiente sui documenti. Siamo lieti di averti a bordo!"
   },
   "Mail.Cell.Subject": {
-    "other": "{{.TplData.Inviter}} added you to the cell {{.TplData.Cell}}"
+    "other": "{{.TplData.Inviter}} ti ha aggiunto alla cella {{.TplData.Cell}}"
   },
   "Mail.Cell.Intros": {
-    "other": "{{.TplData.Inviter}} has included you in the cell {{.TplData.Cell}} on {{.Configs.Title}}! You can start sharing files and folders together and collaborate efficiently."
+    "other": "{{.TplData.Inviter}} ti ha incluso nella cella {{.TplData.Cell}} su {{.Configs.Title}}! Puoi iniziare a condividere file e cartelle e collaborare in modo efficiente."
   },
   "Mail.Cell.LinkInstructions": {
     "other": "Clicca per aprire"
@@ -120,7 +120,7 @@
     "other": "{{.TplData.Message}}"
   },
   "Mail.AdminTestMail.LinkLabel": {
-    "other": "Open Cells"
+    "other": "Apri Pydio Cells"
   },
   "Mail.AdminTestMail.LinkInstructions": {
     "other": "Clicca per aprire il frontend"
@@ -181,6 +181,12 @@
   },
   "Mail.Config.Smtp.Password.Description": {
     "other": "Password necessaria per connettersi al server SMTP"
+  },
+  "Mail.Config.Smtp.SkipVerify.Label": {
+    "other": "Certificato autofirmato"
+  },
+  "Mail.Config.Smtp.SkipVerify.Description": {
+    "other": "Disattivare la verifica del certificato se il certificato del server SMTP è autofirmato"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "Servizio SendGrid"

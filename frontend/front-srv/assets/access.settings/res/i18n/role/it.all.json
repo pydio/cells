@@ -1,12 +1,12 @@
 {
   "1": {
-    "other": "Modifica Ruoli"
+    "other": "Editor dei Ruoli"
   },
   "10": {
-    "other": "Usa questo menu per selezionare le azioni che desideri interdire agli utenti di questo ruolo. Puoi scegliere se disabilitare l'azione per tutti i repository o solo per il workspace indicato."
+    "other": "Usa il selettore qui sotto per definire le azioni che intendi disabilitare per gli utenti di questo ruolo. Puoi scegliere se disabilitare l'azione per tutti i repository o solo per uno specifico workspace."
   },
   "11": {
-    "other": "Identificatore Plugin"
+    "other": "Identificatore dei Plugin"
   },
   "12": {
     "other": "Seleziona un plugin..."
@@ -21,25 +21,25 @@
     "other": "Seleziona uno o tutti i workspace..."
   },
   "12d": {
-    "other": "Tutti Workspace"
+    "other": "Tutti i Workspace"
   },
   "12e": {
     "other": "Workspace Condivisi"
   },
   "13": {
-    "other": "Nome Azione"
+    "other": "Nome dell'azione"
   },
   "14": {
-    "other": "Ambito Repository"
+    "other": "Ambito del repository"
   },
   "15": {
-    "other": "Aggiungi Azione"
+    "other": "Aggiungere azione"
   },
   "16": {
-    "other": "Usa questo menu per selezionare i parametri che vuoi perfezionare per gli utenti di questo ruolo. Possono essere applicati a tutti i workspace o ad uno solo, tenendo in considerazione il contesto in cui opera il plugin."
+    "other": "Usa il selettore qui sotto per definire i parametri che vuoi perfezionare per gli utenti di questo ruolo. Possono essere applicati a una o tutti i workspace, anche se questo dipende dal contesto in cui opera il plugin."
   },
   "17": {
-    "other": "Nome Parametro"
+    "other": "Nome del parametro"
   },
   "18": {
     "other": "Aggiungi parametro"
@@ -48,7 +48,7 @@
     "other": "Ci sono modifiche non salvate. Sicuro di voler uscire?"
   },
   "2": {
-    "other": "Modifica Ruolo"
+    "other": "Editor dei Ruoli"
   },
   "20": {
     "other": "Ruolo aggiornato correttamente"
@@ -60,31 +60,31 @@
     "other": "Profilo Speciale"
   },
   "23": {
-    "other": "Repository Principale"
+    "other": "Repository Predefinito"
   },
   "24": {
-    "other": "Ruoli (usa Ctrl\/Cmd per selezione multipla)"
+    "other": "Ruoli Utente"
   },
   "25": {
-    "other": "Cambia Password"
+    "other": "Modifica la password"
   },
   "26": {
     "other": "Blocca Utente"
   },
   "27": {
-    "other": "Riattiva Utente"
+    "other": "Riattivare l'utente"
   },
   "28": {
-    "other": "Forza cambio"
+    "other": "Forza la modifica della password"
   },
   "28b": {
-    "other": "Cancel password change"
+    "other": "Annullare la modifica della password"
   },
   "29": {
     "other": "Inserisci la nuova password per questo utente"
   },
   "3": {
-    "other": "Info Account"
+    "other": "Informazioni sull'Account"
   },
   "30": {
     "other": "Conferma"
@@ -93,7 +93,7 @@
     "other": "ID Ruolo"
   },
   "32": {
-    "other": "Etichetta Ruolo"
+    "other": "Etichetta del ruolo"
   },
   "33": {
     "other": "Applica automaticamente agli utenti con profilo..."
@@ -102,7 +102,7 @@
     "other": "ID Gruppo"
   },
   "35": {
-    "other": "Etichetta Gruppo"
+    "other": "Etichetta di gruppo"
   },
   "36": {
     "other": "bloccato"
@@ -126,22 +126,22 @@
     "other": "Rimuovi"
   },
   "42": {
-    "other": "Dati ruolo personalizzati"
+    "other": "Dati personalizzati del ruolo"
   },
   "43": {
     "other": "Selezionane uno o più"
   },
   "44": {
-    "other": "Plugins Parameters Fine-tuning"
+    "other": "Configurazione dei parametri del plugin"
   },
   "45": {
-    "other": "Access Control List"
+    "other": "Elenchi dei controlli di accesso"
   },
   "46": {
-    "other": "Disabled Actions"
+    "other": "Azioni disabilitate"
   },
   "47": {
-    "other": "Search Roles"
+    "other": "Ricerca per ruolo"
   },
   "5": {
     "other": "Azioni"
@@ -159,15 +159,15 @@
     "other": "Seleziona i workspaces ai quali gli utenti con questo ruolo avranno accesso. Usa il 'Nega' per sovrascrivere un valore impostato in un ruolo precedente, oppure per negare definitivamente l'accesso a questo workspace, anche per i ruoli ereditati."
   },
   "dashboard.description": {
-    "other": "Roles are containers for Access Lists to grant access to any workspaces or customize parameters and actions. They can be manually assigned to any users."
+    "other": "I ruoli sono contenitori per gli elenchi degli accessi, per consentire l'accesso a qualsiasi workspace o personalizzare i parametri e le azioni. Essi possono essere assegnati manualmente a tutti gli utenti."
   },
   "dashboard.technical.hide": {
-    "other": "Hide technical roles"
+    "other": "Nascondere in ruoli tecnici"
   },
   "dashboard.technical.show": {
-    "other": "Show technical roles"
+    "other": "Mostrare i ruoli tecnici"
   },
   "last_update": {
-    "other": "Last updated"
+    "other": "Ultimo aggiornamento"
   }
 }

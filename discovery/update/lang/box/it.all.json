@@ -1,47 +1,47 @@
 {
   "Update.Config.Title": {
-    "other": "Update Configuration"
+    "other": "Aggiornamento della configurazione"
   },
   "Update.Config.Url.Label": {
     "other": "Update Server"
   },
   "Update.Config.Url.Description": {
-    "other": "Http URL of the update server"
+    "other": "URL http del server di aggiornamento"
   },
   "Update.Config.PublicKey.Label": {
-    "other": "Public Key"
+    "other": "Chiave publica"
   },
   "Update.Config.PublicKey.Description": {
-    "other": "Official key used to verify binaries signature."
+    "other": "Chiave ufficiale usata per verificare la firma dei file binari."
   },
   "Update.Config.Channel.Label": {
-    "other": "Update Channel"
+    "other": "Canale di aggiornamento"
   },
   "Update.Config.Channel.Description": {
-    "other": "Channel used for requesting for updates. Stick to Stable if you are not sure."
+    "other": "Canale utilizzato per la richiesta degli aggiornamenti. Rimanere su Stabile se non siete sicuri."
   },
   "Update.Config.Channel.ValueStable": {
-    "other": "Stable"
+    "other": "Stabile"
   },
   "Update.Config.Channel.ValueDev": {
-    "other": "Dev (at your own risks)"
+    "other": "Dev (a vostro rischio)"
   },
   "Update.Config.ProxyHost.Label": {
     "other": "Proxy"
   },
   "Update.Config.ProxyHost.Description": {
-    "other": "Host of a proxy server if required for outbound connections"
+    "other": "Host del server proxy se richiesto dalla connessione in uscita"
   },
   "Update.Config.ProxyUser.Label": {
-    "other": "Proxy User"
+    "other": "Utente del proxy"
   },
   "Update.Config.ProxyUser.Description": {
-    "other": "User for proxy server identification"
+    "other": "Utente per l'identificazione del server proxy"
   },
   "Update.Config.ProxyPassword.Label": {
-    "other": "Proxy Password"
+    "other": "Password del proxy"
   },
   "Update.Config.ProxyPassword.Description": {
-    "other": "Password for the proxy server identification"
+    "other": "Password per l'identificazione del server proxy"
   }
 }

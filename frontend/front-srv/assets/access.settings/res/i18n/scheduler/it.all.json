@@ -3,61 +3,61 @@
     "other": "Azione"
   },
   "10": {
-    "other": "Modifica Azione"
+    "other": "Modifica il task"
   },
   "11": {
-    "other": "Modifica i parametri dell'azione schedulata"
+    "other": "Modifica i parametri del task programmato"
   },
   "12": {
     "other": "Etichetta"
   },
   "12d": {
-    "other": "Etichetta (nome) dell'azione"
+    "other": "Etichetta leggibile per questo task"
   },
   "13": {
-    "other": "Status"
+    "other": "Stato"
   },
   "14": {
     "other": "Ultima Esecuzione"
   },
   "15": {
-    "other": "Avvia tutte le Azioni"
+    "other": "Avvia tutti i task"
   },
   "15d": {
-    "other": "Avvia tutte le azioni adesso"
+    "other": "Avvia il task selezionato"
   },
   "16": {
-    "other": "Avvia azione"
+    "other": "Avvia il task"
   },
   "16d": {
-    "other": "Avvia lo schedulatore ed esegui le azioni programmate"
+    "other": "Avvia lo schedulatore ed esegui i task programmati"
   },
   "17": {
     "other": "Utente(i)"
   },
   "17d": {
-    "other": "Inserisci un elenco di utenti, separati dalla virgola, o il  wildcard * per eseguire l'azione per ogni utente."
+    "other": "Inserisci un elenco di utenti, separati dalla virgola, o la wildcard * per ripetere il task per tutti gli utenti."
   },
   "18": {
     "other": "Schedulatore"
   },
   "18d": {
-    "other": "Azioni in stile 'Cron'"
+    "other": "Azioni dello schedulatore tipo 'Cron'"
   },
   "18e": {
-    "other": "Schedulatore (disabled)"
+    "other": "Schedulatore (disabilitato)"
   },
   "19": {
-    "other": "Cancella Azione"
+    "other": "Elimina il task"
   },
   "19d": {
-    "other": "De-Schedula e rimuovi l'azione selezionata"
+    "other": "Blocca e rimuovi il task selezionato"
   },
   "1d": {
-    "other": "Azione da eseguire"
+    "other": "Azioni eseguite da questo task"
   },
   "2": {
-    "other": "Schedula"
+    "other": "Pianifica"
   },
   "20": {
     "other": "Espressione Cron"
@@ -66,64 +66,64 @@
     "other": "Genera espressione Crontab"
   },
   "21": {
-    "other": "Aggiungi la linea al CRONTAB, sostituendo il valore reale della tua password, e la schedulazione che preferisci (adesso è configurato per essere eseguito ogni 5 minuti)."
+    "other": "Aggiungi la riga seguente al CRONTAB, sostituendo il valore reale della tua password, e la schedulazione desiderata (adesso è configurato per essere eseguito ogni 5 minuti)."
   },
   "22": {
-    "other": "Schedulatore generico per eseguire azioni su basi regolari. Richiede l'attivazione della CLI e del CRONTAB (o equivalente)."
+    "other": "Schedulatore generico per eseguire task in modo regolare. Richiede l'attivazione della CLI e del CRONTAB (o equivalente)."
   },
   "23": {
-    "other": "Execution Context"
+    "other": "Contesto di esecuzione"
   },
   "24": {
-    "other": "Parameters"
+    "other": "Parametri"
   },
   "25": {
-    "other": "Stop Job"
+    "other": "Interrompere il processo"
   },
   "26": {
-    "other": "Stop running job"
+    "other": "Interrompere l'esecuzione del processo"
   },
   "27": {
-    "other": "Scheduled"
+    "other": "Pianificato"
   },
   "28": {
-    "other": "Successfully added/edited task"
+    "other": "Task aggiunto/modificato con successo"
   },
   "29": {
-    "other": "This task has currently jobs running, please wait that they are finished"
+    "other": "Questo task ha dei processi in corso, bisogna attendere che siano terminati"
   },
   "2d": {
-    "other": "Espressione del tipo 'Crontab' nel seguente formato : minuti ore giorni giornisettimana mesi. Si possono usare wildcards, steps e ranges."
+    "other": "Espressione di tipo 'Crontab' nel seguente formato : minuti ore giorni giornisettimana mesi. Si possono usare wildcard, step e range."
   },
   "3": {
     "other": "Prossima esecuzione"
   },
   "30": {
-    "other": "Successfully removed task"
+    "other": "Task rimosso con successo"
   },
   "31": {
-    "other": "Starting..."
+    "other": "Avvio in corso..."
   },
   "32": {
-    "other": "Launching "
+    "other": "Sto avviando "
   },
   "33": {
-    "other": "Nothing to do"
+    "other": "Niente da fare"
   },
   "34": {
-    "other": "Launching task now"
+    "other": "Sto avviando il task"
   },
   "35": {
-    "other": "JOB RUNNING"
+    "other": "PROCESSO IN CORSO"
   },
   "36": {
-    "other": "JOB ERROR"
+    "other": "ERRORE NEL PROCESSO"
   },
   "37": {
-    "other": "Started on "
+    "other": "Iniziato il "
   },
   "4": {
-    "other": "ID Repository"
+    "other": "ID del Repository"
   },
   "4d": {
     "other": "ID del workspace"
@@ -138,21 +138,21 @@
     "other": "Parametri replicabili dell'azione"
   },
   "6": {
-    "other": "Nome Parametro"
+    "other": "Nome del Parametro"
   },
   "6d": {
-    "other": "Nome parametro specifico per l'azione"
+    "other": "Nome del parametro specifico per l'azione"
   },
   "7": {
-    "other": "Valore Parametro"
+    "other": "Valore del Parametro"
   },
   "7d": {
-    "other": "Valore parametro specifico per l'azione"
+    "other": "Valore del parametro specifico per l'azione"
   },
   "8": {
-    "other": "Nuova Azione"
+    "other": "Nuovo task"
   },
   "9": {
-    "other": "Schedula l'azione per essere eseguita su base regolare"
+    "other": "Pianifica un task da eseguire su base regolare"
   }
 }
