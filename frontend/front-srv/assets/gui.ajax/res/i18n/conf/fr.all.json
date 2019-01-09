@@ -268,5 +268,11 @@
   },
   "Width of the custom image (by default 35px)": {
     "other": "Largeur de l'icône (par défaut 35px)."
+  },
+  "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
+    "other": "Alerter l'utilisateur que la session web est sur le point d'expirer. Nombre de minutes avant l'expiration."
+  },
+  "Warning Before Session Expiration": {
+    "other": "Alerte avant expiration de la session"
   }
 }

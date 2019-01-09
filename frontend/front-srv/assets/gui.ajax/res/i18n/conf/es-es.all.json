@@ -268,5 +268,11 @@
   },
   "Width of the custom image (by default 35px)": {
     "other": "Anchura de la imagen personalizada (por defecto 35px)"
+  },
+  "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
+    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+  },
+  "Warning Before Session Expiration": {
+    "other": "Warning Before Session Expiration"
   }
 }

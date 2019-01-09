@@ -204,7 +204,7 @@
     "other": "Setzen Sie die Domain für Ihre Analytics-Berichte (Nicht zwingend!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Setzen Sie die Domain für Ihre Analytics-Berichte (Nicht zwingend!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
     "other": "Grundeinstellungen der Anwendung festlegen. Bei aktivem E-Mail-Versand kann die PHP-Konfiguration mit einem Klick auf 'E-Mail-Versand mit dieser Konfiguration testen' überprüft werden."
@@ -268,5 +268,11 @@
   },
   "Width of the custom image (by default 35px)": {
     "other": "Breite des Bildes (Standard 35px)"
+  },
+  "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
+    "other": "Benachrichtigt den Benutzer, dass die Websitzung bald abläuft. Anzahl der Minuten vor Ablauf der Sitzung"
+  },
+  "Warning Before Session Expiration": {
+    "other": "Warnung vor Sitzungs-Timeout"
   }
 }

@@ -27,7 +27,7 @@
     "other": "Sind Sie sicher, dass Sie diese Datenquelle löschen möchten? Das ist irreversible und Sie können alle Daten verlieren, die mit diesem Knoten verbunden sind!"
   },
   "ds.editor.enc": {
-    "other": "Enabled encryption at rest"
+    "other": "Verschlüsselung im Ruhezustand aktiviert"
   },
   "ds.editor.enc.dialog.disable": {
     "other": "Wenn Sie zuvor die Verschlüsselung für diese Datenquelle aktiviert haben, sind alle verschlüsselten Daten unlesbar! Sind Sie sicher, dass Sie das tun möchten?"
@@ -36,13 +36,13 @@
     "other": "Wenn Sie die Verschlüsselung auf einer Datenquelle aktivieren, werden die Daten auf dem Speicher mit dem von Ihnen angegebenen Schlüssel verschlüsselt."
   },
   "ds.editor.enc.dialog.enable.2": {
-    "other": "Please be aware that if you do not export and backup your master key, and if you have to reinstall the server for any reason,"
+    "other": "Bitte beachten Sie, dass wenn Sie Ihren Hauptschlüssel nicht exportieren und sichern und der Server aus irgendeinem Grund neu installiert werden muss,"
   },
   "ds.editor.enc.dialog.enable.2bold": {
     "other": "alle Daten gehen verloren!"
   },
   "ds.editor.enc.dialog.enable.3": {
-    "other": "You must also be aware that it may require more CPU for a smooth on-the-fly encryption/decryption of the data."
+    "other": "Sie müssen sie auch bewusst sein, dass es mehr CPU für eine reibungslose on-the-fly-Verschlüsselung / Entschlüsselung der Daten erfordern."
   },
   "ds.editor.enc.key": {
     "other": "Geheimschlüssel"
@@ -54,7 +54,7 @@
     "other": "Warnung!"
   },
   "ds.editor.legend.delete.1": {
-    "other": "Deleting datasource is a destructive operation : although it will NOT remove the data inside the underlying storage, it will destroy existing index and unlink all ACLs linked to the indexed nodes."
+    "other": "Das Löschen einer Datenquelle ist ein destruktiver Vorgang: obwohl die Daten im zugrunde liegenden Speicher NICHT entfernt werden, wird der vorhandene Index gelöscht und die Verknüpfung aller mit den indizierten Nodes verknüpften ACLs aufgehoben."
   },
   "ds.editor.legend.delete.2": {
     "other": "Stellen Sie sicher, dass Sie zuerst alle Arbeitsbereiche entfernen, die auf diese Datenquelle verweisen, bevor Sie diese löschen."
@@ -63,46 +63,46 @@
     "other": "Datenquelle löschen"
   },
   "ds.editor.legend.local": {
-    "other": "File System datasources serve files via an object storage server, that is starting on the parent folder and serving the target as an s3 bucket. For this reason, the selected folder must meet the following requirements:"
+    "other": "Datei System Datasources dienen Dateien über eine Objekt-Storage-Server, der beginnt auf den übergeordneten Ordner und servieren das Ziel wie ein s3-Bucket. Aus diesem Grund muss der ausgewählte Ordner die folgenden Anforderungen erfüllen:"
   },
   "ds.editor.legend.local.li.1": {
-    "other": "At least two-levels deep."
+    "other": "Mindestens zwei Ebenen tief."
   },
   "ds.editor.legend.local.li.2": {
-    "other": "Parent folder must be writeable by the application service user"
+    "other": "Übergeordneten Ordner muss von der Anwendung-Service-Benutzer schreibbar sein."
   },
   "ds.editor.legend.local.li.3": {
-    "other": "Target folder must comply with DNS names (lowercase, no spaces or special chars)."
+    "other": "Zielordner muss den DNS-Namen entsprechen (Kleinbuchstaben, keine Leerzeichen oder Sonderzeichen)."
   },
   "ds.editor.legend.resync": {
-    "other": "Resynchronization will scan the underlying storage and detect changes that are not currently indexed."
+    "other": "Resynchronisation wird den zugrunde liegende Speicher Scannen und erkennen Veränderungen, die derzeit nicht indiziert sind."
   },
   "ds.editor.legend.resync.button": {
-    "other": "Re-synchronize"
+    "other": "Erneut synchronisieren"
   },
   "ds.editor.legend.s3.1": {
-    "other": "Remote Storage datasources will serve files from a remote, s3-compatible storage by proxying all requests."
+    "other": "Remote Storage-Datenquellen werden Dateien aus einem Remote-kompatiblen, S3-kompatiblen Speicher bereitstellen, indem sie alle Anforderungen weiterleiten."
   },
   "ds.editor.legend.s3.2": {
-    "other": "Use the standard API Key / Api Secret to authenticate, leave endpoint URL empty for AmazonS3 or use your storage URL for other on-premise solutions."
+    "other": "Verwenden Sie die standard-API-Schlüssel / Api Secret zur authentifizierung. Lassen Sie AmazonS3 Endpunkt-URL leer oder verwenden Sie Ihre Speicher-URL für andere on Premise-Lösungen."
   },
   "ds.editor.storage.legend.fs": {
-    "other": "Browse data from a local or network-attached file system. Peer Address is a node where Cells is currently running. Last folder must be lowercase and its parent must writeable."
+    "other": "Durchsuchen Sie Daten aus einem lokalen oder Netzwerk verbundenen Dateisystem. Peer-Adresse ist ein Node, wo Pydio Cells derzeit läuft. Letzte Ordner muss klein geschrieben sein und seinem übergeordneten Element muss beschreibbar."
   },
   "ds.editor.storage.legend.s3": {
-    "other": "Browse data from an Amazon S3 bucket or from an S3-compatible storage."
+    "other": "Durchsuchen Sie Daten von einem Amazon S3-Bucket oder von einem S3-kompatiblen Speicher."
   },
   "ds.editor.storage.legend.azure": {
-    "other": "Browse data from an Azure Blob Storage bucket."
+    "other": "Durchsuchen Sie Daten aus einem Azure Blob Storage-Bucket."
   },
   "ds.editor.storage.legend.gcs": {
-    "other": "Browse data from a Google Cloud Storage bucket."
+    "other": "Durchsuchen Sie Daten aus einem Google Cloud Storage-Bucket."
   },
   "ds.editor.new": {
     "other": "Neue Datenquelle"
   },
   "ds.editor.options": {
-    "other": "Main Options"
+    "other": "Hauptoptionen"
   },
   "ds.editor.datamanagement": {
     "other": "Datenverwaltung"
@@ -120,40 +120,40 @@
     "other": "Wählen Sie einen Ordner aus"
   },
   "ds.editor.selector.completer.hint": {
-    "other": "Pick from list or type a path and hit Enter"
+    "other": "Wählen Sie aus der Liste oder geben Sie einen Pfad ein und drücken Sie die Eingabetaste"
   },
   "ds.editor.selector.completer.create": {
     "other": "Ordner wird erstellt"
   },
   "ds.editor.selector.error.depth": {
-    "other": "Make sure to select a two-levels deep folder. Object storage will start on the parent folder."
+    "other": "Achten Sie darauf, einen zwei-Ebenen-Tiefe-Ordner auswählen. Der Objektspeicher wird im übergeordneten Ordner gestartet."
   },
   "ds.editor.selector.error.dnsname": {
-    "other": "Folder is exposed as an S3 bucket and must comply to DNS names."
+    "other": "Der Ordner wird als S3-Bucket bereitgestellt und muss den DNS-Namen entsprechen."
   },
   "ds.editor.selector.folder": {
     "other": "Lokaler Ordner"
   },
   "ds.editor.selector.folder.hint": {
-    "other": "Select a peer to load folders"
+    "other": "Wählen Sie einen Peer aus, um Ordner zu laden"
   },
   "ds.editor.selector.peer": {
-    "other": "Peer Address"
+    "other": "Peer-Adresse"
   },
   "ds.editor.storage.fs.macos": {
-    "other": "Operating System is MacOSX"
+    "other": "Betriebssystem ist MacOSX"
   },
   "ds.editor.storage.azure.api": {
-    "other": "Azure Account Name"
+    "other": "Azure-Konto Name"
   },
   "ds.editor.storage.azure.secret": {
-    "other": "Azure Secret Key"
+    "other": "Azure-Konto Secret Key"
   },
   "ds.editor.storage.azure.bucket": {
     "other": "Bucket Name"
   },
   "ds.editor.storage.gcs.credentials": {
-    "other": "Paste content of GCS JSON credentials file"
+    "other": "Fügen Sie den Inhalt der GCS JSON-Berechtigungsnachweisdatei ein"
   },
   "ds.editor.storage.gcs.bucket": {
     "other": "Bucket Name"
@@ -165,10 +165,10 @@
     "other": "Bucket Name"
   },
   "ds.editor.storage.s3.endpoint": {
-    "other": "Custom Endpoint URL"
+    "other": "Benutzerdefinierte Endpunkt-URL"
   },
   "ds.editor.storage.s3.endpoint.hint": {
-    "other": "Leave empty for Amazon S3"
+    "other": "Für Amazon S3 leer lassen"
   },
   "ds.editor.storage.s3.path": {
     "other": "Interner Pfad"
@@ -201,7 +201,7 @@
     "other": "Schlüssel löschen"
   },
   "ds.encryption.key.delete.warning": {
-    "other": "If the key is currently used for encrypted data, this is a very destructive operation! Are you sure you want to do that?"
+    "other": "Wenn der Schlüssel für verschlüsselte Daten derzeit verwendet wird, ist dies eine sehr zerstörerische Operation! Sind Sie sicher, dass Sie das tun wollen?"
   },
   "ds.encryption.key.export": {
     "other": "Schlüssel exportieren"
@@ -216,7 +216,7 @@
     "other": "Geben Sie ein sicheres Passwort ein"
   },
   "ds.encryption.key.export.result.copy": {
-    "other": "Copy result to a file to save the key"
+    "other": "Kopieren Sie Ergebnis in einer Datei, um den Schlüssel zuspeichern"
   },
   "ds.encryption.key.id": {
     "other": "Identifier"
@@ -231,13 +231,13 @@
     "other": "Während des Importierens ist etwas schief gelaufen"
   },
   "ds.encryption.key.import.id": {
-    "other": "Unique identifier for this key"
+    "other": "Eindeutiges identifier für diesen Schlüssel"
   },
   "ds.encryption.key.import.label": {
-    "other": "Human-readable label for this key"
+    "other": "Lesbare Beschriftung dieses Schlüssels"
   },
   "ds.encryption.key.import.password": {
-    "other": "Password used at export time"
+    "other": "Passwort beim Export verwendet"
   },
   "ds.encryption.key.import.success": {
     "other": "Schlüssel wurde erfolgreich importiert"
@@ -258,7 +258,7 @@
     "other": "Deaktiviert"
   },
   "ds.status.index": {
-    "other": "Index down"
+    "other": "Index ausgefallen"
   },
   "ds.status.ko": {
     "other": "Dienste wurden angehalten"
@@ -267,13 +267,13 @@
     "other": "N/A"
   },
   "ds.status.object": {
-    "other": "Objects down"
+    "other": "Objects ausgefallen"
   },
   "ds.status.ok": {
     "other": "Alle Dienste werden ausgeführt"
   },
   "ds.status.sync": {
-    "other": "Sync down"
+    "other": "Sync ausgefallen"
   },
   "ds.storage": {
     "other": "Speichertyp"
@@ -303,7 +303,7 @@
     "other": "Name"
   },
   "ds.versioning.periods": {
-    "other": "Retention Strategy"
+    "other": "Aufbewahrungsstrategie"
   },
   "home.1": {
     "other": "Schnellzugriff"
@@ -543,7 +543,7 @@
     "other": "Protokolle"
   },
   "logs.10": {
-    "other": "Export and download"
+    "other": "Exportieren und herunterladen"
   },
   "logs.11": {
     "other": "Export..."
@@ -555,7 +555,7 @@
     "other": "Filtern nach..."
   },
   "logs.export.disabled": {
-    "other": "Pick a date or filter result"
+    "other": "Wählen Sie ein Datum oder Filtern Sie Ergebnisse aus"
   },
   "logs.filter.period": {
     "other": "Zeitraum"
@@ -567,7 +567,7 @@
     "other": "Bitte beachten Sie:"
   },
   "logs.sys.note.content": {
-    "other": "Empty logs entries may mean that the server is not running in production mode. Make sure to set this log level by passing the --log=production argument or setting the environment variable PYDIO_LOGS_LEVEL=production."
+    "other": "Leere Log-einträge können bedeuten, dass der Server nicht im Produktionsmodus ausgeführt wird. Stellen Sie sicher, dass Logging gut konfigurier ist, indem Sie das Argument '--log=production' übergeben oder die Umgebungsvariable 'PYDIO_LOGS_LEVEL=production' festlegen."
   },
   "logs.3": {
     "other": "Filter"
@@ -585,7 +585,7 @@
     "other": "Exportieren von"
   },
   "logs.8": {
-    "other": "To"
+    "other": "An"
   },
   "logs.9": {
     "other": "Die Datei wird im CSV-Format mit Semikolon (;) als Trennzeichen und mit Feldern in doppelten Anführungszeichen (\") exportiert."
@@ -681,46 +681,46 @@
     "other": "Metadaten"
   },
   "menu.metadata.description": {
-    "other": "User-editable fields attached to data"
+    "other": "Benutzer editierbare Felder mit Daten verbunden"
   },
   "metadata.definition": {
     "other": "Definition"
   },
   "metadata.delete.confirm": {
-    "other": "Are you sure you want to delete this metadata?"
+    "other": "Möchten Sie diese Metadaten wirklich löschen?"
   },
   "metadata.editor.label.error": {
-    "other": "Metadata label cannot be empty"
+    "other": "Metadaten-Label darf nicht leer sein"
   },
   "metadata.editor.ns.error": {
-    "other": "Choose a namespace for this metadata"
+    "other": "Wählen Sie einen Namespace für diese Metadaten"
   },
   "metadata.editor.ns.exists": {
     "other": "Der Name existiert bereits. Bitte vergeben Sie einen anderen Namen"
   },
   "metadata.editor.selection": {
-    "other": "Selection Values"
+    "other": "Auswahlwerte"
   },
   "metadata.editor.selection.key": {
-    "other": "Key"
+    "other": "Schlüssel"
   },
   "metadata.editor.selection.value": {
     "other": "Inhalt"
   },
   "metadata.editor.tags.cleared": {
-    "other": "Cleared tags for namespaces %s"
+    "other": "Gelöschte Tags für Namespaces %s"
   },
   "metadata.editor.tags.reset": {
-    "other": "Reset Tags"
+    "other": "Tags zurücksetzen"
   },
   "metadata.editor.title.create": {
-    "other": "Create Namespace"
+    "other": "Namespace erstellen"
   },
   "metadata.empty": {
-    "other": "No metadata defined"
+    "other": "Keine Metadaten definiert"
   },
   "metadata.indexable": {
-    "other": "Indexable"
+    "other": "Indizierbar"
   },
   "metadata.label": {
     "other": "Label"
@@ -735,22 +735,22 @@
     "other": "Namespaces"
   },
   "metadata.namespaces.legend": {
-    "other": "Metadata can be attached to any files or folders by the users. You can define here the kind of metadata you want to display, and whether each meta is readable/writeable by standard users as opposed to admin users."
+    "other": "Metadaten können von den Benutzern an beliebige Dateien oder Ordner angehängt werden. Sie können hier die Art der Metadaten definieren, die Sie anzeigen möchten, und ob jedes Meta von Standardbenutzern im Gegensatz zu Administratorbenutzern lesbar / schreibbar ist."
   },
   "metadata.order": {
-    "other": "Order"
+    "other": "Reihenfolge"
   },
   "metadata.toggle.index": {
-    "other": "Index in search engine"
+    "other": "In der Suchmaschine indizieren"
   },
   "metadata.toggle.read": {
-    "other": "Restrict visibility to admins"
+    "other": "Sichtbarkeit auf Admins beschränken"
   },
   "metadata.toggle.write": {
-    "other": "Restrict edition to admins"
+    "other": "Edition auf Admins beschränken"
   },
   "metadata.type": {
-    "other": "Type"
+    "other": "Typ"
   },
   "perfs.booster.description": {
     "other": "Überprüft, ob Pydio-Boost gestartet ist und WebSocket-Unterstützung anbietet"
@@ -873,7 +873,7 @@
     "other": "Zurücksetzen"
   },
   "plugins.list.column.enabled": {
-    "other": "Enabled"
+    "other": "Aktiviert"
   },
   "plugins.list.column.label": {
     "other": "Label"
@@ -885,13 +885,13 @@
     "other": "Beschreibung"
   },
   "plugins.list.action.edit": {
-    "other": "Edit plugin parameters"
+    "other": "Plugin-Parameter bearbeiten"
   },
   "policies.policy.create": {
-    "other": "Create"
+    "other": "Erstellen"
   },
   "policies.policy.description": {
-    "other": "Policy Description"
+    "other": "Richtlinienbeschreibung"
   },
   "policies.policy.name": {
     "other": "Richtlinienname"
@@ -903,22 +903,22 @@
     "other": "Richtlinientyp"
   },
   "policies.type.acl.legend": {
-    "other": "These policies are used to dynamically provide read/write access to workspaces or nodes based on the request context and/or the node metadata. They are defined here and used in the Access Control Panel of the users and roles."
+    "other": "Diese Richtlinien werden verwendet, um basierend auf dem Anforderungskontext und / oder den Nodemetadaten dynamisch Lese- / Schreibzugriff auf Worspace oder Node bereitzustellen. Sie werden hier definiert und im Access Control Panel der Benutzer und Rollen verwendet."
   },
   "policies.type.acl.title": {
-    "other": "Context-based ACLs"
+    "other": "Kontextbasierte ACLs"
   },
   "policies.type.oidc.legend": {
-    "other": "OpenId Connect Service is used for authentication of the user, before any access to the APIs. As such, you can totally disable the login operation for a set of users based on the requests context, e.g. disable loging from a given set of IP or at a given time."
+    "other": "Der OpenId Connect Service wird für die Benutzerauthentifizierung verwendet, bevor auf die APIs zugegriffen wird. Daher können Sie den Anmeldevorgang für eine Gruppe von Benutzern basierend auf dem Anforderungskontext vollständig deaktivieren, z.B. können Sie die Authentifizierung von einer bestimmten IP-Adresse oder zu einem bestimmten Zeitpunkt deaktivieren."
   },
   "policies.type.oidc.title": {
-    "other": "OpenId Connect Resources"
+    "other": "OpenId Connect Ressourcen"
   },
   "policies.type.rest.legend": {
-    "other": "These policies are protecting the REST APIs on a per-uri / per-method basis. They grant basic access to some specific APIs for public discovery, and a restriction access to many APIs to make sure they are accessed only by frontend application. You should generally not touch these unless you know exactly what you do."
+    "other": "Diese Richtlinien schützen die REST-APIs pro-uri / pro-Methode. Sie gewähren grundlegenden Zugriff auf bestimmte APIs für die öffentliche Erkennung und einen eingeschränkten Zugriff auf viele APIs, um sicherzustellen, dass nur Frontend-Anwendungen auf sie zugreifen. Sie sollten diese normalerweise nicht berühren, wenn Sie nicht genau wissen, was Sie tun."
   },
   "policies.type.rest.title": {
-    "other": "REST Resources"
+    "other": "REST-Ressourcen"
   },
   "react.1": {
     "other": "Zurück"
@@ -1002,7 +1002,7 @@
     "other": "Gruppen-Identifier"
   },
   "user.16.empty": {
-    "other": "Please provide a unique identifier"
+    "other": "Bitte geben Sie ein eindeutiges Identifier"
   },
   "user.16.format": {
     "other": "Bitte verwenden Sie nur alphanumerische Zeichen"
@@ -1011,13 +1011,13 @@
     "other": "Gruppen-Titel"
   },
   "user.17.empty": {
-    "other": "Please provide a label for this group"
+    "other": "Bitte geben Sie eine Bezeichnung für diese Gruppe"
   },
   "user.18": {
     "other": "Rollen-Identifier"
   },
   "user.18.empty": {
-    "other": "Please provide a label for this role"
+    "other": "Bitte geben Sie einen Name für diese Rolle"
   },
   "user.19": {
     "other": "Neuen Benutzer erstellen"
@@ -1071,73 +1071,73 @@
     "other": "Zuletzt verbunden"
   },
   "user.filter.tooltip": {
-    "other": "Filter users list..."
+    "other": "Benutzerliste filtern..."
   },
   "user.filter.internal": {
-    "other": "Internal users"
+    "other": "Interne Benutzer"
   },
   "user.filter.shared": {
-    "other": "Shared users"
+    "other": "Share Benutzer"
   },
   "user.filter.admins": {
-    "other": "Admins only"
+    "other": "Nur Admins"
   },
   "user.filter.all": {
     "other": "Alle Benutzer"
   },
   "versions.editor.delete": {
-    "other": "Delete Policy"
+    "other": "Richtlinie löschen"
   },
   "versions.editor.delete.confirm": {
-    "other": "Are you sure you want to delete this policy? This is undoable!"
+    "other": "Möchten Sie diese Richtlinie wirklich löschen? Das ist unbestreitbar!"
   },
   "versions.editor.error.lastdelete": {
-    "other": "The last period is configured to delete all versions, you cannot add a new one!"
+    "other": "Die letzte Periode ist so konfiguriert, dass alle Versionen gelöscht werden. Sie können keine neue hinzufügen!"
   },
   "versions.editor.title": {
-    "other": "Policy %s"
+    "other": "Richtlinie %s"
   },
   "versions.period.keep-all": {
     "other": "Alle behalten"
   },
   "versions.period.keep-all.always": {
-    "other": "Always keep all versions"
+    "other": "Alle Versionen für immer behalten"
   },
   "versions.period.keep-n": {
-    "other": "Keep %s versions"
+    "other": "%s Versionen behalten"
   },
   "versions.period.keep-n-after": {
-    "other": "Keep %1 versions after %2"
+    "other": "%1 Versionen nach %2 behalten"
   },
   "versions.period.max-n": {
-    "other": "Max. %s versions"
+    "other": "Max. %s Versionen"
   },
   "versions.period.remove-all": {
     "other": "Alle entfernen"
   },
   "versions.period.remove-all-after": {
-    "other": "Remove all after %s"
+    "other": "Alle nach %s entfernen"
   },
   "versions.period.retentions-n": {
-    "other": "%s retention periods"
+    "other": "%s Aufbewahrungsfristen"
   },
   "virtual.create": {
-    "other": "+ Template Path"
+    "other": "+ Vorlagenpfad"
   },
   "virtual.create.button": {
-    "other": "Create"
+    "other": "Erstellen"
   },
   "virtual.label": {
     "other": "Label"
   },
   "virtual.legend.1": {
-    "other": "Template Paths are dynamically computed depending on the context. They can be used as roots for workspaces in replacement of a fixed datasource path.     They are used by default to create the Personal Files workspace that points to a different folder for each users, and for computing the location of the users Cells folders."
+    "other": "Vorlagenpfade werden dynamisch je nach Kontext berechnet. Sie können als Wurzeln für Workspace als Ersatz für einen festen Datasource-Pfad verwendet werden.     Sie werden standardmäßig verwendet, um den Arbeitsbereich für persönliche Dateien zu erstellen, der für jeden Benutzer auf einen anderen Ordner verweist. Sie werden standardmäßig verwendet, um die Personal Files Workspace zu erstellen, der in einen anderen Ordner für jeden Benutzer, und auch um den Ort der Benutzers-Cells Ordner zuberechnen."
   },
   "virtual.legend.2": {
-    "other": "Use Ctrl+Space inside the editor to get hint about the possible values. Current values supported are: User.Name (dynamically resolved to the current user logged login) and DataSources (to pick a datasource dynamically)."
+    "other": "Verwenden Sie Strg + Leertaste im Editor, um Hinweise zu den möglichen Werten zu erhalten. Derzeit unterstützte Werte sind: User.Name (dynamisch in den aktuell angemeldeten Benutzer aufgelöst) und DataSources (zur dynamischen Auswahl einer Datenquelle)."
   },
   "virtual.title": {
-    "other": "Template Paths"
+    "other": "Vorlagenpfade"
   },
   "ws.1": {
     "other": "Vorlagen verwalten"
@@ -1338,31 +1338,31 @@
     "other": "Keine Parameter"
   },
   "ws.69": {
-    "other": "Template-based workspace"
+    "other": "Template-basierte Workspace"
   },
   "ws.7": {
     "other": "Neue Vorlage erstellen"
   },
   "ws.70": {
-    "other": "Driver-based workspace"
+    "other": "Driver-basierte Workspace"
   },
   "ws.71": {
-    "other": "Complete the steps below"
+    "other": "Führen Sie die folgenden Schritte aus"
   },
   "ws.72": {
-    "other": "Fill in the form on the right"
+    "other": "Füllen Sie das Formular rechts aus"
   },
   "ws.73": {
-    "other": "Pick value before continuing"
+    "other": "Wählen Sie einen Wert aus, bevor Sie fortfahren"
   },
   "ws.74": {
     "other": "Use the form on the right to create a new DataSource."
   },
   "ws.75": {
-    "other": "A DataSource defines where your data is stored."
+    "other": "Eine DataSource definiert, wo Ihre Daten gespeichert werden."
   },
   "ws.76": {
-    "other": "Pydio will aggregate all your datasources into one master tree, on which you can assign rights using workspaces."
+    "other": "Pydio fasst alle Ihre Datenquellen in einem Master-Baum zusammen, in dem Sie mithilfe von Workspaces Rechte zuweisen können."
   },
   "ws.8": {
     "other": "Bestehende Vorlage"
@@ -1371,64 +1371,64 @@
     "other": "Datasource Nodes"
   },
   "ws.board.empty": {
-    "other": "No workspaces defined"
+    "other": "Kein Workspace definiert"
   },
   "ws.board.summary": {
-    "other": "Workspace Roots"
+    "other": "Workspace Wurzeln"
   },
   "ws.complete.datasources": {
-    "other": "DataSources and Folders"
+    "other": "DataSources und Ordner"
   },
   "ws.complete.label": {
-    "other": "Select a folder or a predefined template path"
+    "other": "Wählen Sie einen Ordner oder eine vordefinierte Vorlagenpfad"
   },
   "ws.complete.resolves": {
-    "other": "Resolves to"
+    "other": "Löst sich in"
   },
   "ws.complete.templates": {
-    "other": "Preset Template Paths"
+    "other": "Voreingestellte Vorlagenpfade"
   },
   "ws.dashboard": {
-    "other": "Workspaces define the main access point to your data for the users. Make sure to define at least one datasource to be able to create a workspace that will point to a path of this datasource."
+    "other": "Workspaces definieren den Hauptzugriffspunkt auf Ihre Daten für die Benutzer. Stellen Sie sicher, dass Sie mindestens eine DataSource definieren, um einen Workspace erstellen zu können, der auf einen Pfad dieser DataSource zeigt."
   },
   "ws.editor.data.legend": {
-    "other": "Workspace exposes one or many 'roots' to the users: choose on or more paths from any DataSource or a Template Path that will be resolved automatically at runtime."
+    "other": "Der Workspace stellt den Benutzern einen oder mehrere \"Roots\" zur Verfügung: Wählen Sie einen oder mehrere Pfade aus einer DataSource oder einem Vorlagenpfad aus, die zur Laufzeit automatisch aufgelöst werden."
   },
   "ws.editor.data.title": {
-    "other": "Data Access"
+    "other": "Datenzugriff"
   },
   "ws.editor.default_rights": {
-    "other": "Set up default permissions to this workspace (applied to all internal users of the application). You can override these permissions on a per-user / per-role / per-group basis in the People section."
+    "other": "Richten Sie Standardberechtigungen für diesen Workspace ein (gilt für alle internen Benutzer der Anwendung). Sie können diese Berechtigungen auf Benutzerbasis / pro Rolle / pro Gruppe im Abschnitt Personen überschreiben."
   },
   "ws.editor.default_rights.none": {
-    "other": "None"
+    "other": "Keine"
   },
   "ws.editor.default_rights.read": {
-    "other": "Read only"
+    "other": "Nur lesen"
   },
   "ws.editor.default_rights.readwrite": {
-    "other": "Read and Write"
+    "other": "Lesen und Schreiben"
   },
   "ws.editor.default_rights.write": {
-    "other": "Write only"
+    "other": "Nur schreiben"
   },
   "ws.editor.description": {
-    "other": "Additional description (optional)"
+    "other": "Zusätzliche Beschreibung (optional)"
   },
   "ws.editor.help.1": {
-    "other": "Workspaces grant accesses to your data to the users. They expose one or many folders picked inside your datasources."
+    "other": "Workspaces gewähren den Benutzern Zugriff auf Ihre Daten. Sie stellen einen oder mehrere Ordner in Ihren Datenquellen bereit."
   },
   "ws.editor.help.2": {
-    "other": "It is important to properly organize how data will be presented to your users. You may create workspaces for various parts of your organization (finance, marketing, technical data, etc.), on a per-project basis, etc. You can then assign accesses to workspaces on a per-user / per-role / per-group basis."
+    "other": "Es ist wichtig, richtig zu organisieren, wie Daten zu Ihren Benutzern präsentiert werden. Sie können für verschiedene Teile Ihrer Organisation Arbeitsbereiche erstellen (Finanzen, marketing, technische Daten, etc.), auf einer Basis pro Projekt, etc.. Anschließend können Sie Zugriffe auf Workspace auf einer pro-Benutzer zuweisen / pro Rolle / Grundlage pro Gruppe."
   },
   "ws.editor.help.delete": {
-    "other": "Warning, dangerous operation! This is not reversible."
+    "other": "Warnung, gefährliche Operation! Dies ist nicht umkehrbar."
   },
   "ws.editor.label.legend": {
-    "other": "Human-friendly label for this workspace"
+    "other": "Menschenfreundlich Label für den Workspace"
   },
   "ws.editor.options.legend": {
-    "other": "Label and description are displayed to the users. Choose a self-explanatory name to help users better organize the data."
+    "other": "Bezeichnung und Beschreibung sind für den Benutzer angezeigt. Wählen Sie einen selbsterklärenden Namen für Anwender die Daten besser zu organisieren."
   },
   "ws.editor.other": {
     "other": "Other Properties"
@@ -1437,43 +1437,43 @@
     "other": "Workspace Layout"
   },
   "ws.editor.other.layout.default": {
-    "other": "Default"
+    "other": "Standard"
   },
   "ws.editor.other.layout.easy": {
-    "other": "Easy Transfer Layout (enterprise only)"
+    "other": "Easy Transfer Layout (nur für Enterprise Distribution)"
   },
   "ws.editor.other.sync": {
-    "other": "Allow desktop synchronisation (still experimental)"
+    "other": "Desktop-Synchronisierung zulassen (noch experimentell)"
   },
   "ws.editor.path.folder": {
-    "other": "Folder Path"
+    "other": "Ordnerpfad"
   },
   "ws.editor.path.template": {
-    "other": "Template Path"
+    "other": "Vorlagenpfad"
   },
   "ws.editor.slug.legend": {
-    "other": "Technical name used for example in URLs, automatically computed but you can customize it."
+    "other": "Technischer Name, der beispielsweise in URLs verwendet wird, wird automatisch berechnet, Sie können ihn jedoch anpassen."
   },
   "services.filter.nofilter": {
-    "other": "All Services"
+    "other": "Alle Services"
   },
   "services.filter.started": {
-    "other": "Running Only"
+    "other": "Nur laufende"
   },
   "services.filter.stopped": {
-    "other": "Stopped Only"
+    "other": "Nur angehalten"
   },
   "services.peerfilter.title": {
-    "other": "Select Node"
+    "other": "Node auswählen"
   },
   "services.toggle.details": {
-    "other": "Show Details"
+    "other": "Details anzeigen"
   },
   "services.column.name": {
-    "other": "Service Name"
+    "other": "Dienstname"
   },
   "services.column.description": {
-    "other": "Description"
+    "other": "Beschreibung"
   },
   "services.column.version": {
     "other": "Version"
@@ -1488,201 +1488,201 @@
     "other": "Gateways"
   },
   "services.tag.gateway.description": {
-    "other": "World-facing services for accessing the platform"
+    "other": "Weltweiter Service für den Zugang zur Plattform"
   },
   "services.tag.datasource.title": {
-    "other": "Data Sources"
+    "other": "Daten-Quellen"
   },
   "services.tag.datasource.description": {
-    "other": "Storage endpoints used to access concrete file storages. Main services are in charge of starting sub services (per datasource)."
+    "other": "Storageendpunkte für den Zugriff auf konkrete Dateispeicher. Hauptdienste sind für das Starten von Unterdiensten (pro Datenquelle) zuständig."
   },
   "services.tag.data.title": {
-    "other": "Data"
+    "other": "Daten"
   },
   "services.tag.data.description": {
-    "other": "Services handling data and metadata."
+    "other": "Dienste, die Daten und Metadaten verarbeiten."
   },
   "services.tag.idm.title": {
-    "other": "Identity Management"
+    "other": "Identitätsmanagement"
   },
   "services.tag.idm.description": {
-    "other": "All services related to authentication and authorizations, roles, security policies, etc."
+    "other": "Alle Dienste im Zusammenhang mit Authentifizierung und Berechtigungen: Rollen, Sicherheitsrichtlinien, usw."
   },
   "services.tag.scheduler.title": {
     "other": "Scheduler"
   },
   "services.tag.scheduler.description": {
-    "other": "Services for managing background jobs. The task server can be dispatched across various peers."
+    "other": "Dienste zur Verwaltung von Hintergrundjobs. Der Task Server kann auf verschiedene Peers verteilt werden."
   },
   "services.tag.broker.title": {
     "other": "Broker"
   },
   "services.tag.broker.description": {
-    "other": "Services dispatching and processing events (generally toward users) across the application."
+    "other": "Dienste, die Ereignisse (in der Regel für Benutzer) in der gesamten Anwendung versenden und verarbeiten."
   },
   "services.tag.frontend.title": {
     "other": "Frontend"
   },
   "services.tag.frontend.description": {
-    "other": "Web services for user interfaces in the browser"
+    "other": "Web-Services für User-Interfaces im browser"
   },
   "services.tag.discovery.title": {
-    "other": "Discovery"
+    "other": "Entdeckung"
   },
   "services.tag.discovery.description": {
-    "other": "Basic configurations and services registries called by all other services."
+    "other": "Grundkonfigurationen und Dienstregister, die von allen anderen Diensten aufgerufen werden."
   },
   "services.service.ip": {
-    "other": "Running on %s"
+    "other": "Läuft auf %s"
   },
   "services.service.datasource.sync": {
     "other": "Sync"
   },
   "services.service.datasource.objects": {
-    "other": "Objects"
+    "other": "Objekte"
   },
   "services.service.datasource.objects.legend": {
-    "other": "S3 layer to serve data as object storage"
+    "other": "S3-Schicht, um Daten als Objektspeicher zu verwenden"
   },
   "services.service.datasource.legend": {
-    "other": "Datasource is synchronizing data from objects layer to index DB."
+    "other": "Datenquelle synchronisiert Daten von der Objektschicht zur Index-DB."
   },
   "services.service.datasource.index": {
-    "other": "Indexation"
+    "other": "Indizierung"
   },
   "scheduler.system.title": {
-    "other": "System Jobs"
+    "other": "Systemjobs"
   },
   "scheduler.system.legend": {
-    "other": "These jobs are registered by default inside the application. They are generally in charge of extracting information from node in background, or doing some cleaning operations."
+    "other": "Diese Jobs werden standardmäßig in der Anwendung registriert. Sie sind im Allgemeinen dafür verantwortlich, Informationen von Nodes im Hintergrund zu extrahieren oder einige Reinigungsvorgänge auszuführen."
   },
   "scheduler.system.empty": {
-    "other": "No jobs scheduled."
+    "other": "Keine Jobs geplant."
   },
   "scheduler.users.title": {
-    "other": "Users Jobs"
+    "other": "Benutzer-Jobs"
   },
   "scheduler.users.legend": {
-    "other": "These jobs are dynamically created and trigged by user actions."
+    "other": "Diese Jobs werden dynamisch erstellt und trigged durch Benutzeraktionen."
   },
   "scheduler.users.empty": {
-    "other": "No jobs launched by users"
+    "other": "Keine Jobs von Benutzern gestartet"
   },
   "scheduler.job.owner": {
-    "other": "Owner"
+    "other": "Eigentümer"
   },
   "scheduler.job.trigger": {
     "other": "Trigger"
   },
   "scheduler.trigger.create.node": {
-    "other": "Create Node"
+    "other": "Node erstellen"
   },
   "scheduler.trigger.read.node": {
-    "other": "Read Node"
+    "other": "Node lesen"
   },
   "scheduler.trigger.update.path": {
-    "other": "Update Path"
+    "other": "Pfad aktualisieren"
   },
   "scheduler.trigger.update.content": {
-    "other": "Update Content"
+    "other": "Inhalt aktualisieren"
   },
   "scheduler.trigger.update.metadata": {
-    "other": "Update Metadata"
+    "other": "Metadaten aktualisieren"
   },
   "scheduler.trigger.delete.node": {
-    "other": "Delete Node"
+    "other": "Node löschen"
   },
   "scheduler.trigger.events": {
-    "other": "Events"
+    "other": "Ereignisse"
   },
   "scheduler.trigger.manual": {
-    "other": "Manual Trigger"
+    "other": "Manuell Trigger"
   },
   "scheduler.trigger.periodic": {
-    "other": "Periodic Schedule"
+    "other": "Periodischer Zeitplan"
   },
   "scheduler.job.disabled": {
-    "other": "disabled"
+    "other": "deaktiviert"
   },
   "scheduler.tasks.running.count": {
-    "other": "%s tasks running"
+    "other": "%s laufenden Aufgaben"
   },
   "scheduler.task.action.pause": {
-    "other": "Pause Task"
+    "other": "Aufgabe pausieren"
   },
   "scheduler.task.action.resume": {
-    "other": "Resumse Task"
+    "other": "Aufgabe fortsetzen"
   },
   "scheduler.task.action.stop": {
-    "other": "Stop Now"
+    "other": "Aufgabe beenden"
   },
   "scheduler.task.action.delete": {
-    "other": "Delete"
+    "other": "Löschen"
   },
   "scheduler.task.action.enable": {
-    "other": "Enable Job"
+    "other": "Job aktivieren"
   },
   "scheduler.task.action.run": {
-    "other": "Run Now"
+    "other": "Jetzt starten"
   },
   "scheduler.task.action.disable": {
-    "other": "Disable Job"
+    "other": "Job deaktivieren"
   },
   "scheduler.task.id": {
     "other": "ID"
   },
   "scheduler.task.start": {
-    "other": "Start"
+    "other": "Starten"
   },
   "scheduler.task.end": {
-    "other": "End"
+    "other": "Beenden"
   },
   "scheduler.task.status": {
-    "other": "Status"
+    "other": "Zustand"
   },
   "scheduler.task.message": {
-    "other": "Message"
+    "other": "Nachricht"
   },
   "scheduler.tasks.running": {
-    "other": "Running Tasks"
+    "other": "Laufende Aufgaben"
   },
   "scheduler.tasks.history": {
-    "other": "Tasks History"
+    "other": "Aufgaben Geschichte"
   },
   "scheduler.tasks.history.empty": {
-    "other": "No tasks have run yet"
+    "other": "Keine Aufgaben haben noch ausgeführt"
   },
   "scheduler.tasks.history.more": {
-    "other": "%s other tasks not shown..."
+    "other": "%s andere Aufgaben nicht gezeigt..."
   },
   "scheduler.tasks.running.empty": {
-    "other": "No tasks currently running"
+    "other": "Derzeit laufen keine Aufgaben"
   },
   "scheduler.tasks.bulk.delete": {
-    "other": "Delete Tasks"
+    "other": "Aufgaben löschen"
   },
   "scheduler.tasks.bulk.enable": {
-    "other": "Enable Multiple"
+    "other": "Mehrere aktivieren"
   },
   "scheduler.tasks.bulk.disable": {
-    "other": "Disable Multiple"
+    "other": "Mehrere deaktivieren"
   },
   "scheduler.tasks.bulk.clear": {
-    "other": "Clear All"
+    "other": "Alle entfernen"
   },
   "developer.rest.apis": {
-    "other": "Rest APIs Documentation"
+    "other": "REST-API Dokumentation"
   },
   "developer.rest.apis.legend": {
-    "other": "Below are all APIs available in Pydio Cells. To consume these APIs, you first have to authenticate against the OpenIDConnect service to get a valid JWT. See the online administrator guide to learn more."
+    "other": "Nachfolgend sind alle in Pydio Cells verfügbaren APIs aufgeführt. Um diese APIs zu nutzen, müssen Sie sich zunächst beim OpenIDConnect-Dienst authentifizieren, um eine gültige JWT zu erhalten. Weitere Informationen finden Sie im Online-Administratorhandbuch."
   },
   "mailer.test.title": {
-    "other": "Send a test email"
+    "other": "Test E-Mail versenden"
   },
   "mailer.test.legend": {
-    "other": "Make sure to save your configuration changes before sending a test email."
+    "other": "Speichern Sie Ihre Konfigurationsänderungen, bevor Sie eine Test-E-Mail senden."
   },
   "mailer.test.loading": {
-    "other": "Loading Mailer Library..."
+    "other": "Mailer-Bibliothek wird geladen..."
   }
 }
