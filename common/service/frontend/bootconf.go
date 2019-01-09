@@ -6,6 +6,8 @@ import (
 
 	"go.uber.org/zap"
 
+	"strconv"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/log"
@@ -62,6 +64,16 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 	wsUrl := strings.Replace(strings.Replace(url, "https", "wss", -1), "http", "ws", -1)
 
 	lang := config.Get("frontend", "plugin", "core.pydio", "DEFAULT_LANGUAGE").String("en-us")
+	tWarn := config.Get("frontend", "plugin", "gui.ajax", "CLIENT_TIMEOUT_WARN")
+	// May be stored as int or string in json
+	timeoutWarn := 3
+	if tWarn.Int(-1) != -1 {
+		timeoutWarn = tWarn.Int(3)
+	} else if tWarn.String("") != "" {
+		if parsed, e := strconv.ParseInt(tWarn.String(""), 10, 32); e == nil {
+			timeoutWarn = int(parsed)
+		}
+	}
 
 	b := &BootConf{
 		AjxpResourcesFolder:          "plug/gui.ajax/res",
@@ -77,9 +89,9 @@ func ComputeBootConf(pool *PluginsPool) *BootConf {
 		UsersEnabled:                 true,
 		LoggedUser:                   false,
 		CurrentLanguage:              lang,
-		Session_timeout:              1440,
-		Client_timeout:               1440,
-		Client_timeout_warning:       3,
+		Session_timeout:              SessionTimeoutMinutes * 60,
+		Client_timeout:               SessionTimeoutMinutes * 60,
+		Client_timeout_warning:       timeoutWarn,
 		AjxpVersion:                  common.Version().String(),
 		AjxpVersionDate:              common.BuildStamp,
 		Streaming_supported:          true,

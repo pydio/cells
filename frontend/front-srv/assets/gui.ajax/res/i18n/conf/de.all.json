@@ -93,10 +93,10 @@
     "other": "Branding-Tool anzeigen"
   },
   "Enable Welcome Tour": {
-    "other": "Enable Welcome Tour"
+    "other": "Begrüßungstour aktivieren"
   },
   "Enable the small tour triggered at first visit": {
-    "other": "Enable the small tour triggered at first visit"
+    "other": "Aktivieren Sie die kleine Tour, der beim ersten Besuch ausgelöst wird"
   },
   "Fetch Window (no repeat)": {
     "other": "Ganzes Fenster (Nicht-wiederholend)"
@@ -204,7 +204,7 @@
     "other": "Setzen Sie die Domain für Ihre Analytics-Berichte (Nicht zwingend!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for yuor analytics reports (not mandatory!)"
+    "other": "Set the domain for your analytics reports (not mandatory!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
     "other": "Grundeinstellungen der Anwendung festlegen. Bei aktivem E-Mail-Versand kann die PHP-Konfiguration mit einem Klick auf 'E-Mail-Versand mit dieser Konfiguration testen' überprüft werden."

@@ -19,6 +19,10 @@ import (
 	"github.com/pydio/cells/common/log"
 )
 
+const (
+	SessionTimeoutMinutes = 24
+)
+
 var sessionStore *sessions.CookieStore
 
 func GetSessionStore() sessions.Store {
@@ -36,7 +40,7 @@ func GetSessionStore() sessions.Store {
 		sessionStore = sessions.NewCookieStore([]byte(val))
 		sessionStore.Options = &sessions.Options{
 			Path:     "/a/frontend",
-			MaxAge:   60 * 24,
+			MaxAge:   60 * SessionTimeoutMinutes,
 			HttpOnly: true,
 		}
 		if config.Get("cert", "proxy", "ssl").Bool(false) {
