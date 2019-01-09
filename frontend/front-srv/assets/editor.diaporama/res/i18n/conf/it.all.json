@@ -3,7 +3,7 @@
     "other": "Rotazione Exif"
   },
   "Generate thumbnails or not": {
-    "other": "Genera thumbnails o no"
+    "other": "Genera le miniature o no"
   },
   "Image viewer": {
     "other": "Visualizzatore Immagini"
@@ -12,7 +12,7 @@
     "other": "Usato per anteprime di immagini e navigazione in diaporama. Genera una versione thumbnail delle immagini."
   },
   "Low-res Sizes": {
-    "other": "Low-res Sizes"
+    "other": "Dimensioni a bassa risoluzione"
   },
   "Quality": {
     "other": "Qualità"
@@ -30,10 +30,10 @@
     "other": "Soglia"
   },
   "Threshold for low-res versions of images": {
-    "other": "Threshold for low-res versions of images"
+    "other": "Soglia per le versioni a bassa risoluzione delle immagini"
   },
   "Thumbnails": {
-    "other": "Thumbnails"
+    "other": "Miniature"
   },
   "Thumbs quality": {
     "other": "Qualità Thumbs"

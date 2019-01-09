@@ -63,7 +63,7 @@
     "other": "Impedisce la modifica basata su IP e condizioni dei file di metadati"
   },
   "PolicyGroup.ACLSample1.Rule3": {
-    "other": "Filter out any file with a PNG extension if request does not come from localhost"
+    "other": "Filtra qualsiasi file con estensione PNG se la richiesta non proviene da localhost"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
     "other": "[Example] Periodo limitato"
@@ -78,7 +78,7 @@
     "other": "[Example] Nessun accesso dopo una specifica data"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
-    "other": "Disable access to a workspace after a given date"
+    "other": "Disabilitare l'accesso a un workspace dopo una certa data"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule1": {
     "other": "Globale lettura/scrittura"
@@ -90,7 +90,7 @@
     "other": "[Example] Accesso consentito solo durante le ore lavorative"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
-    "other": "Enable access to a workspace only certain days within pre-defined hours"
+    "other": "Consentire l'accesso a un workspace solo in certi giorni entro ore predefinite"
   },
   "PolicyGroup.ACLSampleBusinessHours.Rule1": {
     "other": "Esempio di regola per ore di ufficio, che permette la lettura/scrittura"

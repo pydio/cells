@@ -1611,7 +1611,7 @@
     "other": "Suspendre"
   },
   "scheduler.task.action.resume": {
-    "other": "Redémarrer"
+    "other": "Reprendre la tâche"
   },
   "scheduler.task.action.stop": {
     "other": "Arrêter maintenant"

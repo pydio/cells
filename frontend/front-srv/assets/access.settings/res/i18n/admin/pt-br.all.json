@@ -1611,7 +1611,7 @@
     "other": "Pause Task"
   },
   "scheduler.task.action.resume": {
-    "other": "Resumse Task"
+    "other": "Resume Task"
   },
   "scheduler.task.action.stop": {
     "other": "Stop Now"

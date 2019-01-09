@@ -63,7 +63,7 @@
     "other": "Verhindern von Änderungen basierend auf IP- und Dateimetadatenbedingungen"
   },
   "PolicyGroup.ACLSample1.Rule3": {
-    "other": "Filter out any file with a PNG extension if request does not come from localhost"
+    "other": "Filtern Sie Dateien mit der Erweiterung PNG aus, wenn die Anforderung nicht von localhost stammt"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
     "other": "[Example] Begrenzter Zeitraum"

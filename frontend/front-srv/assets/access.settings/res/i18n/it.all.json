@@ -390,22 +390,22 @@
     "other": "Errore durante la modifica del workspace"
   },
   "54": {
-    "other": "Workspace aggiornato correttamente"
+    "other": "Workspace modificato con successo"
   },
   "55": {
-    "other": "ATTENZIONE: nello stesso momento puoi aggiungere una sola istanza dei Plugin Metadata."
+    "other": "Attenzione: puoi aggiungere una sola istanza di ciascun Meta Plugin."
   },
   "56": {
-    "other": "Meta attributo aggiunto correttamente"
+    "other": "Sorgente meta aggiunta con successo"
   },
   "57": {
-    "other": "Meta attributo rimosso correttamente"
+    "other": "Sorgente meta rimossa con successo"
   },
   "58": {
-    "other": "Meta attributo modificato correttamente"
+    "other": "Sorgente meta modificata con successo"
   },
   "59": {
-    "other": "Workspace rimosso correttamente"
+    "other": "Workspace rimosso con successo"
   },
   "6": {
     "other": "Nome Utente"
@@ -465,7 +465,7 @@
     "other": "Id Ruolo"
   },
   "77": {
-    "other": "Controllo Accesso"
+    "other": "Controllo dell'accesso"
   },
   "78": {
     "other": "Dati personali"
@@ -474,13 +474,13 @@
     "other": "Workspace"
   },
   "8": {
-    "other": "Nome Workspace"
+    "other": "Etichetta del Workspace"
   },
   "80": {
-    "other": "Regole di accesso avanzate per l'utente (clicca su un workspace se se vuoi che l'utente vi entri automaticamente al login)"
+    "other": "Ottimizzare l'accesso per questo utente (fare clic sull'etichetta del workspace per farne il workspace predefinito quando l'utente effettua l'accesso)"
   },
   "81": {
-    "other": "Dati workspaces specifici"
+    "other": "Dati specifici del workspace"
   },
   "82": {
     "other": "Modifica batch degli utenti"
@@ -489,34 +489,34 @@
     "other": "Puoi usare il Drag'n'drop per assegnare i ruoli agli utenti selezionali (gli utenti condivisi verranno ignorati)"
   },
   "84": {
-    "other": "Ruoli Utente"
+    "other": "Ruoli degli utenti"
   },
   "85": {
-    "other": "Filtro Manuale Accessi"
+    "other": "Filtro Manuale delle Azioni"
   },
   "86": {
-    "other": "lista delle azioni, separate dalla virgola, che saranno disabilitate all'utente (i permessi quì non c'entrano)."
+    "other": "lista di azioni, separate da virgola, disabilitate per questo ruolo, indipendentemente dai diritti di accesso."
   },
   "87": {
-    "other": "Azioni correttamente aggiornate per il ruolo indicato"
+    "other": "Azioni aggiornate con successo per questo ruolo"
   },
   "88": {
-    "other": "Questo workspace è specificato nel file di configurazione PHP e non può essere modificato attraverso la GUI."
+    "other": "Questo workspace è specificato nel file di configurazione, e non è possibile modificare i sorgenti meta attraverso la GUI."
   },
   "89": {
-    "other": "Dati utente specifici"
+    "other": "Dati specifici dell'utente"
   },
   "9": {
-    "other": "Tipo Accesso"
+    "other": "Tipo di accesso"
   },
   "90": {
     "other": "Nuovo Workspace"
   },
   "91": {
-    "other": "Nuovo Template"
+    "other": "Nuovo Modello"
   },
   "92": {
-    "other": "Crea un nuovo template"
+    "other": "Crea un nuovo modello"
   },
   "93": {
     "other": "Modifica"
@@ -525,13 +525,13 @@
     "other": "Modifica batch"
   },
   "95": {
-    "other": "Scegli un nome ed un driver per accedere ai dati (controlla tutti i campi del modulo; se sei in dubbio, sposta il mouse sopra il nome del campo ed otterrai più informazioni)."
+    "other": "Scegli un'etichetta e un driver per accedere ai dati (verifica tutte le sezioni per i campi obbligatori, per maggiori informazioni è possibile visualizzare i suggerimenti puntando con il mouse sopra il nome del campo)."
   },
   "96": {
-    "other": "Dopo aver indicato un nome ed un driver, abilita i campi che desideri siano precompilati nel template. Gli altri campi saranno compilabili dall'utente. Puoi abilitare dei campi e lasciarli vuoti, se desideri che vengano nascosti all'utente."
+    "other": "Una volta selezionati etichetta e driver, abilita i campi che devono essere precompilati spuntando le relative caselle nel modello. Gli altri campi vengono lasciati all'utente. Puoi anche abilitare alcuni campi e lasciarli vuoti, se vuoi nasconderli all'utente."
   },
   "97": {
-    "other": "Opzioni del plugin correttamente aggiornate"
+    "other": "Opzioni dei plugin aggiornate con successo"
   },
   "98": {
     "other": "Nucleo dell'Applicazione"
