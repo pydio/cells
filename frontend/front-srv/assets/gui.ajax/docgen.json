@@ -3641,6 +3641,13 @@
         "methods": []
       }
     ],
+    "AdminPlugins/core/MailerTest.js": [
+      {
+        "description": "",
+        "displayName": "MailerTest",
+        "methods": []
+      }
+    ],
     "AdminPlugins/core/Manager.js": [
       {
         "description": "",
@@ -4202,6 +4209,13 @@
             "returns": null
           },
           {
+            "name": "upgradeFinished",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "performUpgrade",
             "docblock": null,
             "modifiers": [],
@@ -4219,6 +4233,10 @@
               },
               {
                 "name": "value",
+                "type": null
+              },
+              {
+                "name": "pack",
                 "type": null
               }
             ],
@@ -8744,6 +8762,22 @@
             "params": [
               {
                 "name": "info",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "uploadPart",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "chunk",
+                "type": null
+              },
+              {
+                "name": "partNumber",
                 "type": null
               }
             ],
@@ -28808,6 +28842,20 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "selectBaseFileName",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "htmlInput",
+                "type": null
+              }
+            ],
+            "returns": null
           }
         ],
         "require": "const DOMUtils = require('pydio/util/dom')"
@@ -36315,6 +36363,22 @@
         "displayName": "JobEntry",
         "methods": [],
         "require": "const {JobEntry} = require('pydio').requireLib('boot')"
+      }
+    ],
+    "ReactUI/tasks/SingleJobProgress.js": [
+      {
+        "description": "",
+        "displayName": "SingleJobProgress",
+        "methods": [
+          {
+            "name": "reloadTask",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "require": "const {SingleJobProgress} = require('pydio').requireLib('boot')"
       }
     ],
     "ReactUI/tasks/TaskAction.js": [
