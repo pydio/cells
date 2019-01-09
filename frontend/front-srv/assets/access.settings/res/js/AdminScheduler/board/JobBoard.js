@@ -34,7 +34,7 @@ class ActionsLog extends React.Component {
             ActionsLogs.map(log => {
                 lines.push(
                     <div>
-                        <div style={{border: '1px solid #9e9e9e'}}>
+                        <div style={{border: '1px solid #9e9e9e', margin:'20px 0'}}>
                             <AdminComponents.CodeMirrorField
                                 mode="json"
                                 globalScope={{}}
@@ -90,20 +90,24 @@ class JobBoard extends React.Component {
 
         const store = JobsStore.getInstance();
         let actions = [];
+        const icProps = {
+            iconStyle:{color:'rgba(0,0,0,.3)'},
+            onClick:e => e.stopPropagation()
+        };
         if (row.Status === 'Running' && row.CanPause){
-            actions.push(<IconButton iconClassName={"mdi mdi-pause"} tooltip={m('pause')} onTouchTap={()=>{store.controlTask(row, 'Pause')}} onClick={e => e.stopPropagation()}/>)
+            actions.push(<IconButton iconClassName={"mdi mdi-pause"} tooltip={m('pause')} onTouchTap={()=>{store.controlTask(row, 'Pause')}} {...icProps}/>)
         }
         if(row.Status === 'Paused') {
-            actions.push(<IconButton iconClassName={"mdi mdi-play"} tooltip={m('resume')} onTouchTap={()=>{store.controlTask(row, 'Resume')}} onClick={e => e.stopPropagation()}/>)
+            actions.push(<IconButton iconClassName={"mdi mdi-play"} tooltip={m('resume')} onTouchTap={()=>{store.controlTask(row, 'Resume')}} {...icProps}/>)
         }
         if(row.Status === 'Running' || row.Status === 'Paused'){
             if(row.CanStop){
-                actions.push(<IconButton iconClassName={"mdi mdi-stop"} tooltip={m('stop')} onTouchTap={()=>{store.controlTask(row, 'Stop')}} onClick={e => e.stopPropagation()}/>)
+                actions.push(<IconButton iconClassName={"mdi mdi-stop"} tooltip={m('stop')} onTouchTap={()=>{store.controlTask(row, 'Stop')}} {...icProps}/>)
             } else if(row.StatusMessage === 'Pending'){
-                actions.push(<IconButton iconClassName={"mdi mdi-delete"} tooltip={m('delete')} onTouchTap={()=>{store.controlTask(row, 'Delete')}} onClick={e => e.stopPropagation()}/>)
+                actions.push(<IconButton iconClassName={"mdi mdi-delete"} tooltip={m('delete')} onTouchTap={()=>{store.controlTask(row, 'Delete')}} {...icProps}/>)
             }
         } else {
-            actions.push(<IconButton iconClassName={"mdi mdi-delete"} tooltip={m('delete')} onTouchTap={()=>{store.controlTask(row, 'Delete')}} onClick={e => e.stopPropagation()}/>)
+            actions.push(<IconButton iconClassName={"mdi mdi-delete"} tooltip={m('delete')} onTouchTap={()=>{store.controlTask(row, 'Delete')}} {...icProps}/>)
         }
         return actions
     }

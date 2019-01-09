@@ -39,7 +39,7 @@ const AuthenticationPluginsDashboard = React.createClass({
                 {...this.props}
                 pluginId={"core.auth"}
                 style={{...this.props.style}}
-                additionalPanes={{top:[pluginsList], bottom:[]}}
+                additionalPanes={{top:[], bottom:[pluginsList]}}
             />
         );
     }

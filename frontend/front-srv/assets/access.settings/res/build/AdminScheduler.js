@@ -264,7 +264,7 @@ var Dashboard = _react2['default'].createClass({
             label: '',
             style: { width: 100 }, headerStyle: { width: 100 },
             renderCell: function renderCell(row) {
-                return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-chevron-right', onTouchTap: function () {
+                return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-chevron-right', iconStyle: { color: 'rgba(0,0,0,.3)' }, onTouchTap: function () {
                         _this4.setState({ selectJob: row.ID });
                     } });
             }
@@ -380,6 +380,8 @@ Object.defineProperty(exports, '__esModule', {
     value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -432,7 +434,7 @@ var ActionsLog = (function (_React$Component) {
                         null,
                         _react2['default'].createElement(
                             'div',
-                            { style: { border: '1px solid #9e9e9e' } },
+                            { style: { border: '1px solid #9e9e9e', margin: '20px 0' } },
                             _react2['default'].createElement(AdminComponents.CodeMirrorField, {
                                 mode: 'json',
                                 globalScope: {},
@@ -506,40 +508,36 @@ var JobBoard = (function (_React$Component2) {
 
             var store = JobsStore.getInstance();
             var actions = [];
+            var icProps = {
+                iconStyle: { color: 'rgba(0,0,0,.3)' },
+                onClick: function onClick(e) {
+                    return e.stopPropagation();
+                }
+            };
             if (row.Status === 'Running' && row.CanPause) {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-pause", tooltip: m('pause'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-pause", tooltip: m('pause'), onTouchTap: function () {
                         store.controlTask(row, 'Pause');
-                    }, onClick: function (e) {
-                        return e.stopPropagation();
-                    } }));
+                    } }, icProps)));
             }
             if (row.Status === 'Paused') {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-play", tooltip: m('resume'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-play", tooltip: m('resume'), onTouchTap: function () {
                         store.controlTask(row, 'Resume');
-                    }, onClick: function (e) {
-                        return e.stopPropagation();
-                    } }));
+                    } }, icProps)));
             }
             if (row.Status === 'Running' || row.Status === 'Paused') {
                 if (row.CanStop) {
-                    actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-stop", tooltip: m('stop'), onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-stop", tooltip: m('stop'), onTouchTap: function () {
                             store.controlTask(row, 'Stop');
-                        }, onClick: function (e) {
-                            return e.stopPropagation();
-                        } }));
+                        } }, icProps)));
                 } else if (row.StatusMessage === 'Pending') {
-                    actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
                             store.controlTask(row, 'Delete');
-                        }, onClick: function (e) {
-                            return e.stopPropagation();
-                        } }));
+                        } }, icProps)));
                 }
             } else {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
                         store.controlTask(row, 'Delete');
-                    }, onClick: function (e) {
-                        return e.stopPropagation();
-                    } }));
+                    } }, icProps)));
             }
             return actions;
         }

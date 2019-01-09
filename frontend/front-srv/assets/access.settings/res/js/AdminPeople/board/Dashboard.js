@@ -302,8 +302,9 @@ let Dashboard = React.createClass({
             height: 48,
             lineHeight:'48px',
             backgroundColor:'#f5f5f5',
+            color:'#9e9e9e',
             borderBottom: '1px solid rgb(228, 228, 228)',
-            padding: '0 10px',
+            padding: '0 20px',
             fontSize: 12,
             fontWeight: 500
         };

@@ -54,10 +54,10 @@ class MailerTest extends React.Component {
                     templateData={{}}
                     overlay={false}
                     panelTitle={MessageHash["ajxp_admin.mailer.test.title"]}
-                    style={{margin:16, padding:'20px 0 0'}}
-                    titleStyle={{fontSize: 24, padding: 0, paddingBottom: 0}}
-                    usersBlockStyle={{padding:0}}
-                    messageBlockStyle={{padding:0}}
+                    style={{margin:0}}
+                    titleStyle={{backgroundColor: '#f5f5f5', color: '#9e9e9e', fontSize: 12, fontWeight: 500, borderBottom: '1px solid #e0e0e0', height: 48, lineHeight: '48px', padding: '0 16px'}}
+                    usersBlockStyle={{}}
+                    messageBlockStyle={{}}
                     zDepth={0}
                 />
                 <div style={{color: '#BDBDBD',margin: '20px 16px', fontSize: 12}}>{MessageHash["ajxp_admin.mailer.test.legend"]}</div>

@@ -602,6 +602,20 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   opacity: 0.5;
   cursor: pointer;
 }
+.react-mui-context .people-dashboard .users-groups-tree .tree-item {
+  line-height: 38px;
+}
+.react-mui-context .people-dashboard .users-groups-tree .tree-item.mui-is-selected {
+  background-color: #FAFAFA;
+}
+.react-mui-context .people-dashboard .users-groups-tree .tree-item span.tree-icon {
+  font-size: inherit;
+  margin-right: 6px;
+  color: #9E9E9E;
+}
+.react-mui-context .people-dashboard .users-groups-tree .tree-item span.tree-icon.mdi.mdi-folder {
+  display: none;
+}
 .react-mui-context .people-dashboard .users-groups-tree li.treenode_data_users > ul > li.treenode_data_users {
   display: none;
 }
@@ -652,25 +666,9 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
 }
 .react-mui-context .people-dashboard .people-tree {
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  width: 256px;
+  width: 226px;
   border-right: 1px solid #e0e0e0;
   overflow-y: auto;
-}
-.react-mui-context .people-dashboard .people-tree .tree-title {
-  padding: 18px 16px !important;
-  text-transform: uppercase;
-  font-weight: 500;
-  font-size: 14px;
-  background-color: #fafafa;
-}
-.react-mui-context .people-dashboard .people-tree > ul > li > div {
-  padding-left: 16px !important;
-}
-.react-mui-context .people-dashboard .people-tree > ul > li > div .tree-icon {
-  display: none;
-}
-.react-mui-context .people-dashboard .people-tree > ul > li > div .tree-icon.icon-folder-close {
-  display: inline;
 }
 .react-mui-context .people-dashboard .role-panel {
   overflow: hidden;
@@ -1313,7 +1311,7 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
   overflow-y: auto;
   overflow-x: hidden;
   border-right: 1px solid #e0e0e0;
-  background-color: #f5f5f5;
+  background-color: #fafafa;
 }
 .react-mui-context .paper-editor .paper-editor-content .paper-editor-left .mui-drop-down-menu .mui-menu-label {
   padding-left: 16px;
@@ -1502,7 +1500,7 @@ Temporary setup: symlink this file to ../../gui.ajax/res/mui/mui_sources/veraibl
 }
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image {
   position: absolute;
-  top: 60px;
+  top: 56px;
   left: 0;
 }
 .react-mui-context .edit-object-user .avatar-provider .form-entry-image .file-dropzone {

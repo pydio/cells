@@ -198,7 +198,7 @@ const Dashboard = React.createClass({
                 name:'More',
                 label:'',
                 style:{width: 100}, headerStyle:{width: 100},
-                renderCell:(row) => {return <IconButton iconClassName="mdi mdi-chevron-right" onTouchTap={()=>{this.setState({selectJob:row.ID})}}/>},
+                renderCell:(row) => {return <IconButton iconClassName="mdi mdi-chevron-right" iconStyle={{color:'rgba(0,0,0,.3)'}} onTouchTap={()=>{this.setState({selectJob:row.ID})}}/>},
             },
         ];
 

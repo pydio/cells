@@ -169,6 +169,15 @@ module.exports = function(grunt) {
                     spawn: false
                 }
             },
+            css:{
+                files: [
+                    "res/css/**/*"
+                ],
+                tasks: ['less', 'compress:css'],
+                options: {
+                    spawn: false
+                }
+            }
         }
     });
     grunt.loadNpmTasks('grunt-babel');

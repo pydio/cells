@@ -70,6 +70,7 @@ var Header = (function (_Component) {
             var tabValue = _props.tabValue;
             var onTabChange = _props.onTabChange;
             var muiTheme = _props.muiTheme;
+            var editorMode = _props.editorMode;
 
             var styles = {
                 base: {
@@ -125,6 +126,7 @@ var Header = (function (_Component) {
                     }
                 }
             };
+
             styles.scrolling = _extends({}, styles.base, {
                 backgroundColor: 'rgba(236,239,241,0.8)',
                 borderBottom: 0,
@@ -133,6 +135,23 @@ var Header = (function (_Component) {
                 left: 0,
                 right: 0
             });
+
+            if (editorMode) {
+                styles.base = _extends({}, styles.base, {
+                    backgroundColor: muiTheme.palette.primary1Color,
+                    borderBottom: 0,
+                    borderRadius: '2px 2px 0 0 '
+                });
+                styles.title = _extends({}, styles.title, {
+                    color: 'white'
+                });
+                styles.container = _extends({}, styles.container, {
+                    height: 48
+                });
+                styles.scrolling = _extends({}, styles.base, styles.scrolling, {
+                    backgroundColor: muiTheme.palette.primary1Color
+                });
+            }
 
             var icon = undefined;
             if (this.props.icon) {

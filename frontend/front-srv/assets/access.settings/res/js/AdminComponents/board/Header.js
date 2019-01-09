@@ -28,7 +28,7 @@ class Header extends Component{
     render(){
 
         const {reloadAction, loading, backButtonAction, scrolling,
-            title, centerContent, actions, tabs, tabValue, onTabChange, muiTheme} = this.props;
+            title, centerContent, actions, tabs, tabValue, onTabChange, muiTheme, editorMode} = this.props;
 
 
         let styles = {
@@ -87,6 +87,7 @@ class Header extends Component{
                 }
             }
         };
+
         styles.scrolling = {
             ...styles.base,
             backgroundColor: 'rgba(236,239,241,0.8)',
@@ -96,6 +97,30 @@ class Header extends Component{
             left: 0,
             right: 0,
         };
+
+        if (editorMode){
+            styles.base = {
+                ...styles.base,
+                backgroundColor: muiTheme.palette.primary1Color,
+                borderBottom: 0,
+                borderRadius:'2px 2px 0 0 '
+            };
+            styles.title = {
+                ...styles.title,
+                color: 'white'
+            };
+            styles.container = {
+                ...styles.container,
+                height: 48
+            };
+            styles.scrolling = {
+                ...styles.base,
+                ...styles.scrolling,
+                backgroundColor: muiTheme.palette.primary1Color,
+            }
+        }
+
+
 
         let icon;
         if(this.props.icon) {

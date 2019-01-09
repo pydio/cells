@@ -263,7 +263,7 @@ var Dashboard = _react2['default'].createClass({
             label: '',
             style: { width: 100 }, headerStyle: { width: 100 },
             renderCell: function renderCell(row) {
-                return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-chevron-right', onTouchTap: function () {
+                return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-chevron-right', iconStyle: { color: 'rgba(0,0,0,.3)' }, onTouchTap: function () {
                         _this4.setState({ selectJob: row.ID });
                     } });
             }
