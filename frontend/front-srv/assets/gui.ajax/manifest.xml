@@ -60,6 +60,7 @@
 	<server_settings>
         <global_param name="GUI_THEME" group="CONF_MESSAGE[Main Options]" type="select" choices="material|Material" label="CONF_MESSAGE[Theme]" description="CONF_MESSAGE[Theme used for display]" mandatory="true" default="material"/>
         <global_param name="ENABLE_WELCOME_TOUR" group="CONF_MESSAGE[Main Options]" type="boolean" expose="true" label="CONF_MESSAGE[Enable Welcome Tour]" description="CONF_MESSAGE[Enable the small tour triggered at first visit]" default="true"/>
+        <global_param name="CLIENT_TIMEOUT_WARN" group="CONF_MESSAGE[Main Options]" type="integer" label="CONF_MESSAGE[Warning Before Session Expiration]" description="CONF_MESSAGE[Alert the user that the web session is about to expire. Number of minutes before session expiration]" mandatory="false" default="3"/>
         <global_param name="CUSTOM_ICON_BINARY" group="CONF_MESSAGE[Login Screen]" type="image" label="CONF_MESSAGE[Custom Icon]" description="CONF_MESSAGE[URI to a custom image to be used as start up logo]"
                       editable="true"
                       uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
@@ -76,8 +77,6 @@
                       defaultImage="plug/gui.ajax/res/themes/common/images/PydioLogo250.png"
                       expose="true"
                 />
-        <global_param name="CLIENT_TIMEOUT_TIME" group="CONF_MESSAGE[Web Session]" type="integer" label="CONF_MESSAGE[Client Timeout]" description="CONF_MESSAGE[The length of the client session in SECONDS. By default, it's copying the server session length. In most PHP installation, it will be 1440, ie 24minutes. You can set this value to 0, this will make the client session 'infinite' by pinging the server at regular occasions (thus keeping the PHP session alive). This is not a recommanded setting for evident security reasons.]" mandatory="false"/>
-		<global_param name="CLIENT_TIMEOUT_WARN" group="CONF_MESSAGE[Web Session]" type="integer" label="CONF_MESSAGE[Warning Before]" description="CONF_MESSAGE[Number of MINUTES before the session expiration for issuing an alert to the user]" mandatory="false" default="3"/>
 
         <global_param name="WELCOME_PAGE_BACKGROUND_1" group="CONF_MESSAGE[Page Background Images]" type="image" label="CONF_MESSAGE[Custom Background (1)]" description="CONF_MESSAGE[Image used as a background]" mandatory="false"
                       editable="true"
