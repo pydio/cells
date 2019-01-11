@@ -3,34 +3,34 @@
     "other": "Azione da eseguire quando si clicca su 'Password Dimenticata'"
   },
   "Activate the users management system to protect your Pydio installation.": {
-    "other": "Attiva il sistema di gestone utenti per proteggere l'installazione di Pydio."
+    "other": "Attiva il sistema di gestione degli utenti per proteggere l'installazione di Pydio."
   },
   "Add a Forgot Password link at the bottom of the login form": {
-    "other": "Aggiunge un link 'Password Dimenticata' in fondo alla form di login"
+    "other": "Aggiunge un link 'Password Dimenticata' in fondo al modulo di login"
   },
   "Authentication": {
     "other": "Autenticazione"
   },
   "Both": {
-    "other": "Both"
+    "other": "Entrambi"
   },
   "Cache master users": {
-    "other": "Cache master users"
+    "other": "Cache utenti master"
   },
   "Case Sensitive": {
-    "other": "Case Sensitive"
+    "other": "Riconosce maiuscole e minuscole"
   },
   "Choose the configuration plugin": {
     "other": "Scegli il plugin di configurazione"
   },
   "Create a local copy (at login time) of master users inside slave base": {
-    "other": "Create a local copy (at login time) of master users inside slave base"
+    "other": "Crea una copia locale (all'atto del login) degli utenti master nella base slave"
   },
   "Disable Brute Force Check (Captcha)": {
-    "other": "Disable Brute Force Check (Captcha)"
+    "other": "Disabilita il Check Brute Force (Captcha)"
   },
   "Disable the check of failed login attempts, will disable the Captcha display": {
-    "other": "Disable the check of failed login attempts, will disable the Captcha display"
+    "other": "Disabilitando il controllo dei tentativi falliti di login, si disabilita la visualizzazione del Captcha"
   },
   "Enable Forgot Password": {
     "other": "Abilita 'Password Dimenticata'"
@@ -42,37 +42,37 @@
     "other": "Abilita l'utente 'guest' (ospite), che non necessita di login."
   },
   "Forgot Password Action": {
-    "other": "Azione 'Password Dimenticata'"
+    "other": "Azione per 'Password Dimenticata'"
   },
   "Generic Auth Features": {
     "other": "Funzionalità Generiche"
   },
   "Guest Browsing": {
-    "other": "Navigazione Ospiti"
+    "other": "Navigazione come ospite"
   },
   "In Master_Slave mode, use this option to limit the users listing in the administration to one driver only (leave empty if you want to see all users)": {
-    "other": "Nella modalità 'Master_Slave', utilizza questa opzione per limitare la lista degli utenti, in amministrazione, ad un solo driver (llascia vuoto se intendi visualizzare tutti gli utenti)"
+    "other": "In modalità 'Master_Slave', utilizza questa opzione per limitare la lista degli utenti nell'amministrazione a un solo driver (lascia vuoto se intendi visualizzare tutti gli utenti)"
   },
   "Instance Type": {
-    "other": "Tipo Istanza"
+    "other": "Tipo di istanza"
   },
   "Login Form": {
-    "other": "Form Login"
+    "other": "Modulo di login"
   },
   "Main Instance": {
     "other": "Istanza Principale"
   },
   "Master Authentifiaction Label": {
-    "other": "Etichetta Autenticazione Master"
+    "other": "Etichetta di autenticazione Master"
   },
   "Master Only": {
-    "other": "Master Only"
+    "other": "Solo master"
   },
   "Master/Slave": {
     "other": "Master/Slave"
   },
   "Master/slave will assume that the master is read-only, and the slave is a local alternative to allow sharing features. User Choice will allow the user to manually choose its authentication method at startup.": {
-    "other": "'Master/slave' assume che il master sia read-only, e lo slave sia un'alternativa locale per permettere le funzionalità di condivisione. 'Scelta Utente' consente all'utente di scegliere manualmente il proprio metodo di autenticazione all'avvio."
+    "other": "'Master/slave' assume che il master sia read-only, e lo slave sia un'alternativa locale per permettere le funzionalità di condivisione. 'Scelta Utente' consente all'utente di scegliere manualmente il metodo di autenticazione all'avvio."
   },
   "Minimum number of characters required for passwords in the application": {
     "other": "Numero minimo di caratteri richiesti per la password"
@@ -81,54 +81,54 @@
     "other": "Modo"
   },
   "Multiple Instances Mode": {
-    "other": "Multiple Instances Mode"
+    "other": "Modalità a più istanze"
   },
   "Options applied to all auth drivers": {
-    "other": "Opzioni applicate su tutti i driver di autenticazione"
+    "other": "Opzioni applicate a tutti i driver di autenticazione"
   },
   "Password length": {
-    "other": "Lunghezza Password"
+    "other": "Lunghezza della password"
   },
   "Raise the security of the login form by disabling autocompletion and remember me feature": {
-    "other": "Aumenta la sicurezza della form di login disabilitando l'autocompletamento e la memorizzazione della password"
+    "other": "Aumenta la sicurezza del modulo di login disabilitando l'autocompletamento e la memorizzazione della password"
   },
   "Secondary Instance (optional)": {
-    "other": "Seconda Istanza (opzionale)"
+    "other": "Istanza secondaria (opzionale)"
   },
   "Secondary Instance Driver": {
-    "other": "Secondary Instance Driver"
+    "other": "Driver dell'istanza secondaria"
   },
   "Secure Login Form": {
-    "other": "Form Login Sicura"
+    "other": "Modulo per il Login Sicuro"
   },
   "Separator": {
     "other": "Separatore"
   },
   "Set the users credentials in the session after a successful login, this can be necessary when bridging specific auth and access plugins.": {
-    "other": "Imposta le credenziali dell'utente nella session, dopo il buon esito del login. Può essere necessario quando si collegano specifici plugin di autenticazione o accesso."
+    "other": "Imposta le credenziali dell'utente nella sessione, dopo il buon esito del login. Può essere necessario quando si collegano specifici plugin di autenticazione o accesso."
   },
   "Slave Authentifiaction Label": {
-    "other": "Etichetta Autenticazione Slave"
+    "other": "Etichetta di Autenticazione Slave"
   },
   "Slave Only": {
-    "other": "Slave Only"
+    "other": "Solo slave"
   },
   "Store Credentials in Session": {
     "other": "Memorizza le Credenziali nella Sessione"
   },
   "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
-    "other": "E' necessario per discriminare i dati degli utenti, caricati da diverse sorgenti. ATTENZIONE: usa i caratteri ammessi per i nomi delle cartelle. Per esempio :: non funziona!"
+    "other": "Questo è necessario per distinguere i dati degli utenti caricati da diverse sorgenti. Attenzione: usa i caratteri ammessi per i nomi delle cartelle. Per esempio :: non funziona!"
   },
   "User Choice": {
-    "other": "User Choice"
+    "other": "Scelta dell'utente"
   },
   "Users Listing": {
-    "other": "Elenco Utenti"
+    "other": "Elenco degli Utenti"
   },
   "Whether the users identifiers should be case sensitive or not": {
-    "other": "Se attivo, l'identificatore dell'utente è case sensitive. WARNING, sql-based drivers will disable this by default, even if you check this."
+    "other": "Se gli identificatori degli utenti devono distinguere maiuscole e minuscole o no. ATTENZIONE, i driver basati su sql disattivano questa distinzione per impostazione predefinita, indipendentemente dalla scelta effettuata."
   },
   "Will be shown to the user at login": {
-    "other": "Verrà mostrata all'utente al login"
+    "other": "Verrà mostrato all'utente all'atto del login"
   }
 }

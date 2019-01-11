@@ -9,34 +9,34 @@
     "other": "Attività File"
   },
   "12": {
-    "other": "A seconda del browser utilizzato, potrebbe essere richiesto un permesso speciale. Per disabilitare, accedere alle preferenze del browser in uso. Se questa funzionalità è già stata attivata, probabilmente non accadrà nulla."
+    "other": "A seconda del browser utilizzato, potrebbe essere richiesto un permesso speciale. Per disabilitare, accedere alle preferenze del browser. Se questa funzionalità è già stata attivata, probabilmente non accadrà nulla."
   },
   "13": {
-    "other": "Sembra che il tuo browser non supporti ancora le Notifiche Desktop."
+    "other": "Il tuo browser non sembra supportare le notifiche Desktop."
   },
   "14": {
-    "other": "No alerts"
+    "other": "Nessuna notifica"
   },
   "15": {
-    "other": "Notifications about files that you monitor will appear here"
+    "other": "Le notifiche relative ai file monitorati vengono visualizzate qui"
   },
   "16": {
-    "other": "Inside"
+    "other": "All'interno"
   },
   "17": {
-    "other": "Loading activities..."
+    "other": "Caricamento attività..."
   },
   "18": {
-    "other": "No recent activity"
+    "other": "Nessuna attività recente"
   },
   "19": {
-    "other": "More"
+    "other": "Più"
   },
   "2": {
     "other": "Feed Notifiche"
   },
   "20": {
-    "other": "Loading feed..."
+    "other": "Caricamento del feed..."
   },
   "3": {
     "other": "Avvisi"
@@ -51,12 +51,12 @@
     "other": "Vai a ..."
   },
   "7": {
-    "other": "Rimuovi"
+    "other": "Abbandona"
   },
   "8": {
     "other": "Nessun avviso"
   },
   "9": {
-    "other": "Attività Workspace"
+    "other": "Attività sul Workspace"
   }
 }
