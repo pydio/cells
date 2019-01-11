@@ -1,12 +1,12 @@
 {
   "1": {
-    "other": "Email inviata correttamente a %s "
+    "other": "Email inviata correttamente a %s utenti"
   },
   "2": {
-    "other": "Nessun indirizzo trovato per l'invio della mail!"
+    "other": "Nessun indirizzo trovato per l'invio dell'email!"
   },
   "3": {
-    "other": "Nessun mailer configurato per l'invio delle mail. Contatta l'Amministratore."
+    "other": "Nessun mailer configurato per l'invio degli email. Contatta l'Amministratore"
   },
   "4": {
     "other": "Da"
@@ -21,9 +21,9 @@
     "other": "Messaggio"
   },
   "8": {
-    "other": "Utente o email"
+    "other": "Selezionare un utente o digitare un indirizzo"
   },
   "9": {
-    "other": "Notifications Digest"
+    "other": "Riassunto delle Notifiche"
   }
 }

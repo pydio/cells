@@ -3,10 +3,10 @@
     "other": "Framework JS aggiuntivi"
   },
   "Additional JS frameworks description": {
-    "other": "Lista di percorsi a file JS, separati da virgola, che devono essere caricati PRIMA del framework principale di Pydio. La soluzione ottimale sarebbe quella di usare una dichiarazione delle risorse dei plugin."
+    "other": "Lista di percorsi a file JS, separati da virgola, che devono essere caricati PRIMA del framework principale di Pydio. La soluzione migliore è quella di usare una dichiarazione delle risorse dei plugin. Caricare i file JS all'inizio della pagina può essere un'opzione solo in alcuni casi."
   },
   "An additionnal message displayed in the start up screen": {
-    "other": "Un messaggio addizionale da mostrare nella schermata di avvio"
+    "other": "Un ulteriore messaggio visualizzato nella schermata di avvio"
   },
   "Analytics Domain": {
     "other": "Dominio Analytics"
@@ -90,7 +90,7 @@
     "other": "Percorso del server rilevato"
   },
   "Display Branding Tool": {
-    "other": "Visualizzare gli strumento di branding"
+    "other": "Visualizzare gli strumenti di branding"
   },
   "Enable Welcome Tour": {
     "other": "Abilitare il Tour di Benvenuto"
@@ -120,7 +120,7 @@
     "other": "ID Google Analytics"
   },
   "Height of the custom icon (with the px mention)": {
-    "other": "Altezza dell'icona personalizzata (con mensione dei px)"
+    "other": "Altezza dell'icona personalizzata (con menzione dei px)"
   },
   "Icon Height": {
     "other": "Altezza dell'Icona"
@@ -204,7 +204,7 @@
     "other": "Impostare il dominio per i rapporti di analisi (non obbligatorio!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for your analytics reports (not mandatory!)"
+    "other": "Impostare il dominio per i rapporti di analisi (non obbligatorio!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
     "other": "Impostare alcuni parametri dell'applicazione. Se vengono abilitate le email, è preferibile usare il pulsante Test per verificare se php è configurato correttamente."
@@ -270,9 +270,9 @@
     "other": "Larghezza dell'immagine (Default 35px)"
   },
   "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
-    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+    "other": "Avvertire l'utente che la sessione web sta per scadere. Numero di minuti prima della scadenza della sessione"
   },
   "Warning Before Session Expiration": {
-    "other": "Warning Before Session Expiration"
+    "other": "Avviso prima della scadenza della sessione"
   }
 }
