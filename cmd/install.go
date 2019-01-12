@@ -35,6 +35,7 @@ import (
 	"github.com/micro/go-web"
 	"github.com/spf13/cobra"
 
+	"github.com/micro/cli"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/caddy"
 	"github.com/pydio/cells/common/config"
@@ -233,6 +234,16 @@ var installCmd = &cobra.Command{
 		// starting the installation REST service
 		for _, s := range registry.Default.GetServicesByName(common.SERVICE_INSTALL) {
 			sServ := s.(service.Service)
+			// Strip some flag to avoid panic on re-registering a flag twice
+			flags := sServ.Options().Web.Options().Cmd.App().Flags
+			var newFlags []cli.Flag
+			for _, f := range flags {
+				if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
+					continue
+				}
+				newFlags = append(newFlags, f)
+			}
+			sServ.Options().Web.Options().Cmd.App().Flags = newFlags
 			sServ.Options().Web.Init(web.AfterStop(func() error {
 				installFinished <- true
 				return nil
