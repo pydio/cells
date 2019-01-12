@@ -34,10 +34,12 @@ import (
 	"github.com/micro/go-web"
 	"github.com/pborman/uuid"
 
+	"github.com/micro/cli"
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/rest"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
 	"github.com/pydio/cells/common/service/frontend"
 )
@@ -67,6 +69,18 @@ func WithWeb(handler func() WebHandler, opts ...web.Option) ServiceOption {
 	return func(o *ServiceOptions) {
 		o.Version = common.Version().String()
 		o.Web = web.NewService()
+
+		// Strip some flag to avoid panic on re-registering a flag twice
+		flags := o.Web.Options().Cmd.App().Flags
+		var newFlags []cli.Flag
+		for _, f := range flags {
+			if f.GetName() == "register_ttl" || f.GetName() == "register_interval" {
+				continue
+			}
+			newFlags = append(newFlags, f)
+		}
+		o.Web.Options().Cmd.App().Flags = newFlags
+		o.Web.Init(web.Metadata(registry.BuildServiceMeta()))
 
 		o.WebInit = func(s Service) error {
 			return nil
@@ -184,7 +198,8 @@ func WithWebAuth() ServiceOption {
 		o.Dependencies = append(o.Dependencies, &dependency{common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_USER, []string{}})
 
 		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
-			wrapped := PolicyHttpWrapper(handler)
+			wrapped := servicecontext.NewMetricsHttpWrapper(handler)
+			wrapped = PolicyHttpWrapper(wrapped)
 			wrapped = JWTHttpWrapper(wrapped)
 			wrapped = servicecontext.HttpSpanHandlerWrapper(wrapped)
 			wrapped = servicecontext.HttpMetaExtractorWrapper(wrapped)
@@ -199,6 +214,12 @@ func WithWebSession(excludes ...string) ServiceOption {
 		o.webHandlerWraps = append(o.webHandlerWraps, func(handler http.Handler) http.Handler {
 			return frontend.NewSessionWrapper(handler, excludes...)
 		})
+	}
+}
+
+func WithWebHandler(h func(http.Handler) http.Handler) ServiceOption {
+	return func(o *ServiceOptions) {
+		o.webHandlerWraps = append(o.webHandlerWraps, h)
 	}
 }
 

@@ -149,6 +149,53 @@ func (h *Handler) ListPeerFolders(req *restful.Request, resp *restful.Response) 
 
 }
 
+// ListProcesses List running Processes from registry, with option PeerId or ServiceName filter
+func (h *Handler) ListProcesses(req *restful.Request, resp *restful.Response) {
+
+	var listReq rest.ListProcessesRequest
+	if e := req.ReadEntity(&listReq); e != nil {
+		service.RestError500(req, resp, e)
+		return
+	}
+
+	out := &rest.ListProcessesResponse{}
+	for _, p := range registry.GetProcesses() {
+		// Filter by PeerId
+		if listReq.PeerId != "" && p.PeerId != listReq.PeerId {
+			continue
+		}
+		// Filter by Service
+		if listReq.ServiceName != "" {
+			var found bool
+			for _, s := range p.Services {
+				if s == listReq.ServiceName {
+					found = true
+					break
+				}
+			}
+			if !found {
+				continue
+			}
+		}
+		var services []string
+		for _, s := range p.Services {
+			services = append(services, s)
+		}
+		out.Processes = append(out.Processes, &rest.Process{
+			ID:          p.Id,
+			PeerId:      p.PeerId,
+			ParentID:    p.ParentId,
+			PeerAddress: p.PeerAddress,
+			MetricsPort: int32(p.MetricsPort),
+			StartTag:    p.StartTag,
+			Services:    services,
+		})
+	}
+
+	resp.WriteEntity(out)
+
+}
+
 // ValidateLocalDSFolderOnPeer sends a couple of stat/create requests to the target Peer to make sure folder is valid
 func (h *Handler) ValidateLocalDSFolderOnPeer(ctx context.Context, newSource *object.DataSource) error {
 

@@ -29,6 +29,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
 )
@@ -54,15 +55,17 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 				micro.Broker(defaults.Broker()),
 			)
 
+			meta := registry.BuildServiceMeta()
+			if s.Options().Source != "" {
+				meta["source"] = s.Options().Source
+			}
 			// context is always added last - so that there is no override
 			s.Options().Micro.Init(
 				micro.Context(ctx),
 				micro.Name(name),
 				micro.WrapClient(servicecontext.SpanClientWrapper),
 				micro.WrapHandler(servicecontext.SpanHandlerWrapper),
-				micro.Metadata(map[string]string{
-					"source": s.Options().Source,
-				}),
+				micro.Metadata(meta),
 				micro.BeforeStart(func() error {
 					return f(s.Options().Micro)
 				}),
@@ -85,6 +88,7 @@ func WithMicro(f func(micro.Service) error) ServiceOption {
 			)
 
 			// newTracer(name, &options)
+			servicecontext.NewMetricsWrapper(s.Options().Micro)
 			newBackoffer(s.Options().Micro)
 			newConfigProvider(s.Options().Micro)
 			newDBProvider(s.Options().Micro)

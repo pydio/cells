@@ -49,6 +49,7 @@ type Registry interface {
 	GetService(string) ([]Service, error)
 	GetServicesByName(string) []Service
 	GetPeers() map[string]*Peer
+	GetProcesses() map[string]*Process
 	ListServices(withExcluded ...bool) ([]Service, error)
 	ListRunningServices() ([]Service, error)
 	ListServicesWithMicroMeta(string, ...string) ([]Service, error)
@@ -68,8 +69,9 @@ type pydioregistry struct {
 	graph        goraph.Graph
 
 	// List of peer addresses that have a service associated with the micro registry
-	peerlock *sync.RWMutex
-	peers    map[string]*Peer
+	peerlock  *sync.RWMutex
+	peers     map[string]*Peer
+	processes map[string]*Process
 
 	opts  Options
 	flags pflag.FlagSet
@@ -104,6 +106,7 @@ func NewRegistry(opts ...Option) Registry {
 		opts:         newOptions(opts...),
 		peerlock:     new(sync.RWMutex),
 		peers:        make(map[string]*Peer),
+		processes:    make(map[string]*Process),
 	}
 
 	return r

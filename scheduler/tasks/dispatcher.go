@@ -20,6 +20,10 @@
 
 package tasks
 
+import (
+	"github.com/pydio/cells/common/service/metrics"
+)
+
 const (
 	// DefaultMaximumWorkers is set to 20.
 	DefaultMaximumWorkers = 20
@@ -31,16 +35,21 @@ type Dispatcher struct {
 	JobQueue   chan Runnable
 	WorkerPool chan chan Runnable
 	maxWorker  int
+	tags       map[string]string
+	active     int
+	activeChan chan int
 }
 
 // NewDispatcher creates and initialises a new Dispatcher with this amount of workers.
-func NewDispatcher(maxWorkers int) *Dispatcher {
+func NewDispatcher(maxWorkers int, tags map[string]string) *Dispatcher {
 	pool := make(chan chan Runnable, maxWorkers)
 	jobQueue := make(chan Runnable)
 	return &Dispatcher{
 		WorkerPool: pool,
 		maxWorker:  maxWorkers,
 		JobQueue:   jobQueue,
+		tags:       tags,
+		activeChan: make(chan int),
 	}
 }
 
@@ -48,11 +57,21 @@ func NewDispatcher(maxWorkers int) *Dispatcher {
 func (d *Dispatcher) Run() {
 	// starting n number of workers
 	for i := 0; i < d.maxWorker; i++ {
-		worker := NewWorker(d.WorkerPool, d.JobQueue)
+		worker := NewWorker(d.WorkerPool, d.JobQueue, d.activeChan, d.tags)
 		worker.Start()
 	}
-
+	g := metrics.GetMetrics().Tagged(d.tags).Gauge("activeWorkers")
 	go d.dispatch()
+	go func() {
+		for {
+			select {
+			case a := <-d.activeChan:
+				d.active += a
+				g.Update(float64(d.active))
+			}
+		}
+
+	}()
 }
 
 // Stop sends a quit signal to all workers. NOT YET IMPLEMENTED

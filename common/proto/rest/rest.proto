@@ -131,6 +131,13 @@ service ConfigService {
             body: "*"
         };
     }
+    // List running Processes, with option PeerId or ServiceName filter
+    rpc ListProcesses(ListProcessesRequest) returns (ListProcessesResponse) {
+        option (google.api.http) = {
+            post: "/config/processes"
+            body: "*"
+        };
+    }
     // List registered master keys
     rpc ListEncryptionKeys(encryption.AdminListKeysRequest) returns (encryption.AdminListKeysResponse) {
         option (google.api.http) = {

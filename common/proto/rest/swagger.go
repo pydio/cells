@@ -861,6 +861,33 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/config/processes": {
+      "post": {
+        "summary": "List running Processes, with option PeerId or ServiceName filter",
+        "operationId": "ListProcesses",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restListProcessesResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restListProcessesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
     "/config/versioning": {
       "get": {
         "summary": "List all defined versioning policies",
@@ -5618,6 +5645,28 @@ var SwaggerJson = `{
         }
       }
     },
+    "restListProcessesRequest": {
+      "type": "object",
+      "properties": {
+        "PeerId": {
+          "type": "string"
+        },
+        "ServiceName": {
+          "type": "string"
+        }
+      }
+    },
+    "restListProcessesResponse": {
+      "type": "object",
+      "properties": {
+        "Processes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/restProcess"
+          }
+        }
+      }
+    },
     "restListSharedResourcesRequest": {
       "type": "object",
       "properties": {
@@ -5799,6 +5848,36 @@ var SwaggerJson = `{
         }
       },
       "title": "Generic container for responses sending pagination information"
+    },
+    "restProcess": {
+      "type": "object",
+      "properties": {
+        "ID": {
+          "type": "string"
+        },
+        "ParentID": {
+          "type": "string"
+        },
+        "MetricsPort": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "PeerId": {
+          "type": "string"
+        },
+        "PeerAddress": {
+          "type": "string"
+        },
+        "StartTag": {
+          "type": "string"
+        },
+        "Services": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     },
     "restPutCellRequest": {
       "type": "object",

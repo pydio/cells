@@ -78,6 +78,24 @@ type Service interface {
 	Options() ServiceOptions
 }
 
+func buildForkStartParams(name string) []string {
+	params := []string{
+		"start",
+		"--fork",
+		"--registry", viper.GetString("registry"),
+		"--registry_address", viper.GetString("registry_address"),
+		"--registry_cluster_address", viper.GetString("registry_cluster_address"),
+		"--registry_cluster_routes", viper.GetString("registry_cluster_routes"),
+		"--broker", viper.GetString("broker"),
+		"--broker_address", viper.GetString("broker_address"),
+	}
+	if viper.GetBool("enable_metrics") {
+		params = append(params, "--enable_metrics")
+	}
+	params = append(params, name)
+	return params
+}
+
 // Service for the pydio app
 type service struct {
 	// Computed by external functions during listing operations
@@ -117,6 +135,9 @@ type Stopper interface {
 type StopperFunc func() error
 
 func (f StopperFunc) Stop() error {
+	defer func() {
+		recover()
+	}()
 	return f()
 }
 
@@ -421,16 +442,7 @@ func (s *service) ForkStart() {
 	cancel := s.Options().Cancel
 
 	// Do not do anything
-	cmd := exec.CommandContext(ctx, os.Args[0], "start",
-		"--fork",
-		"--registry", viper.GetString("registry"),
-		"--registry_address", viper.GetString("registry_address"),
-		"--registry_cluster_address", viper.GetString("registry_cluster_address"),
-		"--registry_cluster_routes", viper.GetString("registry_cluster_routes"),
-		"--broker", viper.GetString("broker"),
-		"--broker_address", viper.GetString("broker_address"),
-		name,
-	)
+	cmd := exec.CommandContext(ctx, os.Args[0], buildForkStartParams(name)...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

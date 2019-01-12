@@ -123,10 +123,12 @@ func (c *pydioregistry) maintainRunningServicesList() {
 				for _, n := range s.Nodes {
 					c.GetPeer(n.Address).Add(s, fmt.Sprintf("%d", n.Port))
 					c.GetPeer("INITIAL").Delete(s, s.Name)
+					c.registerProcessFromNode(n, s.Name)
 				}
 			case "delete":
 				for _, n := range s.Nodes {
 					c.GetPeer(n.Address).Delete(s, fmt.Sprintf("%d", n.Port))
+					c.deregisterProcessFromNode(n, s.Name)
 				}
 			}
 		}

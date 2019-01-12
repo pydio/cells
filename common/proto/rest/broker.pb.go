@@ -32,6 +32,9 @@ It has these top-level messages:
 	ListPeersAddressesRequest
 	ListPeersAddressesResponse
 	ListPeerFoldersRequest
+	Process
+	ListProcessesRequest
+	ListProcessesResponse
 	ListVersioningPolicyRequest
 	VersioningPolicyCollection
 	ListVirtualNodesRequest

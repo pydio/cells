@@ -35,14 +35,18 @@ type Worker struct {
 	JobChannel chan Runnable
 	quit       chan bool
 	JobReQueue chan Runnable
+	activeChan chan int
+	tags       map[string]string
 }
 
 // NewWorker creates and configures a new worker.
-func NewWorker(workerPool chan chan Runnable, requeue chan Runnable) Worker {
+func NewWorker(workerPool chan chan Runnable, requeue chan Runnable, activeChan chan int, tags map[string]string) Worker {
 	return Worker{
 		WorkerPool: workerPool,
 		JobChannel: make(chan Runnable),
 		JobReQueue: requeue,
+		tags:       tags,
+		activeChan: activeChan,
 		quit:       make(chan bool)}
 }
 
@@ -58,13 +62,13 @@ func (w Worker) Start() {
 			case runnable := <-w.JobChannel:
 				// we have received a work request.
 				log.Logger(runnable.Context).Debug("Received Runnable in dispatcher", zap.String("runnable", runnable.ID))
-				RC++
+				w.activeChan <- 1
 				err := runnable.RunAction(w.JobReQueue)
 				// TODO : do something with errors
 				if err != nil {
 					log.Logger(runnable.Context).Error("cannot run action " + runnable.ID + ": " + err.Error())
 				}
-				RC--
+				w.activeChan <- -1
 				//log.Logger(runnable.Context).Info("Runnable in dispatcher: Finished", zap.Int("RC", RC), zap.String("runnable", runnable.ID))
 
 			case <-w.quit:

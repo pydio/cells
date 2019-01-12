@@ -529,6 +529,14 @@ var _modelRestListPeersAddressesResponse = require('./model/RestListPeersAddress
 
 var _modelRestListPeersAddressesResponse2 = _interopRequireDefault(_modelRestListPeersAddressesResponse);
 
+var _modelRestListProcessesRequest = require('./model/RestListProcessesRequest');
+
+var _modelRestListProcessesRequest2 = _interopRequireDefault(_modelRestListProcessesRequest);
+
+var _modelRestListProcessesResponse = require('./model/RestListProcessesResponse');
+
+var _modelRestListProcessesResponse2 = _interopRequireDefault(_modelRestListProcessesResponse);
+
 var _modelRestListSharedResourcesRequest = require('./model/RestListSharedResourcesRequest');
 
 var _modelRestListSharedResourcesRequest2 = _interopRequireDefault(_modelRestListSharedResourcesRequest);
@@ -572,6 +580,10 @@ var _modelRestOpenApiResponse2 = _interopRequireDefault(_modelRestOpenApiRespons
 var _modelRestPagination = require('./model/RestPagination');
 
 var _modelRestPagination2 = _interopRequireDefault(_modelRestPagination);
+
+var _modelRestProcess = require('./model/RestProcess');
+
+var _modelRestProcess2 = _interopRequireDefault(_modelRestProcess);
 
 var _modelRestPutCellRequest = require('./model/RestPutCellRequest');
 
@@ -1866,6 +1878,20 @@ RestListPeersAddressesResponse = _modelRestListPeersAddressesResponse2['default'
 exports.
 
 /**
+ * The RestListProcessesRequest model constructor.
+ * @property {module:model/RestListProcessesRequest}
+ */
+RestListProcessesRequest = _modelRestListProcessesRequest2['default'];
+exports.
+
+/**
+ * The RestListProcessesResponse model constructor.
+ * @property {module:model/RestListProcessesResponse}
+ */
+RestListProcessesResponse = _modelRestListProcessesResponse2['default'];
+exports.
+
+/**
  * The RestListSharedResourcesRequest model constructor.
  * @property {module:model/RestListSharedResourcesRequest}
  */
@@ -1940,6 +1966,13 @@ exports.
  * @property {module:model/RestPagination}
  */
 RestPagination = _modelRestPagination2['default'];
+exports.
+
+/**
+ * The RestProcess model constructor.
+ * @property {module:model/RestProcess}
+ */
+RestProcess = _modelRestProcess2['default'];
 exports.
 
 /**
