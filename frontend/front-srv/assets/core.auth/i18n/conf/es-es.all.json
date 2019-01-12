@@ -117,7 +117,7 @@
     "other": "Almacenar Credenciales de Sesión"
   },
   "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
-    "other": "Necesario para diferenciar los datos de usuario cargados desde distintas fuentes. Atención, use caracteres permitidos para directorios. Por ejemplo,¡ :: no funciona!"
+    "other": "Necesario para diferenciar los datos de usuario cargados desde distintas fuentes. Atención, use caracteres permitidos para directorios. Por ejemplo, \"::\" no funciona."
   },
   "User Choice": {
     "other": "Opción Usuario"
