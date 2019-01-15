@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package rest
+package share
 
 import (
 	"context"
@@ -29,10 +29,10 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils"
 )
 
