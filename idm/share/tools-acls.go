@@ -13,7 +13,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
@@ -257,14 +256,13 @@ func DiffReadRoles(ctx context.Context, initial []*idm.ACL, newOnes []*idm.ACL) 
 }
 
 // ComputeTargetAcls create ACL objects that should be applied for this cell.
-func ComputeTargetAcls(ctx context.Context, shareRequest *rest.PutCellRequest, workspaceId string, readonly bool) []*idm.ACL {
+func ComputeTargetAcls(ctx context.Context, ownerUser *idm.User, cell *rest.Cell, workspaceId string, readonly bool) []*idm.ACL {
 
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	userId, _ := claims.DecodeUserUuid()
+	userId := ownerUser.Uuid
 	var targetAcls []*idm.ACL
-	for _, node := range shareRequest.Room.RootNodes {
+	for _, node := range cell.RootNodes {
 		userInAcls := false
-		for _, acl := range shareRequest.Room.ACLs {
+		for _, acl := range cell.ACLs {
 			for _, action := range acl.Actions {
 				// Recheck just in case
 				if readonly && action.Name == utils.ACL_WRITE.Name {
@@ -346,7 +344,7 @@ func UpdatePoliciesFromAcls(ctx context.Context, workspace *idm.Workspace, initi
 
 // GetOrCreateWorkspace finds a workspace by its Uuid or creates it with the current user ResourcePolicies
 // if it does not already exist.
-func GetOrCreateWorkspace(ctx context.Context, wsUuid string, scope idm.WorkspaceScope, label string, description string, updateIfNeeded bool) (*idm.Workspace, bool, error) {
+func GetOrCreateWorkspace(ctx context.Context, ownerUser *idm.User, wsUuid string, scope idm.WorkspaceScope, label string, description string, updateIfNeeded bool) (*idm.Workspace, bool, error) {
 
 	var workspace *idm.Workspace
 
@@ -366,7 +364,7 @@ func GetOrCreateWorkspace(ctx context.Context, wsUuid string, scope idm.Workspac
 			Description: description,
 			Scope:       scope,
 			Slug:        slug.Make(label),
-			Policies:    OwnerResourcePolicies(ctx, wsUuid),
+			Policies:    OwnerResourcePolicies(ctx, ownerUser, wsUuid),
 		}})
 		if err != nil {
 			return workspace, false, err
@@ -417,9 +415,9 @@ func GetOrCreateWorkspace(ctx context.Context, wsUuid string, scope idm.Workspac
 
 // DeleteWorkspace deletes a workspace and associated policies and ACLs. It also
 // deletes the room node if necessary.
-func DeleteWorkspace(ctx context.Context, scope idm.WorkspaceScope, workspaceId string, checker ContextEditableChecker) error {
+func DeleteWorkspace(ctx context.Context, ownerUser *idm.User, scope idm.WorkspaceScope, workspaceId string, checker ContextEditableChecker) error {
 
-	workspace, _, err := GetOrCreateWorkspace(ctx, workspaceId, scope, "", "", false)
+	workspace, _, err := GetOrCreateWorkspace(ctx, ownerUser, workspaceId, scope, "", "", false)
 	if err != nil {
 		return err
 	}
@@ -457,11 +455,10 @@ func DeleteWorkspace(ctx context.Context, scope idm.WorkspaceScope, workspaceId 
 
 // OwnerResourcePolicies produces a set of policies given ownership to current context user,
 // read/write to current context user, and write access to profile:admin (can be useful for admin).
-func OwnerResourcePolicies(ctx context.Context, resourceId string) []*service.ResourcePolicy {
+func OwnerResourcePolicies(ctx context.Context, ownerUser *idm.User, resourceId string) []*service.ResourcePolicy {
 
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
-	userId, _ := claims.DecodeUserUuid()
-	userLogin := claims.Name
+	userId := ownerUser.Uuid
+	userLogin := ownerUser.Login
 
 	return []*service.ResourcePolicy{
 		{

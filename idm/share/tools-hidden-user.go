@@ -10,7 +10,6 @@ import (
 	"github.com/micro/go-micro/errors"
 	"github.com/pborman/uuid"
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
@@ -20,13 +19,12 @@ import (
 )
 
 // GetOrCreateHiddenUser will load or create a user to create a ShareLink with.
-func GetOrCreateHiddenUser(ctx context.Context, link *rest.ShareLink, passwordEnabled bool, updatePassword string) (user *idm.User, err error) {
+func GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User, link *rest.ShareLink, passwordEnabled bool, updatePassword string) (user *idm.User, err error) {
 
 	// Create or Load corresponding Hidden User
 	uClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
 	roleClient := idm.NewRoleServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_ROLE, defaults.NewClient())
 	if link.UserLogin == "" {
-		claims := ctx.Value(claim.ContextKey).(claim.Claims)
 		newUuid := strings.Replace(uuid.NewUUID().String(), "-", "", -1)
 		login := newUuid[0:16]
 		password := login + PasswordComplexitySuffix
@@ -38,7 +36,7 @@ func GetOrCreateHiddenUser(ctx context.Context, link *rest.ShareLink, passwordEn
 		}
 		if len(link.Policies) == 0 {
 			// Apply default policies and make sure user can read himself
-			link.Policies = OwnerResourcePolicies(ctx, newUuid)
+			link.Policies = OwnerResourcePolicies(ctx, ownerUser, newUuid)
 			link.Policies = append(link.Policies, &service.ResourcePolicy{
 				Resource: newUuid,
 				Subject:  fmt.Sprintf("user:%s", login),
@@ -50,7 +48,7 @@ func GetOrCreateHiddenUser(ctx context.Context, link *rest.ShareLink, passwordEn
 			Uuid:      newUuid,
 			Login:     login,
 			Password:  password,
-			GroupPath: claims.GroupPath,
+			GroupPath: ownerUser.GroupPath,
 			Policies:  link.Policies,
 			Attributes: map[string]string{
 				"profile": "shared",

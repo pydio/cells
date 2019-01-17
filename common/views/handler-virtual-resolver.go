@@ -60,7 +60,7 @@ func (v *VirtualNodesResolver) updateInput(ctx context.Context, node *tree.Node,
 				if aclNodeMask, has := accessList.GetNodesBitmasks()[originalUuid]; has {
 					log.Logger(ctx).Debug("Updating Access List with resolved node Uuid", zap.Any("virtual", virtual), zap.Any("resolved", resolvedRoot))
 					accessList.GetNodesBitmasks()[resolvedRoot.Uuid] = aclNodeMask
-					ctx = context.WithValue(ctx, ctxUserAccessListKey{}, accessList)
+					ctx = context.WithValue(ctx, CtxUserAccessListKey{}, accessList)
 				}
 			}
 		}

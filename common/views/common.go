@@ -57,7 +57,7 @@ var (
 
 // These keys may be enriched in Context depending on the middleware
 type (
-	ctxUserAccessListKey struct{}
+	CtxUserAccessListKey struct{}
 	ctxAdminContextKey   struct{}
 	ctxBranchInfoKey     struct{}
 	CtxKeepAccessListKey struct{}
@@ -153,7 +153,7 @@ func GetBranchInfo(ctx context.Context, identifier string) (BranchInfo, bool) {
 }
 
 func UserWorkspacesFromContext(ctx context.Context) map[string]*idm.Workspace {
-	if value := ctx.Value(ctxUserAccessListKey{}); value != nil {
+	if value := ctx.Value(CtxUserAccessListKey{}); value != nil {
 		accessList := value.(*utils.AccessList)
 		return accessList.Workspaces
 	} else {
@@ -162,7 +162,7 @@ func UserWorkspacesFromContext(ctx context.Context) map[string]*idm.Workspace {
 }
 
 func AccessListFromContext(ctx context.Context) (*utils.AccessList, error) {
-	if value := ctx.Value(ctxUserAccessListKey{}); value != nil {
+	if value := ctx.Value(CtxUserAccessListKey{}); value != nil {
 		accessList := value.(*utils.AccessList)
 		return accessList, nil
 	} else {

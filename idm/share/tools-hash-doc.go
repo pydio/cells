@@ -27,7 +27,6 @@ import (
 	"github.com/go-openapi/errors"
 
 	"github.com/pydio/cells/common"
-	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/config"
 	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
@@ -38,13 +37,12 @@ import (
 
 const PasswordComplexitySuffix = "#$!Az1"
 
-func StoreHashDocument(ctx context.Context, link *rest.ShareLink, updateHash ...string) error {
+func StoreHashDocument(ctx context.Context, ownerUser *idm.User, link *rest.ShareLink, updateHash ...string) error {
 
 	store := docstore.NewDocStoreClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_DOCSTORE, defaults.NewClient())
 
-	claims := ctx.Value(claim.ContextKey).(claim.Claims)
 	hashDoc := &docstore.ShareDocument{
-		OwnerId:       claims.Name,
+		OwnerId:       ownerUser.Login,
 		TemplateName:  link.ViewTemplateName,
 		RepositoryId:  link.Uuid,
 		ExpireTime:    link.AccessEnd,

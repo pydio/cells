@@ -52,7 +52,7 @@ func (a *AclFilterHandler) ReadNode(ctx context.Context, in *tree.ReadNodeReques
 	if a.skipContext(ctx) {
 		return a.next.ReadNode(ctx, in, opts...)
 	}
-	accessList := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+	accessList := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList)
 
 	// First load ancestors or grab them from BranchInfo
 	ctx, parents, err := AncestorsListFromContext(ctx, in.Node, "in", a.clientsPool, false)
@@ -76,7 +76,7 @@ func (a *AclFilterHandler) ListNodes(ctx context.Context, in *tree.ListNodesRequ
 	if a.skipContext(ctx) {
 		return a.next.ListNodes(ctx, in, opts...)
 	}
-	accessList := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+	accessList := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList)
 	// First load ancestors or grab them from BranchInfo
 	ctx, parents, err := AncestorsListFromContext(ctx, in.Node, "in", a.clientsPool, false)
 	if err != nil {
@@ -125,7 +125,7 @@ func (a *AclFilterHandler) CreateNode(ctx context.Context, in *tree.CreateNodeRe
 	if a.skipContext(ctx) {
 		return a.next.CreateNode(ctx, in, opts...)
 	}
-	accessList := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+	accessList := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList)
 	ctx, toParents, err := AncestorsListFromContext(ctx, in.Node, "in", a.clientsPool, true)
 	if err != nil {
 		return nil, err
@@ -140,7 +140,7 @@ func (a *AclFilterHandler) UpdateNode(ctx context.Context, in *tree.UpdateNodeRe
 	if a.skipContext(ctx) {
 		return a.next.UpdateNode(ctx, in, opts...)
 	}
-	accessList := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+	accessList := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList)
 	ctx, fromParents, err := AncestorsListFromContext(ctx, in.From, "from", a.clientsPool, false)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ func (a *AclFilterHandler) DeleteNode(ctx context.Context, in *tree.DeleteNodeRe
 	if a.skipContext(ctx) {
 		return a.next.DeleteNode(ctx, in, opts...)
 	}
-	accessList := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+	accessList := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList)
 	ctx, delParents, err := AncestorsListFromContext(ctx, in.Node, "in", a.clientsPool, false)
 	if err != nil {
 		return nil, err
@@ -177,7 +177,7 @@ func (a *AclFilterHandler) GetObject(ctx context.Context, node *tree.Node, reque
 	if a.skipContext(ctx) {
 		return a.next.GetObject(ctx, node, requestData)
 	}
-	accessList := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+	accessList := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList)
 	// First load ancestors or grab them from BranchInfo
 	ctx, parents, err := AncestorsListFromContext(ctx, node, "in", a.clientsPool, false)
 	if err != nil {
@@ -193,7 +193,7 @@ func (a *AclFilterHandler) PutObject(ctx context.Context, node *tree.Node, reade
 	if a.skipContext(ctx) {
 		return a.next.PutObject(ctx, node, reader, requestData)
 	}
-	accessList := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+	accessList := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList)
 	// First load ancestors or grab them from BranchInfo
 	ctx, parents, err := AncestorsListFromContext(ctx, node, "in", a.clientsPool, true)
 	if err != nil {
@@ -209,7 +209,7 @@ func (a *AclFilterHandler) CopyObject(ctx context.Context, from *tree.Node, to *
 	if a.skipContext(ctx) {
 		return a.next.CopyObject(ctx, from, to, requestData)
 	}
-	accessList := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+	accessList := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList)
 	ctx, fromParents, err := AncestorsListFromContext(ctx, from, "from", a.clientsPool, false)
 	if err != nil {
 		return 0, err
