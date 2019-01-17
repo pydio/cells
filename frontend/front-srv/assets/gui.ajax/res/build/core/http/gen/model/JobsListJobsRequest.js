@@ -47,6 +47,9 @@ var JobsListJobsRequest = (function () {
         this.EventsOnly = undefined;
         this.TimersOnly = undefined;
         this.LoadTasks = undefined;
+        this.JobIDs = undefined;
+        this.TasksOffset = undefined;
+        this.TasksLimit = undefined;
     }
 
     /**
@@ -73,6 +76,15 @@ var JobsListJobsRequest = (function () {
             if (data.hasOwnProperty('LoadTasks')) {
                 obj['LoadTasks'] = _JobsTaskStatus2['default'].constructFromObject(data['LoadTasks']);
             }
+            if (data.hasOwnProperty('JobIDs')) {
+                obj['JobIDs'] = _ApiClient2['default'].convertToType(data['JobIDs'], ['String']);
+            }
+            if (data.hasOwnProperty('TasksOffset')) {
+                obj['TasksOffset'] = _ApiClient2['default'].convertToType(data['TasksOffset'], 'Number');
+            }
+            if (data.hasOwnProperty('TasksLimit')) {
+                obj['TasksLimit'] = _ApiClient2['default'].convertToType(data['TasksLimit'], 'Number');
+            }
         }
         return obj;
     };
@@ -96,4 +108,16 @@ module.exports = exports['default'];
 
 /**
 * @member {module:model/JobsTaskStatus} LoadTasks
+*/
+
+/**
+* @member {Array.<String>} JobIDs
+*/
+
+/**
+* @member {Number} TasksOffset
+*/
+
+/**
+* @member {Number} TasksLimit
 */

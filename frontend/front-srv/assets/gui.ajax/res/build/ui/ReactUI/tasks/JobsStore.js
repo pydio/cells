@@ -68,12 +68,12 @@ var JobsStore = (function (_Observable) {
                 job.Tasks = [task];
             }
             _this.tasksList.set(job.ID, job);
-            _this.notify("tasks_updated");
+            _this.notify("tasks_updated", job.ID);
         });
 
         this.pydio.observe("registry_loaded", function () {
             setTimeout(function () {
-                _this.getJobs(true).then(function (res) {
+                _this.getJobs(true).then(function () {
                     _this.notify("tasks_updated");
                 });
             }, 500);
@@ -131,6 +131,8 @@ var JobsStore = (function (_Observable) {
     JobsStore.prototype.getAdminJobs = function getAdminJobs() {
         var owner = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
         var triggerType = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+        var jobId = arguments.length <= 2 || arguments[2] === undefined ? "" : arguments[2];
+        var maxTasks = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
 
         var api = new _pydioHttpRestApi.JobsServiceApi(_pydioHttpApi2['default'].getRestClient());
         var request = new _pydioHttpRestApi.JobsListJobsRequest();
@@ -139,6 +141,12 @@ var JobsStore = (function (_Observable) {
             request.Owner = owner;
         } else {
             request.Owner = "*";
+        }
+        if (maxTasks > 0) {
+            request.TasksLimit = maxTasks;
+        }
+        if (jobId !== "") {
+            request.JobIDs = [jobId];
         }
         if (triggerType !== null) {
             if (triggerType === "schedule") {
@@ -156,7 +164,7 @@ var JobsStore = (function (_Observable) {
 
     JobsStore.prototype.enqueueLocalJob = function enqueueLocalJob(job) {
         this.localJobs.set(job.ID, job);
-        this.notify("tasks_updated");
+        this.notify("tasks_updated", job.ID);
     };
 
     /**
@@ -178,7 +186,7 @@ var JobsStore = (function (_Observable) {
         }
         return api.userControlJob(cmd).then(function () {
             if (status === 'Delete') {
-                _this3.notify('tasks_updated');
+                _this3.notify('tasks_updated', task.JobID);
             }
         });
     };
@@ -200,7 +208,7 @@ var JobsStore = (function (_Observable) {
         });
         req.JobId = jobID;
         return api.userDeleteTasks(req).then(function () {
-            _this4.notify('tasks_updated');
+            _this4.notify('tasks_updated', jobID);
         });
     };
 
@@ -218,7 +226,7 @@ var JobsStore = (function (_Observable) {
         req.JobId = jobId;
         req.Status = [_pydioHttpRestApi.JobsTaskStatus.constructFromObject("Finished"), _pydioHttpRestApi.JobsTaskStatus.constructFromObject("Interrupted"), _pydioHttpRestApi.JobsTaskStatus.constructFromObject("Error")];
         return api.userDeleteTasks(req).then(function () {
-            _this5.notify('tasks_updated');
+            _this5.notify('tasks_updated', jobId);
         });
     };
 
@@ -237,7 +245,7 @@ var JobsStore = (function (_Observable) {
         cmd.Cmd = _pydioHttpRestApi.JobsCommand.constructFromObject(command);
         cmd.JobId = job.ID;
         return api.userControlJob(cmd).then(function () {
-            _this6.notify('tasks_updated');
+            _this6.notify('tasks_updated', job.ID);
         });
     };
 

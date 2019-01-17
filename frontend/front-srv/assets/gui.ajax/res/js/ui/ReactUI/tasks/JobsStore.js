@@ -42,15 +42,15 @@ class JobsStore extends Observable {
                 job.Tasks = [task];
             }
             this.tasksList.set(job.ID, job);
-            this.notify("tasks_updated");
+            this.notify("tasks_updated", job.ID);
 
         });
 
         this.pydio.observe("registry_loaded", ()=>{
             setTimeout(()=>{
-                this.getJobs(true).then(res =>{
+                this.getJobs(true).then(() =>{
                     this.notify("tasks_updated");
-                })
+                });
             }, 500);
         });
 
@@ -99,7 +99,7 @@ class JobsStore extends Observable {
      * Get all tasks (running or not)
      * @return {Promise}
      */
-    getAdminJobs(owner = null, triggerType = null) {
+    getAdminJobs(owner = null, triggerType = null, jobId = "", maxTasks = 0) {
         const api = new JobsServiceApi(PydioApi.getRestClient());
         const request = new JobsListJobsRequest();
         request.LoadTasks = JobsTaskStatus.constructFromObject('Any');
@@ -107,6 +107,12 @@ class JobsStore extends Observable {
             request.Owner = owner;
         } else {
             request.Owner = "*";
+        }
+        if (maxTasks > 0) {
+            request.TasksLimit = maxTasks;
+        }
+        if (jobId !== "") {
+            request.JobIDs = [jobId];
         }
         if (triggerType !== null) {
             if (triggerType === "schedule") {
@@ -123,7 +129,7 @@ class JobsStore extends Observable {
      */
     enqueueLocalJob(job){
         this.localJobs.set(job.ID, job);
-        this.notify("tasks_updated");
+        this.notify("tasks_updated", job.ID);
     }
 
     /**
@@ -142,7 +148,7 @@ class JobsStore extends Observable {
         }
         return api.userControlJob(cmd).then(()=>{
             if (status === 'Delete') {
-                this.notify('tasks_updated');
+                this.notify('tasks_updated', task.JobID);
             }
         });
     }
@@ -159,7 +165,7 @@ class JobsStore extends Observable {
         req.TaskID = tasks.map(t => t.ID);
         req.JobId = jobID;
         return api.userDeleteTasks(req).then(()=>{
-            this.notify('tasks_updated');
+            this.notify('tasks_updated', jobID);
         })
     }
 
@@ -178,7 +184,7 @@ class JobsStore extends Observable {
             JobsTaskStatus.constructFromObject("Error"),
         ];
         return api.userDeleteTasks(req).then(()=>{
-            this.notify('tasks_updated');
+            this.notify('tasks_updated', jobId);
         })
     }
 
@@ -194,7 +200,7 @@ class JobsStore extends Observable {
         cmd.Cmd = JobsCommand.constructFromObject(command);
         cmd.JobId = job.ID;
         return api.userControlJob(cmd).then(()=>{
-            this.notify('tasks_updated');
+            this.notify('tasks_updated', job.ID);
         });
     }
 
