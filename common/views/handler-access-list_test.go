@@ -38,7 +38,7 @@ func TestNewAccessListHandler(t *testing.T) {
 		out, e := h.CtxWrapper(ctx)
 		So(e, ShouldBeNil)
 
-		So(out.Value(ctxUserAccessListKey{}), ShouldBeNil)
+		So(out.Value(CtxUserAccessListKey{}), ShouldBeNil)
 		So(out.Value(ctxAdminContextKey{}).(bool), ShouldBeTrue)
 
 	})
