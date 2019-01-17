@@ -109,6 +109,7 @@ var RoleServiceApi = (function () {
    * @param {Number} opts.lastUpdated 
    * @param {Array.<String>} opts.autoApplies 
    * @param {Boolean} opts.policiesContextEditable 
+   * @param {Boolean} opts.forceOverride 
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmRole} and HTTP response
    */
 
@@ -131,7 +132,8 @@ var RoleServiceApi = (function () {
       'UserRole': opts['userRole'],
       'LastUpdated': opts['lastUpdated'],
       'AutoApplies': this.apiClient.buildCollectionParam(opts['autoApplies'], 'csv'),
-      'PoliciesContextEditable': opts['policiesContextEditable']
+      'PoliciesContextEditable': opts['policiesContextEditable'],
+      'ForceOverride': opts['forceOverride']
     };
     var headerParams = {};
     var formParams = {};
@@ -155,6 +157,7 @@ var RoleServiceApi = (function () {
    * @param {Number} opts.lastUpdated 
    * @param {Array.<String>} opts.autoApplies 
    * @param {Boolean} opts.policiesContextEditable 
+   * @param {Boolean} opts.forceOverride 
    * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmRole}
    */
 

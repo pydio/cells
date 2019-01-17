@@ -26,8 +26,10 @@ class RoleInfo extends React.Component {
         const idmRole = role.getIdmRole();
         if(paramName === "applies") {
             idmRole.AutoApplies = newValue.split(',');
-        } else if(paramName === "roleLabel"){
+        } else if(paramName === "roleLabel") {
             idmRole.Label = newValue;
+        }else if (paramName === "roleForceOverride") {
+            idmRole.ForceOverride = newValue
         }else{
             const param = this.getParameterByName(paramName);
             if(param.aclKey){
@@ -55,6 +57,7 @@ class RoleInfo extends React.Component {
             {"name":"roleId", label:this.getPydioRoleMessage('31'),"type":"string", readonly:true},
             {"name":"roleLabel", label:this.getPydioRoleMessage('32'),"type":"string"},
             {"name":"applies", label:this.getPydioRoleMessage('33'),"type":"select", multiple:true, choices:'admin|Administrators,standard|Standard,shared|Shared Users,anon|Anonymous'},
+            {"name":"roleForceOverride", label:"Always Override","type":"boolean"},
             ...parameters
         ];
 
@@ -66,6 +69,7 @@ class RoleInfo extends React.Component {
                 roleId:idmRole.Uuid,
                 applies: applies.filter(v => !!v), // filter empty values
                 roleLabel:idmRole.Label,
+                roleForceOverride: idmRole.ForceOverride || false
             };
             parameters.map(p => {
                 if(p.aclKey && role.getParameterValue(p.aclKey)){

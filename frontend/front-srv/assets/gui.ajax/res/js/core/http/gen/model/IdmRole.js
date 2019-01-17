@@ -84,6 +84,9 @@ export default class IdmRole {
             if (data.hasOwnProperty('PoliciesContextEditable')) {
                 obj['PoliciesContextEditable'] = ApiClient.convertToType(data['PoliciesContextEditable'], 'Boolean');
             }
+            if (data.hasOwnProperty('ForceOverride')) {
+                obj['ForceOverride'] = ApiClient.convertToType(data['ForceOverride'], 'Boolean');
+            }
         }
         return obj;
     }
@@ -124,6 +127,10 @@ export default class IdmRole {
     * @member {Boolean} PoliciesContextEditable
     */
     PoliciesContextEditable = undefined;
+    /**
+    * @member {Boolean} ForceOverride
+    */
+    ForceOverride = undefined;
 
 
 

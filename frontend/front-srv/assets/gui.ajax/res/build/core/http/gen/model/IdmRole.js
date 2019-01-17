@@ -52,6 +52,7 @@ var IdmRole = (function () {
         this.AutoApplies = undefined;
         this.Policies = undefined;
         this.PoliciesContextEditable = undefined;
+        this.ForceOverride = undefined;
     }
 
     /**
@@ -92,6 +93,9 @@ var IdmRole = (function () {
             }
             if (data.hasOwnProperty('PoliciesContextEditable')) {
                 obj['PoliciesContextEditable'] = _ApiClient2['default'].convertToType(data['PoliciesContextEditable'], 'Boolean');
+            }
+            if (data.hasOwnProperty('ForceOverride')) {
+                obj['ForceOverride'] = _ApiClient2['default'].convertToType(data['ForceOverride'], 'Boolean');
             }
         }
         return obj;
@@ -136,4 +140,8 @@ module.exports = exports['default'];
 
 /**
 * @member {Boolean} PoliciesContextEditable
+*/
+
+/**
+* @member {Boolean} ForceOverride
 */

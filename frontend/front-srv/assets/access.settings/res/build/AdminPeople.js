@@ -25314,6 +25314,8 @@ var RoleInfo = (function (_React$Component) {
                 idmRole.AutoApplies = newValue.split(',');
             } else if (paramName === "roleLabel") {
                 idmRole.Label = newValue;
+            } else if (paramName === "roleForceOverride") {
+                idmRole.ForceOverride = newValue;
             } else {
                 var param = this.getParameterByName(paramName);
                 if (param.aclKey) {
@@ -25345,7 +25347,7 @@ var RoleInfo = (function (_React$Component) {
             }
 
             // Load role parameters
-            var params = [{ "name": "roleId", label: this.getPydioRoleMessage('31'), "type": "string", readonly: true }, { "name": "roleLabel", label: this.getPydioRoleMessage('32'), "type": "string" }, { "name": "applies", label: this.getPydioRoleMessage('33'), "type": "select", multiple: true, choices: 'admin|Administrators,standard|Standard,shared|Shared Users,anon|Anonymous' }].concat(_toConsumableArray(parameters));
+            var params = [{ "name": "roleId", label: this.getPydioRoleMessage('31'), "type": "string", readonly: true }, { "name": "roleLabel", label: this.getPydioRoleMessage('32'), "type": "string" }, { "name": "applies", label: this.getPydioRoleMessage('33'), "type": "select", multiple: true, choices: 'admin|Administrators,standard|Standard,shared|Shared Users,anon|Anonymous' }, { "name": "roleForceOverride", label: "Always Override", "type": "boolean" }].concat(_toConsumableArray(parameters));
 
             var values = { applies: [] };
             if (role) {
@@ -25356,7 +25358,8 @@ var RoleInfo = (function (_React$Component) {
                     applies: applies.filter(function (v) {
                         return !!v;
                     }), // filter empty values
-                    roleLabel: idmRole.Label
+                    roleLabel: idmRole.Label,
+                    roleForceOverride: idmRole.ForceOverride || false
                 };
                 parameters.map(function (p) {
                     if (p.aclKey && role.getParameterValue(p.aclKey)) {

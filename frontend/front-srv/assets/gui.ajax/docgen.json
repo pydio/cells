@@ -4281,6 +4281,22 @@
             "returns": null
           },
           {
+            "name": "loadOne",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "jobID",
+                "type": null
+              },
+              {
+                "name": "hideLoading",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
             "name": "selectRows",
             "docblock": null,
             "modifiers": [],
@@ -13728,7 +13744,7 @@
           },
           {
             "name": "getRoleWithHttpInfo",
-            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label \n@param {Boolean} opts.isTeam \n@param {Boolean} opts.groupRole \n@param {Boolean} opts.userRole \n@param {Number} opts.lastUpdated \n@param {Array.<String>} opts.autoApplies \n@param {Boolean} opts.policiesContextEditable \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmRole} and HTTP response",
+            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label \n@param {Boolean} opts.isTeam \n@param {Boolean} opts.groupRole \n@param {Boolean} opts.userRole \n@param {Number} opts.lastUpdated \n@param {Array.<String>} opts.autoApplies \n@param {Boolean} opts.policiesContextEditable \n@param {Boolean} opts.forceOverride \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmRole} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -13756,7 +13772,7 @@
           },
           {
             "name": "getRole",
-            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label \n@param {Boolean} opts.isTeam \n@param {Boolean} opts.groupRole \n@param {Boolean} opts.userRole \n@param {Number} opts.lastUpdated \n@param {Array.<String>} opts.autoApplies \n@param {Boolean} opts.policiesContextEditable \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmRole}",
+            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label \n@param {Boolean} opts.isTeam \n@param {Boolean} opts.groupRole \n@param {Boolean} opts.userRole \n@param {Number} opts.lastUpdated \n@param {Array.<String>} opts.autoApplies \n@param {Boolean} opts.policiesContextEditable \n@param {Boolean} opts.forceOverride \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmRole}",
             "modifiers": [],
             "params": [
               {

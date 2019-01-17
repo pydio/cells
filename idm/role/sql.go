@@ -45,8 +45,8 @@ import (
 
 var (
 	queries = map[string]string{
-		"AddRole":    `insert into idm_roles (uuid, label, team_role, group_role, user_role, last_updated, auto_applies) values (?,?,?,?,?,?,?)`,
-		"UpdateRole": `update idm_roles set label=?, team_role=?, group_role=?, user_role=?, last_updated=?, auto_applies=? where uuid= ?`,
+		"AddRole":    `insert into idm_roles (uuid, label, team_role, group_role, user_role, last_updated, auto_applies, override) values (?,?,?,?,?,?,?,?)`,
+		"UpdateRole": `update idm_roles set label=?, team_role=?, group_role=?, user_role=?, last_updated=?, auto_applies=?, override=? where uuid= ?`,
 		"GetRole":    `select * from idm_roles where uuid = ?`,
 		"Exists":     `select count(uuid) from idm_roles where uuid = ?`,
 		"DeleteRole": `delete from idm_roles where uuid = ?`,
@@ -133,6 +133,7 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 				role.UserRole,
 				role.LastUpdated,
 				strings.Join(role.AutoApplies, ","),
+				role.ForceOverride,
 			); err != nil {
 				return nil, false, err
 			}
@@ -150,6 +151,7 @@ func (s *sqlimpl) Add(role *idm.Role) (*idm.Role, bool, error) {
 				role.UserRole,
 				role.LastUpdated,
 				strings.Join(role.AutoApplies, ","),
+				role.ForceOverride,
 				role.Uuid,
 			); err != nil {
 				return nil, false, err
@@ -209,6 +211,7 @@ func (s *sqlimpl) Search(query sql.Enquirer, roles *[]*idm.Role) error {
 			&role.UserRole,
 			&role.LastUpdated,
 			&autoApplies,
+			&role.ForceOverride,
 		)
 		for _, a := range strings.Split(autoApplies, ",") {
 			role.AutoApplies = append(role.AutoApplies, a)

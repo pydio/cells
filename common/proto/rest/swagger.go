@@ -1827,6 +1827,13 @@ var SwaggerJson = `{
             "required": false,
             "type": "boolean",
             "format": "boolean"
+          },
+          {
+            "name": "ForceOverride",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "format": "boolean"
           }
         ],
         "tags": [
@@ -3811,6 +3818,10 @@ var SwaggerJson = `{
           }
         },
         "PoliciesContextEditable": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "ForceOverride": {
           "type": "boolean",
           "format": "boolean"
         }

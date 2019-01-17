@@ -52,6 +52,7 @@ message Role {
     repeated string AutoApplies = 7;
     repeated service.ResourcePolicy Policies = 8;
     bool PoliciesContextEditable = 9;
+    bool ForceOverride = 10;
 }
 
 message RoleSingleQuery {
