@@ -128,7 +128,7 @@ func (j *JobsHandler) ListJobs(ctx context.Context, request *proto.ListJobsReque
 	log.Logger(ctx).Debug("Scheduler ListJobs", zap.Any("req", request))
 	defer streamer.Close()
 
-	res, done, err := j.store.ListJobs(request.Owner, request.EventsOnly, request.TimersOnly, request.LoadTasks)
+	res, done, err := j.store.ListJobs(request.Owner, request.EventsOnly, request.TimersOnly, request.LoadTasks, request.TasksOffset, request.TasksLimit)
 	defer close(res)
 	if err != nil {
 		return err
@@ -139,7 +139,17 @@ func (j *JobsHandler) ListJobs(ctx context.Context, request *proto.ListJobsReque
 		case <-done:
 			return nil
 		case j := <-res:
-			streamer.Send(&proto.ListJobsResponse{Job: j})
+			// Additional filter by JobIDs
+			if len(request.JobIDs) == 0 {
+				streamer.Send(&proto.ListJobsResponse{Job: j})
+			} else {
+				for _, id := range request.JobIDs {
+					if j.ID == id {
+						streamer.Send(&proto.ListJobsResponse{Job: j})
+						break
+					}
+				}
+			}
 		}
 	}
 }

@@ -4635,6 +4635,20 @@ var SwaggerJson = `{
         },
         "LoadTasks": {
           "$ref": "#/definitions/jobsTaskStatus"
+        },
+        "JobIDs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "TasksOffset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "TasksLimit": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
