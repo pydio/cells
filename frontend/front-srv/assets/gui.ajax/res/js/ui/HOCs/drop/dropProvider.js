@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-import Pydio from 'pydio'
+import ResourcesManager from 'pydio/http/resources-manager'
 import NativeFileDropProvider from './NativeFileDropProvider'
 
 export default function(PydioComponent, filterFunction = null ){
@@ -28,6 +28,17 @@ export default function(PydioComponent, filterFunction = null ){
         const {pydio, UploaderModel} = global;
         if(!pydio.user || !UploaderModel){
             pydio.UI.displayMessage('ERROR', 'You are not allowed to upload files here');
+            return;
+        }
+
+        if(pydio.user.activeRepository === 'homepage'){
+            // limit to files only
+            const filtered = Array.prototype.slice.call(files || [], 0).filter((f) => {return !!f.type});
+            if (filtered.length){
+                ResourcesManager.loadClass('PydioWorkspaces').then(()=>{
+                    pydio.UI.openComponentInModal('PydioWorkspaces', 'WorkspacePickerDialog', {files: filtered, switchAtUpload: true, pydio});
+                });
+            }
             return;
         }
         const ctxNode = pydio.getContextHolder().getContextNode();

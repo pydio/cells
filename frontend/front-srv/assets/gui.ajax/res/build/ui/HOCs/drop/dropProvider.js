@@ -24,9 +24,9 @@ exports.__esModule = true;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _pydio = require('pydio');
+var _pydioHttpResourcesManager = require('pydio/http/resources-manager');
 
-var _pydio2 = _interopRequireDefault(_pydio);
+var _pydioHttpResourcesManager2 = _interopRequireDefault(_pydioHttpResourcesManager);
 
 var _NativeFileDropProvider = require('./NativeFileDropProvider');
 
@@ -42,6 +42,25 @@ exports['default'] = function (PydioComponent) {
         if (!pydio.user || !UploaderModel) {
             pydio.UI.displayMessage('ERROR', 'You are not allowed to upload files here');
             return;
+        }
+
+        if (pydio.user.activeRepository === 'homepage') {
+            var _ret = (function () {
+                // limit to files only
+                var filtered = Array.prototype.slice.call(files || [], 0).filter(function (f) {
+                    return !!f.type;
+                });
+                if (filtered.length) {
+                    _pydioHttpResourcesManager2['default'].loadClass('PydioWorkspaces').then(function () {
+                        pydio.UI.openComponentInModal('PydioWorkspaces', 'WorkspacePickerDialog', { files: filtered, switchAtUpload: true, pydio: pydio });
+                    });
+                }
+                return {
+                    v: undefined
+                };
+            })();
+
+            if (typeof _ret === 'object') return _ret.v;
         }
         var ctxNode = pydio.getContextHolder().getContextNode();
         if (ctxNode.getMetadata().get('node_readonly') === 'true' || ctxNode.getMetadata().get('level_readonly') === 'true') {

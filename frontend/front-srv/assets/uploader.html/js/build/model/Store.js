@@ -298,14 +298,16 @@ var Store = function (_Observable) {
     }, {
         key: 'handleDropEventResults',
         value: function handleDropEventResults(items, files, targetNode) {
+            var accumulator = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+
             var _this5 = this;
 
-            var accumulator = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
             var filterFunction = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+            var targetRepositoryId = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
 
 
             var overwriteStatus = _Configs2.default.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
-            var session = new _Session2.default(_pydio2.default.getInstance().user.activeRepository, targetNode);
+            var session = new _Session2.default(targetRepositoryId || _pydio2.default.getInstance().user.activeRepository, targetNode);
             this.pushSession(session);
             var filter = function filter(refPath) {
                 if (filterFunction && !filterFunction(refPath)) {

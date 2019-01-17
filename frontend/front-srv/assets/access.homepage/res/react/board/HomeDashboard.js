@@ -19,84 +19,35 @@
  */
 
 import React from 'react'
-import ReactDOM from 'react-dom'
 import ConfigLogo from './ConfigLogo'
-import {Paper, IconButton, Badge} from 'material-ui'
+import {Paper, IconButton, Badge, Color} from 'material-ui'
 import WelcomeTour from './WelcomeTour'
 import Pydio from 'pydio'
 import HomeSearchForm from './HomeSearchForm'
 import ActivityStreamsPanel from '../recent/ActivityStreams'
-const {LeftPanel} = Pydio.requireLib('workspaces');
+const {MasterLayout} = Pydio.requireLib('workspaces');
 
-let AltDashboard = React.createClass({
+class AltDashboard extends React.Component {
 
-    getDefaultCards: function(){
+    constructor(props) {
+        super(props);
+        this.state = {unreadStatus: 0, drawerOpen: true};
+        //setTimeout(()=>{this.setState({drawerOpen: false})}, 2000);
+    }
 
-        const baseCards = [
-            {
-                id:'quick_upload',
-                componentClass:'WelcomeComponents.QuickSendCard',
-                defaultPosition:{
-                    x: 0, y: 10
-                }
-            },
-            {
-                id:'downloads',
-                componentClass:'WelcomeComponents.DlAppsCard',
-                defaultPosition:{
-                    x:0, y:20
-                }
-            },
-            {
-                id:'qr_code',
-                componentClass:'WelcomeComponents.QRCodeCard',
-                defaultPosition:{
-                    x: 0, y: 30
-                }
-            },
-            {
-                id:'videos',
-                componentClass:'WelcomeComponents.VideoCard',
-                defaultPosition:{
-                    x:0, y:50
-                }
-            },
-
-        ];
-
-        return baseCards;
-    },
-
-    getInitialState: function(){
-        return {unreadStatus:0};
-    },
-
-    openDrawer: function(event){
+    openDrawer(event) {
         event.stopPropagation();
         this.setState({drawerOpen: true});
-    },
-
-    closeDrawer: function(e){
-        if(!this.state.drawerOpen){
-            return;
         }
-        const widgets = document.getElementsByClassName('user-widget');
-        if(widgets && widgets.length > 0 && widgets[0].contains(ReactDOM.findDOMNode(e.target))){
-            return;
-        }
-        this.setState({drawerOpen: false});
-    },
 
-    render:function() {
+    render() {
 
-        const {pydio} = this.props;
+        const {pydio, muiTheme} = this.props;
+        const {drawerOpen} = this.state;
 
-        const Color = MaterialUI.Color;
-
-        const appBarColor = new Color(this.props.muiTheme.appBar.color);
-
-        const guiPrefs = this.props.pydio.user ? this.props.pydio.user.getPreference('gui_preferences', true) : [];
-        const wTourEnabled = this.props.pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
+        const appBarColor = new Color(muiTheme.appBar.color);
+        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
+        const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
 
         const styles = {
             appBarStyle : {
@@ -105,7 +56,7 @@ let AltDashboard = React.createClass({
                 height: 100
             },
             buttonsStyle : {
-                color: this.props.muiTheme.appBar.textColor
+                color: muiTheme.appBar.textColor
             },
             iconButtonsStyle :{
                 color: appBarColor.darken(0.4).toString()
@@ -119,43 +70,49 @@ let AltDashboard = React.createClass({
                 left: 260,
                 display:'flex',
                 flexDirection:'column'
-            },
-            rglStyle: {
-                position:'absolute',
-                top: 100,
-                bottom: 0,
-                right: 0,
-                width: 260,
-                overflowY:'auto',
-                backgroundColor: '#ECEFF1'
-            },
-            centerTitleStyle:{
-                padding: '20px 16px 10px',
-                fontSize: 13,
-                color: '#93a8b2',
-                fontWeight: 500
             }
         };
 
         let mainClasses = ['vertical_layout', 'vertical_fit', 'react-fs-template', 'user-dashboard-template'];
-        if(this.state.drawerOpen){
-            mainClasses.push('drawer-open');
+
+        let tutorialComponent;
+        if (wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome']) {
+            tutorialComponent = <WelcomeTour ref="welcome" pydio={pydio}/>;
         }
+
+        const leftPanelProps = {
+            style: {backgroundColor: 'transparent'},
+            userWidgetProps: {
+                hideNotifications: false,
+                style: {
+                    backgroundColor: appBarColor.darken(.2).alpha(.7).toString()
+        }
+            }
+        };
+        // Not used - to be used for toggling left menu
+        const drawerIcon = (
+            <span className="drawer-button" style={{position:'absolute'}}>
+                <IconButton
+                    iconStyle={{color: null, display:'none'}}
+                    iconClassName="mdi mdi-menu"
+                    onTouchTap={this.openDrawer.bind(this)}/>
+            </span>
+        );
 
         return (
 
-            <div className={mainClasses.join(' ')} onTouchTap={this.closeDrawer}>
-                {wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'] && <WelcomeTour ref="welcome" pydio={this.props.pydio}/>}
-                <LeftPanel
-                    className="left-panel"
-                    pydio={pydio}
-                    style={{backgroundColor:'transparent'}}
-                    userWidgetProps={{hideNotifications:false, style:{backgroundColor:appBarColor.darken(.2).alpha(.7).toString()}}}
-                />
-                <div className="desktop-container vertical_layout vertical_fit">
-                    <Paper zDepth={1} style={styles.appBarStyle} rounded={false}>
+            <MasterLayout
+                pydio={pydio}
+                classes={mainClasses}
+                tutorialComponent={tutorialComponent}
+                leftPanelProps={leftPanelProps}
+                drawerOpen={drawerOpen}
+                onCloseDrawerRequested={() => {
+                    this.setState({drawerOpen: true})
+                }}
+            >
+                <Paper zDepth={1} style={{...styles.appBarStyle}} rounded={false}>
                         <div id="workspace_toolbar" style={{display: "flex", justifyContent: "space-between"}}>
-                            <span className="drawer-button"><IconButton iconStyle={{color: 'white'}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/></span>
                             <span style={{flex:1}}></span>
                             <div style={{textAlign:'center', width: 250}}>
                                 <ConfigLogo
@@ -167,7 +124,7 @@ let AltDashboard = React.createClass({
                             </div>
                         </div>
                     </Paper>
-                    <div style={{backgroundColor:'white'}} className="vertical_fit user-dashboard-main">
+                <div style={{backgroundColor: 'rgba(255,255,255,1)'}} className="vertical_fit user-dashboard-main">
 
                         <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle}>
                             <div style={{flex:1, overflowY:'scroll'}} id="history-block">
@@ -179,13 +136,12 @@ let AltDashboard = React.createClass({
                         </HomeSearchForm>
 
                     </div>
-                </div>
-            </div>
+            </MasterLayout>
 
         );
 
     }
-});
+}
 
 AltDashboard = MaterialUI.Style.muiThemeable()(AltDashboard);
 

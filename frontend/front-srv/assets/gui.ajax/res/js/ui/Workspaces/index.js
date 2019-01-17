@@ -28,10 +28,12 @@ import { SearchForm } from './search'
 
 import WorkspacesList from './wslist/WorkspacesList'
 import WorkspacesListMaterial from './wslist/WorkspacesListMaterial'
+import WorkspacePickerDialog from './wslist/WorkspacePickerDialog'
 import LeftPanel from './leftnav/LeftPanel'
 import DynamicLeftPanel from './leftnav/DynamicLeftPanel'
 import UserWidget from './leftnav/UserWidget'
 import TourGuide from './views/TourGuide'
+import MasterLayout from './views/MasterLayout'
 
 import InfoPanel from './detailpanes/InfoPanel'
 import InfoPanelCard from './detailpanes/InfoPanelCard'
@@ -52,10 +54,12 @@ const classes = {
     FSTemplate,
     WorkspacesList,
     WorkspacesListMaterial,
+    WorkspacePickerDialog,
     LeftPanel,
     DynamicLeftPanel,
     UserWidget,
     TourGuide,
+    MasterLayout,
 
     InfoPanel,
     InfoPanelCard,

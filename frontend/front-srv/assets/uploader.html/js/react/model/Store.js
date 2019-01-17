@@ -253,10 +253,10 @@ class Store extends Observable{
 
     }
 
-    handleDropEventResults(items, files, targetNode, accumulator = null, filterFunction = null ){
+    handleDropEventResults(items, files, targetNode, accumulator = null, filterFunction = null, targetRepositoryId = null){
 
         const overwriteStatus = Configs.getInstance().getOption("DEFAULT_EXISTING", "upload_existing");
-        const session = new Session(Pydio.getInstance().user.activeRepository, targetNode);
+        const session = new Session(targetRepositoryId || Pydio.getInstance().user.activeRepository, targetNode);
         this.pushSession(session);
         const filter = (refPath) => {
             if(filterFunction && !filterFunction(refPath)){
@@ -272,10 +272,8 @@ class Store extends Observable{
             if(accumulator){
                 accumulator.push(item)
             } else if (isFolder) {
-                //this.pushFolder(item);
                 session.pushFolder(item);
             } else {
-                //this.pushFile(item);
                 session.pushFile(item);
             }
         };

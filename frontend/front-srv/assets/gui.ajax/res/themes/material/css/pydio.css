@@ -466,6 +466,10 @@ div.dialogBox div#element_overlay {
   margin: 0 1px;
   visibility: hidden;
 }
+.react-mui-context .material-list.files-list .material-list-entry .overlay_icon_div button > div > div {
+  /*Fix tooltip positioning creating weirdo stuff with dnd*/
+  top: 30px !important;
+}
 .react-mui-context .material-list.files-list .material-list-entry.selected {
   color: inherit;
   border-bottom-color: transparent;
@@ -541,18 +545,9 @@ div.dialogBox div#element_overlay {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.react-mui-context .material-list.files-list.table-mode .material-list-icon-none {
-  display: none;
-}
+.react-mui-context .material-list.files-list.table-mode .material-list-icon-none,
 .react-mui-context .material-list.files-list.table-mode .material-list-actions {
   display: none;
-}
-.react-mui-context .material-list.files-list.table-mode .material-list-actions .overlay_icon_div {
-  padding-right: 8px;
-}
-.react-mui-context .material-list.files-list.table-mode .material-list-actions .overlay_icon_div .overlay-class-span {
-  display: inline-block;
-  padding: 18px 8px 0;
 }
 .react-mui-context .material-list.files-list.table-mode .material-list-entry.selected-dark span.cell {
   color: rgba(255, 255, 255, 0.63);
@@ -2486,10 +2481,6 @@ body,
   -ms-flex: 1;
       flex: 1;
 }
-#ajxp_desktop {
-  /* Necessary to fix FF flexbox issue */
-  min-height: 0px;
-}
 #orbit_content {
   -webkit-font-smoothing: antialiased;
   -ms-flex: 1;
@@ -2518,6 +2509,19 @@ body,
     transform: translateX(0px);
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
   }
+}
+.react-mui-context .user-dashboard-template .left-panel {
+  transform: translateX(-250px);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+.react-mui-context .user-dashboard-template.drawer-open .left-panel {
+  transform: translateX(0px);
+}
+.react-mui-context .user-dashboard-template .desktop-container {
+  margin-left: 0;
+}
+.react-mui-context .user-dashboard-template .drawer-button {
+  display: inherit !important;
 }
 .react-mui-context .desktop-container {
   transition: all 550ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;

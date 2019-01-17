@@ -18,9 +18,9 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-const React = require('react')
-const {ActionDialogMixin, CancelButtonProviderMixin} = require('pydio').requireLib('boot')
-const {WorkspacesListMaterial} = require('pydio').requireLib('workspaces')
+const React = require('react');
+const {ActionDialogMixin, CancelButtonProviderMixin} = require('pydio').requireLib('boot');
+import WorkspacesListMaterial from './WorkspacesListMaterial'
 
 const WorkspacePickerDialog = React.createClass({
 
@@ -45,15 +45,19 @@ const WorkspacePickerDialog = React.createClass({
 
     workspaceTouchTap: function(wsId){
         this.dismiss();
-        this.props.onWorkspaceTouchTap(wsId);
+        UploaderModel.Store.getInstance().handleDropEventResults(this.props.items, this.props.files, new AjxpNode('/'), null, null, wsId);
+        if(this.props.switchAtUpload){
+            pydio.triggerRepositoryChange(wsId);
+        }
     },
 
     render: function(){
 
-        const {pydio} = this.props;
+        const {pydio, files} = this.props;
+        const legend = (files && files[0] ? <div style={{fontSize:13, padding: 16, backgroundColor:'#FFEBEE'}}>{pydio.MessageHash['user_home.89']}: {files[0].name}</div> : undefined)
         return (
             <div style={{width:'100%', height: '100%', display:'flex', flexDirection:'column'}}>
-                {this.props.legend}
+                {legend}
                 <WorkspacesListMaterial
                     pydio={pydio}
                     workspaces={pydio.user ? pydio.user.getRepositoriesList() : []}

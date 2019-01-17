@@ -37569,18 +37569,6 @@
               }
             ],
             "returns": null
-          },
-          {
-            "name": "closeDrawer",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "e",
-                "type": null
-              }
-            ],
-            "returns": null
           }
         ],
         "props": {
@@ -37887,6 +37875,27 @@
           }
         },
         "require": "const {MainFilesList} = require('pydio').requireLib('workspaces')"
+      }
+    ],
+    "Workspaces/views/MasterLayout.js": [
+      {
+        "description": "",
+        "displayName": "MasterLayout",
+        "methods": [
+          {
+            "name": "closeDrawer",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "require": "const {MasterLayout} = require('pydio').requireLib('workspaces')"
       }
     ],
     "Workspaces/views/OverlayIcon.js": [
@@ -38207,6 +38216,70 @@
           }
         },
         "require": "const {WorkspaceEntryMaterial} = require('pydio').requireLib('workspaces')"
+      }
+    ],
+    "Workspaces/wslist/WorkspacePickerDialog.js": [
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "workspaceTouchTap",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "wsId",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dialogTitleId": {
+            "defaultValue": {
+              "value": "'user_home.90'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'sm'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogPadding": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogScrollBody": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          }
+        },
+        "require": "const {WorkspacePickerDialog} = require('pydio').requireLib('workspaces')"
       }
     ],
     "Workspaces/wslist/WorkspacesList.js": [
@@ -38676,14 +38749,8 @@
     "board/HomeDashboard.js": [
       {
         "description": "",
+        "displayName": "AltDashboard",
         "methods": [
-          {
-            "name": "getDefaultCards",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
           {
             "name": "openDrawer",
             "docblock": null,
@@ -38691,18 +38758,6 @@
             "params": [
               {
                 "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "closeDrawer",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "e",
                 "type": null
               }
             ],

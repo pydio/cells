@@ -4,11 +4,6 @@ body,#ajxp_desktop,#background-imager{
   flex: 1;
 }
 
-#ajxp_desktop{
-  /* Necessary to fix FF flexbox issue */
-  min-height: 0px;
-}
-
 #orbit_content {
   -webkit-font-smoothing: antialiased;
   .vertical_fit;
@@ -30,6 +25,22 @@ body,#ajxp_desktop,#background-imager{
     @media @screenwidth-medium{
       transform: translateX(0px);
       box-shadow: @reactBoxShadowDepth1;
+    }
+  }
+
+  .user-dashboard-template{
+    .left-panel{
+      transform: translateX(-250px);
+      box-shadow: @reactBoxShadowDepth1;
+    }
+    &.drawer-open .left-panel{
+        transform: translateX(0px);
+    }
+    .desktop-container{
+      margin-left: 0;
+    }
+    .drawer-button {
+      display: inherit !important;
     }
   }
 

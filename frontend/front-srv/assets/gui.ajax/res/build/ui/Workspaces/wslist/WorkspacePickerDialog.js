@@ -20,19 +20,20 @@
 
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
+exports.__esModule = true;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _WorkspacesListMaterial = require('./WorkspacesListMaterial');
+
+var _WorkspacesListMaterial2 = _interopRequireDefault(_WorkspacesListMaterial);
+
 var React = require('react');
 
 var _require$requireLib = require('pydio').requireLib('boot');
 
 var ActionDialogMixin = _require$requireLib.ActionDialogMixin;
 var CancelButtonProviderMixin = _require$requireLib.CancelButtonProviderMixin;
-
-var _require$requireLib2 = require('pydio').requireLib('workspaces');
-
-var WorkspacesListMaterial = _require$requireLib2.WorkspacesListMaterial;
 
 var WorkspacePickerDialog = React.createClass({
     displayName: 'WorkspacePickerDialog',
@@ -55,17 +56,29 @@ var WorkspacePickerDialog = React.createClass({
 
     workspaceTouchTap: function workspaceTouchTap(wsId) {
         this.dismiss();
-        this.props.onWorkspaceTouchTap(wsId);
+        UploaderModel.Store.getInstance().handleDropEventResults(this.props.items, this.props.files, new AjxpNode('/'), null, null, wsId);
+        if (this.props.switchAtUpload) {
+            pydio.triggerRepositoryChange(wsId);
+        }
     },
 
     render: function render() {
-        var pydio = this.props.pydio;
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var files = _props.files;
 
+        var legend = files && files[0] ? React.createElement(
+            'div',
+            { style: { fontSize: 13, padding: 16, backgroundColor: '#FFEBEE' } },
+            pydio.MessageHash['user_home.89'],
+            ': ',
+            files[0].name
+        ) : undefined;
         return React.createElement(
             'div',
             { style: { width: '100%', height: '100%', display: 'flex', flexDirection: 'column' } },
-            this.props.legend,
-            React.createElement(WorkspacesListMaterial, {
+            legend,
+            React.createElement(_WorkspacesListMaterial2['default'], {
                 pydio: pydio,
                 workspaces: pydio.user ? pydio.user.getRepositoriesList() : [],
                 showTreeForWorkspace: false,

@@ -40,7 +40,7 @@ var StatusItem = function (_Observable) {
         _this._id = Math.random();
         _this._errorMessage = null;
         var pydio = _pydio2.default.getInstance();
-        _this._repositoryId = pydio.user.activeRepository;
+        _this._repositoryId = parent ? parent.getRepositoryId() : pydio.user.activeRepository;
         _this._exists = false;
         _this._progress = 0;
         _this.children = { folders: [], files: [], pg: {} };
@@ -120,6 +120,11 @@ var StatusItem = function (_Observable) {
         key: 'updateRepositoryId',
         value: function updateRepositoryId(repositoryId) {
             this._repositoryId = repositoryId;
+        }
+    }, {
+        key: 'getRepositoryId',
+        value: function getRepositoryId() {
+            return this._repositoryId;
         }
     }, {
         key: 'getErrorMessage',

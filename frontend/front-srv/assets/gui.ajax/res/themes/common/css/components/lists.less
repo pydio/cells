@@ -59,6 +59,12 @@
           }
         }
       }
+      .overlay_icon_div{
+        button > div > div {
+          /*Fix tooltip positioning creating weirdo stuff with dnd*/
+          top: 30px !important;
+        }
+      }
 
       &.selected{
 
@@ -153,20 +159,9 @@
             }
           }
         }
-        .material-list-icon-none{
+        .material-list-icon-none, .material-list-actions{
           display: none;
         }
-        .material-list-actions{
-          display: none;
-          .overlay_icon_div{
-            padding-right: 8px;
-            .overlay-class-span{
-              display: inline-block;
-              padding: 18px 8px 0;
-            }
-          }
-        }
-
         .material-list-entry.selected-dark{
           span.cell{
             color: rgba(255,255,255,.63);

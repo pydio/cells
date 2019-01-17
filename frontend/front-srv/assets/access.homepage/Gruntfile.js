@@ -75,7 +75,7 @@ module.exports = function(grunt) {
             },
             styles: {
                 files: ['res/*.less'],
-                tasks: ['less'],
+                tasks: ['less', 'compress'],
                 options: {
                     nospawn: true
                 }

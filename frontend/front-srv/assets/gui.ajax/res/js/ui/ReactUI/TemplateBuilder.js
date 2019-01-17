@@ -63,7 +63,7 @@ class TemplateBuilder extends React.Component {
         }
 
         let parts = XMLUtils.XPathSelectNodes(pydio.getXmlRegistry(), "client_configs/template_part[@component]");
-        parts.map(function(node){
+        parts.map(function(node, index){
             if(node.getAttribute("theme") && node.getAttribute("theme") !== pydio.Parameters.get("theme")){
                 return;
             }
@@ -83,7 +83,7 @@ class TemplateBuilder extends React.Component {
 
             components.push(
                 <AsyncComponent
-                    key={namespace}
+                    key={index}
                     namespace={namespace}
                     componentName={componentName}
                     noLoader={true}
