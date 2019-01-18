@@ -307,6 +307,8 @@ type Cparam struct {
 	Cglobal_param
 	XMLName   xml.Name `xml:"param,omitempty" json:"param,omitempty"`
 	Attrscope string   `xml:"scope,attr,omitempty"  json:",omitempty"`
+	Attrname  string   `xml:"name,attr,omitempty"  json:",omitempty"`
+	Attrvalue string   `xml:"value,attr,omitempty"  json:",omitempty"`
 }
 
 type Cplugin struct {
@@ -541,6 +543,27 @@ type Cuser struct {
 	Cpreferences    *Cpreferences    `xml:"preferences,omitempty" json:"preferences,omitempty"`
 	Crepositories   *Crepositories   `xml:"repositories,omitempty" json:"repositories,omitempty"`
 	Cspecial_rights *Cspecial_rights `xml:"special_rights,omitempty" json:"special_rights,omitempty"`
+}
+
+type Cajxpcore struct {
+	XMLName          xml.Name          `xml:"ajxpcore,omitempty" json:"ajxpcore,omitempty"`
+	Attrdescription  string            `xml:"description,attr,omitempty"  json:",omitempty"`
+	Attrid           string            `xml:"id,attr,omitempty"  json:",omitempty"`
+	Attrlabel        string            `xml:"label,attr,omitempty"  json:",omitempty"`
+	Cclient_settings *Cclient_settings `xml:"client_settings,omitempty" json:"client_settings,omitempty"`
+	Cserver_settings *Cserver_settings `xml:"server_settings,omitempty" json:"server_settings,omitempty"`
+	Cplugin_configs  *Cplugin_configs  `xml:"plugin_configs,omitempty" json:"plugin_configs,omitempty"`
+}
+
+type Cadmin_data struct {
+	XMLName                 xml.Name                 `xml:"admin_data,omitempty" json:"admin_data,omitempty"`
+	Cajxpcore               *Cajxpcore               `xml:"ajxpcore,omitempty" json:"ajxpcore,omitempty"`
+	Cplugin_settings_values *Cplugin_settings_values `xml:"plugin_settings_values,omitempty" json:"ajxpcore,omitempty"`
+}
+
+type Cplugin_settings_values struct {
+	XMLName xml.Name  `xml:"plugin_settings_values,omitempty" json:"admin_data,omitempty"`
+	Cparam  []*Cparam `xml:"param,omitempty" json:"param,omitempty"`
 }
 
 type ExposedParam struct {
