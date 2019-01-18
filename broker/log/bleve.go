@@ -32,7 +32,7 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/proto/log"
-	"github.com/pydio/cells/common/service/context"
+	servicecontext "github.com/pydio/cells/common/service/context"
 )
 
 // IndexableLog extends default log.LogMessage struct to add index specific methods
@@ -155,13 +155,18 @@ func MarshallLogMsg(line map[string]string) (*IndexableLog, error) {
 			msg.UserAgent = val
 		case servicecontext.HttpMetaProtocol:
 			msg.HttpProtocol = val
-		// WTF?
+		// Span enable following a given request between the various services
 		case common.KEY_SPAN_UUID:
 			msg.SpanUuid = val
 		case common.KEY_SPAN_PARENT_UUID:
 			msg.SpanParentUuid = val
 		case common.KEY_SPAN_ROOT_UUID:
 			msg.SpanRootUuid = val
+		// Group messages for a given high level operation
+		case common.KEY_OPERATION_UUID:
+			msg.OperationUuid = val
+		case common.KEY_OPERATION_LABEL:
+			msg.OperationLabel = val
 		default:
 			break
 		}
@@ -250,6 +255,12 @@ func UnmarshallLogMsgFromDoc(doc *document.Document, msg *log.LogMessage) {
 	}
 	if val, ok := m[common.KEY_SPAN_PARENT_UUID]; ok {
 		msg.SpanParentUuid = val.(string)
+	}
+	if val, ok := m[common.KEY_OPERATION_UUID]; ok {
+		msg.OperationUuid = val.(string)
+	}
+	if val, ok := m[common.KEY_OPERATION_LABEL]; ok {
+		msg.OperationLabel = val.(string)
 	}
 
 }
