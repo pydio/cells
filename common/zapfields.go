@@ -86,10 +86,16 @@ const (
 
 // Known audit message IDs
 const (
-	KEY_CONTEXT          = "Context"
+	KEY_CONTEXT = "Context"
+
+	// Follow a given request between the various services
 	KEY_SPAN_UUID        = "SpanUuid"
 	KEY_SPAN_PARENT_UUID = "SpanParentUuid"
 	KEY_SPAN_ROOT_UUID   = "SpanRootUuid"
+
+	// Group messages for a given high level operation
+	KEY_OPERATION_UUID  = "OperationUuid"
+	KEY_OPERATION_LABEL = "OperationLabel"
 
 	KEY_NODE      = "Node"
 	KEY_NODE_UUID = "NodeUuid"
