@@ -63,7 +63,7 @@
     "other": "Interdire certaines modifications en fonction de l'IP ou des métadonnées du fichier"
   },
   "PolicyGroup.ACLSample1.Rule3": {
-    "other": "Cacher tous les fichiers avec l'extension PNG"
+    "other": "Laisser de côté tous les fichiers ayant une extension .png si la requête client ne vient pas de localhost"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
     "other": "[Exemple] Période Limitée"

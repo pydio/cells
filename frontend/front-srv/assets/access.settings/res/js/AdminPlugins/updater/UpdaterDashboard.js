@@ -113,6 +113,18 @@ const UpdaterDashboard = React.createClass({
         let list = null;
         const {pydio} = this.props;
         const {packages, check, loading, dirty, updateApplied, selectedPackage, watchJob} = this.state;
+        const subHeaderStyle = {
+            backgroundColor: '#f5f5f5',
+            color: '#9e9e9e',
+            fontSize: 12,
+            fontWeight: 500,
+            borderBottom: '1px solid #e0e0e0',
+            height: 48,
+            lineHeight: '48px',
+            padding: '0 16px'
+        };
+
+
         let buttons = [];
         if(packages){
             buttons.push(<RaisedButton disabled={check < 0 || updateApplied} secondary={true} label={this.context.getMessage('4', 'updater')} onTouchTap={this.performUpgrade}/>);
@@ -129,23 +141,29 @@ const UpdaterDashboard = React.createClass({
             items.pop();
             list = (
                 <div>
+                    <div style={subHeaderStyle}>{this.context.getMessage('16', 'updater')}</div>
                     <List>
-                        <Subheader>{this.context.getMessage('16', 'updater')}</Subheader>
                         {items}
                     </List>
                 </div>
             );
         }else if(loading){
             list = (
-                <div style={{padding: 12}}>{this.context.getMessage('17', 'updater')}</div>
+                <div>
+                    <div style={subHeaderStyle}>{this.context.getMessage('16', 'updater')}</div>
+                    <div style={{padding: 16}}>{this.context.getMessage('17', 'updater')}</div>
+                </div>
             );
         }else{
             list = (
                 <div style={{minHeight: 36}}>
+                    <div style={subHeaderStyle}>{this.context.getMessage('20', 'updater')}</div>
+                    <div style={{padding: '16px 16px 32px'}}>
                         <span style={{float:'right'}}>
                             <RaisedButton secondary={true} label={this.context.getMessage('20', 'updater')} onTouchTap={this.checkForUpgrade}/>
                         </span>
-                    { (this.state && this.state.no_upgrade) ? this.context.getMessage('18', 'updater') : this.context.getMessage('19', 'updater') }
+                        { (this.state && this.state.no_upgrade) ? this.context.getMessage('18', 'updater') : this.context.getMessage('19', 'updater') }
+                    </div>
                 </div>
             );
         }
@@ -160,7 +178,6 @@ const UpdaterDashboard = React.createClass({
 
         const backend = pydio.Parameters.get("backend");
 
-
         return (
             <div className={"main-layout-nav-to-stack vertical-layout people-dashboard"}>
                 <AdminComponents.Header
@@ -171,8 +188,9 @@ const UpdaterDashboard = React.createClass({
                     loading={loading}
                 />
                 <div style={{flex: 1, overflow: 'auto'}}>
-                    <Paper style={{margin:16, padding: '0 16px'}} zDepth={1}>
-                        <List>
+                    <Paper style={{margin:16}} zDepth={1}>
+                        <div style={subHeaderStyle}>Current Version</div>
+                        <List style={{padding: '0 16px'}}>
                             <ListItem primaryText={backend.PackageLabel + ' ' + backend.Version} disabled={true} secondaryTextLines={2} secondaryText={<span>
                                 {"Released : " + backend.BuildStamp}<br/>
                                 {"Revision : " + backend.BuildRevision}
@@ -180,18 +198,19 @@ const UpdaterDashboard = React.createClass({
                         </List>
                     </Paper>
                     {watchJob &&
-                        <Paper style={{margin:'0 16px', padding: 30, position:'relative'}} zDepth={1}>
-                            <div style={{fontSize:16, paddingBottom: 16}}>{selectedPackage ? (selectedPackage.PackageName + ' ' + selectedPackage.Version) : ''}</div>
-                            <SingleJobProgress jobID={watchJob} progressStyle={{paddingTop: 16}} onEnd={()=>{this.upgradeFinished()}}/>
+                        <Paper style={{margin:'0 16px', position:'relative'}} zDepth={1}>
+                            <div style={subHeaderStyle}>{selectedPackage ? (selectedPackage.PackageName + ' ' + selectedPackage.Version) : ''}</div>
+                            <div style={{padding:16}}>
+                                <SingleJobProgress jobID={watchJob} progressStyle={{paddingTop: 16}} onEnd={()=>{this.upgradeFinished()}}/>
+                            </div>
                         </Paper>
                     }
                     {!watchJob && list &&
-                        <Paper style={{margin:'0 16px', padding: 16, position:'relative'}} zDepth={1}>
-                            {list}
-                        </Paper>
+                        <Paper style={{margin:'0 16px', position:'relative'}} zDepth={1}>{list}</Paper>
                     }
                     {!watchJob &&
                         <ServiceExposedConfigs
+                            className={"row-flex"}
                             serviceName={"pydio.grpc.update"}
                             ref={"serviceConfigs"}
                             onDirtyChange={(d)=>this.setState({dirty: d})}

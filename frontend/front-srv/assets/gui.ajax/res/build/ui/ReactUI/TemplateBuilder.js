@@ -104,7 +104,7 @@ var TemplateBuilder = (function (_React$Component) {
         }
 
         var parts = _pydioUtilXml2['default'].XPathSelectNodes(pydio.getXmlRegistry(), "client_configs/template_part[@component]");
-        parts.map((function (node) {
+        parts.map((function (node, index) {
             if (node.getAttribute("theme") && node.getAttribute("theme") !== pydio.Parameters.get("theme")) {
                 return;
             }
@@ -122,7 +122,7 @@ var TemplateBuilder = (function (_React$Component) {
             props['pydio'] = pydio;
 
             components.push(_react2['default'].createElement(_AsyncComponent2['default'], _extends({
-                key: namespace,
+                key: index,
                 namespace: namespace,
                 componentName: componentName,
                 noLoader: true,

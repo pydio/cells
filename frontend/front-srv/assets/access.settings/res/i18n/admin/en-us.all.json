@@ -42,7 +42,7 @@
     "other": "all data will be lost!"
   },
   "ds.editor.enc.dialog.enable.3": {
-    "other": "You must also be aware that it may require more CPU for a smooth on-the-fly encrypting/decrypting of the data."
+    "other": "You must also be aware that it may require more CPU for a smooth on-the-fly encryption/decryption of the data."
   },
   "ds.editor.enc.key": {
     "other": "Encryption Key"
@@ -93,10 +93,10 @@
     "other": "Browse data from an Amazon S3 bucket or from an S3-compatible storage."
   },
   "ds.editor.storage.legend.azure":{
-    "other": "Browse data an Azure Blob Storage bucket."
+    "other": "Browse data from an Azure Blob Storage bucket."
   },
   "ds.editor.storage.legend.gcs":{
-    "other": "Browse data a Google Cloud Storage bucket."
+    "other": "Browse data from a Google Cloud Storage bucket."
   },
   "ds.editor.new": {
     "other": "New DataSource"
@@ -1092,7 +1092,7 @@
     "other": "Are you sure you want to delete this policy? This is undoable!"
   },
   "versions.editor.error.lastdelete": {
-    "other": "The Last period is configured to delete all version, you cannot add a new one!"
+    "other": "The last period is configured to delete all versions, you cannot add a new one!"
   },
   "versions.editor.title": {
     "other": "Policy %s"
@@ -1512,13 +1512,13 @@
     "other": "Scheduler"
   },
   "services.tag.scheduler.description":{
-    "other": "Services for managing background jobs. The tasks server can be dispatched accross various peers."
+    "other": "Services for managing background jobs. The task server can be dispatched across various peers."
   },
   "services.tag.broker.title":{
     "other": "Broker"
   },
   "services.tag.broker.description":{
-    "other": "Services dispatching and processing events (generally toward users) accross the application."
+    "other": "Services dispatching and processing events (generally toward users) across the application."
   },
   "services.tag.frontend.title":{
     "other": "Frontend"
@@ -1611,7 +1611,7 @@
     "other": "Pause Task"
   },
   "scheduler.task.action.resume":{
-    "other": "Resumse Task"
+    "other": "Resume Task"
   },
   "scheduler.task.action.stop":{
     "other": "Stop Now"

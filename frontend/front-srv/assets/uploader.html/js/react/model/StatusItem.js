@@ -36,7 +36,7 @@ class StatusItem extends Observable {
         this._id = Math.random();
         this._errorMessage = null;
         const pydio = Pydio.getInstance();
-        this._repositoryId = pydio.user.activeRepository;
+        this._repositoryId = parent ? parent.getRepositoryId() : pydio.user.activeRepository;
         this._exists = false;
         this._progress = 0;
         this.children = {folders: [], files: [], pg: {}};
@@ -90,6 +90,9 @@ class StatusItem extends Observable {
     }
     updateRepositoryId(repositoryId){
         this._repositoryId = repositoryId;
+    }
+    getRepositoryId(){
+        return this._repositoryId;
     }
     getErrorMessage(){
         return this._errorMessage || '';

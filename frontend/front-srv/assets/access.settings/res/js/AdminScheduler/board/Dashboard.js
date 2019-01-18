@@ -51,16 +51,41 @@ const Dashboard = React.createClass({
         if (!hideLoading) {
             this.setState({loading: true});
         }
-        JobsStore.getInstance().getAdminJobs(Owner, Filter).then(jobs => {
+        JobsStore.getInstance().getAdminJobs(Owner, Filter, "", 1).then(jobs => {
             this.setState({result: jobs, loading: false});
         }).catch(reason => {
             this.setState({error: reason.message, loading: false});
         })
     },
 
+    loadOne(jobID, hideLoading = false) {
+        // Merge job inside global results
+        const {result} = this.state;
+        if(!hideLoading){
+            this.setState({loading: true});
+        }
+        return JobsStore.getInstance().getAdminJobs(null, null, jobID).then(jobs => {
+            result.Jobs.forEach((v, k) => {
+                if (v.ID === jobID){
+                    result.Jobs[k] = jobs.Jobs[0];
+                }
+            });
+            this.setState({result, loading: false});
+            return result
+        }).catch(reason => {
+            this.setState({error: reason.message, loading: false});
+        });
+    },
+
     componentDidMount(){
         this.load();
-        this._loadDebounced = debounce(()=>{this.load(true)}, 500);
+        this._loadDebounced = debounce((jobId)=>{
+            if (jobId && this.state && this.state.selectJob === jobId){
+                this.loadOne(jobId, true);
+            } else {
+                this.load(true)
+            }
+        }, 500);
         JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
     },
 
@@ -70,7 +95,10 @@ const Dashboard = React.createClass({
 
     selectRows(rows){
         if(rows.length){
-            this.setState({selectJob: rows[0].ID});
+            const jobID = rows[0].ID;
+            this.loadOne(jobID).then(() => {
+                this.setState({selectJob:jobID});
+            });
         }
     },
 
@@ -198,7 +226,7 @@ const Dashboard = React.createClass({
                 name:'More',
                 label:'',
                 style:{width: 100}, headerStyle:{width: 100},
-                renderCell:(row) => {return <IconButton iconClassName="mdi mdi-chevron-right" onTouchTap={()=>{this.setState({selectJob:row.ID})}}/>},
+                renderCell:(row) => {return <IconButton iconClassName="mdi mdi-chevron-right" iconStyle={{color:'rgba(0,0,0,.3)'}} onTouchTap={()=>{this.setState({selectJob:row.ID})}}/>},
             },
         ];
 

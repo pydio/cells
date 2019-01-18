@@ -90,6 +90,7 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 			for _, t := range FilterStartTags {
 				for _, st := range s.Tags() {
 					if t == st {
+						registry.ProcessStartTags = append(registry.ProcessStartTags, "t:"+t)
 						return false
 					}
 				}
@@ -103,9 +104,11 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 			for _, arg := range args {
 				reArg := regexp.MustCompile(arg)
 				if reArg.MatchString(s.Name()) {
+					registry.ProcessStartTags = append(registry.ProcessStartTags, "s:"+s.Name())
 					return false
 				}
 				if s.MatchesRegexp(arg) {
+					registry.ProcessStartTags = append(registry.ProcessStartTags, "s:"+s.Name())
 					return false
 				}
 			}
@@ -119,6 +122,11 @@ $ ` + os.Args[0] + ` start --exclude=pydio.grpc.idm.roles
 			}
 			return false
 		})
+
+		// Re-gather exclude flag (it is applied in root.go PersistentPreRun) for startTag
+		for _, x := range FilterStartExclude {
+			registry.ProcessStartTags = append(registry.ProcessStartTags, "x:"+x)
+		}
 
 		// Re-building allServices list
 		if s, err := registry.Default.ListServices(); err != nil {

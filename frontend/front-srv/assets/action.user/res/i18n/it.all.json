@@ -6,13 +6,13 @@
     "other": "Workspaces associati"
   },
   "11": {
-    "other": "Se sicuro di voler cancellare gli elementi selezionati?"
+    "other": "Sei sicuro di voler eliminare gli elementi selezionati?"
   },
   "12": {
-    "other": "Non hai il permesso di cancellare questi file."
+    "other": "Non hai l'autorizzazione per eliminare questo elemento."
   },
   "13": {
-    "other": "File pubblico cancellato correttamente."
+    "other": "File pubblico cancellato con successo."
   },
   "14": {
     "other": "Integrità"
@@ -24,19 +24,19 @@
     "other": "Corrotto"
   },
   "17": {
-    "other": "Download URL"
+    "other": "URL del Download"
   },
   "18": {
     "other": "Copia URL"
   },
   "19": {
-    "other": "Copia l'URL per inviarlo tramite email."
+    "other": "Copia url da inviare via e-mail."
   },
   "2": {
     "other": "Cartelle condivise"
   },
   "20": {
-    "other": "Downloads"
+    "other": "Download"
   },
   "21": {
     "other": "Si"
@@ -48,7 +48,7 @@
     "other": "%s file cancellati correttamente."
   },
   "24": {
-    "other": "Niente da cancellare."
+    "other": "Nulla da eliminare."
   },
   "25": {
     "other": "Elimina Scaduti"
@@ -60,52 +60,52 @@
     "other": "Proprietario"
   },
   "28": {
-    "other": "File condivisi per il download diretto, sia protetti da password che non."
+    "other": "File condivisi per il download diretto, sia protetti da password che no."
   },
   "29": {
-    "other": "Delega workspaces creati dagli utenti."
+    "other": "Delega workspace creati dagli utenti."
   },
   "3": {
     "other": "File condivisi"
   },
   "30": {
-    "other": "Utenti creati per accedere ai workspaces delegati."
+    "other": "Utenti creati per accedere ai workspace delegati."
   },
   "31": {
     "other": "Descrizione"
   },
   "32": {
-    "other": "Reset"
+    "other": "Ripristina"
   },
   "33": {
-    "other": "Reset contatore download"
+    "other": "Azzera il contatore dei download"
   },
   "34": {
-    "other": "Mie Condivisioni"
+    "other": "Le mie condivisioni"
   },
   "35": {
-    "other": "Tutti gli elementi condivisi (file e cartelle)"
+    "other": "Tutti i miei elementi condivisi (file e cartelle)"
   },
   "36": {
     "other": "Parametri"
   },
   "37": {
-    "other": "Il mio profilo e le impostazioni dell'applicativo"
+    "other": "Il mio profilo e le mie impostazioni dell'applicativo"
   },
   "38": {
     "other": "Notifiche"
   },
   "39": {
-    "other": "Seleziona un workspace."
+    "other": "Sotto c'è una lista dei workspace a cui si può accedere. Essi possono essere personali o condivisi con/da altri utenti."
   },
   "4": {
-    "other": "Percorso File"
+    "other": "Percorso del File"
   },
   "40": {
     "other": "Benvenuto, %s!"
   },
   "41": {
-    "other": "Usa questo workspace come principale"
+    "other": "Utilizza questo workspace come predefinito"
   },
   "42": {
     "other": "Entra"
@@ -114,7 +114,7 @@
     "other": "Il Mio Profilo"
   },
   "43t": {
-    "other": "Tutti miei dati personali"
+    "other": "Tutti i miei dati personali"
   },
   "44": {
     "other": "Il Mio Account"
@@ -126,22 +126,22 @@
     "other": "Rubrica"
   },
   "47": {
-    "other": "Utenti e teams che hai creato"
+    "other": "Utenti e team che hai creato"
   },
   "48": {
     "other": "I Miei Utenti"
   },
   "49": {
-    "other": "Utenti esterni da te creati"
+    "other": "Utenti esterni che hai creato"
   },
   "5": {
     "other": "Repository"
   },
   "50": {
-    "other": "I Miei Teams"
+    "other": "I Miei Team"
   },
   "51": {
-    "other": "Teams di utenti, usati come scorciatoia durante la condivisione"
+    "other": "Team di utenti, usati come scorciatoia durante la condivisione"
   },
   "52": {
     "other": "Sei sicuro di voler cancellare questo team? Questa operazione non cancellerà gli utenti associati."
@@ -156,7 +156,7 @@
     "other": "Aggiungi/Rimuovi utenti da questo team"
   },
   "56": {
-    "other": "Aggiungi un utente per linea; inizia a scrivere nella textarea per vedere la lista di auto-completamento comparire."
+    "other": "Aggiungi un utente per riga, e scrivi nell'area di testo per visualizzare l'elenco di autocompletamento."
   },
   "57": {
     "other": "Crea un Team"
@@ -165,58 +165,58 @@
     "other": "I team sono usati come collegamento rapido per condividere una cartella con un gruppo predefinito di utenti"
   },
   "59": {
-    "other": "Nome Team"
+    "other": "Etichetta del Team"
   },
   "6": {
     "other": "Password"
   },
   "60": {
-    "other": "Utenti Team"
+    "other": "Utenti del Team"
   },
   "61": {
-    "other": "Email Preferences"
+    "other": "Preferenze email"
   },
   "62": {
-    "other": "Send emails every X minutes"
+    "other": "Inviare email ogni X minuti"
   },
   "63": {
-    "other": "Send emails every Y hours"
+    "other": "Inviare email ogni Y ore"
   },
   "64": {
-    "other": "Choose the hour of the day"
+    "other": "Scegliere l'ora del giorno"
   },
   "65": {
-    "other": "Choose the first hour of the day"
+    "other": "Scegliere la prima ora del giorno"
   },
   "66": {
-    "other": "Choose the second hour of the day"
+    "other": "Scegliere la seconda ora del giorno"
   },
   "67": {
-    "other": "Pick a day of the week"
+    "other": "Scegli un giorno della settimana"
   },
   "68": {
-    "other": "Monday"
+    "other": "Lunedì"
   },
   "69": {
-    "other": "Tuesday"
+    "other": "Martedì"
   },
   "7": {
     "other": "Scadenza"
   },
   "70": {
-    "other": "Wednesday"
+    "other": "Mercoledì"
   },
   "71": {
-    "other": "Thursday"
+    "other": "Giovedì"
   },
   "72": {
-    "other": "Friday"
+    "other": "Venerdì"
   },
   "73": {
-    "other": "Saturday"
+    "other": "Sabato"
   },
   "74": {
-    "other": "Sunday"
+    "other": "Domenica"
   },
   "8": {
     "other": "Elementi"
@@ -225,9 +225,9 @@
     "other": "Utenti associati"
   },
   "desc": {
-    "other": "Modifica le impostazioni dell'account, della rubrica, degli elementi condivisi ecc."
+    "other": "Gestisci le mie preferenze per account, rubrica, elementi condivisi, ecc."
   },
   "title": {
-    "other": "Bacheca"
+    "other": "Il Mio Account"
   }
 }

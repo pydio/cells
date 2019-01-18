@@ -58,7 +58,7 @@ func (h *UuidNodeHandler) updateInputBranch(ctx context.Context, node *tree.Node
 		return ctx, node, nil
 	}
 
-	accessList, ok := ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList)
+	accessList, ok := ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList)
 	if !ok {
 		return ctx, node, errors.InternalServerError(VIEWS_LIBRARY_NAME, "Cannot load access list")
 	}
@@ -107,7 +107,7 @@ func (h *UuidNodeHandler) updateOutputBranch(ctx context.Context, node *tree.Nod
 	if branchInfo, ok = GetBranchInfo(ctx, identifier); !ok {
 		return ctx, node, nil
 	}
-	if accessList, ok = ctx.Value(ctxUserAccessListKey{}).(*utils.AccessList); !ok {
+	if accessList, ok = ctx.Value(CtxUserAccessListKey{}).(*utils.AccessList); !ok {
 		return ctx, node, nil
 	}
 	if branchInfo.AncestorsList != nil {

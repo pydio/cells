@@ -145,7 +145,7 @@ func (s *BoltStore) DeleteJob(jobID string) error {
 
 }
 
-func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus) (chan *jobs.Job, chan bool, error) {
+func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, taskCursor ...int32) (chan *jobs.Job, chan bool, error) {
 
 	res := make(chan *jobs.Job)
 	done := make(chan bool)
@@ -165,10 +165,15 @@ func (s *BoltStore) ListJobs(owner string, eventsOnly bool, timersOnly bool, wit
 					continue
 				}
 				if withTasks != jobs.TaskStatus_Unknown {
+					var offset, limit int32
+					if len(taskCursor) == 2 {
+						offset = taskCursor[0]
+						limit = taskCursor[1]
+					}
 					j.Tasks = []*jobs.Task{}
 					jobTasksBucket := tx.Bucket([]byte(tasksBucketString + j.ID))
 					if jobTasksBucket != nil {
-						j.Tasks = s.tasksToChan(jobTasksBucket, withTasks, nil, 0, 0, j.Tasks)
+						j.Tasks = s.tasksToChan(jobTasksBucket, withTasks, nil, offset, limit, j.Tasks)
 					}
 					if withTasks != jobs.TaskStatus_Any {
 						if len(j.Tasks) > 0 {
@@ -270,29 +275,48 @@ func (s *BoltStore) ListTasks(jobId string, taskStatus jobs.TaskStatus, cursor .
 func (s *BoltStore) tasksToChan(bucket *bolt.Bucket, status jobs.TaskStatus, output chan *jobs.Task, offset int32, limit int32, sliceOutput []*jobs.Task) []*jobs.Task {
 
 	var index int32
-	bucket.ForEach(func(k, v []byte) error {
+	var lastOnly = offset == 0 && limit == 1
+	var lastRecord *jobs.Task
+
+	c := bucket.Cursor()
+	for k, v := c.Last(); k != nil; k, v = c.Prev() {
 		task := &jobs.Task{}
-		e := json.Unmarshal(v, task)
-		if e == nil {
-			if status == jobs.TaskStatus_Any || task.Status == status {
-				if offset > 0 && index < offset {
-					index++
-					return nil
-				}
-				if output != nil {
-					output <- task
-				}
-				if sliceOutput != nil {
-					sliceOutput = append(sliceOutput, task)
-				}
-				index++
-				if limit > 0 && index > offset+limit {
-					return nil
-				}
-			}
+		if e := json.Unmarshal(v, task); e != nil {
+			continue
 		}
-		return nil
-	})
+		if status != jobs.TaskStatus_Any && task.Status != status {
+			continue
+		}
+		if lastOnly {
+			if lastRecord == nil || task.StartTime > lastRecord.StartTime {
+				lastRecord = task
+			}
+			continue
+		}
+		if offset > 0 && index < offset {
+			index++
+			continue
+		}
+		if limit > 0 && index >= offset+limit {
+			break
+		}
+		if output != nil {
+			output <- task
+		}
+		if sliceOutput != nil {
+			sliceOutput = append(sliceOutput, task)
+		}
+		index++
+	}
+
+	if lastOnly && lastRecord != nil {
+		if output != nil {
+			output <- lastRecord
+		}
+		if sliceOutput != nil {
+			sliceOutput = append(sliceOutput, lastRecord)
+		}
+	}
 
 	return sliceOutput
 

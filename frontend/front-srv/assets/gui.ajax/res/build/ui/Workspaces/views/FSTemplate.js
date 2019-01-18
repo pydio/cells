@@ -40,10 +40,6 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _pydioModelAction = require('pydio/model/action');
-
-var _pydioModelAction2 = _interopRequireDefault(_pydioModelAction);
-
 var _MessagesProviderMixin = require('../MessagesProviderMixin');
 
 var _MessagesProviderMixin2 = _interopRequireDefault(_MessagesProviderMixin);
@@ -66,10 +62,6 @@ var _detailpanesInfoPanel = require('../detailpanes/InfoPanel');
 
 var _detailpanesInfoPanel2 = _interopRequireDefault(_detailpanesInfoPanel);
 
-var _leftnavLeftPanel = require('../leftnav/LeftPanel');
-
-var _leftnavLeftPanel2 = _interopRequireDefault(_leftnavLeftPanel);
-
 var _WelcomeTour = require('./WelcomeTour');
 
 var _WelcomeTour2 = _interopRequireDefault(_WelcomeTour);
@@ -84,19 +76,17 @@ var _AddressBookPanel = require('./AddressBookPanel');
 
 var _AddressBookPanel2 = _interopRequireDefault(_AddressBookPanel);
 
+var _MasterLayout = require('./MasterLayout');
+
+var _MasterLayout2 = _interopRequireDefault(_MasterLayout);
+
 var _materialUiStyles = require('material-ui/styles');
 
-var _Pydio$requireLib = _pydio2['default'].requireLib('hoc');
+var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
-var withContextMenu = _Pydio$requireLib.withContextMenu;
-var dropProvider = _Pydio$requireLib.dropProvider;
-
-var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
-
-var ButtonMenu = _Pydio$requireLib2.ButtonMenu;
-var Toolbar = _Pydio$requireLib2.Toolbar;
-var ListPaginator = _Pydio$requireLib2.ListPaginator;
-var ContextMenu = _Pydio$requireLib2.ContextMenu;
+var ButtonMenu = _Pydio$requireLib.ButtonMenu;
+var Toolbar = _Pydio$requireLib.Toolbar;
+var ListPaginator = _Pydio$requireLib.ListPaginator;
 
 var FSTemplate = _react2['default'].createClass({
     displayName: 'FSTemplate',
@@ -180,30 +170,10 @@ var FSTemplate = _react2['default'].createClass({
         this.setState({ drawerOpen: true });
     },
 
-    closeDrawer: function closeDrawer(e) {
-        if (!this.state.drawerOpen) {
-            return;
-        }
-        var widgets = document.getElementsByClassName('user-widget');
-        if (widgets && widgets.length > 0 && widgets[0].contains(_reactDom2['default'].findDOMNode(e.target))) {
-            return;
-        }
-        this.setState({ drawerOpen: false });
-    },
-
     render: function render() {
         var _this5 = this;
 
-        var connectDropTarget = this.props.connectDropTarget || function (c) {
-            return c;
-        };
         var mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
-
-        /*
-        var isOver = this.props.isOver;
-        var canDrop = this.props.canDrop;
-        */
-
         var Color = MaterialUI.Color;
         var appBarColor = Color(this.props.muiTheme.appBar.color);
         var appBarTextColor = Color(this.props.muiTheme.appBar.textColor);
@@ -259,9 +229,6 @@ var FSTemplate = _react2['default'].createClass({
         if (infoPanelOpen && infoPanelToggle) {
             classes.push('info-panel-open');
         }
-        if (drawerOpen) {
-            classes.push('drawer-open');
-        }
 
         var mainToolbars = ["info_panel", "info_panel_share"];
         var mainToolbarsOthers = ["change", "other"];
@@ -297,108 +264,116 @@ var FSTemplate = _react2['default'].createClass({
 
         var props = _objectWithoutProperties(_props, ['style']);
 
-        return connectDropTarget(_react2['default'].createElement(
-            'div',
-            { style: _extends({}, style, { overflow: 'hidden' }), className: classes.join(' '), onTouchTap: this.closeDrawer, onContextMenu: this.props.onContextMenu },
-            wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] && _react2['default'].createElement(_WelcomeTour2['default'], { ref: 'welcome', pydio: this.props.pydio }),
-            _react2['default'].createElement(_leftnavLeftPanel2['default'], { className: 'left-panel', pydio: props.pydio }),
+        var tutorialComponent = undefined;
+        if (wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate']) {
+            tutorialComponent = _react2['default'].createElement(_WelcomeTour2['default'], { ref: 'welcome', pydio: this.props.pydio });
+        }
+
+        return _react2['default'].createElement(
+            _MasterLayout2['default'],
+            {
+                pydio: pydio,
+                style: _extends({}, style, { overflow: 'hidden' }),
+                classes: classes,
+                tutorialComponent: tutorialComponent,
+                drawerOpen: drawerOpen,
+                onCloseDrawerRequested: function () {
+                    _this5.setState({ drawerOpen: false });
+                }
+            },
             _react2['default'].createElement(
-                'div',
-                { className: 'desktop-container vertical_layout vertical_fit' },
+                _materialUi.Paper,
+                { zDepth: 1, style: styles.appBarStyle, rounded: false },
                 _react2['default'].createElement(
-                    _materialUi.Paper,
-                    { zDepth: 1, style: styles.appBarStyle, rounded: false },
+                    'div',
+                    { id: 'workspace_toolbar', style: { display: 'flex', height: 58 } },
                     _react2['default'].createElement(
-                        'div',
-                        { id: 'workspace_toolbar', style: { display: 'flex', height: 58 } },
-                        _react2['default'].createElement(
-                            'span',
-                            { className: 'drawer-button' },
-                            _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: 'white' }, iconClassName: 'mdi mdi-menu', onTouchTap: this.openDrawer })
-                        ),
-                        _react2['default'].createElement(_Breadcrumb2['default'], _extends({}, props, { startWithSeparator: false })),
-                        _react2['default'].createElement('span', { style: { flex: 1 } }),
-                        _react2['default'].createElement(_search.SearchForm, props)
+                        'span',
+                        { className: 'drawer-button' },
+                        _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: 'white' }, iconClassName: 'mdi mdi-menu', onTouchTap: this.openDrawer })
                     ),
+                    _react2['default'].createElement(_Breadcrumb2['default'], _extends({}, props, { startWithSeparator: false })),
+                    _react2['default'].createElement('span', { style: { flex: 1 } }),
+                    _react2['default'].createElement(_search.SearchForm, props)
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { id: 'main_toolbar' },
+                    _react2['default'].createElement(ButtonMenu, _extends({}, props, {
+                        buttonStyle: styles.raisedButtonStyle,
+                        buttonLabelStyle: styles.raisedButtonLabelStyle,
+                        id: 'create-button-menu',
+                        toolbars: ["upload", "create"],
+                        buttonTitle: this.props.pydio.MessageHash['198'],
+                        raised: true,
+                        secondary: true,
+                        controller: props.pydio.Controller,
+                        openOnEvent: 'tutorial-open-create-menu'
+                    })),
+                    !mobile && _react2['default'].createElement(Toolbar, _extends({}, props, {
+                        id: 'main-toolbar',
+                        toolbars: mainToolbars,
+                        groupOtherList: mainToolbarsOthers,
+                        renderingType: 'button',
+                        buttonStyle: styles.buttonsStyle
+                    })),
+                    mobile && _react2['default'].createElement('span', { style: { flex: 1 } }),
+                    _react2['default'].createElement(ListPaginator, {
+                        id: 'paginator-toolbar',
+                        dataModel: props.pydio.getContextHolder(),
+                        toolbarDisplay: true
+                    }),
+                    _react2['default'].createElement(Toolbar, _extends({}, props, {
+                        id: 'display-toolbar',
+                        toolbars: ["display_toolbar"],
+                        renderingType: 'icon-font',
+                        buttonStyle: styles.buttonsIconStyle
+                    })),
+                    _react2['default'].createElement('div', { style: { borderLeft: '1px solid ' + appBarTextColor.fade(0.77).toString(), margin: 10, marginBottom: 4 } }),
                     _react2['default'].createElement(
                         'div',
-                        { id: 'main_toolbar' },
-                        _react2['default'].createElement(ButtonMenu, _extends({}, props, {
-                            buttonStyle: styles.raisedButtonStyle,
-                            buttonLabelStyle: styles.raisedButtonLabelStyle,
-                            id: 'create-button-menu',
-                            toolbars: ["upload", "create"],
-                            buttonTitle: this.props.pydio.MessageHash['198'],
-                            raised: true,
-                            secondary: true,
-                            controller: props.pydio.Controller,
-                            openOnEvent: 'tutorial-open-create-menu'
-                        })),
-                        !mobile && _react2['default'].createElement(Toolbar, _extends({}, props, {
-                            id: 'main-toolbar',
-                            toolbars: mainToolbars,
-                            groupOtherList: mainToolbarsOthers,
-                            renderingType: 'button',
-                            buttonStyle: styles.buttonsStyle
-                        })),
-                        mobile && _react2['default'].createElement('span', { style: { flex: 1 } }),
-                        _react2['default'].createElement(ListPaginator, {
-                            id: 'paginator-toolbar',
-                            dataModel: props.pydio.getContextHolder(),
-                            toolbarDisplay: true
+                        { style: { marginTop: -3, display: 'flex' } },
+                        _react2['default'].createElement(_materialUi.IconButton, {
+                            iconClassName: "mdi mdi-information",
+                            style: rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle,
+                            iconStyle: rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
+                            onTouchTap: function () {
+                                _this5.openRightPanel('info-panel');
+                            },
+                            tooltip: pydio.MessageHash['341']
                         }),
-                        _react2['default'].createElement(Toolbar, _extends({}, props, {
-                            id: 'display-toolbar',
-                            toolbars: ["display_toolbar"],
-                            renderingType: 'icon-font',
-                            buttonStyle: styles.buttonsIconStyle
-                        })),
-                        _react2['default'].createElement('div', { style: { borderLeft: '1px solid ' + appBarTextColor.fade(0.77).toString(), margin: 10, marginBottom: 4 } }),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { marginTop: -3, display: 'flex' } },
-                            _react2['default'].createElement(_materialUi.IconButton, {
-                                iconClassName: "mdi mdi-information",
-                                style: rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle,
-                                iconStyle: rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
-                                onTouchTap: function () {
-                                    _this5.openRightPanel('info-panel');
-                                },
-                                tooltip: pydio.MessageHash['341']
-                            }),
-                            showChatTab && _react2['default'].createElement(_materialUi.IconButton, {
-                                iconClassName: "mdi mdi-message-text",
-                                style: rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle,
-                                iconStyle: rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
-                                onTouchTap: function () {
-                                    _this5.openRightPanel('chat');
-                                },
-                                tooltip: pydio.MessageHash['635']
-                            }),
-                            showAddressBook && _react2['default'].createElement(_materialUi.IconButton, {
-                                iconClassName: "mdi mdi-account-card-details",
-                                style: rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle,
-                                iconStyle: rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
-                                onTouchTap: function () {
-                                    _this5.openRightPanel('address-book');
-                                },
-                                tooltip: pydio.MessageHash['592']
-                            }),
-                            _react2['default'].createElement(_materialUi.IconButton, {
-                                iconClassName: "mdi mdi-close",
-                                style: styles.buttonsStyle,
-                                iconStyle: styles.buttonsIconStyle,
-                                onTouchTap: function () {
-                                    _this5.closeRightPanel();
-                                },
-                                disabled: !rightColumnState,
-                                tooltip: pydio.MessageHash['86']
-                            })
-                        )
+                        showChatTab && _react2['default'].createElement(_materialUi.IconButton, {
+                            iconClassName: "mdi mdi-message-text",
+                            style: rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle,
+                            iconStyle: rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
+                            onTouchTap: function () {
+                                _this5.openRightPanel('chat');
+                            },
+                            tooltip: pydio.MessageHash['635']
+                        }),
+                        showAddressBook && _react2['default'].createElement(_materialUi.IconButton, {
+                            iconClassName: "mdi mdi-account-card-details",
+                            style: rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle,
+                            iconStyle: rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
+                            onTouchTap: function () {
+                                _this5.openRightPanel('address-book');
+                            },
+                            tooltip: pydio.MessageHash['592']
+                        }),
+                        _react2['default'].createElement(_materialUi.IconButton, {
+                            iconClassName: "mdi mdi-close",
+                            style: styles.buttonsStyle,
+                            iconStyle: styles.buttonsIconStyle,
+                            onTouchTap: function () {
+                                _this5.closeRightPanel();
+                            },
+                            disabled: !rightColumnState,
+                            tooltip: pydio.MessageHash['86']
+                        })
                     )
-                ),
-                _react2['default'].createElement(_MainFilesList2['default'], { ref: 'list', pydio: this.props.pydio })
+                )
             ),
+            _react2['default'].createElement(_MainFilesList2['default'], { ref: 'list', pydio: this.props.pydio }),
             rightColumnState === 'info-panel' && _react2['default'].createElement(_detailpanesInfoPanel2['default'], _extends({}, props, {
                 dataModel: props.pydio.getContextHolder(),
                 onContentChange: this.infoPanelContentChange,
@@ -406,18 +381,13 @@ var FSTemplate = _react2['default'].createClass({
             })),
             rightColumnState === 'chat' && _react2['default'].createElement(_CellChat2['default'], { pydio: pydio }),
             rightColumnState === 'address-book' && _react2['default'].createElement(_AddressBookPanel2['default'], { pydio: pydio }),
-            _react2['default'].createElement(_EditionPanel2['default'], props),
-            _react2['default'].createElement(
-                'span',
-                { className: 'context-menu' },
-                _react2['default'].createElement(ContextMenu, { pydio: this.props.pydio })
-            )
-        ));
+            _react2['default'].createElement(_EditionPanel2['default'], props)
+        );
     }
 });
 
-exports['default'] = FSTemplate = dropProvider(FSTemplate);
-exports['default'] = FSTemplate = withContextMenu(FSTemplate);
+//FSTemplate = dropProvider(FSTemplate);
+//FSTemplate = withContextMenu(FSTemplate);
 exports['default'] = FSTemplate = _materialUiStyles.muiThemeable()(FSTemplate);
 
 exports['default'] = FSTemplate;

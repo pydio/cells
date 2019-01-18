@@ -97,6 +97,7 @@ export default class RoleServiceApi {
      * @param {Number} opts.lastUpdated 
      * @param {Array.<String>} opts.autoApplies 
      * @param {Boolean} opts.policiesContextEditable 
+     * @param {Boolean} opts.forceOverride 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmRole} and HTTP response
      */
     getRoleWithHttpInfo(uuid, opts) {
@@ -119,7 +120,8 @@ export default class RoleServiceApi {
         'UserRole': opts['userRole'],
         'LastUpdated': opts['lastUpdated'],
         'AutoApplies': this.apiClient.buildCollectionParam(opts['autoApplies'], 'csv'),
-        'PoliciesContextEditable': opts['policiesContextEditable']
+        'PoliciesContextEditable': opts['policiesContextEditable'],
+        'ForceOverride': opts['forceOverride']
       };
       let headerParams = {
       };
@@ -149,6 +151,7 @@ export default class RoleServiceApi {
      * @param {Number} opts.lastUpdated 
      * @param {Array.<String>} opts.autoApplies 
      * @param {Boolean} opts.policiesContextEditable 
+     * @param {Boolean} opts.forceOverride 
      * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmRole}
      */
     getRole(uuid, opts) {

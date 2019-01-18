@@ -7327,15 +7327,19 @@ Object.defineProperty(exports, '__esModule', {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
-
-var _reactDom = require('react-dom');
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
 
 var _ConfigLogo = require('./ConfigLogo');
 
@@ -7361,140 +7365,107 @@ var _recentActivityStreams2 = _interopRequireDefault(_recentActivityStreams);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('workspaces');
 
-var LeftPanel = _Pydio$requireLib.LeftPanel;
+var MasterLayout = _Pydio$requireLib.MasterLayout;
 
-var AltDashboard = _react2['default'].createClass({
-    displayName: 'AltDashboard',
+var AltDashboard = (function (_React$Component) {
+    _inherits(AltDashboard, _React$Component);
 
-    getDefaultCards: function getDefaultCards() {
+    function AltDashboard(props) {
+        _classCallCheck(this, AltDashboard);
 
-        var baseCards = [{
-            id: 'quick_upload',
-            componentClass: 'WelcomeComponents.QuickSendCard',
-            defaultPosition: {
-                x: 0, y: 10
-            }
-        }, {
-            id: 'downloads',
-            componentClass: 'WelcomeComponents.DlAppsCard',
-            defaultPosition: {
-                x: 0, y: 20
-            }
-        }, {
-            id: 'qr_code',
-            componentClass: 'WelcomeComponents.QRCodeCard',
-            defaultPosition: {
-                x: 0, y: 30
-            }
-        }, {
-            id: 'videos',
-            componentClass: 'WelcomeComponents.VideoCard',
-            defaultPosition: {
-                x: 0, y: 50
-            }
-        }];
+        _get(Object.getPrototypeOf(AltDashboard.prototype), 'constructor', this).call(this, props);
+        this.state = { unreadStatus: 0, drawerOpen: true };
+        //setTimeout(()=>{this.setState({drawerOpen: false})}, 2000);
+    }
 
-        return baseCards;
-    },
-
-    getInitialState: function getInitialState() {
-        return { unreadStatus: 0 };
-    },
-
-    openDrawer: function openDrawer(event) {
-        event.stopPropagation();
-        this.setState({ drawerOpen: true });
-    },
-
-    closeDrawer: function closeDrawer(e) {
-        if (!this.state.drawerOpen) {
-            return;
+    _createClass(AltDashboard, [{
+        key: 'openDrawer',
+        value: function openDrawer(event) {
+            event.stopPropagation();
+            this.setState({ drawerOpen: true });
         }
-        var widgets = document.getElementsByClassName('user-widget');
-        if (widgets && widgets.length > 0 && widgets[0].contains(_reactDom2['default'].findDOMNode(e.target))) {
-            return;
-        }
-        this.setState({ drawerOpen: false });
-    },
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this = this;
 
-    render: function render() {
-        var pydio = this.props.pydio;
+            var _props = this.props;
+            var pydio = _props.pydio;
+            var muiTheme = _props.muiTheme;
+            var drawerOpen = this.state.drawerOpen;
 
-        var Color = MaterialUI.Color;
+            var appBarColor = new _materialUi.Color(muiTheme.appBar.color);
+            var guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
+            var wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
 
-        var appBarColor = new Color(this.props.muiTheme.appBar.color);
+            var styles = {
+                appBarStyle: {
+                    zIndex: 1,
+                    backgroundColor: appBarColor.alpha(.6).toString(),
+                    height: 100
+                },
+                buttonsStyle: {
+                    color: muiTheme.appBar.textColor
+                },
+                iconButtonsStyle: {
+                    color: appBarColor.darken(0.4).toString()
+                },
+                wsListsContainerStyle: {
+                    position: 'absolute',
+                    zIndex: 10,
+                    top: 108,
+                    bottom: 0,
+                    right: 0,
+                    left: 260,
+                    display: 'flex',
+                    flexDirection: 'column'
+                }
+            };
 
-        var guiPrefs = this.props.pydio.user ? this.props.pydio.user.getPreference('gui_preferences', true) : [];
-        var wTourEnabled = this.props.pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
+            var mainClasses = ['vertical_layout', 'vertical_fit', 'react-fs-template', 'user-dashboard-template'];
 
-        var styles = {
-            appBarStyle: {
-                zIndex: 1,
-                backgroundColor: appBarColor.alpha(.6).toString(),
-                height: 100
-            },
-            buttonsStyle: {
-                color: this.props.muiTheme.appBar.textColor
-            },
-            iconButtonsStyle: {
-                color: appBarColor.darken(0.4).toString()
-            },
-            wsListsContainerStyle: {
-                position: 'absolute',
-                zIndex: 10,
-                top: 108,
-                bottom: 0,
-                right: 10,
-                left: 260,
-                display: 'flex',
-                flexDirection: 'column'
-            },
-            rglStyle: {
-                position: 'absolute',
-                top: 100,
-                bottom: 0,
-                right: 0,
-                width: 260,
-                overflowY: 'auto',
-                backgroundColor: '#ECEFF1'
-            },
-            centerTitleStyle: {
-                padding: '20px 16px 10px',
-                fontSize: 13,
-                color: '#93a8b2',
-                fontWeight: 500
+            var tutorialComponent = undefined;
+            if (wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome']) {
+                tutorialComponent = _react2['default'].createElement(_WelcomeTour2['default'], { ref: 'welcome', pydio: pydio });
             }
-        };
 
-        var mainClasses = ['vertical_layout', 'vertical_fit', 'react-fs-template', 'user-dashboard-template'];
-        if (this.state.drawerOpen) {
-            mainClasses.push('drawer-open');
-        }
-
-        return _react2['default'].createElement(
-            'div',
-            { className: mainClasses.join(' '), onTouchTap: this.closeDrawer },
-            wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.Welcome'] && _react2['default'].createElement(_WelcomeTour2['default'], { ref: 'welcome', pydio: this.props.pydio }),
-            _react2['default'].createElement(LeftPanel, {
-                className: 'left-panel',
-                pydio: pydio,
+            var leftPanelProps = {
                 style: { backgroundColor: 'transparent' },
-                userWidgetProps: { hideNotifications: false, style: { backgroundColor: appBarColor.darken(.2).alpha(.7).toString() } }
-            }),
-            _react2['default'].createElement(
-                'div',
-                { className: 'desktop-container vertical_layout vertical_fit' },
+                userWidgetProps: {
+                    hideNotifications: false,
+                    style: {
+                        backgroundColor: appBarColor.darken(.2).alpha(.7).toString()
+                    }
+                }
+            };
+            // Not used - to be used for toggling left menu
+            var drawerIcon = _react2['default'].createElement(
+                'span',
+                { className: 'drawer-button', style: { position: 'absolute' } },
+                _react2['default'].createElement(_materialUi.IconButton, {
+                    iconStyle: { color: null, display: 'none' },
+                    iconClassName: 'mdi mdi-menu',
+                    onTouchTap: this.openDrawer.bind(this) })
+            );
+
+            return _react2['default'].createElement(
+                MasterLayout,
+                {
+                    pydio: pydio,
+                    classes: mainClasses,
+                    tutorialComponent: tutorialComponent,
+                    leftPanelProps: leftPanelProps,
+                    drawerOpen: drawerOpen,
+                    onCloseDrawerRequested: function () {
+                        _this.setState({ drawerOpen: true });
+                    }
+                },
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1, style: styles.appBarStyle, rounded: false },
+                    { zDepth: 1, style: _extends({}, styles.appBarStyle), rounded: false },
                     _react2['default'].createElement(
                         'div',
                         { id: 'workspace_toolbar', style: { display: "flex", justifyContent: "space-between" } },
-                        _react2['default'].createElement(
-                            'span',
-                            { className: 'drawer-button' },
-                            _react2['default'].createElement(_materialUi.IconButton, { iconStyle: { color: 'white' }, iconClassName: 'mdi mdi-menu', onTouchTap: this.openDrawer })
-                        ),
                         _react2['default'].createElement('span', { style: { flex: 1 } }),
                         _react2['default'].createElement(
                             'div',
@@ -7510,30 +7481,32 @@ var AltDashboard = _react2['default'].createClass({
                 ),
                 _react2['default'].createElement(
                     'div',
-                    { style: { backgroundColor: 'white' }, className: 'vertical_fit user-dashboard-main' },
+                    { style: { backgroundColor: 'rgba(255,255,255,1)' }, className: 'vertical_fit user-dashboard-main' },
                     _react2['default'].createElement(
                         _HomeSearchForm2['default'],
                         _extends({ zDepth: 0 }, this.props, { style: styles.wsListsContainerStyle }),
                         _react2['default'].createElement(
                             'div',
-                            { style: { flex: 1, display: 'flex', flexDirection: 'column' }, id: 'history-block' },
+                            { style: { flex: 1, overflowY: 'scroll' }, id: 'history-block' },
                             _react2['default'].createElement(_recentActivityStreams2['default'], _extends({}, this.props, {
                                 emptyStateProps: { style: { backgroundColor: 'white' } }
                             }))
                         )
                     )
                 )
-            )
-        );
-    }
-});
+            );
+        }
+    }]);
+
+    return AltDashboard;
+})(_react2['default'].Component);
 
 exports['default'] = AltDashboard = MaterialUI.Style.muiThemeable()(AltDashboard);
 
 exports['default'] = AltDashboard;
 module.exports = exports['default'];
 
-},{"../recent/ActivityStreams":14,"./ConfigLogo":6,"./HomeSearchForm":8,"./WelcomeTour":10,"material-ui":"material-ui","pydio":"pydio","react":"react","react-dom":"react-dom"}],8:[function(require,module,exports){
+},{"../recent/ActivityStreams":14,"./ConfigLogo":6,"./HomeSearchForm":8,"./WelcomeTour":10,"material-ui":"material-ui","pydio":"pydio","react":"react"}],8:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.
@@ -7696,7 +7669,7 @@ var HomeSearchForm = (function (_Component) {
                     display: 'flex',
                     backgroundColor: white,
                     height: 55,
-                    padding: '4px 8px 4px 0'
+                    padding: '4px 18px 4px 0'
                 },
                 textField: { flex: 1 },
                 textInput: { color: 'inherit' },
@@ -8421,11 +8394,6 @@ Object.defineProperty(exports, '__esModule', {
 });
 var React = require('react');
 
-var _require = require('material-ui');
-
-var List = _require.List;
-var ListItem = _require.ListItem;
-
 var _require$requireLib = require('pydio').requireLib('boot');
 
 var ActionDialogMixin = _require$requireLib.ActionDialogMixin;
@@ -8483,7 +8451,7 @@ var WorkspacePickerDialog = React.createClass({
 exports['default'] = WorkspacePickerDialog;
 module.exports = exports['default'];
 
-},{"material-ui":"material-ui","pydio":"pydio","react":"react"}],14:[function(require,module,exports){
+},{"pydio":"pydio","react":"react"}],14:[function(require,module,exports){
 /*
  * Copyright 2007-2017 Charles du Jeu - Abstrium SAS <team (at) pyd.io>
  * This file is part of Pydio.

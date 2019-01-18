@@ -32,6 +32,8 @@ import RestDeleteDataSourceResponse from '../model/RestDeleteDataSourceResponse'
 import RestDiscoveryResponse from '../model/RestDiscoveryResponse';
 import RestListPeerFoldersRequest from '../model/RestListPeerFoldersRequest';
 import RestListPeersAddressesResponse from '../model/RestListPeersAddressesResponse';
+import RestListProcessesRequest from '../model/RestListProcessesRequest';
+import RestListProcessesResponse from '../model/RestListProcessesResponse';
 import RestNodesCollection from '../model/RestNodesCollection';
 import RestOpenApiResponse from '../model/RestOpenApiResponse';
 import RestServiceCollection from '../model/RestServiceCollection';
@@ -854,6 +856,54 @@ export default class ConfigServiceApi {
      */
     listPeersAddresses() {
       return this.listPeersAddressesWithHttpInfo()
+        .then(function(response_and_data) {
+          return response_and_data.data;
+        });
+    }
+
+
+    /**
+     * List running Processes, with option PeerId or ServiceName filter
+     * @param {module:model/RestListProcessesRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestListProcessesResponse} and HTTP response
+     */
+    listProcessesWithHttpInfo(body) {
+      let postBody = body;
+
+      // verify the required parameter 'body' is set
+      if (body === undefined || body === null) {
+        throw new Error("Missing the required parameter 'body' when calling listProcesses");
+      }
+
+
+      let pathParams = {
+      };
+      let queryParams = {
+      };
+      let headerParams = {
+      };
+      let formParams = {
+      };
+
+      let authNames = [];
+      let contentTypes = ['application/json'];
+      let accepts = ['application/json'];
+      let returnType = RestListProcessesResponse;
+
+      return this.apiClient.callApi(
+        '/config/processes', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType
+      );
+    }
+
+    /**
+     * List running Processes, with option PeerId or ServiceName filter
+     * @param {module:model/RestListProcessesRequest} body 
+     * @return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestListProcessesResponse}
+     */
+    listProcesses(body) {
+      return this.listProcessesWithHttpInfo(body)
         .then(function(response_and_data) {
           return response_and_data.data;
         });

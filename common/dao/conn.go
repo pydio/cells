@@ -24,7 +24,10 @@ import (
 	"database/sql"
 	"fmt"
 
+	"time"
+
 	"github.com/pydio/cells/common"
+	"github.com/pydio/cells/common/service/metrics"
 )
 
 type conn struct{}
@@ -66,6 +69,17 @@ func getSqlConnection(driver string, dsn string) (*sql.DB, error) {
 		db.SetMaxOpenConns(common.DB_MAX_OPEN_CONNS)
 		db.SetConnMaxLifetime(common.DB_CONN_MAX_LIFETIME)
 		db.SetMaxIdleConns(common.DB_MAX_IDLE_CONNS)
+		computeStats(db)
 		return db, nil
 	}
+}
+
+func computeStats(db *sql.DB) {
+	go func() {
+		for {
+			s := db.Stats()
+			metrics.GetMetrics().Gauge("db_open_connections").Update(float64(s.OpenConnections))
+			<-time.After(30 * time.Second)
+		}
+	}()
 }

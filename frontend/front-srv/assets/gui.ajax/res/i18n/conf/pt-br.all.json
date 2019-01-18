@@ -204,7 +204,7 @@
     "other": "Set the domain for your analytics reports (not mandatory!)"
   },
   "Set the domain for yuor analytics reports (not mandatory!)": {
-    "other": "Set the domain for yuor analytics reports (not mandatory!)"
+    "other": "Set the domain for your analytics reports (not mandatory!)"
   },
   "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured.": {
     "other": "Set up some application parameters. If you enable Emails, please use the Test button to check if your php is correctly configured."
@@ -268,5 +268,11 @@
   },
   "Width of the custom image (by default 35px)": {
     "other": "Width of the custom image (Default 35px)"
+  },
+  "Alert the user that the web session is about to expire. Number of minutes before session expiration": {
+    "other": "Alert the user that the web session is about to expire. Number of minutes before session expiration"
+  },
+  "Warning Before Session Expiration": {
+    "other": "Warning Before Session Expiration"
   }
 }

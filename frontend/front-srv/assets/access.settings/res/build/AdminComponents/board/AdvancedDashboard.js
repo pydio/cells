@@ -169,7 +169,7 @@ var AdvancedDashboard = (function (_React$Component) {
                 componentClass: 'AdminComponents.GraphCard',
                 props: {
                     title: getMessageFunc('home.65'),
-                    queryName: "ObjectGet",
+                    queryName: "ObjectGet,ObjectPut,LinkCreated",
                     frequency: "H",
                     interval: 60
                 },

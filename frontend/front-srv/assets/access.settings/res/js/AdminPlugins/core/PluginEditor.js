@@ -19,7 +19,7 @@
  */
 
 import React from 'react'
-import {RaisedButton, FlatButton} from 'material-ui'
+import {RaisedButton, FlatButton, IconButton, FontIcon} from 'material-ui'
 import Loader from './Loader'
 import XMLUtils from 'pydio/util/xml'
 import LangUtils from 'pydio/util/lang'
@@ -198,18 +198,17 @@ const PluginEditor = React.createClass({
 
     render(){
 
+        const {closeEditor, additionalPanes, currentNode, docAsAdditionalPane} = this.props;
+        const {dirty, mainPaneScrolled, label, documentation} = this.state;
+
         let addPanes = {top:[], bottom:[]};
-        if(this.props.additionalPanes){
-            addPanes.top = this.props.additionalPanes.top.slice();
-            addPanes.bottom = this.props.additionalPanes.bottom.slice();
-        }
-        let closeButton;
-        if(this.props.closeEditor){
-            closeButton = <RaisedButton label={this.context.getMessage('86','')} onTouchTap={this.props.closeEditor}/>
+        if(additionalPanes){
+            addPanes.top = additionalPanes.top.slice();
+            addPanes.bottom = additionalPanes.bottom.slice();
         }
 
-        let doc = this.state.documentation;
-        if(doc && this.props.docAsAdditionalPane){
+        let doc = documentation;
+        if(doc && docAsAdditionalPane){
             doc = doc.firstChild.nodeValue.replace('<p><ul', '<ul').replace('</ul></p>', '</ul>').replace('<p></p>', '');
             doc = doc.replace('<img src="', '<img style="width:90%;" src="plug/' + this.props.pluginId + '/');
             const readDoc = () => {
@@ -225,17 +224,20 @@ const PluginEditor = React.createClass({
         }
 
         let scrollingClassName = '';
-        if(this.state && this.state.mainPaneScrolled){
+        if(mainPaneScrolled){
             scrollingClassName = ' main-pane-scrolled';
         }
         let actions = [];
-        actions.push(<FlatButton secondary={true} disabled={!this.state.dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
-        actions.push(<FlatButton secondary={true} disabled={!this.state.dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
-        actions.push(closeButton);
+        if(!closeEditor){
+            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
+            actions.push(<FlatButton secondary={true} disabled={!dirty} label={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
+        } else {
+            actions.push(<IconButton iconClassName={"mdi mdi-undo"} iconStyle={{color:dirty?'white':'rgba(255,255,255,.5)'}} disabled={!dirty} tooltip={this.context.getMessage('plugins.6')} onTouchTap={this.revert}/>);
+            actions.push(<IconButton iconClassName={"mdi mdi-content-save"} iconStyle={{color:dirty?'white':'rgba(255,255,255,.5)'}} disabled={!dirty} tooltip={this.context.getMessage('plugins.5')} onTouchTap={this.save}/>);
+            actions.push(<IconButton iconClassName={"mdi mdi-close"} iconStyle={{color:'white'}} tooltip={this.context.getMessage('86','')} onTouchTap={closeEditor}/>);
+        }
 
         let titleLabel, titleIcon;
-        const {label} = this.state;
-        const {currentNode} = this.props;
         if(currentNode){
             titleLabel = currentNode.getLabel();
             titleIcon = currentNode.getMetadata().get("icon_class");
@@ -246,7 +248,7 @@ const PluginEditor = React.createClass({
         // Building  a form
         return (
             <div className={(this.props.className?this.props.className+" ":"") + "main-layout-nav-to-stack vertical-layout plugin-board" + scrollingClassName} style={this.props.style}>
-                <AdminComponents.Header title={titleLabel} actions={actions} scrolling={this.state && this.state.mainPaneScrolled} icon={titleIcon}/>
+                <AdminComponents.Header title={titleLabel} actions={actions} scrolling={this.state && this.state.mainPaneScrolled} icon={titleIcon} editorMode={!!closeEditor}/>
                 <PydioForm.FormPanel
                     ref="formPanel"
                     className="row-flex"

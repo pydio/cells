@@ -1,6 +1,6 @@
 {
   "Comment limit": {
-    "other": "Comment limit"
+    "other": "Limite dei commenti"
   },
   "Comments Feed": {
     "other": "Feed Commenti"
@@ -9,6 +9,6 @@
     "other": "Visualizza un feed simile alle chat per tutti i nodi"
   },
   "Maximum number of characters for each comment": {
-    "other": "Maximum number of characters for each comment"
+    "other": "Numero massimo dei caratteri per ciascun commento"
   }
 }

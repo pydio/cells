@@ -995,6 +995,10 @@
               {
                 "name": "data",
                 "type": null
+              },
+              {
+                "name": "index",
+                "type": null
               }
             ],
             "returns": null
@@ -2386,6 +2390,21 @@
         ]
       }
     ],
+    "AdminPeople/editor/info/UserActivity.js": [
+      {
+        "description": "",
+        "displayName": "UserActivity",
+        "methods": [
+          {
+            "name": "loadActivity",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      }
+    ],
     "AdminPeople/editor/info/UserInfo.js": [
       {
         "description": "",
@@ -3641,6 +3660,13 @@
         "methods": []
       }
     ],
+    "AdminPlugins/core/MailerTest.js": [
+      {
+        "description": "",
+        "displayName": "MailerTest",
+        "methods": []
+      }
+    ],
     "AdminPlugins/core/Manager.js": [
       {
         "description": "",
@@ -4202,6 +4228,13 @@
             "returns": null
           },
           {
+            "name": "upgradeFinished",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
             "name": "performUpgrade",
             "docblock": null,
             "modifiers": [],
@@ -4220,6 +4253,10 @@
               {
                 "name": "value",
                 "type": null
+              },
+              {
+                "name": "pack",
+                "type": null
               }
             ],
             "returns": null
@@ -4236,6 +4273,22 @@
             "docblock": null,
             "modifiers": [],
             "params": [
+              {
+                "name": "hideLoading",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "loadOne",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "jobID",
+                "type": null
+              },
               {
                 "name": "hideLoading",
                 "type": null
@@ -8748,6 +8801,22 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "uploadPart",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "chunk",
+                "type": null
+              },
+              {
+                "name": "partNumber",
+                "type": null
+              }
+            ],
+            "returns": null
           }
         ],
         "require": "const PydioApi = require('pydio/http/api')"
@@ -12016,6 +12085,48 @@
             "description": "List all detected peers (servers on which the app is running)"
           },
           {
+            "name": "listProcessesWithHttpInfo",
+            "docblock": "List running Processes, with option PeerId or ServiceName filter\n@param {module:model/RestListProcessesRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestListProcessesResponse} and HTTP response",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestListProcessesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestListProcessesResponse} and HTTP response",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "List running Processes, with option PeerId or ServiceName filter"
+          },
+          {
+            "name": "listProcesses",
+            "docblock": "List running Processes, with option PeerId or ServiceName filter\n@param {module:model/RestListProcessesRequest} body \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestListProcessesResponse}",
+            "modifiers": [],
+            "params": [
+              {
+                "name": "body",
+                "description": null,
+                "type": {
+                  "name": "module:model/RestListProcessesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/RestListProcessesResponse}",
+              "type": {
+                "name": "Promise"
+              }
+            },
+            "description": "List running Processes, with option PeerId or ServiceName filter"
+          },
+          {
             "name": "listServicesWithHttpInfo",
             "docblock": "List all services and their status\n@param {Object} opts Optional parameters\n@param {module:model/String} opts.statusFilter  (default to ANY)\n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/RestServiceCollection} and HTTP response",
             "modifiers": [],
@@ -13633,7 +13744,7 @@
           },
           {
             "name": "getRoleWithHttpInfo",
-            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label \n@param {Boolean} opts.isTeam \n@param {Boolean} opts.groupRole \n@param {Boolean} opts.userRole \n@param {Number} opts.lastUpdated \n@param {Array.<String>} opts.autoApplies \n@param {Boolean} opts.policiesContextEditable \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmRole} and HTTP response",
+            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label \n@param {Boolean} opts.isTeam \n@param {Boolean} opts.groupRole \n@param {Boolean} opts.userRole \n@param {Number} opts.lastUpdated \n@param {Array.<String>} opts.autoApplies \n@param {Boolean} opts.policiesContextEditable \n@param {Boolean} opts.forceOverride \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with an object containing data of type {@link module:model/IdmRole} and HTTP response",
             "modifiers": [],
             "params": [
               {
@@ -13661,7 +13772,7 @@
           },
           {
             "name": "getRole",
-            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label \n@param {Boolean} opts.isTeam \n@param {Boolean} opts.groupRole \n@param {Boolean} opts.userRole \n@param {Number} opts.lastUpdated \n@param {Array.<String>} opts.autoApplies \n@param {Boolean} opts.policiesContextEditable \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmRole}",
+            "docblock": "Get a Role by ID\n@param {String} uuid \n@param {Object} opts Optional parameters\n@param {String} opts.label \n@param {Boolean} opts.isTeam \n@param {Boolean} opts.groupRole \n@param {Boolean} opts.userRole \n@param {Number} opts.lastUpdated \n@param {Array.<String>} opts.autoApplies \n@param {Boolean} opts.policiesContextEditable \n@param {Boolean} opts.forceOverride \n@return {Promise} a {@link https://www.promisejs.org/|Promise}, with data of type {@link module:model/IdmRole}",
             "modifiers": [],
             "params": [
               {
@@ -21049,6 +21160,98 @@
         ]
       }
     ],
+    "core/http/gen/model/RestListProcessesRequest.js": [
+      {
+        "description": "The RestListProcessesRequest model module.\n@module model/RestListProcessesRequest\n@version 1.0",
+        "displayName": "RestListProcessesRequest",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestListProcessesRequest</code>.\n@alias module:model/RestListProcessesRequest\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestListProcessesRequest</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestListProcessesRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestListProcessesRequest} obj Optional instance to populate.\n@return {module:model/RestListProcessesRequest} The populated <code>RestListProcessesRequest</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestListProcessesRequest"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestListProcessesRequest</code> instance.",
+              "type": {
+                "name": "module:model/RestListProcessesRequest"
+              }
+            },
+            "description": "Constructs a <code>RestListProcessesRequest</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestListProcessesResponse.js": [
+      {
+        "description": "The RestListProcessesResponse model module.\n@module model/RestListProcessesResponse\n@version 1.0",
+        "displayName": "RestListProcessesResponse",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestListProcessesResponse</code>.\n@alias module:model/RestListProcessesResponse\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestListProcessesResponse</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestListProcessesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestListProcessesResponse} obj Optional instance to populate.\n@return {module:model/RestListProcessesResponse} The populated <code>RestListProcessesResponse</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestListProcessesResponse"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestListProcessesResponse</code> instance.",
+              "type": {
+                "name": "module:model/RestListProcessesResponse"
+              }
+            },
+            "description": "Constructs a <code>RestListProcessesResponse</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
     "core/http/gen/model/RestListSharedResourcesRequest.js": [
       {
         "description": "The RestListSharedResourcesRequest model module.\n@module model/RestListSharedResourcesRequest\n@version 1.0",
@@ -21551,6 +21754,52 @@
               }
             },
             "description": "Constructs a <code>RestPagination</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
+          }
+        ]
+      }
+    ],
+    "core/http/gen/model/RestProcess.js": [
+      {
+        "description": "The RestProcess model module.\n@module model/RestProcess\n@version 1.0",
+        "displayName": "RestProcess",
+        "methods": [
+          {
+            "name": "constructor",
+            "docblock": "Constructs a new <code>RestProcess</code>.\n@alias module:model/RestProcess\n@class",
+            "modifiers": [],
+            "params": [],
+            "returns": null,
+            "description": "Constructs a new <code>RestProcess</code>."
+          },
+          {
+            "name": "constructFromObject",
+            "docblock": "Constructs a <code>RestProcess</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not.\n@param {Object} data The plain JavaScript object bearing properties of interest.\n@param {module:model/RestProcess} obj Optional instance to populate.\n@return {module:model/RestProcess} The populated <code>RestProcess</code> instance.",
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "data",
+                "description": "The plain JavaScript object bearing properties of interest.",
+                "type": {
+                  "name": "Object"
+                }
+              },
+              {
+                "name": "obj",
+                "description": "Optional instance to populate.",
+                "type": {
+                  "name": "module:model/RestProcess"
+                }
+              }
+            ],
+            "returns": {
+              "description": "The populated <code>RestProcess</code> instance.",
+              "type": {
+                "name": "module:model/RestProcess"
+              }
+            },
+            "description": "Constructs a <code>RestProcess</code> from a plain JavaScript object, optionally creating a new instance.\nCopies all relevant properties from <code>data</code> to <code>obj</code> if supplied or a new instance if not."
           }
         ]
       }
@@ -28804,6 +29053,20 @@
             "params": [
               {
                 "name": "callback",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "selectBaseFileName",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [
+              {
+                "name": "htmlInput",
                 "type": null
               }
             ],
@@ -36317,6 +36580,22 @@
         "require": "const {JobEntry} = require('pydio').requireLib('boot')"
       }
     ],
+    "ReactUI/tasks/SingleJobProgress.js": [
+      {
+        "description": "",
+        "displayName": "SingleJobProgress",
+        "methods": [
+          {
+            "name": "reloadTask",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ],
+        "require": "const {SingleJobProgress} = require('pydio').requireLib('boot')"
+      }
+    ],
     "ReactUI/tasks/TaskAction.js": [
       {
         "description": "",
@@ -37290,18 +37569,6 @@
               }
             ],
             "returns": null
-          },
-          {
-            "name": "closeDrawer",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "e",
-                "type": null
-              }
-            ],
-            "returns": null
           }
         ],
         "props": {
@@ -37608,6 +37875,27 @@
           }
         },
         "require": "const {MainFilesList} = require('pydio').requireLib('workspaces')"
+      }
+    ],
+    "Workspaces/views/MasterLayout.js": [
+      {
+        "description": "",
+        "displayName": "MasterLayout",
+        "methods": [
+          {
+            "name": "closeDrawer",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "e",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "require": "const {MasterLayout} = require('pydio').requireLib('workspaces')"
       }
     ],
     "Workspaces/views/OverlayIcon.js": [
@@ -37928,6 +38216,70 @@
           }
         },
         "require": "const {WorkspaceEntryMaterial} = require('pydio').requireLib('workspaces')"
+      }
+    ],
+    "Workspaces/wslist/WorkspacePickerDialog.js": [
+      {
+        "description": "",
+        "methods": [
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "workspaceTouchTap",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "wsId",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ],
+        "props": {
+          "dialogTitleId": {
+            "defaultValue": {
+              "value": "'user_home.90'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogSize": {
+            "defaultValue": {
+              "value": "'sm'",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogPadding": {
+            "defaultValue": {
+              "value": "false",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogIsModal": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          },
+          "dialogScrollBody": {
+            "defaultValue": {
+              "value": "true",
+              "computed": false
+            },
+            "required": false
+          }
+        },
+        "require": "const {WorkspacePickerDialog} = require('pydio').requireLib('workspaces')"
       }
     ],
     "Workspaces/wslist/WorkspacesList.js": [
@@ -38397,14 +38749,8 @@
     "board/HomeDashboard.js": [
       {
         "description": "",
+        "displayName": "AltDashboard",
         "methods": [
-          {
-            "name": "getDefaultCards",
-            "docblock": null,
-            "modifiers": [],
-            "params": [],
-            "returns": null
-          },
           {
             "name": "openDrawer",
             "docblock": null,
@@ -38412,18 +38758,6 @@
             "params": [
               {
                 "name": "event",
-                "type": null
-              }
-            ],
-            "returns": null
-          },
-          {
-            "name": "closeDrawer",
-            "docblock": null,
-            "modifiers": [],
-            "params": [
-              {
-                "name": "e",
                 "type": null
               }
             ],
@@ -38741,6 +39075,51 @@
       {
         "description": "",
         "displayName": "Copyright",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "DLTemplate",
+        "methods": [
+          {
+            "name": "triggerDL",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "FolderMinisite",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "FileMinisite",
+        "methods": [
+          {
+            "name": "openEditorForNode",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "node",
+                "type": null
+              },
+              {
+                "name": "editorData",
+                "type": null
+              }
+            ],
+            "returns": null
+          }
+        ]
+      },
+      {
+        "description": "",
+        "displayName": "DropZoneMinisite",
         "methods": []
       },
       {
@@ -39385,6 +39764,40 @@
                 "type": null
               }
             ],
+            "returns": null
+          }
+        ]
+      }
+    ],
+    "dialog/composite/SimpleLinkCard.js": [
+      {
+        "description": "",
+        "displayName": "SimpleLinkCard",
+        "methods": [
+          {
+            "name": "linkInvitation",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "linkModel",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "dismissMailer",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "submit",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
             "returns": null
           }
         ]

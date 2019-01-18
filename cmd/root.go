@@ -53,6 +53,7 @@ import (
 
 	// All transports
 	grpctransport "github.com/pydio/cells/common/micro/transport/grpc"
+	"github.com/pydio/cells/common/service/metrics"
 )
 
 var (
@@ -168,6 +169,7 @@ func init() {
 	flags.String("grpc_cert", "", "Certificates used for communication via grpc")
 	flags.String("grpc_key", "", "Certificates used for communication via grpc")
 	flags.BoolVar(&IsFork, "fork", false, "Used internally by application when forking processes")
+	flags.Bool("enable_metrics", false, "Instrument code to expose internal metrics")
 
 	viper.BindPFlag("registry", flags.Lookup("registry"))
 	viper.BindPFlag("registry_address", flags.Lookup("registry_address"))
@@ -184,6 +186,8 @@ func init() {
 	viper.BindPFlag("grpc_cert", flags.Lookup("grpc_cert"))
 	viper.BindPFlag("grpc_key", flags.Lookup("grpc_key"))
 
+	viper.BindPFlag("enable_metrics", flags.Lookup("enable_metrics"))
+
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -191,6 +195,7 @@ func init() {
 func Execute() {
 
 	nats.Init()
+	metrics.Init()
 	// consul.Init()
 
 	if err := RootCmd.Execute(); err != nil {

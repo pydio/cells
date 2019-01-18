@@ -28,6 +28,22 @@ body,#ajxp_desktop,#background-imager{
     }
   }
 
+  .user-dashboard-template{
+    .left-panel{
+      transform: translateX(-250px);
+      box-shadow: @reactBoxShadowDepth1;
+    }
+    &.drawer-open .left-panel{
+        transform: translateX(0px);
+    }
+    .desktop-container{
+      margin-left: 0;
+    }
+    .drawer-button {
+      display: inherit !important;
+    }
+  }
+
   .desktop-container{
     transition: @bezier_transition;
     margin-left: 250px;

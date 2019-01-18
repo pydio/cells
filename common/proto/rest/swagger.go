@@ -861,6 +861,33 @@ var SwaggerJson = `{
         ]
       }
     },
+    "/config/processes": {
+      "post": {
+        "summary": "List running Processes, with option PeerId or ServiceName filter",
+        "operationId": "ListProcesses",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/restListProcessesResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/restListProcessesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ConfigService"
+        ]
+      }
+    },
     "/config/versioning": {
       "get": {
         "summary": "List all defined versioning policies",
@@ -1796,6 +1823,13 @@ var SwaggerJson = `{
           },
           {
             "name": "PoliciesContextEditable",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "format": "boolean"
+          },
+          {
+            "name": "ForceOverride",
             "in": "query",
             "required": false,
             "type": "boolean",
@@ -3786,6 +3820,10 @@ var SwaggerJson = `{
         "PoliciesContextEditable": {
           "type": "boolean",
           "format": "boolean"
+        },
+        "ForceOverride": {
+          "type": "boolean",
+          "format": "boolean"
         }
       }
     },
@@ -4608,6 +4646,20 @@ var SwaggerJson = `{
         },
         "LoadTasks": {
           "$ref": "#/definitions/jobsTaskStatus"
+        },
+        "JobIDs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "TasksOffset": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "TasksLimit": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -5618,6 +5670,28 @@ var SwaggerJson = `{
         }
       }
     },
+    "restListProcessesRequest": {
+      "type": "object",
+      "properties": {
+        "PeerId": {
+          "type": "string"
+        },
+        "ServiceName": {
+          "type": "string"
+        }
+      }
+    },
+    "restListProcessesResponse": {
+      "type": "object",
+      "properties": {
+        "Processes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/restProcess"
+          }
+        }
+      }
+    },
     "restListSharedResourcesRequest": {
       "type": "object",
       "properties": {
@@ -5799,6 +5873,36 @@ var SwaggerJson = `{
         }
       },
       "title": "Generic container for responses sending pagination information"
+    },
+    "restProcess": {
+      "type": "object",
+      "properties": {
+        "ID": {
+          "type": "string"
+        },
+        "ParentID": {
+          "type": "string"
+        },
+        "MetricsPort": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "PeerId": {
+          "type": "string"
+        },
+        "PeerAddress": {
+          "type": "string"
+        },
+        "StartTag": {
+          "type": "string"
+        },
+        "Services": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     },
     "restPutCellRequest": {
       "type": "object",

@@ -17334,7 +17334,7 @@ var AdvancedDashboard = (function (_React$Component) {
                 componentClass: 'AdminComponents.GraphCard',
                 props: {
                     title: getMessageFunc('home.65'),
-                    queryName: "ObjectGet",
+                    queryName: "ObjectGet,ObjectPut,LinkCreated",
                     frequency: "H",
                     interval: 60
                 },
@@ -17585,6 +17585,7 @@ var Header = (function (_Component) {
             var tabValue = _props.tabValue;
             var onTabChange = _props.onTabChange;
             var muiTheme = _props.muiTheme;
+            var editorMode = _props.editorMode;
 
             var styles = {
                 base: {
@@ -17640,6 +17641,7 @@ var Header = (function (_Component) {
                     }
                 }
             };
+
             styles.scrolling = _extends({}, styles.base, {
                 backgroundColor: 'rgba(236,239,241,0.8)',
                 borderBottom: 0,
@@ -17648,6 +17650,23 @@ var Header = (function (_Component) {
                 left: 0,
                 right: 0
             });
+
+            if (editorMode) {
+                styles.base = _extends({}, styles.base, {
+                    backgroundColor: muiTheme.palette.primary1Color,
+                    borderBottom: 0,
+                    borderRadius: '2px 2px 0 0 '
+                });
+                styles.title = _extends({}, styles.title, {
+                    color: 'white'
+                });
+                styles.container = _extends({}, styles.container, {
+                    height: 48
+                });
+                styles.scrolling = _extends({}, styles.base, styles.scrolling, {
+                    backgroundColor: muiTheme.palette.primary1Color
+                });
+            }
 
             var icon = undefined;
             if (this.props.icon) {
@@ -19871,23 +19890,35 @@ var RemoteGraphLine = _react2['default'].createClass({
         var frequency = _props.frequency;
         var start = _props.start;
 
-        model.loadData(queryName, frequency, start).then(function (result) {
-            var labels = result.labels;
-            var points = result.points;
-            var links = result.links;
+        var queries = queryName.split(",");
+        Promise.all(queries.map(function (q) {
+            return model.loadData(q, frequency, start);
+        })).then(function (results) {
+            var dataSets = [];
+            var theLabels = undefined,
+                theLinks = undefined;
+            queries.forEach(function (qName, index) {
+                var _results$index = results[index];
+                var labels = _results$index.labels;
+                var points = _results$index.points;
+                var links = _results$index.links;
 
-            var dataSets = [_this.makeDataSet(queryName, points)];
+                var dataSet = _this.makeDataSet(qName, points, index);
+                dataSets.push(dataSet);
+                theLabels = labels;
+                theLinks = links;
+            });
             _this.setState({
                 chartData: {
-                    labels: labels,
+                    labels: theLabels,
                     datasets: dataSets
                 },
-                links: links,
+                links: theLinks,
                 loaded: true
             });
-            _this.props.onDataLoaded({ links: links }, dataSets);
+            _this.props.onDataLoaded({ links: theLinks }, dataSets);
         })['catch'](function (reason) {
-            // Todo ?
+            // Todo
         });
     },
 
@@ -19969,9 +20000,10 @@ var RemoteGraphLine = _react2['default'].createClass({
         this.props.onDataLoaded(jsonData, preparedDataSets);
     },
 
-    makeDataSet: function makeDataSet(label, data) {
-        var colors = ['220,220,220', '151,187,205', '70, 191, 189'];
-        var color = colors[this.props.colorIndex];
+    makeDataSet: function makeDataSet(label, data, index) {
+        //const colors = ['70, 191, 189','151,187,205','220,220,220'];
+        var colors = ['0, 150, 136', '33,150,243', '255,87,34'];
+        var color = colors[index];
         return {
             label: label,
             fillColor: "rgba(" + color + ",0.2)",

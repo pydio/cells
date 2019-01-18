@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 
-package rest
+package share
 
 import (
 	"context"
@@ -91,8 +91,7 @@ func TestSharesHandler_DiffAcls(t *testing.T) {
 			},
 		}
 
-		h := NewSharesHandler()
-		add, remove := h.DiffAcls(context.Background(), current, target)
+		add, remove := DiffAcls(context.Background(), current, target)
 		So(add, ShouldHaveLength, 2)
 		So(add[0].RoleID, ShouldEqual, "add-me")
 		So(add[1].RoleID, ShouldEqual, "add-me")
@@ -162,8 +161,7 @@ func TestSharesHandler_DiffAcls(t *testing.T) {
 			},
 		}
 
-		h := NewSharesHandler()
-		add, remove := h.DiffAcls(context.Background(), current, target)
+		add, remove := DiffAcls(context.Background(), current, target)
 		So(add, ShouldHaveLength, 2)
 		So(add[0].RoleID, ShouldEqual, "add-me")
 		So(add[1].RoleID, ShouldEqual, "add-me")
@@ -237,8 +235,7 @@ func TestSharesHandler_DiffReadRoles(t *testing.T) {
 			},
 		}
 
-		h := NewSharesHandler()
-		add, remove := h.DiffReadRoles(context.Background(), current, target)
+		add, remove := DiffReadRoles(context.Background(), current, target)
 		So(add, ShouldHaveLength, 1)
 		So(remove, ShouldHaveLength, 1)
 
@@ -332,8 +329,7 @@ func TestSharesHandler_DiffReadRoles(t *testing.T) {
 			},
 		}
 
-		h := NewSharesHandler()
-		add, remove := h.DiffReadRoles(context.Background(), current, target)
+		add, remove := DiffReadRoles(context.Background(), current, target)
 		So(add, ShouldHaveLength, 0)
 		So(remove, ShouldHaveLength, 0)
 
@@ -371,8 +367,7 @@ func TestSharesHandler_AclsToRoomAcls(t *testing.T) {
 			},
 		}
 
-		h := NewSharesHandler()
-		roomAcls := h.AclsToCellAcls(context.Background(), acls)
+		roomAcls := AclsToCellAcls(context.Background(), acls)
 		So(roomAcls, ShouldHaveLength, 2)
 
 	})

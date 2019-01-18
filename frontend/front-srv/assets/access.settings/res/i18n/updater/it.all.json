@@ -1,51 +1,51 @@
 {
   "1": {
-    "other": "Aggiorna"
+    "other": "Aggiornamento"
   },
   "10": {
-    "other": "Questa è una procedura di test. Controlla i logs per vedere tutte le azioni svolte e se tutto va a buon fine, premi 'Avvia importazione reale'"
+    "other": "Questa è una procedura di test. Controlla i log di tutte le azioni eseguite, e se tutto va a buon fine premi 'Avvia importazione reale'"
   },
   "11": {
-    "other": "Migra meta.serial"
+    "other": "Eseguire la migrazione di meta.serial"
   },
   "12": {
     "other": "I vecchi plugin meta.serial sono stati rimossi e divisi in metastore.serial e meta.user"
   },
   "13": {
-    "other": "Simula migrazione"
+    "other": "Simulazione della migrazione"
   },
   "14": {
-    "other": "Avvia migrazione reale"
+    "other": "Eseguire la migrazione ora"
   },
   "15": {
-    "other": "Are you sure that you want to perform the upgrade?"
+    "other": "Sei sicuro di voler eseguire l'aggiornamento?"
   },
   "16": {
-    "other": "Following packages are available for upgrade"
+    "other": "I seguenti pacchetti sono disponibili per l'aggiornamento"
   },
   "17": {
-    "other": "Checking for available upgrades..."
+    "other": "Verifica degli aggiornamenti disponibili..."
   },
   "18": {
-    "other": "No necessary upgrade detected: click to perform a new check."
+    "other": "Non c'è nessun aggiornamento necessario: clicca per eseguire una nuova verifica."
   },
   "19": {
-    "other": "Click to check for new upgrade"
+    "other": "Clicca per verificare la presenza di un nuovo aggiornamento"
   },
   "2": {
-    "other": "Aggiorna versione automaticamente"
+    "other": "Aggiornamento automatico del software"
   },
   "20": {
-    "other": "Check now"
+    "other": "Verifica adesso"
   },
   "21": {
-    "other": "Currently in development mode."
+    "other": "Attualmente in modalità sviluppo."
   },
   "22": {
-    "other": "Current version is %1 (%2)."
+    "other": "La versione corrente è %1 (%2)."
   },
   "3": {
-    "other": "Clicca sul pulsante per avvia la procedura di aggiornamento automatico. Verifica che la directory dell'applicazione sia scrivibile prima di lanciare il processo di aggiornamento."
+    "other": "Clicca sul pulsante per avviare la procedura di aggiornamento automatico. Assicurati che la cartella del software sia installata prima di iniziare. Nel caso di un avviso 'Linux Package', l'aggiornamento non può essere eseguito in-app, ma è necessario utilizzare il comando yum/apt-get del vostro server."
   },
   "4": {
     "other": "Avvia Aggiornamento"

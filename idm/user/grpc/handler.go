@@ -32,6 +32,8 @@ import (
 	"encoding/json"
 	"strings"
 
+	"sort"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/patrickmn/go-cache"
@@ -53,6 +55,14 @@ var (
 	}
 	autoAppliesCache *cache.Cache
 )
+
+// ByAge implements sort.Interface for []Person based on
+// the Age field.
+type ByOverride []*idm.Role
+
+func (a ByOverride) Len() int           { return len(a) }
+func (a ByOverride) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByOverride) Less(i, j int) bool { return !a[i].ForceOverride && a[j].ForceOverride }
 
 // Handler definition
 type Handler struct{}
@@ -336,37 +346,53 @@ func (h *Handler) StreamUser(ctx context.Context, streamer idm.UserService_Strea
 // applyAutoApplies tries to find if some roles must be added to this user.
 // If necessary, it adds role to the list AFTER the groupRoles and before other roles.
 func (h *Handler) applyAutoApplies(usr *idm.User, autoApplies map[string][]*idm.Role) {
-	if usr.Attributes == nil {
-		return
-	}
-	if profile, ok := usr.Attributes["profile"]; ok {
-		// For shared users, disable group roles inheritance
-		if profile == common.PYDIO_PROFILE_SHARED || profile == common.PYDIO_PROFILE_ANON {
-			var newRoles []*idm.Role
-			for _, role := range usr.Roles {
-				if !role.GroupRole {
-					newRoles = append(newRoles, role)
+	// Apply automatically role for profile
+	if usr.Attributes != nil {
+		if profile, ok := usr.Attributes["profile"]; ok {
+			// For shared users, disable group roles inheritance
+			if profile == common.PYDIO_PROFILE_SHARED || profile == common.PYDIO_PROFILE_ANON {
+				var newRoles []*idm.Role
+				for _, role := range usr.Roles {
+					if !role.GroupRole {
+						newRoles = append(newRoles, role)
+					}
 				}
+				usr.Roles = newRoles
 			}
-			usr.Roles = newRoles
-		}
-		if len(autoApplies) == 0 {
-			return
-		}
-		// Apply AutoApply role if any
-		if applies, has := autoApplies[profile]; has {
-			var newRoles []*idm.Role
-			var added = false
-			for _, crt := range usr.Roles {
-				if !added && !crt.GroupRole {
-					newRoles = append(newRoles, applies...)
-					added = true
+			if len(autoApplies) == 0 {
+				return
+			}
+			// Apply AutoApply role if any
+			if applies, has := autoApplies[profile]; has {
+				var newRoles []*idm.Role
+				var added = false
+				for _, crt := range usr.Roles {
+					if !added && !crt.GroupRole {
+						newRoles = append(newRoles, applies...)
+						added = true
+					}
+					newRoles = append(newRoles, crt)
 				}
-				newRoles = append(newRoles, crt)
+				usr.Roles = newRoles
 			}
-			usr.Roles = newRoles
 		}
 	}
+	// Sort so that ForceOverride are at the bottom of the list
+	var head, body, foot []*idm.Role
+	for _, r := range usr.Roles {
+		if r.GroupRole {
+			head = append(head, r)
+		} else if r.UserRole {
+			foot = append(foot, r)
+		} else {
+			body = append(body, r)
+		}
+	}
+	sort.Sort(ByOverride(body))
+	all := append(head, body...)
+	all = append(all, foot...)
+	usr.Roles = all
+
 }
 
 // LoadAutoAppliesRoles performs a request to the Roles service to find all roles that have a non-empty list

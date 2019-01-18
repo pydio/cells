@@ -117,7 +117,7 @@
     "other": "Store Credentials in Session"
   },
   "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!": {
-    "other": "This is necessary to discriminate users data loaded from various sources. Warning, use foldername compliant characters. For example :: does not work!"
+    "other": "This is necessary to discriminate users data loaded from various sources. Warning, use folder name compliant characters. For example :: does not work!"
   },
   "User Choice": {
     "other": "User Choice"

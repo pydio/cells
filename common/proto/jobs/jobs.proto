@@ -157,6 +157,10 @@ message ListJobsRequest {
     bool TimersOnly = 3;
 
     TaskStatus LoadTasks = 4;
+
+    repeated string JobIDs = 5;
+    int32 TasksOffset = 6;
+    int32 TasksLimit = 7;
 }
 
 message ListJobsResponse {

@@ -33,15 +33,16 @@ import (
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	service2 "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/utils"
 	"github.com/pydio/cells/common/views"
+	"github.com/pydio/cells/idm/share"
 	"go.uber.org/zap"
 )
 
@@ -146,7 +147,7 @@ func (h *SharesHandler) ListSharedResources(req *restful.Request, rsp *restful.R
 	if request.Subject != "" {
 		rootNodes = h.LoadAdminRootNodes(ctx, detectedRoots)
 	} else {
-		rootNodes = h.LoadDetectedRootNodes(ctx, detectedRoots)
+		rootNodes = share.LoadDetectedRootNodes(ctx, detectedRoots)
 	}
 
 	// Build resources

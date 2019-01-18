@@ -1,62 +1,62 @@
 {
   "Jobs.Default.Thumbs": {
-    "other": "Extract image thumbnails and Exif data"
+    "other": "Estrarre le miniature delle immagini e i dati Exif"
   },
   "Jobs.Default.ThumbsCache": {
-    "other": "Clear thumbnails cache for deleted files"
+    "other": "Elimina le miniature dalla cache per i file cancellati"
   },
   "Jobs.Default.Directories": {
-    "other": "Synchronize external directories"
+    "other": "Sincronizza le directory esterne"
   },
   "Jobs.Default.PruneJobs": {
-    "other": "Clean jobs and tasks in scheduler"
+    "other": "Pulisci processi e task nello schedulatore"
   },
   "Jobs.Default.FakeLongJob": {
-    "other": "Fake a long running job (for testing purpose)"
+    "other": "Simula l'esecuzione di un processo lungo (a scopo di prova)"
   },
   "Jobs.Default.FakeUsersJob": {
-    "other": "Creation of random users (for testing purpose)"
+    "other": "Crea utenti casuali (a scopo di prova)"
   },
   "Jobs.Default.FakeGrpcJob": {
-    "other": "Sample RPC job (for testing purpose)"
+    "other": "Processo RPC di esempio (a scopo di prova)"
   },
   "Jobs.Default.ArchiveJobs": {
-    "other": "Automatic archiving of changes service"
+    "other": "Archiviazione automatica dei servizi modificati"
   },
   "Jobs.User.Compress": {
-    "other": "Compressing Selection..."
+    "other": "Compressione della selezione..."
   },
   "Jobs.User.Extract": {
-    "other": "Extracting archive..."
+    "other": "Estrazione dell'archivio..."
   },
   "Jobs.User.Delete": {
-    "other": "Deleting selection in background..."
+    "other": "Eliminazione della selezione in background..."
   },
   "Jobs.User.DirCopy": {
-    "other": "Copying folder in background..."
+    "other": "Copia della cartella in background..."
   },
   "Jobs.User.DirMove": {
-    "other": "Moving folder in background..."
+    "other": "Spostamento della cartella in background..."
   },
   "Jobs.User.FileCopy": {
-    "other": "Copying file in background..."
+    "other": "Copia dei file in background..."
   },
   "Jobs.User.FileMove": {
-    "other": "Moving file in background..."
+    "other": "Spostamento dei file in background..."
   },
   "Jobs.User.MultipleCopy": {
-    "other": "Copying selection in background..."
+    "other": "Copia della selezione in background..."
   },
   "Jobs.User.MultipleMove": {
-    "other": "Moving selection in background..."
+    "other": "Spostamento della selezione in background..."
   },
   "Jobs.User.MoveRecycle": {
-    "other": "Moving to recycle bin in background..."
+    "other": "Spostamento nel cestino in background..."
   },
   "Jobs.User.ResyncDS": {
-    "other": "Re-indexing datasource {{.DsName}}..."
+    "other": "Reindicizzazione datasource {{.DsName}}..."
   },
   "Jobs.User.Wget": {
-    "other": "Downloading file in background..."
+    "other": "Download del file in background..."
   }
 }

@@ -76,12 +76,13 @@ var PaperEditorLayout = (function (_React$Component) {
                 borderRadius: '2px 2px 0 0',
                 display: 'flex',
                 alignItems: 'center',
-                padding: '6px 12px'
+                height: 56,
+                padding: '0 20px'
             },
             titleH2: {
                 color: 'white',
                 flex: 1,
-                fontSize: 22,
+                fontSize: 18,
                 padding: 0,
                 margin: 0,
                 whiteSpace: 'nowrap',

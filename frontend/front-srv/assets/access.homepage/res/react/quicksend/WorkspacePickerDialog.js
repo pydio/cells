@@ -19,7 +19,6 @@
  */
 
 const React = require('react')
-const {List, ListItem} = require('material-ui')
 const {ActionDialogMixin, CancelButtonProviderMixin} = require('pydio').requireLib('boot')
 const {WorkspacesListMaterial} = require('pydio').requireLib('workspaces')
 

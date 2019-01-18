@@ -220,19 +220,25 @@ var PluginEditor = _react2['default'].createClass({
     },
 
     render: function render() {
+        var _props = this.props;
+        var closeEditor = _props.closeEditor;
+        var additionalPanes = _props.additionalPanes;
+        var currentNode = _props.currentNode;
+        var docAsAdditionalPane = _props.docAsAdditionalPane;
+        var _state = this.state;
+        var dirty = _state.dirty;
+        var mainPaneScrolled = _state.mainPaneScrolled;
+        var label = _state.label;
+        var documentation = _state.documentation;
 
         var addPanes = { top: [], bottom: [] };
-        if (this.props.additionalPanes) {
-            addPanes.top = this.props.additionalPanes.top.slice();
-            addPanes.bottom = this.props.additionalPanes.bottom.slice();
-        }
-        var closeButton = undefined;
-        if (this.props.closeEditor) {
-            closeButton = _react2['default'].createElement(_materialUi.RaisedButton, { label: this.context.getMessage('86', ''), onTouchTap: this.props.closeEditor });
+        if (additionalPanes) {
+            addPanes.top = additionalPanes.top.slice();
+            addPanes.bottom = additionalPanes.bottom.slice();
         }
 
-        var doc = this.state.documentation;
-        if (doc && this.props.docAsAdditionalPane) {
+        var doc = documentation;
+        if (doc && docAsAdditionalPane) {
             doc = doc.firstChild.nodeValue.replace('<p><ul', '<ul').replace('</ul></p>', '</ul>').replace('<p></p>', '');
             doc = doc.replace('<img src="', '<img style="width:90%;" src="plug/' + this.props.pluginId + '/');
             var readDoc = function readDoc() {
@@ -252,19 +258,21 @@ var PluginEditor = _react2['default'].createClass({
         }
 
         var scrollingClassName = '';
-        if (this.state && this.state.mainPaneScrolled) {
+        if (mainPaneScrolled) {
             scrollingClassName = ' main-pane-scrolled';
         }
         var actions = [];
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !this.state.dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !this.state.dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
-        actions.push(closeButton);
+        if (!closeEditor) {
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+        } else {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo", iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty, tooltip: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty, tooltip: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: 'white' }, tooltip: this.context.getMessage('86', ''), onTouchTap: closeEditor }));
+        }
 
         var titleLabel = undefined,
             titleIcon = undefined;
-        var label = this.state.label;
-        var currentNode = this.props.currentNode;
-
         if (currentNode) {
             titleLabel = currentNode.getLabel();
             titleIcon = currentNode.getMetadata().get("icon_class");
@@ -276,7 +284,7 @@ var PluginEditor = _react2['default'].createClass({
         return _react2['default'].createElement(
             'div',
             { className: (this.props.className ? this.props.className + " " : "") + "main-layout-nav-to-stack vertical-layout plugin-board" + scrollingClassName, style: this.props.style },
-            _react2['default'].createElement(AdminComponents.Header, { title: titleLabel, actions: actions, scrolling: this.state && this.state.mainPaneScrolled, icon: titleIcon }),
+            _react2['default'].createElement(AdminComponents.Header, { title: titleLabel, actions: actions, scrolling: this.state && this.state.mainPaneScrolled, icon: titleIcon, editorMode: !!closeEditor }),
             _react2['default'].createElement(PydioForm.FormPanel, {
                 ref: 'formPanel',
                 className: 'row-flex',

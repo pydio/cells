@@ -39,7 +39,7 @@ func NewAccessListHandler(adminView bool) *AccessListHandler {
 		if adminView {
 			return context.WithValue(ctx, ctxAdminContextKey{}, true), nil
 		}
-		if ctx.Value(CtxKeepAccessListKey{}) != nil && ctx.Value(ctxUserAccessListKey{}) != nil {
+		if ctx.Value(CtxKeepAccessListKey{}) != nil && ctx.Value(CtxUserAccessListKey{}) != nil {
 			// Already loaded and context is instructed to not reload access list
 			return ctx, nil
 		}
@@ -48,7 +48,7 @@ func NewAccessListHandler(adminView bool) *AccessListHandler {
 			log.Logger(ctx).Error("Failed to get accessList", zap.Error(err))
 			return ctx, err
 		}
-		ctx = context.WithValue(ctx, ctxUserAccessListKey{}, accessList)
+		ctx = context.WithValue(ctx, CtxUserAccessListKey{}, accessList)
 		return ctx, nil
 	}
 	return a

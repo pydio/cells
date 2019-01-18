@@ -8,13 +8,6 @@
 }
 .home-top-logo {
   height: 100px;
-  /*
-  @media @screenwidth-medium{
-    height: 55px;
-    float: right;
-    margin-right: 16px;
-  }
-  */
 }
 div.user-dashboard-main .admin-helper-panel {
   position: absolute;

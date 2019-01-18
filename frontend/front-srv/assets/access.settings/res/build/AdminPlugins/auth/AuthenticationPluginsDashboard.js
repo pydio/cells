@@ -53,7 +53,7 @@ var AuthenticationPluginsDashboard = React.createClass({
         return React.createElement(_corePluginEditor2['default'], _extends({}, this.props, {
             pluginId: "core.auth",
             style: _extends({}, this.props.style),
-            additionalPanes: { top: [pluginsList], bottom: [] }
+            additionalPanes: { top: [], bottom: [pluginsList] }
         }));
     }
 

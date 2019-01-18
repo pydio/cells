@@ -58,6 +58,10 @@ var _wslistWorkspacesListMaterial = require('./wslist/WorkspacesListMaterial');
 
 var _wslistWorkspacesListMaterial2 = _interopRequireDefault(_wslistWorkspacesListMaterial);
 
+var _wslistWorkspacePickerDialog = require('./wslist/WorkspacePickerDialog');
+
+var _wslistWorkspacePickerDialog2 = _interopRequireDefault(_wslistWorkspacePickerDialog);
+
 var _leftnavLeftPanel = require('./leftnav/LeftPanel');
 
 var _leftnavLeftPanel2 = _interopRequireDefault(_leftnavLeftPanel);
@@ -73,6 +77,10 @@ var _leftnavUserWidget2 = _interopRequireDefault(_leftnavUserWidget);
 var _viewsTourGuide = require('./views/TourGuide');
 
 var _viewsTourGuide2 = _interopRequireDefault(_viewsTourGuide);
+
+var _viewsMasterLayout = require('./views/MasterLayout');
+
+var _viewsMasterLayout2 = _interopRequireDefault(_viewsMasterLayout);
 
 var _detailpanesInfoPanel = require('./detailpanes/InfoPanel');
 
@@ -106,10 +114,12 @@ var classes = {
     FSTemplate: _viewsFSTemplate2['default'],
     WorkspacesList: _wslistWorkspacesList2['default'],
     WorkspacesListMaterial: _wslistWorkspacesListMaterial2['default'],
+    WorkspacePickerDialog: _wslistWorkspacePickerDialog2['default'],
     LeftPanel: _leftnavLeftPanel2['default'],
     DynamicLeftPanel: _leftnavDynamicLeftPanel2['default'],
     UserWidget: _leftnavUserWidget2['default'],
     TourGuide: _viewsTourGuide2['default'],
+    MasterLayout: _viewsMasterLayout2['default'],
 
     InfoPanel: _detailpanesInfoPanel2['default'],
     InfoPanelCard: _detailpanesInfoPanelCard2['default'],

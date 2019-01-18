@@ -32,6 +32,8 @@ import (
 	"github.com/micro/protobuf/ptypes"
 	. "github.com/smartystreets/goconvey/convey"
 
+	"fmt"
+
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/proto"
@@ -56,13 +58,14 @@ func TestNewBoltStore(t *testing.T) {
 
 }
 
-func listAndCount(db *BoltStore, owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus) (int, error) {
+func listAndCount(db *BoltStore, owner string, eventsOnly bool, timersOnly bool, withTasks jobs.TaskStatus, taskCursor ...int32) (map[string]*jobs.Job, int, error) {
 
 	resCount := 0
-	res, done, err := db.ListJobs(owner, eventsOnly, timersOnly, withTasks)
+	res, done, err := db.ListJobs(owner, eventsOnly, timersOnly, withTasks, taskCursor...)
 	So(err, ShouldBeNil)
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
+	list := make(map[string]*jobs.Job)
 	go func() {
 		defer wg.Done()
 		for {
@@ -70,6 +73,7 @@ func listAndCount(db *BoltStore, owner string, eventsOnly bool, timersOnly bool,
 			case job := <-res:
 				if job != nil {
 					log.Println(job)
+					list[job.ID] = job
 					resCount++
 				}
 			case <-done:
@@ -79,7 +83,7 @@ func listAndCount(db *BoltStore, owner string, eventsOnly bool, timersOnly bool,
 	}()
 	wg.Wait()
 
-	return resCount, err
+	return list, resCount, err
 }
 
 func TestBoltStore_CRUD(t *testing.T) {
@@ -140,7 +144,7 @@ func TestBoltStore_ListJobs(t *testing.T) {
 
 	Convey("Test List Jobs", t, func() {
 
-		dbFile := os.TempDir() + "/bolt-test-put.db"
+		dbFile := os.TempDir() + "/bolt-test-list.db"
 		defer os.Remove(dbFile)
 		db, err := NewBoltStore(dbFile)
 		defer db.Close()
@@ -174,31 +178,31 @@ func TestBoltStore_ListJobs(t *testing.T) {
 		})
 
 		{
-			resCount, err := listAndCount(db, "", false, false, 0)
+			_, resCount, err := listAndCount(db, "", false, false, 0)
 			So(err, ShouldBeNil)
 			So(resCount, ShouldEqual, 2)
 		}
 
 		{
-			resCount, err := listAndCount(db, "userId", false, false, 0)
+			_, resCount, err := listAndCount(db, "userId", false, false, 0)
 			So(err, ShouldBeNil)
 			So(resCount, ShouldEqual, 1)
 		}
 
 		{
-			resCount, err := listAndCount(db, "", true, false, 0)
+			_, resCount, err := listAndCount(db, "", true, false, 0)
 			So(err, ShouldBeNil)
 			So(resCount, ShouldEqual, 1)
 		}
 
 		{
-			resCount, err := listAndCount(db, "", false, true, 0)
+			_, resCount, err := listAndCount(db, "", false, true, 0)
 			So(err, ShouldBeNil)
 			So(resCount, ShouldEqual, 1)
 		}
 
 		{
-			resCount, err := listAndCount(db, "userId", false, true, 0)
+			_, resCount, err := listAndCount(db, "userId", false, true, 0)
 			So(err, ShouldBeNil)
 			So(resCount, ShouldEqual, 0)
 		}
@@ -206,27 +210,72 @@ func TestBoltStore_ListJobs(t *testing.T) {
 		db.PutTask(&jobs.Task{
 			ID:        "unique-task-id",
 			JobID:     "unique-id2",
-			StartTime: int32(time.Now().Unix()),
+			StartTime: int32(time.Now().Add(-10 * time.Second).Unix()),
+			EndTime:   int32(time.Now().Add(-10 * time.Second).Unix()),
+			Progress:  0.65,
+			Status:    jobs.TaskStatus_Running,
+		})
+		recent := int32(time.Now().Add(-5 * time.Second).Unix())
+		db.PutTask(&jobs.Task{
+			ID:        "unique-task-id-2",
+			JobID:     "unique-id2",
+			StartTime: recent,
+			EndTime:   recent,
+			Progress:  0.65,
+			Status:    jobs.TaskStatus_Running,
+		})
+		db.PutTask(&jobs.Task{
+			ID:        "unique-task-id-3",
+			JobID:     "unique-id2",
+			StartTime: int32(time.Now().Add(-15 * time.Second).Unix()),
+			EndTime:   int32(time.Now().Add(-15 * time.Second).Unix()),
 			Progress:  0.65,
 			Status:    jobs.TaskStatus_Running,
 		})
 
 		{
-			resCount, err := listAndCount(db, "", false, false, jobs.TaskStatus_Running)
+			_, resCount, err := listAndCount(db, "", false, false, jobs.TaskStatus_Running)
 			So(err, ShouldBeNil)
 			So(resCount, ShouldEqual, 1)
 		}
 
 		{
-			resCount, err := listAndCount(db, "", false, false, jobs.TaskStatus_Any)
+			_, resCount, err := listAndCount(db, "", false, false, jobs.TaskStatus_Any)
 			So(err, ShouldBeNil)
 			So(resCount, ShouldEqual, 2)
 		}
 
 		{
-			resCount, err := listAndCount(db, "", false, false, jobs.TaskStatus_Finished)
+			_, resCount, err := listAndCount(db, "", false, false, jobs.TaskStatus_Finished)
 			So(err, ShouldBeNil)
 			So(resCount, ShouldEqual, 0)
+		}
+		{
+			jobList, _, e := listAndCount(db, "", false, false, jobs.TaskStatus_Any, 0, 1)
+			So(e, ShouldBeNil)
+			So(jobList, ShouldNotBeEmpty)
+			loaded, ok := jobList["unique-id2"]
+			So(ok, ShouldBeTrue)
+			So(loaded.Tasks, ShouldHaveLength, 1)
+			So(loaded.Tasks[0].StartTime, ShouldEqual, recent)
+			So(loaded.Tasks[0].ID, ShouldEqual, "unique-task-id-2")
+		}
+		{
+			jobList, _, e := listAndCount(db, "", false, false, jobs.TaskStatus_Any, 1, 0)
+			So(e, ShouldBeNil)
+			So(jobList, ShouldNotBeEmpty)
+			loaded, ok := jobList["unique-id2"]
+			So(ok, ShouldBeTrue)
+			fmt.Println(loaded)
+			So(loaded.Tasks, ShouldHaveLength, 2)
+		}
+		{
+			jobList, _, e := listAndCount(db, "", false, false, jobs.TaskStatus_Any, 1, 1)
+			So(e, ShouldBeNil)
+			So(jobList, ShouldNotBeEmpty)
+			loaded, ok := jobList["unique-id2"]
+			So(ok, ShouldBeTrue)
+			So(loaded.Tasks, ShouldHaveLength, 1)
 		}
 
 	})

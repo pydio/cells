@@ -33,10 +33,10 @@ import (
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/jobs"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service/context"
-	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/utils"
 )
 
@@ -202,7 +202,11 @@ func (s *Subscriber) GetDispatcherForJob(job *jobs.Job) *Dispatcher {
 	if job.MaxConcurrency > 0 {
 		maxWorkers = int(job.MaxConcurrency)
 	}
-	dispatcher := NewDispatcher(maxWorkers)
+	tags := map[string]string{
+		"service": common.SERVICE_GRPC_NAMESPACE_ + common.SERVICE_TASKS,
+		"jobID":   job.ID,
+	}
+	dispatcher := NewDispatcher(maxWorkers, tags)
 	s.Dispatchers[job.ID] = dispatcher
 	dispatcher.Run()
 	return dispatcher

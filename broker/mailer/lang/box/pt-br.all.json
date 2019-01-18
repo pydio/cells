@@ -36,7 +36,7 @@
     "other": "If you did not trigger this operation, please alert your administrator immediately as this may be a security issue."
   },
   "Mail.Digest.Subject": {
-    "other": "Your {{.Configs.Title}} daily digest"
+    "other": "Your {{.Configs.Title}} notifications"
   },
   "Mail.Digest.Intros": {
     "other": "Below is a summary of all the notifications your received on {{.Configs.Title}}"
@@ -181,6 +181,12 @@
   },
   "Mail.Config.Smtp.Password.Description": {
     "other": "Password required to connect to the SMTP server"
+  },
+  "Mail.Config.Smtp.SkipVerify.Label": {
+    "other": "Self-signed Certificate"
+  },
+  "Mail.Config.Smtp.SkipVerify.Description": {
+    "other": "Disable certificate verification if your SMTP server certificate is self-signed"
   },
   "Mail.Config.SendGrid.Label": {
     "other": "SendGrid Service"

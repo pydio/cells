@@ -46,184 +46,42 @@ const withUniqueNode = (attachListener) => (Component) => {
 
         render() {
             return (
-                <Component {...this.props} node={this.state && this.state.node}  />
+                <Component {...this.props} {...this.state} />
             )
         }
     }
-}
+};
 
-const UniqueNodeTemplateMixin = {
+const withRepositoriesListener = () => (Component) => {
 
-    detectFirstNode(attachListener = false){
-        let dm = this.props.pydio.getContextHolder();
-        if(!dm.getSelectedNodes().length) {
-            let first = dm.getRootNode().getFirstChildIfExists();
-            if (first) {
-                dm.setSelectedNodes([first], "dataModel");
-                this.setState({node: first});
-            }else{
-                setTimeout(this.detectFirstNode.bind(this), 1000);
-            }
-        }else{
-            if(!this.state || !this.state.node){
-                this.setState({node: dm.getSelectedNodes()[0]});
-            }
+    return class WithRepositoriesListener extends React.PureComponent {
+
+        constructor(props){
+            super(props);
+            const {pydio} = props;
+            this.state = {emptyUser: !pydio.user};
         }
-        if(attachListener){
-            dm.observe("selection_changed", function(){
-                let selection = dm.getSelectedNodes();
-                if(selection.length) this.setState({node: selection[0]});
-                else this.setState({node: null});
-            }.bind(this));
+
+        componentDidMount(){
+            const {pydio} = this.props;
+            this._obs = () => this.setState({emptyUser:!pydio.user});
+            pydio.observe('repository_list_refreshed', this._obs)
         }
+
+        componentWillUnmount(){
+            const {pydio} = this.props;
+            pydio.stopObserving('repository_list_refreshed', this._obs);
+        }
+
+        render(){
+            return (
+                <Component {...this.props} {...this.state}/>
+            )
+        }
+
     }
 
 };
-
-let DLTemplate = React.createClass({
-
-    mixins:[UniqueNodeTemplateMixin],
-
-    triggerDL(){
-
-        this.setState({downloadStarted: true});
-        setTimeout(function(){
-            this.props.pydio.Controller.fireAction("download");
-                setTimeout(function(){
-                    this.setState({downloadStarted: false});
-                }.bind(this), 1500);
-        }.bind(this), 100);
-
-    },
-
-    componentDidMount(){
-        this.detectFirstNode();
-        let pydio = this.props.pydio;
-        if(pydio.user && pydio.user.activeRepository){
-            this.setState({
-                repoObject:pydio.user.repositories.get(pydio.user.activeRepository)
-            });
-        }else{
-            pydio.observe("repository_list_refreshed", function(e){
-                let repositoryList = e.list;
-                let repositoryId = e.active;
-                if(repositoryList && repositoryList.has(repositoryId)){
-                    const repoObject = repositoryList.get(repositoryId);
-                    this.setState({repoObject: repoObject});
-                }
-            }.bind(this));
-        }
-    },
-
-    render(){
-
-        const {bgStyle} = this.props;
-        const styles = {
-            main: {...bgStyle,
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '100%'
-            },
-            block: {
-                cursor: 'pointer',
-                width: 300,
-                margin: '0 auto',
-                textAlign: 'center',
-                background: 'rgba(255, 255, 255, 0.91)',
-                padding: 20,
-                borderRadius: 4,
-                boxShadow: '0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)'
-            },
-            logo: {
-                width:230,
-                margin:'-50px auto 0'
-            },
-            filename: {
-                fontSize: 22,
-                lineHeight: '22px',
-                wordBreak: 'break-all'
-            },
-            fileIcon: {
-                fontSize:180,
-                color:this.props.muiTheme.palette.primary1Color
-            },
-            dlIcon: {
-                position:'absolute',
-                top:90,
-                left:80,
-                fontSize:60,
-                color:'#f4f4f4',
-                transition:DOMUtils.getBeziersTransition()
-            }
-        };
-
-        if(!this.props.pydio.user){
-            return <div className="vertical_fit" style={{...styles.main, width:'100%'}}></div>;
-        }
-        let fileName;
-        let classNames = ['download-block'];
-        if(this.state && this.state.repoObject){
-            fileName = this.state.repoObject.getLabel();
-        }
-        let click = null;
-        let fileDetails = <div style={{fontSize:13,lineHeight:'18px'}}>{this.props.pydio.MessageHash[466]}</div> ;
-        if(this.state && this.state.node){
-            click = this.triggerDL.bind(this);
-            const bytesize = this.state.node.getMetadata().get('bytesize');
-            const txtColor = 'rgba(0,0,0,.43)';
-            fileDetails = (
-                <div style={{fontSize:13,lineHeight:'18px', color:txtColor}}>
-                    <div style={{display:'flex'}}>
-                        <div style={{flex:1,textAlign:'right',paddingRight:6,fontWeight: 500}}>{this.props.pydio.MessageHash[503]}</div>
-                        <div style={{flex:1,textAlign:'left', color:'rgba(0,0,0,.73)'}}>{PathUtils.roundFileSize(bytesize)}</div>
-                    </div>
-                    <div style={{fontSize:12,marginTop:10}}>{this.props.pydio.MessageHash['share_center.231']}</div>
-                </div>
-            );
-        }
-        if(this.state && this.state.downloadStarted){
-            styles.dlIcon.opacity = .3;
-        }
-        let sharePageAction = this.props.pydio.Controller.getActionByName('share_current_page');
-        let shareButton;
-        if(sharePageAction && !sharePageAction.deny){
-            shareButton = (
-                <a
-                    style={{display:'block',textAlign:'center', padding: 12, cursor: 'pointer'}}
-                    onTouchTap={() => {this.setState({displayShareLink: true})}}>{sharePageAction.options.text}</a>
-            );
-        }
-        return (
-            <div style={styles.main}>
-                <ConfigLogo pydio={this.props.pydio} style={styles.logo}/>
-                <div className={classNames.join(' ')} onClick={click} style={styles.block}>
-                    <span style={styles.filename}><Textfit min={12} max={25} perfectFit={false} mode="single">{fileName}</Textfit></span>
-                    <div style={{width:220,margin:'0 auto', position:'relative'}}>
-                        <span style={styles.fileIcon} className={"mdi mdi-file"}/>
-                        <span style={styles.dlIcon} className="mdi mdi-download"/>
-                    </div>
-                    {fileDetails}
-                </div>
-                {this.state && this.state.displayShareLink &&
-                    <div style={{width: 267, margin: '10px auto', backgroundColor: 'rgba(255, 255, 255, 0.85)', padding: '0px 10px', borderRadius: 2}}>
-                        <ClipboardTextField floatingLabelText={sharePageAction.options.text} inputValue={document.location.href} getMessage={(id)=>this.props.pydio.MessageHash[id]} buttonStyle={{right:-8, bottom:9}} />
-                    </div>
-                }
-                <Copyright mode={"block"} {...this.props}/>
-                {!(this.state && this.state.displayShareLink) &&
-                    shareButton
-                }
-            </div>
-        );
-
-    }
-
-});
-
-DLTemplate = withProgressiveBg(DLTemplate);
 
 class ConfigLogo extends React.Component{
 
@@ -324,9 +182,9 @@ let StandardLayout = React.createClass({
             }
         };
 
-        const {showSearchForm, uniqueNode, skipDisplayToolbar, bgStyle} = this.props;
+        const {showSearchForm, uniqueNode, skipDisplayToolbar, bgStyle, emptyUser} = this.props;
 
-        if(!this.props.pydio.user){
+        if(emptyUser){
             return <div className="vertical_fit vertical_layout" style={bgStyle}/>;
         }
         let toolbars = [];
@@ -378,7 +236,147 @@ let StandardLayout = React.createClass({
 StandardLayout = withProgressiveBg(StandardLayout);
 StandardLayout = dropProvider(StandardLayout);
 
-const FolderMinisite = React.createClass({
+class DLTemplate extends React.Component{
+
+    triggerDL(){
+
+        this.setState({downloadStarted: true});
+        setTimeout(function(){
+            this.props.pydio.Controller.fireAction("download");
+            setTimeout(function(){
+                this.setState({downloadStarted: false});
+            }.bind(this), 1500);
+        }.bind(this), 100);
+
+    }
+
+    componentDidMount(){
+        let pydio = this.props.pydio;
+        if(pydio.user && pydio.user.activeRepository){
+            this.setState({
+                repoObject:pydio.user.repositories.get(pydio.user.activeRepository)
+            });
+        }else{
+            pydio.observe("repository_list_refreshed", function(e){
+                let repositoryList = e.list;
+                let repositoryId = e.active;
+                if(repositoryList && repositoryList.has(repositoryId)){
+                    const repoObject = repositoryList.get(repositoryId);
+                    this.setState({repoObject: repoObject});
+                }
+            }.bind(this));
+        }
+    }
+
+    render(){
+
+        const {bgStyle, node, emptyUser} = this.props;
+        const styles = {
+            main: {...bgStyle,
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%'
+            },
+            block: {
+                cursor: 'pointer',
+                width: 300,
+                margin: '0 auto',
+                textAlign: 'center',
+                background: 'rgba(255, 255, 255, 0.91)',
+                padding: 20,
+                borderRadius: 4,
+                boxShadow: '0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23)'
+            },
+            logo: {
+                width:230,
+                margin:'-50px auto 0'
+            },
+            filename: {
+                fontSize: 22,
+                lineHeight: '22px',
+                wordBreak: 'break-all'
+            },
+            fileIcon: {
+                fontSize:180,
+                color:this.props.muiTheme.palette.primary1Color
+            },
+            dlIcon: {
+                position:'absolute',
+                top:90,
+                left:80,
+                fontSize:60,
+                color:'#f4f4f4',
+                transition:DOMUtils.getBeziersTransition()
+            }
+        };
+
+        if(emptyUser){
+            return <div className="vertical_fit" style={{...styles.main, width:'100%'}}></div>;
+        }
+        let fileName;
+        let classNames = ['download-block'];
+        if(this.state && this.state.repoObject){
+            fileName = this.state.repoObject.getLabel();
+        }
+        let click = null;
+        let fileDetails = <div style={{fontSize:13,lineHeight:'18px'}}>{this.props.pydio.MessageHash[466]}</div> ;
+        if(node){
+            click = this.triggerDL.bind(this);
+            const bytesize = node.getMetadata().get('bytesize');
+            const txtColor = 'rgba(0,0,0,.43)';
+            fileDetails = (
+                <div style={{fontSize:13,lineHeight:'18px', color:txtColor}}>
+                    <div style={{display:'flex'}}>
+                        <div style={{flex:1,textAlign:'right',paddingRight:6,fontWeight: 500}}>{this.props.pydio.MessageHash[503]}</div>
+                        <div style={{flex:1,textAlign:'left', color:'rgba(0,0,0,.73)'}}>{PathUtils.roundFileSize(bytesize)}</div>
+                    </div>
+                    <div style={{fontSize:12,marginTop:10}}>{this.props.pydio.MessageHash['share_center.231']}</div>
+                </div>
+            );
+        }
+        if(this.state && this.state.downloadStarted){
+            styles.dlIcon.opacity = .3;
+        }
+        let sharePageAction = this.props.pydio.Controller.getActionByName('share_current_page');
+        let shareButton;
+        if(sharePageAction && !sharePageAction.deny){
+            shareButton = (
+                <a
+                    style={{display:'block',textAlign:'center', padding: 12, cursor: 'pointer'}}
+                    onTouchTap={() => {this.setState({displayShareLink: true})}}>{sharePageAction.options.text}</a>
+            );
+        }
+        return (
+            <div style={styles.main}>
+                <ConfigLogo pydio={this.props.pydio} style={styles.logo}/>
+                <div className={classNames.join(' ')} onClick={click} style={styles.block}>
+                    <span style={styles.filename}><Textfit min={12} max={25} perfectFit={false} mode="single">{fileName}</Textfit></span>
+                    <div style={{width:220,margin:'0 auto', position:'relative'}}>
+                        <span style={styles.fileIcon} className={"mdi mdi-file"}/>
+                        <span style={styles.dlIcon} className="mdi mdi-download"/>
+                    </div>
+                    {fileDetails}
+                </div>
+                {this.state && this.state.displayShareLink &&
+                <div style={{width: 267, margin: '10px auto', backgroundColor: 'rgba(255, 255, 255, 0.85)', padding: '0px 10px', borderRadius: 2}}>
+                    <ClipboardTextField floatingLabelText={sharePageAction.options.text} inputValue={document.location.href} getMessage={(id)=>this.props.pydio.MessageHash[id]} buttonStyle={{right:-8, bottom:9}} />
+                </div>
+                }
+                <Copyright mode={"block"} {...this.props}/>
+                {!(this.state && this.state.displayShareLink) &&
+                shareButton
+                }
+            </div>
+        );
+
+    }
+
+}
+
+class FolderMinisite extends React.Component{
 
     render(){
 
@@ -394,9 +392,9 @@ const FolderMinisite = React.createClass({
 
     }
 
-});
+}
 
-const FileMinisite = React.createClass({
+class FileMinisite extends React.Component{
 
     componentWillReceiveProps(nextProps) {
 
@@ -443,7 +441,7 @@ const FileMinisite = React.createClass({
                 }
             )
         }
-    },
+    }
 
     openEditorForNode(node, editorData) {
         const {dispatch} = this.props
@@ -474,11 +472,11 @@ const FileMinisite = React.createClass({
                 }))
             }
         )
-    },
+    }
 
     componentWillUnmount() {
         pydio.UI.unregisterEditorOpener(this);
-    },
+    }
 
     render(){
 
@@ -494,9 +492,9 @@ const FileMinisite = React.createClass({
 
     }
 
-});
+}
 
-const DropZoneMinisite = React.createClass({
+class DropZoneMinisite extends React.Component{
 
     render(){
 
@@ -514,7 +512,7 @@ const DropZoneMinisite = React.createClass({
 
     }
 
-});
+}
 
 class FilmStripMinisite extends React.Component{
 
@@ -622,10 +620,11 @@ class FilmStripMinisite extends React.Component{
                 <div className="vertical_layout" style={{flex:1, backgroundColor:'#424242', position:'relative'}}>
                     {editor}
                 </div>
-                <MaterialUI.Paper zDepth={2} className="vertical_layout" style={{height: 160, backgroundColor:this.props.muiTheme.appBar.color, zIndex:1}}>
+                <div style={{height: 20, background: '#424242', zIndex: 1}}/>
+                <div className="vertical_layout" style={{height: 160, backgroundColor:'#424242', zIndex:1}}>
                     <MainFilesList ref="list" {...this.props} horizontalRibbon={true} displayMode={"grid-160"}/>
                     <Copyright mode={"insert"} {...this.props}/>
-                </MaterialUI.Paper>
+                </div>
             </StandardLayout>
         );
     }
@@ -633,15 +632,27 @@ class FilmStripMinisite extends React.Component{
 };
 
 window.ShareTemplates = {
-    FolderMinisite      : muiThemeable()(FolderMinisite),
+    FolderMinisite      : compose(
+        muiThemeable(),
+        withRepositoriesListener()
+    )(FolderMinisite),
     FileMinisite        : compose(
+        withRepositoriesListener(),
         withUniqueNode(false),
         muiThemeable(),
         connect()
     )(FileMinisite),
-    DLTemplate          : muiThemeable()(DLTemplate),
-    DropZoneMinisite    : muiThemeable()(DropZoneMinisite),
+    DLTemplate          : compose(
+        muiThemeable(),
+        withUniqueNode(false),
+        withRepositoriesListener()
+    )(withProgressiveBg(DLTemplate)),
+    DropZoneMinisite    : compose(
+        muiThemeable(),
+        withRepositoriesListener()
+    )(DropZoneMinisite),
     FilmStripMinisite   : compose(
+        withRepositoriesListener(),
         withUniqueNode(true),
         muiThemeable(),
         connect()

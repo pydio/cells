@@ -114,7 +114,7 @@ var AuthenticationPluginsDashboard = React.createClass({
         return React.createElement(_corePluginEditor2['default'], _extends({}, this.props, {
             pluginId: "core.auth",
             style: _extends({}, this.props.style),
-            additionalPanes: { top: [pluginsList], bottom: [] }
+            additionalPanes: { top: [], bottom: [pluginsList] }
         }));
     }
 
@@ -350,10 +350,10 @@ var MailerTest = (function (_React$Component) {
                     templateData: {},
                     overlay: false,
                     panelTitle: MessageHash["ajxp_admin.mailer.test.title"],
-                    style: { margin: 16, padding: '20px 0 0' },
-                    titleStyle: { fontSize: 24, padding: 0, paddingBottom: 0 },
-                    usersBlockStyle: { padding: 0 },
-                    messageBlockStyle: { padding: 0 },
+                    style: { margin: 0 },
+                    titleStyle: { backgroundColor: '#f5f5f5', color: '#9e9e9e', fontSize: 12, fontWeight: 500, borderBottom: '1px solid #e0e0e0', height: 48, lineHeight: '48px', padding: '0 16px' },
+                    usersBlockStyle: {},
+                    messageBlockStyle: {},
                     zDepth: 0
                 }),
                 _react2['default'].createElement(
@@ -671,19 +671,25 @@ var PluginEditor = _react2['default'].createClass({
     },
 
     render: function render() {
+        var _props = this.props;
+        var closeEditor = _props.closeEditor;
+        var additionalPanes = _props.additionalPanes;
+        var currentNode = _props.currentNode;
+        var docAsAdditionalPane = _props.docAsAdditionalPane;
+        var _state = this.state;
+        var dirty = _state.dirty;
+        var mainPaneScrolled = _state.mainPaneScrolled;
+        var label = _state.label;
+        var documentation = _state.documentation;
 
         var addPanes = { top: [], bottom: [] };
-        if (this.props.additionalPanes) {
-            addPanes.top = this.props.additionalPanes.top.slice();
-            addPanes.bottom = this.props.additionalPanes.bottom.slice();
-        }
-        var closeButton = undefined;
-        if (this.props.closeEditor) {
-            closeButton = _react2['default'].createElement(_materialUi.RaisedButton, { label: this.context.getMessage('86', ''), onTouchTap: this.props.closeEditor });
+        if (additionalPanes) {
+            addPanes.top = additionalPanes.top.slice();
+            addPanes.bottom = additionalPanes.bottom.slice();
         }
 
-        var doc = this.state.documentation;
-        if (doc && this.props.docAsAdditionalPane) {
+        var doc = documentation;
+        if (doc && docAsAdditionalPane) {
             doc = doc.firstChild.nodeValue.replace('<p><ul', '<ul').replace('</ul></p>', '</ul>').replace('<p></p>', '');
             doc = doc.replace('<img src="', '<img style="width:90%;" src="plug/' + this.props.pluginId + '/');
             var readDoc = function readDoc() {
@@ -703,19 +709,21 @@ var PluginEditor = _react2['default'].createClass({
         }
 
         var scrollingClassName = '';
-        if (this.state && this.state.mainPaneScrolled) {
+        if (mainPaneScrolled) {
             scrollingClassName = ' main-pane-scrolled';
         }
         var actions = [];
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !this.state.dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
-        actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !this.state.dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
-        actions.push(closeButton);
+        if (!closeEditor) {
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
+            actions.push(_react2['default'].createElement(_materialUi.FlatButton, { secondary: true, disabled: !dirty, label: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+        } else {
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-undo", iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty, tooltip: this.context.getMessage('plugins.6'), onTouchTap: this.revert }));
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-content-save", iconStyle: { color: dirty ? 'white' : 'rgba(255,255,255,.5)' }, disabled: !dirty, tooltip: this.context.getMessage('plugins.5'), onTouchTap: this.save }));
+            actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-close", iconStyle: { color: 'white' }, tooltip: this.context.getMessage('86', ''), onTouchTap: closeEditor }));
+        }
 
         var titleLabel = undefined,
             titleIcon = undefined;
-        var label = this.state.label;
-        var currentNode = this.props.currentNode;
-
         if (currentNode) {
             titleLabel = currentNode.getLabel();
             titleIcon = currentNode.getMetadata().get("icon_class");
@@ -727,7 +735,7 @@ var PluginEditor = _react2['default'].createClass({
         return _react2['default'].createElement(
             'div',
             { className: (this.props.className ? this.props.className + " " : "") + "main-layout-nav-to-stack vertical-layout plugin-board" + scrollingClassName, style: this.props.style },
-            _react2['default'].createElement(AdminComponents.Header, { title: titleLabel, actions: actions, scrolling: this.state && this.state.mainPaneScrolled, icon: titleIcon }),
+            _react2['default'].createElement(AdminComponents.Header, { title: titleLabel, actions: actions, scrolling: this.state && this.state.mainPaneScrolled, icon: titleIcon, editorMode: !!closeEditor }),
             _react2['default'].createElement(PydioForm.FormPanel, {
                 ref: 'formPanel',
                 className: 'row-flex',
@@ -2177,6 +2185,17 @@ var UpdaterDashboard = _react2['default'].createClass({
         var selectedPackage = _state2.selectedPackage;
         var watchJob = _state2.watchJob;
 
+        var subHeaderStyle = {
+            backgroundColor: '#f5f5f5',
+            color: '#9e9e9e',
+            fontSize: 12,
+            fontWeight: 500,
+            borderBottom: '1px solid #e0e0e0',
+            height: 48,
+            lineHeight: '48px',
+            padding: '0 16px'
+        };
+
         var buttons = [];
         if (packages) {
             buttons.push(_react2['default'].createElement(_materialUi.RaisedButton, { disabled: check < 0 || updateApplied, secondary: true, label: this.context.getMessage('4', 'updater'), onTouchTap: this.performUpgrade }));
@@ -2202,32 +2221,50 @@ var UpdaterDashboard = _react2['default'].createClass({
                 'div',
                 null,
                 _react2['default'].createElement(
+                    'div',
+                    { style: subHeaderStyle },
+                    this.context.getMessage('16', 'updater')
+                ),
+                _react2['default'].createElement(
                     _materialUi.List,
                     null,
-                    _react2['default'].createElement(
-                        _materialUi.Subheader,
-                        null,
-                        this.context.getMessage('16', 'updater')
-                    ),
                     items
                 )
             );
         } else if (loading) {
             list = _react2['default'].createElement(
                 'div',
-                { style: { padding: 12 } },
-                this.context.getMessage('17', 'updater')
+                null,
+                _react2['default'].createElement(
+                    'div',
+                    { style: subHeaderStyle },
+                    this.context.getMessage('16', 'updater')
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: 16 } },
+                    this.context.getMessage('17', 'updater')
+                )
             );
         } else {
             list = _react2['default'].createElement(
                 'div',
                 { style: { minHeight: 36 } },
                 _react2['default'].createElement(
-                    'span',
-                    { style: { float: 'right' } },
-                    _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: this.context.getMessage('20', 'updater'), onTouchTap: this.checkForUpgrade })
+                    'div',
+                    { style: subHeaderStyle },
+                    this.context.getMessage('20', 'updater')
                 ),
-                this.state && this.state.no_upgrade ? this.context.getMessage('18', 'updater') : this.context.getMessage('19', 'updater')
+                _react2['default'].createElement(
+                    'div',
+                    { style: { padding: '16px 16px 32px' } },
+                    _react2['default'].createElement(
+                        'span',
+                        { style: { float: 'right' } },
+                        _react2['default'].createElement(_materialUi.RaisedButton, { secondary: true, label: this.context.getMessage('20', 'updater'), onTouchTap: this.checkForUpgrade })
+                    ),
+                    this.state && this.state.no_upgrade ? this.context.getMessage('18', 'updater') : this.context.getMessage('19', 'updater')
+                )
             );
         }
 
@@ -2258,10 +2295,15 @@ var UpdaterDashboard = _react2['default'].createClass({
                 { style: { flex: 1, overflow: 'auto' } },
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: 16, padding: '0 16px' }, zDepth: 1 },
+                    { style: { margin: 16 }, zDepth: 1 },
+                    _react2['default'].createElement(
+                        'div',
+                        { style: subHeaderStyle },
+                        'Current Version'
+                    ),
                     _react2['default'].createElement(
                         _materialUi.List,
-                        null,
+                        { style: { padding: '0 16px' } },
                         _react2['default'].createElement(_materialUi.ListItem, { primaryText: backend.PackageLabel + ' ' + backend.Version, disabled: true, secondaryTextLines: 2, secondaryText: _react2['default'].createElement(
                                 'span',
                                 null,
@@ -2273,22 +2315,27 @@ var UpdaterDashboard = _react2['default'].createClass({
                 ),
                 watchJob && _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: '0 16px', padding: 30, position: 'relative' }, zDepth: 1 },
+                    { style: { margin: '0 16px', position: 'relative' }, zDepth: 1 },
                     _react2['default'].createElement(
                         'div',
-                        { style: { fontSize: 16, paddingBottom: 16 } },
+                        { style: subHeaderStyle },
                         selectedPackage ? selectedPackage.PackageName + ' ' + selectedPackage.Version : ''
                     ),
-                    _react2['default'].createElement(SingleJobProgress, { jobID: watchJob, progressStyle: { paddingTop: 16 }, onEnd: function () {
-                            _this3.upgradeFinished();
-                        } })
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { padding: 16 } },
+                        _react2['default'].createElement(SingleJobProgress, { jobID: watchJob, progressStyle: { paddingTop: 16 }, onEnd: function () {
+                                _this3.upgradeFinished();
+                            } })
+                    )
                 ),
                 !watchJob && list && _react2['default'].createElement(
                     _materialUi.Paper,
-                    { style: { margin: '0 16px', padding: 16, position: 'relative' }, zDepth: 1 },
+                    { style: { margin: '0 16px', position: 'relative' }, zDepth: 1 },
                     list
                 ),
                 !watchJob && _react2['default'].createElement(_coreServiceExposedConfigs2['default'], {
+                    className: "row-flex",
                     serviceName: "pydio.grpc.update",
                     ref: "serviceConfigs",
                     onDirtyChange: function (d) {

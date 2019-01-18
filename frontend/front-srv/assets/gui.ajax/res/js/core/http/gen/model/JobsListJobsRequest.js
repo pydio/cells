@@ -69,6 +69,15 @@ export default class JobsListJobsRequest {
             if (data.hasOwnProperty('LoadTasks')) {
                 obj['LoadTasks'] = JobsTaskStatus.constructFromObject(data['LoadTasks']);
             }
+            if (data.hasOwnProperty('JobIDs')) {
+                obj['JobIDs'] = ApiClient.convertToType(data['JobIDs'], ['String']);
+            }
+            if (data.hasOwnProperty('TasksOffset')) {
+                obj['TasksOffset'] = ApiClient.convertToType(data['TasksOffset'], 'Number');
+            }
+            if (data.hasOwnProperty('TasksLimit')) {
+                obj['TasksLimit'] = ApiClient.convertToType(data['TasksLimit'], 'Number');
+            }
         }
         return obj;
     }
@@ -89,6 +98,18 @@ export default class JobsListJobsRequest {
     * @member {module:model/JobsTaskStatus} LoadTasks
     */
     LoadTasks = undefined;
+    /**
+    * @member {Array.<String>} JobIDs
+    */
+    JobIDs = undefined;
+    /**
+    * @member {Number} TasksOffset
+    */
+    TasksOffset = undefined;
+    /**
+    * @member {Number} TasksLimit
+    */
+    TasksLimit = undefined;
 
 
 

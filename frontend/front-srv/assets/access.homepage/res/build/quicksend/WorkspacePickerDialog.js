@@ -25,11 +25,6 @@ Object.defineProperty(exports, '__esModule', {
 });
 var React = require('react');
 
-var _require = require('material-ui');
-
-var List = _require.List;
-var ListItem = _require.ListItem;
-
 var _require$requireLib = require('pydio').requireLib('boot');
 
 var ActionDialogMixin = _require$requireLib.ActionDialogMixin;

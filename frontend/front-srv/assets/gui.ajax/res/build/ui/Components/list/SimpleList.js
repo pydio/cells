@@ -1163,7 +1163,7 @@ var SimpleList = React.createClass({
                 { key: 0, float: 'left' },
                 React.createElement(
                     'div',
-                    { style: { fontSize: 15, fontWeight: 500, color: '#9e9e9e' } },
+                    { style: { fontSize: 12, fontWeight: 500, color: '#9e9e9e' } },
                     this.context.getMessage('react.3').replace('%s', this.props.searchResultData.term)
                 )
             );

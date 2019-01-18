@@ -48,7 +48,7 @@ func NewPathMultipleRootsHandler() *MultipleRootsHandler {
 func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree.Node, identifier string) (context.Context, *tree.Node, error) {
 
 	branch, set := GetBranchInfo(ctx, identifier)
-	//log.Logger(ctx).Debug("updateInput", zap.Any("branch", branch), zap.Bool("set", set))
+	//log.Logger(ctx).Info("updateInput", zap.Any("branch", branch), zap.Bool("set", set), node.Zap())
 	if !set || branch.UUID == "ROOT" || branch.Client != nil {
 		return ctx, node, nil
 	}
@@ -59,8 +59,7 @@ func (m *MultipleRootsHandler) updateInputBranch(ctx context.Context, node *tree
 		}
 		if !rootNode.IsLeaf() {
 			branch.Root = rootNode
-			ctx = WithBranchInfo(ctx, identifier, branch)
-			return ctx, node, nil
+			return WithBranchInfo(ctx, identifier, branch), node, nil
 		}
 	}
 
@@ -143,10 +142,20 @@ func (m *MultipleRootsHandler) ListNodes(ctx context.Context, in *tree.ListNodes
 			for rKey, rNode := range nodes {
 				node := rNode.Clone()
 				node.Path = rKey
+				// Re-read node to make sure it goes through other layers - Duplicate context
+				localCtx := WithBranchInfo(ctx, "in", branch)
+				t, e := m.ReadNode(localCtx, &tree.ReadNodeRequest{Node: node})
+				if e != nil {
+					log.Logger(ctx).Error("[Handler Multiple Root] Cannot read root node", zap.Error(e))
+					continue
+				}
+				node = t.Node
+				node.Path = rKey
 				if strings.HasPrefix(node.GetUuid(), "DATASOURCE:") {
 					node.SetMeta(common.META_NAMESPACE_NODENAME, strings.TrimPrefix(node.GetUuid(), "DATASOURCE:"))
 				}
 				node.SetMeta(common.META_FLAG_WORKSPACE_ROOT, "true")
+				log.Logger(ctx).Debug("[Multiple Root] Sending back node", node.Zap())
 				streamer.Send(&tree.ListNodesResponse{Node: node})
 			}
 		}()

@@ -130,7 +130,7 @@ var MaterialTable = (function (_React$Component) {
         var headers = columns.map(function (column) {
             return _react2['default'].createElement(
                 _materialUi.TableHeaderColumn,
-                { style: column.headerStyle || {}, className: column.hideSmall ? 'media-small-hide' : null },
+                { style: _extends({}, column.headerStyle, { height: 48, backgroundColor: '#F5F5F5', fontWeight: 500 }), className: column.hideSmall ? 'media-small-hide' : null },
                 column.label
             );
         });

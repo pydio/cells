@@ -30,6 +30,7 @@ import (
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/micro"
+	"github.com/pydio/cells/common/registry"
 	"github.com/pydio/cells/common/service/context"
 	proto "github.com/pydio/cells/common/service/proto"
 )
@@ -66,6 +67,7 @@ func WithGeneric(f func(context.Context, context.CancelFunc) (Runner, Checker, S
 			s.Options().Micro.Init(
 				micro.Context(ctx),
 				micro.Name(name),
+				micro.Metadata(registry.BuildServiceMeta()),
 				micro.BeforeStart(func() error {
 					r, c, s, err := f(s.Options().Context, s.Options().Cancel)
 					if err != nil {

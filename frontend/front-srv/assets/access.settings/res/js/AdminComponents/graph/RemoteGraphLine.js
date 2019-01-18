@@ -53,12 +53,12 @@ const RemoteGraphLine = React.createClass({
         }
     },
 
-    componentDidMount:function(){
+    componentDidMount(){
         this.firstLoad = setTimeout(this.loadData, 500);
         //this.loadData();
     },
 
-    componentWillUnmount: function(){
+    componentWillUnmount(){
         if(this.firstLoad){
             global.clearTimeout(this.firstLoad);
         }
@@ -70,25 +70,34 @@ const RemoteGraphLine = React.createClass({
         }
     },
 
-    loadData: function(){
+    loadData(){
         this.firstLoad = null;
         const model = new GraphModel();
         const {queryName, frequency, start} = this.props;
-        model.loadData(queryName, frequency, start).then(result => {
-            const {labels, points, links} = result;
-            const dataSets = [this.makeDataSet(queryName, points)];
+        const queries = queryName.split(",");
+        Promise.all(queries.map(q => model.loadData(q, frequency, start))).then(results => {
+            const dataSets = [];
+            let theLabels, theLinks;
+            queries.forEach((qName, index) => {
+                const {labels, points, links} = results[index];
+                const dataSet = this.makeDataSet(qName, points, index);
+                dataSets.push(dataSet);
+                theLabels = labels;
+                theLinks = links;
+            });
             this.setState({
                 chartData:{
-                    labels:labels,
+                    labels:theLabels,
                     datasets:dataSets
                 },
-                links:links,
+                links:theLinks,
                 loaded:true
             });
-            this.props.onDataLoaded({links}, dataSets);
+            this.props.onDataLoaded({links: theLinks}, dataSets);
         }).catch(reason => {
-            // Todo ?
+            // Todo
         });
+
     },
 
     parseData:function(queryName, jsonData){
@@ -170,9 +179,10 @@ const RemoteGraphLine = React.createClass({
         this.props.onDataLoaded(jsonData, preparedDataSets);
     },
 
-    makeDataSet:function(label, data){
-        const colors = ['220,220,220', '151,187,205','70, 191, 189'];
-        const color = colors[this.props.colorIndex];
+    makeDataSet:function(label, data, index){
+        //const colors = ['70, 191, 189','151,187,205','220,220,220'];
+        const colors = ['0, 150, 136','33,150,243','255,87,34'];
+        const color = colors[index];
         return {
             label: label,
             fillColor: "rgba("+color+",0.2)",

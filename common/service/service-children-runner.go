@@ -32,7 +32,6 @@ import (
 	"syscall"
 
 	"github.com/micro/go-micro"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"net"
@@ -123,15 +122,7 @@ func (c *ChildrenRunner) StartFromInitialConf(ctx context.Context, cfg common.Co
 func (c *ChildrenRunner) Start(ctx context.Context, source string) error {
 
 	name := c.childPrefix + source
-
-	cmd := exec.CommandContext(ctx, os.Args[0], "start",
-		"--fork",
-		"--registry", viper.GetString("registry"),
-		"--registry_address", viper.GetString("registry_address"),
-		"--registry_cluster_address", viper.GetString("registry_cluster_address"),
-		"--registry_cluster_routes", viper.GetString("registry_cluster_routes"),
-		name,
-	)
+	cmd := exec.CommandContext(ctx, os.Args[0], buildForkStartParams(name)...)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

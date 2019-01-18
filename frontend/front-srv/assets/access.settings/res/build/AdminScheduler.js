@@ -88,19 +88,47 @@ var Dashboard = _react2['default'].createClass({
         if (!hideLoading) {
             this.setState({ loading: true });
         }
-        JobsStore.getInstance().getAdminJobs(Owner, Filter).then(function (jobs) {
+        JobsStore.getInstance().getAdminJobs(Owner, Filter, "", 1).then(function (jobs) {
             _this.setState({ result: jobs, loading: false });
         })['catch'](function (reason) {
             _this.setState({ error: reason.message, loading: false });
         });
     },
 
-    componentDidMount: function componentDidMount() {
+    loadOne: function loadOne(jobID) {
         var _this2 = this;
 
+        var hideLoading = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
+        // Merge job inside global results
+        var result = this.state.result;
+
+        if (!hideLoading) {
+            this.setState({ loading: true });
+        }
+        return JobsStore.getInstance().getAdminJobs(null, null, jobID).then(function (jobs) {
+            result.Jobs.forEach(function (v, k) {
+                if (v.ID === jobID) {
+                    result.Jobs[k] = jobs.Jobs[0];
+                }
+            });
+            _this2.setState({ result: result, loading: false });
+            return result;
+        })['catch'](function (reason) {
+            _this2.setState({ error: reason.message, loading: false });
+        });
+    },
+
+    componentDidMount: function componentDidMount() {
+        var _this3 = this;
+
         this.load();
-        this._loadDebounced = (0, _lodashDebounce2['default'])(function () {
-            _this2.load(true);
+        this._loadDebounced = (0, _lodashDebounce2['default'])(function (jobId) {
+            if (jobId && _this3.state && _this3.state.selectJob === jobId) {
+                _this3.loadOne(jobId, true);
+            } else {
+                _this3.load(true);
+            }
         }, 500);
         JobsStore.getInstance().observe("tasks_updated", this._loadDebounced);
     },
@@ -110,15 +138,22 @@ var Dashboard = _react2['default'].createClass({
     },
 
     selectRows: function selectRows(rows) {
+        var _this4 = this;
+
         if (rows.length) {
-            this.setState({ selectJob: rows[0].ID });
+            (function () {
+                var jobID = rows[0].ID;
+                _this4.loadOne(jobID).then(function () {
+                    _this4.setState({ selectJob: jobID });
+                });
+            })();
         }
     },
 
     showTaskCreator: function showTaskCreator() {},
 
     extractRowsInfo: function extractRowsInfo(jobs, m) {
-        var _this3 = this;
+        var _this5 = this;
 
         var system = [];
         var other = [];
@@ -191,7 +226,7 @@ var Dashboard = _react2['default'].createClass({
                 data.TriggerValue = 2;
                 data.Trigger = m('trigger.events') + ': ' + job.EventNames.map(function (e) {
                     if (e.indexOf('NODE_CHANGE:') === 0) {
-                        return m(_this3.eventsNames[e.replace('NODE_CHANGE:', '')]);
+                        return m(_this5.eventsNames[e.replace('NODE_CHANGE:', '')]);
                     } else {
                         return e;
                     }
@@ -225,7 +260,7 @@ var Dashboard = _react2['default'].createClass({
     },
 
     render: function render() {
-        var _this4 = this;
+        var _this6 = this;
 
         var pydio = this.props.pydio;
 
@@ -264,8 +299,8 @@ var Dashboard = _react2['default'].createClass({
             label: '',
             style: { width: 100 }, headerStyle: { width: 100 },
             renderCell: function renderCell(row) {
-                return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-chevron-right', onTouchTap: function () {
-                        _this4.setState({ selectJob: row.ID });
+                return _react2['default'].createElement(_materialUi.IconButton, { iconClassName: 'mdi mdi-chevron-right', iconStyle: { color: 'rgba(0,0,0,.3)' }, onTouchTap: function () {
+                        _this6.setState({ selectJob: row.ID });
                     } });
             }
         }];
@@ -281,7 +316,7 @@ var Dashboard = _react2['default'].createClass({
             });
             if (found.length) {
                 return _react2['default'].createElement(_JobBoard2['default'], { pydio: pydio, job: found[0], onRequestClose: function () {
-                        return _this4.setState({ selectJob: null });
+                        return _this6.setState({ selectJob: null });
                     } });
             }
         }
@@ -321,7 +356,7 @@ var Dashboard = _react2['default'].createClass({
                         data: system,
                         columns: keys,
                         onSelectRows: function (rows) {
-                            _this4.selectRows(rows);
+                            _this6.selectRows(rows);
                         },
                         showCheckboxes: false,
                         emptyStateString: loading ? this.context.getMessage('466', '') : m('system.empty')
@@ -338,7 +373,7 @@ var Dashboard = _react2['default'].createClass({
                         data: other,
                         columns: keys,
                         onSelectRows: function (rows) {
-                            _this4.selectRows(rows);
+                            _this6.selectRows(rows);
                         },
                         showCheckboxes: false,
                         emptyStateString: m('users.empty')
@@ -379,6 +414,8 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -432,7 +469,7 @@ var ActionsLog = (function (_React$Component) {
                         null,
                         _react2['default'].createElement(
                             'div',
-                            { style: { border: '1px solid #9e9e9e' } },
+                            { style: { border: '1px solid #9e9e9e', margin: '20px 0' } },
                             _react2['default'].createElement(AdminComponents.CodeMirrorField, {
                                 mode: 'json',
                                 globalScope: {},
@@ -506,40 +543,36 @@ var JobBoard = (function (_React$Component2) {
 
             var store = JobsStore.getInstance();
             var actions = [];
+            var icProps = {
+                iconStyle: { color: 'rgba(0,0,0,.3)' },
+                onClick: function onClick(e) {
+                    return e.stopPropagation();
+                }
+            };
             if (row.Status === 'Running' && row.CanPause) {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-pause", tooltip: m('pause'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-pause", tooltip: m('pause'), onTouchTap: function () {
                         store.controlTask(row, 'Pause');
-                    }, onClick: function (e) {
-                        return e.stopPropagation();
-                    } }));
+                    } }, icProps)));
             }
             if (row.Status === 'Paused') {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-play", tooltip: m('resume'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-play", tooltip: m('resume'), onTouchTap: function () {
                         store.controlTask(row, 'Resume');
-                    }, onClick: function (e) {
-                        return e.stopPropagation();
-                    } }));
+                    } }, icProps)));
             }
             if (row.Status === 'Running' || row.Status === 'Paused') {
                 if (row.CanStop) {
-                    actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-stop", tooltip: m('stop'), onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-stop", tooltip: m('stop'), onTouchTap: function () {
                             store.controlTask(row, 'Stop');
-                        }, onClick: function (e) {
-                            return e.stopPropagation();
-                        } }));
+                        } }, icProps)));
                 } else if (row.StatusMessage === 'Pending') {
-                    actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
+                    actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
                             store.controlTask(row, 'Delete');
-                        }, onClick: function (e) {
-                            return e.stopPropagation();
-                        } }));
+                        } }, icProps)));
                 }
             } else {
-                actions.push(_react2['default'].createElement(_materialUi.IconButton, { iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
+                actions.push(_react2['default'].createElement(_materialUi.IconButton, _extends({ iconClassName: "mdi mdi-delete", tooltip: m('delete'), onTouchTap: function () {
                         store.controlTask(row, 'Delete');
-                    }, onClick: function (e) {
-                        return e.stopPropagation();
-                    } }));
+                    } }, icProps)));
             }
             return actions;
         }

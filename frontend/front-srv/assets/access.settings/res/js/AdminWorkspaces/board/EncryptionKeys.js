@@ -131,12 +131,12 @@ class EncryptionKeys extends React.Component{
             {name:'ID', label: m('key.id'), hideSmall:true},
             {name:'Owner', label: m('key.owner'), hideSmall:true},
             {name:'CreationDate', label: m('key.created'), hideSmall:true, renderCell:(row) => new Date(row.CreationDate*1000).toUTCString()},
-            {name:'Actions', label:'', style:{width:160, textAlign:'right', overflow:'visible'}, headerStyle:{width:'160'}, renderCell:(row => {
+            {name:'Actions', label:'', style:{width:170, textAlign:'right', overflow:'visible'}, headerStyle:{width:170}, renderCell:(row => {
                 return (
                     <div>
-                        <IconButton tooltip={m('key.import')} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-import"} onTouchTap={() => {this.setState({showDialog: true, showImportKey:row})}} onClick={e=>e.stopPropagation()}/>
-                        <IconButton tooltip={m('key.export')} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-export"} onTouchTap={() => {this.setState({showDialog: true, showExportKey:row.ID})}} onClick={e=>e.stopPropagation()}/>
-                        <IconButton tooltip={m('key.delete')} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-delete"} onTouchTap={() => {this.deleteKey(row.ID)}} onClick={e=>e.stopPropagation()}/>
+                        <IconButton tooltip={m('key.import')} tooltipPosition={"right"} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-import"} onTouchTap={() => {this.setState({showDialog: true, showImportKey:row})}} onClick={e=>e.stopPropagation()}/>
+                        <IconButton tooltip={m('key.export')} tooltipPosition={"right"} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-export"} onTouchTap={() => {this.setState({showDialog: true, showExportKey:row.ID})}} onClick={e=>e.stopPropagation()}/>
+                        <IconButton tooltip={m('key.delete')} tooltipPosition={"right"} iconStyle={{color:'#9e9e9e'}} iconClassName={"mdi mdi-delete"} onTouchTap={() => {this.deleteKey(row.ID)}} onClick={e=>e.stopPropagation()}/>
                     </div>
                 );
             })}
@@ -206,7 +206,7 @@ class EncryptionKeys extends React.Component{
         }
 
         return (
-            <Paper zDepth={1} style={{margin: 16, padding: 16}}>
+            <div zDepth={0} style={{margin: 16}}>
                 <Dialog
                     title={dialogTitle}
                     open={showDialog}
@@ -217,18 +217,20 @@ class EncryptionKeys extends React.Component{
                 >
                     {dialogContent}
                 </Dialog>
-                <div style={{textAlign:'right'}}>
+                <div style={{textAlign:'right', paddingBottom: 16}}>
                     <RaisedButton primary={true} label={m('key.import')} onTouchTap={()=>{this.setState({showImportKey:{}, showDialog:true})}} style={{marginLeft: 16}}/>
                     <RaisedButton primary={true} label={m('key.create')} onTouchTap={()=>{this.setState({showCreateKey:true, showDialog:true})}} style={{marginLeft: 16}}/>
                 </div>
-                <MaterialTable
-                    data={keys}
-                    columns={columns}
-                    onSelectRows={()=>{}}
-                    showCheckboxes={false}
-                    emptyStateString={m('key.emptyState')}
-                />
-            </Paper>
+                <Paper zDepth={1}>
+                    <MaterialTable
+                        data={keys}
+                        columns={columns}
+                        onSelectRows={()=>{}}
+                        showCheckboxes={false}
+                        emptyStateString={m('key.emptyState')}
+                    />
+                </Paper>
+            </div>
         );
 
     }

@@ -140,6 +140,8 @@ import RestGetBulkMetaRequest from './model/RestGetBulkMetaRequest';
 import RestHeadNodeResponse from './model/RestHeadNodeResponse';
 import RestListPeerFoldersRequest from './model/RestListPeerFoldersRequest';
 import RestListPeersAddressesResponse from './model/RestListPeersAddressesResponse';
+import RestListProcessesRequest from './model/RestListProcessesRequest';
+import RestListProcessesResponse from './model/RestListProcessesResponse';
 import RestListSharedResourcesRequest from './model/RestListSharedResourcesRequest';
 import RestListSharedResourcesResponse from './model/RestListSharedResourcesResponse';
 import RestListTemplatesResponse from './model/RestListTemplatesResponse';
@@ -151,6 +153,7 @@ import RestMetadata from './model/RestMetadata';
 import RestNodesCollection from './model/RestNodesCollection';
 import RestOpenApiResponse from './model/RestOpenApiResponse';
 import RestPagination from './model/RestPagination';
+import RestProcess from './model/RestProcess';
 import RestPutCellRequest from './model/RestPutCellRequest';
 import RestPutShareLinkRequest from './model/RestPutShareLinkRequest';
 import RestPutUserMetaTagRequest from './model/RestPutUserMetaTagRequest';
@@ -1045,6 +1048,18 @@ export {
     RestListPeersAddressesResponse,
 
     /**
+     * The RestListProcessesRequest model constructor.
+     * @property {module:model/RestListProcessesRequest}
+     */
+    RestListProcessesRequest,
+
+    /**
+     * The RestListProcessesResponse model constructor.
+     * @property {module:model/RestListProcessesResponse}
+     */
+    RestListProcessesResponse,
+
+    /**
      * The RestListSharedResourcesRequest model constructor.
      * @property {module:model/RestListSharedResourcesRequest}
      */
@@ -1109,6 +1124,12 @@ export {
      * @property {module:model/RestPagination}
      */
     RestPagination,
+
+    /**
+     * The RestProcess model constructor.
+     * @property {module:model/RestProcess}
+     */
+    RestProcess,
 
     /**
      * The RestPutCellRequest model constructor.

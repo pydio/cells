@@ -30,7 +30,7 @@
     "other": "Accesso dell'Utente Registrato e dell'Amministratore"
   },
   "PolicyGroup.LoggedUsers.Description": {
-    "other": "Decidere come gli utenti standard/condivisi e gli amministratori possono accedere le API rest"
+    "other": "Decidere come gli utenti standard/condivisi e gli amministratori possono accedere alle API rest"
   },
   "PolicyGroup.LoggedUsers.Rule1": {
     "other": "Accesso REST completo al profilo dell'Amministratore"
@@ -39,72 +39,72 @@
     "other": "Accesso REST predefinito per l'utente registrato"
   },
   "PolicyGroup.LoggedUsers.Rule3": {
-    "other": "User-meta prevent deleting tags"
+    "other": "User-meta impedisce l'eliminazione dei tag"
   },
   "PolicyGroup.OIDC.Title": {
     "other": "Operazioni OpenIdConnect"
   },
   "PolicyGroup.OIDC.Description": {
-    "other": "Enable/Disable authentications in OpenID Connect Server"
+    "other": "Abilita/Disabilita l'autenticazione al server OpenID Connect"
   },
   "PolicyGroup.OIDC.Rule1": {
-    "other": "Default accesses to login action for all users"
+    "other": "Accesso predefinito al login per tutti gli utenti"
   },
   "PolicyGroup.ACLSample1.Title": {
-    "other": "[Example] Complex ACL Policy"
+    "other": "[Example] ACL Policy complessa"
   },
   "PolicyGroup.ACLSample1.Description": {
-    "other": "Sample Complex Policy for managing ACLs dynamically"
+    "other": "Esempio di policy complessa per la gestione dinamica degli ACL"
   },
   "PolicyGroup.ACLSample1.Rule1": {
-    "other": "Default allowing read/write"
+    "other": "Consente lettura/scrittura in modo predefinito"
   },
   "PolicyGroup.ACLSample1.Rule2": {
-    "other": "Preventing modification based on IP and file metadata conditions"
+    "other": "Impedisce la modifica basata su IP e condizioni dei file di metadati"
   },
   "PolicyGroup.ACLSample1.Rule3": {
-    "other": "Filter out display of a any file with a PNG extension"
+    "other": "Filtra qualsiasi file con estensione PNG se la richiesta non proviene da localhost"
   },
   "PolicyGroup.ACLSamplePeriod.Title": {
-    "other": "[Example] Limited Period"
+    "other": "[Example] Periodo limitato"
   },
   "PolicyGroup.ACLSamplePeriod.Description": {
-    "other": "Enables access to a workspace only for a given period"
+    "other": "Consente l'accesso a un workspace solo per un determinato periodo"
   },
   "PolicyGroup.ACLSamplePeriod.Rule1": {
-    "other": "ACL Rule example, allowing access only in Feb. and March 2018"
+    "other": "Esempio di regola ACL, che consente l'accesso solo a febbraio e marzo 2018"
   },
   "PolicyGroup.ACLSampleDateDisable.Title": {
-    "other": "[Example] No access after a given date"
+    "other": "[Example] Nessun accesso dopo una specifica data"
   },
   "PolicyGroup.ACLSampleDateDisable.Description": {
-    "other": "Disable access to a workspace after a given date"
+    "other": "Disabilitare l'accesso a un workspace dopo una certa data"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule1": {
-    "other": "Global read/write"
+    "other": "Globale lettura/scrittura"
   },
   "PolicyGroup.ACLSampleDateDisable.Rule2": {
-    "other": "Deny read/write if date is after 2018-02-28"
+    "other": "Impedire la lettura/scrittura se la data è successiva a 2018-02-28"
   },
   "PolicyGroup.ACLSampleBusinessHours.Title": {
-    "other": "[Example] Access allowed only during business hours"
+    "other": "[Example] Accesso consentito solo durante le ore lavorative"
   },
   "PolicyGroup.ACLSampleBusinessHours.Description": {
-    "other": "Enable access to a workspace only certain days within pre-defined hours"
+    "other": "Consentire l'accesso a un workspace solo in certi giorni entro ore predefinite"
   },
   "PolicyGroup.ACLSampleBusinessHours.Rule1": {
-    "other": "Office hours rule example, allowing read/write"
+    "other": "Esempio di regola per ore di ufficio, che permette la lettura/scrittura"
   },
   "PolicyGroup.ACLSampleExternalIP.Title": {
-    "other": "[Example] Disable access based on IP"
+    "other": "[Example] Disabilitare l'accesso basato su IP"
   },
   "PolicyGroup.ACLSampleExternalIP.Description": {
-    "other": "Disable access to IPs outside of LAN"
+    "other": "Disabilitare l'accesso a indirizzi IP di fuori della LAN"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule1": {
-    "other": "Global read/write"
+    "other": "Globale lettura/scrittura"
   },
   "PolicyGroup.ACLSampleExternalIP.Rule2": {
-    "other": "Denying IP if it's not localhost, 127.0.0.1 or ::1"
+    "other": "Rifiutare l'indirizzo IP se non è localhost, 127.0.0.1 o ::1"
   }
 }

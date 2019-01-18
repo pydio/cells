@@ -21,21 +21,19 @@
 import React from 'react';
 import Pydio from 'pydio';
 import ReactDOM from 'react-dom'
-import Action from 'pydio/model/action';
 import MessagesProviderMixin from '../MessagesProviderMixin'
 import Breadcrumb from './Breadcrumb'
 import {SearchForm} from '../search'
 import MainFilesList from './MainFilesList'
 import EditionPanel from './EditionPanel'
 import InfoPanel from '../detailpanes/InfoPanel'
-import LeftPanel from '../leftnav/LeftPanel'
 import WelcomeTour from './WelcomeTour'
 import CellChat from './CellChat'
 import {IconButton, Paper} from 'material-ui'
 import AddressBookPanel from './AddressBookPanel'
+import MasterLayout from './MasterLayout'
 import {muiThemeable} from 'material-ui/styles'
-const {withContextMenu, dropProvider} = Pydio.requireLib('hoc');
-const {ButtonMenu, Toolbar, ListPaginator, ContextMenu} = Pydio.requireLib('components');
+const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 
 let FSTemplate = React.createClass({
 
@@ -105,27 +103,9 @@ let FSTemplate = React.createClass({
         this.setState({drawerOpen: true});
     },
 
-    closeDrawer(e){
-        if(!this.state.drawerOpen){
-            return;
-        }
-        const widgets = document.getElementsByClassName('user-widget');
-        if(widgets && widgets.length > 0 && widgets[0].contains(ReactDOM.findDOMNode(e.target))){
-            return;
-        }
-        this.setState({drawerOpen: false});
-    },
-
     render () {
 
-        const connectDropTarget = this.props.connectDropTarget || function(c){return c;};
         const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
-
-        /*
-        var isOver = this.props.isOver;
-        var canDrop = this.props.canDrop;
-        */
-
         const Color = MaterialUI.Color;
         const appBarColor = Color(this.props.muiTheme.appBar.color);
         const appBarTextColor = Color(this.props.muiTheme.appBar.textColor);
@@ -178,9 +158,6 @@ let FSTemplate = React.createClass({
         if(infoPanelOpen && infoPanelToggle) {
             classes.push('info-panel-open');
         }
-        if(drawerOpen) {
-            classes.push('drawer-open');
-        }
 
         let mainToolbars = ["info_panel", "info_panel_share"];
         let mainToolbarsOthers = ["change", "other"];
@@ -212,11 +189,20 @@ let FSTemplate = React.createClass({
         // Making sure we only pass the style to the parent element
         const {style, ...props} = this.props;
 
-        return ( connectDropTarget(
-            <div style={{...style, overflow:'hidden'}} className={classes.join(' ')} onTouchTap={this.closeDrawer} onContextMenu={this.props.onContextMenu}>
-                {wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate'] && <WelcomeTour ref="welcome" pydio={this.props.pydio}/>}
-                <LeftPanel className="left-panel" pydio={props.pydio}/>
-                <div className="desktop-container vertical_layout vertical_fit">
+        let tutorialComponent;
+        if (wTourEnabled && !guiPrefs['WelcomeComponent.Pydio8.TourGuide.FSTemplate']){
+            tutorialComponent = <WelcomeTour ref="welcome" pydio={this.props.pydio}/>;
+        }
+
+        return (
+            <MasterLayout
+                pydio={pydio}
+                style={{...style, overflow:'hidden'}}
+                classes={classes}
+                tutorialComponent={tutorialComponent}
+                drawerOpen={drawerOpen}
+                onCloseDrawerRequested={()=>{this.setState({drawerOpen:false})}}
+            >
                     <Paper zDepth={1} style={styles.appBarStyle} rounded={false}>
                         <div id="workspace_toolbar" style={{display: 'flex', height: 58}}>
                             <span className="drawer-button"><IconButton iconStyle={{color: 'white'}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/></span>
@@ -299,8 +285,6 @@ let FSTemplate = React.createClass({
                         </div>
                     </Paper>
                     <MainFilesList ref="list" pydio={this.props.pydio}/>
-                </div>
-
                 {rightColumnState === 'info-panel' &&
                     <InfoPanel
                         {...props}
@@ -319,16 +303,15 @@ let FSTemplate = React.createClass({
 
                 <EditionPanel {...props}/>
 
-                <span className="context-menu"><ContextMenu pydio={this.props.pydio}/></span>
-            </div>
-        ) );
+            </MasterLayout>
+        );
 
 
     }
 });
 
-FSTemplate = dropProvider(FSTemplate);
-FSTemplate = withContextMenu(FSTemplate);
+//FSTemplate = dropProvider(FSTemplate);
+//FSTemplate = withContextMenu(FSTemplate);
 FSTemplate = muiThemeable()(FSTemplate);
 
 export {FSTemplate as default}
