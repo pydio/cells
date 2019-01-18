@@ -51,8 +51,10 @@ message LogMessage {
     string SpanUuid = 18;
     string SpanParentUuid = 19;
     string SpanRootUuid = 20;
-    // TODO a variable amount of contextual objects referenced by key
-    // 	AuditContext map[string]interface{}
+
+    // High Level Operation Info
+    string OperationUuid = 21;
+    string OperationLabel = 22;
 }
 
 // ListLogRequest launches a parameterised query in the log repository and streams the results.
