@@ -349,7 +349,7 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		// Put back the pydio: attributes
 		if update.Attributes != nil {
 			for k, v := range update.Attributes {
-				if strings.HasPrefix(k, "pydio:") {
+				if strings.HasPrefix(k, idm.UserAttrPrivatePrefix) {
 					if inputUser.Attributes == nil {
 						inputUser.Attributes = map[string]string{}
 					}
@@ -367,12 +367,16 @@ func (s *UserHandler) PutUser(req *restful.Request, rsp *restful.Response) {
 		inputUser.GroupPath = strings.TrimSuffix(inputUser.GroupPath, "/") + "/" + inputUser.GroupLabel
 	} else {
 		// Add a default profile
-		if _, ok := inputUser.Attributes["profile"]; !ok {
-			inputUser.Attributes["profile"] = common.PYDIO_PROFILE_SHARED
+		if _, ok := inputUser.Attributes[idm.UserAttrProfile]; !ok {
+			inputUser.Attributes[idm.UserAttrProfile] = common.PYDIO_PROFILE_SHARED
 		}
 		// Check profile is not higher than current user profile
-		if profilesLevel[inputUser.Attributes["profile"]] > profilesLevel[ctxClaims.Profile] {
-			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to set a profile (%s) higher than your current profile (%s)", inputUser.Attributes["profile"], ctxClaims.Profile))
+		if profilesLevel[inputUser.Attributes[idm.UserAttrProfile]] > profilesLevel[ctxClaims.Profile] {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to set a profile (%s) higher than your current profile (%s)", inputUser.Attributes[idm.UserAttrProfile], ctxClaims.Profile))
+			return
+		}
+		if _, ok := inputUser.Attributes[idm.UserAttrPassHashed]; ok {
+			service.RestError403(req, rsp, fmt.Errorf("you are not allowed to use this attribute"))
 			return
 		}
 	}

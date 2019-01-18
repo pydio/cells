@@ -255,12 +255,12 @@ func (s *sqlimpl) Add(in interface{}) (interface{}, []*tree.Node, error) {
 		if user.Attributes == nil {
 			user.Attributes = make(map[string]string, 1)
 		}
-		user.Attributes["pydio:labelLike"] = user.GroupLabel
+		user.Attributes[idm.UserAttrLabelLike] = user.GroupLabel
 	} else if user.Login != "" {
 		if user.Attributes == nil {
 			user.Attributes = make(map[string]string, 1)
 		}
-		user.Attributes["pydio:labelLike"] = user.Login
+		user.Attributes[idm.UserAttrLabelLike] = user.Login
 	}
 	if stmt := s.GetStmt("DeleteAttributes"); stmt != nil {
 		defer stmt.Close()

@@ -259,7 +259,18 @@ func userToNode(u *idm.User) *tree.Node {
 		Size: 1,
 	}
 	if u.Password != "" {
-		n.Etag = hasher.CreateHash(u.Password)
+		var alreadyHashed bool
+		if u.Attributes != nil {
+			if _, ok := u.Attributes[idm.UserAttrPassHashed]; ok {
+				alreadyHashed = true
+				delete(u.Attributes, idm.UserAttrPassHashed)
+			}
+		}
+		if alreadyHashed {
+			n.Etag = u.Password
+		} else {
+			n.Etag = hasher.CreateHash(u.Password)
+		}
 	}
 	n.SetMeta("name", u.Login)
 	return n

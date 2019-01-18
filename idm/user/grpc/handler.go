@@ -348,7 +348,7 @@ func (h *Handler) StreamUser(ctx context.Context, streamer idm.UserService_Strea
 func (h *Handler) applyAutoApplies(usr *idm.User, autoApplies map[string][]*idm.Role) {
 	// Apply automatically role for profile
 	if usr.Attributes != nil {
-		if profile, ok := usr.Attributes["profile"]; ok {
+		if profile, ok := usr.Attributes[idm.UserAttrProfile]; ok {
 			// For shared users, disable group roles inheritance
 			if profile == common.PYDIO_PROFILE_SHARED || profile == common.PYDIO_PROFILE_ANON {
 				var newRoles []*idm.Role

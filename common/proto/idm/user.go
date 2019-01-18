@@ -7,6 +7,18 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
+const (
+	UserAttrPrivatePrefix = "pydio:"
+	UserAttrPassHashed    = UserAttrPrivatePrefix + "password_hashed"
+	UserAttrLabelLike     = UserAttrPrivatePrefix + "labelLike"
+
+	UserAttrDisplayName = "displayName"
+	UserAttrProfile     = "profile"
+	UserAttrAvatar      = "avatar"
+	UserAttrEmail       = "email"
+	UserAttrHasEmail    = "hasEmail"
+)
+
 func (u *User) WithPublicData(ctx context.Context, policiesContextEditable bool) *User {
 
 	user := proto.Clone(u).(*User)
@@ -16,7 +28,7 @@ func (u *User) WithPublicData(ctx context.Context, policiesContextEditable bool)
 	user.PoliciesContextEditable = policiesContextEditable
 
 	for k, _ := range user.Attributes {
-		if strings.HasPrefix(k, "pydio:") {
+		if strings.HasPrefix(k, UserAttrPrivatePrefix) {
 			delete(user.Attributes, k)
 			continue
 		}
@@ -24,9 +36,9 @@ func (u *User) WithPublicData(ctx context.Context, policiesContextEditable bool)
 
 	if !user.PoliciesContextEditable {
 		for k, _ := range user.Attributes {
-			if k == "email" {
+			if k == UserAttrEmail {
 				// Special treatment
-				user.Attributes["hasEmail"] = "true"
+				user.Attributes[UserAttrHasEmail] = "true"
 				delete(user.Attributes, k)
 			}
 			if !isPublicAttribute(k) {
@@ -41,10 +53,10 @@ func (u *User) WithPublicData(ctx context.Context, policiesContextEditable bool)
 func isPublicAttribute(att string) (public bool) {
 
 	publicAttributes := []string{
-		"displayName",
-		"avatar",
-		"profile",
-		"hasEmail",
+		UserAttrDisplayName,
+		UserAttrAvatar,
+		UserAttrProfile,
+		UserAttrHasEmail,
 	}
 	for _, a := range publicAttributes {
 		if a == att {
