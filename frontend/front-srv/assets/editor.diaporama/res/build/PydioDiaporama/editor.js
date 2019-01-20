@@ -48,9 +48,9 @@ var _redux = require('redux');
 
 var _components = require('./components');
 
-var _pydioHttpApi = require('pydio/http/api');
+var _sizes = require('./sizes');
 
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+var _sizes2 = _interopRequireDefault(_sizes);
 
 var conf = pydio.getPluginConfigs('editor.diaporama');
 var sizes = conf && conf.get("PREVIEWER_LOWRES_SIZES").split(",") || [300, 700, 1000, 1300];
@@ -200,19 +200,8 @@ var mapStateToProps = function mapStateToProps(state, props) {
 };
 
 exports['default'] = (0, _redux.compose)(withSelection(getSelection, getSelectionFilter), withResolution(sizes, function (node) {
-    if (node) {
-        return _pydioHttpApi2['default'].getClient().buildPresignedGetUrl(node, null, 'image/' + node.getAjxpMime());
-    } else {
-        return Promise.resolve("");
-    }
+    return (0, _sizes2['default'])(node, "hq");
 }, function (node, dimension) {
-    if (node) {
-        return _pydioHttpApi2['default'].getClient().buildPresignedGetUrl(node, null, 'image/jpeg', {
-            Bucket: 'io',
-            Key: 'pydio-thumbstore/' + node.getMetadata().get('uuid') + '-512.jpg'
-        });
-    } else {
-        return Promise.resolve("");
-    }
+    return (0, _sizes2['default'])(node, "editor");
 }), (0, _reactRedux.connect)(mapStateToProps))(Editor);
 module.exports = exports['default'];

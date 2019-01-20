@@ -17,7 +17,6 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -44,9 +43,9 @@ var _react2 = _interopRequireDefault(_react);
 
 var _components = require('./components');
 
-var _pydioHttpApi = require('pydio/http/api');
+var _sizes = require('./sizes');
 
-var _pydioHttpApi2 = _interopRequireDefault(_pydioHttpApi);
+var _sizes2 = _interopRequireDefault(_sizes);
 
 var Preview = (function (_Component) {
     _inherits(Preview, _Component);
@@ -65,9 +64,10 @@ var Preview = (function (_Component) {
 
             var node = this.props.node;
 
-            var p = _pydioHttpApi2['default'].getClient().buildPresignedGetUrl(node, null, 'image/jpeg', { Bucket: 'io', Key: 'pydio-thumbstore/' + node.getMetadata().get('uuid') + '-512.jpg' });
-            p.then(function (url) {
-                _this.setState({ src: url });
+            (0, _sizes2['default'])(node, 'preview').then(function (url) {
+                if (url) {
+                    _this.setState({ src: url });
+                }
             });
         }
     }, {

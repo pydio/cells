@@ -24,9 +24,9 @@ import React, {PureComponent} from 'react'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
 import { ImageContainer } from './components'
-import PydioApi from 'pydio/http/api'
+import urlForSize from './sizes'
 
-const conf = pydio.getPluginConfigs('editor.diaporama')
+const conf = pydio.getPluginConfigs('editor.diaporama');
 const sizes = conf && conf.get("PREVIEWER_LOWRES_SIZES").split(",") || [300, 700, 1000, 1300];
 
 const { SizeProviders, withResolution, withSelection, withResize, EditorActions } = Pydio.requireLib('hoc');
@@ -142,23 +142,8 @@ const mapStateToProps = (state, props) => {
 export default compose(
     withSelection(getSelection, getSelectionFilter),
     withResolution(sizes,
-        (node) => {
-            if (node) {
-                return PydioApi.getClient().buildPresignedGetUrl(node, null, 'image/' + node.getAjxpMime());
-            } else {
-                return Promise.resolve("");
-            }
-        },
-        (node, dimension) => {
-            if (node) {
-                return PydioApi.getClient().buildPresignedGetUrl(node, null, 'image/jpeg', {
-                    Bucket: 'io',
-                    Key: 'pydio-thumbstore/' + node.getMetadata().get('uuid') + '-512.jpg'
-                });
-            } else {
-                return Promise.resolve("");
-            }
-        }
+        (node) => urlForSize(node, "hq"),
+        (node, dimension) => urlForSize(node, "editor"),
     ),
     connect(mapStateToProps)
 )(Editor)

@@ -17,12 +17,9 @@
  *
  * The latest code can be found at <https://pydio.com>.
  */
-
-
-
 import React, {Component} from 'react'
 import { ImageContainer } from './components'
-import PydioApi from 'pydio/http/api'
+import urlForSize from './sizes'
 
 class Preview extends Component {
 
@@ -33,10 +30,11 @@ class Preview extends Component {
 
     componentDidMount(){
         const {node} = this.props;
-        const p = PydioApi.getClient().buildPresignedGetUrl(node, null, 'image/jpeg', {Bucket: 'io', Key:'pydio-thumbstore/' + node.getMetadata().get('uuid') + '-512.jpg'});
-        p.then((url) => {
-            this.setState({src: url});
-        })
+        urlForSize(node, 'preview').then(url => {
+            if (url) {
+                this.setState({src: url});
+            }
+        });
     }
 
     render(){
