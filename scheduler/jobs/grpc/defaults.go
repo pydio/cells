@@ -54,7 +54,7 @@ func getDefaultJobs() []*jobs.Job {
 		Actions: []*jobs.Action{
 			{
 				ID:         "actions.images.thumbnails",
-				Parameters: map[string]string{"ThumbSizes": "256,512"},
+				Parameters: map[string]string{"ThumbSizes": `{"sm":300,"md":1024}`},
 				NodesFilter: &jobs.NodesSelector{
 					Query: &service.Query{
 						SubQueries: []*any.Any{searchQuery},

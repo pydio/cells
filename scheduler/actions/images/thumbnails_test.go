@@ -53,7 +53,7 @@ func TestThumbnailExtractor_Init(t *testing.T) {
 		// Test action without parameters
 		e := action.Init(job, nil, &jobs.Action{})
 		So(e, ShouldBeNil)
-		So(action.thumbSizes, ShouldResemble, []int{512})
+		So(action.thumbSizes, ShouldResemble, map[string]int{"sm": 300})
 
 		// Test action with parameters
 		e = action.Init(job, nil, &jobs.Action{
@@ -62,7 +62,7 @@ func TestThumbnailExtractor_Init(t *testing.T) {
 			},
 		})
 		So(e, ShouldBeNil)
-		So(action.thumbSizes, ShouldResemble, []int{256, 512})
+		So(action.thumbSizes, ShouldResemble, map[string]int{"0": 256, "1": 512})
 
 	})
 }
@@ -76,7 +76,7 @@ func TestThumbnailExtractor_Run(t *testing.T) {
 		// Test action without parameters
 		e := action.Init(job, nil, &jobs.Action{
 			Parameters: map[string]string{
-				"ThumbSizes": "256,512",
+				"ThumbSizes": `{"sm":256,"md":512}`,
 			},
 		})
 		So(e, ShouldBeNil)

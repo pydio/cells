@@ -41,6 +41,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/image/colornames"
 
+	"encoding/json"
+
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/jobs"
@@ -67,7 +69,7 @@ var (
 type ThumbnailData struct {
 	Format string `json:"format"`
 	Size   int    `json:"size"`
-	Url    string `json:"url"`
+	Id     string `json:"id"`
 }
 
 type ThumbnailsMeta struct {
@@ -77,7 +79,7 @@ type ThumbnailsMeta struct {
 
 type ThumbnailExtractor struct {
 	Router     views.Handler
-	thumbSizes []int
+	thumbSizes map[string]int
 	metaClient tree.NodeReceiverClient
 	Client     client.Client
 }
@@ -96,15 +98,17 @@ func (t *ThumbnailExtractor) Init(job *jobs.Job, cl client.Client, action *jobs.
 	})
 
 	if action.Parameters != nil {
-		t.thumbSizes = []int{}
+		t.thumbSizes = make(map[string]int)
 		if params, ok := action.Parameters["ThumbSizes"]; ok {
-			for _, s := range strings.Split(params, ",") {
-				parsed, _ := strconv.ParseInt(s, 10, 32)
-				t.thumbSizes = append(t.thumbSizes, int(parsed))
+			if e := json.Unmarshal([]byte(params), &t.thumbSizes); e != nil {
+				for i, s := range strings.Split(params, ",") {
+					parsed, _ := strconv.ParseInt(s, 10, 32)
+					t.thumbSizes[fmt.Sprintf("%d", i)] = int(parsed)
+				}
 			}
 		}
 	} else {
-		t.thumbSizes = []int{512}
+		t.thumbSizes = map[string]int{"sm": 300}
 	}
 	t.metaClient = tree.NewNodeReceiverClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_META, cl)
 	t.Client = cl
@@ -122,7 +126,7 @@ func (t *ThumbnailExtractor) Run(ctx context.Context, channels *actions.Runnable
 
 	log.Logger(ctx).Debug("[THUMB EXTRACTOR] Resizing image...")
 	node := input.Nodes[0]
-	err := t.resize(ctx, node, t.thumbSizes...)
+	err := t.resize(ctx, node, t.thumbSizes)
 	if err != nil {
 		return input.WithError(err), err
 	}
@@ -146,7 +150,7 @@ func displayMemStat(ctx context.Context, position string) {
 
 }
 
-func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes ...int) error {
+func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes map[string]int) error {
 	displayMemStat(ctx, "START RESIZE")
 	// Open the test image.
 	if !node.HasSource() {
@@ -203,7 +207,12 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 	log.Logger(ctx).Debug("Thumbnails - Extracted dimension and saved in metadata", zap.Any("dimension", bounds))
 	meta := &ThumbnailsMeta{}
 
-	for _, size := range sizes {
+	for metaId, size := range sizes {
+
+		if (metaId == "md" || metaId == "lg") && (width <= size && height <= size) {
+			log.Logger(ctx).Debug("Ignoring thumbnails for size as original is smaller", zap.Any("dimension", bounds), zap.Any("thumbSize", size))
+			continue
+		}
 
 		displayMemStat(ctx, "BEFORE WRITE SIZE FROM SRC")
 		updateMeta, err := t.writeSizeFromSrc(ctx, src, node, size)
@@ -213,6 +222,7 @@ func (t *ThumbnailExtractor) resize(ctx context.Context, node *tree.Node, sizes 
 		displayMemStat(ctx, "AFTER WRITE SIZE FROM SRC")
 		if updateMeta {
 			meta.Thumbnails = append(meta.Thumbnails, ThumbnailData{
+				Id:     metaId,
 				Format: "jpg",
 				Size:   size,
 			})
