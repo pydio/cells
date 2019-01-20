@@ -261,7 +261,7 @@ func userToNode(u *idm.User) *tree.Node {
 	if u.Password != "" {
 		var alreadyHashed bool
 		if u.Attributes != nil {
-			if _, ok := u.Attributes[idm.UserAttrPassHashed]; ok {
+			if val, ok := u.Attributes[idm.UserAttrPassHashed]; ok && val == "true" {
 				alreadyHashed = true
 				delete(u.Attributes, idm.UserAttrPassHashed)
 			}

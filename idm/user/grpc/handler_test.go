@@ -40,7 +40,11 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 	// SQLite Driver
+
+	"fmt"
+
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/pydio/cells/common"
 )
 
 var (
@@ -52,7 +56,9 @@ func TestMain(m *testing.M) {
 
 	// Use the cache mechanism to avoid trying to retrieve the role service
 	autoAppliesCache = cache.New(3600*time.Second, 7200*time.Second)
-	autoAppliesCache.Set("autoApplies", map[string][]*idm.Role{}, 0)
+	autoAppliesCache.Set("autoApplies", map[string][]*idm.Role{
+		"autoApplyProfile": {{Uuid: "auto-apply", AutoApplies: []string{"autoApplyProfile"}}},
+	}, 0)
 
 	sqlDao := sql.NewDAO("sqlite3", "file::memory:?mode=memory&cache=shared", "idm_user")
 	if sqlDao == nil {
@@ -107,25 +113,59 @@ func TestUser(t *testing.T) {
 			Login: "user1",
 		}
 		userQueryAny, _ := ptypes.MarshalAny(userQuery)
-		err := h.SearchUser(ctx, &idm.SearchUserRequest{
+		request := &idm.SearchUserRequest{
 			Query: &service.Query{
 				SubQueries: []*any.Any{userQueryAny},
 			},
-		}, mock)
+		}
+		err := h.SearchUser(ctx, request, mock)
 
 		So(err, ShouldBeNil)
 		So(len(mock.InternalBuffer), ShouldEqual, 1)
+
+		resp := new(idm.CountUserResponse)
+		err = h.CountUser(ctx, request, resp)
+		So(err, ShouldBeNil)
+		So(resp.Count, ShouldEqual, 1)
+	})
+
+	Convey("Create a user with auto apply role", t, func() {
+		resp := new(idm.CreateUserResponse)
+		err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{Login: "user3", Attributes: map[string]string{"profile": "autoApplyProfile"}}}, resp)
+
+		So(err, ShouldBeNil)
+		So(resp.GetUser().GetLogin(), ShouldEqual, "user3")
+		mock := &userStreamMock{}
+		userQuery := &idm.UserSingleQuery{
+			Login: "user3",
+		}
+		userQueryAny, _ := ptypes.MarshalAny(userQuery)
+		request := &idm.SearchUserRequest{
+			Query: &service.Query{
+				SubQueries: []*any.Any{userQueryAny},
+			},
+		}
+		err = h.SearchUser(ctx, request, mock)
+		So(err, ShouldBeNil)
+		So(len(mock.InternalBuffer), ShouldEqual, 1)
+		fmt.Println(mock.InternalBuffer[0].Roles)
+		So(mock.InternalBuffer[0].Roles, ShouldHaveLength, 3)
+		So(mock.InternalBuffer[0].Roles[0].Uuid, ShouldEqual, "ROOT_GROUP")
+		So(mock.InternalBuffer[0].Roles[0].GroupRole, ShouldBeTrue)
+		So(mock.InternalBuffer[0].Roles[0].UserRole, ShouldBeFalse)
+
+		So(mock.InternalBuffer[0].Roles[1].Uuid, ShouldEqual, "auto-apply")
+
+		So(mock.InternalBuffer[0].Roles[2].Uuid, ShouldEqual, mock.InternalBuffer[0].Uuid)
+		So(mock.InternalBuffer[0].Roles[2].UserRole, ShouldBeTrue)
+		So(mock.InternalBuffer[0].Roles[2].GroupRole, ShouldBeFalse)
+
 	})
 
 	Convey("Del User", t, func() {
 		err := h.DeleteUser(ctx, &idm.DeleteUserRequest{}, &idm.DeleteUserResponse{})
 		So(err, ShouldNotBeNil)
 	})
-
-	// Convey("Del User", t, func() {
-	// 	err := s.DeleteUser(ctx, &idm.DeleteUserRequest{}, &idm.DeleteUserResponse{})
-	// 	So(err, ShouldNotBeNil)
-	// })
 
 	Convey("Del User", t, func() {
 		singleQ1 := new(idm.UserSingleQuery)
@@ -141,12 +181,12 @@ func TestUser(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 
-	Convey("Search User", t, func() {
+	Convey("List all Users", t, func() {
 		mock := &userStreamMock{}
 		err := h.SearchUser(ctx, &idm.SearchUserRequest{}, mock)
 
 		So(err, ShouldBeNil)
-		So(len(mock.InternalBuffer), ShouldEqual, 2)
+		So(len(mock.InternalBuffer), ShouldEqual, 3)
 	})
 
 	Convey("Create and bind user", t, func() {
@@ -155,7 +195,82 @@ func TestUser(t *testing.T) {
 
 		So(err, ShouldBeNil)
 		So(resp.GetUser().GetLogin(), ShouldEqual, "john")
+
+		// Correct bind
+		{
+			bindResp := new(idm.BindUserResponse)
+			err = h.BindUser(ctx, &idm.BindUserRequest{UserName: "john", Password: "f00"}, bindResp)
+			So(err, ShouldBeNil)
+			So(bindResp.User, ShouldNotBeNil)
+		}
+		// Wrong user name
+		{
+			bindResp := new(idm.BindUserResponse)
+			err = h.BindUser(ctx, &idm.BindUserRequest{UserName: "johnFAIL", Password: "f00"}, bindResp)
+			So(err, ShouldNotBeNil)
+		}
+		// Wrong Password
+		{
+			bindResp := new(idm.BindUserResponse)
+			err = h.BindUser(ctx, &idm.BindUserRequest{UserName: "john", Password: "f00FAIL"}, bindResp)
+			So(err, ShouldNotBeNil)
+		}
+
 	})
+
+	Convey("Create and bind user with a legacy password", t, func() {
+		resp := new(idm.CreateUserResponse)
+		attributes := make(map[string]string, 1)
+		attributes[idm.UserAttrPassHashed] = "true"
+		err := h.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{
+			Login:      "legacy",
+			Password:   "sha256:1000:ojGf2O2ELslNab+PZ/CkbVddgHQnSwx/FcMZ0Pa4+EE=:d6mVgF+fS+wg7X+0lmSn1T1IOU7DLZhz",
+			Attributes: attributes,
+		}}, resp)
+
+		So(err, ShouldBeNil)
+		So(resp.GetUser().GetLogin(), ShouldEqual, "legacy")
+
+		bindResp := new(idm.BindUserResponse)
+		err = h.BindUser(ctx, &idm.BindUserRequest{UserName: "legacy", Password: "P@ssw0rd"}, bindResp)
+		So(err, ShouldBeNil)
+		So(bindResp.User, ShouldNotBeNil)
+	})
+
+	Convey("Test password change lock", t, func() {
+
+		resp := new(idm.CreateUserResponse)
+		err := h.CreateUser(ctx, &idm.CreateUserRequest{
+			User: &idm.User{Login: "emma",
+				Password: "oldpassword",
+				Attributes: map[string]string{
+					"locks": `["pass_change","other"]`,
+				}}}, resp)
+		So(err, ShouldBeNil)
+
+		updatedContext := context.WithValue(ctx, common.PYDIO_CONTEXT_USER_KEY, "emma")
+		err = h.CreateUser(updatedContext, &idm.CreateUserRequest{
+			User: &idm.User{
+				Login:       "emma",
+				OldPassword: "oldpassword",
+				Password:    "oldpassword",
+				Attributes: map[string]string{
+					"locks": `["pass_change","other"]`,
+				}}}, resp)
+		So(err, ShouldNotBeNil)
+
+		err = h.CreateUser(updatedContext, &idm.CreateUserRequest{
+			User: &idm.User{Login: "emma",
+				Password: "newpassword",
+				Attributes: map[string]string{
+					"locks": `["pass_change","other"]`,
+				}}}, resp)
+		So(err, ShouldBeNil)
+		So(resp.User.Attributes, ShouldNotBeNil)
+		So(resp.User.Attributes["locks"], ShouldEqual, `["other"]`)
+
+	})
+
 }
 
 // =================================================
