@@ -28,11 +28,14 @@ import (
 	"io"
 	"path/filepath"
 	"strings"
+	"time"
+
+	"github.com/micro/go-micro/client"
+	"go.uber.org/zap"
 
 	"github.com/pydio/cells/common"
 	"github.com/pydio/cells/common/log"
 	"github.com/pydio/cells/common/proto/tree"
-	"go.uber.org/zap"
 )
 
 type ArchiveWriter struct {
@@ -57,7 +60,7 @@ func (w *ArchiveWriter) walkObjectsWithCallback(ctx context.Context, nodePath st
 		},
 		Recursive: true,
 		Limit:     0,
-	})
+	}, client.WithRequestTimeout(6*time.Hour))
 	if err != nil {
 		return err
 	}
