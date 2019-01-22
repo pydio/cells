@@ -19,7 +19,7 @@ import (
 )
 
 // GetOrCreateHiddenUser will load or create a user to create a ShareLink with.
-func GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User, link *rest.ShareLink, passwordEnabled bool, updatePassword string) (user *idm.User, err error) {
+func GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User, link *rest.ShareLink, passwordEnabled bool, updatePassword string, passwordHashed bool) (user *idm.User, err error) {
 
 	// Create or Load corresponding Hidden User
 	uClient := idm.NewUserServiceClient(common.SERVICE_GRPC_NAMESPACE_+common.SERVICE_USER, defaults.NewClient())
@@ -44,7 +44,7 @@ func GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User, link *rest.
 				Effect:   service.ResourcePolicy_allow,
 			})
 		}
-		resp, e := uClient.CreateUser(ctx, &idm.CreateUserRequest{User: &idm.User{
+		hiddenUser := &idm.User{
 			Uuid:      newUuid,
 			Login:     login,
 			Password:  password,
@@ -54,7 +54,11 @@ func GetOrCreateHiddenUser(ctx context.Context, ownerUser *idm.User, link *rest.
 				"profile": "shared",
 				"hidden":  "true",
 			},
-		}})
+		}
+		if passwordHashed {
+			hiddenUser.Attributes[idm.UserAttrPassHashed] = "true"
+		}
+		resp, e := uClient.CreateUser(ctx, &idm.CreateUserRequest{User: hiddenUser})
 		if e != nil {
 			return nil, e
 		}

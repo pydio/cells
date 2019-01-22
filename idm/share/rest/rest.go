@@ -334,7 +334,7 @@ func (h *SharesHandler) PutShareLink(req *restful.Request, rsp *restful.Response
 	track("IsContextEditable")
 
 	// Load Hidden User
-	user, err = share.GetOrCreateHiddenUser(ctx, ownerUser, link, putRequest.PasswordEnabled, putRequest.CreatePassword)
+	user, err = share.GetOrCreateHiddenUser(ctx, ownerUser, link, putRequest.PasswordEnabled, putRequest.CreatePassword, false)
 	if err != nil {
 		service.RestError500(req, rsp, err)
 		return
