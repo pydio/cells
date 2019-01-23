@@ -65,14 +65,17 @@ const ButtonMenu = React.createClass({
         const {showMenu, anchor} = this.state;
         let label = <span style={{whiteSpace:'nowrap'}}>{this.props.buttonTitle} <span className="mdi mdi-menu-down"/></span>
         let button;
+        let activeColor = this.props.buttonHoverColor || 'rgba(255,255,255,0.2)';
         const props = {
             primary: this.props.primary,
             secondary: this.props.secondary,
-            disabled: this.props.disabeld,
+            disabled: this.props.disabled,
             label: label,
             onTouchTap: this.showMenu,
-            labelStyle:{...this.props.buttonLabelStyle,paddingRight: 10},
-            style:{...this.props.buttonStyle, backgroundColor:(showMenu?'rgba(153,153,153,.2)':'')},
+            labelStyle:{...this.props.buttonLabelStyle},
+            style:this.props.buttonStyle,
+            backgroundColor:showMenu ? activeColor : this.props.buttonBackgroundColor,
+            hoverColor:this.props.buttonHoverColor,
             onClick:(e=>e.stopPropagation())
         };
         const {menuItems} = this.props;

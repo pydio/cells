@@ -37,10 +37,14 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
             backgroundColor: lightBg.toString(),
             ...style
         };
-        const widgetStyle = {
+
+        let uWidgetProps = {...userWidgetProps};
+        uWidgetProps.style = {
             backgroundColor: Color(palette.primary1Color).darken(0.2).toString(),
-            width:'100%'
+            width:'100%',
+            ...uWidgetProps.style
         };
+
         const wsListStyle = {
             backgroundColor     : lightBg.toString(),
             color               : Color(palette.primary1Color).darken(0.1).alpha(0.87).toString(),
@@ -49,14 +53,12 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
         const wsSectionTitleStyle = {
             color    : Color(palette.primary1Color).darken(0.1).alpha(0.50).toString()
         };
-        const uWidgetProps = userWidgetProps || {};
         const wsListProps = workspacesListProps || {};
 
         return (
             <div className="left-panel vertical_fit vertical_layout" style={style}>
                 <UserWidget
                     pydio={pydio}
-                    style={widgetStyle}
                     {...uWidgetProps}
                 />
                 <WorkspacesList

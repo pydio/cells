@@ -73,6 +73,7 @@ var IconButtonMenu = (function (_React$Component) {
         var buttonTitle = _props.buttonTitle;
         var buttonClassName = _props.buttonClassName;
         var containerStyle = _props.containerStyle;
+        var style = _props.style;
         var buttonStyle = _props.buttonStyle;
         var popoverDirection = _props.popoverDirection;
         var popoverTargetPosition = _props.popoverTargetPosition;
@@ -89,7 +90,8 @@ var IconButtonMenu = (function (_React$Component) {
                 tooltip: buttonTitle,
                 iconClassName: buttonClassName,
                 onTouchTap: this.showMenu.bind(this),
-                iconStyle: buttonStyle
+                iconStyle: buttonStyle,
+                style: style
             }),
             React.createElement(
                 Popover,

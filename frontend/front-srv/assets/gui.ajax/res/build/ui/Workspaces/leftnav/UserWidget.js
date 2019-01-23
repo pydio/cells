@@ -78,8 +78,7 @@ exports['default'] = React.createClass({
         var messages = this.props.pydio.MessageHash;
 
         var avatar = undefined;
-        var homeButton = undefined,
-            notificationsButton = undefined,
+        var notificationsButton = undefined,
             currentIsSettings = undefined,
             bookmarksButton = undefined;
         var _props = this.props;
@@ -87,11 +86,13 @@ exports['default'] = React.createClass({
         var displayLabel = _props.displayLabel;
         var mergeButtonInAvatar = _props.mergeButtonInAvatar;
         var avatarStyle = _props.avatarStyle;
+        var popoverDirection = _props.popoverDirection;
+        var color = _props.color;
 
         if (pydio.user) {
             var user = this.props.pydio.user;
             currentIsSettings = user.activeRepository === 'settings';
-            var buttonStyle = { color: 'white' };
+            var buttonStyle = { color: color };
             var avatarSize = undefined;
             if (mergeButtonInAvatar) {
                 avatarStyle = _extends({}, avatarStyle, { position: 'relative' });
@@ -107,82 +108,54 @@ exports['default'] = React.createClass({
                     className: 'user-display',
                     labelClassName: 'userLabel',
                     displayLabel: displayLabel,
-                    labelStyle: { flex: 1, marginLeft: 5 },
+                    labelStyle: { flex: 1, marginLeft: 5, color: color },
                     avatarSize: avatarSize
                 },
-                React.createElement(IconButtonMenu, _extends({}, this.props, {
+                React.createElement(IconButtonMenu, {
+                    pydio: pydio,
                     buttonClassName: 'mdi mdi-dots-vertical',
                     containerStyle: mergeButtonInAvatar ? { position: 'absolute', left: 4 } : {},
                     buttonStyle: buttonStyle,
                     buttonTitle: messages['165'],
-                    toolbars: ["user", "zlogin"],
+                    toolbars: ["aUser", "user", "zlogin"],
                     controller: this.props.pydio.Controller,
-                    popoverDirection: mergeButtonInAvatar ? "right" : "left",
-                    popoverTargetPosition: "top",
+                    popoverDirection: popoverDirection ? popoverDirection : mergeButtonInAvatar ? "right" : "left",
+                    popoverTargetPosition: "bottom",
                     menuProps: { display: 'right', width: 160, desktop: true }
-                }))
+                })
             );
 
-            if (user.getRepositoriesList().has('homepage')) {
-                homeButton = React.createElement(IconButton, {
-                    onTouchTap: this.applyAction.bind(this, 'home'),
-                    iconClassName: 'userActionIcon mdi mdi-home-variant',
-                    className: 'userActionButton backToHomeButton',
-                    tooltip: user.activeRepository === 'homepage' ? null : messages['305'],
-                    tooltipPosition: 'bottom-right',
-                    disabled: user.activeRepository === 'homepage',
-                    style: user.activeRepository === 'homepage' ? { borderBottom: '2px solid white' } : {}
-                });
-            }
-            if (!this.props.hideNotifications && !(this.props.pydio.user && this.props.pydio.user.activeRepository === 'inbox')) {
+            if (!this.props.hideNotifications) {
                 notificationsButton = React.createElement(AsyncComponent, _extends({
                     namespace: 'PydioActivityStreams',
                     componentName: 'UserPanel',
                     noLoader: true,
-                    iconClassName: 'userActionIcon mdi mdi-bell-outline'
+                    iconClassName: 'userActionIcon mdi mdi-bell-outline',
+                    iconStyle: { color: color }
                 }, this.props));
             }
-            bookmarksButton = React.createElement(_BookmarksList2['default'], { pydio: this.props.pydio });
+            bookmarksButton = React.createElement(_BookmarksList2['default'], { pydio: this.props.pydio, iconStyle: { color: color } });
         }
-
-        var aboutButton = React.createElement(IconButton, {
-            onTouchTap: this.applyAction.bind(this, 'about_pydio'),
-            iconClassName: 'userActionIcon mdi mdi-information-outline',
-            className: 'userActionButton backToHomeButton',
-            tooltip: messages['166'],
-            tooltipPosition: 'bottom-left'
-        });
 
         // Do not display Home Button here for the moment
         var actionBarStyle = this.props.actionBarStyle || {};
         var actionBar = undefined;
-        if (currentIsSettings) {
-            /*
-            actionBar = (
-                <div className="action_bar" style={{display:'flex', ...actionBarStyle}}>
-                    {homeButton}
-                </div>
+        if (!currentIsSettings) {
+            actionBar = React.createElement(
+                'div',
+                { className: 'action_bar', style: _extends({ display: 'flex' }, actionBarStyle) },
+                React.createElement(Toolbar, _extends({}, this.props, {
+                    toolbars: ['user-widget'],
+                    renderingType: 'icon',
+                    toolbarStyle: { display: 'inline' },
+                    buttonStyle: { color: color, fontSize: 18 },
+                    tooltipPosition: 'bottom-right',
+                    className: 'user-widget-toolbar'
+                })),
+                notificationsButton,
+                bookmarksButton
             );
-            */
-        } else {
-                actionBar = React.createElement(
-                    'div',
-                    { className: 'action_bar', style: _extends({ display: 'flex' }, actionBarStyle) },
-                    homeButton,
-                    React.createElement(Toolbar, _extends({}, this.props, {
-                        toolbars: ['user-widget'],
-                        renderingType: 'icon',
-                        toolbarStyle: { display: 'inline' },
-                        buttonStyle: { color: 'rgba(255,255,255,255.93)', fontSize: 18 },
-                        tooltipPosition: 'bottom-right',
-                        className: 'user-widget-toolbar'
-                    })),
-                    notificationsButton,
-                    bookmarksButton,
-                    React.createElement('span', { style: { flex: 1 } }),
-                    aboutButton
-                );
-            }
+        }
 
         if (this.props.children) {
             return React.createElement(
@@ -201,6 +174,7 @@ exports['default'] = React.createClass({
                 Paper,
                 { zDepth: 1, rounded: false, style: this.props.style, className: 'user-widget primaryColorDarkerPaper' },
                 avatar,
+                this.props.style && this.props.style.display === 'flex' && React.createElement('span', { style: { flex: 1 } }),
                 actionBar
             );
         }

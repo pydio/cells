@@ -62,10 +62,13 @@ var LeftPanel = function LeftPanel(_ref) {
     style = _extends({
         backgroundColor: lightBg.toString()
     }, style);
-    var widgetStyle = {
+
+    var uWidgetProps = _extends({}, userWidgetProps);
+    uWidgetProps.style = _extends({
         backgroundColor: Color(palette.primary1Color).darken(0.2).toString(),
         width: '100%'
-    };
+    }, uWidgetProps.style);
+
     var wsListStyle = {
         backgroundColor: lightBg.toString(),
         color: Color(palette.primary1Color).darken(0.1).alpha(0.87).toString(),
@@ -74,15 +77,13 @@ var LeftPanel = function LeftPanel(_ref) {
     var wsSectionTitleStyle = {
         color: Color(palette.primary1Color).darken(0.1).alpha(0.50).toString()
     };
-    var uWidgetProps = userWidgetProps || {};
     var wsListProps = workspacesListProps || {};
 
     return React.createElement(
         'div',
         { className: 'left-panel vertical_fit vertical_layout', style: style },
         React.createElement(_UserWidget2['default'], _extends({
-            pydio: pydio,
-            style: widgetStyle
+            pydio: pydio
         }, uWidgetProps)),
         React.createElement(_wslistWorkspacesList2['default'], _extends({
             className: "vertical_fit",

@@ -55,12 +55,12 @@ export default React.createClass({
         const messages = this.props.pydio.MessageHash;
 
         let avatar;
-        let homeButton, notificationsButton, currentIsSettings, bookmarksButton;
-        let {pydio, displayLabel, mergeButtonInAvatar, avatarStyle} = this.props;
+        let notificationsButton, currentIsSettings, bookmarksButton;
+        let {pydio, displayLabel, mergeButtonInAvatar, avatarStyle, popoverDirection, color} = this.props;
         if(pydio.user){
             const user = this.props.pydio.user;
             currentIsSettings = user.activeRepository === 'settings';
-            let buttonStyle = {color: 'white'};
+            let buttonStyle = {color: color};
             let avatarSize;
             if(mergeButtonInAvatar){
                 avatarStyle = {...avatarStyle, position:'relative'};
@@ -75,89 +75,57 @@ export default React.createClass({
                     className="user-display"
                     labelClassName="userLabel"
                     displayLabel={displayLabel}
-                    labelStyle={{flex: 1, marginLeft: 5}}
+                    labelStyle={{flex: 1, marginLeft: 5, color: color}}
                     avatarSize={avatarSize}
                 >
                     <IconButtonMenu
-                        {...this.props}
+                        pydio={pydio}
                         buttonClassName={'mdi mdi-dots-vertical'}
                         containerStyle={mergeButtonInAvatar?{position:'absolute', left: 4}:{}}
                         buttonStyle={buttonStyle}
                         buttonTitle={messages['165']}
-                        toolbars={["user", "zlogin"]}
+                        toolbars={["aUser", "user", "zlogin"]}
                         controller={this.props.pydio.Controller}
-                        popoverDirection={mergeButtonInAvatar ? "right" : "left"}
-                        popoverTargetPosition={"top"}
+                        popoverDirection={ popoverDirection ? popoverDirection : (mergeButtonInAvatar ? "right" : "left" )}
+                        popoverTargetPosition={"bottom"}
                         menuProps={{display:'right', width:160, desktop:true}}
                     />
                 </UserAvatar>
             );
 
-            if(user.getRepositoriesList().has('homepage')){
-                homeButton = (
-                    <IconButton
-                        onTouchTap={this.applyAction.bind(this, 'home')}
-                        iconClassName="userActionIcon mdi mdi-home-variant"
-                        className="userActionButton backToHomeButton"
-                        tooltip={user.activeRepository === 'homepage' ? null : messages['305']}
-                        tooltipPosition="bottom-right"
-                        disabled={user.activeRepository === 'homepage'}
-                        style={user.activeRepository === 'homepage' ? {borderBottom:'2px solid white'} : {}}
-                    />
-                );
-            }
-            if(!this.props.hideNotifications && !(this.props.pydio.user && this.props.pydio.user.activeRepository === 'inbox')){
+            if(!this.props.hideNotifications){
                 notificationsButton = (
                     <AsyncComponent
                         namespace="PydioActivityStreams"
                         componentName="UserPanel"
                         noLoader={true}
                         iconClassName="userActionIcon mdi mdi-bell-outline"
+                        iconStyle={{color}}
                         {...this.props}
                     />
                 );
             }
-            bookmarksButton = (<BookmarksList pydio={this.props.pydio}/>);
+            bookmarksButton = (<BookmarksList pydio={this.props.pydio} iconStyle={{color}}/>);
         }
 
-        const aboutButton = (
-            <IconButton
-                onTouchTap={this.applyAction.bind(this, 'about_pydio')}
-                iconClassName="userActionIcon mdi mdi-information-outline"
-                className="userActionButton backToHomeButton"
-                tooltip={messages['166']}
-                tooltipPosition="bottom-left"
-            />
-        );
 
         // Do not display Home Button here for the moment
         const actionBarStyle = this.props.actionBarStyle || {};
         let actionBar;
-        if(currentIsSettings){
-            /*
+        if(!currentIsSettings){
             actionBar = (
                 <div className="action_bar" style={{display:'flex', ...actionBarStyle}}>
-                    {homeButton}
-                </div>
-            );
-            */
-        }else{
-            actionBar = (
-                <div className="action_bar" style={{display:'flex', ...actionBarStyle}}>
-                    {homeButton}
                     <Toolbar
                         {...this.props}
                         toolbars={['user-widget']}
                         renderingType="icon"
                         toolbarStyle={{display:'inline'}}
-                        buttonStyle={{color: 'rgba(255,255,255,255.93)', fontSize: 18}}
+                        buttonStyle={{color: color, fontSize: 18}}
                         tooltipPosition="bottom-right"
                         className="user-widget-toolbar"
                     />
                     {notificationsButton}
                     {bookmarksButton}
-                    <span style={{flex:1}}/>
-                    {aboutButton}
                 </div>
             );
 
@@ -177,6 +145,7 @@ export default React.createClass({
             return (
                 <Paper zDepth={1} rounded={false} style={this.props.style} className="user-widget primaryColorDarkerPaper">
                     {avatar}
+                    {this.props.style && this.props.style.display === 'flex' && <span style={{flex:1}}/>}
                     {actionBar}
                 </Paper>
             );

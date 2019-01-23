@@ -95,6 +95,13 @@ function itemsToMenu(items, closeMenuCallback) {
         if (item.separator) {
             return React.createElement(_materialUi.Divider, { key: "divider" + index });
         }
+        if (item.subHeader) {
+            return React.createElement(
+                _materialUi.Subheader,
+                { style: { marginTop: -10, marginBottom: -6 } },
+                item.subHeader
+            );
+        }
 
         var subItems = undefined,
             payload = undefined;

@@ -1,7 +1,7 @@
 import React from 'react'
 import Pydio from 'pydio'
 const {AddressBook, UserAvatar, CellActionsRenderer} = Pydio.requireLib('components');
-import {List, ListItem, Subheader, Divider, IconMenu, IconButton} from 'material-ui'
+import {List, ListItem, Subheader, Divider, IconMenu, IconButton, Paper} from 'material-ui'
 import IdmObjectHelper from 'pydio/model/idm-object-helper';
 import DOMUtils from 'pydio/util/dom'
 
@@ -94,7 +94,7 @@ class AddressBookPanel extends React.Component{
 
     render(){
 
-        const {pydio} = this.props;
+        const {pydio, style, zDepth} = this.props;
         const {cellModel, noCell} = this.state;
         let cellInfo;
         if(!noCell && cellModel){
@@ -120,12 +120,12 @@ class AddressBookPanel extends React.Component{
             top: 100,
             bottom: 0,
             backgroundColor: '#fafafa',
-            borderLeft: '1px solid #e0e0e0',
-            transition: DOMUtils.getBeziersTransition()
+            transition: DOMUtils.getBeziersTransition(),
+            ...style
         };
 
         return (
-            <div id={"info_panel"} style={{...columnStyle, display:'flex', flexDirection:'column'}}>
+            <Paper id={"info_panel"} zDepth={zDepth} style={{...columnStyle, display:'flex', flexDirection:'column'}}>
                 {cellInfo}
                 {pydio.Controller.getActionByName("open_address_book") &&
                     <AddressBook
@@ -137,7 +137,7 @@ class AddressBookPanel extends React.Component{
                         actionsForCell={!noCell && cellModel ? cellModel : true}
                     />
                 }
-            </div>
+            </Paper>
         );
 
     }

@@ -137,7 +137,10 @@ var AddressBookPanel = (function (_React$Component) {
     AddressBookPanel.prototype.render = function render() {
         var _this3 = this;
 
-        var pydio = this.props.pydio;
+        var _props = this.props;
+        var pydio = _props.pydio;
+        var style = _props.style;
+        var zDepth = _props.zDepth;
         var _state = this.state;
         var cellModel = _state.cellModel;
         var noCell = _state.noCell;
@@ -168,19 +171,18 @@ var AddressBookPanel = (function (_React$Component) {
                 );
             })();
         }
-        var columnStyle = {
+        var columnStyle = _extends({
             position: 'absolute',
             width: 270,
             top: 100,
             bottom: 0,
             backgroundColor: '#fafafa',
-            borderLeft: '1px solid #e0e0e0',
             transition: _pydioUtilDom2['default'].getBeziersTransition()
-        };
+        }, style);
 
         return _react2['default'].createElement(
-            'div',
-            { id: "info_panel", style: _extends({}, columnStyle, { display: 'flex', flexDirection: 'column' }) },
+            _materialUi.Paper,
+            { id: "info_panel", zDepth: zDepth, style: _extends({}, columnStyle, { display: 'flex', flexDirection: 'column' }) },
             cellInfo,
             pydio.Controller.getActionByName("open_address_book") && _react2['default'].createElement(AddressBook, {
                 mode: 'selector',

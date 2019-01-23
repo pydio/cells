@@ -100,14 +100,17 @@ var ButtonMenu = _react2['default'].createClass({
             _react2['default'].createElement('span', { className: 'mdi mdi-menu-down' })
         );
         var button = undefined;
+        var activeColor = this.props.buttonHoverColor || 'rgba(255,255,255,0.2)';
         var props = {
             primary: this.props.primary,
             secondary: this.props.secondary,
-            disabled: this.props.disabeld,
+            disabled: this.props.disabled,
             label: label,
             onTouchTap: this.showMenu,
-            labelStyle: _extends({}, this.props.buttonLabelStyle, { paddingRight: 10 }),
-            style: _extends({}, this.props.buttonStyle, { backgroundColor: showMenu ? 'rgba(153,153,153,.2)' : '' }),
+            labelStyle: _extends({}, this.props.buttonLabelStyle),
+            style: this.props.buttonStyle,
+            backgroundColor: showMenu ? activeColor : this.props.buttonBackgroundColor,
+            hoverColor: this.props.buttonHoverColor,
             onClick: function onClick(e) {
                 return e.stopPropagation();
             }

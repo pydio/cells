@@ -18,7 +18,7 @@
  * The latest code can be found at <https://pydio.com>.
  */
 import Pydio from 'pydio'
-import {Divider, Menu, MenuItem, FontIcon} from 'material-ui'
+import {Divider, Subheader, Menu, MenuItem, FontIcon} from 'material-ui'
 
 function pydioActionsToItems(actions = []){
     let items = [];
@@ -80,6 +80,9 @@ function itemsToMenu(items, closeMenuCallback, subItemsOnly = false, menuProps =
 
         if(item.separator) {
             return <Divider key={"divider" + index}/>;
+        }
+        if(item.subHeader) {
+            return <Subheader style={{marginTop: -10, marginBottom: -6}}>{item.subHeader}</Subheader>
         }
 
         let subItems, payload;

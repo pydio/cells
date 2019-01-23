@@ -89,7 +89,7 @@ class BookmarksList extends React.Component {
     }
 
     render() {
-        const {pydio, muiTheme} = this.props;
+        const {pydio, muiTheme, iconStyle} = this.props;
         const {loading, open, anchorEl, bookmarks} = this.state;
 
         if(!pydio.user.activeRepository){
@@ -122,6 +122,7 @@ class BookmarksList extends React.Component {
                     iconClassName={"userActionIcon mdi mdi-bookmark-check"}
                     tooltip={pydio.MessageHash['147']}
                     className="userActionButton"
+                    iconStyle={iconStyle}
                 />
                 <Popover
                     open={open}

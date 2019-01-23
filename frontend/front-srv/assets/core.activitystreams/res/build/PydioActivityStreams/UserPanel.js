@@ -147,7 +147,8 @@ var UserPanel = (function (_React$Component) {
                         onTouchTap: this.handleTouchTap.bind(this),
                         iconClassName: this.props.iconClassName || "icon-bell",
                         tooltip: this.props.pydio.MessageHash['notification_center.4'],
-                        className: 'userActionButton alertsButton'
+                        className: 'userActionButton alertsButton',
+                        iconStyle: this.props.iconStyle
                     })
                 ),
                 _react2['default'].createElement(

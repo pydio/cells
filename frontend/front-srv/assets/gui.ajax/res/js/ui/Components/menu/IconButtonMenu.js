@@ -42,7 +42,7 @@ class IconButtonMenu extends React.Component{
     }
 
     render(){
-        const {menuItems, className, buttonTitle, buttonClassName, containerStyle, buttonStyle, popoverDirection, popoverTargetPosition, menuProps} = this.props;
+        const {menuItems, className, buttonTitle, buttonClassName, containerStyle, style, buttonStyle, popoverDirection, popoverTargetPosition, menuProps} = this.props;
         if(!menuItems.length) {
             return null;
         }
@@ -54,6 +54,7 @@ class IconButtonMenu extends React.Component{
                     iconClassName={buttonClassName}
                     onTouchTap={this.showMenu.bind(this)}
                     iconStyle={buttonStyle}
+                    style={style}
                 />
                 <Popover
                     open={this.state.showMenu}

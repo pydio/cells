@@ -137,6 +137,20 @@ body,#ajxp_desktop,#background-imager{
         margin-right: 0;
       }
     }
+    &.info-panel-open-large {
+      #info_panel{
+        right: 0;
+        @media @screenwidth-small{
+          right: -@infopanel_width - 40;
+        }
+      }
+      .material-list.main-files-list{
+        margin-right: @infopanel_width + 40;
+        @media @screenwidth-small{
+          margin-right: 0;
+        }
+      }
+    }
   }
 
   .media-small-hide{

@@ -119,6 +119,7 @@ exports['default'] = _react2['default'].createClass({
         var renderingType = _props.renderingType;
         var groupOtherList = _props.groupOtherList;
         var buttonStyle = _props.buttonStyle;
+        var mergeItemsAsOneMenu = _props.mergeItemsAsOneMenu;
         var tooltipPosition = _props.tooltipPosition;
         var controller = _props.controller;
         var fabAction = _props.fabAction;
@@ -131,6 +132,7 @@ exports['default'] = _react2['default'].createClass({
         if (groupOtherList.length) {
             allToolbars = allToolbars.concat(['MORE_ACTION']);
         }
+        var mergedMenuItems = [];
         allToolbars.map(function (barName) {
             if (!groups.has(barName)) {
                 return;
@@ -180,6 +182,10 @@ exports['default'] = _react2['default'].createClass({
                         }
                     })();
                 }
+                if (mergeItemsAsOneMenu && menuItems !== undefined) {
+                    mergedMenuItems = [].concat(mergedMenuItems, [{ subHeader: menuTitle }], menuItems, [{ separator: true }]);
+                    return;
+                }
                 var id = 'action-' + action.options.name;
                 if (renderingType === 'button-icon') {
                     menuTitle = _react2['default'].createElement(
@@ -202,6 +208,7 @@ exports['default'] = _react2['default'].createClass({
                                 buttonTitle: menuTitle,
                                 menuItems: menuItems,
                                 masterAction: menuItemsUseMasterAction,
+                                buttonStyle: flatButtonStyle,
                                 buttonLabelStyle: buttonStyle,
                                 direction: buttonMenuPopoverDirection
                             }));
@@ -211,6 +218,7 @@ exports['default'] = _react2['default'].createClass({
                                 className: id,
                                 buttonTitle: buttonMenuNoLabel ? '' : menuTitle,
                                 menuItems: menuItems,
+                                buttonStyle: flatButtonStyle,
                                 buttonLabelStyle: buttonStyle,
                                 direction: buttonMenuPopoverDirection
                             }));
@@ -226,6 +234,7 @@ exports['default'] = _react2['default'].createClass({
                             buttonTitle: menuTitle,
                             menuItems: menuItems,
                             buttonStyle: buttonStyle,
+                            style: flatButtonStyle,
                             popoverDirection: buttonMenuPopoverDirection
                         }));
                     }
@@ -273,6 +282,7 @@ exports['default'] = _react2['default'].createClass({
                             key: actionName,
                             iconClassName: menuIcon + ' ' + id,
                             iconStyle: buttonStyle,
+                            style: flatButtonStyle,
                             onTouchTap: click,
                             tooltip: menuTitle,
                             tooltipPosition: tooltipPosition
@@ -281,6 +291,28 @@ exports['default'] = _react2['default'].createClass({
                 }
             });
         });
+        if (mergeItemsAsOneMenu && mergedMenuItems.length) {
+            // remove last separator
+            mergedMenuItems.pop();
+            var _props2 = this.props;
+            var mergedMenuIcom = _props2.mergedMenuIcom;
+            var mergedMenuTitle = _props2.mergedMenuTitle;
+
+            actions.push(_react2['default'].createElement(_IconButtonMenu2['default'], {
+                key: toolbars.join('-'),
+                className: 'toolbar-' + toolbars.join('-'),
+                onMenuClicked: function (object) {
+                    object.payload();
+                },
+                buttonClassName: mergedMenuIcom,
+                buttonTitle: mergedMenuTitle,
+                menuItems: mergedMenuItems,
+                buttonStyle: buttonStyle,
+                style: flatButtonStyle,
+                popoverDirection: buttonMenuPopoverDirection
+            }));
+        }
+
         var cName = this.props.className ? this.props.className : '';
         cName += ' ' + 'toolbar';
         if (!actions.length) {

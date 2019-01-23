@@ -24,7 +24,7 @@ import {Paper, IconButton, Badge, Color} from 'material-ui'
 import WelcomeTour from './WelcomeTour'
 import Pydio from 'pydio'
 import HomeSearchForm from './HomeSearchForm'
-import ActivityStreamsPanel from '../recent/ActivityStreams'
+import SmartRecents from '../recent/SmartRecents'
 const {MasterLayout} = Pydio.requireLib('workspaces');
 
 class AltDashboard extends React.Component {
@@ -32,13 +32,13 @@ class AltDashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {unreadStatus: 0, drawerOpen: true};
-        //setTimeout(()=>{this.setState({drawerOpen: false})}, 2000);
+        // setTimeout(()=>{this.setState({drawerOpen: false})}, 2000);
     }
 
     openDrawer(event) {
         event.stopPropagation();
         this.setState({drawerOpen: true});
-        }
+    }
 
     render() {
 
@@ -48,12 +48,18 @@ class AltDashboard extends React.Component {
         const appBarColor = new Color(muiTheme.appBar.color);
         const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
         const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
+        const colorHue = Color(muiTheme.palette.primary1Color).hsl().array()[0];
+        const lightBg = new Color({h:colorHue,s:35,l:98});
+        const fontColor =  Color(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87);
+
 
         const styles = {
             appBarStyle : {
-                zIndex: 1,
-                backgroundColor: appBarColor.alpha(.6).toString(),
-                height: 100
+                backgroundColor: 'rgba(255, 255, 255, 0.50)',
+                height: 200,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
             },
             buttonsStyle : {
                 color: muiTheme.appBar.textColor
@@ -62,14 +68,16 @@ class AltDashboard extends React.Component {
                 color: appBarColor.darken(0.4).toString()
             },
             wsListsContainerStyle: {
-                position:'absolute',
-                zIndex: 10,
-                top: 108,
-                bottom: 0,
-                right: 0,
-                left: 260,
+                flex: 1,
                 display:'flex',
-                flexDirection:'column'
+                flexDirection:'column',
+                alignItems:'center',
+                backgroundColor: 'white',
+                position:'relative',
+            },
+            wsListStyle:{
+                backgroundColor     : lightBg.toString(),
+                color               : fontColor.toString(),
             }
         };
 
@@ -80,24 +88,39 @@ class AltDashboard extends React.Component {
             tutorialComponent = <WelcomeTour ref="welcome" pydio={pydio}/>;
         }
 
-        const leftPanelProps = {
-            style: {backgroundColor: 'transparent'},
-            userWidgetProps: {
-                hideNotifications: false,
-                style: {
-                    backgroundColor: appBarColor.darken(.2).alpha(.7).toString()
-        }
-            }
-        };
         // Not used - to be used for toggling left menu
         const drawerIcon = (
-            <span className="drawer-button" style={{position:'absolute'}}>
+            <span className="drawer-button" style={{position:'absolute', top: 0, left: 0}}>
                 <IconButton
-                    iconStyle={{color: null, display:'none'}}
+                    iconStyle={{color: null}}
                     iconClassName="mdi mdi-menu"
                     onTouchTap={this.openDrawer.bind(this)}/>
             </span>
         );
+        const headerHeight = 72;
+        const leftPanelProps = {
+            style: {backgroundColor: 'transparent'},
+            headerHeight:headerHeight,
+            userWidgetProps: {
+                color: fontColor,
+                mergeButtonInAvatar:true,
+                popoverDirection:'left',
+                actionBarStyle:{
+                    marginTop:0
+                },
+                style:{
+                    height: headerHeight,
+                    display:'flex',
+                    alignItems:'center',
+                    backgroundColor:lightBg.toString(),
+                    boxShadow: 'none'
+                }
+            },
+            workspacesListProps:{
+                style:styles.wsListStyle
+            }
+        };
+
 
         return (
 
@@ -108,34 +131,25 @@ class AltDashboard extends React.Component {
                 leftPanelProps={leftPanelProps}
                 drawerOpen={drawerOpen}
                 onCloseDrawerRequested={() => {
-                    this.setState({drawerOpen: true})
+                    this.setState({drawerOpen: false})
                 }}
             >
-                <Paper zDepth={1} style={{...styles.appBarStyle}} rounded={false}>
-                        <div id="workspace_toolbar" style={{display: "flex", justifyContent: "space-between"}}>
-                            <span style={{flex:1}}></span>
-                            <div style={{textAlign:'center', width: 250}}>
-                                <ConfigLogo
-                                    className="home-top-logo"
-                                    pydio={this.props.pydio}
-                                    pluginName="gui.ajax"
-                                    pluginParameter="CUSTOM_DASH_LOGO"
-                                />
-                            </div>
-                        </div>
-                    </Paper>
-                <div style={{backgroundColor: 'rgba(255,255,255,1)'}} className="vertical_fit user-dashboard-main">
-
-                        <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle}>
-                            <div style={{flex:1, overflowY:'scroll'}} id="history-block">
-                                <ActivityStreamsPanel
-                                    {...this.props}
-                                    emptyStateProps={{style:{backgroundColor:'white'}}}
-                                />
-                            </div>
-                        </HomeSearchForm>
-
+                <Paper zDepth={0} style={{...styles.appBarStyle}} rounded={false}>
+                    {drawerIcon}
+                    <div style={{width: 250}}>
+                        <ConfigLogo
+                            className="home-top-logo"
+                            pydio={this.props.pydio}
+                            pluginName="gui.ajax"
+                            pluginParameter="CUSTOM_DASH_LOGO"
+                        />
                     </div>
+                </Paper>
+                <HomeSearchForm zDepth={0} {...this.props} style={styles.wsListsContainerStyle}>
+                    <div style={{flex:1, overflowY:'scroll', marginTop: 40}} id="history-block">
+                        <SmartRecents {...this.props} style={{maxWidth: 610, width:'100%'}} emptyStateProps={{style:{backgroundColor:'white'}}}/>
+                    </div>
+                </HomeSearchForm>
             </MasterLayout>
 
         );

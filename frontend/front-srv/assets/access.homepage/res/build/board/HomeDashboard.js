@@ -58,9 +58,9 @@ var _HomeSearchForm = require('./HomeSearchForm');
 
 var _HomeSearchForm2 = _interopRequireDefault(_HomeSearchForm);
 
-var _recentActivityStreams = require('../recent/ActivityStreams');
+var _recentSmartRecents = require('../recent/SmartRecents');
 
-var _recentActivityStreams2 = _interopRequireDefault(_recentActivityStreams);
+var _recentSmartRecents2 = _interopRequireDefault(_recentSmartRecents);
 
 var _Pydio$requireLib = _pydio2['default'].requireLib('workspaces');
 
@@ -74,7 +74,7 @@ var AltDashboard = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(AltDashboard.prototype), 'constructor', this).call(this, props);
         this.state = { unreadStatus: 0, drawerOpen: true };
-        //setTimeout(()=>{this.setState({drawerOpen: false})}, 2000);
+        // setTimeout(()=>{this.setState({drawerOpen: false})}, 2000);
     }
 
     _createClass(AltDashboard, [{
@@ -96,12 +96,17 @@ var AltDashboard = (function (_React$Component) {
             var appBarColor = new _materialUi.Color(muiTheme.appBar.color);
             var guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
             var wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
+            var colorHue = (0, _materialUi.Color)(muiTheme.palette.primary1Color).hsl().array()[0];
+            var lightBg = new _materialUi.Color({ h: colorHue, s: 35, l: 98 });
+            var fontColor = (0, _materialUi.Color)(muiTheme.palette.primary1Color).darken(0.1).alpha(0.87);
 
             var styles = {
                 appBarStyle: {
-                    zIndex: 1,
-                    backgroundColor: appBarColor.alpha(.6).toString(),
-                    height: 100
+                    backgroundColor: 'rgba(255, 255, 255, 0.50)',
+                    height: 200,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                 },
                 buttonsStyle: {
                     color: muiTheme.appBar.textColor
@@ -110,14 +115,16 @@ var AltDashboard = (function (_React$Component) {
                     color: appBarColor.darken(0.4).toString()
                 },
                 wsListsContainerStyle: {
-                    position: 'absolute',
-                    zIndex: 10,
-                    top: 108,
-                    bottom: 0,
-                    right: 0,
-                    left: 260,
+                    flex: 1,
                     display: 'flex',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    backgroundColor: 'white',
+                    position: 'relative'
+                },
+                wsListStyle: {
+                    backgroundColor: lightBg.toString(),
+                    color: fontColor.toString()
                 }
             };
 
@@ -128,24 +135,38 @@ var AltDashboard = (function (_React$Component) {
                 tutorialComponent = _react2['default'].createElement(_WelcomeTour2['default'], { ref: 'welcome', pydio: pydio });
             }
 
-            var leftPanelProps = {
-                style: { backgroundColor: 'transparent' },
-                userWidgetProps: {
-                    hideNotifications: false,
-                    style: {
-                        backgroundColor: appBarColor.darken(.2).alpha(.7).toString()
-                    }
-                }
-            };
             // Not used - to be used for toggling left menu
             var drawerIcon = _react2['default'].createElement(
                 'span',
-                { className: 'drawer-button', style: { position: 'absolute' } },
+                { className: 'drawer-button', style: { position: 'absolute', top: 0, left: 0 } },
                 _react2['default'].createElement(_materialUi.IconButton, {
-                    iconStyle: { color: null, display: 'none' },
+                    iconStyle: { color: null },
                     iconClassName: 'mdi mdi-menu',
                     onTouchTap: this.openDrawer.bind(this) })
             );
+            var headerHeight = 72;
+            var leftPanelProps = {
+                style: { backgroundColor: 'transparent' },
+                headerHeight: headerHeight,
+                userWidgetProps: {
+                    color: fontColor,
+                    mergeButtonInAvatar: true,
+                    popoverDirection: 'left',
+                    actionBarStyle: {
+                        marginTop: 0
+                    },
+                    style: {
+                        height: headerHeight,
+                        display: 'flex',
+                        alignItems: 'center',
+                        backgroundColor: lightBg.toString(),
+                        boxShadow: 'none'
+                    }
+                },
+                workspacesListProps: {
+                    style: styles.wsListStyle
+                }
+            };
 
             return _react2['default'].createElement(
                 MasterLayout,
@@ -156,41 +177,31 @@ var AltDashboard = (function (_React$Component) {
                     leftPanelProps: leftPanelProps,
                     drawerOpen: drawerOpen,
                     onCloseDrawerRequested: function () {
-                        _this.setState({ drawerOpen: true });
+                        _this.setState({ drawerOpen: false });
                     }
                 },
                 _react2['default'].createElement(
                     _materialUi.Paper,
-                    { zDepth: 1, style: _extends({}, styles.appBarStyle), rounded: false },
+                    { zDepth: 0, style: _extends({}, styles.appBarStyle), rounded: false },
+                    drawerIcon,
                     _react2['default'].createElement(
                         'div',
-                        { id: 'workspace_toolbar', style: { display: "flex", justifyContent: "space-between" } },
-                        _react2['default'].createElement('span', { style: { flex: 1 } }),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { textAlign: 'center', width: 250 } },
-                            _react2['default'].createElement(_ConfigLogo2['default'], {
-                                className: 'home-top-logo',
-                                pydio: this.props.pydio,
-                                pluginName: 'gui.ajax',
-                                pluginParameter: 'CUSTOM_DASH_LOGO'
-                            })
-                        )
+                        { style: { width: 250 } },
+                        _react2['default'].createElement(_ConfigLogo2['default'], {
+                            className: 'home-top-logo',
+                            pydio: this.props.pydio,
+                            pluginName: 'gui.ajax',
+                            pluginParameter: 'CUSTOM_DASH_LOGO'
+                        })
                     )
                 ),
                 _react2['default'].createElement(
-                    'div',
-                    { style: { backgroundColor: 'rgba(255,255,255,1)' }, className: 'vertical_fit user-dashboard-main' },
+                    _HomeSearchForm2['default'],
+                    _extends({ zDepth: 0 }, this.props, { style: styles.wsListsContainerStyle }),
                     _react2['default'].createElement(
-                        _HomeSearchForm2['default'],
-                        _extends({ zDepth: 0 }, this.props, { style: styles.wsListsContainerStyle }),
-                        _react2['default'].createElement(
-                            'div',
-                            { style: { flex: 1, overflowY: 'scroll' }, id: 'history-block' },
-                            _react2['default'].createElement(_recentActivityStreams2['default'], _extends({}, this.props, {
-                                emptyStateProps: { style: { backgroundColor: 'white' } }
-                            }))
-                        )
+                        'div',
+                        { style: { flex: 1, overflowY: 'scroll', marginTop: 40 }, id: 'history-block' },
+                        _react2['default'].createElement(_recentSmartRecents2['default'], _extends({}, this.props, { style: { maxWidth: 610, width: '100%' }, emptyStateProps: { style: { backgroundColor: 'white' } } }))
                     )
                 )
             );

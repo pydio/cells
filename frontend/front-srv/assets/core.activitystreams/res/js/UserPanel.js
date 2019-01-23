@@ -100,6 +100,7 @@ class UserPanel extends React.Component {
                         iconClassName={this.props.iconClassName || "icon-bell"}
                         tooltip={this.props.pydio.MessageHash['notification_center.4']}
                         className="userActionButton alertsButton"
+                        iconStyle={this.props.iconStyle}
                     />
                 </Badge>
                 <Popover

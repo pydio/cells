@@ -79,8 +79,8 @@ class MainSearch extends Component {
             },
             closedMode: {
                 main: {
-                    background: 'rgba(255,255,255,.1)',
-                    boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px',
+                    backgroundColor:'transparent',
+                    border: '1px solid rgba(255,255,255,.1)',
                     borderRadius: 2
                 },
                 magnifier: {

@@ -91,9 +91,13 @@ class HomeSearchForm extends Component{
         const styles = {
             textFieldContainer: {
                 display:'flex',
-                backgroundColor: white,
-                height: 55,
-                padding: '4px 18px 4px 0'
+                backgroundColor: '#eceff1',
+                height: 50,
+                width:600,
+                padding: '2px 4px 4px 4px',
+                borderRadius: 50,
+                position:'absolute',
+                top: -25
             },
             textField: {flex: 1},
             textInput: {color: 'inherit'},
@@ -128,7 +132,7 @@ class HomeSearchForm extends Component{
                         inputStyle={styles.textInput}
                         hintStyle={styles.textHint}
                         fullWidth={true}
-                        underlineShow={true}
+                        underlineShow={false}
                         hintText={hintText}
                         value={queryString}
                         onChange={(e,v) => this.update(v)}
@@ -146,6 +150,7 @@ class HomeSearchForm extends Component{
                 {!empty &&
                     <PydioComponents.NodeListCustomProvider
                         ref="results"
+                        style={{width:styles.textFieldContainer.width - 20, marginTop: 40}}
                         className={'files-list vertical_fit'}
                         elementHeight={SimpleList.HEIGHT_TWO_LINES}
                         entryRenderIcon={renderIcon}

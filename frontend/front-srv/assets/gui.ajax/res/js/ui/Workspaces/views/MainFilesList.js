@@ -545,6 +545,7 @@ let MainFilesList = React.createClass({
                 actionBarGroups={["change_main"]}
                 infiniteSliceCount={infiniteSliceCount}
                 skipInternalDataModel={true}
+                style={this.props.style}
                 elementsPerLine={elementsPerLine}
                 elementHeight={elementHeight}
                 elementStyle={elementStyle}

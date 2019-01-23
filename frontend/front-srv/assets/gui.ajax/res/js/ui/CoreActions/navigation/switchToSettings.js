@@ -22,7 +22,7 @@ import {pydio} from '../globals'
 
 export default function () {
 
-    if(!pydio.repositoryId || pydio.repositoryId != "settings"){
+    if(!pydio.repositoryId || pydio.repositoryId !== "settings"){
         pydio.triggerRepositoryChange('settings');
     }
 

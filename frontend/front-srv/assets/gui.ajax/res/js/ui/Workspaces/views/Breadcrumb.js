@@ -64,12 +64,16 @@ let Breadcrumb = React.createClass({
         const {node, minFit} = this.state;
         const styles = {
             main: {
-                fontSize: 22,
-                lineHeight:'24px',
-                padding: 20,
+                fontSize: 21,
+                height: 36,
+                lineHeight:'44px',
+                padding: '0 20px',
                 color: muiTheme.appBar.textColor,
+                width: '100%'
+                /*
                 maxWidth: '72%',
                 flex:6
+                */
             }
         };
         if(!pydio.user){

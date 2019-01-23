@@ -86,12 +86,13 @@ export default React.createClass({
     render(){
         let {groups} = this.state;
         let actions = [];
-        const {toolbars, renderingType, groupOtherList, buttonStyle,
+        const {toolbars, renderingType, groupOtherList, buttonStyle,mergeItemsAsOneMenu,
             tooltipPosition, controller, fabAction, toolbarStyle, buttonMenuNoLabel, buttonMenuPopoverDirection, flatButtonStyle} = this.props;
         let allToolbars = [...toolbars];
         if(groupOtherList.length){
             allToolbars = allToolbars.concat(['MORE_ACTION']);
         }
+        let mergedMenuItems = [];
         allToolbars.map(barName => {
             if(!groups.has(barName)) {
                 return;
@@ -131,6 +132,10 @@ export default React.createClass({
                         menuItemsUseMasterAction = () => {masterAction.apply()};
                     }
                 }
+                if (mergeItemsAsOneMenu && menuItems !== undefined) {
+                    mergedMenuItems = [...mergedMenuItems, {subHeader:menuTitle}, ...menuItems, {separator:true}];
+                    return;
+                }
                 let id = 'action-' + action.options.name;
                 if(renderingType === 'button-icon'){
                     menuTitle = <span className="button-icon"><span className={"button-icon-icon " + menuIcon}/><span className="button-icon-label">{menuTitle}</span></span>;
@@ -144,6 +149,7 @@ export default React.createClass({
                                 buttonTitle={menuTitle}
                                 menuItems={menuItems}
                                 masterAction={menuItemsUseMasterAction}
+                                buttonStyle={flatButtonStyle}
                                 buttonLabelStyle={buttonStyle}
                                 direction={buttonMenuPopoverDirection}
                             />);
@@ -154,6 +160,7 @@ export default React.createClass({
                                 className={id}
                                 buttonTitle={buttonMenuNoLabel ? '' : menuTitle}
                                 menuItems={menuItems}
+                                buttonStyle={flatButtonStyle}
                                 buttonLabelStyle={buttonStyle}
                                 direction={buttonMenuPopoverDirection}
                             />);
@@ -169,6 +176,7 @@ export default React.createClass({
                             buttonTitle={menuTitle}
                             menuItems={menuItems}
                             buttonStyle={buttonStyle}
+                            style={flatButtonStyle}
                             popoverDirection={buttonMenuPopoverDirection}
                         />);
                     }
@@ -214,6 +222,7 @@ export default React.createClass({
                             key={actionName}
                             iconClassName={menuIcon + ' ' + id}
                             iconStyle={buttonStyle}
+                            style={flatButtonStyle}
                             onTouchTap={click}
                             tooltip={menuTitle}
                             tooltipPosition={tooltipPosition}
@@ -222,6 +231,25 @@ export default React.createClass({
                 }
             });
         });
+        if(mergeItemsAsOneMenu && mergedMenuItems.length) {
+            // remove last separator
+            mergedMenuItems.pop();
+            const {mergedMenuIcom, mergedMenuTitle} = this.props;
+            actions.push(<IconButtonMenu
+                key={toolbars.join('-')}
+                className={'toolbar-' + toolbars.join('-')}
+                onMenuClicked={function (object) {
+                    object.payload()
+                }}
+                buttonClassName={mergedMenuIcom}
+                buttonTitle={mergedMenuTitle}
+                menuItems={mergedMenuItems}
+                buttonStyle={buttonStyle}
+                style={flatButtonStyle}
+                popoverDirection={buttonMenuPopoverDirection}
+            />);
+        }
+
         let cName = this.props.className ? this.props.className : '';
         cName += ' ' + 'toolbar';
         if(!actions.length){

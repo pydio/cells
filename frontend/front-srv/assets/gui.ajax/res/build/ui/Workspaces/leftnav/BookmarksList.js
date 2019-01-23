@@ -129,6 +129,7 @@ var BookmarksList = (function (_React$Component) {
         var _props = this.props;
         var pydio = _props.pydio;
         var muiTheme = _props.muiTheme;
+        var iconStyle = _props.iconStyle;
         var _state = this.state;
         var loading = _state.loading;
         var open = _state.open;
@@ -167,7 +168,8 @@ var BookmarksList = (function (_React$Component) {
                 onTouchTap: this.handleTouchTap.bind(this),
                 iconClassName: "userActionIcon mdi mdi-bookmark-check",
                 tooltip: pydio.MessageHash['147'],
-                className: 'userActionButton'
+                className: 'userActionButton',
+                iconStyle: iconStyle
             }),
             _react2['default'].createElement(
                 _materialUi.Popover,

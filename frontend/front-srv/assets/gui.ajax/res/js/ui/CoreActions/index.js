@@ -31,7 +31,8 @@ const Navigation = {
     refresh: require('./navigation/refresh'),
     externalSelection: require('./navigation/externalSelection'),
     openGoPro: require('./navigation/openGoPro'),
-    switchToSettings: require('./navigation/switchToSettings')
+    switchToSettings: require('./navigation/switchToSettings'),
+    switchToHomepage: require('./navigation/switchToHomepage'),
 };
 
 import SplashDialog from './dialog/SplashDialog'

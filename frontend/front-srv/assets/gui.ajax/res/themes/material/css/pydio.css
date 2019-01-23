@@ -1241,7 +1241,6 @@ div#multiple_download_container div div a:hover {
   z-index: 1002;
 }
 .user-widget .user-display {
-  color: white;
   padding: 0 2px 0 10px;
   font-size: 22px;
   display: -ms-flexbox;
@@ -1268,13 +1267,10 @@ div#multiple_download_container div div a:hover {
 }
 .user-widget .action_bar button.userActionButton span.userActionIcon {
   font-size: 18px !important;
-  color: rgba(255, 255, 255, 0.93) !important;
 }
 .react-mui-context .top_search_form {
-  margin-right: 10px;
-  margin-top: 10px;
-  width: 186px;
-  height: 42px;
+  width: 150px;
+  height: 46px;
   z-index: 10;
   overflow: hidden;
   background-color: transparent;
@@ -2614,6 +2610,22 @@ body,
 }
 @media only screen and (max-width: 420px) {
   .react-mui-context .info-panel-open .material-list.main-files-list {
+    margin-right: 0;
+  }
+}
+.react-mui-context .info-panel-open.info-panel-open-large #info_panel {
+  right: 0;
+}
+@media only screen and (max-width: 420px) {
+  .react-mui-context .info-panel-open.info-panel-open-large #info_panel {
+    right: -310px;
+  }
+}
+.react-mui-context .info-panel-open.info-panel-open-large .material-list.main-files-list {
+  margin-right: 310px;
+}
+@media only screen and (max-width: 420px) {
+  .react-mui-context .info-panel-open.info-panel-open-large .material-list.main-files-list {
     margin-right: 0;
   }
 }

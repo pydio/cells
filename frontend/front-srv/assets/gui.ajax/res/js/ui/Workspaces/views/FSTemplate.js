@@ -20,7 +20,6 @@
 
 import React from 'react';
 import Pydio from 'pydio';
-import ReactDOM from 'react-dom'
 import MessagesProviderMixin from '../MessagesProviderMixin'
 import Breadcrumb from './Breadcrumb'
 import {SearchForm} from '../search'
@@ -33,6 +32,7 @@ import {IconButton, Paper} from 'material-ui'
 import AddressBookPanel from './AddressBookPanel'
 import MasterLayout from './MasterLayout'
 import {muiThemeable} from 'material-ui/styles'
+import DOMUtils from 'pydio/util/dom'
 const {ButtonMenu, Toolbar, ListPaginator} = Pydio.requireLib('components');
 
 let FSTemplate = React.createClass({
@@ -107,43 +107,69 @@ let FSTemplate = React.createClass({
 
         const mobile = this.props.pydio.UI.MOBILE_EXTENSIONS;
         const Color = MaterialUI.Color;
-        const appBarColor = Color(this.props.muiTheme.appBar.color);
         const appBarTextColor = Color(this.props.muiTheme.appBar.textColor);
+
+        const headerHeight = 72;
+        const buttonsHeight = 23;
+        const buttonsFont = 11;
 
         let styles = {
             appBarStyle : {
                 zIndex: 1,
                 backgroundColor: this.props.muiTheme.appBar.color,
-                height: 100,
+                height: headerHeight,
+                display:'flex'
             },
             buttonsStyle : {
-                width: 42,
-                height: 42,
-                borderBottom: 0,
-                color: appBarTextColor.fade(0.03).toString()
+                width: 40,
+                height: 40,
+                padding: 10,
+                borderRadius: '50%',
+                color: appBarTextColor.fade(0.03).toString(),
+                transition: DOMUtils.getBeziersTransition()
             },
             buttonsIconStyle :{
                 fontSize: 18,
                 color: appBarTextColor.fade(0.03).toString()
             },
             activeButtonStyle: {
-                borderBottom: '2px solid rgba(255,255,255,0.97)'
+                backgroundColor: appBarTextColor.fade(0.9).toString()
             },
             activeButtonIconStyle: {
                 color: 'rgba(255,255,255,0.97)'
             },
             raisedButtonStyle : {
-                height: 30,
+                height: buttonsHeight,
                 minWidth: 0
             },
             raisedButtonLabelStyle : {
-                height: 30,
-                lineHeight: '30px'
+                height: buttonsHeight,
+                paddingLeft: 12,
+                paddingRight: 8,
+                lineHeight: buttonsHeight + 'px',
+                fontSize: buttonsFont
+            },
+            flatButtonStyle : {
+                height: buttonsHeight,
+                lineHeight: buttonsHeight + 'px',
+                minWidth: 0
+            },
+            flatButtonLabelStyle : {
+                height: buttonsHeight,
+                fontSize: buttonsFont,
+                paddingLeft: 8,
+                paddingRight: 8,
+                color: appBarTextColor.fade(0.03).toString()
             },
             infoPanelStyle : {
-                //backgroundColor: appBarColor.lightness(95).rgb().toString()
-                backgroundColor: '#fafafa',
-                borderLeft: '1px solid #e0e0e0'
+                backgroundColor: 'transparent',
+                top: headerHeight
+            },
+            otherPanelsStyle: {
+                top: headerHeight,
+                borderLeft: 0,
+                margin: 10,
+                width: 290
             }
         };
 
@@ -154,9 +180,14 @@ let FSTemplate = React.createClass({
         const {infoPanelOpen, drawerOpen, infoPanelToggle} = this.state;
         let {rightColumnState} = this.state;
 
+        let rightColumnWidth;
+
         let classes = ['vertical_layout', 'vertical_fit', 'react-fs-template'];
         if(infoPanelOpen && infoPanelToggle) {
             classes.push('info-panel-open');
+            if(rightColumnState !== 'info-panel'){
+                classes.push('info-panel-open-large');
+            }
         }
 
         let mainToolbars = ["info_panel", "info_panel_share"];
@@ -194,6 +225,27 @@ let FSTemplate = React.createClass({
             tutorialComponent = <WelcomeTour ref="welcome" pydio={this.props.pydio}/>;
         }
 
+        const searchForm = (
+            <div style={{position:'relative', width: 150}}>
+                <SearchForm {...props}/>
+            </div>
+        );
+        const leftPanelProps = {
+            headerHeight:headerHeight,
+            userWidgetProps: {
+                color:'rgba(255,255,255,.93)',
+                mergeButtonInAvatar:true,
+                popoverDirection:'left',
+                actionBarStyle:{
+                    marginTop:0
+                },
+                style:{
+                    height: headerHeight,
+                    display:'flex',
+                    alignItems:'center'
+                }
+            }
+        };
         return (
             <MasterLayout
                 pydio={pydio}
@@ -201,53 +253,62 @@ let FSTemplate = React.createClass({
                 classes={classes}
                 tutorialComponent={tutorialComponent}
                 drawerOpen={drawerOpen}
+                leftPanelProps={leftPanelProps}
                 onCloseDrawerRequested={()=>{this.setState({drawerOpen:false})}}
             >
                     <Paper zDepth={1} style={styles.appBarStyle} rounded={false}>
-                        <div id="workspace_toolbar" style={{display: 'flex', height: 58}}>
+                        <div id="workspace_toolbar" style={{flex:1, width:'calc(100% - 430px)'}}>
                             <span className="drawer-button"><IconButton iconStyle={{color: 'white'}} iconClassName="mdi mdi-menu" onTouchTap={this.openDrawer}/></span>
                             <Breadcrumb {...props} startWithSeparator={false}/>
-                            <span style={{flex:1}}/>
-                            <SearchForm {...props}/>
-                        </div>
-                        <div id="main_toolbar">
-                            <ButtonMenu
-                                {...props}
-                                buttonStyle={styles.raisedButtonStyle}
-                                buttonLabelStyle={styles.raisedButtonLabelStyle}
-                                id="create-button-menu"
-                                toolbars={["upload", "create"]}
-                                buttonTitle={this.props.pydio.MessageHash['198']}
-                                raised={true}
-                                secondary={true}
-                                controller={props.pydio.Controller}
-                                openOnEvent={'tutorial-open-create-menu'}
-                            />
-                            {!mobile &&
+                            <div style={{height:32, paddingLeft: 20, alignItems:'center', display:'flex'}}>
+                                <ButtonMenu
+                                    {...props}
+                                    buttonStyle={styles.flatButtonStyle}
+                                    buttonLabelStyle={styles.flatButtonLabelStyle}
+                                    buttonBackgroundColor={'rgba(255,255,255,0.17)'}
+                                    buttonHoverColor={'rgba(255,255,255,0.33)'}
+                                    id="create-button-menu"
+                                    toolbars={["upload", "create"]}
+                                    buttonTitle={this.props.pydio.MessageHash['198']}
+                                    raised={false}
+                                    secondary={true}
+                                    controller={props.pydio.Controller}
+                                    openOnEvent={'tutorial-open-create-menu'}
+                                />
+                                {!mobile &&
                                 <Toolbar
                                     {...props}
                                     id="main-toolbar"
                                     toolbars={mainToolbars}
                                     groupOtherList={mainToolbarsOthers}
                                     renderingType="button"
-                                    buttonStyle={styles.buttonsStyle}
+                                    flatButtonStyle={styles.flatButtonStyle}
+                                    buttonStyle={styles.flatButtonLabelStyle}
                                 />
-                            }
-                            {mobile && <span style={{flex:1}}></span>}
-                            <ListPaginator
-                                id="paginator-toolbar"
-                                dataModel={props.pydio.getContextHolder()}
-                                toolbarDisplay={true}
-                            />
+                                }
+                                {mobile && <span style={{flex:1}}></span>}
+                                <ListPaginator
+                                    id="paginator-toolbar"
+                                    dataModel={props.pydio.getContextHolder()}
+                                    toolbarDisplay={true}
+                                />
+                            </div>
+                        </div>
+                        <div style={{display:'flex', alignItems:'center'}}>
                             <Toolbar
                                 {...props}
                                 id="display-toolbar"
                                 toolbars={["display_toolbar"]}
                                 renderingType="icon-font"
+                                mergeItemsAsOneMenu={true}
+                                mergedMenuIcom={"mdi mdi-settings"}
+                                mergedMenuTitle={"Display Settings"}
                                 buttonStyle={styles.buttonsIconStyle}
+                                flatButtonStyle={styles.buttonsStyle}
                             />
-                            <div style={{borderLeft:'1px solid ' + appBarTextColor.fade(0.77).toString(), margin:10, marginBottom: 4}}/>
-                            <div style={{marginTop:-3, display:'flex'}}>
+                            {searchForm}
+                            <div style={{borderLeft:'1px solid ' + appBarTextColor.fade(0.77).toString(), margin:'0 10px', height: 32}}/>
+                            <div style={{display:'flex', paddingRight: 10}}>
                                 <IconButton
                                     iconClassName={"mdi mdi-information"}
                                     style={rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle}
@@ -284,7 +345,7 @@ let FSTemplate = React.createClass({
                             </div>
                         </div>
                     </Paper>
-                    <MainFilesList ref="list" pydio={this.props.pydio}/>
+                    <MainFilesList ref="list" pydio={this.props.pydio} style={rightColumnWidth ? {marginRight:rightColumnWidth}: {}}/>
                 {rightColumnState === 'info-panel' &&
                     <InfoPanel
                         {...props}
@@ -294,11 +355,11 @@ let FSTemplate = React.createClass({
                     />
                 }
                 {rightColumnState === 'chat' &&
-                    <CellChat pydio={pydio}/>
+                    <CellChat pydio={pydio} style={styles.otherPanelsStyle} zDepth={1}/>
                 }
 
                 {rightColumnState === 'address-book' &&
-                    <AddressBookPanel pydio={pydio}/>
+                    <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={1}/>
                 }
 
                 <EditionPanel {...props}/>

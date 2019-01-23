@@ -1,5 +1,6 @@
 import React from 'react'
 import Pydio from 'pydio'
+import {Paper} from 'material-ui'
 const {Chat} = Pydio.requireLib('components');
 
 class CellChat extends React.Component{
@@ -27,11 +28,11 @@ class CellChat extends React.Component{
     }
 
     render(){
-        const {pydio, style} = this.props;
+        const {pydio, style, zDepth} = this.props;
         const {cellModel, cellId} = this.state;
         let chatRoomType = 'WORKSPACE';
         return (
-            <div id="info_panel" style={{display:'flex', flexDirection:'column', borderLeft: '1px solid #e0e0e0', ...style}}>
+            <Paper id="info_panel" zDepth={zDepth} rounded={false} style={{display:'flex', flexDirection:'column', ...style}}>
                 <Chat
                     pydio={pydio}
                     roomType={chatRoomType}
@@ -47,7 +48,7 @@ class CellChat extends React.Component{
                     }}
                     computePresenceFromACLs={cellModel?cellModel.getAcls():{}}
                 />
-            </div>
+            </Paper>
         );
     }
 

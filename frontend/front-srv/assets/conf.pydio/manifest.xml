@@ -63,6 +63,18 @@
                     <clientCallback module="PydioCoreActions.Navigation.switchToSettings"/>
                 </processing>
             </action>
+            <action name="switch_to_homepage">
+                <gui text="305" title="305" hasAccessKey="false" iconClass="mdi mdi-home" >
+                    <context dir="false" recycle="true" selection="false" actionBar="true" actionBarGroup="aUser"/>
+                </gui>
+                <rightsContext adminOnly="true" noUser="true" read="false" userLogged="only" write="false"/>
+                <processing>
+                    <activeCondition><![CDATA[
+                        return (pydio && pydio.user && pydio.user.getRepositoriesList().has('homepage'));
+                    ]]> </activeCondition>
+                    <clientCallback module="PydioCoreActions.Navigation.switchToHomepage"/>
+                </processing>
+            </action>
         </actions>
 	</registry_contributions>
 </plugin>

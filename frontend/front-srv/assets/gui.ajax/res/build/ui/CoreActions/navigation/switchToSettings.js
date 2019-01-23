@@ -26,7 +26,7 @@ var _globals = require('../globals');
 
 exports['default'] = function () {
 
-    if (!_globals.pydio.repositoryId || _globals.pydio.repositoryId != "settings") {
+    if (!_globals.pydio.repositoryId || _globals.pydio.repositoryId !== "settings") {
         _globals.pydio.triggerRepositoryChange('settings');
     }
 };

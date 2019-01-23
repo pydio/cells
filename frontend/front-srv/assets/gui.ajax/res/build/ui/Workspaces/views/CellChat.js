@@ -18,6 +18,8 @@ var _pydio = require('pydio');
 
 var _pydio2 = _interopRequireDefault(_pydio);
 
+var _materialUi = require('material-ui');
+
 var _Pydio$requireLib = _pydio2['default'].requireLib('components');
 
 var Chat = _Pydio$requireLib.Chat;
@@ -55,14 +57,15 @@ var CellChat = (function (_React$Component) {
         var _props = this.props;
         var pydio = _props.pydio;
         var style = _props.style;
+        var zDepth = _props.zDepth;
         var _state = this.state;
         var cellModel = _state.cellModel;
         var cellId = _state.cellId;
 
         var chatRoomType = 'WORKSPACE';
         return _react2['default'].createElement(
-            'div',
-            { id: 'info_panel', style: _extends({ display: 'flex', flexDirection: 'column', borderLeft: '1px solid #e0e0e0' }, style) },
+            _materialUi.Paper,
+            { id: 'info_panel', zDepth: zDepth, rounded: false, style: _extends({ display: 'flex', flexDirection: 'column' }, style) },
             _react2['default'].createElement(Chat, {
                 pydio: pydio,
                 roomType: chatRoomType,

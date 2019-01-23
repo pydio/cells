@@ -227,7 +227,7 @@
                 <gui text="166" title="167" iconClass="mdi mdi-information-outline" hasAccessKey="true"
                      accessKey="about_access_key">
                     <context selection="false" dir="" recycle="false"
-                             actionBar="false" contextMenu="false" infoPanel="false">
+                             actionBar="true" actionBarGroup="zlogin" contextMenu="false" infoPanel="false">
                     </context>
                 </gui>
                 <processing>
