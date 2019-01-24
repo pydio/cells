@@ -159,8 +159,9 @@ export default class MetaNodeProvider{
      * @param nodeCallback Function On node loaded
      * @param aSync bool
      * @param additionalParameters object
+     * @param errorCallback Function
      */
-    loadLeafNodeSync (node, nodeCallback, aSync=false, additionalParameters={}){
+    loadLeafNodeSync (node, nodeCallback, aSync=false, additionalParameters={}, errorCallback=()=>{}){
 
         const api = new MetaServiceApi(PydioApi.getRestClient());
         let request = new RestGetBulkMetaRequest();
@@ -185,12 +186,26 @@ export default class MetaNodeProvider{
         api.getBulkMeta(request).then(res => {
             if(res.Nodes && res.Nodes.length){
                 nodeCallback(MetaNodeProvider.parseTreeNode(res.Nodes[0], slug));
+            } else if(errorCallback) {
+                errorCallback();
+            }
+        }).catch(e => {
+            if(errorCallback){
+                errorCallback(e);
+            }else{
+                throw e;
             }
         });
 
     }
 
-    refreshNodeAndReplace (node, onComplete){
+    /**
+     *
+     * @param node {AjxpNode}
+     * @param onComplete Function
+     * @param onError Function
+     */
+    refreshNodeAndReplace (node, onComplete, onError = ()=>{}){
 
         const nodeCallback = (newNode) => {
             node.replaceBy(newNode, "override");
@@ -198,7 +213,7 @@ export default class MetaNodeProvider{
                 onComplete(node);
             }
         };
-        this.loadLeafNodeSync(node, nodeCallback);
+        this.loadLeafNodeSync(node, nodeCallback, false, {}, onError);
 
     }
 

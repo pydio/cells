@@ -7377,7 +7377,7 @@ var AltDashboard = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(AltDashboard.prototype), 'constructor', this).call(this, props);
         this.state = { unreadStatus: 0, drawerOpen: true };
-        setTimeout(function () {
+        this.closeTimeout = setTimeout(function () {
             _this.setState({ drawerOpen: false });
         }, 3000);
     }
@@ -7386,7 +7386,15 @@ var AltDashboard = (function (_React$Component) {
         key: 'openDrawer',
         value: function openDrawer(event) {
             event.stopPropagation();
+            this.clearCloseTimeout();
             this.setState({ drawerOpen: true });
+        }
+    }, {
+        key: 'clearCloseTimeout',
+        value: function clearCloseTimeout() {
+            if (this.closeTimeout) {
+                clearTimeout(this.closeTimeout);
+            }
         }
     }, {
         key: 'render',
@@ -7453,6 +7461,9 @@ var AltDashboard = (function (_React$Component) {
             var leftPanelProps = {
                 style: { backgroundColor: 'transparent' },
                 headerHeight: headerHeight,
+                onClick: function onClick() {
+                    _this2.clearCloseTimeout();
+                },
                 userWidgetProps: {
                     color: fontColor,
                     mergeButtonInAvatar: true,
@@ -7684,7 +7695,8 @@ var HomeSearchForm = (function (_Component) {
                     display: 'flex',
                     backgroundColor: '#eceff1',
                     height: 50,
-                    width: 600,
+                    width: '96%',
+                    maxWidth: 600,
                     padding: '2px 4px 4px 4px',
                     borderRadius: 50,
                     position: 'absolute',
@@ -8658,10 +8670,12 @@ var Loader = (function () {
         value: function load() {
             var allLoaders = [this.loadActivities(), this.loadBookmarks(), this.workspacesAsNodes()];
             return Promise.all(allLoaders).then(function (results) {
-                console.log(results);
                 var allNodes = [];
                 results.map(function (nodes) {
-                    allNodes = [].concat(_toConsumableArray(allNodes), _toConsumableArray(nodes.slice(0, 6)));
+                    // Filter empty nodes
+                    allNodes = [].concat(_toConsumableArray(allNodes), _toConsumableArray(nodes.filter(function (n) {
+                        return !!n;
+                    })));
                 });
                 return allNodes;
             });
@@ -8675,6 +8689,10 @@ var Loader = (function () {
             return new Promise(function (resolve) {
                 api.userBookmarks(new _pydioHttpRestApi.RestUserBookmarksRequest()).then(function (collection) {
                     var nodes = [];
+                    if (!collection.Nodes) {
+                        resolve([]);
+                        return;
+                    }
                     collection.Nodes.forEach(function (n) {
                         if (!n.AppearsIn) {
                             return;
@@ -8690,11 +8708,15 @@ var Loader = (function () {
                                 freshNode.getMetadata().set('card_legend', 'Bookmarked');
                                 freshNode.getMetadata().set('repository_id', n.AppearsIn[0].WsUuid);
                                 resolve1(freshNode);
+                            }, function () {
+                                resolve1(null);
                             });
                         }));
                     });
                     Promise.all(nodes).then(function (nodes) {
                         resolve(nodes);
+                    })['catch'](function (e) {
+                        resolve([]);
                     });
                 });
             });
@@ -8719,16 +8741,24 @@ var Loader = (function () {
                         if (n) {
                             nodes.push(new Promise(function (resolve1) {
                                 var wsId = n.getMetadata().get('repository_id');
+                                var wsLabel = n.getMetadata().get('repository_label');
                                 _this2.metaProvider.refreshNodeAndReplace(n, function (freshNode) {
                                     freshNode.getMetadata().set('repository_id', wsId);
+                                    if (freshNode.getPath() === '' || freshNode.getPath() === '/') {
+                                        freshNode.setLabel(wsLabel);
+                                    }
                                     freshNode.getMetadata().set('card_legend', mom.fromNow());
                                     resolve1(freshNode);
+                                }, function () {
+                                    resolve1(null);
                                 });
                             }));
                         }
                     });
                     Promise.all(nodes).then(function (nodes) {
                         resolve(nodes);
+                    })['catch'](function (e) {
+                        resolve([]);
                     });
                 }, 'USER_ID', _this2.pydio.user.id, 'outbox', 'ACTOR', 0, 30);
             });
@@ -8736,6 +8766,8 @@ var Loader = (function () {
     }, {
         key: 'workspacesAsNodes',
         value: function workspacesAsNodes() {
+            var _this3 = this;
+
             var ws = [];
             this.pydio.user.getRepositoriesList().forEach(function (repoObject) {
                 if (repoObject.getId() === 'homepage' || repoObject.getId() === 'settings') {
@@ -8750,12 +8782,26 @@ var Loader = (function () {
                     fontIcon = 'icomoon-cells';
                     legend = 'Cell';
                 }
-                node.getMetadata().set("repository_id", repoObject.getId());
-                node.getMetadata().set("card_legend", legend);
-                node.getMetadata().set("fonticon", fontIcon);
-                ws.push(node);
+                ws.push(new Promise(function (resolve) {
+                    node.getMetadata().set("repository_id", repoObject.getId());
+                    _this3.metaProvider.refreshNodeAndReplace(node, function (freshNode) {
+                        freshNode.setLabel(repoObject.getLabel());
+                        freshNode.getMetadata().set("repository_id", repoObject.getId());
+                        freshNode.getMetadata().set("card_legend", legend);
+                        freshNode.getMetadata().set("fonticon", fontIcon);
+                        resolve(freshNode);
+                    }, function () {
+                        resolve(null);
+                    });
+                }));
             });
-            return Promise.resolve(ws);
+            return new Promise(function (resolve) {
+                Promise.all(ws).then(function (res) {
+                    resolve(res);
+                })['catch'](function (e) {
+                    resolve([]);
+                });
+            });
         }
     }, {
         key: 'nodeFromActivityObject',
@@ -8861,27 +8907,11 @@ var SmartRecents = (function (_React$Component2) {
     _createClass(SmartRecents, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            var _this3 = this;
-
-            this.loader.load().then(function (nodes) {
-                _this3.setState({ nodes: nodes });
-            });
-        }
-    }, {
-        key: 'workspacesAsCards',
-        value: function workspacesAsCards() {
             var _this4 = this;
 
-            var ws = [];
-            this.pydio.user.getRepositoriesList().forEach(function (repoObject) {
-                ws.push(_react2['default'].createElement(RecentCard, {
-                    key: repoObject.getId(),
-                    pydio: _this4.props.pydio,
-                    title: repoObject.getLabel(),
-                    legend: repoObject.getOwner() ? "Cell" : "Workspace"
-                }));
+            this.loader.load().then(function (nodes) {
+                _this4.setState({ nodes: nodes });
             });
-            return ws;
         }
     }, {
         key: 'render',
@@ -8894,15 +8924,22 @@ var SmartRecents = (function (_React$Component2) {
             if (!pydio.user || pydio.user.lock) {
                 return _react2['default'].createElement('div', null);
             }
-            var cards = nodes.map(function (node) {
-                return _react2['default'].createElement(RecentCard, {
-                    key: node.getMetadata().get("uuid"),
+            var keys = {};
+            var cards = [];
+            nodes.forEach(function (node) {
+                var k = node.getMetadata().get("uuid");
+                if (keys[k] || cards.length >= 8) {
+                    return;
+                }
+                keys[k] = k;
+                cards.push(_react2['default'].createElement(RecentCard, {
+                    key: k,
                     pydio: pydio,
                     node: node,
                     title: node.getLabel(),
                     legend: node.getMetadata().get('card_legend')
-                });
-            }).slice(0, 9);
+                }));
+            });
 
             return _react2['default'].createElement(
                 'div',

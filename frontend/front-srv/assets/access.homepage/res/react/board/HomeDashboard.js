@@ -32,12 +32,19 @@ class AltDashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {unreadStatus: 0, drawerOpen: true};
-        setTimeout(()=>{this.setState({drawerOpen: false})}, 3000);
+        this.closeTimeout = setTimeout(()=>{this.setState({drawerOpen: false})}, 3000);
     }
 
     openDrawer(event) {
         event.stopPropagation();
+        this.clearCloseTimeout();
         this.setState({drawerOpen: true});
+    }
+
+    clearCloseTimeout(){
+        if(this.closeTimeout) {
+            clearTimeout(this.closeTimeout);
+        }
     }
 
     render() {
@@ -101,6 +108,7 @@ class AltDashboard extends React.Component {
         const leftPanelProps = {
             style: {backgroundColor: 'transparent'},
             headerHeight:headerHeight,
+            onClick:()=>{this.clearCloseTimeout()},
             userWidgetProps: {
                 color: fontColor,
                 mergeButtonInAvatar:true,

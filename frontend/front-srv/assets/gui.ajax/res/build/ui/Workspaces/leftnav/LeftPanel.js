@@ -52,6 +52,7 @@ var LeftPanel = function LeftPanel(_ref) {
     var userWidgetProps = _ref.userWidgetProps;
     var workspacesListProps = _ref.workspacesListProps;
     var pydio = _ref.pydio;
+    var onClick = _ref.onClick;
 
     var palette = muiTheme.palette;
     var Color = require('color');
@@ -81,9 +82,11 @@ var LeftPanel = function LeftPanel(_ref) {
 
     return React.createElement(
         'div',
-        { className: 'left-panel vertical_fit vertical_layout', style: style },
+        { className: 'left-panel vertical_fit vertical_layout', style: style, onClick: onClick },
         React.createElement(_UserWidget2['default'], _extends({
-            pydio: pydio
+            pydio: pydio,
+            controller: pydio.getController(),
+            toolbars: ["aUser", "user", "zlogin"]
         }, uWidgetProps)),
         React.createElement(_wslistWorkspacesList2['default'], _extends({
             className: "vertical_fit",

@@ -16868,8 +16868,7 @@ var AdminDashboard = _react2['default'].createClass({
         if (rightPanel) {
             rPanelContent = _react2['default'].createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        var homeIconButton = undefined,
-            searchIconButton = undefined,
+        var searchIconButton = undefined,
             leftIconButton = undefined,
             toggleAdvancedButton = undefined,
             aboutButton = undefined;
@@ -16893,19 +16892,6 @@ var AdminDashboard = _react2['default'].createClass({
             { style: { margin: '0 12px' } },
             _react2['default'].createElement(_materialUi.IconButton, { iconClassName: leftIcon, onTouchTap: leftIconClick, iconStyle: styles.appBarLeftIcon })
         );
-
-        // HOME BUTTON
-        if (pydio.user && pydio.user.getRepositoriesList().has('homepage')) {
-            homeIconButton = _react2['default'].createElement(_materialUi.IconButton, {
-                tooltip: pydio.MessageHash['ajxp_admin.home.68'],
-                iconClassName: "mdi mdi-folder-open",
-                onTouchTap: function () {
-                    pydio.triggerRepositoryChange('homepage');
-                },
-                style: styles.appBarButton,
-                iconStyle: styles.appBarButtonIcon
-            });
-        }
 
         // SEARCH BUTTON
         if (searchComponent) {
@@ -16958,14 +16944,14 @@ var AdminDashboard = _react2['default'].createClass({
                 ),
                 searchIconButton,
                 toggleAdvancedButton,
-                homeIconButton,
                 aboutButton,
                 _react2['default'].createElement(UserWidget, {
                     pydio: pydio,
                     style: styles.userWidget,
                     hideActionBar: true,
                     displayLabel: false,
-                    mergeButtonInAvatar: true
+                    toolbars: ["aUser", "user", "zlogin"],
+                    controller: pydio.getController()
                 })
             ),
             _react2['default'].createElement(

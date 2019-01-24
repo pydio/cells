@@ -19,20 +19,39 @@
  */
 
 const React = require('react');
-const {AsyncComponent} = require('pydio/http/resources-manager').requireLib('boot')
-const {UserAvatar, IconButtonMenu, Toolbar} = require('pydio/http/resources-manager').requireLib('components')
-const {IconButton, Paper} = require('material-ui');
+import Pydio from 'pydio'
+const {AsyncComponent} = Pydio.requireLib('boot');
+const {UserAvatar, MenuItemsConsumer, MenuUtils, Toolbar} = Pydio.requireLib('components');
+const {Paper, Popover} = require('material-ui');
 import BookmarksList from './BookmarksList'
 
-export default React.createClass({
+class UserWidget extends React.Component {
 
-    propTypes:{
-        pydio: React.PropTypes.instanceOf(Pydio),
-        style: React.PropTypes.object,
-        avatarStyle: React.PropTypes.object,
-        actionBarStyle: React.PropTypes.object,
-        avatarOnly: React.PropTypes.bool,
-    },
+    constructor(props){
+        super(props);
+        this.state = {showMenu: false};
+    }
+
+    static getPropTypes() {
+        return {
+            pydio: React.PropTypes.instanceOf(Pydio),
+            style: React.PropTypes.object,
+            avatarStyle: React.PropTypes.object,
+            actionBarStyle: React.PropTypes.object,
+            avatarOnly: React.PropTypes.bool,
+        }
+    }
+
+    showMenu(event){
+        this.setState({
+            showMenu: true,
+            anchor: event.currentTarget
+        })
+    }
+
+    closeMenu(event, index, menuItem){
+        this.setState({showMenu: false});
+    }
 
     applyAction(actionName){
         switch (actionName){
@@ -48,49 +67,49 @@ export default React.createClass({
             default:
                 break;
         }
-    },
+    }
 
     render() {
 
-        const messages = this.props.pydio.MessageHash;
-
         let avatar;
         let notificationsButton, currentIsSettings, bookmarksButton;
-        let {pydio, displayLabel, mergeButtonInAvatar, avatarStyle, popoverDirection, color} = this.props;
+        let {pydio, displayLabel, avatarStyle, popoverDirection, popoverTargetPosition, color, menuItems} = this.props;
+        const {showMenu, anchor} = this.state;
         if(pydio.user){
             const user = this.props.pydio.user;
             currentIsSettings = user.activeRepository === 'settings';
-            let buttonStyle = {color: color};
-            let avatarSize;
-            if(mergeButtonInAvatar){
-                avatarStyle = {...avatarStyle, position:'relative'};
-                buttonStyle = {...buttonStyle, opacity: 0};
-                avatarSize = 30
-            }
+            avatarStyle = {...avatarStyle, position:'relative'};
+            const menuProps = {
+                display:'right',
+                width:160,
+                desktop:true,
+            };
             avatar = (
-                <UserAvatar
-                    pydio={pydio}
-                    userId={user.id}
-                    style={avatarStyle}
-                    className="user-display"
-                    labelClassName="userLabel"
-                    displayLabel={displayLabel}
-                    labelStyle={{flex: 1, marginLeft: 5, color: color}}
-                    avatarSize={avatarSize}
-                >
-                    <IconButtonMenu
+                <div onClick={(e)=>{this.showMenu(e)}} style={{cursor:'pointer', maxWidth:200}}>
+                    <UserAvatar
                         pydio={pydio}
-                        buttonClassName={'mdi mdi-dots-vertical'}
-                        containerStyle={mergeButtonInAvatar?{position:'absolute', left: 4}:{}}
-                        buttonStyle={buttonStyle}
-                        buttonTitle={messages['165']}
-                        toolbars={["aUser", "user", "zlogin"]}
-                        controller={this.props.pydio.Controller}
-                        popoverDirection={ popoverDirection ? popoverDirection : (mergeButtonInAvatar ? "right" : "left" )}
-                        popoverTargetPosition={"bottom"}
-                        menuProps={{display:'right', width:160, desktop:true}}
+                        userId={user.id}
+                        style={avatarStyle}
+                        className="user-display"
+                        labelClassName="userLabel"
+                        displayLabel={displayLabel}
+                        displayLabelChevron={true}
+                        labelStyle={{flex: 1, marginLeft: 5, color: color}}
+                        avatarSize={30}
                     />
-                </UserAvatar>
+                    <Popover
+                        zDepth={2}
+                        open={showMenu}
+                        anchorEl={anchor}
+                        anchorOrigin={{horizontal: popoverDirection || 'right', vertical: popoverTargetPosition || 'bottom'}}
+                        targetOrigin={{horizontal: popoverDirection || 'right', vertical: 'top'}}
+                        onRequestClose={() => {this.closeMenu()}}
+                        useLayerForClickAway={false}
+                        style={{marginTop:-10, marginLeft:10}}
+                    >
+                        {MenuUtils.itemsToMenu(menuItems, this.closeMenu.bind(this), false, menuProps)}
+                    </Popover>
+                </div>
             );
 
             if(!this.props.hideNotifications){
@@ -151,4 +170,8 @@ export default React.createClass({
             );
         }
     }
-});
+}
+
+UserWidget = MenuItemsConsumer(UserWidget);
+
+export {UserWidget as default}

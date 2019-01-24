@@ -26744,7 +26744,7 @@
           },
           {
             "name": "loadLeafNodeSync",
-            "docblock": "Load a node\n@param node {AjxpNode}\n@param nodeCallback Function On node loaded\n@param aSync bool\n@param additionalParameters object",
+            "docblock": "Load a node\n@param node {AjxpNode}\n@param nodeCallback Function On node loaded\n@param aSync bool\n@param additionalParameters object\n@param errorCallback Function",
             "modifiers": [],
             "params": [
               {
@@ -26766,6 +26766,11 @@
                 "name": "additionalParameters",
                 "description": "object",
                 "type": null
+              },
+              {
+                "name": "errorCallback",
+                "description": "Function",
+                "type": null
               }
             ],
             "returns": null,
@@ -26773,19 +26778,27 @@
           },
           {
             "name": "refreshNodeAndReplace",
-            "docblock": null,
+            "docblock": "@param node {AjxpNode}\n@param onComplete Function\n@param onError Function",
             "modifiers": [],
             "params": [
               {
                 "name": "node",
+                "description": "{AjxpNode}",
                 "type": null
               },
               {
                 "name": "onComplete",
+                "description": "Function",
+                "type": null
+              },
+              {
+                "name": "onError",
+                "description": "Function",
                 "type": null
               }
             ],
-            "returns": null
+            "returns": null,
+            "description": null
           },
           {
             "name": "parseTreeNode",
@@ -37024,7 +37037,49 @@
     "Workspaces/leftnav/UserWidget.js": [
       {
         "description": "",
+        "displayName": "UserWidget",
         "methods": [
+          {
+            "name": "getPropTypes",
+            "docblock": null,
+            "modifiers": [
+              "static"
+            ],
+            "params": [],
+            "returns": null
+          },
+          {
+            "name": "showMenu",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
+          {
+            "name": "closeMenu",
+            "docblock": null,
+            "modifiers": [],
+            "params": [
+              {
+                "name": "event",
+                "type": null
+              },
+              {
+                "name": "index",
+                "type": null
+              },
+              {
+                "name": "menuItem",
+                "type": null
+              }
+            ],
+            "returns": null
+          },
           {
             "name": "applyAction",
             "docblock": null,
@@ -37038,44 +37093,6 @@
             "returns": null
           }
         ],
-        "props": {
-          "pydio": {
-            "type": {
-              "name": "instanceOf",
-              "value": "Pydio"
-            },
-            "required": false,
-            "description": ""
-          },
-          "style": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "avatarStyle": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "actionBarStyle": {
-            "type": {
-              "name": "object"
-            },
-            "required": false,
-            "description": ""
-          },
-          "avatarOnly": {
-            "type": {
-              "name": "bool"
-            },
-            "required": false,
-            "description": ""
-          }
-        },
         "require": "const {UserWidget} = require('pydio').requireLib('workspaces')"
       }
     ],
@@ -38762,6 +38779,13 @@
               }
             ],
             "returns": null
+          },
+          {
+            "name": "clearCloseTimeout",
+            "docblock": null,
+            "modifiers": [],
+            "params": [],
+            "returns": null
           }
         ]
       }
@@ -38960,6 +38984,18 @@
       {
         "description": "",
         "displayName": "ActivityStreamsPanel",
+        "methods": []
+      }
+    ],
+    "recent/SmartRecents.js": [
+      {
+        "description": "",
+        "displayName": "RecentCard",
+        "methods": []
+      },
+      {
+        "description": "",
+        "displayName": "SmartRecents",
         "methods": []
       }
     ],

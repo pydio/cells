@@ -200,11 +200,13 @@ var MetaNodeProvider = (function () {
      * @param nodeCallback Function On node loaded
      * @param aSync bool
      * @param additionalParameters object
+     * @param errorCallback Function
      */
 
     MetaNodeProvider.prototype.loadLeafNodeSync = function loadLeafNodeSync(node, nodeCallback) {
         var aSync = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
         var additionalParameters = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+        var errorCallback = arguments.length <= 4 || arguments[4] === undefined ? function () {} : arguments[4];
 
         var api = new _httpGenApiMetaServiceApi2['default'](_httpPydioApi2['default'].getRestClient());
         var request = new _httpGenModelRestGetBulkMetaRequest2['default']();
@@ -229,11 +231,27 @@ var MetaNodeProvider = (function () {
         api.getBulkMeta(request).then(function (res) {
             if (res.Nodes && res.Nodes.length) {
                 nodeCallback(MetaNodeProvider.parseTreeNode(res.Nodes[0], slug));
+            } else if (errorCallback) {
+                errorCallback();
+            }
+        })['catch'](function (e) {
+            if (errorCallback) {
+                errorCallback(e);
+            } else {
+                throw e;
             }
         });
     };
 
+    /**
+     *
+     * @param node {AjxpNode}
+     * @param onComplete Function
+     * @param onError Function
+     */
+
     MetaNodeProvider.prototype.refreshNodeAndReplace = function refreshNodeAndReplace(node, onComplete) {
+        var onError = arguments.length <= 2 || arguments[2] === undefined ? function () {} : arguments[2];
 
         var nodeCallback = function nodeCallback(newNode) {
             node.replaceBy(newNode, "override");
@@ -241,7 +259,7 @@ var MetaNodeProvider = (function () {
                 onComplete(node);
             }
         };
-        this.loadLeafNodeSync(node, nodeCallback);
+        this.loadLeafNodeSync(node, nodeCallback, false, {}, onError);
     };
 
     /**

@@ -26,38 +26,68 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _pydio = require('pydio');
+
+var _pydio2 = _interopRequireDefault(_pydio);
+
 var _BookmarksList = require('./BookmarksList');
 
 var _BookmarksList2 = _interopRequireDefault(_BookmarksList);
 
 var React = require('react');
 
-var _require$requireLib = require('pydio/http/resources-manager').requireLib('boot');
+var _Pydio$requireLib = _pydio2['default'].requireLib('boot');
 
-var AsyncComponent = _require$requireLib.AsyncComponent;
+var AsyncComponent = _Pydio$requireLib.AsyncComponent;
 
-var _require$requireLib2 = require('pydio/http/resources-manager').requireLib('components');
+var _Pydio$requireLib2 = _pydio2['default'].requireLib('components');
 
-var UserAvatar = _require$requireLib2.UserAvatar;
-var IconButtonMenu = _require$requireLib2.IconButtonMenu;
-var Toolbar = _require$requireLib2.Toolbar;
+var UserAvatar = _Pydio$requireLib2.UserAvatar;
+var MenuItemsConsumer = _Pydio$requireLib2.MenuItemsConsumer;
+var MenuUtils = _Pydio$requireLib2.MenuUtils;
+var Toolbar = _Pydio$requireLib2.Toolbar;
 
 var _require = require('material-ui');
 
-var IconButton = _require.IconButton;
 var Paper = _require.Paper;
-exports['default'] = React.createClass({
-    displayName: 'UserWidget',
+var Popover = _require.Popover;
 
-    propTypes: {
-        pydio: React.PropTypes.instanceOf(Pydio),
-        style: React.PropTypes.object,
-        avatarStyle: React.PropTypes.object,
-        actionBarStyle: React.PropTypes.object,
-        avatarOnly: React.PropTypes.bool
-    },
+var UserWidget = (function (_React$Component) {
+    _inherits(UserWidget, _React$Component);
 
-    applyAction: function applyAction(actionName) {
+    function UserWidget(props) {
+        _classCallCheck(this, UserWidget);
+
+        _React$Component.call(this, props);
+        this.state = { showMenu: false };
+    }
+
+    UserWidget.getPropTypes = function getPropTypes() {
+        return {
+            pydio: React.PropTypes.instanceOf(_pydio2['default']),
+            style: React.PropTypes.object,
+            avatarStyle: React.PropTypes.object,
+            actionBarStyle: React.PropTypes.object,
+            avatarOnly: React.PropTypes.bool
+        };
+    };
+
+    UserWidget.prototype.showMenu = function showMenu(event) {
+        this.setState({
+            showMenu: true,
+            anchor: event.currentTarget
+        });
+    };
+
+    UserWidget.prototype.closeMenu = function closeMenu(event, index, menuItem) {
+        this.setState({ showMenu: false });
+    };
+
+    UserWidget.prototype.applyAction = function applyAction(actionName) {
         switch (actionName) {
             case 'home':
                 this.props.pydio.triggerRepositoryChange('homepage');
@@ -71,11 +101,10 @@ exports['default'] = React.createClass({
             default:
                 break;
         }
-    },
+    };
 
-    render: function render() {
-
-        var messages = this.props.pydio.MessageHash;
+    UserWidget.prototype.render = function render() {
+        var _this = this;
 
         var avatar = undefined;
         var notificationsButton = undefined,
@@ -84,45 +113,56 @@ exports['default'] = React.createClass({
         var _props = this.props;
         var pydio = _props.pydio;
         var displayLabel = _props.displayLabel;
-        var mergeButtonInAvatar = _props.mergeButtonInAvatar;
         var avatarStyle = _props.avatarStyle;
         var popoverDirection = _props.popoverDirection;
+        var popoverTargetPosition = _props.popoverTargetPosition;
         var color = _props.color;
+        var menuItems = _props.menuItems;
+        var _state = this.state;
+        var showMenu = _state.showMenu;
+        var anchor = _state.anchor;
 
         if (pydio.user) {
             var user = this.props.pydio.user;
             currentIsSettings = user.activeRepository === 'settings';
-            var buttonStyle = { color: color };
-            var avatarSize = undefined;
-            if (mergeButtonInAvatar) {
-                avatarStyle = _extends({}, avatarStyle, { position: 'relative' });
-                buttonStyle = _extends({}, buttonStyle, { opacity: 0 });
-                avatarSize = 30;
-            }
+            avatarStyle = _extends({}, avatarStyle, { position: 'relative' });
+            var menuProps = {
+                display: 'right',
+                width: 160,
+                desktop: true
+            };
             avatar = React.createElement(
-                UserAvatar,
-                {
+                'div',
+                { onClick: function (e) {
+                        _this.showMenu(e);
+                    }, style: { cursor: 'pointer', maxWidth: 200 } },
+                React.createElement(UserAvatar, {
                     pydio: pydio,
                     userId: user.id,
                     style: avatarStyle,
                     className: 'user-display',
                     labelClassName: 'userLabel',
                     displayLabel: displayLabel,
+                    displayLabelChevron: true,
                     labelStyle: { flex: 1, marginLeft: 5, color: color },
-                    avatarSize: avatarSize
-                },
-                React.createElement(IconButtonMenu, {
-                    pydio: pydio,
-                    buttonClassName: 'mdi mdi-dots-vertical',
-                    containerStyle: mergeButtonInAvatar ? { position: 'absolute', left: 4 } : {},
-                    buttonStyle: buttonStyle,
-                    buttonTitle: messages['165'],
-                    toolbars: ["aUser", "user", "zlogin"],
-                    controller: this.props.pydio.Controller,
-                    popoverDirection: popoverDirection ? popoverDirection : mergeButtonInAvatar ? "right" : "left",
-                    popoverTargetPosition: "bottom",
-                    menuProps: { display: 'right', width: 160, desktop: true }
-                })
+                    avatarSize: 30
+                }),
+                React.createElement(
+                    Popover,
+                    {
+                        zDepth: 2,
+                        open: showMenu,
+                        anchorEl: anchor,
+                        anchorOrigin: { horizontal: popoverDirection || 'right', vertical: popoverTargetPosition || 'bottom' },
+                        targetOrigin: { horizontal: popoverDirection || 'right', vertical: 'top' },
+                        onRequestClose: function () {
+                            _this.closeMenu();
+                        },
+                        useLayerForClickAway: false,
+                        style: { marginTop: -10, marginLeft: 10 }
+                    },
+                    MenuUtils.itemsToMenu(menuItems, this.closeMenu.bind(this), false, menuProps)
+                )
             );
 
             if (!this.props.hideNotifications) {
@@ -178,6 +218,12 @@ exports['default'] = React.createClass({
                 actionBar
             );
         }
-    }
-});
+    };
+
+    return UserWidget;
+})(React.Component);
+
+exports['default'] = UserWidget = MenuItemsConsumer(UserWidget);
+
+exports['default'] = UserWidget;
 module.exports = exports['default'];

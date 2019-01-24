@@ -76,7 +76,7 @@ var AltDashboard = (function (_React$Component) {
 
         _get(Object.getPrototypeOf(AltDashboard.prototype), 'constructor', this).call(this, props);
         this.state = { unreadStatus: 0, drawerOpen: true };
-        setTimeout(function () {
+        this.closeTimeout = setTimeout(function () {
             _this.setState({ drawerOpen: false });
         }, 3000);
     }
@@ -85,7 +85,15 @@ var AltDashboard = (function (_React$Component) {
         key: 'openDrawer',
         value: function openDrawer(event) {
             event.stopPropagation();
+            this.clearCloseTimeout();
             this.setState({ drawerOpen: true });
+        }
+    }, {
+        key: 'clearCloseTimeout',
+        value: function clearCloseTimeout() {
+            if (this.closeTimeout) {
+                clearTimeout(this.closeTimeout);
+            }
         }
     }, {
         key: 'render',
@@ -152,6 +160,9 @@ var AltDashboard = (function (_React$Component) {
             var leftPanelProps = {
                 style: { backgroundColor: 'transparent' },
                 headerHeight: headerHeight,
+                onClick: function onClick() {
+                    _this2.clearCloseTimeout();
+                },
                 userWidgetProps: {
                     color: fontColor,
                     mergeButtonInAvatar: true,

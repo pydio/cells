@@ -25,7 +25,7 @@ import UserWidget from './UserWidget'
 import WorkspacesList from '../wslist/WorkspacesList'
 const {TasksPanel} = Pydio.requireLib("boot");
 
-let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydio}) => {
+let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydio, onClick}) => {
 
         const palette = muiTheme.palette;
         const Color = require('color');
@@ -56,9 +56,11 @@ let LeftPanel = ({muiTheme, style={}, userWidgetProps, workspacesListProps, pydi
         const wsListProps = workspacesListProps || {};
 
         return (
-            <div className="left-panel vertical_fit vertical_layout" style={style}>
+            <div className="left-panel vertical_fit vertical_layout" style={style} onClick={onClick}>
                 <UserWidget
                     pydio={pydio}
+                    controller={pydio.getController()}
+                    toolbars={["aUser", "user", "zlogin"]}
                     {...uWidgetProps}
                 />
                 <WorkspacesList

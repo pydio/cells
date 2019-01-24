@@ -119,7 +119,7 @@ class UserAvatar extends React.Component{
 
         const {user, avatar, graph, local, loadError} = this.state;
         let {pydio, userId, userType, icon, style, labelStyle, avatarLetters, avatarStyle, avatarSize, className,
-            labelClassName, displayLabel, displayLocalLabel, displayAvatar, useDefaultAvatar, richCard, cardSize, muiTheme, noActionsPanel} = this.props;
+            labelClassName, displayLabel, displayLocalLabel, displayLabelChevron, displayAvatar, useDefaultAvatar, richCard, cardSize, muiTheme, noActionsPanel} = this.props;
 
         let {label} = this.state;
         let userTypeLabel;
@@ -339,13 +339,17 @@ class UserAvatar extends React.Component{
         } else if(userNotFound){
             labelStyle = {...labelStyle, textDecoration:'line-through'};
         }
+        let labelChevron;
+        if(displayLabel && displayLabelChevron){
+            labelChevron = <span className={"mdi mdi-chevron-down"} style={{marginLeft: 4, fontSize:'0.8em'}}/>
+        }
 
         return (
             <div className={className} style={style} onMouseOver={onMouseOver} onMouseOut={onMouseOut} onClick={onClick}>
                 {displayAvatar && (avatar || avatarContent || avatarIcon) && avatarComponent}
                 {displayLabel && !richCard && <div
                     className={labelClassName}
-                    style={labelStyle}>{label}</div>}
+                    style={labelStyle}>{label}{labelChevron}</div>}
                 {displayLabel && richCard && <CardTitle style={{textAlign:'center'}} title={label} subtitle={userTypeLabel}/>}
                 {richCard && user && !noActionsPanel && <ActionsPanel {...this.state} {...this.props} reloadAction={reloadAction} onEditAction={onEditAction}/>}
                 {richCard && graph && !noActionsPanel && <GraphPanel graph={graph} {...this.props} userLabel={label} reloadAction={reloadAction} onEditAction={onEditAction}/>}

@@ -44,10 +44,10 @@ class Loader {
             this.workspacesAsNodes()
         ];
         return Promise.all(allLoaders).then(results => {
-            console.log(results);
             let allNodes = [];
             results.map(nodes => {
-                allNodes = [...allNodes, ...nodes.slice(0, 6)]
+                // Filter empty nodes
+                allNodes = [...allNodes, ...nodes.filter(n => !!n)]
             });
             return allNodes;
         });
@@ -58,6 +58,10 @@ class Loader {
         return new Promise(resolve => {
             api.userBookmarks(new RestUserBookmarksRequest()).then(collection => {
                 const nodes = [];
+                if(!collection.Nodes){
+                    resolve([]);
+                    return;
+                }
                 collection.Nodes.forEach(n => {
                     if(!n.AppearsIn){
                         return;
@@ -68,17 +72,21 @@ class Loader {
                     }
                     const fakeNode = new Node(path, n.Type === 'LEAF');
                     fakeNode.getMetadata().set('repository_id', n.AppearsIn[0].WsUuid);
-                    nodes.push(new Promise(resolve1 => {
+                    nodes.push(new Promise((resolve1 => {
                         this.metaProvider.refreshNodeAndReplace(fakeNode, (freshNode)=>{
                             freshNode.getMetadata().set('card_legend', 'Bookmarked');
                             freshNode.getMetadata().set('repository_id', n.AppearsIn[0].WsUuid);
                             resolve1(freshNode);
+                        }, ()=>{
+                            resolve1(null)
                         })
-                    }));
+                    })));
                 });
                 Promise.all(nodes).then(nodes => {
                     resolve(nodes);
-                })
+                }).catch(e => {
+                    resolve([])
+                });
             });
         });
     }
@@ -97,17 +105,25 @@ class Loader {
                     if(n){
                         nodes.push(new Promise(resolve1 => {
                             const wsId = n.getMetadata().get('repository_id');
+                            const wsLabel = n.getMetadata().get('repository_label');
                             this.metaProvider.refreshNodeAndReplace(n, (freshNode)=>{
                                 freshNode.getMetadata().set('repository_id', wsId);
+                                if(freshNode.getPath() === '' || freshNode.getPath() === '/'){
+                                    freshNode.setLabel(wsLabel);
+                                }
                                 freshNode.getMetadata().set('card_legend', mom.fromNow());
                                 resolve1(freshNode);
+                            }, ()=>{
+                                resolve1(null)
                             })
                         }))
                     }
                 });
                 Promise.all(nodes).then(nodes => {
                     resolve(nodes);
-                })
+                }).catch(e => {
+                    resolve([])
+                });
             }, 'USER_ID', this.pydio.user.id, 'outbox', 'ACTOR', 0, 30)
         })
     }
@@ -127,12 +143,26 @@ class Loader {
                 fontIcon = 'icomoon-cells';
                 legend = 'Cell';
             }
-            node.getMetadata().set("repository_id", repoObject.getId());
-            node.getMetadata().set("card_legend", legend);
-            node.getMetadata().set("fonticon", fontIcon);
-            ws.push(node);
+            ws.push(new Promise(resolve => {
+                node.getMetadata().set("repository_id", repoObject.getId());
+                this.metaProvider.refreshNodeAndReplace(node, (freshNode)=>{
+                    freshNode.setLabel(repoObject.getLabel());
+                    freshNode.getMetadata().set("repository_id", repoObject.getId());
+                    freshNode.getMetadata().set("card_legend", legend);
+                    freshNode.getMetadata().set("fonticon", fontIcon);
+                    resolve(freshNode);
+                }, ()=>{
+                    resolve(null)
+                })
+            }));
         });
-        return Promise.resolve(ws);
+        return new Promise(resolve => {
+            Promise.all(ws).then(res => {
+                resolve(res);
+            }).catch(e => {
+                resolve([]);
+            })
+        });
     }
 
     nodeFromActivityObject(object){
@@ -207,22 +237,6 @@ class SmartRecents extends React.Component{
         });
     }
 
-    workspacesAsCards() {
-        const ws = [];
-        this.pydio.user.getRepositoriesList().forEach(repoObject => {
-            ws.push(
-                <RecentCard
-                    key={repoObject.getId()}
-                    pydio={this.props.pydio}
-                    title={repoObject.getLabel()}
-                    legend={repoObject.getOwner() ? "Cell": "Workspace"}
-                />
-            );
-        });
-        return ws;
-    }
-
-
     render(){
 
         const {pydio, style} = this.props;
@@ -231,17 +245,23 @@ class SmartRecents extends React.Component{
         if (!pydio.user || pydio.user.lock) {
             return <div></div>;
         }
-        const cards = nodes.map(node => {
-            return (
+        const keys = {};
+        const cards = [];
+        nodes.forEach((node) => {
+            const k = node.getMetadata().get("uuid");
+            if(keys[k] || cards.length >= 8){
+                return;
+            }
+            keys[k] = k;
+            cards.push(
                 <RecentCard
-                    key={node.getMetadata().get("uuid")}
+                    key={k}
                     pydio={pydio}
                     node={node}
                     title={node.getLabel()}
                     legend={node.getMetadata().get('card_legend')}
-                />)
-
-        }).slice(0, 9);
+            />)
+        });
 
         return (
             <div style={{display:'flex', flexWrap: 'wrap', justifyContent:'center', ...style}}>

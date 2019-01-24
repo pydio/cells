@@ -120,6 +120,14 @@ var _menuToolbar = require('./menu/Toolbar');
 
 var _menuToolbar2 = _interopRequireDefault(_menuToolbar);
 
+var _menuMenuItemsConsumer = require('./menu/MenuItemsConsumer');
+
+var _menuMenuItemsConsumer2 = _interopRequireDefault(_menuMenuItemsConsumer);
+
+var _menuUtils = require('./menu/Utils');
+
+var _menuUtils2 = _interopRequireDefault(_menuUtils);
+
 var _usersAddressbookAddressBook = require('./users/addressbook/AddressBook');
 
 var _usersAddressbookAddressBook2 = _interopRequireDefault(_usersAddressbookAddressBook);
@@ -186,6 +194,7 @@ var PydioComponents = {
     Toolbar: _menuToolbar2['default'],
     ButtonMenu: _menuButtonMenu2['default'],
     IconButtonMenu: _menuIconButtonMenu2['default'],
+    MenuItemsConsumer: _menuMenuItemsConsumer2['default'], MenuUtils: _menuUtils2['default'],
 
     Chat: _chatChat2['default'],
     ChatIcon: _chatChatIcon2['default'],

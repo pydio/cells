@@ -50,6 +50,8 @@ import ButtonMenu from './menu/ButtonMenu'
 import ContextMenu from './menu/ContextMenu'
 import IconButtonMenu from './menu/IconButtonMenu'
 import Toolbar from './menu/Toolbar'
+import MenuItemsConsumer from './menu/MenuItemsConsumer'
+import MenuUtils from './menu/Utils'
 
 import AddressBook from './users/addressbook/AddressBook'
 import ChatClient from './chat/ChatClient'
@@ -100,6 +102,7 @@ const PydioComponents = {
     Toolbar                 : Toolbar,
     ButtonMenu              : ButtonMenu,
     IconButtonMenu          : IconButtonMenu,
+    MenuItemsConsumer, MenuUtils,
 
     Chat,
     ChatIcon,

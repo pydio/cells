@@ -264,7 +264,7 @@ let AdminDashboard = React.createClass({
         if(rightPanel){
             rPanelContent = React.createElement(rightPanel.COMPONENT, rightPanel.PROPS, rightPanel.CHILDREN);
         }
-        let homeIconButton, searchIconButton, leftIconButton, toggleAdvancedButton, aboutButton;
+        let searchIconButton, leftIconButton, toggleAdvancedButton, aboutButton;
 
         // LEFT BUTTON
         let leftIcon, leftIconClick;
@@ -284,17 +284,6 @@ let AdminDashboard = React.createClass({
                 <IconButton iconClassName={leftIcon} onTouchTap={leftIconClick} iconStyle={styles.appBarLeftIcon}/>
             </div>
         );
-
-        // HOME BUTTON
-        if(pydio.user && pydio.user.getRepositoriesList().has('homepage')){
-            homeIconButton = <IconButton
-                tooltip={pydio.MessageHash['ajxp_admin.home.68']}
-                iconClassName={"mdi mdi-folder-open"}
-                onTouchTap={()=>{pydio.triggerRepositoryChange('homepage')}}
-                style={styles.appBarButton}
-                iconStyle={styles.appBarButtonIcon}
-            />;
-        }
 
         // SEARCH BUTTON
         if(searchComponent){
@@ -342,14 +331,14 @@ let AdminDashboard = React.createClass({
                     <span style={styles.appBarTitle}>{pydio.MessageHash['settings.topbar.title']}</span>
                     {searchIconButton}
                     {toggleAdvancedButton}
-                    {homeIconButton}
                     {aboutButton}
                     <UserWidget
                         pydio={pydio}
                         style={styles.userWidget}
                         hideActionBar={true}
                         displayLabel={false}
-                        mergeButtonInAvatar={true}
+                        toolbars={["aUser", "user", "zlogin"]}
+                        controller={pydio.getController()}
                     />
                 </Paper>
                 <Paper zDepth={0} className="main-panel" style={{...styles.mainPanel, left: leftDocked ? 256 : 0}}>

@@ -186,6 +186,7 @@ var UserAvatar = (function (_React$Component) {
         var labelClassName = _props2.labelClassName;
         var displayLabel = _props2.displayLabel;
         var displayLocalLabel = _props2.displayLocalLabel;
+        var displayLabelChevron = _props2.displayLabelChevron;
         var displayAvatar = _props2.displayAvatar;
         var useDefaultAvatar = _props2.useDefaultAvatar;
         var richCard = _props2.richCard;
@@ -442,6 +443,10 @@ var UserAvatar = (function (_React$Component) {
         } else if (userNotFound) {
             labelStyle = _extends({}, labelStyle, { textDecoration: 'line-through' });
         }
+        var labelChevron = undefined;
+        if (displayLabel && displayLabelChevron) {
+            labelChevron = React.createElement('span', { className: "mdi mdi-chevron-down", style: { marginLeft: 4, fontSize: '0.8em' } });
+        }
 
         return React.createElement(
             'div',
@@ -452,7 +457,8 @@ var UserAvatar = (function (_React$Component) {
                 {
                     className: labelClassName,
                     style: labelStyle },
-                label
+                label,
+                labelChevron
             ),
             displayLabel && richCard && React.createElement(CardTitle, { style: { textAlign: 'center' }, title: label, subtitle: userTypeLabel }),
             richCard && user && !noActionsPanel && React.createElement(_ActionsPanel2['default'], _extends({}, this.state, this.props, { reloadAction: reloadAction, onEditAction: onEditAction })),

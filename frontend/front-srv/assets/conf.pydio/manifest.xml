@@ -55,7 +55,7 @@
                 <rightsContext noUser="false" userLogged="only" read="true" write="false" adminOnly=""/>
             </action>
             <action name="switch_to_settings">
-                <gui text="165" title="506" accessKey="settings_access_key" hasAccessKey="true" iconClass="mdi mdi-tune-vertical" >
+                <gui text="settings.topbar.title" title="settings.topbar.title" accessKey="settings_access_key" hasAccessKey="true" iconClass="mdi mdi-tune-vertical" >
                     <context dir="false" recycle="true" selection="false" actionBar="true" actionBarGroup="zlogin"/>
                 </gui>
                 <rightsContext adminOnly="true" noUser="true" read="false" userLogged="only" write="false"/>
@@ -67,10 +67,10 @@
                 <gui text="305" title="305" hasAccessKey="false" iconClass="mdi mdi-home" >
                     <context dir="false" recycle="true" selection="false" actionBar="true" actionBarGroup="aUser"/>
                 </gui>
-                <rightsContext adminOnly="true" noUser="true" read="false" userLogged="only" write="false"/>
+                <rightsContext adminOnly="false" noUser="true" read="false" userLogged="only" write="false"/>
                 <processing>
                     <activeCondition><![CDATA[
-                        return (pydio && pydio.user && pydio.user.getRepositoriesList().has('homepage'));
+                        return (pydio && pydio.user && (pydio.user.getRepositoriesList().has('homepage') && pydio.user.activeRepository !== 'homepage'));
                     ]]> </activeCondition>
                     <clientCallback module="PydioCoreActions.Navigation.switchToHomepage"/>
                 </processing>
