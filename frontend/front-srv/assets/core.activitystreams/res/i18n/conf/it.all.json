@@ -1,35 +1,35 @@
 {
   "Activate desktop notifications": {
-    "other": "Activate desktop notifications"
+    "other": "Attivare le notifiche desktop"
   },
   "Choose the plugin": {
-    "other": "Choose the plugin"
+    "other": "Scegliere il plugin"
   },
   "Desktop Notifications": {
-    "other": "Desktop notifications"
+    "other": "Notifiche desktop"
   },
   "Display Workspaces Activity": {
-    "other": "Display Workspaces Activity"
+    "other": "Visualizzare le attività dei workspace"
   },
   "Display a new entry with all events happening on a user workspaces, and alerts. An SQL database must be setup for the FEED_DRIVER configuration.": {
-    "other": "Display a new entry with all events happening on a user workspaces, and alerts. An SQL database must be setup for the FEED_DRIVER configuration."
+    "other": "Visualizza una nuova voce con tutti gli eventi nel workspace di un utente, e gli avvisi. Deve essere creato un database SQL per la configurazione di FEED_DRIVER."
   },
   "Display workspaces activity to the users in the right-hand information panel": {
-    "other": "Display workspaces activity to the users in the right-hand information panel"
+    "other": "Visualizza l'attività nei workspace agli utenti nel pannello informazioni di destra"
   },
   "Feed Instance": {
-    "other": "Feed Instance"
+    "other": "Istanza del feed"
   },
   "Handle users watches and notifications": {
-    "other": "Handle users watches and notifications"
+    "other": "Gestire i monitoraggi e le notifiche degli utenti"
   },
   "Instance Params": {
-    "other": "Instance Params"
+    "other": "Parametri dell'Istanza"
   },
   "Notification Center": {
-    "other": "Notification Center"
+    "other": "Centro notifiche"
   },
   "User events and alerts": {
-    "other": "User events and alerts"
+    "other": "Avvisi ed eventi utente"
   }
 }
