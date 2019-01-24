@@ -1,80 +1,80 @@
 {
   "1": {
-    "other": "%s files queued for upload"
+    "other": "%s file in coda per l'upload"
   },
   "10": {
     "other": ""
   },
   "11": {
-    "other": "Start"
+    "other": "Avvia"
   },
   "12": {
-    "other": "Clear list"
+    "other": "Svuota lista"
   },
   "13": {
-    "other": "Folder created"
+    "other": "Cartella creata"
   },
   "14": {
-    "other": "Processing"
+    "other": "In elaborazione"
   },
   "15": {
-    "other": "Pending"
+    "other": "In sospeso"
   },
   "16": {
-    "other": "Processed"
+    "other": "Elaborato"
   },
   "17": {
-    "other": "Show/hide processed files"
+    "other": "Mostra/Nascondi file elaborati"
   },
   "options.existing": {
-    "other": "If a file with the same name exists:"
+    "other": "Se esiste un file con lo stesso nome:"
   },
   "options.existing.alert": {
-    "other": "Stop upload and alert me"
+    "other": "Interrompi il caricamento e informami"
   },
   "options.existing.folders": {
-    "other": "Rename folders then files"
+    "other": "Rinominare le cartelle e poi i file"
   },
   "options.existing.merge": {
-    "other": "Rename files only (merge folders)"
+    "other": "Rinominare solo i file (unisci le cartelle)"
   },
   "2": {
-    "other": "Uploading %s files"
+    "other": "Caricamento di %s file"
   },
   "options.existing.overwrite": {
-    "other": "Overwrite existing file silently"
+    "other": "Sovrascrivere il file esistente senza avvertire"
   },
   "22": {
-    "other": "Options"
+    "other": "Opzioni"
   },
   "23": {
-    "other": "Errors"
+    "other": "Errori"
   },
   "3": {
-    "other": "You are not allowed to upload this file here"
+    "other": "Non hai le autorizzazioni necessarie per caricare questo file qui"
   },
   "4": {
-    "other": "Pick File"
+    "other": "Scegli un file"
   },
   "5": {
-    "other": "Pick Folder"
+    "other": "Scegli una cartella"
   },
   "6": {
-    "other": "Cannot abort folder creation"
+    "other": "Non posso interrompere la creazione della cartella"
   },
   "7": {
-    "other": "Uploading files to server..."
+    "other": "Caricamento dei file sul server..."
   },
   "8": {
-    "other": "It seems that your browser does not support dropping folders"
+    "other": "Sembra che il tuo browser non supporti l'eliminazione delle cartelle"
   },
   "9": {
     "other": ""
   },
   "analyze.step": {
-    "other": "Preparing files and folders for upload..."
+    "other": "Preparazione di file e cartelle per il caricamento..."
   },
   "drophere": {
-    "other": "Drop Files Here"
+    "other": "Trascina i file qui"
   }
 }
