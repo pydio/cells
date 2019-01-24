@@ -36,12 +36,12 @@ import (
 	"github.com/pydio/cells/common/auth"
 	"github.com/pydio/cells/common/auth/claim"
 	"github.com/pydio/cells/common/log"
+	"github.com/pydio/cells/common/micro"
 	"github.com/pydio/cells/common/proto/docstore"
 	"github.com/pydio/cells/common/proto/idm"
 	"github.com/pydio/cells/common/proto/rest"
 	"github.com/pydio/cells/common/proto/tree"
 	"github.com/pydio/cells/common/service"
-	"github.com/pydio/cells/common/micro"
 	serviceproto "github.com/pydio/cells/common/service/proto"
 	"github.com/pydio/cells/common/service/resources"
 	"github.com/pydio/cells/common/utils"
@@ -248,7 +248,7 @@ func (s *UserMetaHandler) UserBookmarks(req *restful.Request, rsp *restful.Respo
 		service.RestError500(req, rsp, e)
 		return
 	}
-	log.Logger(ctx).Info("Got Bookmarks : ", zap.Any("b", output))
+	log.Logger(ctx).Debug("Got Bookmarks : ", zap.Any("b", output))
 	bulk := &rest.BulkMetaResponse{}
 	for _, meta := range output.Metadatas {
 		node := &tree.Node{
@@ -260,7 +260,7 @@ func (s *UserMetaHandler) UserBookmarks(req *restful.Request, rsp *restful.Respo
 			log.Logger(ctx).Error("ReadNode Error : ", zap.Error(e))
 		}
 	}
-	log.Logger(ctx).Info("Return bulk : ", zap.Any("b", bulk))
+	log.Logger(ctx).Debug("Return bulk : ", zap.Any("b", bulk))
 	rsp.WriteEntity(bulk)
 
 }
