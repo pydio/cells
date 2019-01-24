@@ -32,7 +32,7 @@ class AltDashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {unreadStatus: 0, drawerOpen: true};
-        // setTimeout(()=>{this.setState({drawerOpen: false})}, 2000);
+        setTimeout(()=>{this.setState({drawerOpen: false})}, 3000);
     }
 
     openDrawer(event) {

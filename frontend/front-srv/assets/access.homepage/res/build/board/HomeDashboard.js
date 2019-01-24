@@ -70,11 +70,15 @@ var AltDashboard = (function (_React$Component) {
     _inherits(AltDashboard, _React$Component);
 
     function AltDashboard(props) {
+        var _this = this;
+
         _classCallCheck(this, AltDashboard);
 
         _get(Object.getPrototypeOf(AltDashboard.prototype), 'constructor', this).call(this, props);
         this.state = { unreadStatus: 0, drawerOpen: true };
-        // setTimeout(()=>{this.setState({drawerOpen: false})}, 2000);
+        setTimeout(function () {
+            _this.setState({ drawerOpen: false });
+        }, 3000);
     }
 
     _createClass(AltDashboard, [{
@@ -86,7 +90,7 @@ var AltDashboard = (function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this = this;
+            var _this2 = this;
 
             var _props = this.props;
             var pydio = _props.pydio;
@@ -177,7 +181,7 @@ var AltDashboard = (function (_React$Component) {
                     leftPanelProps: leftPanelProps,
                     drawerOpen: drawerOpen,
                     onCloseDrawerRequested: function () {
-                        _this.setState({ drawerOpen: false });
+                        _this2.setState({ drawerOpen: false });
                     }
                 },
                 _react2['default'].createElement(

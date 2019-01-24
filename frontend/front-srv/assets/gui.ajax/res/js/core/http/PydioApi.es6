@@ -306,7 +306,14 @@ class PydioApi{
      */
     buildPresignedGetUrl(node, callback = null, presetType = '', bucketParams = null, attachmentName = '') {
         const url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
-        const slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
+        const user = this.getPydioObject().user;
+        let slug = user.getActiveRepositoryObject().getSlug();
+        if(node.getMetadata().has("repository_id")){
+            const nodeRepo = node.getMetadata().get("repository_id");
+            if (nodeRepo !== user.getActiveRepository() && user.getRepositoriesList().has(nodeRepo)){
+                slug = user.getRepositoriesList().get(nodeRepo).getSlug();
+            }
+        }
         let cType = '', cDisposition;
         let longExpire = false;
 

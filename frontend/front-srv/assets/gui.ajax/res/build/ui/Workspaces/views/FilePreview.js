@@ -186,9 +186,11 @@ var FilePreview = (function (_PureComponent) {
         } else if (EditorClass) {
             element = React.createElement(EditorClass, _extends({ pydio: pydio }, this.props, { preview: true, mimeFontStyle: mimeFontStyle }));
         } else {
-            var svg = node.getSvgSource();
-            var isLeaf = node.isLeaf();
-            element = React.createElement('div', { key: 'icon', className: mimeClassName || 'mimefont mdi mdi-' + (svg || (isLeaf ? 'file' : 'folder')), style: mimeFontStyle });
+            var icClass = node.getSvgSource() || (node.isLeaf() ? 'file' : 'folder');
+            if (icClass && !icClass.startsWith('icomoon')) {
+                icClass = 'mdi mdi-' + icClass;
+            }
+            element = React.createElement('div', { key: 'icon', className: mimeClassName || 'mimefont ' + icClass, style: mimeFontStyle });
         }
 
         return React.createElement(

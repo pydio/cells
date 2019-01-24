@@ -387,7 +387,14 @@ var PydioApi = (function () {
         var attachmentName = arguments.length <= 4 || arguments[4] === undefined ? '' : arguments[4];
 
         var url = this.getPydioObject().Parameters.get('ENDPOINT_S3_GATEWAY');
-        var slug = this.getPydioObject().user.getActiveRepositoryObject().getSlug();
+        var user = this.getPydioObject().user;
+        var slug = user.getActiveRepositoryObject().getSlug();
+        if (node.getMetadata().has("repository_id")) {
+            var nodeRepo = node.getMetadata().get("repository_id");
+            if (nodeRepo !== user.getActiveRepository() && user.getRepositoriesList().has(nodeRepo)) {
+                slug = user.getRepositoriesList().get(nodeRepo).getSlug();
+            }
+        }
         var cType = '',
             cDisposition = undefined;
         var longExpire = false;

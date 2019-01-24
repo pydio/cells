@@ -151,9 +151,11 @@ class FilePreview extends PureComponent {
         } else if (EditorClass) {
             element = <EditorClass pydio={pydio} {...this.props} preview={true} mimeFontStyle={mimeFontStyle} />
         } else {
-            const svg = node.getSvgSource()
-            const isLeaf = node.isLeaf()
-            element = <div key="icon" className={mimeClassName || `mimefont mdi mdi-${svg || (isLeaf ? 'file' : 'folder')}`} style={mimeFontStyle}/>
+            let icClass = node.getSvgSource() || (node.isLeaf() ? 'file': 'folder');
+            if(icClass && !icClass.startsWith('icomoon')){
+                icClass = 'mdi mdi-' + icClass;
+            }
+            element = <div key="icon" className={mimeClassName || 'mimefont ' + icClass} style={mimeFontStyle}/>
         }
 
         return (
