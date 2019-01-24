@@ -80,16 +80,19 @@ var MainSearch = (function (_Component) {
         get: function get() {
             return {
                 main: {
-                    background: "#ffffff",
                     width: "100%",
                     height: 36,
-                    border: "none",
                     transition: 'all .25s',
-                    display: 'flex'
+                    display: 'flex',
+                    backgroundColor: 'transparent',
+                    border: '1px solid rgba(255,255,255,.1)',
+                    borderRadius: 2
+
                 },
                 input: {
                     padding: "0 4px",
-                    border: 0
+                    border: 0,
+                    color: 'rgba(255, 255, 255, 0.64)'
                 },
                 hint: {
                     transition: 'all .25s',
@@ -99,32 +102,16 @@ var MainSearch = (function (_Component) {
                     lineHeight: "36px",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
-                    textOverflow: "ellipsis"
+                    textOverflow: "ellipsis",
+                    color: 'rgba(255, 255, 255, 0.64)'
                 },
                 magnifier: {
                     padding: '7px 0 0 8px',
-                    fontSize: 23,
-                    color: 'rgba(0, 0, 0, 0.33)'
+                    fontSize: 18,
+                    color: 'rgba(255, 255, 255, 0.64)'
                 },
                 underline: {
                     display: "none"
-                },
-                closedMode: {
-                    main: {
-                        backgroundColor: 'transparent',
-                        border: '1px solid rgba(255,255,255,.1)',
-                        borderRadius: 2
-                    },
-                    magnifier: {
-                        fontSize: 18,
-                        color: 'rgba(255, 255, 255, 0.64)'
-                    },
-                    input: {
-                        color: 'rgba(255, 255, 255, 0.64)'
-                    },
-                    hint: {
-                        color: 'rgba(255, 255, 255, 0.64)'
-                    }
                 }
             };
         }
@@ -186,24 +173,11 @@ var MainSearch = (function (_Component) {
         var main = _MainSearch$styles.main;
         var input = _MainSearch$styles.input;
         var hint = _MainSearch$styles.hint;
-        var underline = _MainSearch$styles.underline;
         var magnifier = _MainSearch$styles.magnifier;
-        var closedMode = _MainSearch$styles.closedMode;
-
-        if (mode === 'closed') {
-            main = _extends({}, main, closedMode.main);
-            hint = _extends({}, hint, closedMode.hint);
-            input = _extends({}, input, closedMode.input);
-            magnifier = _extends({}, magnifier, closedMode.magnifier);
-        }
-        var topStyle = {};
-        if (mode !== 'closed') {
-            topStyle = { backgroundColor: this.props.muiTheme.palette.accent2Color };
-        }
 
         return _react2['default'].createElement(
             'div',
-            { className: 'search-input', style: topStyle },
+            { className: 'search-input' },
             _react2['default'].createElement(
                 'div',
                 { className: 'panel-header', style: { display: 'flex' } },

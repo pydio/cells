@@ -89,11 +89,7 @@ class SearchForm extends Component {
 
     setMode(mode) {
         if (mode === 'small' && this.state.display !== 'closed') return // we can only set to small when the previous state was closed
-        if(mode === 'more' && this.state.display === 'advanced'){
-            let {basename, ...otherValues} = this.state.values;
-            if(basename) this.setState({values: {basename}}, this.submit);
-            else this.setState({values: {}}, this.submit);
-        }else if(mode === 'small' && this.state.display === 'closed'){
+        if(mode === 'small' && this.state.display === 'closed'){
             let {basename, ...otherValues} = this.state.values;
             if(otherValues && Object.keys(otherValues).length){
                 mode = 'advanced';
@@ -184,15 +180,18 @@ class SearchForm extends Component {
             this.submit();
         };
 
-        let style = this.props.style;
-        let zDepth = 2;
-        if(display === 'closed'){
-            zDepth = 0;
-            style = {...style, backgroundColor: 'transparent'};
-        }else{
-            style = {...style, backgroundColor: '#f5f5f5'};
+        let style = {...this.props.style, backgroundColor:'transparent'};
+        let zDepth = 0;
+        let searchResultsStyle = {}
+        if(display !== 'closed'){
+            searchResultsStyle = {
+                backgroundColor:'white',
+                position:'absolute',
+                right: 0,
+                display:'block',
+                width: 256
+            };
         }
-
         return (
             <Paper ref="root" zDepth={zDepth} className={"top_search_form " + display} style={style}>
                 <MainSearch
@@ -203,7 +202,7 @@ class SearchForm extends Component {
                     showAdvanced={!this.props.crossWorkspace}
                     onAdvanced={() => this.setMode("advanced")}
                     onClose={() => this.setMode("closed")}
-                    onMore={() => this.setMode("more")}
+                    onMore={() => this.setMode("advanced")}
                     onChange={(values) => this.update(values)}
                     onSubmit={() => this.submit()}
                     hintText={ getMessage(this.props.crossWorkspace || searchScope === 'all' ? 607 : 87 ) + "..."}
@@ -213,16 +212,15 @@ class SearchForm extends Component {
                         onChange:searchScopeChanged
                     }}
                 />
-                {display === 'advanced' &&
-                    <AdvancedSearch
-                        {...this.props}
-                        values={values}
-                        onChange={(values) => this.update(values)}
-                        onSubmit={() => this.submit()}
-                    />
-                }
-
-                <div className="search-results"style={display==='small' ? {backgroundColor:'white'} : null}>
+                <Paper className="search-results" zDepth={2} style={searchResultsStyle}>
+                    {display === 'advanced' &&
+                        <AdvancedSearch
+                            {...this.props}
+                            values={values}
+                            onChange={(values) => this.update(values)}
+                            onSubmit={() => this.submit()}
+                        />
+                    }
                     {empty &&
                         <EmptyStateView
                             iconClassName=""
@@ -263,12 +261,12 @@ class SearchForm extends Component {
                     />
 
                     {display === 'small' &&
-                        <div style={{display:'flex', alignItems:'center', padding:5, paddingLeft: 0, backgroundColor:'#f5f5f5'}}>
-                            {!this.props.crossWorkspace && !this.props.uniqueSearchScope &&  <SearchScopeSelector style={{flex: 1, maxWidth:162}} labelStyle={{paddingLeft: 8}} value={searchScope} onChange={searchScopeChanged} onTouchTap={() => this.setMode('small')}/>}
-                            <FlatButton style={{marginTop:4}} primary={true} label={getMessage(456)} onFocus={() => this.setMode("small")} onTouchTap={() => this.setMode("more")} onClick={() => this.setMode("more")} />
+                        <div style={{display:'flex', alignItems:'center', padding:4, paddingTop: 0, backgroundColor:'#f5f5f5'}}>
+                            {!this.props.crossWorkspace && !this.props.uniqueSearchScope &&  <SearchScopeSelector style={{flex: 1, maxWidth:200}} labelStyle={{paddingLeft: 8}} value={searchScope} onChange={searchScopeChanged} onTouchTap={() => this.setMode('small')}/>}
+                            <FlatButton style={{marginTop:4, display:'none'}} primary={true} label={getMessage(456)} onFocus={() => this.setMode("small")} onTouchTap={() => this.setMode("advanced")} onClick={() => this.setMode("advanced")} />
                         </div>
                     }
-                </div>
+                </Paper>
 
             </Paper>
         );

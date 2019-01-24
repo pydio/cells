@@ -1385,24 +1385,13 @@ div#multiple_download_container div div a:hover {
 .react-mui-context .top_search_form .search-results .files-list {
   margin-right: 0 !important;
 }
-.react-mui-context .top_search_form.small,
-.react-mui-context .top_search_form.more,
 .react-mui-context .top_search_form.advanced {
   background-color: white;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  width: 256px;
-  height: auto;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
 }
-.react-mui-context .top_search_form.small .search-input,
-.react-mui-context .top_search_form.more .search-input,
 .react-mui-context .top_search_form.advanced .search-input {
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
 }
-.react-mui-context .top_search_form.small .search-results,
-.react-mui-context .top_search_form.more .search-results,
 .react-mui-context .top_search_form.advanced .search-results {
   display: block;
 }
@@ -1425,64 +1414,56 @@ div#multiple_download_container div div a:hover {
   font-size: 14px;
   line-height: 16px;
 }
-.react-mui-context .top_search_form.more,
-.react-mui-context .top_search_form.advanced {
+.react-mui-context .top_search_form.advanced1 {
   background-color: #fafafa;
   width: 512px;
   height: 512px;
 }
-.react-mui-context .top_search_form.more.advanced,
-.react-mui-context .top_search_form.advanced.advanced {
+.react-mui-context .top_search_form.advanced1.advanced {
   height: 612px;
 }
-.react-mui-context .top_search_form.more .search-results,
-.react-mui-context .top_search_form.advanced .search-results {
+.react-mui-context .top_search_form.advanced1 .search-results {
   height: 412px;
 }
-.react-mui-context .top_search_form.more .search-results .material-list-entry.material-list-entry-2-lines,
-.react-mui-context .top_search_form.advanced .search-results .material-list-entry.material-list-entry-2-lines {
+.react-mui-context .top_search_form.advanced1 .search-results .material-list-entry.material-list-entry-2-lines {
   background-color: white;
   border-bottom: 0 !important;
   margin: 5px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.33);
 }
-.react-mui-context .top_search_form.more .material-list-icon img,
-.react-mui-context .top_search_form.advanced .material-list-icon img {
+.react-mui-context .top_search_form.advanced1 .material-list-icon img {
   border-radius: 0;
   background-color: transparent;
 }
-.react-mui-context .top_search_form.more .material-list-icon .covering-bg-preview,
-.react-mui-context .top_search_form.advanced .material-list-icon .covering-bg-preview {
+.react-mui-context .top_search_form.advanced1 .material-list-icon .covering-bg-preview {
   height: 50px;
   width: 50px;
   margin: 9px;
 }
-.react-mui-context .top_search_form.more .panel-header,
-.react-mui-context .top_search_form.advanced .panel-header {
+.react-mui-context .top_search_form.advanced1 .panel-header {
   display: block;
   height: 44px;
   padding: 13px 6px 10px;
 }
-.react-mui-context .top_search_form.more .search-advanced-button,
-.react-mui-context .top_search_form.advanced .search-advanced-button {
+.react-mui-context .top_search_form.advanced1 .search-advanced-button {
   width: 120px;
   overflow: visible;
   top: 69px;
 }
-.react-mui-context .top_search_form.advanced {
+.react-mui-context .top_search_form.advanced1 {
   width: 768px;
 }
-.react-mui-context .top_search_form.advanced .search-advanced-button {
+.react-mui-context .top_search_form.advanced1 .search-advanced-button {
   display: none;
 }
-.react-mui-context .top_search_form.advanced .search-input .panel-header {
+.react-mui-context .top_search_form.advanced1 .search-input .panel-header {
   padding: 53px 12px 10px;
   height: 80px;
 }
-.react-mui-context .top_search_form.advanced .search-input .mui-text-field {
+.react-mui-context .top_search_form.advanced1 .search-input .mui-text-field {
   display: none;
 }
-.react-mui-context .top_search_form.advanced .search-advanced {
+.react-mui-context .top_search_form.advanced1 .search-advanced {
   display: block;
   position: absolute;
   left: 6px;
@@ -1493,7 +1474,7 @@ div#multiple_download_container div div a:hover {
   overflow-y: scroll;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12);
 }
-.react-mui-context .top_search_form.advanced .search-results {
+.react-mui-context .top_search_form.advanced1 .search-results {
   margin-left: 249px;
 }
 .indeterminate-loader {

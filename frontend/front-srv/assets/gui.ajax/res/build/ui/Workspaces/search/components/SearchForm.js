@@ -138,18 +138,11 @@ var SearchForm = (function (_Component) {
 
     SearchForm.prototype.setMode = function setMode(mode) {
         if (mode === 'small' && this.state.display !== 'closed') return; // we can only set to small when the previous state was closed
-        if (mode === 'more' && this.state.display === 'advanced') {
+        if (mode === 'small' && this.state.display === 'closed') {
             var _state$values = this.state.values;
             var basename = _state$values.basename;
 
             var otherValues = _objectWithoutProperties(_state$values, ['basename']);
-
-            if (basename) this.setState({ values: { basename: basename } }, this.submit);else this.setState({ values: {} }, this.submit);
-        } else if (mode === 'small' && this.state.display === 'closed') {
-            var _state$values2 = this.state.values;
-            var basename = _state$values2.basename;
-
-            var otherValues = _objectWithoutProperties(_state$values2, ['basename']);
 
             if (otherValues && Object.keys(otherValues).length) {
                 mode = 'advanced';
@@ -266,15 +259,18 @@ var SearchForm = (function (_Component) {
             _this4.submit();
         };
 
-        var style = this.props.style;
-        var zDepth = 2;
-        if (display === 'closed') {
-            zDepth = 0;
-            style = _extends({}, style, { backgroundColor: 'transparent' });
-        } else {
-            style = _extends({}, style, { backgroundColor: '#f5f5f5' });
+        var style = _extends({}, this.props.style, { backgroundColor: 'transparent' });
+        var zDepth = 0;
+        var searchResultsStyle = {};
+        if (display !== 'closed') {
+            searchResultsStyle = {
+                backgroundColor: 'white',
+                position: 'absolute',
+                right: 0,
+                display: 'block',
+                width: 256
+            };
         }
-
         return _react2['default'].createElement(
             _materialUi.Paper,
             { ref: 'root', zDepth: zDepth, className: "top_search_form " + display, style: style },
@@ -293,7 +289,7 @@ var SearchForm = (function (_Component) {
                     return _this4.setMode("closed");
                 },
                 onMore: function () {
-                    return _this4.setMode("more");
+                    return _this4.setMode("advanced");
                 },
                 onChange: function (values) {
                     return _this4.update(values);
@@ -308,18 +304,18 @@ var SearchForm = (function (_Component) {
                     onChange: searchScopeChanged
                 }
             }),
-            display === 'advanced' && _react2['default'].createElement(_AdvancedSearch2['default'], _extends({}, this.props, {
-                values: values,
-                onChange: function (values) {
-                    return _this4.update(values);
-                },
-                onSubmit: function () {
-                    return _this4.submit();
-                }
-            })),
             _react2['default'].createElement(
-                'div',
-                { className: 'search-results', style: display === 'small' ? { backgroundColor: 'white' } : null },
+                _materialUi.Paper,
+                { className: 'search-results', zDepth: 2, style: searchResultsStyle },
+                display === 'advanced' && _react2['default'].createElement(_AdvancedSearch2['default'], _extends({}, this.props, {
+                    values: values,
+                    onChange: function (values) {
+                        return _this4.update(values);
+                    },
+                    onSubmit: function () {
+                        return _this4.submit();
+                    }
+                })),
                 empty && _react2['default'].createElement(EmptyStateView, {
                     iconClassName: '',
                     primaryTextId: 611,
@@ -358,16 +354,16 @@ var SearchForm = (function (_Component) {
                 }),
                 display === 'small' && _react2['default'].createElement(
                     'div',
-                    { style: { display: 'flex', alignItems: 'center', padding: 5, paddingLeft: 0, backgroundColor: '#f5f5f5' } },
-                    !this.props.crossWorkspace && !this.props.uniqueSearchScope && _react2['default'].createElement(_SearchScopeSelector2['default'], { style: { flex: 1, maxWidth: 162 }, labelStyle: { paddingLeft: 8 }, value: searchScope, onChange: searchScopeChanged, onTouchTap: function () {
+                    { style: { display: 'flex', alignItems: 'center', padding: 4, paddingTop: 0, backgroundColor: '#f5f5f5' } },
+                    !this.props.crossWorkspace && !this.props.uniqueSearchScope && _react2['default'].createElement(_SearchScopeSelector2['default'], { style: { flex: 1, maxWidth: 200 }, labelStyle: { paddingLeft: 8 }, value: searchScope, onChange: searchScopeChanged, onTouchTap: function () {
                             return _this4.setMode('small');
                         } }),
-                    _react2['default'].createElement(_materialUi.FlatButton, { style: { marginTop: 4 }, primary: true, label: getMessage(456), onFocus: function () {
+                    _react2['default'].createElement(_materialUi.FlatButton, { style: { marginTop: 4, display: 'none' }, primary: true, label: getMessage(456), onFocus: function () {
                             return _this4.setMode("small");
                         }, onTouchTap: function () {
-                            return _this4.setMode("more");
+                            return _this4.setMode("advanced");
                         }, onClick: function () {
-                            return _this4.setMode("more");
+                            return _this4.setMode("advanced");
                         } })
                 )
             )

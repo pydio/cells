@@ -74,7 +74,7 @@
                       editable="true"
                       uploadAction="/frontend/binaries/GLOBAL/{BINARY}"
                       loadAction="/frontend/binaries/GLOBAL/{BINARY}"
-                      defaultImage="plug/gui.ajax/res/themes/common/images/PydioLogo250.png"
+                      defaultImage="plug/gui.ajax/res/themes/common/images/PydioCellsColor.png"
                       expose="true"
                 />
 

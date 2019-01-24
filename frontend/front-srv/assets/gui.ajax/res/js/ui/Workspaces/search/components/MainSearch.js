@@ -48,16 +48,19 @@ class MainSearch extends Component {
     static get styles() {
         return {
             main: {
-                background: "#ffffff",
                 width: "100%",
                 height: 36,
-                border: "none",
                 transition:'all .25s',
-                display:'flex'
+                display:'flex',
+                backgroundColor:'transparent',
+                border: '1px solid rgba(255,255,255,.1)',
+                borderRadius: 2
+
             },
             input: {
                 padding: "0 4px",
-                border: 0
+                border: 0,
+                color: 'rgba(255, 255, 255, 0.64)'
             },
             hint: {
                 transition:'all .25s',
@@ -67,38 +70,22 @@ class MainSearch extends Component {
                 lineHeight: "36px",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
-                textOverflow: "ellipsis"
+                textOverflow: "ellipsis",
+                color: 'rgba(255, 255, 255, 0.64)'
             },
             magnifier: {
                 padding: '7px 0 0 8px',
-                fontSize: 23,
-                color: 'rgba(0, 0, 0, 0.33)'
+                fontSize: 18,
+                color: 'rgba(255, 255, 255, 0.64)'
             },
             underline: {
                 display: "none"
             },
-            closedMode: {
-                main: {
-                    backgroundColor:'transparent',
-                    border: '1px solid rgba(255,255,255,.1)',
-                    borderRadius: 2
-                },
-                magnifier: {
-                    fontSize: 18,
-                    color: 'rgba(255, 255, 255, 0.64)'
-                },
-                input: {
-                    color: 'rgba(255, 255, 255, 0.64)'
-                },
-                hint: {
-                    color: 'rgba(255, 255, 255, 0.64)'
-                }
-            }
         }
     }
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
             mode: props.mode,
@@ -132,20 +119,10 @@ class MainSearch extends Component {
 
     render() {
         const {title, mode, onOpen, onAdvanced, onMore, onClose, hintText, loading, scopeSelectorProps, showAdvanced, getMessage} = this.props;
-        let {main, input, hint, underline, magnifier, closedMode} = MainSearch.styles
-        if(mode === 'closed'){
-            main = {...main, ...closedMode.main};
-            hint = {...hint, ...closedMode.hint};
-            input = {...input, ...closedMode.input};
-            magnifier = {...magnifier, ...closedMode.magnifier};
-        }
-        let topStyle = {};
-        if(mode !== 'closed'){
-            topStyle = {backgroundColor: this.props.muiTheme.palette.accent2Color};
-        }
+        let {main, input, hint, magnifier} = MainSearch.styles;
 
         return (
-            <div className="search-input" style={topStyle}>
+            <div className="search-input">
                 <div className="panel-header" style={{display:'flex'}}>
                     {scopeSelectorProps &&
                     <span>
