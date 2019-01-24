@@ -48,6 +48,11 @@ let FSTemplate = React.createClass({
     },
 
     openRightPanel(name){
+        const {rightColumnState} = this.state;
+        if(name === rightColumnState){
+            this.closeRightPanel();
+            return;
+        }
         this.setState({rightColumnState: name}, () => {
             let {infoPanelOpen} = this.state;
             if(name !== 'info-panel'){
@@ -182,39 +187,31 @@ let FSTemplate = React.createClass({
 
         let rightColumnWidth;
 
+        let mainToolbars = ["info_panel", "info_panel_share"];
+        let mainToolbarsOthers = ["change", "other"];
+
+        const {pydio} = this.props;
+        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
+        const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
+
+        let showChatTab = (!pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS"));
+        let showAddressBook = (!pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK"));
+        if(showChatTab){
+            const repo = pydio.user.getRepositoriesList().get(pydio.user.activeRepository);
+            if(repo && !repo.getOwner()){
+                showChatTab = false;
+            }
+        }
+        if(!showChatTab && rightColumnState === 'chat') {
+            rightColumnState = 'info-panel';
+        }
+
         let classes = ['vertical_layout', 'vertical_fit', 'react-fs-template'];
         if(infoPanelOpen && infoPanelToggle) {
             classes.push('info-panel-open');
             if(rightColumnState !== 'info-panel'){
                 classes.push('info-panel-open-large');
             }
-        }
-
-        let mainToolbars = ["info_panel", "info_panel_share"];
-        let mainToolbarsOthers = ["change", "other"];
-        if(infoPanelOpen && infoPanelToggle && (rightColumnState === 'info-panel')){
-            mainToolbars = ["change_main"];
-            mainToolbarsOthers = ["get", "change", "other"];
-        }
-
-        const {pydio} = this.props;
-        const guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
-        const wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
-
-        let showChatTab = true;
-        let showAddressBook = true;
-        const repo = pydio.user.getRepositoriesList().get(pydio.user.activeRepository);
-        if(repo && !repo.getOwner()){
-            showChatTab = false;
-            if(rightColumnState === 'chat') {
-                rightColumnState = 'info-panel';
-            }
-        }
-        if (pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")) {
-            showChatTab = false;
-        }
-        if (pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK")) {
-            showAddressBook = false;
         }
 
         // Making sure we only pass the style to the parent element
@@ -225,11 +222,6 @@ let FSTemplate = React.createClass({
             tutorialComponent = <WelcomeTour ref="welcome" pydio={this.props.pydio}/>;
         }
 
-        const searchForm = (
-            <div style={{position:'relative', width: 150}}>
-                <SearchForm {...props}/>
-            </div>
-        );
         const leftPanelProps = {
             headerHeight:headerHeight,
             userWidgetProps: {
@@ -263,7 +255,7 @@ let FSTemplate = React.createClass({
                             <div style={{height:32, paddingLeft: 20, alignItems:'center', display:'flex'}}>
                                 <ButtonMenu
                                     {...props}
-                                    buttonStyle={styles.flatButtonStyle}
+                                    buttonStyle={{...styles.flatButtonStyle, marginRight: 4}}
                                     buttonLabelStyle={styles.flatButtonLabelStyle}
                                     buttonBackgroundColor={'rgba(255,255,255,0.17)'}
                                     buttonHoverColor={'rgba(255,255,255,0.33)'}
@@ -306,42 +298,38 @@ let FSTemplate = React.createClass({
                                 buttonStyle={styles.buttonsIconStyle}
                                 flatButtonStyle={styles.buttonsStyle}
                             />
-                            {searchForm}
-                            <div style={{borderLeft:'1px solid ' + appBarTextColor.fade(0.77).toString(), margin:'0 10px', height: 32}}/>
+                            <div style={{position:'relative', width: 150}}>
+                                <SearchForm {...props} headerHeight={headerHeight}/>
+                            </div>
+                            <div style={{borderLeft:'1px solid ' + appBarTextColor.fade(0.77).toString(), margin:'0 10px', height: headerHeight, display:'none'}}/>
                             <div style={{display:'flex', paddingRight: 10}}>
                                 <IconButton
                                     iconClassName={"mdi mdi-information"}
                                     style={rightColumnState === 'info-panel' ? styles.activeButtonStyle : styles.buttonsStyle}
                                     iconStyle={rightColumnState === 'info-panel' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
                                     onTouchTap={()=>{this.openRightPanel('info-panel')}}
-                                    tooltip={pydio.MessageHash['341']}
+                                    tooltip={pydio.MessageHash[rightColumnState === 'info-panel' ? '86':'341']}
                                 />
-                                {showChatTab &&
-                                    <IconButton
-                                        iconClassName={"mdi mdi-message-text"}
-                                        style={rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle}
-                                        iconStyle={rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
-                                        onTouchTap={()=>{this.openRightPanel('chat')}}
-                                        tooltip={pydio.MessageHash['635']}
-                                    />
-                                }
                                 {showAddressBook &&
                                     <IconButton
                                         iconClassName={"mdi mdi-account-card-details"}
                                         style={rightColumnState === 'address-book' ? styles.activeButtonStyle : styles.buttonsStyle}
                                         iconStyle={rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
                                         onTouchTap={()=>{this.openRightPanel('address-book')}}
-                                        tooltip={pydio.MessageHash['592']}
+                                        tooltip={pydio.MessageHash[rightColumnState === 'address-book' ? '86':'592']}
+                                        tooltipPosition={showChatTab?"bottom-center":"bottom-right"}
                                     />
                                 }
+                                {showChatTab &&
                                 <IconButton
-                                    iconClassName={"mdi mdi-close"}
-                                    style={styles.buttonsStyle}
-                                    iconStyle={styles.buttonsIconStyle}
-                                    onTouchTap={()=>{this.closeRightPanel()}}
-                                    disabled={!rightColumnState}
-                                    tooltip={pydio.MessageHash['86']}
+                                    iconClassName={"mdi mdi-message-text"}
+                                    style={rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle}
+                                    iconStyle={rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
+                                    onTouchTap={()=>{this.openRightPanel('chat')}}
+                                    tooltip={pydio.MessageHash[rightColumnState === 'chat' ? '86':'635']}
+                                    tooltipPosition={"bottom-left"}
                                 />
+                                }
                             </div>
                         </div>
                     </Paper>
@@ -350,16 +338,17 @@ let FSTemplate = React.createClass({
                     <InfoPanel
                         {...props}
                         dataModel={props.pydio.getContextHolder()}
+                        onRequestClose={()=>{this.closeRightPanel()}}
                         onContentChange={this.infoPanelContentChange}
                         style={styles.infoPanelStyle}
                     />
                 }
                 {rightColumnState === 'chat' &&
-                    <CellChat pydio={pydio} style={styles.otherPanelsStyle} zDepth={1}/>
+                    <CellChat pydio={pydio} style={styles.otherPanelsStyle} zDepth={1} onRequestClose={()=>{this.closeRightPanel()}}/>
                 }
 
                 {rightColumnState === 'address-book' &&
-                    <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={1}/>
+                    <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={1} onRequestClose={()=>{this.closeRightPanel()}}/>
                 }
 
                 <EditionPanel {...props}/>

@@ -119,7 +119,7 @@ class BookmarksList extends React.Component {
             <span>
                 <IconButton
                     onTouchTap={this.handleTouchTap.bind(this)}
-                    iconClassName={"userActionIcon mdi mdi-bookmark-check"}
+                    iconClassName={"userActionIcon mdi mdi-star-outline"}
                     tooltip={pydio.MessageHash['147']}
                     className="userActionButton"
                     iconStyle={iconStyle}
@@ -151,7 +151,7 @@ class BookmarksList extends React.Component {
                     {!loading && (!items || !items.length) &&
                         <EmptyStateView
                             pydio={pydio}
-                            iconClassName="mdi mdi-bookmark-outline"
+                            iconClassName="mdi mdi-star-outline"
                             primaryTextId="145"
                             secondaryTextId={"482"}
                             style={{minHeight: 260}}

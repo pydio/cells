@@ -105,13 +105,27 @@ var ButtonComposed = _react2['default'].createClass({
         var className = _props.className;
         var direction = _props.direction;
 
+        var masterLabelStyle = _extends({}, buttonLabelStyle);
+        var arrowLabelStyle = _extends({}, buttonLabelStyle);
+        if (masterLabelStyle.paddingRight) {
+            masterLabelStyle.paddingRight /= Math.floor(3);
+        } else {
+            masterLabelStyle.paddingRight = 8;
+        }
+        if (arrowLabelStyle.paddingLeft) {
+            arrowLabelStyle.paddingLeft /= Math.floor(3);
+        } else {
+            arrowLabelStyle.paddingLeft = 8;
+        }
+        arrowLabelStyle.paddingRight = arrowLabelStyle.paddingLeft;
+
         var masterProps = {
             primary: primary,
             secondary: secondary,
             disabled: disabled,
             label: buttonTitle,
             style: _extends({}, buttonStyle, { minWidth: 60 }),
-            labelStyle: _extends({}, buttonLabelStyle, { paddingRight: 8 }),
+            labelStyle: masterLabelStyle,
             onTouchTap: masterAction,
             onClick: function onClick(e) {
                 return e.stopPropagation();
@@ -124,7 +138,7 @@ var ButtonComposed = _react2['default'].createClass({
             label: _react2['default'].createElement('span', { className: "mdi mdi-menu-down" }),
             onTouchTap: this.showMenu,
             style: _extends({}, buttonStyle, { minWidth: 16 }),
-            labelStyle: _extends({}, buttonLabelStyle, { paddingLeft: 8, paddingRight: 8 }),
+            labelStyle: arrowLabelStyle,
             onClick: function onClick(e) {
                 return e.stopPropagation();
             }

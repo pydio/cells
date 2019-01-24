@@ -210,7 +210,7 @@
                 </processing>
             </action>
             <action name="bookmark">
-                <gui text="152" title="153" iconClass="mdi mdi-bookmark-check" hasAccessKey="true"
+                <gui text="152" title="153" iconClass="mdi mdi-star-outline" hasAccessKey="true"
                      accessKey="bookmarks_access_key">
                     <context selection="true" dir="false" recycle="hidden"
                              actionBar="true" contextMenu="true" infoPanel="false"

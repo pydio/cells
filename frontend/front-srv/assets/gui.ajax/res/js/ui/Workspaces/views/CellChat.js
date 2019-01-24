@@ -28,7 +28,7 @@ class CellChat extends React.Component{
     }
 
     render(){
-        const {pydio, style, zDepth} = this.props;
+        const {pydio, style, zDepth, onRequestClose} = this.props;
         const {cellModel, cellId} = this.state;
         let chatRoomType = 'WORKSPACE';
         return (
@@ -47,6 +47,7 @@ class CellChat extends React.Component{
                         style:{padding:'0 10px', backgroundColor: 'transparent'}
                     }}
                     computePresenceFromACLs={cellModel?cellModel.getAcls():{}}
+                    onRequestClose={onRequestClose}
                 />
             </Paper>
         );

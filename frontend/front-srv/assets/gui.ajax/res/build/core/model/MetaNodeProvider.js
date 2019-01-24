@@ -404,7 +404,7 @@ var MetaNodeProvider = (function () {
         // BOOKMARKS
         if (meta.has('bookmark')) {
             meta.set('ajxp_bookmarked', 'true');
-            overlays.push('mdi mdi-bookmark-outline');
+            overlays.push('mdi mdi-star');
         }
 
         // LOCKS

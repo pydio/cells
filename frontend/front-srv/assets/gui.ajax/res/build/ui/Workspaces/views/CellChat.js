@@ -58,6 +58,7 @@ var CellChat = (function (_React$Component) {
         var pydio = _props.pydio;
         var style = _props.style;
         var zDepth = _props.zDepth;
+        var onRequestClose = _props.onRequestClose;
         var _state = this.state;
         var cellModel = _state.cellModel;
         var cellId = _state.cellId;
@@ -79,7 +80,8 @@ var CellChat = (function (_React$Component) {
                     primaryTextId: pydio.MessageHash['637'],
                     style: { padding: '0 10px', backgroundColor: 'transparent' }
                 },
-                computePresenceFromACLs: cellModel ? cellModel.getAcls() : {}
+                computePresenceFromACLs: cellModel ? cellModel.getAcls() : {},
+                onRequestClose: onRequestClose
             })
         );
     };

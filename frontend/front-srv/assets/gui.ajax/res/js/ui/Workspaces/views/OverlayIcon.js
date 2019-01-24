@@ -30,7 +30,7 @@ class OverlayIcon extends React.Component{
         const m = (id) => pydio.MessageHash[id] || id;
         const isLeaf = node.isLeaf();
         switch(overlay){
-            case "mdi mdi-bookmark-outline":
+            case "mdi mdi-star":
                 tooltip = isLeaf ? m('overlay.bookmark.file'):m('overlay.bookmark.folder');
                 break;
             case "mdi mdi-share-variant":

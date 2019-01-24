@@ -65,6 +65,19 @@ const ButtonComposed = React.createClass({
     render(){
         let masterButton, arrowButton;
         const {id, masterAction, buttonTitle, primary, secondary, disabled, raised, menuItems, buttonStyle, buttonLabelStyle, className, direction} = this.props;
+        let masterLabelStyle = {...buttonLabelStyle};
+        let arrowLabelStyle = {...buttonLabelStyle};
+        if(masterLabelStyle.paddingRight){
+            masterLabelStyle.paddingRight /= Math.floor(3);
+        } else {
+            masterLabelStyle.paddingRight = 8;
+        }
+        if(arrowLabelStyle.paddingLeft){
+            arrowLabelStyle.paddingLeft /= Math.floor(3);
+        } else {
+            arrowLabelStyle.paddingLeft = 8;
+        }
+        arrowLabelStyle.paddingRight = arrowLabelStyle.paddingLeft;
 
         const masterProps = {
             primary: primary,
@@ -72,7 +85,7 @@ const ButtonComposed = React.createClass({
             disabled: disabled,
             label: buttonTitle,
             style: {...buttonStyle, minWidth: 60},
-            labelStyle:{...buttonLabelStyle, paddingRight: 8},
+            labelStyle:masterLabelStyle,
             onTouchTap: masterAction,
             onClick:(e=>e.stopPropagation())
         };
@@ -83,7 +96,7 @@ const ButtonComposed = React.createClass({
             label: <span className={"mdi mdi-menu-down"}/>,
             onTouchTap: this.showMenu,
             style:{...buttonStyle, minWidth: 16},
-            labelStyle:{...buttonLabelStyle, paddingLeft: 8, paddingRight: 8},
+            labelStyle:arrowLabelStyle,
             onClick:(e=>e.stopPropagation())
         };
         const {showMenu, anchor, over} = this.state;

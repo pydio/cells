@@ -104,6 +104,12 @@ var FSTemplate = _react2['default'].createClass({
     openRightPanel: function openRightPanel(name) {
         var _this = this;
 
+        var rightColumnState = this.state.rightColumnState;
+
+        if (name === rightColumnState) {
+            this.closeRightPanel();
+            return;
+        }
         this.setState({ rightColumnState: name }, function () {
             var infoPanelOpen = _this.state.infoPanelOpen;
 
@@ -253,40 +259,32 @@ var FSTemplate = _react2['default'].createClass({
 
         var rightColumnWidth = undefined;
 
-        var classes = ['vertical_layout', 'vertical_fit', 'react-fs-template'];
-        if (infoPanelOpen && infoPanelToggle) {
-            classes.push('info-panel-open');
-            if (rightColumnState !== 'info-panel') {
-                classes.push('info-panel-open-large');
-            }
-        }
-
         var mainToolbars = ["info_panel", "info_panel_share"];
         var mainToolbarsOthers = ["change", "other"];
-        if (infoPanelOpen && infoPanelToggle && rightColumnState === 'info-panel') {
-            mainToolbars = ["change_main"];
-            mainToolbarsOthers = ["get", "change", "other"];
-        }
 
         var pydio = this.props.pydio;
 
         var guiPrefs = pydio.user ? pydio.user.getPreference('gui_preferences', true) : [];
         var wTourEnabled = pydio.getPluginConfigs('gui.ajax').get('ENABLE_WELCOME_TOUR');
 
-        var showChatTab = true;
-        var showAddressBook = true;
-        var repo = pydio.user.getRepositoriesList().get(pydio.user.activeRepository);
-        if (repo && !repo.getOwner()) {
-            showChatTab = false;
-            if (rightColumnState === 'chat') {
-                rightColumnState = 'info-panel';
+        var showChatTab = !pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS");
+        var showAddressBook = !pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK");
+        if (showChatTab) {
+            var repo = pydio.user.getRepositoriesList().get(pydio.user.activeRepository);
+            if (repo && !repo.getOwner()) {
+                showChatTab = false;
             }
         }
-        if (pydio.getPluginConfigs("action.advanced_settings").get("GLOBAL_DISABLE_CHATS")) {
-            showChatTab = false;
+        if (!showChatTab && rightColumnState === 'chat') {
+            rightColumnState = 'info-panel';
         }
-        if (pydio.getPluginConfigs("action.user").get("DASH_DISABLE_ADDRESS_BOOK")) {
-            showAddressBook = false;
+
+        var classes = ['vertical_layout', 'vertical_fit', 'react-fs-template'];
+        if (infoPanelOpen && infoPanelToggle) {
+            classes.push('info-panel-open');
+            if (rightColumnState !== 'info-panel') {
+                classes.push('info-panel-open-large');
+            }
         }
 
         // Making sure we only pass the style to the parent element
@@ -300,11 +298,6 @@ var FSTemplate = _react2['default'].createClass({
             tutorialComponent = _react2['default'].createElement(_WelcomeTour2['default'], { ref: 'welcome', pydio: this.props.pydio });
         }
 
-        var searchForm = _react2['default'].createElement(
-            'div',
-            { style: { position: 'relative', width: 150 } },
-            _react2['default'].createElement(_search.SearchForm, props)
-        );
         var leftPanelProps = {
             headerHeight: headerHeight,
             userWidgetProps: {
@@ -350,7 +343,7 @@ var FSTemplate = _react2['default'].createClass({
                         'div',
                         { style: { height: 32, paddingLeft: 20, alignItems: 'center', display: 'flex' } },
                         _react2['default'].createElement(ButtonMenu, _extends({}, props, {
-                            buttonStyle: styles.flatButtonStyle,
+                            buttonStyle: _extends({}, styles.flatButtonStyle, { marginRight: 4 }),
                             buttonLabelStyle: styles.flatButtonLabelStyle,
                             buttonBackgroundColor: 'rgba(255,255,255,0.17)',
                             buttonHoverColor: 'rgba(255,255,255,0.33)',
@@ -391,8 +384,12 @@ var FSTemplate = _react2['default'].createClass({
                         buttonStyle: styles.buttonsIconStyle,
                         flatButtonStyle: styles.buttonsStyle
                     })),
-                    searchForm,
-                    _react2['default'].createElement('div', { style: { borderLeft: '1px solid ' + appBarTextColor.fade(0.77).toString(), margin: '0 10px', height: 32 } }),
+                    _react2['default'].createElement(
+                        'div',
+                        { style: { position: 'relative', width: 150 } },
+                        _react2['default'].createElement(_search.SearchForm, _extends({}, props, { headerHeight: headerHeight }))
+                    ),
+                    _react2['default'].createElement('div', { style: { borderLeft: '1px solid ' + appBarTextColor.fade(0.77).toString(), margin: '0 10px', height: headerHeight, display: 'none' } }),
                     _react2['default'].createElement(
                         'div',
                         { style: { display: 'flex', paddingRight: 10 } },
@@ -403,16 +400,7 @@ var FSTemplate = _react2['default'].createClass({
                             onTouchTap: function () {
                                 _this5.openRightPanel('info-panel');
                             },
-                            tooltip: pydio.MessageHash['341']
-                        }),
-                        showChatTab && _react2['default'].createElement(_materialUi.IconButton, {
-                            iconClassName: "mdi mdi-message-text",
-                            style: rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle,
-                            iconStyle: rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
-                            onTouchTap: function () {
-                                _this5.openRightPanel('chat');
-                            },
-                            tooltip: pydio.MessageHash['635']
+                            tooltip: pydio.MessageHash[rightColumnState === 'info-panel' ? '86' : '341']
                         }),
                         showAddressBook && _react2['default'].createElement(_materialUi.IconButton, {
                             iconClassName: "mdi mdi-account-card-details",
@@ -421,17 +409,18 @@ var FSTemplate = _react2['default'].createClass({
                             onTouchTap: function () {
                                 _this5.openRightPanel('address-book');
                             },
-                            tooltip: pydio.MessageHash['592']
+                            tooltip: pydio.MessageHash[rightColumnState === 'address-book' ? '86' : '592'],
+                            tooltipPosition: showChatTab ? "bottom-center" : "bottom-right"
                         }),
-                        _react2['default'].createElement(_materialUi.IconButton, {
-                            iconClassName: "mdi mdi-close",
-                            style: styles.buttonsStyle,
-                            iconStyle: styles.buttonsIconStyle,
+                        showChatTab && _react2['default'].createElement(_materialUi.IconButton, {
+                            iconClassName: "mdi mdi-message-text",
+                            style: rightColumnState === 'chat' ? styles.activeButtonStyle : styles.buttonsStyle,
+                            iconStyle: rightColumnState === 'chat' ? styles.activeButtonIconStyle : styles.buttonsIconStyle,
                             onTouchTap: function () {
-                                _this5.closeRightPanel();
+                                _this5.openRightPanel('chat');
                             },
-                            disabled: !rightColumnState,
-                            tooltip: pydio.MessageHash['86']
+                            tooltip: pydio.MessageHash[rightColumnState === 'chat' ? '86' : '635'],
+                            tooltipPosition: "bottom-left"
                         })
                     )
                 )
@@ -439,11 +428,18 @@ var FSTemplate = _react2['default'].createClass({
             _react2['default'].createElement(_MainFilesList2['default'], { ref: 'list', pydio: this.props.pydio, style: rightColumnWidth ? { marginRight: rightColumnWidth } : {} }),
             rightColumnState === 'info-panel' && _react2['default'].createElement(_detailpanesInfoPanel2['default'], _extends({}, props, {
                 dataModel: props.pydio.getContextHolder(),
+                onRequestClose: function () {
+                    _this5.closeRightPanel();
+                },
                 onContentChange: this.infoPanelContentChange,
                 style: styles.infoPanelStyle
             })),
-            rightColumnState === 'chat' && _react2['default'].createElement(_CellChat2['default'], { pydio: pydio, style: styles.otherPanelsStyle, zDepth: 1 }),
-            rightColumnState === 'address-book' && _react2['default'].createElement(_AddressBookPanel2['default'], { pydio: pydio, style: styles.otherPanelsStyle, zDepth: 1 }),
+            rightColumnState === 'chat' && _react2['default'].createElement(_CellChat2['default'], { pydio: pydio, style: styles.otherPanelsStyle, zDepth: 1, onRequestClose: function () {
+                    _this5.closeRightPanel();
+                } }),
+            rightColumnState === 'address-book' && _react2['default'].createElement(_AddressBookPanel2['default'], { pydio: pydio, style: styles.otherPanelsStyle, zDepth: 1, onRequestClose: function () {
+                    _this5.closeRightPanel();
+                } }),
             _react2['default'].createElement(_EditionPanel2['default'], props)
         );
     }
