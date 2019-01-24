@@ -1,107 +1,107 @@
 {
   "tour.create-menu": {
-    "other": "Start adding new files or folders to the current workspace."
+    "other": "Inizia ad aggiungere nuovi file o cartelle al workspace corrente."
   },
   "tour.create-menu.title": {
-    "other": "Add files"
+    "other": "Aggiungi file"
   },
   "tour.display-bar": {
-    "other": "This toolbar allows you to change the display: switch to thumbnails or detail mode depending on your usage, and sort files by name, date, etc..."
+    "other": "Questa barra degli strumenti consente di modificare la visualizzazione: passa a miniature o modalità dettagliata a seconda del tipo di utilizzo, e ordinare i file per nome, data, ecc..."
   },
   "tour.display-bar.title": {
-    "other": "Display Options"
+    "other": "Opzioni di visualizzazione"
   },
   "tour.globsearch.1": {
-    "other": "Use this search form to find files or folders in any workspace and cells. Only the first 5 results are shown, enter a workspace to get more results, and more search options."
+    "other": "Utilizzare questo modulo di ricerca per trovare file o cartelle in qualsiasi workspace e cella. Vengono mostrati solo i primi 5 risultati, immettere un workspace per ottenere più risultati e ulteriori opzioni di ricerca."
   },
   "tour.globsearch.2": {
-    "other": "When no search is entered, the history of your recently accessed files and folder is displayed instead."
+    "other": "Quando non viene immessa nessuna ricerca, viene visualizzata la cronologia di file e cartelle utilizzati di recente."
   },
   "tour.globsearch.title": {
-    "other": "Global Search"
+    "other": "Ricerca globale"
   },
   "tour.infopanel.1": {
-    "other": "Here, you will find many information about current selection: file information, sharing status, user-defined metadata, etc."
+    "other": "Qui troverete diverse informazioni sulla selezione corrente: informazioni sui file, stato della condivisione, metadati definiti dall'utente, ecc."
   },
   "tour.infopanel.2": {
-    "other": "You can close this panel by using the info button in the display toolbar"
+    "other": "Puoi chiudere questo pannello usando il pulsante info sulla barra del display"
   },
   "tour.infopanel.file": {
     "other": "File"
   },
   "tour.infopanel.folder": {
-    "other": "Folder"
+    "other": "Cartella"
   },
   "tour.infopanel.search": {
-    "other": "Search"
+    "other": "Ricerca"
   },
   "tour.infopanel.title": {
-    "other": "Info Panel"
+    "other": "Pannello informazioni"
   },
   "tour.locale.back": {
-    "other": "Back"
+    "other": "Indietro"
   },
   "tour.locale.close": {
-    "other": "Close"
+    "other": "Chiudi"
   },
   "tour.locale.last": {
-    "other": "Finish"
+    "other": "Termina"
   },
   "tour.locale.next": {
-    "other": "Next"
+    "other": "Successivo"
   },
   "tour.locale.skip": {
-    "other": "Skip"
+    "other": "Salta"
   },
   "tour.openworkspace": {
-    "other": "At the first connection, your history is probably empty. Enter a workspace or a cell to start adding files."
+    "other": "La tua storia è probabilmente vuota all'atto della prima connessione. Inserisci un workspace o una cella per iniziare ad aggiungere file."
   },
   "tour.openworkspace.title": {
-    "other": "Open a workspace"
+    "other": "Apri un workspace"
   },
   "tour.uwidget.addressbook": {
-    "other": "Directory of all the users accessing to the platform. Create your own users, and constitute teams that can be used to share resources"
+    "other": "Elenco di tutti gli utenti che accedono alla piattaforma. Crea i tuoi utenti, e costituisci dei team per condividere le risorse"
   },
   "tour.uwidget.alerts": {
-    "other": "Alerts panel will inform you when a user with whom you shared some resources did access it. They can be sent to you directly by email."
+    "other": "Il pannello degli avvisi ti informa quando un utente con cui hai condiviso delle risorse accede a esse. Essi possono essere inviati direttamente via email."
   },
   "tour.uwidget.home": {
-    "other": "Go back to the welcome panel with this button"
+    "other": "Torna al pannello di benvenuto con questo pulsante"
   },
   "tour.uwidget.menu": {
-    "other": "Access to other options : managing your profile and security features, browse all the resources you have shared, sign out of the platform."
+    "other": "Accesso alle altre opzioni: gestione del profilo e delle funzioni di sicurezza, visualizzazione delle risorse condivise, uscita dalla piattaforma."
   },
   "tour.uwidget.title": {
     "other": "User Cartouche"
   },
   "tour.welcomemodal.skip": {
-    "other": "Skip"
+    "other": "Salta"
   },
   "tour.welcomemodal.start": {
-    "other": "Start the tour"
+    "other": "Inizia il tour"
   },
   "tour.welcomemodal.subtitle": {
-    "other": "Drag'n'drop the best photo of you for your profile! This quick tour will guide you through the web interface."
+    "other": "Trascina la tua foto migliore per il tuo profilo! Questo breve tour ti guiderà attraverso l'interfaccia web."
   },
   "tour.welcomemodal.title": {
-    "other": "Welcome to APPLICATION_TITLE"
+    "other": "Benvenuto in APPLICATION_TITLE"
   },
   "tour.widget-cards": {
-    "other": "You can add or remove widgets here. You can also reorder them by simply dragging them around."
+    "other": "Qui puoi aggiungere e rimuovere i widget, e puoi anche riordinarli con un semplice trascinamento."
   },
   "tour.widget-cards.title": {
-    "other": "Widgets"
+    "other": "Widget"
   },
   "tour.workspaces.1": {
-    "other": "Workspaces are top-level folders helping you organize your data. They may be accessed only by you, or shared accross many people."
+    "other": "I workspace sono cartelle di alto livello che aiutano a organizzare i dati, a cui puoi accedere solo tu o che possono essere condivisi da più persone."
   },
   "tour.workspaces.2": {
-    "other": "Cells are collaborative spaces that you can share with other users. Create your own cells based on a folder, a team of users, or any relevant topic."
+    "other": "Le celle sono spazi collaborativi che possono essere condivisi con altri utenti. Crea le tue celle in base a folder, team di utenti, o altri temi rilevanti."
   },
   "tour.workspaces.title": {
-    "other": "Workspaces & Cells"
+    "other": "Workspace & Celle"
   },
   "background.jobs.title": {
-    "other": "Jobs running"
+    "other": "Processi in corso"
   }
 }
