@@ -100,12 +100,12 @@ var SearchForm = (function (_Component) {
         this._basicDataModel.setRootNode(rootNode);
 
         this.state = {
-            values: {},
-            display: 'closed',
+            values: props.advancedPanel && props.values ? props.values : {},
+            display: props.advancedPanel ? 'advanced' : 'closed',
             dataModel: this._basicDataModel,
             empty: true,
             loading: false,
-            searchScope: props.uniqueSearchScope || 'folder'
+            searchScope: props.uniqueSearchScope || props.searchScope || 'folder'
         };
 
         this.setMode = _lodash2['default'].debounce(this.setMode, 250);
@@ -113,14 +113,20 @@ var SearchForm = (function (_Component) {
         this.submit = _lodash2['default'].debounce(this.submit, 500);
 
         this.props.pydio.observe('repository_list_refreshed', function () {
-            _this.setState({
-                values: {},
-                display: 'closed',
-                dataModel: _this._basicDataModel,
-                empty: true,
-                loading: false
-            });
+            if (!props.advancedPanel) {
+                _this.setState({
+                    values: {},
+                    display: 'closed',
+                    dataModel: _this._basicDataModel,
+                    empty: true,
+                    loading: false
+                });
+            }
         });
+
+        if (props.advancedPanel && props.values && Object.keys(props.values).length) {
+            this.submit();
+        }
     }
 
     SearchForm.prototype.componentDidUpdate = function componentDidUpdate(prevProps, prevState) {
@@ -137,7 +143,10 @@ var SearchForm = (function (_Component) {
     };
 
     SearchForm.prototype.setMode = function setMode(mode) {
-        if (mode === 'small' && this.state.display !== 'closed') return; // we can only set to small when the previous state was closed
+        if (mode === 'small' && this.state.display !== 'closed') {
+            // we can only set to small when the previous state was closed
+            return;
+        }
         if (mode === 'small' && this.state.display === 'closed') {
             var _state$values = this.state.values;
             var basename = _state$values.basename;
@@ -154,6 +163,10 @@ var SearchForm = (function (_Component) {
     };
 
     SearchForm.prototype.update = function update(newValues) {
+        var _props = this.props;
+        var onUpdateState = _props.onUpdateState;
+        var searchScope = _props.searchScope;
+
         var values = _extends({}, this.state.values, newValues);
 
         // Removing empty values
@@ -162,52 +175,83 @@ var SearchForm = (function (_Component) {
         });
 
         this.setState({ values: values }, this.submit);
+        if (onUpdateState) {
+            onUpdateState({ searchScope: searchScope, values: values });
+        }
     };
 
-    SearchForm.prototype.submit = function submit() {
+    SearchForm.prototype.changeSearchScope = function changeSearchScope(scope) {
         var _this3 = this;
 
+        var onUpdateState = this.props.onUpdateState;
         var _state = this.state;
         var display = _state.display;
         var values = _state.values;
-        var searchScope = _state.searchScope;
-        var dataModel = _state.dataModel;
+
+        if (display === 'small') {
+            setTimeout(function () {
+                return _this3.setMode('small');
+            }, 250);
+        }
+        this.setState({ searchScope: scope }, this.submit);
+        if (onUpdateState) {
+            onUpdateState({ searchScope: scope, values: values });
+        }
+    };
+
+    SearchForm.prototype.submit = function submit() {
+        var _this4 = this;
+
+        var _state2 = this.state;
+        var display = _state2.display;
+        var values = _state2.values;
+        var searchScope = _state2.searchScope;
+        var dataModel = _state2.dataModel;
         var crossWorkspace = this.props.crossWorkspace;
 
         var limit = crossWorkspace || searchScope === 'all' ? 6 : display === 'small' ? 9 : 100;
         var rootNode = dataModel.getRootNode();
         rootNode.setChildren([]);
-        rootNode.setLoaded(true);
+        rootNode.setLoaded(false);
 
         var keys = Object.keys(values);
         if (keys.length === 0 || keys.length === 1 && keys[0] === 'basename' && !values['basename']) {
             this.setState({ loading: false, empty: true });
             return;
         }
-        this.setState({ loading: true, empty: false });
 
+        this.setState({ loading: true, empty: false });
+        rootNode.setLoading(true);
         var api = new _pydioHttpSearchApi2['default'](this.props.pydio);
         api.search(values, crossWorkspace ? 'all' : searchScope, limit).then(function (results) {
             rootNode.setChildren(results);
+            rootNode.setLoading(false);
             rootNode.setLoaded(true);
-            _this3.setState({ loading: false });
+            _this4.setState({ loading: false });
+        })['catch'](function () {
+            rootNode.setLoading(false);
+            _this4.setState({ loading: false });
         });
     };
 
     SearchForm.prototype.render = function render() {
-        var _this4 = this;
+        var _this5 = this;
 
-        var _props = this.props;
-        var crossWorkspace = _props.crossWorkspace;
-        var pydio = _props.pydio;
-        var getMessage = _props.getMessage;
-        var _state2 = this.state;
-        var searchScope = _state2.searchScope;
-        var display = _state2.display;
-        var loading = _state2.loading;
-        var dataModel = _state2.dataModel;
-        var empty = _state2.empty;
-        var values = _state2.values;
+        var _props2 = this.props;
+        var crossWorkspace = _props2.crossWorkspace;
+        var pydio = _props2.pydio;
+        var getMessage = _props2.getMessage;
+        var advancedPanel = _props2.advancedPanel;
+        var onOpenAdvanced = _props2.onOpenAdvanced;
+        var onCloseAdvanced = _props2.onCloseAdvanced;
+        var id = _props2.id;
+        var _state3 = this.state;
+        var searchScope = _state3.searchScope;
+        var display = _state3.display;
+        var loading = _state3.loading;
+        var dataModel = _state3.dataModel;
+        var empty = _state3.empty;
+        var values = _state3.values;
 
         var renderSecondLine = null,
             renderIcon = null,
@@ -246,23 +290,19 @@ var SearchForm = (function (_Component) {
 
         var nodeClicked = function nodeClicked(node) {
             pydio.goTo(node);
-            _this4.setMode('closed');
-        };
-
-        var searchScopeChanged = function searchScopeChanged(value) {
-            if (display === 'small') {
-                setTimeout(function () {
-                    return _this4.setMode('small');
-                }, 250);
+            if (advancedPanel) {
+                var targetRepo = node.getMetadata().get('repository_id');
+                if (targetRepo && targetRepo !== pydio.user.activeRepository) {
+                    onCloseAdvanced();
+                }
+            } else {
+                _this5.setMode('closed');
             }
-            _this4.setState({ searchScope: value });
-            _this4.submit();
         };
 
         var style = _extends({}, this.props.style, { backgroundColor: 'transparent' });
-        var zDepth = 0;
         var searchResultsStyle = {};
-        if (display !== 'closed') {
+        if (display !== 'closed' && !advancedPanel) {
             searchResultsStyle = {
                 backgroundColor: 'white',
                 position: 'absolute',
@@ -271,103 +311,130 @@ var SearchForm = (function (_Component) {
                 width: 256
             };
         }
-        return _react2['default'].createElement(
+
+        var results = _react2['default'].createElement(
             _materialUi.Paper,
-            { ref: 'root', zDepth: zDepth, className: "top_search_form " + display, style: style },
-            _react2['default'].createElement(_MainSearch2['default'], {
-                mode: display,
-                value: values.basename,
-                title: display === 'advanced' ? 'Advanced Search' : null,
-                onOpen: function () {
-                    return _this4.setMode("small");
+            { className: 'search-results', zDepth: advancedPanel ? 0 : 2, style: searchResultsStyle, rounded: !advancedPanel },
+            empty && _react2['default'].createElement(EmptyStateView, {
+                iconClassName: '',
+                primaryTextId: 611,
+                style: { minHeight: 180, backgroundColor: 'transparent', padding: '0 20px' }
+            }),
+            _react2['default'].createElement(PydioComponents.NodeListCustomProvider, {
+                ref: 'results',
+                className: display !== 'small' ? 'files-list' : null,
+                elementHeight: elementHeight,
+                entryRenderIcon: renderIcon,
+                entryRenderActions: function () {
+                    return null;
                 },
-                showAdvanced: !this.props.crossWorkspace,
-                onAdvanced: function () {
-                    return _this4.setMode("advanced");
-                },
-                onClose: function () {
-                    return _this4.setMode("closed");
-                },
-                onMore: function () {
-                    return _this4.setMode("advanced");
-                },
-                onChange: function (values) {
-                    return _this4.update(values);
-                },
-                onSubmit: function () {
-                    return _this4.submit();
-                },
-                hintText: getMessage(this.props.crossWorkspace || searchScope === 'all' ? 607 : 87) + "...",
-                loading: loading,
-                scopeSelectorProps: this.props.crossWorkspace || this.props.uniqueSearchScope ? null : {
-                    value: searchScope,
-                    onChange: searchScopeChanged
+                entryRenderSecondLine: renderSecondLine,
+                presetDataModel: dataModel,
+                heightAutoWithMax: advancedPanel ? 0 : 500,
+                openCollection: nodeClicked,
+                nodeClicked: nodeClicked,
+                defaultGroupBy: crossWorkspace || searchScope === 'all' ? 'repository_id' : null,
+                groupByLabel: crossWorkspace || searchScope === 'all' ? 'repository_display' : null,
+                emptyStateProps: {
+                    iconClassName: "",
+                    primaryTextId: 478,
+                    style: {
+                        minHeight: display === 'small' ? 180 : advancedPanel ? 240 : 412,
+                        backgroundColor: 'transparent',
+                        padding: '0 20px'
+                    },
+                    secondaryTextId: searchScope === 'ws' ? 620 : searchScope === 'folder' ? 619 : null,
+                    actionLabelId: searchScope === 'ws' ? 610 : searchScope === 'folder' ? 609 : null,
+                    actionCallback: searchScope !== 'all' ? function () {
+                        _this5.changeSearchScope(searchScope === 'ws' ? 'all' : 'ws');
+                    } : null,
+                    actionStyle: { marginTop: 10 }
                 }
             }),
-            _react2['default'].createElement(
-                _materialUi.Paper,
-                { className: 'search-results', zDepth: 2, style: searchResultsStyle },
-                display === 'advanced' && _react2['default'].createElement(_AdvancedSearch2['default'], _extends({}, this.props, {
-                    values: values,
-                    onChange: function (values) {
-                        return _this4.update(values);
-                    },
-                    onSubmit: function () {
-                        return _this4.submit();
-                    }
-                })),
-                empty && _react2['default'].createElement(EmptyStateView, {
-                    iconClassName: '',
-                    primaryTextId: 611,
-                    style: { minHeight: 180, backgroundColor: 'transparent', padding: '0 20px' }
-                }),
-                _react2['default'].createElement(PydioComponents.NodeListCustomProvider, {
-                    ref: 'results',
-                    className: display !== 'small' ? 'files-list' : null,
-                    elementHeight: elementHeight,
-                    entryRenderIcon: renderIcon,
-                    entryRenderActions: function () {
-                        return null;
-                    },
-                    entryRenderSecondLine: renderSecondLine,
-                    presetDataModel: dataModel,
-                    heightAutoWithMax: display === 'small' ? 500 : display === 'advanced' ? 512 : 412,
-                    openCollection: nodeClicked,
-                    nodeClicked: nodeClicked,
-                    defaultGroupBy: crossWorkspace || searchScope === 'all' ? 'repository_id' : null,
-                    groupByLabel: crossWorkspace || searchScope === 'all' ? 'repository_display' : null,
-                    emptyStateProps: {
-                        iconClassName: "",
-                        primaryTextId: 478,
-                        style: {
-                            minHeight: display === 'small' ? 180 : display === 'advanced' ? 512 : 412,
-                            backgroundColor: 'transparent',
-                            padding: '0 20px'
-                        },
-                        secondaryTextId: searchScope === 'ws' ? 620 : searchScope === 'folder' ? 619 : null,
-                        actionLabelId: searchScope === 'ws' ? 610 : searchScope === 'folder' ? 609 : null,
-                        actionCallback: searchScope !== 'all' ? function () {
-                            searchScopeChanged(searchScope === 'ws' ? 'all' : 'ws');
-                        } : null,
-                        actionStyle: { marginTop: 10 }
-                    }
-                }),
-                display === 'small' && _react2['default'].createElement(
-                    'div',
-                    { style: { display: 'flex', alignItems: 'center', padding: 4, paddingTop: 0, backgroundColor: '#f5f5f5' } },
-                    !this.props.crossWorkspace && !this.props.uniqueSearchScope && _react2['default'].createElement(_SearchScopeSelector2['default'], { style: { flex: 1, maxWidth: 200 }, labelStyle: { paddingLeft: 8 }, value: searchScope, onChange: searchScopeChanged, onTouchTap: function () {
-                            return _this4.setMode('small');
-                        } }),
-                    _react2['default'].createElement(_materialUi.FlatButton, { style: { marginTop: 4, display: 'none' }, primary: true, label: getMessage(456), onFocus: function () {
-                            return _this4.setMode("small");
-                        }, onTouchTap: function () {
-                            return _this4.setMode("advanced");
-                        }, onClick: function () {
-                            return _this4.setMode("advanced");
-                        } })
-                )
+            display === 'small' && _react2['default'].createElement(
+                'div',
+                { style: { display: 'flex', alignItems: 'center', padding: 4, paddingTop: 0, backgroundColor: '#eeeeee', width: '100%' } },
+                !crossWorkspace && !this.props.uniqueSearchScope && _react2['default'].createElement(_SearchScopeSelector2['default'], { style: { flex: 1 }, labelStyle: { paddingLeft: 8 }, value: searchScope, onChange: function (scope) {
+                        _this5.changeSearchScope(scope);
+                    }, onTouchTap: function () {
+                        return _this5.setMode('small');
+                    } }),
+                _react2['default'].createElement(_materialUi.FlatButton, { style: { marginTop: 4, minWidth: 0 }, labelStyle: { padding: '0 8px' }, primary: true, label: getMessage(456), onTouchTap: function () {
+                        onOpenAdvanced();
+                    } })
             )
         );
+
+        if (advancedPanel) {
+            return _react2['default'].createElement(
+                _materialUi.Paper,
+                { ref: 'root', zDepth: 0, className: "top_search_form " + display, style: style, id: id },
+                _react2['default'].createElement(
+                    'div',
+                    { style: { display: 'flex', alignItems: 'center', padding: '0 8px 8px', height: 44, width: '100%', backgroundColor: '#eee', borderBottom: '1px solid #e0e0e0' } },
+                    !crossWorkspace && !this.props.uniqueSearchScope && _react2['default'].createElement(
+                        'div',
+                        { style: { flex: 1, height: 48 } },
+                        _react2['default'].createElement(_SearchScopeSelector2['default'], { labelStyle: { paddingLeft: 8 }, value: searchScope, onChange: function (scope) {
+                                _this5.changeSearchScope(scope);
+                            } })
+                    ),
+                    _react2['default'].createElement(_materialUi.IconButton, {
+                        iconClassName: "mdi mdi-close",
+                        style: { minWidth: 0, marginTop: 4 },
+                        tooltip: getMessage(86),
+                        onTouchTap: function () {
+                            onCloseAdvanced();
+                        }
+                    })
+                ),
+                _react2['default'].createElement(
+                    'div',
+                    { style: { flex: 1, display: 'flex' } },
+                    _react2['default'].createElement(_AdvancedSearch2['default'], _extends({}, this.props, {
+                        values: values,
+                        onChange: function (values) {
+                            return _this5.update(values);
+                        },
+                        onSubmit: function () {
+                            return _this5.submit();
+                        }
+                    })),
+                    results
+                )
+            );
+        } else {
+
+            return _react2['default'].createElement(
+                _materialUi.Paper,
+                { ref: 'root', zDepth: 0, className: "top_search_form " + display, style: style, id: id },
+                _react2['default'].createElement(_MainSearch2['default'], {
+                    mode: display,
+                    value: values.basename,
+                    onOpen: function () {
+                        return _this5.setMode("small");
+                    },
+                    onClose: function () {
+                        return _this5.setMode("closed");
+                    },
+                    showAdvanced: !crossWorkspace,
+                    onAdvanced: onOpenAdvanced,
+                    onChange: function (values) {
+                        return _this5.update(values);
+                    },
+                    onSubmit: function () {
+                        return _this5.submit();
+                    },
+                    hintText: getMessage(crossWorkspace || searchScope === 'all' ? 607 : 87) + "...",
+                    loading: loading,
+                    scopeSelectorProps: crossWorkspace || this.props.uniqueSearchScope ? null : {
+                        value: searchScope,
+                        onChange: this.changeSearchScope.bind(this)
+                    }
+                }),
+                results
+            );
+        }
     };
 
     return SearchForm;

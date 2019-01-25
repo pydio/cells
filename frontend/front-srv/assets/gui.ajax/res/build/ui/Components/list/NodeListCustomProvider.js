@@ -115,17 +115,9 @@ exports["default"] = React.createClass({
     },
 
     render: function render() {
-        var legend;
-        if (this.props.legend) {
-            legend = React.createElement(
-                "div",
-                { className: "subtitle" },
-                this.props.legend
-            );
-        }
         return React.createElement(
             "div",
-            { className: this.props.heightAutoWithMax ? "" : "layout-fill vertical-layout" },
+            { className: this.props.heightAutoWithMax ? "" : "layout-fill vertical-layout", style: this.props.containerStyle },
             React.createElement(_SimpleList2["default"], _extends({}, this.props, {
                 openEditor: this.openEditor,
                 ref: "list",

@@ -84,7 +84,8 @@ let FSTemplate = React.createClass({
             infoPanelOpen: !closedInfo,
             infoPanelToggle: !closedToggle,
             drawerOpen: false,
-            rightColumnState: rState
+            rightColumnState: rState,
+            searchFormState: {}
         };
     },
 
@@ -96,7 +97,7 @@ let FSTemplate = React.createClass({
             if(!this.state.infoPanelToggle){
                 this.setState({rightColumnState: null});
             }
-        }, 500);
+        }, 300);
     },
 
     infoPanelContentChange(numberOfCards){
@@ -175,6 +176,16 @@ let FSTemplate = React.createClass({
                 borderLeft: 0,
                 margin: 10,
                 width: 290
+            },
+            searchFormPanelStyle:{
+                top: headerHeight,
+                borderLeft: 0,
+                margin: 10,
+                width: 520,
+                overflowY: 'hidden',
+                display:'flex',
+                flexDirection:'column',
+                backgroundColor:'white'
             }
         };
 
@@ -184,8 +195,6 @@ let FSTemplate = React.createClass({
 
         const {infoPanelOpen, drawerOpen, infoPanelToggle} = this.state;
         let {rightColumnState} = this.state;
-
-        let rightColumnWidth;
 
         let mainToolbars = ["info_panel", "info_panel_share"];
         let mainToolbarsOthers = ["change", "other"];
@@ -210,7 +219,7 @@ let FSTemplate = React.createClass({
         if(infoPanelOpen && infoPanelToggle) {
             classes.push('info-panel-open');
             if(rightColumnState !== 'info-panel'){
-                classes.push('info-panel-open-large');
+                classes.push('info-panel-open-lg');
             }
         }
 
@@ -238,6 +247,21 @@ let FSTemplate = React.createClass({
                 }
             }
         };
+
+        const searchForm = (
+            <SearchForm
+                {...props}
+                {...this.state.searchFormState}
+                style={rightColumnState === "advanced-search" ? styles.searchFormPanelStyle : {}}
+                id={rightColumnState === "advanced-search" ? "info_panel": null}
+                headerHeight={headerHeight}
+                advancedPanel={rightColumnState === "advanced-search"}
+                onOpenAdvanced={()=>{this.openRightPanel('advanced-search')}}
+                onCloseAdvanced={()=>{this.closeRightPanel()}}
+                onUpdateState={(s)=>{this.setState({searchFormState: s})}}
+            />
+        );
+
         return (
             <MasterLayout
                 pydio={pydio}
@@ -298,8 +322,17 @@ let FSTemplate = React.createClass({
                                 buttonStyle={styles.buttonsIconStyle}
                                 flatButtonStyle={styles.buttonsStyle}
                             />
-                            <div style={{position:'relative', width: 150}}>
-                                <SearchForm {...props} headerHeight={headerHeight}/>
+                            <div style={{position:'relative', width: rightColumnState === "advanced-search" ? 40 : 150, transition:DOMUtils.getBeziersTransition()}}>
+                                {rightColumnState !== "advanced-search" && searchForm}
+                                {rightColumnState === "advanced-search" &&
+                                    <IconButton
+                                        iconClassName={"mdi mdi-magnify"}
+                                        style={styles.activeButtonStyle}
+                                        iconStyle={styles.activeButtonIconStyle}
+                                        onTouchTap={()=>{this.openRightPanel('advanced-search')}}
+                                        tooltip={pydio.MessageHash['86']}
+                                    />
+                                }
                             </div>
                             <div style={{borderLeft:'1px solid ' + appBarTextColor.fade(0.77).toString(), margin:'0 10px', height: headerHeight, display:'none'}}/>
                             <div style={{display:'flex', paddingRight: 10}}>
@@ -317,7 +350,7 @@ let FSTemplate = React.createClass({
                                         iconStyle={rightColumnState === 'address-book' ? styles.activeButtonIconStyle : styles.buttonsIconStyle}
                                         onTouchTap={()=>{this.openRightPanel('address-book')}}
                                         tooltip={pydio.MessageHash[rightColumnState === 'address-book' ? '86':'592']}
-                                        tooltipPosition={showChatTab?"bottom-center":"bottom-right"}
+                                        tooltipPosition={showChatTab?"bottom-center":"bottom-left"}
                                     />
                                 }
                                 {showChatTab &&
@@ -333,7 +366,7 @@ let FSTemplate = React.createClass({
                             </div>
                         </div>
                     </Paper>
-                    <MainFilesList ref="list" pydio={this.props.pydio} style={rightColumnWidth ? {marginRight:rightColumnWidth}: {}}/>
+                    <MainFilesList ref="list" pydio={pydio}/>
                 {rightColumnState === 'info-panel' &&
                     <InfoPanel
                         {...props}
@@ -349,6 +382,9 @@ let FSTemplate = React.createClass({
 
                 {rightColumnState === 'address-book' &&
                     <AddressBookPanel pydio={pydio} style={styles.otherPanelsStyle} zDepth={1} onRequestClose={()=>{this.closeRightPanel()}}/>
+                }
+                {rightColumnState === "advanced-search" &&
+                    searchForm
                 }
 
                 <EditionPanel {...props}/>

@@ -79,6 +79,14 @@ export default class AjxpNode extends Observable{
     }
 
     /**
+     * Manually change loading status
+     * @param bool
+     */
+    setLoading(bool){
+        this._isLoading = bool;
+    }
+
+    /**
      * Update node provider
      * @param iAjxpNodeProvider
      */

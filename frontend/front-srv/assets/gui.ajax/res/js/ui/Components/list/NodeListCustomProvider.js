@@ -99,12 +99,8 @@ export default React.createClass({
     },
 
     render:function(){
-        var legend;
-        if(this.props.legend){
-            legend = <div className="subtitle">{this.props.legend}</div>;
-        }
         return (
-            <div className={this.props.heightAutoWithMax?"":"layout-fill vertical-layout"}>
+            <div className={this.props.heightAutoWithMax?"":"layout-fill vertical-layout"} style={this.props.containerStyle}>
                 <SimpleList
                     {...this.props}
                     openEditor={this.openEditor}

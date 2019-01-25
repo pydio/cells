@@ -90,8 +90,6 @@ class AdvancedSearch extends Component {
                 value={this.state.value || ''}
                 style={text}
                 className="mui-text-field"
-                floatingLabelFixed={true}
-                floatingLabelText={val}
                 hintText={val}
                 onChange={(e,v) => {this.onChange({[fieldname]:v})}}
             />
@@ -103,7 +101,7 @@ class AdvancedSearch extends Component {
         const {text} = AdvancedSearch.styles
 
         const {pydio, onChange, getMessage, values} = this.props
-        const headerStyle = {fontSize: 18, color: 'rgba(0,0,0,0.87)', fontWeight: 400, marginBottom: -10, marginTop: 10};
+        const headerStyle = {fontSize: 13, color: '#616161', fontWeight: 500, marginBottom: -10, marginTop: 10};
 
         return (
             <div className="search-advanced">

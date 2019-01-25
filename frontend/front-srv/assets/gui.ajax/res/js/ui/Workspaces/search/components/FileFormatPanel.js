@@ -63,8 +63,6 @@ class SearchFileFormatPanel extends Component {
                         style={inputStyle}
                         className="mui-text-field"
                         hintText={getMessage(500)}
-                        floatingLabelFixed={true}
-                        floatingLabelText={getMessage(500)}
                         value={this.state.ext}
                         onChange={(e) => this.setState({ext: e.target.value})}
                     />

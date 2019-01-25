@@ -132,8 +132,6 @@ var AdvancedSearch = (function (_Component) {
             value: this.state.value || '',
             style: text,
             className: 'mui-text-field',
-            floatingLabelFixed: true,
-            floatingLabelText: val,
             hintText: val,
             onChange: function (e, v) {
                 var _onChange;
@@ -153,7 +151,7 @@ var AdvancedSearch = (function (_Component) {
         var getMessage = _props.getMessage;
         var values = _props.values;
 
-        var headerStyle = { fontSize: 18, color: 'rgba(0,0,0,0.87)', fontWeight: 400, marginBottom: -10, marginTop: 10 };
+        var headerStyle = { fontSize: 13, color: '#616161', fontWeight: 500, marginBottom: -10, marginTop: 10 };
 
         return _react2['default'].createElement(
             'div',

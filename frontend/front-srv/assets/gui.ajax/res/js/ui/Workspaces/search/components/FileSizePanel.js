@@ -62,17 +62,13 @@ class SearchFileSizePanel extends React.Component {
                 <TextField
                     ref="from"
                     style={inputStyle}
-                    hintText={getMessage(504)}
-                    floatingLabelFixed={true}
-                    floatingLabelText={getMessage(613)}
+                    hintText={getMessage(613)}
                     onChange={this.onChange.bind(this)}
                 />
                 <TextField
                     ref="to"
                     style={inputStyle}
-                    hintText={getMessage(504)}
-                    floatingLabelFixed={true}
-                    floatingLabelText={getMessage(614)}
+                    hintText={getMessage(614)}
                     onChange={this.onChange.bind(this)}
                 />
             </div>

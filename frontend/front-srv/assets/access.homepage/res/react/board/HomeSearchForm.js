@@ -151,7 +151,7 @@ class HomeSearchForm extends Component{
                 {!empty &&
                     <PydioComponents.NodeListCustomProvider
                         ref="results"
-                        style={{width:styles.textFieldContainer.width - 20, marginTop: 40}}
+                        containerStyle={{width:'86%', maxWidth:550, marginTop: 20}}
                         className={'files-list vertical_fit'}
                         elementHeight={SimpleList.HEIGHT_TWO_LINES}
                         entryRenderIcon={renderIcon}

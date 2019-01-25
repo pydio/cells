@@ -146,7 +146,8 @@ var FSTemplate = _react2['default'].createClass({
             infoPanelOpen: !closedInfo,
             infoPanelToggle: !closedToggle,
             drawerOpen: false,
-            rightColumnState: rState
+            rightColumnState: rState,
+            searchFormState: {}
         };
     },
 
@@ -160,7 +161,7 @@ var FSTemplate = _react2['default'].createClass({
             if (!_this3.state.infoPanelToggle) {
                 _this3.setState({ rightColumnState: null });
             }
-        }, 500);
+        }, 300);
     },
 
     infoPanelContentChange: function infoPanelContentChange(numberOfCards) {
@@ -244,6 +245,16 @@ var FSTemplate = _react2['default'].createClass({
                 borderLeft: 0,
                 margin: 10,
                 width: 290
+            },
+            searchFormPanelStyle: {
+                top: headerHeight,
+                borderLeft: 0,
+                margin: 10,
+                width: 520,
+                overflowY: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                backgroundColor: 'white'
             }
         };
 
@@ -256,8 +267,6 @@ var FSTemplate = _react2['default'].createClass({
         var drawerOpen = _state.drawerOpen;
         var infoPanelToggle = _state.infoPanelToggle;
         var rightColumnState = this.state.rightColumnState;
-
-        var rightColumnWidth = undefined;
 
         var mainToolbars = ["info_panel", "info_panel_share"];
         var mainToolbarsOthers = ["change", "other"];
@@ -283,7 +292,7 @@ var FSTemplate = _react2['default'].createClass({
         if (infoPanelOpen && infoPanelToggle) {
             classes.push('info-panel-open');
             if (rightColumnState !== 'info-panel') {
-                classes.push('info-panel-open-large');
+                classes.push('info-panel-open-lg');
             }
         }
 
@@ -314,6 +323,23 @@ var FSTemplate = _react2['default'].createClass({
                 }
             }
         };
+
+        var searchForm = _react2['default'].createElement(_search.SearchForm, _extends({}, props, this.state.searchFormState, {
+            style: rightColumnState === "advanced-search" ? styles.searchFormPanelStyle : {},
+            id: rightColumnState === "advanced-search" ? "info_panel" : null,
+            headerHeight: headerHeight,
+            advancedPanel: rightColumnState === "advanced-search",
+            onOpenAdvanced: function () {
+                _this5.openRightPanel('advanced-search');
+            },
+            onCloseAdvanced: function () {
+                _this5.closeRightPanel();
+            },
+            onUpdateState: function (s) {
+                _this5.setState({ searchFormState: s });
+            }
+        }));
+
         return _react2['default'].createElement(
             _MasterLayout2['default'],
             {
@@ -386,8 +412,17 @@ var FSTemplate = _react2['default'].createClass({
                     })),
                     _react2['default'].createElement(
                         'div',
-                        { style: { position: 'relative', width: 150 } },
-                        _react2['default'].createElement(_search.SearchForm, _extends({}, props, { headerHeight: headerHeight }))
+                        { style: { position: 'relative', width: rightColumnState === "advanced-search" ? 40 : 150, transition: _pydioUtilDom2['default'].getBeziersTransition() } },
+                        rightColumnState !== "advanced-search" && searchForm,
+                        rightColumnState === "advanced-search" && _react2['default'].createElement(_materialUi.IconButton, {
+                            iconClassName: "mdi mdi-magnify",
+                            style: styles.activeButtonStyle,
+                            iconStyle: styles.activeButtonIconStyle,
+                            onTouchTap: function () {
+                                _this5.openRightPanel('advanced-search');
+                            },
+                            tooltip: pydio.MessageHash['86']
+                        })
                     ),
                     _react2['default'].createElement('div', { style: { borderLeft: '1px solid ' + appBarTextColor.fade(0.77).toString(), margin: '0 10px', height: headerHeight, display: 'none' } }),
                     _react2['default'].createElement(
@@ -410,7 +445,7 @@ var FSTemplate = _react2['default'].createClass({
                                 _this5.openRightPanel('address-book');
                             },
                             tooltip: pydio.MessageHash[rightColumnState === 'address-book' ? '86' : '592'],
-                            tooltipPosition: showChatTab ? "bottom-center" : "bottom-right"
+                            tooltipPosition: showChatTab ? "bottom-center" : "bottom-left"
                         }),
                         showChatTab && _react2['default'].createElement(_materialUi.IconButton, {
                             iconClassName: "mdi mdi-message-text",
@@ -425,7 +460,7 @@ var FSTemplate = _react2['default'].createClass({
                     )
                 )
             ),
-            _react2['default'].createElement(_MainFilesList2['default'], { ref: 'list', pydio: this.props.pydio, style: rightColumnWidth ? { marginRight: rightColumnWidth } : {} }),
+            _react2['default'].createElement(_MainFilesList2['default'], { ref: 'list', pydio: pydio }),
             rightColumnState === 'info-panel' && _react2['default'].createElement(_detailpanesInfoPanel2['default'], _extends({}, props, {
                 dataModel: props.pydio.getContextHolder(),
                 onRequestClose: function () {
@@ -440,6 +475,7 @@ var FSTemplate = _react2['default'].createClass({
             rightColumnState === 'address-book' && _react2['default'].createElement(_AddressBookPanel2['default'], { pydio: pydio, style: styles.otherPanelsStyle, zDepth: 1, onRequestClose: function () {
                     _this5.closeRightPanel();
                 } }),
+            rightColumnState === "advanced-search" && searchForm,
             _react2['default'].createElement(_EditionPanel2['default'], props)
         );
     }

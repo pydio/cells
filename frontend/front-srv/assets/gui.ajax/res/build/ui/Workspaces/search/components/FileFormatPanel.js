@@ -92,8 +92,6 @@ var SearchFileFormatPanel = (function (_Component) {
                 style: inputStyle,
                 className: 'mui-text-field',
                 hintText: getMessage(500),
-                floatingLabelFixed: true,
-                floatingLabelText: getMessage(500),
                 value: this.state.ext,
                 onChange: function (e) {
                     return _this.setState({ ext: e.target.value });

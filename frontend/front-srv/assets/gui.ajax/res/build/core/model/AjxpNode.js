@@ -104,6 +104,15 @@ var AjxpNode = (function (_Observable) {
     };
 
     /**
+     * Manually change loading status
+     * @param bool
+     */
+
+    AjxpNode.prototype.setLoading = function setLoading(bool) {
+        this._isLoading = bool;
+    };
+
+    /**
      * Update node provider
      * @param iAjxpNodeProvider
      */

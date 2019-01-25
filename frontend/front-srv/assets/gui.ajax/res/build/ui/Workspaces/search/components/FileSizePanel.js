@@ -87,17 +87,13 @@ var SearchFileSizePanel = (function (_React$Component) {
             _react2['default'].createElement(_materialUi.TextField, {
                 ref: 'from',
                 style: inputStyle,
-                hintText: getMessage(504),
-                floatingLabelFixed: true,
-                floatingLabelText: getMessage(613),
+                hintText: getMessage(613),
                 onChange: this.onChange.bind(this)
             }),
             _react2['default'].createElement(_materialUi.TextField, {
                 ref: 'to',
                 style: inputStyle,
-                hintText: getMessage(504),
-                floatingLabelFixed: true,
-                floatingLabelText: getMessage(614),
+                hintText: getMessage(614),
                 onChange: this.onChange.bind(this)
             })
         );
