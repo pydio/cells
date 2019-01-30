@@ -26,6 +26,8 @@ type User struct {
 	UserObject       *idm.User
 	ActiveWorkspace  string
 	ActiveAccessType string
+	HasLocks         bool
+	Locks            []string
 }
 
 type Workspace struct {
@@ -52,6 +54,18 @@ func (u *User) Load(ctx context.Context) error {
 		return err
 	} else {
 		u.UserObject = user
+	}
+
+	// Check locks info
+	if l, ok := u.UserObject.Attributes["locks"]; ok {
+		var locks []string
+		log.Logger(context.Background()).Info("Checking Locks", zap.Any("l", l))
+		if e := json.Unmarshal([]byte(l), &locks); e == nil {
+			if len(locks) > 0 {
+				u.HasLocks = true
+				u.Locks = locks
+			}
+		}
 	}
 
 	accessList, err := utils.AccessListFromContextClaims(ctx)
@@ -85,6 +99,10 @@ func (u *User) GetActiveScopes() (scopes []string) {
 
 func (u *User) LoadActiveWorkspace(parameter string) {
 
+	if u.HasLocks {
+		return
+	}
+
 	if ws, ok := u.Workspaces[parameter]; ok {
 		u.ActiveWorkspace = parameter
 		u.ActiveAccessType = ws.AccessType
@@ -100,16 +118,8 @@ func (u *User) LoadActiveWorkspace(parameter string) {
 	}
 	// Load default repository from preferences, or start on home page
 	var defaultStart = "homepage"
-	configs := u.FlattenedRolesConfigs().Get("parameters").(*config.Map)
-
-	if c := configs.Get("core.conf"); c != nil {
-		if p := c.(*config.Map).Get("DEFAULT_START_REPOSITORY"); p != nil {
-			if v := p.(*config.Map).String("PYDIO_REPO_SCOPE_ALL"); v != "" {
-				if _, ok := u.Workspaces[v]; ok {
-					defaultStart = v
-				}
-			}
-		}
+	if v := u.FlattenedRolesConfigByName("core.conf", "DEFAULT_START_REPOSITORY"); v != "" {
+		defaultStart = v
 	}
 
 	if ws, ok := u.Workspaces[defaultStart]; ok {
@@ -131,13 +141,8 @@ func (u *User) LoadActiveLanguage(parameter string) string {
 		return parameter
 	}
 	lang := "en"
-	configs := u.FlattenedRolesConfigs().Get("parameters").(*config.Map)
-	if c := configs.Get("core.conf"); c != nil {
-		if p := c.(*config.Map).Get("lang"); p != nil {
-			if v := p.(*config.Map).String("PYDIO_REPO_SCOPE_ALL"); v != "" {
-				lang = v
-			}
-		}
+	if v := u.FlattenedRolesConfigByName("core.conf", "lang"); v != "" {
+		lang = v
 	}
 	return lang
 }
@@ -151,6 +156,19 @@ func (u *User) FlattenedRolesConfigs() *config.Map {
 		c.Set("parameters", config.NewMap())
 		return c
 	}
+}
+
+func (u *User) FlattenedRolesConfigByName(pluginId string, name string) string {
+	value := ""
+	configs := u.FlattenedRolesConfigs().Get("parameters").(*config.Map)
+	if c := configs.Get(pluginId); c != nil {
+		if p := c.(*config.Map).Get(name); p != nil {
+			if v := p.(*config.Map).String("PYDIO_REPO_SCOPE_ALL"); v != "" {
+				value = v
+			}
+		}
+	}
+	return value
 }
 
 // FlattenedFrontValues generates a config.Map with frontend actions/parameters configs
@@ -264,21 +282,30 @@ func (u *User) Publish(status RequestStatus, pool *PluginsPool) *Cuser {
 	}
 	reg.Cpreferences.Cpref = u.publishPreferences(status, pool)
 
-	// Add locks info
-	var hasLock bool
-	if l, ok := u.UserObject.Attributes["locks"]; ok {
-		var locks []string
-		if e := json.Unmarshal([]byte(l), &locks); e == nil {
-			if len(locks) > 0 {
-				if reg.Cspecial_rights == nil {
-					reg.Cspecial_rights = &Cspecial_rights{}
+	/*
+		// Add locks info
+		var hasLock bool
+		if l, ok := u.UserObject.Attributes["locks"]; ok {
+			var locks []string
+			log.Logger(context.Background()).Info("Checking Locks", zap.Any("l", l))
+			if e := json.Unmarshal([]byte(l), &locks); e == nil {
+				if len(locks) > 0 {
+					if reg.Cspecial_rights == nil {
+						reg.Cspecial_rights = &Cspecial_rights{}
+					}
+					reg.Cspecial_rights.Attrlock = strings.Join(locks, ",")
+					hasLock = true
 				}
-				reg.Cspecial_rights.Attrlock = strings.Join(locks, ",")
-				hasLock = true
 			}
 		}
-	}
-	if !hasLock {
+	*/
+
+	if u.HasLocks {
+		if reg.Cspecial_rights == nil {
+			reg.Cspecial_rights = &Cspecial_rights{}
+		}
+		reg.Cspecial_rights.Attrlock = strings.Join(u.Locks, ",")
+	} else {
 		reg.Cactive_repo = &Cactive_repo{
 			Attrid: u.ActiveWorkspace,
 		}
@@ -311,11 +338,18 @@ func (u *User) publishPreferences(status RequestStatus, pool *PluginsPool) (pref
 		}
 	}
 	for _, exposed := range pool.ExposedParametersByScope("user", true) {
-		if exposed.Attrscope == "user" {
+		if strings.Contains(exposed.Attrscope, "user") {
 			if pref, ok := u.UserObject.Attributes[exposed.Attrname]; ok {
 				preferencesNodes = append(preferencesNodes, &Cpref{
 					Attrname:     exposed.Attrname,
 					Attrvalue:    pref,
+					AttrpluginId: exposed.PluginId,
+				})
+			} else if v := u.FlattenedRolesConfigByName(exposed.PluginId, exposed.Attrname); v != "" {
+				//				log.Logger(context.Background()).Info("-- Pref found in flattened roles for " + exposed.Attrname)
+				preferencesNodes = append(preferencesNodes, &Cpref{
+					Attrname:     exposed.Attrname,
+					Attrvalue:    v,
 					AttrpluginId: exposed.PluginId,
 				})
 			}
