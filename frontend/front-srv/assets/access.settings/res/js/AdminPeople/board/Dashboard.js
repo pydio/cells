@@ -238,7 +238,15 @@ let Dashboard = React.createClass({
         )
     },
 
+    /**
+     * Filter nodes
+     * @param node
+     * @return {boolean}
+     */
     filterNodes(node) {
+        if(!node.getMetadata().has("IdmUser")){
+            return true;
+        }
         const attributes = node.getMetadata().get("IdmUser").Attributes || {};
         const profile = attributes['profile'];
         const isAdmin = profile === 'admin';

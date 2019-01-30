@@ -302,7 +302,15 @@ var Dashboard = _react2['default'].createClass({
         );
     },
 
+    /**
+     * Filter nodes
+     * @param node
+     * @return {boolean}
+     */
     filterNodes: function filterNodes(node) {
+        if (!node.getMetadata().has("IdmUser")) {
+            return true;
+        }
         var attributes = node.getMetadata().get("IdmUser").Attributes || {};
         var profile = attributes['profile'];
         var isAdmin = profile === 'admin';

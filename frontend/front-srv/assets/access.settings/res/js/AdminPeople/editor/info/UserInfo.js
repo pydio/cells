@@ -51,7 +51,10 @@ class UserInfo extends React.Component {
             const lockName = action === 'user_set_lock-lock' ? 'logout' : 'pass_change';
             let currentLocks = [];
             if(idmUser.Attributes['locks']){
-                currentLocks = JSON.parse(idmUser.Attributes['locks']);
+                const test = JSON.parse(idmUser.Attributes['locks']);
+                if(test && typeof test === "object"){
+                    currentLocks = test;
+                }
             }
             if(currentLocks.indexOf(lockName) > - 1){
                 currentLocks = currentLocks.filter(l => l !== lockName);

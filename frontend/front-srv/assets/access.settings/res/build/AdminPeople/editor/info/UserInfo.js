@@ -102,7 +102,10 @@ var UserInfo = (function (_React$Component) {
                     var lockName = action === 'user_set_lock-lock' ? 'logout' : 'pass_change';
                     var currentLocks = [];
                     if (idmUser.Attributes['locks']) {
-                        currentLocks = JSON.parse(idmUser.Attributes['locks']);
+                        var test = JSON.parse(idmUser.Attributes['locks']);
+                        if (test && typeof test === "object") {
+                            currentLocks = test;
+                        }
                     }
                     if (currentLocks.indexOf(lockName) > -1) {
                         currentLocks = currentLocks.filter(function (l) {

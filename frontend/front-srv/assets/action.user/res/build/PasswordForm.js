@@ -116,6 +116,9 @@ var PasswordForm = React.createClass({
     render: function render() {
         var _this3 = this;
 
+        if (!this.props.pydio.user) {
+            return null;
+        }
         var messages = this.props.pydio.MessageHash;
         var legend = undefined;
         if (this.state.error) {

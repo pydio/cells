@@ -22560,7 +22560,15 @@ var Dashboard = _react2['default'].createClass({
         );
     },
 
+    /**
+     * Filter nodes
+     * @param node
+     * @return {boolean}
+     */
     filterNodes: function filterNodes(node) {
+        if (!node.getMetadata().has("IdmUser")) {
+            return true;
+        }
         var attributes = node.getMetadata().get("IdmUser").Attributes || {};
         var profile = attributes['profile'];
         var isAdmin = profile === 'admin';
@@ -25622,7 +25630,10 @@ var UserInfo = (function (_React$Component) {
                     var lockName = action === 'user_set_lock-lock' ? 'logout' : 'pass_change';
                     var currentLocks = [];
                     if (idmUser.Attributes['locks']) {
-                        currentLocks = JSON.parse(idmUser.Attributes['locks']);
+                        var test = JSON.parse(idmUser.Attributes['locks']);
+                        if (test && typeof test === "object") {
+                            currentLocks = test;
+                        }
                     }
                     if (currentLocks.indexOf(lockName) > -1) {
                         currentLocks = currentLocks.filter(function (l) {
